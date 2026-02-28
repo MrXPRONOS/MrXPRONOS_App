@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Pronostics - Mr XPRONOS</title>
+    <meta name="description" content="Pronostics sportifs du jour, analyses H2H, conseils. Code promo XPVIP.">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0D0D0D">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="/">Mr <span>XPRONOS</span></a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">Accueil</a></li>
+                    <li><a href="/pronos.html" class="active">Pronostics</a></li>
+                    <li><a href="/blog.html">Blog</a></li>
+                    <li><a href="/conseils.html">Conseils</a></li>
+                    <li><a href="/infos.html">Infos sport</a></li>
+                    <li><a href="/contact.html">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="promo-code">Code VIP : XPVIP</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 style="color: var(--or); margin: 2rem 0 1rem;">📊 Pronostics et analyses</h1>
+
+        <!-- Onglets de catégorie principaux -->
+        <div class="category-tabs">
+            <button class="tab-btn active" data-cat="simple">Simple</button>
+            <button class="tab-btn" data-cat="pro">Pro 🔒</button>
+            <button class="tab-btn" data-cat="vip">VIP 🔒</button>
+        </div>
+
+        <!-- Sous-onglets VIP (cachés par défaut) -->
+        <div id="vip-subtabs" class="vip-subtabs" style="display: none;">
+            <button class="subtab-btn active" data-subcat="pronostics">Pronostics VIP</button>
+            <button class="subtab-btn" data-subcat="analyses">Analyses VIP</button>
+        </div>
+
+        <!-- Filtres par jour -->
+        <div class="day-filters">
+            <button class="day-btn active" data-day="today">Aujourd'hui</button>
+            <button class="day-btn" data-day="tomorrow">Demain</button>
+            <button class="day-btn" data-day="yesterday">Hier</button>
+        </div>
+
+        <!-- Conteneur des matchs -->
+        <div id="matches-container" class="matches-grid">
+            <div class="loading">Chargement des matchs...</div>
+        </div>
+    </main>
+
+    <!-- Popup de partage -->
+    <div id="share-popup" class="popup">
+        <div class="popup-content">
+            <h3>🔒 Contenu premium</h3>
+            <p id="share-message">Pour accéder aux pronostics Pro, partagez ce lien à <span id="share-remaining">5</span> amis sur WhatsApp ou Telegram.</p>
+            <div class="share-buttons">
+                <button id="share-wa" class="btn btn-primary">WhatsApp</button>
+                <button id="share-tg" class="btn btn-primary">Telegram</button>
+            </div>
+            <p id="share-count">Partages actuels : <span id="share-current">0</span>/<span id="share-target">5</span></p>
+            <button id="close-popup" class="btn btn-secondary">Fermer</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="/">Accueil</a>
+                <a href="/pronos.html">Pronostics</a>
+                <a href="/blog.html">Blog</a>
+                <a href="/conseils.html">Conseils</a>
+                <a href="/infos.html">Infos sport</a>
+                <a href="/contact.html">Contact</a>
+            </div>
+            <div class="bookmakers" id="bookmakers-footer"></div>
+            <p>&copy; 2025 Mr XPRONOS. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/pwa.js"></script>
+</body>
+</html>

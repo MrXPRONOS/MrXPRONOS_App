@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Mr XPRONOS</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Styles spécifiques à l'admin */
+        .admin-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            background: var(--noir-secondaire);
+            color: var(--blanc);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .tab-btn.active {
+            background: var(--or);
+            color: var(--noir);
+        }
+        .tab-pane {
+            display: none;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        pre {
+            background: var(--noir);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            color: #0f0;
+        }
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--noir-secondaire);
+            border: 1px solid var(--or);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .stat-card h3 {
+            color: var(--or);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--blanc);
+        }
+        .period-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .period-selector select, .period-selector input {
+            background: var(--noir-secondaire);
+            color: var(--blanc);
+            border: 1px solid var(--or);
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        .custom-range {
+            display: none;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="/">Mr <span>XPRONOS</span> Admin</a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">Retour au site</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 style="color: var(--or);">Panneau d'administration</h1>
+
+        <!-- Onglets de l'admin -->
+        <div class="admin-tabs">
+            <button class="tab-btn active" data-tab="pronostics">Pronostics</button>
+            <button class="tab-btn" data-tab="blog">Blog</button>
+            <button class="tab-btn" data-tab="conseils">Conseils</button>
+            <button class="tab-btn" data-tab="infos">Infos</button>
+            <button class="tab-btn" data-tab="export">Export JSON</button>
+            <button class="tab-btn" data-tab="stats">Statistiques</button>
+        </div>
+
+        <!-- Onglet Pronostics (identique à avant) -->
+        <div id="tab-pronostics" class="tab-pane active">
+            <!-- ... (contenu inchangé) ... -->
+        </div>
+
+        <!-- Onglet Blog (identique) -->
+        <div id="tab-blog" class="tab-pane">
+            <!-- ... -->
+        </div>
+
+        <!-- Onglet Conseils (identique) -->
+        <div id="tab-conseils" class="tab-pane">
+            <!-- ... -->
+        </div>
+
+        <!-- Onglet Infos (identique) -->
+        <div id="tab-infos" class="tab-pane">
+            <!-- ... -->
+        </div>
+
+        <!-- Onglet Export JSON (identique) -->
+        <div id="tab-export" class="tab-pane">
+            <!-- ... -->
+        </div>
+
+        <!-- Nouvel onglet Statistiques -->
+        <div id="tab-stats" class="tab-pane">
+            <h2 style="color: var(--or);">Statistiques d'utilisation</h2>
+
+            <div class="period-selector">
+                <label for="period-select">Période :</label>
+                <select id="period-select"></select>
+                <div id="custom-date-range" class="custom-range">
+                    <input type="date" id="start-date">
+                    <span>à</span>
+                    <input type="date" id="end-date">
+                    <button id="apply-custom" class="btn btn-secondary">Appliquer</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total utilisateurs</h3>
+                    <div class="stat-value" id="total-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>En ligne</h3>
+                    <div class="stat-value" id="online-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Hors ligne</h3>
+                    <div class="stat-value" id="offline-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Partages</h3>
+                    <div class="stat-value" id="total-shares">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Nouvel utilisateur</h3>
+                    <div class="stat-value" id="new-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Ancien utilisateur</h3>
+                    <div class="stat-value" id="old-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Invités par user</h3>
+                    <div class="stat-value" id="invited-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Durée moyenne</h3>
+                    <div class="stat-value" id="avg-usage">-</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="/assets/js/admin-stats.js"></script>
+    <script>
+        (function() {
+            // =======================================================
+            // DONNÉES PAR DÉFAUT (si localStorage est vide)
+            // =======================================================
+            const defaultData = {
+                pronostics: [
+                    { match: "PSG - OM", cote: "1.85", analyse: "PSG en forme à domicile.", confidence: 75, premium: false, bookmaker: "1xBet" }
+                ],
+                blog: [
+                    { slug: "comment-bien-debuter", title: "Comment bien débuter dans les paris sportifs", date: "2025-03-01", author: "Mr XPRONOS", excerpt: "Les bases pour démarrer sans risque.", content: "<p>Contenu de l'article...</p>" }
+                ],
+                conseils: [
+                    { title: "Gestion de bankroll", content: "Ne misez jamais plus de 5% de votre capital." }
+                ],
+                infos: [
+                    { title: "Classement Ligue 1", content: "PSG en tête..." }
+                ]
+            };
+
+            // Charger depuis localStorage ou utiliser les données par défaut
+            let data = JSON.parse(localStorage.getItem('mrXpronosData')) || defaultData;
+
+            // Sauvegarde dans localStorage et mise à jour de l'affichage
+            function saveData() {
+                localStorage.setItem('mrXpronosData', JSON.stringify(data, null, 2));
+                renderAllLists();
+                updatePreview();
+            }
+
+            // =======================================================
+            // RENDU DES LISTES (pour chaque onglet)
+            // =======================================================
+
+            // Pronostics
+            function renderPronostics() {
+                const container = document.getElementById('pronostics-list-admin');
+                if (!container) return;
+                container.innerHTML = '';
+                data.pronostics.forEach((p, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'admin-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>${p.match}</strong> - Cote ${p.cote} (${p.bookmaker}) ${p.premium ? '⭐ VIP' : ''}
+                        </div>
+                        <div>
+                            <button onclick="editPronostic(${index})">✏️</button>
+                            <button onclick="deletePronostic(${index})">🗑️</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            // Fonctions globales pour les boutons d'édition/suppression
+            window.editPronostic = (index) => {
+                const p = data.pronostics[index];
+                document.getElementById('pronostic-match').value = p.match;
+                document.getElementById('pronostic-cote').value = p.cote;
+                document.getElementById('pronostic-analyse').value = p.analyse;
+                document.getElementById('pronostic-confidence').value = p.confidence;
+                document.getElementById('pronostic-bookmaker').value = p.bookmaker;
+                document.getElementById('pronostic-premium').checked = p.premium;
+                document.getElementById('pronostic-index').value = index;
+            };
+
+            window.deletePronostic = (index) => {
+                if (confirm('Supprimer ce pronostic ?')) {
+                    data.pronostics.splice(index, 1);
+                    saveData();
+                }
+            };
+
+            // Formulaire pronostics
+            document.getElementById('pronostic-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const index = parseInt(document.getElementById('pronostic-index').value);
+                const newPronostic = {
+                    match: document.getElementById('pronostic-match').value,
+                    cote: document.getElementById('pronostic-cote').value,
+                    analyse: document.getElementById('pronostic-analyse').value,
+                    confidence: parseInt(document.getElementById('pronostic-confidence').value),
+                    bookmaker: document.getElementById('pronostic-bookmaker').value,
+                    premium: document.getElementById('pronostic-premium').checked
+                };
+                if (index === -1) {
+                    data.pronostics.push(newPronostic);
+                } else {
+                    data.pronostics[index] = newPronostic;
+                }
+                saveData();
+                document.getElementById('pronostic-form').reset();
+                document.getElementById('pronostic-index').value = '-1';
+            });
+
+            document.getElementById('cancel-pronostic').addEventListener('click', () => {
+                document.getElementById('pronostic-form').reset();
+                document.getElementById('pronostic-index').value = '-1';
+            });
+
+            // Blog
+            function renderBlog() {
+                const container = document.getElementById('blog-list-admin');
+                if (!container) return;
+                container.innerHTML = '';
+                data.blog.forEach((article, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'admin-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>${article.title}</strong> (${article.date}) - ${article.author}
+                        </div>
+                        <div>
+                            <button onclick="editBlog(${index})">✏️</button>
+                            <button onclick="deleteBlog(${index})">🗑️</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            window.editBlog = (index) => {
+                const a = data.blog[index];
+                document.getElementById('blog-title').value = a.title;
+                document.getElementById('blog-slug').value = a.slug;
+                document.getElementById('blog-date').value = a.date;
+                document.getElementById('blog-author').value = a.author;
+                document.getElementById('blog-excerpt').value = a.excerpt;
+                document.getElementById('blog-content').value = a.content;
+                document.getElementById('blog-index').value = index;
+            };
+
+            window.deleteBlog = (index) => {
+                if (confirm('Supprimer cet article ?')) {
+                    data.blog.splice(index, 1);
+                    saveData();
+                }
+            };
+
+            document.getElementById('blog-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const index = parseInt(document.getElementById('blog-index').value);
+                const newArticle = {
+                    slug: document.getElementById('blog-slug').value,
+                    title: document.getElementById('blog-title').value,
+                    date: document.getElementById('blog-date').value,
+                    author: document.getElementById('blog-author').value,
+                    excerpt: document.getElementById('blog-excerpt').value,
+                    content: document.getElementById('blog-content').value
+                };
+                if (index === -1) {
+                    data.blog.push(newArticle);
+                } else {
+                    data.blog[index] = newArticle;
+                }
+                saveData();
+                document.getElementById('blog-form').reset();
+                document.getElementById('blog-index').value = '-1';
+            });
+
+            document.getElementById('cancel-blog').addEventListener('click', () => {
+                document.getElementById('blog-form').reset();
+                document.getElementById('blog-index').value = '-1';
+            });
+
+            // Conseils
+            function renderConseils() {
+                const container = document.getElementById('conseils-list-admin');
+                if (!container) return;
+                container.innerHTML = '';
+                data.conseils.forEach((c, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'admin-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>${c.title}</strong>
+                        </div>
+                        <div>
+                            <button onclick="editConseil(${index})">✏️</button>
+                            <button onclick="deleteConseil(${index})">🗑️</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            window.editConseil = (index) => {
+                const c = data.conseils[index];
+                document.getElementById('conseil-title').value = c.title;
+                document.getElementById('conseil-content').value = c.content;
+                document.getElementById('conseil-index').value = index;
+            };
+
+            window.deleteConseil = (index) => {
+                if (confirm('Supprimer ce conseil ?')) {
+                    data.conseils.splice(index, 1);
+                    saveData();
+                }
+            };
+
+            document.getElementById('conseil-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const index = parseInt(document.getElementById('conseil-index').value);
+                const newConseil = {
+                    title: document.getElementById('conseil-title').value,
+                    content: document.getElementById('conseil-content').value
+                };
+                if (index === -1) {
+                    data.conseils.push(newConseil);
+                } else {
+                    data.conseils[index] = newConseil;
+                }
+                saveData();
+                document.getElementById('conseil-form').reset();
+                document.getElementById('conseil-index').value = '-1';
+            });
+
+            document.getElementById('cancel-conseil').addEventListener('click', () => {
+                document.getElementById('conseil-form').reset();
+                document.getElementById('conseil-index').value = '-1';
+            });
+
+            // Infos
+            function renderInfos() {
+                const container = document.getElementById('infos-list-admin');
+                if (!container) return;
+                container.innerHTML = '';
+                data.infos.forEach((info, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'admin-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>${info.title}</strong>
+                        </div>
+                        <div>
+                            <button onclick="editInfo(${index})">✏️</button>
+                            <button onclick="deleteInfo(${index})">🗑️</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            window.editInfo = (index) => {
+                const i = data.infos[index];
+                document.getElementById('info-title').value = i.title;
+                document.getElementById('info-content').value = i.content;
+                document.getElementById('info-index').value = index;
+            };
+
+            window.deleteInfo = (index) => {
+                if (confirm('Supprimer cette info ?')) {
+                    data.infos.splice(index, 1);
+                    saveData();
+                }
+            };
+
+            document.getElementById('info-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const index = parseInt(document.getElementById('info-index').value);
+                const newInfo = {
+                    title: document.getElementById('info-title').value,
+                    content: document.getElementById('info-content').value
+                };
+                if (index === -1) {
+                    data.infos.push(newInfo);
+                } else {
+                    data.infos[index] = newInfo;
+                }
+                saveData();
+                document.getElementById('info-form').reset();
+                document.getElementById('info-index').value = '-1';
+            });
+
+            document.getElementById('cancel-info').addEventListener('click', () => {
+                document.getElementById('info-form').reset();
+                document.getElementById('info-index').value = '-1';
+            });
+
+            // =======================================================
+            // EXPORT JSON
+            // =======================================================
+            function updatePreview() {
+                const preview = document.getElementById('json-preview');
+                if (preview) {
+                    preview.textContent = JSON.stringify(data, null, 2);
+                }
+            }
+
+            document.getElementById('export-json').addEventListener('click', () => {
+                const jsonStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'data.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            document.getElementById('reset-data').addEventListener('click', () => {
+                if (confirm('Réinitialiser avec les données d\'exemple ?')) {
+                    data = JSON.parse(JSON.stringify(defaultData));
+                    saveData();
+                }
+            });
+
+            // =======================================================
+            // GESTION DES ONGLETS
+            // =======================================================
+            document.querySelectorAll('.admin-tabs .tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.admin-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+                });
+            });
+
+            function renderAllLists() {
+                renderPronostics();
+                renderBlog();
+                renderConseils();
+                renderInfos();
+            }
+
+            // Initialisation
+            renderAllLists();
+            updatePreview();
+        })();
+    </script>
+</body>
+</html>

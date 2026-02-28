@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+cache/
+*.log
+
+# Environnement
+.env
+venv/
+env/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Données sensibles (optionnel)
+data.json  
+# si vous ne voulez pas versionner les données (mais si vous voulez les partager, ne pas l'exclure)

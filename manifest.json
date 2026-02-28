@@ -1,0 +1,21 @@
+{
+    "name": "Mr XPRONOS - Pronostics sportifs VIP",
+    "short_name": "Mr XPRONOS",
+    "description": "Pronostics sportifs, analyses, conseils et code promo XPVIP",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0D0D0D",
+    "theme_color": "#0D0D0D",
+    "icons": [
+        {
+            "src": "/assets/images/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/assets/images/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
