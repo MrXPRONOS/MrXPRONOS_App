@@ -1,23 +1,25 @@
 /**
  * service-worker.js - Met en cache les ressources pour un fonctionnement hors ligne
  * Stratégie : cache-first pour les fichiers statiques, réseau pour le reste.
+ * Chemins relatifs pour GitHub Pages.
  */
 
 const CACHE_NAME = 'mr-xpronos-v1';
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/pronos.html',
-    '/blog.html',
-    '/conseils.html',
-    '/infos.html',
-    '/article.html',
-    '/admin.html',
-    '/assets/css/style.css',
-    '/assets/js/main.js',
-    '/assets/js/pwa.js',
-    '/manifest.json',
-    '/data.json'
+    'index.html',
+    'pronos.html',
+    'blog.html',
+    'conseils.html',
+    'infos.html',
+    'article.html',
+    'admin.html',
+    'contact.html',
+    'assets/css/style.css',
+    'assets/js/main.js',
+    'assets/js/pwa.js',
+    'assets/js/admin-stats.js',
+    'manifest.json',
+    'data.json'
 ];
 
 // Installation : mise en cache des fichiers essentiels
