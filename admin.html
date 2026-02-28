@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Styles spécifiques à l'admin */
         .admin-tabs {
             display: flex;
             gap: 0.5rem;
@@ -254,9 +255,10 @@
             </div>
         </div>
 
-        <!-- Onglet Statistiques -->
+        <!-- Nouvel onglet Statistiques -->
         <div id="tab-stats" class="tab-pane">
             <h2 style="color: var(--or);">Statistiques d'utilisation</h2>
+
             <div class="period-selector">
                 <label for="period-select">Période :</label>
                 <select id="period-select"></select>
@@ -267,6 +269,7 @@
                     <button id="apply-custom" class="btn btn-secondary">Appliquer</button>
                 </div>
             </div>
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Total utilisateurs</h3>
@@ -302,11 +305,15 @@
                 </div>
             </div>
         </div>
+
     </main>
 
     <script src="assets/js/admin-stats.js"></script>
     <script>
         (function() {
+            // =======================================================
+            // DONNÉES PAR DÉFAUT (si localStorage est vide)
+            // =======================================================
             const defaultData = {
                 pronostics: [
                     { match: "PSG - OM", cote: "1.85", analyse: "PSG en forme à domicile.", confidence: 75, premium: false, bookmaker: "1xBet" }
@@ -322,6 +329,7 @@
                 ]
             };
 
+            // Charger depuis localStorage ou utiliser les données par défaut
             let data = JSON.parse(localStorage.getItem('mrXpronosData')) || defaultData;
 
             function saveData() {
@@ -330,6 +338,7 @@
                 updatePreview();
             }
 
+            // Pronostics
             function renderPronostics() {
                 const container = document.getElementById('pronostics-list-admin');
                 if (!container) return;
@@ -394,6 +403,7 @@
                 document.getElementById('pronostic-index').value = '-1';
             });
 
+            // Blog
             function renderBlog() {
                 const container = document.getElementById('blog-list-admin');
                 if (!container) return;
@@ -458,6 +468,7 @@
                 document.getElementById('blog-index').value = '-1';
             });
 
+            // Conseils
             function renderConseils() {
                 const container = document.getElementById('conseils-list-admin');
                 if (!container) return;
@@ -514,6 +525,7 @@
                 document.getElementById('conseil-index').value = '-1';
             });
 
+            // Infos
             function renderInfos() {
                 const container = document.getElementById('infos-list-admin');
                 if (!container) return;
@@ -570,6 +582,7 @@
                 document.getElementById('info-index').value = '-1';
             });
 
+            // Export JSON
             function updatePreview() {
                 const preview = document.getElementById('json-preview');
                 if (preview) {
@@ -595,6 +608,7 @@
                 }
             });
 
+            // Gestion des onglets
             document.querySelectorAll('.admin-tabs .tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.admin-tabs .tab-btn').forEach(b => b.classList.remove('active'));
