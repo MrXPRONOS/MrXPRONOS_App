@@ -3,6 +3,7 @@
  * Version avec sous-onglets VIP (pronostics/analyses) et analyses ML complètes.
  * Correction : affichage des heures dans le fuseau local de l'utilisateur.
  * Mise à jour : hideEmptyTabs() gère désormais les sous-onglets VIP.
+ * Chemins relatifs.
  */
 
 // =======================================================
@@ -354,7 +355,7 @@ function renderMatches(matches) {
         const verifiedDouble = m.verified_double ? 'checked' : '';
         const verifiedOver = m.verified_over ? 'checked' : '';
         const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-        const defaultLogo = '/assets/images/default-logo.png';
+        const defaultLogo = 'assets/images/default-logo.png';
 
         // Partie commune (info match)
         let matchHtml = `
