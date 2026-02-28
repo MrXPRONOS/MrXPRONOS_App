@@ -24,6 +24,7 @@ const shareMessage = document.getElementById('share-message');
 const bookmakersFooter = document.getElementById('bookmakers-footer');
 const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
+const defaultLogo = 'assets/images/default-logo.png';
 
 let shareCount = parseInt(localStorage.getItem('shareCount') || '0');
 const shareLimits = { pro: 5, vip: 10 };
