@@ -320,12 +320,12 @@ def main():
         "matches": [],
         "categories": {"simple": [], "pro": [], "vip": []},
         "bookmakers": [
-            {"name": "1xBet", "logo": "/assets/images/1xbet.png", "url": "https://affiliation.com/1xbet"},
-            {"name": "1win", "logo": "/assets/images/1win.png", "url": "https://affiliation.com/1win"},
-            {"name": "Betwinner", "logo": "/assets/images/betwinner.png", "url": "https://affiliation.com/betwinner"},
-            {"name": "Melbet", "logo": "/assets/images/melbet.png", "url": "https://affiliation.com/melbet"},
-            {"name": "Linebet", "logo": "/assets/images/linebet.png", "url": "https://affiliation.com/linebet"},
-            {"name": "888starz", "logo": "/assets/images/888starz.png", "url": "https://affiliation.com/888starz"}
+            {"name": "1xBet", "logo": "assets/images/1xbet.png", "url": "https://affiliation.com/1xbet"},
+            {"name": "1win", "logo": "assets/images/1win.png", "url": "https://affiliation.com/1win"},
+            {"name": "Betwinner", "logo": "assets/images/betwinner.png", "url": "https://affiliation.com/betwinner"},
+            {"name": "Melbet", "logo": "assets/images/melbet.png", "url": "https://affiliation.com/melbet"},
+            {"name": "Linebet", "logo": "assets/images/linebet.png", "url": "https://affiliation.com/linebet"},
+            {"name": "888starz", "logo": "assets/images/888starz.png", "url": "https://affiliation.com/888starz"}
         ]
     }
 
