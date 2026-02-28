@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - Mr XPRONOS</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Styles spécifiques à l'admin */
         .admin-tabs {
             display: flex;
             gap: 0.5rem;
@@ -40,7 +39,6 @@
             overflow-x: auto;
             color: #0f0;
         }
-        /* Stats */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -90,11 +88,11 @@
     <header>
         <div class="container">
             <div class="logo">
-                <a href="/">Mr <span>XPRONOS</span> Admin</a>
+                <a href="index.html">Mr <span>XPRONOS</span> Admin</a>
             </div>
             <nav>
                 <ul>
-                    <li><a href="/">Retour au site</a></li>
+                    <li><a href="index.html">Retour au site</a></li>
                 </ul>
             </nav>
         </div>
@@ -113,35 +111,152 @@
             <button class="tab-btn" data-tab="stats">Statistiques</button>
         </div>
 
-        <!-- Onglet Pronostics (identique à avant) -->
+        <!-- Onglet Pronostics -->
         <div id="tab-pronostics" class="tab-pane active">
-            <!-- ... (contenu inchangé) ... -->
+            <div class="admin-form">
+                <h2>Ajouter / Modifier un pronostic</h2>
+                <form id="pronostic-form">
+                    <div class="form-group">
+                        <label>Match</label>
+                        <input type="text" id="pronostic-match" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cote</label>
+                        <input type="text" id="pronostic-cote" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Analyse</label>
+                        <textarea id="pronostic-analyse" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Confiance (%)</label>
+                        <input type="number" id="pronostic-confidence" min="0" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bookmaker</label>
+                        <select id="pronostic-bookmaker">
+                            <option>1xBet</option>
+                            <option>1win</option>
+                            <option>Betwinner</option>
+                            <option>Melbet</option>
+                            <option>Linebet</option>
+                            <option>888starz</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="pronostic-premium"> Premium (VIP)
+                        </label>
+                    </div>
+                    <input type="hidden" id="pronostic-index" value="-1">
+                    <div class="admin-actions">
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="button" id="cancel-pronostic" class="btn btn-secondary">Annuler</button>
+                    </div>
+                </form>
+            </div>
+            <div class="admin-list" id="pronostics-list-admin"></div>
         </div>
 
-        <!-- Onglet Blog (identique) -->
+        <!-- Onglet Blog -->
         <div id="tab-blog" class="tab-pane">
-            <!-- ... -->
+            <div class="admin-form">
+                <h2>Ajouter / Modifier un article</h2>
+                <form id="blog-form">
+                    <div class="form-group">
+                        <label>Titre</label>
+                        <input type="text" id="blog-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Slug (URL)</label>
+                        <input type="text" id="blog-slug" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="blog-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Auteur</label>
+                        <input type="text" id="blog-author" value="Mr XPRONOS" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Extrait</label>
+                        <textarea id="blog-excerpt" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Contenu (HTML autorisé)</label>
+                        <textarea id="blog-content" required></textarea>
+                    </div>
+                    <input type="hidden" id="blog-index" value="-1">
+                    <div class="admin-actions">
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="button" id="cancel-blog" class="btn btn-secondary">Annuler</button>
+                    </div>
+                </form>
+            </div>
+            <div class="admin-list" id="blog-list-admin"></div>
         </div>
 
-        <!-- Onglet Conseils (identique) -->
+        <!-- Onglet Conseils -->
         <div id="tab-conseils" class="tab-pane">
-            <!-- ... -->
+            <div class="admin-form">
+                <h2>Ajouter / Modifier un conseil</h2>
+                <form id="conseil-form">
+                    <div class="form-group">
+                        <label>Titre</label>
+                        <input type="text" id="conseil-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contenu</label>
+                        <textarea id="conseil-content" required></textarea>
+                    </div>
+                    <input type="hidden" id="conseil-index" value="-1">
+                    <div class="admin-actions">
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="button" id="cancel-conseil" class="btn btn-secondary">Annuler</button>
+                    </div>
+                </form>
+            </div>
+            <div class="admin-list" id="conseils-list-admin"></div>
         </div>
 
-        <!-- Onglet Infos (identique) -->
+        <!-- Onglet Infos -->
         <div id="tab-infos" class="tab-pane">
-            <!-- ... -->
+            <div class="admin-form">
+                <h2>Ajouter / Modifier une info sport</h2>
+                <form id="info-form">
+                    <div class="form-group">
+                        <label>Titre</label>
+                        <input type="text" id="info-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contenu</label>
+                        <textarea id="info-content" required></textarea>
+                    </div>
+                    <input type="hidden" id="info-index" value="-1">
+                    <div class="admin-actions">
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="button" id="cancel-info" class="btn btn-secondary">Annuler</button>
+                    </div>
+                </form>
+            </div>
+            <div class="admin-list" id="infos-list-admin"></div>
         </div>
 
-        <!-- Onglet Export JSON (identique) -->
+        <!-- Onglet Export JSON -->
         <div id="tab-export" class="tab-pane">
-            <!-- ... -->
+            <div class="admin-form">
+                <h2>Exporter les données</h2>
+                <p>Cliquez ci-dessous pour générer le fichier <code>data.json</code> contenant toutes les données actuelles.</p>
+                <button id="export-json" class="btn btn-primary">Télécharger data.json</button>
+                <button id="reset-data" class="btn btn-secondary" style="margin-left: 1rem;">Réinitialiser les données (exemple)</button>
+                <pre id="json-preview"></pre>
+            </div>
         </div>
 
-        <!-- Nouvel onglet Statistiques -->
+        <!-- Onglet Statistiques -->
         <div id="tab-stats" class="tab-pane">
             <h2 style="color: var(--or);">Statistiques d'utilisation</h2>
-
             <div class="period-selector">
                 <label for="period-select">Période :</label>
                 <select id="period-select"></select>
@@ -152,7 +267,6 @@
                     <button id="apply-custom" class="btn btn-secondary">Appliquer</button>
                 </div>
             </div>
-
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Total utilisateurs</h3>
@@ -188,16 +302,11 @@
                 </div>
             </div>
         </div>
-
     </main>
 
-    <!-- Scripts -->
-    <script src="/assets/js/admin-stats.js"></script>
+    <script src="assets/js/admin-stats.js"></script>
     <script>
         (function() {
-            // =======================================================
-            // DONNÉES PAR DÉFAUT (si localStorage est vide)
-            // =======================================================
             const defaultData = {
                 pronostics: [
                     { match: "PSG - OM", cote: "1.85", analyse: "PSG en forme à domicile.", confidence: 75, premium: false, bookmaker: "1xBet" }
@@ -213,21 +322,14 @@
                 ]
             };
 
-            // Charger depuis localStorage ou utiliser les données par défaut
             let data = JSON.parse(localStorage.getItem('mrXpronosData')) || defaultData;
 
-            // Sauvegarde dans localStorage et mise à jour de l'affichage
             function saveData() {
                 localStorage.setItem('mrXpronosData', JSON.stringify(data, null, 2));
                 renderAllLists();
                 updatePreview();
             }
 
-            // =======================================================
-            // RENDU DES LISTES (pour chaque onglet)
-            // =======================================================
-
-            // Pronostics
             function renderPronostics() {
                 const container = document.getElementById('pronostics-list-admin');
                 if (!container) return;
@@ -248,7 +350,6 @@
                 });
             }
 
-            // Fonctions globales pour les boutons d'édition/suppression
             window.editPronostic = (index) => {
                 const p = data.pronostics[index];
                 document.getElementById('pronostic-match').value = p.match;
@@ -267,7 +368,6 @@
                 }
             };
 
-            // Formulaire pronostics
             document.getElementById('pronostic-form').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const index = parseInt(document.getElementById('pronostic-index').value);
@@ -294,7 +394,6 @@
                 document.getElementById('pronostic-index').value = '-1';
             });
 
-            // Blog
             function renderBlog() {
                 const container = document.getElementById('blog-list-admin');
                 if (!container) return;
@@ -359,7 +458,6 @@
                 document.getElementById('blog-index').value = '-1';
             });
 
-            // Conseils
             function renderConseils() {
                 const container = document.getElementById('conseils-list-admin');
                 if (!container) return;
@@ -416,7 +514,6 @@
                 document.getElementById('conseil-index').value = '-1';
             });
 
-            // Infos
             function renderInfos() {
                 const container = document.getElementById('infos-list-admin');
                 if (!container) return;
@@ -473,9 +570,6 @@
                 document.getElementById('info-index').value = '-1';
             });
 
-            // =======================================================
-            // EXPORT JSON
-            // =======================================================
             function updatePreview() {
                 const preview = document.getElementById('json-preview');
                 if (preview) {
@@ -501,9 +595,6 @@
                 }
             });
 
-            // =======================================================
-            // GESTION DES ONGLETS
-            // =======================================================
             document.querySelectorAll('.admin-tabs .tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.admin-tabs .tab-btn').forEach(b => b.classList.remove('active'));
@@ -520,7 +611,6 @@
                 renderInfos();
             }
 
-            // Initialisation
             renderAllLists();
             updatePreview();
         })();
