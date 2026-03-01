@@ -3,6 +3,7 @@
  * Version avec sous-onglets VIP (pronostics/analyses) et analyses ML complètes.
  * Correction : affichage des heures dans le fuseau local de l'utilisateur.
  * Mise à jour : hideEmptyTabs() gère désormais les sous-onglets VIP.
+ * Chemins relatifs.
  */
 
 // =======================================================
@@ -354,8 +355,8 @@ function renderMatches(matches) {
         const verifiedDouble = m.verified_double ? 'checked' : '';
         const verifiedOver = m.verified_over ? 'checked' : '';
         const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-        const defaultLogo = '/assets/images/default-logo.png';
-        
+        const defaultLogo = 'assets/images/default-logo.png';
+
         // Partie commune (info match)
         let matchHtml = `
             <div class="match-card">
@@ -554,6 +555,84 @@ async function displayInfos() {
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `<h3>${i.title}</h3><p>${i.content}</p>`;
+        container.appendChild(card);
+    });
+}
+
+// =======================================================
+// CHARGEMENT DES ARTICLES ET CONSEILS GÉNÉRÉS
+// =======================================================
+
+async function loadGeneratedContent() {
+    try {
+        // Charger les articles
+        const articlesResp = await fetch('articles.json?t=' + Date.now());
+        if (articlesResp.ok) {
+            window.generatedArticles = await articlesResp.json();
+        }
+        
+        // Charger les conseils
+        const conseilsResp = await fetch('conseils.json?t=' + Date.now());
+        if (conseilsResp.ok) {
+            window.generatedConseils = await conseilsResp.json();
+        }
+    } catch (error) {
+        console.error('Erreur chargement contenu généré:', error);
+    }
+}
+
+// Modifier displayBlogList pour inclure les articles générés
+async function displayBlogList() {
+    const container = document.getElementById('blog-list');
+    if (!container) return;
+    
+    // Attendre que les articles générés soient chargés
+    if (!window.generatedArticles) {
+        await loadGeneratedContent();
+    }
+    
+    const data = await loadDataGeneric();
+    const allArticles = [
+        ...(window.generatedArticles || []),
+        ...(data?.blog || [])
+    ];
+    
+    if (allArticles.length === 0) return;
+    
+    allArticles.forEach(article => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${article.title}</a></h3>
+            <div class="meta">${article.date} par ${article.author} ${article.match ? '• ' + article.match : ''}</div>
+            <p>${article.excerpt}</p>
+            <a href="article.html?slug=${article.slug}" class="btn btn-secondary">Lire</a>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Modifier displayConseils pour inclure les conseils générés
+async function displayConseils() {
+    const container = document.getElementById('conseils-list');
+    if (!container) return;
+    
+    if (!window.generatedConseils) {
+        await loadGeneratedContent();
+    }
+    
+    const data = await loadDataGeneric();
+    const allConseils = [
+        ...(window.generatedConseils || []),
+        ...(data?.conseils || [])
+    ];
+    
+    if (allConseils.length === 0) return;
+    
+    allConseils.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<h3>${c.title}</h3><p>${c.content}</p>`;
         container.appendChild(card);
     });
 }

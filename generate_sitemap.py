@@ -9,7 +9,7 @@ Exécution quotidienne.
 import json
 from datetime import datetime
 
-BASE_URL = "https://mrxpronos.github.io/MrXPRONOS_App/"  # À remplacer par votre URL réelle
+BASE_URL = "hhttps://mrxpronos.github.io/MrXPRONOS_App/"  # À remplacer par votre URL réelle
 
 def generate_sitemap():
     urls = []
