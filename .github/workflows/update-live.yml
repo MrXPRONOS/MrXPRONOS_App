@@ -2,11 +2,17 @@ name: Mise à jour horaire (statuts et vérifications)
 
 on:
   schedule:
-    - cron: '0 * * * *'   # Toutes les heures à la minute 0
+    - cron: '0 * * * *'   # toutes les heures
+  push:
+    paths:
+      - 'generate_data.py'
+      - 'update_matches.py'
+      - '*.py'
   workflow_dispatch:
 
 jobs:
   update-live:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,4 +31,4 @@ jobs:
           git config --global user.name 'github-actions'
           git config --global user.email 'actions@github.com'
           git add data.json
-          git diff --staged --quiet || (git commit -m "Mise à jour horaire $(date +'%Y-%m-%d %H:%M')" && git push)
+          git diff --staged --quiet || (git commit -m "Mise à jour horaire $(date +'%Y-%m-%d %H:%M') [skip ci]" && git push)
