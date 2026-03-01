@@ -3,7 +3,6 @@
  * Version avec sous-onglets VIP (pronostics/analyses) et analyses ML complètes.
  * Correction : affichage des heures dans le fuseau local de l'utilisateur.
  * Mise à jour : hideEmptyTabs() gère désormais les sous-onglets VIP.
- * Chemins relatifs.
  */
 
 // =======================================================
@@ -24,7 +23,6 @@ const shareMessage = document.getElementById('share-message');
 const bookmakersFooter = document.getElementById('bookmakers-footer');
 const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
-const defaultLogo = 'assets/images/default-logo.png';
 
 let shareCount = parseInt(localStorage.getItem('shareCount') || '0');
 const shareLimits = { pro: 5, vip: 10 };
@@ -239,8 +237,8 @@ function showSharePopup(category, remaining) {
 }
 
 function share(platform) {
-    const message = encodeURIComponent('Rejoignez Mr XPRONOS pour des pronostics sportifs de qualité ! https://votre-site.com');
-    const url = platform === 'whatsapp' ? `https://wa.me/?text=${message}` : `https://t.me/share/url?url=${encodeURIComponent('https://votre-site.com')}&text=${message}`;
+    const message = encodeURIComponent('Rejoignez Mr XPRONOS pour des pronostics sportifs de qualité ! https://mrxpronos.github.io/MrXPRONOS_App/');
+    const url = platform === 'whatsapp' ? `https://wa.me/?text=${message}` : `https://t.me/share/url?url=${encodeURIComponent('https://mrxpronos.github.io/MrXPRONOS_App/')}&text=${message}`;
     window.open(url, '_blank');
 
     shareCount++;
@@ -356,8 +354,8 @@ function renderMatches(matches) {
         const verifiedDouble = m.verified_double ? 'checked' : '';
         const verifiedOver = m.verified_over ? 'checked' : '';
         const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-        const defaultLogo = 'assets/images/default-logo.png';
-
+        const defaultLogo = '/assets/images/default-logo.png';
+        
         // Partie commune (info match)
         let matchHtml = `
             <div class="match-card">

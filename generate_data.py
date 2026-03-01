@@ -2,16 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - Script de génération du fichier data.json pour Mr XPRONOS
-Utilise le cache global all_matches.json pour les analyses H2H.
-Rôle :
-- Récupérer les matchs d'aujourd'hui, demain, hier depuis l'API BSD
-- Obtenir les prédictions de l'API /predictions/
-- Analyser les confrontations directes (H2H) via le cache
-- Classer les matchs en Simple, Pro, VIP selon les règles
-- Vérifier les pronostics des matchs d'hier
-- Sauvegarder le tout dans data.json
-- Inclure les données ML complètes pour les analyses VIP
+generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
+les prédictions ML et les analyses H2H.
+Exécutable toutes les heures pour mettre à jour les statuts et vérifications.
 """
 
 import requests
@@ -23,9 +16,12 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 # =======================================================
-# CONFIGURATION
+# CONFIGURATION (variables d'environnement)
 # =======================================================
-API_TOKEN = os.getenv("BSD_API_TOKEN", "3d0b228fb2f078287b8e6720304f2eea2800cc6d")
+API_TOKEN = os.environ.get("BSD_API_TOKEN")
+if not API_TOKEN:
+    raise ValueError("La variable d'environnement BSD_API_TOKEN n'est pas définie")
+
 BASE_URL = "https://sports.bzzoiro.com/api"
 HEADERS = {"Authorization": f"Token {API_TOKEN}"}
 
@@ -47,14 +43,11 @@ print(f"🚀 GÉNÉRATION DES DONNÉES - {today}")
 print("="*60)
 
 # =======================================================
-# FONCTIONS DE RÉCUPÉRATION API (pour les matchs récents)
+# FONCTIONS DE RÉCUPÉRATION API
 # =======================================================
 
 def fetch_events(date_from, date_to):
-    """
-    Récupère tous les événements entre deux dates (pagination gérée).
-    Retourne une liste d'événements.
-    """
+    """Récupère tous les événements entre deux dates (pagination gérée)."""
     url = f"{BASE_URL}/events/"
     params = {
         "date_from": date_from.isoformat(),
@@ -84,10 +77,7 @@ def fetch_events(date_from, date_to):
     return all_events
 
 def fetch_predictions(upcoming=True):
-    """
-    Récupère les prédictions de l'API.
-    upcoming=True : prédictions à venir, False : prédictions passées.
-    """
+    """Récupère les prédictions de l'API."""
     url = f"{BASE_URL}/predictions/"
     params = {"upcoming": "true" if upcoming else "false"}
     all_predictions = []
@@ -113,16 +103,13 @@ def fetch_predictions(upcoming=True):
     return all_predictions
 
 # =======================================================
-# FONCTIONS D'ANALYSE H2H (UTILISANT LE CACHE GLOBAL)
+# FONCTIONS D'ANALYSE H2H
 # =======================================================
 
 def get_h2h_from_cache(team_id_a, team_id_b):
-    """
-    Récupère l'historique des confrontations entre deux équipes depuis le cache global.
-    Retourne une liste de matchs triée par date décroissante.
-    """
+    """Récupère l'historique des confrontations depuis le cache global."""
     if not os.path.exists(GLOBAL_CACHE_FILE):
-        print("   ⚠️ Cache global introuvable. Veuillez d'abord exécuter allmatches.py")
+        print("   ⚠️ Cache global introuvable.")
         return []
 
     with open(GLOBAL_CACHE_FILE, 'r', encoding='utf-8') as f:
@@ -135,7 +122,6 @@ def get_h2h_from_cache(team_id_a, team_id_b):
         if home_obj and away_obj:
             if (home_obj["id"] == team_id_a and away_obj["id"] == team_id_b) or \
                (home_obj["id"] == team_id_b and away_obj["id"] == team_id_a):
-                # On ne garde que les matchs terminés avec scores
                 if m["status"] == "finished" and m["home_score"] is not None and m["away_score"] is not None:
                     h2h.append({
                         "date": m["event_date"],
@@ -146,25 +132,16 @@ def get_h2h_from_cache(team_id_a, team_id_b):
                         "status": m["status"],
                         "league": m["league"]["name"]
                     })
-    # Trier par date décroissante
     h2h.sort(key=lambda x: x["date"], reverse=True)
     return h2h
 
 def analyze_h2h(h2h_list, current_home_team, current_away_team):
-    """
-    Analyse la liste H2H pour déterminer :
-    - Nombre total de matchs
-    - Victoires domicile/extérieur/nuls
-    - Moyenne de buts
-    - Les 4 derniers matchs (filtrés pour ne garder que les terminés)
-    """
+    """Analyse la liste H2H."""
     home_wins = 0
     away_wins = 0
     draws = 0
     total_goals = 0
     matches_count = 0
-
-    # Les 4 derniers matchs terminés
     last_4 = h2h_list[:4]
 
     for match in h2h_list:
@@ -194,12 +171,7 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
     }
 
 def classify_match_h2h(analysis):
-    """
-    Classification :
-    - Si au moins 4 matchs H2H et une équipe a gagné 3 ou 4 fois → VIP
-    - Si au moins 5 matchs H2H et une équipe a gagné au moins N-1 fois → VIP
-    - Sinon → Simple
-    """
+    """Classification H2H : simple / vip."""
     n = analysis["total_matches"]
     if n >= 4:
         if analysis["home_wins"] >= 3 or analysis["away_wins"] >= 3:
@@ -210,10 +182,7 @@ def classify_match_h2h(analysis):
     return "simple"
 
 def generate_prediction_h2h(analysis, home_team, away_team):
-    """
-    Génère un pronostic simple basé sur les 4 derniers H2H terminés.
-    Retourne un dictionnaire avec double_chance, over_25, confidence.
-    """
+    """Génère un pronostic H2H simple."""
     last_4 = analysis["last_4"]
     home_wins_last4 = 0
     away_wins_last4 = 0
@@ -235,7 +204,6 @@ def generate_prediction_h2h(analysis, home_team, away_team):
         else:
             draws_last4 += 1
 
-    # Double chance
     if home_wins_last4 > away_wins_last4 + draws_last4:
         double_chance = "1X"
     elif away_wins_last4 > home_wins_last4 + draws_last4:
@@ -243,11 +211,8 @@ def generate_prediction_h2h(analysis, home_team, away_team):
     else:
         double_chance = "12"
 
-    # Over/Under 2.5
     avg_goals = sum(goals_last4) / len(goals_last4) if goals_last4 else 2.5
     over_25 = avg_goals > 2.5
-
-    # Confiance basée sur le nombre de matchs analysés (max 95)
     confidence = 50 + (analysis["total_matches"] * 5)
     confidence = min(confidence, 95)
 
@@ -258,13 +223,11 @@ def generate_prediction_h2h(analysis, home_team, away_team):
     }
 
 # =======================================================
-# FONCTIONS DE VÉRIFICATION DES MATCHS D'HIER
+# FONCTIONS DE VÉRIFICATION
 # =======================================================
 
 def verify_prediction(match, prediction):
-    """
-    Vérifie si le pronostic (double chance et over 2.5) est validé par le résultat réel.
-    """
+    """Vérifie si le pronostic est validé par le résultat réel."""
     match['verified_double'] = False
     match['verified_over'] = False
 
@@ -277,8 +240,8 @@ def verify_prediction(match, prediction):
         return
 
     total_goals = home_score + away_score
-
     dc = prediction.get('double_chance', '')
+
     if dc == '1X':
         match['verified_double'] = (home_score > away_score) or (home_score == away_score)
     elif dc == 'X2':
@@ -305,7 +268,7 @@ def main():
     print(f"\n✅ Total événements récupérés : {len(all_events)}")
 
     if len(all_events) == 0:
-        print("❌ Aucun événement récupéré. Conservation de l'ancien fichier.")
+        print("❌ Aucun événement. Conservation de l'ancien fichier.")
         return
 
     print("\n📈 Récupération des prédictions ML...")
@@ -335,7 +298,7 @@ def main():
         home_team_obj = event.get("home_team_obj")
         away_team_obj = event.get("away_team_obj")
         if not home_team_obj or not away_team_obj:
-            print("   ⚠️  Équipes manquantes, ignoré")
+            print("   ⚠️ Équipes manquantes, ignoré")
             continue
 
         league = event["league"]
@@ -345,7 +308,7 @@ def main():
         print(f"   {home_team_obj['name']} vs {away_team_obj['name']} ({league['name']})")
 
         h2h = get_h2h_from_cache(home_team_obj["id"], away_team_obj["id"])
-        print(f"   → {len(h2h)} confrontations H2H trouvées dans le cache")
+        print(f"   → {len(h2h)} confrontations H2H")
 
         analysis_h2h = analyze_h2h(h2h, home_team_obj["name"], away_team_obj["name"])
         prediction_h2h = generate_prediction_h2h(analysis_h2h, home_team_obj["name"], away_team_obj["name"])
@@ -356,7 +319,6 @@ def main():
         ml_pred = pred_dict.get(match_id)
         ml_full = None
         if ml_pred:
-            # Sauvegarder toutes les données ML pour les analyses VIP
             ml_full = {
                 "prob_home_win": ml_pred.get('prob_home_win'),
                 "prob_draw": ml_pred.get('prob_draw'),
@@ -428,22 +390,21 @@ def main():
             "category": category,
             "verified_double": False,
             "verified_over": False,
-            "ml_full": ml_full  # Données ML complètes pour analyses VIP
+            "ml_full": ml_full
         }
 
         if event_date == yesterday.isoformat():
             verify_prediction(match_data, prediction_used)
             if match_data["verified_double"] or match_data["verified_over"]:
-                print(f"   ✅ Vérification : Double chance {'OK' if match_data['verified_double'] else 'KO'}, Over {'OK' if match_data['verified_over'] else 'KO'}")
+                print(f"   ✅ Vérification : DC {match_data['verified_double']} / Over {match_data['verified_over']}")
 
         data["matches"].append(match_data)
         data["categories"][category].append(match_data)
-
         print(f"   ✅ Catégorie: {category}, Confiance: {prediction_used['confidence']}%")
 
     with open("data.json", "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
-    print("\n💾 Fichier data.json généré avec succès !")
+    print("\n💾 data.json généré")
 
 if __name__ == "__main__":
     main()

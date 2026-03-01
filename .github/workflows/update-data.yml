@@ -1,41 +1,21 @@
-name: Mise à jour quotidienne des données
+name: Mise à jour quotidienne (données + contenu)
 
 on:
   schedule:
-    - cron: '5 0 * * *'
+    - cron: '5 0 * * *'   # 00:05 UTC
   workflow_dispatch:
 
 jobs:
-  update-data:
+  update:
     runs-on: ubuntu-latest
     steps:
-      - name: Récupération du code
-        uses: actions/checkout@v3
-
-      - name: Configuration de Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+      - run: pip install requests
 
-      - name: Installation des dépendances
-        run: pip install requests
-
-      - name: Restaurer le cache des matchs
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: cache/all_matches.json
-          key: all-matches-${{ github.run_id }}
-          restore-keys: |
-            all-matches-
-
-      - name: Générer le cache si absent
-        if: steps.cache.outputs.cache-hit != 'true'
-        env:
-          BSD_API_TOKEN: ${{ secrets.BSD_API_TOKEN }}
-        run: python allmatches.py
-
-      - name: Mise à jour du cache (hier)
+      - name: Mise à jour du cache
         env:
           BSD_API_TOKEN: ${{ secrets.BSD_API_TOKEN }}
         run: python update_matches.py
@@ -45,16 +25,17 @@ jobs:
           BSD_API_TOKEN: ${{ secrets.BSD_API_TOKEN }}
         run: python generate_data.py
 
-      - name: Vérifier les modifications
-        id: git-check
+      - name: Génération du contenu IA
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python content_generator.py
+
+      - name: Génération du sitemap
+        run: python generate_sitemap.py
+
+      - name: Commit et push
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'actions@github.com'
-          git add data.json
-          git diff --staged --quiet || echo "changes=true" >> $GITHUB_OUTPUT
-
-      - name: Commit et push si changements
-        if: steps.git-check.outputs.changes == 'true'
-        run: |
-          git commit -m "Mise à jour automatique des données $(date +'%Y-%m-%d')"
-          git push
+          git add cache/all_matches.json data.json articles.json conseils.json sitemap.xml
+          git diff --staged --quiet || (git commit -m "Mise à jour quotidienne $(date +'%Y-%m-%d')" && git push)
