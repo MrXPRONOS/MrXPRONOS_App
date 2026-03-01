@@ -39,9 +39,11 @@ jobs:
       - name: Génération du sitemap
         run: python generate_sitemap.py
 
-      - name: Commit et push
+      - name: Commit and push (avec pull-rebase)
         run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'actions@github.com'
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git pull --rebase origin main
           git add cache/all_matches.json data.json articles.json conseils.json sitemap.xml
-          git diff --staged --quiet || (git commit -m "Mise à jour automatique $(date +'%Y-%m-%d') [skip ci]" && git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }})
+          git commit -m "Mise à jour automatique $(date +'%Y-%m-%d') [skip ci]" || echo "Aucun changement à commiter"
+          git push origin main
