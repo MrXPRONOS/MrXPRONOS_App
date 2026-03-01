@@ -4,6 +4,7 @@
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
 Exécution quotidienne.
+Timeout augmenté à 120 secondes.
 """
 
 import os
@@ -57,7 +58,8 @@ def call_mistral(prompt, temperature=0.7, max_tokens=2000):
         "max_tokens": max_tokens
     }
     try:
-        resp = requests.post(API_URL, headers=headers, json=data, timeout=30)
+        # Timeout augmenté à 120 secondes
+        resp = requests.post(API_URL, headers=headers, json=data, timeout=120)
         resp.raise_for_status()
         return resp.json()['choices'][0]['message']['content']
     except Exception as e:
