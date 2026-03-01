@@ -4,7 +4,6 @@
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
 Exécution quotidienne.
-Timeout augmenté à 120 secondes.
 """
 
 import os
@@ -27,7 +26,7 @@ CONSEILS_FILE = "conseils.json"
 def load_matches():
     if not os.path.exists(CACHE_FILE):
         return []
-    with open(CACHE_FILE, 'r') as f:
+    with open(CACHE_FILE, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 def get_featured_matches(matches, count=5):
@@ -58,7 +57,6 @@ def call_mistral(prompt, temperature=0.7, max_tokens=2000):
         "max_tokens": max_tokens
     }
     try:
-        # Timeout augmenté à 120 secondes
         resp = requests.post(API_URL, headers=headers, json=data, timeout=120)
         resp.raise_for_status()
         return resp.json()['choices'][0]['message']['content']
@@ -122,10 +120,22 @@ Génère en français uniquement."""
 def save_article(content, match):
     articles = []
     if os.path.exists(ARTICLES_FILE):
-        with open(ARTICLES_FILE, 'r') as f:
-            articles = json.load(f)
+        try:
+            with open(ARTICLES_FILE, 'r', encoding='utf-8') as f:
+                # Vérifier que le fichier n'est pas vide avant de charger
+                content_data = f.read().strip()
+                if content_data:
+                    articles = json.loads(content_data)
+                else:
+                    articles = []
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"⚠️ Fichier {ARTICLES_FILE} corrompu ou vide, réinitialisation.")
+            articles = []
+    else:
+        articles = []
+
     lines = content.strip().split('\n')
-    title = lines[0].replace('#', '').strip()
+    title = lines[0].replace('#', '').strip() if lines else "Article sans titre"
     slug = title.lower()
     slug = ''.join(c if c.isalnum() else '-' for c in slug)
     slug = '-'.join(filter(None, slug.split('-')))
@@ -141,16 +151,28 @@ def save_article(content, match):
     }
     articles.insert(0, new)
     articles = articles[:50]
-    with open(ARTICLES_FILE, 'w') as f:
+    with open(ARTICLES_FILE, 'w', encoding='utf-8') as f:
         json.dump(articles, f, indent=2, ensure_ascii=False)
+    print(f"✅ Article sauvegardé : {title}")
 
 def save_tip(content):
     conseils = []
     if os.path.exists(CONSEILS_FILE):
-        with open(CONSEILS_FILE, 'r') as f:
-            conseils = json.load(f)
+        try:
+            with open(CONSEILS_FILE, 'r', encoding='utf-8') as f:
+                content_data = f.read().strip()
+                if content_data:
+                    conseils = json.loads(content_data)
+                else:
+                    conseils = []
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"⚠️ Fichier {CONSEILS_FILE} corrompu ou vide, réinitialisation.")
+            conseils = []
+    else:
+        conseils = []
+
     lines = content.strip().split('\n')
-    title = lines[0].replace('#', '').strip()
+    title = lines[0].replace('#', '').strip() if lines else "Conseil"
     new = {
         "title": title,
         "content": content,
@@ -158,8 +180,9 @@ def save_tip(content):
     }
     conseils.insert(0, new)
     conseils = conseils[:100]
-    with open(CONSEILS_FILE, 'w') as f:
+    with open(CONSEILS_FILE, 'w', encoding='utf-8') as f:
         json.dump(conseils, f, indent=2, ensure_ascii=False)
+    print(f"✅ Conseil sauvegardé : {title}")
 
 def main():
     print("="*60)
