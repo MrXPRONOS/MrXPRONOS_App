@@ -3638,7 +3638,22 @@
       "category": "simple",
       "verified_double": false,
       "verified_over": false,
-      "ml_full": null
+      "ml_full": {
+        "prob_home_win": 37.45835769355873,
+        "prob_draw": 49.003383384777436,
+        "prob_away_win": 13.538258921663834,
+        "predicted_result": "D",
+        "expected_home_goals": 0.60403,
+        "expected_away_goals": 0.26121,
+        "prob_over_25": 53.32067518526223,
+        "over_25_recommend": false,
+        "prob_btts_yes": 76.10622086461603,
+        "btts_recommend": false,
+        "most_likely_score": "0-0",
+        "favorite": "H",
+        "favorite_prob": 37.45835769355873,
+        "confidence": 49.003383384777436
+      }
     },
     {
       "id": 6965,
@@ -8110,7 +8125,22 @@
         "category": "simple",
         "verified_double": false,
         "verified_over": false,
-        "ml_full": null
+        "ml_full": {
+          "prob_home_win": 37.45835769355873,
+          "prob_draw": 49.003383384777436,
+          "prob_away_win": 13.538258921663834,
+          "predicted_result": "D",
+          "expected_home_goals": 0.60403,
+          "expected_away_goals": 0.26121,
+          "prob_over_25": 53.32067518526223,
+          "over_25_recommend": false,
+          "prob_btts_yes": 76.10622086461603,
+          "btts_recommend": false,
+          "most_likely_score": "0-0",
+          "favorite": "H",
+          "favorite_prob": 37.45835769355873,
+          "confidence": 49.003383384777436
+        }
       },
       {
         "id": 598,
