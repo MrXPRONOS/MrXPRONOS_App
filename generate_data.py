@@ -216,9 +216,17 @@ def analyze_h2h(h2h_list, current_home, current_away):
         matches_count += 1
         total_goals += (match["home_score"] + match["away_score"]) * weight
         if match["home_score"] > match["away_score"]:
-            (home_score if match["home_team"] == current_home else away_score) += weight
+            # victoire de l'équipe à domicile dans ce match
+            if match["home_team"] == current_home:
+                home_score += weight
+            else:
+                away_score += weight
         elif match["home_score"] < match["away_score"]:
-            (away_score if match["home_team"] == current_home else home_score) += weight
+            # victoire de l'équipe à l'extérieur dans ce match
+            if match["away_team"] == current_home:
+                home_score += weight
+            else:
+                away_score += weight
         else:
             draws_score += weight
         if match["home_score"] + match["away_score"] > 2.5:
@@ -278,8 +286,8 @@ def train_or_load_model(training_data):
 # =======================================================
 def calculate_xpronos_score(home_form, away_form, analysis, api_pred, ml_pred):
     score = 0
-    # Différence de forme (30 pts)
-    form_diff = abs(home_form.get("avg_goals_for", 1.5) - away_form.get("avg_goals_for", 1.5)) * 10  # exemple
+    # Différence de forme (30 pts) - exemple simplifié
+    form_diff = abs(home_form.get("avg_goals_for", 1.5) - away_form.get("avg_goals_for", 1.5)) * 10
     # On peut aussi utiliser les victoires, etc. Simplifions :
     form_strength = (home_form.get("wins", 0) - away_form.get("wins", 0)) * 5
     score += min(30, abs(form_strength) + form_diff)
@@ -366,11 +374,9 @@ def main():
     training_data = []
     for m in old_data.get("matches", []):
         if m["status"] == "finished" and "h2h_analysis" in m and "xpronos_score" in m:
-            # Calculer la forme à partir du cache pour ce match (mais on a pas l'info, on utilise une valeur par défaut)
-            # Ici on pourrait récupérer la forme du match depuis le cache, mais c'est complexe.
-            # On va utiliser les données de l'ancien fichier telles quelles.
-            form_home = m.get("form_home", {}).get("avg_goals_for", 1.5)
-            form_away = m.get("form_away", {}).get("avg_goals_for", 1.5)
+            # On utilise les valeurs déjà calculées
+            form_home = m.get("home_form", {}).get("avg_goals_for", 1.5)
+            form_away = m.get("away_form", {}).get("avg_goals_for", 1.5)
             analysis = m["h2h_analysis"]
             training_data.append({
                 "form_diff": abs(form_home - form_away),
