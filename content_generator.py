@@ -205,4 +205,4 @@ def main():
     print("\n✅ Génération terminée")
 
 if __name__ == "__main__":
-    main()
+    main() 
