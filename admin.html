@@ -7,83 +7,19 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        .admin-tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-        }
-        .tab-btn {
-            background: var(--noir-secondaire);
-            color: var(--blanc);
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        .tab-btn.active {
-            background: var(--gradient-gold);
-            color: #000;
-        }
-        .tab-pane {
-            display: none;
-        }
-        .tab-pane.active {
-            display: block;
-        }
-        pre {
-            background: var(--noir);
-            padding: 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
-            color: #0f0;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        .stat-card {
-            background: var(--noir-secondaire);
-            border: 1px solid var(--or);
-            border-radius: 16px;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-        .stat-card h3 {
-            color: var(--or);
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-        }
-        .stat-card .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--blanc);
-        }
-        .period-selector {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .period-selector select, .period-selector input {
-            background: var(--noir-secondaire);
-            color: var(--blanc);
-            border: 1px solid var(--or);
-            padding: 0.5rem;
-            border-radius: 8px;
-        }
-        .custom-range {
-            display: none;
-            gap: 0.5rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+        .admin-tabs { display: flex; gap: 0.5rem; margin: 2rem 0; flex-wrap: wrap; }
+        .tab-btn { background: var(--noir-secondaire); color: var(--blanc); border: none; padding: 0.8rem 1.5rem; border-radius: 30px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .tab-btn.active { background: var(--or); color: var(--noir); }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+        pre { background: var(--noir); padding: 1rem; border-radius: 8px; overflow-x: auto; color: #0f0; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--noir-secondaire); border: 1px solid var(--or); border-radius: 16px; padding: 1.5rem; text-align: center; box-shadow: var(--shadow); }
+        .stat-card h3 { color: var(--or); margin-bottom: 0.5rem; font-size: 1rem; }
+        .stat-card .stat-value { font-size: 2rem; font-weight: 700; color: var(--blanc); }
+        .period-selector { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center; }
+        .period-selector select, .period-selector input { background: var(--noir-secondaire); color: var(--blanc); border: 1px solid var(--or); padding: 0.5rem; border-radius: 8px; }
+        .custom-range { display: none; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
     </style>
 </head>
 <body>
@@ -334,7 +270,6 @@
                 updatePreview();
             }
 
-            // Pronostics
             function renderPronostics() {
                 const container = document.getElementById('pronostics-list-admin');
                 if (!container) return;
@@ -399,7 +334,6 @@
                 document.getElementById('pronostic-index').value = '-1';
             });
 
-            // Blog
             function renderBlog() {
                 const container = document.getElementById('blog-list-admin');
                 if (!container) return;
@@ -464,7 +398,6 @@
                 document.getElementById('blog-index').value = '-1';
             });
 
-            // Conseils
             function renderConseils() {
                 const container = document.getElementById('conseils-list-admin');
                 if (!container) return;
@@ -521,7 +454,6 @@
                 document.getElementById('conseil-index').value = '-1';
             });
 
-            // Infos
             function renderInfos() {
                 const container = document.getElementById('infos-list-admin');
                 if (!container) return;
@@ -578,7 +510,6 @@
                 document.getElementById('info-index').value = '-1';
             });
 
-            // Export JSON
             function updatePreview() {
                 const preview = document.getElementById('json-preview');
                 if (preview) {
@@ -604,7 +535,6 @@
                 }
             });
 
-            // Gestion des onglets
             document.querySelectorAll('.admin-tabs .tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.admin-tabs .tab-btn').forEach(b => b.classList.remove('active'));

@@ -1,22 +1,31 @@
 /* =======================================================
    STYLE.CSS - Mr XPRONOS
-   Design noir & or moderne, sans menu burger, dégradés légers
+   Design noir & or, moderne, optimisé sans dégradés
    ======================================================= */
 
+/* Police élégante Montserrat (Google Fonts) */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
+/* =======================================================
+   VARIABLES DE COULEURS
+   ======================================================= */
 :root {
     --noir: #0D0D0D;
     --noir-secondaire: #1A1A1A;
     --or: #D4AF37;
     --or-clair: #FFD700;
+    --vert: #00FF88;
+    --vert-fonce: #009966;
     --blanc: #FFFFFF;
     --gris: #2A2A2A;
     --gris-clair: #444;
-    --shadow: 0 4px 8px rgba(0,0,0,0.3);
-    --shadow-hover: 0 8px 16px rgba(212,175,55,0.2);
+    --shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    --shadow-hover: 0 12px 24px rgba(212, 175, 55, 0.2);
 }
 
+/* =======================================================
+   RÉINITIALISATION DE BASE
+   ======================================================= */
 * {
     margin: 0;
     padding: 0;
@@ -29,6 +38,8 @@ body {
     color: var(--blanc);
     line-height: 1.5;
     font-size: 14px;
+    scroll-behavior: smooth;
+    min-height: 100vh;
 }
 
 .container {
@@ -38,7 +49,9 @@ body {
     padding: 0 15px;
 }
 
-/* Header */
+/* =======================================================
+   HEADER (EN-TÊTE)
+   ======================================================= */
 header {
     background-color: var(--noir-secondaire);
     padding: 0.8rem 0;
@@ -47,6 +60,7 @@ header {
     top: 0;
     z-index: 100;
     box-shadow: var(--shadow);
+    backdrop-filter: blur(5px);
 }
 
 header .container {
@@ -61,10 +75,17 @@ header .container {
     font-size: 1.6rem;
     font-weight: 700;
     text-decoration: none;
+    letter-spacing: 1px;
+    transition: color 0.3s;
+}
+
+.logo a:hover {
+    color: var(--or-clair);
 }
 
 .logo span {
     color: var(--blanc);
+    font-weight: 400;
 }
 
 nav ul {
@@ -79,14 +100,29 @@ nav a {
     text-decoration: none;
     font-weight: 500;
     font-size: 0.9rem;
+    transition: color 0.3s;
+    position: relative;
     padding-bottom: 5px;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.2s;
+}
+
+nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--or);
+    transition: width 0.3s;
+}
+
+nav a:hover::after,
+nav a.active::after {
+    width: 100%;
 }
 
 nav a:hover,
 nav a.active {
-    border-bottom-color: var(--or);
     color: var(--or);
 }
 
@@ -97,9 +133,17 @@ nav a.active {
     border-radius: 30px;
     font-weight: 700;
     font-size: 0.8rem;
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+    transition: transform 0.3s;
 }
 
-/* Footer */
+.promo-code:hover {
+    transform: scale(1.05);
+}
+
+/* =======================================================
+   FOOTER (PIED DE PAGE)
+   ======================================================= */
 footer {
     background-color: var(--noir-secondaire);
     padding: 1.5rem 0;
@@ -120,6 +164,7 @@ footer {
     color: var(--blanc);
     text-decoration: none;
     font-size: 0.8rem;
+    transition: color 0.3s;
 }
 
 .footer-links a:hover {
@@ -136,27 +181,35 @@ footer {
 .social-links a {
     color: var(--or);
     font-size: 1.3rem;
+    transition: transform 0.3s;
+}
+
+.social-links a:hover {
+    transform: scale(1.2);
 }
 
 .bookmakers {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 1rem;
-    margin: 1rem 0;
-    flex-wrap: wrap;
+    margin: 1.5rem 0;
+    align-items: center;
 }
 
 .bookmakers img {
-    height: 25px;
+    width: 100%;
+    border-radius: 10px;
     opacity: 0.9;
-    transition: opacity 0.2s;
+    transition: transform 0.3s;
 }
 
 .bookmakers a:hover img {
-    opacity: 1;
+    transform: scale(1.1);
 }
 
-/* Boutons */
+/* =======================================================
+   BOUTONS
+   ======================================================= */
 .btn {
     display: inline-block;
     padding: 0.6rem 1.5rem;
@@ -164,9 +217,10 @@ footer {
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
-    transition: 0.2s;
+    transition: all 0.3s;
     border: none;
     cursor: pointer;
+    text-align: center;
 }
 
 .btn-primary {
@@ -189,9 +243,12 @@ footer {
 .btn-secondary:hover {
     background-color: var(--or);
     color: var(--noir);
+    transform: translateY(-2px);
 }
 
-/* Cartes */
+/* =======================================================
+   CARTES GÉNÉRIQUES
+   ======================================================= */
 .card {
     background-color: var(--noir-secondaire);
     border-radius: 16px;
@@ -199,11 +256,12 @@ footer {
     margin-bottom: 1.5rem;
     border-left: 4px solid var(--or);
     box-shadow: var(--shadow);
-    transition: transform 0.2s;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
 }
 
 .card h3 {
@@ -212,7 +270,49 @@ footer {
     font-size: 1.2rem;
 }
 
-/* Page pronostics */
+.card .meta {
+    color: #888;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.badge-premium {
+    background-color: var(--or);
+    color: #000;
+    padding: 0.2rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+/* =======================================================
+   HERO SECTION (PAGE D'ACCUEIL)
+   ======================================================= */
+.hero {
+    background-color: var(--noir-secondaire);
+    padding: 4rem 0;
+    text-align: center;
+    border-bottom: 2px solid var(--or);
+}
+
+.hero h1 {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+    color: var(--or);
+    line-height: 1.2;
+}
+
+.hero p {
+    font-size: 1rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    color: #ccc;
+}
+
+/* =======================================================
+   PAGE PRONOSTICS (ONGLETS, CARTES, ANALYSES)
+   ======================================================= */
 .category-tabs, .day-filters {
     display: flex;
     gap: 0.5rem;
@@ -220,28 +320,33 @@ footer {
     flex-wrap: wrap;
 }
 .tab-btn, .day-btn {
-    background: var(--noir-secondaire);
+    background-color: var(--noir-secondaire);
     color: var(--blanc);
     border: 1px solid var(--or);
     padding: 0.5rem 1.2rem;
     border-radius: 30px;
     cursor: pointer;
     font-weight: 600;
+    transition: all 0.3s;
     font-size: 0.8rem;
-    transition: 0.2s;
 }
 .tab-btn.active, .day-btn.active {
-    background: var(--or);
+    background-color: var(--or);
     color: var(--noir);
     border-color: var(--or);
 }
 .tab-btn:hover, .day-btn:hover {
     transform: scale(1.05);
 }
+.tab-btn[style*="display: none"] {
+    display: none !important;
+}
 
+/* Grille des matchs : 2 colonnes sur desktop */
 .matches-grid {
     display: grid;
     gap: 20px;
+    margin-top: 2rem;
     grid-template-columns: 1fr;
 }
 @media (min-width: 768px) {
@@ -250,14 +355,21 @@ footer {
     }
 }
 
+/* Carte de match */
 .match-card {
-    background: var(--noir-secondaire);
-    border-radius: 16px;
+    background-color: var(--noir-secondaire);
+    border-radius: 20px;
     overflow: hidden;
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
-    border: 1px solid rgba(212,175,55,0.3);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+.match-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
 }
 @media (min-width: 768px) {
     .match-card {
@@ -270,6 +382,7 @@ footer {
         flex: 1;
         border-left: 2px solid var(--or);
         padding: 1rem;
+        background-color: rgba(0,0,0,0.3);
     }
 }
 .match-info {
@@ -285,32 +398,39 @@ footer {
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
     width: 38%;
 }
 .team-logo {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    height: 60px;
     object-fit: contain;
-    background: var(--gris);
-    border-radius: 10px;
-    padding: 5px;
-    margin-bottom: 5px;
+    background-color: var(--gris);
+    border-radius: 12px;
+    padding: 8px;
+    margin-bottom: 8px;
     border: 1px solid var(--gris-clair);
+    transition: border 0.3s;
+}
+.match-card:hover .team-logo {
+    border-color: var(--or);
 }
 .team-name {
     font-weight: 600;
     font-size: 0.9rem;
+    color: var(--blanc);
+    margin-bottom: 5px;
 }
 .team-score {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     font-weight: 700;
     color: var(--or);
 }
 .vs {
     font-weight: 700;
     color: var(--or);
-    background: var(--gris);
-    padding: 4px 10px;
+    background-color: var(--gris);
+    padding: 5px 12px;
     border-radius: 50px;
     font-size: 0.8rem;
     border: 1px solid var(--or);
@@ -324,107 +444,540 @@ footer {
     font-size: 0.75rem;
 }
 .league-badge {
-    background: var(--or);
+    background-color: var(--or);
     color: var(--noir);
-    padding: 4px 10px;
-    border-radius: 20px;
+    padding: 4px 12px;
+    border-radius: 30px;
     font-weight: 600;
 }
 .status {
-    background: var(--gris);
+    background-color: var(--gris);
     color: var(--or);
-    padding: 4px 10px;
-    border-radius: 20px;
+    padding: 4px 12px;
+    border-radius: 30px;
     border: 1px solid var(--or);
 }
 .status.finished {
-    background: var(--or);
+    background-color: var(--or);
     color: var(--noir);
 }
 .status.live {
-    background: var(--or);
+    background-color: var(--or);
     color: var(--noir);
     animation: pulse 1.5s infinite;
 }
 @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
+    100% { opacity: 1; transform: scale(1); }
 }
-.match-time {
+.match-time, .match-venue {
     color: #aaa;
     font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.match-time i, .match-venue i {
+    color: var(--or);
+    width: 16px;
 }
 .analysis-panel h4 {
     color: var(--or);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.8rem;
     font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 .analysis-panel p {
+    margin-bottom: 0.4rem;
     font-size: 0.8rem;
-    margin-bottom: 0.3rem;
+    line-height: 1.4;
+}
+.verified {
+    color: #4CAF50;
+    font-weight: 600;
 }
 .prediction-checkbox {
     margin-right: 5px;
     transform: scale(1.2);
 }
-.prediction-checkbox:checked:disabled {
-    accent-color: #4CAF50;
-    opacity: 1;
+
+/* Sous-onglets VIP */
+.vip-subtabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.5rem 0 1rem 0;
+    flex-wrap: wrap;
+}
+.subtab-btn {
+    background-color: var(--noir-secondaire);
+    color: var(--blanc);
+    border: 1px solid var(--or);
+    padding: 0.4rem 1rem;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-size: 0.75rem;
+}
+.subtab-btn.active {
+    background-color: var(--or);
+    color: var(--noir);
+    border-color: var(--or);
 }
 
-/* Badge XPRONOS */
+/* Page contact */
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+.contact-card {
+    background-color: var(--noir-secondaire);
+    border-radius: 20px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    border: 1px solid var(--or);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+.contact-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.8rem;
+}
+.contact-card h3 {
+    color: var(--or);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+.contact-card a {
+    color: var(--blanc);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+.contact-card a:hover {
+    color: var(--or);
+}
+
+/* Analyse complète ML (si utilisée) */
+.analysis-full {
+    background-color: rgba(212, 175, 55, 0.1);
+    border-left: 2px solid var(--or);
+    padding: 1rem;
+}
+.analysis-full p {
+    font-size: 0.8rem;
+    margin-bottom: 0.4rem;
+}
+
+/* =======================================================
+   BOOKMAKERS DYNAMIQUES (CARTES DE BONUS)
+   ======================================================= */
+.bookmakers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.bookmaker-card {
+    background-color: var(--noir);
+    border-radius: 16px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid var(--or);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.bookmaker-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.bookmaker-card img {
+    max-width: 80px;
+    height: auto;
+    margin-bottom: 0.5rem;
+}
+
+.bookmaker-card h3 {
+    color: var(--or);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.bookmaker-card p {
+    font-size: 0.8rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+/* =======================================================
+   POPUP DE PARTAGE (CENTRÉ)
+   ======================================================= */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    backdrop-filter: blur(5px);
+}
+.popup.active {
+    display: flex;
+}
+.popup-content {
+    background-color: var(--noir-secondaire);
+    border: 2px solid var(--or);
+    border-radius: 24px;
+    padding: 1.5rem;
+    max-width: 90%;
+    width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+    box-shadow: var(--shadow-hover);
+    animation: fadeInUp 0.3s;
+}
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.popup-content h3 {
+    color: var(--or);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+.popup-content p {
+    margin-bottom: 1.2rem;
+    font-size: 0.9rem;
+}
+.share-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+#close-popup {
+    margin-top: 1rem;
+}
+
+/* =======================================================
+   OVERLAY VIP VERROUILLÉ
+   ======================================================= */
+.vip-locked-overlay {
+    position: relative;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(5px);
+    border: 1px solid var(--or);
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 2rem 0;
+    transition: opacity 0.3s ease;
+}
+
+.vip-locked-content {
+    background: rgba(0,0,0,0.7);
+    padding: 2rem;
+    text-align: center;
+    border-radius: 20px;
+    backdrop-filter: blur(6px);
+    max-width: 400px;
+    width: 90%;
+}
+
+.vip-locked-content .lock-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.vip-locked-content h3 {
+    color: var(--or);
+    margin-bottom: 1rem;
+}
+
+.vip-locked-content p {
+    margin-bottom: 1.5rem;
+    color: #ccc;
+}
+
+/* =======================================================
+   MESSAGES DE CHARGEMENT / ERREUR
+   ======================================================= */
+.loading, .error, .no-events, .warning {
+    text-align: center;
+    padding: 3rem 1rem;
+    background-color: var(--noir-secondaire);
+    border-radius: 20px;
+    border: 1px solid var(--or);
+    color: var(--blanc);
+    font-size: 1rem;
+    margin: 2rem 0;
+}
+.loading {
+    position: relative;
+}
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--gris-clair);
+    border-top-color: var(--or);
+    border-radius: 50%;
+    animation: spinner 1s linear infinite;
+    margin-top: 1rem;
+}
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}
+.error {
+    color: #FF6B6B;
+    border-color: #FF6B6B;
+}
+.warning {
+    color: #FFA500;
+    border-color: #FFA500;
+}
+.no-events {
+    color: #AAAAAA;
+}
+
+/* =======================================================
+   CASES À COCHER VERTES POUR LES PRONOSTICS VALIDÉS
+   ======================================================= */
+.prediction-checkbox:checked:disabled {
+    accent-color: #4CAF50 !important;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+@supports not (accent-color: #4CAF50) {
+    .prediction-checkbox:checked:disabled {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+        color: white;
+    }
+}
+
+/* =======================================================
+   BADGE XPRONOS
+   ======================================================= */
 .xpronos-badge {
     display: inline-block;
-    background: var(--or);
-    color: var(--noir);
-    padding: 2px 8px;
-    border-radius: 20px;
+    background-color: var(--or);
+    color: #000;
+    padding: 4px 12px;
+    border-radius: 30px;
     font-size: 0.7rem;
     font-weight: 700;
-    margin-left: 5px;
+    margin-left: 8px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(255,215,0,0.3);
 }
 
-/* Barre de confiance */
-.confidence-bar {
-    width: 100%;
-    height: 6px;
-    background: #333;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 5px 0;
-}
-.confidence-fill {
-    height: 100%;
-    width: 0;
-    background: var(--or);
-    transition: width 1s ease;
+/* =======================================================
+   FORMATAGE DES ARTICLES ET CONSEILS
+   ======================================================= */
+#blog-post,
+#conseils-list,
+#blog-list {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 
-/* Feu d'artifice */
+#blog-post h1,
+#blog-post h2,
+#blog-post h3,
+#conseils-list .card h3,
+#blog-list .card h3 {
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+}
+
+#blog-post p,
+#conseils-list .card p,
+#blog-list .card p {
+    margin-bottom: 0.8rem;
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+#blog-post ul,
+#blog-post ol,
+#conseils-list .card ul,
+#conseils-list .card ol,
+#blog-list .card ul,
+#blog-list .card ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+#blog-post blockquote,
+#conseils-list .card blockquote,
+#blog-list .card blockquote {
+    border-left: 4px solid var(--or);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+    color: #ccc;
+}
+
+/* Grille pour les articles et conseils (2 colonnes sur desktop) */
+#blog-list,
+#conseils-list {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+    #blog-list,
+    #conseils-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* =======================================================
+   ACTUALITÉS FOOTBALL
+   ======================================================= */
+.news-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+    .news-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+.news-card img {
+    max-height: 200px;
+    object-fit: cover;
+}
+
+/* =======================================================
+   TAUX DE RÉUSSITE GLOBAL
+   ======================================================= */
+.success-rate {
+    background-color: var(--noir-secondaire);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: center;
+    justify-content: space-around;
+    border-left: 4px solid var(--or);
+    box-shadow: var(--shadow);
+}
+
+.success-rate-item {
+    text-align: center;
+}
+
+.success-rate-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--or);
+    line-height: 1.2;
+}
+
+.success-rate-label {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+/* =======================================================
+   SCROLL PROGRESS BAR
+   ======================================================= */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background-color: var(--or);
+    z-index: 1000;
+    transition: width 0.1s;
+}
+
+/* =======================================================
+   SKELETON LOADING (optionnel)
+   ======================================================= */
+@keyframes skeleton-loading {
+    0% { background-color: #2a2a2a; }
+    50% { background-color: #3a3a3a; }
+    100% { background-color: #2a2a2a; }
+}
+
+.skeleton {
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 8px;
+}
+
+/* =======================================================
+   FEU D'ARTIFICE POUR PRONO GAGNÉ
+   ======================================================= */
 .win-effect {
     position: absolute;
     inset: 0;
     pointer-events: none;
+    overflow: hidden;
 }
+
 .match-card.winner {
-    border: 2px solid #4CAF50;
-    box-shadow: 0 0 15px rgba(76,175,80,0.5);
+    border: 2px solid #4CAF50 !important;
+    box-shadow: 0 0 25px rgba(76,175,80,0.5) !important;
     position: relative;
 }
+
 .match-card.winner::before {
-    content: "🎉 GAGNÉ";
+    content: "🎉 PRONO GAGNÉ";
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background: #4CAF50;
+    top: 10px;
+    right: 10px;
+    background-color: #4CAF50;
     color: black;
-    padding: 4px 8px;
+    padding: 6px 12px;
     border-radius: 20px;
     font-size: 0.7rem;
     font-weight: 700;
+    animation: pulseWin 1s infinite;
     z-index: 10;
 }
+
+@keyframes pulseWin {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
 .spark {
     position: absolute;
     width: 4px;
@@ -435,116 +988,118 @@ footer {
     pointer-events: none;
     z-index: 20;
 }
+
 @keyframes sparkFly {
-    0% { transform: translate(0,0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--dx,100px), var(--dy,-100px)) scale(0); opacity: 0; }
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--dx, 100px), var(--dy, -100px)) scale(0);
+        opacity: 0;
+    }
 }
 
-/* Ticket */
+/* =======================================================
+   BARRE DE CONFIANCE ANIMÉE
+   ======================================================= */
+.confidence-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #333;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.confidence-fill {
+    height: 100%;
+    width: 0;
+    background-color: var(--or);
+    transition: width 2s ease;
+}
+
+/* =======================================================
+   EFFET TICKET DE PARI
+   ======================================================= */
 .ticket {
-    background: #111;
+    background-color: #111;
     border: 2px dashed var(--or);
     padding: 1rem;
     border-radius: 12px;
     position: relative;
 }
+
 .ticket::before,
 .ticket::after {
     content: "";
     position: absolute;
     width: 15px;
     height: 15px;
-    background: var(--noir);
+    background-color: var(--noir);
     border-radius: 50%;
     top: 50%;
     transform: translateY(-50%);
 }
+
 .ticket::before { left: -8px; }
 .ticket::after { right: -8px; }
 
-/* Overlay VIP */
-.vip-locked-overlay {
-    min-height: 250px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0,0,0,0.8);
-    border: 1px solid var(--or);
-    border-radius: 20px;
-    margin: 2rem 0;
-}
-.vip-locked-content {
-    background: rgba(0,0,0,0.7);
-    padding: 2rem;
-    text-align: center;
-    border-radius: 20px;
-    max-width: 400px;
-    width: 90%;
-}
-.vip-locked-content .lock-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-.vip-locked-content h3 {
-    color: var(--or);
-    margin-bottom: 1rem;
+.ticket.winner {
+    border-color: #4CAF50;
+    background-color: rgba(76,175,80,0.1);
 }
 
-/* Taux de réussite */
-.success-rate {
-    background: var(--noir-secondaire);
-    border-radius: 16px;
-    padding: 1rem;
-    margin: 1.5rem 0;
-    display: flex;
-    gap: 2rem;
-    justify-content: space-around;
-    border-left: 4px solid var(--or);
-}
-.success-rate-value {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--or);
-}
-.success-rate-label {
-    font-size: 0.8rem;
-    color: #aaa;
-}
-
-/* Scroll progress */
-.scroll-progress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 0%;
-    height: 3px;
-    background: var(--or);
-    z-index: 1000;
-    transition: width 0.1s;
-}
-
-/* Responsive */
+/* =======================================================
+   RESPONSIVE (MOBILE FIRST)
+   ======================================================= */
 @media (max-width: 768px) {
     header .container {
         flex-direction: column;
-        gap: 0.5rem;
-    }
-    nav ul {
-        justify-content: center;
         gap: 0.8rem;
     }
+
+    nav ul {
+        gap: 0.8rem;
+        justify-content: center;
+    }
+
+    nav a {
+        font-size: 0.8rem;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero p {
+        font-size: 0.9rem;
+    }
+
+    .bookmakers {
+        gap: 0.8rem;
+    }
+
     .match-card {
         flex-direction: column;
     }
     .analysis-panel {
         border-left: none;
         border-top: 2px solid var(--or);
+        padding: 0.8rem;
     }
     .team-logo {
-        width: 40px;
-        height: 40px;
+        width: 45px;
+        height: 45px;
     }
     .team-score {
         font-size: 1.3rem;
+    }
+    .footer-links {
+        gap: 0.8rem;
+    }
+    .footer-links a {
+        font-size: 0.75rem;
     }
 }
