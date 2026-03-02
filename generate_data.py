@@ -4,7 +4,7 @@
 """
 generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
 les prédictions ML et les analyses H2H améliorées.
-Version avec correction robuste des statuts pour les matchs passés.
+Version avec accord H2H/API et score de confiance.
 """
 
 import requests
@@ -191,28 +191,43 @@ def generate_prediction_h2h(analysis):
     }
 
 # =======================================================
-# CALCUL DU SCORE XPRONOS (simplifié sans over15)
+# FONCTIONS DE CALCUL DU SCORE DE CONFIANCE
 # =======================================================
 
-def calculate_xpronos_score(event, analysis, api_pred):
+def calculate_confidence_score(analysis, ml_pred, agreement):
     score = 0
-    # Forme (simulée)
-    form_diff = abs(event.get("form_home", 0) - event.get("form_away", 0))
-    score += min(30, form_diff * 3)
+    # Accord H2H/API : 50 points
+    if agreement:
+        score += 50
 
-    # H2H (30 pts)
-    h2h_diff = abs(analysis["home_dominance"] - analysis["away_dominance"]) * 100
-    score += min(30, h2h_diff * 2)
+    if ml_pred:
+        # Probabilité API (max 20 points)
+        prob_home = ml_pred.get('prob_home_win', 0)
+        prob_away = ml_pred.get('prob_away_win', 0)
+        prob_draw = ml_pred.get('prob_draw', 0)
+        max_prob = max(prob_home, prob_away, prob_draw)
+        score += min(20, int(max_prob / 5))  # ex: 60% donne 12 points
 
-    # API (20 pts)
-    if api_pred and analysis["home_dominance"] > 0.6 and api_pred == "H" or \
-       analysis["away_dominance"] > 0.6 and api_pred == "A":
-        score += 20
+        # Bonus si la probabilité dépasse 65%
+        if max_prob > 65:
+            score += 5
 
-    # Confiance (20 pts)
-    score += min(20, analysis["total_matches"] * 2)
+    # Dominance H2H (max 20 points)
+    dominance = max(analysis["home_dominance"], analysis["away_dominance"])
+    score += min(20, int(dominance * 30))  # 0.7 → 21, mais plafonné à 20
+
+    # Nombre de matchs H2H (max 10 points)
+    score += min(10, analysis["total_matches"] * 2)
 
     return min(score, 100)
+
+def get_category(score):
+    if score >= 85:
+        return "vip"
+    elif score >= 70:
+        return "pro"
+    else:
+        return "simple"
 
 def get_badge(score):
     if score >= 90:
@@ -321,28 +336,31 @@ def main():
         prediction_h2h = generate_prediction_h2h(analysis)
 
         ml_pred = pred_dict.get(match_id)
-        api_pred = None
+        api_double_chance = None
+        api_prob = 0
         if ml_pred:
-            prob_home = ml_pred.get('prob_home_win', 0)
-            prob_away = ml_pred.get('prob_away_win', 0)
-            if prob_home > 55:
-                api_pred = "H"
-            elif prob_away > 55:
-                api_pred = "A"
-            else:
-                api_pred = "D"
+            predicted_result = ml_pred.get('predicted_result', '')
+            if predicted_result == "H":
+                api_double_chance = "1X"
+                api_prob = ml_pred.get('prob_home_win', 0)
+            elif predicted_result == "A":
+                api_double_chance = "X2"
+                api_prob = ml_pred.get('prob_away_win', 0)
+            elif predicted_result == "D":
+                api_double_chance = "12"
+                api_prob = ml_pred.get('prob_draw', 0)
 
-        # Score XPRONOS
-        score = calculate_xpronos_score(event, analysis, api_pred)
+        # Vérifier l'accord
+        agreement = (prediction_h2h["double_chance"] == api_double_chance) if api_double_chance else False
+
+        if not agreement:
+            print(f"   ❌ Pas d'accord H2H/API, match ignoré")
+            continue
+
+        # Calcul du score de confiance
+        score = calculate_confidence_score(analysis, ml_pred, agreement)
         badge = get_badge(score)
-
-        # Catégorie basée sur le score
-        if score >= 85:
-            category = "vip"
-        elif score >= 70:
-            category = "pro"
-        else:
-            category = "simple"
+        category = get_category(score)
 
         # Construction de l'objet match
         home_logo = f"https://sports.bzzoiro.com/img/team/{home_obj['api_id']}/?token={API_TOKEN}"
@@ -366,7 +384,7 @@ def main():
             "h2h_analysis": analysis,
             "prediction": {
                 "double_chance": prediction_h2h["double_chance"],
-                "confidence": prediction_h2h["confidence"]
+                "confidence": score  # On utilise le nouveau score
             },
             "xpronos_score": score,
             "badge": badge,
@@ -382,21 +400,17 @@ def main():
             event_dt = datetime.fromisoformat(event_datetime.replace('Z', '+00:00'))
             match_date = event_dt.date()
 
-            # 1. Si on a les scores → le match est forcément terminé (priorité absolue)
             if event.get("home_score") is not None and event.get("away_score") is not None:
                 old_status = match_data["status"]
                 match_data["status"] = "finished"
                 if old_status != "finished":
                     print(f"   🔧 Correction statut (scores présents) : {old_status} → finished")
-
-            # 2. Sinon, pour tous les matchs antérieurs à aujourd'hui → on force "finished"
             elif match_date < today:
                 old_status = match_data["status"]
                 match_data["status"] = "finished"
                 if old_status != "finished":
                     print(f"   🔧 Correction statut (date passée) : {old_status} → finished")
 
-            # 3. Récupération des scores depuis l'ancien data.json si l'API est en retard
             if match_data["status"] == "finished":
                 old_match = old_matches_by_id.get(match_id)
                 if old_match and (match_data.get("home_score") is None or match_data.get("away_score") is None):
@@ -407,19 +421,18 @@ def main():
         except Exception as e:
             print(f"   ⚠️ Erreur correction statut match {match_id}: {e}")
 
-        # Vérification du résultat (maintenant valable pour TOUS les matchs terminés)
+        # Vérification du résultat
         if match_data["status"] == "finished" and match_data.get("home_score") is not None:
             verify_prediction(match_data, match_data["prediction"])
 
         new_matches.append(match_data)
         categories[category].append(match_data)
-        print(f"   ✅ Score XPRONOS: {score} - {badge}")
+        print(f"   ✅ Score: {score} - {badge} - Catégorie: {category}")
 
-    # Fusion avec anciens matchs
+    # Fusion avec anciens matchs (pour conserver l'historique)
     new_ids = {m['id'] for m in new_matches}
     for old_id, old_match in old_matches_by_id.items():
         if old_id not in new_ids:
-            # Si le match est ancien (date < aujourd'hui) et non terminé, on force le statut "finished"
             try:
                 match_date = datetime.fromisoformat(old_match['event_date'].replace('Z', '+00:00')).date()
                 if match_date < today and old_match['status'] != 'finished':
@@ -452,7 +465,7 @@ def main():
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False, default=str)
-    print(f"\n💾 {DATA_FILE} généré avec {len(new_matches)} matchs, ROI: {stats['roi']}%")
+    print(f"\n💾 {DATA_FILE} généré avec {len(new_matches)} matchs (uniquement ceux avec accord H2H/API), ROI: {stats['roi']}%")
 
 if __name__ == "__main__":
     main()
