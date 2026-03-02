@@ -4,7 +4,7 @@
 """
 generate_data.py - UTILISE EXCLUSIVEMENT THESPORTSDB POUR LES SCORES
 BSD = uniquement prédictions ML + H2H
-Logs détaillés pour chaque tentative TheSportsDB
+Logs détaillés pour chaque tentative TheSportsDB (avec URL)
 """
 
 import requests
@@ -99,7 +99,7 @@ def fetch_predictions(upcoming=True):
     return all_predictions
 
 # =======================================================
-# CACHE THESPORTSDB + NORMALISATION + LOGS
+# CACHE THESPORTSDB + NORMALISATION + LOGS AVEC URL
 # =======================================================
 def load_tsdb_cache():
     if os.path.exists(TSDB_CACHE_FILE) and os.path.getsize(TSDB_CACHE_FILE) > 0:
@@ -191,7 +191,7 @@ def normalize_team(name: str) -> str:
     return name_clean
 
 def fetch_tsdb_match(home, away, date_str, tsdb_cache):
-    """Interroge TheSportsDB avec logs détaillés."""
+    """Interroge TheSportsDB avec logs détaillés et affichage de l'URL."""
     key = get_tsdb_key(home, away, date_str)
     if key in tsdb_cache:
         cached = tsdb_cache[key]
@@ -215,6 +215,7 @@ def fetch_tsdb_match(home, away, date_str, tsdb_cache):
 
     for event_name in formats:
         url = f"https://www.thesportsdb.com/api/v1/json/123/searchevents.php?e={event_name}&d={date_str}"
+        print(f"      🔗 Tentative URL: {url}")
         try:
             resp = requests.get(url, timeout=10)
             if resp.status_code == 200:
@@ -280,7 +281,6 @@ def get_h2h_from_cache(team_id_a, team_id_b, global_cache):
     return h2h
 
 def analyze_h2h(h2h_list, current_home_team, current_away_team):
-    # (identique à la version précédente)
     home_score = 0.0
     away_score = 0.0
     draws_score = 0.0
