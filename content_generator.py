@@ -3,7 +3,7 @@
 
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
-Ajoute la génération d'images via l'API Stable Diffusion XL (Pixazo) pour illustrer chaque contenu.
+Ajoute la génération d'images via l'API Stable Diffusion XL (Pixazo) avec prompts améliorés.
 Sélectionne les matchs les plus populaires du jour à partir de data.json.
 Exécution quotidienne.
 """
@@ -23,11 +23,11 @@ if not PIXAZO_API_KEY:
     raise ValueError("La variable d'environnement PIXAZO_API_KEY n'est pas définie")
 
 # Fichiers
-DATA_FILE = "data.json"  # Fichier contenant les matchs du jour/demain/hier
+DATA_FILE = "data.json"
 ARTICLES_FILE = "articles.json"
 CONSEILS_FILE = "conseils.json"
 
-# Liste des ligues les plus populaires (ordre de priorité)
+# Liste des ligues populaires (identique)
 POPULAR_LEAGUES = [
     "Premier League",
     "LaLiga",
@@ -50,23 +50,24 @@ POPULAR_LEAGUES = [
 
 def generate_image_with_retry(prompt, prefix="article", max_retries=3, base_delay=5):
     """
-    Génère une image via l'API Stable Diffusion XL (Pixazo) avec retry en cas d'échec.
-    Retourne le chemin local de l'image sauvegardée, ou None en cas d'échec.
+    Génère une image via l'API Pixazo avec retry.
+    Taille réduite à 768x768 pour accélérer le chargement.
+    Prompt amélioré pour de meilleurs résultats.
     """
     headers = {
         "Content-Type": "application/json",
         "Cache-Control": "no-cache",
         "Ocp-Apim-Subscription-Key": PIXAZO_API_KEY
     }
-    # Paramètres de génération (on peut les ajuster)
+    # Paramètres optimisés
     payload = {
         "prompt": prompt,
-        "negative_prompt": "Low-quality, blurry, distorted, ugly, bad anatomy, watermark, signature, text, extra limbs, bad proportions",
-        "height": 1024,
-        "width": 1024,
-        "num_steps": 20,
-        "guidance_scale": 5,
-        "seed": random.randint(1, 1000000)  # seed aléatoire pour variété
+        "negative_prompt": "Low-quality, blurry, distorted, ugly, bad anatomy, watermark, signature, text, extra limbs, bad proportions, unrealistic, cartoon, abstract",
+        "height": 768,  # Réduit pour accélérer
+        "width": 768,
+        "num_steps": 25,  # Légèrement augmenté pour qualité
+        "guidance_scale": 7,  # Un peu plus élevé pour suivre le prompt
+        "seed": random.randint(1, 1000000)
     }
 
     for attempt in range(max_retries):
@@ -102,7 +103,6 @@ def generate_image_with_retry(prompt, prefix="article", max_retries=3, base_dela
                 print(f"   ⚠️ Rate limit atteint, nouvel essai dans {delay}s...")
                 time.sleep(delay)
             else:
-                # Autre erreur, on arrête les tentatives
                 return None
         except Exception as e:
             print(f"   ❌ Erreur inattendue: {e}")
@@ -112,7 +112,8 @@ def generate_image_with_retry(prompt, prefix="article", max_retries=3, base_dela
 
 def get_fallback_image_url():
     """Retourne une image aléatoire de Lorem Picsum en cas d'échec."""
-    return f"https://picsum.photos/seed/{random.randint(1,1000)}/800/400"
+    return f"https://picsum.photos/seed/{random.randint(1,1000)}/768/400"
+
 
 def load_today_matches():
     """Charge les matchs du jour depuis data.json."""

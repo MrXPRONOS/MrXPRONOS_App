@@ -9,6 +9,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <header>
@@ -32,6 +33,9 @@
 
     <main class="container">
         <h1 style="color: var(--or); margin: 2rem 0 1rem;">📊 Pronostics et analyses</h1>
+
+        <!-- Taux de réussite global (caché par défaut) -->
+        <div id="success-rate-container" class="success-rate" style="display: none;"></div>
 
         <!-- Onglets de catégorie principaux -->
         <div class="category-tabs">
@@ -57,9 +61,23 @@
         <div id="matches-container" class="matches-grid">
             <div class="loading">Chargement des matchs...</div>
         </div>
+
+        <!-- Overlay VIP verrouillé (caché par défaut) -->
+        <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;">
+            <div class="vip-locked-content">
+                <div class="lock-icon">🔒</div>
+                <h3>Contenu Premium</h3>
+                <p>Partagez pour débloquer les analyses exclusives.</p>
+                <div class="share-buttons">
+                    <button id="share-wa-locked" class="btn btn-primary">WhatsApp</button>
+                    <button id="share-tg-locked" class="btn btn-primary">Telegram</button>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.8rem;">Partages actuels : <span id="share-count-locked">0</span>/<span id="share-target-locked">5</span></p>
+            </div>
+        </div>
     </main>
 
-    <!-- Popup de partage -->
+    <!-- Popup de partage (gardée pour fallback) -->
     <div id="share-popup" class="popup">
         <div class="popup-content">
             <h3>🔒 Contenu premium</h3>

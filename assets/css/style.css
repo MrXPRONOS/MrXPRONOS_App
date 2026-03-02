@@ -34,9 +34,23 @@ body {
     font-family: 'Montserrat', sans-serif;
     background-color: var(--noir);
     color: var(--blanc);
-    line-height: 1.5; /* Légèrement réduit */
-    font-size: 14px; /* Réduction de la taille de base */
+    line-height: 1.5;
+    font-size: 14px;
     scroll-behavior: smooth;
+    position: relative;
+}
+
+/* Particules dorées en arrière-plan (optionnel) */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    background: radial-gradient(circle at 20% 50%, rgba(212,175,55,0.02) 0%, transparent 50%);
+    z-index: -1;
 }
 
 .container {
@@ -69,7 +83,7 @@ header .container {
 
 .logo a {
     color: var(--or);
-    font-size: 1.6rem; /* Réduit */
+    font-size: 1.6rem;
     font-weight: 700;
     text-decoration: none;
     letter-spacing: 1px;
@@ -88,14 +102,14 @@ header .container {
 nav ul {
     display: flex;
     list-style: none;
-    gap: 1.2rem; /* Réduit pour que Contact tienne */
+    gap: 1.2rem;
 }
 
 nav a {
     color: var(--blanc);
     text-decoration: none;
     font-weight: 500;
-    font-size: 0.9rem; /* Réduit */
+    font-size: 0.9rem;
     transition: color 0.3s;
     position: relative;
     padding-bottom: 5px;
@@ -125,7 +139,7 @@ nav a.active {
 .promo-code {
     background-color: var(--or);
     color: var(--noir);
-    padding: 0.4rem 1rem; /* Réduit */
+    padding: 0.4rem 1rem;
     border-radius: 30px;
     font-weight: 700;
     font-size: 0.8rem;
@@ -151,7 +165,7 @@ footer {
 .footer-links {
     display: flex;
     justify-content: center;
-    gap: 1.5rem; /* Réduit */
+    gap: 1.5rem;
     margin-bottom: 1rem;
     flex-wrap: wrap;
 }
@@ -159,7 +173,7 @@ footer {
 .footer-links a {
     color: var(--blanc);
     text-decoration: none;
-    font-size: 0.8rem; /* Réduit */
+    font-size: 0.8rem;
     transition: color 0.3s;
 }
 
@@ -187,14 +201,13 @@ footer {
 .bookmakers {
     display: flex;
     justify-content: center;
-    gap: 1rem; /* Réduit */
+    gap: 1rem;
     margin: 1rem 0;
     flex-wrap: wrap;
 }
 
 .bookmakers img {
-    height: 25px; /* Légèrement réduit */
-    /* Suppression du filtre pour garder les couleurs originales */
+    height: 25px;
     opacity: 0.9;
     transition: opacity 0.3s, transform 0.3s;
 }
@@ -209,7 +222,7 @@ footer {
    ======================================================= */
 .btn {
     display: inline-block;
-    padding: 0.6rem 1.5rem; /* Réduit */
+    padding: 0.6rem 1.5rem;
     border-radius: 50px;
     text-decoration: none;
     font-weight: 600;
@@ -249,7 +262,7 @@ footer {
 .card {
     background-color: var(--noir-secondaire);
     border-radius: 16px;
-    padding: 1.5rem; /* Réduit */
+    padding: 1.5rem;
     margin-bottom: 1.5rem;
     border-left: 4px solid var(--or);
     box-shadow: var(--shadow);
@@ -264,7 +277,7 @@ footer {
 .card h3 {
     color: var(--or);
     margin-bottom: 0.8rem;
-    font-size: 1.2rem; /* Réduit */
+    font-size: 1.2rem;
 }
 
 .card .meta {
@@ -300,14 +313,14 @@ footer {
 }
 
 .hero h1 {
-    font-size: 2.2rem; /* Réduit */
+    font-size: 2.2rem;
     margin-bottom: 1rem;
     color: var(--or);
     line-height: 1.2;
 }
 
 .hero p {
-    font-size: 1rem; /* Réduit */
+    font-size: 1rem;
     max-width: 600px;
     margin: 0 auto 2rem;
     color: #ccc;
@@ -411,7 +424,7 @@ footer {
     background: var(--noir-secondaire);
     color: var(--blanc);
     border: 1px solid var(--or);
-    padding: 0.5rem 1.2rem; /* Réduit */
+    padding: 0.5rem 1.2rem;
     border-radius: 30px;
     cursor: pointer;
     font-weight: 600;
@@ -449,6 +462,7 @@ footer {
     display: flex;
     flex-direction: column;
     transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
 }
 .match-card:hover {
     transform: translateY(-5px);
@@ -500,12 +514,12 @@ footer {
 }
 .team-name {
     font-weight: 600;
-    font-size: 0.9rem; /* Réduit */
+    font-size: 0.9rem;
     color: var(--blanc);
     margin-bottom: 5px;
 }
 .team-score {
-    font-size: 1.6rem; /* Réduit */
+    font-size: 1.6rem;
     font-weight: 700;
     color: var(--or);
 }
@@ -608,7 +622,230 @@ footer {
     border-color: var(--or);
 }
 
-/* Page contact */
+/* =======================================================
+   AMÉLIORATIONS DESIGN MODERNE
+   ======================================================= */
+
+/* Feu d'artifice pour prono gagné */
+.win-effect {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.match-card.winner {
+    border: 2px solid #4CAF50 !important;
+    box-shadow: 0 0 25px rgba(76,175,80,0.5) !important;
+    position: relative;
+}
+
+.match-card.winner::before {
+    content: "🎉 PRONO GAGNÉ";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(45deg,#4CAF50,#00FF88);
+    color: black;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    animation: pulseWin 1s infinite;
+    z-index: 10;
+}
+
+@keyframes pulseWin {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.spark {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: gold;
+    border-radius: 50%;
+    animation: sparkFly 1s ease-out forwards;
+    pointer-events: none;
+    z-index: 20;
+}
+
+@keyframes sparkFly {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--dx, 100px), var(--dy, -100px)) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Barre de confiance animée */
+.confidence-bar {
+    width: 100%;
+    height: 8px;
+    background: #333;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.confidence-fill {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg,#D4AF37,#FFD700);
+    transition: width 2s ease;
+}
+
+/* Effet ticket de pari */
+.ticket {
+    background: #111;
+    border: 2px dashed #D4AF37;
+    padding: 1rem;
+    border-radius: 12px;
+    position: relative;
+}
+
+.ticket::before,
+.ticket::after {
+    content: "";
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: var(--noir);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ticket::before { left: -8px; }
+.ticket::after { right: -8px; }
+
+.ticket.winner {
+    border-color: #4CAF50;
+    background: rgba(76,175,80,0.1);
+}
+
+/* VIP verrouillé premium */
+.vip-locked-overlay {
+    position: relative;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg,#1A1A1A,#000);
+    border: 1px solid #D4AF37;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 2rem 0;
+}
+
+.vip-locked-content {
+    background: rgba(0,0,0,0.7);
+    padding: 2rem;
+    text-align: center;
+    border-radius: 20px;
+    backdrop-filter: blur(6px);
+    max-width: 400px;
+    width: 90%;
+}
+
+.vip-locked-content .lock-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.vip-locked-content h3 {
+    color: var(--or);
+    margin-bottom: 1rem;
+}
+
+.vip-locked-content p {
+    margin-bottom: 1.5rem;
+    color: #ccc;
+}
+
+/* Taux de réussite global */
+.success-rate {
+    background: var(--noir-secondaire);
+    border-radius: 20px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: center;
+    justify-content: space-around;
+    border-left: 4px solid var(--or);
+    box-shadow: var(--shadow);
+}
+
+.success-rate-item {
+    text-align: center;
+}
+
+.success-rate-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--or);
+    line-height: 1.2;
+}
+
+.success-rate-label {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+/* Badge IA avancée */
+.ai-badge {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 5px;
+}
+
+.ai-badge::before {
+    content: "🤖";
+    font-size: 0.8rem;
+}
+
+/* Animation de chargement skeleton */
+@keyframes skeleton-loading {
+    0% { background-color: #2a2a2a; }
+    50% { background-color: #3a3a3a; }
+    100% { background-color: #2a2a2a; }
+}
+
+.skeleton {
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 8px;
+}
+
+/* Scroll progress bar */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--or), var(--or-clair));
+    z-index: 1000;
+    transition: width 0.1s;
+}
+
+/* =======================================================
+   PAGE CONTACT
+   ======================================================= */
 .contact-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -685,7 +922,6 @@ footer {
     max-width: 80px;
     height: auto;
     margin-bottom: 0.5rem;
-    /* Pas de filtre, couleurs originales */
 }
 
 .bookmaker-card h3 {
@@ -884,6 +1120,22 @@ footer {
     }
 }
 
+/* Actualités football */
+.news-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+    .news-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+.news-card img {
+    max-height: 200px;
+    object-fit: cover;
+}
+
 /* =======================================================
    RESPONSIVE (MOBILE FIRST)
    ======================================================= */
@@ -936,19 +1188,4 @@ footer {
     .footer-links a {
         font-size: 0.75rem;
     }
-}
-
-.news-grid {
-    display: grid;
-    gap: 20px;
-    grid-template-columns: 1fr;
-}
-@media (min-width: 768px) {
-    .news-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-.news-card img {
-    max-height: 200px;
-    object-fit: cover;
 }
