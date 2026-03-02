@@ -3,7 +3,7 @@
 
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
-Ajoute la génération d'images via une API gratuite (sans clé) pour illustrer chaque contenu.
+Ajoute la génération d'images via l'API Stable Diffusion XL (Pixazo) pour illustrer chaque contenu.
 Sélectionne les matchs les plus populaires du jour à partir de data.json.
 Exécution quotidienne.
 """
@@ -16,12 +16,11 @@ import time
 import random
 from datetime import datetime
 
-# URL de base de l'API de génération d'images
-IMAGE_API_BASE = "https://t2i.mcpcore.xyz"
-IMAGE_GENERATE_ENDPOINT = f"{IMAGE_API_BASE}/api/free/generate"
-
-# Modèle par défaut (on peut aussi récupérer la liste via /models)
-DEFAULT_IMAGE_MODEL = "turbo"
+# URL de l'API de génération d'images Pixazo
+PIXAZO_API_URL = "https://gateway.pixazo.ai/getImage/v1/getSDXLImage"
+PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY")
+if not PIXAZO_API_KEY:
+    raise ValueError("La variable d'environnement PIXAZO_API_KEY n'est pas définie")
 
 # Fichiers
 DATA_FILE = "data.json"  # Fichier contenant les matchs du jour/demain/hier
@@ -51,47 +50,39 @@ POPULAR_LEAGUES = [
 
 def generate_image_with_retry(prompt, prefix="article", max_retries=3, base_delay=5):
     """
-    Génère une image via l'API gratuite (SSE) avec retry en cas d'échec.
+    Génère une image via l'API Stable Diffusion XL (Pixazo) avec retry en cas d'échec.
     Retourne le chemin local de l'image sauvegardée, ou None en cas d'échec.
     """
+    headers = {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+        "Ocp-Apim-Subscription-Key": PIXAZO_API_KEY
+    }
+    # Paramètres de génération (on peut les ajuster)
+    payload = {
+        "prompt": prompt,
+        "negative_prompt": "Low-quality, blurry, distorted, ugly, bad anatomy, watermark, signature, text, extra limbs, bad proportions",
+        "height": 1024,
+        "width": 1024,
+        "num_steps": 20,
+        "guidance_scale": 5,
+        "seed": random.randint(1, 1000000)  # seed aléatoire pour variété
+    }
+
     for attempt in range(max_retries):
         try:
-            # Préparer la requête POST
-            payload = {
-                "prompt": prompt,
-                "model": DEFAULT_IMAGE_MODEL
-            }
-            print(f"   📡 Envoi de la requête à l'API image...")
+            print(f"   📡 Envoi de la requête à l'API Pixazo...")
             response = requests.post(
-                IMAGE_GENERATE_ENDPOINT,
+                PIXAZO_API_URL,
                 json=payload,
-                headers={"Content-Type": "application/json"},
-                stream=True,  # Pour lire les SSE
+                headers=headers,
                 timeout=60
             )
             response.raise_for_status()
-
-            # Lire le flux SSE
-            image_url = None
-            for line in response.iter_lines(decode_unicode=True):
-                if line and line.startswith("data: "):
-                    data_str = line[6:]  # enlever "data: "
-                    try:
-                        data = json.loads(data_str)
-                    except json.JSONDecodeError:
-                        continue
-                    status = data.get("status")
-                    if status == "processing":
-                        print(f"      ⏳ {data.get('message', 'Génération en cours...')}")
-                    elif status == "complete":
-                        image_url = data.get("imageUrl")
-                        print(f"      ✅ Image générée : {image_url}")
-                        break
-                    elif status == "error":
-                        print(f"      ❌ Erreur API : {data.get('message')}")
-                        break
-
+            data = response.json()
+            image_url = data.get("imageUrl")
             if image_url:
+                print(f"      ✅ Image générée : {image_url}")
                 # Télécharger l'image
                 img_response = requests.get(image_url, timeout=30)
                 img_response.raise_for_status()
@@ -102,18 +93,20 @@ def generate_image_with_retry(prompt, prefix="article", max_retries=3, base_dela
                     f.write(img_response.content)
                 return filename
             else:
-                print("   ⚠️ Pas d'URL d'image reçue.")
+                print("   ⚠️ Pas d'URL d'image dans la réponse.")
                 return None
-
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             print(f"   ❌ Erreur génération image: {e}")
-            if "429" in str(e) or "rate limit" in str(e).lower():
+            if response.status_code == 429:
                 delay = base_delay * (2 ** attempt)
                 print(f"   ⚠️ Rate limit atteint, nouvel essai dans {delay}s...")
                 time.sleep(delay)
             else:
                 # Autre erreur, on arrête les tentatives
                 return None
+        except Exception as e:
+            print(f"   ❌ Erreur inattendue: {e}")
+            return None
     print(f"   ❌ Échec après {max_retries} tentatives")
     return None
 
@@ -172,7 +165,6 @@ def get_most_popular_matches(matches, count=2):
 
 def call_mistral(prompt, temperature=0.7, max_tokens=2000):
     """Appelle l'API Mistral avec un prompt (pour le texte)."""
-    # Note : on garde Mistral pour la génération de texte, on a toujours la clé
     MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
     if not MISTRAL_API_KEY:
         raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
@@ -281,8 +273,8 @@ def save_article(content, match):
     slug = ''.join(c if c.isalnum() else '-' for c in slug)
     slug = '-'.join(filter(None, slug.split('-')))
 
-    # Générer une image
-    image_prompt = f"Image illustrant le match de football {match['home_team']} vs {match['away_team']} dans le championnat {match['league']}, style sportif dynamique."
+    # Générer une image (prompt en anglais pour SDXL)
+    image_prompt = f"High-resolution, realistic image of a football match between {match['home_team']} and {match['away_team']} in the {match['league']} championship. Dynamic action shot, players in motion, stadium atmosphere, detailed and vibrant colors."
     image_url = generate_image_with_retry(image_prompt, prefix="article")
     if not image_url:
         print(f"   ℹ️ Utilisation d'une image de fallback pour l'article {title[:30]}...")
@@ -325,8 +317,8 @@ def save_tip(content):
     lines = content.strip().split('\n')
     title = lines[0].replace('#', '').strip() if lines else "Conseil"
 
-    # Générer une image
-    image_prompt = f"Image illustrant un conseil de paris sportifs sur le thème : {title}"
+    # Générer une image (prompt en anglais)
+    image_prompt = f"High-quality, realistic image illustrating a sports betting tip: {title}. Professional and clean design, with subtle sports elements."
     image_url = generate_image_with_retry(image_prompt, prefix="conseil")
     if not image_url:
         print(f"   ℹ️ Utilisation d'une image de fallback pour le conseil {title[:30]}...")
@@ -346,7 +338,7 @@ def save_tip(content):
 
 def main():
     print("="*60)
-    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + Images gratuites)")
+    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + Images SDXL)")
     print("="*60)
 
     # Charger les matchs du jour depuis data.json

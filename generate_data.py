@@ -5,6 +5,7 @@
 generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
 les prédictions ML et les analyses H2H.
 Exécutable toutes les heures pour mettre à jour les statuts et vérifications.
+Version avec fusion des données existantes pour conserver les matchs d'hier.
 """
 
 import requests
@@ -37,6 +38,7 @@ yesterday = today - timedelta(days=1)
 
 CACHE_DIR = "cache"
 GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
+DATA_FILE = "data.json"
 
 print("="*60)
 print(f"🚀 GÉNÉRATION DES DONNÉES - {today}")
@@ -264,12 +266,17 @@ def main():
     events_tomorrow = fetch_events(tomorrow, tomorrow)
     events_yesterday = fetch_events(yesterday, yesterday)
 
-    all_events = events_today + events_tomorrow + events_yesterday
-    print(f"\n✅ Total événements récupérés : {len(all_events)}")
+    all_new_events = events_today + events_tomorrow + events_yesterday
+    print(f"\n✅ {len(all_new_events)} événements récupérés depuis l'API")
 
-    if len(all_events) == 0:
-        print("❌ Aucun événement. Conservation de l'ancien fichier.")
-        return
+    # Charger l'ancien fichier data.json s'il existe
+    old_data = {}
+    old_matches_by_id = {}
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            old_data = json.load(f)
+            old_matches_by_id = {m['id']: m for m in old_data.get('matches', [])}
+        print(f"📂 Ancien fichier chargé : {len(old_matches_by_id)} matchs")
 
     print("\n📈 Récupération des prédictions ML...")
     predictions_upcoming = fetch_predictions(upcoming=True)
@@ -279,21 +286,13 @@ def main():
 
     pred_dict = {p['event']['id']: p for p in all_predictions}
 
-    data = {
-        "matches": [],
-        "categories": {"simple": [], "pro": [], "vip": []},
-        "bookmakers": [
-            {"name": "1xBet", "logo": "assets/images/1xbet.png", "url": "https://affiliation.com/1xbet"},
-            {"name": "1win", "logo": "assets/images/1win.png", "url": "https://affiliation.com/1win"},
-            {"name": "Betwinner", "logo": "assets/images/betwinner.png", "url": "https://affiliation.com/betwinner"},
-            {"name": "Melbet", "logo": "assets/images/melbet.png", "url": "https://affiliation.com/melbet"},
-            {"name": "Linebet", "logo": "assets/images/linebet.png", "url": "https://affiliation.com/linebet"},
-            {"name": "888starz", "logo": "assets/images/888starz.png", "url": "https://affiliation.com/888starz"}
-        ]
-    }
+    # Structure pour les nouveaux matchs
+    new_matches = []
+    categories = {"simple": [], "pro": [], "vip": []}
 
-    for idx, event in enumerate(all_events, 1):
-        print(f"\n🔍 Analyse match {idx}/{len(all_events)}")
+    # Traiter les nouveaux événements
+    for event in all_new_events:
+        print(f"\n🔍 Analyse match {event['id']}")
         match_id = event["id"]
         home_team_obj = event.get("home_team_obj")
         away_team_obj = event.get("away_team_obj")
@@ -398,13 +397,42 @@ def main():
             if match_data["verified_double"] or match_data["verified_over"]:
                 print(f"   ✅ Vérification : DC {match_data['verified_double']} / Over {match_data['verified_over']}")
 
-        data["matches"].append(match_data)
-        data["categories"][category].append(match_data)
+        new_matches.append(match_data)
+        categories[category].append(match_data)
         print(f"   ✅ Catégorie: {category}, Confiance: {prediction_used['confidence']}%")
 
-    with open("data.json", "w", encoding="utf-8") as f:
+    # Fusion avec les anciens matchs (pour conserver ceux qui ne sont plus dans l'API)
+    # On crée un dictionnaire des nouveaux matchs par ID
+    new_matches_by_id = {m['id']: m for m in new_matches}
+    # On ajoute les anciens matchs qui ne sont pas dans les nouveaux (ex: matchs d'hier devenus indisponibles)
+    for old_id, old_match in old_matches_by_id.items():
+        if old_id not in new_matches_by_id:
+            print(f"📌 Conservation de l'ancien match {old_id} ({old_match['home_team']} vs {old_match['away_team']})")
+            new_matches.append(old_match)
+            # Re-ajouter dans les catégories
+            categories[old_match['category']].append(old_match)
+
+    # Mise à jour du fichier final
+    data = {
+        "matches": new_matches,
+        "categories": categories,
+        "bookmakers": old_data.get("bookmakers", [])  # on garde les bookmakers de l'ancien fichier ou on les définit par défaut
+    }
+
+    # Si pas de bookmakers dans l'ancien, on met des valeurs par défaut
+    if not data["bookmakers"]:
+        data["bookmakers"] = [
+            {"name": "1xBet", "logo": "assets/images/1xbet.png", "url": "https://affiliation.com/1xbet"},
+            {"name": "1win", "logo": "assets/images/1win.png", "url": "https://affiliation.com/1win"},
+            {"name": "Betwinner", "logo": "assets/images/betwinner.png", "url": "https://affiliation.com/betwinner"},
+            {"name": "Melbet", "logo": "assets/images/melbet.png", "url": "https://affiliation.com/melbet"},
+            {"name": "Linebet", "logo": "assets/images/linebet.png", "url": "https://affiliation.com/linebet"},
+            {"name": "888starz", "logo": "assets/images/888starz.png", "url": "https://affiliation.com/888starz"}
+        ]
+
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
-    print("\n💾 data.json généré")
+    print(f"\n💾 {DATA_FILE} généré avec {len(new_matches)} matchs (dont {len(new_matches) - len(new_matches_by_id)} conservés)")
 
 if __name__ == "__main__":
     main()
