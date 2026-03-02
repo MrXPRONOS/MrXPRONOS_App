@@ -4,7 +4,7 @@
 """
 generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
 les prédictions ML et les analyses H2H améliorées.
-Version avec correction des statuts pour les matchs d'hier.
+Version avec correction robuste des statuts pour les matchs passés.
 """
 
 import requests
@@ -372,10 +372,43 @@ def main():
             "badge": badge,
             "category": category,
             "verified_double": False,
-            "ml_full": ml_pred  # optionnel
+            "ml_full": ml_pred
         }
 
-        if event_date == yesterday.isoformat():
+        # =======================================================
+        # CORRECTION ROBUSTE DU STATUT POUR LES MATCHS D'HIER / PASSÉS
+        # =======================================================
+        try:
+            event_dt = datetime.fromisoformat(event_datetime.replace('Z', '+00:00'))
+            match_date = event_dt.date()
+
+            # 1. Si on a les scores → le match est forcément terminé (priorité absolue)
+            if event.get("home_score") is not None and event.get("away_score") is not None:
+                old_status = match_data["status"]
+                match_data["status"] = "finished"
+                if old_status != "finished":
+                    print(f"   🔧 Correction statut (scores présents) : {old_status} → finished")
+
+            # 2. Sinon, pour tous les matchs antérieurs à aujourd'hui → on force "finished"
+            elif match_date < today:
+                old_status = match_data["status"]
+                match_data["status"] = "finished"
+                if old_status != "finished":
+                    print(f"   🔧 Correction statut (date passée) : {old_status} → finished")
+
+            # 3. Récupération des scores depuis l'ancien data.json si l'API est en retard
+            if match_data["status"] == "finished":
+                old_match = old_matches_by_id.get(match_id)
+                if old_match and (match_data.get("home_score") is None or match_data.get("away_score") is None):
+                    match_data["home_score"] = old_match.get("home_score")
+                    match_data["away_score"] = old_match.get("away_score")
+                    print(f"   📥 Scores récupérés depuis l'ancien fichier pour {match_id}")
+
+        except Exception as e:
+            print(f"   ⚠️ Erreur correction statut match {match_id}: {e}")
+
+        # Vérification du résultat (maintenant valable pour TOUS les matchs terminés)
+        if match_data["status"] == "finished" and match_data.get("home_score") is not None:
             verify_prediction(match_data, match_data["prediction"])
 
         new_matches.append(match_data)
@@ -391,7 +424,6 @@ def main():
                 match_date = datetime.fromisoformat(old_match['event_date'].replace('Z', '+00:00')).date()
                 if match_date < today and old_match['status'] != 'finished':
                     old_match['status'] = 'finished'
-                    # On peut aussi recalculer la vérification si les scores existent
                     if old_match.get('home_score') is not None and old_match.get('away_score') is not None:
                         verify_prediction(old_match, old_match['prediction'])
                     print(f"📌 Correction statut pour match {old_id} ({old_match['home_team']} vs {old_match['away_team']}) -> finished")

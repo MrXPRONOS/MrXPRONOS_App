@@ -1,6 +1,6 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec suppression du sous-onglet "Analyses VIP" et de la mention Over 1.5.
+ * Version avec onglets Pro/VIP toujours visibles et icônes PNG.
  */
 
 // =======================================================
@@ -8,7 +8,7 @@
 // =======================================================
 let allData = null;
 let currentCategory = 'simple';
-let currentSubcat = 'pronostics'; // uniquement 'pronostics' maintenant
+let currentSubcat = 'pronostics';
 let currentDay = 'today';
 
 const matchesContainer = document.getElementById('matches-container');
@@ -121,17 +121,13 @@ async function loadDataGeneric() {
 
 function hideEmptyTabs() {
     const counts = { simple: 0, pro: 0, vip: 0 };
-    let hasML = 0; // plus utilisé mais gardé pour compatibilité
-    allData.matches.forEach(m => {
-        counts[m.category]++;
-        if (m.ml_full) hasML++;
-    });
+    allData.matches.forEach(m => counts[m.category]++);
 
     document.querySelectorAll('.tab-btn').forEach(btn => {
         const cat = btn.dataset.cat;
-        if (cat === 'vip') {
-            // L'onglet VIP est visible s'il y a des matchs VIP (pas besoin de ML)
-            btn.style.display = counts.vip > 0 ? 'inline-block' : 'none';
+        if (cat === 'pro' || cat === 'vip') {
+            // Toujours afficher les onglets Pro et VIP, même sans matchs
+            btn.style.display = 'inline-block';
         } else {
             btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
         }
@@ -150,7 +146,6 @@ function hideEmptyTabs() {
         if (tabBar) tabBar.style.display = 'none';
     }
 
-    // Gestion des sous-onglets VIP (maintenant un seul)
     if (vipSubtabs) {
         const showPronostics = counts.vip > 0;
         const subtabBtns = vipSubtabs.querySelectorAll('.subtab-btn');
@@ -191,7 +186,6 @@ function setupEventListeners() {
         });
     });
 
-    // Sous-onglets VIP (un seul)
     document.querySelectorAll('.subtab-btn').forEach(btn => {
         btn.addEventListener('click', e => {
             document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
@@ -414,7 +408,7 @@ function renderMatches(matches) {
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const defaultLogo = 'assets/images/default-logo.png';
 
-            const isWinner = m.verified_double; // On considère gagné si double chance validé (ou autre critère)
+            const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
 
             // Badge XPRONOS
@@ -450,7 +444,6 @@ function renderMatches(matches) {
                             <strong>Double chance :</strong> ${doubleChance}
                             ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
                         </p>
-                        <!-- La ligne Over 1.5 a été supprimée -->
                         <div class="confidence-bar">
                             <div class="confidence-fill" data-value="${confidence}"></div>
                         </div>
