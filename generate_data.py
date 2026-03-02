@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - VERSION FINALE CORRIGÉE
-TheSportsDB = source prioritaire (scores, status, bannières, logos)
-BSD = ML + H2H
-Utilisation de l'API searchevents.php avec les deux formats possibles
+generate_data.py - UTILISE EXCLUSIVEMENT THESPORTSDB POUR LES SCORES
+BSD = uniquement prédictions ML + H2H
+Logs détaillés pour chaque tentative TheSportsDB
 """
 
 import requests
@@ -48,9 +47,10 @@ print(f"🚀 GÉNÉRATION DES DONNÉES - {today}")
 print("="*60)
 
 # =======================================================
-# FONCTIONS BSD (inchangées)
+# FONCTIONS BSD (uniquement pour les prédictions et H2H)
 # =======================================================
 def fetch_events(date_from, date_to):
+    """Récupère les événements BSD (pour avoir les IDs et les noms d'équipes)."""
     url = f"{BASE_URL}/events/"
     params = {"date_from": date_from.isoformat(), "date_to": date_to.isoformat()}
     all_events = []
@@ -99,7 +99,7 @@ def fetch_predictions(upcoming=True):
     return all_predictions
 
 # =======================================================
-# CACHE THESPORTSDB + RECHERCHE AMÉLIORÉE
+# CACHE THESPORTSDB + NORMALISATION + LOGS
 # =======================================================
 def load_tsdb_cache():
     if os.path.exists(TSDB_CACHE_FILE) and os.path.getsize(TSDB_CACHE_FILE) > 0:
@@ -115,77 +115,141 @@ def get_tsdb_key(home, away, date_str):
     return hashlib.md5(f"{home}|{away}|{date_str}".encode()).hexdigest()
 
 def normalize_team(name: str) -> str:
-    # Remplacer les caractères spéciaux et espaces pour l'URL
-    # Supprimer les accents
-    import unicodedata
-    name = unicodedata.normalize('NFKD', name).encode('ASCII', 'ignore').decode('utf-8')
-    # Remplacer les & par "and"
-    name = name.replace('&', 'and')
-    # Remplacer les caractères non alphanumériques par des espaces
-    name = ''.join(c if c.isalnum() or c == ' ' else ' ' for c in name)
-    # Remplacer les espaces multiples par un seul espace
-    name = ' '.join(name.split())
-    return name
+    """Normalise les noms d'équipes pour TheSportsDB."""
+    mapping = {
+        "Man Utd": "Manchester United",
+        "Man United": "Manchester United",
+        "Man City": "Manchester City",
+        "Spurs": "Tottenham Hotspur",
+        "Tottenham": "Tottenham Hotspur",
+        "Wolves": "Wolverhampton Wanderers",
+        "Brighton": "Brighton & Hove Albion",
+        "West Ham": "West Ham United",
+        "Newcastle": "Newcastle United",
+        "Leicester": "Leicester City",
+        "Nottm Forest": "Nottingham Forest",
+        "Forest": "Nottingham Forest",
+        "St. Louis": "St Louis",
+        "St.Louis": "St Louis",
+        "NYC": "New York City",
+        "NYCFC": "New York City",
+        "LAFC": "Los Angeles FC",
+        "LA Galaxy": "Los Angeles Galaxy",
+        "Inter Miami": "Inter Miami CF",
+        "Miami": "Inter Miami CF",
+        "Philadelphia Union": "Philadelphia",
+        "Portland Timbers": "Portland",
+        "Seattle Sounders": "Seattle",
+        "Atlanta United": "Atlanta",
+        "FC Cincinnati": "Cincinnati",
+        "Columbus Crew": "Columbus",
+        "DC United": "D.C. United",
+        "San Jose Earthquakes": "San Jose",
+        "Sporting KC": "Sporting Kansas City",
+        "Kansas City": "Sporting Kansas City",
+        "Real Salt Lake": "Salt Lake",
+        "Salt Lake": "Real Salt Lake",
+        "Minnesota United": "Minnesota",
+        "Minnesota": "Minnesota United",
+        "CF Montréal": "Montreal",
+        "Montreal": "CF Montréal",
+        "Toronto FC": "Toronto",
+        "Toronto": "Toronto FC",
+        "Vancouver Whitecaps": "Vancouver",
+        "Vancouver": "Vancouver Whitecaps",
+        "Colorado Rapids": "Colorado",
+        "Colorado": "Colorado Rapids",
+        "Houston Dynamo": "Houston",
+        "Houston": "Houston Dynamo",
+        "FC Dallas": "Dallas",
+        "Dallas": "FC Dallas",
+        "Austin FC": "Austin",
+        "Austin": "Austin FC",
+        "Nashville SC": "Nashville",
+        "Nashville": "Nashville SC",
+        "Charlotte FC": "Charlotte",
+        "Charlotte": "Charlotte FC",
+        "Chicago Fire": "Chicago",
+        "Chicago": "Chicago Fire",
+        "New England Revolution": "New England",
+        "New England": "New England Revolution",
+        "Orlando City": "Orlando",
+        "Orlando": "Orlando City SC",
+        "San Diego FC": "San Diego",
+        "San Diego": "San Diego FC"
+    }
+    name_clean = name.strip()
+    # Remplacer les & et autres
+    name_clean = name_clean.replace("&", "and")
+    # Si le nom est directement dans le mapping, on le prend
+    if name_clean in mapping:
+        return mapping[name_clean]
+    # Sinon, on cherche une correspondance partielle (ex: "Manchester United" -> "Man United")
+    for key, value in mapping.items():
+        if key in name_clean or name_clean in key:
+            return value
+    return name_clean
 
 def fetch_tsdb_match(home, away, date_str, tsdb_cache):
+    """Interroge TheSportsDB avec logs détaillés."""
     key = get_tsdb_key(home, away, date_str)
     if key in tsdb_cache:
-        return tsdb_cache[key]
+        cached = tsdb_cache[key]
+        if cached:
+            # Extraire les scores du cache pour log
+            if cached.get("intHomeScore") is not None:
+                print(f"      🔍 Cache TheSportsDB: {home} {cached['intHomeScore']}-{cached['intAwayScore']} {away}")
+        return cached
 
     home_n = normalize_team(home)
     away_n = normalize_team(away)
+    print(f"      📡 TheSportsDB recherche: {home_n} vs {away_n} le {date_str}")
+
+    # Essayer plusieurs formats
     formats = [
         f"{home_n.replace(' ', '_')}_vs_{away_n.replace(' ', '_')}",
-        f"{away_n.replace(' ', '_')}_vs_{home_n.replace(' ', '_')}"
+        f"{away_n.replace(' ', '_')}_vs_{home_n.replace(' ', '_')}",
+        f"{home.replace(' ', '_')}_vs_{away.replace(' ', '_')}",
+        f"{away.replace(' ', '_')}_vs_{home.replace(' ', '_')}"
     ]
 
     for event_name in formats:
         url = f"https://www.thesportsdb.com/api/v1/json/123/searchevents.php?e={event_name}&d={date_str}"
-        print(f"      📡 TheSportsDB: {url}")
         try:
             resp = requests.get(url, timeout=10)
             if resp.status_code == 200:
-                data = resp.json()
-                events = data.get("event", [])
+                events = resp.json().get("event", [])
                 if events:
-                    event = events[0]
-                    # Extraire les infos utiles
-                    home_score = event.get("intHomeScore")
-                    away_score = event.get("intAwayScore")
-                    status = event.get("strStatus")
-                    # Si status est vide mais scores présents, on considère terminé
-                    if (home_score is not None and away_score is not None) and (status is None or status == ""):
-                        status = "finished"
-                    result = {
-                        "home_score": int(home_score) if home_score is not None else None,
-                        "away_score": int(away_score) if away_score is not None else None,
-                        "status": status.lower() if status else "unknown",
-                        "banner": event.get("strBanner"),
-                        "venue": event.get("strVenue"),
-                        "league_badge": event.get("strLeagueBadge"),
-                        "home_badge": event.get("strHomeTeamBadge"),
-                        "away_badge": event.get("strAwayTeamBadge"),
-                        "event_name": event.get("strEvent"),
-                        "league": event.get("strLeague")
-                    }
-                    print(f"      ✅ Match trouvé: {result['event_name']} - Scores: {result['home_score']}-{result['away_score']} - Status: {result['status']}")
-                    tsdb_cache[key] = result
-                    return result
-                else:
-                    print(f"      ℹ️ Aucun événement trouvé pour {event_name}")
+                    tsdb_cache[key] = events[0]
+                    print(f"      ✅ Trouvé: {home} vs {away} → {events[0]['intHomeScore']}-{events[0]['intAwayScore']}")
+                    return events[0]
         except Exception as e:
-            print(f"      ⚠️ Erreur: {e}")
-            continue
+            print(f"      ⚠️ Erreur requête: {e}")
 
     tsdb_cache[key] = None
+    print(f"      ❌ Aucun match trouvé sur TheSportsDB pour {home} vs {away}")
     return None
 
 def extract_tsdb_info(event):
-    # Cette fonction n'est plus nécessaire car fetch_tsdb_match retourne déjà un dict structuré
-    return event
+    if not event:
+        return None
+    try:
+        return {
+            "home_score": int(event["intHomeScore"]) if event.get("intHomeScore") not in (None, "") else None,
+            "away_score": int(event["intAwayScore"]) if event.get("intAwayScore") not in (None, "") else None,
+            "status": "finished" if "Finished" in event.get("strStatus", "") else event.get("strStatus", "finished").lower(),
+            "banner": event.get("strBanner"),
+            "venue": event.get("strVenue"),
+            "league_badge": event.get("strLeagueBadge"),
+            "home_badge": event.get("strHomeTeamBadge"),
+            "away_badge": event.get("strAwayTeamBadge"),
+        }
+    except Exception as e:
+        print(f"      ⚠️ Erreur extraction: {e}")
+        return None
 
 # =======================================================
-# FONCTIONS H2H (inchangées)
+# FONCTIONS H2H (inchangées mais utilisent le cache global)
 # =======================================================
 def weight_by_date(date_str):
     try:
@@ -216,6 +280,7 @@ def get_h2h_from_cache(team_id_a, team_id_b, global_cache):
     return h2h
 
 def analyze_h2h(h2h_list, current_home_team, current_away_team):
+    # (identique à la version précédente)
     home_score = 0.0
     away_score = 0.0
     draws_score = 0.0
@@ -346,16 +411,16 @@ def update_bankroll(matches):
     return {"total_bets": total_bets, "wins": wins, "losses": losses, "roi": round(roi, 2)}
 
 # =======================================================
-# MAIN
+# FONCTION PRINCIPALE
 # =======================================================
 def main():
-    print("\n📅 Récupération des matchs BSD du jour, demain, hier...")
+    print("\n📅 Récupération des matchs BSD (uniquement pour les noms et IDs)...")
     events_today = fetch_events(today, today)
     events_tomorrow = fetch_events(tomorrow, tomorrow)
     events_yesterday = fetch_events(yesterday, yesterday)
 
     all_new_events = events_today + events_tomorrow + events_yesterday
-    print(f"\n✅ {len(all_new_events)} événements BSD récupérés")
+    print(f"\n✅ {len(all_new_events)} événements BSD récupérés (utilisés pour les noms d'équipes)")
 
     # Charger caches
     tsdb_cache = load_tsdb_cache()
@@ -367,7 +432,7 @@ def main():
     else:
         print("ℹ️ Cache global H2H vide ou inexistant")
 
-    # Parallélisation TheSportsDB
+    # === PARALLÉLISATION DES REQUÊTES THESPORTSDB AVEC LOGS ===
     print("\n🌐 Récupération des données TheSportsDB en parallèle...")
     with ThreadPoolExecutor(max_workers=8) as executor:
         future_to_event = {}
@@ -385,7 +450,7 @@ def main():
                 future_to_event[future] = e
 
         for future in as_completed(future_to_event):
-            future.result()  # remplir le cache
+            future.result()  # le cache est mis à jour et les logs s'affichent
 
     save_tsdb_cache(tsdb_cache)
     print(f"✅ Cache TheSportsDB mis à jour : {len(tsdb_cache)} entrées")
@@ -454,29 +519,31 @@ def main():
         badge = get_badge(score)
         category = get_category(score)
 
-        # Récupérer les infos TheSportsDB
+        # === RÉCUPÉRATION DES SCORES THESPORTSDB (LOGS DÉJÀ FAITS) ===
         key = get_tsdb_key(home_obj["name"], away_obj["name"], event_date)
-        tsdb_info = tsdb_cache.get(key)  # déjà un dict structuré
+        tsdb_event = tsdb_cache.get(key)
+        tsdb_info = extract_tsdb_info(tsdb_event)
 
-        # Priorité TheSportsDB
-        if tsdb_info and tsdb_info.get("home_score") is not None:
+        if tsdb_info and tsdb_info["home_score"] is not None:
+            # Utiliser les données TheSportsDB
             home_score = tsdb_info["home_score"]
             away_score = tsdb_info["away_score"]
-            status = tsdb_info.get("status", "finished")
+            status = tsdb_info["status"]
             venue = tsdb_info.get("venue") or event.get("venue", "")
             home_logo = tsdb_info.get("home_badge") or f"https://sports.bzzoiro.com/img/team/{home_obj['api_id']}/?token={API_TOKEN}"
             away_logo = tsdb_info.get("away_badge") or f"https://sports.bzzoiro.com/img/team/{away_obj['api_id']}/?token={API_TOKEN}"
             league_logo = tsdb_info.get("league_badge") or f"https://sports.bzzoiro.com/img/league/{league['api_id']}/?token={API_TOKEN}"
-            print(f"   ✅ TheSportsDB: {tsdb_info.get('event_name')} - Scores: {home_score}-{away_score} - Status: {status}")
+            print(f"   ✅ Score TheSportsDB: {home_score}-{away_score}")
         else:
-            home_score = event.get("home_score")
-            away_score = event.get("away_score")
-            status = event["status"]
+            # Si TheSportsDB n'a rien, on laisse les champs vides (pas de fallback BSD)
+            home_score = None
+            away_score = None
+            status = event.get("status", "unknown")
             venue = event.get("venue", "")
             home_logo = f"https://sports.bzzoiro.com/img/team/{home_obj['api_id']}/?token={API_TOKEN}"
             away_logo = f"https://sports.bzzoiro.com/img/team/{away_obj['api_id']}/?token={API_TOKEN}"
             league_logo = f"https://sports.bzzoiro.com/img/league/{league['api_id']}/?token={API_TOKEN}"
-            print(f"   ℹ️ BSD: scores {home_score}-{away_score}, status {status}")
+            print(f"   ⚠️ Aucun score trouvé sur TheSportsDB pour ce match")
 
         match_data = {
             "id": match_id,
@@ -509,10 +576,10 @@ def main():
 
         new_matches.append(match_data)
         categories[category].append(match_data)
-        print(f"   ✅ Score: {score} - {badge} - Catégorie: {category} - Résultat: {match_data.get('result')}")
+        print(f"   ✅ Score final: {home_score}-{away_score}, Résultat: {match_data.get('result')}")
 
         # Mise à jour du cache global H2H (version normalisée)
-        if status == "finished" and home_score is not None and away_score is not None:
+        if home_score is not None and away_score is not None:
             cache_entry = {
                 "event_date": event_datetime,
                 "status": status,
@@ -529,7 +596,7 @@ def main():
     with open(GLOBAL_CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(global_cache[-5000:], f, indent=2, ensure_ascii=False)
 
-    # Fusion avec les anciens matchs (14 derniers jours)
+    # Fusion avec les anciens matchs (14 derniers jours) – on garde ceux qui ont des scores
     new_ids = {m['id'] for m in new_matches}
     for old_id, old_match in old_matches_by_id.items():
         try:
@@ -538,8 +605,10 @@ def main():
                 continue
             old_date = datetime.fromisoformat(old_date_str.replace('Z', '+00:00')).date()
             if old_date >= fourteen_days_ago and old_id not in new_ids:
-                new_matches.append(old_match)
-                categories[old_match['category']].append(old_match)
+                # On ne garde que les anciens matchs qui ont des scores (sinon ils sont inutiles)
+                if old_match.get('home_score') is not None and old_match.get('away_score') is not None:
+                    new_matches.append(old_match)
+                    categories[old_match['category']].append(old_match)
         except:
             pass
 
