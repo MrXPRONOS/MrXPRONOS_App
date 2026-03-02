@@ -19,7 +19,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-14T16:00:00+04:00",
@@ -34,14 +33,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1705,
         "event": {
@@ -133,7 +130,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 0.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2025-09-28T23:30:00+04:00",
@@ -148,14 +144,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": false,
         "confidence": 55
       },
-      "xpronos_score": 20.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1706,
         "event": {
@@ -247,7 +241,6 @@
         "home_dominance": 0.333,
         "away_dominance": 0.667,
         "goals_avg": 1.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2025-11-24T04:45:00+04:00",
@@ -280,14 +273,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": false,
         "confidence": 65
       },
-      "xpronos_score": 40,
+      "xpronos_score": 36,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1274,
         "event": {
@@ -379,7 +370,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 4.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-08-11T04:00:00+04:00",
@@ -403,14 +393,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 70
       },
-      "xpronos_score": 55,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1275,
         "event": {
@@ -502,7 +490,6 @@
         "home_dominance": 0.5,
         "away_dominance": 0.0,
         "goals_avg": 1.5,
-        "over15_percent": 50.0,
         "last_4": [
           {
             "date": "2025-05-11T04:30:00+04:00",
@@ -526,14 +513,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": false,
         "confidence": 60
       },
-      "xpronos_score": 40,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1276,
         "event": {
@@ -625,7 +610,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-14T19:00:00+04:00",
@@ -640,14 +624,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1438,
         "event": {
@@ -739,7 +721,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 4.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-05T17:00:00+04:00",
@@ -754,14 +735,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1707,
         "event": {
@@ -853,7 +832,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 5.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-27T22:30:00+04:00",
@@ -868,14 +846,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1483,
         "event": {
@@ -967,7 +943,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 6.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-12-21T21:00:00+04:00",
@@ -982,14 +957,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1708,
         "event": {
@@ -1081,7 +1054,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-11-08T19:00:00+04:00",
@@ -1096,14 +1068,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1710,
         "event": {
@@ -1195,7 +1165,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 1.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2025-10-19T23:00:00+04:00",
@@ -1210,14 +1179,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": false,
         "confidence": 65
       },
-      "xpronos_score": 40,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1709,
         "event": {
@@ -1309,7 +1276,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-26T23:15:00+04:00",
@@ -1324,14 +1290,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1711,
         "event": {
@@ -1423,7 +1387,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-19T18:45:00+04:00",
@@ -1438,14 +1401,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1439,
         "event": {
@@ -1537,7 +1498,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 0.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2025-09-21T21:15:00+04:00",
@@ -1552,14 +1512,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": false,
         "confidence": 55
       },
-      "xpronos_score": 20.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1440,
         "event": {
@@ -1651,7 +1609,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 4.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-21T18:45:00+04:00",
@@ -1666,14 +1623,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 70,
+      "xpronos_score": 52,
       "badge": "",
-      "category": "pro",
+      "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1441,
         "event": {
@@ -1765,7 +1720,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-12-28T18:00:00+04:00",
@@ -1780,14 +1734,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1713,
         "event": {
@@ -1879,7 +1831,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 0.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2025-12-27T19:00:00+04:00",
@@ -1894,14 +1845,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": false,
         "confidence": 55
       },
-      "xpronos_score": 20.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1714,
         "event": {
@@ -1993,7 +1942,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 5.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-12-27T19:00:00+04:00",
@@ -2008,14 +1956,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1715,
         "event": {
@@ -2107,7 +2053,6 @@
         "home_dominance": 0.5,
         "away_dominance": 0.5,
         "goals_avg": 5.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-11-01T21:00:00+04:00",
@@ -2131,14 +2076,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 60
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 4.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1712,
         "event": {
@@ -2230,7 +2173,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-11-25T23:45:00+04:00",
@@ -2245,14 +2187,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1717,
         "event": {
@@ -2344,7 +2284,6 @@
         "home_dominance": 0.5,
         "away_dominance": 0.5,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-12-06T19:00:00+04:00",
@@ -2368,14 +2307,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 60
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 4.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1716,
         "event": {
@@ -2467,7 +2404,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 1.5,
-        "over15_percent": 50.0,
         "last_4": [
           {
             "date": "2026-03-01T00:00:00+04:00",
@@ -2491,14 +2427,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": false,
         "confidence": 70
       },
-      "xpronos_score": 40,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1664,
         "event": {
@@ -2590,7 +2524,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 5.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-03-01T00:00:00+04:00",
@@ -2614,14 +2547,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 70
       },
-      "xpronos_score": 55,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1665,
         "event": {
@@ -2713,7 +2644,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 2.0,
-        "over15_percent": 50.0,
         "last_4": [
           {
             "date": "2026-03-01T00:05:00+04:00",
@@ -2737,14 +2667,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": false,
         "confidence": 70
       },
-      "xpronos_score": 55,
+      "xpronos_score": 54,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1666,
         "event": {
@@ -2836,7 +2764,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.5,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-03-01T00:30:00+04:00",
@@ -2860,14 +2787,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 60
       },
-      "xpronos_score": 55,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1667,
         "event": {
@@ -2959,7 +2884,6 @@
         "home_dominance": 0.333,
         "away_dominance": 0.667,
         "goals_avg": 2.67,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-03-01T01:30:00+04:00",
@@ -2992,14 +2916,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 36,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": true,
       "ml_full": {
         "id": 1265,
         "event": {
@@ -3091,7 +3013,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 1.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2026-03-01T01:30:00+04:00",
@@ -3106,14 +3027,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": false,
         "confidence": 65
       },
-      "xpronos_score": 40,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1264,
         "event": {
@@ -3205,7 +3124,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 2.5,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-03-01T03:00:00+04:00",
@@ -3229,14 +3147,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 70
       },
-      "xpronos_score": 55,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1322,
         "event": {
@@ -3328,7 +3244,6 @@
         "home_dominance": 0.5,
         "away_dominance": 0.5,
         "goals_avg": 1.5,
-        "over15_percent": 50.0,
         "last_4": [
           {
             "date": "2026-03-01T03:00:00+04:00",
@@ -3352,14 +3267,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": false,
         "confidence": 60
       },
-      "xpronos_score": 20.0,
+      "xpronos_score": 4.0,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1321,
         "event": {
@@ -3451,7 +3364,6 @@
         "home_dominance": 0.667,
         "away_dominance": 0.333,
         "goals_avg": 2.0,
-        "over15_percent": 66.7,
         "last_4": [
           {
             "date": "2026-03-01T04:30:00+04:00",
@@ -3484,14 +3396,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 36,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1266,
         "event": {
@@ -3583,7 +3493,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-03-01T04:30:00+04:00",
@@ -3598,14 +3507,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1267,
         "event": {
@@ -3697,7 +3604,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-03-01T05:05:00+04:00",
@@ -3721,14 +3627,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 70
       },
-      "xpronos_score": 55,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1323,
         "event": {
@@ -3820,7 +3724,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 50.0,
         "last_4": [
           {
             "date": "2026-03-01T05:06:00+04:00",
@@ -3844,14 +3747,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": false,
         "confidence": 70
       },
-      "xpronos_score": 40,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": false,
       "ml_full": {
         "id": 1324,
         "event": {
@@ -3943,7 +3844,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 0.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2026-03-01T05:30:00+04:00",
@@ -3958,14 +3858,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": false,
         "confidence": 55
       },
-      "xpronos_score": 20.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": true,
       "ml_full": {
         "id": 1270,
         "event": {
@@ -4057,7 +3955,6 @@
         "home_dominance": 0.333,
         "away_dominance": 0.667,
         "goals_avg": 1.67,
-        "over15_percent": 66.7,
         "last_4": [
           {
             "date": "2026-03-01T05:30:00+04:00",
@@ -4090,14 +3987,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 36,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1268,
         "event": {
@@ -4189,7 +4084,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 4.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-03-01T05:30:00+04:00",
@@ -4204,14 +4098,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": true,
       "ml_full": {
         "id": 1269,
         "event": {
@@ -4303,7 +4195,6 @@
         "home_dominance": 0.5,
         "away_dominance": 0.0,
         "goals_avg": 1.5,
-        "over15_percent": 50.0,
         "last_4": [
           {
             "date": "2026-03-01T06:30:00+04:00",
@@ -4327,14 +4218,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": false,
         "confidence": 60
       },
-      "xpronos_score": 40,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": false,
       "ml_full": {
         "id": 1271,
         "event": {
@@ -4426,7 +4315,6 @@
         "home_dominance": 0.5,
         "away_dominance": 0.5,
         "goals_avg": 4.5,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-03-01T07:10:00+04:00",
@@ -4450,14 +4338,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 60
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 4.0,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1325,
         "event": {
@@ -4549,7 +4435,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-03-01T07:30:00+04:00",
@@ -4564,14 +4449,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1272,
         "event": {
@@ -4663,7 +4546,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.5,
         "goals_avg": 2.0,
-        "over15_percent": 50.0,
         "last_4": [
           {
             "date": "2026-03-01T15:15:00+04:00",
@@ -4687,14 +4569,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": false,
         "confidence": 60
       },
-      "xpronos_score": 40,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1668,
         "event": {
@@ -4786,7 +4666,6 @@
         "home_dominance": 0.5,
         "away_dominance": 0.5,
         "goals_avg": 2.5,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-03-01T15:30:00+04:00",
@@ -4810,14 +4689,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 60
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 4.0,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1669,
         "event": {
@@ -4909,7 +4786,6 @@
         "home_dominance": 0.333,
         "away_dominance": 0.0,
         "goals_avg": 2.67,
-        "over15_percent": 66.7,
         "last_4": [
           {
             "date": "2026-03-01T16:00:00+04:00",
@@ -4942,14 +4818,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 36,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1670,
         "event": {
@@ -5041,7 +4915,6 @@
         "home_dominance": 0.5,
         "away_dominance": 0.0,
         "goals_avg": 2.5,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-03-01T16:30:00+04:00",
@@ -5065,14 +4938,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 60
       },
-      "xpronos_score": 55,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1671,
         "event": {
@@ -5164,7 +5035,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 1.0,
-        "over15_percent": 50.0,
         "last_4": [
           {
             "date": "2026-03-01T17:00:00+04:00",
@@ -5188,14 +5058,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": false,
         "confidence": 60
       },
-      "xpronos_score": 20.0,
+      "xpronos_score": 4.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": true,
       "ml_full": {
         "id": 1673,
         "event": {
@@ -5287,7 +5155,6 @@
         "home_dominance": 0.333,
         "away_dominance": 0.333,
         "goals_avg": 3.0,
-        "over15_percent": 66.7,
         "last_4": [
           {
             "date": "2026-03-01T17:00:00+04:00",
@@ -5320,14 +5187,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 6.0,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": true,
       "ml_full": {
         "id": 1672,
         "event": {
@@ -5419,7 +5284,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.5,
         "goals_avg": 2.5,
-        "over15_percent": 50.0,
         "last_4": [
           {
             "date": "2026-03-01T17:00:00+04:00",
@@ -5443,14 +5307,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": false,
         "confidence": 60
       },
-      "xpronos_score": 40,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over15": false,
       "ml_full": {
         "id": 1674,
         "event": {
@@ -5542,7 +5404,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-12-21T17:30:00+04:00",
@@ -5557,14 +5418,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1675,
         "event": {
@@ -5656,7 +5515,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-12-13T21:45:00+04:00",
@@ -5671,14 +5529,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1676,
         "event": {
@@ -5770,7 +5626,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-24T18:30:00+04:00",
@@ -5785,14 +5640,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1480,
         "event": {
@@ -5884,7 +5737,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-11-30T18:05:00+04:00",
@@ -5899,14 +5751,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1680,
         "event": {
@@ -5998,7 +5848,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 5.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-13T19:00:00+04:00",
@@ -6013,14 +5862,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 70,
+      "xpronos_score": 52,
       "badge": "",
-      "category": "pro",
+      "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1506,
         "event": {
@@ -6112,7 +5959,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-11-30T16:00:00+04:00",
@@ -6127,14 +5973,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1677,
         "event": {
@@ -6226,7 +6070,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-11-30T00:00:00+04:00",
@@ -6241,14 +6084,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1678,
         "event": {
@@ -6340,7 +6181,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-11-09T15:30:00+04:00",
@@ -6355,14 +6195,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1681,
         "event": {
@@ -6454,7 +6292,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-28T17:00:00+04:00",
@@ -6469,14 +6306,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1679,
         "event": {
@@ -6568,7 +6403,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-18T17:30:00+04:00",
@@ -6583,14 +6417,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 70,
+      "xpronos_score": 52,
       "badge": "",
-      "category": "pro",
+      "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1682,
         "event": {
@@ -6682,7 +6514,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-27T22:45:00+04:00",
@@ -6697,14 +6528,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1683,
         "event": {
@@ -6796,7 +6625,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 1.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2025-08-24T19:00:00+04:00",
@@ -6811,14 +6639,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": false,
         "confidence": 65
       },
-      "xpronos_score": 40,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1684,
         "event": {
@@ -6910,7 +6736,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-14T21:30:00+04:00",
@@ -6925,14 +6750,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 70,
+      "xpronos_score": 52,
       "badge": "",
-      "category": "pro",
+      "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1437,
         "event": {
@@ -7024,7 +6847,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-27T19:30:00+04:00",
@@ -7039,85 +6861,13 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
-      "ml_full": {
-        "id": 1686,
-        "event": {
-          "id": 598,
-          "api_id": 14288808,
-          "league": {
-            "id": 2,
-            "api_id": 238,
-            "name": "Liga Portugal Betclic",
-            "country": "Portugal",
-            "season_id": 77806
-          },
-          "home_team": "Tondela",
-          "away_team": "Santa Clara",
-          "home_team_obj": {
-            "id": 32,
-            "api_id": 38396,
-            "name": "Tondela",
-            "short_name": "Tondela",
-            "country": ""
-          },
-          "away_team_obj": {
-            "id": 28,
-            "api_id": 3011,
-            "name": "Santa Clara",
-            "short_name": "Santa Clara",
-            "country": ""
-          },
-          "event_date": "2026-03-01T19:30:00+04:00",
-          "status": "notstarted",
-          "home_score": null,
-          "away_score": null,
-          "current_minute": null,
-          "period": "",
-          "odds_home": 3.1,
-          "odds_draw": 3.0,
-          "odds_away": 2.4,
-          "odds_over_15": 1.5,
-          "odds_over_25": 2.6,
-          "odds_over_35": 5.0,
-          "odds_under_15": 2.5,
-          "odds_under_25": 1.48,
-          "odds_under_35": 1.17,
-          "odds_btts_yes": 2.1,
-          "odds_btts_no": 1.67,
-          "actual_home_xg": null,
-          "actual_away_xg": null
-        },
-        "created_at": "2026-02-23T06:20:07.529274+04:00",
-        "prob_home_win": 32.9789119852026,
-        "prob_draw": 30.109801905168247,
-        "prob_away_win": 36.911286109629145,
-        "predicted_result": "A",
-        "expected_home_goals": 1.00129,
-        "expected_away_goals": 1.07761,
-        "prob_over_15": 66.15388804893104,
-        "prob_over_25": 33.84611195106897,
-        "prob_over_35": 10.564977366685536,
-        "prob_btts_yes": 50.39081577997262,
-        "confidence": 36.911286109629145,
-        "model_version": "v4.1",
-        "most_likely_score": "1-1",
-        "favorite": "A",
-        "favorite_prob": 36.911286109629145,
-        "favorite_recommend": false,
-        "over_15_recommend": false,
-        "over_25_recommend": false,
-        "over_35_recommend": false,
-        "btts_recommend": false,
-        "winner_recommend": false
-      }
+      "ml_full": null
     },
     {
       "id": 4869,
@@ -7138,7 +6888,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 4.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-02-01T19:30:00+04:00",
@@ -7162,14 +6911,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 70
       },
-      "xpronos_score": 55,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1685,
         "event": {
@@ -7261,7 +7008,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.5,
         "goals_avg": 2.5,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2026-01-31T23:30:00+04:00",
@@ -7285,14 +7031,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 60
       },
-      "xpronos_score": 55,
+      "xpronos_score": 34,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1687,
         "event": {
@@ -7384,7 +7128,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 1.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2025-09-28T18:00:00+04:00",
@@ -7399,14 +7142,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": false,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 52,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1507,
         "event": {
@@ -7498,7 +7239,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 5.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-26T19:45:00+04:00",
@@ -7513,14 +7253,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1688,
         "event": {
@@ -7612,7 +7350,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-24T21:30:00+04:00",
@@ -7627,14 +7364,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1481,
         "event": {
@@ -7726,7 +7461,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 1.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2025-08-17T19:15:00+04:00",
@@ -7741,14 +7475,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": false,
         "confidence": 65
       },
-      "xpronos_score": 40,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1691,
         "event": {
@@ -7840,7 +7572,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-19T22:45:00+04:00",
@@ -7855,14 +7586,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1689,
         "event": {
@@ -7954,7 +7683,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 5.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-11-23T20:15:00+04:00",
@@ -7969,14 +7697,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1690,
         "event": {
@@ -8068,7 +7794,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-11-30T20:30:00+04:00",
@@ -8083,14 +7808,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1693,
         "event": {
@@ -8182,7 +7905,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 4.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-19T17:30:00+04:00",
@@ -8197,14 +7919,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1692,
         "event": {
@@ -8296,7 +8016,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-28T21:00:00+04:00",
@@ -8311,14 +8030,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1696,
         "event": {
@@ -8410,7 +8127,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 6.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-28T21:30:00+04:00",
@@ -8425,14 +8141,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1508,
         "event": {
@@ -8524,7 +8238,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 4.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-27T18:00:00+04:00",
@@ -8539,14 +8252,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1695,
         "event": {
@@ -8638,7 +8349,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 6.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-04T17:00:00+04:00",
@@ -8653,14 +8363,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1694,
         "event": {
@@ -8752,7 +8460,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 1.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2025-11-22T23:45:00+04:00",
@@ -8767,14 +8474,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": false,
         "confidence": 65
       },
-      "xpronos_score": 40,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1697,
         "event": {
@@ -8866,7 +8571,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-11-30T19:15:00+04:00",
@@ -8881,14 +8585,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1698,
         "event": {
@@ -8980,7 +8682,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-09-27T18:30:00+04:00",
@@ -8995,14 +8696,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1699,
         "event": {
@@ -9094,7 +8793,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-19T20:30:00+04:00",
@@ -9109,14 +8807,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": true,
         "confidence": 55
       },
-      "xpronos_score": 35.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1509,
         "event": {
@@ -9208,7 +8904,6 @@
         "home_dominance": 0.0,
         "away_dominance": 0.0,
         "goals_avg": 0.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2025-07-26T18:00:00+04:00",
@@ -9223,14 +8918,12 @@
       },
       "prediction": {
         "double_chance": "12",
-        "over15": false,
         "confidence": 55
       },
-      "xpronos_score": 20.0,
+      "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1700,
         "event": {
@@ -9322,7 +9015,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-18T17:30:00+04:00",
@@ -9337,14 +9029,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1701,
         "event": {
@@ -9436,7 +9126,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 2.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-26T23:00:00+04:00",
@@ -9451,14 +9140,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1702,
         "event": {
@@ -9550,7 +9237,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 4.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-10-26T22:30:00+04:00",
@@ -9565,14 +9251,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1482,
         "event": {
@@ -9664,7 +9348,6 @@
         "home_dominance": 1.0,
         "away_dominance": 0.0,
         "goals_avg": 6.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-07-27T03:30:00+04:00",
@@ -9679,14 +9362,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1273,
         "event": {
@@ -9778,7 +9459,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 3.0,
-        "over15_percent": 100.0,
         "last_4": [
           {
             "date": "2025-12-20T23:45:00+04:00",
@@ -9793,14 +9473,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": true,
         "confidence": 65
       },
-      "xpronos_score": 55,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1704,
         "event": {
@@ -9892,7 +9570,6 @@
         "home_dominance": 0.0,
         "away_dominance": 1.0,
         "goals_avg": 1.0,
-        "over15_percent": 0.0,
         "last_4": [
           {
             "date": "2025-08-31T22:45:00+04:00",
@@ -9907,14 +9584,12 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over15": false,
         "confidence": 65
       },
-      "xpronos_score": 40,
+      "xpronos_score": 32,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over15": false,
       "ml_full": {
         "id": 1703,
         "event": {
@@ -10009,7 +9684,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-09-14T16:00:00+04:00",
@@ -10024,14 +9698,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1705,
           "event": {
@@ -10123,7 +9795,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 0.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2025-09-28T23:30:00+04:00",
@@ -10138,14 +9809,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": false,
           "confidence": 55
         },
-        "xpronos_score": 20.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1706,
           "event": {
@@ -10237,7 +9906,6 @@
           "home_dominance": 0.333,
           "away_dominance": 0.667,
           "goals_avg": 1.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2025-11-24T04:45:00+04:00",
@@ -10270,14 +9938,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": false,
           "confidence": 65
         },
-        "xpronos_score": 40,
+        "xpronos_score": 36,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1274,
           "event": {
@@ -10369,7 +10035,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 4.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-08-11T04:00:00+04:00",
@@ -10393,14 +10058,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 70
         },
-        "xpronos_score": 55,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1275,
           "event": {
@@ -10492,7 +10155,6 @@
           "home_dominance": 0.5,
           "away_dominance": 0.0,
           "goals_avg": 1.5,
-          "over15_percent": 50.0,
           "last_4": [
             {
               "date": "2025-05-11T04:30:00+04:00",
@@ -10516,14 +10178,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": false,
           "confidence": 60
         },
-        "xpronos_score": 40,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1276,
           "event": {
@@ -10615,7 +10275,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-09-14T19:00:00+04:00",
@@ -10630,14 +10289,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1438,
           "event": {
@@ -10729,7 +10386,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 4.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-05T17:00:00+04:00",
@@ -10744,14 +10400,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1707,
           "event": {
@@ -10843,7 +10497,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 5.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-27T22:30:00+04:00",
@@ -10858,14 +10511,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1483,
           "event": {
@@ -10957,7 +10608,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 6.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-12-21T21:00:00+04:00",
@@ -10972,14 +10622,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1708,
           "event": {
@@ -11071,7 +10719,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-11-08T19:00:00+04:00",
@@ -11086,14 +10733,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1710,
           "event": {
@@ -11185,7 +10830,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 1.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2025-10-19T23:00:00+04:00",
@@ -11200,14 +10844,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": false,
           "confidence": 65
         },
-        "xpronos_score": 40,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1709,
           "event": {
@@ -11299,7 +10941,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-09-26T23:15:00+04:00",
@@ -11314,14 +10955,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1711,
           "event": {
@@ -11413,7 +11052,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-09-19T18:45:00+04:00",
@@ -11428,14 +11066,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1439,
           "event": {
@@ -11527,7 +11163,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 0.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2025-09-21T21:15:00+04:00",
@@ -11542,14 +11177,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": false,
           "confidence": 55
         },
-        "xpronos_score": 20.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1440,
           "event": {
@@ -11623,6 +11256,117 @@
         }
       },
       {
+        "id": 6509,
+        "date": "2026-03-03",
+        "event_date": "2026-03-03T20:30:00+04:00",
+        "home_team": "Botev Plovdiv",
+        "away_team": "FK Septemvri Sofia",
+        "home_logo": "https://sports.bzzoiro.com/img/team/5241/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/201203/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Parva Liga",
+        "league_logo": "https://sports.bzzoiro.com/img/league/247/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 4.0,
+          "last_4": [
+            {
+              "date": "2025-09-21T18:45:00+04:00",
+              "home_team": "FK Septemvri Sofia",
+              "away_team": "Botev Plovdiv",
+              "home_score": 1,
+              "away_score": 3,
+              "status": "finished",
+              "league": "Parva Liga"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 65
+        },
+        "xpronos_score": 52,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "ml_full": {
+          "id": 1441,
+          "event": {
+            "id": 6509,
+            "api_id": 14598658,
+            "league": {
+              "id": 22,
+              "api_id": 247,
+              "name": "Parva Liga",
+              "country": "Bulgaria",
+              "season_id": 76882
+            },
+            "home_team": "Botev Plovdiv",
+            "away_team": "FK Septemvri Sofia",
+            "home_team_obj": {
+              "id": 344,
+              "api_id": 5241,
+              "name": "Botev Plovdiv",
+              "short_name": "Botev Plovdiv",
+              "country": ""
+            },
+            "away_team_obj": {
+              "id": 343,
+              "api_id": 201203,
+              "name": "FK Septemvri Sofia",
+              "short_name": "Septemvri",
+              "country": ""
+            },
+            "event_date": "2026-03-03T20:30:00+04:00",
+            "status": "notstarted",
+            "home_score": null,
+            "away_score": null,
+            "current_minute": null,
+            "period": "",
+            "odds_home": 1.37,
+            "odds_draw": 4.5,
+            "odds_away": 8.0,
+            "odds_over_15": 1.22,
+            "odds_over_25": 1.75,
+            "odds_over_35": 2.75,
+            "odds_under_15": 4.0,
+            "odds_under_25": 2.05,
+            "odds_under_35": 1.4,
+            "odds_btts_yes": 2.0,
+            "odds_btts_no": 1.73,
+            "actual_home_xg": null,
+            "actual_away_xg": null
+          },
+          "created_at": "2026-02-15T12:31:47.211313+04:00",
+          "prob_home_win": 69.08573603618939,
+          "prob_draw": 21.30625311590847,
+          "prob_away_win": 9.60801084790214,
+          "predicted_result": "H",
+          "expected_home_goals": 1.8,
+          "expected_away_goals": 0.5,
+          "prob_over_15": 80.92130471474893,
+          "prob_over_25": 51.661778649036336,
+          "prob_over_35": 21.42775316753095,
+          "prob_btts_yes": 58.6094807775557,
+          "confidence": 69.08573603618939,
+          "model_version": "v4.1",
+          "most_likely_score": "1-0",
+          "favorite": "H",
+          "favorite_prob": 69.08573603618939,
+          "favorite_recommend": false,
+          "over_15_recommend": false,
+          "over_25_recommend": false,
+          "over_35_recommend": false,
+          "btts_recommend": false,
+          "winner_recommend": false
+        }
+      },
+      {
         "id": 289,
         "date": "2026-03-03",
         "event_date": "2026-03-03T23:30:00+04:00",
@@ -11641,7 +11385,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-12-28T18:00:00+04:00",
@@ -11656,14 +11399,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1713,
           "event": {
@@ -11755,7 +11496,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 0.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2025-12-27T19:00:00+04:00",
@@ -11770,14 +11510,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": false,
           "confidence": 55
         },
-        "xpronos_score": 20.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1714,
           "event": {
@@ -11869,7 +11607,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 5.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-12-27T19:00:00+04:00",
@@ -11884,14 +11621,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1715,
           "event": {
@@ -11983,7 +11718,6 @@
           "home_dominance": 0.5,
           "away_dominance": 0.5,
           "goals_avg": 5.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-11-01T21:00:00+04:00",
@@ -12007,14 +11741,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 60
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 4.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1712,
           "event": {
@@ -12106,7 +11838,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-11-25T23:45:00+04:00",
@@ -12121,14 +11852,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1717,
           "event": {
@@ -12220,7 +11949,6 @@
           "home_dominance": 0.5,
           "away_dominance": 0.5,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-12-06T19:00:00+04:00",
@@ -12244,14 +11972,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 60
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 4.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1716,
           "event": {
@@ -12343,7 +12069,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 1.5,
-          "over15_percent": 50.0,
           "last_4": [
             {
               "date": "2026-03-01T00:00:00+04:00",
@@ -12367,14 +12092,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": false,
           "confidence": 70
         },
-        "xpronos_score": 40,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1664,
           "event": {
@@ -12466,7 +12189,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 5.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-03-01T00:00:00+04:00",
@@ -12490,14 +12212,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 70
         },
-        "xpronos_score": 55,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1665,
           "event": {
@@ -12589,7 +12309,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 2.0,
-          "over15_percent": 50.0,
           "last_4": [
             {
               "date": "2026-03-01T00:05:00+04:00",
@@ -12613,14 +12332,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": false,
           "confidence": 70
         },
-        "xpronos_score": 55,
+        "xpronos_score": 54,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1666,
           "event": {
@@ -12712,7 +12429,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.5,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-03-01T00:30:00+04:00",
@@ -12736,14 +12452,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 60
         },
-        "xpronos_score": 55,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1667,
           "event": {
@@ -12835,7 +12549,6 @@
           "home_dominance": 0.333,
           "away_dominance": 0.667,
           "goals_avg": 2.67,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-03-01T01:30:00+04:00",
@@ -12868,14 +12581,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 36,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": true,
         "ml_full": {
           "id": 1265,
           "event": {
@@ -12967,7 +12678,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 1.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2026-03-01T01:30:00+04:00",
@@ -12982,14 +12692,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": false,
           "confidence": 65
         },
-        "xpronos_score": 40,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1264,
           "event": {
@@ -13081,7 +12789,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 2.5,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-03-01T03:00:00+04:00",
@@ -13105,14 +12812,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 70
         },
-        "xpronos_score": 55,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1322,
           "event": {
@@ -13204,7 +12909,6 @@
           "home_dominance": 0.5,
           "away_dominance": 0.5,
           "goals_avg": 1.5,
-          "over15_percent": 50.0,
           "last_4": [
             {
               "date": "2026-03-01T03:00:00+04:00",
@@ -13228,14 +12932,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": false,
           "confidence": 60
         },
-        "xpronos_score": 20.0,
+        "xpronos_score": 4.0,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1321,
           "event": {
@@ -13327,7 +13029,6 @@
           "home_dominance": 0.667,
           "away_dominance": 0.333,
           "goals_avg": 2.0,
-          "over15_percent": 66.7,
           "last_4": [
             {
               "date": "2026-03-01T04:30:00+04:00",
@@ -13360,14 +13061,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 36,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1266,
           "event": {
@@ -13459,7 +13158,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-03-01T04:30:00+04:00",
@@ -13474,14 +13172,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1267,
           "event": {
@@ -13573,7 +13269,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-03-01T05:05:00+04:00",
@@ -13597,14 +13292,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 70
         },
-        "xpronos_score": 55,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1323,
           "event": {
@@ -13696,7 +13389,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 50.0,
           "last_4": [
             {
               "date": "2026-03-01T05:06:00+04:00",
@@ -13720,14 +13412,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": false,
           "confidence": 70
         },
-        "xpronos_score": 40,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": false,
         "ml_full": {
           "id": 1324,
           "event": {
@@ -13819,7 +13509,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 0.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2026-03-01T05:30:00+04:00",
@@ -13834,14 +13523,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": false,
           "confidence": 55
         },
-        "xpronos_score": 20.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": true,
         "ml_full": {
           "id": 1270,
           "event": {
@@ -13933,7 +13620,6 @@
           "home_dominance": 0.333,
           "away_dominance": 0.667,
           "goals_avg": 1.67,
-          "over15_percent": 66.7,
           "last_4": [
             {
               "date": "2026-03-01T05:30:00+04:00",
@@ -13966,14 +13652,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 36,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1268,
           "event": {
@@ -14065,7 +13749,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 4.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-03-01T05:30:00+04:00",
@@ -14080,14 +13763,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": true,
         "ml_full": {
           "id": 1269,
           "event": {
@@ -14179,7 +13860,6 @@
           "home_dominance": 0.5,
           "away_dominance": 0.0,
           "goals_avg": 1.5,
-          "over15_percent": 50.0,
           "last_4": [
             {
               "date": "2026-03-01T06:30:00+04:00",
@@ -14203,14 +13883,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": false,
           "confidence": 60
         },
-        "xpronos_score": 40,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": false,
         "ml_full": {
           "id": 1271,
           "event": {
@@ -14302,7 +13980,6 @@
           "home_dominance": 0.5,
           "away_dominance": 0.5,
           "goals_avg": 4.5,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-03-01T07:10:00+04:00",
@@ -14326,14 +14003,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 60
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 4.0,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1325,
           "event": {
@@ -14425,7 +14100,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-03-01T07:30:00+04:00",
@@ -14440,14 +14114,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1272,
           "event": {
@@ -14539,7 +14211,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.5,
           "goals_avg": 2.0,
-          "over15_percent": 50.0,
           "last_4": [
             {
               "date": "2026-03-01T15:15:00+04:00",
@@ -14563,14 +14234,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": false,
           "confidence": 60
         },
-        "xpronos_score": 40,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1668,
           "event": {
@@ -14662,7 +14331,6 @@
           "home_dominance": 0.5,
           "away_dominance": 0.5,
           "goals_avg": 2.5,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-03-01T15:30:00+04:00",
@@ -14686,14 +14354,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 60
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 4.0,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1669,
           "event": {
@@ -14785,7 +14451,6 @@
           "home_dominance": 0.333,
           "away_dominance": 0.0,
           "goals_avg": 2.67,
-          "over15_percent": 66.7,
           "last_4": [
             {
               "date": "2026-03-01T16:00:00+04:00",
@@ -14818,14 +14483,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 36,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1670,
           "event": {
@@ -14917,7 +14580,6 @@
           "home_dominance": 0.5,
           "away_dominance": 0.0,
           "goals_avg": 2.5,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-03-01T16:30:00+04:00",
@@ -14941,14 +14603,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 60
         },
-        "xpronos_score": 55,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1671,
           "event": {
@@ -15040,7 +14700,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 1.0,
-          "over15_percent": 50.0,
           "last_4": [
             {
               "date": "2026-03-01T17:00:00+04:00",
@@ -15064,14 +14723,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": false,
           "confidence": 60
         },
-        "xpronos_score": 20.0,
+        "xpronos_score": 4.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": true,
         "ml_full": {
           "id": 1673,
           "event": {
@@ -15163,7 +14820,6 @@
           "home_dominance": 0.333,
           "away_dominance": 0.333,
           "goals_avg": 3.0,
-          "over15_percent": 66.7,
           "last_4": [
             {
               "date": "2026-03-01T17:00:00+04:00",
@@ -15196,14 +14852,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 6.0,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": true,
         "ml_full": {
           "id": 1672,
           "event": {
@@ -15295,7 +14949,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.5,
           "goals_avg": 2.5,
-          "over15_percent": 50.0,
           "last_4": [
             {
               "date": "2026-03-01T17:00:00+04:00",
@@ -15319,14 +14972,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": false,
           "confidence": 60
         },
-        "xpronos_score": 40,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over15": false,
         "ml_full": {
           "id": 1674,
           "event": {
@@ -15418,7 +15069,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-12-21T17:30:00+04:00",
@@ -15433,14 +15083,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1675,
           "event": {
@@ -15532,7 +15180,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-12-13T21:45:00+04:00",
@@ -15547,14 +15194,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1676,
           "event": {
@@ -15646,7 +15291,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-24T18:30:00+04:00",
@@ -15661,14 +15305,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1480,
           "event": {
@@ -15760,7 +15402,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-11-30T18:05:00+04:00",
@@ -15775,14 +15416,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1680,
           "event": {
@@ -15856,6 +15495,117 @@
         }
       },
       {
+        "id": 6964,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T18:00:00+04:00",
+        "home_team": "MGS Panserraikos",
+        "away_team": "Olympiacos FC",
+        "home_logo": "https://sports.bzzoiro.com/img/team/6347/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/3245/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Stoiximan Super League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 5.0,
+          "last_4": [
+            {
+              "date": "2025-09-13T19:00:00+04:00",
+              "home_team": "Olympiacos FC",
+              "away_team": "MGS Panserraikos",
+              "home_score": 5,
+              "away_score": 0,
+              "status": "finished",
+              "league": "Stoiximan Super League"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 65
+        },
+        "xpronos_score": 52,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "ml_full": {
+          "id": 1506,
+          "event": {
+            "id": 6964,
+            "api_id": 14159163,
+            "league": {
+              "id": 24,
+              "api_id": 185,
+              "name": "Stoiximan Super League",
+              "country": "Greece",
+              "season_id": 78175
+            },
+            "home_team": "MGS Panserraikos",
+            "away_team": "Olympiacos FC",
+            "home_team_obj": {
+              "id": 369,
+              "api_id": 6347,
+              "name": "MGS Panserraikos",
+              "short_name": "Panserraikos",
+              "country": ""
+            },
+            "away_team_obj": {
+              "id": 118,
+              "api_id": 3245,
+              "name": "Olympiacos FC",
+              "short_name": "Olympiacos",
+              "country": ""
+            },
+            "event_date": "2026-03-01T18:00:00+04:00",
+            "status": "notstarted",
+            "home_score": null,
+            "away_score": null,
+            "current_minute": null,
+            "period": "",
+            "odds_home": 19.0,
+            "odds_draw": 9.0,
+            "odds_away": 1.09,
+            "odds_over_15": 1.14,
+            "odds_over_25": 1.48,
+            "odds_over_35": 2.2,
+            "odds_under_15": 5.5,
+            "odds_under_25": 2.6,
+            "odds_under_35": 1.62,
+            "odds_btts_yes": 2.5,
+            "odds_btts_no": 1.5,
+            "actual_home_xg": null,
+            "actual_away_xg": null
+          },
+          "created_at": "2026-02-15T12:38:05.424507+04:00",
+          "prob_home_win": 8.862652111041134,
+          "prob_draw": 23.68958254201315,
+          "prob_away_win": 67.44776534694572,
+          "predicted_result": "A",
+          "expected_home_goals": 0.4,
+          "expected_away_goals": 1.6,
+          "prob_over_15": 78.57224683246905,
+          "prob_over_25": 48.33822135096367,
+          "prob_over_35": 19.07869528525107,
+          "prob_btts_yes": 25.30067119078177,
+          "confidence": 67.44776534694572,
+          "model_version": "v4.1",
+          "most_likely_score": "0-1",
+          "favorite": "A",
+          "favorite_prob": 67.44776534694572,
+          "favorite_recommend": false,
+          "over_15_recommend": false,
+          "over_25_recommend": false,
+          "over_35_recommend": false,
+          "btts_recommend": false,
+          "winner_recommend": false
+        }
+      },
+      {
         "id": 281,
         "date": "2026-03-01",
         "event_date": "2026-03-01T18:00:00+04:00",
@@ -15874,7 +15624,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-11-30T16:00:00+04:00",
@@ -15889,14 +15638,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1677,
           "event": {
@@ -15988,7 +15735,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-11-30T00:00:00+04:00",
@@ -16003,14 +15749,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1678,
           "event": {
@@ -16102,7 +15846,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-11-09T15:30:00+04:00",
@@ -16117,14 +15860,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1681,
           "event": {
@@ -16216,7 +15957,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-09-28T17:00:00+04:00",
@@ -16231,14 +15971,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1679,
           "event": {
@@ -16312,6 +16050,117 @@
         }
       },
       {
+        "id": 1672,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T18:30:00+04:00",
+        "home_team": "VfB Stuttgart",
+        "away_team": "VfL Wolfsburg",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2677/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2524/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Bundesliga",
+        "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 3.0,
+          "last_4": [
+            {
+              "date": "2025-10-18T17:30:00+04:00",
+              "home_team": "VfL Wolfsburg",
+              "away_team": "VfB Stuttgart",
+              "home_score": 0,
+              "away_score": 3,
+              "status": "finished",
+              "league": "Bundesliga"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 65
+        },
+        "xpronos_score": 52,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "ml_full": {
+          "id": 1682,
+          "event": {
+            "id": 1672,
+            "api_id": 14062234,
+            "league": {
+              "id": 5,
+              "api_id": 35,
+              "name": "Bundesliga",
+              "country": "Germany",
+              "season_id": 77333
+            },
+            "home_team": "VfB Stuttgart",
+            "away_team": "VfL Wolfsburg",
+            "home_team_obj": {
+              "id": 84,
+              "api_id": 2677,
+              "name": "VfB Stuttgart",
+              "short_name": "Stuttgart",
+              "country": ""
+            },
+            "away_team_obj": {
+              "id": 82,
+              "api_id": 2524,
+              "name": "VfL Wolfsburg",
+              "short_name": "Wolfsburg",
+              "country": ""
+            },
+            "event_date": "2026-03-01T18:30:00+04:00",
+            "status": "notstarted",
+            "home_score": null,
+            "away_score": null,
+            "current_minute": null,
+            "period": "",
+            "odds_home": 1.02,
+            "odds_draw": 14.5,
+            "odds_away": 100.0,
+            "odds_over_15": 1.1,
+            "odds_over_25": 1.05,
+            "odds_over_35": 1.57,
+            "odds_under_15": 6.25,
+            "odds_under_25": 9.0,
+            "odds_under_35": 2.3,
+            "odds_btts_yes": 3.65,
+            "odds_btts_no": 1.25,
+            "actual_home_xg": null,
+            "actual_away_xg": null
+          },
+          "created_at": "2026-02-23T06:20:06.968701+04:00",
+          "prob_home_win": 60.26462658677762,
+          "prob_draw": 20.861917825571826,
+          "prob_away_win": 18.87345558765056,
+          "predicted_result": "H",
+          "expected_home_goals": 2.054635,
+          "expected_away_goals": 1.05938,
+          "prob_over_15": 93.84226919630905,
+          "prob_over_25": 76.063085913355,
+          "prob_over_35": 45.026177516988696,
+          "prob_btts_yes": 70.8611235060209,
+          "confidence": 60.26462658677762,
+          "model_version": "v4.1",
+          "most_likely_score": "2-1",
+          "favorite": "H",
+          "favorite_prob": 60.26462658677762,
+          "favorite_recommend": false,
+          "over_15_recommend": false,
+          "over_25_recommend": false,
+          "over_35_recommend": false,
+          "btts_recommend": false,
+          "winner_recommend": false
+        }
+      },
+      {
         "id": 4350,
         "date": "2026-03-01",
         "event_date": "2026-03-01T19:00:00+04:00",
@@ -16330,7 +16179,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-09-27T22:45:00+04:00",
@@ -16345,14 +16193,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1683,
           "event": {
@@ -16444,7 +16290,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 1.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2025-08-24T19:00:00+04:00",
@@ -16459,14 +16304,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": false,
           "confidence": 65
         },
-        "xpronos_score": 40,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1684,
           "event": {
@@ -16540,6 +16383,117 @@
         }
       },
       {
+        "id": 6505,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T19:15:00+04:00",
+        "home_team": "Levski Sofia",
+        "away_team": "Lokomotiv Sofia",
+        "home_logo": "https://sports.bzzoiro.com/img/team/3273/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/3277/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Parva Liga",
+        "league_logo": "https://sports.bzzoiro.com/img/league/247/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 3.0,
+          "last_4": [
+            {
+              "date": "2025-09-14T21:30:00+04:00",
+              "home_team": "Lokomotiv Sofia",
+              "away_team": "Levski Sofia",
+              "home_score": 1,
+              "away_score": 2,
+              "status": "finished",
+              "league": "Parva Liga"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 65
+        },
+        "xpronos_score": 52,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "ml_full": {
+          "id": 1437,
+          "event": {
+            "id": 6505,
+            "api_id": 14598651,
+            "league": {
+              "id": 22,
+              "api_id": 247,
+              "name": "Parva Liga",
+              "country": "Bulgaria",
+              "season_id": 76882
+            },
+            "home_team": "Levski Sofia",
+            "away_team": "Lokomotiv Sofia",
+            "home_team_obj": {
+              "id": 348,
+              "api_id": 3273,
+              "name": "Levski Sofia",
+              "short_name": "Levski Sofia",
+              "country": ""
+            },
+            "away_team_obj": {
+              "id": 341,
+              "api_id": 3277,
+              "name": "Lokomotiv Sofia",
+              "short_name": "Lokomotiv Sofia",
+              "country": ""
+            },
+            "event_date": "2026-03-01T19:15:00+04:00",
+            "status": "notstarted",
+            "home_score": null,
+            "away_score": null,
+            "current_minute": null,
+            "period": "",
+            "odds_home": 1.3,
+            "odds_draw": 4.75,
+            "odds_away": 10.0,
+            "odds_over_15": 1.25,
+            "odds_over_25": 1.8,
+            "odds_over_35": 3.0,
+            "odds_under_15": 3.75,
+            "odds_under_25": 2.0,
+            "odds_under_35": 1.36,
+            "odds_btts_yes": 2.2,
+            "odds_btts_no": 1.62,
+            "actual_home_xg": null,
+            "actual_away_xg": null
+          },
+          "created_at": "2026-02-15T12:31:46.627267+04:00",
+          "prob_home_win": 65.9882093373883,
+          "prob_draw": 18.14140266259712,
+          "prob_away_win": 15.870388000014573,
+          "predicted_result": "H",
+          "expected_home_goals": 2.4,
+          "expected_away_goals": 1.1,
+          "prob_over_15": 84.1344746068543,
+          "prob_over_25": 56.618383261090365,
+          "prob_over_35": 25.24925375469229,
+          "prob_btts_yes": 70.30734857069808,
+          "confidence": 65.9882093373883,
+          "model_version": "v4.1",
+          "most_likely_score": "2-1",
+          "favorite": "H",
+          "favorite_prob": 65.9882093373883,
+          "favorite_recommend": false,
+          "over_15_recommend": false,
+          "over_25_recommend": false,
+          "over_35_recommend": false,
+          "btts_recommend": false,
+          "winner_recommend": false
+        }
+      },
+      {
         "id": 598,
         "date": "2026-03-01",
         "event_date": "2026-03-01T19:30:00+04:00",
@@ -16558,7 +16512,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-09-27T19:30:00+04:00",
@@ -16573,85 +16526,13 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
-        "ml_full": {
-          "id": 1686,
-          "event": {
-            "id": 598,
-            "api_id": 14288808,
-            "league": {
-              "id": 2,
-              "api_id": 238,
-              "name": "Liga Portugal Betclic",
-              "country": "Portugal",
-              "season_id": 77806
-            },
-            "home_team": "Tondela",
-            "away_team": "Santa Clara",
-            "home_team_obj": {
-              "id": 32,
-              "api_id": 38396,
-              "name": "Tondela",
-              "short_name": "Tondela",
-              "country": ""
-            },
-            "away_team_obj": {
-              "id": 28,
-              "api_id": 3011,
-              "name": "Santa Clara",
-              "short_name": "Santa Clara",
-              "country": ""
-            },
-            "event_date": "2026-03-01T19:30:00+04:00",
-            "status": "notstarted",
-            "home_score": null,
-            "away_score": null,
-            "current_minute": null,
-            "period": "",
-            "odds_home": 3.1,
-            "odds_draw": 3.0,
-            "odds_away": 2.4,
-            "odds_over_15": 1.5,
-            "odds_over_25": 2.6,
-            "odds_over_35": 5.0,
-            "odds_under_15": 2.5,
-            "odds_under_25": 1.48,
-            "odds_under_35": 1.17,
-            "odds_btts_yes": 2.1,
-            "odds_btts_no": 1.67,
-            "actual_home_xg": null,
-            "actual_away_xg": null
-          },
-          "created_at": "2026-02-23T06:20:07.529274+04:00",
-          "prob_home_win": 32.9789119852026,
-          "prob_draw": 30.109801905168247,
-          "prob_away_win": 36.911286109629145,
-          "predicted_result": "A",
-          "expected_home_goals": 1.00129,
-          "expected_away_goals": 1.07761,
-          "prob_over_15": 66.15388804893104,
-          "prob_over_25": 33.84611195106897,
-          "prob_over_35": 10.564977366685536,
-          "prob_btts_yes": 50.39081577997262,
-          "confidence": 36.911286109629145,
-          "model_version": "v4.1",
-          "most_likely_score": "1-1",
-          "favorite": "A",
-          "favorite_prob": 36.911286109629145,
-          "favorite_recommend": false,
-          "over_15_recommend": false,
-          "over_25_recommend": false,
-          "over_35_recommend": false,
-          "btts_recommend": false,
-          "winner_recommend": false
-        }
+        "ml_full": null
       },
       {
         "id": 4869,
@@ -16672,7 +16553,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 4.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-02-01T19:30:00+04:00",
@@ -16696,14 +16576,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 70
         },
-        "xpronos_score": 55,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1685,
           "event": {
@@ -16795,7 +16673,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.5,
           "goals_avg": 2.5,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2026-01-31T23:30:00+04:00",
@@ -16819,14 +16696,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 60
         },
-        "xpronos_score": 55,
+        "xpronos_score": 34,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1687,
           "event": {
@@ -16918,7 +16793,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 1.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2025-09-28T18:00:00+04:00",
@@ -16933,14 +16807,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": false,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 52,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1507,
           "event": {
@@ -17032,7 +16904,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 5.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-26T19:45:00+04:00",
@@ -17047,14 +16918,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1688,
           "event": {
@@ -17146,7 +17015,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-24T21:30:00+04:00",
@@ -17161,14 +17029,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1481,
           "event": {
@@ -17260,7 +17126,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 1.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2025-08-17T19:15:00+04:00",
@@ -17275,14 +17140,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": false,
           "confidence": 65
         },
-        "xpronos_score": 40,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1691,
           "event": {
@@ -17374,7 +17237,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-19T22:45:00+04:00",
@@ -17389,14 +17251,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1689,
           "event": {
@@ -17488,7 +17348,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 5.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-11-23T20:15:00+04:00",
@@ -17503,14 +17362,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1690,
           "event": {
@@ -17602,7 +17459,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-11-30T20:30:00+04:00",
@@ -17617,14 +17473,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1693,
           "event": {
@@ -17716,7 +17570,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 4.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-19T17:30:00+04:00",
@@ -17731,14 +17584,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1692,
           "event": {
@@ -17830,7 +17681,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-09-28T21:00:00+04:00",
@@ -17845,14 +17695,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1696,
           "event": {
@@ -17944,7 +17792,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 6.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-09-28T21:30:00+04:00",
@@ -17959,14 +17806,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1508,
           "event": {
@@ -18058,7 +17903,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 4.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-09-27T18:00:00+04:00",
@@ -18073,14 +17917,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1695,
           "event": {
@@ -18172,7 +18014,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 6.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-04T17:00:00+04:00",
@@ -18187,14 +18028,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1694,
           "event": {
@@ -18286,7 +18125,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 1.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2025-11-22T23:45:00+04:00",
@@ -18301,14 +18139,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": false,
           "confidence": 65
         },
-        "xpronos_score": 40,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1697,
           "event": {
@@ -18400,7 +18236,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-11-30T19:15:00+04:00",
@@ -18415,14 +18250,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1698,
           "event": {
@@ -18514,7 +18347,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-09-27T18:30:00+04:00",
@@ -18529,14 +18361,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1699,
           "event": {
@@ -18628,7 +18458,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-19T20:30:00+04:00",
@@ -18643,14 +18472,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": true,
           "confidence": 55
         },
-        "xpronos_score": 35.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1509,
           "event": {
@@ -18742,7 +18569,6 @@
           "home_dominance": 0.0,
           "away_dominance": 0.0,
           "goals_avg": 0.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2025-07-26T18:00:00+04:00",
@@ -18757,14 +18583,12 @@
         },
         "prediction": {
           "double_chance": "12",
-          "over15": false,
           "confidence": 55
         },
-        "xpronos_score": 20.0,
+        "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1700,
           "event": {
@@ -18856,7 +18680,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-18T17:30:00+04:00",
@@ -18871,14 +18694,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1701,
           "event": {
@@ -18970,7 +18791,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 2.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-26T23:00:00+04:00",
@@ -18985,14 +18805,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1702,
           "event": {
@@ -19084,7 +18902,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 4.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-10-26T22:30:00+04:00",
@@ -19099,14 +18916,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1482,
           "event": {
@@ -19198,7 +19013,6 @@
           "home_dominance": 1.0,
           "away_dominance": 0.0,
           "goals_avg": 6.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-07-27T03:30:00+04:00",
@@ -19213,14 +19027,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1273,
           "event": {
@@ -19312,7 +19124,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 3.0,
-          "over15_percent": 100.0,
           "last_4": [
             {
               "date": "2025-12-20T23:45:00+04:00",
@@ -19327,14 +19138,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": true,
           "confidence": 65
         },
-        "xpronos_score": 55,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1704,
           "event": {
@@ -19426,7 +19235,6 @@
           "home_dominance": 0.0,
           "away_dominance": 1.0,
           "goals_avg": 1.0,
-          "over15_percent": 0.0,
           "last_4": [
             {
               "date": "2025-08-31T22:45:00+04:00",
@@ -19441,14 +19249,12 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over15": false,
           "confidence": 65
         },
-        "xpronos_score": 40,
+        "xpronos_score": 32,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over15": false,
         "ml_full": {
           "id": 1703,
           "event": {
@@ -19522,464 +19328,7 @@
         }
       }
     ],
-    "pro": [
-      {
-        "id": 6509,
-        "date": "2026-03-03",
-        "event_date": "2026-03-03T20:30:00+04:00",
-        "home_team": "Botev Plovdiv",
-        "away_team": "FK Septemvri Sofia",
-        "home_logo": "https://sports.bzzoiro.com/img/team/5241/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/201203/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Parva Liga",
-        "league_logo": "https://sports.bzzoiro.com/img/league/247/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 4.0,
-          "over15_percent": 100.0,
-          "last_4": [
-            {
-              "date": "2025-09-21T18:45:00+04:00",
-              "home_team": "FK Septemvri Sofia",
-              "away_team": "Botev Plovdiv",
-              "home_score": 1,
-              "away_score": 3,
-              "status": "finished",
-              "league": "Parva Liga"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over15": true,
-          "confidence": 65
-        },
-        "xpronos_score": 70,
-        "badge": "",
-        "category": "pro",
-        "verified_double": false,
-        "verified_over15": false,
-        "ml_full": {
-          "id": 1441,
-          "event": {
-            "id": 6509,
-            "api_id": 14598658,
-            "league": {
-              "id": 22,
-              "api_id": 247,
-              "name": "Parva Liga",
-              "country": "Bulgaria",
-              "season_id": 76882
-            },
-            "home_team": "Botev Plovdiv",
-            "away_team": "FK Septemvri Sofia",
-            "home_team_obj": {
-              "id": 344,
-              "api_id": 5241,
-              "name": "Botev Plovdiv",
-              "short_name": "Botev Plovdiv",
-              "country": ""
-            },
-            "away_team_obj": {
-              "id": 343,
-              "api_id": 201203,
-              "name": "FK Septemvri Sofia",
-              "short_name": "Septemvri",
-              "country": ""
-            },
-            "event_date": "2026-03-03T20:30:00+04:00",
-            "status": "notstarted",
-            "home_score": null,
-            "away_score": null,
-            "current_minute": null,
-            "period": "",
-            "odds_home": 1.37,
-            "odds_draw": 4.5,
-            "odds_away": 8.0,
-            "odds_over_15": 1.22,
-            "odds_over_25": 1.75,
-            "odds_over_35": 2.75,
-            "odds_under_15": 4.0,
-            "odds_under_25": 2.05,
-            "odds_under_35": 1.4,
-            "odds_btts_yes": 2.0,
-            "odds_btts_no": 1.73,
-            "actual_home_xg": null,
-            "actual_away_xg": null
-          },
-          "created_at": "2026-02-15T12:31:47.211313+04:00",
-          "prob_home_win": 69.08573603618939,
-          "prob_draw": 21.30625311590847,
-          "prob_away_win": 9.60801084790214,
-          "predicted_result": "H",
-          "expected_home_goals": 1.8,
-          "expected_away_goals": 0.5,
-          "prob_over_15": 80.92130471474893,
-          "prob_over_25": 51.661778649036336,
-          "prob_over_35": 21.42775316753095,
-          "prob_btts_yes": 58.6094807775557,
-          "confidence": 69.08573603618939,
-          "model_version": "v4.1",
-          "most_likely_score": "1-0",
-          "favorite": "H",
-          "favorite_prob": 69.08573603618939,
-          "favorite_recommend": false,
-          "over_15_recommend": false,
-          "over_25_recommend": false,
-          "over_35_recommend": false,
-          "btts_recommend": false,
-          "winner_recommend": false
-        }
-      },
-      {
-        "id": 6964,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T18:00:00+04:00",
-        "home_team": "MGS Panserraikos",
-        "away_team": "Olympiacos FC",
-        "home_logo": "https://sports.bzzoiro.com/img/team/6347/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/3245/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Stoiximan Super League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 5.0,
-          "over15_percent": 100.0,
-          "last_4": [
-            {
-              "date": "2025-09-13T19:00:00+04:00",
-              "home_team": "Olympiacos FC",
-              "away_team": "MGS Panserraikos",
-              "home_score": 5,
-              "away_score": 0,
-              "status": "finished",
-              "league": "Stoiximan Super League"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over15": true,
-          "confidence": 65
-        },
-        "xpronos_score": 70,
-        "badge": "",
-        "category": "pro",
-        "verified_double": false,
-        "verified_over15": false,
-        "ml_full": {
-          "id": 1506,
-          "event": {
-            "id": 6964,
-            "api_id": 14159163,
-            "league": {
-              "id": 24,
-              "api_id": 185,
-              "name": "Stoiximan Super League",
-              "country": "Greece",
-              "season_id": 78175
-            },
-            "home_team": "MGS Panserraikos",
-            "away_team": "Olympiacos FC",
-            "home_team_obj": {
-              "id": 369,
-              "api_id": 6347,
-              "name": "MGS Panserraikos",
-              "short_name": "Panserraikos",
-              "country": ""
-            },
-            "away_team_obj": {
-              "id": 118,
-              "api_id": 3245,
-              "name": "Olympiacos FC",
-              "short_name": "Olympiacos",
-              "country": ""
-            },
-            "event_date": "2026-03-01T18:00:00+04:00",
-            "status": "notstarted",
-            "home_score": null,
-            "away_score": null,
-            "current_minute": null,
-            "period": "",
-            "odds_home": 19.0,
-            "odds_draw": 9.0,
-            "odds_away": 1.09,
-            "odds_over_15": 1.14,
-            "odds_over_25": 1.48,
-            "odds_over_35": 2.2,
-            "odds_under_15": 5.5,
-            "odds_under_25": 2.6,
-            "odds_under_35": 1.62,
-            "odds_btts_yes": 2.5,
-            "odds_btts_no": 1.5,
-            "actual_home_xg": null,
-            "actual_away_xg": null
-          },
-          "created_at": "2026-02-15T12:38:05.424507+04:00",
-          "prob_home_win": 8.862652111041134,
-          "prob_draw": 23.68958254201315,
-          "prob_away_win": 67.44776534694572,
-          "predicted_result": "A",
-          "expected_home_goals": 0.4,
-          "expected_away_goals": 1.6,
-          "prob_over_15": 78.57224683246905,
-          "prob_over_25": 48.33822135096367,
-          "prob_over_35": 19.07869528525107,
-          "prob_btts_yes": 25.30067119078177,
-          "confidence": 67.44776534694572,
-          "model_version": "v4.1",
-          "most_likely_score": "0-1",
-          "favorite": "A",
-          "favorite_prob": 67.44776534694572,
-          "favorite_recommend": false,
-          "over_15_recommend": false,
-          "over_25_recommend": false,
-          "over_35_recommend": false,
-          "btts_recommend": false,
-          "winner_recommend": false
-        }
-      },
-      {
-        "id": 1672,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T18:30:00+04:00",
-        "home_team": "VfB Stuttgart",
-        "away_team": "VfL Wolfsburg",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2677/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2524/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Bundesliga",
-        "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 3.0,
-          "over15_percent": 100.0,
-          "last_4": [
-            {
-              "date": "2025-10-18T17:30:00+04:00",
-              "home_team": "VfL Wolfsburg",
-              "away_team": "VfB Stuttgart",
-              "home_score": 0,
-              "away_score": 3,
-              "status": "finished",
-              "league": "Bundesliga"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over15": true,
-          "confidence": 65
-        },
-        "xpronos_score": 70,
-        "badge": "",
-        "category": "pro",
-        "verified_double": false,
-        "verified_over15": false,
-        "ml_full": {
-          "id": 1682,
-          "event": {
-            "id": 1672,
-            "api_id": 14062234,
-            "league": {
-              "id": 5,
-              "api_id": 35,
-              "name": "Bundesliga",
-              "country": "Germany",
-              "season_id": 77333
-            },
-            "home_team": "VfB Stuttgart",
-            "away_team": "VfL Wolfsburg",
-            "home_team_obj": {
-              "id": 84,
-              "api_id": 2677,
-              "name": "VfB Stuttgart",
-              "short_name": "Stuttgart",
-              "country": ""
-            },
-            "away_team_obj": {
-              "id": 82,
-              "api_id": 2524,
-              "name": "VfL Wolfsburg",
-              "short_name": "Wolfsburg",
-              "country": ""
-            },
-            "event_date": "2026-03-01T18:30:00+04:00",
-            "status": "notstarted",
-            "home_score": null,
-            "away_score": null,
-            "current_minute": null,
-            "period": "",
-            "odds_home": 1.02,
-            "odds_draw": 14.5,
-            "odds_away": 100.0,
-            "odds_over_15": 1.1,
-            "odds_over_25": 1.05,
-            "odds_over_35": 1.57,
-            "odds_under_15": 6.25,
-            "odds_under_25": 9.0,
-            "odds_under_35": 2.3,
-            "odds_btts_yes": 3.65,
-            "odds_btts_no": 1.25,
-            "actual_home_xg": null,
-            "actual_away_xg": null
-          },
-          "created_at": "2026-02-23T06:20:06.968701+04:00",
-          "prob_home_win": 60.26462658677762,
-          "prob_draw": 20.861917825571826,
-          "prob_away_win": 18.87345558765056,
-          "predicted_result": "H",
-          "expected_home_goals": 2.054635,
-          "expected_away_goals": 1.05938,
-          "prob_over_15": 93.84226919630905,
-          "prob_over_25": 76.063085913355,
-          "prob_over_35": 45.026177516988696,
-          "prob_btts_yes": 70.8611235060209,
-          "confidence": 60.26462658677762,
-          "model_version": "v4.1",
-          "most_likely_score": "2-1",
-          "favorite": "H",
-          "favorite_prob": 60.26462658677762,
-          "favorite_recommend": false,
-          "over_15_recommend": false,
-          "over_25_recommend": false,
-          "over_35_recommend": false,
-          "btts_recommend": false,
-          "winner_recommend": false
-        }
-      },
-      {
-        "id": 6505,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T19:15:00+04:00",
-        "home_team": "Levski Sofia",
-        "away_team": "Lokomotiv Sofia",
-        "home_logo": "https://sports.bzzoiro.com/img/team/3273/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/3277/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Parva Liga",
-        "league_logo": "https://sports.bzzoiro.com/img/league/247/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 3.0,
-          "over15_percent": 100.0,
-          "last_4": [
-            {
-              "date": "2025-09-14T21:30:00+04:00",
-              "home_team": "Lokomotiv Sofia",
-              "away_team": "Levski Sofia",
-              "home_score": 1,
-              "away_score": 2,
-              "status": "finished",
-              "league": "Parva Liga"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over15": true,
-          "confidence": 65
-        },
-        "xpronos_score": 70,
-        "badge": "",
-        "category": "pro",
-        "verified_double": false,
-        "verified_over15": false,
-        "ml_full": {
-          "id": 1437,
-          "event": {
-            "id": 6505,
-            "api_id": 14598651,
-            "league": {
-              "id": 22,
-              "api_id": 247,
-              "name": "Parva Liga",
-              "country": "Bulgaria",
-              "season_id": 76882
-            },
-            "home_team": "Levski Sofia",
-            "away_team": "Lokomotiv Sofia",
-            "home_team_obj": {
-              "id": 348,
-              "api_id": 3273,
-              "name": "Levski Sofia",
-              "short_name": "Levski Sofia",
-              "country": ""
-            },
-            "away_team_obj": {
-              "id": 341,
-              "api_id": 3277,
-              "name": "Lokomotiv Sofia",
-              "short_name": "Lokomotiv Sofia",
-              "country": ""
-            },
-            "event_date": "2026-03-01T19:15:00+04:00",
-            "status": "notstarted",
-            "home_score": null,
-            "away_score": null,
-            "current_minute": null,
-            "period": "",
-            "odds_home": 1.3,
-            "odds_draw": 4.75,
-            "odds_away": 10.0,
-            "odds_over_15": 1.25,
-            "odds_over_25": 1.8,
-            "odds_over_35": 3.0,
-            "odds_under_15": 3.75,
-            "odds_under_25": 2.0,
-            "odds_under_35": 1.36,
-            "odds_btts_yes": 2.2,
-            "odds_btts_no": 1.62,
-            "actual_home_xg": null,
-            "actual_away_xg": null
-          },
-          "created_at": "2026-02-15T12:31:46.627267+04:00",
-          "prob_home_win": 65.9882093373883,
-          "prob_draw": 18.14140266259712,
-          "prob_away_win": 15.870388000014573,
-          "predicted_result": "H",
-          "expected_home_goals": 2.4,
-          "expected_away_goals": 1.1,
-          "prob_over_15": 84.1344746068543,
-          "prob_over_25": 56.618383261090365,
-          "prob_over_35": 25.24925375469229,
-          "prob_btts_yes": 70.30734857069808,
-          "confidence": 65.9882093373883,
-          "model_version": "v4.1",
-          "most_likely_score": "2-1",
-          "favorite": "H",
-          "favorite_prob": 65.9882093373883,
-          "favorite_recommend": false,
-          "over_15_recommend": false,
-          "over_25_recommend": false,
-          "over_35_recommend": false,
-          "btts_recommend": false,
-          "winner_recommend": false
-        }
-      }
-    ],
+    "pro": [],
     "vip": []
   },
   "stats": {
