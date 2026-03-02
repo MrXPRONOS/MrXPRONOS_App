@@ -105,10 +105,13 @@ def fetch_predictions(upcoming=True):
 # =======================================================
 
 def load_tsdb_cache():
-    if os.path.exists(TSDB_CACHE_FILE):
-        with open(TSDB_CACHE_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
+    if not os.path.exists(TSDB_CACHE_FILE):
+        return {}
+    if os.path.getsize(TSDB_CACHE_FILE) == 0:
+        print("⚠️ Fichier tsdb_cache.json vide, réinitialisation...")
+        return {}
+    with open(TSDB_CACHE_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 def save_tsdb_cache(cache):
     with open(TSDB_CACHE_FILE, "w", encoding="utf-8") as f:
@@ -381,13 +384,19 @@ def main():
     all_new_events = events_today + events_tomorrow + events_yesterday
     print(f"\n✅ {len(all_new_events)} événements BSD récupérés")
 
-    # Charger caches
+    # Charger caches avec gestion des fichiers vides
     tsdb_cache = load_tsdb_cache()
+    
     global_cache = []
     if os.path.exists(GLOBAL_CACHE_FILE):
-        with open(GLOBAL_CACHE_FILE, 'r', encoding='utf-8') as f:
-            global_cache = json.load(f)
-        print(f"📂 Cache global H2H chargé : {len(global_cache)} matchs")
+        if os.path.getsize(GLOBAL_CACHE_FILE) > 0:
+            with open(GLOBAL_CACHE_FILE, 'r', encoding='utf-8') as f:
+                global_cache = json.load(f)
+            print(f"📂 Cache global H2H chargé : {len(global_cache)} matchs")
+        else:
+            print("⚠️ Cache global H2H vide, initialisation...")
+    else:
+        print("ℹ️ Cache global H2H inexistant, création...")
 
     # === PARALLÉLISATION DES REQUÊTES THESPORTSDB ===
     print("\n🌐 Récupération des données TheSportsDB en parallèle...")
