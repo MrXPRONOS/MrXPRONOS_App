@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
-les prédictions ML et les analyses H2H améliorées.
-Utilise TheSportsDB pour les statuts et scores des matchs.
+generate_data.py - Version CORRIGÉE et AMÉLIORÉE
+TheSportsDB = source officielle des scores/status/bannières
+BSD = analyse H2H + prédictions ML
 """
 
 import requests
@@ -12,6 +12,8 @@ import json
 from datetime import datetime, timedelta
 import os
 import time
+import hashlib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -26,8 +28,8 @@ BASE_URL = "https://sports.bzzoiro.com/api"
 HEADERS = {"Authorization": f"Token {API_TOKEN}"}
 
 session = requests.Session()
-retries = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
-session.mount('https://', HTTPAdapter(max_retries=retries))
+retries = Retry(total=5, backoff_factor=1.5, status_forcelist=[429, 500, 502, 503, 504])
+session.mount("https://", HTTPAdapter(max_retries=retries))
 
 today = datetime.now().date()
 tomorrow = today + timedelta(days=1)
@@ -35,8 +37,9 @@ yesterday = today - timedelta(days=1)
 fourteen_days_ago = today - timedelta(days=14)
 
 CACHE_DIR = "cache"
+os.makedirs(CACHE_DIR, exist_ok=True)
 GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
-SCORES_CACHE_FILE = os.path.join(CACHE_DIR, "scores_cache.json")  # Cache permanent des scores
+TSDB_CACHE_FILE = os.path.join(CACHE_DIR, "tsdb_cache.json")
 DATA_FILE = "data.json"
 
 print("="*60)
@@ -44,10 +47,11 @@ print(f"🚀 GÉNÉRATION DES DONNÉES - {today}")
 print("="*60)
 
 # =======================================================
-# FONCTIONS DE RÉCUPÉRATION API BSD
+# FONCTIONS DE RÉCUPÉRATION BSD
 # =======================================================
 
 def fetch_events(date_from, date_to):
+    """Récupère les événements BSD entre deux dates."""
     url = f"{BASE_URL}/events/"
     params = {"date_from": date_from.isoformat(), "date_to": date_to.isoformat()}
     all_events = []
@@ -55,7 +59,7 @@ def fetch_events(date_from, date_to):
     while True:
         params["page"] = page
         try:
-            print(f"   📡 Requête events page {page}...")
+            print(f"   📡 Requête BSD events page {page}...")
             resp = session.get(url, headers=HEADERS, params=params, timeout=10)
             if resp.status_code != 200:
                 break
@@ -72,6 +76,7 @@ def fetch_events(date_from, date_to):
     return all_events
 
 def fetch_predictions(upcoming=True):
+    """Récupère les prédictions BSD."""
     url = f"{BASE_URL}/predictions/"
     params = {"upcoming": "true" if upcoming else "false"}
     all_predictions = []
@@ -79,7 +84,7 @@ def fetch_predictions(upcoming=True):
     while True:
         params["page"] = page
         try:
-            print(f"   📡 Requête predictions page {page}...")
+            print(f"   📡 Requête BSD predictions page {page}...")
             resp = session.get(url, headers=HEADERS, params=params, timeout=10)
             if resp.status_code != 200:
                 break
@@ -96,84 +101,93 @@ def fetch_predictions(upcoming=True):
     return all_predictions
 
 # =======================================================
-# FONCTIONS D'INTERACTION AVEC THESPORTSDB
+# CACHE THESPORTSDB
 # =======================================================
 
-def fetch_match_from_thesportsdb(home_team, away_team, match_date):
-    """
-    Interroge TheSportsDB pour obtenir les informations détaillées d'un match.
-    Retourne un dict avec les données ou None.
-    """
-    # Construire le nom de l'événement au format "Home_vs_Away"
-    event_name = f"{home_team.replace(' ', '_')}_vs_{away_team.replace(' ', '_')}"
-    url = f"https://www.thesportsdb.com/api/v1/json/123/searchevents.php?e={event_name}&d={match_date}"
-    try:
-        print(f"      📡 Requête TheSportsDB pour {home_team} vs {away_team} le {match_date}...")
-        resp = requests.get(url, timeout=10)
-        if resp.status_code != 200:
-            return None
-        data = resp.json()
-        events = data.get('event', [])
-        if events:
-            return events[0]
-        return None
-    except Exception as e:
-        print(f"      ⚠️ Erreur TheSportsDB: {e}")
-        return None
-
-def extract_score_and_status(tsdb_event):
-    """Extrait les scores et le statut depuis un événement TheSportsDB."""
-    if not tsdb_event:
-        return None
-    home_score = tsdb_event.get('intHomeScore')
-    away_score = tsdb_event.get('intAwayScore')
-    status = tsdb_event.get('strStatus', '')
-    if home_score is not None and away_score is not None:
-        return {
-            'home_score': int(home_score),
-            'away_score': int(away_score),
-            'status': 'finished' if 'Finished' in status else status.lower(),
-            'banner': tsdb_event.get('strBanner'),
-            'poster': tsdb_event.get('strPoster'),
-            'thumb': tsdb_event.get('strThumb'),
-            'venue': tsdb_event.get('strVenue'),
-            'league_badge': tsdb_event.get('strLeagueBadge'),
-            'home_badge': tsdb_event.get('strHomeTeamBadge'),
-            'away_badge': tsdb_event.get('strAwayTeamBadge')
-        }
-    return None
-
-# =======================================================
-# GESTION DU CACHE PERMANENT DES SCORES
-# =======================================================
-
-def load_scores_cache():
-    if os.path.exists(SCORES_CACHE_FILE):
-        with open(SCORES_CACHE_FILE, 'r', encoding='utf-8') as f:
+def load_tsdb_cache():
+    if os.path.exists(TSDB_CACHE_FILE):
+        with open(TSDB_CACHE_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     return {}
 
-def save_scores_cache(cache):
-    with open(SCORES_CACHE_FILE, 'w', encoding='utf-8') as f:
+def save_tsdb_cache(cache):
+    with open(TSDB_CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(cache, f, indent=2, ensure_ascii=False)
 
-def update_scores_cache_from_events(events):
-    """Met à jour le cache avec les scores des événements récupérés (BSD ou TheSportsDB)."""
-    cache = load_scores_cache()
-    for e in events:
-        match_id = e.get("id")
-        if match_id and e.get("home_score") is not None and e.get("away_score") is not None:
-            cache[str(match_id)] = {
-                "home_score": e["home_score"],
-                "away_score": e["away_score"],
-                "status": e["status"],
-                "event_date": e["event_date"]
-            }
-    save_scores_cache(cache)
-    return cache
+def get_tsdb_key(home, away, date_str):
+    return hashlib.md5(f"{home}|{away}|{date_str}".encode()).hexdigest()
 
 # =======================================================
-# FONCTIONS D'ANALYSE H2H
+# NORMALISATION + FETCH THESPORTSDB
+# =======================================================
+
+def normalize_team(name: str) -> str:
+    mapping = {
+        "Man Utd": "Manchester United",
+        "Man United": "Manchester United",
+        "Man City": "Manchester City",
+        "Spurs": "Tottenham Hotspur",
+        "Tottenham": "Tottenham Hotspur",
+        "Wolves": "Wolverhampton Wanderers",
+        "Brighton": "Brighton & Hove Albion",
+        "West Ham": "West Ham United",
+        "Newcastle": "Newcastle United",
+        "Leicester": "Leicester City",
+        "Nottm Forest": "Nottingham Forest",
+        "Forest": "Nottingham Forest",
+    }
+    return mapping.get(name.strip(), name.strip())
+
+def fetch_tsdb_match(home, away, date_str, tsdb_cache):
+    key = get_tsdb_key(home, away, date_str)
+    if key in tsdb_cache:
+        return tsdb_cache[key]
+
+    home_n = normalize_team(home)
+    away_n = normalize_team(away)
+    formats = [
+        f"{home_n.replace(' ', '_')}_vs_{away_n.replace(' ', '_')}",
+        f"{away_n.replace(' ', '_')}_vs_{home_n.replace(' ', '_')}"
+    ]
+
+    for event_name in formats:
+        url = f"https://www.thesportsdb.com/api/v1/json/123/searchevents.php?e={event_name}&d={date_str}"
+        try:
+            print(f"      📡 TheSportsDB: {event_name}")
+            resp = requests.get(url, timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                events = data.get("event", [])
+                if events:
+                    tsdb_cache[key] = events[0]
+                    return events[0]
+        except Exception as e:
+            print(f"      ⚠️ Erreur TheSportsDB: {e}")
+            continue
+
+    tsdb_cache[key] = None
+    return None
+
+def extract_tsdb_info(event):
+    if not event:
+        return None
+    try:
+        return {
+            "home_score": int(event["intHomeScore"]) if event.get("intHomeScore") not in (None, "") else None,
+            "away_score": int(event["intAwayScore"]) if event.get("intAwayScore") not in (None, "") else None,
+            "status": "finished" if "Finished" in event.get("strStatus", "") else event.get("strStatus", "").lower(),
+            "banner": event.get("strBanner"),
+            "venue": event.get("strVenue"),
+            "league_badge": event.get("strLeagueBadge"),
+            "home_badge": event.get("strHomeTeamBadge"),
+            "away_badge": event.get("strAwayTeamBadge"),
+        }
+    except Exception as e:
+        print(f"      ⚠️ Erreur extraction: {e}")
+        return None
+
+# =======================================================
+# FONCTIONS D'ANALYSE H2H (BSD)
 # =======================================================
 
 def weight_by_date(date_str):
@@ -312,12 +326,12 @@ def get_badge(score):
     return ""
 
 # =======================================================
-# FONCTIONS DE VÉRIFICATION (avec distinction gagné/perdu)
+# FONCTIONS DE VÉRIFICATION (gagné/perdu)
 # =======================================================
 
 def verify_prediction(match, prediction):
     """Retourne 'win', 'loss' ou None si pas de score."""
-    match['result'] = None  # None = pas encore de score
+    match['result'] = None
 
     if match['status'] != 'finished':
         return
@@ -351,7 +365,6 @@ def update_bankroll(matches):
         elif m.get("result") == 'loss':
             losses += 1
             total_bets += 1
-        # les matchs sans score ne sont pas comptés
     roi = (wins / total_bets * 100) if total_bets else 0
     return {"total_bets": total_bets, "wins": wins, "losses": losses, "roi": round(roi, 2)}
 
@@ -360,25 +373,52 @@ def update_bankroll(matches):
 # =======================================================
 
 def main():
-    print("\n📅 Récupération des matchs du jour, demain, hier...")
+    print("\n📅 Récupération des matchs BSD du jour, demain, hier...")
     events_today = fetch_events(today, today)
     events_tomorrow = fetch_events(tomorrow, tomorrow)
     events_yesterday = fetch_events(yesterday, yesterday)
 
     all_new_events = events_today + events_tomorrow + events_yesterday
-    print(f"\n✅ {len(all_new_events)} événements récupérés depuis BSD")
+    print(f"\n✅ {len(all_new_events)} événements BSD récupérés")
 
-    # Charger les caches
-    scores_cache = load_scores_cache()
-    print(f"📦 Cache des scores chargé : {len(scores_cache)} entrées")
+    # Charger caches
+    tsdb_cache = load_tsdb_cache()
+    global_cache = []
+    if os.path.exists(GLOBAL_CACHE_FILE):
+        with open(GLOBAL_CACHE_FILE, 'r', encoding='utf-8') as f:
+            global_cache = json.load(f)
+        print(f"📂 Cache global H2H chargé : {len(global_cache)} matchs")
 
-    # Récupérer les prédictions
-    print("\n📈 Récupération des prédictions ML...")
+    # === PARALLÉLISATION DES REQUÊTES THESPORTSDB ===
+    print("\n🌐 Récupération des données TheSportsDB en parallèle...")
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        future_to_event = {}
+        for e in all_new_events:
+            home_obj = e.get("home_team_obj")
+            away_obj = e.get("away_team_obj")
+            if home_obj and away_obj:
+                future = executor.submit(
+                    fetch_tsdb_match,
+                    home_obj["name"],
+                    away_obj["name"],
+                    e["event_date"][:10],
+                    tsdb_cache
+                )
+                future_to_event[future] = e
+
+        for future in as_completed(future_to_event):
+            future.result()  # le cache est mis à jour
+
+    save_tsdb_cache(tsdb_cache)
+    print(f"✅ Cache TheSportsDB mis à jour : {len(tsdb_cache)} entrées")
+
+    # Récupérer les prédictions BSD
+    print("\n📈 Récupération des prédictions BSD...")
     predictions_upcoming = fetch_predictions(upcoming=True)
     predictions_past = fetch_predictions(upcoming=False)
     all_predictions = predictions_upcoming + predictions_past
-    print(f"✅ {len(all_predictions)} prédictions récupérées")
     pred_dict = {p['event']['id']: p for p in all_predictions}
+    print(f"✅ {len(all_predictions)} prédictions BSD récupérées")
 
     # Charger ancien fichier
     old_data = {}
@@ -388,13 +428,6 @@ def main():
             old_data = json.load(f)
             old_matches_by_id = {m['id']: m for m in old_data.get('matches', [])}
         print(f"📂 Ancien fichier chargé : {len(old_matches_by_id)} matchs")
-
-    # Charger cache global H2H
-    global_cache = []
-    if os.path.exists(GLOBAL_CACHE_FILE):
-        with open(GLOBAL_CACHE_FILE, 'r', encoding='utf-8') as f:
-            global_cache = json.load(f)
-        print(f"📂 Cache global chargé : {len(global_cache)} matchs")
 
     new_matches = []
     categories = {"simple": [], "pro": [], "vip": []}
@@ -416,69 +449,54 @@ def main():
 
         print(f"   {home_obj['name']} vs {away_obj['name']} ({league['name']})")
 
-        # Récupérer les informations du match via TheSportsDB
-        tsdb_data = fetch_match_from_thesportsdb(home_obj['name'], away_obj['name'], event_date)
-        tsdb_info = extract_score_and_status(tsdb_data) if tsdb_data else None
-
-        if tsdb_info:
-            # Utiliser les données TheSportsDB
-            home_score = tsdb_info['home_score']
-            away_score = tsdb_info['away_score']
-            status = tsdb_info['status']
-            venue = tsdb_info.get('venue') or event.get('venue', '')
-            # Mettre à jour les logos si disponibles
-            if tsdb_info.get('home_badge'):
-                home_logo = tsdb_info['home_badge']
-            else:
-                home_logo = f"https://sports.bzzoiro.com/img/team/{home_obj['api_id']}/?token={API_TOKEN}"
-            if tsdb_info.get('away_badge'):
-                away_logo = tsdb_info['away_badge']
-            else:
-                away_logo = f"https://sports.bzzoiro.com/img/team/{away_obj['api_id']}/?token={API_TOKEN}"
-            if tsdb_info.get('league_badge'):
-                league_logo = tsdb_info['league_badge']
-            else:
-                league_logo = f"https://sports.bzzoiro.com/img/league/{league['api_id']}/?token={API_TOKEN}"
-        else:
-            # Fallback sur BSD
-            home_score = event.get("home_score")
-            away_score = event.get("away_score")
-            status = event["status"]
-            venue = event.get("venue", "")
-            home_logo = f"https://sports.bzzoiro.com/img/team/{home_obj['api_id']}/?token={API_TOKEN}"
-            away_logo = f"https://sports.bzzoiro.com/img/team/{away_obj['api_id']}/?token={API_TOKEN}"
-            league_logo = f"https://sports.bzzoiro.com/img/league/{league['api_id']}/?token={API_TOKEN}"
-
         h2h = get_h2h_from_cache(home_obj["id"], away_obj["id"], global_cache)
-        print(f"   → {len(h2h)} confrontations H2H")
+        print(f"   → {len(h2h)} confrontations H2H dans le cache")
 
         analysis = analyze_h2h(h2h, home_obj["name"], away_obj["name"])
         prediction_h2h = generate_prediction_h2h(analysis)
 
         ml_pred = pred_dict.get(match_id)
         api_double_chance = None
-        api_prob = 0
         if ml_pred:
             predicted_result = ml_pred.get('predicted_result', '')
             if predicted_result == "H":
                 api_double_chance = "1X"
-                api_prob = ml_pred.get('prob_home_win', 0)
             elif predicted_result == "A":
                 api_double_chance = "X2"
-                api_prob = ml_pred.get('prob_away_win', 0)
             elif predicted_result == "D":
                 api_double_chance = "12"
-                api_prob = ml_pred.get('prob_draw', 0)
 
         agreement = (prediction_h2h["double_chance"] == api_double_chance) if api_double_chance else False
 
         if not agreement:
-            print(f"   ❌ Pas d'accord H2H/API, match ignoré")
+            print(f"   ❌ Pas d'accord H2H/BSD, match ignoré")
             continue
 
         score = calculate_confidence_score(analysis, ml_pred, agreement)
         badge = get_badge(score)
         category = get_category(score)
+
+        # Récupérer les informations TheSportsDB
+        key = get_tsdb_key(home_obj["name"], away_obj["name"], event_date)
+        tsdb_event = tsdb_cache.get(key)
+        tsdb_info = extract_tsdb_info(tsdb_event)
+
+        # Utiliser les scores TheSportsDB en priorité, sinon ceux de BSD
+        if tsdb_info and tsdb_info["home_score"] is not None:
+            home_score = tsdb_info["home_score"]
+            away_score = tsdb_info["away_score"]
+            status = tsdb_info["status"]
+            venue = tsdb_info.get("venue", event.get("venue", ""))
+        else:
+            home_score = event.get("home_score")
+            away_score = event.get("away_score")
+            status = event["status"]
+            venue = event.get("venue", "")
+
+        # Construction de l'objet match
+        home_logo = f"https://sports.bzzoiro.com/img/team/{home_obj['api_id']}/?token={API_TOKEN}"
+        away_logo = f"https://sports.bzzoiro.com/img/team/{away_obj['api_id']}/?token={API_TOKEN}"
+        league_logo = f"https://sports.bzzoiro.com/img/league/{league['api_id']}/?token={API_TOKEN}"
 
         match_data = {
             "id": match_id,
@@ -502,33 +520,40 @@ def main():
             "xpronos_score": score,
             "badge": badge,
             "category": category,
-            "result": None,  # sera rempli après vérification
+            "result": None,
             "ml_full": ml_pred,
-            "tsdb_banner": tsdb_info.get('banner') if tsdb_info else None  # pour les articles
+            "tsdb_banner": tsdb_info.get("banner") if tsdb_info else None
         }
 
-        # Vérification du résultat
         verify_prediction(match_data, match_data["prediction"])
 
         new_matches.append(match_data)
         categories[category].append(match_data)
         print(f"   ✅ Score: {score} - {badge} - Catégorie: {category} - Résultat: {match_data.get('result')}")
 
-    # Fusion avec anciens matchs (pour conserver l'historique des 14 derniers jours)
+    # Mise à jour du cache global H2H (ajouter les matchs terminés)
+    for m in new_matches:
+        if m["status"] == "finished" and m not in global_cache:
+            global_cache.append(m)
+    # Limiter la taille du cache pour éviter un fichier trop gros
+    with open(GLOBAL_CACHE_FILE, "w", encoding="utf-8") as f:
+        json.dump(global_cache[-5000:], f, indent=2, ensure_ascii=False)  # garde les 5000 derniers
+
+    # Fusion avec les anciens matchs (14 derniers jours)
+    new_ids = {m['id'] for m in new_matches}
     for old_id, old_match in old_matches_by_id.items():
         try:
             old_date_str = old_match.get('event_date')
             if not old_date_str:
                 continue
             old_date = datetime.fromisoformat(old_date_str.replace('Z', '+00:00')).date()
-            if old_date >= fourteen_days_ago:
-                if old_id not in {m['id'] for m in new_matches}:
-                    new_matches.append(old_match)
-                    categories[old_match['category']].append(old_match)
+            if old_date >= fourteen_days_ago and old_id not in new_ids:
+                new_matches.append(old_match)
+                categories[old_match['category']].append(old_match)
         except:
             pass
 
-    # Trier les matchs par date décroissante
+    # Trier par date
     new_matches.sort(key=lambda x: x['event_date'], reverse=True)
 
     stats = update_bankroll(new_matches)
