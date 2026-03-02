@@ -1,6 +1,6 @@
 /* =======================================================
    STYLE.CSS - Mr XPRONOS
-   Design noir & or moderne, responsive, intuitif
+   Design noir & or, moderne, intuitif, responsive
    ======================================================= */
 
 /* Police élégante Montserrat (Google Fonts) */
@@ -12,16 +12,13 @@
 :root {
     --noir: #0D0D0D;
     --noir-secondaire: #1A1A1A;
-    --noir-tertiaire: #2A2A2A;
     --or: #D4AF37;
     --or-clair: #FFD700;
-    --or-fonce: #B8860B;
     --blanc: #FFFFFF;
-    --gris-clair: #CCCCCC;
-    --gris-moyen: #888888;
+    --gris: #2A2A2A;
+    --gris-clair: #444;
     --shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     --shadow-hover: 0 12px 24px rgba(212, 175, 55, 0.2);
-    --transition: all 0.3s ease;
 }
 
 /* =======================================================
@@ -38,7 +35,7 @@ body {
     background-color: var(--noir);
     color: var(--blanc);
     line-height: 1.6;
-    font-size: 16px;
+    scroll-behavior: smooth;
 }
 
 .container {
@@ -46,57 +43,6 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 15px;
-}
-
-/* =======================================================
-   TYPOGRAPHIE
-   ======================================================= */
-h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: var(--or);
-}
-
-h2 {
-    font-size: 2rem;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    color: var(--or);
-    position: relative;
-    display: inline-block;
-}
-
-h2::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(90deg, var(--or), transparent);
-}
-
-h3 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-bottom: 0.8rem;
-    color: var(--or-clair);
-}
-
-p {
-    margin-bottom: 1rem;
-    color: var(--gris-clair);
-}
-
-a {
-    color: var(--or);
-    text-decoration: none;
-    transition: var(--transition);
-}
-
-a:hover {
-    color: var(--or-clair);
 }
 
 /* =======================================================
@@ -110,6 +56,7 @@ header {
     top: 0;
     z-index: 100;
     box-shadow: var(--shadow);
+    backdrop-filter: blur(5px);
 }
 
 header .container {
@@ -117,20 +64,19 @@ header .container {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 1rem;
 }
 
 .logo a {
     color: var(--or);
     font-size: 1.8rem;
     font-weight: 700;
+    text-decoration: none;
     letter-spacing: 1px;
-    transition: var(--transition);
+    transition: color 0.3s;
 }
 
 .logo a:hover {
     color: var(--or-clair);
-    transform: scale(1.05);
 }
 
 .logo span {
@@ -146,9 +92,11 @@ nav ul {
 
 nav a {
     color: var(--blanc);
+    text-decoration: none;
     font-weight: 500;
+    transition: color 0.3s;
     position: relative;
-    padding-bottom: 4px;
+    padding-bottom: 5px;
 }
 
 nav a::after {
@@ -158,8 +106,8 @@ nav a::after {
     left: 0;
     width: 0;
     height: 2px;
-    background: var(--or);
-    transition: width 0.3s ease;
+    background-color: var(--or);
+    transition: width 0.3s;
 }
 
 nav a:hover::after,
@@ -167,25 +115,24 @@ nav a.active::after {
     width: 100%;
 }
 
+nav a:hover,
 nav a.active {
     color: var(--or);
 }
 
 .promo-code {
-    background: linear-gradient(135deg, var(--or), var(--or-fonce));
+    background-color: var(--or);
     color: var(--noir);
     padding: 0.5rem 1.2rem;
-    border-radius: 50px;
+    border-radius: 30px;
     font-weight: 700;
     font-size: 0.9rem;
-    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
-    border: 1px solid var(--or-clair);
-    transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+    transition: transform 0.3s;
 }
 
 .promo-code:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(212, 175, 55, 0.5);
+    transform: scale(1.05);
 }
 
 /* =======================================================
@@ -193,9 +140,9 @@ nav a.active {
    ======================================================= */
 footer {
     background-color: var(--noir-secondaire);
-    padding: 3rem 0;
-    margin-top: 4rem;
-    border-top: 2px solid var(--or);
+    padding: 2rem 0;
+    margin-top: 3rem;
+    border-top: 1px solid var(--or);
     text-align: center;
 }
 
@@ -203,45 +150,56 @@ footer {
     display: flex;
     justify-content: center;
     gap: 2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     flex-wrap: wrap;
 }
 
 .footer-links a {
-    color: var(--gris-clair);
-    font-size: 0.95rem;
-    transition: var(--transition);
+    color: var(--blanc);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s;
 }
 
 .footer-links a:hover {
     color: var(--or);
-    transform: translateY(-2px);
+}
+
+.social-links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.social-links a {
+    color: var(--or);
+    font-size: 1.5rem;
+    transition: transform 0.3s;
+}
+
+.social-links a:hover {
+    transform: scale(1.2);
 }
 
 .bookmakers {
     display: flex;
     justify-content: center;
-    gap: 2rem;
-    margin: 2rem 0;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
     flex-wrap: wrap;
 }
 
 .bookmakers img {
     height: 30px;
-    filter: brightness(0.8) invert(1);
-    opacity: 0.7;
-    transition: var(--transition);
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+    transition: opacity 0.3s, transform 0.3s;
 }
 
 .bookmakers a:hover img {
     opacity: 1;
-    filter: brightness(1) invert(1);
-    transform: scale(1.1);
-}
-
-footer p {
-    color: var(--gris-moyen);
-    font-size: 0.85rem;
+    transform: translateY(-3px);
 }
 
 /* =======================================================
@@ -251,57 +209,53 @@ footer p {
     display: inline-block;
     padding: 0.8rem 2rem;
     border-radius: 50px;
+    text-decoration: none;
     font-weight: 600;
-    transition: var(--transition);
+    transition: all 0.3s;
     border: none;
     cursor: pointer;
     text-align: center;
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--or), var(--or-fonce));
+    background-color: var(--or);
     color: var(--noir);
-    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
 }
 
 .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.5);
-    color: var(--noir);
+    background-color: var(--or-clair);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
 }
 
 .btn-secondary {
-    background: transparent;
+    background-color: transparent;
     color: var(--or);
     border: 2px solid var(--or);
-    box-shadow: 0 2px 5px rgba(212, 175, 55, 0.2);
 }
 
 .btn-secondary:hover {
-    background: var(--or);
+    background-color: var(--or);
     color: var(--noir);
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(212, 175, 55, 0.4);
 }
 
 /* =======================================================
    CARTES GÉNÉRIQUES
    ======================================================= */
 .card {
-    background: linear-gradient(145deg, var(--noir-secondaire), var(--noir-tertiaire));
-    border-radius: 20px;
+    background-color: var(--noir-secondaire);
+    border-radius: 16px;
     padding: 1.8rem;
     margin-bottom: 1.8rem;
     border-left: 4px solid var(--or);
     box-shadow: var(--shadow);
-    transition: var(--transition);
-    border: 1px solid rgba(212, 175, 55, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
-    border-color: var(--or);
 }
 
 .card h3 {
@@ -311,88 +265,64 @@ footer p {
 }
 
 .card .meta {
-    color: var(--gris-moyen);
+    color: #888;
     font-size: 0.9rem;
-    margin-bottom: 0.8rem;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
+    margin-bottom: 0.5rem;
 }
 
 .badge-premium {
-    background: linear-gradient(135deg, var(--or), var(--or-fonce));
+    background-color: var(--or);
     color: var(--noir);
     padding: 0.3rem 1rem;
-    border-radius: 30px;
+    border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 700;
     display: inline-block;
-    box-shadow: 0 2px 5px rgba(212, 175, 55, 0.3);
 }
 
 .confiance {
-    margin: 0.8rem 0;
-    font-size: 0.95rem;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
     color: var(--or-clair);
-    font-weight: 600;
 }
 
 /* =======================================================
    HERO SECTION (PAGE D'ACCUEIL)
    ======================================================= */
 .hero {
-    background: radial-gradient(circle at 10% 30%, var(--noir-secondaire), var(--noir));
+    background: linear-gradient(135deg, var(--noir) 0%, var(--noir-secondaire) 100%);
     padding: 5rem 0;
     text-align: center;
     border-bottom: 2px solid var(--or);
-    position: relative;
-    overflow: hidden;
-}
-
-.hero::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -10%;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%);
-    border-radius: 50%;
-    z-index: 0;
-}
-
-.hero .container {
-    position: relative;
-    z-index: 1;
 }
 
 .hero h1 {
     font-size: 3rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     color: var(--or);
-    text-shadow: 0 2px 10px rgba(212, 175, 55, 0.3);
+    line-height: 1.2;
 }
 
 .hero p {
-    font-size: 1.3rem;
-    max-width: 700px;
-    margin: 0 auto 2.5rem;
-    color: var(--gris-clair);
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    color: #ccc;
 }
 
 /* =======================================================
    FORMULAIRES ADMIN
    ======================================================= */
 .admin-form {
-    background: linear-gradient(145deg, var(--noir-secondaire), var(--noir-tertiaire));
+    background-color: var(--noir-secondaire);
     padding: 2rem;
-    border-radius: 20px;
+    border-radius: 16px;
     margin: 2rem 0;
-    border: 1px solid rgba(212, 175, 55, 0.2);
+    box-shadow: var(--shadow);
 }
 
 .form-group {
-    margin-bottom: 1.8rem;
+    margin-bottom: 1.5rem;
 }
 
 .form-group label {
@@ -400,20 +330,19 @@ footer p {
     margin-bottom: 0.5rem;
     color: var(--or);
     font-weight: 600;
-    font-size: 0.95rem;
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
     width: 100%;
-    padding: 0.8rem 1rem;
-    border-radius: 12px;
-    border: 1px solid var(--noir-tertiaire);
-    background: var(--noir);
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid var(--gris-clair);
+    background-color: var(--noir);
     color: var(--blanc);
     font-family: inherit;
-    transition: var(--transition);
+    transition: border-color 0.3s;
 }
 
 .form-group input:focus,
@@ -421,12 +350,6 @@ footer p {
 .form-group select:focus {
     outline: none;
     border-color: var(--or);
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-}
-
-.form-group textarea {
-    min-height: 120px;
-    resize: vertical;
 }
 
 .admin-actions {
@@ -436,10 +359,11 @@ footer p {
 }
 
 .admin-list {
-    background: var(--noir-tertiaire);
+    background-color: var(--noir-secondaire);
     border-radius: 16px;
     padding: 1rem;
     margin-top: 2rem;
+    box-shadow: var(--shadow);
 }
 
 .admin-item {
@@ -447,12 +371,7 @@ footer p {
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid var(--noir-secondaire);
-    transition: var(--transition);
-}
-
-.admin-item:hover {
-    background: rgba(212, 175, 55, 0.1);
+    border-bottom: 1px solid var(--gris);
 }
 
 .admin-item:last-child {
@@ -464,14 +383,13 @@ footer p {
     border: none;
     color: var(--or-clair);
     cursor: pointer;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     margin-left: 0.5rem;
-    transition: var(--transition);
+    transition: color 0.3s;
 }
 
 .admin-item button:hover {
     color: var(--or);
-    transform: scale(1.2);
 }
 
 /* =======================================================
@@ -479,73 +397,50 @@ footer p {
    ======================================================= */
 .category-tabs, .day-filters {
     display: flex;
-    gap: 0.8rem;
-    margin: 2rem 0 1.5rem;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
     flex-wrap: wrap;
 }
-
 .tab-btn, .day-btn {
     background: var(--noir-secondaire);
     color: var(--blanc);
     border: 1px solid var(--or);
-    padding: 0.7rem 1.8rem;
-    border-radius: 40px;
+    padding: 0.7rem 1.5rem;
+    border-radius: 30px;
     cursor: pointer;
     font-weight: 600;
-    transition: var(--transition);
-    font-size: 0.95rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+    font-size: 0.9rem;
 }
-
 .tab-btn.active, .day-btn.active {
-    background: linear-gradient(135deg, var(--or), var(--or-fonce));
+    background: var(--or);
     color: var(--noir);
-    border-color: var(--or-clair);
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+    border-color: var(--or);
 }
-
-.tab-btn:hover, .day-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(212, 175, 55, 0.3);
-}
-
 .tab-btn[style*="display: none"] {
     display: none !important;
 }
 
 .matches-grid {
     display: grid;
-    gap: 25px;
+    gap: 20px;
     margin-top: 2rem;
 }
 
-/* En-tête de ligue */
-.league-header {
-    font-size: 1.8rem;
-    margin: 2.5rem 0 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--or);
-    color: var(--or);
-}
-
-/* Carte de match améliorée */
+/* Carte de match */
 .match-card {
-    background: linear-gradient(145deg, var(--noir-secondaire), var(--noir-tertiaire));
-    border-radius: 24px;
+    background: var(--noir-secondaire);
+    border-radius: 20px;
     overflow: hidden;
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
-    border: 1px solid rgba(212, 175, 55, 0.1);
-    transition: var(--transition);
+    transition: transform 0.3s, box-shadow 0.3s;
 }
-
 .match-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
-    border-color: var(--or);
 }
-
 @media (min-width: 768px) {
     .match-card {
         flex-direction: row;
@@ -557,21 +452,18 @@ footer p {
         flex: 1;
         border-left: 2px solid var(--or);
         padding: 1.5rem;
-        background: rgba(212, 175, 55, 0.03);
+        background: rgba(212, 175, 55, 0.05);
     }
 }
-
 .match-info {
-    padding: 1.8rem;
+    padding: 1.5rem;
 }
-
 .teams {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
 }
-
 .team {
     display: flex;
     flex-direction: column;
@@ -579,144 +471,324 @@ footer p {
     text-align: center;
     width: 38%;
 }
-
 .team-logo {
     width: 70px;
     height: 70px;
     object-fit: contain;
-    background: var(--noir-tertiaire);
-    border-radius: 16px;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 2px solid var(--noir-secondaire);
-    transition: var(--transition);
+    background: var(--gris);
+    border-radius: 12px;
+    padding: 8px;
+    margin-bottom: 8px;
+    border: 1px solid var(--gris-clair);
+    transition: border 0.3s;
 }
-
 .match-card:hover .team-logo {
     border-color: var(--or);
 }
-
 .team-name {
     font-weight: 600;
     font-size: 1rem;
     color: var(--blanc);
     margin-bottom: 5px;
 }
-
 .team-score {
     font-size: 2rem;
     font-weight: 700;
     color: var(--or);
-    text-shadow: 0 2px 5px rgba(212, 175, 55, 0.3);
 }
-
 .vs {
     font-weight: 700;
     color: var(--or);
-    background: var(--noir-tertiaire);
-    padding: 8px 20px;
-    border-radius: 40px;
-    font-size: 1rem;
+    background: var(--gris);
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.9rem;
     border: 1px solid var(--or);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
-
 .match-meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 1rem;
-    margin-top: 1.2rem;
-    font-size: 0.9rem;
+    margin-top: 1rem;
+    font-size: 0.85rem;
 }
-
 .league-badge {
-    background: linear-gradient(135deg, var(--or), var(--or-fonce));
+    background: var(--or);
     color: var(--noir);
-    padding: 5px 16px;
+    padding: 4px 12px;
     border-radius: 30px;
     font-weight: 600;
-    font-size: 0.85rem;
-    box-shadow: 0 2px 5px rgba(212, 175, 55, 0.3);
 }
-
 .status {
-    background: var(--noir-tertiaire);
+    background: var(--gris);
     color: var(--or);
-    padding: 5px 16px;
+    padding: 4px 12px;
     border-radius: 30px;
     border: 1px solid var(--or);
-    font-size: 0.85rem;
-    font-weight: 500;
 }
-
 .status.finished {
     background: var(--or);
     color: var(--noir);
-    border-color: var(--or-clair);
 }
-
 .status.live {
-    background: linear-gradient(135deg, var(--or), #FF4500);
-    color: var(--noir);
+    background: #D4AF37;
+    color: #0D0D0D;
     animation: pulse 1.5s infinite;
-    border: none;
 }
-
 @keyframes pulse {
     0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.9; transform: scale(1.02); }
+    50% { opacity: 0.8; transform: scale(1.02); }
     100% { opacity: 1; transform: scale(1); }
 }
-
 .match-time, .match-venue {
-    color: var(--gris-moyen);
-    font-size: 0.85rem;
+    color: #aaa;
+    font-size: 0.8rem;
     display: flex;
     align-items: center;
     gap: 5px;
 }
-
 .match-time i, .match-venue i {
     color: var(--or);
-    font-size: 1rem;
+    width: 16px;
 }
-
 .analysis-panel h4 {
     color: var(--or);
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
     font-size: 1.2rem;
-    font-weight: 700;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.3);
-    padding-bottom: 0.5rem;
 }
-
 .analysis-panel p {
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.5rem;
     font-size: 0.95rem;
-    color: var(--gris-clair);
     line-height: 1.5;
 }
-
-.analysis-panel strong {
-    color: var(--or);
-    font-weight: 600;
-}
-
 .verified {
     color: #4CAF50;
     font-weight: 600;
-    display: inline-block;
-    margin-top: 0.5rem;
 }
-
 .prediction-checkbox {
-    margin-right: 8px;
+    margin-right: 5px;
     transform: scale(1.2);
-    vertical-align: middle;
 }
 
-/* Cases à cocher vertes */
+/* Sous-onglets VIP */
+.vip-subtabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.5rem 0 1.5rem 0;
+    flex-wrap: wrap;
+}
+.subtab-btn {
+    background: var(--noir-secondaire);
+    color: var(--blanc);
+    border: 1px solid var(--or);
+    padding: 0.5rem 1.2rem;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-size: 0.85rem;
+}
+.subtab-btn.active {
+    background: var(--or);
+    color: var(--noir);
+    border-color: var(--or);
+}
+
+/* Page contact */
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+.contact-card {
+    background: var(--noir-secondaire);
+    border-radius: 20px;
+    padding: 2rem 1rem;
+    text-align: center;
+    border: 1px solid var(--or);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+.contact-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+.contact-card h3 {
+    color: var(--or);
+    margin-bottom: 0.5rem;
+}
+.contact-card a {
+    color: var(--blanc);
+    text-decoration: none;
+    font-weight: 500;
+}
+.contact-card a:hover {
+    color: var(--or);
+}
+
+/* Analyse complète ML */
+.analysis-full {
+    background: rgba(212, 175, 55, 0.1);
+    border-left: 2px solid var(--or);
+    padding: 1.5rem;
+}
+.analysis-full p {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+}
+
+/* =======================================================
+   BOOKMAKERS DYNAMIQUES (CARTES DE BONUS)
+   ======================================================= */
+.bookmakers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.bookmaker-card {
+    background: var(--noir);
+    border-radius: 16px;
+    padding: 1.2rem;
+    text-align: center;
+    border: 1px solid var(--or);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.bookmaker-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.bookmaker-card img {
+    max-width: 100px;
+    height: auto;
+    margin-bottom: 0.5rem;
+}
+
+.bookmaker-card h3 {
+    color: var(--or);
+    margin-bottom: 0.5rem;
+}
+
+.bookmaker-card p {
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+/* =======================================================
+   POPUP DE PARTAGE (CENTRÉ)
+   ======================================================= */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    backdrop-filter: blur(5px);
+}
+.popup.active {
+    display: flex;
+}
+.popup-content {
+    background: var(--noir-secondaire);
+    border: 2px solid var(--or);
+    border-radius: 24px;
+    padding: 2rem;
+    max-width: 90%;
+    width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+    box-shadow: var(--shadow-hover);
+    animation: fadeInUp 0.3s;
+}
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.popup-content h3 {
+    color: var(--or);
+    margin-bottom: 1rem;
+}
+.popup-content p {
+    margin-bottom: 1.5rem;
+}
+.share-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+#close-popup {
+    margin-top: 1rem;
+}
+
+/* =======================================================
+   MESSAGES DE CHARGEMENT / ERREUR
+   ======================================================= */
+.loading, .error, .no-events, .warning {
+    text-align: center;
+    padding: 4rem 1rem;
+    background: var(--noir-secondaire);
+    border-radius: 20px;
+    border: 1px solid var(--or);
+    color: var(--blanc);
+    font-size: 1.1rem;
+    margin: 2rem 0;
+}
+.loading {
+    position: relative;
+}
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--gris-clair);
+    border-top-color: var(--or);
+    border-radius: 50%;
+    animation: spinner 1s linear infinite;
+    margin-top: 1rem;
+}
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}
+.error {
+    color: #FF6B6B;
+    border-color: #FF6B6B;
+}
+.warning {
+    color: #FFA500;
+    border-color: #FFA500;
+}
+.no-events {
+    color: #AAAAAA;
+}
+
+/* =======================================================
+   CASES À COCHER VERTES POUR LES PRONOSTICS VALIDÉS
+   ======================================================= */
 .prediction-checkbox:checked:disabled {
     accent-color: #4CAF50 !important;
     opacity: 1 !important;
@@ -731,407 +803,91 @@ footer p {
     }
 }
 
-/* Analyse ML complète */
-.analysis-full {
-    background: rgba(212, 175, 55, 0.05);
-    border-left: 3px solid var(--or);
-    padding: 1.2rem;
-}
-
-.analysis-full p {
-    font-size: 0.9rem;
-    margin-bottom: 0.4rem;
-}
-
-/* Sous-onglets VIP */
-.vip-subtabs {
-    display: flex;
-    gap: 0.8rem;
-    margin: 0.5rem 0 1.5rem;
-    flex-wrap: wrap;
-}
-
-.subtab-btn {
-    background: var(--noir-tertiaire);
-    color: var(--blanc);
-    border: 1px solid var(--or);
-    padding: 0.5rem 1.5rem;
-    border-radius: 30px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: var(--transition);
-    font-size: 0.9rem;
-}
-
-.subtab-btn.active {
-    background: linear-gradient(135deg, var(--or), var(--or-fonce));
-    color: var(--noir);
-    border-color: var(--or-clair);
-}
-
-.subtab-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
-}
-
 /* =======================================================
-   PAGE CONTACT
+   FORMATAGE DES ARTICLES ET CONSEILS (sauts de ligne)
    ======================================================= */
-.contact-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-    margin: 3rem 0;
+#blog-post,
+#conseils-list .card,
+#blog-list .card {
+    white-space: pre-wrap;       /* Conserve les sauts de ligne */
+    word-wrap: break-word;
 }
 
-.contact-card {
-    background: linear-gradient(145deg, var(--noir-secondaire), var(--noir-tertiaire));
-    border-radius: 24px;
-    padding: 2.5rem 1.5rem;
-    text-align: center;
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    transition: var(--transition);
-    box-shadow: var(--shadow);
-}
-
-.contact-card:hover {
-    transform: translateY(-10px);
-    box-shadow: var(--shadow-hover);
-    border-color: var(--or);
-}
-
-.contact-icon {
-    font-size: 3.5rem;
-    margin-bottom: 1.2rem;
-    color: var(--or);
-}
-
-.contact-card h3 {
-    color: var(--or);
-    margin-bottom: 0.8rem;
-    font-size: 1.3rem;
-}
-
-.contact-card a {
-    color: var(--gris-clair);
-    font-size: 1rem;
-    word-break: break-word;
-}
-
-.contact-card a:hover {
-    color: var(--or-clair);
-}
-
-/* =======================================================
-   BOOKMAKERS DYNAMIQUES (CARTES DE BONUS)
-   ======================================================= */
-.bookmakers-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-.bookmaker-card {
-    background: linear-gradient(145deg, var(--noir-secondaire), var(--noir-tertiaire));
-    border-radius: 20px;
-    padding: 1.8rem 1rem;
-    text-align: center;
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    transition: var(--transition);
-    box-shadow: var(--shadow);
-}
-
-.bookmaker-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-hover);
-    border-color: var(--or);
-}
-
-.bookmaker-card img {
-    max-width: 120px;
-    height: auto;
+#blog-post h1,
+#blog-post h2,
+#blog-post h3,
+#conseils-list .card h3,
+#blog-list .card h3 {
+    margin-top: 1.5rem;
     margin-bottom: 1rem;
-    filter: brightness(0.9) invert(1);
-    transition: var(--transition);
 }
 
-.bookmaker-card:hover img {
-    filter: brightness(1) invert(1);
-    transform: scale(1.05);
-}
-
-.bookmaker-card h3 {
-    color: var(--or);
-    margin-bottom: 0.5rem;
-    font-size: 1.2rem;
-}
-
-.bookmaker-card p {
-    font-size: 0.9rem;
-    color: var(--gris-moyen);
-    margin-bottom: 1.2rem;
-}
-
-.bookmaker-card .btn {
-    padding: 0.6rem 1.5rem;
-    font-size: 0.9rem;
-}
-
-/* =======================================================
-   POPUP DE PARTAGE
-   ======================================================= */
-.popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 1rem;
-    backdrop-filter: blur(5px);
-}
-
-.popup.active {
-    display: flex;
-}
-
-.popup-content {
-    background: linear-gradient(145deg, var(--noir-secondaire), var(--noir-tertiaire));
-    border: 2px solid var(--or);
-    border-radius: 30px;
-    padding: 2.5rem;
-    max-width: 90%;
-    width: 450px;
-    max-height: 90vh;
-    overflow-y: auto;
-    text-align: center;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-    animation: popupFadeIn 0.3s ease;
-}
-
-@keyframes popupFadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.popup-content h3 {
-    color: var(--or);
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-}
-
-.popup-content p {
-    margin-bottom: 1.8rem;
-    color: var(--gris-clair);
-    font-size: 1.1rem;
-}
-
-.share-buttons {
-    display: flex;
-    gap: 1.2rem;
-    justify-content: center;
-    margin-bottom: 1.8rem;
-    flex-wrap: wrap;
-}
-
-.share-buttons .btn {
-    min-width: 140px;
-}
-
-#share-count {
-    font-size: 1rem;
-    color: var(--gris-moyen);
-}
-
-#close-popup {
-    margin-top: 1rem;
-}
-
-/* =======================================================
-   MESSAGES DE CHARGEMENT / ERREUR
-   ======================================================= */
-.loading, .error, .no-events, .warning {
-    text-align: center;
-    padding: 4rem 2rem;
-    background: linear-gradient(145deg, var(--noir-secondaire), var(--noir-tertiaire));
-    border-radius: 30px;
-    border: 1px solid var(--or);
-    color: var(--blanc);
-    font-size: 1.2rem;
-    box-shadow: var(--shadow);
-}
-
-.loading::after {
-    content: "...";
-    animation: dots 1.5s infinite;
-    display: inline-block;
-    width: 30px;
-    text-align: left;
-}
-
-@keyframes dots {
-    0% { content: ''; }
-    25% { content: '.'; }
-    50% { content: '..'; }
-    75% { content: '...'; }
-}
-
-.error {
-    color: #FF6B6B;
-    border-color: #FF6B6B;
-}
-
-.warning {
-    color: #FFA500;
-    border-color: #FFA500;
-}
-
-.no-events {
-    color: var(--gris-moyen);
-}
-
-/* =======================================================
-   BLOG ET CONSEILS (articles)
-   ======================================================= */
-#blog-list, #conseils-list {
-    display: grid;
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-#blog-list .card, #conseils-list .card {
-    display: flex;
-    flex-direction: column;
-}
-
-#blog-list .card img, #conseils-list .card img {
-    max-width: 100%;
-    border-radius: 16px;
-    margin: 1rem 0;
-    box-shadow: var(--shadow);
-    transition: var(--transition);
-}
-
-#blog-list .card:hover img, #conseils-list .card:hover img {
-    transform: scale(1.02);
-}
-
-#blog-list .card .btn, #conseils-list .card .btn {
-    align-self: flex-start;
-    margin-top: 1rem;
-}
-
-#blog-post {
-    background: linear-gradient(145deg, var(--noir-secondaire), var(--noir-tertiaire));
-    border-radius: 30px;
-    padding: 2.5rem;
-    margin: 2rem 0;
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    box-shadow: var(--shadow);
-}
-
-#blog-post h1 {
-    font-size: 2.2rem;
+#blog-post p,
+#conseils-list .card p,
+#blog-list .card p {
     margin-bottom: 1rem;
-    color: var(--or);
+    line-height: 1.7;
 }
 
-#blog-post .meta {
-    color: var(--gris-moyen);
-    font-size: 0.95rem;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.3);
-}
-
-#blog-post img {
-    max-width: 100%;
-    border-radius: 20px;
-    margin: 1.5rem 0;
-    box-shadow: var(--shadow);
-}
-
-#blog-post h2, #conseils-list h2 {
-    font-size: 1.8rem;
-    color: var(--or);
-    margin: 2rem 0 1rem;
-}
-
-#blog-post h3, #conseils-list h3 {
-    font-size: 1.4rem;
-    color: var(--or-clair);
-    margin: 1.5rem 0 0.8rem;
-}
-
-#blog-post p, #conseils-list p {
+#blog-post ul,
+#blog-post ol,
+#conseils-list .card ul,
+#conseils-list .card ol,
+#blog-list .card ul,
+#blog-list .card ol {
+    margin-left: 2rem;
     margin-bottom: 1rem;
-    line-height: 1.8;
-    color: var(--gris-clair);
 }
 
-#blog-post ul, #blog-post ol {
-    margin: 1rem 0 1rem 2rem;
-    color: var(--gris-clair);
-}
-
-#blog-post li {
-    margin-bottom: 0.5rem;
-}
-
-#blog-post a {
-    color: var(--or);
-    text-decoration: underline;
-}
-
-#blog-post blockquote {
+#blog-post blockquote,
+#conseils-list .card blockquote,
+#blog-list .card blockquote {
     border-left: 4px solid var(--or);
-    padding-left: 1.5rem;
-    margin: 1.5rem 0;
+    padding-left: 1rem;
+    margin: 1rem 0;
     font-style: italic;
-    color: var(--gris-moyen);
+    color: #ccc;
 }
 
 /* =======================================================
-   RESPONSIVE (MOBILE)
+   RESPONSIVE (MOBILE FIRST)
    ======================================================= */
 @media (max-width: 768px) {
-    h1 { font-size: 2rem; }
-    h2 { font-size: 1.6rem; }
-    
     header .container {
         flex-direction: column;
+        gap: 1rem;
     }
-    
+
     nav ul {
         gap: 1rem;
+        flex-wrap: wrap;
         justify-content: center;
     }
-    
-    .hero h1 { font-size: 2.2rem; }
-    .hero p { font-size: 1.1rem; }
-    
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .bookmakers {
+        gap: 1rem;
+    }
+
     .match-card {
         flex-direction: column;
     }
-    
     .analysis-panel {
         border-left: none;
         border-top: 2px solid var(--or);
+        padding: 1rem;
     }
-    
-    .team-logo { width: 50px; height: 50px; }
-    .team-score { font-size: 1.5rem; }
-    
-    .bookmakers { gap: 1rem; }
-    .bookmakers img { height: 25px; }
-    
-    .footer-links { gap: 1rem; flex-direction: column; }
-    
-    .popup-content { padding: 1.5rem; }
-    .share-buttons .btn { min-width: 120px; }
+    .team-logo {
+        width: 50px;
+        height: 50px;
+    }
+    .team-score {
+        font-size: 1.5rem;
+    }
+    .footer-links {
+        gap: 1rem;
+    }
 }
