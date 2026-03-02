@@ -1271,12 +1271,21 @@
       "home_score": 2,
       "away_score": 3,
       "h2h_analysis": {
-        "total_matches": 1,
+        "total_matches": 2,
         "home_wins": 0,
-        "away_wins": 1,
+        "away_wins": 2,
         "draws": 0,
         "goals_avg": 5.0,
         "last_4": [
+          {
+            "date": "2026-03-01T00:00:00+04:00",
+            "home_team": "NEC Nijmegen",
+            "away_team": "Fortuna Sittard",
+            "home_score": 2,
+            "away_score": 3,
+            "status": "finished",
+            "league": "Eredivisie"
+          },
           {
             "date": "2025-08-31T14:15:00+04:00",
             "home_team": "Fortuna Sittard",
@@ -1291,7 +1300,7 @@
       "prediction": {
         "double_chance": "X2",
         "over_25": true,
-        "confidence": 55
+        "confidence": 60
       },
       "category": "simple",
       "verified_double": true,
@@ -1328,12 +1337,21 @@
       "home_score": 0,
       "away_score": 1,
       "h2h_analysis": {
-        "total_matches": 1,
+        "total_matches": 2,
         "home_wins": 0,
-        "away_wins": 1,
+        "away_wins": 2,
         "draws": 0,
-        "goals_avg": 2.0,
+        "goals_avg": 1.5,
         "last_4": [
+          {
+            "date": "2026-03-01T00:00:00+04:00",
+            "home_team": "Real Oviedo",
+            "away_team": "Atlético Madrid",
+            "home_score": 0,
+            "away_score": 1,
+            "status": "finished",
+            "league": "La Liga"
+          },
           {
             "date": "2025-11-30T00:00:00+04:00",
             "home_team": "Atlético Madrid",
@@ -1348,7 +1366,7 @@
       "prediction": {
         "double_chance": "X2",
         "over_25": false,
-        "confidence": 55
+        "confidence": 60
       },
       "category": "simple",
       "verified_double": true,
@@ -1385,12 +1403,21 @@
       "home_score": 0,
       "away_score": 1,
       "h2h_analysis": {
-        "total_matches": 1,
+        "total_matches": 2,
         "home_wins": 0,
-        "away_wins": 1,
+        "away_wins": 2,
         "draws": 0,
-        "goals_avg": 3.0,
+        "goals_avg": 2.0,
         "last_4": [
+          {
+            "date": "2026-03-01T00:05:00+04:00",
+            "home_team": "Le Havre",
+            "away_team": "Paris Saint-Germain",
+            "home_score": 0,
+            "away_score": 1,
+            "status": "finished",
+            "league": "Ligue 1"
+          },
           {
             "date": "2025-11-23T00:05:00+04:00",
             "home_team": "Paris Saint-Germain",
@@ -1443,12 +1470,21 @@
       "home_score": 1,
       "away_score": 1,
       "h2h_analysis": {
-        "total_matches": 1,
+        "total_matches": 2,
         "home_wins": 0,
         "away_wins": 1,
-        "draws": 0,
+        "draws": 1,
         "goals_avg": 2.0,
         "last_4": [
+          {
+            "date": "2026-03-01T00:30:00+04:00",
+            "home_team": "Vitória SC",
+            "away_team": "FC Alverca",
+            "home_score": 1,
+            "away_score": 1,
+            "status": "finished",
+            "league": "Liga Portugal Betclic"
+          },
           {
             "date": "2025-09-28T18:30:00+04:00",
             "home_team": "FC Alverca",
@@ -1461,12 +1497,12 @@
         ]
       },
       "prediction": {
-        "double_chance": "X2",
+        "double_chance": "12",
         "over_25": false,
-        "confidence": 55
+        "confidence": 60
       },
       "category": "simple",
-      "verified_double": true,
+      "verified_double": false,
       "verified_over": true,
       "ml_full": {
         "prob_home_win": 49.97295965062558,
@@ -1500,12 +1536,21 @@
       "home_score": 2,
       "away_score": 0,
       "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0,
+        "total_matches": 3,
+        "home_wins": 1,
         "away_wins": 2,
         "draws": 0,
-        "goals_avg": 3.0,
+        "goals_avg": 2.6666666666666665,
         "last_4": [
+          {
+            "date": "2026-03-01T01:30:00+04:00",
+            "home_team": "Colorado Rapids",
+            "away_team": "Portland Timbers",
+            "home_score": 2,
+            "away_score": 0,
+            "status": "finished",
+            "league": "MLS"
+          },
           {
             "date": "2025-05-29T06:30:00+04:00",
             "home_team": "Portland Timbers",
@@ -1529,7 +1574,7 @@
       "prediction": {
         "double_chance": "X2",
         "over_25": true,
-        "confidence": 60
+        "confidence": 65
       },
       "category": "simple",
       "verified_double": false,
@@ -1566,17 +1611,27 @@
       "home_score": 1,
       "away_score": 0,
       "h2h_analysis": {
-        "total_matches": 0,
-        "home_wins": 0,
+        "total_matches": 1,
+        "home_wins": 1,
         "away_wins": 0,
         "draws": 0,
-        "goals_avg": 0,
-        "last_4": []
+        "goals_avg": 1.0,
+        "last_4": [
+          {
+            "date": "2026-03-01T01:30:00+04:00",
+            "home_team": "Minnesota United",
+            "away_team": "FC Cincinnati",
+            "home_score": 1,
+            "away_score": 0,
+            "status": "finished",
+            "league": "MLS"
+          }
+        ]
       },
       "prediction": {
-        "double_chance": "12",
+        "double_chance": "1X",
         "over_25": false,
-        "confidence": 50
+        "confidence": 65
       },
       "category": "simple",
       "verified_double": true,
@@ -1613,12 +1668,21 @@
       "home_score": 0,
       "away_score": 1,
       "h2h_analysis": {
-        "total_matches": 1,
+        "total_matches": 2,
         "home_wins": 1,
-        "away_wins": 0,
+        "away_wins": 1,
         "draws": 0,
-        "goals_avg": 2.0,
+        "goals_avg": 1.5,
         "last_4": [
+          {
+            "date": "2026-03-01T03:00:00+04:00",
+            "home_team": "Atlético San Luis",
+            "away_team": "Club Puebla",
+            "home_score": 0,
+            "away_score": 1,
+            "status": "finished",
+            "league": "Liga MX Clausura"
+          },
           {
             "date": "2025-08-16T05:00:00+04:00",
             "home_team": "Club Puebla",
@@ -1631,12 +1695,12 @@
         ]
       },
       "prediction": {
-        "double_chance": "1X",
+        "double_chance": "12",
         "over_25": false,
-        "confidence": 65
+        "confidence": 60
       },
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_over": true,
       "ml_full": {
         "prob_home_win": 26.92221266222588,
@@ -1670,12 +1734,21 @@
       "home_score": 2,
       "away_score": 0,
       "h2h_analysis": {
-        "total_matches": 1,
-        "home_wins": 1,
+        "total_matches": 2,
+        "home_wins": 2,
         "away_wins": 0,
         "draws": 0,
-        "goals_avg": 3.0,
+        "goals_avg": 2.5,
         "last_4": [
+          {
+            "date": "2026-03-01T03:00:00+04:00",
+            "home_team": "CD Toluca",
+            "away_team": "CD Guadalajara",
+            "home_score": 2,
+            "away_score": 0,
+            "status": "finished",
+            "league": "Liga MX Clausura"
+          },
           {
             "date": "2025-09-21T05:07:00+04:00",
             "home_team": "CD Guadalajara",
@@ -1689,12 +1762,12 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": true,
-        "confidence": 65
+        "over_25": false,
+        "confidence": 70
       },
       "category": "simple",
       "verified_double": true,
-      "verified_over": false,
+      "verified_over": true,
       "ml_full": {
         "prob_home_win": 25.22420512523101,
         "prob_draw": 25.989410532689934,
@@ -1727,17 +1800,27 @@
       "home_score": 2,
       "away_score": 0,
       "h2h_analysis": {
-        "total_matches": 0,
-        "home_wins": 0,
+        "total_matches": 1,
+        "home_wins": 1,
         "away_wins": 0,
         "draws": 0,
-        "goals_avg": 0,
-        "last_4": []
+        "goals_avg": 2.0,
+        "last_4": [
+          {
+            "date": "2026-03-01T04:30:00+04:00",
+            "home_team": "San Jose Earthquakes",
+            "away_team": "Atlanta United",
+            "home_score": 2,
+            "away_score": 0,
+            "status": "finished",
+            "league": "MLS"
+          }
+        ]
       },
       "prediction": {
-        "double_chance": "12",
+        "double_chance": "1X",
         "over_25": false,
-        "confidence": 50
+        "confidence": 65
       },
       "category": "simple",
       "verified_double": true,
@@ -1774,12 +1857,21 @@
       "home_score": 2,
       "away_score": 1,
       "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 1,
+        "total_matches": 3,
+        "home_wins": 2,
         "away_wins": 1,
         "draws": 0,
-        "goals_avg": 1.5,
+        "goals_avg": 2.0,
         "last_4": [
+          {
+            "date": "2026-03-01T04:30:00+04:00",
+            "home_team": "Real Salt Lake",
+            "away_team": "Seattle Sounders FC",
+            "home_score": 2,
+            "away_score": 1,
+            "status": "finished",
+            "league": "MLS"
+          },
           {
             "date": "2025-10-12T05:30:00+04:00",
             "home_team": "Seattle Sounders FC",
@@ -1801,9 +1893,9 @@
         ]
       },
       "prediction": {
-        "double_chance": "12",
+        "double_chance": "1X",
         "over_25": false,
-        "confidence": 60
+        "confidence": 75
       },
       "category": "simple",
       "verified_double": true,
@@ -1840,12 +1932,21 @@
       "home_score": 0,
       "away_score": 2,
       "h2h_analysis": {
-        "total_matches": 1,
+        "total_matches": 2,
         "home_wins": 0,
-        "away_wins": 1,
+        "away_wins": 2,
         "draws": 0,
         "goals_avg": 2.0,
         "last_4": [
+          {
+            "date": "2026-03-01T05:05:00+04:00",
+            "home_team": "CF Monterrey",
+            "away_team": "Cruz Azul",
+            "home_score": 0,
+            "away_score": 2,
+            "status": "finished",
+            "league": "Liga MX Clausura"
+          },
           {
             "date": "2025-10-26T07:05:00+04:00",
             "home_team": "Cruz Azul",
@@ -1860,7 +1961,7 @@
       "prediction": {
         "double_chance": "X2",
         "over_25": false,
-        "confidence": 55
+        "confidence": 60
       },
       "category": "simple",
       "verified_double": true,
@@ -1897,12 +1998,21 @@
       "home_score": 2,
       "away_score": 1,
       "h2h_analysis": {
-        "total_matches": 1,
-        "home_wins": 1,
+        "total_matches": 2,
+        "home_wins": 2,
         "away_wins": 0,
         "draws": 0,
-        "goals_avg": 1.0,
+        "goals_avg": 2.0,
         "last_4": [
+          {
+            "date": "2026-03-01T05:06:00+04:00",
+            "home_team": "Club León",
+            "away_team": "Club Necaxa",
+            "home_score": 2,
+            "away_score": 1,
+            "status": "finished",
+            "league": "Liga MX Clausura"
+          },
           {
             "date": "2025-08-16T07:05:00+04:00",
             "home_team": "Club Necaxa",
@@ -1917,7 +2027,7 @@
       "prediction": {
         "double_chance": "1X",
         "over_25": false,
-        "confidence": 65
+        "confidence": 70
       },
       "category": "simple",
       "verified_double": true,
@@ -1954,17 +2064,27 @@
       "home_score": 0,
       "away_score": 0,
       "h2h_analysis": {
-        "total_matches": 0,
+        "total_matches": 1,
         "home_wins": 0,
         "away_wins": 0,
-        "draws": 0,
-        "goals_avg": 0,
-        "last_4": []
+        "draws": 1,
+        "goals_avg": 0.0,
+        "last_4": [
+          {
+            "date": "2026-03-01T05:30:00+04:00",
+            "home_team": "FC Dallas",
+            "away_team": "Nashville SC",
+            "home_score": 0,
+            "away_score": 0,
+            "status": "finished",
+            "league": "MLS"
+          }
+        ]
       },
       "prediction": {
         "double_chance": "12",
         "over_25": false,
-        "confidence": 50
+        "confidence": 55
       },
       "category": "simple",
       "verified_double": false,
@@ -2001,12 +2121,21 @@
       "home_score": 0,
       "away_score": 2,
       "h2h_analysis": {
-        "total_matches": 2,
+        "total_matches": 3,
         "home_wins": 1,
-        "away_wins": 1,
+        "away_wins": 2,
         "draws": 0,
-        "goals_avg": 1.5,
+        "goals_avg": 1.6666666666666667,
         "last_4": [
+          {
+            "date": "2026-03-01T05:30:00+04:00",
+            "home_team": "Houston Dynamo",
+            "away_team": "Los Angeles FC",
+            "home_score": 0,
+            "away_score": 2,
+            "status": "finished",
+            "league": "MLS"
+          },
           {
             "date": "2025-05-04T06:30:00+04:00",
             "home_team": "Los Angeles FC",
@@ -2028,9 +2157,9 @@
         ]
       },
       "prediction": {
-        "double_chance": "12",
+        "double_chance": "X2",
         "over_25": false,
-        "confidence": 60
+        "confidence": 65
       },
       "category": "simple",
       "verified_double": true,
@@ -2067,21 +2196,31 @@
       "home_score": 2,
       "away_score": 2,
       "h2h_analysis": {
-        "total_matches": 0,
+        "total_matches": 1,
         "home_wins": 0,
         "away_wins": 0,
-        "draws": 0,
-        "goals_avg": 0,
-        "last_4": []
+        "draws": 1,
+        "goals_avg": 4.0,
+        "last_4": [
+          {
+            "date": "2026-03-01T05:30:00+04:00",
+            "home_team": "Sporting Kansas City",
+            "away_team": "Columbus Crew",
+            "home_score": 2,
+            "away_score": 2,
+            "status": "finished",
+            "league": "MLS"
+          }
+        ]
       },
       "prediction": {
         "double_chance": "12",
-        "over_25": false,
-        "confidence": 50
+        "over_25": true,
+        "confidence": 55
       },
       "category": "simple",
       "verified_double": false,
-      "verified_over": false,
+      "verified_over": true,
       "ml_full": {
         "prob_home_win": 31.09540012483427,
         "prob_draw": 24.476401228116732,
@@ -2114,12 +2253,21 @@
       "home_score": 3,
       "away_score": 0,
       "h2h_analysis": {
-        "total_matches": 1,
-        "home_wins": 0,
+        "total_matches": 2,
+        "home_wins": 1,
         "away_wins": 0,
         "draws": 1,
-        "goals_avg": 0.0,
+        "goals_avg": 1.5,
         "last_4": [
+          {
+            "date": "2026-03-01T06:30:00+04:00",
+            "home_team": "Vancouver Whitecaps",
+            "away_team": "Toronto FC",
+            "home_score": 3,
+            "away_score": 0,
+            "status": "finished",
+            "league": "MLS"
+          },
           {
             "date": "2025-03-29T22:30:00+04:00",
             "home_team": "Toronto FC",
@@ -2172,12 +2320,21 @@
       "home_score": 1,
       "away_score": 4,
       "h2h_analysis": {
-        "total_matches": 1,
+        "total_matches": 2,
         "home_wins": 1,
-        "away_wins": 0,
+        "away_wins": 1,
         "draws": 0,
-        "goals_avg": 4.0,
+        "goals_avg": 4.5,
         "last_4": [
+          {
+            "date": "2026-03-01T07:10:00+04:00",
+            "home_team": "Club América",
+            "away_team": "Tigres UANL",
+            "home_score": 1,
+            "away_score": 4,
+            "status": "finished",
+            "league": "Liga MX Clausura"
+          },
           {
             "date": "2025-08-17T05:00:00+04:00",
             "home_team": "Tigres UANL",
@@ -2190,12 +2347,12 @@
         ]
       },
       "prediction": {
-        "double_chance": "1X",
+        "double_chance": "12",
         "over_25": true,
-        "confidence": 65
+        "confidence": 60
       },
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_over": true,
       "ml_full": {
         "prob_home_win": 24.050575856902185,
@@ -2229,21 +2386,31 @@
       "home_score": 3,
       "away_score": 0,
       "h2h_analysis": {
-        "total_matches": 0,
-        "home_wins": 0,
+        "total_matches": 1,
+        "home_wins": 1,
         "away_wins": 0,
         "draws": 0,
-        "goals_avg": 0,
-        "last_4": []
+        "goals_avg": 3.0,
+        "last_4": [
+          {
+            "date": "2026-03-01T07:30:00+04:00",
+            "home_team": "LA Galaxy",
+            "away_team": "Charlotte FC",
+            "home_score": 3,
+            "away_score": 0,
+            "status": "finished",
+            "league": "MLS"
+          }
+        ]
       },
       "prediction": {
-        "double_chance": "12",
-        "over_25": false,
-        "confidence": 50
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 65
       },
       "category": "simple",
       "verified_double": true,
-      "verified_over": false,
+      "verified_over": true,
       "ml_full": {
         "prob_home_win": 45.24647398739272,
         "prob_draw": 21.413969370280846,
@@ -3652,7 +3819,22 @@
       "category": "simple",
       "verified_double": false,
       "verified_over": false,
-      "ml_full": null
+      "ml_full": {
+        "prob_home_win": 33.80905596765664,
+        "prob_draw": 41.91679997493683,
+        "prob_away_win": 24.274144057406538,
+        "predicted_result": "D",
+        "expected_home_goals": 0.6715899999999999,
+        "expected_away_goals": 0.5215299999999999,
+        "prob_over_25": 74.75074624530771,
+        "over_25_recommend": false,
+        "prob_btts_yes": 61.09299108484216,
+        "btts_recommend": false,
+        "most_likely_score": "0-0",
+        "favorite": "H",
+        "favorite_prob": 33.80905596765664,
+        "confidence": 41.91679997493683
+      }
     },
     {
       "id": 2971,
@@ -5884,12 +6066,21 @@
         "home_score": 2,
         "away_score": 3,
         "h2h_analysis": {
-          "total_matches": 1,
+          "total_matches": 2,
           "home_wins": 0,
-          "away_wins": 1,
+          "away_wins": 2,
           "draws": 0,
           "goals_avg": 5.0,
           "last_4": [
+            {
+              "date": "2026-03-01T00:00:00+04:00",
+              "home_team": "NEC Nijmegen",
+              "away_team": "Fortuna Sittard",
+              "home_score": 2,
+              "away_score": 3,
+              "status": "finished",
+              "league": "Eredivisie"
+            },
             {
               "date": "2025-08-31T14:15:00+04:00",
               "home_team": "Fortuna Sittard",
@@ -5904,7 +6095,7 @@
         "prediction": {
           "double_chance": "X2",
           "over_25": true,
-          "confidence": 55
+          "confidence": 60
         },
         "category": "simple",
         "verified_double": true,
@@ -5941,12 +6132,21 @@
         "home_score": 0,
         "away_score": 1,
         "h2h_analysis": {
-          "total_matches": 1,
+          "total_matches": 2,
           "home_wins": 0,
-          "away_wins": 1,
+          "away_wins": 2,
           "draws": 0,
-          "goals_avg": 2.0,
+          "goals_avg": 1.5,
           "last_4": [
+            {
+              "date": "2026-03-01T00:00:00+04:00",
+              "home_team": "Real Oviedo",
+              "away_team": "Atlético Madrid",
+              "home_score": 0,
+              "away_score": 1,
+              "status": "finished",
+              "league": "La Liga"
+            },
             {
               "date": "2025-11-30T00:00:00+04:00",
               "home_team": "Atlético Madrid",
@@ -5961,7 +6161,7 @@
         "prediction": {
           "double_chance": "X2",
           "over_25": false,
-          "confidence": 55
+          "confidence": 60
         },
         "category": "simple",
         "verified_double": true,
@@ -5998,12 +6198,21 @@
         "home_score": 1,
         "away_score": 1,
         "h2h_analysis": {
-          "total_matches": 1,
+          "total_matches": 2,
           "home_wins": 0,
           "away_wins": 1,
-          "draws": 0,
+          "draws": 1,
           "goals_avg": 2.0,
           "last_4": [
+            {
+              "date": "2026-03-01T00:30:00+04:00",
+              "home_team": "Vitória SC",
+              "away_team": "FC Alverca",
+              "home_score": 1,
+              "away_score": 1,
+              "status": "finished",
+              "league": "Liga Portugal Betclic"
+            },
             {
               "date": "2025-09-28T18:30:00+04:00",
               "home_team": "FC Alverca",
@@ -6016,12 +6225,12 @@
           ]
         },
         "prediction": {
-          "double_chance": "X2",
+          "double_chance": "12",
           "over_25": false,
-          "confidence": 55
+          "confidence": 60
         },
         "category": "simple",
-        "verified_double": true,
+        "verified_double": false,
         "verified_over": true,
         "ml_full": {
           "prob_home_win": 49.97295965062558,
@@ -6055,12 +6264,21 @@
         "home_score": 2,
         "away_score": 0,
         "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0,
+          "total_matches": 3,
+          "home_wins": 1,
           "away_wins": 2,
           "draws": 0,
-          "goals_avg": 3.0,
+          "goals_avg": 2.6666666666666665,
           "last_4": [
+            {
+              "date": "2026-03-01T01:30:00+04:00",
+              "home_team": "Colorado Rapids",
+              "away_team": "Portland Timbers",
+              "home_score": 2,
+              "away_score": 0,
+              "status": "finished",
+              "league": "MLS"
+            },
             {
               "date": "2025-05-29T06:30:00+04:00",
               "home_team": "Portland Timbers",
@@ -6084,7 +6302,7 @@
         "prediction": {
           "double_chance": "X2",
           "over_25": true,
-          "confidence": 60
+          "confidence": 65
         },
         "category": "simple",
         "verified_double": false,
@@ -6121,17 +6339,27 @@
         "home_score": 1,
         "away_score": 0,
         "h2h_analysis": {
-          "total_matches": 0,
-          "home_wins": 0,
+          "total_matches": 1,
+          "home_wins": 1,
           "away_wins": 0,
           "draws": 0,
-          "goals_avg": 0,
-          "last_4": []
+          "goals_avg": 1.0,
+          "last_4": [
+            {
+              "date": "2026-03-01T01:30:00+04:00",
+              "home_team": "Minnesota United",
+              "away_team": "FC Cincinnati",
+              "home_score": 1,
+              "away_score": 0,
+              "status": "finished",
+              "league": "MLS"
+            }
+          ]
         },
         "prediction": {
-          "double_chance": "12",
+          "double_chance": "1X",
           "over_25": false,
-          "confidence": 50
+          "confidence": 65
         },
         "category": "simple",
         "verified_double": true,
@@ -6168,12 +6396,21 @@
         "home_score": 0,
         "away_score": 1,
         "h2h_analysis": {
-          "total_matches": 1,
+          "total_matches": 2,
           "home_wins": 1,
-          "away_wins": 0,
+          "away_wins": 1,
           "draws": 0,
-          "goals_avg": 2.0,
+          "goals_avg": 1.5,
           "last_4": [
+            {
+              "date": "2026-03-01T03:00:00+04:00",
+              "home_team": "Atlético San Luis",
+              "away_team": "Club Puebla",
+              "home_score": 0,
+              "away_score": 1,
+              "status": "finished",
+              "league": "Liga MX Clausura"
+            },
             {
               "date": "2025-08-16T05:00:00+04:00",
               "home_team": "Club Puebla",
@@ -6186,12 +6423,12 @@
           ]
         },
         "prediction": {
-          "double_chance": "1X",
+          "double_chance": "12",
           "over_25": false,
-          "confidence": 65
+          "confidence": 60
         },
         "category": "simple",
-        "verified_double": false,
+        "verified_double": true,
         "verified_over": true,
         "ml_full": {
           "prob_home_win": 26.92221266222588,
@@ -6225,12 +6462,21 @@
         "home_score": 2,
         "away_score": 0,
         "h2h_analysis": {
-          "total_matches": 1,
-          "home_wins": 1,
+          "total_matches": 2,
+          "home_wins": 2,
           "away_wins": 0,
           "draws": 0,
-          "goals_avg": 3.0,
+          "goals_avg": 2.5,
           "last_4": [
+            {
+              "date": "2026-03-01T03:00:00+04:00",
+              "home_team": "CD Toluca",
+              "away_team": "CD Guadalajara",
+              "home_score": 2,
+              "away_score": 0,
+              "status": "finished",
+              "league": "Liga MX Clausura"
+            },
             {
               "date": "2025-09-21T05:07:00+04:00",
               "home_team": "CD Guadalajara",
@@ -6244,12 +6490,12 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over_25": true,
-          "confidence": 65
+          "over_25": false,
+          "confidence": 70
         },
         "category": "simple",
         "verified_double": true,
-        "verified_over": false,
+        "verified_over": true,
         "ml_full": {
           "prob_home_win": 25.22420512523101,
           "prob_draw": 25.989410532689934,
@@ -6282,17 +6528,27 @@
         "home_score": 2,
         "away_score": 0,
         "h2h_analysis": {
-          "total_matches": 0,
-          "home_wins": 0,
+          "total_matches": 1,
+          "home_wins": 1,
           "away_wins": 0,
           "draws": 0,
-          "goals_avg": 0,
-          "last_4": []
+          "goals_avg": 2.0,
+          "last_4": [
+            {
+              "date": "2026-03-01T04:30:00+04:00",
+              "home_team": "San Jose Earthquakes",
+              "away_team": "Atlanta United",
+              "home_score": 2,
+              "away_score": 0,
+              "status": "finished",
+              "league": "MLS"
+            }
+          ]
         },
         "prediction": {
-          "double_chance": "12",
+          "double_chance": "1X",
           "over_25": false,
-          "confidence": 50
+          "confidence": 65
         },
         "category": "simple",
         "verified_double": true,
@@ -6329,12 +6585,21 @@
         "home_score": 2,
         "away_score": 1,
         "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 1,
+          "total_matches": 3,
+          "home_wins": 2,
           "away_wins": 1,
           "draws": 0,
-          "goals_avg": 1.5,
+          "goals_avg": 2.0,
           "last_4": [
+            {
+              "date": "2026-03-01T04:30:00+04:00",
+              "home_team": "Real Salt Lake",
+              "away_team": "Seattle Sounders FC",
+              "home_score": 2,
+              "away_score": 1,
+              "status": "finished",
+              "league": "MLS"
+            },
             {
               "date": "2025-10-12T05:30:00+04:00",
               "home_team": "Seattle Sounders FC",
@@ -6356,9 +6621,9 @@
           ]
         },
         "prediction": {
-          "double_chance": "12",
+          "double_chance": "1X",
           "over_25": false,
-          "confidence": 60
+          "confidence": 75
         },
         "category": "simple",
         "verified_double": true,
@@ -6395,12 +6660,21 @@
         "home_score": 0,
         "away_score": 2,
         "h2h_analysis": {
-          "total_matches": 1,
+          "total_matches": 2,
           "home_wins": 0,
-          "away_wins": 1,
+          "away_wins": 2,
           "draws": 0,
           "goals_avg": 2.0,
           "last_4": [
+            {
+              "date": "2026-03-01T05:05:00+04:00",
+              "home_team": "CF Monterrey",
+              "away_team": "Cruz Azul",
+              "home_score": 0,
+              "away_score": 2,
+              "status": "finished",
+              "league": "Liga MX Clausura"
+            },
             {
               "date": "2025-10-26T07:05:00+04:00",
               "home_team": "Cruz Azul",
@@ -6415,7 +6689,7 @@
         "prediction": {
           "double_chance": "X2",
           "over_25": false,
-          "confidence": 55
+          "confidence": 60
         },
         "category": "simple",
         "verified_double": true,
@@ -6452,12 +6726,21 @@
         "home_score": 2,
         "away_score": 1,
         "h2h_analysis": {
-          "total_matches": 1,
-          "home_wins": 1,
+          "total_matches": 2,
+          "home_wins": 2,
           "away_wins": 0,
           "draws": 0,
-          "goals_avg": 1.0,
+          "goals_avg": 2.0,
           "last_4": [
+            {
+              "date": "2026-03-01T05:06:00+04:00",
+              "home_team": "Club León",
+              "away_team": "Club Necaxa",
+              "home_score": 2,
+              "away_score": 1,
+              "status": "finished",
+              "league": "Liga MX Clausura"
+            },
             {
               "date": "2025-08-16T07:05:00+04:00",
               "home_team": "Club Necaxa",
@@ -6472,7 +6755,7 @@
         "prediction": {
           "double_chance": "1X",
           "over_25": false,
-          "confidence": 65
+          "confidence": 70
         },
         "category": "simple",
         "verified_double": true,
@@ -6509,17 +6792,27 @@
         "home_score": 0,
         "away_score": 0,
         "h2h_analysis": {
-          "total_matches": 0,
+          "total_matches": 1,
           "home_wins": 0,
           "away_wins": 0,
-          "draws": 0,
-          "goals_avg": 0,
-          "last_4": []
+          "draws": 1,
+          "goals_avg": 0.0,
+          "last_4": [
+            {
+              "date": "2026-03-01T05:30:00+04:00",
+              "home_team": "FC Dallas",
+              "away_team": "Nashville SC",
+              "home_score": 0,
+              "away_score": 0,
+              "status": "finished",
+              "league": "MLS"
+            }
+          ]
         },
         "prediction": {
           "double_chance": "12",
           "over_25": false,
-          "confidence": 50
+          "confidence": 55
         },
         "category": "simple",
         "verified_double": false,
@@ -6556,12 +6849,21 @@
         "home_score": 0,
         "away_score": 2,
         "h2h_analysis": {
-          "total_matches": 2,
+          "total_matches": 3,
           "home_wins": 1,
-          "away_wins": 1,
+          "away_wins": 2,
           "draws": 0,
-          "goals_avg": 1.5,
+          "goals_avg": 1.6666666666666667,
           "last_4": [
+            {
+              "date": "2026-03-01T05:30:00+04:00",
+              "home_team": "Houston Dynamo",
+              "away_team": "Los Angeles FC",
+              "home_score": 0,
+              "away_score": 2,
+              "status": "finished",
+              "league": "MLS"
+            },
             {
               "date": "2025-05-04T06:30:00+04:00",
               "home_team": "Los Angeles FC",
@@ -6583,9 +6885,9 @@
           ]
         },
         "prediction": {
-          "double_chance": "12",
+          "double_chance": "X2",
           "over_25": false,
-          "confidence": 60
+          "confidence": 65
         },
         "category": "simple",
         "verified_double": true,
@@ -6622,21 +6924,31 @@
         "home_score": 2,
         "away_score": 2,
         "h2h_analysis": {
-          "total_matches": 0,
+          "total_matches": 1,
           "home_wins": 0,
           "away_wins": 0,
-          "draws": 0,
-          "goals_avg": 0,
-          "last_4": []
+          "draws": 1,
+          "goals_avg": 4.0,
+          "last_4": [
+            {
+              "date": "2026-03-01T05:30:00+04:00",
+              "home_team": "Sporting Kansas City",
+              "away_team": "Columbus Crew",
+              "home_score": 2,
+              "away_score": 2,
+              "status": "finished",
+              "league": "MLS"
+            }
+          ]
         },
         "prediction": {
           "double_chance": "12",
-          "over_25": false,
-          "confidence": 50
+          "over_25": true,
+          "confidence": 55
         },
         "category": "simple",
         "verified_double": false,
-        "verified_over": false,
+        "verified_over": true,
         "ml_full": {
           "prob_home_win": 31.09540012483427,
           "prob_draw": 24.476401228116732,
@@ -6669,12 +6981,21 @@
         "home_score": 1,
         "away_score": 4,
         "h2h_analysis": {
-          "total_matches": 1,
+          "total_matches": 2,
           "home_wins": 1,
-          "away_wins": 0,
+          "away_wins": 1,
           "draws": 0,
-          "goals_avg": 4.0,
+          "goals_avg": 4.5,
           "last_4": [
+            {
+              "date": "2026-03-01T07:10:00+04:00",
+              "home_team": "Club América",
+              "away_team": "Tigres UANL",
+              "home_score": 1,
+              "away_score": 4,
+              "status": "finished",
+              "league": "Liga MX Clausura"
+            },
             {
               "date": "2025-08-17T05:00:00+04:00",
               "home_team": "Tigres UANL",
@@ -6687,12 +7008,12 @@
           ]
         },
         "prediction": {
-          "double_chance": "1X",
+          "double_chance": "12",
           "over_25": true,
-          "confidence": 65
+          "confidence": 60
         },
         "category": "simple",
-        "verified_double": false,
+        "verified_double": true,
         "verified_over": true,
         "ml_full": {
           "prob_home_win": 24.050575856902185,
@@ -6726,21 +7047,31 @@
         "home_score": 3,
         "away_score": 0,
         "h2h_analysis": {
-          "total_matches": 0,
-          "home_wins": 0,
+          "total_matches": 1,
+          "home_wins": 1,
           "away_wins": 0,
           "draws": 0,
-          "goals_avg": 0,
-          "last_4": []
+          "goals_avg": 3.0,
+          "last_4": [
+            {
+              "date": "2026-03-01T07:30:00+04:00",
+              "home_team": "LA Galaxy",
+              "away_team": "Charlotte FC",
+              "home_score": 3,
+              "away_score": 0,
+              "status": "finished",
+              "league": "MLS"
+            }
+          ]
         },
         "prediction": {
-          "double_chance": "12",
-          "over_25": false,
-          "confidence": 50
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 65
         },
         "category": "simple",
         "verified_double": true,
-        "verified_over": false,
+        "verified_over": true,
         "ml_full": {
           "prob_home_win": 45.24647398739272,
           "prob_draw": 21.413969370280846,
@@ -7917,7 +8248,22 @@
         "category": "simple",
         "verified_double": false,
         "verified_over": false,
-        "ml_full": null
+        "ml_full": {
+          "prob_home_win": 33.80905596765664,
+          "prob_draw": 41.91679997493683,
+          "prob_away_win": 24.274144057406538,
+          "predicted_result": "D",
+          "expected_home_goals": 0.6715899999999999,
+          "expected_away_goals": 0.5215299999999999,
+          "prob_over_25": 74.75074624530771,
+          "over_25_recommend": false,
+          "prob_btts_yes": 61.09299108484216,
+          "btts_recommend": false,
+          "most_likely_score": "0-0",
+          "favorite": "H",
+          "favorite_prob": 33.80905596765664,
+          "confidence": 41.91679997493683
+        }
       },
       {
         "id": 2971,
@@ -9432,12 +9778,21 @@
         "home_score": 0,
         "away_score": 1,
         "h2h_analysis": {
-          "total_matches": 1,
+          "total_matches": 2,
           "home_wins": 0,
-          "away_wins": 1,
+          "away_wins": 2,
           "draws": 0,
-          "goals_avg": 3.0,
+          "goals_avg": 2.0,
           "last_4": [
+            {
+              "date": "2026-03-01T00:05:00+04:00",
+              "home_team": "Le Havre",
+              "away_team": "Paris Saint-Germain",
+              "home_score": 0,
+              "away_score": 1,
+              "status": "finished",
+              "league": "Ligue 1"
+            },
             {
               "date": "2025-11-23T00:05:00+04:00",
               "home_team": "Paris Saint-Germain",
@@ -9490,12 +9845,21 @@
         "home_score": 3,
         "away_score": 0,
         "h2h_analysis": {
-          "total_matches": 1,
-          "home_wins": 0,
+          "total_matches": 2,
+          "home_wins": 1,
           "away_wins": 0,
           "draws": 1,
-          "goals_avg": 0.0,
+          "goals_avg": 1.5,
           "last_4": [
+            {
+              "date": "2026-03-01T06:30:00+04:00",
+              "home_team": "Vancouver Whitecaps",
+              "away_team": "Toronto FC",
+              "home_score": 3,
+              "away_score": 0,
+              "status": "finished",
+              "league": "MLS"
+            },
             {
               "date": "2025-03-29T22:30:00+04:00",
               "home_team": "Toronto FC",
