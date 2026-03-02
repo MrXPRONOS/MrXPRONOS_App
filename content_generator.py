@@ -3,18 +3,25 @@
 
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
+Ajoute la génération d'images pour illustrer chaque contenu.
 Exécution quotidienne.
 """
 
 import os
 import json
 import requests
+import uuid
 from datetime import datetime
 import random
+from mistralai import Mistral
+from mistralai.models import ToolFileChunk
 
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 if not MISTRAL_API_KEY:
     raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
+
+# Initialisation du client Mistral
+client = Mistral(api_key=MISTRAL_API_KEY)
 
 MISTRAL_MODEL = "mistral-large-latest"
 API_URL = "https://api.mistral.ai/v1/chat/completions"
@@ -22,6 +29,54 @@ API_URL = "https://api.mistral.ai/v1/chat/completions"
 CACHE_FILE = "cache/all_matches.json"
 ARTICLES_FILE = "articles.json"
 CONSEILS_FILE = "conseils.json"
+
+def generate_image(prompt, prefix="article"):
+    """
+    Génère une image via l'API Mistral en créant un agent avec l'outil image_generation.
+    Retourne le chemin local de l'image sauvegardée, ou None en cas d'échec.
+    """
+    try:
+        # Créer un agent temporaire pour la génération d'image
+        agent = client.beta.agents.create(
+            model="mistral-medium-2505",
+            name="Image Generation Agent",
+            description="Agent used to generate images.",
+            instructions="Use the image generation tool when you have to create images.",
+            tools=[{"type": "image_generation"}],
+            completion_args={
+                "temperature": 0.3,
+                "top_p": 0.95,
+            }
+        )
+
+        # Démarrer une conversation avec le prompt
+        response = client.beta.conversations.start(
+            agent_id=agent.id,
+            inputs=prompt
+        )
+
+        # Parcourir les outputs pour trouver le fichier image
+        for output in response.outputs:
+            if output.type == "message.output":
+                for chunk in output.content:
+                    if isinstance(chunk, ToolFileChunk):
+                        file_id = chunk.file_id
+                        # Télécharger le fichier
+                        file_bytes = client.files.download(file_id=file_id).read()
+                        # Sauvegarder avec un nom unique
+                        filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.png"
+                        os.makedirs("assets/images", exist_ok=True)
+                        with open(filename, "wb") as f:
+                            f.write(file_bytes)
+                        return filename
+        return None
+    except Exception as e:
+        print(f"❌ Erreur génération image: {e}")
+        return None
+
+def get_fallback_image_url():
+    """Retourne une image aléatoire de Lorem Picsum en cas d'échec."""
+    return f"https://picsum.photos/seed/{random.randint(1,1000)}/800/400"
 
 def load_matches():
     if not os.path.exists(CACHE_FILE):
@@ -61,7 +116,7 @@ def call_mistral(prompt, temperature=0.7, max_tokens=2000):
         resp.raise_for_status()
         return resp.json()['choices'][0]['message']['content']
     except Exception as e:
-        print(f"Erreur Mistral: {e}")
+        print(f"❌ Erreur Mistral: {e}")
         return None
 
 def generate_blog_article(match):
@@ -105,24 +160,22 @@ def generate_tip():
 
 Le conseil doit inclure :
 - Un titre accrocheur
-- Une explication claire du concept
-- Des exemples concrets
-- Des erreurs courantes à éviter
-- Une recommandation finale
+- Une explication claire du concept (environ 100 mots)
+- Un exemple concret (50 mots)
+- Une recommandation finale (50 mots)
 
 Style : pédagogique, direct, utile.
-Longueur : environ 300 mots.
+Longueur totale : environ 200 mots maximum.
 Le ton doit être celui d'un expert qui partage son savoir.
 
 Génère en français uniquement."""
-    return call_mistral(prompt, temperature=0.7, max_tokens=1500)
+    return call_mistral(prompt, temperature=0.7, max_tokens=800)
 
 def save_article(content, match):
     articles = []
     if os.path.exists(ARTICLES_FILE):
         try:
             with open(ARTICLES_FILE, 'r', encoding='utf-8') as f:
-                # Vérifier que le fichier n'est pas vide avant de charger
                 content_data = f.read().strip()
                 if content_data:
                     articles = json.loads(content_data)
@@ -139,6 +192,13 @@ def save_article(content, match):
     slug = title.lower()
     slug = ''.join(c if c.isalnum() else '-' for c in slug)
     slug = '-'.join(filter(None, slug.split('-')))
+
+    # Générer une image
+    image_prompt = f"Image illustrant le match de football {match['home_team']} vs {match['away_team']} dans le championnat {match['league']['name']}, style sportif dynamique."
+    image_url = generate_image(image_prompt, prefix="article")
+    if not image_url:
+        image_url = get_fallback_image_url()
+
     new = {
         "slug": slug[:100],
         "title": title,
@@ -147,13 +207,14 @@ def save_article(content, match):
         "excerpt": content[:200] + "...",
         "content": content,
         "match": f"{match['home_team']} vs {match['away_team']}",
-        "league": match['league']['name']
+        "league": match['league']['name'],
+        "image_url": image_url
     }
     articles.insert(0, new)
     articles = articles[:50]
     with open(ARTICLES_FILE, 'w', encoding='utf-8') as f:
         json.dump(articles, f, indent=2, ensure_ascii=False)
-    print(f"✅ Article sauvegardé : {title}")
+    print(f"✅ Article sauvegardé : {title} (image: {image_url})")
 
 def save_tip(content):
     conseils = []
@@ -173,20 +234,28 @@ def save_tip(content):
 
     lines = content.strip().split('\n')
     title = lines[0].replace('#', '').strip() if lines else "Conseil"
+
+    # Générer une image
+    image_prompt = f"Image illustrant un conseil de paris sportifs sur le thème : {title}"
+    image_url = generate_image(image_prompt, prefix="conseil")
+    if not image_url:
+        image_url = get_fallback_image_url()
+
     new = {
         "title": title,
         "content": content,
-        "date": datetime.now().strftime("%Y-%m-%d")
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "image_url": image_url
     }
     conseils.insert(0, new)
     conseils = conseils[:100]
     with open(CONSEILS_FILE, 'w', encoding='utf-8') as f:
         json.dump(conseils, f, indent=2, ensure_ascii=False)
-    print(f"✅ Conseil sauvegardé : {title}")
+    print(f"✅ Conseil sauvegardé : {title} (image: {image_url})")
 
 def main():
     print("="*60)
-    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral)")
+    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + Images)")
     print("="*60)
 
     matches = load_matches()

@@ -1,9 +1,7 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec sous-onglets VIP (pronostics/analyses) et analyses ML complètes.
- * Correction : affichage des heures dans le fuseau local de l'utilisateur.
- * Mise à jour : hideEmptyTabs() gère désormais les sous-onglets VIP.
- * Chemins relatifs.
+ * Gère l'affichage des pronostics, blog, conseils, infos, bookmakers et la logique de partage.
+ * Version avec support Markdown et images générées.
  */
 
 // =======================================================
@@ -11,7 +9,7 @@
 // =======================================================
 let allData = null;
 let currentCategory = 'simple';
-let currentSubcat = 'pronostics'; // pour VIP : 'pronostics' ou 'analyses'
+let currentSubcat = 'pronostics';
 let currentDay = 'today';
 
 const matchesContainer = document.getElementById('matches-container');
@@ -97,69 +95,54 @@ async function loadDataGeneric() {
     }
 }
 
-/**
- * Met à jour l'affichage des onglets principaux et des sous-onglets VIP
- * en fonction des données disponibles.
- */
 function hideEmptyTabs() {
-    // Compter les matchs par catégorie
     const counts = { simple: 0, pro: 0, vip: 0 };
-    let hasML = 0; // nombre de matchs avec données ML complètes
+    let hasML = 0;
     allData.matches.forEach(m => {
         counts[m.category]++;
         if (m.ml_full) hasML++;
     });
 
-    // Gérer les onglets principaux
     document.querySelectorAll('.tab-btn').forEach(btn => {
         const cat = btn.dataset.cat;
         if (cat === 'vip') {
-            // L'onglet VIP est visible s'il y a des matchs classés VIP OU des matchs avec ML
             btn.style.display = (counts.vip > 0 || hasML > 0) ? 'inline-block' : 'none';
         } else {
             btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
         }
     });
 
-    // Si la catégorie courante est masquée, basculer sur la première visible
     const visibleTabs = Array.from(document.querySelectorAll('.tab-btn')).filter(btn => btn.style.display !== 'none');
     if (visibleTabs.length > 0) {
         const currentActive = document.querySelector('.tab-btn.active');
         if (!currentActive || currentActive.style.display === 'none') {
-            // Activer le premier onglet visible
             visibleTabs[0].classList.add('active');
             currentCategory = visibleTabs[0].dataset.cat;
             if (currentCategory !== 'vip') currentSubcat = 'pronostics';
         }
     } else {
-        // Aucun onglet visible, on cache la barre
         const tabBar = document.querySelector('.category-tabs');
         if (tabBar) tabBar.style.display = 'none';
     }
 
-    // Gérer les sous-onglets VIP
     if (vipSubtabs) {
         const showPronostics = counts.vip > 0;
         const showAnalyses = hasML > 0;
         const subtabBtns = vipSubtabs.querySelectorAll('.subtab-btn');
         if (subtabBtns.length >= 2) {
-            subtabBtns[0].style.display = showPronostics ? 'inline-block' : 'none'; // Pronostics
-            subtabBtns[1].style.display = showAnalyses ? 'inline-block' : 'none';   // Analyses
+            subtabBtns[0].style.display = showPronostics ? 'inline-block' : 'none';
+            subtabBtns[1].style.display = showAnalyses ? 'inline-block' : 'none';
         }
-        // Afficher la barre des sous-onglets si au moins un est visible
         vipSubtabs.style.display = (showPronostics || showAnalyses) ? 'flex' : 'none';
-        
-        // Si le sous-onglet actif est masqué, basculer sur l'autre ou sur pronostics par défaut
+
         const activeSub = vipSubtabs.querySelector('.subtab-btn.active');
         if (activeSub && activeSub.style.display === 'none') {
-            // Chercher le premier sous-onglet visible
             const firstVisible = Array.from(subtabBtns).find(btn => btn.style.display !== 'none');
             if (firstVisible) {
                 firstVisible.classList.add('active');
                 currentSubcat = firstVisible.dataset.subcat;
             } else {
-                // Aucun sous-onglet visible, on désactive
-                currentSubcat = 'pronostics'; // fallback
+                currentSubcat = 'pronostics';
             }
         }
     }
@@ -174,20 +157,16 @@ function maybeHideTabBar() {
 }
 
 function setupEventListeners() {
-    // Onglets principaux
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', e => {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentCategory = btn.dataset.cat;
-            if (currentCategory !== 'vip') {
-                currentSubcat = 'pronostics'; // reset
-            }
+            if (currentCategory !== 'vip') currentSubcat = 'pronostics';
             handleCategoryChange();
         });
     });
 
-    // Sous-onglets VIP
     document.querySelectorAll('.subtab-btn').forEach(btn => {
         btn.addEventListener('click', e => {
             document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
@@ -197,7 +176,6 @@ function setupEventListeners() {
         });
     });
 
-    // Filtres jour
     document.querySelectorAll('.day-btn').forEach(btn => {
         btn.addEventListener('click', e => {
             document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
@@ -207,7 +185,6 @@ function setupEventListeners() {
         });
     });
 
-    // Boutons de partage
     document.getElementById('share-wa')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg')?.addEventListener('click', () => share('telegram'));
     document.getElementById('close-popup')?.addEventListener('click', () => {
@@ -238,15 +215,13 @@ function showSharePopup(category, remaining) {
 }
 
 function share(platform) {
-    const message = encodeURIComponent('Rejoignez Mr XPRONOS pour des pronostics sportifs de qualité ! https://mrxpronos.github.io/MrXPRONOS_App/');
-    const url = platform === 'whatsapp' ? `https://wa.me/?text=${message}` : `https://t.me/share/url?url=${encodeURIComponent('https://mrxpronos.github.io/MrXPRONOS_App/')}&text=${message}`;
+    const message = encodeURIComponent('Rejoignez Mr XPRONOS pour des pronostics sportifs de qualité ! https://votre-site.com');
+    const url = platform === 'whatsapp' ? `https://wa.me/?text=${message}` : `https://t.me/share/url?url=${encodeURIComponent('https://votre-site.com')}&text=${message}`;
     window.open(url, '_blank');
 
     shareCount++;
     localStorage.setItem('shareCount', shareCount);
     updateShareCounter();
-
-    // Enregistrer l'événement de partage pour les stats
     recordEvent('share');
 
     const target = shareLimits[currentCategory];
@@ -263,11 +238,6 @@ function updateShareCounter() {
     if (counter) counter.textContent = `🔥 ${shareCount} partages aujourd'hui`;
 }
 
-/**
- * Retourne la date locale du jour demandé sous forme de chaîne YYYY-MM-DD.
- * @param {string} day - 'today', 'tomorrow', 'yesterday'
- * @returns {string}
- */
 function getLocalDateString(day) {
     const now = new Date();
     const target = new Date(now);
@@ -282,11 +252,6 @@ function getLocalDateString(day) {
     return `${year}-${month}-${dayOfMonth}`;
 }
 
-/**
- * Convertit la date/heure d'un événement (au format ISO avec fuseau) en date locale YYYY-MM-DD.
- * @param {string} isoString
- * @returns {string}
- */
 function getLocalDateFromEvent(isoString) {
     if (!isoString) return null;
     const date = new Date(isoString);
@@ -307,13 +272,11 @@ function filterAndDisplay() {
 
     let filtered;
     if (currentCategory === 'vip' && currentSubcat === 'analyses') {
-        // Analyses VIP : tous les matchs (quelle que soit leur catégorie) avec des prédictions ML
         filtered = allData.matches.filter(m => {
             const eventLocalDate = getLocalDateFromEvent(m.event_date);
             return eventLocalDate === targetDate && m.ml_full;
         });
     } else {
-        // Sinon : filtrer par catégorie (simple, pro, ou vip-pronostics)
         const targetCat = (currentCategory === 'vip' && currentSubcat === 'pronostics') ? 'vip' : currentCategory;
         filtered = allData.matches.filter(m => {
             const eventLocalDate = getLocalDateFromEvent(m.event_date);
@@ -357,7 +320,6 @@ function renderMatches(matches) {
         const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
         const defaultLogo = 'assets/images/default-logo.png';
 
-        // Partie commune (info match)
         let matchHtml = `
             <div class="match-card">
                 <div class="match-info">
@@ -383,9 +345,7 @@ function renderMatches(matches) {
                 </div>
         `;
 
-        // Partie analyse (différente selon le mode)
         if (currentCategory === 'vip' && currentSubcat === 'analyses' && m.ml_full) {
-            // Affichage complet des données ML
             const ml = m.ml_full;
             matchHtml += `
                 <div class="analysis-panel analysis-full">
@@ -401,7 +361,6 @@ function renderMatches(matches) {
                 </div>
             `;
         } else {
-            // Affichage standard (pronostic simple)
             matchHtml += `
                 <div class="analysis-panel">
                     <h4>Pronostic</h4>
@@ -479,7 +438,6 @@ function renderBookmakers(bookmakers) {
 // FONCTIONS POUR LES STATISTIQUES (admin)
 // =======================================================
 
-// Enregistre un événement (visite, partage, etc.)
 function recordEvent(type) {
     let events = JSON.parse(localStorage.getItem('userEvents')) || [];
     events.push({
@@ -489,89 +447,18 @@ function recordEvent(type) {
     localStorage.setItem('userEvents', JSON.stringify(events));
 }
 
-// À chaque chargement de page, enregistrer une visite
 recordEvent('visit');
 
 // =======================================================
-// FONCTIONS POUR LES AUTRES PAGES
-// =======================================================
-
-async function displayBlogList() {
-    const container = document.getElementById('blog-list');
-    if (!container) return;
-    const data = await loadDataGeneric();
-    if (!data || !data.blog) return;
-    data.blog.forEach(article => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-            <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${article.title}</a></h3>
-            <div class="meta">${article.date} par ${article.author}</div>
-            <p>${article.excerpt}</p>
-            <a href="article.html?slug=${article.slug}" class="btn btn-secondary">Lire</a>
-        `;
-        container.appendChild(card);
-    });
-}
-
-async function displayBlogPost() {
-    const container = document.getElementById('blog-post');
-    if (!container) return;
-    const urlParams = new URLSearchParams(window.location.search);
-    const slug = urlParams.get('slug');
-    if (!slug) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
-    const data = await loadDataGeneric();
-    if (!data || !data.blog) return;
-    const article = data.blog.find(a => a.slug === slug);
-    if (!article) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
-    document.title = article.title + ' - Mr XPRONOS';
-    container.innerHTML = `
-        <h1>${article.title}</h1>
-        <div class="meta">${article.date} par ${article.author}</div>
-        <div>${article.content}</div>
-        <a href="blog.html" class="btn btn-secondary">← Retour</a>
-    `;
-}
-
-async function displayConseils() {
-    const container = document.getElementById('conseils-list');
-    if (!container) return;
-    const data = await loadDataGeneric();
-    if (!data || !data.conseils) return;
-    data.conseils.forEach(c => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<h3>${c.title}</h3><p>${c.content}</p>`;
-        container.appendChild(card);
-    });
-}
-
-async function displayInfos() {
-    const container = document.getElementById('infos-list');
-    if (!container) return;
-    const data = await loadDataGeneric();
-    if (!data || !data.infos) return;
-    data.infos.forEach(i => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<h3>${i.title}</h3><p>${i.content}</p>`;
-        container.appendChild(card);
-    });
-}
-
-// =======================================================
-// CHARGEMENT DES ARTICLES ET CONSEILS GÉNÉRÉS
+// FONCTIONS POUR LES AUTRES PAGES (avec Markdown et images)
 // =======================================================
 
 async function loadGeneratedContent() {
     try {
-        // Charger les articles
         const articlesResp = await fetch('articles.json?t=' + Date.now());
         if (articlesResp.ok) {
             window.generatedArticles = await articlesResp.json();
         }
-        
-        // Charger les conseils
         const conseilsResp = await fetch('conseils.json?t=' + Date.now());
         if (conseilsResp.ok) {
             window.generatedConseils = await conseilsResp.json();
@@ -581,58 +468,134 @@ async function loadGeneratedContent() {
     }
 }
 
-// Modifier displayBlogList pour inclure les articles générés
 async function displayBlogList() {
     const container = document.getElementById('blog-list');
     if (!container) return;
-    
-    // Attendre que les articles générés soient chargés
+
     if (!window.generatedArticles) {
         await loadGeneratedContent();
     }
-    
+
     const data = await loadDataGeneric();
     const allArticles = [
         ...(window.generatedArticles || []),
         ...(data?.blog || [])
     ];
-    
+
     if (allArticles.length === 0) return;
-    
+
     allArticles.forEach(article => {
+        // Nettoyer le titre et l'extrait
+        let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+        let excerpt = article.excerpt || article.content.substring(0, 200) + '...';
+        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 150) + '...';
+
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-            <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${article.title}</a></h3>
+            <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${cleanTitle}</a></h3>
             <div class="meta">${article.date} par ${article.author} ${article.match ? '• ' + article.match : ''}</div>
-            <p>${article.excerpt}</p>
+            ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:10px 0;">` : ''}
+            <p>${cleanExcerpt}</p>
             <a href="article.html?slug=${article.slug}" class="btn btn-secondary">Lire</a>
         `;
         container.appendChild(card);
     });
 }
 
-// Modifier displayConseils pour inclure les conseils générés
+async function displayBlogPost() {
+    const container = document.getElementById('blog-post');
+    if (!container) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const slug = urlParams.get('slug');
+    if (!slug) {
+        container.innerHTML = '<p>Article non trouvé.</p>';
+        return;
+    }
+
+    if (!window.generatedArticles) {
+        await loadGeneratedContent();
+    }
+
+    const data = await loadDataGeneric();
+    const allArticles = [
+        ...(window.generatedArticles || []),
+        ...(data?.blog || [])
+    ];
+    const article = allArticles.find(a => a.slug === slug);
+    if (!article) {
+        container.innerHTML = '<p>Article non trouvé.</p>';
+        return;
+    }
+
+    let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+    document.title = cleanTitle + ' - Mr XPRONOS';
+
+    // Convertir le contenu markdown en HTML
+    let htmlContent = '';
+    if (window.marked) {
+        htmlContent = window.marked.parse(article.content);
+    } else {
+        // Fallback si marked n'est pas chargé
+        htmlContent = article.content.replace(/\n/g, '<br>');
+    }
+
+    container.innerHTML = `
+        <h1>${cleanTitle}</h1>
+        <div class="meta">${article.date} par ${article.author}</div>
+        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:20px 0;">` : ''}
+        <div style="margin-top: 2rem;">${htmlContent}</div>
+        <a href="blog.html" class="btn btn-secondary" style="margin-top: 2rem;">← Retour au blog</a>
+    `;
+}
+
 async function displayConseils() {
     const container = document.getElementById('conseils-list');
     if (!container) return;
-    
+
     if (!window.generatedConseils) {
         await loadGeneratedContent();
     }
-    
+
     const data = await loadDataGeneric();
     const allConseils = [
         ...(window.generatedConseils || []),
         ...(data?.conseils || [])
     ];
-    
+
     if (allConseils.length === 0) return;
-    
+
     allConseils.forEach(c => {
+        let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+        let htmlContent = '';
+        if (window.marked) {
+            htmlContent = window.marked.parse(c.content);
+        } else {
+            htmlContent = c.content.replace(/\n/g, '<br>');
+        }
+
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `<h3>${c.title}</h3><p>${c.content}</p>`;
+        card.innerHTML = `
+            <h3>${cleanTitle}</h3>
+            ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:10px 0;">` : ''}
+            <div>${htmlContent}</div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+async function displayInfos() {
+    const container = document.getElementById('infos-list');
+    if (!container) return;
+
+    const data = await loadDataGeneric();
+    if (!data || !data.infos) return;
+    data.infos.forEach(i => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<h3>${i.title}</h3><p>${i.content}</p>`;
         container.appendChild(card);
     });
 }
