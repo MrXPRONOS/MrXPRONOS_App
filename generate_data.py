@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - VERSION AVEC RECHERCHE PAR ID THESPORTSDB
-Utilise lookupevent.php avec l'ID pour récupérer les scores de manière fiable
+generate_data.py - VERSION FINALE CORRIGÉE
+TheSportsDB = source prioritaire (scores, status, bannières, logos)
+BSD = ML + H2H
+Utilisation de l'API searchevents.php avec les deux formats possibles
 """
 
 import requests
@@ -97,7 +99,7 @@ def fetch_predictions(upcoming=True):
     return all_predictions
 
 # =======================================================
-# CACHE THESPORTSDB + RECHERCHE PAR ID
+# CACHE THESPORTSDB + RECHERCHE AMÉLIORÉE
 # =======================================================
 def load_tsdb_cache():
     if os.path.exists(TSDB_CACHE_FILE) and os.path.getsize(TSDB_CACHE_FILE) > 0:
@@ -113,139 +115,74 @@ def get_tsdb_key(home, away, date_str):
     return hashlib.md5(f"{home}|{away}|{date_str}".encode()).hexdigest()
 
 def normalize_team(name: str) -> str:
-    mapping = {
-        "Man Utd": "Manchester United", "Man United": "Manchester United",
-        "Man City": "Manchester City", "Spurs": "Tottenham Hotspur",
-        "Tottenham": "Tottenham Hotspur", "Wolves": "Wolverhampton Wanderers",
-        "Brighton": "Brighton & Hove Albion", "West Ham": "West Ham United",
-        "Newcastle": "Newcastle United", "Leicester": "Leicester City",
-        "Nottm Forest": "Nottingham Forest", "Forest": "Nottingham Forest",
-        "Inter": "Internazionale", "Milan": "AC Milan",
-        "Roma": "AS Roma", "Lazio": "SS Lazio",
-        "Atleti": "Atletico Madrid", "Ath Bilbao": "Athletic Bilbao",
-        "Dortmund": "Borussia Dortmund", "Bayern": "Bayern Munich",
-        "PSG": "Paris Saint-Germain", "OM": "Olympique de Marseille",
-        "OL": "Olympique Lyonnais", "ASSE": "AS Saint-Étienne"
-    }
-    return mapping.get(name.strip(), name.strip())
+    # Remplacer les caractères spéciaux et espaces pour l'URL
+    # Supprimer les accents
+    import unicodedata
+    name = unicodedata.normalize('NFKD', name).encode('ASCII', 'ignore').decode('utf-8')
+    # Remplacer les & par "and"
+    name = name.replace('&', 'and')
+    # Remplacer les caractères non alphanumériques par des espaces
+    name = ''.join(c if c.isalnum() or c == ' ' else ' ' for c in name)
+    # Remplacer les espaces multiples par un seul espace
+    name = ' '.join(name.split())
+    return name
 
-def search_team_on_thesportsdb(team_name):
-    """Recherche une équipe sur TheSportsDB pour obtenir son ID."""
-    url = f"https://www.thesportsdb.com/api/v1/json/123/searchteams.php?t={team_name.replace(' ', '%20')}"
-    try:
-        resp = requests.get(url, timeout=10)
-        if resp.status_code == 200:
-            data = resp.json()
-            teams = data.get("teams", [])
-            if teams:
-                return teams[0].get("idTeam")
-    except Exception as e:
-        print(f"      ⚠️ Erreur recherche équipe {team_name}: {e}")
-    return None
-
-def get_team_events(team_id, date_str):
-    """Récupère les événements d'une équipe pour une date donnée."""
-    # Format date pour TheSportsDB: YYYY-MM-DD
-    url = f"https://www.thesportsdb.com/api/v1/json/123/eventsday.php?d={date_str}"
-    try:
-        resp = requests.get(url, timeout=10)
-        if resp.status_code == 200:
-            data = resp.json()
-            events = data.get("events", [])
-            return events
-    except Exception as e:
-        print(f"      ⚠️ Erreur récupération événements: {e}")
-    return []
-
-def find_event_id_by_teams(home_team, away_team, date_str):
-    """Trouve l'ID d'un match en cherchant par équipe."""
-    # Normaliser les noms
-    home_n = normalize_team(home_team)
-    away_n = normalize_team(away_team)
-    
-    # Récupérer tous les événements de la date
-    url = f"https://www.thesportsdb.com/api/v1/json/123/eventsday.php?d={date_str}"
-    try:
-        resp = requests.get(url, timeout=10)
-        if resp.status_code == 200:
-            data = resp.json()
-            events = data.get("events", [])
-            if not events:
-                return None
-            
-            # Chercher une correspondance
-            for event in events:
-                event_home = event.get("strHomeTeam", "")
-                event_away = event.get("strAwayTeam", "")
-                
-                # Comparaison normalisée
-                if (home_n.lower() in event_home.lower() or event_home.lower() in home_n.lower()) and \
-                   (away_n.lower() in event_away.lower() or event_away.lower() in away_n.lower()):
-                    return event.get("idEvent")
-                
-                # Essayer l'inverse (au cas où les équipes soient inversées)
-                if (away_n.lower() in event_home.lower() or event_home.lower() in away_n.lower()) and \
-                   (home_n.lower() in event_away.lower() or event_away.lower() in home_n.lower()):
-                    return event.get("idEvent")
-    except Exception as e:
-        print(f"      ⚠️ Erreur recherche ID: {e}")
-    return None
-
-def fetch_tsdb_score_by_id_lookup(home_team, away_team, date_str, tsdb_cache):
-    """
-    Récupère les scores via lookupevent.php en trouvant d'abord l'ID.
-    Méthode fiable : cherche l'ID du match, puis utilise lookupevent.php avec cet ID.
-    """
-    key = get_tsdb_key(home_team, away_team, date_str)
-    
-    # Vérifier le cache
+def fetch_tsdb_match(home, away, date_str, tsdb_cache):
+    key = get_tsdb_key(home, away, date_str)
     if key in tsdb_cache:
         return tsdb_cache[key]
-    
-    print(f"      🔍 Recherche du match {home_team} vs {away_team} du {date_str}")
-    
-    # ÉTAPE 1 : Trouver l'ID du match
-    event_id = find_event_id_by_teams(home_team, away_team, date_str)
-    
-    if not event_id:
-        print(f"      ❌ ID non trouvé pour {home_team} vs {away_team}")
-        tsdb_cache[key] = None
-        return None
-    
-    print(f"      ✅ ID trouvé: {event_id}")
-    
-    # ÉTAPE 2 : Récupérer les détails du match avec lookupevent.php
-    url = f"https://www.thesportsdb.com/api/v1/json/123/lookupevent.php?id={event_id}"
-    try:
-        resp = requests.get(url, timeout=10)
-        if resp.status_code == 200:
-            data = resp.json()
-            events = data.get("events", [])
-            if events:
-                event = events[0]
-                result = {
-                    "home_score": int(event.get("intHomeScore")) if event.get("intHomeScore") not in (None, "") else None,
-                    "away_score": int(event.get("intAwayScore")) if event.get("intAwayScore") not in (None, "") else None,
-                    "status": "finished" if "Finished" in event.get("strStatus", "") else event.get("strStatus", "").lower(),
-                    "banner": event.get("strBanner"),
-                    "venue": event.get("strVenue"),
-                    "league_badge": event.get("strLeagueBadge"),
-                    "home_badge": event.get("strHomeTeamBadge"),
-                    "away_badge": event.get("strAwayTeamBadge"),
-                    "event_id": event_id
-                }
-                tsdb_cache[key] = result
-                print(f"      ✅ Score trouvé: {result['home_score']}-{result['away_score']}")
-                return result
-    except Exception as e:
-        print(f"      ⚠️ Erreur lookupevent: {e}")
-    
+
+    home_n = normalize_team(home)
+    away_n = normalize_team(away)
+    formats = [
+        f"{home_n.replace(' ', '_')}_vs_{away_n.replace(' ', '_')}",
+        f"{away_n.replace(' ', '_')}_vs_{home_n.replace(' ', '_')}"
+    ]
+
+    for event_name in formats:
+        url = f"https://www.thesportsdb.com/api/v1/json/123/searchevents.php?e={event_name}&d={date_str}"
+        print(f"      📡 TheSportsDB: {url}")
+        try:
+            resp = requests.get(url, timeout=10)
+            if resp.status_code == 200:
+                data = resp.json()
+                events = data.get("event", [])
+                if events:
+                    event = events[0]
+                    # Extraire les infos utiles
+                    home_score = event.get("intHomeScore")
+                    away_score = event.get("intAwayScore")
+                    status = event.get("strStatus")
+                    # Si status est vide mais scores présents, on considère terminé
+                    if (home_score is not None and away_score is not None) and (status is None or status == ""):
+                        status = "finished"
+                    result = {
+                        "home_score": int(home_score) if home_score is not None else None,
+                        "away_score": int(away_score) if away_score is not None else None,
+                        "status": status.lower() if status else "unknown",
+                        "banner": event.get("strBanner"),
+                        "venue": event.get("strVenue"),
+                        "league_badge": event.get("strLeagueBadge"),
+                        "home_badge": event.get("strHomeTeamBadge"),
+                        "away_badge": event.get("strAwayTeamBadge"),
+                        "event_name": event.get("strEvent"),
+                        "league": event.get("strLeague")
+                    }
+                    print(f"      ✅ Match trouvé: {result['event_name']} - Scores: {result['home_score']}-{result['away_score']} - Status: {result['status']}")
+                    tsdb_cache[key] = result
+                    return result
+                else:
+                    print(f"      ℹ️ Aucun événement trouvé pour {event_name}")
+        except Exception as e:
+            print(f"      ⚠️ Erreur: {e}")
+            continue
+
     tsdb_cache[key] = None
     return None
 
-def extract_tsdb_info(cached_result):
-    """Extrait les informations du cache (déjà formaté par fetch_tsdb_score_by_id_lookup)."""
-    return cached_result  # déjà au bon format
+def extract_tsdb_info(event):
+    # Cette fonction n'est plus nécessaire car fetch_tsdb_match retourne déjà un dict structuré
+    return event
 
 # =======================================================
 # FONCTIONS H2H (inchangées)
@@ -430,28 +367,25 @@ def main():
     else:
         print("ℹ️ Cache global H2H vide ou inexistant")
 
-    # PARALLÉLISATION - Récupération des scores via ID lookup
-    print("\n🌐 Récupération des données TheSportsDB via ID lookup...")
-    with ThreadPoolExecutor(max_workers=5) as executor:
+    # Parallélisation TheSportsDB
+    print("\n🌐 Récupération des données TheSportsDB en parallèle...")
+    with ThreadPoolExecutor(max_workers=8) as executor:
         future_to_event = {}
         for e in all_new_events:
             home_obj = e.get("home_team_obj")
             away_obj = e.get("away_team_obj")
             if home_obj and away_obj:
-                # On passe la date au format YYYY-MM-DD
-                date_str = e["event_date"][:10]
                 future = executor.submit(
-                    fetch_tsdb_score_by_id_lookup,
+                    fetch_tsdb_match,
                     home_obj["name"],
                     away_obj["name"],
-                    date_str,
+                    e["event_date"][:10],
                     tsdb_cache
                 )
                 future_to_event[future] = e
 
-        # Attendre la complétion
         for future in as_completed(future_to_event):
-            future.result()
+            future.result()  # remplir le cache
 
     save_tsdb_cache(tsdb_cache)
     print(f"✅ Cache TheSportsDB mis à jour : {len(tsdb_cache)} entrées")
@@ -520,20 +454,20 @@ def main():
         badge = get_badge(score)
         category = get_category(score)
 
-        # Récupérer les infos TheSportsDB depuis le cache (déjà formatées)
+        # Récupérer les infos TheSportsDB
         key = get_tsdb_key(home_obj["name"], away_obj["name"], event_date)
-        tsdb_info = tsdb_cache.get(key)
+        tsdb_info = tsdb_cache.get(key)  # déjà un dict structuré
 
-        # Priorité TheSportsDB pour scores/status/venue/logos
+        # Priorité TheSportsDB
         if tsdb_info and tsdb_info.get("home_score") is not None:
             home_score = tsdb_info["home_score"]
             away_score = tsdb_info["away_score"]
-            status = tsdb_info["status"]
+            status = tsdb_info.get("status", "finished")
             venue = tsdb_info.get("venue") or event.get("venue", "")
             home_logo = tsdb_info.get("home_badge") or f"https://sports.bzzoiro.com/img/team/{home_obj['api_id']}/?token={API_TOKEN}"
             away_logo = tsdb_info.get("away_badge") or f"https://sports.bzzoiro.com/img/team/{away_obj['api_id']}/?token={API_TOKEN}"
             league_logo = tsdb_info.get("league_badge") or f"https://sports.bzzoiro.com/img/league/{league['api_id']}/?token={API_TOKEN}"
-            print(f"   ✅ Scores TheSportsDB: {home_score}-{away_score}")
+            print(f"   ✅ TheSportsDB: {tsdb_info.get('event_name')} - Scores: {home_score}-{away_score} - Status: {status}")
         else:
             home_score = event.get("home_score")
             away_score = event.get("away_score")
@@ -542,10 +476,7 @@ def main():
             home_logo = f"https://sports.bzzoiro.com/img/team/{home_obj['api_id']}/?token={API_TOKEN}"
             away_logo = f"https://sports.bzzoiro.com/img/team/{away_obj['api_id']}/?token={API_TOKEN}"
             league_logo = f"https://sports.bzzoiro.com/img/league/{league['api_id']}/?token={API_TOKEN}"
-            if not tsdb_info:
-                print(f"   ⚠️ Pas de données TheSportsDB pour ce match")
-            else:
-                print(f"   ⚠️ Données TheSportsDB sans scores")
+            print(f"   ℹ️ BSD: scores {home_score}-{away_score}, status {status}")
 
         match_data = {
             "id": match_id,
@@ -571,30 +502,30 @@ def main():
             "category": category,
             "result": None,
             "ml_full": ml_pred,
-            "tsdb_banner": tsdb_info.get("banner") if tsdb_info and tsdb_info.get("banner") else None,
-            "tsdb_event_id": tsdb_info.get("event_id") if tsdb_info else None
+            "tsdb_banner": tsdb_info.get("banner") if tsdb_info else None
         }
 
         verify_prediction(match_data, match_data["prediction"])
 
         new_matches.append(match_data)
         categories[category].append(match_data)
-        print(f"   ✅ Score final: {home_score}-{away_score} - Résultat: {match_data.get('result')}")
+        print(f"   ✅ Score: {score} - {badge} - Catégorie: {category} - Résultat: {match_data.get('result')}")
 
-        # Mise à jour du cache global H2H
-        cache_entry = {
-            "event_date": event_datetime,
-            "status": status,
-            "home_score": home_score,
-            "away_score": away_score,
-            "home_team_obj": {"id": home_obj["id"], "name": home_obj["name"]},
-            "away_team_obj": {"id": away_obj["id"], "name": away_obj["name"]},
-            "league": {"name": league["name"]}
-        }
-        if status == "finished" and cache_entry not in global_cache:
-            global_cache.append(cache_entry)
+        # Mise à jour du cache global H2H (version normalisée)
+        if status == "finished" and home_score is not None and away_score is not None:
+            cache_entry = {
+                "event_date": event_datetime,
+                "status": status,
+                "home_score": home_score,
+                "away_score": away_score,
+                "home_team_obj": {"id": home_obj["id"], "name": home_obj["name"]},
+                "away_team_obj": {"id": away_obj["id"], "name": away_obj["name"]},
+                "league": {"name": league["name"]}
+            }
+            if cache_entry not in global_cache:
+                global_cache.append(cache_entry)
 
-    # Sauvegarde du cache global
+    # Sauvegarde du cache global (limité aux 5000 derniers)
     with open(GLOBAL_CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(global_cache[-5000:], f, indent=2, ensure_ascii=False)
 
@@ -612,6 +543,7 @@ def main():
         except:
             pass
 
+    # Tri par date décroissante
     new_matches.sort(key=lambda x: x['event_date'], reverse=True)
 
     stats = update_bankroll(new_matches)
@@ -634,7 +566,7 @@ def main():
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False, default=str)
-    print(f"\n💾 {DATA_FILE} généré avec {len(new_matches)} matchs, ROI: {stats['roi']}%")
+    print(f"\n💾 {DATA_FILE} généré avec {len(new_matches)} matchs (dont historiques 14 jours), ROI: {stats['roi']}%")
 
 if __name__ == "__main__":
     main()
