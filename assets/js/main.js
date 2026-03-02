@@ -677,7 +677,7 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// PAGE HISTORIQUE
+// PAGE HISTORIQUE (avec regroupement par jour)
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -707,56 +707,86 @@ async function displayHistory() {
     // Trier par date décroissante
     historyMatches.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
 
-    let html = '';
+    // Regrouper par jour (date sans heure)
+    const grouped = {};
     historyMatches.forEach(m => {
-        const pred = m.prediction || {};
-        const doubleChance = pred.double_chance || 'N/A';
-        let confidence = pred.confidence || 0;
-        if (typeof confidence === 'string') confidence = parseFloat(confidence);
-        if (isNaN(confidence)) confidence = 0;
-        if (confidence > 100) confidence = confidence / 100;
-        confidence = Math.min(100, Math.round(confidence * 10) / 10);
-
-        const matchTime = formatMatchTime(m.event_date);
-        const statusFr = translateStatus(m.status);
-        const statusClass = getStatusClass(m.status);
-
-        const verifiedDouble = m.verified_double ? 'checked' : '';
-        const defaultLogo = 'assets/images/default-logo.png';
-        const winnerClass = m.verified_double ? 'winner' : '';
-
-        html += `
-            <div class="match-card ${winnerClass}">
-                <div class="match-info">
-                    <div class="teams">
-                        <div class="team">
-                            <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
-                            <span class="team-name">${m.home_team}</span>
-                            <span class="team-score">${m.home_score ?? '-'}</span>
-                        </div>
-                        <div class="vs">VS</div>
-                        <div class="team">
-                            <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
-                            <span class="team-name">${m.away_team}</span>
-                            <span class="team-score">${m.away_score ?? '-'}</span>
-                        </div>
-                    </div>
-                    <div class="match-meta">
-                        <span class="league-badge">${m.league || 'Ligue'}</span>
-                        <span class="status ${statusClass}">${statusFr}</span>
-                        <span class="match-time"><i>🕒</i> ${matchTime}</span>
-                    </div>
-                </div>
-                <div class="analysis-panel">
-                    <h4>Pronostic</h4>
-                    <p><strong>Double chance :</strong> ${doubleChance}</p>
-                    <p><strong>Fiabilité :</strong> ${confidence}%</p>
-                    <p><strong>Résultat :</strong> <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled> Validé</p>
-                </div>
-            </div>
-        `;
+        const dateStr = m.date; // déjà au format YYYY-MM-DD
+        if (!grouped[dateStr]) grouped[dateStr] = [];
+        grouped[dateStr].push(m);
     });
+
+    let html = '';
+    // Parcourir les jours dans l'ordre décroissant
+    const sortedDates = Object.keys(grouped).sort().reverse();
+
+    sortedDates.forEach(date => {
+        // Formatage de la date en français
+        const dateObj = new Date(date + 'T00:00:00');
+        const dateFormatted = dateObj.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        html += `<h2 class="history-date-header" style="color: var(--or); margin-top: 2rem; text-transform: capitalize;">${dateFormatted}</h2>`;
+        html += `<div class="matches-grid">`; // on utilise la même grille que les pronostics
+
+        grouped[date].forEach(m => {
+            const pred = m.prediction || {};
+            const doubleChance = pred.double_chance || 'N/A';
+            let confidence = pred.confidence || 0;
+            if (typeof confidence === 'string') confidence = parseFloat(confidence);
+            if (isNaN(confidence)) confidence = 0;
+            if (confidence > 100) confidence = confidence / 100;
+            confidence = Math.min(100, Math.round(confidence * 10) / 10);
+
+            const matchTime = formatMatchTime(m.event_date);
+            const statusFr = translateStatus(m.status);
+            const statusClass = getStatusClass(m.status);
+            const verifiedDouble = m.verified_double ? 'checked' : '';
+            const defaultLogo = 'assets/images/default-logo.png';
+            const winnerClass = m.verified_double ? 'winner' : '';
+
+            html += `
+                <div class="match-card ${winnerClass}">
+                    <div class="match-info">
+                        <div class="teams">
+                            <div class="team">
+                                <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <span class="team-name">${m.home_team}</span>
+                                <span class="team-score">${m.home_score ?? '-'}</span>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team">
+                                <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <span class="team-name">${m.away_team}</span>
+                                <span class="team-score">${m.away_score ?? '-'}</span>
+                            </div>
+                        </div>
+                        <div class="match-meta">
+                            <span class="league-badge">${m.league || 'Ligue'}</span>
+                            <span class="status ${statusClass}">${statusFr}</span>
+                            <span class="match-time"><i>🕒</i> ${matchTime}</span>
+                        </div>
+                    </div>
+                    <div class="analysis-panel ticket ${winnerClass}">
+                        <h4>Pronostic</h4>
+                        <p><strong>Double chance :</strong> ${doubleChance}</p>
+                        <p><strong>Fiabilité :</strong> ${confidence}%</p>
+                        <p><strong>Résultat :</strong> <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled> Validé</p>
+                    </div>
+                </div>
+            `;
+        });
+        html += `</div>`; // fin de la grille
+    });
+
     container.innerHTML = html;
+
+    // Animer les barres de confiance (si présentes, mais ici on n'a pas de barre)
+    // On peut garder pour compatibilité
+    document.querySelectorAll('.confidence-fill').forEach(bar => {
+        let value = bar.getAttribute('data-value');
+        setTimeout(() => {
+            bar.style.width = value + '%';
+        }, 300);
+    });
 }
 
 // Appeler cette fonction sur la page historique

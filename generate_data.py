@@ -5,6 +5,7 @@
 generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
 les prédictions ML et les analyses H2H améliorées.
 Conserve les 14 derniers jours pour l'historique.
+Récupère les scores depuis les prédictions passées.
 """
 
 import requests
@@ -405,7 +406,7 @@ def main():
         # =======================================================
         try:
             # Si le match est terminé mais que les scores sont absents, on cherche dans past_scores
-            if match_data["status"] == "finished" and (match_data["home_score"] is None or match_data["away_score"] is None):
+            if (match_data["status"] == "finished" or event_date < today.isoformat()) and (match_data["home_score"] is None or match_data["away_score"] is None):
                 if match_id in past_scores:
                     match_data["home_score"] = past_scores[match_id]["home_score"]
                     match_data["away_score"] = past_scores[match_id]["away_score"]
