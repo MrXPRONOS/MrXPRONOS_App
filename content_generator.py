@@ -2,10 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-content_generator.py - Version CORRIGÉE et AMÉLIORÉE
-Mistral renvoie du JSON structuré
-Slug robuste + dédoublonnage
-Utilise les bannières TheSportsDB comme images d'articles
+content_generator.py - VERSION FINALE AVEC TOUTES LES AMÉLIORATIONS
+Mistral JSON + logos/bannières TheSportsDB + ligues populaires
 """
 
 import os
@@ -13,29 +11,35 @@ import json
 import requests
 import random
 from datetime import datetime
-import hashlib
 
-# Installation nécessaire : pip install python-slugify
 try:
     from slugify import slugify
 except ImportError:
-    print("⚠️ python-slugify non installé. Installation automatique...")
+    print("⚠️ Installation de python-slugify...")
     os.system("pip install python-slugify")
     from slugify import slugify
 
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 if not MISTRAL_API_KEY:
-    raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
+    raise ValueError("MISTRAL_API_KEY manquante")
 
 DATA_FILE = "data.json"
 ARTICLES_FILE = "articles.json"
 
-# =======================================================
-# FONCTIONS DE CHARGEMENT
-# =======================================================
+POPULAR_LEAGUES = [
+    "Premier League",
+    "LaLiga",
+    "Serie A",
+    "Bundesliga",
+    "Ligue 1",
+    "Championship",
+    "Eredivisie",
+    "Primeira Liga",
+    "Super Lig",
+    "MLS"
+]
 
 def load_today_matches():
-    """Charge les matchs du jour depuis data.json (avec leurs bannières TheSportsDB)."""
     if not os.path.exists(DATA_FILE):
         print(f"❌ Fichier {DATA_FILE} introuvable")
         return []
@@ -56,15 +60,12 @@ def load_today_matches():
     return today_matches
 
 def get_most_popular_matches(matches, count=2):
-    """Sélectionne les matchs les plus populaires (ordre à définir)."""
-    # Pour l'instant, on prend les premiers (ils sont déjà triés par popularité)
-    return matches[:count]
+    """Priorité aux grandes ligues"""
+    popular = [m for m in matches if any(l in m['league'] for l in POPULAR_LEAGUES)]
+    other = [m for m in matches if m not in popular]
+    return (popular + other)[:count]
 
-# =======================================================
-# APPEL À MISTRAL POUR GÉNÉRER L'ARTICLE (JSON)
-# =======================================================
-
-def call_mistral(prompt, temperature=0.7, max_tokens=2500):
+def call_mistral(prompt):
     url = "https://api.mistral.ai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {MISTRAL_API_KEY}",
@@ -73,8 +74,8 @@ def call_mistral(prompt, temperature=0.7, max_tokens=2500):
     data = {
         "model": "mistral-large-latest",
         "messages": [{"role": "user", "content": prompt}],
-        "temperature": temperature,
-        "max_tokens": max_tokens,
+        "temperature": 0.7,
+        "max_tokens": 3000,
         "response_format": {"type": "json_object"}
     }
     try:
@@ -86,7 +87,6 @@ def call_mistral(prompt, temperature=0.7, max_tokens=2500):
         return None
 
 def generate_blog_article(match):
-    """Génère un article structuré en JSON pour un match donné."""
     home_team = match['home_team']
     away_team = match['away_team']
     league = match['league']
@@ -120,7 +120,7 @@ Format de réponse JSON attendu :
   "content": "Le contenu complet de l'article en HTML (avec balises <h2>, <p>, etc.)"
 }}
 """
-    response = call_mistral(prompt, temperature=0.8, max_tokens=3000)
+    response = call_mistral(prompt)
     if response:
         try:
             article_data = json.loads(response)
@@ -128,7 +128,6 @@ Format de réponse JSON attendu :
                 return article_data
         except json.JSONDecodeError:
             print("   ⚠️ Réponse Mistral non JSON, tentative de récupération...")
-            # Fallback : on essaie de parser grossièrement
             lines = response.strip().split('\n')
             title = lines[0].replace('#', '').strip() if lines else "Article"
             content = response
@@ -136,15 +135,15 @@ Format de réponse JSON attendu :
             return {"title": title, "excerpt": excerpt, "content": content}
     return None
 
-# =======================================================
-# SAUVEGARDE AVEC SLUG ET DÉDOUBLONNAGE
-# =======================================================
-
 def save_article(match, article_data):
     articles = []
     if os.path.exists(ARTICLES_FILE):
         with open(ARTICLES_FILE, 'r', encoding='utf-8') as f:
             articles = json.load(f)
+
+    # Sécurité JSON
+    if not all(k in article_data for k in ("title", "excerpt", "content")):
+        article_data["excerpt"] = article_data.get("content", "")[:200] + "..."
 
     # Générer un slug unique
     base_slug = slugify(article_data["title"])
@@ -176,11 +175,7 @@ def save_article(match, article_data):
     with open(ARTICLES_FILE, 'w', encoding='utf-8') as f:
         json.dump(articles, f, indent=2, ensure_ascii=False)
 
-    print(f"✅ Article sauvegardé : {new_article['title'][:60]}... (slug: {slug}, image: {image_url})")
-
-# =======================================================
-# FONCTION PRINCIPALE
-# =======================================================
+    print(f"✅ Article sauvegardé : {new_article['title'][:60]}... (slug: {slug})")
 
 def main():
     print("="*60)
@@ -192,7 +187,6 @@ def main():
         print("📝 Aucun match aujourd'hui dans data.json")
         return
 
-    # Sélectionner les matchs à traiter (par exemple les 2 plus populaires)
     featured = get_most_popular_matches(today_matches, count=2)
     print(f"\n📝 Génération de {len(featured)} articles sur les matchs du jour...")
 
@@ -205,4 +199,4 @@ def main():
     print("\n✅ Génération terminée")
 
 if __name__ == "__main__":
-    main() 
+    main()
