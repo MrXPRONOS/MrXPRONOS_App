@@ -110,7 +110,7 @@
         "btts_recommend": false,
         "winner_recommend": false
       },
-      "tsdb_banner": null
+      "tsdb_banner": ""
     },
     {
       "id": 6275,
@@ -1366,10 +1366,10 @@
       "away_logo": "https://sports.bzzoiro.com/img/team/2693/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "league": "Serie A",
       "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
+      "venue": "Bluenergy Stadium",
+      "status": "1h",
+      "home_score": 1,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 1,
         "home_dominance": 0.0,
@@ -1466,7 +1466,7 @@
         "btts_recommend": false,
         "winner_recommend": true
       },
-      "tsdb_banner": null
+      "tsdb_banner": ""
     },
     {
       "id": 1342,
@@ -1474,10 +1474,10 @@
       "event_date": "2026-03-02T21:30:00+04:00",
       "home_team": "Pisa",
       "away_team": "Bologna",
-      "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/2eso9w1579708309.png",
-      "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/2qi1u31655592366.png",
+      "home_logo": "https://sports.bzzoiro.com/img/team/2737/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/2685/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "league": "Serie A",
-      "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/67q3q21679951383.png",
+      "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "Arena Garibaldi - Stadio Romeo Anconetani",
       "status": "2h",
       "home_score": 0,
@@ -12602,10 +12602,10 @@
         "event_date": "2026-03-02T21:30:00+04:00",
         "home_team": "Pisa",
         "away_team": "Bologna",
-        "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/2eso9w1579708309.png",
-        "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/2qi1u31655592366.png",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2737/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2685/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "league": "Serie A",
-        "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/67q3q21679951383.png",
+        "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "Arena Garibaldi - Stadio Romeo Anconetani",
         "status": "2h",
         "home_score": 0,
@@ -12830,10 +12830,10 @@
         "away_logo": "https://sports.bzzoiro.com/img/team/2693/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "league": "Serie A",
         "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
+        "venue": "Bluenergy Stadium",
+        "status": "1h",
+        "home_score": 1,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 1,
           "home_dominance": 0.0,
@@ -12930,7 +12930,7 @@
           "btts_recommend": false,
           "winner_recommend": true
         },
-        "tsdb_banner": null
+        "tsdb_banner": ""
       },
       {
         "id": 948,
@@ -13387,7 +13387,7 @@
           "btts_recommend": false,
           "winner_recommend": false
         },
-        "tsdb_banner": null
+        "tsdb_banner": ""
       },
       {
         "id": 6275,
