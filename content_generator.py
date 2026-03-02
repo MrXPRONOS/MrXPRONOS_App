@@ -3,9 +3,8 @@
 
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
-Ajoute la génération d'images pour illustrer chaque contenu.
+Ajoute la génération d'images via une API gratuite (sans clé) pour illustrer chaque contenu.
 Sélectionne les matchs les plus populaires du jour à partir de data.json.
-Gère les rate limits avec retry et backoff.
 Exécution quotidienne.
 """
 
@@ -14,21 +13,17 @@ import json
 import requests
 import uuid
 import time
-from datetime import datetime, timedelta
 import random
-from mistralai import Mistral
-from mistralai.models import ToolFileChunk
+from datetime import datetime
 
-MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
-if not MISTRAL_API_KEY:
-    raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
+# URL de base de l'API de génération d'images
+IMAGE_API_BASE = "https://t2i.mcpcore.xyz"
+IMAGE_GENERATE_ENDPOINT = f"{IMAGE_API_BASE}/api/free/generate"
 
-# Initialisation du client Mistral
-client = Mistral(api_key=MISTRAL_API_KEY)
+# Modèle par défaut (on peut aussi récupérer la liste via /models)
+DEFAULT_IMAGE_MODEL = "turbo"
 
-MISTRAL_MODEL = "mistral-large-latest"
-API_URL = "https://api.mistral.ai/v1/chat/completions"
-
+# Fichiers
 DATA_FILE = "data.json"  # Fichier contenant les matchs du jour/demain/hier
 ARTICLES_FILE = "articles.json"
 CONSEILS_FILE = "conseils.json"
@@ -56,53 +51,68 @@ POPULAR_LEAGUES = [
 
 def generate_image_with_retry(prompt, prefix="article", max_retries=3, base_delay=5):
     """
-    Tente de générer une image via l'API Mistral avec retry en cas de rate limit.
+    Génère une image via l'API gratuite (SSE) avec retry en cas d'échec.
     Retourne le chemin local de l'image sauvegardée, ou None en cas d'échec.
     """
     for attempt in range(max_retries):
         try:
-            # Créer un agent temporaire pour la génération d'image
-            agent = client.beta.agents.create(
-                model="mistral-medium-2505",
-                name="Image Generation Agent",
-                description="Agent used to generate images.",
-                instructions="Use the image generation tool when you have to create images.",
-                tools=[{"type": "image_generation"}],
-                completion_args={
-                    "temperature": 0.3,
-                    "top_p": 0.95,
-                }
+            # Préparer la requête POST
+            payload = {
+                "prompt": prompt,
+                "model": DEFAULT_IMAGE_MODEL
+            }
+            print(f"   📡 Envoi de la requête à l'API image...")
+            response = requests.post(
+                IMAGE_GENERATE_ENDPOINT,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                stream=True,  # Pour lire les SSE
+                timeout=60
             )
+            response.raise_for_status()
 
-            # Démarrer une conversation avec le prompt
-            response = client.beta.conversations.start(
-                agent_id=agent.id,
-                inputs=prompt
-            )
+            # Lire le flux SSE
+            image_url = None
+            for line in response.iter_lines(decode_unicode=True):
+                if line and line.startswith("data: "):
+                    data_str = line[6:]  # enlever "data: "
+                    try:
+                        data = json.loads(data_str)
+                    except json.JSONDecodeError:
+                        continue
+                    status = data.get("status")
+                    if status == "processing":
+                        print(f"      ⏳ {data.get('message', 'Génération en cours...')}")
+                    elif status == "complete":
+                        image_url = data.get("imageUrl")
+                        print(f"      ✅ Image générée : {image_url}")
+                        break
+                    elif status == "error":
+                        print(f"      ❌ Erreur API : {data.get('message')}")
+                        break
 
-            # Parcourir les outputs pour trouver le fichier image
-            for output in response.outputs:
-                if output.type == "message.output":
-                    for chunk in output.content:
-                        if isinstance(chunk, ToolFileChunk):
-                            file_id = chunk.file_id
-                            # Télécharger le fichier
-                            file_bytes = client.files.download(file_id=file_id).read()
-                            # Sauvegarder avec un nom unique
-                            filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.png"
-                            os.makedirs("assets/images", exist_ok=True)
-                            with open(filename, "wb") as f:
-                                f.write(file_bytes)
-                            return filename
-            return None
+            if image_url:
+                # Télécharger l'image
+                img_response = requests.get(image_url, timeout=30)
+                img_response.raise_for_status()
+                # Sauvegarder avec un nom unique
+                filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.png"
+                os.makedirs("assets/images", exist_ok=True)
+                with open(filename, "wb") as f:
+                    f.write(img_response.content)
+                return filename
+            else:
+                print("   ⚠️ Pas d'URL d'image reçue.")
+                return None
+
         except Exception as e:
-            error_str = str(e)
-            if "429" in error_str or "rate limit" in error_str.lower():
-                delay = base_delay * (2 ** attempt)  # backoff exponentiel
+            print(f"   ❌ Erreur génération image: {e}")
+            if "429" in str(e) or "rate limit" in str(e).lower():
+                delay = base_delay * (2 ** attempt)
                 print(f"   ⚠️ Rate limit atteint, nouvel essai dans {delay}s...")
                 time.sleep(delay)
             else:
-                print(f"   ❌ Erreur génération image: {e}")
+                # Autre erreur, on arrête les tentatives
                 return None
     print(f"   ❌ Échec après {max_retries} tentatives")
     return None
@@ -126,7 +136,6 @@ def load_today_matches():
     today_matches = []
     for m in matches:
         try:
-            # Convertir event_date en date locale (même logique que dans le JS)
             event_date = datetime.fromisoformat(m['event_date'].replace('Z', '+00:00')).date()
             if event_date == today:
                 today_matches.append(m)
@@ -143,7 +152,6 @@ def get_most_popular_matches(matches, count=2):
     if not matches:
         return []
 
-    # Séparer par popularité de ligue
     popular = []
     other = []
     for m in matches:
@@ -153,11 +161,9 @@ def get_most_popular_matches(matches, count=2):
         else:
             other.append(m)
 
-    # Mélanger un peu pour éviter la répétition
     random.shuffle(popular)
     random.shuffle(other)
 
-    # Prendre d'abord les populaires, puis compléter avec les autres
     selected = popular[:count]
     if len(selected) < count:
         selected += other[:count - len(selected)]
@@ -165,13 +171,18 @@ def get_most_popular_matches(matches, count=2):
     return selected
 
 def call_mistral(prompt, temperature=0.7, max_tokens=2000):
-    """Appelle l'API Mistral avec un prompt."""
+    """Appelle l'API Mistral avec un prompt (pour le texte)."""
+    # Note : on garde Mistral pour la génération de texte, on a toujours la clé
+    MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
+    if not MISTRAL_API_KEY:
+        raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
+    API_URL = "https://api.mistral.ai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {MISTRAL_API_KEY}",
         "Content-Type": "application/json"
     }
     data = {
-        "model": MISTRAL_MODEL,
+        "model": "mistral-large-latest",
         "messages": [{"role": "user", "content": prompt}],
         "temperature": temperature,
         "max_tokens": max_tokens
@@ -335,7 +346,7 @@ def save_tip(content):
 
 def main():
     print("="*60)
-    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + Images)")
+    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + Images gratuites)")
     print("="*60)
 
     # Charger les matchs du jour depuis data.json
