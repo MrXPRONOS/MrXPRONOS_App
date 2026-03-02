@@ -1441,81 +1441,6 @@
       }
     },
     {
-      "id": 2974,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T00:00:00+04:00",
-      "home_team": "NEC Nijmegen",
-      "away_team": "Fortuna Sittard",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2962/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/2957/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Eredivisie",
-      "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "finished",
-      "home_score": 2,
-      "away_score": 3,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_score": 0.0,
-        "away_score": 2.0,
-        "draws_score": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 5.0,
-        "last_4": [
-          {
-            "date": "2026-03-01T00:00:00+04:00",
-            "home_team": "NEC Nijmegen",
-            "away_team": "Fortuna Sittard",
-            "home_score": 2,
-            "away_score": 3,
-            "status": "finished",
-            "league": "Eredivisie"
-          },
-          {
-            "date": "2025-08-31T14:15:00+04:00",
-            "home_team": "Fortuna Sittard",
-            "away_team": "NEC Nijmegen",
-            "home_score": 3,
-            "away_score": 2,
-            "status": "finished",
-            "league": "Eredivisie"
-          }
-        ],
-        "btts_last4": 2,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "12",
-        "over_25": true,
-        "btts": false,
-        "confidence": 59.3,
-        "source": "fusion",
-        "stake": 1,
-        "predicted_score": "0-10"
-      },
-      "category": "simple",
-      "verified_double": true,
-      "verified_over": true,
-      "verified_btts": false,
-      "ml_full": {
-        "prob_home_win": 52.194459337537054,
-        "prob_draw": 22.480657228988733,
-        "prob_away_win": 25.324883433474195,
-        "predicted_result": "H",
-        "expected_home_goals": 1.8865566666666667,
-        "expected_away_goals": 1.2524000000000002,
-        "prob_over_25": 85.12168758182479,
-        "over_25_recommend": true,
-        "prob_btts_yes": 82.06812683171214,
-        "btts_recommend": false,
-        "most_likely_score": "1-1",
-        "favorite": "H",
-        "favorite_prob": 52.194459337537054,
-        "confidence": 52.194459337537054
-      }
-    },
-    {
       "id": 949,
       "date": "2026-03-01",
       "event_date": "2026-03-01T00:00:00+04:00",
@@ -1588,6 +1513,81 @@
         "favorite": "H",
         "favorite_prob": 36.95364963145815,
         "confidence": 36.95364963145815
+      }
+    },
+    {
+      "id": 2974,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T00:00:00+04:00",
+      "home_team": "NEC Nijmegen",
+      "away_team": "Fortuna Sittard",
+      "home_logo": "https://sports.bzzoiro.com/img/team/2962/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/2957/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Eredivisie",
+      "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "finished",
+      "home_score": 2,
+      "away_score": 3,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_score": 0.0,
+        "away_score": 2.0,
+        "draws_score": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 5.0,
+        "last_4": [
+          {
+            "date": "2026-03-01T00:00:00+04:00",
+            "home_team": "NEC Nijmegen",
+            "away_team": "Fortuna Sittard",
+            "home_score": 2,
+            "away_score": 3,
+            "status": "finished",
+            "league": "Eredivisie"
+          },
+          {
+            "date": "2025-08-31T14:15:00+04:00",
+            "home_team": "Fortuna Sittard",
+            "away_team": "NEC Nijmegen",
+            "home_score": 3,
+            "away_score": 2,
+            "status": "finished",
+            "league": "Eredivisie"
+          }
+        ],
+        "btts_last4": 2,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "12",
+        "over_25": true,
+        "btts": false,
+        "confidence": 59.3,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "0-10"
+      },
+      "category": "simple",
+      "verified_double": true,
+      "verified_over": true,
+      "verified_btts": false,
+      "ml_full": {
+        "prob_home_win": 52.194459337537054,
+        "prob_draw": 22.480657228988733,
+        "prob_away_win": 25.324883433474195,
+        "predicted_result": "H",
+        "expected_home_goals": 1.8865566666666667,
+        "expected_away_goals": 1.2524000000000002,
+        "prob_over_25": 85.12168758182479,
+        "over_25_recommend": true,
+        "prob_btts_yes": 82.06812683171214,
+        "btts_recommend": false,
+        "most_likely_score": "1-1",
+        "favorite": "H",
+        "favorite_prob": 52.194459337537054,
+        "confidence": 52.194459337537054
       }
     },
     {
@@ -1891,81 +1891,6 @@
       }
     },
     {
-      "id": 6187,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T03:00:00+04:00",
-      "home_team": "Atlético San Luis",
-      "away_team": "Club Puebla",
-      "home_logo": "https://sports.bzzoiro.com/img/team/1950/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/1941/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Liga MX Clausura",
-      "league_logo": "https://sports.bzzoiro.com/img/league/11620/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "finished",
-      "home_score": 0,
-      "away_score": 1,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_score": 1.0,
-        "away_score": 1.0,
-        "draws_score": 0.0,
-        "home_dominance": 0.5,
-        "away_dominance": 0.5,
-        "goals_avg": 1.5,
-        "last_4": [
-          {
-            "date": "2026-03-01T03:00:00+04:00",
-            "home_team": "Atlético San Luis",
-            "away_team": "Club Puebla",
-            "home_score": 0,
-            "away_score": 1,
-            "status": "finished",
-            "league": "Liga MX Clausura"
-          },
-          {
-            "date": "2025-08-16T05:00:00+04:00",
-            "home_team": "Club Puebla",
-            "away_team": "Atlético San Luis",
-            "home_score": 0,
-            "away_score": 2,
-            "status": "finished",
-            "league": "Liga MX Apertura"
-          }
-        ],
-        "btts_last4": 0,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "12",
-        "over_25": false,
-        "btts": false,
-        "confidence": 52.0,
-        "source": "fusion",
-        "stake": 1,
-        "predicted_score": "2-2"
-      },
-      "category": "simple",
-      "verified_double": true,
-      "verified_over": true,
-      "verified_btts": true,
-      "ml_full": {
-        "prob_home_win": 26.92221266222588,
-        "prob_draw": 26.398057460006207,
-        "prob_away_win": 46.67972987776791,
-        "predicted_result": "A",
-        "expected_home_goals": 1.0333333333333332,
-        "expected_away_goals": 1.45,
-        "prob_over_25": 59.87063256829237,
-        "over_25_recommend": false,
-        "prob_btts_yes": 28.147148118706177,
-        "btts_recommend": false,
-        "most_likely_score": "1-1",
-        "favorite": "A",
-        "favorite_prob": 46.67972987776791,
-        "confidence": 46.67972987776791
-      }
-    },
-    {
       "id": 6188,
       "date": "2026-03-01",
       "event_date": "2026-03-01T03:00:00+04:00",
@@ -2038,6 +1963,81 @@
         "favorite": "A",
         "favorite_prob": 48.78638434207906,
         "confidence": 48.78638434207906
+      }
+    },
+    {
+      "id": 6187,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T03:00:00+04:00",
+      "home_team": "Atlético San Luis",
+      "away_team": "Club Puebla",
+      "home_logo": "https://sports.bzzoiro.com/img/team/1950/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/1941/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Liga MX Clausura",
+      "league_logo": "https://sports.bzzoiro.com/img/league/11620/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "finished",
+      "home_score": 0,
+      "away_score": 1,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_score": 1.0,
+        "away_score": 1.0,
+        "draws_score": 0.0,
+        "home_dominance": 0.5,
+        "away_dominance": 0.5,
+        "goals_avg": 1.5,
+        "last_4": [
+          {
+            "date": "2026-03-01T03:00:00+04:00",
+            "home_team": "Atlético San Luis",
+            "away_team": "Club Puebla",
+            "home_score": 0,
+            "away_score": 1,
+            "status": "finished",
+            "league": "Liga MX Clausura"
+          },
+          {
+            "date": "2025-08-16T05:00:00+04:00",
+            "home_team": "Club Puebla",
+            "away_team": "Atlético San Luis",
+            "home_score": 0,
+            "away_score": 2,
+            "status": "finished",
+            "league": "Liga MX Apertura"
+          }
+        ],
+        "btts_last4": 0,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "12",
+        "over_25": false,
+        "btts": false,
+        "confidence": 52.0,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "2-2"
+      },
+      "category": "simple",
+      "verified_double": true,
+      "verified_over": true,
+      "verified_btts": true,
+      "ml_full": {
+        "prob_home_win": 26.92221266222588,
+        "prob_draw": 26.398057460006207,
+        "prob_away_win": 46.67972987776791,
+        "predicted_result": "A",
+        "expected_home_goals": 1.0333333333333332,
+        "expected_away_goals": 1.45,
+        "prob_over_25": 59.87063256829237,
+        "over_25_recommend": false,
+        "prob_btts_yes": 28.147148118706177,
+        "btts_recommend": false,
+        "most_likely_score": "1-1",
+        "favorite": "A",
+        "favorite_prob": 46.67972987776791,
+        "confidence": 46.67972987776791
       }
     },
     {
@@ -2341,6 +2341,72 @@
       }
     },
     {
+      "id": 4935,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T05:30:00+04:00",
+      "home_team": "Sporting Kansas City",
+      "away_team": "Columbus Crew",
+      "home_logo": "https://sports.bzzoiro.com/img/team/2509/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/2504/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "MLS",
+      "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "finished",
+      "home_score": 2,
+      "away_score": 2,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_score": 0.0,
+        "away_score": 0.0,
+        "draws_score": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.0,
+        "goals_avg": 4.0,
+        "last_4": [
+          {
+            "date": "2026-03-01T05:30:00+04:00",
+            "home_team": "Sporting Kansas City",
+            "away_team": "Columbus Crew",
+            "home_score": 2,
+            "away_score": 2,
+            "status": "finished",
+            "league": "MLS"
+          }
+        ],
+        "btts_last4": 1,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "12",
+        "over_25": true,
+        "btts": false,
+        "confidence": 48.6,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "0-0"
+      },
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": true,
+      "verified_btts": false,
+      "ml_full": {
+        "prob_home_win": 31.09540012483427,
+        "prob_draw": 24.476401228116732,
+        "prob_away_win": 44.42819864704899,
+        "predicted_result": "A",
+        "expected_home_goals": 1.3,
+        "expected_away_goals": 1.6,
+        "prob_over_25": 72.01655364002943,
+        "over_25_recommend": false,
+        "prob_btts_yes": 67.88125224874351,
+        "btts_recommend": false,
+        "most_likely_score": "1-1",
+        "favorite": "A",
+        "favorite_prob": 44.42819864704899,
+        "confidence": 44.42819864704899
+      }
+    },
+    {
       "id": 4936,
       "date": "2026-03-01",
       "event_date": "2026-03-01T05:30:00+04:00",
@@ -2488,72 +2554,6 @@
         "favorite": "A",
         "favorite_prob": 51.42485569491705,
         "confidence": 51.42485569491705
-      }
-    },
-    {
-      "id": 4935,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T05:30:00+04:00",
-      "home_team": "Sporting Kansas City",
-      "away_team": "Columbus Crew",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2509/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/2504/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "MLS",
-      "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "finished",
-      "home_score": 2,
-      "away_score": 2,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_score": 0.0,
-        "away_score": 0.0,
-        "draws_score": 1.0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.0,
-        "goals_avg": 4.0,
-        "last_4": [
-          {
-            "date": "2026-03-01T05:30:00+04:00",
-            "home_team": "Sporting Kansas City",
-            "away_team": "Columbus Crew",
-            "home_score": 2,
-            "away_score": 2,
-            "status": "finished",
-            "league": "MLS"
-          }
-        ],
-        "btts_last4": 1,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "12",
-        "over_25": true,
-        "btts": false,
-        "confidence": 48.6,
-        "source": "fusion",
-        "stake": 1,
-        "predicted_score": "0-0"
-      },
-      "category": "simple",
-      "verified_double": false,
-      "verified_over": true,
-      "verified_btts": false,
-      "ml_full": {
-        "prob_home_win": 31.09540012483427,
-        "prob_draw": 24.476401228116732,
-        "prob_away_win": 44.42819864704899,
-        "predicted_result": "A",
-        "expected_home_goals": 1.3,
-        "expected_away_goals": 1.6,
-        "prob_over_25": 72.01655364002943,
-        "over_25_recommend": false,
-        "prob_btts_yes": 67.88125224874351,
-        "btts_recommend": false,
-        "most_likely_score": "1-1",
-        "favorite": "A",
-        "favorite_prob": 44.42819864704899,
-        "confidence": 44.42819864704899
       }
     },
     {
@@ -2783,7 +2783,7 @@
       "league": "Eredivisie",
       "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "2nd_half",
+      "status": "finished",
       "home_score": 0,
       "away_score": 0,
       "h2h_analysis": {
@@ -2818,9 +2818,9 @@
         "predicted_score": "0-8"
       },
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_over": false,
-      "verified_btts": false,
+      "verified_btts": true,
       "ml_full": {
         "prob_home_win": 37.70481023082644,
         "prob_draw": 24.425915919889263,
@@ -2849,9 +2849,9 @@
       "league": "Serie A",
       "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "2nd_half",
+      "status": "finished",
       "home_score": 0,
-      "away_score": 0,
+      "away_score": 2,
       "h2h_analysis": {
         "total_matches": 1,
         "home_score": 1.0,
@@ -2884,9 +2884,9 @@
         "predicted_score": "6-0"
       },
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_over": false,
-      "verified_btts": false,
+      "verified_btts": true,
       "ml_full": {
         "prob_home_win": 31.879233975343364,
         "prob_draw": 25.281229283222622,
@@ -2915,9 +2915,9 @@
       "league": "Scottish Premiership",
       "league_logo": "https://sports.bzzoiro.com/img/league/36/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "2nd_half",
+      "status": "finished",
       "home_score": 2,
-      "away_score": 0,
+      "away_score": 2,
       "h2h_analysis": {
         "total_matches": 2,
         "home_score": 1.0,
@@ -2960,7 +2960,7 @@
       },
       "category": "simple",
       "verified_double": false,
-      "verified_over": false,
+      "verified_over": true,
       "verified_btts": false,
       "ml_full": {
         "prob_home_win": 33.39931472544158,
@@ -2990,8 +2990,8 @@
       "league": "Pro League",
       "league_logo": "https://sports.bzzoiro.com/img/league/38/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "1st_half",
-      "home_score": 1,
+      "status": "finished",
+      "home_score": 3,
       "away_score": 0,
       "h2h_analysis": {
         "total_matches": 1,
@@ -3025,9 +3025,9 @@
         "predicted_score": "0-0"
       },
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_over": false,
-      "verified_btts": false,
+      "verified_btts": true,
       "ml_full": {
         "prob_home_win": 49.85901143689664,
         "prob_draw": 24.800570734904078,
@@ -3056,7 +3056,7 @@
       "league": "Trendyol Super Lig",
       "league_logo": "https://sports.bzzoiro.com/img/league/52/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "1st_half",
+      "status": "finished",
       "home_score": 0,
       "away_score": 0,
       "h2h_analysis": {
@@ -3092,8 +3092,8 @@
       },
       "category": "simple",
       "verified_double": false,
-      "verified_over": false,
-      "verified_btts": false,
+      "verified_over": true,
+      "verified_btts": true,
       "ml_full": {
         "prob_home_win": 36.47659516879324,
         "prob_draw": 25.683666569431068,
@@ -3112,72 +3112,6 @@
       }
     },
     {
-      "id": 942,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T17:00:00+04:00",
-      "home_team": "Elche",
-      "away_team": "Espanyol",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2846/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/2814/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "La Liga",
-      "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "1st_half",
-      "home_score": 0,
-      "away_score": 0,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_score": 0.0,
-        "away_score": 1.0,
-        "draws_score": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 1.0,
-        "last_4": [
-          {
-            "date": "2025-10-25T18:15:00+04:00",
-            "home_team": "Espanyol",
-            "away_team": "Elche",
-            "home_score": 1,
-            "away_score": 0,
-            "status": "finished",
-            "league": "La Liga"
-          }
-        ],
-        "btts_last4": 0,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "confidence": 62.5,
-        "source": "fusion",
-        "stake": 1,
-        "predicted_score": "0-2"
-      },
-      "category": "simple",
-      "verified_double": false,
-      "verified_over": false,
-      "verified_btts": false,
-      "ml_full": {
-        "prob_home_win": 32.054681690601335,
-        "prob_draw": 23.730543285960103,
-        "prob_away_win": 44.21477502343856,
-        "predicted_result": "A",
-        "expected_home_goals": 1.3961800000000002,
-        "expected_away_goals": 1.6769499999999997,
-        "prob_over_25": 59.87063256829237,
-        "over_25_recommend": false,
-        "prob_btts_yes": 74.44861982818473,
-        "btts_recommend": false,
-        "most_likely_score": "1-1",
-        "favorite": "A",
-        "favorite_prob": 44.21477502343856,
-        "confidence": 44.21477502343856
-      }
-    },
-    {
       "id": 4867,
       "date": "2026-03-01",
       "event_date": "2026-03-01T17:00:00+04:00",
@@ -3188,9 +3122,9 @@
       "league": "Super League",
       "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "1st_half",
-      "home_score": 0,
-      "away_score": 1,
+      "status": "finished",
+      "home_score": 1,
+      "away_score": 2,
       "h2h_analysis": {
         "total_matches": 2,
         "home_score": 1.0,
@@ -3233,7 +3167,7 @@
       },
       "category": "simple",
       "verified_double": false,
-      "verified_over": false,
+      "verified_over": true,
       "verified_btts": false,
       "ml_full": {
         "prob_home_win": 40.012768490782804,
@@ -3250,6 +3184,72 @@
         "favorite": "H",
         "favorite_prob": 40.012768490782804,
         "confidence": 40.012768490782804
+      }
+    },
+    {
+      "id": 942,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T17:00:00+04:00",
+      "home_team": "Elche",
+      "away_team": "Espanyol",
+      "home_logo": "https://sports.bzzoiro.com/img/team/2846/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/2814/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "La Liga",
+      "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "finished",
+      "home_score": 2,
+      "away_score": 2,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_score": 0.0,
+        "away_score": 1.0,
+        "draws_score": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 1.0,
+        "last_4": [
+          {
+            "date": "2025-10-25T18:15:00+04:00",
+            "home_team": "Espanyol",
+            "away_team": "Elche",
+            "home_score": 1,
+            "away_score": 0,
+            "status": "finished",
+            "league": "La Liga"
+          }
+        ],
+        "btts_last4": 0,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "btts": false,
+        "confidence": 62.5,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "0-2"
+      },
+      "category": "simple",
+      "verified_double": true,
+      "verified_over": false,
+      "verified_btts": false,
+      "ml_full": {
+        "prob_home_win": 32.054681690601335,
+        "prob_draw": 23.730543285960103,
+        "prob_away_win": 44.21477502343856,
+        "predicted_result": "A",
+        "expected_home_goals": 1.3961800000000002,
+        "expected_away_goals": 1.6769499999999997,
+        "prob_over_25": 59.87063256829237,
+        "over_25_recommend": false,
+        "prob_btts_yes": 74.44861982818473,
+        "btts_recommend": false,
+        "most_likely_score": "1-1",
+        "favorite": "A",
+        "favorite_prob": 44.21477502343856,
+        "confidence": 44.21477502343856
       }
     },
     {
@@ -3451,15 +3451,15 @@
       }
     },
     {
-      "id": 281,
+      "id": 1344,
       "date": "2026-03-01",
       "event_date": "2026-03-01T18:00:00+04:00",
-      "home_team": "Manchester United",
-      "away_team": "Crystal Palace",
-      "home_logo": "https://sports.bzzoiro.com/img/team/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/7/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Premier League",
-      "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "home_team": "Sassuolo",
+      "away_team": "Atalanta",
+      "home_logo": "https://sports.bzzoiro.com/img/team/2793/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/2686/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Serie A",
+      "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
       "status": "notstarted",
       "home_score": null,
@@ -3474,23 +3474,23 @@
         "goals_avg": 3.0,
         "last_4": [
           {
-            "date": "2025-11-30T16:00:00+04:00",
-            "home_team": "Crystal Palace",
-            "away_team": "Manchester United",
-            "home_score": 1,
-            "away_score": 2,
+            "date": "2025-11-09T15:30:00+04:00",
+            "home_team": "Atalanta",
+            "away_team": "Sassuolo",
+            "home_score": 0,
+            "away_score": 3,
             "status": "finished",
-            "league": "Premier League"
+            "league": "Serie A"
           }
         ],
-        "btts_last4": 1,
+        "btts_last4": 0,
         "btts_recommend": false
       },
       "prediction": {
-        "double_chance": "1X",
+        "double_chance": "12",
         "over_25": true,
         "btts": false,
-        "confidence": 60.9,
+        "confidence": 49.9,
         "source": "fusion",
         "stake": 1,
         "predicted_score": "6-0"
@@ -3500,20 +3500,20 @@
       "verified_over": false,
       "verified_btts": false,
       "ml_full": {
-        "prob_home_win": 41.49641663365736,
-        "prob_draw": 24.72299049140112,
-        "prob_away_win": 33.78059287494151,
-        "predicted_result": "H",
-        "expected_home_goals": 1.5320799999999999,
-        "expected_away_goals": 1.3591199999999999,
-        "prob_over_25": 56.618383261090365,
+        "prob_home_win": 37.16925947106934,
+        "prob_draw": 22.95228764981083,
+        "prob_away_win": 39.87845287911983,
+        "predicted_result": "A",
+        "expected_home_goals": 1.62741,
+        "expected_away_goals": 1.69205,
+        "prob_over_25": 45.02617751698872,
         "over_25_recommend": false,
-        "prob_btts_yes": 47.319217304127505,
+        "prob_btts_yes": 45.687414915398264,
         "btts_recommend": false,
         "most_likely_score": "1-1",
-        "favorite": "H",
-        "favorite_prob": 41.49641663365736,
-        "confidence": 41.49641663365736
+        "favorite": "A",
+        "favorite_prob": 39.87845287911983,
+        "confidence": 39.87845287911983
       }
     },
     {
@@ -3583,72 +3583,6 @@
       }
     },
     {
-      "id": 1977,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T18:00:00+04:00",
-      "home_team": "Paris FC",
-      "away_team": "Nice",
-      "home_logo": "https://sports.bzzoiro.com/img/team/6070/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/1661/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Ligue 1",
-      "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_score": 0.0,
-        "away_score": 0.0,
-        "draws_score": 1.0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.0,
-        "goals_avg": 2.0,
-        "last_4": [
-          {
-            "date": "2025-09-28T17:00:00+04:00",
-            "home_team": "Nice",
-            "away_team": "Paris FC",
-            "home_score": 1,
-            "away_score": 1,
-            "status": "finished",
-            "league": "Ligue 1"
-          }
-        ],
-        "btts_last4": 1,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "12",
-        "over_25": false,
-        "btts": false,
-        "confidence": 51.3,
-        "source": "fusion",
-        "stake": 1,
-        "predicted_score": "0-0"
-      },
-      "category": "simple",
-      "verified_double": false,
-      "verified_over": false,
-      "verified_btts": false,
-      "ml_full": {
-        "prob_home_win": 28.049780353715946,
-        "prob_draw": 23.157170650010613,
-        "prob_away_win": 48.79304899627345,
-        "predicted_result": "A",
-        "expected_home_goals": 1.3060399999999999,
-        "expected_away_goals": 1.78943,
-        "prob_over_25": 67.664351019205,
-        "over_25_recommend": false,
-        "prob_btts_yes": 80.22176991724227,
-        "btts_recommend": false,
-        "most_likely_score": "1-1",
-        "favorite": "A",
-        "favorite_prob": 48.79304899627345,
-        "confidence": 48.79304899627345
-      }
-    },
-    {
       "id": 278,
       "date": "2026-03-01",
       "event_date": "2026-03-01T18:00:00+04:00",
@@ -3715,6 +3649,138 @@
       }
     },
     {
+      "id": 281,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T18:00:00+04:00",
+      "home_team": "Manchester United",
+      "away_team": "Crystal Palace",
+      "home_logo": "https://sports.bzzoiro.com/img/team/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/7/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Premier League",
+      "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_score": 1.0,
+        "away_score": 0.0,
+        "draws_score": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 3.0,
+        "last_4": [
+          {
+            "date": "2025-11-30T16:00:00+04:00",
+            "home_team": "Crystal Palace",
+            "away_team": "Manchester United",
+            "home_score": 1,
+            "away_score": 2,
+            "status": "finished",
+            "league": "Premier League"
+          }
+        ],
+        "btts_last4": 1,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "btts": false,
+        "confidence": 60.9,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "6-0"
+      },
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false,
+      "verified_btts": false,
+      "ml_full": {
+        "prob_home_win": 41.49641663365736,
+        "prob_draw": 24.72299049140112,
+        "prob_away_win": 33.78059287494151,
+        "predicted_result": "H",
+        "expected_home_goals": 1.5320799999999999,
+        "expected_away_goals": 1.3591199999999999,
+        "prob_over_25": 56.618383261090365,
+        "over_25_recommend": false,
+        "prob_btts_yes": 47.319217304127505,
+        "btts_recommend": false,
+        "most_likely_score": "1-1",
+        "favorite": "H",
+        "favorite_prob": 41.49641663365736,
+        "confidence": 41.49641663365736
+      }
+    },
+    {
+      "id": 1977,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T18:00:00+04:00",
+      "home_team": "Paris FC",
+      "away_team": "Nice",
+      "home_logo": "https://sports.bzzoiro.com/img/team/6070/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/1661/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Ligue 1",
+      "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_score": 0.0,
+        "away_score": 0.0,
+        "draws_score": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.0,
+        "goals_avg": 2.0,
+        "last_4": [
+          {
+            "date": "2025-09-28T17:00:00+04:00",
+            "home_team": "Nice",
+            "away_team": "Paris FC",
+            "home_score": 1,
+            "away_score": 1,
+            "status": "finished",
+            "league": "Ligue 1"
+          }
+        ],
+        "btts_last4": 1,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "12",
+        "over_25": false,
+        "btts": false,
+        "confidence": 51.3,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "0-0"
+      },
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false,
+      "verified_btts": false,
+      "ml_full": {
+        "prob_home_win": 28.049780353715946,
+        "prob_draw": 23.157170650010613,
+        "prob_away_win": 48.79304899627345,
+        "predicted_result": "A",
+        "expected_home_goals": 1.3060399999999999,
+        "expected_away_goals": 1.78943,
+        "prob_over_25": 67.664351019205,
+        "over_25_recommend": false,
+        "prob_btts_yes": 80.22176991724227,
+        "btts_recommend": false,
+        "most_likely_score": "1-1",
+        "favorite": "A",
+        "favorite_prob": 48.79304899627345,
+        "confidence": 48.79304899627345
+      }
+    },
+    {
       "id": 276,
       "date": "2026-03-01",
       "event_date": "2026-03-01T18:00:00+04:00",
@@ -3778,72 +3844,6 @@
         "favorite": "H",
         "favorite_prob": 40.673735807712646,
         "confidence": 40.673735807712646
-      }
-    },
-    {
-      "id": 1344,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T18:00:00+04:00",
-      "home_team": "Sassuolo",
-      "away_team": "Atalanta",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2793/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/2686/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Serie A",
-      "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_score": 1.0,
-        "away_score": 0.0,
-        "draws_score": 0.0,
-        "home_dominance": 1.0,
-        "away_dominance": 0.0,
-        "goals_avg": 3.0,
-        "last_4": [
-          {
-            "date": "2025-11-09T15:30:00+04:00",
-            "home_team": "Atalanta",
-            "away_team": "Sassuolo",
-            "home_score": 0,
-            "away_score": 3,
-            "status": "finished",
-            "league": "Serie A"
-          }
-        ],
-        "btts_last4": 0,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "12",
-        "over_25": true,
-        "btts": false,
-        "confidence": 49.9,
-        "source": "fusion",
-        "stake": 1,
-        "predicted_score": "6-0"
-      },
-      "category": "simple",
-      "verified_double": false,
-      "verified_over": false,
-      "verified_btts": false,
-      "ml_full": {
-        "prob_home_win": 37.16925947106934,
-        "prob_draw": 22.95228764981083,
-        "prob_away_win": 39.87845287911983,
-        "predicted_result": "A",
-        "expected_home_goals": 1.62741,
-        "expected_away_goals": 1.69205,
-        "prob_over_25": 45.02617751698872,
-        "over_25_recommend": false,
-        "prob_btts_yes": 45.687414915398264,
-        "btts_recommend": false,
-        "most_likely_score": "1-1",
-        "favorite": "A",
-        "favorite_prob": 39.87845287911983,
-        "confidence": 39.87845287911983
       }
     },
     {
@@ -4111,6 +4111,147 @@
       }
     },
     {
+      "id": 598,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T19:30:00+04:00",
+      "home_team": "Tondela",
+      "away_team": "Santa Clara",
+      "home_logo": "https://sports.bzzoiro.com/img/team/38396/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/3011/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Liga Portugal Betclic",
+      "league_logo": "https://sports.bzzoiro.com/img/league/238/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_score": 1.0,
+        "away_score": 0.0,
+        "draws_score": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 3.0,
+        "last_4": [
+          {
+            "date": "2025-09-27T19:30:00+04:00",
+            "home_team": "Santa Clara",
+            "away_team": "Tondela",
+            "home_score": 1,
+            "away_score": 2,
+            "status": "finished",
+            "league": "Liga Portugal Betclic"
+          }
+        ],
+        "btts_last4": 1,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "12",
+        "over_25": true,
+        "btts": false,
+        "confidence": 48.1,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "6-0"
+      },
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false,
+      "verified_btts": false,
+      "ml_full": {
+        "prob_home_win": 32.9789119852026,
+        "prob_draw": 30.109801905168247,
+        "prob_away_win": 36.911286109629145,
+        "predicted_result": "A",
+        "expected_home_goals": 1.00129,
+        "expected_away_goals": 1.07761,
+        "prob_over_25": 33.84611195106897,
+        "over_25_recommend": false,
+        "prob_btts_yes": 50.39081577997262,
+        "btts_recommend": false,
+        "most_likely_score": "1-1",
+        "favorite": "A",
+        "favorite_prob": 36.911286109629145,
+        "confidence": 36.911286109629145
+      }
+    },
+    {
+      "id": 4869,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T19:30:00+04:00",
+      "home_team": "BSC Young Boys",
+      "away_team": "FC Zürich",
+      "home_logo": "https://sports.bzzoiro.com/img/team/2445/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/2450/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Super League",
+      "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_score": 2.0,
+        "away_score": 0.0,
+        "draws_score": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 4.0,
+        "last_4": [
+          {
+            "date": "2026-02-01T19:30:00+04:00",
+            "home_team": "BSC Young Boys",
+            "away_team": "FC Zürich",
+            "home_score": 3,
+            "away_score": 0,
+            "status": "finished",
+            "league": "Super League"
+          },
+          {
+            "date": "2025-10-26T17:00:00+04:00",
+            "home_team": "FC Zürich",
+            "away_team": "BSC Young Boys",
+            "home_score": 2,
+            "away_score": 3,
+            "status": "finished",
+            "league": "Super League"
+          }
+        ],
+        "btts_last4": 1,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "12",
+        "over_25": true,
+        "btts": false,
+        "confidence": 53.1,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "8-0"
+      },
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false,
+      "verified_btts": false,
+      "ml_full": {
+        "prob_home_win": 33.80905596765664,
+        "prob_draw": 41.91679997493683,
+        "prob_away_win": 24.274144057406538,
+        "predicted_result": "D",
+        "expected_home_goals": 0.6715899999999999,
+        "expected_away_goals": 0.5215299999999999,
+        "prob_over_25": 74.75074624530771,
+        "over_25_recommend": false,
+        "prob_btts_yes": 61.09299108484216,
+        "btts_recommend": false,
+        "most_likely_score": "0-0",
+        "favorite": "H",
+        "favorite_prob": 33.80905596765664,
+        "confidence": 41.91679997493683
+      }
+    },
+    {
       "id": 4868,
       "date": "2026-03-01",
       "event_date": "2026-03-01T19:30:00+04:00",
@@ -4250,132 +4391,6 @@
         "favorite_prob": 71.86368991485608,
         "confidence": 71.86368991485608
       }
-    },
-    {
-      "id": 598,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T19:30:00+04:00",
-      "home_team": "Tondela",
-      "away_team": "Santa Clara",
-      "home_logo": "https://sports.bzzoiro.com/img/team/38396/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/3011/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Liga Portugal Betclic",
-      "league_logo": "https://sports.bzzoiro.com/img/league/238/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_score": 1.0,
-        "away_score": 0.0,
-        "draws_score": 0.0,
-        "home_dominance": 1.0,
-        "away_dominance": 0.0,
-        "goals_avg": 3.0,
-        "last_4": [
-          {
-            "date": "2025-09-27T19:30:00+04:00",
-            "home_team": "Santa Clara",
-            "away_team": "Tondela",
-            "home_score": 1,
-            "away_score": 2,
-            "status": "finished",
-            "league": "Liga Portugal Betclic"
-          }
-        ],
-        "btts_last4": 1,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "12",
-        "over_25": true,
-        "btts": false,
-        "confidence": 48.1,
-        "source": "fusion",
-        "stake": 1,
-        "predicted_score": "6-0"
-      },
-      "category": "simple",
-      "verified_double": false,
-      "verified_over": false,
-      "verified_btts": false,
-      "ml_full": {
-        "prob_home_win": 32.9789119852026,
-        "prob_draw": 30.109801905168247,
-        "prob_away_win": 36.911286109629145,
-        "predicted_result": "A",
-        "expected_home_goals": 1.00129,
-        "expected_away_goals": 1.07761,
-        "prob_over_25": 33.84611195106897,
-        "over_25_recommend": false,
-        "prob_btts_yes": 50.39081577997262,
-        "btts_recommend": false,
-        "most_likely_score": "1-1",
-        "favorite": "A",
-        "favorite_prob": 36.911286109629145,
-        "confidence": 36.911286109629145
-      }
-    },
-    {
-      "id": 4869,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T19:30:00+04:00",
-      "home_team": "BSC Young Boys",
-      "away_team": "FC Zürich",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2445/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/2450/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Super League",
-      "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_score": 2.0,
-        "away_score": 0.0,
-        "draws_score": 0.0,
-        "home_dominance": 1.0,
-        "away_dominance": 0.0,
-        "goals_avg": 4.0,
-        "last_4": [
-          {
-            "date": "2026-02-01T19:30:00+04:00",
-            "home_team": "BSC Young Boys",
-            "away_team": "FC Zürich",
-            "home_score": 3,
-            "away_score": 0,
-            "status": "finished",
-            "league": "Super League"
-          },
-          {
-            "date": "2025-10-26T17:00:00+04:00",
-            "home_team": "FC Zürich",
-            "away_team": "BSC Young Boys",
-            "home_score": 2,
-            "away_score": 3,
-            "status": "finished",
-            "league": "Super League"
-          }
-        ],
-        "btts_last4": 1,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": true,
-        "btts": false,
-        "confidence": 70,
-        "source": "h2h",
-        "stake": 2,
-        "predicted_score": "8-0"
-      },
-      "category": "pro",
-      "verified_double": false,
-      "verified_over": false,
-      "verified_btts": false,
-      "ml_full": null
     },
     {
       "id": 2971,
@@ -4708,72 +4723,6 @@
       }
     },
     {
-      "id": 1667,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T20:30:00+04:00",
-      "home_team": "Eintracht Frankfurt",
-      "away_team": "SC Freiburg",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2674/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/2538/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Bundesliga",
-      "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_score": 0.0,
-        "away_score": 0.0,
-        "draws_score": 1.0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.0,
-        "goals_avg": 4.0,
-        "last_4": [
-          {
-            "date": "2025-10-19T17:30:00+04:00",
-            "home_team": "SC Freiburg",
-            "away_team": "Eintracht Frankfurt",
-            "home_score": 2,
-            "away_score": 2,
-            "status": "finished",
-            "league": "Bundesliga"
-          }
-        ],
-        "btts_last4": 1,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "12",
-        "over_25": true,
-        "btts": false,
-        "confidence": 46.9,
-        "source": "fusion",
-        "stake": 1,
-        "predicted_score": "0-0"
-      },
-      "category": "simple",
-      "verified_double": false,
-      "verified_over": false,
-      "verified_btts": false,
-      "ml_full": {
-        "prob_home_win": 41.52813677587419,
-        "prob_draw": 25.653943102834663,
-        "prob_away_win": 32.81792012129114,
-        "predicted_result": "H",
-        "expected_home_goals": 1.44792,
-        "expected_away_goals": 1.25831,
-        "prob_over_25": 67.664351019205,
-        "over_25_recommend": false,
-        "prob_btts_yes": 72.58782797956833,
-        "btts_recommend": false,
-        "most_likely_score": "1-1",
-        "favorite": "H",
-        "favorite_prob": 41.52813677587419,
-        "confidence": 41.52813677587419
-      }
-    },
-    {
       "id": 274,
       "date": "2026-03-01",
       "event_date": "2026-03-01T20:30:00+04:00",
@@ -4840,15 +4789,15 @@
       }
     },
     {
-      "id": 6966,
+      "id": 1667,
       "date": "2026-03-01",
-      "event_date": "2026-03-01T21:00:00+04:00",
-      "home_team": "PAOK",
-      "away_team": "Asteras Aktor",
-      "home_logo": "https://sports.bzzoiro.com/img/team/3251/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/6342/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Stoiximan Super League",
-      "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "event_date": "2026-03-01T20:30:00+04:00",
+      "home_team": "Eintracht Frankfurt",
+      "away_team": "SC Freiburg",
+      "home_logo": "https://sports.bzzoiro.com/img/team/2674/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/2538/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Bundesliga",
+      "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
       "status": "notstarted",
       "home_score": null,
@@ -4860,16 +4809,16 @@
         "draws_score": 1.0,
         "home_dominance": 0.0,
         "away_dominance": 0.0,
-        "goals_avg": 6.0,
+        "goals_avg": 4.0,
         "last_4": [
           {
-            "date": "2025-09-28T21:30:00+04:00",
-            "home_team": "Asteras Aktor",
-            "away_team": "PAOK",
-            "home_score": 3,
-            "away_score": 3,
+            "date": "2025-10-19T17:30:00+04:00",
+            "home_team": "SC Freiburg",
+            "away_team": "Eintracht Frankfurt",
+            "home_score": 2,
+            "away_score": 2,
             "status": "finished",
-            "league": "Stoiximan Super League"
+            "league": "Bundesliga"
           }
         ],
         "btts_last4": 1,
@@ -4879,7 +4828,7 @@
         "double_chance": "12",
         "over_25": true,
         "btts": false,
-        "confidence": 66.5,
+        "confidence": 46.9,
         "source": "fusion",
         "stake": 1,
         "predicted_score": "0-0"
@@ -4889,86 +4838,20 @@
       "verified_over": false,
       "verified_btts": false,
       "ml_full": {
-        "prob_home_win": 74.10851041515375,
-        "prob_draw": 17.21317606745133,
-        "prob_away_win": 8.678313517394942,
+        "prob_home_win": 41.52813677587419,
+        "prob_draw": 25.653943102834663,
+        "prob_away_win": 32.81792012129114,
         "predicted_result": "H",
-        "expected_home_goals": 2.2,
-        "expected_away_goals": 0.6000000000000001,
-        "prob_over_25": 54.973822483011304,
+        "expected_home_goals": 1.44792,
+        "expected_away_goals": 1.25831,
+        "prob_over_25": 67.664351019205,
         "over_25_recommend": false,
-        "prob_btts_yes": 19.31785301444866,
+        "prob_btts_yes": 72.58782797956833,
         "btts_recommend": false,
-        "most_likely_score": "2-0",
+        "most_likely_score": "1-1",
         "favorite": "H",
-        "favorite_prob": 74.10851041515375,
-        "confidence": 74.10851041515375
-      }
-    },
-    {
-      "id": 1345,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T21:00:00+04:00",
-      "home_team": "Torino",
-      "away_team": "Lazio",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2696/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/2699/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Serie A",
-      "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_score": 0.0,
-        "away_score": 0.0,
-        "draws_score": 1.0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.0,
-        "goals_avg": 6.0,
-        "last_4": [
-          {
-            "date": "2025-10-04T17:00:00+04:00",
-            "home_team": "Lazio",
-            "away_team": "Torino",
-            "home_score": 3,
-            "away_score": 3,
-            "status": "finished",
-            "league": "Serie A"
-          }
-        ],
-        "btts_last4": 1,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "12",
-        "over_25": true,
-        "btts": false,
-        "confidence": 46.1,
-        "source": "fusion",
-        "stake": 1,
-        "predicted_score": "0-0"
-      },
-      "category": "simple",
-      "verified_double": false,
-      "verified_over": false,
-      "verified_btts": false,
-      "ml_full": {
-        "prob_home_win": 30.539857600947872,
-        "prob_draw": 29.35690512257199,
-        "prob_away_win": 40.103237276480144,
-        "predicted_result": "A",
-        "expected_home_goals": 0.9810099999999999,
-        "expected_away_goals": 1.16953,
-        "prob_over_25": 36.944134018176364,
-        "over_25_recommend": false,
-        "prob_btts_yes": 39.97908195190177,
-        "btts_recommend": false,
-        "most_likely_score": "0-1",
-        "favorite": "A",
-        "favorite_prob": 40.103237276480144,
-        "confidence": 40.103237276480144
+        "favorite_prob": 41.52813677587419,
+        "confidence": 41.52813677587419
       }
     },
     {
@@ -5038,6 +4921,72 @@
       }
     },
     {
+      "id": 6966,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T21:00:00+04:00",
+      "home_team": "PAOK",
+      "away_team": "Asteras Aktor",
+      "home_logo": "https://sports.bzzoiro.com/img/team/3251/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/6342/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Stoiximan Super League",
+      "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_score": 0.0,
+        "away_score": 0.0,
+        "draws_score": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.0,
+        "goals_avg": 6.0,
+        "last_4": [
+          {
+            "date": "2025-09-28T21:30:00+04:00",
+            "home_team": "Asteras Aktor",
+            "away_team": "PAOK",
+            "home_score": 3,
+            "away_score": 3,
+            "status": "finished",
+            "league": "Stoiximan Super League"
+          }
+        ],
+        "btts_last4": 1,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "12",
+        "over_25": true,
+        "btts": false,
+        "confidence": 66.5,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "0-0"
+      },
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false,
+      "verified_btts": false,
+      "ml_full": {
+        "prob_home_win": 74.10851041515375,
+        "prob_draw": 17.21317606745133,
+        "prob_away_win": 8.678313517394942,
+        "predicted_result": "H",
+        "expected_home_goals": 2.2,
+        "expected_away_goals": 0.6000000000000001,
+        "prob_over_25": 54.973822483011304,
+        "over_25_recommend": false,
+        "prob_btts_yes": 19.31785301444866,
+        "btts_recommend": false,
+        "most_likely_score": "2-0",
+        "favorite": "H",
+        "favorite_prob": 74.10851041515375,
+        "confidence": 74.10851041515375
+      }
+    },
+    {
       "id": 3280,
       "date": "2026-03-01",
       "event_date": "2026-03-01T21:00:00+04:00",
@@ -5104,69 +5053,69 @@
       }
     },
     {
-      "id": 947,
+      "id": 1345,
       "date": "2026-03-01",
-      "event_date": "2026-03-01T21:30:00+04:00",
-      "home_team": "Real Betis",
-      "away_team": "Sevilla",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2816/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/2833/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "La Liga",
-      "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "event_date": "2026-03-01T21:00:00+04:00",
+      "home_team": "Torino",
+      "away_team": "Lazio",
+      "home_logo": "https://sports.bzzoiro.com/img/team/2696/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/2699/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Serie A",
+      "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
       "status": "notstarted",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
         "total_matches": 1,
-        "home_score": 1.0,
+        "home_score": 0.0,
         "away_score": 0.0,
-        "draws_score": 0.0,
-        "home_dominance": 1.0,
+        "draws_score": 1.0,
+        "home_dominance": 0.0,
         "away_dominance": 0.0,
-        "goals_avg": 2.0,
+        "goals_avg": 6.0,
         "last_4": [
           {
-            "date": "2025-11-30T19:15:00+04:00",
-            "home_team": "Sevilla",
-            "away_team": "Real Betis",
-            "home_score": 0,
-            "away_score": 2,
+            "date": "2025-10-04T17:00:00+04:00",
+            "home_team": "Lazio",
+            "away_team": "Torino",
+            "home_score": 3,
+            "away_score": 3,
             "status": "finished",
-            "league": "La Liga"
+            "league": "Serie A"
           }
         ],
-        "btts_last4": 0,
+        "btts_last4": 1,
         "btts_recommend": false
       },
       "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
+        "double_chance": "12",
+        "over_25": true,
         "btts": false,
-        "confidence": 64.0,
+        "confidence": 46.1,
         "source": "fusion",
         "stake": 1,
-        "predicted_score": "4-0"
+        "predicted_score": "0-0"
       },
       "category": "simple",
       "verified_double": false,
       "verified_over": false,
       "verified_btts": false,
       "ml_full": {
-        "prob_home_win": 46.647384065661235,
-        "prob_draw": 24.68147704668889,
-        "prob_away_win": 28.67113888764987,
-        "predicted_result": "H",
-        "expected_home_goals": 1.60375,
-        "expected_away_goals": 1.2039499999999999,
-        "prob_over_25": 64.61697666727238,
+        "prob_home_win": 30.539857600947872,
+        "prob_draw": 29.35690512257199,
+        "prob_away_win": 40.103237276480144,
+        "predicted_result": "A",
+        "expected_home_goals": 0.9810099999999999,
+        "expected_away_goals": 1.16953,
+        "prob_over_25": 36.944134018176364,
         "over_25_recommend": false,
-        "prob_btts_yes": 67.0438817463781,
+        "prob_btts_yes": 39.97908195190177,
         "btts_recommend": false,
-        "most_likely_score": "1-1",
-        "favorite": "H",
-        "favorite_prob": 46.647384065661235,
-        "confidence": 46.647384065661235
+        "most_likely_score": "0-1",
+        "favorite": "A",
+        "favorite_prob": 40.103237276480144,
+        "confidence": 40.103237276480144
       }
     },
     {
@@ -5233,6 +5182,72 @@
         "favorite": "H",
         "favorite_prob": 40.216487351609615,
         "confidence": 40.216487351609615
+      }
+    },
+    {
+      "id": 947,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T21:30:00+04:00",
+      "home_team": "Real Betis",
+      "away_team": "Sevilla",
+      "home_logo": "https://sports.bzzoiro.com/img/team/2816/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/2833/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "La Liga",
+      "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_score": 1.0,
+        "away_score": 0.0,
+        "draws_score": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 2.0,
+        "last_4": [
+          {
+            "date": "2025-11-30T19:15:00+04:00",
+            "home_team": "Sevilla",
+            "away_team": "Real Betis",
+            "home_score": 0,
+            "away_score": 2,
+            "status": "finished",
+            "league": "La Liga"
+          }
+        ],
+        "btts_last4": 0,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "btts": false,
+        "confidence": 64.0,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "4-0"
+      },
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false,
+      "verified_btts": false,
+      "ml_full": {
+        "prob_home_win": 46.647384065661235,
+        "prob_draw": 24.68147704668889,
+        "prob_away_win": 28.67113888764987,
+        "predicted_result": "H",
+        "expected_home_goals": 1.60375,
+        "expected_away_goals": 1.2039499999999999,
+        "prob_over_25": 64.61697666727238,
+        "over_25_recommend": false,
+        "prob_btts_yes": 67.0438817463781,
+        "btts_recommend": false,
+        "most_likely_score": "1-1",
+        "favorite": "H",
+        "favorite_prob": 46.647384065661235,
+        "confidence": 46.647384065661235
       }
     },
     {
@@ -5500,72 +5515,6 @@
       }
     },
     {
-      "id": 6794,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T23:00:00+04:00",
-      "home_team": "UTA Arad",
-      "away_team": "FCSB",
-      "home_logo": "https://sports.bzzoiro.com/img/team/204657/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/3301/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Superliga",
-      "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_score": 0.0,
-        "away_score": 1.0,
-        "draws_score": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 4.0,
-        "last_4": [
-          {
-            "date": "2025-10-26T22:30:00+04:00",
-            "home_team": "FCSB",
-            "away_team": "UTA Arad",
-            "home_score": 4,
-            "away_score": 0,
-            "status": "finished",
-            "league": "Superliga"
-          }
-        ],
-        "btts_last4": 0,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": true,
-        "btts": false,
-        "confidence": 60.7,
-        "source": "fusion",
-        "stake": 1,
-        "predicted_score": "0-8"
-      },
-      "category": "simple",
-      "verified_double": false,
-      "verified_over": false,
-      "verified_btts": false,
-      "ml_full": {
-        "prob_home_win": 31.413816771350778,
-        "prob_draw": 27.49117501554296,
-        "prob_away_win": 41.09500821310626,
-        "predicted_result": "A",
-        "expected_home_goals": 1.1,
-        "expected_away_goals": 1.3,
-        "prob_over_25": 58.25156468205225,
-        "over_25_recommend": false,
-        "prob_btts_yes": 55.129156740061994,
-        "btts_recommend": false,
-        "most_likely_score": "1-1",
-        "favorite": "A",
-        "favorite_prob": 41.09500821310626,
-        "confidence": 41.09500821310626
-      }
-    },
-    {
       "id": 2969,
       "date": "2026-03-01",
       "event_date": "2026-03-01T23:00:00+04:00",
@@ -5629,6 +5578,72 @@
         "favorite": "H",
         "favorite_prob": 43.17000684499979,
         "confidence": 43.17000684499979
+      }
+    },
+    {
+      "id": 6794,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T23:00:00+04:00",
+      "home_team": "UTA Arad",
+      "away_team": "FCSB",
+      "home_logo": "https://sports.bzzoiro.com/img/team/204657/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/3301/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Superliga",
+      "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_score": 0.0,
+        "away_score": 1.0,
+        "draws_score": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 4.0,
+        "last_4": [
+          {
+            "date": "2025-10-26T22:30:00+04:00",
+            "home_team": "FCSB",
+            "away_team": "UTA Arad",
+            "home_score": 4,
+            "away_score": 0,
+            "status": "finished",
+            "league": "Superliga"
+          }
+        ],
+        "btts_last4": 0,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "btts": false,
+        "confidence": 60.7,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "0-8"
+      },
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false,
+      "verified_btts": false,
+      "ml_full": {
+        "prob_home_win": 31.413816771350778,
+        "prob_draw": 27.49117501554296,
+        "prob_away_win": 41.09500821310626,
+        "predicted_result": "A",
+        "expected_home_goals": 1.1,
+        "expected_away_goals": 1.3,
+        "prob_over_25": 58.25156468205225,
+        "over_25_recommend": false,
+        "prob_btts_yes": 55.129156740061994,
+        "btts_recommend": false,
+        "most_likely_score": "1-1",
+        "favorite": "A",
+        "favorite_prob": 41.09500821310626,
+        "confidence": 41.09500821310626
       }
     },
     {
@@ -5698,72 +5713,6 @@
       }
     },
     {
-      "id": 1976,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T23:45:00+04:00",
-      "home_team": "Olympique de Marseille",
-      "away_team": "Olympique Lyonnais",
-      "home_logo": "https://sports.bzzoiro.com/img/team/1641/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/1649/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Ligue 1",
-      "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_score": 0.0,
-        "away_score": 1.0,
-        "draws_score": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 1.0,
-        "last_4": [
-          {
-            "date": "2025-08-31T22:45:00+04:00",
-            "home_team": "Olympique Lyonnais",
-            "away_team": "Olympique de Marseille",
-            "home_score": 1,
-            "away_score": 0,
-            "status": "finished",
-            "league": "Ligue 1"
-          }
-        ],
-        "btts_last4": 0,
-        "btts_recommend": false
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "confidence": 64.8,
-        "source": "fusion",
-        "stake": 1,
-        "predicted_score": "0-2"
-      },
-      "category": "simple",
-      "verified_double": false,
-      "verified_over": false,
-      "verified_btts": false,
-      "ml_full": {
-        "prob_home_win": 28.12483169433867,
-        "prob_draw": 23.874306710351867,
-        "prob_away_win": 48.00086159530946,
-        "predicted_result": "A",
-        "expected_home_goals": 1.24763,
-        "expected_away_goals": 1.7002125000000001,
-        "prob_over_25": 58.25156468205225,
-        "over_25_recommend": false,
-        "prob_btts_yes": 65.75019204736546,
-        "btts_recommend": false,
-        "most_likely_score": "1-1",
-        "favorite": "A",
-        "favorite_prob": 48.00086159530946,
-        "confidence": 48.00086159530946
-      }
-    },
-    {
       "id": 1343,
       "date": "2026-03-01",
       "event_date": "2026-03-01T23:45:00+04:00",
@@ -5827,6 +5776,72 @@
         "favorite": "A",
         "favorite_prob": 37.12320513398512,
         "confidence": 37.12320513398512
+      }
+    },
+    {
+      "id": 1976,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T23:45:00+04:00",
+      "home_team": "Olympique de Marseille",
+      "away_team": "Olympique Lyonnais",
+      "home_logo": "https://sports.bzzoiro.com/img/team/1641/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/1649/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Ligue 1",
+      "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_score": 0.0,
+        "away_score": 1.0,
+        "draws_score": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 1.0,
+        "last_4": [
+          {
+            "date": "2025-08-31T22:45:00+04:00",
+            "home_team": "Olympique Lyonnais",
+            "away_team": "Olympique de Marseille",
+            "home_score": 1,
+            "away_score": 0,
+            "status": "finished",
+            "league": "Ligue 1"
+          }
+        ],
+        "btts_last4": 0,
+        "btts_recommend": false
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "btts": false,
+        "confidence": 64.8,
+        "source": "fusion",
+        "stake": 1,
+        "predicted_score": "0-2"
+      },
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false,
+      "verified_btts": false,
+      "ml_full": {
+        "prob_home_win": 28.12483169433867,
+        "prob_draw": 23.874306710351867,
+        "prob_away_win": 48.00086159530946,
+        "predicted_result": "A",
+        "expected_home_goals": 1.24763,
+        "expected_away_goals": 1.7002125000000001,
+        "prob_over_25": 58.25156468205225,
+        "over_25_recommend": false,
+        "prob_btts_yes": 65.75019204736546,
+        "btts_recommend": false,
+        "most_likely_score": "1-1",
+        "favorite": "A",
+        "favorite_prob": 48.00086159530946,
+        "confidence": 48.00086159530946
       }
     }
   ],
@@ -7207,81 +7222,6 @@
         }
       },
       {
-        "id": 2974,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T00:00:00+04:00",
-        "home_team": "NEC Nijmegen",
-        "away_team": "Fortuna Sittard",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2962/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2957/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Eredivisie",
-        "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "finished",
-        "home_score": 2,
-        "away_score": 3,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_score": 0.0,
-          "away_score": 2.0,
-          "draws_score": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 5.0,
-          "last_4": [
-            {
-              "date": "2026-03-01T00:00:00+04:00",
-              "home_team": "NEC Nijmegen",
-              "away_team": "Fortuna Sittard",
-              "home_score": 2,
-              "away_score": 3,
-              "status": "finished",
-              "league": "Eredivisie"
-            },
-            {
-              "date": "2025-08-31T14:15:00+04:00",
-              "home_team": "Fortuna Sittard",
-              "away_team": "NEC Nijmegen",
-              "home_score": 3,
-              "away_score": 2,
-              "status": "finished",
-              "league": "Eredivisie"
-            }
-          ],
-          "btts_last4": 2,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "12",
-          "over_25": true,
-          "btts": false,
-          "confidence": 59.3,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "0-10"
-        },
-        "category": "simple",
-        "verified_double": true,
-        "verified_over": true,
-        "verified_btts": false,
-        "ml_full": {
-          "prob_home_win": 52.194459337537054,
-          "prob_draw": 22.480657228988733,
-          "prob_away_win": 25.324883433474195,
-          "predicted_result": "H",
-          "expected_home_goals": 1.8865566666666667,
-          "expected_away_goals": 1.2524000000000002,
-          "prob_over_25": 85.12168758182479,
-          "over_25_recommend": true,
-          "prob_btts_yes": 82.06812683171214,
-          "btts_recommend": false,
-          "most_likely_score": "1-1",
-          "favorite": "H",
-          "favorite_prob": 52.194459337537054,
-          "confidence": 52.194459337537054
-        }
-      },
-      {
         "id": 949,
         "date": "2026-03-01",
         "event_date": "2026-03-01T00:00:00+04:00",
@@ -7354,6 +7294,81 @@
           "favorite": "H",
           "favorite_prob": 36.95364963145815,
           "confidence": 36.95364963145815
+        }
+      },
+      {
+        "id": 2974,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T00:00:00+04:00",
+        "home_team": "NEC Nijmegen",
+        "away_team": "Fortuna Sittard",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2962/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2957/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Eredivisie",
+        "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 3,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_score": 0.0,
+          "away_score": 2.0,
+          "draws_score": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 5.0,
+          "last_4": [
+            {
+              "date": "2026-03-01T00:00:00+04:00",
+              "home_team": "NEC Nijmegen",
+              "away_team": "Fortuna Sittard",
+              "home_score": 2,
+              "away_score": 3,
+              "status": "finished",
+              "league": "Eredivisie"
+            },
+            {
+              "date": "2025-08-31T14:15:00+04:00",
+              "home_team": "Fortuna Sittard",
+              "away_team": "NEC Nijmegen",
+              "home_score": 3,
+              "away_score": 2,
+              "status": "finished",
+              "league": "Eredivisie"
+            }
+          ],
+          "btts_last4": 2,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "12",
+          "over_25": true,
+          "btts": false,
+          "confidence": 59.3,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "0-10"
+        },
+        "category": "simple",
+        "verified_double": true,
+        "verified_over": true,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 52.194459337537054,
+          "prob_draw": 22.480657228988733,
+          "prob_away_win": 25.324883433474195,
+          "predicted_result": "H",
+          "expected_home_goals": 1.8865566666666667,
+          "expected_away_goals": 1.2524000000000002,
+          "prob_over_25": 85.12168758182479,
+          "over_25_recommend": true,
+          "prob_btts_yes": 82.06812683171214,
+          "btts_recommend": false,
+          "most_likely_score": "1-1",
+          "favorite": "H",
+          "favorite_prob": 52.194459337537054,
+          "confidence": 52.194459337537054
         }
       },
       {
@@ -7582,81 +7597,6 @@
         }
       },
       {
-        "id": 6187,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T03:00:00+04:00",
-        "home_team": "Atlético San Luis",
-        "away_team": "Club Puebla",
-        "home_logo": "https://sports.bzzoiro.com/img/team/1950/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/1941/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Liga MX Clausura",
-        "league_logo": "https://sports.bzzoiro.com/img/league/11620/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "finished",
-        "home_score": 0,
-        "away_score": 1,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_score": 1.0,
-          "away_score": 1.0,
-          "draws_score": 0.0,
-          "home_dominance": 0.5,
-          "away_dominance": 0.5,
-          "goals_avg": 1.5,
-          "last_4": [
-            {
-              "date": "2026-03-01T03:00:00+04:00",
-              "home_team": "Atlético San Luis",
-              "away_team": "Club Puebla",
-              "home_score": 0,
-              "away_score": 1,
-              "status": "finished",
-              "league": "Liga MX Clausura"
-            },
-            {
-              "date": "2025-08-16T05:00:00+04:00",
-              "home_team": "Club Puebla",
-              "away_team": "Atlético San Luis",
-              "home_score": 0,
-              "away_score": 2,
-              "status": "finished",
-              "league": "Liga MX Apertura"
-            }
-          ],
-          "btts_last4": 0,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "12",
-          "over_25": false,
-          "btts": false,
-          "confidence": 52.0,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "2-2"
-        },
-        "category": "simple",
-        "verified_double": true,
-        "verified_over": true,
-        "verified_btts": true,
-        "ml_full": {
-          "prob_home_win": 26.92221266222588,
-          "prob_draw": 26.398057460006207,
-          "prob_away_win": 46.67972987776791,
-          "predicted_result": "A",
-          "expected_home_goals": 1.0333333333333332,
-          "expected_away_goals": 1.45,
-          "prob_over_25": 59.87063256829237,
-          "over_25_recommend": false,
-          "prob_btts_yes": 28.147148118706177,
-          "btts_recommend": false,
-          "most_likely_score": "1-1",
-          "favorite": "A",
-          "favorite_prob": 46.67972987776791,
-          "confidence": 46.67972987776791
-        }
-      },
-      {
         "id": 6188,
         "date": "2026-03-01",
         "event_date": "2026-03-01T03:00:00+04:00",
@@ -7729,6 +7669,81 @@
           "favorite": "A",
           "favorite_prob": 48.78638434207906,
           "confidence": 48.78638434207906
+        }
+      },
+      {
+        "id": 6187,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T03:00:00+04:00",
+        "home_team": "Atlético San Luis",
+        "away_team": "Club Puebla",
+        "home_logo": "https://sports.bzzoiro.com/img/team/1950/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/1941/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Liga MX Clausura",
+        "league_logo": "https://sports.bzzoiro.com/img/league/11620/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 1,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_score": 1.0,
+          "away_score": 1.0,
+          "draws_score": 0.0,
+          "home_dominance": 0.5,
+          "away_dominance": 0.5,
+          "goals_avg": 1.5,
+          "last_4": [
+            {
+              "date": "2026-03-01T03:00:00+04:00",
+              "home_team": "Atlético San Luis",
+              "away_team": "Club Puebla",
+              "home_score": 0,
+              "away_score": 1,
+              "status": "finished",
+              "league": "Liga MX Clausura"
+            },
+            {
+              "date": "2025-08-16T05:00:00+04:00",
+              "home_team": "Club Puebla",
+              "away_team": "Atlético San Luis",
+              "home_score": 0,
+              "away_score": 2,
+              "status": "finished",
+              "league": "Liga MX Apertura"
+            }
+          ],
+          "btts_last4": 0,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "12",
+          "over_25": false,
+          "btts": false,
+          "confidence": 52.0,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "2-2"
+        },
+        "category": "simple",
+        "verified_double": true,
+        "verified_over": true,
+        "verified_btts": true,
+        "ml_full": {
+          "prob_home_win": 26.92221266222588,
+          "prob_draw": 26.398057460006207,
+          "prob_away_win": 46.67972987776791,
+          "predicted_result": "A",
+          "expected_home_goals": 1.0333333333333332,
+          "expected_away_goals": 1.45,
+          "prob_over_25": 59.87063256829237,
+          "over_25_recommend": false,
+          "prob_btts_yes": 28.147148118706177,
+          "btts_recommend": false,
+          "most_likely_score": "1-1",
+          "favorite": "A",
+          "favorite_prob": 46.67972987776791,
+          "confidence": 46.67972987776791
         }
       },
       {
@@ -8032,6 +8047,72 @@
         }
       },
       {
+        "id": 4935,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T05:30:00+04:00",
+        "home_team": "Sporting Kansas City",
+        "away_team": "Columbus Crew",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2509/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2504/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "MLS",
+        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 2,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_score": 0.0,
+          "away_score": 0.0,
+          "draws_score": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.0,
+          "goals_avg": 4.0,
+          "last_4": [
+            {
+              "date": "2026-03-01T05:30:00+04:00",
+              "home_team": "Sporting Kansas City",
+              "away_team": "Columbus Crew",
+              "home_score": 2,
+              "away_score": 2,
+              "status": "finished",
+              "league": "MLS"
+            }
+          ],
+          "btts_last4": 1,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "12",
+          "over_25": true,
+          "btts": false,
+          "confidence": 48.6,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "0-0"
+        },
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": true,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 31.09540012483427,
+          "prob_draw": 24.476401228116732,
+          "prob_away_win": 44.42819864704899,
+          "predicted_result": "A",
+          "expected_home_goals": 1.3,
+          "expected_away_goals": 1.6,
+          "prob_over_25": 72.01655364002943,
+          "over_25_recommend": false,
+          "prob_btts_yes": 67.88125224874351,
+          "btts_recommend": false,
+          "most_likely_score": "1-1",
+          "favorite": "A",
+          "favorite_prob": 44.42819864704899,
+          "confidence": 44.42819864704899
+        }
+      },
+      {
         "id": 4936,
         "date": "2026-03-01",
         "event_date": "2026-03-01T05:30:00+04:00",
@@ -8179,72 +8260,6 @@
           "favorite": "A",
           "favorite_prob": 51.42485569491705,
           "confidence": 51.42485569491705
-        }
-      },
-      {
-        "id": 4935,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T05:30:00+04:00",
-        "home_team": "Sporting Kansas City",
-        "away_team": "Columbus Crew",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2509/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2504/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "MLS",
-        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "finished",
-        "home_score": 2,
-        "away_score": 2,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_score": 0.0,
-          "away_score": 0.0,
-          "draws_score": 1.0,
-          "home_dominance": 0.0,
-          "away_dominance": 0.0,
-          "goals_avg": 4.0,
-          "last_4": [
-            {
-              "date": "2026-03-01T05:30:00+04:00",
-              "home_team": "Sporting Kansas City",
-              "away_team": "Columbus Crew",
-              "home_score": 2,
-              "away_score": 2,
-              "status": "finished",
-              "league": "MLS"
-            }
-          ],
-          "btts_last4": 1,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "12",
-          "over_25": true,
-          "btts": false,
-          "confidence": 48.6,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "0-0"
-        },
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": true,
-        "verified_btts": false,
-        "ml_full": {
-          "prob_home_win": 31.09540012483427,
-          "prob_draw": 24.476401228116732,
-          "prob_away_win": 44.42819864704899,
-          "predicted_result": "A",
-          "expected_home_goals": 1.3,
-          "expected_away_goals": 1.6,
-          "prob_over_25": 72.01655364002943,
-          "over_25_recommend": false,
-          "prob_btts_yes": 67.88125224874351,
-          "btts_recommend": false,
-          "most_likely_score": "1-1",
-          "favorite": "A",
-          "favorite_prob": 44.42819864704899,
-          "confidence": 44.42819864704899
         }
       },
       {
@@ -8474,7 +8489,7 @@
         "league": "Eredivisie",
         "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "2nd_half",
+        "status": "finished",
         "home_score": 0,
         "away_score": 0,
         "h2h_analysis": {
@@ -8509,9 +8524,9 @@
           "predicted_score": "0-8"
         },
         "category": "simple",
-        "verified_double": false,
+        "verified_double": true,
         "verified_over": false,
-        "verified_btts": false,
+        "verified_btts": true,
         "ml_full": {
           "prob_home_win": 37.70481023082644,
           "prob_draw": 24.425915919889263,
@@ -8540,9 +8555,9 @@
         "league": "Serie A",
         "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "2nd_half",
+        "status": "finished",
         "home_score": 0,
-        "away_score": 0,
+        "away_score": 2,
         "h2h_analysis": {
           "total_matches": 1,
           "home_score": 1.0,
@@ -8575,9 +8590,9 @@
           "predicted_score": "6-0"
         },
         "category": "simple",
-        "verified_double": false,
+        "verified_double": true,
         "verified_over": false,
-        "verified_btts": false,
+        "verified_btts": true,
         "ml_full": {
           "prob_home_win": 31.879233975343364,
           "prob_draw": 25.281229283222622,
@@ -8606,9 +8621,9 @@
         "league": "Scottish Premiership",
         "league_logo": "https://sports.bzzoiro.com/img/league/36/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "2nd_half",
+        "status": "finished",
         "home_score": 2,
-        "away_score": 0,
+        "away_score": 2,
         "h2h_analysis": {
           "total_matches": 2,
           "home_score": 1.0,
@@ -8651,7 +8666,7 @@
         },
         "category": "simple",
         "verified_double": false,
-        "verified_over": false,
+        "verified_over": true,
         "verified_btts": false,
         "ml_full": {
           "prob_home_win": 33.39931472544158,
@@ -8681,8 +8696,8 @@
         "league": "Pro League",
         "league_logo": "https://sports.bzzoiro.com/img/league/38/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "1st_half",
-        "home_score": 1,
+        "status": "finished",
+        "home_score": 3,
         "away_score": 0,
         "h2h_analysis": {
           "total_matches": 1,
@@ -8716,9 +8731,9 @@
           "predicted_score": "0-0"
         },
         "category": "simple",
-        "verified_double": false,
+        "verified_double": true,
         "verified_over": false,
-        "verified_btts": false,
+        "verified_btts": true,
         "ml_full": {
           "prob_home_win": 49.85901143689664,
           "prob_draw": 24.800570734904078,
@@ -8747,7 +8762,7 @@
         "league": "Trendyol Super Lig",
         "league_logo": "https://sports.bzzoiro.com/img/league/52/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "1st_half",
+        "status": "finished",
         "home_score": 0,
         "away_score": 0,
         "h2h_analysis": {
@@ -8783,8 +8798,8 @@
         },
         "category": "simple",
         "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
+        "verified_over": true,
+        "verified_btts": true,
         "ml_full": {
           "prob_home_win": 36.47659516879324,
           "prob_draw": 25.683666569431068,
@@ -8803,72 +8818,6 @@
         }
       },
       {
-        "id": 942,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T17:00:00+04:00",
-        "home_team": "Elche",
-        "away_team": "Espanyol",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2846/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2814/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "La Liga",
-        "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "1st_half",
-        "home_score": 0,
-        "away_score": 0,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_score": 0.0,
-          "away_score": 1.0,
-          "draws_score": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 1.0,
-          "last_4": [
-            {
-              "date": "2025-10-25T18:15:00+04:00",
-              "home_team": "Espanyol",
-              "away_team": "Elche",
-              "home_score": 1,
-              "away_score": 0,
-              "status": "finished",
-              "league": "La Liga"
-            }
-          ],
-          "btts_last4": 0,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "confidence": 62.5,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "0-2"
-        },
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
-        "ml_full": {
-          "prob_home_win": 32.054681690601335,
-          "prob_draw": 23.730543285960103,
-          "prob_away_win": 44.21477502343856,
-          "predicted_result": "A",
-          "expected_home_goals": 1.3961800000000002,
-          "expected_away_goals": 1.6769499999999997,
-          "prob_over_25": 59.87063256829237,
-          "over_25_recommend": false,
-          "prob_btts_yes": 74.44861982818473,
-          "btts_recommend": false,
-          "most_likely_score": "1-1",
-          "favorite": "A",
-          "favorite_prob": 44.21477502343856,
-          "confidence": 44.21477502343856
-        }
-      },
-      {
         "id": 4867,
         "date": "2026-03-01",
         "event_date": "2026-03-01T17:00:00+04:00",
@@ -8879,9 +8828,9 @@
         "league": "Super League",
         "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "1st_half",
-        "home_score": 0,
-        "away_score": 1,
+        "status": "finished",
+        "home_score": 1,
+        "away_score": 2,
         "h2h_analysis": {
           "total_matches": 2,
           "home_score": 1.0,
@@ -8924,7 +8873,7 @@
         },
         "category": "simple",
         "verified_double": false,
-        "verified_over": false,
+        "verified_over": true,
         "verified_btts": false,
         "ml_full": {
           "prob_home_win": 40.012768490782804,
@@ -8941,6 +8890,72 @@
           "favorite": "H",
           "favorite_prob": 40.012768490782804,
           "confidence": 40.012768490782804
+        }
+      },
+      {
+        "id": 942,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T17:00:00+04:00",
+        "home_team": "Elche",
+        "away_team": "Espanyol",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2846/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2814/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "La Liga",
+        "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 2,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_score": 0.0,
+          "away_score": 1.0,
+          "draws_score": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 1.0,
+          "last_4": [
+            {
+              "date": "2025-10-25T18:15:00+04:00",
+              "home_team": "Espanyol",
+              "away_team": "Elche",
+              "home_score": 1,
+              "away_score": 0,
+              "status": "finished",
+              "league": "La Liga"
+            }
+          ],
+          "btts_last4": 0,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "btts": false,
+          "confidence": 62.5,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "0-2"
+        },
+        "category": "simple",
+        "verified_double": true,
+        "verified_over": false,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 32.054681690601335,
+          "prob_draw": 23.730543285960103,
+          "prob_away_win": 44.21477502343856,
+          "predicted_result": "A",
+          "expected_home_goals": 1.3961800000000002,
+          "expected_away_goals": 1.6769499999999997,
+          "prob_over_25": 59.87063256829237,
+          "over_25_recommend": false,
+          "prob_btts_yes": 74.44861982818473,
+          "btts_recommend": false,
+          "most_likely_score": "1-1",
+          "favorite": "A",
+          "favorite_prob": 44.21477502343856,
+          "confidence": 44.21477502343856
         }
       },
       {
@@ -9142,6 +9157,138 @@
         }
       },
       {
+        "id": 1344,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T18:00:00+04:00",
+        "home_team": "Sassuolo",
+        "away_team": "Atalanta",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2793/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2686/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Serie A",
+        "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_score": 1.0,
+          "away_score": 0.0,
+          "draws_score": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 3.0,
+          "last_4": [
+            {
+              "date": "2025-11-09T15:30:00+04:00",
+              "home_team": "Atalanta",
+              "away_team": "Sassuolo",
+              "home_score": 0,
+              "away_score": 3,
+              "status": "finished",
+              "league": "Serie A"
+            }
+          ],
+          "btts_last4": 0,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "12",
+          "over_25": true,
+          "btts": false,
+          "confidence": 49.9,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "6-0"
+        },
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 37.16925947106934,
+          "prob_draw": 22.95228764981083,
+          "prob_away_win": 39.87845287911983,
+          "predicted_result": "A",
+          "expected_home_goals": 1.62741,
+          "expected_away_goals": 1.69205,
+          "prob_over_25": 45.02617751698872,
+          "over_25_recommend": false,
+          "prob_btts_yes": 45.687414915398264,
+          "btts_recommend": false,
+          "most_likely_score": "1-1",
+          "favorite": "A",
+          "favorite_prob": 39.87845287911983,
+          "confidence": 39.87845287911983
+        }
+      },
+      {
+        "id": 278,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T18:00:00+04:00",
+        "home_team": "Fulham",
+        "away_team": "Tottenham Hotspur",
+        "home_logo": "https://sports.bzzoiro.com/img/team/43/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/33/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Premier League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_score": 1.0,
+          "away_score": 0.0,
+          "draws_score": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 3.0,
+          "last_4": [
+            {
+              "date": "2025-11-30T00:00:00+04:00",
+              "home_team": "Tottenham Hotspur",
+              "away_team": "Fulham",
+              "home_score": 1,
+              "away_score": 2,
+              "status": "finished",
+              "league": "Premier League"
+            }
+          ],
+          "btts_last4": 1,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "btts": false,
+          "confidence": 60.8,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "6-0"
+        },
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 41.35300451996798,
+          "prob_draw": 24.871335995183454,
+          "prob_away_win": 33.77565948484856,
+          "predicted_result": "H",
+          "expected_home_goals": 1.5154899999999998,
+          "expected_away_goals": 1.3464200000000002,
+          "prob_over_25": 73.40144709512995,
+          "over_25_recommend": false,
+          "prob_btts_yes": 84.01157876979336,
+          "btts_recommend": false,
+          "most_likely_score": "1-1",
+          "favorite": "H",
+          "favorite_prob": 41.35300451996798,
+          "confidence": 41.35300451996798
+        }
+      },
+      {
         "id": 281,
         "date": "2026-03-01",
         "event_date": "2026-03-01T18:00:00+04:00",
@@ -9274,72 +9421,6 @@
         }
       },
       {
-        "id": 278,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T18:00:00+04:00",
-        "home_team": "Fulham",
-        "away_team": "Tottenham Hotspur",
-        "home_logo": "https://sports.bzzoiro.com/img/team/43/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/33/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Premier League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_score": 1.0,
-          "away_score": 0.0,
-          "draws_score": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 3.0,
-          "last_4": [
-            {
-              "date": "2025-11-30T00:00:00+04:00",
-              "home_team": "Tottenham Hotspur",
-              "away_team": "Fulham",
-              "home_score": 1,
-              "away_score": 2,
-              "status": "finished",
-              "league": "Premier League"
-            }
-          ],
-          "btts_last4": 1,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": true,
-          "btts": false,
-          "confidence": 60.8,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "6-0"
-        },
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
-        "ml_full": {
-          "prob_home_win": 41.35300451996798,
-          "prob_draw": 24.871335995183454,
-          "prob_away_win": 33.77565948484856,
-          "predicted_result": "H",
-          "expected_home_goals": 1.5154899999999998,
-          "expected_away_goals": 1.3464200000000002,
-          "prob_over_25": 73.40144709512995,
-          "over_25_recommend": false,
-          "prob_btts_yes": 84.01157876979336,
-          "btts_recommend": false,
-          "most_likely_score": "1-1",
-          "favorite": "H",
-          "favorite_prob": 41.35300451996798,
-          "confidence": 41.35300451996798
-        }
-      },
-      {
         "id": 276,
         "date": "2026-03-01",
         "event_date": "2026-03-01T18:00:00+04:00",
@@ -9403,72 +9484,6 @@
           "favorite": "H",
           "favorite_prob": 40.673735807712646,
           "confidence": 40.673735807712646
-        }
-      },
-      {
-        "id": 1344,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T18:00:00+04:00",
-        "home_team": "Sassuolo",
-        "away_team": "Atalanta",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2793/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2686/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Serie A",
-        "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_score": 1.0,
-          "away_score": 0.0,
-          "draws_score": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 3.0,
-          "last_4": [
-            {
-              "date": "2025-11-09T15:30:00+04:00",
-              "home_team": "Atalanta",
-              "away_team": "Sassuolo",
-              "home_score": 0,
-              "away_score": 3,
-              "status": "finished",
-              "league": "Serie A"
-            }
-          ],
-          "btts_last4": 0,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "12",
-          "over_25": true,
-          "btts": false,
-          "confidence": 49.9,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "6-0"
-        },
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
-        "ml_full": {
-          "prob_home_win": 37.16925947106934,
-          "prob_draw": 22.95228764981083,
-          "prob_away_win": 39.87845287911983,
-          "predicted_result": "A",
-          "expected_home_goals": 1.62741,
-          "expected_away_goals": 1.69205,
-          "prob_over_25": 45.02617751698872,
-          "over_25_recommend": false,
-          "prob_btts_yes": 45.687414915398264,
-          "btts_recommend": false,
-          "most_likely_score": "1-1",
-          "favorite": "A",
-          "favorite_prob": 39.87845287911983,
-          "confidence": 39.87845287911983
         }
       },
       {
@@ -9604,6 +9619,147 @@
         }
       },
       {
+        "id": 598,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T19:30:00+04:00",
+        "home_team": "Tondela",
+        "away_team": "Santa Clara",
+        "home_logo": "https://sports.bzzoiro.com/img/team/38396/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/3011/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Liga Portugal Betclic",
+        "league_logo": "https://sports.bzzoiro.com/img/league/238/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_score": 1.0,
+          "away_score": 0.0,
+          "draws_score": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 3.0,
+          "last_4": [
+            {
+              "date": "2025-09-27T19:30:00+04:00",
+              "home_team": "Santa Clara",
+              "away_team": "Tondela",
+              "home_score": 1,
+              "away_score": 2,
+              "status": "finished",
+              "league": "Liga Portugal Betclic"
+            }
+          ],
+          "btts_last4": 1,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "12",
+          "over_25": true,
+          "btts": false,
+          "confidence": 48.1,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "6-0"
+        },
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 32.9789119852026,
+          "prob_draw": 30.109801905168247,
+          "prob_away_win": 36.911286109629145,
+          "predicted_result": "A",
+          "expected_home_goals": 1.00129,
+          "expected_away_goals": 1.07761,
+          "prob_over_25": 33.84611195106897,
+          "over_25_recommend": false,
+          "prob_btts_yes": 50.39081577997262,
+          "btts_recommend": false,
+          "most_likely_score": "1-1",
+          "favorite": "A",
+          "favorite_prob": 36.911286109629145,
+          "confidence": 36.911286109629145
+        }
+      },
+      {
+        "id": 4869,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T19:30:00+04:00",
+        "home_team": "BSC Young Boys",
+        "away_team": "FC Zürich",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2445/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2450/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Super League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_score": 2.0,
+          "away_score": 0.0,
+          "draws_score": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 4.0,
+          "last_4": [
+            {
+              "date": "2026-02-01T19:30:00+04:00",
+              "home_team": "BSC Young Boys",
+              "away_team": "FC Zürich",
+              "home_score": 3,
+              "away_score": 0,
+              "status": "finished",
+              "league": "Super League"
+            },
+            {
+              "date": "2025-10-26T17:00:00+04:00",
+              "home_team": "FC Zürich",
+              "away_team": "BSC Young Boys",
+              "home_score": 2,
+              "away_score": 3,
+              "status": "finished",
+              "league": "Super League"
+            }
+          ],
+          "btts_last4": 1,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "12",
+          "over_25": true,
+          "btts": false,
+          "confidence": 53.1,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "8-0"
+        },
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 33.80905596765664,
+          "prob_draw": 41.91679997493683,
+          "prob_away_win": 24.274144057406538,
+          "predicted_result": "D",
+          "expected_home_goals": 0.6715899999999999,
+          "expected_away_goals": 0.5215299999999999,
+          "prob_over_25": 74.75074624530771,
+          "over_25_recommend": false,
+          "prob_btts_yes": 61.09299108484216,
+          "btts_recommend": false,
+          "most_likely_score": "0-0",
+          "favorite": "H",
+          "favorite_prob": 33.80905596765664,
+          "confidence": 41.91679997493683
+        }
+      },
+      {
         "id": 4868,
         "date": "2026-03-01",
         "event_date": "2026-03-01T19:30:00+04:00",
@@ -9676,72 +9832,6 @@
           "favorite": "H",
           "favorite_prob": 37.45835769355873,
           "confidence": 49.003383384777436
-        }
-      },
-      {
-        "id": 598,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T19:30:00+04:00",
-        "home_team": "Tondela",
-        "away_team": "Santa Clara",
-        "home_logo": "https://sports.bzzoiro.com/img/team/38396/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/3011/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Liga Portugal Betclic",
-        "league_logo": "https://sports.bzzoiro.com/img/league/238/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_score": 1.0,
-          "away_score": 0.0,
-          "draws_score": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 3.0,
-          "last_4": [
-            {
-              "date": "2025-09-27T19:30:00+04:00",
-              "home_team": "Santa Clara",
-              "away_team": "Tondela",
-              "home_score": 1,
-              "away_score": 2,
-              "status": "finished",
-              "league": "Liga Portugal Betclic"
-            }
-          ],
-          "btts_last4": 1,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "12",
-          "over_25": true,
-          "btts": false,
-          "confidence": 48.1,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "6-0"
-        },
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
-        "ml_full": {
-          "prob_home_win": 32.9789119852026,
-          "prob_draw": 30.109801905168247,
-          "prob_away_win": 36.911286109629145,
-          "predicted_result": "A",
-          "expected_home_goals": 1.00129,
-          "expected_away_goals": 1.07761,
-          "prob_over_25": 33.84611195106897,
-          "over_25_recommend": false,
-          "prob_btts_yes": 50.39081577997262,
-          "btts_recommend": false,
-          "most_likely_score": "1-1",
-          "favorite": "A",
-          "favorite_prob": 36.911286109629145,
-          "confidence": 36.911286109629145
         }
       },
       {
@@ -10075,72 +10165,6 @@
         }
       },
       {
-        "id": 1667,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T20:30:00+04:00",
-        "home_team": "Eintracht Frankfurt",
-        "away_team": "SC Freiburg",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2674/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2538/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Bundesliga",
-        "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_score": 0.0,
-          "away_score": 0.0,
-          "draws_score": 1.0,
-          "home_dominance": 0.0,
-          "away_dominance": 0.0,
-          "goals_avg": 4.0,
-          "last_4": [
-            {
-              "date": "2025-10-19T17:30:00+04:00",
-              "home_team": "SC Freiburg",
-              "away_team": "Eintracht Frankfurt",
-              "home_score": 2,
-              "away_score": 2,
-              "status": "finished",
-              "league": "Bundesliga"
-            }
-          ],
-          "btts_last4": 1,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "12",
-          "over_25": true,
-          "btts": false,
-          "confidence": 46.9,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "0-0"
-        },
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
-        "ml_full": {
-          "prob_home_win": 41.52813677587419,
-          "prob_draw": 25.653943102834663,
-          "prob_away_win": 32.81792012129114,
-          "predicted_result": "H",
-          "expected_home_goals": 1.44792,
-          "expected_away_goals": 1.25831,
-          "prob_over_25": 67.664351019205,
-          "over_25_recommend": false,
-          "prob_btts_yes": 72.58782797956833,
-          "btts_recommend": false,
-          "most_likely_score": "1-1",
-          "favorite": "H",
-          "favorite_prob": 41.52813677587419,
-          "confidence": 41.52813677587419
-        }
-      },
-      {
         "id": 274,
         "date": "2026-03-01",
         "event_date": "2026-03-01T20:30:00+04:00",
@@ -10207,15 +10231,15 @@
         }
       },
       {
-        "id": 6966,
+        "id": 1667,
         "date": "2026-03-01",
-        "event_date": "2026-03-01T21:00:00+04:00",
-        "home_team": "PAOK",
-        "away_team": "Asteras Aktor",
-        "home_logo": "https://sports.bzzoiro.com/img/team/3251/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/6342/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Stoiximan Super League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "event_date": "2026-03-01T20:30:00+04:00",
+        "home_team": "Eintracht Frankfurt",
+        "away_team": "SC Freiburg",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2674/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2538/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Bundesliga",
+        "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
         "status": "notstarted",
         "home_score": null,
@@ -10227,16 +10251,16 @@
           "draws_score": 1.0,
           "home_dominance": 0.0,
           "away_dominance": 0.0,
-          "goals_avg": 6.0,
+          "goals_avg": 4.0,
           "last_4": [
             {
-              "date": "2025-09-28T21:30:00+04:00",
-              "home_team": "Asteras Aktor",
-              "away_team": "PAOK",
-              "home_score": 3,
-              "away_score": 3,
+              "date": "2025-10-19T17:30:00+04:00",
+              "home_team": "SC Freiburg",
+              "away_team": "Eintracht Frankfurt",
+              "home_score": 2,
+              "away_score": 2,
               "status": "finished",
-              "league": "Stoiximan Super League"
+              "league": "Bundesliga"
             }
           ],
           "btts_last4": 1,
@@ -10246,7 +10270,7 @@
           "double_chance": "12",
           "over_25": true,
           "btts": false,
-          "confidence": 66.5,
+          "confidence": 46.9,
           "source": "fusion",
           "stake": 1,
           "predicted_score": "0-0"
@@ -10256,86 +10280,20 @@
         "verified_over": false,
         "verified_btts": false,
         "ml_full": {
-          "prob_home_win": 74.10851041515375,
-          "prob_draw": 17.21317606745133,
-          "prob_away_win": 8.678313517394942,
+          "prob_home_win": 41.52813677587419,
+          "prob_draw": 25.653943102834663,
+          "prob_away_win": 32.81792012129114,
           "predicted_result": "H",
-          "expected_home_goals": 2.2,
-          "expected_away_goals": 0.6000000000000001,
-          "prob_over_25": 54.973822483011304,
+          "expected_home_goals": 1.44792,
+          "expected_away_goals": 1.25831,
+          "prob_over_25": 67.664351019205,
           "over_25_recommend": false,
-          "prob_btts_yes": 19.31785301444866,
+          "prob_btts_yes": 72.58782797956833,
           "btts_recommend": false,
-          "most_likely_score": "2-0",
+          "most_likely_score": "1-1",
           "favorite": "H",
-          "favorite_prob": 74.10851041515375,
-          "confidence": 74.10851041515375
-        }
-      },
-      {
-        "id": 1345,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T21:00:00+04:00",
-        "home_team": "Torino",
-        "away_team": "Lazio",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2696/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2699/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Serie A",
-        "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_score": 0.0,
-          "away_score": 0.0,
-          "draws_score": 1.0,
-          "home_dominance": 0.0,
-          "away_dominance": 0.0,
-          "goals_avg": 6.0,
-          "last_4": [
-            {
-              "date": "2025-10-04T17:00:00+04:00",
-              "home_team": "Lazio",
-              "away_team": "Torino",
-              "home_score": 3,
-              "away_score": 3,
-              "status": "finished",
-              "league": "Serie A"
-            }
-          ],
-          "btts_last4": 1,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "12",
-          "over_25": true,
-          "btts": false,
-          "confidence": 46.1,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "0-0"
-        },
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
-        "ml_full": {
-          "prob_home_win": 30.539857600947872,
-          "prob_draw": 29.35690512257199,
-          "prob_away_win": 40.103237276480144,
-          "predicted_result": "A",
-          "expected_home_goals": 0.9810099999999999,
-          "expected_away_goals": 1.16953,
-          "prob_over_25": 36.944134018176364,
-          "over_25_recommend": false,
-          "prob_btts_yes": 39.97908195190177,
-          "btts_recommend": false,
-          "most_likely_score": "0-1",
-          "favorite": "A",
-          "favorite_prob": 40.103237276480144,
-          "confidence": 40.103237276480144
+          "favorite_prob": 41.52813677587419,
+          "confidence": 41.52813677587419
         }
       },
       {
@@ -10405,6 +10363,72 @@
         }
       },
       {
+        "id": 6966,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T21:00:00+04:00",
+        "home_team": "PAOK",
+        "away_team": "Asteras Aktor",
+        "home_logo": "https://sports.bzzoiro.com/img/team/3251/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/6342/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Stoiximan Super League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_score": 0.0,
+          "away_score": 0.0,
+          "draws_score": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.0,
+          "goals_avg": 6.0,
+          "last_4": [
+            {
+              "date": "2025-09-28T21:30:00+04:00",
+              "home_team": "Asteras Aktor",
+              "away_team": "PAOK",
+              "home_score": 3,
+              "away_score": 3,
+              "status": "finished",
+              "league": "Stoiximan Super League"
+            }
+          ],
+          "btts_last4": 1,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "12",
+          "over_25": true,
+          "btts": false,
+          "confidence": 66.5,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "0-0"
+        },
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 74.10851041515375,
+          "prob_draw": 17.21317606745133,
+          "prob_away_win": 8.678313517394942,
+          "predicted_result": "H",
+          "expected_home_goals": 2.2,
+          "expected_away_goals": 0.6000000000000001,
+          "prob_over_25": 54.973822483011304,
+          "over_25_recommend": false,
+          "prob_btts_yes": 19.31785301444866,
+          "btts_recommend": false,
+          "most_likely_score": "2-0",
+          "favorite": "H",
+          "favorite_prob": 74.10851041515375,
+          "confidence": 74.10851041515375
+        }
+      },
+      {
         "id": 3280,
         "date": "2026-03-01",
         "event_date": "2026-03-01T21:00:00+04:00",
@@ -10471,69 +10495,69 @@
         }
       },
       {
-        "id": 947,
+        "id": 1345,
         "date": "2026-03-01",
-        "event_date": "2026-03-01T21:30:00+04:00",
-        "home_team": "Real Betis",
-        "away_team": "Sevilla",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2816/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2833/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "La Liga",
-        "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "event_date": "2026-03-01T21:00:00+04:00",
+        "home_team": "Torino",
+        "away_team": "Lazio",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2696/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2699/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Serie A",
+        "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
         "status": "notstarted",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
           "total_matches": 1,
-          "home_score": 1.0,
+          "home_score": 0.0,
           "away_score": 0.0,
-          "draws_score": 0.0,
-          "home_dominance": 1.0,
+          "draws_score": 1.0,
+          "home_dominance": 0.0,
           "away_dominance": 0.0,
-          "goals_avg": 2.0,
+          "goals_avg": 6.0,
           "last_4": [
             {
-              "date": "2025-11-30T19:15:00+04:00",
-              "home_team": "Sevilla",
-              "away_team": "Real Betis",
-              "home_score": 0,
-              "away_score": 2,
+              "date": "2025-10-04T17:00:00+04:00",
+              "home_team": "Lazio",
+              "away_team": "Torino",
+              "home_score": 3,
+              "away_score": 3,
               "status": "finished",
-              "league": "La Liga"
+              "league": "Serie A"
             }
           ],
-          "btts_last4": 0,
+          "btts_last4": 1,
           "btts_recommend": false
         },
         "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
+          "double_chance": "12",
+          "over_25": true,
           "btts": false,
-          "confidence": 64.0,
+          "confidence": 46.1,
           "source": "fusion",
           "stake": 1,
-          "predicted_score": "4-0"
+          "predicted_score": "0-0"
         },
         "category": "simple",
         "verified_double": false,
         "verified_over": false,
         "verified_btts": false,
         "ml_full": {
-          "prob_home_win": 46.647384065661235,
-          "prob_draw": 24.68147704668889,
-          "prob_away_win": 28.67113888764987,
-          "predicted_result": "H",
-          "expected_home_goals": 1.60375,
-          "expected_away_goals": 1.2039499999999999,
-          "prob_over_25": 64.61697666727238,
+          "prob_home_win": 30.539857600947872,
+          "prob_draw": 29.35690512257199,
+          "prob_away_win": 40.103237276480144,
+          "predicted_result": "A",
+          "expected_home_goals": 0.9810099999999999,
+          "expected_away_goals": 1.16953,
+          "prob_over_25": 36.944134018176364,
           "over_25_recommend": false,
-          "prob_btts_yes": 67.0438817463781,
+          "prob_btts_yes": 39.97908195190177,
           "btts_recommend": false,
-          "most_likely_score": "1-1",
-          "favorite": "H",
-          "favorite_prob": 46.647384065661235,
-          "confidence": 46.647384065661235
+          "most_likely_score": "0-1",
+          "favorite": "A",
+          "favorite_prob": 40.103237276480144,
+          "confidence": 40.103237276480144
         }
       },
       {
@@ -10600,6 +10624,72 @@
           "favorite": "H",
           "favorite_prob": 40.216487351609615,
           "confidence": 40.216487351609615
+        }
+      },
+      {
+        "id": 947,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T21:30:00+04:00",
+        "home_team": "Real Betis",
+        "away_team": "Sevilla",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2816/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2833/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "La Liga",
+        "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_score": 1.0,
+          "away_score": 0.0,
+          "draws_score": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 2.0,
+          "last_4": [
+            {
+              "date": "2025-11-30T19:15:00+04:00",
+              "home_team": "Sevilla",
+              "away_team": "Real Betis",
+              "home_score": 0,
+              "away_score": 2,
+              "status": "finished",
+              "league": "La Liga"
+            }
+          ],
+          "btts_last4": 0,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "btts": false,
+          "confidence": 64.0,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "4-0"
+        },
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 46.647384065661235,
+          "prob_draw": 24.68147704668889,
+          "prob_away_win": 28.67113888764987,
+          "predicted_result": "H",
+          "expected_home_goals": 1.60375,
+          "expected_away_goals": 1.2039499999999999,
+          "prob_over_25": 64.61697666727238,
+          "over_25_recommend": false,
+          "prob_btts_yes": 67.0438817463781,
+          "btts_recommend": false,
+          "most_likely_score": "1-1",
+          "favorite": "H",
+          "favorite_prob": 46.647384065661235,
+          "confidence": 46.647384065661235
         }
       },
       {
@@ -10867,72 +10957,6 @@
         }
       },
       {
-        "id": 6794,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T23:00:00+04:00",
-        "home_team": "UTA Arad",
-        "away_team": "FCSB",
-        "home_logo": "https://sports.bzzoiro.com/img/team/204657/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/3301/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Superliga",
-        "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_score": 0.0,
-          "away_score": 1.0,
-          "draws_score": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 4.0,
-          "last_4": [
-            {
-              "date": "2025-10-26T22:30:00+04:00",
-              "home_team": "FCSB",
-              "away_team": "UTA Arad",
-              "home_score": 4,
-              "away_score": 0,
-              "status": "finished",
-              "league": "Superliga"
-            }
-          ],
-          "btts_last4": 0,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "btts": false,
-          "confidence": 60.7,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "0-8"
-        },
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
-        "ml_full": {
-          "prob_home_win": 31.413816771350778,
-          "prob_draw": 27.49117501554296,
-          "prob_away_win": 41.09500821310626,
-          "predicted_result": "A",
-          "expected_home_goals": 1.1,
-          "expected_away_goals": 1.3,
-          "prob_over_25": 58.25156468205225,
-          "over_25_recommend": false,
-          "prob_btts_yes": 55.129156740061994,
-          "btts_recommend": false,
-          "most_likely_score": "1-1",
-          "favorite": "A",
-          "favorite_prob": 41.09500821310626,
-          "confidence": 41.09500821310626
-        }
-      },
-      {
         "id": 2969,
         "date": "2026-03-01",
         "event_date": "2026-03-01T23:00:00+04:00",
@@ -10996,6 +11020,72 @@
           "favorite": "H",
           "favorite_prob": 43.17000684499979,
           "confidence": 43.17000684499979
+        }
+      },
+      {
+        "id": 6794,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T23:00:00+04:00",
+        "home_team": "UTA Arad",
+        "away_team": "FCSB",
+        "home_logo": "https://sports.bzzoiro.com/img/team/204657/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/3301/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Superliga",
+        "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_score": 0.0,
+          "away_score": 1.0,
+          "draws_score": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 4.0,
+          "last_4": [
+            {
+              "date": "2025-10-26T22:30:00+04:00",
+              "home_team": "FCSB",
+              "away_team": "UTA Arad",
+              "home_score": 4,
+              "away_score": 0,
+              "status": "finished",
+              "league": "Superliga"
+            }
+          ],
+          "btts_last4": 0,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "btts": false,
+          "confidence": 60.7,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "0-8"
+        },
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 31.413816771350778,
+          "prob_draw": 27.49117501554296,
+          "prob_away_win": 41.09500821310626,
+          "predicted_result": "A",
+          "expected_home_goals": 1.1,
+          "expected_away_goals": 1.3,
+          "prob_over_25": 58.25156468205225,
+          "over_25_recommend": false,
+          "prob_btts_yes": 55.129156740061994,
+          "btts_recommend": false,
+          "most_likely_score": "1-1",
+          "favorite": "A",
+          "favorite_prob": 41.09500821310626,
+          "confidence": 41.09500821310626
         }
       },
       {
@@ -11065,72 +11155,6 @@
         }
       },
       {
-        "id": 1976,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T23:45:00+04:00",
-        "home_team": "Olympique de Marseille",
-        "away_team": "Olympique Lyonnais",
-        "home_logo": "https://sports.bzzoiro.com/img/team/1641/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/1649/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Ligue 1",
-        "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_score": 0.0,
-          "away_score": 1.0,
-          "draws_score": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 1.0,
-          "last_4": [
-            {
-              "date": "2025-08-31T22:45:00+04:00",
-              "home_team": "Olympique Lyonnais",
-              "away_team": "Olympique de Marseille",
-              "home_score": 1,
-              "away_score": 0,
-              "status": "finished",
-              "league": "Ligue 1"
-            }
-          ],
-          "btts_last4": 0,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "confidence": 64.8,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "0-2"
-        },
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
-        "ml_full": {
-          "prob_home_win": 28.12483169433867,
-          "prob_draw": 23.874306710351867,
-          "prob_away_win": 48.00086159530946,
-          "predicted_result": "A",
-          "expected_home_goals": 1.24763,
-          "expected_away_goals": 1.7002125000000001,
-          "prob_over_25": 58.25156468205225,
-          "over_25_recommend": false,
-          "prob_btts_yes": 65.75019204736546,
-          "btts_recommend": false,
-          "most_likely_score": "1-1",
-          "favorite": "A",
-          "favorite_prob": 48.00086159530946,
-          "confidence": 48.00086159530946
-        }
-      },
-      {
         "id": 1343,
         "date": "2026-03-01",
         "event_date": "2026-03-01T23:45:00+04:00",
@@ -11194,6 +11218,72 @@
           "favorite": "A",
           "favorite_prob": 37.12320513398512,
           "confidence": 37.12320513398512
+        }
+      },
+      {
+        "id": 1976,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T23:45:00+04:00",
+        "home_team": "Olympique de Marseille",
+        "away_team": "Olympique Lyonnais",
+        "home_logo": "https://sports.bzzoiro.com/img/team/1641/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/1649/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Ligue 1",
+        "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_score": 0.0,
+          "away_score": 1.0,
+          "draws_score": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 1.0,
+          "last_4": [
+            {
+              "date": "2025-08-31T22:45:00+04:00",
+              "home_team": "Olympique Lyonnais",
+              "away_team": "Olympique de Marseille",
+              "home_score": 1,
+              "away_score": 0,
+              "status": "finished",
+              "league": "Ligue 1"
+            }
+          ],
+          "btts_last4": 0,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "btts": false,
+          "confidence": 64.8,
+          "source": "fusion",
+          "stake": 1,
+          "predicted_score": "0-2"
+        },
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 28.12483169433867,
+          "prob_draw": 23.874306710351867,
+          "prob_away_win": 48.00086159530946,
+          "predicted_result": "A",
+          "expected_home_goals": 1.24763,
+          "expected_away_goals": 1.7002125000000001,
+          "prob_over_25": 58.25156468205225,
+          "over_25_recommend": false,
+          "prob_btts_yes": 65.75019204736546,
+          "btts_recommend": false,
+          "most_likely_score": "1-1",
+          "favorite": "A",
+          "favorite_prob": 48.00086159530946,
+          "confidence": 48.00086159530946
         }
       }
     ],
@@ -11602,74 +11692,14 @@
           "favorite_prob": 71.86368991485608,
           "confidence": 71.86368991485608
         }
-      },
-      {
-        "id": 4869,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T19:30:00+04:00",
-        "home_team": "BSC Young Boys",
-        "away_team": "FC Zürich",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2445/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2450/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Super League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_score": 2.0,
-          "away_score": 0.0,
-          "draws_score": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 4.0,
-          "last_4": [
-            {
-              "date": "2026-02-01T19:30:00+04:00",
-              "home_team": "BSC Young Boys",
-              "away_team": "FC Zürich",
-              "home_score": 3,
-              "away_score": 0,
-              "status": "finished",
-              "league": "Super League"
-            },
-            {
-              "date": "2025-10-26T17:00:00+04:00",
-              "home_team": "FC Zürich",
-              "away_team": "BSC Young Boys",
-              "home_score": 2,
-              "away_score": 3,
-              "status": "finished",
-              "league": "Super League"
-            }
-          ],
-          "btts_last4": 1,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": true,
-          "btts": false,
-          "confidence": 70,
-          "source": "h2h",
-          "stake": 2,
-          "predicted_score": "8-0"
-        },
-        "category": "pro",
-        "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
-        "ml_full": null
       }
     ],
     "vip": []
   },
   "stats": {
-    "total_bets": 18,
-    "wins": 15,
-    "roi": 83.33
+    "total_bets": 25,
+    "wins": 19,
+    "roi": 76.0
   },
   "bookmakers": [
     {
