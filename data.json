@@ -778,14 +778,14 @@
           "odds_home": 4.4,
           "odds_draw": 3.5,
           "odds_away": 1.98,
-          "odds_over_15": 1.4,
-          "odds_over_25": 2.21,
-          "odds_over_35": 4.0,
+          "odds_over_15": 1.39,
+          "odds_over_25": 2.19,
+          "odds_over_35": 3.95,
           "odds_under_15": 3.1,
-          "odds_under_25": 1.7,
-          "odds_under_35": 1.26,
-          "odds_btts_yes": 1.98,
-          "odds_btts_no": 1.8,
+          "odds_under_25": 1.71,
+          "odds_under_35": 1.27,
+          "odds_btts_yes": 1.97,
+          "odds_btts_no": 1.81,
           "actual_home_xg": null,
           "actual_away_xg": null
         },
@@ -1001,12 +1001,12 @@
           "odds_draw": 3.2,
           "odds_away": 2.49,
           "odds_over_15": 1.37,
-          "odds_over_25": 2.16,
+          "odds_over_25": 2.17,
           "odds_over_35": 3.85,
           "odds_under_15": 3.2,
           "odds_under_25": 1.73,
           "odds_under_35": 1.28,
-          "odds_btts_yes": 1.84,
+          "odds_btts_yes": 1.85,
           "odds_btts_no": 1.93,
           "actual_home_xg": null,
           "actual_away_xg": null
@@ -1223,11 +1223,11 @@
           "odds_draw": 5.25,
           "odds_away": 10.0,
           "odds_over_15": 1.31,
-          "odds_over_25": 1.93,
-          "odds_over_35": 3.35,
+          "odds_over_25": 1.94,
+          "odds_over_35": 3.4,
           "odds_under_15": 3.6,
           "odds_under_25": 1.91,
-          "odds_under_35": 1.35,
+          "odds_under_35": 1.34,
           "odds_btts_yes": 2.38,
           "odds_btts_no": 1.56,
           "actual_home_xg": null,
@@ -1885,8 +1885,8 @@
           "away_score": null,
           "current_minute": null,
           "period": "",
-          "odds_home": 1.65,
-          "odds_draw": 3.95,
+          "odds_home": 1.64,
+          "odds_draw": 4.0,
           "odds_away": 5.9,
           "odds_over_15": 1.29,
           "odds_over_25": 1.9,
@@ -1894,7 +1894,7 @@
           "odds_under_15": 3.6,
           "odds_under_25": 1.91,
           "odds_under_35": 1.35,
-          "odds_btts_yes": 1.93,
+          "odds_btts_yes": 1.94,
           "odds_btts_no": 1.84,
           "actual_home_xg": null,
           "actual_away_xg": null
@@ -5396,7 +5396,7 @@
       "league": "Eredivisie",
       "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -5507,7 +5507,7 @@
       "league": "Eredivisie",
       "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -5618,7 +5618,7 @@
       "league": "Superliga",
       "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -5729,7 +5729,7 @@
       "league": "Premier League",
       "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -5840,7 +5840,7 @@
       "league": "Stoiximan Super League",
       "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -5951,7 +5951,7 @@
       "league": "Premier League",
       "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -6062,7 +6062,7 @@
       "league": "Premier League",
       "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -6173,7 +6173,7 @@
       "league": "Serie A",
       "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -6284,7 +6284,7 @@
       "league": "Ligue 1",
       "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -6395,7 +6395,7 @@
       "league": "Bundesliga",
       "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -6506,7 +6506,7 @@
       "league": "Pro League",
       "league_logo": "https://sports.bzzoiro.com/img/league/38/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -6617,7 +6617,7 @@
       "league": "La Liga",
       "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -6728,7 +6728,7 @@
       "league": "Parva Liga",
       "league_logo": "https://sports.bzzoiro.com/img/league/247/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -6839,7 +6839,7 @@
       "league": "Liga Portugal Betclic",
       "league_logo": "https://sports.bzzoiro.com/img/league/238/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -6950,7 +6950,7 @@
       "league": "Super League",
       "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -7070,7 +7070,7 @@
       "league": "Super League",
       "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -7107,77 +7107,7 @@
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "ml_full": {
-        "id": 1687,
-        "event": {
-          "id": 4868,
-          "api_id": 15362692,
-          "league": {
-            "id": 15,
-            "api_id": 215,
-            "name": "Super League",
-            "country": "Switzerland",
-            "season_id": 77152
-          },
-          "home_team": "Grasshopper Club Zürich",
-          "away_team": "FC Lugano",
-          "home_team_obj": {
-            "id": 249,
-            "api_id": 2449,
-            "name": "Grasshopper Club Zürich",
-            "short_name": "Grasshoppers",
-            "country": ""
-          },
-          "away_team_obj": {
-            "id": 254,
-            "api_id": 2443,
-            "name": "FC Lugano",
-            "short_name": "Lugano",
-            "country": ""
-          },
-          "event_date": "2026-03-01T19:30:00+04:00",
-          "status": "notstarted",
-          "home_score": null,
-          "away_score": null,
-          "current_minute": null,
-          "period": "",
-          "odds_home": 3.4,
-          "odds_draw": 3.5,
-          "odds_away": 2.01,
-          "odds_over_15": 1.25,
-          "odds_over_25": 1.85,
-          "odds_over_35": 3.0,
-          "odds_under_15": 3.75,
-          "odds_under_25": 1.95,
-          "odds_under_35": 1.36,
-          "odds_btts_yes": 1.67,
-          "odds_btts_no": 2.1,
-          "actual_home_xg": null,
-          "actual_away_xg": null
-        },
-        "created_at": "2026-02-23T06:20:07.668306+04:00",
-        "prob_home_win": 37.45835769355873,
-        "prob_draw": 49.003383384777436,
-        "prob_away_win": 13.538258921663834,
-        "predicted_result": "D",
-        "expected_home_goals": 0.60403,
-        "expected_away_goals": 0.26121,
-        "prob_over_15": 82.03413308352145,
-        "prob_over_25": 53.32067518526223,
-        "prob_over_35": 22.662735237686825,
-        "prob_btts_yes": 76.10622086461603,
-        "confidence": 49.003383384777436,
-        "model_version": "v4.1",
-        "most_likely_score": "0-0",
-        "favorite": "H",
-        "favorite_prob": 37.45835769355873,
-        "favorite_recommend": false,
-        "over_15_recommend": false,
-        "over_25_recommend": false,
-        "over_35_recommend": false,
-        "btts_recommend": false,
-        "winner_recommend": false
-      }
+      "ml_full": null
     },
     {
       "id": 6965,
@@ -7190,7 +7120,7 @@
       "league": "Stoiximan Super League",
       "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -7214,11 +7144,81 @@
         "double_chance": "X2",
         "confidence": 65
       },
-      "xpronos_score": 32,
+      "xpronos_score": 52,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "ml_full": null
+      "ml_full": {
+        "id": 1507,
+        "event": {
+          "id": 6965,
+          "api_id": 14159159,
+          "league": {
+            "id": 24,
+            "api_id": 185,
+            "name": "Stoiximan Super League",
+            "country": "Greece",
+            "season_id": 78175
+          },
+          "home_team": "NPS Volos",
+          "away_team": "AEK Athens",
+          "home_team_obj": {
+            "id": 323,
+            "api_id": 267459,
+            "name": "NPS Volos",
+            "short_name": "Volos",
+            "country": ""
+          },
+          "away_team_obj": {
+            "id": 329,
+            "api_id": 3250,
+            "name": "AEK Athens",
+            "short_name": "AEK",
+            "country": ""
+          },
+          "event_date": "2026-03-01T19:30:00+04:00",
+          "status": "notstarted",
+          "home_score": null,
+          "away_score": null,
+          "current_minute": null,
+          "period": "",
+          "odds_home": 11.0,
+          "odds_draw": 5.0,
+          "odds_away": 1.24,
+          "odds_over_15": 1.22,
+          "odds_over_25": 1.75,
+          "odds_over_35": 2.75,
+          "odds_under_15": 4.0,
+          "odds_under_25": 2.05,
+          "odds_under_35": 1.4,
+          "odds_btts_yes": 2.25,
+          "odds_btts_no": 1.57,
+          "actual_home_xg": null,
+          "actual_away_xg": null
+        },
+        "created_at": "2026-02-15T12:38:05.566360+04:00",
+        "prob_home_win": 7.51037340151738,
+        "prob_draw": 20.625936683626534,
+        "prob_away_win": 71.86368991485608,
+        "predicted_result": "A",
+        "expected_home_goals": 0.4,
+        "expected_away_goals": 1.8,
+        "prob_over_15": 79.7671619036357,
+        "prob_over_25": 50.0,
+        "prob_over_35": 20.232838096364304,
+        "prob_btts_yes": 30.91377482060953,
+        "confidence": 71.86368991485608,
+        "model_version": "v4.1",
+        "most_likely_score": "0-1",
+        "favorite": "A",
+        "favorite_prob": 71.86368991485608,
+        "favorite_recommend": false,
+        "over_15_recommend": false,
+        "over_25_recommend": false,
+        "over_35_recommend": false,
+        "btts_recommend": false,
+        "winner_recommend": false
+      }
     },
     {
       "id": 2971,
@@ -7231,7 +7231,7 @@
       "league": "Eredivisie",
       "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -7342,7 +7342,7 @@
       "league": "Superliga",
       "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -7453,7 +7453,7 @@
       "league": "Ligue 1",
       "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -7564,7 +7564,7 @@
       "league": "Ligue 1",
       "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -7675,7 +7675,7 @@
       "league": "Ligue 1",
       "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -7786,7 +7786,7 @@
       "league": "Premier League",
       "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -7897,7 +7897,7 @@
       "league": "Bundesliga",
       "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -8008,7 +8008,7 @@
       "league": "Trendyol Super Lig",
       "league_logo": "https://sports.bzzoiro.com/img/league/52/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -8119,7 +8119,7 @@
       "league": "Stoiximan Super League",
       "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -8230,7 +8230,7 @@
       "league": "Trendyol Super Lig",
       "league_logo": "https://sports.bzzoiro.com/img/league/52/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -8341,7 +8341,7 @@
       "league": "Serie A",
       "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -8452,7 +8452,7 @@
       "league": "Pro League",
       "league_logo": "https://sports.bzzoiro.com/img/league/38/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -8563,7 +8563,7 @@
       "league": "La Liga",
       "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -8674,7 +8674,7 @@
       "league": "Liga Portugal Betclic",
       "league_logo": "https://sports.bzzoiro.com/img/league/238/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -8785,7 +8785,7 @@
       "league": "Stoiximan Super League",
       "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -8896,7 +8896,7 @@
       "league": "Pro League",
       "league_logo": "https://sports.bzzoiro.com/img/league/38/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -9007,7 +9007,7 @@
       "league": "Bundesliga",
       "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -9118,7 +9118,7 @@
       "league": "Eredivisie",
       "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -9229,7 +9229,7 @@
       "league": "Superliga",
       "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -9340,7 +9340,7 @@
       "league": "MLS",
       "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -9451,7 +9451,7 @@
       "league": "Serie A",
       "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -9562,7 +9562,7 @@
       "league": "Ligue 1",
       "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
       "venue": "",
-      "status": "notstarted",
+      "status": "finished",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
@@ -10443,14 +10443,14 @@
             "odds_home": 4.4,
             "odds_draw": 3.5,
             "odds_away": 1.98,
-            "odds_over_15": 1.4,
-            "odds_over_25": 2.21,
-            "odds_over_35": 4.0,
+            "odds_over_15": 1.39,
+            "odds_over_25": 2.19,
+            "odds_over_35": 3.95,
             "odds_under_15": 3.1,
-            "odds_under_25": 1.7,
-            "odds_under_35": 1.26,
-            "odds_btts_yes": 1.98,
-            "odds_btts_no": 1.8,
+            "odds_under_25": 1.71,
+            "odds_under_35": 1.27,
+            "odds_btts_yes": 1.97,
+            "odds_btts_no": 1.81,
             "actual_home_xg": null,
             "actual_away_xg": null
           },
@@ -10666,12 +10666,12 @@
             "odds_draw": 3.2,
             "odds_away": 2.49,
             "odds_over_15": 1.37,
-            "odds_over_25": 2.16,
+            "odds_over_25": 2.17,
             "odds_over_35": 3.85,
             "odds_under_15": 3.2,
             "odds_under_25": 1.73,
             "odds_under_35": 1.28,
-            "odds_btts_yes": 1.84,
+            "odds_btts_yes": 1.85,
             "odds_btts_no": 1.93,
             "actual_home_xg": null,
             "actual_away_xg": null
@@ -10888,11 +10888,11 @@
             "odds_draw": 5.25,
             "odds_away": 10.0,
             "odds_over_15": 1.31,
-            "odds_over_25": 1.93,
-            "odds_over_35": 3.35,
+            "odds_over_25": 1.94,
+            "odds_over_35": 3.4,
             "odds_under_15": 3.6,
             "odds_under_25": 1.91,
-            "odds_under_35": 1.35,
+            "odds_under_35": 1.34,
             "odds_btts_yes": 2.38,
             "odds_btts_no": 1.56,
             "actual_home_xg": null,
@@ -11550,8 +11550,8 @@
             "away_score": null,
             "current_minute": null,
             "period": "",
-            "odds_home": 1.65,
-            "odds_draw": 3.95,
+            "odds_home": 1.64,
+            "odds_draw": 4.0,
             "odds_away": 5.9,
             "odds_over_15": 1.29,
             "odds_over_25": 1.9,
@@ -11559,7 +11559,7 @@
             "odds_under_15": 3.6,
             "odds_under_25": 1.91,
             "odds_under_35": 1.35,
-            "odds_btts_yes": 1.93,
+            "odds_btts_yes": 1.94,
             "odds_btts_no": 1.84,
             "actual_home_xg": null,
             "actual_away_xg": null
@@ -15061,7 +15061,7 @@
         "league": "Eredivisie",
         "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -15172,7 +15172,7 @@
         "league": "Eredivisie",
         "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -15283,7 +15283,7 @@
         "league": "Superliga",
         "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -15394,7 +15394,7 @@
         "league": "Premier League",
         "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -15505,7 +15505,7 @@
         "league": "Stoiximan Super League",
         "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -15616,7 +15616,7 @@
         "league": "Premier League",
         "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -15727,7 +15727,7 @@
         "league": "Premier League",
         "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -15838,7 +15838,7 @@
         "league": "Serie A",
         "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -15949,7 +15949,7 @@
         "league": "Ligue 1",
         "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -16060,7 +16060,7 @@
         "league": "Bundesliga",
         "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -16171,7 +16171,7 @@
         "league": "Pro League",
         "league_logo": "https://sports.bzzoiro.com/img/league/38/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -16282,7 +16282,7 @@
         "league": "La Liga",
         "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -16393,7 +16393,7 @@
         "league": "Parva Liga",
         "league_logo": "https://sports.bzzoiro.com/img/league/247/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -16504,7 +16504,7 @@
         "league": "Liga Portugal Betclic",
         "league_logo": "https://sports.bzzoiro.com/img/league/238/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -16615,7 +16615,7 @@
         "league": "Super League",
         "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -16735,7 +16735,7 @@
         "league": "Super League",
         "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -16772,77 +16772,7 @@
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "ml_full": {
-          "id": 1687,
-          "event": {
-            "id": 4868,
-            "api_id": 15362692,
-            "league": {
-              "id": 15,
-              "api_id": 215,
-              "name": "Super League",
-              "country": "Switzerland",
-              "season_id": 77152
-            },
-            "home_team": "Grasshopper Club Zürich",
-            "away_team": "FC Lugano",
-            "home_team_obj": {
-              "id": 249,
-              "api_id": 2449,
-              "name": "Grasshopper Club Zürich",
-              "short_name": "Grasshoppers",
-              "country": ""
-            },
-            "away_team_obj": {
-              "id": 254,
-              "api_id": 2443,
-              "name": "FC Lugano",
-              "short_name": "Lugano",
-              "country": ""
-            },
-            "event_date": "2026-03-01T19:30:00+04:00",
-            "status": "notstarted",
-            "home_score": null,
-            "away_score": null,
-            "current_minute": null,
-            "period": "",
-            "odds_home": 3.4,
-            "odds_draw": 3.5,
-            "odds_away": 2.01,
-            "odds_over_15": 1.25,
-            "odds_over_25": 1.85,
-            "odds_over_35": 3.0,
-            "odds_under_15": 3.75,
-            "odds_under_25": 1.95,
-            "odds_under_35": 1.36,
-            "odds_btts_yes": 1.67,
-            "odds_btts_no": 2.1,
-            "actual_home_xg": null,
-            "actual_away_xg": null
-          },
-          "created_at": "2026-02-23T06:20:07.668306+04:00",
-          "prob_home_win": 37.45835769355873,
-          "prob_draw": 49.003383384777436,
-          "prob_away_win": 13.538258921663834,
-          "predicted_result": "D",
-          "expected_home_goals": 0.60403,
-          "expected_away_goals": 0.26121,
-          "prob_over_15": 82.03413308352145,
-          "prob_over_25": 53.32067518526223,
-          "prob_over_35": 22.662735237686825,
-          "prob_btts_yes": 76.10622086461603,
-          "confidence": 49.003383384777436,
-          "model_version": "v4.1",
-          "most_likely_score": "0-0",
-          "favorite": "H",
-          "favorite_prob": 37.45835769355873,
-          "favorite_recommend": false,
-          "over_15_recommend": false,
-          "over_25_recommend": false,
-          "over_35_recommend": false,
-          "btts_recommend": false,
-          "winner_recommend": false
-        }
+        "ml_full": null
       },
       {
         "id": 6965,
@@ -16855,7 +16785,7 @@
         "league": "Stoiximan Super League",
         "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -16879,11 +16809,81 @@
           "double_chance": "X2",
           "confidence": 65
         },
-        "xpronos_score": 32,
+        "xpronos_score": 52,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "ml_full": null
+        "ml_full": {
+          "id": 1507,
+          "event": {
+            "id": 6965,
+            "api_id": 14159159,
+            "league": {
+              "id": 24,
+              "api_id": 185,
+              "name": "Stoiximan Super League",
+              "country": "Greece",
+              "season_id": 78175
+            },
+            "home_team": "NPS Volos",
+            "away_team": "AEK Athens",
+            "home_team_obj": {
+              "id": 323,
+              "api_id": 267459,
+              "name": "NPS Volos",
+              "short_name": "Volos",
+              "country": ""
+            },
+            "away_team_obj": {
+              "id": 329,
+              "api_id": 3250,
+              "name": "AEK Athens",
+              "short_name": "AEK",
+              "country": ""
+            },
+            "event_date": "2026-03-01T19:30:00+04:00",
+            "status": "notstarted",
+            "home_score": null,
+            "away_score": null,
+            "current_minute": null,
+            "period": "",
+            "odds_home": 11.0,
+            "odds_draw": 5.0,
+            "odds_away": 1.24,
+            "odds_over_15": 1.22,
+            "odds_over_25": 1.75,
+            "odds_over_35": 2.75,
+            "odds_under_15": 4.0,
+            "odds_under_25": 2.05,
+            "odds_under_35": 1.4,
+            "odds_btts_yes": 2.25,
+            "odds_btts_no": 1.57,
+            "actual_home_xg": null,
+            "actual_away_xg": null
+          },
+          "created_at": "2026-02-15T12:38:05.566360+04:00",
+          "prob_home_win": 7.51037340151738,
+          "prob_draw": 20.625936683626534,
+          "prob_away_win": 71.86368991485608,
+          "predicted_result": "A",
+          "expected_home_goals": 0.4,
+          "expected_away_goals": 1.8,
+          "prob_over_15": 79.7671619036357,
+          "prob_over_25": 50.0,
+          "prob_over_35": 20.232838096364304,
+          "prob_btts_yes": 30.91377482060953,
+          "confidence": 71.86368991485608,
+          "model_version": "v4.1",
+          "most_likely_score": "0-1",
+          "favorite": "A",
+          "favorite_prob": 71.86368991485608,
+          "favorite_recommend": false,
+          "over_15_recommend": false,
+          "over_25_recommend": false,
+          "over_35_recommend": false,
+          "btts_recommend": false,
+          "winner_recommend": false
+        }
       },
       {
         "id": 2971,
@@ -16896,7 +16896,7 @@
         "league": "Eredivisie",
         "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -17007,7 +17007,7 @@
         "league": "Superliga",
         "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -17118,7 +17118,7 @@
         "league": "Ligue 1",
         "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -17229,7 +17229,7 @@
         "league": "Ligue 1",
         "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -17340,7 +17340,7 @@
         "league": "Ligue 1",
         "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -17451,7 +17451,7 @@
         "league": "Premier League",
         "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -17562,7 +17562,7 @@
         "league": "Bundesliga",
         "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -17673,7 +17673,7 @@
         "league": "Trendyol Super Lig",
         "league_logo": "https://sports.bzzoiro.com/img/league/52/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -17784,7 +17784,7 @@
         "league": "Stoiximan Super League",
         "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -17895,7 +17895,7 @@
         "league": "Trendyol Super Lig",
         "league_logo": "https://sports.bzzoiro.com/img/league/52/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -18006,7 +18006,7 @@
         "league": "Serie A",
         "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -18117,7 +18117,7 @@
         "league": "Pro League",
         "league_logo": "https://sports.bzzoiro.com/img/league/38/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -18228,7 +18228,7 @@
         "league": "La Liga",
         "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -18339,7 +18339,7 @@
         "league": "Liga Portugal Betclic",
         "league_logo": "https://sports.bzzoiro.com/img/league/238/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -18450,7 +18450,7 @@
         "league": "Stoiximan Super League",
         "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -18561,7 +18561,7 @@
         "league": "Pro League",
         "league_logo": "https://sports.bzzoiro.com/img/league/38/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -18672,7 +18672,7 @@
         "league": "Bundesliga",
         "league_logo": "https://sports.bzzoiro.com/img/league/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -18783,7 +18783,7 @@
         "league": "Eredivisie",
         "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -18894,7 +18894,7 @@
         "league": "Superliga",
         "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -19005,7 +19005,7 @@
         "league": "MLS",
         "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -19116,7 +19116,7 @@
         "league": "Serie A",
         "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -19227,7 +19227,7 @@
         "league": "Ligue 1",
         "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "venue": "",
-        "status": "notstarted",
+        "status": "finished",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
@@ -19332,9 +19332,9 @@
     "vip": []
   },
   "stats": {
-    "total_bets": 25,
+    "total_bets": 64,
     "wins": 21,
-    "roi": 84.0
+    "roi": 32.81
   },
   "bookmakers": [
     {
