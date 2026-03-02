@@ -1,465 +1,5 @@
 [
   {
-    "id": 2488,
-    "api_id": 13472771,
-    "league": {
-      "id": 9,
-      "api_id": 325,
-      "name": "Brasileirão Serie A",
-      "country": "Brazil",
-      "season_id": 87678
-    },
-    "home_team": "Santos",
-    "away_team": "Palmeiras",
-    "home_team_obj": {
-      "id": 165,
-      "api_id": 1968,
-      "name": "Santos",
-      "short_name": "Santos",
-      "country": ""
-    },
-    "away_team_obj": {
-      "id": 162,
-      "api_id": 1963,
-      "name": "Palmeiras",
-      "short_name": "Palmeiras",
-      "country": ""
-    },
-    "event_date": "2025-07-13T22:00:00+04:00",
-    "status": "postponed",
-    "home_score": null,
-    "away_score": null,
-    "current_minute": null,
-    "period": "",
-    "odds_home": null,
-    "odds_draw": null,
-    "odds_away": null,
-    "odds_over_15": null,
-    "odds_over_25": null,
-    "odds_over_35": null,
-    "odds_under_15": null,
-    "odds_under_25": null,
-    "odds_under_35": null,
-    "odds_btts_yes": null,
-    "odds_btts_no": null,
-    "actual_home_xg": null,
-    "actual_away_xg": null
-  },
-  {
-    "id": 6568,
-    "api_id": 14054676,
-    "league": {
-      "id": 23,
-      "api_id": 152,
-      "name": "Superliga",
-      "country": "Romania",
-      "season_id": 77312
-    },
-    "home_team": "CFR 1907 Cluj",
-    "away_team": "AFC Unirea 04 Slobozia",
-    "home_team_obj": {
-      "id": 363,
-      "api_id": 5287,
-      "name": "CFR 1907 Cluj",
-      "short_name": "CFR Cluj",
-      "country": ""
-    },
-    "away_team_obj": {
-      "id": 364,
-      "api_id": 44259,
-      "name": "AFC Unirea 04 Slobozia",
-      "short_name": "Unirea Slobozia",
-      "country": ""
-    },
-    "event_date": "2025-07-13T22:30:00+04:00",
-    "status": "finished",
-    "home_score": 2,
-    "away_score": 1,
-    "current_minute": null,
-    "period": "",
-    "odds_home": null,
-    "odds_draw": null,
-    "odds_away": null,
-    "odds_over_15": null,
-    "odds_over_25": null,
-    "odds_over_35": null,
-    "odds_under_15": null,
-    "odds_under_25": null,
-    "odds_under_35": null,
-    "odds_btts_yes": null,
-    "odds_btts_no": null,
-    "actual_home_xg": null,
-    "actual_away_xg": null
-  },
-  {
-    "id": 2489,
-    "api_id": 13472766,
-    "league": {
-      "id": 9,
-      "api_id": 325,
-      "name": "Brasileirão Serie A",
-      "country": "Brazil",
-      "season_id": 87678
-    },
-    "home_team": "Corinthians",
-    "away_team": "Red Bull Bragantino",
-    "home_team_obj": {
-      "id": 167,
-      "api_id": 1957,
-      "name": "Corinthians",
-      "short_name": "Corinthians",
-      "country": ""
-    },
-    "away_team_obj": {
-      "id": 168,
-      "api_id": 1999,
-      "name": "Red Bull Bragantino",
-      "short_name": "RB Bragantino",
-      "country": ""
-    },
-    "event_date": "2025-07-14T02:00:00+04:00",
-    "status": "finished",
-    "home_score": 1,
-    "away_score": 2,
-    "current_minute": null,
-    "period": "",
-    "odds_home": null,
-    "odds_draw": null,
-    "odds_away": null,
-    "odds_over_15": null,
-    "odds_over_25": null,
-    "odds_over_35": null,
-    "odds_under_15": null,
-    "odds_under_25": null,
-    "odds_under_35": null,
-    "odds_btts_yes": null,
-    "odds_btts_no": null,
-    "actual_home_xg": 2.46,
-    "actual_away_xg": 1.97
-  },
-  {
-    "id": 5973,
-    "api_id": 13984767,
-    "league": {
-      "id": 19,
-      "api_id": 11621,
-      "name": "Liga MX Apertura",
-      "country": "Mexico",
-      "season_id": 76500
-    },
-    "home_team": "CF Pachuca",
-    "away_team": "CF Monterrey",
-    "home_team_obj": {
-      "id": 316,
-      "api_id": 1936,
-      "name": "CF Pachuca",
-      "short_name": "Pachuca",
-      "country": ""
-    },
-    "away_team_obj": {
-      "id": 317,
-      "api_id": 1932,
-      "name": "CF Monterrey",
-      "short_name": "Monterrey",
-      "country": ""
-    },
-    "event_date": "2025-07-14T03:00:00+04:00",
-    "status": "finished",
-    "home_score": 3,
-    "away_score": 0,
-    "current_minute": null,
-    "period": "",
-    "odds_home": null,
-    "odds_draw": null,
-    "odds_away": null,
-    "odds_over_15": null,
-    "odds_over_25": null,
-    "odds_over_35": null,
-    "odds_under_15": null,
-    "odds_under_25": null,
-    "odds_under_35": null,
-    "odds_btts_yes": null,
-    "odds_btts_no": null,
-    "actual_home_xg": 1.44,
-    "actual_away_xg": 0.49
-  },
-  {
-    "id": 5652,
-    "api_id": 13295837,
-    "league": {
-      "id": 18,
-      "api_id": 242,
-      "name": "MLS",
-      "country": "USA",
-      "season_id": 86668
-    },
-    "home_team": "St.Louis City",
-    "away_team": "Portland Timbers",
-    "home_team_obj": {
-      "id": 274,
-      "api_id": 407803,
-      "name": "St.Louis City",
-      "short_name": "St. Louis",
-      "country": ""
-    },
-    "away_team_obj": {
-      "id": 294,
-      "api_id": 22007,
-      "name": "Portland Timbers",
-      "short_name": "Portland",
-      "country": ""
-    },
-    "event_date": "2025-07-14T03:00:00+04:00",
-    "status": "finished",
-    "home_score": 2,
-    "away_score": 1,
-    "current_minute": null,
-    "period": "",
-    "odds_home": null,
-    "odds_draw": null,
-    "odds_away": null,
-    "odds_over_15": null,
-    "odds_over_25": null,
-    "odds_over_35": null,
-    "odds_under_15": null,
-    "odds_under_25": null,
-    "odds_under_35": null,
-    "odds_btts_yes": null,
-    "odds_btts_no": null,
-    "actual_home_xg": 2.08,
-    "actual_away_xg": 1.15
-  },
-  {
-    "id": 2490,
-    "api_id": 13472778,
-    "league": {
-      "id": 9,
-      "api_id": 325,
-      "name": "Brasileirão Serie A",
-      "country": "Brazil",
-      "season_id": 87678
-    },
-    "home_team": "Cruzeiro",
-    "away_team": "Grêmio",
-    "home_team_obj": {
-      "id": 150,
-      "api_id": 1954,
-      "name": "Cruzeiro",
-      "short_name": "Cruzeiro",
-      "country": ""
-    },
-    "away_team_obj": {
-      "id": 154,
-      "api_id": 5926,
-      "name": "Grêmio",
-      "short_name": "Grêmio",
-      "country": ""
-    },
-    "event_date": "2025-07-14T03:30:00+04:00",
-    "status": "finished",
-    "home_score": 4,
-    "away_score": 1,
-    "current_minute": null,
-    "period": "",
-    "odds_home": null,
-    "odds_draw": null,
-    "odds_away": null,
-    "odds_over_15": null,
-    "odds_over_25": null,
-    "odds_over_35": null,
-    "odds_under_15": null,
-    "odds_under_25": null,
-    "odds_under_35": null,
-    "odds_btts_yes": null,
-    "odds_btts_no": null,
-    "actual_home_xg": 2.62,
-    "actual_away_xg": 0.76
-  },
-  {
-    "id": 2491,
-    "api_id": 13472790,
-    "league": {
-      "id": 9,
-      "api_id": 325,
-      "name": "Brasileirão Serie A",
-      "country": "Brazil",
-      "season_id": 87678
-    },
-    "home_team": "Fortaleza",
-    "away_team": "Ceará",
-    "home_team_obj": {
-      "id": 152,
-      "api_id": 2020,
-      "name": "Fortaleza",
-      "short_name": "Fortaleza",
-      "country": ""
-    },
-    "away_team_obj": {
-      "id": 169,
-      "api_id": 2001,
-      "name": "Ceará",
-      "short_name": "Ceará",
-      "country": ""
-    },
-    "event_date": "2025-07-14T03:30:00+04:00",
-    "status": "finished",
-    "home_score": 0,
-    "away_score": 1,
-    "current_minute": null,
-    "period": "",
-    "odds_home": null,
-    "odds_draw": null,
-    "odds_away": null,
-    "odds_over_15": null,
-    "odds_over_25": null,
-    "odds_over_35": null,
-    "odds_under_15": null,
-    "odds_under_25": null,
-    "odds_under_35": null,
-    "odds_btts_yes": null,
-    "odds_btts_no": null,
-    "actual_home_xg": 0.74,
-    "actual_away_xg": 2.2
-  },
-  {
-    "id": 5974,
-    "api_id": 13984768,
-    "league": {
-      "id": 19,
-      "api_id": 11621,
-      "name": "Liga MX Apertura",
-      "country": "Mexico",
-      "season_id": 76500
-    },
-    "home_team": "Club León",
-    "away_team": "Atlético San Luis",
-    "home_team_obj": {
-      "id": 318,
-      "api_id": 36534,
-      "name": "Club León",
-      "short_name": "León",
-      "country": ""
-    },
-    "away_team_obj": {
-      "id": 319,
-      "api_id": 1950,
-      "name": "Atlético San Luis",
-      "short_name": "San Luis",
-      "country": ""
-    },
-    "event_date": "2025-07-14T05:00:00+04:00",
-    "status": "finished",
-    "home_score": 0,
-    "away_score": 1,
-    "current_minute": null,
-    "period": "",
-    "odds_home": null,
-    "odds_draw": null,
-    "odds_away": null,
-    "odds_over_15": null,
-    "odds_over_25": null,
-    "odds_over_35": null,
-    "odds_under_15": null,
-    "odds_under_25": null,
-    "odds_under_35": null,
-    "odds_btts_yes": null,
-    "odds_btts_no": null,
-    "actual_home_xg": 0.3,
-    "actual_away_xg": 1.41
-  },
-  {
-    "id": 6569,
-    "api_id": 14054677,
-    "league": {
-      "id": 23,
-      "api_id": 152,
-      "name": "Superliga",
-      "country": "Romania",
-      "season_id": 77312
-    },
-    "home_team": "FC Botoșani",
-    "away_team": "FC Farul Constanța",
-    "home_team_obj": {
-      "id": 365,
-      "api_id": 24798,
-      "name": "FC Botoșani",
-      "short_name": "FC Botoșani",
-      "country": ""
-    },
-    "away_team_obj": {
-      "id": 366,
-      "api_id": 3294,
-      "name": "FC Farul Constanța",
-      "short_name": "Farul Constanța",
-      "country": ""
-    },
-    "event_date": "2025-07-14T20:00:00+04:00",
-    "status": "finished",
-    "home_score": 1,
-    "away_score": 1,
-    "current_minute": null,
-    "period": "",
-    "odds_home": null,
-    "odds_draw": null,
-    "odds_away": null,
-    "odds_over_15": null,
-    "odds_over_25": null,
-    "odds_over_35": null,
-    "odds_under_15": null,
-    "odds_under_25": null,
-    "odds_under_35": null,
-    "odds_btts_yes": null,
-    "odds_btts_no": null,
-    "actual_home_xg": null,
-    "actual_away_xg": null
-  },
-  {
-    "id": 6570,
-    "api_id": 14054674,
-    "league": {
-      "id": 23,
-      "api_id": 152,
-      "name": "Superliga",
-      "country": "Romania",
-      "season_id": 77312
-    },
-    "home_team": "FK Csíkszereda Miercurea Ciuc",
-    "away_team": "FC Dinamo București",
-    "home_team_obj": {
-      "id": 367,
-      "api_id": 283972,
-      "name": "FK Csíkszereda Miercurea Ciuc",
-      "short_name": "FK Csíkszereda",
-      "country": ""
-    },
-    "away_team_obj": {
-      "id": 368,
-      "api_id": 3292,
-      "name": "FC Dinamo București",
-      "short_name": "Dinamo București",
-      "country": ""
-    },
-    "event_date": "2025-07-14T22:30:00+04:00",
-    "status": "finished",
-    "home_score": 2,
-    "away_score": 2,
-    "current_minute": null,
-    "period": "",
-    "odds_home": null,
-    "odds_draw": null,
-    "odds_away": null,
-    "odds_over_15": null,
-    "odds_over_25": null,
-    "odds_over_35": null,
-    "odds_under_15": null,
-    "odds_under_25": null,
-    "odds_under_35": null,
-    "odds_btts_yes": null,
-    "odds_btts_no": null,
-    "actual_home_xg": null,
-    "actual_away_xg": null
-  },
-  {
     "id": 2492,
     "api_id": 13472794,
     "league": {
@@ -230853,5 +230393,175 @@
       "winner_recommend": false
     },
     "tsdb_banner": null
+  },
+  {
+    "event_date": "2026-03-01T00:05:00+04:00",
+    "status": "finished",
+    "home_score": 0,
+    "away_score": 1,
+    "home_team_obj": {
+      "id": 102,
+      "name": "Le Havre"
+    },
+    "away_team_obj": {
+      "id": 114,
+      "name": "Paris Saint-Germain"
+    },
+    "league": {
+      "name": "Ligue 1"
+    }
+  },
+  {
+    "event_date": "2026-03-01T01:30:00+04:00",
+    "status": "finished",
+    "home_score": 2,
+    "away_score": 0,
+    "home_team_obj": {
+      "id": 303,
+      "name": "Colorado Rapids"
+    },
+    "away_team_obj": {
+      "id": 294,
+      "name": "Portland Timbers"
+    },
+    "league": {
+      "name": "MLS"
+    }
+  },
+  {
+    "event_date": "2026-03-01T01:30:00+04:00",
+    "status": "finished",
+    "home_score": 1,
+    "away_score": 0,
+    "home_team_obj": {
+      "id": 291,
+      "name": "Minnesota United"
+    },
+    "away_team_obj": {
+      "id": 276,
+      "name": "FC Cincinnati"
+    },
+    "league": {
+      "name": "MLS"
+    }
+  },
+  {
+    "event_date": "2026-03-01T04:30:00+04:00",
+    "status": "finished",
+    "home_score": 2,
+    "away_score": 0,
+    "home_team_obj": {
+      "id": 298,
+      "name": "San Jose Earthquakes"
+    },
+    "away_team_obj": {
+      "id": 277,
+      "name": "Atlanta United"
+    },
+    "league": {
+      "name": "MLS"
+    }
+  },
+  {
+    "event_date": "2026-03-01T05:30:00+04:00",
+    "status": "finished",
+    "home_score": 0,
+    "away_score": 2,
+    "home_team_obj": {
+      "id": 288,
+      "name": "Houston Dynamo"
+    },
+    "away_team_obj": {
+      "id": 292,
+      "name": "Los Angeles FC"
+    },
+    "league": {
+      "name": "MLS"
+    }
+  },
+  {
+    "event_date": "2026-03-01T06:30:00+04:00",
+    "status": "finished",
+    "home_score": 3,
+    "away_score": 0,
+    "home_team_obj": {
+      "id": 278,
+      "name": "Vancouver Whitecaps"
+    },
+    "away_team_obj": {
+      "id": 287,
+      "name": "Toronto FC"
+    },
+    "league": {
+      "name": "MLS"
+    }
+  },
+  {
+    "event_date": "2026-03-01T07:30:00+04:00",
+    "status": "finished",
+    "home_score": 3,
+    "away_score": 0,
+    "home_team_obj": {
+      "id": 300,
+      "name": "LA Galaxy"
+    },
+    "away_team_obj": {
+      "id": 275,
+      "name": "Charlotte FC"
+    },
+    "league": {
+      "name": "MLS"
+    }
+  },
+  {
+    "event_date": "2026-03-01T15:15:00+04:00",
+    "status": "finished",
+    "home_score": 0,
+    "away_score": 0,
+    "home_team_obj": {
+      "id": 177,
+      "name": "PEC Zwolle"
+    },
+    "away_team_obj": {
+      "id": 122,
+      "name": "AFC Ajax"
+    },
+    "league": {
+      "name": "Eredivisie"
+    }
+  },
+  {
+    "event_date": "2026-03-01T16:30:00+04:00",
+    "status": "finished",
+    "home_score": 3,
+    "away_score": 0,
+    "home_team_obj": {
+      "id": 146,
+      "name": "KRC Genk"
+    },
+    "away_team_obj": {
+      "id": 245,
+      "name": "KAA Gent"
+    },
+    "league": {
+      "name": "Pro League"
+    }
+  },
+  {
+    "event_date": "2026-03-01T17:00:00+04:00",
+    "status": "finished",
+    "home_score": 2,
+    "away_score": 2,
+    "home_team_obj": {
+      "id": 55,
+      "name": "Elche"
+    },
+    "away_team_obj": {
+      "id": 53,
+      "name": "Espanyol"
+    },
+    "league": {
+      "name": "La Liga"
+    }
   }
 ]
