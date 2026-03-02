@@ -5,7 +5,7 @@
 allmatches.py - Télécharge tous les matchs depuis le 1er janvier 2023 jusqu'à hier
 et les sauvegarde dans un fichier cache global (cache/all_matches.json).
 Ce fichier servira de base pour les analyses H2H. 
-Exécution : python allmatches.py  
+Exécution : python allmatches.py 
 """
 
 import requests
