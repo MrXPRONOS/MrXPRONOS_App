@@ -4,7 +4,7 @@
 """
 allmatches.py - Télécharge tous les matchs depuis le 1er janvier 2023 jusqu'à hier
 et les sauvegarde dans un fichier cache global (cache/all_matches.json).
-Version avec vérification du token API.
+Version avec vérification du token API. 
 """
 
 import requests

@@ -23,7 +23,7 @@ jobs:
       - name: Installation des dépendances
         run: |
           python -m pip install --upgrade pip
-          pip install requests joblib numpy xgboost
+          pip install requests numpy joblib xgboost scikit-learn
 
       - name: Mise à jour des pronostics (statuts)
         env:
@@ -34,9 +34,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'actions@github.com'
-          
           git add data.json
           git commit -m "Mise à jour horaire $(date +'%Y-%m-%d %H:%M') [skip ci]" || echo "No changes"
-          
           git pull --rebase -X theirs origin main
           git push origin main
