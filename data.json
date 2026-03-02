@@ -4225,16 +4225,31 @@
         "double_chance": "X2",
         "over_25": false,
         "btts": false,
-        "confidence": 65,
-        "source": "h2h",
-        "stake": 1,
+        "confidence": 79.1,
+        "source": "fusion",
+        "stake": 2,
         "predicted_score": "0-2"
       },
-      "category": "simple",
+      "category": "pro",
       "verified_double": false,
       "verified_over": false,
       "verified_btts": false,
-      "ml_full": null
+      "ml_full": {
+        "prob_home_win": 7.51037340151738,
+        "prob_draw": 20.625936683626534,
+        "prob_away_win": 71.86368991485608,
+        "predicted_result": "A",
+        "expected_home_goals": 0.4,
+        "expected_away_goals": 1.8,
+        "prob_over_25": 50.0,
+        "over_25_recommend": false,
+        "prob_btts_yes": 30.91377482060953,
+        "btts_recommend": false,
+        "most_likely_score": "0-1",
+        "favorite": "A",
+        "favorite_prob": 71.86368991485608,
+        "confidence": 71.86368991485608
+      }
     },
     {
       "id": 598,
@@ -4348,34 +4363,19 @@
         "btts_recommend": false
       },
       "prediction": {
-        "double_chance": "12",
+        "double_chance": "1X",
         "over_25": true,
         "btts": false,
-        "confidence": 53.1,
-        "source": "fusion",
-        "stake": 1,
+        "confidence": 70,
+        "source": "h2h",
+        "stake": 2,
         "predicted_score": "8-0"
       },
-      "category": "simple",
+      "category": "pro",
       "verified_double": false,
       "verified_over": false,
       "verified_btts": false,
-      "ml_full": {
-        "prob_home_win": 33.80905596765664,
-        "prob_draw": 41.91679997493683,
-        "prob_away_win": 24.274144057406538,
-        "predicted_result": "D",
-        "expected_home_goals": 0.6715899999999999,
-        "expected_away_goals": 0.5215299999999999,
-        "prob_over_25": 74.75074624530771,
-        "over_25_recommend": false,
-        "prob_btts_yes": 61.09299108484216,
-        "btts_recommend": false,
-        "most_likely_score": "0-0",
-        "favorite": "H",
-        "favorite_prob": 33.80905596765664,
-        "confidence": 41.91679997493683
-      }
+      "ml_full": null
     },
     {
       "id": 2971,
@@ -9679,57 +9679,6 @@
         }
       },
       {
-        "id": 6965,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T19:30:00+04:00",
-        "home_team": "NPS Volos",
-        "away_team": "AEK Athens",
-        "home_logo": "https://sports.bzzoiro.com/img/team/267459/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/3250/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Stoiximan Super League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_score": 0.0,
-          "away_score": 1.0,
-          "draws_score": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 1.0,
-          "last_4": [
-            {
-              "date": "2025-09-28T18:00:00+04:00",
-              "home_team": "AEK Athens",
-              "away_team": "NPS Volos",
-              "home_score": 1,
-              "away_score": 0,
-              "status": "finished",
-              "league": "Stoiximan Super League"
-            }
-          ],
-          "btts_last4": 0,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "confidence": 65,
-          "source": "h2h",
-          "stake": 1,
-          "predicted_score": "0-2"
-        },
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
-        "ml_full": null
-      },
-      {
         "id": 598,
         "date": "2026-03-01",
         "event_date": "2026-03-01T19:30:00+04:00",
@@ -9793,81 +9742,6 @@
           "favorite": "A",
           "favorite_prob": 36.911286109629145,
           "confidence": 36.911286109629145
-        }
-      },
-      {
-        "id": 4869,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T19:30:00+04:00",
-        "home_team": "BSC Young Boys",
-        "away_team": "FC Zürich",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2445/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2450/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Super League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_score": 2.0,
-          "away_score": 0.0,
-          "draws_score": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 4.0,
-          "last_4": [
-            {
-              "date": "2026-02-01T19:30:00+04:00",
-              "home_team": "BSC Young Boys",
-              "away_team": "FC Zürich",
-              "home_score": 3,
-              "away_score": 0,
-              "status": "finished",
-              "league": "Super League"
-            },
-            {
-              "date": "2025-10-26T17:00:00+04:00",
-              "home_team": "FC Zürich",
-              "away_team": "BSC Young Boys",
-              "home_score": 2,
-              "away_score": 3,
-              "status": "finished",
-              "league": "Super League"
-            }
-          ],
-          "btts_last4": 1,
-          "btts_recommend": false
-        },
-        "prediction": {
-          "double_chance": "12",
-          "over_25": true,
-          "btts": false,
-          "confidence": 53.1,
-          "source": "fusion",
-          "stake": 1,
-          "predicted_score": "8-0"
-        },
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": false,
-        "verified_btts": false,
-        "ml_full": {
-          "prob_home_win": 33.80905596765664,
-          "prob_draw": 41.91679997493683,
-          "prob_away_win": 24.274144057406538,
-          "predicted_result": "D",
-          "expected_home_goals": 0.6715899999999999,
-          "expected_away_goals": 0.5215299999999999,
-          "prob_over_25": 74.75074624530771,
-          "over_25_recommend": false,
-          "prob_btts_yes": 61.09299108484216,
-          "btts_recommend": false,
-          "most_likely_score": "0-0",
-          "favorite": "H",
-          "favorite_prob": 33.80905596765664,
-          "confidence": 41.91679997493683
         }
       },
       {
@@ -11662,6 +11536,132 @@
           "favorite_prob": 65.9882093373883,
           "confidence": 65.9882093373883
         }
+      },
+      {
+        "id": 6965,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T19:30:00+04:00",
+        "home_team": "NPS Volos",
+        "away_team": "AEK Athens",
+        "home_logo": "https://sports.bzzoiro.com/img/team/267459/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/3250/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Stoiximan Super League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_score": 0.0,
+          "away_score": 1.0,
+          "draws_score": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 1.0,
+          "last_4": [
+            {
+              "date": "2025-09-28T18:00:00+04:00",
+              "home_team": "AEK Athens",
+              "away_team": "NPS Volos",
+              "home_score": 1,
+              "away_score": 0,
+              "status": "finished",
+              "league": "Stoiximan Super League"
+            }
+          ],
+          "btts_last4": 0,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "btts": false,
+          "confidence": 79.1,
+          "source": "fusion",
+          "stake": 2,
+          "predicted_score": "0-2"
+        },
+        "category": "pro",
+        "verified_double": false,
+        "verified_over": false,
+        "verified_btts": false,
+        "ml_full": {
+          "prob_home_win": 7.51037340151738,
+          "prob_draw": 20.625936683626534,
+          "prob_away_win": 71.86368991485608,
+          "predicted_result": "A",
+          "expected_home_goals": 0.4,
+          "expected_away_goals": 1.8,
+          "prob_over_25": 50.0,
+          "over_25_recommend": false,
+          "prob_btts_yes": 30.91377482060953,
+          "btts_recommend": false,
+          "most_likely_score": "0-1",
+          "favorite": "A",
+          "favorite_prob": 71.86368991485608,
+          "confidence": 71.86368991485608
+        }
+      },
+      {
+        "id": 4869,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T19:30:00+04:00",
+        "home_team": "BSC Young Boys",
+        "away_team": "FC Zürich",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2445/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2450/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Super League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_score": 2.0,
+          "away_score": 0.0,
+          "draws_score": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 4.0,
+          "last_4": [
+            {
+              "date": "2026-02-01T19:30:00+04:00",
+              "home_team": "BSC Young Boys",
+              "away_team": "FC Zürich",
+              "home_score": 3,
+              "away_score": 0,
+              "status": "finished",
+              "league": "Super League"
+            },
+            {
+              "date": "2025-10-26T17:00:00+04:00",
+              "home_team": "FC Zürich",
+              "away_team": "BSC Young Boys",
+              "home_score": 2,
+              "away_score": 3,
+              "status": "finished",
+              "league": "Super League"
+            }
+          ],
+          "btts_last4": 1,
+          "btts_recommend": false
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "btts": false,
+          "confidence": 70,
+          "source": "h2h",
+          "stake": 2,
+          "predicted_score": "8-0"
+        },
+        "category": "pro",
+        "verified_double": false,
+        "verified_over": false,
+        "verified_btts": false,
+        "ml_full": null
       }
     ],
     "vip": []
