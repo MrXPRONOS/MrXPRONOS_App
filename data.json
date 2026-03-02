@@ -109,7 +109,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 6275,
@@ -229,7 +230,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 4870,
@@ -349,7 +351,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 289,
@@ -793,7 +796,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 6508,
@@ -1126,7 +1130,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 948,
@@ -1237,7 +1242,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": true
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 3796,
@@ -1459,7 +1465,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": true
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 1342,
@@ -1467,14 +1474,14 @@
       "event_date": "2026-03-02T21:30:00+04:00",
       "home_team": "Pisa",
       "away_team": "Bologna",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2737/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/2685/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/2eso9w1579708309.png",
+      "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/2qi1u31655592366.png",
       "league": "Serie A",
-      "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
+      "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/67q3q21679951383.png",
+      "venue": "Arena Garibaldi - Stadio Romeo Anconetani",
+      "status": "2h",
+      "home_score": 0,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 1,
         "home_dominance": 0.0,
@@ -1570,7 +1577,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": ""
     },
     {
       "id": 6795,
@@ -1681,7 +1689,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 6506,
@@ -1912,7 +1921,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 4941,
@@ -2161,7 +2171,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 596,
@@ -2494,7 +2505,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 1976,
@@ -2605,7 +2617,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": true
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 4939,
@@ -2716,7 +2729,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 6794,
@@ -2827,7 +2841,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 2969,
@@ -3049,7 +3064,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 4352,
@@ -3493,7 +3509,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 4351,
@@ -3715,7 +3732,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 6966,
@@ -4381,7 +4399,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": true
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 1975,
@@ -4492,7 +4511,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 1974,
@@ -4936,7 +4956,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 598,
@@ -5328,7 +5349,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 950,
@@ -5550,7 +5572,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 1672,
@@ -5661,7 +5684,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 276,
@@ -5772,7 +5796,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 6964,
@@ -5883,7 +5908,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 281,
@@ -5994,7 +6020,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 278,
@@ -6105,7 +6132,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 1344,
@@ -6549,7 +6577,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 2970,
@@ -6780,7 +6809,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 3276,
@@ -7151,7 +7181,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 4109,
@@ -7522,7 +7553,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 4938,
@@ -7633,7 +7665,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 6191,
@@ -7874,7 +7907,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 4934,
@@ -8003,7 +8037,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 4936,
@@ -8580,7 +8615,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 4932,
@@ -9063,7 +9099,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": false
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 4931,
@@ -9434,7 +9471,8 @@
         "over_35_recommend": false,
         "btts_recommend": false,
         "winner_recommend": true
-      }
+      },
+      "tsdb_banner": null
     },
     {
       "id": 949,
@@ -12434,7 +12472,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 4942,
@@ -12554,7 +12593,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 1342,
@@ -12562,14 +12602,14 @@
         "event_date": "2026-03-02T21:30:00+04:00",
         "home_team": "Pisa",
         "away_team": "Bologna",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2737/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2685/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/2eso9w1579708309.png",
+        "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/2qi1u31655592366.png",
         "league": "Serie A",
-        "league_logo": "https://sports.bzzoiro.com/img/league/23/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
+        "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/67q3q21679951383.png",
+        "venue": "Arena Garibaldi - Stadio Romeo Anconetani",
+        "status": "2h",
+        "home_score": 0,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 1,
           "home_dominance": 0.0,
@@ -12665,7 +12705,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": ""
       },
       {
         "id": 6795,
@@ -12776,7 +12817,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 1346,
@@ -12887,7 +12929,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": true
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 948,
@@ -12998,7 +13041,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": true
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 595,
@@ -13109,7 +13153,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 4870,
@@ -13229,7 +13274,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 4911,
@@ -13340,7 +13386,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 6275,
@@ -13460,7 +13507,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 4930,
@@ -13571,7 +13619,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 4933,
@@ -13682,7 +13731,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 4937,
@@ -13802,7 +13852,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 4938,
@@ -13913,7 +13964,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 2975,
@@ -14033,7 +14085,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 4349,
@@ -14153,7 +14206,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 942,
@@ -14273,7 +14327,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 2972,
@@ -14384,7 +14439,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 276,
@@ -14495,7 +14551,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 281,
@@ -14606,7 +14663,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 278,
@@ -14717,7 +14775,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 1672,
@@ -14828,7 +14887,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 4350,
@@ -14939,7 +14999,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 1973,
@@ -15050,7 +15111,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": true
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 1975,
@@ -15161,7 +15223,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 3273,
@@ -15272,7 +15335,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 947,
@@ -15383,7 +15447,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 1669,
@@ -15494,7 +15559,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 6794,
@@ -15605,7 +15671,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 4939,
@@ -15716,7 +15783,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 1343,
@@ -15827,7 +15895,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 1976,
@@ -15938,7 +16007,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": true
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 2969,
@@ -18779,7 +18849,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 1970,
@@ -18899,7 +18970,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": true
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 4934,
@@ -19028,7 +19100,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 6964,
@@ -19139,7 +19212,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 6505,
@@ -19250,7 +19324,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       },
       {
         "id": 6965,
@@ -19361,7 +19436,8 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": false
-        }
+        },
+        "tsdb_banner": null
       }
     ]
   },
