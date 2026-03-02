@@ -37,20 +37,6 @@ body {
     line-height: 1.5;
     font-size: 14px;
     scroll-behavior: smooth;
-    position: relative;
-}
-
-/* Particules dorées en arrière-plan (optionnel) */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    background: radial-gradient(circle at 20% 50%, rgba(212,175,55,0.02) 0%, transparent 50%);
-    z-index: -1;
 }
 
 .container {
@@ -103,6 +89,7 @@ nav ul {
     display: flex;
     list-style: none;
     gap: 1.2rem;
+    flex-wrap: wrap;
 }
 
 nav a {
@@ -622,8 +609,283 @@ footer {
     border-color: var(--or);
 }
 
+/* Page contact */
+.contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+}
+.contact-card {
+    background: var(--noir-secondaire);
+    border-radius: 20px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    border: 1px solid var(--or);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+.contact-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.8rem;
+}
+.contact-card h3 {
+    color: var(--or);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+.contact-card a {
+    color: var(--blanc);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+.contact-card a:hover {
+    color: var(--or);
+}
+
+/* Analyse complète ML */
+.analysis-full {
+    background: rgba(212, 175, 55, 0.1);
+    border-left: 2px solid var(--or);
+    padding: 1rem;
+}
+.analysis-full p {
+    font-size: 0.8rem;
+    margin-bottom: 0.4rem;
+}
+
 /* =======================================================
-   AMÉLIORATIONS DESIGN MODERNE
+   BOOKMAKERS DYNAMIQUES (CARTES DE BONUS)
+   ======================================================= */
+.bookmakers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.bookmaker-card {
+    background: var(--noir);
+    border-radius: 16px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid var(--or);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.bookmaker-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.bookmaker-card img {
+    max-width: 80px;
+    height: auto;
+    margin-bottom: 0.5rem;
+}
+
+.bookmaker-card h3 {
+    color: var(--or);
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.bookmaker-card p {
+    font-size: 0.8rem;
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+/* =======================================================
+   POPUP DE PARTAGE (CENTRÉ)
+   ======================================================= */
+.popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    backdrop-filter: blur(5px);
+}
+.popup.active {
+    display: flex;
+}
+.popup-content {
+    background: var(--noir-secondaire);
+    border: 2px solid var(--or);
+    border-radius: 24px;
+    padding: 1.5rem;
+    max-width: 90%;
+    width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+    box-shadow: var(--shadow-hover);
+    animation: fadeInUp 0.3s;
+}
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.popup-content h3 {
+    color: var(--or);
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+.popup-content p {
+    margin-bottom: 1.2rem;
+    font-size: 0.9rem;
+}
+.share-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+#close-popup {
+    margin-top: 1rem;
+}
+
+/* =======================================================
+   MESSAGES DE CHARGEMENT / ERREUR
+   ======================================================= */
+.loading, .error, .no-events, .warning {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: var(--noir-secondaire);
+    border-radius: 20px;
+    border: 1px solid var(--or);
+    color: var(--blanc);
+    font-size: 1rem;
+    margin: 2rem 0;
+}
+.loading {
+    position: relative;
+}
+.loading::after {
+    content: '';
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 3px solid var(--gris-clair);
+    border-top-color: var(--or);
+    border-radius: 50%;
+    animation: spinner 1s linear infinite;
+    margin-top: 1rem;
+}
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}
+.error {
+    color: #FF6B6B;
+    border-color: #FF6B6B;
+}
+.warning {
+    color: #FFA500;
+    border-color: #FFA500;
+}
+.no-events {
+    color: #AAAAAA;
+}
+
+/* =======================================================
+   CASES À COCHER VERTES POUR LES PRONOSTICS VALIDÉS
+   ======================================================= */
+.prediction-checkbox:checked:disabled {
+    accent-color: #4CAF50 !important;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+@supports not (accent-color: #4CAF50) {
+    .prediction-checkbox:checked:disabled {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+        color: white;
+    }
+}
+
+/* =======================================================
+   FORMATAGE DES ARTICLES ET CONSEILS
+   ======================================================= */
+#blog-post,
+#conseils-list,
+#blog-list {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#blog-post h1,
+#blog-post h2,
+#blog-post h3,
+#conseils-list .card h3,
+#blog-list .card h3 {
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+}
+
+#blog-post p,
+#conseils-list .card p,
+#blog-list .card p {
+    margin-bottom: 0.8rem;
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+#blog-post ul,
+#blog-post ol,
+#conseils-list .card ul,
+#conseils-list .card ol,
+#blog-list .card ul,
+#blog-list .card ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+#blog-post blockquote,
+#conseils-list .card blockquote,
+#blog-list .card blockquote {
+    border-left: 4px solid var(--or);
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+    color: #ccc;
+}
+
+/* Grille pour les articles et conseils (2 colonnes sur desktop) */
+#blog-list,
+#conseils-list {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+    #blog-list,
+    #conseils-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* =======================================================
+   AMÉLIORATIONS DESIGN MODERNE (FEU D'ARTIFICE, COMPTEUR, ETC.)
    ======================================================= */
 
 /* Feu d'artifice pour prono gagné */
@@ -843,281 +1105,17 @@ footer {
     transition: width 0.1s;
 }
 
-/* =======================================================
-   PAGE CONTACT
-   ======================================================= */
-.contact-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1.5rem;
-    margin: 2rem 0;
-}
-.contact-card {
-    background: var(--noir-secondaire);
-    border-radius: 20px;
-    padding: 1.5rem 1rem;
-    text-align: center;
-    border: 1px solid var(--or);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-.contact-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
-}
-.contact-icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.8rem;
-}
-.contact-card h3 {
-    color: var(--or);
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
-}
-.contact-card a {
-    color: var(--blanc);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.8rem;
-}
-.contact-card a:hover {
-    color: var(--or);
-}
-
-/* Analyse complète ML */
-.analysis-full {
-    background: rgba(212, 175, 55, 0.1);
-    border-left: 2px solid var(--or);
-    padding: 1rem;
-}
-.analysis-full p {
-    font-size: 0.8rem;
-    margin-bottom: 0.4rem;
-}
-
-/* =======================================================
-   BOOKMAKERS DYNAMIQUES (CARTES DE BONUS)
-   ======================================================= */
-.bookmakers-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-}
-
-.bookmaker-card {
-    background: var(--noir);
-    border-radius: 16px;
-    padding: 1rem;
-    text-align: center;
-    border: 1px solid var(--or);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.bookmaker-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
-}
-
-.bookmaker-card img {
-    max-width: 80px;
-    height: auto;
-    margin-bottom: 0.5rem;
-}
-
-.bookmaker-card h3 {
-    color: var(--or);
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
-}
-
-.bookmaker-card p {
-    font-size: 0.8rem;
-    color: #ccc;
-    margin-bottom: 1rem;
-}
-
-/* =======================================================
-   POPUP DE PARTAGE (CENTRÉ)
-   ======================================================= */
-.popup {
+/* Particules dorées en arrière-plan (optionnel) */
+body::before {
+    content: '';
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.8);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 1rem;
-    backdrop-filter: blur(5px);
-}
-.popup.active {
-    display: flex;
-}
-.popup-content {
-    background: var(--noir-secondaire);
-    border: 2px solid var(--or);
-    border-radius: 24px;
-    padding: 1.5rem;
-    max-width: 90%;
-    width: 400px;
-    max-height: 90vh;
-    overflow-y: auto;
-    text-align: center;
-    box-shadow: var(--shadow-hover);
-    animation: fadeInUp 0.3s;
-}
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-.popup-content h3 {
-    color: var(--or);
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-}
-.popup-content p {
-    margin-bottom: 1.2rem;
-    font-size: 0.9rem;
-}
-.share-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
-#close-popup {
-    margin-top: 1rem;
-}
-
-/* =======================================================
-   MESSAGES DE CHARGEMENT / ERREUR
-   ======================================================= */
-.loading, .error, .no-events, .warning {
-    text-align: center;
-    padding: 3rem 1rem;
-    background: var(--noir-secondaire);
-    border-radius: 20px;
-    border: 1px solid var(--or);
-    color: var(--blanc);
-    font-size: 1rem;
-    margin: 2rem 0;
-}
-.loading {
-    position: relative;
-}
-.loading::after {
-    content: '';
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    border: 3px solid var(--gris-clair);
-    border-top-color: var(--or);
-    border-radius: 50%;
-    animation: spinner 1s linear infinite;
-    margin-top: 1rem;
-}
-@keyframes spinner {
-    to { transform: rotate(360deg); }
-}
-.error {
-    color: #FF6B6B;
-    border-color: #FF6B6B;
-}
-.warning {
-    color: #FFA500;
-    border-color: #FFA500;
-}
-.no-events {
-    color: #AAAAAA;
-}
-
-/* =======================================================
-   CASES À COCHER VERTES POUR LES PRONOSTICS VALIDÉS
-   ======================================================= */
-.prediction-checkbox:checked:disabled {
-    accent-color: #4CAF50 !important;
-    opacity: 1 !important;
-    filter: none !important;
-}
-
-@supports not (accent-color: #4CAF50) {
-    .prediction-checkbox:checked:disabled {
-        background-color: #4CAF50;
-        border-color: #4CAF50;
-        color: white;
-    }
-}
-
-/* =======================================================
-   FORMATAGE DES ARTICLES ET CONSEILS (sauts de ligne)
-   ======================================================= */
-#blog-post,
-#conseils-list,
-#blog-list {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-#blog-post h1,
-#blog-post h2,
-#blog-post h3,
-#conseils-list .card h3,
-#blog-list .card h3 {
-    margin-top: 1.2rem;
-    margin-bottom: 0.8rem;
-    font-size: 1.1rem;
-}
-
-#blog-post p,
-#conseils-list .card p,
-#blog-list .card p {
-    margin-bottom: 0.8rem;
-    line-height: 1.6;
-    font-size: 0.9rem;
-}
-
-#blog-post ul,
-#blog-post ol,
-#conseils-list .card ul,
-#conseils-list .card ol,
-#blog-list .card ul,
-#blog-list .card ol {
-    margin-left: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-#blog-post blockquote,
-#conseils-list .card blockquote,
-#blog-list .card blockquote {
-    border-left: 4px solid var(--or);
-    padding-left: 1rem;
-    margin: 1rem 0;
-    font-style: italic;
-    color: #ccc;
-}
-
-/* Grille pour les articles et conseils (2 colonnes sur desktop) */
-#blog-list,
-#conseils-list {
-    display: grid;
-    gap: 20px;
-    grid-template-columns: 1fr;
-}
-@media (min-width: 768px) {
-    #blog-list,
-    #conseils-list {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    pointer-events: none;
+    background: radial-gradient(circle at 20% 50%, rgba(212,175,55,0.02) 0%, transparent 50%);
+    z-index: -1;
 }
 
 /* Actualités football */
@@ -1147,7 +1145,6 @@ footer {
 
     nav ul {
         gap: 0.8rem;
-        flex-wrap: wrap;
         justify-content: center;
     }
 

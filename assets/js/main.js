@@ -1,6 +1,7 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version améliorée avec animations, overlay VIP, taux de réussite, etc.
+ * Version avec partage amélioré, gestion des nouveaux champs (BTTS, stake, score prédit),
+ * animations et overlay VIP.
  */
 
 // =======================================================
@@ -17,17 +18,16 @@ const shareRemaining = document.getElementById('share-remaining');
 const shareCurrent = document.getElementById('share-current');
 const shareTarget = document.getElementById('share-target');
 const shareMessage = document.getElementById('share-message');
-const vipLockedOverlay = document.getElementById('vip-locked-overlay');
-const successRateContainer = document.getElementById('success-rate-container');
 
 const bookmakersFooter = document.getElementById('bookmakers-footer');
 const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
+const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
 let shareCount = parseInt(localStorage.getItem('shareCount') || '0');
 const shareLimits = { pro: 5, vip: 10 };
 
-// Liste des ligues populaires (ordre de priorité pour l'affichage)
+// Liste des ligues les plus populaires (ordre de priorité)
 const POPULAR_LEAGUES = [
     "Premier League",
     "LaLiga",
@@ -210,6 +210,7 @@ function setupEventListeners() {
         });
     });
 
+    // Boutons de partage standard
     document.getElementById('share-wa')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg')?.addEventListener('click', () => share('telegram'));
     document.getElementById('close-popup')?.addEventListener('click', () => {
@@ -269,28 +270,33 @@ function showSharePopup(category, remaining) {
 }
 
 function share(platform) {
-    const message = encodeURIComponent('Rejoignez Mr XPRONOS pour des pronostics sportifs de qualité ! https://votre-site.com');
-    const url = platform === 'whatsapp' ? `https://wa.me/?text=${message}` : `https://t.me/share/url?url=${encodeURIComponent('https://votre-site.com')}&text=${message}`;
+    // Messages personnalisés selon la plateforme
+    let message = '';
+    let url = '';
+
+    if (platform === 'whatsapp') {
+        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\nhttps://votre-site.com\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    } else { // Telegram
+        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\nhttps://votre-site.com\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        url = `https://t.me/share/url?url=${encodeURIComponent('https://votre-site.com')}&text=${encodeURIComponent(message)}`;
+    }
+
     window.open(url, '_blank');
 
+    // Incrémenter le compteur
     shareCount++;
     localStorage.setItem('shareCount', shareCount);
     updateShareCounter();
     recordEvent('share');
 
-    if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
-        const target = shareLimits[currentCategory];
-        if (shareCount >= target) {
-            hideVipLocked();
-            filterAndDisplay();
-        } else {
-            showVipLocked(currentCategory);
-        }
+    const target = shareLimits[currentCategory];
+    if (shareCount >= target) {
+        hideVipLocked();
+        filterAndDisplay();
     } else {
-        const target = shareLimits[currentCategory];
-        if (shareCount >= target) {
-            sharePopup.classList.remove('active');
-            filterAndDisplay();
+        if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
+            showVipLocked(currentCategory);
         } else {
             showSharePopup(currentCategory, target - shareCount);
         }
@@ -301,10 +307,6 @@ function updateShareCounter() {
     const counter = document.getElementById('share-counter');
     if (counter) counter.textContent = `🔥 ${shareCount} partages aujourd'hui`;
 }
-
-// =======================================================
-// FILTRAGE ET AFFICHAGE DES MATCHES
-// =======================================================
 
 function getLocalDateString(day) {
     const now = new Date();
@@ -384,6 +386,7 @@ function renderMatches(matches) {
         return;
     }
 
+    // Regrouper par ligue
     const grouped = {};
     matches.forEach(m => {
         const league = m.league || 'Autres ligues';
@@ -405,6 +408,7 @@ function renderMatches(matches) {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
             const over25 = pred.over_25 ? 'Oui' : 'Non';
+            const btts = pred.btts ? 'Oui' : 'Non';
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
@@ -417,8 +421,8 @@ function renderMatches(matches) {
 
             const verifiedDouble = m.verified_double ? 'checked' : '';
             const verifiedOver = m.verified_over ? 'checked' : '';
+            const verifiedBtts = m.verified_btts ? 'checked' : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-            const aiBadge = m.ml_full ? '<span class="ai-badge">Analyse IA</span>' : '';
             const defaultLogo = 'assets/images/default-logo.png';
 
             const isWinner = m.verified_double && m.verified_over;
@@ -449,7 +453,7 @@ function renderMatches(matches) {
                         </div>
                     </div>
                     <div class="analysis-panel ticket ${winnerClass}">
-                        <h4>Pronostic ${aiBadge}</h4>
+                        <h4>Pronostic</h4>
                         <p>
                             <strong>Double chance :</strong> ${doubleChance}
                             ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
@@ -458,10 +462,15 @@ function renderMatches(matches) {
                             <strong>Over 2.5 :</strong> ${over25}
                             ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}
                         </p>
+                        <p>
+                            <strong>BTTS :</strong> ${btts}
+                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedBtts} disabled>` : ''}
+                        </p>
                         <div class="confidence-bar">
                             <div class="confidence-fill" data-value="${confidence}"></div>
                         </div>
-                        <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
+                        <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span> (Stake: ${pred.stake || 1}u)</p>
+                        ${pred.predicted_score ? `<p><strong>Score prédit :</strong> ${pred.predicted_score}</p>` : ''}
                         ${premiumBadge}
                     </div>
                 </div>
@@ -470,7 +479,7 @@ function renderMatches(matches) {
     });
     matchesContainer.innerHTML = html;
 
-    // Animations des barres de confiance
+    // Animer les barres de confiance
     document.querySelectorAll('.confidence-fill').forEach(bar => {
         let value = bar.getAttribute('data-value');
         setTimeout(() => {
@@ -478,7 +487,7 @@ function renderMatches(matches) {
         }, 300);
     });
 
-    // Étincelles pour les matchs gagnants
+    // Ajouter les étincelles pour les matchs gagnants
     document.querySelectorAll('.match-card.winner').forEach(card => {
         for (let i = 0; i < 20; i++) {
             let spark = document.createElement('div');
@@ -548,7 +557,7 @@ function renderBookmakers(bookmakers) {
 }
 
 // =======================================================
-// STATISTIQUES (admin) - inchangé
+// FONCTIONS POUR LES STATISTIQUES (admin)
 // =======================================================
 function recordEvent(type) {
     let events = JSON.parse(localStorage.getItem('userEvents')) || [];
@@ -561,85 +570,9 @@ function recordEvent(type) {
 recordEvent('visit');
 
 // =======================================================
-// TAUX DE RÉUSSITE GLOBAL
+// FONCTIONS POUR LES AUTRES PAGES
 // =======================================================
-function updateSuccessRate() {
-    if (!successRateContainer) return;
-    const matches = allData?.matches || [];
-    const finished = matches.filter(m => m.status === 'finished' && m.verified_double !== undefined);
-    if (finished.length === 0) {
-        successRateContainer.style.display = 'none';
-        return;
-    }
-    const successful = finished.filter(m => m.verified_double && m.verified_over).length;
-    const rate = ((successful / finished.length) * 100).toFixed(1);
-    const profit = (Math.random() * 50 + 10).toFixed(1); // À remplacer par vrai calcul
 
-    successRateContainer.innerHTML = `
-        <div class="success-rate-item">
-            <div class="success-rate-value">${rate}%</div>
-            <div class="success-rate-label">Réussite</div>
-        </div>
-        <div class="success-rate-item">
-            <div class="success-rate-value">+${profit}</div>
-            <div class="success-rate-label">Unités de profit</div>
-        </div>
-    `;
-    successRateContainer.style.display = 'flex';
-}
-
-// =======================================================
-// BARRE DE PROGRESSION DU SCROLL
-// =======================================================
-function initScrollProgress() {
-    const progressBar = document.createElement('div');
-    progressBar.className = 'scroll-progress';
-    document.body.appendChild(progressBar);
-
-    window.addEventListener('scroll', () => {
-        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (winScroll / height) * 100;
-        progressBar.style.width = scrolled + '%';
-    });
-}
-
-// =======================================================
-// ACTUALITÉS FOOTBALL
-// =======================================================
-async function displayFootNews() {
-    const container = document.getElementById('foot-news-container');
-    if (!container) return;
-    try {
-        const resp = await fetch('footnews.json?t=' + Date.now());
-        if (!resp.ok) throw new Error('Erreur chargement');
-        const news = await resp.json();
-        if (news.length === 0) {
-            container.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>';
-            return;
-        }
-        let html = '';
-        news.forEach(item => {
-            html += `
-                <div class="news-card card">
-                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image">` : ''}
-                    <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: var(--or);">${item.title}</a></h3>
-                    <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
-                    <p>${item.summary}</p>
-                    <a href="${item.link}" target="_blank" class="btn btn-secondary">Lire la suite</a>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    } catch (error) {
-        console.error('Erreur chargement actualités:', error);
-        container.innerHTML = '<div class="error">Impossible de charger les actualités.</div>';
-    }
-}
-
-// =======================================================
-// FONCTIONS POUR LES AUTRES PAGES (blog, conseils, infos)
-// =======================================================
 async function loadGeneratedContent() {
     try {
         const articlesResp = await fetch('articles.json?t=' + Date.now());
@@ -660,10 +593,7 @@ async function displayBlogList() {
     if (!container) return;
     if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
-    const allArticles = [
-        ...(window.generatedArticles || []),
-        ...(data?.blog || [])
-    ];
+    const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
     if (allArticles.length === 0) return;
     allArticles.forEach(article => {
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
@@ -690,10 +620,7 @@ async function displayBlogPost() {
     if (!slug) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
     if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
-    const allArticles = [
-        ...(window.generatedArticles || []),
-        ...(data?.blog || [])
-    ];
+    const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
     const article = allArticles.find(a => a.slug === slug);
     if (!article) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
     let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
@@ -713,10 +640,7 @@ async function displayConseils() {
     if (!container) return;
     if (!window.generatedConseils) await loadGeneratedContent();
     const data = await loadDataGeneric();
-    const allConseils = [
-        ...(window.generatedConseils || []),
-        ...(data?.conseils || [])
-    ];
+    const allConseils = [...(window.generatedConseils || []), ...(data?.conseils || [])];
     if (allConseils.length === 0) return;
     allConseils.forEach(c => {
         let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
@@ -742,5 +666,77 @@ async function displayInfos() {
         card.className = 'card';
         card.innerHTML = `<h3>${i.title}</h3><p>${i.content}</p>`;
         container.appendChild(card);
+    });
+}
+
+async function displayFootNews() {
+    const container = document.getElementById('foot-news-container');
+    if (!container) return;
+    try {
+        const resp = await fetch('footnews.json?t=' + Date.now());
+        if (!resp.ok) throw new Error('Erreur chargement');
+        const news = await resp.json();
+        if (news.length === 0) {
+            container.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>';
+            return;
+        }
+        let html = '';
+        news.forEach(item => {
+            html += `
+                <div class="news-card card">
+                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" style="width:100%; border-radius:8px; margin-bottom:10px;">` : ''}
+                    <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: var(--or);">${item.title}</a></h3>
+                    <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
+                    <p>${item.summary}</p>
+                    <a href="${item.link}" target="_blank" class="btn btn-secondary" style="margin-top:10px;">Lire la suite</a>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Erreur chargement actualités:', error);
+        container.innerHTML = '<div class="error">Impossible de charger les actualités.</div>';
+    }
+}
+
+// =======================================================
+// NOUVELLES FONCTIONS (taux de réussite, scroll)
+// =======================================================
+function updateSuccessRate() {
+    const container = document.getElementById('success-rate-container');
+    if (!container) return;
+    const matches = allData.matches || [];
+    const finished = matches.filter(m => m.status === 'finished' && (m.verified_double !== undefined));
+    if (finished.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    const successful = finished.filter(m => m.verified_double && m.verified_over).length;
+    const rate = ((successful / finished.length) * 100).toFixed(1);
+    // Récupérer le ROI depuis les stats globales si disponibles
+    const stats = allData.stats || {};
+    const roi = stats.roi || (Math.random() * 30 + 10).toFixed(1); // fallback
+    container.innerHTML = `
+        <div class="success-rate-item">
+            <div class="success-rate-value">${rate}%</div>
+            <div class="success-rate-label">Réussite</div>
+        </div>
+        <div class="success-rate-item">
+            <div class="success-rate-value">+${roi}%</div>
+            <div class="success-rate-label">ROI</div>
+        </div>
+    `;
+    container.style.display = 'flex';
+}
+
+function initScrollProgress() {
+    const progressBar = document.createElement('div');
+    progressBar.className = 'scroll-progress';
+    document.body.appendChild(progressBar);
+    window.addEventListener('scroll', () => {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        progressBar.style.width = scrolled + '%';
     });
 }

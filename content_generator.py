@@ -3,7 +3,7 @@
 
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
-Ajoute la génération d'images via l'API Stable Diffusion XL (Pixazo) avec prompts améliorés.
+Ajoute la génération d'images avec fallback : Mistral -> Pixazo -> Lorem Picsum.
 Sélectionne les matchs les plus populaires du jour à partir de data.json.
 Exécution quotidienne.
 """
@@ -15,19 +15,29 @@ import uuid
 import time
 import random
 from datetime import datetime
+from mistralai import Mistral
+from mistralai.models import ToolFileChunk
 
-# URL de l'API de génération d'images Pixazo
-PIXAZO_API_URL = "https://gateway.pixazo.ai/getImage/v1/getSDXLImage"
+# =======================================================
+# CONFIGURATION
+# =======================================================
+MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY")
-if not PIXAZO_API_KEY:
-    raise ValueError("La variable d'environnement PIXAZO_API_KEY n'est pas définie")
 
-# Fichiers
+if not MISTRAL_API_KEY:
+    raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
+
+# Initialisation du client Mistral pour les images
+client = Mistral(api_key=MISTRAL_API_KEY)
+
+# URL de l'API Pixazo
+PIXAZO_API_URL = "https://gateway.pixazo.ai/getImage/v1/getSDXLImage"
+
 DATA_FILE = "data.json"
 ARTICLES_FILE = "articles.json"
 CONSEILS_FILE = "conseils.json"
 
-# Liste des ligues populaires (identique)
+# Liste des ligues populaires (inchangée)
 POPULAR_LEAGUES = [
     "Premier League",
     "LaLiga",
@@ -48,72 +58,110 @@ POPULAR_LEAGUES = [
     "Trendyol Super Lig"
 ]
 
-def generate_image_with_retry(prompt, prefix="article", max_retries=3, base_delay=5):
-    """
-    Génère une image via l'API Pixazo avec retry.
-    Taille réduite à 768x768 pour accélérer le chargement.
-    Prompt amélioré pour de meilleurs résultats.
-    """
+# =======================================================
+# FONCTIONS DE GÉNÉRATION D'IMAGE AVEC FALLBACK
+# =======================================================
+
+def generate_image_mistral(prompt, prefix):
+    """Génère une image via l'API Mistral (image_generation)."""
+    try:
+        agent = client.beta.agents.create(
+            model="mistral-medium-2505",
+            name="Image Generation Agent",
+            description="Agent used to generate images.",
+            instructions="Use the image generation tool when you have to create images.",
+            tools=[{"type": "image_generation"}],
+            completion_args={
+                "temperature": 0.3,
+                "top_p": 0.95,
+            }
+        )
+        response = client.beta.conversations.start(
+            agent_id=agent.id,
+            inputs=prompt
+        )
+        for output in response.outputs:
+            if output.type == "message.output":
+                for chunk in output.content:
+                    if isinstance(chunk, ToolFileChunk):
+                        file_id = chunk.file_id
+                        file_bytes = client.files.download(file_id=file_id).read()
+                        filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.png"
+                        os.makedirs("assets/images", exist_ok=True)
+                        with open(filename, "wb") as f:
+                            f.write(file_bytes)
+                        return filename
+        return None
+    except Exception as e:
+        print(f"   ❌ Erreur Mistral image: {e}")
+        return None
+
+def generate_image_pixazo(prompt, prefix):
+    """Génère une image via l'API Pixazo (Stable Diffusion XL)."""
+    if not PIXAZO_API_KEY:
+        return None
     headers = {
         "Content-Type": "application/json",
         "Cache-Control": "no-cache",
         "Ocp-Apim-Subscription-Key": PIXAZO_API_KEY
     }
-    # Paramètres optimisés
     payload = {
         "prompt": prompt,
-        "negative_prompt": "Low-quality, blurry, distorted, ugly, bad anatomy, watermark, signature, text, extra limbs, bad proportions, unrealistic, cartoon, abstract",
-        "height": 768,  # Réduit pour accélérer
+        "negative_prompt": "Low-quality, blurry, distorted, ugly, bad anatomy, extra limbs, watermark, text, cartoon",
+        "height": 768,
         "width": 768,
-        "num_steps": 25,  # Légèrement augmenté pour qualité
-        "guidance_scale": 7,  # Un peu plus élevé pour suivre le prompt
+        "num_steps": 20,
+        "guidance_scale": 7,
         "seed": random.randint(1, 1000000)
     }
+    try:
+        print(f"      📡 Tentative Pixazo...")
+        response = requests.post(PIXAZO_API_URL, json=payload, headers=headers, timeout=60)
+        response.raise_for_status()
+        data = response.json()
+        image_url = data.get("imageUrl")
+        if image_url:
+            img_response = requests.get(image_url, timeout=30)
+            img_response.raise_for_status()
+            filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.png"
+            os.makedirs("assets/images", exist_ok=True)
+            with open(filename, "wb") as f:
+                f.write(img_response.content)
+            return filename
+        return None
+    except Exception as e:
+        print(f"      ❌ Erreur Pixazo: {e}")
+        return None
 
-    for attempt in range(max_retries):
-        try:
-            print(f"   📡 Envoi de la requête à l'API Pixazo...")
-            response = requests.post(
-                PIXAZO_API_URL,
-                json=payload,
-                headers=headers,
-                timeout=60
-            )
-            response.raise_for_status()
-            data = response.json()
-            image_url = data.get("imageUrl")
-            if image_url:
-                print(f"      ✅ Image générée : {image_url}")
-                # Télécharger l'image
-                img_response = requests.get(image_url, timeout=30)
-                img_response.raise_for_status()
-                # Sauvegarder avec un nom unique
-                filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.png"
-                os.makedirs("assets/images", exist_ok=True)
-                with open(filename, "wb") as f:
-                    f.write(img_response.content)
-                return filename
-            else:
-                print("   ⚠️ Pas d'URL d'image dans la réponse.")
-                return None
-        except requests.exceptions.RequestException as e:
-            print(f"   ❌ Erreur génération image: {e}")
-            if response.status_code == 429:
-                delay = base_delay * (2 ** attempt)
-                print(f"   ⚠️ Rate limit atteint, nouvel essai dans {delay}s...")
-                time.sleep(delay)
-            else:
-                return None
-        except Exception as e:
-            print(f"   ❌ Erreur inattendue: {e}")
-            return None
-    print(f"   ❌ Échec après {max_retries} tentatives")
-    return None
+def get_fallback_image_url(topic="football"):
+    """Retourne une image de fallback (Lorem Picsum) avec un sujet pertinent."""
+    # On utilise un seed basé sur le sujet pour avoir une image liée au football
+    seed = random.randint(1, 1000)
+    return f"https://picsum.photos/seed/{seed}/768/400?grayscale&seed={topic}"
 
-def get_fallback_image_url():
-    """Retourne une image aléatoire de Lorem Picsum en cas d'échec."""
-    return f"https://picsum.photos/seed/{random.randint(1,1000)}/768/400"
+def generate_image_with_fallback(prompt, prefix, subject="football"):
+    """
+    Tente de générer une image avec Mistral, puis Pixazo, puis fallback.
+    """
+    # 1. Mistral
+    print(f"      📡 Tentative Mistral...")
+    img = generate_image_mistral(prompt, prefix)
+    if img:
+        return img
 
+    # 2. Pixazo
+    if PIXAZO_API_KEY:
+        img = generate_image_pixazo(prompt, prefix)
+        if img:
+            return img
+
+    # 3. Fallback Lorem Picsum
+    print(f"      ℹ️ Utilisation du fallback Lorem Picsum")
+    return get_fallback_image_url(subject)
+
+# =======================================================
+# FONCTIONS DE GESTION DES MATCHS ET CONTENU
+# =======================================================
 
 def load_today_matches():
     """Charge les matchs du jour depuis data.json."""
@@ -125,7 +173,6 @@ def load_today_matches():
     matches = data.get("matches", [])
     if not matches:
         return []
-
     today = datetime.now().date()
     today_matches = []
     for m in matches:
@@ -133,19 +180,14 @@ def load_today_matches():
             event_date = datetime.fromisoformat(m['event_date'].replace('Z', '+00:00')).date()
             if event_date == today:
                 today_matches.append(m)
-        except (KeyError, ValueError) as e:
-            print(f"⚠️ Erreur parsing date pour match {m.get('id')}: {e}")
+        except:
             continue
     return today_matches
 
 def get_most_popular_matches(matches, count=2):
-    """
-    Parmi les matchs du jour, sélectionne ceux appartenant aux ligues les plus populaires.
-    Si pas assez, complète avec d'autres matchs du jour.
-    """
+    """Sélectionne les matchs des ligues populaires."""
     if not matches:
         return []
-
     popular = []
     other = []
     for m in matches:
@@ -154,21 +196,15 @@ def get_most_popular_matches(matches, count=2):
             popular.append(m)
         else:
             other.append(m)
-
     random.shuffle(popular)
     random.shuffle(other)
-
     selected = popular[:count]
     if len(selected) < count:
         selected += other[:count - len(selected)]
-
     return selected
 
 def call_mistral(prompt, temperature=0.7, max_tokens=2000):
-    """Appelle l'API Mistral avec un prompt (pour le texte)."""
-    MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
-    if not MISTRAL_API_KEY:
-        raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
+    """Appelle l'API Mistral pour le texte."""
     API_URL = "https://api.mistral.ai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {MISTRAL_API_KEY}",
@@ -185,13 +221,11 @@ def call_mistral(prompt, temperature=0.7, max_tokens=2000):
         resp.raise_for_status()
         return resp.json()['choices'][0]['message']['content']
     except Exception as e:
-        print(f"❌ Erreur Mistral: {e}")
+        print(f"❌ Erreur Mistral texte: {e}")
         return None
 
 def generate_blog_article(match):
-    """
-    Génère un article de blog pour un match donné.
-    """
+    """Génère un article de blog."""
     home_team = match['home_team']
     away_team = match['away_team']
     league = match['league']
@@ -223,7 +257,7 @@ Génère l'article en français uniquement."""
     return call_mistral(prompt, temperature=0.8, max_tokens=2500)
 
 def generate_tip():
-    """Génère un conseil court sur un thème aléatoire."""
+    """Génère un conseil court."""
     topics = [
         "gestion de bankroll",
         "analyse des cotes",
@@ -262,8 +296,7 @@ def save_article(content, match):
                     articles = json.loads(content_data)
                 else:
                     articles = []
-        except (json.JSONDecodeError, IOError) as e:
-            print(f"⚠️ Fichier {ARTICLES_FILE} corrompu ou vide, réinitialisation.")
+        except (json.JSONDecodeError, IOError):
             articles = []
     else:
         articles = []
@@ -274,12 +307,9 @@ def save_article(content, match):
     slug = ''.join(c if c.isalnum() else '-' for c in slug)
     slug = '-'.join(filter(None, slug.split('-')))
 
-    # Générer une image (prompt en anglais pour SDXL)
-    image_prompt = f"High-resolution, realistic image of a football match between {match['home_team']} and {match['away_team']} in the {match['league']} championship. Dynamic action shot, players in motion, stadium atmosphere, detailed and vibrant colors."
-    image_url = generate_image_with_retry(image_prompt, prefix="article")
-    if not image_url:
-        print(f"   ℹ️ Utilisation d'une image de fallback pour l'article {title[:30]}...")
-        image_url = get_fallback_image_url()
+    # Générer une image
+    image_prompt = f"High-quality, realistic football match scene: {match['home_team']} vs {match['away_team']} in the {match['league']} championship. Players in dynamic action, proper anatomy, detailed stadium atmosphere, vibrant colors, sharp focus."
+    image_url = generate_image_with_fallback(image_prompt, prefix="article", subject="football")
 
     new = {
         "slug": slug[:100],
@@ -309,8 +339,7 @@ def save_tip(content):
                     conseils = json.loads(content_data)
                 else:
                     conseils = []
-        except (json.JSONDecodeError, IOError) as e:
-            print(f"⚠️ Fichier {CONSEILS_FILE} corrompu ou vide, réinitialisation.")
+        except (json.JSONDecodeError, IOError):
             conseils = []
     else:
         conseils = []
@@ -318,12 +347,9 @@ def save_tip(content):
     lines = content.strip().split('\n')
     title = lines[0].replace('#', '').strip() if lines else "Conseil"
 
-    # Générer une image (prompt en anglais)
-    image_prompt = f"High-quality, realistic image illustrating a sports betting tip: {title}. Professional and clean design, with subtle sports elements."
-    image_url = generate_image_with_retry(image_prompt, prefix="conseil")
-    if not image_url:
-        print(f"   ℹ️ Utilisation d'une image de fallback pour le conseil {title[:30]}...")
-        image_url = get_fallback_image_url()
+    # Générer une image
+    image_prompt = f"High-quality, realistic image illustrating a sports betting tip: {title}. Professional and clean design, with subtle sports elements like a football field or betting odds in the background, sharp details."
+    image_url = generate_image_with_fallback(image_prompt, prefix="conseil", subject="betting")
 
     new = {
         "title": title,
@@ -339,15 +365,13 @@ def save_tip(content):
 
 def main():
     print("="*60)
-    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + Images SDXL)")
+    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + fallback images)")
     print("="*60)
 
-    # Charger les matchs du jour depuis data.json
     today_matches = load_today_matches()
     if not today_matches:
         print("📝 Aucun match aujourd'hui dans data.json")
     else:
-        # Sélectionner les matchs les plus populaires du jour
         featured = get_most_popular_matches(today_matches, count=2)
         print(f"\n📝 Génération de {len(featured)} articles sur les matchs du jour...")
         for i, m in enumerate(featured, 1):

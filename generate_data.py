@@ -3,9 +3,10 @@
 
 """
 generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
-les prédictions ML et les analyses H2H.
+les prédictions ML et les analyses H2H améliorées (pondération temporelle,
+fusion ML+H2H, BTTS, stake, ROI, etc.)
 Exécutable toutes les heures pour mettre à jour les statuts et vérifications.
-Version avec fusion des données existantes pour conserver les matchs d'hier.
+Version avec fusion intelligente et optimisation cache.
 """
 
 import requests
@@ -105,20 +106,27 @@ def fetch_predictions(upcoming=True):
     return all_predictions
 
 # =======================================================
-# FONCTIONS D'ANALYSE H2H
+# FONCTIONS D'ANALYSE H2H (AVEC PONDÉRATION TEMPORELLE)
 # =======================================================
 
-def get_h2h_from_cache(team_id_a, team_id_b):
-    """Récupère l'historique des confrontations depuis le cache global."""
-    if not os.path.exists(GLOBAL_CACHE_FILE):
-        print("   ⚠️ Cache global introuvable.")
-        return []
+def weight_by_date(date_str):
+    """Pondère les matchs selon leur ancienneté (les plus récents ont plus de poids)."""
+    try:
+        match_date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+        days_old = (datetime.now() - match_date).days
+        if days_old < 180:
+            return 1.5
+        elif days_old < 365:
+            return 1.2
+        else:
+            return 1.0
+    except:
+        return 1.0
 
-    with open(GLOBAL_CACHE_FILE, 'r', encoding='utf-8') as f:
-        all_matches = json.load(f)
-
+def get_h2h_from_cache(team_id_a, team_id_b, global_cache):
+    """Récupère l'historique des confrontations depuis le cache global (préchargé)."""
     h2h = []
-    for m in all_matches:
+    for m in global_cache:
         home_obj = m.get("home_team_obj")
         away_obj = m.get("away_team_obj")
         if home_obj and away_obj:
@@ -138,100 +146,138 @@ def get_h2h_from_cache(team_id_a, team_id_b):
     return h2h
 
 def analyze_h2h(h2h_list, current_home_team, current_away_team):
-    """Analyse la liste H2H."""
-    home_wins = 0
-    away_wins = 0
-    draws = 0
+    """
+    Analyse la liste H2H avec pondération temporelle.
+    Retourne un dict avec scores pondérés, dominance, BTTS, etc.
+    """
+    home_score = 0.0
+    away_score = 0.0
+    draws_score = 0.0
     total_goals = 0
     matches_count = 0
-    last_4 = h2h_list[:4]
+    btts_count = 0
+    last_4 = h2h_list[:4]  # pour l'affichage
 
     for match in h2h_list:
+        weight = weight_by_date(match["date"])
         matches_count += 1
-        total_goals += match["home_score"] + match["away_score"]
+        total_goals += (match["home_score"] + match["away_score"]) * weight
         if match["home_score"] > match["away_score"]:
             if match["home_team"] == current_home_team:
-                home_wins += 1
+                home_score += weight
             else:
-                away_wins += 1
+                away_score += weight
         elif match["home_score"] < match["away_score"]:
             if match["away_team"] == current_home_team:
-                home_wins += 1
+                home_score += weight
             else:
-                away_wins += 1
+                away_score += weight
         else:
-            draws += 1
+            draws_score += weight
 
-    goals_avg = total_goals / matches_count if matches_count > 0 else 0
+        if match["home_score"] > 0 and match["away_score"] > 0:
+            btts_count += 1
+
+    # Calcul de la dominance
+    total_weighted = home_score + away_score + draws_score
+    if total_weighted > 0:
+        home_dominance = home_score / total_weighted
+        away_dominance = away_score / total_weighted
+    else:
+        home_dominance = away_dominance = 0.0
+
+    goals_avg = total_goals / matches_count if matches_count > 0 else 2.5
+
+    # Probabilité BTTS basée sur les 4 derniers
+    btts_last4 = sum(1 for m in h2h_list[:4] if m["home_score"] > 0 and m["away_score"] > 0)
+    btts_recommend = btts_last4 >= 3
+
     return {
         "total_matches": matches_count,
-        "home_wins": home_wins,
-        "away_wins": away_wins,
-        "draws": draws,
-        "goals_avg": goals_avg,
-        "last_4": last_4
+        "home_score": round(home_score, 2),
+        "away_score": round(away_score, 2),
+        "draws_score": round(draws_score, 2),
+        "home_dominance": round(home_dominance, 3),
+        "away_dominance": round(away_dominance, 3),
+        "goals_avg": round(goals_avg, 2),
+        "last_4": last_4,
+        "btts_last4": btts_last4,
+        "btts_recommend": btts_recommend
     }
 
-def classify_match_h2h(analysis):
-    """Classification H2H : simple / vip."""
-    n = analysis["total_matches"]
-    if n >= 4:
-        if analysis["home_wins"] >= 3 or analysis["away_wins"] >= 3:
-            return "vip"
-    if n >= 5:
-        if analysis["home_wins"] >= n-1 or analysis["away_wins"] >= n-1:
-            return "vip"
-    return "simple"
-
 def generate_prediction_h2h(analysis, home_team, away_team):
-    """Génère un pronostic H2H simple."""
-    last_4 = analysis["last_4"]
-    home_wins_last4 = 0
-    away_wins_last4 = 0
-    draws_last4 = 0
-    goals_last4 = []
-
-    for m in last_4:
-        goals_last4.append(m["home_score"] + m["away_score"])
-        if m["home_score"] > m["away_score"]:
-            if m["home_team"] == home_team:
-                home_wins_last4 += 1
-            else:
-                away_wins_last4 += 1
-        elif m["home_score"] < m["away_score"]:
-            if m["away_team"] == home_team:
-                home_wins_last4 += 1
-            else:
-                away_wins_last4 += 1
-        else:
-            draws_last4 += 1
-
-    if home_wins_last4 > away_wins_last4 + draws_last4:
+    """
+    Génère un pronostic H2H basé sur l'analyse pondérée.
+    Retourne double_chance, over_25, btts, confidence.
+    """
+    # Double chance basé sur dominance
+    if analysis["home_dominance"] > analysis["away_dominance"] + 0.1:
         double_chance = "1X"
-    elif away_wins_last4 > home_wins_last4 + draws_last4:
+    elif analysis["away_dominance"] > analysis["home_dominance"] + 0.1:
         double_chance = "X2"
     else:
         double_chance = "12"
 
-    avg_goals = sum(goals_last4) / len(goals_last4) if goals_last4 else 2.5
-    over_25 = avg_goals > 2.5
-    confidence = 50 + (analysis["total_matches"] * 5)
-    confidence = min(confidence, 95)
+    # Over/Under basé sur la moyenne de buts des 4 derniers (ou globale)
+    last_4_goals = [m["home_score"] + m["away_score"] for m in analysis["last_4"] if m.get("home_score") and m.get("away_score")]
+    avg_goals_last4 = sum(last_4_goals) / len(last_4_goals) if last_4_goals else analysis["goals_avg"]
+    over_25 = avg_goals_last4 > 2.5
+
+    # Confiance basée sur la dominance et le nombre de matchs
+    dominance = max(analysis["home_dominance"], analysis["away_dominance"])
+    base_conf = 50 + (analysis["total_matches"] * 5)
+    conf = min(base_conf, 95)
+    # Bonus de dominance
+    if dominance > 0.7:
+        conf = min(conf + 10, 100)
+    elif dominance > 0.6:
+        conf = min(conf + 5, 100)
 
     return {
         "double_chance": double_chance,
         "over_25": over_25,
-        "confidence": confidence
+        "btts": analysis["btts_recommend"],
+        "confidence": conf
     }
 
 # =======================================================
-# FONCTIONS DE VÉRIFICATION
+# FONCTIONS DE FUSION ML + H2H ET CLASSIFICATION
+# =======================================================
+
+def calculate_stake(confidence):
+    """Détermine le nombre d'unités à miser en fonction de la confiance."""
+    if confidence >= 85:
+        return 3
+    elif confidence >= 70:
+        return 2
+    else:
+        return 1
+
+def classify_by_confidence(final_conf):
+    """Classement basé sur la confiance finale."""
+    if final_conf >= 85:
+        return "vip"
+    elif final_conf >= 70:
+        return "pro"
+    else:
+        return "simple"
+
+def model_agreement(h2h_pred, ml_pred):
+    """Vérifie si les deux modèles sont d'accord sur le résultat."""
+    # On compare le double chance : si les deux sont dans la même direction
+    # Simplification : on regarde si le favori est le même
+    # Ici on utilise le double_chance, mais pour une vraie comparaison on pourrait utiliser predicted_result
+    return h2h_pred.get("double_chance") == ml_pred.get("double_chance")
+
+# =======================================================
+# FONCTIONS DE VÉRIFICATION ET ROI
 # =======================================================
 
 def verify_prediction(match, prediction):
     """Vérifie si le pronostic est validé par le résultat réel."""
     match['verified_double'] = False
     match['verified_over'] = False
+    match['verified_btts'] = False
 
     if match['status'] != 'finished':
         return
@@ -256,6 +302,29 @@ def verify_prediction(match, prediction):
     else:
         match['verified_over'] = total_goals <= 2.5
 
+    # BTTS vérification
+    if prediction.get('btts'):
+        match['verified_btts'] = (home_score > 0 and away_score > 0)
+    else:
+        match['verified_btts'] = (home_score == 0 or away_score == 0)
+
+def update_bankroll(matches):
+    """Calcule les statistiques de ROI à partir des matchs terminés."""
+    total_bets = 0
+    wins = 0
+    for m in matches:
+        if m["status"] == "finished" and (m.get("verified_double") is not None):
+            total_bets += 1
+            # On considère un pari gagnant si double chance validé (ou on peut combiner plusieurs critères)
+            if m["verified_double"]:
+                wins += 1
+    roi = (wins / total_bets * 100) if total_bets else 0
+    return {
+        "total_bets": total_bets,
+        "wins": wins,
+        "roi": round(roi, 2)
+    }
+
 # =======================================================
 # FONCTION PRINCIPALE
 # =======================================================
@@ -278,6 +347,15 @@ def main():
             old_matches_by_id = {m['id']: m for m in old_data.get('matches', [])}
         print(f"📂 Ancien fichier chargé : {len(old_matches_by_id)} matchs")
 
+    # Charger le cache global une seule fois
+    global_cache = []
+    if os.path.exists(GLOBAL_CACHE_FILE):
+        with open(GLOBAL_CACHE_FILE, 'r', encoding='utf-8') as f:
+            global_cache = json.load(f)
+        print(f"📂 Cache global chargé : {len(global_cache)} matchs")
+    else:
+        print("⚠️ Cache global introuvable, les analyses H2H seront limitées.")
+
     print("\n📈 Récupération des prédictions ML...")
     predictions_upcoming = fetch_predictions(upcoming=True)
     predictions_past = fetch_predictions(upcoming=False)
@@ -292,8 +370,12 @@ def main():
 
     # Traiter les nouveaux événements
     for event in all_new_events:
-        print(f"\n🔍 Analyse match {event['id']}")
-        match_id = event["id"]
+        print(f"\n🔍 Analyse match {event.get('id', 'inconnu')}")
+        match_id = event.get("id")
+        if not isinstance(match_id, int):
+            print("   ⚠️ ID invalide, ignoré")
+            continue
+
         home_team_obj = event.get("home_team_obj")
         away_team_obj = event.get("away_team_obj")
         if not home_team_obj or not away_team_obj:
@@ -306,17 +388,16 @@ def main():
 
         print(f"   {home_team_obj['name']} vs {away_team_obj['name']} ({league['name']})")
 
-        h2h = get_h2h_from_cache(home_team_obj["id"], away_team_obj["id"])
-        print(f"   → {len(h2h)} confrontations H2H")
+        # Récupérer H2H depuis le cache global
+        h2h = get_h2h_from_cache(home_team_obj["id"], away_team_obj["id"], global_cache)
+        print(f"   → {len(h2h)} confrontations H2H dans le cache")
 
         analysis_h2h = analyze_h2h(h2h, home_team_obj["name"], away_team_obj["name"])
         prediction_h2h = generate_prediction_h2h(analysis_h2h, home_team_obj["name"], away_team_obj["name"])
 
-        if analysis_h2h["home_wins"] > analysis_h2h["away_wins"]:
-            prediction_h2h["confidence"] = min(prediction_h2h["confidence"] + 10, 100)
-
         ml_pred = pred_dict.get(match_id)
         ml_full = None
+        confidence_ml = 0
         if ml_pred:
             ml_full = {
                 "prob_home_win": ml_pred.get('prob_home_win'),
@@ -334,38 +415,73 @@ def main():
                 "favorite_prob": ml_pred.get('favorite_prob'),
                 "confidence": ml_pred.get('confidence')
             }
+            raw_confidence = ml_pred.get('confidence', 0.5)
+            if raw_confidence <= 1:
+                confidence_ml = round(raw_confidence * 100, 1)
+            else:
+                confidence_ml = round(raw_confidence, 1)
 
+            # Construction d'une prédiction ML simplifiée pour la fusion
             prob_home = ml_pred.get('prob_home_win', 0)
             prob_away = ml_pred.get('prob_away_win', 0)
+            prob_draw = ml_pred.get('prob_draw', 0)
             predicted_result = ml_pred.get('predicted_result', '')
-            if prob_home > 55 or prob_away > 55:
-                if predicted_result == "H":
-                    double_chance_ml = "1X"
-                elif predicted_result == "A":
-                    double_chance_ml = "X2"
-                else:
-                    double_chance_ml = "12"
-                over_25_ml = ml_pred.get('over_25_recommend', False)
-                raw_confidence = ml_pred.get('confidence', 0.5)
-                if raw_confidence <= 1:
-                    confidence_ml = round(raw_confidence * 100, 1)
-                else:
-                    confidence_ml = round(raw_confidence, 1)
-                prediction_ml = {
-                    "double_chance": double_chance_ml,
-                    "over_25": over_25_ml,
-                    "confidence": confidence_ml,
-                    "source": "ML"
-                }
-                category = "pro"
-                prediction_used = prediction_ml
+            if predicted_result == "H":
+                double_chance_ml = "1X"
+            elif predicted_result == "A":
+                double_chance_ml = "X2"
             else:
-                category = classify_match_h2h(analysis_h2h)
-                prediction_used = prediction_h2h
+                double_chance_ml = "12"
+            over_25_ml = ml_pred.get('over_25_recommend', False)
+            btts_ml = ml_pred.get('btts_recommend', False)
+            prediction_ml = {
+                "double_chance": double_chance_ml,
+                "over_25": over_25_ml,
+                "btts": btts_ml,
+                "confidence": confidence_ml,
+                "source": "ML"
+            }
         else:
-            category = classify_match_h2h(analysis_h2h)
-            prediction_used = prediction_h2h
+            prediction_ml = None
 
+        # Fusion intelligente H2H + ML
+        if prediction_ml:
+            # Pondération : 40% H2H, 60% ML
+            final_conf = prediction_h2h["confidence"] * 0.4 + confidence_ml * 0.6
+            final_double_chance = prediction_h2h["double_chance"] if model_agreement(prediction_h2h, prediction_ml) else "12"  # en cas de désaccord, on met "12" par prudence
+            final_over = prediction_h2h["over_25"] or prediction_ml["over_25"]  # OU logique
+            final_btts = prediction_h2h["btts"] or prediction_ml["btts"]
+            # Si accord, bonus
+            if model_agreement(prediction_h2h, prediction_ml):
+                final_conf = min(final_conf + 10, 100)
+            source = "fusion"
+        else:
+            # Pas de ML, on utilise H2H
+            final_conf = prediction_h2h["confidence"]
+            final_double_chance = prediction_h2h["double_chance"]
+            final_over = prediction_h2h["over_25"]
+            final_btts = prediction_h2h["btts"]
+            source = "h2h"
+
+        final_prediction = {
+            "double_chance": final_double_chance,
+            "over_25": final_over,
+            "btts": final_btts,
+            "confidence": round(final_conf, 1),
+            "source": source,
+            "stake": calculate_stake(final_conf)
+        }
+
+        # Calcul du score prédit approximatif
+        avg_goals = analysis_h2h["goals_avg"]
+        expected_home = round(avg_goals * analysis_h2h["home_dominance"] * 2)
+        expected_away = round(avg_goals * analysis_h2h["away_dominance"] * 2)
+        final_prediction["predicted_score"] = f"{expected_home}-{expected_away}"
+
+        # Classification basée sur la confiance finale
+        category = classify_by_confidence(final_conf)
+
+        # Construction de l'objet match
         home_logo = f"https://sports.bzzoiro.com/img/team/{home_team_obj['api_id']}/?token={API_TOKEN}"
         away_logo = f"https://sports.bzzoiro.com/img/team/{away_team_obj['api_id']}/?token={API_TOKEN}"
         league_logo = f"https://sports.bzzoiro.com/img/league/{league['api_id']}/?token={API_TOKEN}"
@@ -385,41 +501,42 @@ def main():
             "home_score": event["home_score"],
             "away_score": event["away_score"],
             "h2h_analysis": analysis_h2h,
-            "prediction": prediction_used,
+            "prediction": final_prediction,
             "category": category,
             "verified_double": False,
             "verified_over": False,
+            "verified_btts": False,
             "ml_full": ml_full
         }
 
         if event_date == yesterday.isoformat():
-            verify_prediction(match_data, prediction_used)
-            if match_data["verified_double"] or match_data["verified_over"]:
-                print(f"   ✅ Vérification : DC {match_data['verified_double']} / Over {match_data['verified_over']}")
+            verify_prediction(match_data, final_prediction)
+            if match_data["verified_double"] or match_data["verified_over"] or match_data["verified_btts"]:
+                print(f"   ✅ Vérification : DC {match_data['verified_double']} / Over {match_data['verified_over']} / BTTS {match_data['verified_btts']}")
 
         new_matches.append(match_data)
         categories[category].append(match_data)
-        print(f"   ✅ Catégorie: {category}, Confiance: {prediction_used['confidence']}%")
+        print(f"   ✅ Catégorie: {category}, Confiance: {final_conf}%, Stake: {final_prediction['stake']}u")
 
-    # Fusion avec les anciens matchs (pour conserver ceux qui ne sont plus dans l'API)
-    # On crée un dictionnaire des nouveaux matchs par ID
+    # Fusion avec les anciens matchs
     new_matches_by_id = {m['id']: m for m in new_matches}
-    # On ajoute les anciens matchs qui ne sont pas dans les nouveaux (ex: matchs d'hier devenus indisponibles)
     for old_id, old_match in old_matches_by_id.items():
         if old_id not in new_matches_by_id:
             print(f"📌 Conservation de l'ancien match {old_id} ({old_match['home_team']} vs {old_match['away_team']})")
             new_matches.append(old_match)
-            # Re-ajouter dans les catégories
             categories[old_match['category']].append(old_match)
 
-    # Mise à jour du fichier final
+    # Calcul du ROI
+    stats = update_bankroll(new_matches)
+
+    # Construction du fichier final
     data = {
         "matches": new_matches,
         "categories": categories,
-        "bookmakers": old_data.get("bookmakers", [])  # on garde les bookmakers de l'ancien fichier ou on les définit par défaut
+        "stats": stats,
+        "bookmakers": old_data.get("bookmakers", [])
     }
 
-    # Si pas de bookmakers dans l'ancien, on met des valeurs par défaut
     if not data["bookmakers"]:
         data["bookmakers"] = [
             {"name": "1xBet", "logo": "assets/images/1xbet.png", "url": "https://affiliation.com/1xbet"},
@@ -431,8 +548,8 @@ def main():
         ]
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-    print(f"\n💾 {DATA_FILE} généré avec {len(new_matches)} matchs (dont {len(new_matches) - len(new_matches_by_id)} conservés)")
+        json.dump(data, f, indent=2, ensure_ascii=False, default=str)
+    print(f"\n💾 {DATA_FILE} généré avec {len(new_matches)} matchs, ROI: {stats['roi']}%")
 
 if __name__ == "__main__":
     main()

@@ -2,7 +2,7 @@ name: Mise à jour quotidienne (données + contenu)
 
 on:
   schedule:
-    - cron: '5 0 * * *'   # 00:05 UTC
+    - cron: '5 0 * * *'
   push:
     paths:
       - '*.py'
@@ -53,9 +53,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'actions@github.com'
-          
           git add cache/all_matches.json data.json articles.json conseils.json footnews.json sitemap.xml assets/images/
           git commit -m "Mise à jour automatique $(date +'%Y-%m-%d') [skip ci]" || echo "No changes"
-          
           git pull --rebase -X theirs origin main
           git push origin main
