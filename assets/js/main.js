@@ -1,7 +1,7 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
  * Gère l'affichage des pronostics, blog, conseils, infos, bookmakers et la logique de partage.
- * Version avec support Markdown et images générées.
+ * Version avec support Markdown, images générées, et affichage des matchs par ligue populaire.
  */
 
 // =======================================================
@@ -25,6 +25,27 @@ const vipSubtabs = document.getElementById('vip-subtabs');
 
 let shareCount = parseInt(localStorage.getItem('shareCount') || '0');
 const shareLimits = { pro: 5, vip: 10 };
+
+// Liste des ligues les plus populaires (ordre de priorité pour l'affichage)
+const POPULAR_LEAGUES = [
+    "Premier League",
+    "LaLiga",
+    "Serie A",
+    "Bundesliga",
+    "Ligue 1",
+    "Eredivisie",
+    "Primeira Liga",
+    "Super Lig",
+    "Russian Premier League",
+    "MLS",
+    "Brasileirão",
+    "Liga Profesional",
+    "Jupiler Pro League",
+    "Super League",
+    "Championship",
+    "Liga Portugal",
+    "Trendyol Super Lig"
+];
 
 // =======================================================
 // INITIALISATION
@@ -262,6 +283,28 @@ function getLocalDateFromEvent(isoString) {
     return `${year}-${month}-${day}`;
 }
 
+/**
+ * Trie les matchs par popularité de ligue, puis par date/heure.
+ */
+function sortMatchesByLeague(matches) {
+    return matches.sort((a, b) => {
+        // D'abord par popularité de ligue
+        const leagueA = a.league || '';
+        const leagueB = b.league || '';
+        const indexA = POPULAR_LEAGUES.findIndex(l => leagueA.includes(l) || leagueA === l);
+        const indexB = POPULAR_LEAGUES.findIndex(l => leagueB.includes(l) || leagueB === l);
+        // Si une ligue n'est pas dans la liste, lui donner un indice élevé
+        const rankA = indexA === -1 ? 999 : indexA;
+        const rankB = indexB === -1 ? 999 : indexB;
+        if (rankA !== rankB) return rankA - rankB;
+
+        // Ensuite par date/heure (plus tôt d'abord)
+        const dateA = new Date(a.event_date || 0);
+        const dateB = new Date(b.event_date || 0);
+        return dateA - dateB;
+    });
+}
+
 function filterAndDisplay() {
     if (!allData || !allData.matches) {
         matchesContainer.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
@@ -284,7 +327,9 @@ function filterAndDisplay() {
         });
     }
 
-    renderMatches(filtered);
+    // Trier par ligue populaire
+    const sorted = sortMatchesByLeague(filtered);
+    renderMatches(sorted);
 }
 
 function formatMatchTime(isoString) {
@@ -300,86 +345,83 @@ function renderMatches(matches) {
         return;
     }
 
-    let html = '';
+    // Regrouper par ligue pour l'affichage
+    const grouped = {};
     matches.forEach(m => {
-        const pred = m.prediction || {};
-        const doubleChance = pred.double_chance || 'N/A';
-        const over25 = pred.over_25 ? 'Oui' : 'Non';
-        let confidence = pred.confidence || 0;
-        if (typeof confidence === 'string') confidence = parseFloat(confidence);
-        if (isNaN(confidence)) confidence = 0;
-        if (confidence > 100) confidence = confidence / 100;
-        confidence = Math.min(100, Math.round(confidence * 10) / 10);
+        const league = m.league || 'Autres ligues';
+        if (!grouped[league]) grouped[league] = [];
+        grouped[league].push(m);
+    });
 
-        const matchTime = formatMatchTime(m.event_date);
-        const statusFr = translateStatus(m.status);
-        const statusClass = getStatusClass(m.status);
+    let html = '';
+    // Parcourir les ligues dans l'ordre de popularité
+    const leagueOrder = [...POPULAR_LEAGUES, 'Autres ligues'];
+    const sortedLeagues = Object.keys(grouped).sort((a, b) => {
+        const ia = leagueOrder.findIndex(l => a.includes(l) || a === l);
+        const ib = leagueOrder.findIndex(l => b.includes(l) || b === l);
+        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
 
-        const verifiedDouble = m.verified_double ? 'checked' : '';
-        const verifiedOver = m.verified_over ? 'checked' : '';
-        const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-        const defaultLogo = 'assets/images/default-logo.png';
+    sortedLeagues.forEach(league => {
+        html += `<h2 class="league-header" style="color: var(--or); margin-top: 2rem;">${league}</h2>`;
+        grouped[league].forEach(m => {
+            const pred = m.prediction || {};
+            const doubleChance = pred.double_chance || 'N/A';
+            const over25 = pred.over_25 ? 'Oui' : 'Non';
+            let confidence = pred.confidence || 0;
+            if (typeof confidence === 'string') confidence = parseFloat(confidence);
+            if (isNaN(confidence)) confidence = 0;
+            if (confidence > 100) confidence = confidence / 100;
+            confidence = Math.min(100, Math.round(confidence * 10) / 10);
 
-        let matchHtml = `
-            <div class="match-card">
-                <div class="match-info">
-                    <div class="teams">
-                        <div class="team">
-                            <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
-                            <span class="team-name">${m.home_team}</span>
-                            <span class="team-score">${m.home_score ?? '-'}</span>
+            const matchTime = formatMatchTime(m.event_date);
+            const statusFr = translateStatus(m.status);
+            const statusClass = getStatusClass(m.status);
+
+            const verifiedDouble = m.verified_double ? 'checked' : '';
+            const verifiedOver = m.verified_over ? 'checked' : '';
+            const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
+            const defaultLogo = 'assets/images/default-logo.png';
+
+            html += `
+                <div class="match-card">
+                    <div class="match-info">
+                        <div class="teams">
+                            <div class="team">
+                                <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <span class="team-name">${m.home_team}</span>
+                                <span class="team-score">${m.home_score ?? '-'}</span>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team">
+                                <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <span class="team-name">${m.away_team}</span>
+                                <span class="team-score">${m.away_score ?? '-'}</span>
+                            </div>
                         </div>
-                        <div class="vs">VS</div>
-                        <div class="team">
-                            <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
-                            <span class="team-name">${m.away_team}</span>
-                            <span class="team-score">${m.away_score ?? '-'}</span>
+                        <div class="match-meta">
+                            <span class="league-badge">${m.league || 'Ligue'}</span>
+                            <span class="status ${statusClass}">${statusFr}</span>
+                            <span class="match-time"><i>🕒</i> ${matchTime}</span>
+                            ${m.venue ? `<span class="match-venue"><i>🏟️</i> ${m.venue}</span>` : ''}
                         </div>
                     </div>
-                    <div class="match-meta">
-                        <span class="league-badge">${m.league || 'Ligue'}</span>
-                        <span class="status ${statusClass}">${statusFr}</span>
-                        <span class="match-time"><i>🕒</i> ${matchTime}</span>
-                        ${m.venue ? `<span class="match-venue"><i>🏟️</i> ${m.venue}</span>` : ''}
+                    <div class="analysis-panel">
+                        <h4>Pronostic</h4>
+                        <p>
+                            <strong>Double chance :</strong> ${doubleChance}
+                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
+                        </p>
+                        <p>
+                            <strong>Over 2.5 :</strong> ${over25}
+                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}
+                        </p>
+                        <p><strong>Fiabilité :</strong> ${confidence}%</p>
+                        ${premiumBadge}
                     </div>
                 </div>
-        `;
-
-        if (currentCategory === 'vip' && currentSubcat === 'analyses' && m.ml_full) {
-            const ml = m.ml_full;
-            matchHtml += `
-                <div class="analysis-panel analysis-full">
-                    <h4>Analyse ML complète</h4>
-                    <p><strong>Probabilités :</strong> H: ${ml.prob_home_win?.toFixed(1)}% | N: ${ml.prob_draw?.toFixed(1)}% | A: ${ml.prob_away_win?.toFixed(1)}%</p>
-                    <p><strong>Résultat prédit :</strong> ${ml.predicted_result}</p>
-                    <p><strong>Buts attendus :</strong> domicile ${ml.expected_home_goals?.toFixed(2)} - extérieur ${ml.expected_away_goals?.toFixed(2)}</p>
-                    <p><strong>Over 2.5 :</strong> ${ml.prob_over_25?.toFixed(1)}% (recommandé: ${ml.over_25_recommend ? 'Oui' : 'Non'})</p>
-                    <p><strong>BTTS :</strong> ${ml.prob_btts_yes?.toFixed(1)}% (recommandé: ${ml.btts_recommend ? 'Oui' : 'Non'})</p>
-                    <p><strong>Score probable :</strong> ${ml.most_likely_score}</p>
-                    <p><strong>Favori :</strong> ${ml.favorite === 'H' ? 'Domicile' : ml.favorite === 'A' ? 'Extérieur' : 'Aucun'} (${ml.favorite_prob?.toFixed(1)}%)</p>
-                    <p><strong>Confiance modèle :</strong> ${(ml.confidence * 100).toFixed(1)}%</p>
-                </div>
             `;
-        } else {
-            matchHtml += `
-                <div class="analysis-panel">
-                    <h4>Pronostic</h4>
-                    <p>
-                        <strong>Double chance :</strong> ${doubleChance}
-                        ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
-                    </p>
-                    <p>
-                        <strong>Over 2.5 :</strong> ${over25}
-                        ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}
-                    </p>
-                    <p><strong>Fiabilité :</strong> ${confidence}%</p>
-                    ${premiumBadge}
-                </div>
-            `;
-        }
-
-        matchHtml += `</div>`;
-        html += matchHtml;
+        });
     });
     matchesContainer.innerHTML = html;
 }
@@ -485,7 +527,6 @@ async function displayBlogList() {
     if (allArticles.length === 0) return;
 
     allArticles.forEach(article => {
-        // Nettoyer le titre et l'extrait
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
         let excerpt = article.excerpt || article.content.substring(0, 200) + '...';
         let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 150) + '...';
@@ -532,12 +573,10 @@ async function displayBlogPost() {
     let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
     document.title = cleanTitle + ' - Mr XPRONOS';
 
-    // Convertir le contenu markdown en HTML
     let htmlContent = '';
     if (window.marked) {
         htmlContent = window.marked.parse(article.content);
     } else {
-        // Fallback si marked n'est pas chargé
         htmlContent = article.content.replace(/\n/g, '<br>');
     }
 
