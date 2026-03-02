@@ -179,12 +179,16 @@ footer {
 }
 
 .social-links a {
-    color: var(--or);
-    font-size: 1.3rem;
+    display: inline-block;
+}
+
+.social-links img {
+    width: 24px;
+    height: 24px;
     transition: transform 0.3s;
 }
 
-.social-links a:hover {
+.social-links a:hover img {
     transform: scale(1.2);
 }
 
@@ -548,8 +552,10 @@ footer {
     box-shadow: var(--shadow-hover);
 }
 .contact-icon {
-    font-size: 2.5rem;
+    width: 64px;
+    height: 64px;
     margin-bottom: 0.8rem;
+    object-fit: contain;
 }
 .contact-card h3 {
     color: var(--or);
@@ -768,7 +774,7 @@ footer {
 }
 
 /* =======================================================
-   CASES À COCHER VERTES POUR LES PRONOSTICS VALIDÉS
+   CASES À COCHER VERTES POUR LES PRONOSTICS GAGNÉS
    ======================================================= */
 .prediction-checkbox:checked:disabled {
     accent-color: #4CAF50 !important;
@@ -782,6 +788,39 @@ footer {
         border-color: #4CAF50;
         color: white;
     }
+}
+
+/* =======================================================
+   BADGES DE RÉSULTAT (gagné/perdu/en attente)
+   ======================================================= */
+.result-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-left: 5px;
+}
+
+.result-badge.win {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.result-badge.loss {
+    background-color: #9E9E9E;
+    color: white;
+}
+
+.result-badge.pending {
+    background-color: #FFC107;
+    color: black;
+}
+
+.loss-icon {
+    color: #9E9E9E;
+    font-size: 1.2rem;
+    margin-left: 5px;
 }
 
 /* =======================================================
@@ -925,6 +964,17 @@ footer {
     background-color: var(--or);
     z-index: 1000;
     transition: width 0.1s;
+}
+
+/* =======================================================
+   EN-TÊTE DE JOUR DANS L'HISTORIQUE
+   ======================================================= */
+.day-header {
+    font-size: 1.5rem;
+    margin: 2rem 0 1rem;
+    text-transform: capitalize;
+    border-bottom: 2px solid var(--or);
+    padding-bottom: 0.5rem;
 }
 
 /* =======================================================
@@ -1102,14 +1152,4 @@ footer {
     .footer-links a {
         font-size: 0.75rem;
     }
-}
-
-/* =======================================================
-   ICÔNES DE CONTACT (PNG)
-   ======================================================= */
-.contact-icon {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 0.8rem;
-    object-fit: contain;
 }
