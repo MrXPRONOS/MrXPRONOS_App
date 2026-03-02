@@ -7804,10 +7804,10 @@
       "home_score": 3,
       "away_score": 0,
       "h2h_analysis": {
-        "total_matches": 2,
-        "home_dominance": 0.5,
+        "total_matches": 1,
+        "home_dominance": 1.0,
         "away_dominance": 0.0,
-        "goals_avg": 1.5,
+        "goals_avg": 3.0,
         "last_4": [
           {
             "date": "2026-03-01T06:30:00+04:00",
@@ -7817,23 +7817,14 @@
             "away_score": 0,
             "status": "finished",
             "league": "MLS"
-          },
-          {
-            "date": "2025-03-29T22:30:00+04:00",
-            "home_team": "Toronto FC",
-            "away_team": "Vancouver Whitecaps",
-            "home_score": 0,
-            "away_score": 0,
-            "status": "finished",
-            "league": "MLS"
           }
         ]
       },
       "prediction": {
         "double_chance": "1X",
-        "confidence": 80
+        "confidence": 83
       },
-      "xpronos_score": 80,
+      "xpronos_score": 83,
       "badge": "🔥 ULTRA SAFE",
       "category": "pro",
       "result": "win",
@@ -7925,10 +7916,10 @@
       "home_score": 0,
       "away_score": 2,
       "h2h_analysis": {
-        "total_matches": 3,
-        "home_dominance": 0.333,
-        "away_dominance": 0.667,
-        "goals_avg": 1.67,
+        "total_matches": 1,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 2.0,
         "last_4": [
           {
             "date": "2026-03-01T05:30:00+04:00",
@@ -7938,34 +7929,16 @@
             "away_score": 2,
             "status": "finished",
             "league": "MLS"
-          },
-          {
-            "date": "2025-05-04T06:30:00+04:00",
-            "home_team": "Los Angeles FC",
-            "away_team": "Houston Dynamo",
-            "home_score": 2,
-            "away_score": 0,
-            "status": "finished",
-            "league": "MLS"
-          },
-          {
-            "date": "2025-04-06T04:30:00+04:00",
-            "home_team": "Houston Dynamo",
-            "away_team": "Los Angeles FC",
-            "home_score": 1,
-            "away_score": 0,
-            "status": "finished",
-            "league": "MLS"
           }
         ]
       },
       "prediction": {
         "double_chance": "X2",
-        "confidence": 86
+        "confidence": 82
       },
-      "xpronos_score": 86,
-      "badge": "💎 VIP ELITE",
-      "category": "vip",
+      "xpronos_score": 82,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
       "result": "win",
       "ml_full": {
         "id": 1268,
@@ -8991,6 +8964,118 @@
       "result": "win"
     },
     {
+      "id": 4931,
+      "date": "2026-03-01",
+      "event_date": "2026-03-01T01:30:00+04:00",
+      "home_team": "Colorado Rapids",
+      "away_team": "Portland Timbers",
+      "home_logo": "https://sports.bzzoiro.com/img/team/2510/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/22007/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "MLS",
+      "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "venue": "",
+      "status": "finished",
+      "home_score": 2,
+      "away_score": 0,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 2.0,
+        "last_4": [
+          {
+            "date": "2026-03-01T01:30:00+04:00",
+            "home_team": "Colorado Rapids",
+            "away_team": "Portland Timbers",
+            "home_score": 2,
+            "away_score": 0,
+            "status": "finished",
+            "league": "MLS"
+          }
+        ]
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "confidence": 79
+      },
+      "xpronos_score": 79,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
+      "result": "win",
+      "ml_full": {
+        "id": 1265,
+        "event": {
+          "id": 4931,
+          "api_id": 15137941,
+          "league": {
+            "id": 18,
+            "api_id": 242,
+            "name": "MLS",
+            "country": "USA",
+            "season_id": 86668
+          },
+          "home_team": "Colorado Rapids",
+          "away_team": "Portland Timbers",
+          "home_team_obj": {
+            "id": 303,
+            "api_id": 2510,
+            "name": "Colorado Rapids",
+            "short_name": "Colorado",
+            "country": ""
+          },
+          "away_team_obj": {
+            "id": 294,
+            "api_id": 22007,
+            "name": "Portland Timbers",
+            "short_name": "Portland",
+            "country": ""
+          },
+          "event_date": "2026-03-01T01:30:00+04:00",
+          "status": "finished",
+          "home_score": 2,
+          "away_score": 0,
+          "current_minute": 90,
+          "period": "FT",
+          "odds_home": 2.24,
+          "odds_draw": 3.85,
+          "odds_away": 3.1,
+          "odds_over_15": 1.15,
+          "odds_over_25": 1.56,
+          "odds_over_35": 2.35,
+          "odds_under_15": 4.7,
+          "odds_under_25": 2.38,
+          "odds_under_35": 1.57,
+          "odds_btts_yes": 1.48,
+          "odds_btts_no": 2.46,
+          "actual_home_xg": 1.83,
+          "actual_away_xg": 1.1
+        },
+        "created_at": "2026-02-10T19:26:24.185892+04:00",
+        "prob_home_win": 39.855166127237595,
+        "prob_draw": 24.74814908785946,
+        "prob_away_win": 35.39668478490294,
+        "predicted_result": "H",
+        "expected_home_goals": 1.5,
+        "expected_away_goals": 1.4,
+        "prob_over_15": 72.01655364002943,
+        "prob_over_25": 40.12936743170763,
+        "prob_over_35": 13.933024744962207,
+        "prob_btts_yes": 66.26887000254874,
+        "confidence": 39.855166127237595,
+        "model_version": "v4.1",
+        "most_likely_score": "1-1",
+        "favorite": "H",
+        "favorite_prob": 39.855166127237595,
+        "favorite_recommend": false,
+        "over_15_recommend": false,
+        "over_25_recommend": false,
+        "over_35_recommend": false,
+        "btts_recommend": false,
+        "winner_recommend": false
+      },
+      "tsdb_banner": null
+    },
+    {
       "id": 4930,
       "date": "2026-03-01",
       "event_date": "2026-03-01T01:30:00+04:00",
@@ -9101,136 +9186,6 @@
         "winner_recommend": false
       },
       "tsdb_banner": null
-    },
-    {
-      "id": 4931,
-      "date": "2026-03-01",
-      "event_date": "2026-03-01T01:30:00+04:00",
-      "home_team": "Colorado Rapids",
-      "away_team": "Portland Timbers",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2510/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/22007/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "MLS",
-      "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "finished",
-      "home_score": 2,
-      "away_score": 0,
-      "h2h_analysis": {
-        "total_matches": 3,
-        "home_dominance": 0.333,
-        "away_dominance": 0.667,
-        "goals_avg": 2.67,
-        "last_4": [
-          {
-            "date": "2026-03-01T01:30:00+04:00",
-            "home_team": "Colorado Rapids",
-            "away_team": "Portland Timbers",
-            "home_score": 2,
-            "away_score": 0,
-            "status": "finished",
-            "league": "MLS"
-          },
-          {
-            "date": "2025-05-29T06:30:00+04:00",
-            "home_team": "Portland Timbers",
-            "away_team": "Colorado Rapids",
-            "home_score": 2,
-            "away_score": 1,
-            "status": "finished",
-            "league": "MLS"
-          },
-          {
-            "date": "2025-03-23T05:30:00+04:00",
-            "home_team": "Colorado Rapids",
-            "away_team": "Portland Timbers",
-            "home_score": 0,
-            "away_score": 3,
-            "status": "finished",
-            "league": "MLS"
-          }
-        ]
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "confidence": 83
-      },
-      "xpronos_score": 83,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "pro",
-      "verified_double": false,
-      "ml_full": {
-        "id": 1265,
-        "event": {
-          "id": 4931,
-          "api_id": 15137941,
-          "league": {
-            "id": 18,
-            "api_id": 242,
-            "name": "MLS",
-            "country": "USA",
-            "season_id": 86668
-          },
-          "home_team": "Colorado Rapids",
-          "away_team": "Portland Timbers",
-          "home_team_obj": {
-            "id": 303,
-            "api_id": 2510,
-            "name": "Colorado Rapids",
-            "short_name": "Colorado",
-            "country": ""
-          },
-          "away_team_obj": {
-            "id": 294,
-            "api_id": 22007,
-            "name": "Portland Timbers",
-            "short_name": "Portland",
-            "country": ""
-          },
-          "event_date": "2026-03-01T01:30:00+04:00",
-          "status": "finished",
-          "home_score": 2,
-          "away_score": 0,
-          "current_minute": 90,
-          "period": "FT",
-          "odds_home": 2.24,
-          "odds_draw": 3.85,
-          "odds_away": 3.1,
-          "odds_over_15": 1.15,
-          "odds_over_25": 1.56,
-          "odds_over_35": 2.35,
-          "odds_under_15": 4.7,
-          "odds_under_25": 2.38,
-          "odds_under_35": 1.57,
-          "odds_btts_yes": 1.48,
-          "odds_btts_no": 2.46,
-          "actual_home_xg": 1.83,
-          "actual_away_xg": 1.1
-        },
-        "created_at": "2026-02-10T19:26:24.185892+04:00",
-        "prob_home_win": 39.855166127237595,
-        "prob_draw": 24.74814908785946,
-        "prob_away_win": 35.39668478490294,
-        "predicted_result": "H",
-        "expected_home_goals": 1.5,
-        "expected_away_goals": 1.4,
-        "prob_over_15": 72.01655364002943,
-        "prob_over_25": 40.12936743170763,
-        "prob_over_35": 13.933024744962207,
-        "prob_btts_yes": 66.26887000254874,
-        "confidence": 39.855166127237595,
-        "model_version": "v4.1",
-        "most_likely_score": "1-1",
-        "favorite": "H",
-        "favorite_prob": 39.855166127237595,
-        "favorite_recommend": false,
-        "over_15_recommend": false,
-        "over_25_recommend": false,
-        "over_35_recommend": false,
-        "btts_recommend": false,
-        "winner_recommend": false
-      },
-      "result": "loss"
     },
     {
       "id": 599,
@@ -12346,257 +12301,6 @@
     ],
     "pro": [
       {
-        "id": 4940,
-        "date": "2026-03-02",
-        "event_date": "2026-03-02T01:30:00+04:00",
-        "home_team": "Philadelphia Union",
-        "away_team": "New York City FC",
-        "home_logo": "https://sports.bzzoiro.com/img/team/39833/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/187643/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "MLS",
-        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_dominance": 0.333,
-          "away_dominance": 0.667,
-          "goals_avg": 1.0,
-          "last_4": [
-            {
-              "date": "2025-11-24T04:45:00+04:00",
-              "home_team": "Philadelphia Union",
-              "away_team": "New York City FC",
-              "home_score": 0,
-              "away_score": 1,
-              "status": "finished",
-              "league": "MLS"
-            },
-            {
-              "date": "2025-10-05T03:30:00+04:00",
-              "home_team": "Philadelphia Union",
-              "away_team": "New York City FC",
-              "home_score": 1,
-              "away_score": 0,
-              "status": "finished",
-              "league": "MLS"
-            },
-            {
-              "date": "2025-04-13T03:30:00+04:00",
-              "home_team": "New York City FC",
-              "away_team": "Philadelphia Union",
-              "home_score": 1,
-              "away_score": 0,
-              "status": "finished",
-              "league": "MLS"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 84
-        },
-        "xpronos_score": 84,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "pro",
-        "result": null,
-        "ml_full": {
-          "id": 1274,
-          "event": {
-            "id": 4940,
-            "api_id": 15137910,
-            "league": {
-              "id": 18,
-              "api_id": 242,
-              "name": "MLS",
-              "country": "USA",
-              "season_id": 86668
-            },
-            "home_team": "Philadelphia Union",
-            "away_team": "New York City FC",
-            "home_team_obj": {
-              "id": 283,
-              "api_id": 39833,
-              "name": "Philadelphia Union",
-              "short_name": "Philadelphia",
-              "country": ""
-            },
-            "away_team_obj": {
-              "id": 301,
-              "api_id": 187643,
-              "name": "New York City FC",
-              "short_name": "NY City",
-              "country": ""
-            },
-            "event_date": "2026-03-02T01:30:00+04:00",
-            "status": "notstarted",
-            "home_score": null,
-            "away_score": null,
-            "current_minute": null,
-            "period": "",
-            "odds_home": 2.08,
-            "odds_draw": 3.35,
-            "odds_away": 3.4,
-            "odds_over_15": 1.28,
-            "odds_over_25": 1.88,
-            "odds_over_35": 3.15,
-            "odds_under_15": 3.35,
-            "odds_under_25": 1.82,
-            "odds_under_35": 1.32,
-            "odds_btts_yes": 1.75,
-            "odds_btts_no": 1.96,
-            "actual_home_xg": null,
-            "actual_away_xg": null
-          },
-          "created_at": "2026-02-10T19:26:25.447684+04:00",
-          "prob_home_win": 31.741475219309233,
-          "prob_draw": 23.581191453793764,
-          "prob_away_win": 44.677333326897006,
-          "predicted_result": "A",
-          "expected_home_goals": 1.4,
-          "expected_away_goals": 1.7,
-          "prob_over_15": 91.54342776486644,
-          "prob_over_25": 70.59759216515495,
-          "prob_over_35": 38.527074885527725,
-          "prob_btts_yes": 72.24939987050189,
-          "confidence": 44.677333326897006,
-          "model_version": "v4.1",
-          "most_likely_score": "1-1",
-          "favorite": "A",
-          "favorite_prob": 44.677333326897006,
-          "favorite_recommend": false,
-          "over_15_recommend": false,
-          "over_25_recommend": false,
-          "over_35_recommend": false,
-          "btts_recommend": false,
-          "winner_recommend": false
-        },
-        "tsdb_banner": null
-      },
-      {
-        "id": 4942,
-        "date": "2026-03-02",
-        "event_date": "2026-03-02T06:15:00+04:00",
-        "home_team": "San Diego FC",
-        "away_team": "St.Louis City",
-        "home_logo": "https://sports.bzzoiro.com/img/team/1043961/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/407803/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "MLS",
-        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_dominance": 0.5,
-          "away_dominance": 0.0,
-          "goals_avg": 1.5,
-          "last_4": [
-            {
-              "date": "2025-05-11T04:30:00+04:00",
-              "home_team": "St.Louis City",
-              "away_team": "San Diego FC",
-              "home_score": 1,
-              "away_score": 2,
-              "status": "finished",
-              "league": "MLS"
-            },
-            {
-              "date": "2025-03-02T07:30:00+04:00",
-              "home_team": "San Diego FC",
-              "away_team": "St.Louis City",
-              "home_score": 0,
-              "away_score": 0,
-              "status": "finished",
-              "league": "MLS"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "confidence": 78
-        },
-        "xpronos_score": 78,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "pro",
-        "result": null,
-        "ml_full": {
-          "id": 1276,
-          "event": {
-            "id": 4942,
-            "api_id": 15137896,
-            "league": {
-              "id": 18,
-              "api_id": 242,
-              "name": "MLS",
-              "country": "USA",
-              "season_id": 86668
-            },
-            "home_team": "San Diego FC",
-            "away_team": "St.Louis City",
-            "home_team_obj": {
-              "id": 296,
-              "api_id": 1043961,
-              "name": "San Diego FC",
-              "short_name": "San Diego FC",
-              "country": ""
-            },
-            "away_team_obj": {
-              "id": 274,
-              "api_id": 407803,
-              "name": "St.Louis City",
-              "short_name": "St. Louis",
-              "country": ""
-            },
-            "event_date": "2026-03-02T06:15:00+04:00",
-            "status": "notstarted",
-            "home_score": null,
-            "away_score": null,
-            "current_minute": null,
-            "period": "",
-            "odds_home": 1.58,
-            "odds_draw": 4.75,
-            "odds_away": 5.4,
-            "odds_over_15": 1.12,
-            "odds_over_25": 1.52,
-            "odds_over_35": 2.27,
-            "odds_under_15": 5.0,
-            "odds_under_25": 2.5,
-            "odds_under_35": 1.61,
-            "odds_btts_yes": 1.6,
-            "odds_btts_no": 2.2,
-            "actual_home_xg": null,
-            "actual_away_xg": null
-          },
-          "created_at": "2026-02-10T19:26:25.734294+04:00",
-          "prob_home_win": 49.30901498978154,
-          "prob_draw": 21.64568926149618,
-          "prob_away_win": 29.04529574872228,
-          "predicted_result": "H",
-          "expected_home_goals": 2.0,
-          "expected_away_goals": 1.5,
-          "prob_over_15": 84.1344746068543,
-          "prob_over_25": 56.618383261090365,
-          "prob_over_35": 25.24925375469229,
-          "prob_btts_yes": 71.44389878393494,
-          "confidence": 49.30901498978154,
-          "model_version": "v4.1",
-          "most_likely_score": "1-1",
-          "favorite": "H",
-          "favorite_prob": 49.30901498978154,
-          "favorite_recommend": false,
-          "over_15_recommend": false,
-          "over_25_recommend": false,
-          "over_35_recommend": false,
-          "btts_recommend": false,
-          "winner_recommend": false
-        },
-        "tsdb_banner": null
-      },
-      {
         "id": 1342,
         "date": "2026-03-02",
         "event_date": "2026-03-02T21:30:00+04:00",
@@ -13511,6 +13215,118 @@
         "tsdb_banner": null
       },
       {
+        "id": 4931,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T01:30:00+04:00",
+        "home_team": "Colorado Rapids",
+        "away_team": "Portland Timbers",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2510/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/22007/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "MLS",
+        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 0,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 2.0,
+          "last_4": [
+            {
+              "date": "2026-03-01T01:30:00+04:00",
+              "home_team": "Colorado Rapids",
+              "away_team": "Portland Timbers",
+              "home_score": 2,
+              "away_score": 0,
+              "status": "finished",
+              "league": "MLS"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 79
+        },
+        "xpronos_score": 79,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "result": "win",
+        "ml_full": {
+          "id": 1265,
+          "event": {
+            "id": 4931,
+            "api_id": 15137941,
+            "league": {
+              "id": 18,
+              "api_id": 242,
+              "name": "MLS",
+              "country": "USA",
+              "season_id": 86668
+            },
+            "home_team": "Colorado Rapids",
+            "away_team": "Portland Timbers",
+            "home_team_obj": {
+              "id": 303,
+              "api_id": 2510,
+              "name": "Colorado Rapids",
+              "short_name": "Colorado",
+              "country": ""
+            },
+            "away_team_obj": {
+              "id": 294,
+              "api_id": 22007,
+              "name": "Portland Timbers",
+              "short_name": "Portland",
+              "country": ""
+            },
+            "event_date": "2026-03-01T01:30:00+04:00",
+            "status": "finished",
+            "home_score": 2,
+            "away_score": 0,
+            "current_minute": 90,
+            "period": "FT",
+            "odds_home": 2.24,
+            "odds_draw": 3.85,
+            "odds_away": 3.1,
+            "odds_over_15": 1.15,
+            "odds_over_25": 1.56,
+            "odds_over_35": 2.35,
+            "odds_under_15": 4.7,
+            "odds_under_25": 2.38,
+            "odds_under_35": 1.57,
+            "odds_btts_yes": 1.48,
+            "odds_btts_no": 2.46,
+            "actual_home_xg": 1.83,
+            "actual_away_xg": 1.1
+          },
+          "created_at": "2026-02-10T19:26:24.185892+04:00",
+          "prob_home_win": 39.855166127237595,
+          "prob_draw": 24.74814908785946,
+          "prob_away_win": 35.39668478490294,
+          "predicted_result": "H",
+          "expected_home_goals": 1.5,
+          "expected_away_goals": 1.4,
+          "prob_over_15": 72.01655364002943,
+          "prob_over_25": 40.12936743170763,
+          "prob_over_35": 13.933024744962207,
+          "prob_btts_yes": 66.26887000254874,
+          "confidence": 39.855166127237595,
+          "model_version": "v4.1",
+          "most_likely_score": "1-1",
+          "favorite": "H",
+          "favorite_prob": 39.855166127237595,
+          "favorite_recommend": false,
+          "over_15_recommend": false,
+          "over_25_recommend": false,
+          "over_35_recommend": false,
+          "btts_recommend": false,
+          "winner_recommend": false
+        },
+        "tsdb_banner": null
+      },
+      {
         "id": 4930,
         "date": "2026-03-01",
         "event_date": "2026-03-01T01:30:00+04:00",
@@ -13735,6 +13551,118 @@
         "tsdb_banner": null
       },
       {
+        "id": 4934,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T05:30:00+04:00",
+        "home_team": "Houston Dynamo",
+        "away_team": "Los Angeles FC",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2508/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/274650/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "MLS",
+        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 2,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 2.0,
+          "last_4": [
+            {
+              "date": "2026-03-01T05:30:00+04:00",
+              "home_team": "Houston Dynamo",
+              "away_team": "Los Angeles FC",
+              "home_score": 0,
+              "away_score": 2,
+              "status": "finished",
+              "league": "MLS"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 82
+        },
+        "xpronos_score": 82,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "result": "win",
+        "ml_full": {
+          "id": 1268,
+          "event": {
+            "id": 4934,
+            "api_id": 15137951,
+            "league": {
+              "id": 18,
+              "api_id": 242,
+              "name": "MLS",
+              "country": "USA",
+              "season_id": 86668
+            },
+            "home_team": "Houston Dynamo",
+            "away_team": "Los Angeles FC",
+            "home_team_obj": {
+              "id": 288,
+              "api_id": 2508,
+              "name": "Houston Dynamo",
+              "short_name": "Houston",
+              "country": ""
+            },
+            "away_team_obj": {
+              "id": 292,
+              "api_id": 274650,
+              "name": "Los Angeles FC",
+              "short_name": "Los Angeles",
+              "country": ""
+            },
+            "event_date": "2026-03-01T05:30:00+04:00",
+            "status": "finished",
+            "home_score": 0,
+            "away_score": 2,
+            "current_minute": 90,
+            "period": "FT",
+            "odds_home": 3.9,
+            "odds_draw": 3.9,
+            "odds_away": 1.94,
+            "odds_over_15": 1.22,
+            "odds_over_25": 1.72,
+            "odds_over_35": 2.75,
+            "odds_under_15": 3.85,
+            "odds_under_25": 2.1,
+            "odds_under_35": 1.44,
+            "odds_btts_yes": 1.64,
+            "odds_btts_no": 2.13,
+            "actual_home_xg": 0.66,
+            "actual_away_xg": 1.47
+          },
+          "created_at": "2026-02-10T19:26:24.605478+04:00",
+          "prob_home_win": 27.519283181848508,
+          "prob_draw": 21.05586112323444,
+          "prob_away_win": 51.42485569491705,
+          "predicted_result": "A",
+          "expected_home_goals": 1.5,
+          "expected_away_goals": 2.1,
+          "prob_over_15": 95.62127451926003,
+          "prob_over_25": 80.92130471474893,
+          "prob_over_35": 51.661778649036336,
+          "prob_btts_yes": 80.26118860500853,
+          "confidence": 51.42485569491705,
+          "model_version": "v4.1",
+          "most_likely_score": "1-2",
+          "favorite": "A",
+          "favorite_prob": 51.42485569491705,
+          "favorite_recommend": false,
+          "over_15_recommend": false,
+          "over_25_recommend": false,
+          "over_35_recommend": false,
+          "btts_recommend": false,
+          "winner_recommend": false
+        },
+        "tsdb_banner": null
+      },
+      {
         "id": 4937,
         "date": "2026-03-01",
         "event_date": "2026-03-01T06:30:00+04:00",
@@ -13749,10 +13677,10 @@
         "home_score": 3,
         "away_score": 0,
         "h2h_analysis": {
-          "total_matches": 2,
-          "home_dominance": 0.5,
+          "total_matches": 1,
+          "home_dominance": 1.0,
           "away_dominance": 0.0,
-          "goals_avg": 1.5,
+          "goals_avg": 3.0,
           "last_4": [
             {
               "date": "2026-03-01T06:30:00+04:00",
@@ -13762,23 +13690,14 @@
               "away_score": 0,
               "status": "finished",
               "league": "MLS"
-            },
-            {
-              "date": "2025-03-29T22:30:00+04:00",
-              "home_team": "Toronto FC",
-              "away_team": "Vancouver Whitecaps",
-              "home_score": 0,
-              "away_score": 0,
-              "status": "finished",
-              "league": "MLS"
             }
           ]
         },
         "prediction": {
           "double_chance": "1X",
-          "confidence": 80
+          "confidence": 83
         },
-        "xpronos_score": 80,
+        "xpronos_score": 83,
         "badge": "🔥 ULTRA SAFE",
         "category": "pro",
         "result": "win",
@@ -16007,6 +15926,257 @@
           "over_35_recommend": false,
           "btts_recommend": false,
           "winner_recommend": true
+        },
+        "tsdb_banner": null
+      },
+      {
+        "id": 4942,
+        "date": "2026-03-02",
+        "event_date": "2026-03-02T06:15:00+04:00",
+        "home_team": "San Diego FC",
+        "away_team": "St.Louis City",
+        "home_logo": "https://sports.bzzoiro.com/img/team/1043961/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/407803/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "MLS",
+        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_dominance": 0.5,
+          "away_dominance": 0.0,
+          "goals_avg": 1.5,
+          "last_4": [
+            {
+              "date": "2025-05-11T04:30:00+04:00",
+              "home_team": "St.Louis City",
+              "away_team": "San Diego FC",
+              "home_score": 1,
+              "away_score": 2,
+              "status": "finished",
+              "league": "MLS"
+            },
+            {
+              "date": "2025-03-02T07:30:00+04:00",
+              "home_team": "San Diego FC",
+              "away_team": "St.Louis City",
+              "home_score": 0,
+              "away_score": 0,
+              "status": "finished",
+              "league": "MLS"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 78
+        },
+        "xpronos_score": 78,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "result": null,
+        "ml_full": {
+          "id": 1276,
+          "event": {
+            "id": 4942,
+            "api_id": 15137896,
+            "league": {
+              "id": 18,
+              "api_id": 242,
+              "name": "MLS",
+              "country": "USA",
+              "season_id": 86668
+            },
+            "home_team": "San Diego FC",
+            "away_team": "St.Louis City",
+            "home_team_obj": {
+              "id": 296,
+              "api_id": 1043961,
+              "name": "San Diego FC",
+              "short_name": "San Diego FC",
+              "country": ""
+            },
+            "away_team_obj": {
+              "id": 274,
+              "api_id": 407803,
+              "name": "St.Louis City",
+              "short_name": "St. Louis",
+              "country": ""
+            },
+            "event_date": "2026-03-02T06:15:00+04:00",
+            "status": "notstarted",
+            "home_score": null,
+            "away_score": null,
+            "current_minute": null,
+            "period": "",
+            "odds_home": 1.58,
+            "odds_draw": 4.75,
+            "odds_away": 5.4,
+            "odds_over_15": 1.12,
+            "odds_over_25": 1.52,
+            "odds_over_35": 2.27,
+            "odds_under_15": 5.0,
+            "odds_under_25": 2.5,
+            "odds_under_35": 1.61,
+            "odds_btts_yes": 1.6,
+            "odds_btts_no": 2.2,
+            "actual_home_xg": null,
+            "actual_away_xg": null
+          },
+          "created_at": "2026-02-10T19:26:25.734294+04:00",
+          "prob_home_win": 49.30901498978154,
+          "prob_draw": 21.64568926149618,
+          "prob_away_win": 29.04529574872228,
+          "predicted_result": "H",
+          "expected_home_goals": 2.0,
+          "expected_away_goals": 1.5,
+          "prob_over_15": 84.1344746068543,
+          "prob_over_25": 56.618383261090365,
+          "prob_over_35": 25.24925375469229,
+          "prob_btts_yes": 71.44389878393494,
+          "confidence": 49.30901498978154,
+          "model_version": "v4.1",
+          "most_likely_score": "1-1",
+          "favorite": "H",
+          "favorite_prob": 49.30901498978154,
+          "favorite_recommend": false,
+          "over_15_recommend": false,
+          "over_25_recommend": false,
+          "over_35_recommend": false,
+          "btts_recommend": false,
+          "winner_recommend": false
+        },
+        "tsdb_banner": null
+      },
+      {
+        "id": 4940,
+        "date": "2026-03-02",
+        "event_date": "2026-03-02T01:30:00+04:00",
+        "home_team": "Philadelphia Union",
+        "away_team": "New York City FC",
+        "home_logo": "https://sports.bzzoiro.com/img/team/39833/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/187643/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "MLS",
+        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_dominance": 0.333,
+          "away_dominance": 0.667,
+          "goals_avg": 1.0,
+          "last_4": [
+            {
+              "date": "2025-11-24T04:45:00+04:00",
+              "home_team": "Philadelphia Union",
+              "away_team": "New York City FC",
+              "home_score": 0,
+              "away_score": 1,
+              "status": "finished",
+              "league": "MLS"
+            },
+            {
+              "date": "2025-10-05T03:30:00+04:00",
+              "home_team": "Philadelphia Union",
+              "away_team": "New York City FC",
+              "home_score": 1,
+              "away_score": 0,
+              "status": "finished",
+              "league": "MLS"
+            },
+            {
+              "date": "2025-04-13T03:30:00+04:00",
+              "home_team": "New York City FC",
+              "away_team": "Philadelphia Union",
+              "home_score": 1,
+              "away_score": 0,
+              "status": "finished",
+              "league": "MLS"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 84
+        },
+        "xpronos_score": 84,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "result": null,
+        "ml_full": {
+          "id": 1274,
+          "event": {
+            "id": 4940,
+            "api_id": 15137910,
+            "league": {
+              "id": 18,
+              "api_id": 242,
+              "name": "MLS",
+              "country": "USA",
+              "season_id": 86668
+            },
+            "home_team": "Philadelphia Union",
+            "away_team": "New York City FC",
+            "home_team_obj": {
+              "id": 283,
+              "api_id": 39833,
+              "name": "Philadelphia Union",
+              "short_name": "Philadelphia",
+              "country": ""
+            },
+            "away_team_obj": {
+              "id": 301,
+              "api_id": 187643,
+              "name": "New York City FC",
+              "short_name": "NY City",
+              "country": ""
+            },
+            "event_date": "2026-03-02T01:30:00+04:00",
+            "status": "notstarted",
+            "home_score": null,
+            "away_score": null,
+            "current_minute": null,
+            "period": "",
+            "odds_home": 2.08,
+            "odds_draw": 3.35,
+            "odds_away": 3.4,
+            "odds_over_15": 1.28,
+            "odds_over_25": 1.88,
+            "odds_over_35": 3.15,
+            "odds_under_15": 3.35,
+            "odds_under_25": 1.82,
+            "odds_under_35": 1.32,
+            "odds_btts_yes": 1.75,
+            "odds_btts_no": 1.96,
+            "actual_home_xg": null,
+            "actual_away_xg": null
+          },
+          "created_at": "2026-02-10T19:26:25.447684+04:00",
+          "prob_home_win": 31.741475219309233,
+          "prob_draw": 23.581191453793764,
+          "prob_away_win": 44.677333326897006,
+          "predicted_result": "A",
+          "expected_home_goals": 1.4,
+          "expected_away_goals": 1.7,
+          "prob_over_15": 91.54342776486644,
+          "prob_over_25": 70.59759216515495,
+          "prob_over_35": 38.527074885527725,
+          "prob_btts_yes": 72.24939987050189,
+          "confidence": 44.677333326897006,
+          "model_version": "v4.1",
+          "most_likely_score": "1-1",
+          "favorite": "A",
+          "favorite_prob": 44.677333326897006,
+          "favorite_recommend": false,
+          "over_15_recommend": false,
+          "over_25_recommend": false,
+          "over_35_recommend": false,
+          "btts_recommend": false,
+          "winner_recommend": false
         },
         "tsdb_banner": null
       },
@@ -18246,136 +18416,6 @@
         "result": "win"
       },
       {
-        "id": 4931,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T01:30:00+04:00",
-        "home_team": "Colorado Rapids",
-        "away_team": "Portland Timbers",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2510/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/22007/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "MLS",
-        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "finished",
-        "home_score": 2,
-        "away_score": 0,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_dominance": 0.333,
-          "away_dominance": 0.667,
-          "goals_avg": 2.67,
-          "last_4": [
-            {
-              "date": "2026-03-01T01:30:00+04:00",
-              "home_team": "Colorado Rapids",
-              "away_team": "Portland Timbers",
-              "home_score": 2,
-              "away_score": 0,
-              "status": "finished",
-              "league": "MLS"
-            },
-            {
-              "date": "2025-05-29T06:30:00+04:00",
-              "home_team": "Portland Timbers",
-              "away_team": "Colorado Rapids",
-              "home_score": 2,
-              "away_score": 1,
-              "status": "finished",
-              "league": "MLS"
-            },
-            {
-              "date": "2025-03-23T05:30:00+04:00",
-              "home_team": "Colorado Rapids",
-              "away_team": "Portland Timbers",
-              "home_score": 0,
-              "away_score": 3,
-              "status": "finished",
-              "league": "MLS"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 83
-        },
-        "xpronos_score": 83,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "pro",
-        "verified_double": false,
-        "ml_full": {
-          "id": 1265,
-          "event": {
-            "id": 4931,
-            "api_id": 15137941,
-            "league": {
-              "id": 18,
-              "api_id": 242,
-              "name": "MLS",
-              "country": "USA",
-              "season_id": 86668
-            },
-            "home_team": "Colorado Rapids",
-            "away_team": "Portland Timbers",
-            "home_team_obj": {
-              "id": 303,
-              "api_id": 2510,
-              "name": "Colorado Rapids",
-              "short_name": "Colorado",
-              "country": ""
-            },
-            "away_team_obj": {
-              "id": 294,
-              "api_id": 22007,
-              "name": "Portland Timbers",
-              "short_name": "Portland",
-              "country": ""
-            },
-            "event_date": "2026-03-01T01:30:00+04:00",
-            "status": "finished",
-            "home_score": 2,
-            "away_score": 0,
-            "current_minute": 90,
-            "period": "FT",
-            "odds_home": 2.24,
-            "odds_draw": 3.85,
-            "odds_away": 3.1,
-            "odds_over_15": 1.15,
-            "odds_over_25": 1.56,
-            "odds_over_35": 2.35,
-            "odds_under_15": 4.7,
-            "odds_under_25": 2.38,
-            "odds_under_35": 1.57,
-            "odds_btts_yes": 1.48,
-            "odds_btts_no": 2.46,
-            "actual_home_xg": 1.83,
-            "actual_away_xg": 1.1
-          },
-          "created_at": "2026-02-10T19:26:24.185892+04:00",
-          "prob_home_win": 39.855166127237595,
-          "prob_draw": 24.74814908785946,
-          "prob_away_win": 35.39668478490294,
-          "predicted_result": "H",
-          "expected_home_goals": 1.5,
-          "expected_away_goals": 1.4,
-          "prob_over_15": 72.01655364002943,
-          "prob_over_25": 40.12936743170763,
-          "prob_over_35": 13.933024744962207,
-          "prob_btts_yes": 66.26887000254874,
-          "confidence": 39.855166127237595,
-          "model_version": "v4.1",
-          "most_likely_score": "1-1",
-          "favorite": "H",
-          "favorite_prob": 39.855166127237595,
-          "favorite_recommend": false,
-          "over_15_recommend": false,
-          "over_25_recommend": false,
-          "over_35_recommend": false,
-          "btts_recommend": false,
-          "winner_recommend": false
-        },
-        "result": "loss"
-      },
-      {
         "id": 599,
         "date": "2026-03-01",
         "event_date": "2026-03-01T00:30:00+04:00",
@@ -18974,136 +19014,6 @@
         "tsdb_banner": null
       },
       {
-        "id": 4934,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T05:30:00+04:00",
-        "home_team": "Houston Dynamo",
-        "away_team": "Los Angeles FC",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2508/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/274650/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "MLS",
-        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "finished",
-        "home_score": 0,
-        "away_score": 2,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_dominance": 0.333,
-          "away_dominance": 0.667,
-          "goals_avg": 1.67,
-          "last_4": [
-            {
-              "date": "2026-03-01T05:30:00+04:00",
-              "home_team": "Houston Dynamo",
-              "away_team": "Los Angeles FC",
-              "home_score": 0,
-              "away_score": 2,
-              "status": "finished",
-              "league": "MLS"
-            },
-            {
-              "date": "2025-05-04T06:30:00+04:00",
-              "home_team": "Los Angeles FC",
-              "away_team": "Houston Dynamo",
-              "home_score": 2,
-              "away_score": 0,
-              "status": "finished",
-              "league": "MLS"
-            },
-            {
-              "date": "2025-04-06T04:30:00+04:00",
-              "home_team": "Houston Dynamo",
-              "away_team": "Los Angeles FC",
-              "home_score": 1,
-              "away_score": 0,
-              "status": "finished",
-              "league": "MLS"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 86
-        },
-        "xpronos_score": 86,
-        "badge": "💎 VIP ELITE",
-        "category": "vip",
-        "result": "win",
-        "ml_full": {
-          "id": 1268,
-          "event": {
-            "id": 4934,
-            "api_id": 15137951,
-            "league": {
-              "id": 18,
-              "api_id": 242,
-              "name": "MLS",
-              "country": "USA",
-              "season_id": 86668
-            },
-            "home_team": "Houston Dynamo",
-            "away_team": "Los Angeles FC",
-            "home_team_obj": {
-              "id": 288,
-              "api_id": 2508,
-              "name": "Houston Dynamo",
-              "short_name": "Houston",
-              "country": ""
-            },
-            "away_team_obj": {
-              "id": 292,
-              "api_id": 274650,
-              "name": "Los Angeles FC",
-              "short_name": "Los Angeles",
-              "country": ""
-            },
-            "event_date": "2026-03-01T05:30:00+04:00",
-            "status": "finished",
-            "home_score": 0,
-            "away_score": 2,
-            "current_minute": 90,
-            "period": "FT",
-            "odds_home": 3.9,
-            "odds_draw": 3.9,
-            "odds_away": 1.94,
-            "odds_over_15": 1.22,
-            "odds_over_25": 1.72,
-            "odds_over_35": 2.75,
-            "odds_under_15": 3.85,
-            "odds_under_25": 2.1,
-            "odds_under_35": 1.44,
-            "odds_btts_yes": 1.64,
-            "odds_btts_no": 2.13,
-            "actual_home_xg": 0.66,
-            "actual_away_xg": 1.47
-          },
-          "created_at": "2026-02-10T19:26:24.605478+04:00",
-          "prob_home_win": 27.519283181848508,
-          "prob_draw": 21.05586112323444,
-          "prob_away_win": 51.42485569491705,
-          "predicted_result": "A",
-          "expected_home_goals": 1.5,
-          "expected_away_goals": 2.1,
-          "prob_over_15": 95.62127451926003,
-          "prob_over_25": 80.92130471474893,
-          "prob_over_35": 51.661778649036336,
-          "prob_btts_yes": 80.26118860500853,
-          "confidence": 51.42485569491705,
-          "model_version": "v4.1",
-          "most_likely_score": "1-2",
-          "favorite": "A",
-          "favorite_prob": 51.42485569491705,
-          "favorite_recommend": false,
-          "over_15_recommend": false,
-          "over_25_recommend": false,
-          "over_35_recommend": false,
-          "btts_recommend": false,
-          "winner_recommend": false
-        },
-        "tsdb_banner": null
-      },
-      {
         "id": 6964,
         "date": "2026-03-01",
         "event_date": "2026-03-01T18:00:00+04:00",
@@ -19443,9 +19353,9 @@
   },
   "stats": {
     "total_bets": 25,
-    "wins": 21,
-    "losses": 4,
-    "roi": 84.0
+    "wins": 22,
+    "losses": 3,
+    "roi": 88.0
   },
   "bookmakers": [
     {
