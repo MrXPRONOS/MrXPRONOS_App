@@ -19,7 +19,7 @@ from urllib3.util.retry import Retry
 # =======================================================
 # CONFIGURATION
 # =======================================================
-API_TOKEN = os.getenv("BSD_API_TOKEN", "3d0b228fb2f078287b8e6720304f2eea2800cc6d")
+API_TOKEN = os.getenv("BSD_API_TOKEN")
 BASE_URL = "https://sports.bzzoiro.com/api"
 HEADERS = {"Authorization": f"Token {API_TOKEN}"}
 

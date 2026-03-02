@@ -1,6 +1,6 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec Over 1.5, badge XPRONOS, partage amélioré, overlay VIP, animations.
+ * Version avec suppression du sous-onglet "Analyses VIP" et de la mention Over 1.5.
  */
 
 // =======================================================
@@ -8,7 +8,7 @@
 // =======================================================
 let allData = null;
 let currentCategory = 'simple';
-let currentSubcat = 'pronostics';
+let currentSubcat = 'pronostics'; // uniquement 'pronostics' maintenant
 let currentDay = 'today';
 
 const matchesContainer = document.getElementById('matches-container');
@@ -121,7 +121,7 @@ async function loadDataGeneric() {
 
 function hideEmptyTabs() {
     const counts = { simple: 0, pro: 0, vip: 0 };
-    let hasML = 0;
+    let hasML = 0; // plus utilisé mais gardé pour compatibilité
     allData.matches.forEach(m => {
         counts[m.category]++;
         if (m.ml_full) hasML++;
@@ -130,7 +130,8 @@ function hideEmptyTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         const cat = btn.dataset.cat;
         if (cat === 'vip') {
-            btn.style.display = (counts.vip > 0 || hasML > 0) ? 'inline-block' : 'none';
+            // L'onglet VIP est visible s'il y a des matchs VIP (pas besoin de ML)
+            btn.style.display = counts.vip > 0 ? 'inline-block' : 'none';
         } else {
             btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
         }
@@ -149,15 +150,14 @@ function hideEmptyTabs() {
         if (tabBar) tabBar.style.display = 'none';
     }
 
+    // Gestion des sous-onglets VIP (maintenant un seul)
     if (vipSubtabs) {
         const showPronostics = counts.vip > 0;
-        const showAnalyses = hasML > 0;
         const subtabBtns = vipSubtabs.querySelectorAll('.subtab-btn');
-        if (subtabBtns.length >= 2) {
+        if (subtabBtns.length >= 1) {
             subtabBtns[0].style.display = showPronostics ? 'inline-block' : 'none';
-            subtabBtns[1].style.display = showAnalyses ? 'inline-block' : 'none';
         }
-        vipSubtabs.style.display = (showPronostics || showAnalyses) ? 'flex' : 'none';
+        vipSubtabs.style.display = showPronostics ? 'flex' : 'none';
 
         const activeSub = vipSubtabs.querySelector('.subtab-btn.active');
         if (activeSub && activeSub.style.display === 'none') {
@@ -191,6 +191,7 @@ function setupEventListeners() {
         });
     });
 
+    // Sous-onglets VIP (un seul)
     document.querySelectorAll('.subtab-btn').forEach(btn => {
         btn.addEventListener('click', e => {
             document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
@@ -354,19 +355,12 @@ function filterAndDisplay() {
 
     const targetDate = getLocalDateString(currentDay);
 
-    let filtered;
-    if (currentCategory === 'vip' && currentSubcat === 'analyses') {
-        filtered = allData.matches.filter(m => {
-            const eventLocalDate = getLocalDateFromEvent(m.event_date);
-            return eventLocalDate === targetDate && m.ml_full;
-        });
-    } else {
-        const targetCat = (currentCategory === 'vip' && currentSubcat === 'pronostics') ? 'vip' : currentCategory;
-        filtered = allData.matches.filter(m => {
-            const eventLocalDate = getLocalDateFromEvent(m.event_date);
-            return m.category === targetCat && eventLocalDate === targetDate;
-        });
-    }
+    // Plus de cas "analyses", on garde uniquement le filtrage par catégorie
+    const targetCat = (currentCategory === 'vip' && currentSubcat === 'pronostics') ? 'vip' : currentCategory;
+    const filtered = allData.matches.filter(m => {
+        const eventLocalDate = getLocalDateFromEvent(m.event_date);
+        return m.category === targetCat && eventLocalDate === targetDate;
+    });
 
     const sorted = sortMatchesByLeague(filtered);
     renderMatches(sorted);
@@ -406,7 +400,6 @@ function renderMatches(matches) {
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
-            const over15 = pred.over15 ? 'Oui' : 'Non';
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
@@ -418,11 +411,10 @@ function renderMatches(matches) {
             const statusClass = getStatusClass(m.status);
 
             const verifiedDouble = m.verified_double ? 'checked' : '';
-            const verifiedOver15 = m.verified_over15 ? 'checked' : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const defaultLogo = 'assets/images/default-logo.png';
 
-            const isWinner = m.verified_double && m.verified_over15;
+            const isWinner = m.verified_double; // On considère gagné si double chance validé (ou autre critère)
             const winnerClass = isWinner ? 'winner' : '';
 
             // Badge XPRONOS
@@ -458,10 +450,7 @@ function renderMatches(matches) {
                             <strong>Double chance :</strong> ${doubleChance}
                             ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
                         </p>
-                        <p>
-                            <strong>Over 1.5 :</strong> ${over15}
-                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver15} disabled>` : ''}
-                        </p>
+                        <!-- La ligne Over 1.5 a été supprimée -->
                         <div class="confidence-bar">
                             <div class="confidence-fill" data-value="${confidence}"></div>
                         </div>
@@ -706,7 +695,7 @@ function updateSuccessRate() {
         container.style.display = 'none';
         return;
     }
-    const successful = finished.filter(m => m.verified_double && m.verified_over15).length;
+    const successful = finished.filter(m => m.verified_double).length;
     const rate = ((successful / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
     const roi = stats.roi || 0;

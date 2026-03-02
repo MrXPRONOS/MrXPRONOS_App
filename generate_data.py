@@ -4,7 +4,7 @@
 """
 generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
 les prédictions ML et les analyses H2H améliorées.
-Version avec Over 1.5, suppression BTTS et score prédit, intégration du score XPRONOS.
+Version avec correction des statuts pour les matchs d'hier.
 """
 
 import requests
@@ -94,7 +94,7 @@ def fetch_predictions(upcoming=True):
     return all_predictions
 
 # =======================================================
-# FONCTIONS D'ANALYSE H2H (AVEC PONDÉRATION TEMPORELLE)
+# FONCTIONS D'ANALYSE H2H
 # =======================================================
 
 def weight_by_date(date_str):
@@ -165,16 +165,11 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
 
     goals_avg = total_goals / matches_count if matches_count > 0 else 2.5
 
-    # Calcul du pourcentage de matchs avec plus de 1.5 buts
-    over15_count = sum(1 for m in h2h_list if m["home_score"] + m["away_score"] > 1.5)
-    over15_percent = (over15_count / matches_count * 100) if matches_count else 50
-
     return {
         "total_matches": matches_count,
         "home_dominance": round(home_dominance, 3),
         "away_dominance": round(away_dominance, 3),
         "goals_avg": round(goals_avg, 2),
-        "over15_percent": round(over15_percent, 1),
         "last_4": last_4
     }
 
@@ -186,44 +181,36 @@ def generate_prediction_h2h(analysis):
     else:
         double_chance = "12"
 
-    over15 = analysis["over15_percent"] > 60  # seuil arbitraire
-
     confidence = 50 + (analysis["total_matches"] * 5)
     confidence = min(confidence, 95)
     if max(analysis["home_dominance"], analysis["away_dominance"]) > 0.7:
         confidence = min(confidence + 10, 100)
     return {
         "double_chance": double_chance,
-        "over15": over15,
         "confidence": confidence
     }
 
 # =======================================================
-# CALCUL DU SCORE XPRONOS
+# CALCUL DU SCORE XPRONOS (simplifié sans over15)
 # =======================================================
 
-def calculate_xpronos_score(event, analysis, api_pred, ml_pred=None):
+def calculate_xpronos_score(event, analysis, api_pred):
     score = 0
-    # Forme (simulée ici, à adapter si disponible)
+    # Forme (simulée)
     form_diff = abs(event.get("form_home", 0) - event.get("form_away", 0))
     score += min(30, form_diff * 3)
 
-    # H2H (20 pts)
+    # H2H (30 pts)
     h2h_diff = abs(analysis["home_dominance"] - analysis["away_dominance"]) * 100
-    score += min(20, h2h_diff * 2)
+    score += min(30, h2h_diff * 2)
 
-    # Over 1.5 (15 pts)
-    if analysis["over15_percent"] > 60:
-        score += 15
-
-    # API (15 pts)
+    # API (20 pts)
     if api_pred and analysis["home_dominance"] > 0.6 and api_pred == "H" or \
        analysis["away_dominance"] > 0.6 and api_pred == "A":
-        score += 15
-
-    # ML (20 pts bonus si accord)
-    if ml_pred and api_pred == ml_pred:
         score += 20
+
+    # Confiance (20 pts)
+    score += min(20, analysis["total_matches"] * 2)
 
     return min(score, 100)
 
@@ -242,7 +229,6 @@ def get_badge(score):
 
 def verify_prediction(match, prediction):
     match['verified_double'] = False
-    match['verified_over15'] = False
 
     if match['status'] != 'finished':
         return
@@ -252,7 +238,6 @@ def verify_prediction(match, prediction):
     if home_score is None or away_score is None:
         return
 
-    total_goals = home_score + away_score
     dc = prediction.get('double_chance', '')
 
     if dc == '1X':
@@ -261,11 +246,6 @@ def verify_prediction(match, prediction):
         match['verified_double'] = (home_score == away_score) or (home_score < away_score)
     elif dc == '12':
         match['verified_double'] = (home_score > away_score) or (home_score < away_score)
-
-    if prediction.get('over15'):
-        match['verified_over15'] = total_goals > 1.5
-    else:
-        match['verified_over15'] = total_goals <= 1.5
 
 def update_bankroll(matches):
     total_bets = 0
@@ -342,7 +322,6 @@ def main():
 
         ml_pred = pred_dict.get(match_id)
         api_pred = None
-        ml_confidence = 0
         if ml_pred:
             prob_home = ml_pred.get('prob_home_win', 0)
             prob_away = ml_pred.get('prob_away_win', 0)
@@ -352,11 +331,9 @@ def main():
                 api_pred = "A"
             else:
                 api_pred = "D"
-            raw_conf = ml_pred.get('confidence', 0.5)
-            ml_confidence = round(raw_conf * 100 if raw_conf <= 1 else raw_conf, 1)
 
         # Score XPRONOS
-        score = calculate_xpronos_score(event, analysis, api_pred, api_pred)  # faute de vrai ML, on utilise api_pred
+        score = calculate_xpronos_score(event, analysis, api_pred)
         badge = get_badge(score)
 
         # Catégorie basée sur le score
@@ -389,14 +366,12 @@ def main():
             "h2h_analysis": analysis,
             "prediction": {
                 "double_chance": prediction_h2h["double_chance"],
-                "over15": prediction_h2h["over15"],
                 "confidence": prediction_h2h["confidence"]
             },
             "xpronos_score": score,
             "badge": badge,
             "category": category,
             "verified_double": False,
-            "verified_over15": False,
             "ml_full": ml_pred  # optionnel
         }
 
@@ -411,6 +386,17 @@ def main():
     new_ids = {m['id'] for m in new_matches}
     for old_id, old_match in old_matches_by_id.items():
         if old_id not in new_ids:
+            # Si le match est ancien (date < aujourd'hui) et non terminé, on force le statut "finished"
+            try:
+                match_date = datetime.fromisoformat(old_match['event_date'].replace('Z', '+00:00')).date()
+                if match_date < today and old_match['status'] != 'finished':
+                    old_match['status'] = 'finished'
+                    # On peut aussi recalculer la vérification si les scores existent
+                    if old_match.get('home_score') is not None and old_match.get('away_score') is not None:
+                        verify_prediction(old_match, old_match['prediction'])
+                    print(f"📌 Correction statut pour match {old_id} ({old_match['home_team']} vs {old_match['away_team']}) -> finished")
+            except:
+                pass
             new_matches.append(old_match)
             categories[old_match['category']].append(old_match)
 
