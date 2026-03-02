@@ -60,7 +60,7 @@
       "xpronos_score": 24.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -114,7 +114,7 @@
       "xpronos_score": 29.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -168,7 +168,7 @@
       "xpronos_score": 5.999999999999998,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -228,10 +228,10 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 75,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "pro",
-      "ml_prediction": null,
+      "xpronos_score": 100,
+      "badge": "🏆 PREMIUM LOCK",
+      "category": "vip",
+      "ml_prediction": "A",
       "api_prediction": "A"
     },
     {
@@ -294,7 +294,7 @@
       "xpronos_score": 62.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D"
     },
     {
@@ -357,7 +357,7 @@
       "xpronos_score": 26.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "H"
     },
     {
@@ -408,10 +408,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 22.0,
+      "xpronos_score": 47.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -471,10 +471,10 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 56.0,
-      "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
+      "xpronos_score": 81.0,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -537,61 +537,7 @@
       "xpronos_score": 47.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
-      "api_prediction": "D"
-    },
-    {
-      "id": 948,
-      "date": "2026-03-03",
-      "event_date": "2026-03-03T00:00:00+04:00",
-      "home_team": "Real Madrid",
-      "away_team": "Getafe",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2829/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/2859/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "La Liga",
-      "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "home_form": {
-        "matches_played": 5,
-        "wins": 4,
-        "draws": 0,
-        "losses": 1,
-        "goals_for": 10,
-        "goals_against": 4,
-        "avg_goals_for": 2.0,
-        "avg_goals_against": 0.8
-      },
-      "away_form": {
-        "matches_played": 5,
-        "wins": 2,
-        "draws": 2,
-        "losses": 1,
-        "goals_for": 5,
-        "goals_against": 3,
-        "avg_goals_for": 1.0,
-        "avg_goals_against": 0.6
-      },
-      "h2h_analysis": {
-        "total_matches": 0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.0,
-        "draws_percent": 0.0,
-        "goals_avg": 2.5,
-        "over25_percent": 50,
-        "btts_percent": 50,
-        "last_5": []
-      },
-      "prediction": {
-        "double_chance": "12",
-        "over25": false,
-        "confidence": 50
-      },
-      "xpronos_score": 20.0,
-      "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D"
     },
     {
@@ -654,7 +600,61 @@
       "xpronos_score": 52.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
+      "api_prediction": "D"
+    },
+    {
+      "id": 948,
+      "date": "2026-03-03",
+      "event_date": "2026-03-03T00:00:00+04:00",
+      "home_team": "Real Madrid",
+      "away_team": "Getafe",
+      "home_logo": "https://sports.bzzoiro.com/img/team/2829/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/2859/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "La Liga",
+      "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "home_form": {
+        "matches_played": 5,
+        "wins": 4,
+        "draws": 0,
+        "losses": 1,
+        "goals_for": 10,
+        "goals_against": 4,
+        "avg_goals_for": 2.0,
+        "avg_goals_against": 0.8
+      },
+      "away_form": {
+        "matches_played": 5,
+        "wins": 2,
+        "draws": 2,
+        "losses": 1,
+        "goals_for": 5,
+        "goals_against": 3,
+        "avg_goals_for": 1.0,
+        "avg_goals_against": 0.6
+      },
+      "h2h_analysis": {
+        "total_matches": 0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.0,
+        "draws_percent": 0.0,
+        "goals_avg": 2.5,
+        "over25_percent": 50,
+        "btts_percent": 50,
+        "last_5": []
+      },
+      "prediction": {
+        "double_chance": "12",
+        "over25": false,
+        "confidence": 50
+      },
+      "xpronos_score": 20.0,
+      "badge": "",
+      "category": "simple",
+      "ml_prediction": "A",
       "api_prediction": "D"
     },
     {
@@ -717,7 +717,7 @@
       "xpronos_score": 49.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -780,7 +780,7 @@
       "xpronos_score": 53.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "A"
     },
     {
@@ -834,7 +834,7 @@
       "xpronos_score": 2.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "A"
     },
     {
@@ -897,125 +897,8 @@
       "xpronos_score": 50.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "H"
-    },
-    {
-      "id": 285,
-      "date": "2026-03-03",
-      "event_date": "2026-03-03T23:30:00+04:00",
-      "home_team": "Bournemouth",
-      "away_team": "Brentford",
-      "home_logo": "https://sports.bzzoiro.com/img/team/60/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/50/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Premier League",
-      "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "home_form": {
-        "matches_played": 5,
-        "wins": 1,
-        "draws": 4,
-        "losses": 0,
-        "goals_for": 5,
-        "goals_against": 4,
-        "avg_goals_for": 1.0,
-        "avg_goals_against": 0.8
-      },
-      "away_form": {
-        "matches_played": 5,
-        "wins": 3,
-        "draws": 1,
-        "losses": 1,
-        "goals_for": 9,
-        "goals_against": 8,
-        "avg_goals_for": 1.8,
-        "avg_goals_against": 1.6
-      },
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "draws_percent": 0.0,
-        "goals_avg": 5.0,
-        "over25_percent": 100.0,
-        "btts_percent": 100.0,
-        "last_5": [
-          {
-            "date": "2025-12-27T19:00:00+04:00",
-            "home_team": "Brentford",
-            "away_team": "Bournemouth",
-            "home_score": 4,
-            "away_score": 1,
-            "league": "Premier League"
-          }
-        ]
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over25": true,
-        "confidence": 53
-      },
-      "xpronos_score": 63.0,
-      "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
-      "api_prediction": "D"
-    },
-    {
-      "id": 287,
-      "date": "2026-03-03",
-      "event_date": "2026-03-03T23:30:00+04:00",
-      "home_team": "Everton",
-      "away_team": "Burnley",
-      "home_logo": "https://sports.bzzoiro.com/img/team/48/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/6/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Premier League",
-      "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "home_form": {
-        "matches_played": 5,
-        "wins": 1,
-        "draws": 2,
-        "losses": 2,
-        "goals_for": 6,
-        "goals_against": 7,
-        "avg_goals_for": 1.2,
-        "avg_goals_against": 1.4
-      },
-      "away_form": {
-        "matches_played": 5,
-        "wins": 1,
-        "draws": 2,
-        "losses": 2,
-        "goals_for": 9,
-        "goals_against": 12,
-        "avg_goals_for": 1.8,
-        "avg_goals_against": 2.4
-      },
-      "h2h_analysis": {
-        "total_matches": 0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.0,
-        "draws_percent": 0.0,
-        "goals_avg": 2.5,
-        "over25_percent": 50,
-        "btts_percent": 50,
-        "last_5": []
-      },
-      "prediction": {
-        "double_chance": "12",
-        "over25": false,
-        "confidence": 50
-      },
-      "xpronos_score": 6.000000000000001,
-      "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
-      "api_prediction": "D"
     },
     {
       "id": 289,
@@ -1077,7 +960,124 @@
       "xpronos_score": 10.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
+      "api_prediction": "D"
+    },
+    {
+      "id": 287,
+      "date": "2026-03-03",
+      "event_date": "2026-03-03T23:30:00+04:00",
+      "home_team": "Everton",
+      "away_team": "Burnley",
+      "home_logo": "https://sports.bzzoiro.com/img/team/48/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/6/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Premier League",
+      "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "home_form": {
+        "matches_played": 5,
+        "wins": 1,
+        "draws": 2,
+        "losses": 2,
+        "goals_for": 6,
+        "goals_against": 7,
+        "avg_goals_for": 1.2,
+        "avg_goals_against": 1.4
+      },
+      "away_form": {
+        "matches_played": 5,
+        "wins": 1,
+        "draws": 2,
+        "losses": 2,
+        "goals_for": 9,
+        "goals_against": 12,
+        "avg_goals_for": 1.8,
+        "avg_goals_against": 2.4
+      },
+      "h2h_analysis": {
+        "total_matches": 0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.0,
+        "draws_percent": 0.0,
+        "goals_avg": 2.5,
+        "over25_percent": 50,
+        "btts_percent": 50,
+        "last_5": []
+      },
+      "prediction": {
+        "double_chance": "12",
+        "over25": false,
+        "confidence": 50
+      },
+      "xpronos_score": 6.000000000000001,
+      "badge": "",
+      "category": "simple",
+      "ml_prediction": "H",
+      "api_prediction": "D"
+    },
+    {
+      "id": 285,
+      "date": "2026-03-03",
+      "event_date": "2026-03-03T23:30:00+04:00",
+      "home_team": "Bournemouth",
+      "away_team": "Brentford",
+      "home_logo": "https://sports.bzzoiro.com/img/team/60/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/50/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Premier League",
+      "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "home_form": {
+        "matches_played": 5,
+        "wins": 1,
+        "draws": 4,
+        "losses": 0,
+        "goals_for": 5,
+        "goals_against": 4,
+        "avg_goals_for": 1.0,
+        "avg_goals_against": 0.8
+      },
+      "away_form": {
+        "matches_played": 5,
+        "wins": 3,
+        "draws": 1,
+        "losses": 1,
+        "goals_for": 9,
+        "goals_against": 8,
+        "avg_goals_for": 1.8,
+        "avg_goals_against": 1.6
+      },
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "draws_percent": 0.0,
+        "goals_avg": 5.0,
+        "over25_percent": 100.0,
+        "btts_percent": 100.0,
+        "last_5": [
+          {
+            "date": "2025-12-27T19:00:00+04:00",
+            "home_team": "Brentford",
+            "away_team": "Bournemouth",
+            "home_score": 4,
+            "away_score": 1,
+            "league": "Premier League"
+          }
+        ]
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over25": true,
+        "confidence": 53
+      },
+      "xpronos_score": 88.0,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -1137,10 +1137,64 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 51.0,
+      "xpronos_score": 76.0,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
+      "ml_prediction": "D",
+      "api_prediction": "D"
+    },
+    {
+      "id": 4911,
+      "date": "2026-03-03",
+      "event_date": "2026-03-03T23:45:00+04:00",
+      "home_team": "Ipswich Town",
+      "away_team": "Hull City",
+      "home_logo": "https://sports.bzzoiro.com/img/team/32/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "away_logo": "https://sports.bzzoiro.com/img/team/96/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "league": "Championship",
+      "league_logo": "https://sports.bzzoiro.com/img/league/18/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "status": "notstarted",
+      "home_score": null,
+      "away_score": null,
+      "home_form": {
+        "matches_played": 5,
+        "wins": 3,
+        "draws": 1,
+        "losses": 1,
+        "goals_for": 11,
+        "goals_against": 7,
+        "avg_goals_for": 2.2,
+        "avg_goals_against": 1.4
+      },
+      "away_form": {
+        "matches_played": 5,
+        "wins": 2,
+        "draws": 0,
+        "losses": 3,
+        "goals_for": 10,
+        "goals_against": 11,
+        "avg_goals_for": 2.0,
+        "avg_goals_against": 2.2
+      },
+      "h2h_analysis": {
+        "total_matches": 0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.0,
+        "draws_percent": 0.0,
+        "goals_avg": 2.5,
+        "over25_percent": 50,
+        "btts_percent": 50,
+        "last_5": []
+      },
+      "prediction": {
+        "double_chance": "12",
+        "over25": false,
+        "confidence": 50
+      },
+      "xpronos_score": 32.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -1200,64 +1254,10 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 47.0,
+      "xpronos_score": 72.0,
       "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
-      "api_prediction": "D"
-    },
-    {
-      "id": 4911,
-      "date": "2026-03-03",
-      "event_date": "2026-03-03T23:45:00+04:00",
-      "home_team": "Ipswich Town",
-      "away_team": "Hull City",
-      "home_logo": "https://sports.bzzoiro.com/img/team/32/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/96/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "league": "Championship",
-      "league_logo": "https://sports.bzzoiro.com/img/league/18/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
-      "home_form": {
-        "matches_played": 5,
-        "wins": 3,
-        "draws": 1,
-        "losses": 1,
-        "goals_for": 11,
-        "goals_against": 7,
-        "avg_goals_for": 2.2,
-        "avg_goals_against": 1.4
-      },
-      "away_form": {
-        "matches_played": 5,
-        "wins": 2,
-        "draws": 0,
-        "losses": 3,
-        "goals_for": 10,
-        "goals_against": 11,
-        "avg_goals_for": 2.0,
-        "avg_goals_against": 2.2
-      },
-      "h2h_analysis": {
-        "total_matches": 0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.0,
-        "draws_percent": 0.0,
-        "goals_avg": 2.5,
-        "over25_percent": 50,
-        "btts_percent": 50,
-        "last_5": []
-      },
-      "prediction": {
-        "double_chance": "12",
-        "over25": false,
-        "confidence": 50
-      },
-      "xpronos_score": 7.000000000000002,
-      "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
+      "category": "pro",
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -1311,7 +1311,7 @@
       "xpronos_score": 13.000000000000004,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": false
@@ -1384,7 +1384,7 @@
       "xpronos_score": 49.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": true
@@ -1437,10 +1437,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 24.999999999999996,
+      "xpronos_score": 50.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "A",
       "verified_double": true,
       "verified_over25": false
@@ -1502,10 +1502,10 @@
         "over25": false,
         "confidence": 53
       },
-      "xpronos_score": 30.0,
+      "xpronos_score": 55.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": false
@@ -1570,7 +1570,7 @@
       "xpronos_score": 75,
       "badge": "🔥 ULTRA SAFE",
       "category": "pro",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D",
       "verified_double": false,
       "verified_over25": false
@@ -1626,7 +1626,7 @@
       "xpronos_score": 16.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": false
@@ -1682,7 +1682,7 @@
       "xpronos_score": 18.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": false
@@ -1738,7 +1738,7 @@
       "xpronos_score": 19.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": false
@@ -1794,7 +1794,7 @@
       "xpronos_score": 29.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": false
@@ -1859,7 +1859,7 @@
       "xpronos_score": 74.0,
       "badge": "",
       "category": "pro",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": true
@@ -1915,7 +1915,7 @@
       "xpronos_score": 14.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": false
@@ -1980,7 +1980,7 @@
       "xpronos_score": 54.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": true
@@ -2042,10 +2042,10 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 53.0,
-      "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
+      "xpronos_score": 78.0,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
+      "ml_prediction": "D",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": true
@@ -2098,10 +2098,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 0.0,
+      "xpronos_score": 25.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": false
@@ -2157,7 +2157,7 @@
       "xpronos_score": 25.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": false
@@ -2210,10 +2210,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 29.0,
+      "xpronos_score": 54.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "H",
       "verified_double": true,
       "verified_over25": true
@@ -2286,7 +2286,7 @@
       "xpronos_score": 34.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": true
@@ -2339,10 +2339,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 7.000000000000002,
+      "xpronos_score": 32.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": true
@@ -2404,10 +2404,10 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 45.0,
+      "xpronos_score": 70.0,
       "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
+      "category": "pro",
+      "ml_prediction": "D",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": false
@@ -2472,7 +2472,7 @@
       "xpronos_score": 67.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D",
       "verified_double": false,
       "verified_over25": false
@@ -2511,14 +2511,22 @@
         "avg_goals_against": 1.8
       },
       "h2h_analysis": {
-        "total_matches": 1,
-        "home_dominance": 1.0,
+        "total_matches": 2,
+        "home_dominance": 0.5,
         "away_dominance": 0.0,
-        "draws_percent": 0.0,
+        "draws_percent": 50.0,
         "goals_avg": 4.0,
         "over25_percent": 100.0,
         "btts_percent": 100.0,
         "last_5": [
+          {
+            "date": "2026-03-01T16:00:00+04:00",
+            "home_team": "Rangers",
+            "away_team": "Celtic",
+            "home_score": 2,
+            "away_score": 2,
+            "league": "Scottish Premiership"
+          },
           {
             "date": "2026-01-03T16:30:00+04:00",
             "home_team": "Celtic",
@@ -2530,14 +2538,14 @@
         ]
       },
       "prediction": {
-        "double_chance": "1X",
+        "double_chance": "12",
         "over25": true,
-        "confidence": 53
+        "confidence": 56
       },
-      "xpronos_score": 58.0,
-      "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
+      "xpronos_score": 83.0,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
+      "ml_prediction": "D",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": true
@@ -2602,7 +2610,7 @@
       "xpronos_score": 19.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": true
@@ -2664,10 +2672,10 @@
         "over25": false,
         "confidence": 53
       },
-      "xpronos_score": 18.0,
+      "xpronos_score": 43.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": false
@@ -2706,14 +2714,22 @@
         "avg_goals_against": 2.0
       },
       "h2h_analysis": {
-        "total_matches": 1,
-        "home_dominance": 1.0,
-        "away_dominance": 0.0,
+        "total_matches": 2,
+        "home_dominance": 0.5,
+        "away_dominance": 0.5,
         "draws_percent": 0.0,
-        "goals_avg": 6.0,
+        "goals_avg": 4.5,
         "over25_percent": 100.0,
         "btts_percent": 100.0,
         "last_5": [
+          {
+            "date": "2026-03-01T17:00:00+04:00",
+            "home_team": "FC Lausanne-Sport",
+            "away_team": "Basel",
+            "home_score": 1,
+            "away_score": 2,
+            "league": "Super League"
+          },
           {
             "date": "2025-10-26T19:30:00+04:00",
             "home_team": "FC Lausanne-Sport",
@@ -2725,16 +2741,16 @@
         ]
       },
       "prediction": {
-        "double_chance": "1X",
+        "double_chance": "12",
         "over25": true,
-        "confidence": 53
+        "confidence": 56
       },
-      "xpronos_score": 52.0,
+      "xpronos_score": 32.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D",
-      "verified_double": false,
+      "verified_double": true,
       "verified_over25": true
     },
     {
@@ -2771,24 +2787,33 @@
         "avg_goals_against": 3.0
       },
       "h2h_analysis": {
-        "total_matches": 0,
+        "total_matches": 1,
         "home_dominance": 0.0,
         "away_dominance": 0.0,
-        "draws_percent": 0.0,
-        "goals_avg": 2.5,
-        "over25_percent": 50,
-        "btts_percent": 50,
-        "last_5": []
+        "draws_percent": 100.0,
+        "goals_avg": 4.0,
+        "over25_percent": 100.0,
+        "btts_percent": 100.0,
+        "last_5": [
+          {
+            "date": "2026-03-01T17:00:00+04:00",
+            "home_team": "Elche",
+            "away_team": "Espanyol",
+            "home_score": 2,
+            "away_score": 2,
+            "league": "La Liga"
+          }
+        ]
       },
       "prediction": {
         "double_chance": "12",
-        "over25": false,
-        "confidence": 50
+        "over25": true,
+        "confidence": 53
       },
-      "xpronos_score": 6.000000000000001,
+      "xpronos_score": 56.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D",
       "verified_double": true,
       "verified_over25": true
@@ -2850,10 +2875,10 @@
         "over25": false,
         "confidence": 53
       },
-      "xpronos_score": 25.0,
+      "xpronos_score": 50.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -2904,10 +2929,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 12.0,
+      "xpronos_score": 37.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -2970,7 +2995,7 @@
       "xpronos_score": 15.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -3021,10 +3046,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 1.9999999999999996,
+      "xpronos_score": 27.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -3078,7 +3103,7 @@
       "xpronos_score": 6.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "A"
     },
     {
@@ -3138,10 +3163,10 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 61.0,
-      "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
+      "xpronos_score": 86.0,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -3201,10 +3226,10 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 63.0,
-      "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
+      "xpronos_score": 88.0,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -3267,7 +3292,7 @@
       "xpronos_score": 14.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -3318,10 +3343,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 1.9999999999999996,
+      "xpronos_score": 27.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -3375,7 +3400,7 @@
       "xpronos_score": 20.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "H"
     },
     {
@@ -3426,10 +3451,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 7.0,
+      "xpronos_score": 32.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -3492,7 +3517,7 @@
       "xpronos_score": 63.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "H"
     },
     {
@@ -3546,7 +3571,7 @@
       "xpronos_score": 9.000000000000002,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D"
     },
     {
@@ -3609,8 +3634,8 @@
       "xpronos_score": 52.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
-      "api_prediction": null
+      "ml_prediction": "H",
+      "api_prediction": "D"
     },
     {
       "id": 4869,
@@ -3672,8 +3697,8 @@
       "xpronos_score": 55.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
-      "api_prediction": "D"
+      "ml_prediction": "A",
+      "api_prediction": null
     },
     {
       "id": 4868,
@@ -3743,7 +3768,7 @@
       "xpronos_score": 35.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -3794,10 +3819,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 30.0,
+      "xpronos_score": 55.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "A"
     },
     {
@@ -3860,7 +3885,7 @@
       "xpronos_score": 52.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D"
     },
     {
@@ -3923,7 +3948,7 @@
       "xpronos_score": 12.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -3977,7 +4002,7 @@
       "xpronos_score": 22.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D"
     },
     {
@@ -4028,10 +4053,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 7.0,
+      "xpronos_score": 32.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -4091,10 +4116,10 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 63.0,
-      "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
+      "xpronos_score": 88.0,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -4157,7 +4182,7 @@
       "xpronos_score": 14.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -4217,10 +4242,10 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 38.0,
+      "xpronos_score": 63.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -4274,7 +4299,7 @@
       "xpronos_score": 11.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -4337,7 +4362,7 @@
       "xpronos_score": 36.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "H"
     },
     {
@@ -4397,10 +4422,10 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 31.0,
+      "xpronos_score": 56.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -4463,7 +4488,7 @@
       "xpronos_score": 27.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D"
     },
     {
@@ -4514,10 +4539,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 7.000000000000002,
+      "xpronos_score": 32.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -4571,7 +4596,7 @@
       "xpronos_score": 14.000000000000002,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D"
     },
     {
@@ -4631,10 +4656,10 @@
         "over25": true,
         "confidence": 53
       },
-      "xpronos_score": 53.0,
-      "badge": "",
-      "category": "simple",
-      "ml_prediction": null,
+      "xpronos_score": 78.0,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -4697,7 +4722,7 @@
       "xpronos_score": 32.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D"
     },
     {
@@ -4751,7 +4776,7 @@
       "xpronos_score": 15.999999999999998,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -4814,7 +4839,7 @@
       "xpronos_score": 50.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -4865,10 +4890,10 @@
         "over25": false,
         "confidence": 50
       },
-      "xpronos_score": 1.9999999999999996,
+      "xpronos_score": 27.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "D",
       "api_prediction": "D"
     },
     {
@@ -4922,7 +4947,7 @@
       "xpronos_score": 22.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D"
     },
     {
@@ -4985,7 +5010,7 @@
       "xpronos_score": 49.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D"
     },
     {
@@ -5048,7 +5073,7 @@
       "xpronos_score": 52.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "H",
       "api_prediction": "D"
     },
     {
@@ -5102,7 +5127,7 @@
       "xpronos_score": 30.0,
       "badge": "",
       "category": "simple",
-      "ml_prediction": null,
+      "ml_prediction": "A",
       "api_prediction": "D"
     }
   ],
@@ -5168,7 +5193,7 @@
         "xpronos_score": 24.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -5222,7 +5247,7 @@
         "xpronos_score": 29.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -5276,7 +5301,7 @@
         "xpronos_score": 5.999999999999998,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -5339,7 +5364,7 @@
         "xpronos_score": 62.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D"
       },
       {
@@ -5402,7 +5427,7 @@
         "xpronos_score": 26.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "H"
       },
       {
@@ -5453,73 +5478,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 22.0,
+        "xpronos_score": 47.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D"
-      },
-      {
-        "id": 6795,
-        "date": "2026-03-02",
-        "event_date": "2026-03-02T21:30:00+04:00",
-        "home_team": "AFC Unirea 04 Slobozia",
-        "away_team": "FC Rapid București",
-        "home_logo": "https://sports.bzzoiro.com/img/team/44259/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/295403/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Superliga",
-        "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 1,
-          "draws": 0,
-          "losses": 4,
-          "goals_for": 4,
-          "goals_against": 9,
-          "avg_goals_for": 0.8,
-          "avg_goals_against": 1.8
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 2,
-          "draws": 1,
-          "losses": 2,
-          "goals_for": 7,
-          "goals_against": 7,
-          "avg_goals_for": 1.4,
-          "avg_goals_against": 1.4
-        },
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draws_percent": 0.0,
-          "goals_avg": 5.0,
-          "over25_percent": 100.0,
-          "btts_percent": 100.0,
-          "last_5": [
-            {
-              "date": "2025-10-27T22:30:00+04:00",
-              "home_team": "FC Rapid București",
-              "away_team": "AFC Unirea 04 Slobozia",
-              "home_score": 4,
-              "away_score": 1,
-              "league": "Superliga"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over25": true,
-          "confidence": 53
-        },
-        "xpronos_score": 56.0,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -5582,61 +5544,7 @@
         "xpronos_score": 47.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D"
-      },
-      {
-        "id": 948,
-        "date": "2026-03-03",
-        "event_date": "2026-03-03T00:00:00+04:00",
-        "home_team": "Real Madrid",
-        "away_team": "Getafe",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2829/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2859/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "La Liga",
-        "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 4,
-          "draws": 0,
-          "losses": 1,
-          "goals_for": 10,
-          "goals_against": 4,
-          "avg_goals_for": 2.0,
-          "avg_goals_against": 0.8
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 2,
-          "draws": 2,
-          "losses": 1,
-          "goals_for": 5,
-          "goals_against": 3,
-          "avg_goals_for": 1.0,
-          "avg_goals_against": 0.6
-        },
-        "h2h_analysis": {
-          "total_matches": 0,
-          "home_dominance": 0.0,
-          "away_dominance": 0.0,
-          "draws_percent": 0.0,
-          "goals_avg": 2.5,
-          "over25_percent": 50,
-          "btts_percent": 50,
-          "last_5": []
-        },
-        "prediction": {
-          "double_chance": "12",
-          "over25": false,
-          "confidence": 50
-        },
-        "xpronos_score": 20.0,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D"
       },
       {
@@ -5699,7 +5607,61 @@
         "xpronos_score": 52.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
+        "api_prediction": "D"
+      },
+      {
+        "id": 948,
+        "date": "2026-03-03",
+        "event_date": "2026-03-03T00:00:00+04:00",
+        "home_team": "Real Madrid",
+        "away_team": "Getafe",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2829/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2859/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "La Liga",
+        "league_logo": "https://sports.bzzoiro.com/img/league/8/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 4,
+          "draws": 0,
+          "losses": 1,
+          "goals_for": 10,
+          "goals_against": 4,
+          "avg_goals_for": 2.0,
+          "avg_goals_against": 0.8
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 2,
+          "draws": 2,
+          "losses": 1,
+          "goals_for": 5,
+          "goals_against": 3,
+          "avg_goals_for": 1.0,
+          "avg_goals_against": 0.6
+        },
+        "h2h_analysis": {
+          "total_matches": 0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.0,
+          "draws_percent": 0.0,
+          "goals_avg": 2.5,
+          "over25_percent": 50,
+          "btts_percent": 50,
+          "last_5": []
+        },
+        "prediction": {
+          "double_chance": "12",
+          "over25": false,
+          "confidence": 50
+        },
+        "xpronos_score": 20.0,
+        "badge": "",
+        "category": "simple",
+        "ml_prediction": "A",
         "api_prediction": "D"
       },
       {
@@ -5762,7 +5724,7 @@
         "xpronos_score": 49.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -5825,7 +5787,7 @@
         "xpronos_score": 53.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "A"
       },
       {
@@ -5879,7 +5841,7 @@
         "xpronos_score": 2.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "A"
       },
       {
@@ -5942,125 +5904,8 @@
         "xpronos_score": 50.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "H"
-      },
-      {
-        "id": 285,
-        "date": "2026-03-03",
-        "event_date": "2026-03-03T23:30:00+04:00",
-        "home_team": "Bournemouth",
-        "away_team": "Brentford",
-        "home_logo": "https://sports.bzzoiro.com/img/team/60/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/50/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Premier League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 1,
-          "draws": 4,
-          "losses": 0,
-          "goals_for": 5,
-          "goals_against": 4,
-          "avg_goals_for": 1.0,
-          "avg_goals_against": 0.8
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 3,
-          "draws": 1,
-          "losses": 1,
-          "goals_for": 9,
-          "goals_against": 8,
-          "avg_goals_for": 1.8,
-          "avg_goals_against": 1.6
-        },
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draws_percent": 0.0,
-          "goals_avg": 5.0,
-          "over25_percent": 100.0,
-          "btts_percent": 100.0,
-          "last_5": [
-            {
-              "date": "2025-12-27T19:00:00+04:00",
-              "home_team": "Brentford",
-              "away_team": "Bournemouth",
-              "home_score": 4,
-              "away_score": 1,
-              "league": "Premier League"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over25": true,
-          "confidence": 53
-        },
-        "xpronos_score": 63.0,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D"
-      },
-      {
-        "id": 287,
-        "date": "2026-03-03",
-        "event_date": "2026-03-03T23:30:00+04:00",
-        "home_team": "Everton",
-        "away_team": "Burnley",
-        "home_logo": "https://sports.bzzoiro.com/img/team/48/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/6/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Premier League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 1,
-          "draws": 2,
-          "losses": 2,
-          "goals_for": 6,
-          "goals_against": 7,
-          "avg_goals_for": 1.2,
-          "avg_goals_against": 1.4
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 1,
-          "draws": 2,
-          "losses": 2,
-          "goals_for": 9,
-          "goals_against": 12,
-          "avg_goals_for": 1.8,
-          "avg_goals_against": 2.4
-        },
-        "h2h_analysis": {
-          "total_matches": 0,
-          "home_dominance": 0.0,
-          "away_dominance": 0.0,
-          "draws_percent": 0.0,
-          "goals_avg": 2.5,
-          "over25_percent": 50,
-          "btts_percent": 50,
-          "last_5": []
-        },
-        "prediction": {
-          "double_chance": "12",
-          "over25": false,
-          "confidence": 50
-        },
-        "xpronos_score": 6.000000000000001,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D"
       },
       {
         "id": 289,
@@ -6122,82 +5967,19 @@
         "xpronos_score": 10.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
-        "id": 4870,
+        "id": 287,
         "date": "2026-03-03",
         "event_date": "2026-03-03T23:30:00+04:00",
-        "home_team": "FC Winterthur",
-        "away_team": "Servette FC",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2458/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2448/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Super League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 0,
-          "draws": 0,
-          "losses": 5,
-          "goals_for": 3,
-          "goals_against": 19,
-          "avg_goals_for": 0.6,
-          "avg_goals_against": 3.8
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 0,
-          "draws": 4,
-          "losses": 1,
-          "goals_for": 6,
-          "goals_against": 8,
-          "avg_goals_for": 1.2,
-          "avg_goals_against": 1.6
-        },
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "draws_percent": 0.0,
-          "goals_avg": 6.0,
-          "over25_percent": 100.0,
-          "btts_percent": 100.0,
-          "last_5": [
-            {
-              "date": "2025-11-01T21:00:00+04:00",
-              "home_team": "FC Winterthur",
-              "away_team": "Servette FC",
-              "home_score": 4,
-              "away_score": 2,
-              "league": "Super League"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over25": true,
-          "confidence": 53
-        },
-        "xpronos_score": 51.0,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D"
-      },
-      {
-        "id": 6275,
-        "date": "2026-03-03",
-        "event_date": "2026-03-03T23:45:00+04:00",
-        "home_team": "Dundee United",
-        "away_team": "St. Mirren",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2349/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2359/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Scottish Premiership",
-        "league_logo": "https://sports.bzzoiro.com/img/league/36/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "home_team": "Everton",
+        "away_team": "Burnley",
+        "home_logo": "https://sports.bzzoiro.com/img/team/48/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/6/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Premier League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "status": "notstarted",
         "home_score": null,
         "away_score": null,
@@ -6207,48 +5989,39 @@
           "draws": 2,
           "losses": 2,
           "goals_for": 6,
-          "goals_against": 8,
+          "goals_against": 7,
           "avg_goals_for": 1.2,
-          "avg_goals_against": 1.6
+          "avg_goals_against": 1.4
         },
         "away_form": {
           "matches_played": 5,
           "wins": 1,
-          "draws": 1,
-          "losses": 3,
-          "goals_for": 5,
+          "draws": 2,
+          "losses": 2,
+          "goals_for": 9,
           "goals_against": 12,
-          "avg_goals_for": 1.0,
+          "avg_goals_for": 1.8,
           "avg_goals_against": 2.4
         },
         "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 1.0,
+          "total_matches": 0,
+          "home_dominance": 0.0,
           "away_dominance": 0.0,
           "draws_percent": 0.0,
-          "goals_avg": 4.0,
-          "over25_percent": 100.0,
-          "btts_percent": 100.0,
-          "last_5": [
-            {
-              "date": "2025-10-25T18:00:00+04:00",
-              "home_team": "Dundee United",
-              "away_team": "St. Mirren",
-              "home_score": 3,
-              "away_score": 1,
-              "league": "Scottish Premiership"
-            }
-          ]
+          "goals_avg": 2.5,
+          "over25_percent": 50,
+          "btts_percent": 50,
+          "last_5": []
         },
         "prediction": {
-          "double_chance": "1X",
-          "over25": true,
-          "confidence": 53
+          "double_chance": "12",
+          "over25": false,
+          "confidence": 50
         },
-        "xpronos_score": 47.0,
+        "xpronos_score": 6.000000000000001,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -6299,10 +6072,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 7.000000000000002,
+        "xpronos_score": 32.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -6356,7 +6129,7 @@
         "xpronos_score": 13.000000000000004,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": false
@@ -6429,7 +6202,7 @@
         "xpronos_score": 49.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": true
@@ -6482,10 +6255,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 24.999999999999996,
+        "xpronos_score": 50.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "A",
         "verified_double": true,
         "verified_over25": false
@@ -6547,10 +6320,10 @@
           "over25": false,
           "confidence": 53
         },
-        "xpronos_score": 30.0,
+        "xpronos_score": 55.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": false
@@ -6606,7 +6379,7 @@
         "xpronos_score": 16.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": false
@@ -6662,7 +6435,7 @@
         "xpronos_score": 18.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": false
@@ -6718,7 +6491,7 @@
         "xpronos_score": 19.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": false
@@ -6774,7 +6547,7 @@
         "xpronos_score": 29.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": false
@@ -6830,7 +6603,7 @@
         "xpronos_score": 14.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": false
@@ -6895,72 +6668,7 @@
         "xpronos_score": 54.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D",
-        "verified_double": true,
-        "verified_over25": true
-      },
-      {
-        "id": 4935,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T05:30:00+04:00",
-        "home_team": "Sporting Kansas City",
-        "away_team": "Columbus Crew",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2509/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2504/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "MLS",
-        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "finished",
-        "home_score": 2,
-        "away_score": 2,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 0,
-          "draws": 1,
-          "losses": 4,
-          "goals_for": 1,
-          "goals_against": 12,
-          "avg_goals_for": 0.2,
-          "avg_goals_against": 2.4
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 2,
-          "draws": 0,
-          "losses": 3,
-          "goals_for": 10,
-          "goals_against": 7,
-          "avg_goals_for": 2.0,
-          "avg_goals_against": 1.4
-        },
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 0.0,
-          "away_dominance": 0.0,
-          "draws_percent": 100.0,
-          "goals_avg": 4.0,
-          "over25_percent": 100.0,
-          "btts_percent": 100.0,
-          "last_5": [
-            {
-              "date": "2026-03-01T05:30:00+04:00",
-              "home_team": "Sporting Kansas City",
-              "away_team": "Columbus Crew",
-              "home_score": 2,
-              "away_score": 2,
-              "league": "MLS"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "12",
-          "over25": true,
-          "confidence": 53
-        },
-        "xpronos_score": 53.0,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": true
@@ -7013,10 +6721,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 0.0,
+        "xpronos_score": 25.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": false
@@ -7072,7 +6780,7 @@
         "xpronos_score": 25.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": false
@@ -7125,10 +6833,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 29.0,
+        "xpronos_score": 54.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "H",
         "verified_double": true,
         "verified_over25": true
@@ -7201,7 +6909,7 @@
         "xpronos_score": 34.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": true
@@ -7254,78 +6962,13 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 7.000000000000002,
+        "xpronos_score": 32.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": true
-      },
-      {
-        "id": 2975,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T15:15:00+04:00",
-        "home_team": "PEC Zwolle",
-        "away_team": "AFC Ajax",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2971/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2953/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Eredivisie",
-        "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "finished",
-        "home_score": 0,
-        "away_score": 0,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 1,
-          "draws": 1,
-          "losses": 3,
-          "goals_for": 9,
-          "goals_against": 10,
-          "avg_goals_for": 1.8,
-          "avg_goals_against": 2.0
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 1,
-          "draws": 3,
-          "losses": 1,
-          "goals_for": 9,
-          "goals_against": 7,
-          "avg_goals_for": 1.8,
-          "avg_goals_against": 1.4
-        },
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draws_percent": 0.0,
-          "goals_avg": 4.0,
-          "over25_percent": 100.0,
-          "btts_percent": 100.0,
-          "last_5": [
-            {
-              "date": "2025-09-13T18:30:00+04:00",
-              "home_team": "AFC Ajax",
-              "away_team": "PEC Zwolle",
-              "home_score": 3,
-              "away_score": 1,
-              "league": "Eredivisie"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over25": true,
-          "confidence": 53
-        },
-        "xpronos_score": 45.0,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D",
-        "verified_double": true,
-        "verified_over25": false
       },
       {
         "id": 1338,
@@ -7387,75 +7030,10 @@
         "xpronos_score": 67.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D",
         "verified_double": false,
         "verified_over25": false
-      },
-      {
-        "id": 4109,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T16:00:00+04:00",
-        "home_team": "Rangers",
-        "away_team": "Celtic",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2351/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/2352/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Scottish Premiership",
-        "league_logo": "https://sports.bzzoiro.com/img/league/36/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "finished",
-        "home_score": 2,
-        "away_score": 2,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 2,
-          "draws": 3,
-          "losses": 0,
-          "goals_for": 12,
-          "goals_against": 6,
-          "avg_goals_for": 2.4,
-          "avg_goals_against": 1.2
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 3,
-          "draws": 0,
-          "losses": 2,
-          "goals_for": 8,
-          "goals_against": 9,
-          "avg_goals_for": 1.6,
-          "avg_goals_against": 1.8
-        },
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "draws_percent": 0.0,
-          "goals_avg": 4.0,
-          "over25_percent": 100.0,
-          "btts_percent": 100.0,
-          "last_5": [
-            {
-              "date": "2026-01-03T16:30:00+04:00",
-              "home_team": "Celtic",
-              "away_team": "Rangers",
-              "home_score": 1,
-              "away_score": 3,
-              "league": "Scottish Premiership"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over25": true,
-          "confidence": 53
-        },
-        "xpronos_score": 58.0,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D",
-        "verified_double": true,
-        "verified_over25": true
       },
       {
         "id": 4349,
@@ -7517,7 +7095,7 @@
         "xpronos_score": 19.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": true
@@ -7579,10 +7157,10 @@
           "over25": false,
           "confidence": 53
         },
-        "xpronos_score": 18.0,
+        "xpronos_score": 43.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": false
@@ -7621,14 +7199,22 @@
           "avg_goals_against": 2.0
         },
         "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
+          "total_matches": 2,
+          "home_dominance": 0.5,
+          "away_dominance": 0.5,
           "draws_percent": 0.0,
-          "goals_avg": 6.0,
+          "goals_avg": 4.5,
           "over25_percent": 100.0,
           "btts_percent": 100.0,
           "last_5": [
+            {
+              "date": "2026-03-01T17:00:00+04:00",
+              "home_team": "FC Lausanne-Sport",
+              "away_team": "Basel",
+              "home_score": 1,
+              "away_score": 2,
+              "league": "Super League"
+            },
             {
               "date": "2025-10-26T19:30:00+04:00",
               "home_team": "FC Lausanne-Sport",
@@ -7640,16 +7226,16 @@
           ]
         },
         "prediction": {
-          "double_chance": "1X",
+          "double_chance": "12",
           "over25": true,
-          "confidence": 53
+          "confidence": 56
         },
-        "xpronos_score": 52.0,
+        "xpronos_score": 32.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D",
-        "verified_double": false,
+        "verified_double": true,
         "verified_over25": true
       },
       {
@@ -7686,24 +7272,33 @@
           "avg_goals_against": 3.0
         },
         "h2h_analysis": {
-          "total_matches": 0,
+          "total_matches": 1,
           "home_dominance": 0.0,
           "away_dominance": 0.0,
-          "draws_percent": 0.0,
-          "goals_avg": 2.5,
-          "over25_percent": 50,
-          "btts_percent": 50,
-          "last_5": []
+          "draws_percent": 100.0,
+          "goals_avg": 4.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2026-03-01T17:00:00+04:00",
+              "home_team": "Elche",
+              "away_team": "Espanyol",
+              "home_score": 2,
+              "away_score": 2,
+              "league": "La Liga"
+            }
+          ]
         },
         "prediction": {
           "double_chance": "12",
-          "over25": false,
-          "confidence": 50
+          "over25": true,
+          "confidence": 53
         },
-        "xpronos_score": 6.000000000000001,
+        "xpronos_score": 56.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": true
@@ -7765,10 +7360,10 @@
           "over25": false,
           "confidence": 53
         },
-        "xpronos_score": 25.0,
+        "xpronos_score": 50.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -7819,10 +7414,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 12.0,
+        "xpronos_score": 37.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -7885,7 +7480,7 @@
         "xpronos_score": 15.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -7936,10 +7531,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 1.9999999999999996,
+        "xpronos_score": 27.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -7993,134 +7588,8 @@
         "xpronos_score": 6.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "A"
-      },
-      {
-        "id": 278,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T18:00:00+04:00",
-        "home_team": "Fulham",
-        "away_team": "Tottenham Hotspur",
-        "home_logo": "https://sports.bzzoiro.com/img/team/43/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/33/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Premier League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 3,
-          "draws": 0,
-          "losses": 2,
-          "goals_for": 9,
-          "goals_against": 9,
-          "avg_goals_for": 1.8,
-          "avg_goals_against": 1.8
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 1,
-          "draws": 1,
-          "losses": 3,
-          "goals_for": 6,
-          "goals_against": 10,
-          "avg_goals_for": 1.2,
-          "avg_goals_against": 2.0
-        },
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "draws_percent": 0.0,
-          "goals_avg": 3.0,
-          "over25_percent": 100.0,
-          "btts_percent": 100.0,
-          "last_5": [
-            {
-              "date": "2025-11-30T00:00:00+04:00",
-              "home_team": "Tottenham Hotspur",
-              "away_team": "Fulham",
-              "home_score": 1,
-              "away_score": 2,
-              "league": "Premier League"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over25": true,
-          "confidence": 53
-        },
-        "xpronos_score": 61.0,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D"
-      },
-      {
-        "id": 281,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T18:00:00+04:00",
-        "home_team": "Manchester United",
-        "away_team": "Crystal Palace",
-        "home_logo": "https://sports.bzzoiro.com/img/team/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/7/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Premier League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 4,
-          "draws": 1,
-          "losses": 0,
-          "goals_for": 10,
-          "goals_against": 5,
-          "avg_goals_for": 2.0,
-          "avg_goals_against": 1.0
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 2,
-          "draws": 1,
-          "losses": 2,
-          "goals_for": 6,
-          "goals_against": 7,
-          "avg_goals_for": 1.2,
-          "avg_goals_against": 1.4
-        },
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "draws_percent": 0.0,
-          "goals_avg": 3.0,
-          "over25_percent": 100.0,
-          "btts_percent": 100.0,
-          "last_5": [
-            {
-              "date": "2025-11-30T16:00:00+04:00",
-              "home_team": "Crystal Palace",
-              "away_team": "Manchester United",
-              "home_score": 1,
-              "away_score": 2,
-              "league": "Premier League"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over25": true,
-          "confidence": 53
-        },
-        "xpronos_score": 63.0,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D"
       },
       {
         "id": 1977,
@@ -8182,7 +7651,7 @@
         "xpronos_score": 14.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -8233,10 +7702,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 1.9999999999999996,
+        "xpronos_score": 27.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -8290,7 +7759,7 @@
         "xpronos_score": 20.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "H"
       },
       {
@@ -8341,10 +7810,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 7.0,
+        "xpronos_score": 32.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -8407,7 +7876,7 @@
         "xpronos_score": 63.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "H"
       },
       {
@@ -8461,7 +7930,7 @@
         "xpronos_score": 9.000000000000002,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D"
       },
       {
@@ -8524,8 +7993,8 @@
         "xpronos_score": 52.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": null
+        "ml_prediction": "H",
+        "api_prediction": "D"
       },
       {
         "id": 4869,
@@ -8587,8 +8056,8 @@
         "xpronos_score": 55.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D"
+        "ml_prediction": "A",
+        "api_prediction": null
       },
       {
         "id": 4868,
@@ -8658,7 +8127,7 @@
         "xpronos_score": 35.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -8709,10 +8178,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 30.0,
+        "xpronos_score": 55.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "A"
       },
       {
@@ -8775,7 +8244,7 @@
         "xpronos_score": 52.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D"
       },
       {
@@ -8838,7 +8307,7 @@
         "xpronos_score": 12.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -8892,7 +8361,7 @@
         "xpronos_score": 22.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D"
       },
       {
@@ -8943,73 +8412,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 7.0,
+        "xpronos_score": 32.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D"
-      },
-      {
-        "id": 1975,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T20:15:00+04:00",
-        "home_team": "Metz",
-        "away_team": "Stade Brestois",
-        "home_logo": "https://sports.bzzoiro.com/img/team/1651/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/1715/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Ligue 1",
-        "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 0,
-          "draws": 1,
-          "losses": 4,
-          "goals_for": 3,
-          "goals_against": 12,
-          "avg_goals_for": 0.6,
-          "avg_goals_against": 2.4
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 2,
-          "draws": 2,
-          "losses": 1,
-          "goals_for": 7,
-          "goals_against": 5,
-          "avg_goals_for": 1.4,
-          "avg_goals_against": 1.0
-        },
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draws_percent": 0.0,
-          "goals_avg": 5.0,
-          "over25_percent": 100.0,
-          "btts_percent": 100.0,
-          "last_5": [
-            {
-              "date": "2025-11-23T20:15:00+04:00",
-              "home_team": "Stade Brestois",
-              "away_team": "Metz",
-              "home_score": 3,
-              "away_score": 2,
-              "league": "Ligue 1"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over25": true,
-          "confidence": 53
-        },
-        "xpronos_score": 63.0,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -9072,7 +8478,7 @@
         "xpronos_score": 14.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -9132,10 +8538,10 @@
           "over25": true,
           "confidence": 53
         },
-        "xpronos_score": 38.0,
+        "xpronos_score": 63.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -9189,7 +8595,7 @@
         "xpronos_score": 11.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -9252,7 +8658,7 @@
         "xpronos_score": 36.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "H"
       },
       {
@@ -9312,10 +8718,10 @@
           "over25": true,
           "confidence": 53
         },
-        "xpronos_score": 31.0,
+        "xpronos_score": 56.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -9378,7 +8784,7 @@
         "xpronos_score": 27.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D"
       },
       {
@@ -9429,10 +8835,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 7.000000000000002,
+        "xpronos_score": 32.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -9486,70 +8892,7 @@
         "xpronos_score": 14.000000000000002,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
-        "api_prediction": "D"
-      },
-      {
-        "id": 592,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T22:00:00+04:00",
-        "home_team": "Casa Pia",
-        "away_team": "Moreirense",
-        "home_logo": "https://sports.bzzoiro.com/img/team/36365/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/3014/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Liga Portugal Betclic",
-        "league_logo": "https://sports.bzzoiro.com/img/league/238/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "home_form": {
-          "matches_played": 5,
-          "wins": 2,
-          "draws": 2,
-          "losses": 1,
-          "goals_for": 8,
-          "goals_against": 8,
-          "avg_goals_for": 1.6,
-          "avg_goals_against": 1.6
-        },
-        "away_form": {
-          "matches_played": 5,
-          "wins": 2,
-          "draws": 0,
-          "losses": 3,
-          "goals_for": 4,
-          "goals_against": 7,
-          "avg_goals_for": 0.8,
-          "avg_goals_against": 1.4
-        },
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draws_percent": 0.0,
-          "goals_avg": 3.0,
-          "over25_percent": 100.0,
-          "btts_percent": 100.0,
-          "last_5": [
-            {
-              "date": "2025-09-27T18:30:00+04:00",
-              "home_team": "Moreirense",
-              "away_team": "Casa Pia",
-              "home_score": 2,
-              "away_score": 1,
-              "league": "Liga Portugal Betclic"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over25": true,
-          "confidence": 53
-        },
-        "xpronos_score": 53.0,
-        "badge": "",
-        "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D"
       },
       {
@@ -9612,7 +8955,7 @@
         "xpronos_score": 32.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D"
       },
       {
@@ -9666,7 +9009,7 @@
         "xpronos_score": 15.999999999999998,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -9729,7 +9072,7 @@
         "xpronos_score": 50.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -9780,10 +9123,10 @@
           "over25": false,
           "confidence": 50
         },
-        "xpronos_score": 1.9999999999999996,
+        "xpronos_score": 27.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "D",
         "api_prediction": "D"
       },
       {
@@ -9837,7 +9180,7 @@
         "xpronos_score": 22.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D"
       },
       {
@@ -9900,7 +9243,7 @@
         "xpronos_score": 49.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D"
       },
       {
@@ -9963,7 +9306,7 @@
         "xpronos_score": 52.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D"
       },
       {
@@ -10017,60 +9360,123 @@
         "xpronos_score": 30.0,
         "badge": "",
         "category": "simple",
-        "ml_prediction": null,
+        "ml_prediction": "A",
         "api_prediction": "D"
       }
     ],
     "pro": [
       {
-        "id": 4941,
+        "id": 6795,
         "date": "2026-03-02",
-        "event_date": "2026-03-02T04:00:00+04:00",
-        "home_team": "Orlando City SC",
-        "away_team": "Inter Miami CF",
-        "home_logo": "https://sports.bzzoiro.com/img/team/52237/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/337602/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "MLS",
-        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "event_date": "2026-03-02T21:30:00+04:00",
+        "home_team": "AFC Unirea 04 Slobozia",
+        "away_team": "FC Rapid București",
+        "home_logo": "https://sports.bzzoiro.com/img/team/44259/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/295403/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Superliga",
+        "league_logo": "https://sports.bzzoiro.com/img/league/152/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
         "status": "notstarted",
         "home_score": null,
         "away_score": null,
         "home_form": {
           "matches_played": 5,
-          "wins": 0,
-          "draws": 1,
+          "wins": 1,
+          "draws": 0,
           "losses": 4,
-          "goals_for": 6,
-          "goals_against": 12,
-          "avg_goals_for": 1.2,
-          "avg_goals_against": 2.4
+          "goals_for": 4,
+          "goals_against": 9,
+          "avg_goals_for": 0.8,
+          "avg_goals_against": 1.8
         },
         "away_form": {
           "matches_played": 5,
-          "wins": 4,
-          "draws": 0,
-          "losses": 1,
-          "goals_for": 16,
-          "goals_against": 5,
-          "avg_goals_for": 3.2,
-          "avg_goals_against": 1.0
+          "wins": 2,
+          "draws": 1,
+          "losses": 2,
+          "goals_for": 7,
+          "goals_against": 7,
+          "avg_goals_for": 1.4,
+          "avg_goals_against": 1.4
         },
         "h2h_analysis": {
           "total_matches": 1,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
           "draws_percent": 0.0,
           "goals_avg": 5.0,
           "over25_percent": 100.0,
           "btts_percent": 100.0,
           "last_5": [
             {
-              "date": "2025-08-11T04:00:00+04:00",
-              "home_team": "Orlando City SC",
-              "away_team": "Inter Miami CF",
+              "date": "2025-10-27T22:30:00+04:00",
+              "home_team": "FC Rapid București",
+              "away_team": "AFC Unirea 04 Slobozia",
               "home_score": 4,
               "away_score": 1,
-              "league": "MLS"
+              "league": "Superliga"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over25": true,
+          "confidence": 53
+        },
+        "xpronos_score": 81.0,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "ml_prediction": "D",
+        "api_prediction": "D"
+      },
+      {
+        "id": 4870,
+        "date": "2026-03-03",
+        "event_date": "2026-03-03T23:30:00+04:00",
+        "home_team": "FC Winterthur",
+        "away_team": "Servette FC",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2458/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2448/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Super League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/215/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 0,
+          "draws": 0,
+          "losses": 5,
+          "goals_for": 3,
+          "goals_against": 19,
+          "avg_goals_for": 0.6,
+          "avg_goals_against": 3.8
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 0,
+          "draws": 4,
+          "losses": 1,
+          "goals_for": 6,
+          "goals_against": 8,
+          "avg_goals_for": 1.2,
+          "avg_goals_against": 1.6
+        },
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "draws_percent": 0.0,
+          "goals_avg": 6.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2025-11-01T21:00:00+04:00",
+              "home_team": "FC Winterthur",
+              "away_team": "Servette FC",
+              "home_score": 4,
+              "away_score": 2,
+              "league": "Super League"
             }
           ]
         },
@@ -10079,11 +9485,74 @@
           "over25": true,
           "confidence": 53
         },
-        "xpronos_score": 75,
+        "xpronos_score": 76.0,
         "badge": "🔥 ULTRA SAFE",
         "category": "pro",
-        "ml_prediction": null,
-        "api_prediction": "A"
+        "ml_prediction": "D",
+        "api_prediction": "D"
+      },
+      {
+        "id": 6275,
+        "date": "2026-03-03",
+        "event_date": "2026-03-03T23:45:00+04:00",
+        "home_team": "Dundee United",
+        "away_team": "St. Mirren",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2349/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2359/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Scottish Premiership",
+        "league_logo": "https://sports.bzzoiro.com/img/league/36/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 1,
+          "draws": 2,
+          "losses": 2,
+          "goals_for": 6,
+          "goals_against": 8,
+          "avg_goals_for": 1.2,
+          "avg_goals_against": 1.6
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 1,
+          "draws": 1,
+          "losses": 3,
+          "goals_for": 5,
+          "goals_against": 12,
+          "avg_goals_for": 1.0,
+          "avg_goals_against": 2.4
+        },
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "draws_percent": 0.0,
+          "goals_avg": 4.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2025-10-25T18:00:00+04:00",
+              "home_team": "Dundee United",
+              "away_team": "St. Mirren",
+              "home_score": 3,
+              "away_score": 1,
+              "league": "Scottish Premiership"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over25": true,
+          "confidence": 53
+        },
+        "xpronos_score": 72.0,
+        "badge": "",
+        "category": "pro",
+        "ml_prediction": "D",
+        "api_prediction": "D"
       },
       {
         "id": 4931,
@@ -10145,7 +9614,7 @@
         "xpronos_score": 75,
         "badge": "🔥 ULTRA SAFE",
         "category": "pro",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D",
         "verified_double": false,
         "verified_over25": false
@@ -10210,20 +9679,602 @@
         "xpronos_score": 74.0,
         "badge": "",
         "category": "pro",
-        "ml_prediction": null,
+        "ml_prediction": "H",
         "api_prediction": "D",
         "verified_double": true,
         "verified_over25": true
+      },
+      {
+        "id": 4935,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T05:30:00+04:00",
+        "home_team": "Sporting Kansas City",
+        "away_team": "Columbus Crew",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2509/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2504/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "MLS",
+        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 2,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 0,
+          "draws": 1,
+          "losses": 4,
+          "goals_for": 1,
+          "goals_against": 12,
+          "avg_goals_for": 0.2,
+          "avg_goals_against": 2.4
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 10,
+          "goals_against": 7,
+          "avg_goals_for": 2.0,
+          "avg_goals_against": 1.4
+        },
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 0.0,
+          "away_dominance": 0.0,
+          "draws_percent": 100.0,
+          "goals_avg": 4.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2026-03-01T05:30:00+04:00",
+              "home_team": "Sporting Kansas City",
+              "away_team": "Columbus Crew",
+              "home_score": 2,
+              "away_score": 2,
+              "league": "MLS"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "12",
+          "over25": true,
+          "confidence": 53
+        },
+        "xpronos_score": 78.0,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "ml_prediction": "D",
+        "api_prediction": "D",
+        "verified_double": true,
+        "verified_over25": true
+      },
+      {
+        "id": 2975,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T15:15:00+04:00",
+        "home_team": "PEC Zwolle",
+        "away_team": "AFC Ajax",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2971/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2953/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Eredivisie",
+        "league_logo": "https://sports.bzzoiro.com/img/league/37/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "finished",
+        "home_score": 0,
+        "away_score": 0,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 1,
+          "draws": 1,
+          "losses": 3,
+          "goals_for": 9,
+          "goals_against": 10,
+          "avg_goals_for": 1.8,
+          "avg_goals_against": 2.0
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 1,
+          "draws": 3,
+          "losses": 1,
+          "goals_for": 9,
+          "goals_against": 7,
+          "avg_goals_for": 1.8,
+          "avg_goals_against": 1.4
+        },
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draws_percent": 0.0,
+          "goals_avg": 4.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2025-09-13T18:30:00+04:00",
+              "home_team": "AFC Ajax",
+              "away_team": "PEC Zwolle",
+              "home_score": 3,
+              "away_score": 1,
+              "league": "Eredivisie"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over25": true,
+          "confidence": 53
+        },
+        "xpronos_score": 70.0,
+        "badge": "",
+        "category": "pro",
+        "ml_prediction": "D",
+        "api_prediction": "D",
+        "verified_double": true,
+        "verified_over25": false
+      },
+      {
+        "id": 4109,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T16:00:00+04:00",
+        "home_team": "Rangers",
+        "away_team": "Celtic",
+        "home_logo": "https://sports.bzzoiro.com/img/team/2351/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/2352/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Scottish Premiership",
+        "league_logo": "https://sports.bzzoiro.com/img/league/36/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 2,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 2,
+          "draws": 3,
+          "losses": 0,
+          "goals_for": 12,
+          "goals_against": 6,
+          "avg_goals_for": 2.4,
+          "avg_goals_against": 1.2
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "goals_for": 8,
+          "goals_against": 9,
+          "avg_goals_for": 1.6,
+          "avg_goals_against": 1.8
+        },
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_dominance": 0.5,
+          "away_dominance": 0.0,
+          "draws_percent": 50.0,
+          "goals_avg": 4.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2026-03-01T16:00:00+04:00",
+              "home_team": "Rangers",
+              "away_team": "Celtic",
+              "home_score": 2,
+              "away_score": 2,
+              "league": "Scottish Premiership"
+            },
+            {
+              "date": "2026-01-03T16:30:00+04:00",
+              "home_team": "Celtic",
+              "away_team": "Rangers",
+              "home_score": 1,
+              "away_score": 3,
+              "league": "Scottish Premiership"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "12",
+          "over25": true,
+          "confidence": 56
+        },
+        "xpronos_score": 83.0,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "ml_prediction": "D",
+        "api_prediction": "D",
+        "verified_double": true,
+        "verified_over25": true
+      },
+      {
+        "id": 592,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T22:00:00+04:00",
+        "home_team": "Casa Pia",
+        "away_team": "Moreirense",
+        "home_logo": "https://sports.bzzoiro.com/img/team/36365/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/3014/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Liga Portugal Betclic",
+        "league_logo": "https://sports.bzzoiro.com/img/league/238/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 2,
+          "draws": 2,
+          "losses": 1,
+          "goals_for": 8,
+          "goals_against": 8,
+          "avg_goals_for": 1.6,
+          "avg_goals_against": 1.6
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 2,
+          "draws": 0,
+          "losses": 3,
+          "goals_for": 4,
+          "goals_against": 7,
+          "avg_goals_for": 0.8,
+          "avg_goals_against": 1.4
+        },
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draws_percent": 0.0,
+          "goals_avg": 3.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2025-09-27T18:30:00+04:00",
+              "home_team": "Moreirense",
+              "away_team": "Casa Pia",
+              "home_score": 2,
+              "away_score": 1,
+              "league": "Liga Portugal Betclic"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over25": true,
+          "confidence": 53
+        },
+        "xpronos_score": 78.0,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "ml_prediction": "D",
+        "api_prediction": "D"
       }
     ],
-    "vip": []
+    "vip": [
+      {
+        "id": 4941,
+        "date": "2026-03-02",
+        "event_date": "2026-03-02T04:00:00+04:00",
+        "home_team": "Orlando City SC",
+        "away_team": "Inter Miami CF",
+        "home_logo": "https://sports.bzzoiro.com/img/team/52237/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/337602/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "MLS",
+        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 0,
+          "draws": 1,
+          "losses": 4,
+          "goals_for": 6,
+          "goals_against": 12,
+          "avg_goals_for": 1.2,
+          "avg_goals_against": 2.4
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 4,
+          "draws": 0,
+          "losses": 1,
+          "goals_for": 16,
+          "goals_against": 5,
+          "avg_goals_for": 3.2,
+          "avg_goals_against": 1.0
+        },
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "draws_percent": 0.0,
+          "goals_avg": 5.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2025-08-11T04:00:00+04:00",
+              "home_team": "Orlando City SC",
+              "away_team": "Inter Miami CF",
+              "home_score": 4,
+              "away_score": 1,
+              "league": "MLS"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over25": true,
+          "confidence": 53
+        },
+        "xpronos_score": 100,
+        "badge": "🏆 PREMIUM LOCK",
+        "category": "vip",
+        "ml_prediction": "A",
+        "api_prediction": "A"
+      },
+      {
+        "id": 285,
+        "date": "2026-03-03",
+        "event_date": "2026-03-03T23:30:00+04:00",
+        "home_team": "Bournemouth",
+        "away_team": "Brentford",
+        "home_logo": "https://sports.bzzoiro.com/img/team/60/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/50/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Premier League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 1,
+          "draws": 4,
+          "losses": 0,
+          "goals_for": 5,
+          "goals_against": 4,
+          "avg_goals_for": 1.0,
+          "avg_goals_against": 0.8
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 3,
+          "draws": 1,
+          "losses": 1,
+          "goals_for": 9,
+          "goals_against": 8,
+          "avg_goals_for": 1.8,
+          "avg_goals_against": 1.6
+        },
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draws_percent": 0.0,
+          "goals_avg": 5.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2025-12-27T19:00:00+04:00",
+              "home_team": "Brentford",
+              "away_team": "Bournemouth",
+              "home_score": 4,
+              "away_score": 1,
+              "league": "Premier League"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over25": true,
+          "confidence": 53
+        },
+        "xpronos_score": 88.0,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "ml_prediction": "D",
+        "api_prediction": "D"
+      },
+      {
+        "id": 278,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T18:00:00+04:00",
+        "home_team": "Fulham",
+        "away_team": "Tottenham Hotspur",
+        "home_logo": "https://sports.bzzoiro.com/img/team/43/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/33/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Premier League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 3,
+          "draws": 0,
+          "losses": 2,
+          "goals_for": 9,
+          "goals_against": 9,
+          "avg_goals_for": 1.8,
+          "avg_goals_against": 1.8
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 1,
+          "draws": 1,
+          "losses": 3,
+          "goals_for": 6,
+          "goals_against": 10,
+          "avg_goals_for": 1.2,
+          "avg_goals_against": 2.0
+        },
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "draws_percent": 0.0,
+          "goals_avg": 3.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2025-11-30T00:00:00+04:00",
+              "home_team": "Tottenham Hotspur",
+              "away_team": "Fulham",
+              "home_score": 1,
+              "away_score": 2,
+              "league": "Premier League"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over25": true,
+          "confidence": 53
+        },
+        "xpronos_score": 86.0,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "ml_prediction": "D",
+        "api_prediction": "D"
+      },
+      {
+        "id": 281,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T18:00:00+04:00",
+        "home_team": "Manchester United",
+        "away_team": "Crystal Palace",
+        "home_logo": "https://sports.bzzoiro.com/img/team/35/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/7/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Premier League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 4,
+          "draws": 1,
+          "losses": 0,
+          "goals_for": 10,
+          "goals_against": 5,
+          "avg_goals_for": 2.0,
+          "avg_goals_against": 1.0
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 2,
+          "draws": 1,
+          "losses": 2,
+          "goals_for": 6,
+          "goals_against": 7,
+          "avg_goals_for": 1.2,
+          "avg_goals_against": 1.4
+        },
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "draws_percent": 0.0,
+          "goals_avg": 3.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2025-11-30T16:00:00+04:00",
+              "home_team": "Crystal Palace",
+              "away_team": "Manchester United",
+              "home_score": 1,
+              "away_score": 2,
+              "league": "Premier League"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over25": true,
+          "confidence": 53
+        },
+        "xpronos_score": 88.0,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "ml_prediction": "D",
+        "api_prediction": "D"
+      },
+      {
+        "id": 1975,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T20:15:00+04:00",
+        "home_team": "Metz",
+        "away_team": "Stade Brestois",
+        "home_logo": "https://sports.bzzoiro.com/img/team/1651/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/1715/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Ligue 1",
+        "league_logo": "https://sports.bzzoiro.com/img/league/34/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "home_form": {
+          "matches_played": 5,
+          "wins": 0,
+          "draws": 1,
+          "losses": 4,
+          "goals_for": 3,
+          "goals_against": 12,
+          "avg_goals_for": 0.6,
+          "avg_goals_against": 2.4
+        },
+        "away_form": {
+          "matches_played": 5,
+          "wins": 2,
+          "draws": 2,
+          "losses": 1,
+          "goals_for": 7,
+          "goals_against": 5,
+          "avg_goals_for": 1.4,
+          "avg_goals_against": 1.0
+        },
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draws_percent": 0.0,
+          "goals_avg": 5.0,
+          "over25_percent": 100.0,
+          "btts_percent": 100.0,
+          "last_5": [
+            {
+              "date": "2025-11-23T20:15:00+04:00",
+              "home_team": "Stade Brestois",
+              "away_team": "Metz",
+              "home_score": 3,
+              "away_score": 2,
+              "league": "Ligue 1"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over25": true,
+          "confidence": 53
+        },
+        "xpronos_score": 88.0,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "ml_prediction": "D",
+        "api_prediction": "D"
+      }
+    ]
   },
   "stats": {
     "total_bets": 25,
-    "wins": 22,
-    "roi": 88.0
+    "wins": 23,
+    "roi": 92.0
   },
-  "last_update": "2026-03-02T06:56:03.984046",
+  "last_update": "2026-03-02T07:14:23.673119",
   "bookmakers": [
     {
       "name": "1xBet",
