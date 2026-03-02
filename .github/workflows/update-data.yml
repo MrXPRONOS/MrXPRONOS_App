@@ -20,19 +20,10 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Installer Firefox et geckodriver
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y firefox
-          wget https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-linux64.tar.gz
-          tar -xvzf geckodriver-v0.34.0-linux64.tar.gz
-          chmod +x geckodriver
-          sudo mv geckodriver /usr/local/bin/
-
       - name: Installation des dépendances
         run: |
           python -m pip install --upgrade pip
-          pip install requests mistralai feedparser deep-translator pandas beautifulsoup4 lxml camoufox
+          pip install requests mistralai feedparser deep-translator
 
       - name: Mise à jour du cache (matchs d'hier)
         env:
@@ -62,7 +53,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions'
           git config --global user.email 'actions@github.com'
-          git add cache/all_matches.json data.json articles.json conseils.json footnews.json sitemap.xml assets/images/ historical_scores.json
+          git add cache/all_matches.json data.json articles.json conseils.json footnews.json sitemap.xml assets/images/
           git commit -m "Mise à jour automatique $(date +'%Y-%m-%d') [skip ci]" || echo "No changes"
           git pull --rebase -X theirs origin main
           git push origin main

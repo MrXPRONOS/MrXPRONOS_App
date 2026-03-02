@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
+generate_data.py - Génère data.json avec les matchs des 14 derniers jours,
 les prédictions ML et les analyses H2H améliorées.
-Utilise un cache local (historical_scores.json) et FBref comme fallback pour les scores manquants.
+Conserve tous les matchs pour l'historique, avec scores récupérés via /events/.
 """
 
 import requests
@@ -12,13 +12,8 @@ import json
 from datetime import datetime, timedelta
 import os
 import time
-import sys
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-
-# Import des modules de fallback
-sys.path.append(os.path.dirname(__file__))
-import fbref_fallback
 
 # =======================================================
 # CONFIGURATION
@@ -41,7 +36,6 @@ fourteen_days_ago = today - timedelta(days=14)
 
 CACHE_DIR = "cache"
 GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
-HISTORICAL_FILE = "historical_scores.json"
 DATA_FILE = "data.json"
 
 print("="*60)
@@ -53,6 +47,7 @@ print("="*60)
 # =======================================================
 
 def fetch_events(date_from, date_to):
+    """Récupère tous les événements entre deux dates (pagination gérée)."""
     url = f"{BASE_URL}/events/"
     params = {"date_from": date_from.isoformat(), "date_to": date_to.isoformat()}
     all_events = []
@@ -275,52 +270,25 @@ def update_bankroll(matches):
     return {"total_bets": total_bets, "wins": wins, "roi": round(roi, 2)}
 
 # =======================================================
-# FONCTIONS DE FALLBACK
-# =======================================================
-
-def load_historical_scores():
-    """Charge le fichier de scores historiques locaux."""
-    if os.path.exists(HISTORICAL_FILE):
-        with open(HISTORICAL_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return []
-
-def search_historical_scores(historical, date, home_team, away_team):
-    """Cherche un score dans le cache historique par date et noms d'équipes."""
-    for h in historical:
-        if h["date"] == date:
-            # Comparaison approximative des noms
-            if (home_team.lower() in h["home_team"].lower() or h["home_team"].lower() in home_team.lower()) and \
-               (away_team.lower() in h["away_team"].lower() or h["away_team"].lower() in away_team.lower()):
-                return h["home_score"], h["away_score"]
-    return None, None
-
-def fallback_fbref(date, home_team, away_team):
-    """Utilise le scraper FBref pour obtenir le score."""
-    print(f"   📡 Tentative FBref pour {home_team} vs {away_team} le {date}")
-    try:
-        result = fbref_fallback.get_match_score(date, home_team, away_team)
-        if result:
-            return result
-    except Exception as e:
-        print(f"   ❌ Erreur FBref: {e}")
-    return None, None
-
-# =======================================================
 # FONCTION PRINCIPALE
 # =======================================================
 
 def main():
-    print("\n📅 Récupération des matchs du jour, demain, hier...")
+    print("\n📅 Récupération des matchs des 14 derniers jours...")
+    # Récupérer les événements des 14 derniers jours pour avoir tous les scores
+    events_last_14 = fetch_events(fourteen_days_ago, today)
+    print(f"\n✅ {len(events_last_14)} événements récupérés")
+
+    # Récupérer les matchs d'hier, aujourd'hui, demain (pour les pronostics)
     events_today = fetch_events(today, today)
     events_tomorrow = fetch_events(tomorrow, tomorrow)
     events_yesterday = fetch_events(yesterday, yesterday)
 
     all_new_events = events_today + events_tomorrow + events_yesterday
-    print(f"\n✅ {len(all_new_events)} événements récupérés")
+    print(f"✅ {len(all_new_events)} événements pour les pronostics du jour/demain/hier")
 
-    # Récupérer les prédictions passées pour obtenir les scores
-    print("\n📈 Récupération des prédictions passées (pour les scores)...")
+    # Récupérer les prédictions passées pour les scores
+    print("\n📈 Récupération des prédictions passées...")
     past_predictions = fetch_predictions(upcoming=False)
     past_scores = {}
     for p in past_predictions:
@@ -352,12 +320,11 @@ def main():
             global_cache = json.load(f)
         print(f"📂 Cache global chargé : {len(global_cache)} matchs")
 
-    # Charger historique local
-    historical_scores = load_historical_scores()
-    print(f"📂 Historique local chargé : {len(historical_scores)} matchs")
-
     new_matches = []
     categories = {"simple": [], "pro": [], "vip": []}
+
+    # D'abord, traiter les événements des 14 derniers jours pour avoir les scores
+    events_by_id = {e['id']: e for e in events_last_14}
 
     for event in all_new_events:
         print(f"\n🔍 Analyse match {event.get('id', 'inconnu')}")
@@ -397,10 +364,16 @@ def main():
                 api_double_chance = "12"
                 api_prob = ml_pred.get('prob_draw', 0)
 
-        agreement = (prediction_h2h["double_chance"] == api_double_chance) if api_double_chance else False
+        # Pour les matchs passés (hier), on ne filtre pas par accord, on les garde tous
+        # Pour aujourd'hui et demain, on garde l'accord
+        is_past = event_date < today.isoformat()
+        if is_past:
+            agreement = True  # on accepte tous les matchs passés pour l'historique
+        else:
+            agreement = (prediction_h2h["double_chance"] == api_double_chance) if api_double_chance else False
 
-        if not agreement:
-            print(f"   ❌ Pas d'accord H2H/API, match ignoré")
+        if not agreement and not is_past:
+            print(f"   ❌ Pas d'accord H2H/API pour un match à venir, ignoré")
             continue
 
         score = calculate_confidence_score(analysis, ml_pred, agreement)
@@ -438,48 +411,44 @@ def main():
         }
 
         # =======================================================
-        # CORRECTION DES SCORES MANQUANTS (fallback)
+        # CORRECTION DES SCORES MANQUANTS
         # =======================================================
-        try:
-            # Si le match est terminé mais que les scores sont absents, on cherche
-            if match_data["status"] == "finished" and (match_data["home_score"] is None or match_data["away_score"] is None):
-                # 1. Prédictions passées de l'API
-                if match_id in past_scores:
-                    match_data["home_score"] = past_scores[match_id]["home_score"]
-                    match_data["away_score"] = past_scores[match_id]["away_score"]
-                    print(f"   📥 Scores récupérés depuis les prédictions passées pour {match_id}")
-                else:
-                    # 2. Cache historique local
-                    hs, aw = search_historical_scores(historical_scores, event_date, home_obj["name"], away_obj["name"])
-                    if hs is not None:
-                        match_data["home_score"] = hs
-                        match_data["away_score"] = aw
-                        print(f"   📥 Scores récupérés depuis l'historique local pour {match_id}")
-                    else:
-                        # 3. Fallback FBref
-                        hs, aw = fallback_fbref(event_date, home_obj["name"], away_obj["name"])
-                        if hs is not None:
-                            match_data["home_score"] = hs
-                            match_data["away_score"] = aw
-                            print(f"   📥 Scores récupérés depuis FBref pour {match_id}")
-        except Exception as e:
-            print(f"   ⚠️ Erreur récupération scores match {match_id}: {e}")
-
-        # =======================================================
-        # CORRECTION ROBUSTE DU STATUT POUR LES MATCHS PASSÉS
-        # =======================================================
+        # Si le match est terminé mais que les scores sont absents, on cherche dans events_last_14
         try:
             event_dt = datetime.fromisoformat(event_datetime.replace('Z', '+00:00'))
             match_date = event_dt.date()
 
-            if match_data["home_score"] is not None and match_data["away_score"] is not None:
-                match_data["status"] = "finished"
-            elif match_date < today:
-                match_data["status"] = "finished"
-        except Exception as e:
-            print(f"   ⚠️ Erreur correction statut match {match_id}: {e}")
+            if match_data["status"] == "finished" and (match_data["home_score"] is None or match_data["away_score"] is None):
+                # Chercher dans events_by_id
+                full_event = events_by_id.get(match_id)
+                if full_event and full_event.get("home_score") is not None:
+                    match_data["home_score"] = full_event.get("home_score")
+                    match_data["away_score"] = full_event.get("away_score")
+                    print(f"   📥 Scores récupérés depuis events des 14 derniers jours pour {match_id}")
+                elif match_id in past_scores:
+                    match_data["home_score"] = past_scores[match_id]["home_score"]
+                    match_data["away_score"] = past_scores[match_id]["away_score"]
+                    print(f"   📥 Scores récupérés depuis past_predictions pour {match_id}")
+                else:
+                    old_match = old_matches_by_id.get(match_id)
+                    if old_match:
+                        match_data["home_score"] = old_match.get("home_score")
+                        match_data["away_score"] = old_match.get("away_score")
+                        print(f"   📥 Scores récupérés depuis l'ancien fichier pour {match_id}")
 
-        # Vérification du résultat
+            # Correction du statut
+            if match_data["home_score"] is not None and match_data["away_score"] is not None:
+                if match_data["status"] != "finished":
+                    match_data["status"] = "finished"
+                    print(f"   🔧 Statut mis à jour à finished (scores présents)")
+            elif match_date < today:
+                if match_data["status"] != "finished":
+                    match_data["status"] = "finished"
+                    print(f"   🔧 Statut forcé à finished (date passée)")
+        except Exception as e:
+            print(f"   ⚠️ Erreur correction match {match_id}: {e}")
+
+        # Vérification
         if match_data["status"] == "finished" and match_data.get("home_score") is not None:
             verify_prediction(match_data, match_data["prediction"])
 
@@ -487,24 +456,25 @@ def main():
         categories[category].append(match_data)
         print(f"   ✅ Score: {score} - {badge} - Catégorie: {category}")
 
-    # Fusion avec anciens matchs (pour conserver l'historique des 14 derniers jours)
+    # Ajouter les anciens matchs des 14 derniers jours qui ne sont pas déjà dans new_matches
+    new_ids = {m['id'] for m in new_matches}
     for old_id, old_match in old_matches_by_id.items():
-        try:
-            old_date_str = old_match.get('event_date')
-            if not old_date_str:
-                continue
-            old_date = datetime.fromisoformat(old_date_str.replace('Z', '+00:00')).date()
-            if old_date >= fourteen_days_ago:
-                if old_id not in {m['id'] for m in new_matches}:
+        if old_id not in new_ids:
+            # Vérifier si le match date de moins de 14 jours
+            try:
+                old_date = datetime.fromisoformat(old_match['event_date'].replace('Z', '+00:00')).date()
+                if old_date >= fourteen_days_ago:
+                    # Mise à jour du statut si nécessaire
                     if old_date < today and old_match['status'] != 'finished':
                         old_match['status'] = 'finished'
                         if old_match.get('home_score') is not None and old_match.get('away_score') is not None:
                             verify_prediction(old_match, old_match['prediction'])
                     new_matches.append(old_match)
                     categories[old_match['category']].append(old_match)
-        except:
-            pass
+            except:
+                pass
 
+    # Trier par date décroissante
     new_matches.sort(key=lambda x: x['event_date'], reverse=True)
 
     stats = update_bankroll(new_matches)
@@ -527,7 +497,7 @@ def main():
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False, default=str)
-    print(f"\n💾 {DATA_FILE} généré avec {len(new_matches)} matchs (dont historiques 14 jours), ROI: {stats['roi']}%")
+    print(f"\n💾 {DATA_FILE} généré avec {len(new_matches)} matchs, ROI: {stats['roi']}%")
 
 if __name__ == "__main__":
     main()
