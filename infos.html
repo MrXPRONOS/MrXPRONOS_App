@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infos sport - Mr XPRONOS</title>
-    <meta name="description" content="Actualités sportives, résumés de matchs, classements et tendances.">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <header>
@@ -31,8 +31,10 @@
     </header>
 
     <main class="container">
-        <h1 style="color: var(--or); margin: 2rem 0;">🏆 Infos sport</h1>
-        <div id="infos-list"></div>
+        <h1 style="color: var(--or); margin: 2rem 0;">🏆 Actualités Football</h1>
+        <div id="foot-news-container" class="news-grid">
+            <div class="loading">Chargement des actualités...</div>
+        </div>
     </main>
 
     <footer>

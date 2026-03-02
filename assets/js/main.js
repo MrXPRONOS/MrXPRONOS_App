@@ -638,3 +638,43 @@ async function displayInfos() {
         container.appendChild(card);
     });
 }
+// =======================================================
+// ACTUALITÉS FOOTBALL (infos.html)
+// =======================================================
+async function displayFootNews() {
+    const container = document.getElementById('foot-news-container');
+    if (!container) return;
+
+    try {
+        const resp = await fetch('footnews.json?t=' + Date.now());
+        if (!resp.ok) throw new Error('Erreur chargement');
+        const news = await resp.json();
+
+        if (news.length === 0) {
+            container.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>';
+            return;
+        }
+
+        let html = '';
+        news.forEach(item => {
+            html += `
+                <div class="news-card card">
+                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" style="width:100%; border-radius:8px; margin-bottom:10px;">` : ''}
+                    <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: var(--or);">${item.title}</a></h3>
+                    <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
+                    <p>${item.summary}</p>
+                    <a href="${item.link}" target="_blank" class="btn btn-secondary" style="margin-top:10px;">Lire la suite</a>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } catch (error) {
+        console.error('Erreur chargement actualités:', error);
+        container.innerHTML = '<div class="error">Impossible de charger les actualités.</div>';
+    }
+}
+
+// Appeler cette fonction sur la page infos.html
+if (document.getElementById('foot-news-container')) {
+    displayFootNews();
+}

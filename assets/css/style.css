@@ -937,3 +937,18 @@ footer {
         font-size: 0.75rem;
     }
 }
+
+.news-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+    .news-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+.news-card img {
+    max-height: 200px;
+    object-fit: cover;
+}
