@@ -4,7 +4,7 @@
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
 Ajoute la génération d'images pour illustrer chaque contenu.
-Sélectionne les matchs les plus populaires du jour pour les articles.
+Sélectionne les matchs les plus populaires du jour à partir de data.json.
 Gère les rate limits avec retry et backoff.
 Exécution quotidienne.
 """
@@ -29,7 +29,7 @@ client = Mistral(api_key=MISTRAL_API_KEY)
 MISTRAL_MODEL = "mistral-large-latest"
 API_URL = "https://api.mistral.ai/v1/chat/completions"
 
-CACHE_FILE = "cache/all_matches.json"
+DATA_FILE = "data.json"  # Fichier contenant les matchs du jour/demain/hier
 ARTICLES_FILE = "articles.json"
 CONSEILS_FILE = "conseils.json"
 
@@ -111,24 +111,27 @@ def get_fallback_image_url():
     """Retourne une image aléatoire de Lorem Picsum en cas d'échec."""
     return f"https://picsum.photos/seed/{random.randint(1,1000)}/800/400"
 
-def load_matches():
-    """Charge tous les matchs depuis le cache."""
-    if not os.path.exists(CACHE_FILE):
+def load_today_matches():
+    """Charge les matchs du jour depuis data.json."""
+    if not os.path.exists(DATA_FILE):
+        print(f"❌ Fichier {DATA_FILE} introuvable")
         return []
-    with open(CACHE_FILE, 'r', encoding='utf-8') as f:
-        return json.load(f)
+    with open(DATA_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    matches = data.get("matches", [])
+    if not matches:
+        return []
 
-def get_today_matches(matches):
-    """Retourne les matchs qui ont lieu aujourd'hui (dans le fuseau local)."""
     today = datetime.now().date()
     today_matches = []
     for m in matches:
         try:
-            # Extraire la date de l'événement (au format ISO)
+            # Convertir event_date en date locale (même logique que dans le JS)
             event_date = datetime.fromisoformat(m['event_date'].replace('Z', '+00:00')).date()
             if event_date == today:
                 today_matches.append(m)
-        except:
+        except (KeyError, ValueError) as e:
+            print(f"⚠️ Erreur parsing date pour match {m.get('id')}: {e}")
             continue
     return today_matches
 
@@ -137,15 +140,14 @@ def get_most_popular_matches(matches, count=2):
     Parmi les matchs du jour, sélectionne ceux appartenant aux ligues les plus populaires.
     Si pas assez, complète avec d'autres matchs du jour.
     """
-    today_matches = get_today_matches(matches)
-    if not today_matches:
+    if not matches:
         return []
 
     # Séparer par popularité de ligue
     popular = []
     other = []
-    for m in today_matches:
-        league_name = m['league']['name']
+    for m in matches:
+        league_name = m['league']
         if any(pop in league_name for pop in POPULAR_LEAGUES) or league_name in POPULAR_LEAGUES:
             popular.append(m)
         else:
@@ -184,11 +186,11 @@ def call_mistral(prompt, temperature=0.7, max_tokens=2000):
 
 def generate_blog_article(match):
     """
-    Génère un article de blog pour un match donné, en utilisant toutes les infos disponibles.
+    Génère un article de blog pour un match donné.
     """
     home_team = match['home_team']
     away_team = match['away_team']
-    league = match['league']['name']
+    league = match['league']
     date = match['event_date']
 
     prompt = f"""En tant que journaliste sportif expert pour Mr XPRONOS, rédige un article de blog complet et engageant en français sur le match suivant :
@@ -269,7 +271,7 @@ def save_article(content, match):
     slug = '-'.join(filter(None, slug.split('-')))
 
     # Générer une image
-    image_prompt = f"Image illustrant le match de football {match['home_team']} vs {match['away_team']} dans le championnat {match['league']['name']}, style sportif dynamique."
+    image_prompt = f"Image illustrant le match de football {match['home_team']} vs {match['away_team']} dans le championnat {match['league']}, style sportif dynamique."
     image_url = generate_image_with_retry(image_prompt, prefix="article")
     if not image_url:
         print(f"   ℹ️ Utilisation d'une image de fallback pour l'article {title[:30]}...")
@@ -283,7 +285,7 @@ def save_article(content, match):
         "excerpt": content[:200] + "...",
         "content": content,
         "match": f"{match['home_team']} vs {match['away_team']}",
-        "league": match['league']['name'],
+        "league": match['league'],
         "image_url": image_url
     }
     articles.insert(0, new)
@@ -336,19 +338,19 @@ def main():
     print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + Images)")
     print("="*60)
 
-    matches = load_matches()
-    if not matches:
-        print("❌ Aucun match dans le cache")
-        return
-
-    # Sélectionner les matchs les plus populaires du jour
-    featured = get_most_popular_matches(matches, count=2)
-    print(f"\n📝 Génération de {len(featured)} articles sur les matchs du jour...")
-    for i, m in enumerate(featured, 1):
-        print(f"   Article {i}: {m['home_team']} vs {m['away_team']} ({m['league']['name']})")
-        art = generate_blog_article(m)
-        if art:
-            save_article(art, m)
+    # Charger les matchs du jour depuis data.json
+    today_matches = load_today_matches()
+    if not today_matches:
+        print("📝 Aucun match aujourd'hui dans data.json")
+    else:
+        # Sélectionner les matchs les plus populaires du jour
+        featured = get_most_popular_matches(today_matches, count=2)
+        print(f"\n📝 Génération de {len(featured)} articles sur les matchs du jour...")
+        for i, m in enumerate(featured, 1):
+            print(f"   Article {i}: {m['home_team']} vs {m['away_team']} ({m['league']})")
+            art = generate_blog_article(m)
+            if art:
+                save_article(art, m)
 
     print(f"\n💡 Génération de 3 conseils...")
     for i in range(3):

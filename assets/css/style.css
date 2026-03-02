@@ -697,11 +697,134 @@ footer {
 }
 
 /* =======================================================
-   CASES À COCHER VERTES POUR LES PRONOSTICS VALIDÉS
+   FORCER LA COULEUR VERTE POUR LES CASES DE PRONOSTICS VALIDÉES
    ======================================================= */
 .prediction-checkbox:checked:disabled {
-    accent-color: #4CAF50;
-    opacity: 1;
+    accent-color: #4CAF50 !important;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+/* Pour les navigateurs anciens ou sans support accent-color */
+@supports not (accent-color: #4CAF50) {
+    .prediction-checkbox:checked:disabled {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+        color: white;
+    }
+}
+
+/* =======================================================
+   STYLES POUR LE CONTENU DES ARTICLES ET CONSEILS (Markdown)
+   ======================================================= */
+
+/* Conteneur du blog post et des conseils */
+#blog-post, #conseils-list .card {
+    line-height: 1.8;
+}
+
+/* Titres dans les articles */
+#blog-post h1,
+#conseils-list .card h1 {
+    color: var(--or);
+    font-size: 2rem;
+    margin: 1.5rem 0 1rem;
+    border-bottom: 1px solid var(--or);
+    padding-bottom: 0.5rem;
+}
+
+#blog-post h2,
+#conseils-list .card h2 {
+    color: var(--or-clair);
+    font-size: 1.6rem;
+    margin: 1.2rem 0 0.8rem;
+}
+
+#blog-post h3,
+#conseils-list .card h3 {
+    color: var(--blanc);
+    font-size: 1.3rem;
+    margin: 1rem 0 0.5rem;
+}
+
+/* Paragraphes */
+#blog-post p,
+#conseils-list .card p {
+    margin-bottom: 1rem;
+    text-align: justify;
+}
+
+/* Listes */
+#blog-post ul,
+#blog-post ol,
+#conseils-list .card ul,
+#conseils-list .card ol {
+    margin: 1rem 0 1rem 2rem;
+}
+
+#blog-post li,
+#conseils-list .card li {
+    margin-bottom: 0.3rem;
+}
+
+/* Citations */
+#blog-post blockquote,
+#conseils-list .card blockquote {
+    border-left: 4px solid var(--or);
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+    background: rgba(212, 175, 55, 0.1);
+    font-style: italic;
+    color: #ddd;
+}
+
+/* Code (si jamais) */
+#blog-post code,
+#conseils-list .card code {
+    background: #2A2A2A;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+/* Images dans les articles */
+#blog-post img,
+#conseils-list .card img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 1rem 0;
+    box-shadow: var(--shadow);
+}
+
+/* Tableaux (si jamais) */
+#blog-post table,
+#conseils-list .card table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+#blog-post th,
+#blog-post td,
+#conseils-list .card th,
+#conseils-list .card td {
+    border: 1px solid #333;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+#blog-post th,
+#conseils-list .card th {
+    background: var(--or);
+    color: var(--noir);
+}
+
+/* Lignes horizontales */
+#blog-post hr,
+#conseils-list .card hr {
+    border: none;
+    border-top: 1px solid var(--or);
+    margin: 2rem 0;
 }
 
 /* =======================================================
@@ -741,5 +864,16 @@ footer {
     }
     .team-score {
         font-size: 1.5rem;
+    }
+
+    /* Ajustements pour les articles sur mobile */
+    #blog-post h1 {
+        font-size: 1.8rem;
+    }
+    #blog-post h2 {
+        font-size: 1.4rem;
+    }
+    #blog-post h3 {
+        font-size: 1.2rem;
     }
 }
