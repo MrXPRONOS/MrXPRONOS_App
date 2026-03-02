@@ -3,7 +3,7 @@
 
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
-Ajoute la génération d'images pour illustrer chaque contenu.
+Ajoute la génération d'images pour illustrer chaque contenu, avec gestion des rate limits.
 Exécution quotidienne.
 """
 
@@ -11,6 +11,7 @@ import os
 import json
 import requests
 import uuid
+import time
 from datetime import datetime
 import random
 from mistralai import Mistral
@@ -30,49 +31,72 @@ CACHE_FILE = "cache/all_matches.json"
 ARTICLES_FILE = "articles.json"
 CONSEILS_FILE = "conseils.json"
 
-def generate_image(prompt, prefix="article"):
+# Délai entre les appels pour éviter les rate limits
+IMAGE_GEN_DELAY = 2  # secondes
+
+def generate_image(prompt, prefix="article", max_retries=3):
     """
     Génère une image via l'API Mistral en créant un agent avec l'outil image_generation.
     Retourne le chemin local de l'image sauvegardée, ou None en cas d'échec.
+    Gère les rate limits (429) avec retry exponentiel.
     """
-    try:
-        # Créer un agent temporaire pour la génération d'image
-        agent = client.beta.agents.create(
-            model="mistral-medium-2505",
-            name="Image Generation Agent",
-            description="Agent used to generate images.",
-            instructions="Use the image generation tool when you have to create images.",
-            tools=[{"type": "image_generation"}],
-            completion_args={
-                "temperature": 0.3,
-                "top_p": 0.95,
-            }
-        )
+    for attempt in range(max_retries):
+        try:
+            # Créer un agent temporaire pour la génération d'image
+            agent = client.beta.agents.create(
+                model="mistral-medium-2505",
+                name="Image Generation Agent",
+                description="Agent used to generate images.",
+                instructions="Use the image generation tool when you have to create images.",
+                tools=[{"type": "image_generation"}],
+                completion_args={
+                    "temperature": 0.3,
+                    "top_p": 0.95,
+                }
+            )
 
-        # Démarrer une conversation avec le prompt
-        response = client.beta.conversations.start(
-            agent_id=agent.id,
-            inputs=prompt
-        )
+            # Démarrer une conversation avec le prompt
+            response = client.beta.conversations.start(
+                agent_id=agent.id,
+                inputs=prompt
+            )
 
-        # Parcourir les outputs pour trouver le fichier image
-        for output in response.outputs:
-            if output.type == "message.output":
-                for chunk in output.content:
-                    if isinstance(chunk, ToolFileChunk):
-                        file_id = chunk.file_id
-                        # Télécharger le fichier
-                        file_bytes = client.files.download(file_id=file_id).read()
-                        # Sauvegarder avec un nom unique
-                        filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.png"
-                        os.makedirs("assets/images", exist_ok=True)
-                        with open(filename, "wb") as f:
-                            f.write(file_bytes)
-                        return filename
-        return None
-    except Exception as e:
-        print(f"❌ Erreur génération image: {e}")
-        return None
+            # Parcourir les outputs pour trouver le fichier image
+            file_id = None
+            for output in response.outputs:
+                if output.type == "message.output":
+                    for chunk in output.content:
+                        if isinstance(chunk, ToolFileChunk):
+                            file_id = chunk.file_id
+                            break
+                if file_id:
+                    break
+
+            if not file_id:
+                print(f"   ⚠️ Aucun fichier image généré pour le prompt: {prompt[:50]}...")
+                return None
+
+            # Télécharger le fichier
+            file_bytes = client.files.download(file_id=file_id).read()
+            # Sauvegarder avec un nom unique
+            filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.png"
+            os.makedirs("assets/images", exist_ok=True)
+            with open(filename, "wb") as f:
+                f.write(file_bytes)
+            return filename
+
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "rate limit" in error_str.lower():
+                wait_time = (attempt + 1) * 5  # 5, 10, 15 secondes
+                print(f"   ⚠️ Rate limit atteint, nouvel essai dans {wait_time}s...")
+                time.sleep(wait_time)
+            else:
+                print(f"   ❌ Erreur génération image: {e}")
+                return None
+
+    print(f"   ❌ Échec après {max_retries} tentatives")
+    return None
 
 def get_fallback_image_url():
     """Retourne une image aléatoire de Lorem Picsum en cas d'échec."""
@@ -198,6 +222,10 @@ def save_article(content, match):
     image_url = generate_image(image_prompt, prefix="article")
     if not image_url:
         image_url = get_fallback_image_url()
+        print(f"   ℹ️ Utilisation d'une image de fallback pour l'article {title[:30]}...")
+
+    # Pause pour éviter les rate limits
+    time.sleep(IMAGE_GEN_DELAY)
 
     new = {
         "slug": slug[:100],
@@ -214,7 +242,7 @@ def save_article(content, match):
     articles = articles[:50]
     with open(ARTICLES_FILE, 'w', encoding='utf-8') as f:
         json.dump(articles, f, indent=2, ensure_ascii=False)
-    print(f"✅ Article sauvegardé : {title} (image: {image_url})")
+    print(f"✅ Article sauvegardé : {title[:50]}... (image: {image_url})")
 
 def save_tip(content):
     conseils = []
@@ -240,6 +268,10 @@ def save_tip(content):
     image_url = generate_image(image_prompt, prefix="conseil")
     if not image_url:
         image_url = get_fallback_image_url()
+        print(f"   ℹ️ Utilisation d'une image de fallback pour le conseil {title[:30]}...")
+
+    # Pause pour éviter les rate limits
+    time.sleep(IMAGE_GEN_DELAY)
 
     new = {
         "title": title,
@@ -251,7 +283,7 @@ def save_tip(content):
     conseils = conseils[:100]
     with open(CONSEILS_FILE, 'w', encoding='utf-8') as f:
         json.dump(conseils, f, indent=2, ensure_ascii=False)
-    print(f"✅ Conseil sauvegardé : {title} (image: {image_url})")
+    print(f"✅ Conseil sauvegardé : {title[:50]}... (image: {image_url})")
 
 def main():
     print("="*60)
