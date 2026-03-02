@@ -5,7 +5,6 @@
 generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
 les prédictions ML et les analyses H2H améliorées.
 Conserve les 14 derniers jours pour l'historique.
-Récupère les scores depuis les prédictions passées.
 """
 
 import requests
@@ -285,7 +284,6 @@ def main():
     # Récupérer les prédictions passées pour obtenir les scores
     print("\n📈 Récupération des prédictions passées (pour les scores)...")
     past_predictions = fetch_predictions(upcoming=False)
-    # Créer un dictionnaire des scores par event_id
     past_scores = {}
     for p in past_predictions:
         event = p.get('event')
@@ -296,7 +294,6 @@ def main():
             if home_score is not None and away_score is not None:
                 past_scores[event_id] = {'home_score': home_score, 'away_score': away_score}
 
-    # Récupérer les prédictions à venir (pour la comparaison)
     upcoming_predictions = fetch_predictions(upcoming=True)
     all_predictions = upcoming_predictions + past_predictions
     pred_dict = {p['event']['id']: p for p in all_predictions}
@@ -358,19 +355,16 @@ def main():
                 api_double_chance = "12"
                 api_prob = ml_pred.get('prob_draw', 0)
 
-        # Vérifier l'accord
         agreement = (prediction_h2h["double_chance"] == api_double_chance) if api_double_chance else False
 
         if not agreement:
             print(f"   ❌ Pas d'accord H2H/API, match ignoré")
             continue
 
-        # Calcul du score de confiance
         score = calculate_confidence_score(analysis, ml_pred, agreement)
         badge = get_badge(score)
         category = get_category(score)
 
-        # Construction de l'objet match
         home_logo = f"https://sports.bzzoiro.com/img/team/{home_obj['api_id']}/?token={API_TOKEN}"
         away_logo = f"https://sports.bzzoiro.com/img/team/{away_obj['api_id']}/?token={API_TOKEN}"
         league_logo = f"https://sports.bzzoiro.com/img/league/{league['api_id']}/?token={API_TOKEN}"
@@ -406,13 +400,12 @@ def main():
         # =======================================================
         try:
             # Si le match est terminé mais que les scores sont absents, on cherche dans past_scores
-            if (match_data["status"] == "finished" or event_date < today.isoformat()) and (match_data["home_score"] is None or match_data["away_score"] is None):
+            if match_data["status"] == "finished" and (match_data["home_score"] is None or match_data["away_score"] is None):
                 if match_id in past_scores:
                     match_data["home_score"] = past_scores[match_id]["home_score"]
                     match_data["away_score"] = past_scores[match_id]["away_score"]
                     print(f"   📥 Scores récupérés depuis les prédictions passées pour {match_id}")
                 else:
-                    # Si pas dans past_scores, on utilise l'ancien fichier
                     old_match = old_matches_by_id.get(match_id)
                     if old_match:
                         match_data["home_score"] = old_match.get("home_score")
@@ -444,7 +437,6 @@ def main():
         print(f"   ✅ Score: {score} - {badge} - Catégorie: {category}")
 
     # Fusion avec anciens matchs (pour conserver l'historique des 14 derniers jours)
-    # On garde tous les anciens matchs dont la date est >= fourteen_days_ago
     for old_id, old_match in old_matches_by_id.items():
         try:
             old_date_str = old_match.get('event_date')
@@ -453,7 +445,6 @@ def main():
             old_date = datetime.fromisoformat(old_date_str.replace('Z', '+00:00')).date()
             if old_date >= fourteen_days_ago:
                 if old_id not in {m['id'] for m in new_matches}:
-                    # Mise à jour du statut si nécessaire
                     if old_date < today and old_match['status'] != 'finished':
                         old_match['status'] = 'finished'
                         if old_match.get('home_score') is not None and old_match.get('away_score') is not None:
@@ -463,7 +454,6 @@ def main():
         except:
             pass
 
-    # Trier les matchs par date (les plus récents en premier)
     new_matches.sort(key=lambda x: x['event_date'], reverse=True)
 
     stats = update_bankroll(new_matches)

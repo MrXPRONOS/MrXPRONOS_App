@@ -1,6 +1,6 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec onglets Pro/VIP toujours visibles et icônes PNG.
+ * Version avec historique par jour et fallback scores.
  */
 
 // =======================================================
@@ -26,7 +26,6 @@ const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 let shareCount = parseInt(localStorage.getItem('shareCount') || '0');
 const shareLimits = { pro: 5, vip: 10 };
 
-// Liste des ligues les plus populaires (ordre de priorité)
 const POPULAR_LEAGUES = [
     "Premier League",
     "LaLiga",
@@ -53,6 +52,8 @@ const POPULAR_LEAGUES = [
 document.addEventListener('DOMContentLoaded', () => {
     if (matchesContainer) {
         initPronostics();
+    } else if (document.getElementById('history-container')) {
+        displayHistory();
     } else {
         loadDataGeneric().then(data => {
             if (data) {
@@ -126,7 +127,6 @@ function hideEmptyTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         const cat = btn.dataset.cat;
         if (cat === 'pro' || cat === 'vip') {
-            // Toujours afficher les onglets Pro et VIP, même sans matchs
             btn.style.display = 'inline-block';
         } else {
             btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
@@ -204,14 +204,12 @@ function setupEventListeners() {
         });
     });
 
-    // Boutons de partage standard
     document.getElementById('share-wa')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg')?.addEventListener('click', () => share('telegram'));
     document.getElementById('close-popup')?.addEventListener('click', () => {
         sharePopup.classList.remove('active');
     });
 
-    // Boutons de l'overlay VIP
     document.getElementById('share-wa-locked')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg-locked')?.addEventListener('click', () => share('telegram'));
 }
@@ -264,21 +262,19 @@ function showSharePopup(category, remaining) {
 }
 
 function share(platform) {
-    // Messages personnalisés selon la plateforme
     let message = '';
     let url = '';
 
     if (platform === 'whatsapp') {
         message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\nhttps://votre-site.com\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
         url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    } else { // Telegram
+    } else {
         message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\nhttps://votre-site.com\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
         url = `https://t.me/share/url?url=${encodeURIComponent('https://votre-site.com')}&text=${encodeURIComponent(message)}`;
     }
 
     window.open(url, '_blank');
 
-    // Incrémenter le compteur
     shareCount++;
     localStorage.setItem('shareCount', shareCount);
     updateShareCounter();
@@ -348,8 +344,6 @@ function filterAndDisplay() {
     }
 
     const targetDate = getLocalDateString(currentDay);
-
-    // Plus de cas "analyses", on garde uniquement le filtrage par catégorie
     const targetCat = (currentCategory === 'vip' && currentSubcat === 'pronostics') ? 'vip' : currentCategory;
     const filtered = allData.matches.filter(m => {
         const eventLocalDate = getLocalDateFromEvent(m.event_date);
@@ -373,7 +367,6 @@ function renderMatches(matches) {
         return;
     }
 
-    // Regrouper par ligue
     const grouped = {};
     matches.forEach(m => {
         const league = m.league || 'Autres ligues';
@@ -411,7 +404,6 @@ function renderMatches(matches) {
             const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
 
-            // Badge XPRONOS
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
 
             html += `
@@ -456,7 +448,6 @@ function renderMatches(matches) {
     });
     matchesContainer.innerHTML = html;
 
-    // Animer les barres de confiance
     document.querySelectorAll('.confidence-fill').forEach(bar => {
         let value = bar.getAttribute('data-value');
         setTimeout(() => {
@@ -464,7 +455,6 @@ function renderMatches(matches) {
         }, 300);
     });
 
-    // Ajouter les étincelles pour les matchs gagnants
     document.querySelectorAll('.match-card.winner').forEach(card => {
         for (let i = 0; i < 20; i++) {
             let spark = document.createElement('div');
@@ -677,7 +667,7 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// PAGE HISTORIQUE (avec regroupement par jour)
+// PAGE HISTORIQUE (regroupé par jour)
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -689,7 +679,6 @@ async function displayHistory() {
         return;
     }
 
-    // Filtrer les matchs des 14 derniers jours
     const today = new Date();
     const fourteenDaysAgo = new Date(today);
     fourteenDaysAgo.setDate(today.getDate() - 14);
@@ -704,30 +693,24 @@ async function displayHistory() {
         return;
     }
 
-    // Trier par date décroissante
     historyMatches.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
 
-    // Regrouper par jour (date sans heure)
-    const grouped = {};
+    const groupedByDay = {};
     historyMatches.forEach(m => {
-        const dateStr = m.date; // déjà au format YYYY-MM-DD
-        if (!grouped[dateStr]) grouped[dateStr] = [];
-        grouped[dateStr].push(m);
+        const dateStr = getLocalDateFromEvent(m.event_date);
+        if (!groupedByDay[dateStr]) groupedByDay[dateStr] = [];
+        groupedByDay[dateStr].push(m);
     });
 
     let html = '';
-    // Parcourir les jours dans l'ordre décroissant
-    const sortedDates = Object.keys(grouped).sort().reverse();
+    const sortedDays = Object.keys(groupedByDay).sort((a, b) => new Date(b) - new Date(a));
 
-    sortedDates.forEach(date => {
-        // Formatage de la date en français
-        const dateObj = new Date(date + 'T00:00:00');
-        const dateFormatted = dateObj.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    sortedDays.forEach(day => {
+        const dayDate = new Date(day + 'T12:00:00');
+        const formattedDate = dayDate.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        html += `<h2 class="day-header" style="color: var(--or); margin-top: 2rem;">${formattedDate}</h2>`;
 
-        html += `<h2 class="history-date-header" style="color: var(--or); margin-top: 2rem; text-transform: capitalize;">${dateFormatted}</h2>`;
-        html += `<div class="matches-grid">`; // on utilise la même grille que les pronostics
-
-        grouped[date].forEach(m => {
+        groupedByDay[day].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
             let confidence = pred.confidence || 0;
@@ -739,6 +722,7 @@ async function displayHistory() {
             const matchTime = formatMatchTime(m.event_date);
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
+
             const verifiedDouble = m.verified_double ? 'checked' : '';
             const defaultLogo = 'assets/images/default-logo.png';
             const winnerClass = m.verified_double ? 'winner' : '';
@@ -765,7 +749,7 @@ async function displayHistory() {
                             <span class="match-time"><i>🕒</i> ${matchTime}</span>
                         </div>
                     </div>
-                    <div class="analysis-panel ticket ${winnerClass}">
+                    <div class="analysis-panel">
                         <h4>Pronostic</h4>
                         <p><strong>Double chance :</strong> ${doubleChance}</p>
                         <p><strong>Fiabilité :</strong> ${confidence}%</p>
@@ -774,28 +758,12 @@ async function displayHistory() {
                 </div>
             `;
         });
-        html += `</div>`; // fin de la grille
     });
-
     container.innerHTML = html;
-
-    // Animer les barres de confiance (si présentes, mais ici on n'a pas de barre)
-    // On peut garder pour compatibilité
-    document.querySelectorAll('.confidence-fill').forEach(bar => {
-        let value = bar.getAttribute('data-value');
-        setTimeout(() => {
-            bar.style.width = value + '%';
-        }, 300);
-    });
-}
-
-// Appeler cette fonction sur la page historique
-if (document.getElementById('history-container')) {
-    displayHistory();
 }
 
 // =======================================================
-// NOUVELLES FONCTIONS (taux de réussite, scroll)
+// TAUX DE RÉUSSITE ET SCROLL PROGRESS
 // =======================================================
 function updateSuccessRate() {
     const container = document.getElementById('success-rate-container');
