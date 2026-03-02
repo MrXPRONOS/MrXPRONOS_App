@@ -667,7 +667,7 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// PAGE HISTORIQUE (regroupé par jour)
+// PAGE HISTORIQUE (regroupé par jour) – MODIFIÉ
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -679,13 +679,17 @@ async function displayHistory() {
         return;
     }
 
+    // Aujourd'hui à minuit
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const fourteenDaysAgo = new Date(today);
     fourteenDaysAgo.setDate(today.getDate() - 14);
 
+    // Filtrer les matchs des 14 derniers jours EXCLUSIVEMENT passés (date < today)
     const historyMatches = allData.matches.filter(m => {
         const matchDate = new Date(m.event_date);
-        return matchDate >= fourteenDaysAgo;
+        matchDate.setHours(0, 0, 0, 0); // normaliser
+        return matchDate >= fourteenDaysAgo && matchDate < today;
     });
 
     if (historyMatches.length === 0) {

@@ -1,0 +1,26 @@
+[
+  {
+    "date": "2025-08-15",
+    "home_team": "Arsenal",
+    "away_team": "Chelsea",
+    "home_score": 2,
+    "away_score": 1,
+    "league": "Premier League"
+  },
+  {
+    "date": "2025-08-16",
+    "home_team": "Real Madrid",
+    "away_team": "Barcelona",
+    "home_score": 3,
+    "away_score": 2,
+    "league": "La Liga"
+  },
+  {
+    "date": "2025-08-17",
+    "home_team": "Bayern Munich",
+    "away_team": "Borussia Dortmund",
+    "home_score": 4,
+    "away_score": 0,
+    "league": "Bundesliga"
+  }
+]

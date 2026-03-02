@@ -4,7 +4,7 @@
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
 Ajoute la génération d'images avec fallback : Mistral -> Pixazo -> Lorem Picsum.
-Style d'image : manga 3D / anime.
+Style d'image : dessin 2D attractif (illustration colorée).
 """
 
 import os
@@ -282,8 +282,8 @@ def save_article(content, match):
     slug = ''.join(c if c.isalnum() else '-' for c in slug)
     slug = '-'.join(filter(None, slug.split('-')))
 
-    # Prompt pour image manga 3D
-    image_prompt = f"3D manga style, anime style, high-quality digital art of a football match: {match['home_team']} vs {match['away_team']} in the {match['league']} championship. Dynamic action, vibrant colors, cel-shaded, characters in anime style, spectacular stadium atmosphere."
+    # Prompt pour image 2D attractive
+    image_prompt = f"High-quality 2D illustration, vibrant colors, attractive style, football match scene: {match['home_team']} vs {match['away_team']} in the {match['league']} championship. Dynamic action, players in motion, stylized design, clean lines, appealing to fans."
     image_url = generate_image_with_fallback(image_prompt, prefix="article", subject="football")
 
     new = {
@@ -321,8 +321,8 @@ def save_tip(content):
     lines = content.strip().split('\n')
     title = lines[0].replace('#', '').strip() if lines else "Conseil"
 
-    # Prompt pour image manga 3D
-    image_prompt = f"3D manga style, anime style, high-quality digital art illustrating a sports betting tip: {title}. Manga character giving advice, with sports elements like a football and odds in the background, vibrant colors, cel-shaded."
+    # Prompt pour image 2D attractive
+    image_prompt = f"High-quality 2D illustration, vibrant colors, attractive style, illustrating a sports betting tip: {title}. A stylized character giving advice, with sports elements like a football and odds in the background, clean lines, appealing design."
     image_url = generate_image_with_fallback(image_prompt, prefix="conseil", subject="betting")
 
     new = {
@@ -339,7 +339,7 @@ def save_tip(content):
 
 def main():
     print("="*60)
-    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + images manga 3D)")
+    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + images 2D attractives)")
     print("="*60)
 
     today_matches = load_today_matches()
@@ -364,4 +364,4 @@ def main():
     print("\n✅ Génération terminée")
 
 if __name__ == "__main__":
-    main() 
+    main()

@@ -4,7 +4,7 @@
 """
 generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
 les prédictions ML et les analyses H2H améliorées.
-Conserve les 14 derniers jours pour l'historique.
+Utilise un cache local (historical_scores.json) et FBref comme fallback pour les scores manquants.
 """
 
 import requests
@@ -12,8 +12,13 @@ import json
 from datetime import datetime, timedelta
 import os
 import time
+import sys
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+
+# Import des modules de fallback
+sys.path.append(os.path.dirname(__file__))
+import fbref_fallback
 
 # =======================================================
 # CONFIGURATION
@@ -36,6 +41,7 @@ fourteen_days_ago = today - timedelta(days=14)
 
 CACHE_DIR = "cache"
 GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
+HISTORICAL_FILE = "historical_scores.json"
 DATA_FILE = "data.json"
 
 print("="*60)
@@ -269,6 +275,38 @@ def update_bankroll(matches):
     return {"total_bets": total_bets, "wins": wins, "roi": round(roi, 2)}
 
 # =======================================================
+# FONCTIONS DE FALLBACK
+# =======================================================
+
+def load_historical_scores():
+    """Charge le fichier de scores historiques locaux."""
+    if os.path.exists(HISTORICAL_FILE):
+        with open(HISTORICAL_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return []
+
+def search_historical_scores(historical, date, home_team, away_team):
+    """Cherche un score dans le cache historique par date et noms d'équipes."""
+    for h in historical:
+        if h["date"] == date:
+            # Comparaison approximative des noms
+            if (home_team.lower() in h["home_team"].lower() or h["home_team"].lower() in home_team.lower()) and \
+               (away_team.lower() in h["away_team"].lower() or h["away_team"].lower() in away_team.lower()):
+                return h["home_score"], h["away_score"]
+    return None, None
+
+def fallback_fbref(date, home_team, away_team):
+    """Utilise le scraper FBref pour obtenir le score."""
+    print(f"   📡 Tentative FBref pour {home_team} vs {away_team} le {date}")
+    try:
+        result = fbref_fallback.get_match_score(date, home_team, away_team)
+        if result:
+            return result
+    except Exception as e:
+        print(f"   ❌ Erreur FBref: {e}")
+    return None, None
+
+# =======================================================
 # FONCTION PRINCIPALE
 # =======================================================
 
@@ -313,6 +351,10 @@ def main():
         with open(GLOBAL_CACHE_FILE, 'r', encoding='utf-8') as f:
             global_cache = json.load(f)
         print(f"📂 Cache global chargé : {len(global_cache)} matchs")
+
+    # Charger historique local
+    historical_scores = load_historical_scores()
+    print(f"📂 Historique local chargé : {len(historical_scores)} matchs")
 
     new_matches = []
     categories = {"simple": [], "pro": [], "vip": []}
@@ -396,21 +438,30 @@ def main():
         }
 
         # =======================================================
-        # CORRECTION DES SCORES MANQUANTS
+        # CORRECTION DES SCORES MANQUANTS (fallback)
         # =======================================================
         try:
-            # Si le match est terminé mais que les scores sont absents, on cherche dans past_scores
+            # Si le match est terminé mais que les scores sont absents, on cherche
             if match_data["status"] == "finished" and (match_data["home_score"] is None or match_data["away_score"] is None):
+                # 1. Prédictions passées de l'API
                 if match_id in past_scores:
                     match_data["home_score"] = past_scores[match_id]["home_score"]
                     match_data["away_score"] = past_scores[match_id]["away_score"]
                     print(f"   📥 Scores récupérés depuis les prédictions passées pour {match_id}")
                 else:
-                    old_match = old_matches_by_id.get(match_id)
-                    if old_match:
-                        match_data["home_score"] = old_match.get("home_score")
-                        match_data["away_score"] = old_match.get("away_score")
-                        print(f"   📥 Scores récupérés depuis l'ancien fichier pour {match_id}")
+                    # 2. Cache historique local
+                    hs, aw = search_historical_scores(historical_scores, event_date, home_obj["name"], away_obj["name"])
+                    if hs is not None:
+                        match_data["home_score"] = hs
+                        match_data["away_score"] = aw
+                        print(f"   📥 Scores récupérés depuis l'historique local pour {match_id}")
+                    else:
+                        # 3. Fallback FBref
+                        hs, aw = fallback_fbref(event_date, home_obj["name"], away_obj["name"])
+                        if hs is not None:
+                            match_data["home_score"] = hs
+                            match_data["away_score"] = aw
+                            print(f"   📥 Scores récupérés depuis FBref pour {match_id}")
         except Exception as e:
             print(f"   ⚠️ Erreur récupération scores match {match_id}: {e}")
 
