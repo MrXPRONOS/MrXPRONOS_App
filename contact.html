@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - Mr XPRONOS</title>
     <meta name="description" content="Contactez Mr XPRONOS via téléphone, WhatsApp, Telegram, Instagram, YouTube ou Facebook.">
+    <meta name="robots" content="index, follow">
+    <link rel="icon" href="assets/images/favicon.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
@@ -16,8 +18,8 @@
             <div class="logo">
                 <a href="index.html">Mr <span>XPRONOS</span></a>
             </div>
-            <button id="menu-toggle" aria-label="Ouvrir le menu">☰</button>
-            <nav id="main-nav">
+            <button id="menu-toggle" aria-label="Ouvrir menu">☰</button>
+            <nav>
                 <ul>
                     <li><a href="index.html">Accueil</a></li>
                     <li><a href="pronos.html">Pronostics</a></li>
@@ -32,34 +34,46 @@
     </header>
 
     <main class="container">
-        <h1 style="margin: 2rem 0;">📞 Nous contacter</h1>
+        <h1 style="color: var(--or); margin: 2rem 0;">📞 Nous contacter</h1>
+        
         <div class="contact-grid">
-            <div class="contact-card glass">
+            <!-- Téléphone -->
+            <div class="contact-card">
                 <div class="contact-icon">📱</div>
                 <h3>Téléphone</h3>
                 <p><a href="tel:+33612345678">+33 6 12 34 56 78</a></p>
             </div>
-            <div class="contact-card glass">
+            
+            <!-- WhatsApp -->
+            <div class="contact-card">
                 <div class="contact-icon">💬</div>
                 <h3>WhatsApp</h3>
                 <p><a href="https://wa.me/33612345678" target="_blank">+33 6 12 34 56 78</a></p>
             </div>
-            <div class="contact-card glass">
+            
+            <!-- Telegram -->
+            <div class="contact-card">
                 <div class="contact-icon">✈️</div>
                 <h3>Telegram</h3>
                 <p><a href="https://t.me/mrxpronos" target="_blank">@mrxpronos</a></p>
             </div>
-            <div class="contact-card glass">
+            
+            <!-- Instagram -->
+            <div class="contact-card">
                 <div class="contact-icon">📷</div>
                 <h3>Instagram</h3>
                 <p><a href="https://instagram.com/mrxpronos" target="_blank">@mrxpronos</a></p>
             </div>
-            <div class="contact-card glass">
+            
+            <!-- YouTube -->
+            <div class="contact-card">
                 <div class="contact-icon">▶️</div>
                 <h3>YouTube</h3>
                 <p><a href="https://youtube.com/@mrxpronos" target="_blank">Mr XPRONOS</a></p>
             </div>
-            <div class="contact-card glass">
+            
+            <!-- Facebook -->
+            <div class="contact-card">
                 <div class="contact-icon">📘</div>
                 <h3>Facebook</h3>
                 <p><a href="https://facebook.com/mrxpronos" target="_blank">Mr XPRONOS</a></p>
@@ -77,8 +91,14 @@
                 <a href="infos.html">Infos sport</a>
                 <a href="contact.html">Contact</a>
             </div>
+            <div class="social-links">
+                <a href="#" aria-label="WhatsApp">💬</a>
+                <a href="#" aria-label="Telegram">✈️</a>
+                <a href="#" aria-label="Instagram">📷</a>
+                <a href="#" aria-label="Facebook">📘</a>
+            </div>
             <div class="bookmakers" id="bookmakers-footer"></div>
-            <p>&copy; 2025 Mr XPRONOS. Tous droits réservés.</p>
+            <p>&copy; 2025 Mr XPRONOS. Tous droits réservés. <span style="font-size:0.7rem; opacity:0.7;">18+ • Divertissement seulement</span></p>
         </div>
     </footer>
 

@@ -23,7 +23,7 @@ jobs:
       - name: Installation des dépendances
         run: |
           python -m pip install --upgrade pip
-          pip install requests numpy joblib xgboost scikit-learn
+          pip install requests mistralai
 
       - name: Mise à jour des pronostics (statuts)
         env:

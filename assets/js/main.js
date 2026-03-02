@@ -1,6 +1,6 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec burger menu, partage amélioré, overlay VIP, animations.
+ * Version avec Over 1.5, badge XPRONOS, partage amélioré, overlay VIP, animations.
  */
 
 // =======================================================
@@ -26,7 +26,7 @@ const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 let shareCount = parseInt(localStorage.getItem('shareCount') || '0');
 const shareLimits = { pro: 5, vip: 10 };
 
-// Liste des ligues les plus populaires
+// Liste des ligues les plus populaires (ordre de priorité)
 const POPULAR_LEAGUES = [
     "Premier League",
     "LaLiga",
@@ -67,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
     displayInfos();
     displayFootNews();
     initScrollProgress();
-    initBurgerMenu(); // Nouveau burger menu
 });
 
 // =======================================================
@@ -210,12 +209,14 @@ function setupEventListeners() {
         });
     });
 
+    // Boutons de partage standard
     document.getElementById('share-wa')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg')?.addEventListener('click', () => share('telegram'));
     document.getElementById('close-popup')?.addEventListener('click', () => {
         sharePopup.classList.remove('active');
     });
 
+    // Boutons de l'overlay VIP
     document.getElementById('share-wa-locked')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg-locked')?.addEventListener('click', () => share('telegram'));
 }
@@ -268,19 +269,21 @@ function showSharePopup(category, remaining) {
 }
 
 function share(platform) {
+    // Messages personnalisés selon la plateforme
     let message = '';
     let url = '';
 
     if (platform === 'whatsapp') {
         message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\nhttps://votre-site.com\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
         url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    } else {
+    } else { // Telegram
         message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\nhttps://votre-site.com\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
         url = `https://t.me/share/url?url=${encodeURIComponent('https://votre-site.com')}&text=${encodeURIComponent(message)}`;
     }
 
     window.open(url, '_blank');
 
+    // Incrémenter le compteur
     shareCount++;
     localStorage.setItem('shareCount', shareCount);
     updateShareCounter();
@@ -382,6 +385,7 @@ function renderMatches(matches) {
         return;
     }
 
+    // Regrouper par ligue
     const grouped = {};
     matches.forEach(m => {
         const league = m.league || 'Autres ligues';
@@ -398,7 +402,7 @@ function renderMatches(matches) {
     });
 
     sortedLeagues.forEach(league => {
-        html += `<h2 class="league-header" style="margin-top: 2rem;">${league}</h2>`;
+        html += `<h2 class="league-header" style="color: var(--or); margin-top: 2rem;">${league}</h2>`;
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
@@ -421,10 +425,11 @@ function renderMatches(matches) {
             const isWinner = m.verified_double && m.verified_over15;
             const winnerClass = isWinner ? 'winner' : '';
 
+            // Badge XPRONOS
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
 
             html += `
-                <div class="match-card ${winnerClass} glass" data-match-id="${m.id}">
+                <div class="match-card ${winnerClass}" data-match-id="${m.id}">
                     <div class="win-effect"></div>
                     <div class="match-info">
                         <div class="teams">
@@ -469,6 +474,7 @@ function renderMatches(matches) {
     });
     matchesContainer.innerHTML = html;
 
+    // Animer les barres de confiance
     document.querySelectorAll('.confidence-fill').forEach(bar => {
         let value = bar.getAttribute('data-value');
         setTimeout(() => {
@@ -476,6 +482,7 @@ function renderMatches(matches) {
         }, 300);
     });
 
+    // Ajouter les étincelles pour les matchs gagnants
     document.querySelectorAll('.match-card.winner').forEach(card => {
         for (let i = 0; i < 20; i++) {
             let spark = document.createElement('div');
@@ -532,7 +539,7 @@ function renderBookmakers(bookmakers) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
             const div = document.createElement('div');
-            div.className = 'bookmaker-card glass';
+            div.className = 'bookmaker-card';
             div.innerHTML = `
                 <img src="${b.logo}" alt="${b.name}">
                 <h3>${b.name}</h3>
@@ -588,7 +595,7 @@ async function displayBlogList() {
         let excerpt = article.excerpt || article.content.substring(0, 200) + '...';
         let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 150) + '...';
         const card = document.createElement('div');
-        card.className = 'card glass';
+        card.className = 'card';
         card.innerHTML = `
             <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${cleanTitle}</a></h3>
             <div class="meta">${article.date} par ${article.author} ${article.match ? '• ' + article.match : ''}</div>
@@ -634,7 +641,7 @@ async function displayConseils() {
         let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
         let htmlContent = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
         const card = document.createElement('div');
-        card.className = 'card glass';
+        card.className = 'card';
         card.innerHTML = `
             <h3>${cleanTitle}</h3>
             ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:10px 0;">` : ''}
@@ -651,7 +658,7 @@ async function displayInfos() {
     if (!data || !data.infos) return;
     data.infos.forEach(i => {
         const card = document.createElement('div');
-        card.className = 'card glass';
+        card.className = 'card';
         card.innerHTML = `<h3>${i.title}</h3><p>${i.content}</p>`;
         container.appendChild(card);
     });
@@ -671,7 +678,7 @@ async function displayFootNews() {
         let html = '';
         news.forEach(item => {
             html += `
-                <div class="news-card card glass">
+                <div class="news-card card">
                     ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" style="width:100%; border-radius:8px; margin-bottom:10px;">` : ''}
                     <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: var(--or);">${item.title}</a></h3>
                     <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
@@ -688,7 +695,7 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// NOUVELLES FONCTIONS (taux de réussite, scroll, burger)
+// NOUVELLES FONCTIONS (taux de réussite, scroll)
 // =======================================================
 function updateSuccessRate() {
     const container = document.getElementById('success-rate-container');
@@ -725,73 +732,5 @@ function initScrollProgress() {
         const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
         const scrolled = (winScroll / height) * 100;
         progressBar.style.width = scrolled + '%';
-    });
-}
-
-function initBurgerMenu() {
-    const menuToggle = document.getElementById('menu-toggle');
-    const mainNav = document.getElementById('main-nav');
-    if (!menuToggle || !mainNav) return;
-
-    const navUl = mainNav.querySelector('ul');
-    let isMenuOpen = false;
-
-    menuToggle.addEventListener('click', () => {
-        isMenuOpen = !isMenuOpen;
-        if (isMenuOpen) {
-            menuToggle.textContent = '✕';
-            menuToggle.style.transform = 'rotate(90deg)';
-            if (navUl) {
-                navUl.style.display = 'flex';
-                navUl.style.flexDirection = 'column';
-                navUl.style.position = 'absolute';
-                navUl.style.top = '100%';
-                navUl.style.left = '0';
-                navUl.style.width = '100%';
-                navUl.style.background = 'var(--noir-secondaire)';
-                navUl.style.padding = '1rem';
-                navUl.style.gap = '1rem';
-                navUl.style.borderTop = '2px solid var(--or)';
-                navUl.style.zIndex = '99';
-            }
-        } else {
-            menuToggle.textContent = '☰';
-            menuToggle.style.transform = 'rotate(0)';
-            if (navUl) {
-                navUl.style.display = 'none';
-            }
-        }
-    });
-
-    if (navUl) {
-        navUl.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    isMenuOpen = false;
-                    menuToggle.textContent = '☰';
-                    menuToggle.style.transform = 'rotate(0)';
-                    navUl.style.display = 'none';
-                }
-            });
-        });
-    }
-
-    window.addEventListener('resize', () => {
-        if (window.innerWidth > 768) {
-            if (navUl) {
-                navUl.style.display = 'flex';
-                navUl.style.flexDirection = 'row';
-                navUl.style.position = 'static';
-                navUl.style.width = 'auto';
-                navUl.style.background = 'transparent';
-                navUl.style.padding = '0';
-                navUl.style.borderTop = 'none';
-            }
-            isMenuOpen = false;
-            menuToggle.textContent = '☰';
-            menuToggle.style.transform = 'rotate(0)';
-        } else if (!isMenuOpen && navUl) {
-            navUl.style.display = 'none';
-        }
     });
 }
