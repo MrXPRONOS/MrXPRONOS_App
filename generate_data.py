@@ -4,7 +4,7 @@
 """
 generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
 les prédictions ML et les analyses H2H améliorées.
-Utilise un cache permanent des scores pour éviter les pertes de données.
+Utilise un cache permanent des scores et un fallback via TheSportsDB pour les scores manquants.
 """
 
 import requests
@@ -94,6 +94,48 @@ def fetch_predictions(upcoming=True):
             print(f"   ❌ Exception: {e}")
             break
     return all_predictions
+
+# =======================================================
+# FONCTION DE FALLBACK VIA THESPORTSDB
+# =======================================================
+
+def fetch_score_from_thesportsdb(home_team, away_team, match_date):
+    """
+    Tente de récupérer le score via TheSportsDB API (gratuite).
+    Retourne un dict {'home_score': int, 'away_score': int, 'status': str} ou None.
+    """
+    url = f"https://www.thesportsdb.com/api/v1/json/123/eventsday.php?d={match_date}"
+    try:
+        print(f"      📡 Tentative TheSportsDB pour {home_team} vs {away_team} le {match_date}...")
+        resp = requests.get(url, timeout=10)
+        if resp.status_code != 200:
+            print(f"      ❌ Erreur HTTP {resp.status_code}")
+            return None
+        data = resp.json()
+        events = data.get('events', [])
+        if not events:
+            print(f"      ℹ️ Aucun événement trouvé pour cette date.")
+            return None
+        for e in events:
+            db_home = e.get('strHomeTeam', '')
+            db_away = e.get('strAwayTeam', '')
+            # Comparaison approximative (insensible à la casse)
+            if (home_team.lower() in db_home.lower() or db_home.lower() in home_team.lower()) and \
+               (away_team.lower() in db_away.lower() or db_away.lower() in away_team.lower()):
+                home_score = e.get('intHomeScore')
+                away_score = e.get('intAwayScore')
+                if home_score is not None and away_score is not None:
+                    print(f"      ✅ Match trouvé: {db_home} {home_score}-{away_score} {db_away}")
+                    return {
+                        'home_score': int(home_score),
+                        'away_score': int(away_score),
+                        'status': e.get('strStatus', 'finished')
+                    }
+        print(f"      ℹ️ Aucun match correspondant trouvé.")
+        return None
+    except Exception as e:
+        print(f"      ⚠️ Erreur TheSportsDB: {e}")
+        return None
 
 # =======================================================
 # GESTION DU CACHE PERMANENT DES SCORES
@@ -456,6 +498,26 @@ def main():
             "result": None,  # sera rempli après vérification
             "ml_full": ml_pred
         }
+
+        # =======================================================
+        # CORRECTION DES SCORES MANQUANTS AVEC FALLBACK THESPORTSDB
+        # =======================================================
+        if match_data["status"] == "finished" and (match_data["home_score"] is None or match_data["away_score"] is None):
+            tsdb_score = fetch_score_from_thesportsdb(home_obj["name"], away_obj["name"], event_date)
+            if tsdb_score:
+                match_data["home_score"] = tsdb_score["home_score"]
+                match_data["away_score"] = tsdb_score["away_score"]
+                if tsdb_score.get("status"):
+                    match_data["status"] = tsdb_score["status"]
+                # Ajouter au cache permanent
+                scores_cache[str(match_id)] = {
+                    "home_score": tsdb_score["home_score"],
+                    "away_score": tsdb_score["away_score"],
+                    "status": match_data["status"],
+                    "event_date": event_datetime
+                }
+                save_scores_cache(scores_cache)
+                print(f"   📥 Scores récupérés depuis TheSportsDB pour {match_id}")
 
         # Vérification du résultat
         verify_prediction(match_data, match_data["prediction"])
