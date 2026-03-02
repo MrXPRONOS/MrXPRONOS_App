@@ -3638,22 +3638,7 @@
       "category": "simple",
       "verified_double": false,
       "verified_over": false,
-      "ml_full": {
-        "prob_home_win": 37.45835769355873,
-        "prob_draw": 49.003383384777436,
-        "prob_away_win": 13.538258921663834,
-        "predicted_result": "D",
-        "expected_home_goals": 0.60403,
-        "expected_away_goals": 0.26121,
-        "prob_over_25": 53.32067518526223,
-        "over_25_recommend": false,
-        "prob_btts_yes": 76.10622086461603,
-        "btts_recommend": false,
-        "most_likely_score": "0-0",
-        "favorite": "H",
-        "favorite_prob": 37.45835769355873,
-        "confidence": 49.003383384777436
-      }
+      "ml_full": null
     },
     {
       "id": 6965,
@@ -3753,7 +3738,22 @@
       "category": "simple",
       "verified_double": false,
       "verified_over": false,
-      "ml_full": null
+      "ml_full": {
+        "prob_home_win": 32.9789119852026,
+        "prob_draw": 30.109801905168247,
+        "prob_away_win": 36.911286109629145,
+        "predicted_result": "A",
+        "expected_home_goals": 1.00129,
+        "expected_away_goals": 1.07761,
+        "prob_over_25": 33.84611195106897,
+        "over_25_recommend": false,
+        "prob_btts_yes": 50.39081577997262,
+        "btts_recommend": false,
+        "most_likely_score": "1-1",
+        "favorite": "A",
+        "favorite_prob": 36.911286109629145,
+        "confidence": 36.911286109629145
+      }
     },
     {
       "id": 4869,
@@ -8110,22 +8110,7 @@
         "category": "simple",
         "verified_double": false,
         "verified_over": false,
-        "ml_full": {
-          "prob_home_win": 37.45835769355873,
-          "prob_draw": 49.003383384777436,
-          "prob_away_win": 13.538258921663834,
-          "predicted_result": "D",
-          "expected_home_goals": 0.60403,
-          "expected_away_goals": 0.26121,
-          "prob_over_25": 53.32067518526223,
-          "over_25_recommend": false,
-          "prob_btts_yes": 76.10622086461603,
-          "btts_recommend": false,
-          "most_likely_score": "0-0",
-          "favorite": "H",
-          "favorite_prob": 37.45835769355873,
-          "confidence": 49.003383384777436
-        }
+        "ml_full": null
       },
       {
         "id": 598,
@@ -8167,7 +8152,22 @@
         "category": "simple",
         "verified_double": false,
         "verified_over": false,
-        "ml_full": null
+        "ml_full": {
+          "prob_home_win": 32.9789119852026,
+          "prob_draw": 30.109801905168247,
+          "prob_away_win": 36.911286109629145,
+          "predicted_result": "A",
+          "expected_home_goals": 1.00129,
+          "expected_away_goals": 1.07761,
+          "prob_over_25": 33.84611195106897,
+          "over_25_recommend": false,
+          "prob_btts_yes": 50.39081577997262,
+          "btts_recommend": false,
+          "most_likely_score": "1-1",
+          "favorite": "A",
+          "favorite_prob": 36.911286109629145,
+          "confidence": 36.911286109629145
+        }
       },
       {
         "id": 4869,
