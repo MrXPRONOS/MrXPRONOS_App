@@ -3629,14 +3629,14 @@
       "event_date": "2026-03-01T21:00:00+04:00",
       "home_team": "Antalyaspor",
       "away_team": "Fenerbahçe",
-      "home_logo": "https://sports.bzzoiro.com/img/team/3056/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/3052/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/vqoral1601669436.png",
+      "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/twxxvs1448199691.png",
       "league": "Trendyol Super Lig",
-      "league_logo": "https://sports.bzzoiro.com/img/league/52/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
+      "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/h7xx231601671132.png",
+      "venue": "Corendon Airlines Park",
+      "status": "finished",
+      "home_score": 2,
+      "away_score": 2,
       "h2h_analysis": {
         "total_matches": 1,
         "home_dominance": 0.0,
@@ -3661,7 +3661,7 @@
       "xpronos_score": 82,
       "badge": "🔥 ULTRA SAFE",
       "category": "pro",
-      "result": null,
+      "result": "win",
       "ml_full": {
         "id": 1696,
         "event": {
@@ -3733,7 +3733,7 @@
         "btts_recommend": false,
         "winner_recommend": false
       },
-      "tsdb_banner": null
+      "tsdb_banner": ""
     },
     {
       "id": 6966,
@@ -5693,14 +5693,14 @@
       "event_date": "2026-03-01T18:00:00+04:00",
       "home_team": "Brighton & Hove Albion",
       "away_team": "Nottingham Forest",
-      "home_logo": "https://sports.bzzoiro.com/img/team/30/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/14/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/ywypts1448810904.png",
+      "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/bk4qjs1546440351.png",
       "league": "Premier League",
-      "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
-      "status": "notstarted",
-      "home_score": null,
-      "away_score": null,
+      "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/gasy9d1737743125.png",
+      "venue": "American Express Stadium",
+      "status": "finished",
+      "home_score": 2,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 1,
         "home_dominance": 1.0,
@@ -5725,7 +5725,7 @@
       "xpronos_score": 80,
       "badge": "🔥 ULTRA SAFE",
       "category": "pro",
-      "result": null,
+      "result": "win",
       "ml_full": {
         "id": 1680,
         "event": {
@@ -5797,7 +5797,7 @@
         "btts_recommend": false,
         "winner_recommend": false
       },
-      "tsdb_banner": null
+      "tsdb_banner": "https://r2.thesportsdb.com/images/media/event/banner/rl2f1l1750329627.jpg"
     },
     {
       "id": 6964,
@@ -7562,11 +7562,11 @@
       "event_date": "2026-03-01T07:30:00+04:00",
       "home_team": "LA Galaxy",
       "away_team": "Charlotte FC",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2513/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/404108/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/ysyysr1420227188.png",
+      "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/b6p4uz1595434047.png",
       "league": "MLS",
-      "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
+      "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/dqo6r91549878326.png",
+      "venue": "Dignity Health Sports Park",
       "status": "finished",
       "home_score": 3,
       "away_score": 0,
@@ -7666,7 +7666,7 @@
         "btts_recommend": false,
         "winner_recommend": false
       },
-      "tsdb_banner": null
+      "tsdb_banner": "https://www.thesportsdb.com/images/media/event/banner/m8zbf81771753968.jpg"
     },
     {
       "id": 6191,
@@ -7795,11 +7795,11 @@
       "event_date": "2026-03-01T06:30:00+04:00",
       "home_team": "Vancouver Whitecaps",
       "away_team": "Toronto FC",
-      "home_logo": "https://sports.bzzoiro.com/img/team/22010/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/7080/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/tpwxpy1473536521.png",
+      "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/rsxyrr1473536512.png",
       "league": "MLS",
-      "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
+      "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/dqo6r91549878326.png",
+      "venue": "BC Place",
       "status": "finished",
       "home_score": 3,
       "away_score": 0,
@@ -7908,7 +7908,7 @@
         "btts_recommend": false,
         "winner_recommend": false
       },
-      "tsdb_banner": null
+      "tsdb_banner": "https://r2.thesportsdb.com/images/media/event/banner/4lwklu1706718544.jpg"
     },
     {
       "id": 4934,
@@ -7916,11 +7916,11 @@
       "event_date": "2026-03-01T05:30:00+04:00",
       "home_team": "Houston Dynamo",
       "away_team": "Los Angeles FC",
-      "home_logo": "https://sports.bzzoiro.com/img/team/2508/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/274650/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/yvz9dq1707631352.png",
+      "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/7nbj2a1602103638.png",
       "league": "MLS",
-      "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
+      "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/dqo6r91549878326.png",
+      "venue": "Shell Energy Stadium",
       "status": "finished",
       "home_score": 0,
       "away_score": 2,
@@ -8038,7 +8038,7 @@
         "btts_recommend": false,
         "winner_recommend": false
       },
-      "tsdb_banner": null
+      "tsdb_banner": "https://r2.thesportsdb.com/images/media/event/banner/y8xxex1706718634.jpg"
     },
     {
       "id": 4936,
@@ -8512,11 +8512,11 @@
       "event_date": "2026-03-01T04:30:00+04:00",
       "home_team": "San Jose Earthquakes",
       "away_team": "Atlanta United",
-      "home_logo": "https://sports.bzzoiro.com/img/team/21825/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "away_logo": "https://sports.bzzoiro.com/img/team/243211/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+      "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/xyrqqt1420781048.png",
+      "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/ej091x1602103070.png",
       "league": "MLS",
-      "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-      "venue": "",
+      "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/dqo6r91549878326.png",
+      "venue": "PayPal Park",
       "status": "finished",
       "home_score": 2,
       "away_score": 0,
@@ -8616,7 +8616,7 @@
         "btts_recommend": false,
         "winner_recommend": false
       },
-      "tsdb_banner": null
+      "tsdb_banner": "https://www.thesportsdb.com/images/media/event/banner/vtybs11771753968.jpg"
     },
     {
       "id": 4932,
@@ -13628,11 +13628,11 @@
         "event_date": "2026-03-01T04:30:00+04:00",
         "home_team": "San Jose Earthquakes",
         "away_team": "Atlanta United",
-        "home_logo": "https://sports.bzzoiro.com/img/team/21825/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/243211/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/xyrqqt1420781048.png",
+        "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/ej091x1602103070.png",
         "league": "MLS",
-        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
+        "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/dqo6r91549878326.png",
+        "venue": "PayPal Park",
         "status": "finished",
         "home_score": 2,
         "away_score": 0,
@@ -13732,7 +13732,7 @@
           "btts_recommend": false,
           "winner_recommend": false
         },
-        "tsdb_banner": null
+        "tsdb_banner": "https://www.thesportsdb.com/images/media/event/banner/vtybs11771753968.jpg"
       },
       {
         "id": 4937,
@@ -13740,11 +13740,11 @@
         "event_date": "2026-03-01T06:30:00+04:00",
         "home_team": "Vancouver Whitecaps",
         "away_team": "Toronto FC",
-        "home_logo": "https://sports.bzzoiro.com/img/team/22010/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/7080/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/tpwxpy1473536521.png",
+        "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/rsxyrr1473536512.png",
         "league": "MLS",
-        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
+        "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/dqo6r91549878326.png",
+        "venue": "BC Place",
         "status": "finished",
         "home_score": 3,
         "away_score": 0,
@@ -13853,7 +13853,7 @@
           "btts_recommend": false,
           "winner_recommend": false
         },
-        "tsdb_banner": null
+        "tsdb_banner": "https://r2.thesportsdb.com/images/media/event/banner/4lwklu1706718544.jpg"
       },
       {
         "id": 4938,
@@ -13861,11 +13861,11 @@
         "event_date": "2026-03-01T07:30:00+04:00",
         "home_team": "LA Galaxy",
         "away_team": "Charlotte FC",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2513/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/404108/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/ysyysr1420227188.png",
+        "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/b6p4uz1595434047.png",
         "league": "MLS",
-        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
+        "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/dqo6r91549878326.png",
+        "venue": "Dignity Health Sports Park",
         "status": "finished",
         "home_score": 3,
         "away_score": 0,
@@ -13965,7 +13965,7 @@
           "btts_recommend": false,
           "winner_recommend": false
         },
-        "tsdb_banner": null
+        "tsdb_banner": "https://www.thesportsdb.com/images/media/event/banner/m8zbf81771753968.jpg"
       },
       {
         "id": 2975,
@@ -14448,14 +14448,14 @@
         "event_date": "2026-03-01T18:00:00+04:00",
         "home_team": "Brighton & Hove Albion",
         "away_team": "Nottingham Forest",
-        "home_logo": "https://sports.bzzoiro.com/img/team/30/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/14/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/ywypts1448810904.png",
+        "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/bk4qjs1546440351.png",
         "league": "Premier League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/17/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
+        "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/gasy9d1737743125.png",
+        "venue": "American Express Stadium",
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 1,
           "home_dominance": 1.0,
@@ -14480,7 +14480,7 @@
         "xpronos_score": 80,
         "badge": "🔥 ULTRA SAFE",
         "category": "pro",
-        "result": null,
+        "result": "win",
         "ml_full": {
           "id": 1680,
           "event": {
@@ -14552,7 +14552,7 @@
           "btts_recommend": false,
           "winner_recommend": false
         },
-        "tsdb_banner": null
+        "tsdb_banner": "https://r2.thesportsdb.com/images/media/event/banner/rl2f1l1750329627.jpg"
       },
       {
         "id": 281,
@@ -15232,14 +15232,14 @@
         "event_date": "2026-03-01T21:00:00+04:00",
         "home_team": "Antalyaspor",
         "away_team": "Fenerbahçe",
-        "home_logo": "https://sports.bzzoiro.com/img/team/3056/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/3052/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/vqoral1601669436.png",
+        "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/twxxvs1448199691.png",
         "league": "Trendyol Super Lig",
-        "league_logo": "https://sports.bzzoiro.com/img/league/52/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
+        "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/h7xx231601671132.png",
+        "venue": "Corendon Airlines Park",
+        "status": "finished",
+        "home_score": 2,
+        "away_score": 2,
         "h2h_analysis": {
           "total_matches": 1,
           "home_dominance": 0.0,
@@ -15264,7 +15264,7 @@
         "xpronos_score": 82,
         "badge": "🔥 ULTRA SAFE",
         "category": "pro",
-        "result": null,
+        "result": "win",
         "ml_full": {
           "id": 1696,
           "event": {
@@ -15336,7 +15336,7 @@
           "btts_recommend": false,
           "winner_recommend": false
         },
-        "tsdb_banner": null
+        "tsdb_banner": ""
       },
       {
         "id": 947,
@@ -18979,11 +18979,11 @@
         "event_date": "2026-03-01T05:30:00+04:00",
         "home_team": "Houston Dynamo",
         "away_team": "Los Angeles FC",
-        "home_logo": "https://sports.bzzoiro.com/img/team/2508/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/274650/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/yvz9dq1707631352.png",
+        "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/7nbj2a1602103638.png",
         "league": "MLS",
-        "league_logo": "https://sports.bzzoiro.com/img/league/242/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
+        "league_logo": "https://r2.thesportsdb.com/images/media/league/badge/dqo6r91549878326.png",
+        "venue": "Shell Energy Stadium",
         "status": "finished",
         "home_score": 0,
         "away_score": 2,
@@ -19101,7 +19101,7 @@
           "btts_recommend": false,
           "winner_recommend": false
         },
-        "tsdb_banner": null
+        "tsdb_banner": "https://r2.thesportsdb.com/images/media/event/banner/y8xxex1706718634.jpg"
       },
       {
         "id": 6964,
@@ -19442,10 +19442,10 @@
     ]
   },
   "stats": {
-    "total_bets": 25,
-    "wins": 21,
+    "total_bets": 27,
+    "wins": 23,
     "losses": 4,
-    "roi": 84.0
+    "roi": 85.19
   },
   "bookmakers": [
     {
