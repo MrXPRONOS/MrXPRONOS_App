@@ -25,7 +25,7 @@
             transition: all 0.3s;
         }
         .tab-btn.active {
-            background: var(--or);
+            background: var(--gradient-gold);
             color: var(--noir);
         }
         .tab-pane {
@@ -93,7 +93,8 @@
             <div class="logo">
                 <a href="index.html">Mr <span>XPRONOS</span> Admin</a>
             </div>
-            <nav>
+            <button id="menu-toggle" aria-label="Ouvrir le menu">☰</button>
+            <nav id="main-nav">
                 <ul>
                     <li><a href="index.html">Retour au site</a></li>
                 </ul>
@@ -105,6 +106,7 @@
     <main class="container">
         <h1 style="color: var(--or);">Panneau d'administration</h1>
 
+        <!-- Onglets de l'admin -->
         <div class="admin-tabs">
             <button class="tab-btn active" data-tab="pronostics">Pronostics</button>
             <button class="tab-btn" data-tab="blog">Blog</button>
@@ -257,9 +259,9 @@
             </div>
         </div>
 
-        <!-- Onglet Statistiques (réelles) -->
+        <!-- Onglet Statistiques -->
         <div id="tab-stats" class="tab-pane">
-            <h2 style="color: var(--or);">Statistiques d'utilisation (réelles)</h2>
+            <h2 style="color: var(--or);">Statistiques d'utilisation</h2>
 
             <div class="period-selector">
                 <label for="period-select">Période :</label>
@@ -274,27 +276,11 @@
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Utilisateurs uniques</h3>
+                    <h3>Total utilisateurs</h3>
                     <div class="stat-value" id="total-users">-</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Visites</h3>
-                    <div class="stat-value" id="total-visits">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Partages</h3>
-                    <div class="stat-value" id="total-shares">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Nouveaux utilisateurs</h3>
-                    <div class="stat-value" id="new-users">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Anciens utilisateurs</h3>
-                    <div class="stat-value" id="old-users">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Utilisateurs en ligne</h3>
+                    <h3>En ligne</h3>
                     <div class="stat-value" id="online-users">-</div>
                 </div>
                 <div class="stat-card">
@@ -302,14 +288,31 @@
                     <div class="stat-value" id="offline-users">-</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Moy. visites/jour</h3>
-                    <div class="stat-value" id="avg-visits">-</div>
+                    <h3>Partages</h3>
+                    <div class="stat-value" id="total-shares">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Nouvel utilisateur</h3>
+                    <div class="stat-value" id="new-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Ancien utilisateur</h3>
+                    <div class="stat-value" id="old-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Invités par user</h3>
+                    <div class="stat-value" id="invited-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Durée moyenne</h3>
+                    <div class="stat-value" id="avg-usage">-</div>
                 </div>
             </div>
         </div>
 
     </main>
 
+    <!-- Scripts -->
     <script src="assets/js/admin-stats.js"></script>
     <script>
         (function() {

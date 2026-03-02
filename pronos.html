@@ -17,7 +17,8 @@
             <div class="logo">
                 <a href="index.html">Mr <span>XPRONOS</span></a>
             </div>
-            <nav>
+            <button id="menu-toggle" aria-label="Ouvrir le menu">☰</button>
+            <nav id="main-nav">
                 <ul>
                     <li><a href="index.html">Accueil</a></li>
                     <li><a href="pronos.html" class="active">Pronostics</a></li>
@@ -32,10 +33,10 @@
     </header>
 
     <main class="container">
-        <h1 style="color: var(--or); margin: 2rem 0 1rem;">📊 Pronostics et analyses</h1>
+        <h1 style="margin: 2rem 0 1rem;">📊 Pronostics et analyses</h1>
 
         <!-- Taux de réussite global -->
-        <div id="success-rate-container" class="success-rate" style="display: none;"></div>
+        <div id="success-rate-container" class="success-rate glass" style="display: none;"></div>
 
         <!-- Onglets de catégorie principaux -->
         <div class="category-tabs">
@@ -63,7 +64,7 @@
         </div>
 
         <!-- Overlay VIP verrouillé -->
-        <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;">
+        <div id="vip-locked-overlay" class="vip-locked-overlay glass" style="display: none;">
             <div class="vip-locked-content">
                 <div class="lock-icon">🔒</div>
                 <h3>Contenu Premium</h3>
@@ -75,9 +76,9 @@
         </div>
     </main>
 
-    <!-- Popup de partage (fallback) -->
+    <!-- Popup de partage -->
     <div id="share-popup" class="popup">
-        <div class="popup-content">
+        <div class="popup-content glass">
             <h3>🔒 Contenu premium</h3>
             <p id="share-message">Pour accéder aux pronostics Pro, partagez ce lien à <span id="share-remaining">5</span> amis sur WhatsApp ou Telegram.</p>
             <div class="share-buttons">
