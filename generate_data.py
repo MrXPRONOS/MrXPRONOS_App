@@ -4,7 +4,7 @@
 """
 generate_data.py - Génère data.json avec les matchs du jour/demain/hier,
 les prédictions ML et les analyses H2H améliorées.
-Version avec accord H2H/API et score de confiance.
+Conserve les 14 derniers jours pour l'historique.
 """
 
 import requests
@@ -32,6 +32,7 @@ session.mount('https://', HTTPAdapter(max_retries=retries))
 today = datetime.now().date()
 tomorrow = today + timedelta(days=1)
 yesterday = today - timedelta(days=1)
+fourteen_days_ago = today - timedelta(days=14)
 
 CACHE_DIR = "cache"
 GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
@@ -196,27 +197,21 @@ def generate_prediction_h2h(analysis):
 
 def calculate_confidence_score(analysis, ml_pred, agreement):
     score = 0
-    # Accord H2H/API : 50 points
     if agreement:
         score += 50
 
     if ml_pred:
-        # Probabilité API (max 20 points)
         prob_home = ml_pred.get('prob_home_win', 0)
         prob_away = ml_pred.get('prob_away_win', 0)
         prob_draw = ml_pred.get('prob_draw', 0)
         max_prob = max(prob_home, prob_away, prob_draw)
-        score += min(20, int(max_prob / 5))  # ex: 60% donne 12 points
-
-        # Bonus si la probabilité dépasse 65%
+        score += min(20, int(max_prob / 5))
         if max_prob > 65:
             score += 5
 
-    # Dominance H2H (max 20 points)
     dominance = max(analysis["home_dominance"], analysis["away_dominance"])
-    score += min(20, int(dominance * 30))  # 0.7 → 21, mais plafonné à 20
+    score += min(20, int(dominance * 30))
 
-    # Nombre de matchs H2H (max 10 points)
     score += min(10, analysis["total_matches"] * 2)
 
     return min(score, 100)
@@ -286,6 +281,25 @@ def main():
     all_new_events = events_today + events_tomorrow + events_yesterday
     print(f"\n✅ {len(all_new_events)} événements récupérés")
 
+    # Récupérer les prédictions passées pour obtenir les scores
+    print("\n📈 Récupération des prédictions passées (pour les scores)...")
+    past_predictions = fetch_predictions(upcoming=False)
+    # Créer un dictionnaire des scores par event_id
+    past_scores = {}
+    for p in past_predictions:
+        event = p.get('event')
+        if event:
+            event_id = event.get('id')
+            home_score = event.get('home_score')
+            away_score = event.get('away_score')
+            if home_score is not None and away_score is not None:
+                past_scores[event_id] = {'home_score': home_score, 'away_score': away_score}
+
+    # Récupérer les prédictions à venir (pour la comparaison)
+    upcoming_predictions = fetch_predictions(upcoming=True)
+    all_predictions = upcoming_predictions + past_predictions
+    pred_dict = {p['event']['id']: p for p in all_predictions}
+
     # Charger ancien fichier
     old_data = {}
     old_matches_by_id = {}
@@ -301,13 +315,6 @@ def main():
         with open(GLOBAL_CACHE_FILE, 'r', encoding='utf-8') as f:
             global_cache = json.load(f)
         print(f"📂 Cache global chargé : {len(global_cache)} matchs")
-
-    print("\n📈 Récupération des prédictions ML...")
-    predictions_upcoming = fetch_predictions(upcoming=True)
-    predictions_past = fetch_predictions(upcoming=False)
-    all_predictions = predictions_upcoming + predictions_past
-    print(f"✅ {len(all_predictions)} prédictions récupérées")
-    pred_dict = {p['event']['id']: p for p in all_predictions}
 
     new_matches = []
     categories = {"simple": [], "pro": [], "vip": []}
@@ -384,7 +391,7 @@ def main():
             "h2h_analysis": analysis,
             "prediction": {
                 "double_chance": prediction_h2h["double_chance"],
-                "confidence": score  # On utilise le nouveau score
+                "confidence": score
             },
             "xpronos_score": score,
             "badge": badge,
@@ -394,30 +401,36 @@ def main():
         }
 
         # =======================================================
-        # CORRECTION ROBUSTE DU STATUT POUR LES MATCHS D'HIER / PASSÉS
+        # CORRECTION DES SCORES MANQUANTS
+        # =======================================================
+        try:
+            # Si le match est terminé mais que les scores sont absents, on cherche dans past_scores
+            if match_data["status"] == "finished" and (match_data["home_score"] is None or match_data["away_score"] is None):
+                if match_id in past_scores:
+                    match_data["home_score"] = past_scores[match_id]["home_score"]
+                    match_data["away_score"] = past_scores[match_id]["away_score"]
+                    print(f"   📥 Scores récupérés depuis les prédictions passées pour {match_id}")
+                else:
+                    # Si pas dans past_scores, on utilise l'ancien fichier
+                    old_match = old_matches_by_id.get(match_id)
+                    if old_match:
+                        match_data["home_score"] = old_match.get("home_score")
+                        match_data["away_score"] = old_match.get("away_score")
+                        print(f"   📥 Scores récupérés depuis l'ancien fichier pour {match_id}")
+        except Exception as e:
+            print(f"   ⚠️ Erreur récupération scores match {match_id}: {e}")
+
+        # =======================================================
+        # CORRECTION ROBUSTE DU STATUT POUR LES MATCHS PASSÉS
         # =======================================================
         try:
             event_dt = datetime.fromisoformat(event_datetime.replace('Z', '+00:00'))
             match_date = event_dt.date()
 
-            if event.get("home_score") is not None and event.get("away_score") is not None:
-                old_status = match_data["status"]
+            if match_data["home_score"] is not None and match_data["away_score"] is not None:
                 match_data["status"] = "finished"
-                if old_status != "finished":
-                    print(f"   🔧 Correction statut (scores présents) : {old_status} → finished")
             elif match_date < today:
-                old_status = match_data["status"]
                 match_data["status"] = "finished"
-                if old_status != "finished":
-                    print(f"   🔧 Correction statut (date passée) : {old_status} → finished")
-
-            if match_data["status"] == "finished":
-                old_match = old_matches_by_id.get(match_id)
-                if old_match and (match_data.get("home_score") is None or match_data.get("away_score") is None):
-                    match_data["home_score"] = old_match.get("home_score")
-                    match_data["away_score"] = old_match.get("away_score")
-                    print(f"   📥 Scores récupérés depuis l'ancien fichier pour {match_id}")
-
         except Exception as e:
             print(f"   ⚠️ Erreur correction statut match {match_id}: {e}")
 
@@ -429,21 +442,28 @@ def main():
         categories[category].append(match_data)
         print(f"   ✅ Score: {score} - {badge} - Catégorie: {category}")
 
-    # Fusion avec anciens matchs (pour conserver l'historique)
-    new_ids = {m['id'] for m in new_matches}
+    # Fusion avec anciens matchs (pour conserver l'historique des 14 derniers jours)
+    # On garde tous les anciens matchs dont la date est >= fourteen_days_ago
     for old_id, old_match in old_matches_by_id.items():
-        if old_id not in new_ids:
-            try:
-                match_date = datetime.fromisoformat(old_match['event_date'].replace('Z', '+00:00')).date()
-                if match_date < today and old_match['status'] != 'finished':
-                    old_match['status'] = 'finished'
-                    if old_match.get('home_score') is not None and old_match.get('away_score') is not None:
-                        verify_prediction(old_match, old_match['prediction'])
-                    print(f"📌 Correction statut pour match {old_id} ({old_match['home_team']} vs {old_match['away_team']}) -> finished")
-            except:
-                pass
-            new_matches.append(old_match)
-            categories[old_match['category']].append(old_match)
+        try:
+            old_date_str = old_match.get('event_date')
+            if not old_date_str:
+                continue
+            old_date = datetime.fromisoformat(old_date_str.replace('Z', '+00:00')).date()
+            if old_date >= fourteen_days_ago:
+                if old_id not in {m['id'] for m in new_matches}:
+                    # Mise à jour du statut si nécessaire
+                    if old_date < today and old_match['status'] != 'finished':
+                        old_match['status'] = 'finished'
+                        if old_match.get('home_score') is not None and old_match.get('away_score') is not None:
+                            verify_prediction(old_match, old_match['prediction'])
+                    new_matches.append(old_match)
+                    categories[old_match['category']].append(old_match)
+        except:
+            pass
+
+    # Trier les matchs par date (les plus récents en premier)
+    new_matches.sort(key=lambda x: x['event_date'], reverse=True)
 
     stats = update_bankroll(new_matches)
 
@@ -465,7 +485,7 @@ def main():
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False, default=str)
-    print(f"\n💾 {DATA_FILE} généré avec {len(new_matches)} matchs (uniquement ceux avec accord H2H/API), ROI: {stats['roi']}%")
+    print(f"\n💾 {DATA_FILE} généré avec {len(new_matches)} matchs (dont historiques 14 jours), ROI: {stats['roi']}%")
 
 if __name__ == "__main__":
     main()

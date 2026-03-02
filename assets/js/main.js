@@ -677,6 +677,94 @@ async function displayFootNews() {
 }
 
 // =======================================================
+// PAGE HISTORIQUE
+// =======================================================
+async function displayHistory() {
+    const container = document.getElementById('history-container');
+    if (!container) return;
+
+    await loadData();
+    if (!allData || !allData.matches) {
+        container.innerHTML = '<div class="no-events">Aucun historique disponible.</div>';
+        return;
+    }
+
+    // Filtrer les matchs des 14 derniers jours
+    const today = new Date();
+    const fourteenDaysAgo = new Date(today);
+    fourteenDaysAgo.setDate(today.getDate() - 14);
+
+    const historyMatches = allData.matches.filter(m => {
+        const matchDate = new Date(m.event_date);
+        return matchDate >= fourteenDaysAgo;
+    });
+
+    if (historyMatches.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun match dans cette période.</div>';
+        return;
+    }
+
+    // Trier par date décroissante
+    historyMatches.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
+
+    let html = '';
+    historyMatches.forEach(m => {
+        const pred = m.prediction || {};
+        const doubleChance = pred.double_chance || 'N/A';
+        let confidence = pred.confidence || 0;
+        if (typeof confidence === 'string') confidence = parseFloat(confidence);
+        if (isNaN(confidence)) confidence = 0;
+        if (confidence > 100) confidence = confidence / 100;
+        confidence = Math.min(100, Math.round(confidence * 10) / 10);
+
+        const matchTime = formatMatchTime(m.event_date);
+        const statusFr = translateStatus(m.status);
+        const statusClass = getStatusClass(m.status);
+
+        const verifiedDouble = m.verified_double ? 'checked' : '';
+        const defaultLogo = 'assets/images/default-logo.png';
+        const winnerClass = m.verified_double ? 'winner' : '';
+
+        html += `
+            <div class="match-card ${winnerClass}">
+                <div class="match-info">
+                    <div class="teams">
+                        <div class="team">
+                            <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                            <span class="team-name">${m.home_team}</span>
+                            <span class="team-score">${m.home_score ?? '-'}</span>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="team">
+                            <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                            <span class="team-name">${m.away_team}</span>
+                            <span class="team-score">${m.away_score ?? '-'}</span>
+                        </div>
+                    </div>
+                    <div class="match-meta">
+                        <span class="league-badge">${m.league || 'Ligue'}</span>
+                        <span class="status ${statusClass}">${statusFr}</span>
+                        <span class="match-time"><i>🕒</i> ${matchTime}</span>
+                    </div>
+                </div>
+                <div class="analysis-panel">
+                    <h4>Pronostic</h4>
+                    <p><strong>Double chance :</strong> ${doubleChance}</p>
+                    <p><strong>Fiabilité :</strong> ${confidence}%</p>
+                    <p><strong>Résultat :</strong> <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled> Validé</p>
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+// Appeler cette fonction sur la page historique
+if (document.getElementById('history-container')) {
+    displayHistory();
+}
+
+// =======================================================
 // NOUVELLES FONCTIONS (taux de réussite, scroll)
 // =======================================================
 function updateSuccessRate() {
