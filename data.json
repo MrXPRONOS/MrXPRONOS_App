@@ -3690,28 +3690,12 @@
       "prediction": {
         "double_chance": "X2",
         "over_25": false,
-        "confidence": 71.9,
-        "source": "ML"
+        "confidence": 55
       },
-      "category": "pro",
+      "category": "simple",
       "verified_double": false,
       "verified_over": false,
-      "ml_full": {
-        "prob_home_win": 7.51037340151738,
-        "prob_draw": 20.625936683626534,
-        "prob_away_win": 71.86368991485608,
-        "predicted_result": "A",
-        "expected_home_goals": 0.4,
-        "expected_away_goals": 1.8,
-        "prob_over_25": 50.0,
-        "over_25_recommend": false,
-        "prob_btts_yes": 30.91377482060953,
-        "btts_recommend": false,
-        "most_likely_score": "0-1",
-        "favorite": "A",
-        "favorite_prob": 71.86368991485608,
-        "confidence": 71.86368991485608
-      }
+      "ml_full": null
     },
     {
       "id": 598,
@@ -8143,6 +8127,48 @@
         }
       },
       {
+        "id": 6965,
+        "date": "2026-03-01",
+        "event_date": "2026-03-01T19:30:00+04:00",
+        "home_team": "NPS Volos",
+        "away_team": "AEK Athens",
+        "home_logo": "https://sports.bzzoiro.com/img/team/267459/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "away_logo": "https://sports.bzzoiro.com/img/team/3250/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "league": "Stoiximan Super League",
+        "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
+        "venue": "",
+        "status": "notstarted",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 0,
+          "away_wins": 1,
+          "draws": 0,
+          "goals_avg": 1.0,
+          "last_4": [
+            {
+              "date": "2025-09-28T18:00:00+04:00",
+              "home_team": "AEK Athens",
+              "away_team": "NPS Volos",
+              "home_score": 1,
+              "away_score": 0,
+              "status": "finished",
+              "league": "Stoiximan Super League"
+            }
+          ]
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 55
+        },
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false,
+        "ml_full": null
+      },
+      {
         "id": 598,
         "date": "2026-03-01",
         "event_date": "2026-03-01T19:30:00+04:00",
@@ -10069,64 +10095,6 @@
           "favorite": "H",
           "favorite_prob": 65.9882093373883,
           "confidence": 65.9882093373883
-        }
-      },
-      {
-        "id": 6965,
-        "date": "2026-03-01",
-        "event_date": "2026-03-01T19:30:00+04:00",
-        "home_team": "NPS Volos",
-        "away_team": "AEK Athens",
-        "home_logo": "https://sports.bzzoiro.com/img/team/267459/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "away_logo": "https://sports.bzzoiro.com/img/team/3250/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "league": "Stoiximan Super League",
-        "league_logo": "https://sports.bzzoiro.com/img/league/185/?token=3d0b228fb2f078287b8e6720304f2eea2800cc6d",
-        "venue": "",
-        "status": "notstarted",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_wins": 0,
-          "away_wins": 1,
-          "draws": 0,
-          "goals_avg": 1.0,
-          "last_4": [
-            {
-              "date": "2025-09-28T18:00:00+04:00",
-              "home_team": "AEK Athens",
-              "away_team": "NPS Volos",
-              "home_score": 1,
-              "away_score": 0,
-              "status": "finished",
-              "league": "Stoiximan Super League"
-            }
-          ]
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "confidence": 71.9,
-          "source": "ML"
-        },
-        "category": "pro",
-        "verified_double": false,
-        "verified_over": false,
-        "ml_full": {
-          "prob_home_win": 7.51037340151738,
-          "prob_draw": 20.625936683626534,
-          "prob_away_win": 71.86368991485608,
-          "predicted_result": "A",
-          "expected_home_goals": 0.4,
-          "expected_away_goals": 1.8,
-          "prob_over_25": 50.0,
-          "over_25_recommend": false,
-          "prob_btts_yes": 30.91377482060953,
-          "btts_recommend": false,
-          "most_likely_score": "0-1",
-          "favorite": "A",
-          "favorite_prob": 71.86368991485608,
-          "confidence": 71.86368991485608
         }
       },
       {
