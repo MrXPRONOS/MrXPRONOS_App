@@ -148,10 +148,10 @@ async function loadData() {
         const cached = localStorage.getItem('cachedData');
         if (cached) {
             allData = JSON.parse(cached);
-            matchesContainer.innerHTML = '<div class="warning">⚠️ Données en cache.</div>';
+            if (matchesContainer) matchesContainer.innerHTML = '<div class="warning">⚠️ Données en cache.</div>';
             renderBookmakers(allData.bookmakers);
         } else {
-            matchesContainer.innerHTML = '<div class="error">❌ Impossible de charger.</div>';
+            if (matchesContainer) matchesContainer.innerHTML = '<div class="error">❌ Impossible de charger.</div>';
         }
     }
 }
@@ -171,6 +171,7 @@ async function loadDataGeneric() {
 
 // ==================== GESTION DES ONGLETS ====================
 function hideEmptyTabs() {
+    if (!allData) return;
     const counts = { simple:0, pro:0, vip:0 };
     allData.matches.forEach(m => counts[m.category]++);
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -242,7 +243,7 @@ function sortMatchesByLeague(matches) {
 
 function filterAndDisplay() {
     if (!allData?.matches) {
-        matchesContainer.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
+        if (matchesContainer) matchesContainer.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
         return;
     }
     const targetDate = getLocalDateString(currentDay);
@@ -265,7 +266,7 @@ function applySearch() {
     const filtered = filteredMatchesWithoutSearch.filter(m =>
         m.home_team.toLowerCase().includes(term) ||
         m.away_team.toLowerCase().includes(term) ||
-        m.league?.toLowerCase().includes(term)
+        (m.league && m.league.toLowerCase().includes(term))
     );
     renderMatches(filtered);
 }
@@ -297,6 +298,7 @@ function getStatusClass(status) {
 }
 
 function renderMatches(matches) {
+    if (!matchesContainer) return;
     if (matches.length === 0) {
         matchesContainer.innerHTML = '<div class="no-events">Aucun match.</div>';
         return;
@@ -447,7 +449,7 @@ function showVipLocked(category) {
         document.getElementById('share-count-locked').textContent = count;
         document.getElementById('share-target-locked').textContent = target;
         vipLockedOverlay.style.display = 'flex';
-        matchesContainer.style.display = 'none';
+        if (matchesContainer) matchesContainer.style.display = 'none';
     } else {
         const target = shareLimits[category];
         const count = getDailyShareCount();
@@ -458,7 +460,7 @@ function showVipLocked(category) {
 function hideVipLocked() {
     if (vipLockedOverlay) {
         vipLockedOverlay.style.display = 'none';
-        matchesContainer.style.display = 'grid';
+        if (matchesContainer) matchesContainer.style.display = 'grid';
     }
 }
 
@@ -835,7 +837,7 @@ async function initPronostics() {
         updateSuccessRate();
         filterAndDisplay();
     } else {
-        matchesContainer.innerHTML = '<div class="error">❌ Erreur de chargement des données.</div>';
+        if (matchesContainer) matchesContainer.innerHTML = '<div class="error">❌ Erreur de chargement des données.</div>';
     }
 }
 

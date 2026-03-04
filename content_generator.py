@@ -334,7 +334,8 @@ def save_tip(content):
     conseils.insert(0, new)
     conseils = conseils[:100]
     with open(CONSEILS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(conseils, f, indent-2, ensure_ascii=False)
+        # Correction : indent=2 (et non indent-2)
+        json.dump(conseils, f, indent=2, ensure_ascii=False)
     print(f"✅ Conseil sauvegardé : {title[:50]}... (image: {image_url})")
 
 def main():
