@@ -4,7 +4,7 @@
 """
 generate_data.py - Génère les pronostics à partir des données SportData
 et des scores déjà en base (mis à jour par update_scores.py).
-Version avec exclusion des pronostics "12" (matchs équilibrés).
+Version avec exclusion des pronostics "12" (matchs équilibrés). 
 """
 
 import os
