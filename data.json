@@ -116,8 +116,8 @@
       "league": "liga FPD - Clausura",
       "league_logo": null,
       "venue": "",
-      "status": "1st Half",
-      "home_score": 0,
+      "status": "2nd Half",
+      "home_score": 1,
       "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
@@ -151,7 +151,7 @@
       "league": "Coupe de France - Quarter Finals",
       "league_logo": null,
       "venue": "",
-      "status": "Just Ended",
+      "status": "After Penalties",
       "home_score": 2,
       "away_score": 2,
       "h2h_analysis": {
