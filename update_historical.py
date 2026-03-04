@@ -4,7 +4,7 @@
 """
 update_historical.py - Ajoute les matchs d'hier au cache global all_matches.json
 pour maintenir l'historique à jour.
-Exécution quotidienne (par exemple dans le workflow update-data.yml).
+Exécution quotidienne (par exemple dans le workflow update-data.yml). 
 """
 
 import os
