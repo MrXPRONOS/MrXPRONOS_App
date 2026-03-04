@@ -335,6 +335,9 @@ footer {
     margin: 1rem 0;
     flex-wrap: wrap;
 }
+.category-tabs {
+    justify-content: space-between; /* pour que les boutons prennent toute la largeur */
+}
 .tab-btn, .day-btn {
     background-color: var(--noir-secondaire);
     color: var(--blanc);
@@ -345,6 +348,7 @@ footer {
     font-weight: 600;
     transition: all 0.3s;
     font-size: 0.8rem;
+    flex: 1 1 auto; /* permet l'étirement */
 }
 .tab-btn.active, .day-btn.active {
     background-color: var(--or);
@@ -518,6 +522,7 @@ footer {
 .prediction-checkbox {
     margin-right: 5px;
     transform: scale(1.2);
+    accent-color: #4CAF50 !important; /* Force la couleur verte */
 }
 
 /* Sous-onglets VIP */
@@ -1078,6 +1083,31 @@ footer {
     text-transform: capitalize;
     border-bottom: 2px solid var(--or);
     padding-bottom: 0.5rem;
+}
+
+/* =======================================================
+   BADGE DE CATÉGORIE (SIMPLE, PRO, VIP)
+   ======================================================= */
+.badge-category {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.6rem;
+    font-weight: 600;
+    margin-left: 5px;
+    text-transform: uppercase;
+}
+.badge-simple {
+    background-color: #555;
+    color: white;
+}
+.badge-pro {
+    background-color: var(--or);
+    color: #000;
+}
+.badge-vip {
+    background-color: #4CAF50;
+    color: #000;
 }
 
 /* =======================================================
