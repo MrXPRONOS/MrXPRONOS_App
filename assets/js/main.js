@@ -1,10 +1,7 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
- * fallback pour les images des bookmakers, affichage du pronostic Over 2.5,
- * cases à cocher pour la validation, recherche dans les pronostics,
- * tri de l'historique par catégorie (VIP, Pro, Simple),
- * compteurs réels via Supabase, et gestion des bonus/promotions.
+ * Version avec gestion de l'installation PWA, compteurs Supabase,
+ * bonus, miniatures pour blog/conseils, et toutes les fonctionnalités.
  */
 
 // =======================================================
@@ -188,20 +185,13 @@ document.addEventListener('DOMContentLoaded', () => {
     showIosGuideIfNeeded();
     updateDisplayedCounters(); // Met à jour les compteurs sur l'accueil
 
-    // Si on est sur la page des pronostics
     if (matchesContainer) {
         initPronostics();
-    } 
-    // Si on est sur la page historique
-    else if (document.getElementById('history-container')) {
+    } else if (document.getElementById('history-container')) {
         displayHistory();
-    }
-    // Si on est sur la page bonus
-    else if (document.getElementById('bonus-bookmaker-select')) {
+    } else if (document.getElementById('bonus-bookmaker-select')) {
         initBonusPage();
-    }
-    // Sinon (accueil ou autre)
-    else {
+    } else {
         loadDataGeneric().then(data => {
             if (data) {
                 renderBookmakers(data.bookmakers);
@@ -210,12 +200,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fonctions communes à plusieurs pages
+    // Afficher les miniatures pour blog et conseils si présentes
+    displayBlogThumbnails();
+    displayConseilsThumbnails();
     displayBlogList();
     displayBlogPost();
     displayConseils();
     displayInfos();
-    displayBonusList();   // pour la page bonus (grille)
+    displayBonusList();   // pour la page bonus
     displayFootNews();
     initScrollProgress();
 
@@ -231,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // =======================================================
 // FONCTIONS POUR LA PAGE PRONOSTICS
 // =======================================================
-
 async function initPronostics() {
     await loadData();
     if (allData) {
@@ -438,14 +429,9 @@ function share(platform) {
 
     window.open(url, '_blank');
 
-    // Incrémenter le compteur quotidien local
     const newCount = incrementShareCount();
     updateShareCounter();
-
-    // Envoyer l'événement de partage à Supabase
     incrementCounter('total_shares');
-
-    // Enregistrer l'événement local pour les stats admin
     recordEvent('share');
 
     const target = shareLimits[currentCategory];
@@ -526,7 +512,6 @@ function filterAndDisplay() {
     applySearchFilter();
 }
 
-// Variable pour la recherche
 let filteredMatchesWithoutSearch = [];
 let searchTerm = '';
 
@@ -690,10 +675,9 @@ function getStatusClass(status) {
 }
 
 // =======================================================
-// FONCTION POUR LES BOOKMAKERS (avec fallback)
+// FONCTION POUR LES BOOKMAKERS
 // =======================================================
 function renderBookmakers(bookmakers) {
-    // Fallback si data.json vide
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
@@ -706,7 +690,6 @@ function renderBookmakers(bookmakers) {
         ];
     }
 
-    // Footer
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -719,7 +702,6 @@ function renderBookmakers(bookmakers) {
         });
     }
 
-    // Section bonus sur l'accueil
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
@@ -737,7 +719,7 @@ function renderBookmakers(bookmakers) {
 }
 
 // =======================================================
-// FONCTIONS POUR LES STATISTIQUES (admin) - événements locaux
+// FONCTIONS POUR LES STATISTIQUES (admin)
 // =======================================================
 function recordEvent(type) {
     let events = JSON.parse(localStorage.getItem('userEvents')) || [];
@@ -750,42 +732,41 @@ function recordEvent(type) {
 recordEvent('visit');
 
 // =======================================================
-// FONCTIONS POUR LES AUTRES PAGES
-// =======================================================
-
-async function loadGeneratedContent() {
-    try {
-        const articlesResp = await fetch('articles.json?t=' + Date.now());
-        if (articlesResp.ok) {
-            window.generatedArticles = await articlesResp.json();
-        }
-        const conseilsResp = await fetch('conseils.json?t=' + Date.now());
-        if (conseilsResp.ok) {
-            window.generatedConseils = await conseilsResp.json();
-        }
-    } catch (error) {
-        console.error('Erreur chargement contenu généré:', error);
-    }
-}
-
-// =======================================================
 // FONCTIONS POUR LE BLOG
 // =======================================================
+async function displayBlogThumbnails() {
+    const container = document.getElementById('blog-thumbnails');
+    if (!container) return;
+
+    const data = await loadDataGeneric();
+    const articles = data?.blog || [];
+    if (articles.length === 0) return;
+
+    let html = '';
+    articles.slice(0, 8).forEach(article => {
+        let image = article.image_url || 'assets/images/default-logo.png';
+        let title = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+        let slug = article.slug;
+        html += `
+            <div class="thumbnail-item" onclick="window.location.href='article.html?slug=${slug}'">
+                <img src="${image}" alt="${title}">
+                <div class="thumbnail-title">${title}</div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
 async function displayBlogList() {
     const container = document.getElementById('blog-list');
     if (!container) return;
 
-    if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
-    const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
+    const articles = data?.blog || [];
+    if (articles.length === 0) return;
 
-    // Liste horizontale
-    renderHorizontalList(allArticles, 'blog-horizontal-list', 'blog');
-
-    // Grille
-    if (allArticles.length === 0) return;
     let html = '';
-    allArticles.forEach(article => {
+    articles.forEach(article => {
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
         let excerpt = article.excerpt || article.content.substring(0, 200) + '...';
         let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 150) + '...';
@@ -802,29 +783,72 @@ async function displayBlogList() {
     container.innerHTML = html;
 }
 
+async function displayBlogPost() {
+    const container = document.getElementById('blog-post');
+    if (!container) return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const slug = urlParams.get('slug');
+    if (!slug) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
+
+    const data = await loadDataGeneric();
+    const article = data?.blog?.find(a => a.slug === slug);
+    if (!article) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
+
+    let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+    document.title = cleanTitle + ' - Mr XPRONOS';
+    let htmlContent = window.marked ? window.marked.parse(article.content) : article.content.replace(/\n/g, '<br>');
+    container.innerHTML = `
+        <h1>${cleanTitle}</h1>
+        <div class="meta">${article.date} par ${article.author}</div>
+        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:20px 0;">` : ''}
+        <div style="margin-top: 2rem;">${htmlContent}</div>
+        <a href="blog.html" class="btn btn-secondary" style="margin-top: 2rem;">← Retour au blog</a>
+    `;
+}
+
+// =======================================================
+// FONCTIONS POUR LES CONSEILS
+// =======================================================
+async function displayConseilsThumbnails() {
+    const container = document.getElementById('conseils-thumbnails');
+    if (!container) return;
+
+    const data = await loadDataGeneric();
+    const conseils = data?.conseils || [];
+    if (conseils.length === 0) return;
+
+    let html = '';
+    conseils.slice(0, 8).forEach(c => {
+        let image = c.image_url || 'assets/images/default-logo.png';
+        let title = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+        html += `
+            <div class="thumbnail-item" onclick="window.location.href='conseils.html#${c.id}'">
+                <img src="${image}" alt="${title}">
+                <div class="thumbnail-title">${title}</div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
 async function displayConseils() {
     const container = document.getElementById('conseils-list');
     if (!container) return;
 
-    if (!window.generatedConseils) await loadGeneratedContent();
     const data = await loadDataGeneric();
-    const allConseils = [...(window.generatedConseils || []), ...(data?.conseils || [])];
-    window.conseilsData = allConseils; // pour la modale
+    const conseils = data?.conseils || [];
+    if (conseils.length === 0) return;
 
-    // Liste horizontale
-    renderHorizontalList(allConseils, 'conseils-horizontal-list', 'conseils');
-
-    // Grille
-    if (allConseils.length === 0) return;
     let html = '';
-    allConseils.forEach((c, index) => {
+    conseils.forEach(c => {
         let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        let contentHtml = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
+        let htmlContent = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
         html += `
             <div class="card">
                 ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : ''}
                 <h3>${cleanTitle}</h3>
-                <div>${contentHtml}</div>
+                <div>${htmlContent}</div>
             </div>
         `;
     });
@@ -890,11 +914,9 @@ async function initBonusPage() {
     const data = await loadDataGeneric();
     allBonus = data?.bonus || [];
 
-    // Remplir la liste des bookmakers
     const select = document.getElementById('bonus-bookmaker-select');
     if (!select) return;
 
-    // Récupérer la liste unique des bookmakers depuis les bonus
     const bookmakers = [...new Set(allBonus.map(b => b.bookmaker))].filter(Boolean);
     bookmakers.sort();
 
@@ -905,13 +927,11 @@ async function initBonusPage() {
         select.appendChild(option);
     });
 
-    // Écouteur de changement
     select.addEventListener('change', (e) => {
         currentBookmaker = e.target.value;
         displayBonusThumbnails();
     });
 
-    // Sélectionner le premier s'il existe
     if (bookmakers.length > 0) {
         select.value = bookmakers[0];
         currentBookmaker = bookmakers[0];
@@ -943,7 +963,6 @@ function displayBonusThumbnails() {
     });
     container.innerHTML = html;
 
-    // Stocker les bonus pour le détail
     window.bonusDetails = filtered;
 }
 
@@ -964,7 +983,6 @@ window.closeBonusModal = function() {
     document.getElementById('bonus-modal').style.display = 'none';
 };
 
-// Sur la page bonus, on a aussi besoin d'afficher la liste des bonus sur l'accueil (si présent)
 async function displayBonusList() {
     const container = document.getElementById('bonus-grid');
     if (!container) return;
@@ -1026,7 +1044,6 @@ async function displayHistory() {
         return;
     }
 
-    // Tri par catégorie (VIP, Pro, Simple) puis date décroissante
     const catOrder = { vip: 0, pro: 1, simple: 2 };
     historyMatches.sort((a, b) => {
         const orderA = catOrder[a.category] !== undefined ? catOrder[a.category] : 3;
@@ -1035,7 +1052,6 @@ async function displayHistory() {
         return new Date(b.event_date) - new Date(a.event_date);
     });
 
-    // Regrouper par jour
     const groupedByDay = {};
     historyMatches.forEach(m => {
         const dateStr = getLocalDateFromEvent(m.event_date);
@@ -1149,67 +1165,4 @@ function initScrollProgress() {
         const scrolled = (winScroll / height) * 100;
         progressBar.style.width = scrolled + '%';
     });
-}
-
-// =======================================================
-// GESTION DES CONSEILS (modale)
-// =======================================================
-window.conseilsData = [];
-
-function showConseilDetail(id) {
-    const conseil = window.conseilsData.find(c => c.id === id);
-    if (!conseil) return;
-
-    const modal = document.getElementById('conseil-modal');
-    if (!modal) return;
-
-    document.getElementById('conseil-modal-title').textContent = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-    document.getElementById('conseil-modal-image').src = conseil.image_url || 'assets/images/default-logo.png';
-    let content = window.marked ? window.marked.parse(conseil.content) : conseil.content.replace(/\n/g, '<br>');
-    document.getElementById('conseil-modal-content').innerHTML = content;
-    modal.style.display = 'flex';
-}
-
-window.closeConseilModal = function() {
-    const modal = document.getElementById('conseil-modal');
-    if (modal) modal.style.display = 'none';
-};
-
-// =======================================================
-// FONCTION POUR LES LISTES HORIZONTALES
-// =======================================================
-function renderHorizontalList(items, containerId, type) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    if (!items || items.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-    container.style.display = 'flex';
-    let html = '';
-    items.slice(0, 8).forEach((item, index) => {
-        let image = item.image || item.image_url || 'assets/images/default-logo.png';
-        let title = item.title || item.match || 'Sans titre';
-        let slug = item.slug || null;
-        let link = '#';
-        if (type === 'blog' && slug) link = `article.html?slug=${slug}`;
-        else if (type === 'conseils') {
-            // Pour les conseils, on utilise un onclick sur la modale
-            html += `
-                <div class="horizontal-item" onclick="showConseilDetail(${index})">
-                    <img src="${image}" alt="${title}">
-                    <div class="item-title">${title}</div>
-                </div>
-            `;
-            return;
-        } else if (type === 'infos') link = `infos.html#${item.id}`;
-        else if (type === 'bonus') link = `bonus.html#${item.id}`;
-        html += `
-            <div class="horizontal-item" onclick="window.location.href='${link}'">
-                <img src="${image}" alt="${title}">
-                <div class="item-title">${title}</div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
 }

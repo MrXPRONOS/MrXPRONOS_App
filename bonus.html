@@ -1,4 +1,3 @@
-<!-- bonus.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -36,25 +35,25 @@
     </header>
 
     <main class="container">
-        <h1 style="color: var(--or); margin: 2rem 0;">🎁 Bonus et Promotions</h1>
+        <h1 style="color: var(--or); margin: 2rem 0 1rem;">🎁 Bonus et Promotions</h1>
 
         <!-- Sélecteur de bookmaker -->
         <div class="bonus-selector">
             <label for="bonus-bookmaker-select">Choisissez un bookmaker :</label>
-            <select id="bonus-bookmaker-select"></select>
+            <select id="bonus-bookmaker-select" class="bonus-select"></select>
         </div>
 
-        <!-- Miniatures des bonus -->
+        <!-- Miniatures des bonus (4 par ligne) -->
         <div id="bonus-thumbnails" class="bonus-thumbnails"></div>
 
-        <!-- Modal de détail -->
-        <div id="bonus-modal" class="modal" onclick="if(event.target === this) closeBonusModal()">
+        <!-- Modal pour afficher le détail du bonus -->
+        <div id="bonus-modal" class="modal" style="display: none;">
             <div class="modal-content">
                 <span class="close" onclick="closeBonusModal()">&times;</span>
+                <img id="bonus-modal-image" src="" alt="" class="modal-image">
                 <h2 id="bonus-modal-title"></h2>
-                <img id="bonus-modal-image" src="" alt="" style="max-width:100%; margin:1rem 0;">
-                <p id="bonus-modal-description"></p>
-                <div id="bonus-modal-footer" class="bonus-footer"></div>
+                <div id="bonus-modal-description"></div>
+                <div id="bonus-modal-footer" class="modal-footer"></div>
                 <a id="bonus-modal-link" href="#" target="_blank" class="btn btn-primary">Profiter de l'offre</a>
             </div>
         </div>
