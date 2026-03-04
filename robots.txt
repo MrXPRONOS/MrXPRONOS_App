@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mrxpronos.github.io/MrXPRONOS_App/sitemap.xml

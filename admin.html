@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Mr XPRONOS</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .admin-tabs { display: flex; gap: 0.5rem; margin: 2rem 0; flex-wrap: wrap; }
+        .tab-btn { background: var(--noir-secondaire); color: var(--blanc); border: none; padding: 0.8rem 1.5rem; border-radius: 30px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .tab-btn.active { background: var(--or); color: var(--noir); }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+        pre { background: var(--noir); padding: 1rem; border-radius: 8px; overflow-x: auto; color: #0f0; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--noir-secondaire); border: 1px solid var(--or); border-radius: 16px; padding: 1.5rem; text-align: center; box-shadow: var(--shadow); }
+        .stat-card h3 { color: var(--or); margin-bottom: 0.5rem; font-size: 1rem; }
+        .stat-card .stat-value { font-size: 2rem; font-weight: 700; color: var(--blanc); }
+        .period-selector { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center; }
+        .period-selector select, .period-selector input { background: var(--noir-secondaire); color: var(--blanc); border: 1px solid var(--or); padding: 0.5rem; border-radius: 8px; }
+        .custom-range { display: none; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    </style>
+</head>
+<!-- Popup guide d'installation pour iOS (identique à index.html) -->
+<div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
+    <div class="ios-guide-content">
+        <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
+        <div class="ios-guide-steps">
+            <div class="ios-guide-step">
+                <span class="step-number">1</span>
+                <span class="step-text">Touchez le bouton <strong>Partager</strong> <span style="font-size:1.2rem;">📤</span> en bas de l'écran</span>
+            </div>
+            <div class="ios-guide-step">
+                <span class="step-number">2</span>
+                <span class="step-text">Faites défiler vers le bas et sélectionnez <strong>"Sur l'écran d'accueil"</strong></span>
+            </div>
+            <div class="ios-guide-step">
+                <span class="step-number">3</span>
+                <span class="step-text">Touchez <strong>"Ajouter"</strong> en haut à droite</span>
+            </div>
+        </div>
+        <div class="ios-guide-note">
+            💡 Activez l'option <strong>"Ouvrir comme app web"</strong> pour une expérience optimale [citation:1].
+        </div>
+        <div class="ios-guide-buttons">
+            <button id="close-ios-guide" class="btn btn-primary">Compris !</button>
+            <button id="close-ios-guide-btn" class="btn btn-secondary">Plus tard</button>
+        </div>
+    </div>
+</div>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">Mr <span>XPRONOS</span> Admin</a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Retour au site</a></li>
+                </ul>
+            </nav>
+            <div class="promo-code">Code Promo : XPVIP</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <h1 style="color: var(--or);">Panneau d'administration</h1>
+
+        <div class="admin-tabs">
+            <button class="tab-btn active" data-tab="pronostics">Pronostics</button>
+            <button class="tab-btn" data-tab="blog">Blog</button>
+            <button class="tab-btn" data-tab="conseils">Conseils</button>
+            <button class="tab-btn" data-tab="infos">Infos</button>
+            <button class="tab-btn" data-tab="export">Export JSON</button>
+            <button class="tab-btn" data-tab="stats">Statistiques</button>
+        </div>
+
+        <!-- Onglet Pronostics -->
+        <div id="tab-pronostics" class="tab-pane active">
+            <div class="admin-form">
+                <h2>Ajouter / Modifier un pronostic</h2>
+                <form id="pronostic-form">
+                    <div class="form-group">
+                        <label>Match</label>
+                        <input type="text" id="pronostic-match" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cote</label>
+                        <input type="text" id="pronostic-cote" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Analyse</label>
+                        <textarea id="pronostic-analyse" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Confiance (%)</label>
+                        <input type="number" id="pronostic-confidence" min="0" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bookmaker</label>
+                        <select id="pronostic-bookmaker">
+                            <option>1xBet</option>
+                            <option>1win</option>
+                            <option>Betwinner</option>
+                            <option>Melbet</option>
+                            <option>Linebet</option>
+                            <option>888starz</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="pronostic-premium"> Premium (VIP)
+                        </label>
+                    </div>
+                    <input type="hidden" id="pronostic-index" value="-1">
+                    <div class="admin-actions">
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="button" id="cancel-pronostic" class="btn btn-secondary">Annuler</button>
+                    </div>
+                </form>
+            </div>
+            <div class="admin-list" id="pronostics-list-admin"></div>
+        </div>
+
+        <!-- Onglet Blog -->
+        <div id="tab-blog" class="tab-pane">
+            <div class="admin-form">
+                <h2>Ajouter / Modifier un article</h2>
+                <form id="blog-form">
+                    <div class="form-group">
+                        <label>Titre</label>
+                        <input type="text" id="blog-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Slug (URL)</label>
+                        <input type="text" id="blog-slug" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="blog-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Auteur</label>
+                        <input type="text" id="blog-author" value="Mr XPRONOS" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Extrait</label>
+                        <textarea id="blog-excerpt" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Contenu (HTML autorisé)</label>
+                        <textarea id="blog-content" required></textarea>
+                    </div>
+                    <input type="hidden" id="blog-index" value="-1">
+                    <div class="admin-actions">
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="button" id="cancel-blog" class="btn btn-secondary">Annuler</button>
+                    </div>
+                </form>
+            </div>
+            <div class="admin-list" id="blog-list-admin"></div>
+        </div>
+
+        <!-- Onglet Conseils -->
+        <div id="tab-conseils" class="tab-pane">
+            <div class="admin-form">
+                <h2>Ajouter / Modifier un conseil</h2>
+                <form id="conseil-form">
+                    <div class="form-group">
+                        <label>Titre</label>
+                        <input type="text" id="conseil-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contenu</label>
+                        <textarea id="conseil-content" required></textarea>
+                    </div>
+                    <input type="hidden" id="conseil-index" value="-1">
+                    <div class="admin-actions">
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="button" id="cancel-conseil" class="btn btn-secondary">Annuler</button>
+                    </div>
+                </form>
+            </div>
+            <div class="admin-list" id="conseils-list-admin"></div>
+        </div>
+
+        <!-- Onglet Infos -->
+        <div id="tab-infos" class="tab-pane">
+            <div class="admin-form">
+                <h2>Ajouter / Modifier une info sport</h2>
+                <form id="info-form">
+                    <div class="form-group">
+                        <label>Titre</label>
+                        <input type="text" id="info-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contenu</label>
+                        <textarea id="info-content" required></textarea>
+                    </div>
+                    <input type="hidden" id="info-index" value="-1">
+                    <div class="admin-actions">
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="button" id="cancel-info" class="btn btn-secondary">Annuler</button>
+                    </div>
+                </form>
+            </div>
+            <div class="admin-list" id="infos-list-admin"></div>
+        </div>
+
+        <!-- Onglet Export JSON -->
+        <div id="tab-export" class="tab-pane">
+            <div class="admin-form">
+                <h2>Exporter les données</h2>
+                <p>Cliquez ci-dessous pour générer le fichier <code>data.json</code> contenant toutes les données actuelles.</p>
+                <button id="export-json" class="btn btn-primary">Télécharger data.json</button>
+                <button id="reset-data" class="btn btn-secondary" style="margin-left: 1rem;">Réinitialiser les données (exemple)</button>
+                <pre id="json-preview"></pre>
+            </div>
+        </div>
+
+        <!-- Onglet Statistiques -->
+        <div id="tab-stats" class="tab-pane">
+            <h2 style="color: var(--or);">Statistiques d'utilisation (réelles)</h2>
+
+            <div class="period-selector">
+                <label for="period-select">Période :</label>
+                <select id="period-select"></select>
+                <div id="custom-date-range" class="custom-range">
+                    <input type="date" id="start-date">
+                    <span>à</span>
+                    <input type="date" id="end-date">
+                    <button id="apply-custom" class="btn btn-secondary">Appliquer</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Utilisateurs uniques</h3>
+                    <div class="stat-value" id="total-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Visites</h3>
+                    <div class="stat-value" id="total-visits">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Partages</h3>
+                    <div class="stat-value" id="total-shares">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Nouveaux utilisateurs</h3>
+                    <div class="stat-value" id="new-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Anciens utilisateurs</h3>
+                    <div class="stat-value" id="old-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Utilisateurs en ligne</h3>
+                    <div class="stat-value" id="online-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Hors ligne</h3>
+                    <div class="stat-value" id="offline-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Moy. visites/jour</h3>
+                    <div class="stat-value" id="avg-visits">-</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="assets/js/admin-stats.js"></script>
+    <script>
+        (function() {
+            const defaultData = {
+                pronostics: [
+                    { match: "PSG - OM", cote: "1.85", analyse: "PSG en forme à domicile.", confidence: 75, premium: false, bookmaker: "1xBet" }
+                ],
+                blog: [
+                    { slug: "comment-bien-debuter", title: "Comment bien débuter dans les paris sportifs", date: "2025-03-01", author: "Mr XPRONOS", excerpt: "Les bases pour démarrer sans risque.", content: "<p>Contenu de l'article...</p>" }
+                ],
+                conseils: [
+                    { title: "Gestion de bankroll", content: "Ne misez jamais plus de 5% de votre capital." }
+                ],
+                infos: [
+                    { title: "Classement Ligue 1", content: "PSG en tête..." }
+                ]
+            };
+
+            let data = JSON.parse(localStorage.getItem('mrXpronosData')) || defaultData;
+
+            function saveData() {
+                localStorage.setItem('mrXpronosData', JSON.stringify(data, null, 2));
+                renderAllLists();
+                updatePreview();
+            }
+
+            function renderPronostics() {
+                const container = document.getElementById('pronostics-list-admin');
+                if (!container) return;
+                container.innerHTML = '';
+                data.pronostics.forEach((p, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'admin-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>${p.match}</strong> - Cote ${p.cote} (${p.bookmaker}) ${p.premium ? '⭐ VIP' : ''}
+                        </div>
+                        <div>
+                            <button onclick="editPronostic(${index})">✏️</button>
+                            <button onclick="deletePronostic(${index})">🗑️</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            window.editPronostic = (index) => {
+                const p = data.pronostics[index];
+                document.getElementById('pronostic-match').value = p.match;
+                document.getElementById('pronostic-cote').value = p.cote;
+                document.getElementById('pronostic-analyse').value = p.analyse;
+                document.getElementById('pronostic-confidence').value = p.confidence;
+                document.getElementById('pronostic-bookmaker').value = p.bookmaker;
+                document.getElementById('pronostic-premium').checked = p.premium;
+                document.getElementById('pronostic-index').value = index;
+            };
+
+            window.deletePronostic = (index) => {
+                if (confirm('Supprimer ce pronostic ?')) {
+                    data.pronostics.splice(index, 1);
+                    saveData();
+                }
+            };
+
+            document.getElementById('pronostic-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const index = parseInt(document.getElementById('pronostic-index').value);
+                const newPronostic = {
+                    match: document.getElementById('pronostic-match').value,
+                    cote: document.getElementById('pronostic-cote').value,
+                    analyse: document.getElementById('pronostic-analyse').value,
+                    confidence: parseInt(document.getElementById('pronostic-confidence').value),
+                    bookmaker: document.getElementById('pronostic-bookmaker').value,
+                    premium: document.getElementById('pronostic-premium').checked
+                };
+                if (index === -1) {
+                    data.pronostics.push(newPronostic);
+                } else {
+                    data.pronostics[index] = newPronostic;
+                }
+                saveData();
+                document.getElementById('pronostic-form').reset();
+                document.getElementById('pronostic-index').value = '-1';
+            });
+
+            document.getElementById('cancel-pronostic').addEventListener('click', () => {
+                document.getElementById('pronostic-form').reset();
+                document.getElementById('pronostic-index').value = '-1';
+            });
+
+            function renderBlog() {
+                const container = document.getElementById('blog-list-admin');
+                if (!container) return;
+                container.innerHTML = '';
+                data.blog.forEach((article, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'admin-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>${article.title}</strong> (${article.date}) - ${article.author}
+                        </div>
+                        <div>
+                            <button onclick="editBlog(${index})">✏️</button>
+                            <button onclick="deleteBlog(${index})">🗑️</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            window.editBlog = (index) => {
+                const a = data.blog[index];
+                document.getElementById('blog-title').value = a.title;
+                document.getElementById('blog-slug').value = a.slug;
+                document.getElementById('blog-date').value = a.date;
+                document.getElementById('blog-author').value = a.author;
+                document.getElementById('blog-excerpt').value = a.excerpt;
+                document.getElementById('blog-content').value = a.content;
+                document.getElementById('blog-index').value = index;
+            };
+
+            window.deleteBlog = (index) => {
+                if (confirm('Supprimer cet article ?')) {
+                    data.blog.splice(index, 1);
+                    saveData();
+                }
+            };
+
+            document.getElementById('blog-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const index = parseInt(document.getElementById('blog-index').value);
+                const newArticle = {
+                    slug: document.getElementById('blog-slug').value,
+                    title: document.getElementById('blog-title').value,
+                    date: document.getElementById('blog-date').value,
+                    author: document.getElementById('blog-author').value,
+                    excerpt: document.getElementById('blog-excerpt').value,
+                    content: document.getElementById('blog-content').value
+                };
+                if (index === -1) {
+                    data.blog.push(newArticle);
+                } else {
+                    data.blog[index] = newArticle;
+                }
+                saveData();
+                document.getElementById('blog-form').reset();
+                document.getElementById('blog-index').value = '-1';
+            });
+
+            document.getElementById('cancel-blog').addEventListener('click', () => {
+                document.getElementById('blog-form').reset();
+                document.getElementById('blog-index').value = '-1';
+            });
+
+            function renderConseils() {
+                const container = document.getElementById('conseils-list-admin');
+                if (!container) return;
+                container.innerHTML = '';
+                data.conseils.forEach((c, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'admin-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>${c.title}</strong>
+                        </div>
+                        <div>
+                            <button onclick="editConseil(${index})">✏️</button>
+                            <button onclick="deleteConseil(${index})">🗑️</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            window.editConseil = (index) => {
+                const c = data.conseils[index];
+                document.getElementById('conseil-title').value = c.title;
+                document.getElementById('conseil-content').value = c.content;
+                document.getElementById('conseil-index').value = index;
+            };
+
+            window.deleteConseil = (index) => {
+                if (confirm('Supprimer ce conseil ?')) {
+                    data.conseils.splice(index, 1);
+                    saveData();
+                }
+            };
+
+            document.getElementById('conseil-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const index = parseInt(document.getElementById('conseil-index').value);
+                const newConseil = {
+                    title: document.getElementById('conseil-title').value,
+                    content: document.getElementById('conseil-content').value
+                };
+                if (index === -1) {
+                    data.conseils.push(newConseil);
+                } else {
+                    data.conseils[index] = newConseil;
+                }
+                saveData();
+                document.getElementById('conseil-form').reset();
+                document.getElementById('conseil-index').value = '-1';
+            });
+
+            document.getElementById('cancel-conseil').addEventListener('click', () => {
+                document.getElementById('conseil-form').reset();
+                document.getElementById('conseil-index').value = '-1';
+            });
+
+            function renderInfos() {
+                const container = document.getElementById('infos-list-admin');
+                if (!container) return;
+                container.innerHTML = '';
+                data.infos.forEach((info, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'admin-item';
+                    div.innerHTML = `
+                        <div>
+                            <strong>${info.title}</strong>
+                        </div>
+                        <div>
+                            <button onclick="editInfo(${index})">✏️</button>
+                            <button onclick="deleteInfo(${index})">🗑️</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            window.editInfo = (index) => {
+                const i = data.infos[index];
+                document.getElementById('info-title').value = i.title;
+                document.getElementById('info-content').value = i.content;
+                document.getElementById('info-index').value = index;
+            };
+
+            window.deleteInfo = (index) => {
+                if (confirm('Supprimer cette info ?')) {
+                    data.infos.splice(index, 1);
+                    saveData();
+                }
+            };
+
+            document.getElementById('info-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const index = parseInt(document.getElementById('info-index').value);
+                const newInfo = {
+                    title: document.getElementById('info-title').value,
+                    content: document.getElementById('info-content').value
+                };
+                if (index === -1) {
+                    data.infos.push(newInfo);
+                } else {
+                    data.infos[index] = newInfo;
+                }
+                saveData();
+                document.getElementById('info-form').reset();
+                document.getElementById('info-index').value = '-1';
+            });
+
+            document.getElementById('cancel-info').addEventListener('click', () => {
+                document.getElementById('info-form').reset();
+                document.getElementById('info-index').value = '-1';
+            });
+
+            function updatePreview() {
+                const preview = document.getElementById('json-preview');
+                if (preview) {
+                    preview.textContent = JSON.stringify(data, null, 2);
+                }
+            }
+
+            document.getElementById('export-json').addEventListener('click', () => {
+                const jsonStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'data.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+
+            document.getElementById('reset-data').addEventListener('click', () => {
+                if (confirm('Réinitialiser avec les données d\'exemple ?')) {
+                    data = JSON.parse(JSON.stringify(defaultData));
+                    saveData();
+                }
+            });
+
+            document.querySelectorAll('.admin-tabs .tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.admin-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+                });
+            });
+
+            function renderAllLists() {
+                renderPronostics();
+                renderBlog();
+                renderConseils();
+                renderInfos();
+            }
+
+            renderAllLists();
+            updatePreview();
+        })();
+    </script>
+</body>
+</html>
