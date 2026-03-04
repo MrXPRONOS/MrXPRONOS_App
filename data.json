@@ -351,6 +351,41 @@
       "verified_over": false
     },
     {
+      "id": 4676210,
+      "date": "2026-03-04",
+      "event_date": "2026-03-04T16:00:00+00:00",
+      "home_team": "UNAN Managua U19",
+      "away_team": "Diriangen U19",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Liga Primera Juvenil",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.0,
+        "draws": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.5,
+        "goals_avg": 2.5,
+        "over_25_prob": 0.5
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false
+    },
+    {
       "id": 4641190,
       "date": "2026-03-04",
       "event_date": "2026-03-04T14:00:00+00:00",
@@ -1572,8 +1607,8 @@
       "xpronos_score": 57,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
-      "verified_over": false
+      "verified_double": true,
+      "verified_over": true
     },
     {
       "id": 4658223,
@@ -1880,6 +1915,41 @@
           "home_dominance": 0.0,
           "away_dominance": 0.5,
           "goals_avg": 4.0,
+          "over_25_prob": 0.5
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false
+      },
+      {
+        "id": 4676210,
+        "date": "2026-03-04",
+        "event_date": "2026-03-04T16:00:00+00:00",
+        "home_team": "UNAN Managua U19",
+        "away_team": "Diriangen U19",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Liga Primera Juvenil",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.0,
+          "draws": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.5,
+          "goals_avg": 2.5,
           "over_25_prob": 0.5
         },
         "prediction": {
@@ -2220,8 +2290,8 @@
         "league_logo": null,
         "venue": "",
         "status": "Ended",
-        "home_score": null,
-        "away_score": null,
+        "home_score": 0,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 1,
           "home_wins": 1.0,
@@ -2240,8 +2310,8 @@
         "xpronos_score": 57,
         "badge": "",
         "category": "simple",
-        "verified_double": false,
-        "verified_over": false
+        "verified_double": true,
+        "verified_over": true
       },
       {
         "id": 4636457,
