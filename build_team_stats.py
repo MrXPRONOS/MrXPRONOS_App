@@ -3,7 +3,7 @@
 """
 build_team_stats.py - Enrichit all_matches.json avec les statistiques de forme des équipes
 (5 derniers matchs, buts marqués/encaissés, etc.)
-Exécuter après allmatches.py et avant generate_data.py. 
+Exécuter après allmatches.py et avant generate_data.py.  
 """
 
 import json
