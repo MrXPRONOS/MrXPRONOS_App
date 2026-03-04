@@ -1,3 +1,4 @@
+# .github/workflows/update-data.yml
 name: Mise à jour quotidienne (données + contenu)
 
 on:
@@ -24,11 +25,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install requests mistralai feedparser deep-translator Pillow
-
-      - name: Mise à jour du cache (matchs d'hier)
-        env:
-          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
-        run: python update_matches.py
 
       - name: Génération des pronostics (data.json)
         env:

@@ -3,21 +3,17 @@
  * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
  * fallback pour les images des bookmakers, affichage du pronostic Over 2.5,
  * cases à cocher pour la validation, recherche dans les pronostics,
- * tri de l'historique par catégorie (VIP, Pro, Simple), et intégration Supabase.
+ * tri de l'historique par catégorie (VIP, Pro, Simple),
+ * compteurs réels via Supabase, et gestion des bonus/promotions.
  */
 
 // =======================================================
-// CONFIGURATION SUPABASE (importée depuis config.js)
+// IMPORT CONFIGURATION SUPABASE (généré par GitHub Actions)
 // =======================================================
 import { supabaseUrl, supabaseAnonKey } from './config.js';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-let supabase;
-try {
-    supabase = createClient(supabaseUrl, supabaseAnonKey);
-} catch (e) {
-    console.warn('⚠️ Supabase non initialisée, les compteurs ne seront pas mis à jour');
-}
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // =======================================================
 // VARIABLES GLOBALES
@@ -41,10 +37,6 @@ const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
 // Limites de partages quotidiennes
 const shareLimits = { pro: 2, vip: 5 };
-
-// Variable pour la recherche
-let filteredMatchesWithoutSearch = [];
-let searchTerm = '';
 
 const POPULAR_LEAGUES = [
     "Premier League",
@@ -88,38 +80,31 @@ function incrementShareCount() {
 }
 
 // =======================================================
-// FONCTIONS SUPABASE POUR LES COMPTEURS
+// FONCTIONS SUPABASE (COMPTEURS)
 // =======================================================
 async function getCounterValue(counterName) {
-    if (!supabase) return null;
-    try {
-        const { data, error } = await supabase
-            .from('counters')
-            .select('value')
-            .eq('name', counterName)
-            .single();
-        if (error) throw error;
-        return data.value;
-    } catch (error) {
+    const { data, error } = await supabase
+        .from('counters')
+        .select('value')
+        .eq('name', counterName)
+        .single();
+    if (error) {
         console.error('Erreur récupération compteur:', error);
         return null;
     }
+    return data.value;
 }
 
 async function updateDisplayedCounters() {
+    const totalUsers = await getCounterValue('total_users') || 1000;
+    const totalShares = await getCounterValue('total_shares') || 10000;
     const usersEl = document.getElementById('total-users-count');
     const sharesEl = document.getElementById('total-shares-count');
-    if (!usersEl && !sharesEl) return;
-
-    const totalUsers = await getCounterValue('total_users') ?? 1000;
-    const totalShares = await getCounterValue('total_shares') ?? 10000;
-
     if (usersEl) usersEl.textContent = totalUsers.toLocaleString();
     if (sharesEl) sharesEl.textContent = totalShares.toLocaleString();
 }
 
-async function incrementGlobalCounter(counterName) {
-    if (!supabase) return;
+async function incrementCounter(counterName) {
     try {
         const current = await getCounterValue(counterName);
         if (current === null) return;
@@ -136,7 +121,7 @@ async function incrementGlobalCounter(counterName) {
 }
 
 // =======================================================
-// GESTION DE L'INSTALLATION PWA (Android & Desktop)
+// GESTION DE L'INSTALLATION PWA
 // =======================================================
 let deferredPrompt;
 const installButton = document.getElementById('install-app');
@@ -201,19 +186,22 @@ document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeI
 // =======================================================
 document.addEventListener('DOMContentLoaded', () => {
     showIosGuideIfNeeded();
-    updateDisplayedCounters();
+    updateDisplayedCounters(); // Met à jour les compteurs sur l'accueil
 
-    // Vérifier si c'est la première visite pour incrémenter le compteur global
-    if (!localStorage.getItem('userCounted')) {
-        incrementGlobalCounter('total_users');
-        localStorage.setItem('userCounted', 'true');
-    }
-
+    // Si on est sur la page des pronostics
     if (matchesContainer) {
         initPronostics();
-    } else if (document.getElementById('history-container')) {
+    } 
+    // Si on est sur la page historique
+    else if (document.getElementById('history-container')) {
         displayHistory();
-    } else {
+    }
+    // Si on est sur la page bonus
+    else if (document.getElementById('bonus-bookmaker-select')) {
+        initBonusPage();
+    }
+    // Sinon (accueil ou autre)
+    else {
         loadDataGeneric().then(data => {
             if (data) {
                 renderBookmakers(data.bookmakers);
@@ -221,11 +209,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Fonctions communes à plusieurs pages
     displayBlogList();
     displayBlogPost();
     displayConseils();
     displayInfos();
-    displayBonusList();
+    displayBonusList();   // pour la page bonus (grille)
     displayFootNews();
     initScrollProgress();
 
@@ -450,10 +440,13 @@ function share(platform) {
 
     // Incrémenter le compteur quotidien local
     const newCount = incrementShareCount();
-    // Incrémenter le compteur global Supabase
-    incrementGlobalCounter('total_shares');
-
     updateShareCounter();
+
+    // Envoyer l'événement de partage à Supabase
+    incrementCounter('total_shares');
+
+    // Enregistrer l'événement local pour les stats admin
+    recordEvent('share');
 
     const target = shareLimits[currentCategory];
     if (newCount >= target) {
@@ -532,6 +525,10 @@ function filterAndDisplay() {
     filteredMatchesWithoutSearch = sorted;
     applySearchFilter();
 }
+
+// Variable pour la recherche
+let filteredMatchesWithoutSearch = [];
+let searchTerm = '';
 
 function applySearchFilter() {
     if (!filteredMatchesWithoutSearch) return;
@@ -696,6 +693,7 @@ function getStatusClass(status) {
 // FONCTION POUR LES BOOKMAKERS (avec fallback)
 // =======================================================
 function renderBookmakers(bookmakers) {
+    // Fallback si data.json vide
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
@@ -708,6 +706,7 @@ function renderBookmakers(bookmakers) {
         ];
     }
 
+    // Footer
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -720,6 +719,7 @@ function renderBookmakers(bookmakers) {
         });
     }
 
+    // Section bonus sur l'accueil
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
@@ -737,7 +737,7 @@ function renderBookmakers(bookmakers) {
 }
 
 // =======================================================
-// FONCTIONS POUR LES STATISTIQUES (admin)
+// FONCTIONS POUR LES STATISTIQUES (admin) - événements locaux
 // =======================================================
 function recordEvent(type) {
     let events = JSON.parse(localStorage.getItem('userEvents')) || [];
@@ -768,74 +768,72 @@ async function loadGeneratedContent() {
     }
 }
 
+// =======================================================
+// FONCTIONS POUR LE BLOG
+// =======================================================
 async function displayBlogList() {
     const container = document.getElementById('blog-list');
     if (!container) return;
+
     if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
     const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
+
+    // Liste horizontale
+    renderHorizontalList(allArticles, 'blog-horizontal-list', 'blog');
+
+    // Grille
     if (allArticles.length === 0) return;
+    let html = '';
     allArticles.forEach(article => {
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
         let excerpt = article.excerpt || article.content.substring(0, 200) + '...';
         let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 150) + '...';
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-            <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${cleanTitle}</a></h3>
-            <div class="meta">${article.date} par ${article.author} ${article.match ? '• ' + article.match : ''}</div>
-            ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:10px 0;">` : ''}
-            <p>${cleanExcerpt}</p>
-            <a href="article.html?slug=${article.slug}" class="btn btn-secondary">Lire</a>
+        html += `
+            <div class="card">
+                ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : ''}
+                <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${cleanTitle}</a></h3>
+                <div class="meta">${article.date} par ${article.author} ${article.match ? '• ' + article.match : ''}</div>
+                <p>${cleanExcerpt}</p>
+                <a href="article.html?slug=${article.slug}" class="btn btn-secondary">Lire</a>
+            </div>
         `;
-        container.appendChild(card);
     });
-}
-
-async function displayBlogPost() {
-    const container = document.getElementById('blog-post');
-    if (!container) return;
-    const urlParams = new URLSearchParams(window.location.search);
-    const slug = urlParams.get('slug');
-    if (!slug) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
-    if (!window.generatedArticles) await loadGeneratedContent();
-    const data = await loadDataGeneric();
-    const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
-    const article = allArticles.find(a => a.slug === slug);
-    if (!article) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
-    let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-    document.title = cleanTitle + ' - Mr XPRONOS';
-    let htmlContent = window.marked ? window.marked.parse(article.content) : article.content.replace(/\n/g, '<br>');
-    container.innerHTML = `
-        <h1>${cleanTitle}</h1>
-        <div class="meta">${article.date} par ${article.author}</div>
-        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:20px 0;">` : ''}
-        <div style="margin-top: 2rem;">${htmlContent}</div>
-        <a href="blog.html" class="btn btn-secondary" style="margin-top: 2rem;">← Retour au blog</a>
-    `;
+    container.innerHTML = html;
 }
 
 async function displayConseils() {
     const container = document.getElementById('conseils-list');
     if (!container) return;
+
     if (!window.generatedConseils) await loadGeneratedContent();
     const data = await loadDataGeneric();
     const allConseils = [...(window.generatedConseils || []), ...(data?.conseils || [])];
+    window.conseilsData = allConseils; // pour la modale
+
+    // Liste horizontale
+    renderHorizontalList(allConseils, 'conseils-horizontal-list', 'conseils');
+
+    // Grille
     if (allConseils.length === 0) return;
-    allConseils.forEach(c => {
+    let html = '';
+    allConseils.forEach((c, index) => {
         let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        let htmlContent = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-            <h3>${cleanTitle}</h3>
-            ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:10px 0;">` : ''}
-            <div>${htmlContent}</div>
+        let contentHtml = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
+        html += `
+            <div class="card">
+                ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : ''}
+                <h3>${cleanTitle}</h3>
+                <div>${contentHtml}</div>
+            </div>
         `;
-        container.appendChild(card);
     });
+    container.innerHTML = html;
 }
 
+// =======================================================
+// FONCTIONS POUR LES INFOS SPORT
+// =======================================================
 async function displayInfos() {
     const container = document.getElementById('infos-list');
     if (!container) return;
@@ -849,41 +847,9 @@ async function displayInfos() {
     });
 }
 
-async function displayBonusList() {
-    const container = document.getElementById('bonus-grid');
-    if (!container) return;
-
-    const data = await loadDataGeneric();
-    const bonus = data?.bonus || [];
-    const activeBonus = bonus.filter(b => b.active && new Date(b.end) >= new Date());
-
-    if (activeBonus.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun bonus actif pour le moment.</div>';
-        return;
-    }
-
-    let html = '';
-    activeBonus.forEach(b => {
-        html += `
-            <div class="bonus-card">
-                <img src="${b.image}" alt="${b.title}" class="bonus-image">
-                <h3>${b.title}</h3>
-                <p>${b.description}</p>
-                <div class="bonus-footer">
-                    <span>Valable du ${formatDate(b.start)} au ${formatDate(b.end)}</span>
-                    ${b.link ? `<a href="${b.link}" target="_blank" class="btn btn-primary">Profiter</a>` : ''}
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-function formatDate(dateStr) {
-    const [y, m, d] = dateStr.split('-');
-    return `${d}/${m}/${y}`;
-}
-
+// =======================================================
+// FONCTIONS POUR LES ACTUALITÉS (RSS)
+// =======================================================
 async function displayFootNews() {
     const container = document.getElementById('foot-news-container');
     if (!container) return;
@@ -915,7 +881,127 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// PAGE HISTORIQUE (avec tri par catégorie)
+// FONCTIONS POUR LES BONUS (page bonus.html)
+// =======================================================
+let currentBookmaker = null;
+let allBonus = [];
+
+async function initBonusPage() {
+    const data = await loadDataGeneric();
+    allBonus = data?.bonus || [];
+
+    // Remplir la liste des bookmakers
+    const select = document.getElementById('bonus-bookmaker-select');
+    if (!select) return;
+
+    // Récupérer la liste unique des bookmakers depuis les bonus
+    const bookmakers = [...new Set(allBonus.map(b => b.bookmaker))].filter(Boolean);
+    bookmakers.sort();
+
+    bookmakers.forEach(bm => {
+        const option = document.createElement('option');
+        option.value = bm;
+        option.textContent = bm;
+        select.appendChild(option);
+    });
+
+    // Écouteur de changement
+    select.addEventListener('change', (e) => {
+        currentBookmaker = e.target.value;
+        displayBonusThumbnails();
+    });
+
+    // Sélectionner le premier s'il existe
+    if (bookmakers.length > 0) {
+        select.value = bookmakers[0];
+        currentBookmaker = bookmakers[0];
+        displayBonusThumbnails();
+    } else {
+        document.getElementById('bonus-thumbnails').innerHTML = '<p>Aucun bonus disponible.</p>';
+    }
+}
+
+function displayBonusThumbnails() {
+    const container = document.getElementById('bonus-thumbnails');
+    if (!container) return;
+
+    const filtered = allBonus.filter(b => b.bookmaker === currentBookmaker && b.active && new Date(b.end_date) >= new Date());
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<p>Aucun bonus actif pour ce bookmaker.</p>';
+        return;
+    }
+
+    let html = '';
+    filtered.forEach(b => {
+        html += `
+            <div class="bonus-thumb" onclick="showBonusDetail(${b.id})">
+                <img src="${b.image}" alt="${b.title}">
+                <div class="bonus-thumb-title">${b.title}</div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+
+    // Stocker les bonus pour le détail
+    window.bonusDetails = filtered;
+}
+
+window.showBonusDetail = function(id) {
+    const bonus = window.bonusDetails.find(b => b.id === id);
+    if (!bonus) return;
+
+    const modal = document.getElementById('bonus-modal');
+    document.getElementById('bonus-modal-title').textContent = bonus.title;
+    document.getElementById('bonus-modal-image').src = bonus.image;
+    document.getElementById('bonus-modal-description').innerHTML = bonus.description;
+    document.getElementById('bonus-modal-footer').innerHTML = bonus.footer || '';
+    document.getElementById('bonus-modal-link').href = bonus.link || '#';
+    modal.style.display = 'flex';
+};
+
+window.closeBonusModal = function() {
+    document.getElementById('bonus-modal').style.display = 'none';
+};
+
+// Sur la page bonus, on a aussi besoin d'afficher la liste des bonus sur l'accueil (si présent)
+async function displayBonusList() {
+    const container = document.getElementById('bonus-grid');
+    if (!container) return;
+
+    const data = await loadDataGeneric();
+    const bonus = data?.bonus || [];
+    const activeBonus = bonus.filter(b => b.active && new Date(b.end_date) >= new Date());
+
+    if (activeBonus.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun bonus actif pour le moment.</div>';
+        return;
+    }
+
+    let html = '';
+    activeBonus.forEach(b => {
+        html += `
+            <div class="bonus-card">
+                <img src="${b.image}" alt="${b.title}" class="bonus-image">
+                <h3>${b.title}</h3>
+                <p>${b.description}</p>
+                <div class="bonus-footer">
+                    <span>Valable du ${formatDate(b.start_date)} au ${formatDate(b.end_date)}</span>
+                    ${b.link ? `<a href="${b.link}" target="_blank" class="btn btn-primary">Profiter</a>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function formatDate(dateStr) {
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+// =======================================================
+// PAGE HISTORIQUE
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -940,6 +1026,7 @@ async function displayHistory() {
         return;
     }
 
+    // Tri par catégorie (VIP, Pro, Simple) puis date décroissante
     const catOrder = { vip: 0, pro: 1, simple: 2 };
     historyMatches.sort((a, b) => {
         const orderA = catOrder[a.category] !== undefined ? catOrder[a.category] : 3;
@@ -948,6 +1035,7 @@ async function displayHistory() {
         return new Date(b.event_date) - new Date(a.event_date);
     });
 
+    // Regrouper par jour
     const groupedByDay = {};
     historyMatches.forEach(m => {
         const dateStr = getLocalDateFromEvent(m.event_date);
@@ -1061,4 +1149,67 @@ function initScrollProgress() {
         const scrolled = (winScroll / height) * 100;
         progressBar.style.width = scrolled + '%';
     });
+}
+
+// =======================================================
+// GESTION DES CONSEILS (modale)
+// =======================================================
+window.conseilsData = [];
+
+function showConseilDetail(id) {
+    const conseil = window.conseilsData.find(c => c.id === id);
+    if (!conseil) return;
+
+    const modal = document.getElementById('conseil-modal');
+    if (!modal) return;
+
+    document.getElementById('conseil-modal-title').textContent = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+    document.getElementById('conseil-modal-image').src = conseil.image_url || 'assets/images/default-logo.png';
+    let content = window.marked ? window.marked.parse(conseil.content) : conseil.content.replace(/\n/g, '<br>');
+    document.getElementById('conseil-modal-content').innerHTML = content;
+    modal.style.display = 'flex';
+}
+
+window.closeConseilModal = function() {
+    const modal = document.getElementById('conseil-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+// =======================================================
+// FONCTION POUR LES LISTES HORIZONTALES
+// =======================================================
+function renderHorizontalList(items, containerId, type) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (!items || items.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+    let html = '';
+    items.slice(0, 8).forEach((item, index) => {
+        let image = item.image || item.image_url || 'assets/images/default-logo.png';
+        let title = item.title || item.match || 'Sans titre';
+        let slug = item.slug || null;
+        let link = '#';
+        if (type === 'blog' && slug) link = `article.html?slug=${slug}`;
+        else if (type === 'conseils') {
+            // Pour les conseils, on utilise un onclick sur la modale
+            html += `
+                <div class="horizontal-item" onclick="showConseilDetail(${index})">
+                    <img src="${image}" alt="${title}">
+                    <div class="item-title">${title}</div>
+                </div>
+            `;
+            return;
+        } else if (type === 'infos') link = `infos.html#${item.id}`;
+        else if (type === 'bonus') link = `bonus.html#${item.id}`;
+        html += `
+            <div class="horizontal-item" onclick="window.location.href='${link}'">
+                <img src="${image}" alt="${title}">
+                <div class="item-title">${title}</div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
 }
