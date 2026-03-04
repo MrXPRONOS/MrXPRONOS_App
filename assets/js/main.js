@@ -1,13 +1,10 @@
-// assets/js/main.js - Script principal complet avec toutes les fonctionnalités
-
-import { supabase } from './supabase-client.js';
+// assets/js/main.js
+import { supabase, getCounters, incrementShares, incrementUsers } from './supabase-client.js';
 
 let allData = null;
 let currentCategory = 'simple';
 let currentSubcat = 'pronostics';
 let currentDay = 'today';
-let searchTerm = '';
-let filteredMatchesWithoutSearch = [];
 
 const matchesContainer = document.getElementById('matches-container');
 const sharePopup = document.getElementById('share-popup');
@@ -15,24 +12,42 @@ const shareRemaining = document.getElementById('share-remaining');
 const shareCurrent = document.getElementById('share-current');
 const shareTarget = document.getElementById('share-target');
 const shareMessage = document.getElementById('share-message');
+
 const bookmakersFooter = document.getElementById('bookmakers-footer');
 const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
 const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
-// Compteurs globaux
-let totalUsers = 1000;
-let totalShares = 10000;
-
+// Limites de partages quotidiennes
 const shareLimits = { pro: 2, vip: 5 };
+
+// Variable pour la recherche
+let filteredMatchesWithoutSearch = [];
+let searchTerm = '';
+
 const POPULAR_LEAGUES = [
-    "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1", "Eredivisie",
-    "Primeira Liga", "Super Lig", "Russian Premier League", "MLS", "Brasileirão",
-    "Liga Profesional", "Jupiler Pro League", "Super League", "Championship",
-    "Liga Portugal", "Trendyol Super Lig"
+    "Premier League",
+    "LaLiga",
+    "Serie A",
+    "Bundesliga",
+    "Ligue 1",
+    "Eredivisie",
+    "Primeira Liga",
+    "Super Lig",
+    "Russian Premier League",
+    "MLS",
+    "Brasileirão",
+    "Liga Profesional",
+    "Jupiler Pro League",
+    "Super League",
+    "Championship",
+    "Liga Portugal",
+    "Trendyol Super Lig"
 ];
 
-// ==================== PARTAGES QUOTIDIENS ====================
+// =======================================================
+// GESTION DES PARTAGES QUOTIDIENS
+// =======================================================
 function getDailyShareCount() {
     const lastReset = localStorage.getItem('shareLastReset');
     const today = new Date().toDateString();
@@ -51,46 +66,22 @@ function incrementShareCount() {
     return newCount;
 }
 
-// ==================== COMPTEURS GLOBAUX (SUPABASE) ====================
-async function loadCounters() {
-    try {
-        const { data, error } = await supabase
-            .from('counters')
-            .select('total_users, total_shares')
-            .eq('id', 1)
-            .single();
-        if (error) throw error;
-        totalUsers = data.total_users;
-        totalShares = data.total_shares;
-    } catch (e) {
-        console.warn('Utilisation des valeurs par défaut pour les compteurs', e);
-        totalUsers = 1000;
-        totalShares = 10000;
-    }
-    updateCountersDisplay();
-}
-
-function updateCountersDisplay() {
-    const userCounter = document.getElementById('total-users-counter');
-    const shareCounter = document.getElementById('total-shares-counter');
-    if (userCounter) userCounter.textContent = totalUsers.toLocaleString();
-    if (shareCounter) shareCounter.textContent = totalShares.toLocaleString();
-}
-
-// ==================== INSTALLATION PWA ====================
+// =======================================================
+// GESTION DE L'INSTALLATION PWA
+// =======================================================
 let deferredPrompt;
 const installButton = document.getElementById('install-app');
 const iosGuidePopup = document.getElementById('ios-guide-popup');
 
 function getOS() {
-    const ua = navigator.userAgent;
+    const ua = window.navigator.userAgent;
     if (/iPad|iPhone|iPod/.test(ua)) return 'iOS';
     if (/Android/.test(ua)) return 'Android';
     return 'Other';
 }
 
 function isPwaInstalled() {
-    return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 
 function showIosGuideIfNeeded() {
@@ -135,7 +126,90 @@ window.addEventListener('appinstalled', () => {
 document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
 document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
 
-// ==================== CHARGEMENT DES DONNÉES ====================
+// =======================================================
+// COMPTEURS GLOBAUX
+// =======================================================
+let totalUsers = 1000;
+let totalShares = 10000;
+
+function updateCountersDisplay() {
+    const userCounter = document.getElementById('total-users-counter');
+    const shareCounter = document.getElementById('total-shares-counter');
+    if (userCounter) userCounter.textContent = totalUsers.toLocaleString();
+    if (shareCounter) shareCounter.textContent = totalShares.toLocaleString();
+}
+
+async function loadCounters() {
+    const counters = await getCounters();
+    totalUsers = counters.total_users;
+    totalShares = counters.total_shares;
+    updateCountersDisplay();
+}
+
+function checkNewUser() {
+    const hasVisited = localStorage.getItem('hasVisited');
+    if (!hasVisited) {
+        localStorage.setItem('hasVisited', 'true');
+        incrementUsers().then(newCount => {
+            totalUsers = newCount;
+            updateCountersDisplay();
+        });
+    }
+}
+
+// =======================================================
+// INITIALISATION
+// =======================================================
+document.addEventListener('DOMContentLoaded', () => {
+    showIosGuideIfNeeded();
+    loadCounters();
+    checkNewUser();
+
+    if (matchesContainer) {
+        initPronostics();
+    } else if (document.getElementById('history-container')) {
+        displayHistory();
+    } else {
+        loadDataGeneric().then(data => {
+            if (data) {
+                renderBookmakers(data.bookmakers);
+                updateShareCounter();
+            }
+        });
+    }
+    displayBlogList();
+    displayBlogPost();
+    displayConseils();
+    displayInfos();
+    displayFootNews();
+    displayBonusList();
+    initScrollProgress();
+
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            applySearchFilter();
+        });
+    }
+});
+
+// =======================================================
+// FONCTIONS PRONOSTICS
+// =======================================================
+async function initPronostics() {
+    await loadData();
+    if (allData) {
+        hideEmptyTabs();
+        maybeHideTabBar();
+        setupEventListeners();
+        updateSuccessRate();
+        filterAndDisplay();
+    } else {
+        matchesContainer.innerHTML = '<div class="error">❌ Erreur de chargement des données.</div>';
+    }
+}
+
 async function loadData() {
     try {
         const resp = await fetch('data.json?t=' + Date.now());
@@ -148,10 +222,10 @@ async function loadData() {
         const cached = localStorage.getItem('cachedData');
         if (cached) {
             allData = JSON.parse(cached);
-            if (matchesContainer) matchesContainer.innerHTML = '<div class="warning">⚠️ Données en cache.</div>';
+            matchesContainer.innerHTML = '<div class="warning">⚠️ Données en cache.</div>';
             renderBookmakers(allData.bookmakers);
         } else {
-            if (matchesContainer) matchesContainer.innerHTML = '<div class="error">❌ Impossible de charger.</div>';
+            matchesContainer.innerHTML = '<div class="error">❌ Impossible de charger.</div>';
         }
     }
 }
@@ -169,9 +243,7 @@ async function loadDataGeneric() {
     }
 }
 
-// ==================== GESTION DES ONGLETS ====================
 function hideEmptyTabs() {
-    if (!allData) return;
     const counts = { simple:0, pro:0, vip:0 };
     allData.matches.forEach(m => counts[m.category]++);
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -179,665 +251,43 @@ function hideEmptyTabs() {
         if (cat === 'pro' || cat === 'vip') btn.style.display = 'inline-block';
         else btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
     });
-    const visible = Array.from(document.querySelectorAll('.tab-btn')).filter(b => b.style.display !== 'none');
-    if (visible.length) {
-        const active = document.querySelector('.tab-btn.active');
-        if (!active || active.style.display === 'none') {
-            visible[0].classList.add('active');
-            currentCategory = visible[0].dataset.cat;
+    const visibleTabs = Array.from(document.querySelectorAll('.tab-btn')).filter(btn => btn.style.display !== 'none');
+    if (visibleTabs.length > 0) {
+        const currentActive = document.querySelector('.tab-btn.active');
+        if (!currentActive || currentActive.style.display === 'none') {
+            visibleTabs[0].classList.add('active');
+            currentCategory = visibleTabs[0].dataset.cat;
             if (currentCategory !== 'vip') currentSubcat = 'pronostics';
         }
     } else {
-        const bar = document.querySelector('.category-tabs');
-        if (bar) bar.style.display = 'none';
+        const tabBar = document.querySelector('.category-tabs');
+        if (tabBar) tabBar.style.display = 'none';
     }
     if (vipSubtabs) {
-        const show = counts.vip > 0;
-        const btns = vipSubtabs.querySelectorAll('.subtab-btn');
-        if (btns.length) btns[0].style.display = show ? 'inline-block' : 'none';
-        vipSubtabs.style.display = show ? 'flex' : 'none';
+        const showPronostics = counts.vip > 0;
+        const subtabBtns = vipSubtabs.querySelectorAll('.subtab-btn');
+        if (subtabBtns.length >= 1) {
+            subtabBtns[0].style.display = showPronostics ? 'inline-block' : 'none';
+        }
+        vipSubtabs.style.display = showPronostics ? 'flex' : 'none';
         const activeSub = vipSubtabs.querySelector('.subtab-btn.active');
         if (activeSub && activeSub.style.display === 'none') {
-            const first = Array.from(btns).find(b => b.style.display !== 'none');
-            if (first) {
-                first.classList.add('active');
-                currentSubcat = first.dataset.subcat;
-            } else currentSubcat = 'pronostics';
+            const firstVisible = Array.from(subtabBtns).find(btn => btn.style.display !== 'none');
+            if (firstVisible) {
+                firstVisible.classList.add('active');
+                currentSubcat = firstVisible.dataset.subcat;
+            } else {
+                currentSubcat = 'pronostics';
+            }
         }
     }
 }
 
 function maybeHideTabBar() {
-    const bar = document.querySelector('.category-tabs');
-    if (bar) {
-        const visible = Array.from(bar.querySelectorAll('.tab-btn')).filter(b => b.style.display !== 'none');
-        bar.style.display = visible.length ? 'flex' : 'none';
-    }
-}
-
-// ==================== FILTRAGE ET RECHERCHE ====================
-function getLocalDateString(day) {
-    const d = new Date();
-    if (day === 'tomorrow') d.setDate(d.getDate() + 1);
-    else if (day === 'yesterday') d.setDate(d.getDate() - 1);
-    return d.toISOString().slice(0,10);
-}
-
-function getLocalDateFromEvent(iso) {
-    if (!iso) return null;
-    const d = new Date(iso);
-    if (isNaN(d)) return null;
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-function sortMatchesByLeague(matches) {
-    return matches.sort((a,b) => {
-        const ia = POPULAR_LEAGUES.findIndex(l => a.league?.includes(l) || a.league === l);
-        const ib = POPULAR_LEAGUES.findIndex(l => b.league?.includes(l) || b.league === l);
-        const ra = ia === -1 ? 999 : ia;
-        const rb = ib === -1 ? 999 : ib;
-        if (ra !== rb) return ra - rb;
-        return new Date(a.event_date||0) - new Date(b.event_date||0);
-    });
-}
-
-function filterAndDisplay() {
-    if (!allData?.matches) {
-        if (matchesContainer) matchesContainer.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
-        return;
-    }
-    const targetDate = getLocalDateString(currentDay);
-    const targetCat = (currentCategory === 'vip' && currentSubcat === 'pronostics') ? 'vip' : currentCategory;
-    const filtered = allData.matches.filter(m => {
-        const date = getLocalDateFromEvent(m.event_date);
-        return m.category === targetCat && date === targetDate;
-    });
-    filteredMatchesWithoutSearch = sortMatchesByLeague(filtered);
-    applySearch();
-}
-
-function applySearch() {
-    if (!filteredMatchesWithoutSearch) return;
-    if (!searchTerm.trim()) {
-        renderMatches(filteredMatchesWithoutSearch);
-        return;
-    }
-    const term = searchTerm.toLowerCase().trim();
-    const filtered = filteredMatchesWithoutSearch.filter(m =>
-        m.home_team.toLowerCase().includes(term) ||
-        m.away_team.toLowerCase().includes(term) ||
-        (m.league && m.league.toLowerCase().includes(term))
-    );
-    renderMatches(filtered);
-}
-
-// ==================== AFFICHAGE DES MATCHES ====================
-function formatMatchTime(iso) {
-    if (!iso) return 'Horaire inconnu';
-    const d = new Date(iso);
-    if (isNaN(d)) return 'Horaire inconnu';
-    return d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
-}
-
-function translateStatus(status) {
-    if (!status) return 'À venir';
-    const s = status.toLowerCase();
-    if (s.includes('finished') || s.includes('terminé')) return 'Terminé';
-    if (s.includes('inprogress') || s.includes('live') || s.includes('en cours')) return 'En cours';
-    if (s.includes('notstarted') || s.includes('à venir')) return 'À venir';
-    if (s.includes('postponed')) return 'Reporté';
-    if (s.includes('cancelled')) return 'Annulé';
-    return status;
-}
-
-function getStatusClass(status) {
-    const s = (status||'').toLowerCase();
-    if (s.includes('finished') || s.includes('terminé')) return 'finished';
-    if (s.includes('inprogress') || s.includes('live') || s.includes('en cours')) return 'live';
-    return '';
-}
-
-function renderMatches(matches) {
-    if (!matchesContainer) return;
-    if (matches.length === 0) {
-        matchesContainer.innerHTML = '<div class="no-events">Aucun match.</div>';
-        return;
-    }
-    const grouped = {};
-    matches.forEach(m => {
-        const league = m.league || 'Autres ligues';
-        if (!grouped[league]) grouped[league] = [];
-        grouped[league].push(m);
-    });
-    let html = '';
-    const leagueOrder = [...POPULAR_LEAGUES, 'Autres ligues'];
-    const sortedLeagues = Object.keys(grouped).sort((a,b) => {
-        const ia = leagueOrder.findIndex(l => a.includes(l) || a === l);
-        const ib = leagueOrder.findIndex(l => b.includes(l) || b === l);
-        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-    });
-    sortedLeagues.forEach(league => {
-        html += `<h2 class="league-header" style="color: var(--or); margin-top:2rem;">${league}</h2>`;
-        grouped[league].forEach(m => {
-            const pred = m.prediction || {};
-            const dc = pred.double_chance || 'N/A';
-            const over25 = pred.over_25 ? 'Oui' : 'Non';
-            let conf = pred.confidence || 0;
-            if (typeof conf === 'string') conf = parseFloat(conf);
-            if (isNaN(conf)) conf = 0;
-            if (conf > 100) conf /= 100;
-            conf = Math.min(100, Math.round(conf*10)/10);
-            const time = formatMatchTime(m.event_date);
-            const statusFr = translateStatus(m.status);
-            const statusClass = getStatusClass(m.status);
-            const verifiedDouble = m.verified_double ? 'checked' : '';
-            const verifiedOver = m.verified_over ? 'checked' : '';
-            const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-            const defaultLogo = 'assets/images/default-logo.png';
-            const isWinner = m.verified_double && m.verified_over;
-            const winnerClass = isWinner ? 'winner' : '';
-            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
-
-            html += `
-                <div class="match-card ${winnerClass}" data-id="${m.id}">
-                    <div class="win-effect"></div>
-                    <div class="match-info">
-                        <div class="teams">
-                            <div class="team">
-                                <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
-                                <span class="team-name">${m.home_team}</span>
-                                <span class="team-score">${m.home_score ?? '-'}</span>
-                            </div>
-                            <div class="vs">VS</div>
-                            <div class="team">
-                                <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
-                                <span class="team-name">${m.away_team}</span>
-                                <span class="team-score">${m.away_score ?? '-'}</span>
-                            </div>
-                        </div>
-                        <div class="match-meta">
-                            <span class="league-badge">${m.league || 'Ligue'}</span>
-                            <span class="status ${statusClass}">${statusFr}</span>
-                            <span class="match-time"><i>🕒</i> ${time}</span>
-                            ${m.venue ? `<span class="match-venue"><i>🏟️</i> ${m.venue}</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="analysis-panel ticket ${winnerClass}">
-                        <h4>Pronostic ${xpronosBadge}</h4>
-                        <p><strong>Double chance :</strong> ${dc} ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}</p>
-                        <p><strong>Over 2.5 :</strong> ${over25} ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}</p>
-                        <div class="confidence-bar"><div class="confidence-fill" data-value="${conf}"></div></div>
-                        <p><strong>Fiabilité :</strong> <span class="confidence-text">${conf}%</span></p>
-                        ${premiumBadge}
-                    </div>
-                </div>
-            `;
-        });
-    });
-    matchesContainer.innerHTML = html;
-    document.querySelectorAll('.confidence-fill').forEach(bar => {
-        let v = bar.getAttribute('data-value');
-        setTimeout(() => bar.style.width = v + '%', 300);
-    });
-    document.querySelectorAll('.match-card.winner').forEach(card => {
-        for (let i=0; i<20; i++) {
-            let spark = document.createElement('div');
-            spark.className = 'spark';
-            let dx = (Math.random()-0.5)*200;
-            let dy = (Math.random()-0.5)*200;
-            spark.style.setProperty('--dx', dx+'px');
-            spark.style.setProperty('--dy', dy+'px');
-            spark.style.left = Math.random()*100+'%';
-            spark.style.top = Math.random()*100+'%';
-            card.appendChild(spark);
-        }
-        setTimeout(() => card.querySelectorAll('.spark').forEach(s => s.remove()), 1000);
-    });
-}
-
-// ==================== BOOKMAKERS ====================
-function renderBookmakers(bookmakers) {
-    if (!bookmakers || bookmakers.length === 0) {
-        console.warn("Fallback bookmakers");
-        bookmakers = [
-            { name: "1xBet", logo: "assets/images/1xbet.png", url: "#" },
-            { name: "1win", logo: "assets/images/1win.png", url: "#" },
-            { name: "Betwinner", logo: "assets/images/betwinner.png", url: "#" },
-            { name: "Melbet", logo: "assets/images/melbet.png", url: "#" },
-            { name: "Linebet", logo: "assets/images/linebet.png", url: "#" },
-            { name: "888starz", logo: "assets/images/888starz.png", url: "#" }
-        ];
-    }
-    if (bookmakersFooter) {
-        bookmakersFooter.innerHTML = '';
-        bookmakers.forEach(b => {
-            const a = document.createElement('a');
-            a.href = b.url; a.target = '_blank'; a.rel = 'noopener';
-            a.innerHTML = `<img src="${b.logo}" alt="${b.name}" style="max-height:40px;">`;
-            bookmakersFooter.appendChild(a);
-        });
-    }
-    if (bookmakersBonus) {
-        bookmakersBonus.innerHTML = '';
-        bookmakers.forEach(b => {
-            const div = document.createElement('div');
-            div.className = 'bookmaker-card';
-            div.innerHTML = `<img src="${b.logo}" alt="${b.name}"><h3>${b.name}</h3><p>Bonus de bienvenue jusqu'à 130€</p><a href="${b.url}" class="btn btn-primary" target="_blank">S'inscrire avec XPVIP</a>`;
-            bookmakersBonus.appendChild(div);
-        });
-    }
-}
-
-// ==================== PARTAGE ====================
-function showSharePopup(category, remaining) {
-    if (!sharePopup) return;
-    const count = getDailyShareCount();
-    shareRemaining.textContent = remaining;
-    shareCurrent.textContent = count;
-    shareTarget.textContent = shareLimits[category];
-    shareMessage.innerHTML = `Pour accéder aux pronostics ${category==='pro'?'Pro':'VIP'}, partagez ce lien à <span id="share-remaining">${remaining}</span> amis.`;
-    sharePopup.classList.add('active');
-}
-
-function showVipLocked(category) {
-    if (vipLockedOverlay) {
-        const target = shareLimits[category];
-        const count = getDailyShareCount();
-        const remaining = target - count;
-        vipLockedOverlay.querySelector('h3').textContent = `🔒 ${category==='pro'?'Pronostics Pro':'Pronostics VIP'} verrouillés`;
-        vipLockedOverlay.querySelector('p').innerHTML = `Partagez ce lien à <strong>${remaining}</strong> ami(s) pour débloquer.`;
-        document.getElementById('share-count-locked').textContent = count;
-        document.getElementById('share-target-locked').textContent = target;
-        vipLockedOverlay.style.display = 'flex';
-        if (matchesContainer) matchesContainer.style.display = 'none';
-    } else {
-        const target = shareLimits[category];
-        const count = getDailyShareCount();
-        showSharePopup(category, target - count);
-    }
-}
-
-function hideVipLocked() {
-    if (vipLockedOverlay) {
-        vipLockedOverlay.style.display = 'none';
-        if (matchesContainer) matchesContainer.style.display = 'grid';
-    }
-}
-
-async function share(platform) {
-    const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    let message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${siteUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
-    let url = platform === 'whatsapp'
-        ? `https://wa.me/?text=${encodeURIComponent(message)}`
-        : `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
-
-    const newCount = incrementShareCount();
-    updateCountersDisplay();
-
-    // Incrémenter compteur global Supabase
-    try {
-        await supabase.rpc('increment_shares');
-        const { data } = await supabase.from('counters').select('total_shares').eq('id',1).single();
-        if (data) totalShares = data.total_shares;
-        updateCountersDisplay();
-    } catch (e) { console.error(e); }
-
-    const target = shareLimits[currentCategory];
-    if (newCount >= target) {
-        hideVipLocked();
-        filterAndDisplay();
-    } else {
-        if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex')
-            showVipLocked(currentCategory);
-        else
-            showSharePopup(currentCategory, target - newCount);
-    }
-}
-
-function updateShareCounter() {
-    const c = document.getElementById('share-counter');
-    if (c) c.textContent = `🔥 ${getDailyShareCount()} partages aujourd'hui`;
-}
-
-// ==================== GESTION DES ONGLETS VIP ====================
-function handleCategoryChange() {
-    if (currentCategory === 'simple') {
-        hideVipLocked();
-        filterAndDisplay();
-    } else {
-        const target = shareLimits[currentCategory];
-        const count = getDailyShareCount();
-        if (count >= target) {
-            hideVipLocked();
-            filterAndDisplay();
-        } else {
-            showVipLocked(currentCategory);
-        }
-    }
-}
-
-// ==================== HISTORIQUE ====================
-async function displayHistory() {
-    const container = document.getElementById('history-container');
-    if (!container) return;
-    await loadData();
-    if (!allData?.matches) {
-        container.innerHTML = '<div class="no-events">Aucun historique disponible.</div>';
-        return;
-    }
-    const today = new Date(); today.setHours(0,0,0,0);
-    let history = allData.matches.filter(m => new Date(m.event_date) < today);
-    if (history.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun match dans cette période.</div>';
-        return;
-    }
-    const catOrder = { vip:0, pro:1, simple:2 };
-    history.sort((a,b) => {
-        const oa = catOrder[a.category] ?? 3;
-        const ob = catOrder[b.category] ?? 3;
-        if (oa !== ob) return oa - ob;
-        return new Date(b.event_date) - new Date(a.event_date);
-    });
-    const grouped = {};
-    history.forEach(m => {
-        const d = getLocalDateFromEvent(m.event_date);
-        if (!grouped[d]) grouped[d] = [];
-        grouped[d].push(m);
-    });
-    let html = '';
-    const sortedDays = Object.keys(grouped).sort((a,b) => new Date(b) - new Date(a));
-    sortedDays.forEach(day => {
-        const dayDate = new Date(day+'T12:00:00');
-        const formatted = dayDate.toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-        html += `<h2 class="day-header">${formatted}</h2>`;
-        grouped[day].forEach(m => {
-            const pred = m.prediction || {};
-            const dc = pred.double_chance || 'N/A';
-            const over25 = pred.over_25 ? 'Oui' : 'Non';
-            let conf = pred.confidence || 0;
-            if (typeof conf === 'string') conf = parseFloat(conf);
-            if (isNaN(conf)) conf = 0;
-            if (conf > 100) conf /= 100;
-            conf = Math.min(100, Math.round(conf*10)/10);
-            const time = formatMatchTime(m.event_date);
-            const statusFr = translateStatus(m.status);
-            const statusClass = getStatusClass(m.status);
-            const verifiedDouble = m.verified_double ? 'checked' : '';
-            const verifiedOver = m.verified_over ? 'checked' : '';
-            const defaultLogo = 'assets/images/default-logo.png';
-            const winnerClass = (m.verified_double && m.verified_over) ? 'winner' : '';
-            const xBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
-            const premBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-            const catBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
-
-            html += `
-                <div class="match-card ${winnerClass}">
-                    <div class="match-info">
-                        <div class="teams">
-                            <div class="team"><img src="${m.home_logo || defaultLogo}" class="team-logo" onerror="this.src='${defaultLogo}'"><span class="team-name">${m.home_team}</span><span class="team-score">${m.home_score ?? '-'}</span></div>
-                            <div class="vs">VS</div>
-                            <div class="team"><img src="${m.away_logo || defaultLogo}" class="team-logo" onerror="this.src='${defaultLogo}'"><span class="team-name">${m.away_team}</span><span class="team-score">${m.away_score ?? '-'}</span></div>
-                        </div>
-                        <div class="match-meta"><span class="league-badge">${m.league||'Ligue'}</span><span class="status ${statusClass}">${statusFr}</span><span class="match-time"><i>🕒</i> ${time}</span></div>
-                    </div>
-                    <div class="analysis-panel">
-                        <h4>Pronostic ${xBadge} ${catBadge}</h4>
-                        <p><strong>Double chance :</strong> ${dc} <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled></p>
-                        <p><strong>Over 2.5 :</strong> ${over25} <input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled></p>
-                        <p><strong>Fiabilité :</strong> ${conf}%</p>
-                        ${premBadge}
-                    </div>
-                </div>
-            `;
-        });
-    });
-    container.innerHTML = html;
-}
-
-// ==================== BLOG, CONSEILS, INFOS, BONUS ====================
-async function loadGeneratedContent() {
-    try {
-        const a = await fetch('articles.json?t='+Date.now());
-        if (a.ok) window.generatedArticles = await a.json();
-        const c = await fetch('conseils.json?t='+Date.now());
-        if (c.ok) window.generatedConseils = await c.json();
-    } catch (e) { console.error('Erreur chargement contenu généré:', e); }
-}
-
-function renderHorizontalList(items, containerId, type) {
-    const cont = document.getElementById(containerId);
-    if (!cont) return;
-    if (!items || items.length === 0) { cont.style.display = 'none'; return; }
-    cont.style.display = 'flex';
-    let html = '';
-    items.slice(0,8).forEach(item => {
-        let img = item.image || item.image_url || 'assets/images/default-logo.png';
-        let title = item.title || item.match || 'Sans titre';
-        let slug = item.slug || null;
-        let link = '#';
-        if (type === 'blog' && slug) link = `article.html?slug=${slug}`;
-        else if (type === 'conseils') link = `conseils.html#${item.id}`;
-        else if (type === 'infos') link = `infos.html#${item.id}`;
-        else if (type === 'bonus') link = `bonus.html#${item.id}`;
-        html += `<div class="horizontal-item" onclick="window.location.href='${link}'"><img src="${img}" alt="${title}"><div class="item-title">${title}</div></div>`;
-    });
-    cont.innerHTML = html;
-}
-
-async function displayBlogList() {
-    const cont = document.getElementById('blog-list');
-    if (!cont) return;
-    if (!window.generatedArticles) await loadGeneratedContent();
-    const data = await loadDataGeneric();
-    const all = [...(window.generatedArticles||[]), ...(data?.blog||[])];
-    renderHorizontalList(all, 'blog-horizontal-list', 'blog');
-    if (all.length === 0) return;
-    all.forEach(article => {
-        let title = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
-        let excerpt = article.excerpt || article.content.substring(0,200)+'...';
-        let clean = excerpt.replace(/#+\s*/g,'').replace(/\*\*/g,'').replace(/\*/g,'').replace(/\[|\]/g,'').substring(0,150)+'...';
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-            <h3><a href="article.html?slug=${article.slug}" style="color:var(--or);">${title}</a></h3>
-            <div class="meta">${article.date} par ${article.author} ${article.match ? '• '+article.match : ''}</div>
-            ${article.image_url ? `<img src="${article.image_url}" alt="${title}" style="max-width:100%; border-radius:8px; margin:10px 0;">` : ''}
-            <p>${clean}</p>
-            <a href="article.html?slug=${article.slug}" class="btn btn-secondary">Lire</a>
-        `;
-        cont.appendChild(card);
-    });
-}
-
-async function displayBlogPost() {
-    const cont = document.getElementById('blog-post');
-    if (!cont) return;
-    const params = new URLSearchParams(window.location.search);
-    const slug = params.get('slug');
-    if (!slug) { cont.innerHTML = '<p>Article non trouvé.</p>'; return; }
-    if (!window.generatedArticles) await loadGeneratedContent();
-    const data = await loadDataGeneric();
-    const all = [...(window.generatedArticles||[]), ...(data?.blog||[])];
-    const article = all.find(a => a.slug === slug);
-    if (!article) { cont.innerHTML = '<p>Article non trouvé.</p>'; return; }
-    let title = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
-    document.title = title + ' - Mr XPRONOS';
-    let htmlContent = window.marked ? window.marked.parse(article.content) : article.content.replace(/\n/g,'<br>');
-    cont.innerHTML = `
-        <h1>${title}</h1>
-        <div class="meta">${article.date} par ${article.author}</div>
-        ${article.image_url ? `<img src="${article.image_url}" alt="${title}" style="max-width:100%; border-radius:8px; margin:20px 0;">` : ''}
-        <div style="margin-top:2rem;">${htmlContent}</div>
-        <a href="blog.html" class="btn btn-secondary" style="margin-top:2rem;">← Retour au blog</a>
-    `;
-}
-
-async function displayConseils() {
-    const cont = document.getElementById('conseils-list');
-    if (!cont) return;
-    if (!window.generatedConseils) await loadGeneratedContent();
-    const data = await loadDataGeneric();
-    const all = [...(window.generatedConseils||[]), ...(data?.conseils||[])];
-    renderHorizontalList(all, 'conseils-horizontal-list', 'conseils');
-    if (all.length === 0) return;
-    all.forEach(c => {
-        let title = c.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
-        let html = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g,'<br>');
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<h3>${title}</h3>${c.image_url ? `<img src="${c.image_url}" alt="${title}" style="max-width:100%; border-radius:8px; margin:10px 0;">` : ''}<div>${html}</div>`;
-        cont.appendChild(card);
-    });
-}
-
-async function displayInfos() {
-    const cont = document.getElementById('infos-list');
-    if (!cont) return;
-    const data = await loadDataGeneric();
-    if (!data?.infos) return;
-    renderHorizontalList(data.infos, 'infos-horizontal-list', 'infos');
-    data.infos.forEach(i => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<h3>${i.title}</h3><p>${i.content}</p>`;
-        cont.appendChild(card);
-    });
-}
-
-async function displayBonus() {
-    const cont = document.getElementById('bonus-grid');
-    if (!cont) return;
-    const data = await loadDataGeneric();
-    const bonus = data?.bonus || [];
-    const active = bonus.filter(b => b.active && new Date(b.end) >= new Date());
-    renderHorizontalList(active, 'bonus-horizontal-list', 'bonus');
-    if (active.length === 0) {
-        cont.innerHTML = '<div class="no-events">Aucun bonus actif pour le moment.</div>';
-        return;
-    }
-    let html = '';
-    active.forEach(b => {
-        html += `
-            <div class="bonus-card">
-                <img src="${b.image}" alt="${b.title}" class="bonus-image">
-                <h3>${b.title}</h3>
-                <p>${b.description}</p>
-                <div class="bonus-footer">
-                    <span>Valable du ${b.start.split('-').reverse().join('/')} au ${b.end.split('-').reverse().join('/')}</span>
-                    ${b.link ? `<a href="${b.link}" target="_blank" class="btn btn-primary">Profiter</a>` : ''}
-                </div>
-            </div>
-        `;
-    });
-    cont.innerHTML = html;
-}
-
-async function displayFootNews() {
-    const cont = document.getElementById('foot-news-container');
-    if (!cont) return;
-    try {
-        const resp = await fetch('footnews.json?t='+Date.now());
-        if (!resp.ok) throw new Error();
-        const news = await resp.json();
-        if (news.length === 0) {
-            cont.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>';
-            return;
-        }
-        let html = '';
-        news.forEach(item => {
-            html += `
-                <div class="news-card card">
-                    ${item.image ? `<img src="${item.image}" alt="${item.title}" style="width:100%; border-radius:8px; margin-bottom:10px;">` : ''}
-                    <h3><a href="${item.link}" target="_blank" rel="noopener" style="color:var(--or);">${item.title}</a></h3>
-                    <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
-                    <p>${item.summary}</p>
-                    <a href="${item.link}" target="_blank" class="btn btn-secondary">Lire la suite</a>
-                </div>
-            `;
-        });
-        cont.innerHTML = html;
-    } catch (e) {
-        console.error(e);
-        cont.innerHTML = '<div class="error">Impossible de charger les actualités.</div>';
-    }
-}
-
-// ==================== TAUX DE RÉUSSITE ====================
-function updateSuccessRate() {
-    const cont = document.getElementById('success-rate-container');
-    if (!cont) return;
-    const matches = allData?.matches || [];
-    const finished = matches.filter(m => m.status === 'finished' && m.verified_double !== undefined);
-    if (finished.length === 0) { cont.style.display = 'none'; return; }
-    const successful = finished.filter(m => m.verified_double && m.verified_over).length;
-    const rate = ((successful / finished.length) * 100).toFixed(1);
-    const stats = allData?.stats || {};
-    const roi = stats.roi || 0;
-    cont.innerHTML = `
-        <div class="success-rate-item"><div class="success-rate-value">${rate}%</div><div class="success-rate-label">Réussite</div></div>
-        <div class="success-rate-item"><div class="success-rate-value">${roi>0?'+':''}${roi}%</div><div class="success-rate-label">ROI</div></div>
-    `;
-    cont.style.display = 'flex';
-}
-
-function initScrollProgress() {
-    const bar = document.createElement('div');
-    bar.className = 'scroll-progress';
-    document.body.appendChild(bar);
-    window.addEventListener('scroll', () => {
-        const win = document.body.scrollTop || document.documentElement.scrollTop;
-        const h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        bar.style.width = (win / h) * 100 + '%';
-    });
-}
-
-// ==================== INITIALISATION ====================
-document.addEventListener('DOMContentLoaded', () => {
-    showIosGuideIfNeeded();
-    loadCounters();
-
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        searchInput.addEventListener('input', e => {
-            searchTerm = e.target.value;
-            applySearch();
-        });
-    }
-
-    if (matchesContainer) {
-        initPronostics();
-    } else if (document.getElementById('history-container')) {
-        displayHistory();
-    } else if (document.getElementById('bonus-grid')) {
-        displayBonus();
-    } else {
-        loadDataGeneric().then(data => {
-            if (data) {
-                renderBookmakers(data.bookmakers);
-                updateShareCounter();
-            }
-        });
-    }
-
-    displayBlogList();
-    displayBlogPost();
-    displayConseils();
-    displayInfos();
-    displayFootNews();
-    initScrollProgress();
-});
-
-async function initPronostics() {
-    await loadData();
-    if (allData) {
-        hideEmptyTabs();
-        maybeHideTabBar();
-        setupEventListeners();
-        updateSuccessRate();
-        filterAndDisplay();
-    } else {
-        if (matchesContainer) matchesContainer.innerHTML = '<div class="error">❌ Erreur de chargement des données.</div>';
+    const tabBar = document.querySelector('.category-tabs');
+    if (tabBar) {
+        const visibleTabs = Array.from(tabBar.querySelectorAll('.tab-btn')).filter(btn => btn.style.display !== 'none');
+        tabBar.style.display = visibleTabs.length === 0 ? 'none' : 'flex';
     }
 }
 
@@ -874,15 +324,668 @@ function setupEventListeners() {
     document.getElementById('share-tg-locked')?.addEventListener('click', () => share('telegram'));
 }
 
-// ==================== ÉVÉNEMENTS (statistiques) ====================
-function recordEvent(type, page) {
+function handleCategoryChange() {
+    if (currentCategory === 'simple') {
+        hideVipLocked();
+        filterAndDisplay();
+    } else {
+        const target = shareLimits[currentCategory];
+        const shareCount = getDailyShareCount();
+        if (shareCount >= target) {
+            hideVipLocked();
+            filterAndDisplay();
+        } else {
+            showVipLocked(currentCategory);
+        }
+    }
+}
+
+function showVipLocked(category) {
+    if (vipLockedOverlay) {
+        const target = shareLimits[category];
+        const shareCount = getDailyShareCount();
+        const remaining = target - shareCount;
+        vipLockedOverlay.querySelector('h3').textContent = `🔒 ${category === 'pro' ? 'Pronostics Pro' : 'Pronostics VIP'} verrouillés`;
+        vipLockedOverlay.querySelector('p').innerHTML = `Partagez ce lien à <strong>${remaining}</strong> ami(s) pour débloquer.`;
+        document.getElementById('share-count-locked').textContent = shareCount;
+        document.getElementById('share-target-locked').textContent = target;
+        vipLockedOverlay.style.display = 'flex';
+        matchesContainer.style.display = 'none';
+    } else {
+        const target = shareLimits[category];
+        const shareCount = getDailyShareCount();
+        showSharePopup(category, target - shareCount);
+    }
+}
+
+function hideVipLocked() {
+    if (vipLockedOverlay) {
+        vipLockedOverlay.style.display = 'none';
+        matchesContainer.style.display = 'grid';
+    }
+}
+
+function showSharePopup(category, remaining) {
+    if (!sharePopup) return;
+    const shareCount = getDailyShareCount();
+    shareRemaining.textContent = remaining;
+    shareCurrent.textContent = shareCount;
+    shareTarget.textContent = shareLimits[category];
+    shareMessage.innerHTML = `Pour accéder aux pronostics ${category === 'pro' ? 'Pro' : 'VIP'}, partagez ce lien à <span id="share-remaining">${remaining}</span> amis.`;
+    sharePopup.classList.add('active');
+}
+
+function share(platform) {
+    const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
+    let message = '';
+    let url = '';
+    if (platform === 'whatsapp') {
+        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${siteUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    } else {
+        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${siteUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        url = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
+    }
+    window.open(url, '_blank');
+
+    const newCount = incrementShareCount();
+    updateShareCounter();
+
+    // Incrémenter le compteur global Supabase
+    incrementShares().then(newTotal => {
+        totalShares = newTotal;
+        updateCountersDisplay();
+    });
+
+    recordEvent('share');
+
+    const target = shareLimits[currentCategory];
+    if (newCount >= target) {
+        hideVipLocked();
+        filterAndDisplay();
+    } else {
+        if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
+            showVipLocked(currentCategory);
+        } else {
+            showSharePopup(currentCategory, target - newCount);
+        }
+    }
+}
+
+function updateShareCounter() {
+    const counter = document.getElementById('share-counter');
+    if (counter) {
+        const count = getDailyShareCount();
+        counter.textContent = `🔥 ${count} partages aujourd'hui`;
+    }
+}
+
+// =======================================================
+// FONCTIONS DE DATE
+// =======================================================
+function getLocalDateString(day) {
+    const now = new Date();
+    const target = new Date(now);
+    if (day === 'tomorrow') target.setDate(now.getDate() + 1);
+    else if (day === 'yesterday') target.setDate(now.getDate() - 1);
+    const year = target.getFullYear();
+    const month = String(target.getMonth() + 1).padStart(2, '0');
+    const dayOfMonth = String(target.getDate()).padStart(2, '0');
+    return `${year}-${month}-${dayOfMonth}`;
+}
+
+function getLocalDateFromEvent(isoString) {
+    if (!isoString) return null;
+    const date = new Date(isoString);
+    if (isNaN(date)) return null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function sortMatchesByLeague(matches) {
+    return matches.sort((a, b) => {
+        const leagueA = a.league || '';
+        const leagueB = b.league || '';
+        const indexA = POPULAR_LEAGUES.findIndex(l => leagueA.includes(l) || leagueA === l);
+        const indexB = POPULAR_LEAGUES.findIndex(l => leagueB.includes(l) || leagueB === l);
+        const rankA = indexA === -1 ? 999 : indexA;
+        const rankB = indexB === -1 ? 999 : indexB;
+        if (rankA !== rankB) return rankA - rankB;
+        const dateA = new Date(a.event_date || 0);
+        const dateB = new Date(b.event_date || 0);
+        return dateA - dateB;
+    });
+}
+
+function filterAndDisplay() {
+    if (!allData || !allData.matches) {
+        matchesContainer.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
+        return;
+    }
+    const targetDate = getLocalDateString(currentDay);
+    const targetCat = (currentCategory === 'vip' && currentSubcat === 'pronostics') ? 'vip' : currentCategory;
+    const filtered = allData.matches.filter(m => {
+        const eventLocalDate = getLocalDateFromEvent(m.event_date);
+        return m.category === targetCat && eventLocalDate === targetDate;
+    });
+    const sorted = sortMatchesByLeague(filtered);
+    filteredMatchesWithoutSearch = sorted;
+    applySearchFilter();
+}
+
+function applySearchFilter() {
+    if (!filteredMatchesWithoutSearch) return;
+    if (!searchTerm.trim()) {
+        renderMatches(filteredMatchesWithoutSearch);
+        return;
+    }
+    const term = searchTerm.toLowerCase().trim();
+    const filtered = filteredMatchesWithoutSearch.filter(m => 
+        m.home_team.toLowerCase().includes(term) ||
+        m.away_team.toLowerCase().includes(term) ||
+        (m.league && m.league.toLowerCase().includes(term))
+    );
+    renderMatches(filtered);
+}
+
+function formatMatchTime(isoString) {
+    if (!isoString) return 'Horaire inconnu';
+    const date = new Date(isoString);
+    if (isNaN(date)) return 'Horaire inconnu';
+    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function renderMatches(matches) {
+    if (matches.length === 0) {
+        matchesContainer.innerHTML = '<div class="no-events">Aucun match.</div>';
+        return;
+    }
+    const grouped = {};
+    matches.forEach(m => {
+        const league = m.league || 'Autres ligues';
+        if (!grouped[league]) grouped[league] = [];
+        grouped[league].push(m);
+    });
+    let html = '';
+    const leagueOrder = [...POPULAR_LEAGUES, 'Autres ligues'];
+    const sortedLeagues = Object.keys(grouped).sort((a, b) => {
+        const ia = leagueOrder.findIndex(l => a.includes(l) || a === l);
+        const ib = leagueOrder.findIndex(l => b.includes(l) || b === l);
+        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+    sortedLeagues.forEach(league => {
+        html += `<h2 class="league-header" style="color: var(--or); margin-top: 2rem;">${league}</h2>`;
+        grouped[league].forEach(m => {
+            const pred = m.prediction || {};
+            const doubleChance = pred.double_chance || 'N/A';
+            const over25 = pred.over_25 ? 'Oui' : 'Non';
+            let confidence = pred.confidence || 0;
+            if (typeof confidence === 'string') confidence = parseFloat(confidence);
+            if (isNaN(confidence)) confidence = 0;
+            if (confidence > 100) confidence = confidence / 100;
+            confidence = Math.min(100, Math.round(confidence * 10) / 10);
+            const matchTime = formatMatchTime(m.event_date);
+            const statusFr = translateStatus(m.status);
+            const statusClass = getStatusClass(m.status);
+            const verifiedDouble = m.verified_double ? 'checked' : '';
+            const verifiedOver = m.verified_over ? 'checked' : '';
+            const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
+            const defaultLogo = 'assets/images/default-logo.png';
+            const isWinner = m.verified_double && m.verified_over;
+            const winnerClass = isWinner ? 'winner' : '';
+            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
+            html += `
+                <div class="match-card ${winnerClass}" data-match-id="${m.id}">
+                    <div class="win-effect"></div>
+                    <div class="match-info">
+                        <div class="teams">
+                            <div class="team">
+                                <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <span class="team-name">${m.home_team}</span>
+                                <span class="team-score">${m.home_score ?? '-'}</span>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team">
+                                <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <span class="team-name">${m.away_team}</span>
+                                <span class="team-score">${m.away_score ?? '-'}</span>
+                            </div>
+                        </div>
+                        <div class="match-meta">
+                            <span class="league-badge">${m.league || 'Ligue'}</span>
+                            <span class="status ${statusClass}">${statusFr}</span>
+                            <span class="match-time"><i>🕒</i> ${matchTime}</span>
+                            ${m.venue ? `<span class="match-venue"><i>🏟️</i> ${m.venue}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="analysis-panel ticket ${winnerClass}">
+                        <h4>Pronostic ${xpronosBadge}</h4>
+                        <p><strong>Double chance :</strong> ${doubleChance} ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}</p>
+                        <p><strong>Over 2.5 :</strong> ${over25} ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}</p>
+                        <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
+                        <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
+                        ${premiumBadge}
+                    </div>
+                </div>
+            `;
+        });
+    });
+    matchesContainer.innerHTML = html;
+    document.querySelectorAll('.confidence-fill').forEach(bar => {
+        let value = bar.getAttribute('data-value');
+        setTimeout(() => bar.style.width = value + '%', 300);
+    });
+    document.querySelectorAll('.match-card.winner').forEach(card => {
+        for (let i = 0; i < 20; i++) {
+            let spark = document.createElement('div');
+            spark.className = 'spark';
+            let dx = (Math.random() - 0.5) * 200;
+            let dy = (Math.random() - 0.5) * 200;
+            spark.style.setProperty('--dx', dx + 'px');
+            spark.style.setProperty('--dy', dy + 'px');
+            spark.style.left = Math.random() * 100 + '%';
+            spark.style.top = Math.random() * 100 + '%';
+            card.appendChild(spark);
+        }
+        setTimeout(() => card.querySelectorAll('.spark').forEach(s => s.remove()), 1000);
+    });
+}
+
+function translateStatus(status) {
+    if (!status) return 'À venir';
+    const s = status.toLowerCase();
+    if (s.includes('finished') || s.includes('terminé')) return 'Terminé';
+    if (s.includes('inprogress') || s.includes('live') || s.includes('en cours')) return 'En cours';
+    if (s.includes('notstarted') || s.includes('à venir')) return 'À venir';
+    if (s.includes('postponed')) return 'Reporté';
+    if (s.includes('cancelled')) return 'Annulé';
+    return status;
+}
+
+function getStatusClass(status) {
+    if (!status) return '';
+    const s = status.toLowerCase();
+    if (s.includes('finished') || s.includes('terminé')) return 'finished';
+    if (s.includes('inprogress') || s.includes('live') || s.includes('en cours')) return 'live';
+    return '';
+}
+
+// =======================================================
+// BOOKMAKERS
+// =======================================================
+function renderBookmakers(bookmakers) {
+    if (!bookmakers || bookmakers.length === 0) {
+        console.warn("⚠️ Aucun bookmaker dans data.json → fallback");
+        bookmakers = [
+            { name: "1xBet", logo: "assets/images/1xbet.png", url: "https://affiliation.com/1xbet?promo=XPVIP" },
+            { name: "1win", logo: "assets/images/1win.png", url: "https://affiliation.com/1win?promo=XPVIP" },
+            { name: "Betwinner", logo: "assets/images/betwinner.png", url: "https://affiliation.com/betwinner?promo=XPVIP" },
+            { name: "Melbet", logo: "assets/images/melbet.png", url: "https://affiliation.com/melbet?promo=XPVIP" },
+            { name: "Linebet", logo: "assets/images/linebet.png", url: "https://affiliation.com/linebet?promo=XPVIP" },
+            { name: "888starz", logo: "assets/images/888starz.png", url: "https://affiliation.com/888starz?promo=XPVIP" }
+        ];
+    }
+    if (bookmakersFooter) {
+        bookmakersFooter.innerHTML = '';
+        bookmakers.forEach(b => {
+            const a = document.createElement('a');
+            a.href = b.url;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.innerHTML = `<img src="${b.logo}" alt="${b.name}" style="max-height:40px;">`;
+            bookmakersFooter.appendChild(a);
+        });
+    }
+    if (bookmakersBonus) {
+        bookmakersBonus.innerHTML = '';
+        bookmakers.forEach(b => {
+            const div = document.createElement('div');
+            div.className = 'bookmaker-card';
+            div.innerHTML = `
+                <img src="${b.logo}" alt="${b.name}">
+                <h3>${b.name}</h3>
+                <p>Bonus de bienvenue jusqu'à 130€</p>
+                <a href="${b.url}" class="btn btn-primary" target="_blank">S'inscrire avec XPVIP</a>
+            `;
+            bookmakersBonus.appendChild(div);
+        });
+    }
+}
+
+// =======================================================
+// STATISTIQUES (admin)
+// =======================================================
+function recordEvent(type) {
     let events = JSON.parse(localStorage.getItem('userEvents')) || [];
-    events.push({ type, page, timestamp: new Date().toISOString() });
+    events.push({ type: type, timestamp: new Date().toISOString(), page: window.location.pathname });
     localStorage.setItem('userEvents', JSON.stringify(events));
-    // Envoi à Supabase
-    supabase.from('events').insert({ type, page, user_id: localStorage.getItem('userId') || 'anon' }).then();
 }
-if (!localStorage.getItem('userId')) {
-    localStorage.setItem('userId', 'user_' + Math.random().toString(36).substr(2,9));
+recordEvent('visit');
+
+// =======================================================
+// AUTRES PAGES (blog, conseils, etc.)
+// =======================================================
+async function loadGeneratedContent() {
+    try {
+        const articlesResp = await fetch('articles.json?t=' + Date.now());
+        if (articlesResp.ok) window.generatedArticles = await articlesResp.json();
+        const conseilsResp = await fetch('conseils.json?t=' + Date.now());
+        if (conseilsResp.ok) window.generatedConseils = await conseilsResp.json();
+    } catch (error) {
+        console.error('Erreur chargement contenu généré:', error);
+    }
 }
-recordEvent('visit', window.location.pathname);
+
+async function loadBonus() {
+    try {
+        const resp = await fetch('data.json?t=' + Date.now());
+        if (!resp.ok) throw new Error('Erreur chargement');
+        const data = await resp.json();
+        return data.bonus || [];
+    } catch (error) {
+        console.error('Erreur chargement bonus:', error);
+        return [];
+    }
+}
+
+async function displayBonusList() {
+    const container = document.getElementById('bonus-grid');
+    if (!container) return;
+    const bonus = await loadBonus();
+    const activeBonus = bonus.filter(b => b.active && new Date(b.end) >= new Date());
+    if (activeBonus.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun bonus actif pour le moment.</div>';
+        return;
+    }
+    let html = '';
+    activeBonus.forEach(b => {
+        html += `
+            <div class="bonus-card">
+                <img src="${b.image}" alt="${b.title}" class="bonus-image">
+                <h3>${b.title}</h3>
+                <p>${b.description}</p>
+                <div class="bonus-footer">
+                    <span>Valable du ${formatDate(b.start)} au ${formatDate(b.end)}</span>
+                    ${b.link ? `<a href="${b.link}" target="_blank" class="btn btn-primary">Profiter</a>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+    renderHorizontalList(activeBonus, 'bonus-horizontal-list', 'bonus');
+}
+
+function formatDate(dateStr) {
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+function renderHorizontalList(items, containerId, type) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (!items || items.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+    let html = '';
+    items.slice(0, 8).forEach(item => {
+        let image = item.image || item.image_url || 'assets/images/default-logo.png';
+        let title = item.title || item.match || 'Sans titre';
+        let slug = item.slug || null;
+        let link = '#';
+        if (type === 'blog' && slug) link = `article.html?slug=${slug}`;
+        else if (type === 'conseils') link = `conseils.html#${item.id}`;
+        else if (type === 'infos') link = `infos.html#${item.id}`;
+        else if (type === 'bonus') link = `bonus.html#${item.id}`;
+        html += `
+            <div class="horizontal-item" onclick="window.location.href='${link}'">
+                <img src="${image}" alt="${title}">
+                <div class="item-title">${title}</div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+async function displayBlogList() {
+    const container = document.getElementById('blog-list');
+    if (!container) return;
+    if (!window.generatedArticles) await loadGeneratedContent();
+    const data = await loadDataGeneric();
+    const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
+    renderHorizontalList(allArticles, 'blog-horizontal-list', 'blog');
+    if (allArticles.length === 0) return;
+    allArticles.forEach(article => {
+        let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+        let excerpt = article.excerpt || article.content.substring(0,200)+'...';
+        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0,150)+'...';
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${cleanTitle}</a></h3>
+            <div class="meta">${article.date} par ${article.author} ${article.match ? '• ' + article.match : ''}</div>
+            ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:10px 0;">` : ''}
+            <p>${cleanExcerpt}</p>
+            <a href="article.html?slug=${article.slug}" class="btn btn-secondary">Lire</a>
+        `;
+        container.appendChild(card);
+    });
+}
+
+async function displayBlogPost() {
+    const container = document.getElementById('blog-post');
+    if (!container) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const slug = urlParams.get('slug');
+    if (!slug) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
+    if (!window.generatedArticles) await loadGeneratedContent();
+    const data = await loadDataGeneric();
+    const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
+    const article = allArticles.find(a => a.slug === slug);
+    if (!article) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
+    let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+    document.title = cleanTitle + ' - Mr XPRONOS';
+    let htmlContent = window.marked ? window.marked.parse(article.content) : article.content.replace(/\n/g, '<br>');
+    container.innerHTML = `
+        <h1>${cleanTitle}</h1>
+        <div class="meta">${article.date} par ${article.author}</div>
+        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:20px 0;">` : ''}
+        <div style="margin-top: 2rem;">${htmlContent}</div>
+        <a href="blog.html" class="btn btn-secondary" style="margin-top: 2rem;">← Retour au blog</a>
+    `;
+}
+
+async function displayConseils() {
+    const container = document.getElementById('conseils-list');
+    if (!container) return;
+    if (!window.generatedConseils) await loadGeneratedContent();
+    const data = await loadDataGeneric();
+    const allConseils = [...(window.generatedConseils || []), ...(data?.conseils || [])];
+    renderHorizontalList(allConseils, 'conseils-horizontal-list', 'conseils');
+    if (allConseils.length === 0) return;
+    allConseils.forEach(c => {
+        let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+        let htmlContent = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+            <h3>${cleanTitle}</h3>
+            ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:10px 0;">` : ''}
+            <div>${htmlContent}</div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+async function displayInfos() {
+    const container = document.getElementById('infos-list');
+    if (!container) return;
+    const data = await loadDataGeneric();
+    if (!data || !data.infos) return;
+    renderHorizontalList(data.infos, 'infos-horizontal-list', 'infos');
+    data.infos.forEach(i => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `<h3>${i.title}</h3><p>${i.content}</p>`;
+        container.appendChild(card);
+    });
+}
+
+async function displayFootNews() {
+    const container = document.getElementById('foot-news-container');
+    if (!container) return;
+    try {
+        const resp = await fetch('footnews.json?t=' + Date.now());
+        if (!resp.ok) throw new Error('Erreur chargement');
+        const news = await resp.json();
+        if (news.length === 0) {
+            container.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>';
+            return;
+        }
+        let html = '';
+        news.forEach(item => {
+            html += `
+                <div class="news-card card">
+                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image">` : ''}
+                    <h3><a href="${item.link}" target="_blank" style="color: var(--or);">${item.title}</a></h3>
+                    <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
+                    <p>${item.summary}</p>
+                    <a href="${item.link}" target="_blank" class="btn btn-secondary">Lire la suite</a>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = '<div class="error">Impossible de charger les actualités.</div>';
+    }
+}
+
+// =======================================================
+// HISTORIQUE
+// =======================================================
+async function displayHistory() {
+    const container = document.getElementById('history-container');
+    if (!container) return;
+    await loadData();
+    if (!allData || !allData.matches) {
+        container.innerHTML = '<div class="no-events">Aucun historique disponible.</div>';
+        return;
+    }
+    const today = new Date(); today.setHours(0,0,0,0);
+    let historyMatches = allData.matches.filter(m => new Date(m.event_date) < today);
+    if (historyMatches.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun match dans cette période.</div>';
+        return;
+    }
+    const catOrder = { vip:0, pro:1, simple:2 };
+    historyMatches.sort((a,b) => {
+        const orderA = catOrder[a.category] ?? 3;
+        const orderB = catOrder[b.category] ?? 3;
+        if (orderA !== orderB) return orderA - orderB;
+        return new Date(b.event_date) - new Date(a.event_date);
+    });
+    const groupedByDay = {};
+    historyMatches.forEach(m => {
+        const dateStr = getLocalDateFromEvent(m.event_date);
+        if (!groupedByDay[dateStr]) groupedByDay[dateStr] = [];
+        groupedByDay[dateStr].push(m);
+    });
+    let html = '';
+    const sortedDays = Object.keys(groupedByDay).sort((a,b) => new Date(b) - new Date(a));
+    sortedDays.forEach(day => {
+        const dayDate = new Date(day + 'T12:00:00');
+        const formattedDate = dayDate.toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+        html += `<h2 class="day-header">${formattedDate}</h2>`;
+        groupedByDay[day].forEach(m => {
+            const pred = m.prediction || {};
+            const doubleChance = pred.double_chance || 'N/A';
+            const over25 = pred.over_25 ? 'Oui' : 'Non';
+            let confidence = pred.confidence || 0;
+            if (typeof confidence === 'string') confidence = parseFloat(confidence);
+            if (isNaN(confidence)) confidence = 0;
+            if (confidence > 100) confidence = confidence / 100;
+            confidence = Math.min(100, Math.round(confidence * 10) / 10);
+            const matchTime = formatMatchTime(m.event_date);
+            const statusFr = translateStatus(m.status);
+            const statusClass = getStatusClass(m.status);
+            const verifiedDouble = m.verified_double ? 'checked' : '';
+            const verifiedOver = m.verified_over ? 'checked' : '';
+            const defaultLogo = 'assets/images/default-logo.png';
+            const winnerClass = (m.verified_double && m.verified_over) ? 'winner' : '';
+            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
+            const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
+            const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
+            html += `
+                <div class="match-card ${winnerClass}">
+                    <div class="match-info">
+                        <div class="teams">
+                            <div class="team">
+                                <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <span class="team-name">${m.home_team}</span>
+                                <span class="team-score">${m.home_score ?? '-'}</span>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team">
+                                <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <span class="team-name">${m.away_team}</span>
+                                <span class="team-score">${m.away_score ?? '-'}</span>
+                            </div>
+                        </div>
+                        <div class="match-meta">
+                            <span class="league-badge">${m.league || 'Ligue'}</span>
+                            <span class="status ${statusClass}">${statusFr}</span>
+                            <span class="match-time"><i>🕒</i> ${matchTime}</span>
+                        </div>
+                    </div>
+                    <div class="analysis-panel">
+                        <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
+                        <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled></p>
+                        <p><strong>Over 2.5 :</strong> ${over25} <input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled></p>
+                        <p><strong>Fiabilité :</strong> ${confidence}%</p>
+                        ${premiumBadge}
+                    </div>
+                </div>
+            `;
+        });
+    });
+    container.innerHTML = html;
+}
+
+// =======================================================
+// TAUX DE RÉUSSITE ET SCROLL
+// =======================================================
+function updateSuccessRate() {
+    const container = document.getElementById('success-rate-container');
+    if (!container) return;
+    const matches = allData.matches || [];
+    const finished = matches.filter(m => m.status === 'finished' && (m.verified_double !== undefined));
+    if (finished.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    const successful = finished.filter(m => m.verified_double && m.verified_over).length;
+    const rate = ((successful / finished.length) * 100).toFixed(1);
+    const stats = allData.stats || {};
+    const roi = stats.roi || 0;
+    container.innerHTML = `
+        <div class="success-rate-item"><div class="success-rate-value">${rate}%</div><div class="success-rate-label">Réussite</div></div>
+        <div class="success-rate-item"><div class="success-rate-value">${roi > 0 ? '+' : ''}${roi}%</div><div class="success-rate-label">ROI</div></div>
+    `;
+    container.style.display = 'flex';
+}
+
+function initScrollProgress() {
+    const progressBar = document.createElement('div');
+    progressBar.className = 'scroll-progress';
+    document.body.appendChild(progressBar);
+    window.addEventListener('scroll', () => {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        progressBar.style.width = scrolled + '%';
+    });
+}
