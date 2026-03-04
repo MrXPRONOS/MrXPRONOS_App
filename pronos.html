@@ -2,15 +2,16 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mr XPRONOS - Pronostics sportifs VIP</title>
-    <meta name="description" content="Pronostics sportifs gratuits et premium, analyses, conseils de paris. Code promo XPVIP chez 1xBet, 1win, Betwinner, Melbet, Linebet, 888starz.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Pronostics - Mr XPRONOS</title>
+    <meta name="description" content="Pronostics sportifs du jour, analyses H2H, conseils. Code promo XPVIP.">
     <meta name="robots" content="index, follow">
     <link rel="icon" href="assets/images/favicon.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <header>
@@ -20,8 +21,8 @@
             </div>
             <nav>
                 <ul>
-                    <li><a href="index.html" class="active">Accueil</a></li>
-                    <li><a href="pronos.html">Pronostics</a></li>
+                    <li><a href="index.html">Accueil</a></li>
+                    <li><a href="pronos.html" class="active">Pronostics</a></li>
                     <li><a href="historique.html">Historique</a></li>
                     <li><a href="blog.html">Blog</a></li>
                     <li><a href="conseils.html">Conseils</a></li>
@@ -34,73 +35,64 @@
         </div>
     </header>
 
-    <section class="hero">
-        <div class="container">
-            <h1>Bienvenue chez Mr XPRONOS</h1>
-            <p>Pronostics sportifs de qualité, analyses pointues et conseils pour maximiser vos gains. Rejoignez la communauté VIP dès maintenant !</p>
-            <div>
-                <a href="pronos.html" class="btn btn-primary">Voir les pronostics</a>
-                <a href="#" id="install-app" class="btn btn-secondary" style="display: none;">📲 Télécharger l'App</a>
-            </div>
-        </div>
-    </section>
-
     <main class="container">
-        <!-- Section compteurs globaux -->
-        <div class="global-stats" style="display: flex; gap: 2rem; justify-content: center; margin: 2rem 0;">
-            <div class="stat-card" style="background: var(--noir-secondaire); padding: 1rem; border-radius: 12px; text-align: center;">
-                <span class="stat-value" id="total-users-counter">1 000</span>
-                <span class="stat-label" style="display: block; color: #ccc;">utilisateurs</span>
-            </div>
-            <div class="stat-card" style="background: var(--noir-secondaire); padding: 1rem; border-radius: 12px; text-align: center;">
-                <span class="stat-value" id="total-shares-counter">10 000</span>
-                <span class="stat-label" style="display: block; color: #ccc;">partages</span>
-            </div>
+        <h1 style="color: var(--or); margin: 2rem 0 1rem;">📊 Pronostics et analyses</h1>
+
+        <!-- Barre de recherche -->
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Rechercher une équipe ou une ligue..." class="search-input">
         </div>
 
-        <section style="margin: 3rem 0;">
-            <h2 style="color: var(--or); margin-bottom: 2rem;">📊 Pourquoi nous choisir ?</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
-                <div class="card">
-                    <h3>Analyses H2H</h3>
-                    <p>Nous analysons les confrontations directes sur 3 ans pour des pronostics fiables.</p>
-                </div>
-                <div class="card">
-                    <h3>3 niveaux de pronostics</h3>
-                    <p>Simple, Pro et VIP pour tous les types de parieurs.</p>
-                </div>
-                <div class="card">
-                    <h3>Partage et déblocage</h3>
-                    <p>Partagez pour accéder aux analyses premium.</p>
-                </div>
-            </div>
-        </section>
+        <!-- Taux de réussite global -->
+        <div id="success-rate-container" class="success-rate" style="display: none;"></div>
 
-        <section style="margin: 3rem 0; background: var(--noir-secondaire); padding: 2rem; border-radius: 20px;">
-            <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">🔥 Profitez des bonus exclusifs</h2>
-            <div id="bookmakers-bonus" class="bookmakers-grid"></div>
-        </section>
+        <!-- Onglets de catégorie principaux -->
+        <div class="category-tabs">
+            <button class="tab-btn active" data-cat="simple" aria-label="Afficher pronostics simples">Simple</button>
+            <button class="tab-btn" data-cat="pro" aria-label="Afficher pronostics pro">Pro 🔒</button>
+            <button class="tab-btn" data-cat="vip" aria-label="Afficher pronostics VIP">VIP 🔒</button>
+        </div>
 
-        <section style="margin: 3rem 0;">
-            <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">💬 Ils nous font confiance</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-                <div class="card">
-                    <p>"Grâce à Mr XPRONOS, j'ai multiplié mes gains par 3 en un mois !"</p>
-                    <p style="margin-top: 1rem; color: var(--or);">— Jean D.</p>
-                </div>
-                <div class="card">
-                    <p>"Les pronostics VIP sont incroyablement précis. Je recommande !"</p>
-                    <p style="margin-top: 1rem; color: var(--or);">— Marie L.</p>
-                </div>
-                <div class="card">
-                    <p>"Le système de partage permet d'accéder à des analyses de qualité gratuitement."</p>
-                    <p style="margin-top: 1rem; color: var(--or);">— Thomas P.</p>
-                </div>
+        <!-- Filtres par jour -->
+        <div class="day-filters">
+            <button class="day-btn active" data-day="today" aria-label="Matchs aujourd'hui">Aujourd'hui</button>
+            <button class="day-btn" data-day="tomorrow" aria-label="Matchs demain">Demain</button>
+            <button class="day-btn" data-day="yesterday" aria-label="Matchs hier">Hier</button>
+        </div>
+
+        <!-- Conteneur des matchs -->
+        <div id="matches-container" class="matches-grid">
+            <div class="loading">Chargement des matchs...</div>
+        </div>
+
+        <!-- Overlay VIP verrouillé -->
+        <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;">
+            <div class="vip-locked-content">
+                <div class="lock-icon">🔒</div>
+                <h3>Contenu Premium</h3>
+                <p>Partagez pour débloquer les analyses exclusives.</p>
+                <button id="share-wa-locked" class="btn btn-primary" aria-label="Partager sur WhatsApp">Partager WhatsApp</button>
+                <button id="share-tg-locked" class="btn btn-primary" aria-label="Partager sur Telegram">Partager Telegram</button>
+                <p style="margin-top: 1rem; font-size: 0.8rem;">Partages actuels : <span id="share-count-locked">0</span>/<span id="share-target-locked">5</span></p>
             </div>
-        </section>
+        </div>
     </main>
 
-    <!-- Popup guide d'installation pour iOS -->
+    <!-- Popup de partage (fallback) -->
+    <div id="share-popup" class="popup">
+        <div class="popup-content">
+            <h3>🔒 Contenu premium</h3>
+            <p id="share-message">Pour accéder aux pronostics Pro, partagez ce lien à <span id="share-remaining">5</span> amis sur WhatsApp ou Telegram.</p>
+            <div class="share-buttons">
+                <button id="share-wa" class="btn btn-primary" aria-label="Partager sur WhatsApp">WhatsApp</button>
+                <button id="share-tg" class="btn btn-primary" aria-label="Partager sur Telegram">Telegram</button>
+            </div>
+            <p id="share-count">Partages actuels : <span id="share-current">0</span>/<span id="share-target">5</span></p>
+            <button id="close-popup" class="btn btn-secondary" aria-label="Fermer">Fermer</button>
+        </div>
+    </div>
+
+    <!-- Popup guide iOS -->
     <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
         <div class="ios-guide-content">
             <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
