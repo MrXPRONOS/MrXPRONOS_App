@@ -1,6 +1,7 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version adaptée au nouveau format data.json (over_25, badge, etc.)
+ * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
+ * et toutes les fonctionnalités précédentes.
  */
 
 // =======================================================
@@ -415,7 +416,6 @@ function renderMatches(matches) {
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
-            const over25 = pred.over_25 ? 'Oui' : 'Non';
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
@@ -427,11 +427,10 @@ function renderMatches(matches) {
             const statusClass = getStatusClass(m.status);
 
             const verifiedDouble = m.verified_double ? 'checked' : '';
-            const verifiedOver = m.verified_over ? 'checked' : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const defaultLogo = 'assets/images/default-logo.png';
 
-            const isWinner = m.verified_double && m.verified_over;
+            const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
 
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
@@ -465,10 +464,6 @@ function renderMatches(matches) {
                         <p>
                             <strong>Double chance :</strong> ${doubleChance}
                             ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
-                        </p>
-                        <p>
-                            <strong>Over 2.5 :</strong> ${over25}
-                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}
                         </p>
                         <div class="confidence-bar">
                             <div class="confidence-fill" data-value="${confidence}"></div>
@@ -701,7 +696,7 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// PAGE HISTORIQUE
+// PAGE HISTORIQUE (sans aujourd'hui/demain, avec badges de catégorie)
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -764,6 +759,13 @@ async function displayHistory() {
             const defaultLogo = 'assets/images/default-logo.png';
             const winnerClass = m.verified_double ? 'winner' : '';
 
+            // Badges
+            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
+            const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
+            
+            // Badge de catégorie (Simple, Pro, VIP)
+            const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
+
             html += `
                 <div class="match-card ${winnerClass}">
                     <div class="match-info">
@@ -787,10 +789,11 @@ async function displayHistory() {
                         </div>
                     </div>
                     <div class="analysis-panel">
-                        <h4>Pronostic</h4>
+                        <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
                         <p><strong>Double chance :</strong> ${doubleChance}</p>
                         <p><strong>Fiabilité :</strong> ${confidence}%</p>
                         <p><strong>Résultat :</strong> <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled> Validé</p>
+                        ${premiumBadge}
                     </div>
                 </div>
             `;
@@ -806,7 +809,7 @@ function updateSuccessRate() {
     const container = document.getElementById('success-rate-container');
     if (!container) return;
     const matches = allData.matches || [];
-    const finished = matches.filter(m => m.status && m.status.toLowerCase().includes('terminé'));
+    const finished = matches.filter(m => m.status === 'finished' && (m.verified_double !== undefined));
     if (finished.length === 0) {
         container.style.display = 'none';
         return;
