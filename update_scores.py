@@ -5,6 +5,7 @@
 update_scores.py - Met à jour uniquement les scores et statuts des matchs
 dans data.json, en conservant les pronostics existants.
 Exécution toutes les 20 minutes.
+Correction : les scores -1 sont convertis en None.
 """
 
 import os
@@ -16,13 +17,13 @@ from urllib3.util.retry import Retry
 
 SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")
 if not SPORTDATA_API_KEY:
-    raise ValueError("SPORTDATA_API_KEY non définie")
+    raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
 
 BASE_URL = "https://v1.football.sportsapipro.com/games/allscores"
 HEADERS = {"x-api-key": SPORTDATA_API_KEY}
 
 session = requests.Session()
-retries = Retry(total=5, backoff_factor=1, status_forcelist=[429,500,502,503,504])
+retries = Retry(total=5, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
 session.mount('https://', HTTPAdapter(max_retries=retries))
 
 DATA_FILE = "data.json"
@@ -34,6 +35,7 @@ print(f"🔄 MISE À JOUR DES SCORES - {today} {datetime.now().strftime('%H:%M')
 print("="*60)
 
 def fetch_games(date_from, date_to):
+    """Récupère tous les matchs entre deux dates."""
     params = {
         "startDate": date_from.strftime("%d/%m/%Y"),
         "endDate": date_to.strftime("%d/%m/%Y"),
@@ -47,7 +49,7 @@ def fetch_games(date_from, date_to):
         data = resp.json()
         return data.get("games", [])
     except Exception as e:
-        print(f"❌ Erreur: {e}")
+        print(f"❌ Erreur lors de la récupération des données: {e}")
         return []
 
 def main():
@@ -61,6 +63,7 @@ def main():
         print("Aucun nouveau match, arrêt.")
         return
 
+    # Construction d'un dictionnaire des scores par ID
     scores_dict = {}
     for g in all_games:
         gid = g.get("id")
@@ -68,6 +71,7 @@ def main():
         away_comp = g.get("awayCompetitor", {})
         home_score = home_comp.get("score")
         away_score = away_comp.get("score")
+        # Convertir les -1 en None
         if home_score == -1:
             home_score = None
         if away_score == -1:
@@ -79,12 +83,14 @@ def main():
             "status_text": g.get("statusText")
         }
 
+    # Chargement du fichier data.json existant
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
     else:
         data = {"matches": [], "categories": {"simple": [], "pro": [], "vip": []}, "stats": {}, "bookmakers": []}
 
+    # Mise à jour des scores
     updated = 0
     for match in data.get("matches", []):
         gid = match.get("id")

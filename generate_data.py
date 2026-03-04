@@ -17,7 +17,7 @@ from urllib3.util.retry import Retry
 # =======================================================
 # CONFIGURATION
 # =======================================================
-SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY",'0b4628b4-83cc-4227-bed6-82c50d806514')
+SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")
 if not SPORTDATA_API_KEY:
     raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
 
