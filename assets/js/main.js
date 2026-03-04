@@ -1,8 +1,8 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
- * fallback pour les images des bookmakers, affichage du pronostic Over 2.5
- * et cases à cocher pour la validation. Boutons de navigation étendus sur toute la largeur.
+ * Version avec gestion d'installation PWA (Android + guide iOS),
+ * cases à cocher pour double chance et Over 2.5 (couleur verte si validé),
+ * onglets de navigation sur toute la largeur.
  */
 
 // =======================================================
@@ -49,19 +49,54 @@ const POPULAR_LEAGUES = [
 ];
 
 // =======================================================
-// GESTION DE L'INSTALLATION PWA
+// GESTION DE L'INSTALLATION PWA (Android & Desktop)
 // =======================================================
 let deferredPrompt;
 const installButton = document.getElementById('install-app');
+const iosGuidePopup = document.getElementById('ios-guide-popup');
 
+// Détection du système d'exploitation
+function getOS() {
+    const userAgent = window.navigator.userAgent;
+    if (/iPad|iPhone|iPod/.test(userAgent)) return 'iOS';
+    if (/Android/.test(userAgent)) return 'Android';
+    return 'Other';
+}
+
+// Vérifier si l'app est déjà installée (mode standalone)
+function isPwaInstalled() {
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true;
+}
+
+// Afficher le guide iOS si nécessaire
+function showIosGuideIfNeeded() {
+    if (getOS() === 'iOS' && !isPwaInstalled()) {
+        const lastClosed = localStorage.getItem('iosGuideLastClosed');
+        if (lastClosed) {
+            const hoursSinceClosed = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
+            if (hoursSinceClosed < 24) return; // Ne pas réafficher pendant 24h
+        }
+        iosGuidePopup.style.display = 'flex';
+    }
+}
+
+// Fermer le guide iOS
+function closeIosGuide() {
+    iosGuidePopup.style.display = 'none';
+    localStorage.setItem('iosGuideLastClosed', Date.now().toString());
+}
+
+// Événement beforeinstallprompt (Android/Desktop)
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (installButton) {
+    if (installButton && !isPwaInstalled() && getOS() !== 'iOS') {
         installButton.style.display = 'inline-block';
     }
 });
 
+// Clic sur le bouton d'installation
 installButton?.addEventListener('click', async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
@@ -71,15 +106,23 @@ installButton?.addEventListener('click', async () => {
     installButton.style.display = 'none';
 });
 
+// Après installation
 window.addEventListener('appinstalled', () => {
     console.log('PWA installée');
     if (installButton) installButton.style.display = 'none';
+    if (iosGuidePopup) iosGuidePopup.style.display = 'none';
 });
+
+// Boutons de fermeture du guide iOS
+document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
+document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
 
 // =======================================================
 // INITIALISATION
 // =======================================================
 document.addEventListener('DOMContentLoaded', () => {
+    showIosGuideIfNeeded();
+
     if (matchesContainer) {
         initPronostics();
     } else if (document.getElementById('history-container')) {
@@ -719,7 +762,7 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// PAGE HISTORIQUE (sans aujourd'hui/demain, avec badges de catégorie et cases Over)
+// PAGE HISTORIQUE (sans aujourd'hui/demain, avec badges et cases)
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -784,7 +827,6 @@ async function displayHistory() {
             const defaultLogo = 'assets/images/default-logo.png';
             const winnerClass = (m.verified_double && m.verified_over) ? 'winner' : '';
 
-            // Badges
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
@@ -837,8 +879,6 @@ function updateSuccessRate() {
         container.style.display = 'none';
         return;
     }
-    // On peut définir un pari comme gagnant si les deux conditions sont remplies ou seulement double chance ? L'utilisateur décidera.
-    // Ici on prend les deux validés pour être plus strict.
     const successful = finished.filter(m => m.verified_double && m.verified_over).length;
     const rate = ((successful / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
