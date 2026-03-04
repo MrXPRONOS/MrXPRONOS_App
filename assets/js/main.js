@@ -1,7 +1,7 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
  * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
- * et toutes les fonctionnalités précédentes.
+ * et fallback pour les images des bookmakers.
  */
 
 // =======================================================
@@ -521,28 +521,59 @@ function getStatusClass(status) {
     return '';
 }
 
+// =======================================================
+// FONCTION POUR LES BOOKMAKERS (avec fallback)
+// =======================================================
 function renderBookmakers(bookmakers) {
     if (!bookmakers) return;
+    
+    // Footer
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
             const a = document.createElement('a');
             a.href = b.url;
             a.target = '_blank';
+            a.rel = 'noopener noreferrer';
             const img = document.createElement('img');
             img.src = b.logo;
             img.alt = b.name;
+            // Gestion d'erreur : si l'image ne charge pas, on la masque et on affiche le nom
+            img.onerror = function() {
+                this.style.display = 'none';
+                const span = document.createElement('span');
+                span.textContent = b.name;
+                span.style.color = 'var(--or)';
+                span.style.fontWeight = '600';
+                span.style.fontSize = '0.8rem';
+                a.appendChild(span);
+            };
             a.appendChild(img);
             bookmakersFooter.appendChild(a);
         });
     }
+    
+    // Section bonus sur l'accueil
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
             const div = document.createElement('div');
             div.className = 'bookmaker-card';
-            div.innerHTML = `
-                <img src="${b.logo}" alt="${b.name}">
+            // Création de l'image avec gestion d'erreur
+            const img = document.createElement('img');
+            img.src = b.logo;
+            img.alt = b.name;
+            img.onerror = function() {
+                this.style.display = 'none';
+                const span = document.createElement('span');
+                span.textContent = b.name;
+                span.style.display = 'block';
+                span.style.marginBottom = '0.5rem';
+                span.style.color = 'var(--or)';
+                div.insertBefore(span, div.firstChild);
+            };
+            div.appendChild(img);
+            div.innerHTML += `
                 <h3>${b.name}</h3>
                 <p>Bonus de bienvenue jusqu'à 130€</p>
                 <a href="${b.url}" class="btn btn-primary" target="_blank">S'inscrire</a>
