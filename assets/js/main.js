@@ -1,7 +1,8 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
  * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
- * fallback pour les images des bookmakers et affichage du pronostic Over 2.5.
+ * fallback pour les images des bookmakers, affichage du pronostic Over 2.5
+ * et cases à cocher pour la validation. Boutons de navigation étendus sur toute la largeur.
  */
 
 // =======================================================
@@ -416,6 +417,7 @@ function renderMatches(matches) {
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
+            const over25 = pred.over_25 ? 'Oui' : 'Non';
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
@@ -427,10 +429,11 @@ function renderMatches(matches) {
             const statusClass = getStatusClass(m.status);
 
             const verifiedDouble = m.verified_double ? 'checked' : '';
+            const verifiedOver = m.verified_over ? 'checked' : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const defaultLogo = 'assets/images/default-logo.png';
 
-            const isWinner = m.verified_double;
+            const isWinner = m.verified_double && m.verified_over; // les deux validés
             const winnerClass = isWinner ? 'winner' : '';
 
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
@@ -465,7 +468,10 @@ function renderMatches(matches) {
                             <strong>Double chance :</strong> ${doubleChance}
                             ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
                         </p>
-                        <p><strong>Over 2.5 :</strong> ${pred.over_25 ? 'Oui' : 'Non'}</p>
+                        <p>
+                            <strong>Over 2.5 :</strong> ${over25}
+                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}
+                        </p>
                         <div class="confidence-bar">
                             <div class="confidence-fill" data-value="${confidence}"></div>
                         </div>
@@ -713,7 +719,7 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// PAGE HISTORIQUE (sans aujourd'hui/demain, avec badges de catégorie)
+// PAGE HISTORIQUE (sans aujourd'hui/demain, avec badges de catégorie et cases Over)
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -762,6 +768,7 @@ async function displayHistory() {
         groupedByDay[day].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
+            const over25 = pred.over_25 ? 'Oui' : 'Non';
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
@@ -773,14 +780,13 @@ async function displayHistory() {
             const statusClass = getStatusClass(m.status);
 
             const verifiedDouble = m.verified_double ? 'checked' : '';
+            const verifiedOver = m.verified_over ? 'checked' : '';
             const defaultLogo = 'assets/images/default-logo.png';
-            const winnerClass = m.verified_double ? 'winner' : '';
+            const winnerClass = (m.verified_double && m.verified_over) ? 'winner' : '';
 
             // Badges
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-            
-            // Badge de catégorie (Simple, Pro, VIP)
             const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
 
             html += `
@@ -807,10 +813,9 @@ async function displayHistory() {
                     </div>
                     <div class="analysis-panel">
                         <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
-                        <p><strong>Double chance :</strong> ${doubleChance}</p>
-                        <p><strong>Over 2.5 :</strong> ${pred.over_25 ? 'Oui' : 'Non'}</p>
+                        <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled></p>
+                        <p><strong>Over 2.5 :</strong> ${over25} <input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled></p>
                         <p><strong>Fiabilité :</strong> ${confidence}%</p>
-                        <p><strong>Résultat :</strong> <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled> Validé</p>
                         ${premiumBadge}
                     </div>
                 </div>
@@ -832,7 +837,9 @@ function updateSuccessRate() {
         container.style.display = 'none';
         return;
     }
-    const successful = finished.filter(m => m.verified_double).length;
+    // On peut définir un pari comme gagnant si les deux conditions sont remplies ou seulement double chance ? L'utilisateur décidera.
+    // Ici on prend les deux validés pour être plus strict.
+    const successful = finished.filter(m => m.verified_double && m.verified_over).length;
     const rate = ((successful / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
     const roi = stats.roi || 0;
