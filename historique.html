@@ -12,6 +12,33 @@
     <meta name="theme-color" content="#0D0D0D">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
+<!-- Popup guide d'installation pour iOS (identique à index.html) -->
+<div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
+    <div class="ios-guide-content">
+        <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
+        <div class="ios-guide-steps">
+            <div class="ios-guide-step">
+                <span class="step-number">1</span>
+                <span class="step-text">Touchez le bouton <strong>Partager</strong> <span style="font-size:1.2rem;">📤</span> en bas de l'écran</span>
+            </div>
+            <div class="ios-guide-step">
+                <span class="step-number">2</span>
+                <span class="step-text">Faites défiler vers le bas et sélectionnez <strong>"Sur l'écran d'accueil"</strong></span>
+            </div>
+            <div class="ios-guide-step">
+                <span class="step-number">3</span>
+                <span class="step-text">Touchez <strong>"Ajouter"</strong> en haut à droite</span>
+            </div>
+        </div>
+        <div class="ios-guide-note">
+            💡 Activez l'option <strong>"Ouvrir comme app web"</strong> pour une expérience optimale [citation:1].
+        </div>
+        <div class="ios-guide-buttons">
+            <button id="close-ios-guide" class="btn btn-primary">Compris !</button>
+            <button id="close-ios-guide-btn" class="btn btn-secondary">Plus tard</button>
+        </div>
+    </div>
+</div>
 <body>
     <header>
         <div class="container">
@@ -26,7 +53,6 @@
                     <li><a href="blog.html">Blog</a></li>
                     <li><a href="conseils.html">Conseils</a></li>
                     <li><a href="infos.html">Infos sport</a></li>
-                    <li><a href="bonus.html">Bonus & Promo</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>
             </nav>
@@ -35,40 +61,12 @@
     </header>
 
     <main class="container">
-        <h1 style="color: var(--or); margin: 2rem 0 1rem;">📜 Historique des pronostics</h1>
+        <h1 style="color: var(--or); margin: 2rem 0 1rem;">📜 Historique des pronostics (14 derniers jours)</h1>
 
         <div id="history-container" class="matches-grid">
             <div class="loading">Chargement de l'historique...</div>
         </div>
     </main>
-
-    <!-- Popup guide iOS (identique) -->
-    <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
-        <div class="ios-guide-content">
-            <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
-            <div class="ios-guide-steps">
-                <div class="ios-guide-step">
-                    <span class="step-number">1</span>
-                    <span class="step-text">Touchez le bouton <strong>Partager</strong> 📤 en bas de l'écran</span>
-                </div>
-                <div class="ios-guide-step">
-                    <span class="step-number">2</span>
-                    <span class="step-text">Faites défiler et sélectionnez <strong>"Sur l'écran d'accueil"</strong></span>
-                </div>
-                <div class="ios-guide-step">
-                    <span class="step-number">3</span>
-                    <span class="step-text">Touchez <strong>"Ajouter"</strong> en haut à droite</span>
-                </div>
-            </div>
-            <div class="ios-guide-note">
-                💡 Activez l'option <strong>"Ouvrir comme app web"</strong> pour une expérience optimale.
-            </div>
-            <div class="ios-guide-buttons">
-                <button id="close-ios-guide" class="btn btn-primary">Compris !</button>
-                <button id="close-ios-guide-btn" class="btn btn-secondary">Plus tard</button>
-            </div>
-        </div>
-    </div>
 
     <footer>
         <div class="container">
@@ -79,7 +77,6 @@
                 <a href="blog.html">Blog</a>
                 <a href="conseils.html">Conseils</a>
                 <a href="infos.html">Infos sport</a>
-                <a href="bonus.html">Bonus & Promo</a>
                 <a href="contact.html">Contact</a>
             </div>
             <div class="social-links">

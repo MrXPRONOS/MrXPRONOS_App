@@ -1,6 +1,14 @@
-// assets/js/main.js
-import { supabase, getCounters, incrementShares, incrementUsers } from './supabase-client.js';
+/**
+ * main.js - Script principal pour Mr XPRONOS
+ * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
+ * fallback pour les images des bookmakers, affichage du pronostic Over 2.5
+ * et cases à cocher pour la validation. URLs de partage mises à jour.
+ * Gestion des partages quotidiens (reset chaque jour).
+ */
 
+// =======================================================
+// VARIABLES GLOBALES
+// =======================================================
 let allData = null;
 let currentCategory = 'simple';
 let currentSubcat = 'pronostics';
@@ -20,10 +28,6 @@ const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
 // Limites de partages quotidiennes
 const shareLimits = { pro: 2, vip: 5 };
-
-// Variable pour la recherche
-let filteredMatchesWithoutSearch = [];
-let searchTerm = '';
 
 const POPULAR_LEAGUES = [
     "Premier League",
@@ -46,8 +50,9 @@ const POPULAR_LEAGUES = [
 ];
 
 // =======================================================
-// GESTION DES PARTAGES QUOTIDIENS
+// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
 // =======================================================
+
 function getDailyShareCount() {
     const lastReset = localStorage.getItem('shareLastReset');
     const today = new Date().toDateString();
@@ -67,39 +72,45 @@ function incrementShareCount() {
 }
 
 // =======================================================
-// GESTION DE L'INSTALLATION PWA
+// GESTION DE L'INSTALLATION PWA (Android & Desktop)
 // =======================================================
 let deferredPrompt;
 const installButton = document.getElementById('install-app');
 const iosGuidePopup = document.getElementById('ios-guide-popup');
 
+// Détection du système d'exploitation
 function getOS() {
-    const ua = window.navigator.userAgent;
-    if (/iPad|iPhone|iPod/.test(ua)) return 'iOS';
-    if (/Android/.test(ua)) return 'Android';
+    const userAgent = window.navigator.userAgent;
+    if (/iPad|iPhone|iPod/.test(userAgent)) return 'iOS';
+    if (/Android/.test(userAgent)) return 'Android';
     return 'Other';
 }
 
+// Vérifier si l'app est déjà installée (mode standalone)
 function isPwaInstalled() {
-    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true;
 }
 
+// Afficher le guide iOS si nécessaire
 function showIosGuideIfNeeded() {
     if (getOS() === 'iOS' && !isPwaInstalled()) {
         const lastClosed = localStorage.getItem('iosGuideLastClosed');
         if (lastClosed) {
-            const hours = (Date.now() - parseInt(lastClosed)) / (1000*60*60);
-            if (hours < 24) return;
+            const hoursSinceClosed = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
+            if (hoursSinceClosed < 24) return;
         }
         iosGuidePopup.style.display = 'flex';
     }
 }
 
+// Fermer le guide iOS
 function closeIosGuide() {
     iosGuidePopup.style.display = 'none';
     localStorage.setItem('iosGuideLastClosed', Date.now().toString());
 }
 
+// Événement beforeinstallprompt (Android/Desktop)
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -108,6 +119,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 
+// Clic sur le bouton d'installation
 installButton?.addEventListener('click', async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
@@ -117,54 +129,22 @@ installButton?.addEventListener('click', async () => {
     installButton.style.display = 'none';
 });
 
+// Après installation
 window.addEventListener('appinstalled', () => {
     console.log('PWA installée');
     if (installButton) installButton.style.display = 'none';
     if (iosGuidePopup) iosGuidePopup.style.display = 'none';
 });
 
+// Boutons de fermeture du guide iOS
 document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
 document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
-
-// =======================================================
-// COMPTEURS GLOBAUX
-// =======================================================
-let totalUsers = 1000;
-let totalShares = 10000;
-
-function updateCountersDisplay() {
-    const userCounter = document.getElementById('total-users-counter');
-    const shareCounter = document.getElementById('total-shares-counter');
-    if (userCounter) userCounter.textContent = totalUsers.toLocaleString();
-    if (shareCounter) shareCounter.textContent = totalShares.toLocaleString();
-}
-
-async function loadCounters() {
-    const counters = await getCounters();
-    totalUsers = counters.total_users;
-    totalShares = counters.total_shares;
-    updateCountersDisplay();
-}
-
-function checkNewUser() {
-    const hasVisited = localStorage.getItem('hasVisited');
-    if (!hasVisited) {
-        localStorage.setItem('hasVisited', 'true');
-        incrementUsers().then(newCount => {
-            totalUsers = newCount;
-            updateCountersDisplay();
-        });
-    }
-}
 
 // =======================================================
 // INITIALISATION
 // =======================================================
 document.addEventListener('DOMContentLoaded', () => {
     showIosGuideIfNeeded();
-    loadCounters();
-    checkNewUser();
-
     if (matchesContainer) {
         initPronostics();
     } else if (document.getElementById('history-container')) {
@@ -182,21 +162,13 @@ document.addEventListener('DOMContentLoaded', () => {
     displayConseils();
     displayInfos();
     displayFootNews();
-    displayBonusList();
     initScrollProgress();
-
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            searchTerm = e.target.value;
-            applySearchFilter();
-        });
-    }
 });
 
 // =======================================================
-// FONCTIONS PRONOSTICS
+// FONCTIONS POUR LA PAGE PRONOSTICS
 // =======================================================
+
 async function initPronostics() {
     await loadData();
     if (allData) {
@@ -244,13 +216,18 @@ async function loadDataGeneric() {
 }
 
 function hideEmptyTabs() {
-    const counts = { simple:0, pro:0, vip:0 };
+    const counts = { simple: 0, pro: 0, vip: 0 };
     allData.matches.forEach(m => counts[m.category]++);
+
     document.querySelectorAll('.tab-btn').forEach(btn => {
         const cat = btn.dataset.cat;
-        if (cat === 'pro' || cat === 'vip') btn.style.display = 'inline-block';
-        else btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
+        if (cat === 'pro' || cat === 'vip') {
+            btn.style.display = 'inline-block';
+        } else {
+            btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
+        }
     });
+
     const visibleTabs = Array.from(document.querySelectorAll('.tab-btn')).filter(btn => btn.style.display !== 'none');
     if (visibleTabs.length > 0) {
         const currentActive = document.querySelector('.tab-btn.active');
@@ -263,6 +240,7 @@ function hideEmptyTabs() {
         const tabBar = document.querySelector('.category-tabs');
         if (tabBar) tabBar.style.display = 'none';
     }
+
     if (vipSubtabs) {
         const showPronostics = counts.vip > 0;
         const subtabBtns = vipSubtabs.querySelectorAll('.subtab-btn');
@@ -270,6 +248,7 @@ function hideEmptyTabs() {
             subtabBtns[0].style.display = showPronostics ? 'inline-block' : 'none';
         }
         vipSubtabs.style.display = showPronostics ? 'flex' : 'none';
+
         const activeSub = vipSubtabs.querySelector('.subtab-btn.active');
         if (activeSub && activeSub.style.display === 'none') {
             const firstVisible = Array.from(subtabBtns).find(btn => btn.style.display !== 'none');
@@ -301,6 +280,7 @@ function setupEventListeners() {
             handleCategoryChange();
         });
     });
+
     document.querySelectorAll('.subtab-btn').forEach(btn => {
         btn.addEventListener('click', e => {
             document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
@@ -309,6 +289,7 @@ function setupEventListeners() {
             filterAndDisplay();
         });
     });
+
     document.querySelectorAll('.day-btn').forEach(btn => {
         btn.addEventListener('click', e => {
             document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
@@ -317,9 +298,13 @@ function setupEventListeners() {
             filterAndDisplay();
         });
     });
+
     document.getElementById('share-wa')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg')?.addEventListener('click', () => share('telegram'));
-    document.getElementById('close-popup')?.addEventListener('click', () => sharePopup.classList.remove('active'));
+    document.getElementById('close-popup')?.addEventListener('click', () => {
+        sharePopup.classList.remove('active');
+    });
+
     document.getElementById('share-wa-locked')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg-locked')?.addEventListener('click', () => share('telegram'));
 }
@@ -379,6 +364,7 @@ function share(platform) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     let message = '';
     let url = '';
+
     if (platform === 'whatsapp') {
         message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${siteUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
         url = `https://wa.me/?text=${encodeURIComponent(message)}`;
@@ -386,17 +372,12 @@ function share(platform) {
         message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${siteUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
         url = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
     }
+
     window.open(url, '_blank');
 
+    // Incrémenter le compteur quotidien
     const newCount = incrementShareCount();
     updateShareCounter();
-
-    // Incrémenter le compteur global Supabase
-    incrementShares().then(newTotal => {
-        totalShares = newTotal;
-        updateCountersDisplay();
-    });
-
     recordEvent('share');
 
     const target = shareLimits[currentCategory];
@@ -420,14 +401,14 @@ function updateShareCounter() {
     }
 }
 
-// =======================================================
-// FONCTIONS DE DATE
-// =======================================================
 function getLocalDateString(day) {
     const now = new Date();
     const target = new Date(now);
-    if (day === 'tomorrow') target.setDate(now.getDate() + 1);
-    else if (day === 'yesterday') target.setDate(now.getDate() - 1);
+    if (day === 'tomorrow') {
+        target.setDate(now.getDate() + 1);
+    } else if (day === 'yesterday') {
+        target.setDate(now.getDate() - 1);
+    }
     const year = target.getFullYear();
     const month = String(target.getMonth() + 1).padStart(2, '0');
     const dayOfMonth = String(target.getDate()).padStart(2, '0');
@@ -464,30 +445,16 @@ function filterAndDisplay() {
         matchesContainer.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
         return;
     }
+
     const targetDate = getLocalDateString(currentDay);
     const targetCat = (currentCategory === 'vip' && currentSubcat === 'pronostics') ? 'vip' : currentCategory;
     const filtered = allData.matches.filter(m => {
         const eventLocalDate = getLocalDateFromEvent(m.event_date);
         return m.category === targetCat && eventLocalDate === targetDate;
     });
-    const sorted = sortMatchesByLeague(filtered);
-    filteredMatchesWithoutSearch = sorted;
-    applySearchFilter();
-}
 
-function applySearchFilter() {
-    if (!filteredMatchesWithoutSearch) return;
-    if (!searchTerm.trim()) {
-        renderMatches(filteredMatchesWithoutSearch);
-        return;
-    }
-    const term = searchTerm.toLowerCase().trim();
-    const filtered = filteredMatchesWithoutSearch.filter(m => 
-        m.home_team.toLowerCase().includes(term) ||
-        m.away_team.toLowerCase().includes(term) ||
-        (m.league && m.league.toLowerCase().includes(term))
-    );
-    renderMatches(filtered);
+    const sorted = sortMatchesByLeague(filtered);
+    renderMatches(sorted);
 }
 
 function formatMatchTime(isoString) {
@@ -502,12 +469,14 @@ function renderMatches(matches) {
         matchesContainer.innerHTML = '<div class="no-events">Aucun match.</div>';
         return;
     }
+
     const grouped = {};
     matches.forEach(m => {
         const league = m.league || 'Autres ligues';
         if (!grouped[league]) grouped[league] = [];
         grouped[league].push(m);
     });
+
     let html = '';
     const leagueOrder = [...POPULAR_LEAGUES, 'Autres ligues'];
     const sortedLeagues = Object.keys(grouped).sort((a, b) => {
@@ -515,6 +484,7 @@ function renderMatches(matches) {
         const ib = leagueOrder.findIndex(l => b.includes(l) || b === l);
         return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
     });
+
     sortedLeagues.forEach(league => {
         html += `<h2 class="league-header" style="color: var(--or); margin-top: 2rem;">${league}</h2>`;
         grouped[league].forEach(m => {
@@ -526,16 +496,21 @@ function renderMatches(matches) {
             if (isNaN(confidence)) confidence = 0;
             if (confidence > 100) confidence = confidence / 100;
             confidence = Math.min(100, Math.round(confidence * 10) / 10);
+
             const matchTime = formatMatchTime(m.event_date);
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
+
             const verifiedDouble = m.verified_double ? 'checked' : '';
             const verifiedOver = m.verified_over ? 'checked' : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const defaultLogo = 'assets/images/default-logo.png';
+
             const isWinner = m.verified_double && m.verified_over;
             const winnerClass = isWinner ? 'winner' : '';
+
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
+
             html += `
                 <div class="match-card ${winnerClass}" data-match-id="${m.id}">
                     <div class="win-effect"></div>
@@ -562,9 +537,17 @@ function renderMatches(matches) {
                     </div>
                     <div class="analysis-panel ticket ${winnerClass}">
                         <h4>Pronostic ${xpronosBadge}</h4>
-                        <p><strong>Double chance :</strong> ${doubleChance} ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}</p>
-                        <p><strong>Over 2.5 :</strong> ${over25} ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}</p>
-                        <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
+                        <p>
+                            <strong>Double chance :</strong> ${doubleChance}
+                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
+                        </p>
+                        <p>
+                            <strong>Over 2.5 :</strong> ${over25}
+                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}
+                        </p>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" data-value="${confidence}"></div>
+                        </div>
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
                         ${premiumBadge}
                     </div>
@@ -573,10 +556,14 @@ function renderMatches(matches) {
         });
     });
     matchesContainer.innerHTML = html;
+
     document.querySelectorAll('.confidence-fill').forEach(bar => {
         let value = bar.getAttribute('data-value');
-        setTimeout(() => bar.style.width = value + '%', 300);
+        setTimeout(() => {
+            bar.style.width = value + '%';
+        }, 300);
     });
+
     document.querySelectorAll('.match-card.winner').forEach(card => {
         for (let i = 0; i < 20; i++) {
             let spark = document.createElement('div');
@@ -589,7 +576,9 @@ function renderMatches(matches) {
             spark.style.top = Math.random() * 100 + '%';
             card.appendChild(spark);
         }
-        setTimeout(() => card.querySelectorAll('.spark').forEach(s => s.remove()), 1000);
+        setTimeout(() => {
+            card.querySelectorAll('.spark').forEach(s => s.remove());
+        }, 1000);
     });
 }
 
@@ -613,20 +602,23 @@ function getStatusClass(status) {
 }
 
 // =======================================================
-// BOOKMAKERS
+// FONCTION POUR LES BOOKMAKERS (avec fallback)
 // =======================================================
 function renderBookmakers(bookmakers) {
+    // ==================== FALLBACK SI data.json vide ====================
     if (!bookmakers || bookmakers.length === 0) {
-        console.warn("⚠️ Aucun bookmaker dans data.json → fallback");
+        console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
-            { name: "1xBet", logo: "assets/images/1xbet.png", url: "https://affiliation.com/1xbet?promo=XPVIP" },
-            { name: "1win", logo: "assets/images/1win.png", url: "https://affiliation.com/1win?promo=XPVIP" },
-            { name: "Betwinner", logo: "assets/images/betwinner.png", url: "https://affiliation.com/betwinner?promo=XPVIP" },
-            { name: "Melbet", logo: "assets/images/melbet.png", url: "https://affiliation.com/melbet?promo=XPVIP" },
-            { name: "Linebet", logo: "assets/images/linebet.png", url: "https://affiliation.com/linebet?promo=XPVIP" },
-            { name: "888starz", logo: "assets/images/888starz.png", url: "https://affiliation.com/888starz?promo=XPVIP" }
+            { name: "1xBet",     logo: "assets/images/1xbet.png",     url: "https://TON-LIEN-AFFILIATION-1XBET.com/?promo=XPVIP" },
+            { name: "1win",      logo: "assets/images/1win.png",      url: "https://TON-LIEN-AFFILIATION-1WIN.com/?promo=XPVIP" },
+            { name: "Betwinner", logo: "assets/images/betwinner.png", url: "https://TON-LIEN-AFFILIATION-BETWINNER.com/?promo=XPVIP" },
+            { name: "Melbet",    logo: "assets/images/melbet.png",    url: "https://TON-LIEN-AFFILIATION-MELBET.com/?promo=XPVIP" },
+            { name: "Linebet",   logo: "assets/images/linebet.png",   url: "https://TON-LIEN-AFFILIATION-LINEBET.com/?promo=XPVIP" },
+            { name: "888starz",  logo: "assets/images/888starz.png",  url: "https://TON-LIEN-AFFILIATION-888STARZ.com/?promo=XPVIP" }
         ];
     }
+
+    // ==================== FOOTER ====================
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -638,6 +630,8 @@ function renderBookmakers(bookmakers) {
             bookmakersFooter.appendChild(a);
         });
     }
+
+    // ==================== SECTION BONUS (accueil) ====================
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
@@ -655,99 +649,35 @@ function renderBookmakers(bookmakers) {
 }
 
 // =======================================================
-// STATISTIQUES (admin)
+// FONCTIONS POUR LES STATISTIQUES (admin)
 // =======================================================
 function recordEvent(type) {
     let events = JSON.parse(localStorage.getItem('userEvents')) || [];
-    events.push({ type: type, timestamp: new Date().toISOString(), page: window.location.pathname });
+    events.push({
+        type: type,
+        timestamp: new Date().toISOString()
+    });
     localStorage.setItem('userEvents', JSON.stringify(events));
 }
 recordEvent('visit');
 
 // =======================================================
-// AUTRES PAGES (blog, conseils, etc.)
+// FONCTIONS POUR LES AUTRES PAGES
 // =======================================================
+
 async function loadGeneratedContent() {
     try {
         const articlesResp = await fetch('articles.json?t=' + Date.now());
-        if (articlesResp.ok) window.generatedArticles = await articlesResp.json();
+        if (articlesResp.ok) {
+            window.generatedArticles = await articlesResp.json();
+        }
         const conseilsResp = await fetch('conseils.json?t=' + Date.now());
-        if (conseilsResp.ok) window.generatedConseils = await conseilsResp.json();
+        if (conseilsResp.ok) {
+            window.generatedConseils = await conseilsResp.json();
+        }
     } catch (error) {
         console.error('Erreur chargement contenu généré:', error);
     }
-}
-
-async function loadBonus() {
-    try {
-        const resp = await fetch('data.json?t=' + Date.now());
-        if (!resp.ok) throw new Error('Erreur chargement');
-        const data = await resp.json();
-        return data.bonus || [];
-    } catch (error) {
-        console.error('Erreur chargement bonus:', error);
-        return [];
-    }
-}
-
-async function displayBonusList() {
-    const container = document.getElementById('bonus-grid');
-    if (!container) return;
-    const bonus = await loadBonus();
-    const activeBonus = bonus.filter(b => b.active && new Date(b.end) >= new Date());
-    if (activeBonus.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun bonus actif pour le moment.</div>';
-        return;
-    }
-    let html = '';
-    activeBonus.forEach(b => {
-        html += `
-            <div class="bonus-card">
-                <img src="${b.image}" alt="${b.title}" class="bonus-image">
-                <h3>${b.title}</h3>
-                <p>${b.description}</p>
-                <div class="bonus-footer">
-                    <span>Valable du ${formatDate(b.start)} au ${formatDate(b.end)}</span>
-                    ${b.link ? `<a href="${b.link}" target="_blank" class="btn btn-primary">Profiter</a>` : ''}
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-    renderHorizontalList(activeBonus, 'bonus-horizontal-list', 'bonus');
-}
-
-function formatDate(dateStr) {
-    const [y, m, d] = dateStr.split('-');
-    return `${d}/${m}/${y}`;
-}
-
-function renderHorizontalList(items, containerId, type) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-    if (!items || items.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-    container.style.display = 'flex';
-    let html = '';
-    items.slice(0, 8).forEach(item => {
-        let image = item.image || item.image_url || 'assets/images/default-logo.png';
-        let title = item.title || item.match || 'Sans titre';
-        let slug = item.slug || null;
-        let link = '#';
-        if (type === 'blog' && slug) link = `article.html?slug=${slug}`;
-        else if (type === 'conseils') link = `conseils.html#${item.id}`;
-        else if (type === 'infos') link = `infos.html#${item.id}`;
-        else if (type === 'bonus') link = `bonus.html#${item.id}`;
-        html += `
-            <div class="horizontal-item" onclick="window.location.href='${link}'">
-                <img src="${image}" alt="${title}">
-                <div class="item-title">${title}</div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
 }
 
 async function displayBlogList() {
@@ -756,12 +686,11 @@ async function displayBlogList() {
     if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
     const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
-    renderHorizontalList(allArticles, 'blog-horizontal-list', 'blog');
     if (allArticles.length === 0) return;
     allArticles.forEach(article => {
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        let excerpt = article.excerpt || article.content.substring(0,200)+'...';
-        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0,150)+'...';
+        let excerpt = article.excerpt || article.content.substring(0, 200) + '...';
+        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 150) + '...';
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
@@ -804,7 +733,6 @@ async function displayConseils() {
     if (!window.generatedConseils) await loadGeneratedContent();
     const data = await loadDataGeneric();
     const allConseils = [...(window.generatedConseils || []), ...(data?.conseils || [])];
-    renderHorizontalList(allConseils, 'conseils-horizontal-list', 'conseils');
     if (allConseils.length === 0) return;
     allConseils.forEach(c => {
         let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
@@ -825,7 +753,6 @@ async function displayInfos() {
     if (!container) return;
     const data = await loadDataGeneric();
     if (!data || !data.infos) return;
-    renderHorizontalList(data.infos, 'infos-horizontal-list', 'infos');
     data.infos.forEach(i => {
         const card = document.createElement('div');
         card.className = 'card';
@@ -849,57 +776,68 @@ async function displayFootNews() {
         news.forEach(item => {
             html += `
                 <div class="news-card card">
-                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image">` : ''}
-                    <h3><a href="${item.link}" target="_blank" style="color: var(--or);">${item.title}</a></h3>
+                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" style="width:100%; border-radius:8px; margin-bottom:10px;">` : ''}
+                    <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: var(--or);">${item.title}</a></h3>
                     <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
                     <p>${item.summary}</p>
-                    <a href="${item.link}" target="_blank" class="btn btn-secondary">Lire la suite</a>
+                    <a href="${item.link}" target="_blank" class="btn btn-secondary" style="margin-top:10px;">Lire la suite</a>
                 </div>
             `;
         });
         container.innerHTML = html;
     } catch (error) {
-        console.error(error);
+        console.error('Erreur chargement actualités:', error);
         container.innerHTML = '<div class="error">Impossible de charger les actualités.</div>';
     }
 }
 
 // =======================================================
-// HISTORIQUE
+// PAGE HISTORIQUE (sans aujourd'hui/demain, avec badges de catégorie et cases Over)
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
     if (!container) return;
+
     await loadData();
     if (!allData || !allData.matches) {
         container.innerHTML = '<div class="no-events">Aucun historique disponible.</div>';
         return;
     }
-    const today = new Date(); today.setHours(0,0,0,0);
-    let historyMatches = allData.matches.filter(m => new Date(m.event_date) < today);
+
+    // Date d'aujourd'hui à minuit pour la comparaison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Filtrer les matchs dont la date est strictement inférieure à aujourd'hui
+    const historyMatches = allData.matches.filter(m => {
+        const matchDate = new Date(m.event_date);
+        return matchDate < today;
+    });
+
     if (historyMatches.length === 0) {
         container.innerHTML = '<div class="no-events">Aucun match dans cette période.</div>';
         return;
     }
-    const catOrder = { vip:0, pro:1, simple:2 };
-    historyMatches.sort((a,b) => {
-        const orderA = catOrder[a.category] ?? 3;
-        const orderB = catOrder[b.category] ?? 3;
-        if (orderA !== orderB) return orderA - orderB;
-        return new Date(b.event_date) - new Date(a.event_date);
-    });
+
+    // Trier par date décroissante
+    historyMatches.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
+
+    // Regrouper par jour
     const groupedByDay = {};
     historyMatches.forEach(m => {
         const dateStr = getLocalDateFromEvent(m.event_date);
         if (!groupedByDay[dateStr]) groupedByDay[dateStr] = [];
         groupedByDay[dateStr].push(m);
     });
+
     let html = '';
-    const sortedDays = Object.keys(groupedByDay).sort((a,b) => new Date(b) - new Date(a));
+    const sortedDays = Object.keys(groupedByDay).sort((a, b) => new Date(b) - new Date(a));
+
     sortedDays.forEach(day => {
         const dayDate = new Date(day + 'T12:00:00');
-        const formattedDate = dayDate.toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-        html += `<h2 class="day-header">${formattedDate}</h2>`;
+        const formattedDate = dayDate.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        html += `<h2 class="day-header" style="color: var(--or); margin-top: 2rem;">${formattedDate}</h2>`;
+
         groupedByDay[day].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
@@ -909,16 +847,20 @@ async function displayHistory() {
             if (isNaN(confidence)) confidence = 0;
             if (confidence > 100) confidence = confidence / 100;
             confidence = Math.min(100, Math.round(confidence * 10) / 10);
+
             const matchTime = formatMatchTime(m.event_date);
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
+
             const verifiedDouble = m.verified_double ? 'checked' : '';
             const verifiedOver = m.verified_over ? 'checked' : '';
             const defaultLogo = 'assets/images/default-logo.png';
             const winnerClass = (m.verified_double && m.verified_over) ? 'winner' : '';
+
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
+
             html += `
                 <div class="match-card ${winnerClass}">
                     <div class="match-info">
@@ -956,7 +898,7 @@ async function displayHistory() {
 }
 
 // =======================================================
-// TAUX DE RÉUSSITE ET SCROLL
+// TAUX DE RÉUSSITE ET SCROLL PROGRESS
 // =======================================================
 function updateSuccessRate() {
     const container = document.getElementById('success-rate-container');
@@ -967,13 +909,20 @@ function updateSuccessRate() {
         container.style.display = 'none';
         return;
     }
+    // Un pari est considéré gagnant si les deux conditions sont remplies
     const successful = finished.filter(m => m.verified_double && m.verified_over).length;
     const rate = ((successful / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
     const roi = stats.roi || 0;
     container.innerHTML = `
-        <div class="success-rate-item"><div class="success-rate-value">${rate}%</div><div class="success-rate-label">Réussite</div></div>
-        <div class="success-rate-item"><div class="success-rate-value">${roi > 0 ? '+' : ''}${roi}%</div><div class="success-rate-label">ROI</div></div>
+        <div class="success-rate-item">
+            <div class="success-rate-value">${rate}%</div>
+            <div class="success-rate-label">Réussite</div>
+        </div>
+        <div class="success-rate-item">
+            <div class="success-rate-value">${roi > 0 ? '+' : ''}${roi}%</div>
+            <div class="success-rate-label">ROI</div>
+        </div>
     `;
     container.style.display = 'flex';
 }

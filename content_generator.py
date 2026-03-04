@@ -4,7 +4,7 @@
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
 Ajoute la génération d'images avec fallback : Mistral -> Pixazo -> Lorem Picsum.
-Style d'image : dessin 2D attractif (illustration colorée).
+Style d'image : dessin 2D attractif (illustration colorée).  
 """
 
 import os
@@ -334,7 +334,6 @@ def save_tip(content):
     conseils.insert(0, new)
     conseils = conseils[:100]
     with open(CONSEILS_FILE, 'w', encoding='utf-8') as f:
-        # Correction : indent=2 (et non indent-2)
         json.dump(conseils, f, indent=2, ensure_ascii=False)
     print(f"✅ Conseil sauvegardé : {title[:50]}... (image: {image_url})")
 

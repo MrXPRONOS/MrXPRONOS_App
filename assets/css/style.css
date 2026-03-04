@@ -1,6 +1,14 @@
-/* assets/css/style.css - Feuille de style complète */
+/* =======================================================
+   STYLE.CSS - Mr XPRONOS
+   Design noir & or, optimisé sans dégradés
+   ======================================================= */
+
+/* Police élégante Montserrat (Google Fonts) */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
+/* =======================================================
+   VARIABLES DE COULEURS
+   ======================================================= */
 :root {
     --noir: #0D0D0D;
     --noir-secondaire: #1A1A1A;
@@ -15,7 +23,14 @@
     --shadow-hover: 0 12px 24px rgba(212, 175, 55, 0.2);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* =======================================================
+   RÉINITIALISATION DE BASE
+   ======================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 body {
     font-family: 'Montserrat', sans-serif;
@@ -34,7 +49,9 @@ body {
     padding: 0 15px;
 }
 
-/* Header */
+/* =======================================================
+   HEADER (EN-TÊTE)
+   ======================================================= */
 header {
     background-color: var(--noir-secondaire);
     padding: 0.8rem 0;
@@ -62,8 +79,14 @@ header .container {
     transition: color 0.3s;
 }
 
-.logo a:hover { color: var(--or-clair); }
-.logo span { color: var(--blanc); font-weight: 400; }
+.logo a:hover {
+    color: var(--or-clair);
+}
+
+.logo span {
+    color: var(--blanc);
+    font-weight: 400;
+}
 
 nav ul {
     display: flex;
@@ -93,8 +116,15 @@ nav a::after {
     transition: width 0.3s;
 }
 
-nav a:hover::after, nav a.active::after { width: 100%; }
-nav a:hover, nav a.active { color: var(--or); }
+nav a:hover::after,
+nav a.active::after {
+    width: 100%;
+}
+
+nav a:hover,
+nav a.active {
+    color: var(--or);
+}
 
 .promo-code {
     background-color: var(--or);
@@ -106,9 +136,14 @@ nav a:hover, nav a.active { color: var(--or); }
     box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
     transition: transform 0.3s;
 }
-.promo-code:hover { transform: scale(1.05); }
 
-/* Footer */
+.promo-code:hover {
+    transform: scale(1.05);
+}
+
+/* =======================================================
+   FOOTER (PIED DE PAGE)
+   ======================================================= */
 footer {
     background-color: var(--noir-secondaire);
     padding: 1.5rem 0;
@@ -131,7 +166,10 @@ footer {
     font-size: 0.8rem;
     transition: color 0.3s;
 }
-.footer-links a:hover { color: var(--or); }
+
+.footer-links a:hover {
+    color: var(--or);
+}
 
 .social-links {
     display: flex;
@@ -145,7 +183,10 @@ footer {
     height: 24px;
     transition: transform 0.3s;
 }
-.social-links a:hover img { transform: scale(1.2); }
+
+.social-links a:hover img {
+    transform: scale(1.2);
+}
 
 .bookmakers {
     display: grid;
@@ -161,9 +202,14 @@ footer {
     opacity: 0.9;
     transition: transform 0.3s;
 }
-.bookmakers a:hover img { transform: scale(1.1); }
 
-/* Boutons */
+.bookmakers a:hover img {
+    transform: scale(1.1);
+}
+
+/* =======================================================
+   BOUTONS
+   ======================================================= */
 .btn {
     display: inline-block;
     padding: 0.6rem 1.5rem;
@@ -181,6 +227,7 @@ footer {
     background-color: var(--or);
     color: var(--noir);
 }
+
 .btn-primary:hover {
     background-color: var(--or-clair);
     transform: translateY(-2px);
@@ -192,24 +239,28 @@ footer {
     color: var(--or);
     border: 2px solid var(--or);
 }
+
 .btn-secondary:hover {
     background-color: var(--or);
     color: var(--noir);
     transform: translateY(-2px);
 }
 
-/* Installation PWA */
+/* Bouton installation (PWA) */
 #install-app {
     margin-left: 1rem;
     animation: gentle-pulse 2s infinite;
 }
+
 @keyframes gentle-pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
 }
 
-/* Cartes génériques */
+/* =======================================================
+   CARTES GÉNÉRIQUES
+   ======================================================= */
 .card {
     background-color: var(--noir-secondaire);
     border-radius: 16px;
@@ -219,20 +270,24 @@ footer {
     box-shadow: var(--shadow);
     transition: transform 0.3s, box-shadow 0.3s;
 }
+
 .card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
 }
+
 .card h3 {
     color: var(--or);
     margin-bottom: 0.8rem;
     font-size: 1.2rem;
 }
+
 .card .meta {
     color: #888;
     font-size: 0.8rem;
     margin-bottom: 0.5rem;
 }
+
 .badge-premium {
     background-color: var(--or);
     color: #000;
@@ -243,30 +298,37 @@ footer {
     display: inline-block;
 }
 
-/* Hero */
+/* =======================================================
+   HERO SECTION (PAGE D'ACCUEIL)
+   ======================================================= */
 .hero {
     background-color: var(--noir-secondaire);
     padding: 4rem 0;
     text-align: center;
     border-bottom: 2px solid var(--or);
 }
+
 .hero h1 {
     font-size: 2.2rem;
     margin-bottom: 1rem;
     color: var(--or);
     line-height: 1.2;
 }
+
 .hero p {
     font-size: 1rem;
     max-width: 600px;
     margin: 0 auto 2rem;
     color: #ccc;
 }
+
 .hero .btn {
     margin: 0 0.5rem;
 }
 
-/* Onglets */
+/* =======================================================
+   PAGE PRONOSTICS (ONGLETS, CARTES, ANALYSES)
+   ======================================================= */
 .category-tabs, .day-filters {
     display: flex;
     gap: 0.5rem;
@@ -283,16 +345,32 @@ footer {
     font-weight: 600;
     transition: all 0.3s;
     font-size: 0.8rem;
+    flex: 1 1 auto; /* Permet aux boutons de s'étendre */
+    text-align: center;
 }
 .tab-btn.active, .day-btn.active {
     background-color: var(--or);
     color: var(--noir);
     border-color: var(--or);
 }
-.tab-btn:hover, .day-btn:hover { transform: scale(1.05); }
-.tab-btn[style*="display: none"] { display: none !important; }
+.tab-btn:hover, .day-btn:hover {
+    transform: scale(1.05);
+}
+.tab-btn[style*="display: none"] {
+    display: none !important;
+}
 
-/* Grille des matchs */
+/* Pour que les onglets occupent toute la largeur sur mobile */
+@media (max-width: 768px) {
+    .category-tabs, .day-filters {
+        justify-content: stretch;
+    }
+    .tab-btn, .day-btn {
+        flex: 1 1 0;
+    }
+}
+
+/* Grille des matchs : 2 colonnes sur desktop */
 .matches-grid {
     display: grid;
     gap: 20px;
@@ -325,7 +403,9 @@ footer {
     .match-card {
         flex-direction: row;
     }
-    .match-info { flex: 2; }
+    .match-info {
+        flex: 2;
+    }
     .analysis-panel {
         flex: 1;
         border-left: 2px solid var(--or);
@@ -333,7 +413,9 @@ footer {
         background-color: rgba(0,0,0,0.3);
     }
 }
-.match-info { padding: 1rem; }
+.match-info {
+    padding: 1rem;
+}
 .teams {
     display: flex;
     align-items: center;
@@ -358,7 +440,9 @@ footer {
     border: 1px solid var(--gris-clair);
     transition: border 0.3s;
 }
-.match-card:hover .team-logo { border-color: var(--or); }
+.match-card:hover .team-logo {
+    border-color: var(--or);
+}
 .team-name {
     font-weight: 600;
     font-size: 0.9rem;
@@ -439,8 +523,30 @@ footer {
     font-size: 0.8rem;
     line-height: 1.4;
 }
-.verified { color: #4CAF50; font-weight: 600; }
-.prediction-checkbox { margin-right: 5px; transform: scale(1.2); }
+.verified {
+    color: #4CAF50;
+    font-weight: 600;
+}
+.prediction-checkbox {
+    margin-right: 5px;
+    transform: scale(1.2);
+    accent-color: var(--or); /* Couleur par défaut (or) */
+}
+
+/* Cases cochées vertes pour les pronostics validés */
+.prediction-checkbox:checked:disabled {
+    accent-color: #4CAF50 !important;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+@supports not (accent-color: #4CAF50) {
+    .prediction-checkbox:checked:disabled {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+        color: white;
+    }
+}
 
 /* Sous-onglets VIP */
 .vip-subtabs {
@@ -502,26 +608,20 @@ footer {
     font-weight: 500;
     font-size: 0.8rem;
 }
-.contact-card a:hover { color: var(--or); }
-
-/* Analyse complète ML */
-.analysis-full {
-    background-color: rgba(212, 175, 55, 0.1);
-    border-left: 2px solid var(--or);
-    padding: 1rem;
-}
-.analysis-full p {
-    font-size: 0.8rem;
-    margin-bottom: 0.4rem;
+.contact-card a:hover {
+    color: var(--or);
 }
 
-/* Bookmakers bonus */
+/* =======================================================
+   BOOKMAKERS DYNAMIQUES (CARTES DE BONUS)
+   ======================================================= */
 .bookmakers-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1.5rem;
     margin-top: 1.5rem;
 }
+
 .bookmaker-card {
     background-color: var(--noir);
     border-radius: 16px;
@@ -530,27 +630,33 @@ footer {
     border: 1px solid var(--or);
     transition: transform 0.3s, box-shadow 0.3s;
 }
+
 .bookmaker-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
 }
+
 .bookmaker-card img {
     max-width: 80px;
     height: auto;
     margin-bottom: 0.5rem;
 }
+
 .bookmaker-card h3 {
     color: var(--or);
     margin-bottom: 0.5rem;
     font-size: 1rem;
 }
+
 .bookmaker-card p {
     font-size: 0.8rem;
     color: #ccc;
     margin-bottom: 1rem;
 }
 
-/* Popup de partage */
+/* =======================================================
+   POPUP DE PARTAGE (CENTRÉ)
+   ======================================================= */
 .popup {
     position: fixed;
     top: 0;
@@ -565,7 +671,9 @@ footer {
     padding: 1rem;
     backdrop-filter: blur(5px);
 }
-.popup.active { display: flex; }
+.popup.active {
+    display: flex;
+}
 .popup-content {
     background-color: var(--noir-secondaire);
     border: 2px solid var(--or);
@@ -580,15 +688,24 @@ footer {
     animation: fadeInUp 0.3s;
 }
 @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 .popup-content h3 {
     color: var(--or);
     margin-bottom: 1rem;
     font-size: 1.2rem;
 }
-.popup-content p { margin-bottom: 1.2rem; font-size: 0.9rem; }
+.popup-content p {
+    margin-bottom: 1.2rem;
+    font-size: 0.9rem;
+}
 .share-buttons {
     display: flex;
     gap: 1rem;
@@ -596,9 +713,13 @@ footer {
     margin-bottom: 1rem;
     flex-wrap: wrap;
 }
-#close-popup { margin-top: 1rem; }
+#close-popup {
+    margin-top: 1rem;
+}
 
-/* Overlay VIP verrouillé */
+/* =======================================================
+   OVERLAY VIP VERROUILLÉ
+   ======================================================= */
 .vip-locked-overlay {
     position: relative;
     min-height: 300px;
@@ -613,6 +734,7 @@ footer {
     margin: 2rem 0;
     transition: opacity 0.3s ease;
 }
+
 .vip-locked-content {
     background: rgba(0,0,0,0.7);
     padding: 2rem;
@@ -622,15 +744,25 @@ footer {
     max-width: 400px;
     width: 90%;
 }
-.vip-locked-content .lock-icon { font-size: 4rem; margin-bottom: 1rem; }
-.vip-locked-content h3 { color: var(--or); margin-bottom: 1rem; }
-.vip-locked-content p { margin-bottom: 1.5rem; color: #ccc; }
-.vip-locked-content .btn { min-width: 160px; margin: 0.25rem; flex: 1 1 auto; }
-@media (max-width: 480px) {
-    .vip-locked-content .btn { min-width: 100%; width: 100%; margin: 0.25rem 0; }
+
+.vip-locked-content .lock-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
 }
 
-/* Messages */
+.vip-locked-content h3 {
+    color: var(--or);
+    margin-bottom: 1rem;
+}
+
+.vip-locked-content p {
+    margin-bottom: 1.5rem;
+    color: #ccc;
+}
+
+/* =======================================================
+   MESSAGES DE CHARGEMENT / ERREUR
+   ======================================================= */
 .loading, .error, .no-events, .warning {
     text-align: center;
     padding: 3rem 1rem;
@@ -641,7 +773,9 @@ footer {
     font-size: 1rem;
     margin: 2rem 0;
 }
-.loading { position: relative; }
+.loading {
+    position: relative;
+}
 .loading::after {
     content: '';
     display: inline-block;
@@ -653,26 +787,24 @@ footer {
     animation: spinner 1s linear infinite;
     margin-top: 1rem;
 }
-@keyframes spinner { to { transform: rotate(360deg); } }
-.error { color: #FF6B6B; border-color: #FF6B6B; }
-.warning { color: #FFA500; border-color: #FFA500; }
-.no-events { color: #AAAAAA; }
-
-/* Cases à cocher */
-.prediction-checkbox:checked:disabled {
-    accent-color: #4CAF50 !important;
-    opacity: 1 !important;
-    filter: none !important;
+@keyframes spinner {
+    to { transform: rotate(360deg); }
 }
-@supports not (accent-color: #4CAF50) {
-    .prediction-checkbox:checked:disabled {
-        background-color: #4CAF50;
-        border-color: #4CAF50;
-        color: white;
-    }
+.error {
+    color: #FF6B6B;
+    border-color: #FF6B6B;
+}
+.warning {
+    color: #FFA500;
+    border-color: #FFA500;
+}
+.no-events {
+    color: #AAAAAA;
 }
 
-/* Badges */
+/* =======================================================
+   BADGE XPRONOS
+   ======================================================= */
 .xpronos-badge {
     display: inline-block;
     background-color: var(--or);
@@ -685,41 +817,45 @@ footer {
     text-transform: uppercase;
     box-shadow: 0 2px 8px rgba(255,215,0,0.3);
 }
-.badge-category {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.65rem;
-    font-weight: 600;
-    margin-left: 5px;
-    text-transform: uppercase;
-}
-.badge-simple { background-color: #555; color: white; }
-.badge-pro { background-color: #2196F3; color: white; }
-.badge-vip { background-color: #4CAF50; color: white; }
 
-/* Articles et conseils */
-#blog-post, #conseils-list, #blog-list {
+/* =======================================================
+   FORMATAGE DES ARTICLES ET CONSEILS
+   ======================================================= */
+#blog-post,
+#conseils-list,
+#blog-list {
     white-space: pre-wrap;
     word-wrap: break-word;
 }
-#blog-post h1, #blog-post h2, #blog-post h3,
-#conseils-list .card h3, #blog-list .card h3 {
+
+#blog-post h1,
+#blog-post h2,
+#blog-post h3,
+#conseils-list .card h3,
+#blog-list .card h3 {
     margin-top: 1.2rem;
     margin-bottom: 0.8rem;
     font-size: 1.1rem;
 }
-#blog-post p, #conseils-list .card p, #blog-list .card p {
+
+#blog-post p,
+#conseils-list .card p,
+#blog-list .card p {
     margin-bottom: 0.8rem;
     line-height: 1.6;
     font-size: 0.9rem;
 }
-#blog-post ul, #blog-post ol,
-#conseils-list .card ul, #conseils-list .card ol,
-#blog-list .card ul, #blog-list .card ol {
+
+#blog-post ul,
+#blog-post ol,
+#conseils-list .card ul,
+#conseils-list .card ol,
+#blog-list .card ul,
+#blog-list .card ol {
     margin-left: 1.5rem;
     margin-bottom: 1rem;
 }
+
 #blog-post blockquote,
 #conseils-list .card blockquote,
 #blog-list .card blockquote {
@@ -729,18 +865,24 @@ footer {
     font-style: italic;
     color: #ccc;
 }
-#blog-list, #conseils-list {
+
+/* Grille pour les articles et conseils (2 colonnes sur desktop) */
+#blog-list,
+#conseils-list {
     display: grid;
     gap: 20px;
     grid-template-columns: 1fr;
 }
 @media (min-width: 768px) {
-    #blog-list, #conseils-list {
+    #blog-list,
+    #conseils-list {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-/* Actualités */
+/* =======================================================
+   ACTUALITÉS FOOTBALL
+   ======================================================= */
 .news-grid {
     display: grid;
     gap: 20px;
@@ -751,9 +893,14 @@ footer {
         grid-template-columns: repeat(2, 1fr);
     }
 }
-.news-card img { max-height: 200px; object-fit: cover; }
+.news-card img {
+    max-height: 200px;
+    object-fit: cover;
+}
 
-/* Taux de réussite */
+/* =======================================================
+   TAUX DE RÉUSSITE GLOBAL
+   ======================================================= */
 .success-rate {
     background-color: var(--noir-secondaire);
     border-radius: 20px;
@@ -767,16 +914,26 @@ footer {
     border-left: 4px solid var(--or);
     box-shadow: var(--shadow);
 }
-.success-rate-item { text-align: center; }
+
+.success-rate-item {
+    text-align: center;
+}
+
 .success-rate-value {
     font-size: 2rem;
     font-weight: 700;
     color: var(--or);
     line-height: 1.2;
 }
-.success-rate-label { font-size: 0.9rem; color: #ccc; }
 
-/* Barre de progression */
+.success-rate-label {
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+/* =======================================================
+   SCROLL PROGRESS BAR
+   ======================================================= */
 .scroll-progress {
     position: fixed;
     top: 0;
@@ -788,21 +945,36 @@ footer {
     transition: width 0.1s;
 }
 
-/* Skeleton loading */
+/* =======================================================
+   SKELETON LOADING (optionnel)
+   ======================================================= */
 @keyframes skeleton-loading {
     0% { background-color: #2a2a2a; }
     50% { background-color: #3a3a3a; }
     100% { background-color: #2a2a2a; }
 }
-.skeleton { animation: skeleton-loading 1.5s infinite; border-radius: 8px; }
 
-/* Feu d'artifice */
-.win-effect { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.skeleton {
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 8px;
+}
+
+/* =======================================================
+   FEU D'ARTIFICE POUR PRONO GAGNÉ
+   ======================================================= */
+.win-effect {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
 .match-card.winner {
     border: 2px solid #4CAF50 !important;
     box-shadow: 0 0 25px rgba(76,175,80,0.5) !important;
     position: relative;
 }
+
 .match-card.winner::before {
     content: "🎉 PRONO GAGNÉ";
     position: absolute;
@@ -817,11 +989,13 @@ footer {
     animation: pulseWin 1s infinite;
     z-index: 10;
 }
+
 @keyframes pulseWin {
     0% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.05); opacity: 0.9; }
     100% { transform: scale(1); opacity: 1; }
 }
+
 .spark {
     position: absolute;
     width: 4px;
@@ -832,12 +1006,21 @@ footer {
     pointer-events: none;
     z-index: 20;
 }
+
 @keyframes sparkFly {
-    0% { transform: translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--dx, 100px), var(--dy, -100px)) scale(0); opacity: 0; }
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--dx, 100px), var(--dy, -100px)) scale(0);
+        opacity: 0;
+    }
 }
 
-/* Barre de confiance */
+/* =======================================================
+   BARRE DE CONFIANCE ANIMÉE
+   ======================================================= */
 .confidence-bar {
     width: 100%;
     height: 8px;
@@ -847,6 +1030,7 @@ footer {
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
 .confidence-fill {
     height: 100%;
     width: 0;
@@ -854,7 +1038,9 @@ footer {
     transition: width 2s ease;
 }
 
-/* Effet ticket */
+/* =======================================================
+   EFFET TICKET DE PARI
+   ======================================================= */
 .ticket {
     background-color: #111;
     border: 2px dashed var(--or);
@@ -862,6 +1048,7 @@ footer {
     border-radius: 12px;
     position: relative;
 }
+
 .ticket::before,
 .ticket::after {
     content: "";
@@ -873,11 +1060,18 @@ footer {
     top: 50%;
     transform: translateY(-50%);
 }
+
 .ticket::before { left: -8px; }
 .ticket::after { right: -8px; }
-.ticket.winner { border-color: #4CAF50; background-color: rgba(76,175,80,0.1); }
 
-/* Historique */
+.ticket.winner {
+    border-color: #4CAF50;
+    background-color: rgba(76,175,80,0.1);
+}
+
+/* =======================================================
+   EN-TÊTE DE JOUR POUR L'HISTORIQUE
+   ======================================================= */
 .day-header {
     font-size: 1.5rem;
     margin: 2rem 0 1rem;
@@ -886,112 +1080,9 @@ footer {
     padding-bottom: 0.5rem;
 }
 
-/* Recherche */
-.search-container { margin: 1rem 0; }
-.search-input {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    border-radius: 30px;
-    border: 1px solid var(--or);
-    background-color: var(--noir-secondaire);
-    color: var(--blanc);
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.3s;
-}
-.search-input:focus { border-color: var(--or-clair); }
-
-/* Liste horizontale scrollable */
-.horizontal-scroll {
-    display: flex;
-    overflow-x: auto;
-    gap: 1rem;
-    padding: 1rem 0;
-    margin: 1rem 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--or) var(--noir-secondaire);
-}
-.horizontal-scroll::-webkit-scrollbar { height: 8px; }
-.horizontal-scroll::-webkit-scrollbar-track { background: var(--noir-secondaire); border-radius: 4px; }
-.horizontal-scroll::-webkit-scrollbar-thumb { background-color: var(--or); border-radius: 4px; }
-.horizontal-item {
-    flex: 0 0 auto;
-    width: 120px;
-    cursor: pointer;
-    transition: transform 0.3s;
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--noir-secondaire);
-    border: 1px solid var(--or);
-}
-.horizontal-item:hover { transform: scale(1.05); }
-.horizontal-item img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-}
-.horizontal-item .item-title {
-    padding: 0.5rem;
-    font-size: 0.8rem;
-    text-align: center;
-    color: var(--blanc);
-    background: var(--noir);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Bonus grid */
-.bonus-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-}
-.bonus-card {
-    background: var(--noir-secondaire);
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid var(--or);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-.bonus-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
-}
-.bonus-image {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-}
-.bonus-card h3 {
-    color: var(--or);
-    margin: 1rem 1rem 0.5rem;
-}
-.bonus-card p {
-    margin: 0 1rem 1rem;
-    color: #ccc;
-    font-size: 0.9rem;
-}
-.bonus-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background: var(--noir);
-    border-top: 1px solid var(--or);
-}
-.bonus-footer span {
-    font-size: 0.8rem;
-    color: #aaa;
-}
-.bonus-footer .btn {
-    padding: 0.4rem 1rem;
-    font-size: 0.8rem;
-}
-
-/* Guide iOS */
+/* =======================================================
+   GUIDE D'INSTALLATION POUR IOS
+   ======================================================= */
 .ios-guide-popup {
     position: fixed;
     top: 0;
@@ -1006,6 +1097,7 @@ footer {
     padding: 1rem;
     backdrop-filter: blur(5px);
 }
+
 .ios-guide-content {
     background-color: var(--noir-secondaire);
     border: 2px solid var(--or);
@@ -1019,18 +1111,25 @@ footer {
     box-shadow: var(--shadow-hover);
     animation: fadeInUp 0.3s;
 }
+
 .ios-guide-content h3 {
     color: var(--or);
     margin-bottom: 1.5rem;
     font-size: 1.5rem;
 }
-.ios-guide-steps { text-align: left; margin: 1.5rem 0; }
+
+.ios-guide-steps {
+    text-align: left;
+    margin: 1.5rem 0;
+}
+
 .ios-guide-step {
     display: flex;
     align-items: center;
     margin-bottom: 1.2rem;
     gap: 1rem;
 }
+
 .step-number {
     background-color: var(--or);
     color: var(--noir);
@@ -1044,12 +1143,17 @@ footer {
     font-size: 1.1rem;
     flex-shrink: 0;
 }
+
 .step-text {
     color: var(--blanc);
     font-size: 0.95rem;
     line-height: 1.4;
 }
-.step-text strong { color: var(--or); }
+
+.step-text strong {
+    color: var(--or);
+}
+
 .ios-guide-note {
     background: rgba(212, 175, 55, 0.1);
     border-left: 4px solid var(--or);
@@ -1059,6 +1163,7 @@ footer {
     font-size: 0.9rem;
     color: #ccc;
 }
+
 .ios-guide-buttons {
     display: flex;
     gap: 1rem;
@@ -1067,23 +1172,71 @@ footer {
     flex-wrap: wrap;
 }
 
-/* Responsive */
+/* =======================================================
+   RESPONSIVE (MOBILE FIRST)
+   ======================================================= */
 @media (max-width: 768px) {
-    header .container { flex-direction: column; gap: 0.8rem; }
-    nav ul { gap: 0.8rem; justify-content: center; }
-    nav a { font-size: 0.8rem; }
-    .hero h1 { font-size: 1.8rem; }
-    .hero p { font-size: 0.9rem; }
-    .hero .btn { display: block; width: 80%; margin: 0.5rem auto; }
-    .bookmakers { gap: 0.8rem; }
-    .match-card { flex-direction: column; }
+    header .container {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    nav ul {
+        gap: 0.8rem;
+        justify-content: center;
+    }
+
+    nav a {
+        font-size: 0.8rem;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero p {
+        font-size: 0.9rem;
+    }
+
+    .hero .btn {
+        display: block;
+        width: 80%;
+        margin: 0.5rem auto;
+    }
+
+    .bookmakers {
+        gap: 0.8rem;
+    }
+
+    .match-card {
+        flex-direction: column;
+    }
     .analysis-panel {
         border-left: none;
         border-top: 2px solid var(--or);
         padding: 0.8rem;
     }
-    .team-logo { width: 45px; height: 45px; }
-    .team-score { font-size: 1.3rem; }
-    .footer-links { gap: 0.8rem; }
-    .footer-links a { font-size: 0.75rem; }
+    .team-logo {
+        width: 45px;
+        height: 45px;
+    }
+    .team-score {
+        font-size: 1.3rem;
+    }
+    .footer-links {
+        gap: 0.8rem;
+    }
+    .footer-links a {
+        font-size: 0.75rem;
+    }
+
+    .ios-guide-step {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .step-number {
+        margin-bottom: 0.3rem;
+    }
 }

@@ -12,6 +12,33 @@
     <meta name="theme-color" content="#0D0D0D">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
+<!-- Popup guide d'installation pour iOS (identique à index.html) -->
+<div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
+    <div class="ios-guide-content">
+        <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
+        <div class="ios-guide-steps">
+            <div class="ios-guide-step">
+                <span class="step-number">1</span>
+                <span class="step-text">Touchez le bouton <strong>Partager</strong> <span style="font-size:1.2rem;">📤</span> en bas de l'écran</span>
+            </div>
+            <div class="ios-guide-step">
+                <span class="step-number">2</span>
+                <span class="step-text">Faites défiler vers le bas et sélectionnez <strong>"Sur l'écran d'accueil"</strong></span>
+            </div>
+            <div class="ios-guide-step">
+                <span class="step-number">3</span>
+                <span class="step-text">Touchez <strong>"Ajouter"</strong> en haut à droite</span>
+            </div>
+        </div>
+        <div class="ios-guide-note">
+            💡 Activez l'option <strong>"Ouvrir comme app web"</strong> pour une expérience optimale [citation:1].
+        </div>
+        <div class="ios-guide-buttons">
+            <button id="close-ios-guide" class="btn btn-primary">Compris !</button>
+            <button id="close-ios-guide-btn" class="btn btn-secondary">Plus tard</button>
+        </div>
+    </div>
+</div>
 <body>
     <header>
         <div class="container">
@@ -26,7 +53,6 @@
                     <li><a href="blog.html">Blog</a></li>
                     <li><a href="conseils.html">Conseils</a></li>
                     <li><a href="infos.html">Infos sport</a></li>
-                    <li><a href="bonus.html">Bonus & Promo</a></li>
                     <li><a href="contact.html">Contact</a></li>
                 </ul>
             </nav>
@@ -40,24 +66,14 @@
             <p>Pronostics sportifs de qualité, analyses pointues et conseils pour maximiser vos gains. Rejoignez la communauté VIP dès maintenant !</p>
             <div>
                 <a href="pronos.html" class="btn btn-primary">Voir les pronostics</a>
+                <!-- Bouton d'installation PWA (caché par défaut) -->
                 <a href="#" id="install-app" class="btn btn-secondary" style="display: none;">📲 Télécharger l'App</a>
             </div>
         </div>
     </section>
 
     <main class="container">
-        <!-- Section compteurs globaux -->
-        <div class="global-stats" style="display: flex; gap: 2rem; justify-content: center; margin: 2rem 0;">
-            <div class="stat-card" style="background: var(--noir-secondaire); padding: 1rem; border-radius: 12px; text-align: center;">
-                <span class="stat-value" id="total-users-counter">1 000</span>
-                <span class="stat-label" style="display: block; color: #ccc;">utilisateurs</span>
-            </div>
-            <div class="stat-card" style="background: var(--noir-secondaire); padding: 1rem; border-radius: 12px; text-align: center;">
-                <span class="stat-value" id="total-shares-counter">10 000</span>
-                <span class="stat-label" style="display: block; color: #ccc;">partages</span>
-            </div>
-        </div>
-
+        <!-- Section Pourquoi nous choisir ? -->
         <section style="margin: 3rem 0;">
             <h2 style="color: var(--or); margin-bottom: 2rem;">📊 Pourquoi nous choisir ?</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
@@ -76,11 +92,15 @@
             </div>
         </section>
 
+        <!-- Section Bonus Bookmakers -->
         <section style="margin: 3rem 0; background: var(--noir-secondaire); padding: 2rem; border-radius: 20px;">
             <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">🔥 Profitez des bonus exclusifs</h2>
-            <div id="bookmakers-bonus" class="bookmakers-grid"></div>
+            <div id="bookmakers-bonus" class="bookmakers-grid">
+                <!-- Rempli dynamiquement par JavaScript -->
+            </div>
         </section>
 
+        <!-- Section Témoignages -->
         <section style="margin: 3rem 0;">
             <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">💬 Ils nous font confiance</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
@@ -98,35 +118,15 @@
                 </div>
             </div>
         </section>
-    </main>
 
-    <!-- Popup guide d'installation pour iOS -->
-    <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
-        <div class="ios-guide-content">
-            <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
-            <div class="ios-guide-steps">
-                <div class="ios-guide-step">
-                    <span class="step-number">1</span>
-                    <span class="step-text">Touchez le bouton <strong>Partager</strong> 📤 en bas de l'écran</span>
-                </div>
-                <div class="ios-guide-step">
-                    <span class="step-number">2</span>
-                    <span class="step-text">Faites défiler et sélectionnez <strong>"Sur l'écran d'accueil"</strong></span>
-                </div>
-                <div class="ios-guide-step">
-                    <span class="step-number">3</span>
-                    <span class="step-text">Touchez <strong>"Ajouter"</strong> en haut à droite</span>
-                </div>
+        <!-- Section Compteur de partages -->
+        <section style="margin: 3rem 0; text-align: center;">
+            <div style="background: var(--or); color: var(--noir); padding: 2rem; border-radius: 20px;">
+                <h3 style="font-size: 2rem;" id="share-counter">🔥 0 partages aujourd'hui</h3>
+                <p>Rejoignez la communauté et débloquez des pronostics exclusifs !</p>
             </div>
-            <div class="ios-guide-note">
-                💡 Activez l'option <strong>"Ouvrir comme app web"</strong> pour une expérience optimale.
-            </div>
-            <div class="ios-guide-buttons">
-                <button id="close-ios-guide" class="btn btn-primary">Compris !</button>
-                <button id="close-ios-guide-btn" class="btn btn-secondary">Plus tard</button>
-            </div>
-        </div>
-    </div>
+        </section>
+    </main>
 
     <footer>
         <div class="container">
@@ -137,7 +137,6 @@
                 <a href="blog.html">Blog</a>
                 <a href="conseils.html">Conseils</a>
                 <a href="infos.html">Infos sport</a>
-                <a href="bonus.html">Bonus & Promo</a>
                 <a href="contact.html">Contact</a>
             </div>
             <div class="social-links">

@@ -1,4 +1,3 @@
-<!-- admin.html - Panneau d'administration complet avec gestion des bookmakers, bonus et statistiques réelles via Supabase -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7,7 +6,6 @@
     <title>Administration - Mr XPRONOS</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .admin-tabs { display: flex; gap: 0.5rem; margin: 2rem 0; flex-wrap: wrap; }
         .tab-btn { background: var(--noir-secondaire); color: var(--blanc); border: none; padding: 0.8rem 1.5rem; border-radius: 30px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
@@ -22,15 +20,35 @@
         .period-selector { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center; }
         .period-selector select, .period-selector input { background: var(--noir-secondaire); color: var(--blanc); border: 1px solid var(--or); padding: 0.5rem; border-radius: 8px; }
         .custom-range { display: none; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-        .chart-container { background: var(--noir-secondaire); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; }
-        .bookmaker-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid #333; }
-        .bookmaker-item img { width: 50px; height: 50px; object-fit: contain; }
-        .bonus-preview { max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 8px; }
-        .inline-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
-        .error-message { color: #FF6B6B; margin: 0.5rem 0; }
-        .success-message { color: #4CAF50; margin: 0.5rem 0; }
     </style>
 </head>
+<!-- Popup guide d'installation pour iOS (identique à index.html) -->
+<div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
+    <div class="ios-guide-content">
+        <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
+        <div class="ios-guide-steps">
+            <div class="ios-guide-step">
+                <span class="step-number">1</span>
+                <span class="step-text">Touchez le bouton <strong>Partager</strong> <span style="font-size:1.2rem;">📤</span> en bas de l'écran</span>
+            </div>
+            <div class="ios-guide-step">
+                <span class="step-number">2</span>
+                <span class="step-text">Faites défiler vers le bas et sélectionnez <strong>"Sur l'écran d'accueil"</strong></span>
+            </div>
+            <div class="ios-guide-step">
+                <span class="step-number">3</span>
+                <span class="step-text">Touchez <strong>"Ajouter"</strong> en haut à droite</span>
+            </div>
+        </div>
+        <div class="ios-guide-note">
+            💡 Activez l'option <strong>"Ouvrir comme app web"</strong> pour une expérience optimale [citation:1].
+        </div>
+        <div class="ios-guide-buttons">
+            <button id="close-ios-guide" class="btn btn-primary">Compris !</button>
+            <button id="close-ios-guide-btn" class="btn btn-secondary">Plus tard</button>
+        </div>
+    </div>
+</div>
 <body>
     <header>
         <div class="container">
@@ -54,8 +72,6 @@
             <button class="tab-btn" data-tab="blog">Blog</button>
             <button class="tab-btn" data-tab="conseils">Conseils</button>
             <button class="tab-btn" data-tab="infos">Infos</button>
-            <button class="tab-btn" data-tab="bonus">Bonus & Promo</button>
-            <button class="tab-btn" data-tab="bookmakers">Bookmakers</button>
             <button class="tab-btn" data-tab="export">Export JSON</button>
             <button class="tab-btn" data-tab="stats">Statistiques</button>
         </div>
@@ -83,7 +99,14 @@
                     </div>
                     <div class="form-group">
                         <label>Bookmaker</label>
-                        <select id="pronostic-bookmaker"></select>
+                        <select id="pronostic-bookmaker">
+                            <option>1xBet</option>
+                            <option>1win</option>
+                            <option>Betwinner</option>
+                            <option>Melbet</option>
+                            <option>Linebet</option>
+                            <option>888starz</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>
@@ -185,61 +208,6 @@
             <div class="admin-list" id="infos-list-admin"></div>
         </div>
 
-        <!-- Onglet Bonus -->
-        <div id="tab-bonus" class="tab-pane">
-            <div class="admin-form">
-                <h2>Ajouter / Modifier un bonus ou promotion</h2>
-                <form id="bonus-form">
-                    <div class="form-group">
-                        <label>Titre</label>
-                        <input type="text" id="bonus-title" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea id="bonus-description" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Image (URL)</label>
-                        <input type="url" id="bonus-image" required>
-                        <small>Entrez l'URL complète de l'image (ou chemin relatif)</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Lien (optionnel)</label>
-                        <input type="url" id="bonus-link">
-                    </div>
-                    <div class="form-group">
-                        <label>Date de début</label>
-                        <input type="date" id="bonus-start" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Date de fin</label>
-                        <input type="date" id="bonus-end" required>
-                    </div>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="bonus-active" checked> Actif
-                        </label>
-                    </div>
-                    <input type="hidden" id="bonus-index" value="-1">
-                    <div class="admin-actions">
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
-                        <button type="button" id="cancel-bonus" class="btn btn-secondary">Annuler</button>
-                    </div>
-                </form>
-            </div>
-            <div class="admin-list" id="bonus-list-admin"></div>
-        </div>
-
-        <!-- Onglet Bookmakers -->
-        <div id="tab-bookmakers" class="tab-pane">
-            <div class="admin-form">
-                <h2>Gérer les bookmakers</h2>
-                <p>Les bookmakers apparaissent dans le footer et la section bonus. Modifiez leurs liens d'affiliation et logos.</p>
-                <div id="bookmakers-list-admin" class="admin-list"></div>
-                <button id="add-bookmaker" class="btn btn-primary">Ajouter un bookmaker</button>
-            </div>
-        </div>
-
         <!-- Onglet Export JSON -->
         <div id="tab-export" class="tab-pane">
             <div class="admin-form">
@@ -251,9 +219,9 @@
             </div>
         </div>
 
-        <!-- Onglet Statistiques (données réelles depuis Supabase) -->
+        <!-- Onglet Statistiques -->
         <div id="tab-stats" class="tab-pane">
-            <h2 style="color: var(--or);">Statistiques d'utilisation</h2>
+            <h2 style="color: var(--or);">Statistiques d'utilisation (réelles)</h2>
 
             <div class="period-selector">
                 <label for="period-select">Période :</label>
@@ -268,15 +236,15 @@
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Utilisateurs totaux</h3>
+                    <h3>Utilisateurs uniques</h3>
                     <div class="stat-value" id="total-users">-</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Visites (période)</h3>
+                    <h3>Visites</h3>
                     <div class="stat-value" id="total-visits">-</div>
                 </div>
                 <div class="stat-card">
-                    <h3>Partages (période)</h3>
+                    <h3>Partages</h3>
                     <div class="stat-value" id="total-shares">-</div>
                 </div>
                 <div class="stat-card">
@@ -300,28 +268,12 @@
                     <div class="stat-value" id="avg-visits">-</div>
                 </div>
             </div>
-
-            <div class="chart-container">
-                <canvas id="visitsChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas id="categoriesChart"></canvas>
-            </div>
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/admin-stats.js"></script>
     <script>
-        // Configuration Supabase (clés publiques, sans risque)
-        const supabaseUrl = 'https://votre-projet.supabase.co';
-        const supabaseAnonKey = 'votre-clé-anon';
-        const supabase = supabase.createClient(supabaseUrl, supabaseAnonKey);
-
         (function() {
-            // =======================================================
-            // DONNÉES PAR DÉFAUT (si localStorage est vide)
-            // =======================================================
             const defaultData = {
                 pronostics: [
                     { match: "PSG - OM", cote: "1.85", analyse: "PSG en forme à domicile.", confidence: 75, premium: false, bookmaker: "1xBet" }
@@ -334,46 +286,17 @@
                 ],
                 infos: [
                     { title: "Classement Ligue 1", content: "PSG en tête..." }
-                ],
-                bonus: [
-                    { title: "Bonus de bienvenue 1xBet", description: "100€ offerts", image: "assets/images/1xbet.png", link: "https://affiliation.com/1xbet", start: "2026-03-01", end: "2026-04-01", active: true }
-                ],
-                bookmakers: [
-                    { name: "1xBet", logo: "assets/images/1xbet.png", url: "https://affiliation.com/1xbet" },
-                    { name: "1win", logo: "assets/images/1win.png", url: "https://affiliation.com/1win" },
-                    { name: "Betwinner", logo: "assets/images/betwinner.png", url: "https://affiliation.com/betwinner" },
-                    { name: "Melbet", logo: "assets/images/melbet.png", url: "https://affiliation.com/melbet" },
-                    { name: "Linebet", logo: "assets/images/linebet.png", url: "https://affiliation.com/linebet" },
-                    { name: "888starz", logo: "assets/images/888starz.png", url: "https://affiliation.com/888starz" }
                 ]
             };
 
-            // Charger depuis localStorage ou utiliser les données par défaut
             let data = JSON.parse(localStorage.getItem('mrXpronosData')) || defaultData;
 
             function saveData() {
                 localStorage.setItem('mrXpronosData', JSON.stringify(data, null, 2));
                 renderAllLists();
                 updatePreview();
-                // Synchronisation avec Supabase (optionnel)
-                syncToSupabase();
             }
 
-            // =======================================================
-            // SYNCHRONISATION AVEC SUPABASE
-            // =======================================================
-            async function syncToSupabase() {
-                try {
-                    await supabase.from('pronostics').upsert({ id: 'current', data: data, updated_at: new Date().toISOString() });
-                    console.log('✅ Données synchronisées avec Supabase');
-                } catch (e) {
-                    console.error('❌ Erreur sync Supabase:', e);
-                }
-            }
-
-            // =======================================================
-            // PRONOSTICS
-            // =======================================================
             function renderPronostics() {
                 const container = document.getElementById('pronostics-list-admin');
                 if (!container) return;
@@ -438,9 +361,6 @@
                 document.getElementById('pronostic-index').value = '-1';
             });
 
-            // =======================================================
-            // BLOG
-            // =======================================================
             function renderBlog() {
                 const container = document.getElementById('blog-list-admin');
                 if (!container) return;
@@ -505,9 +425,6 @@
                 document.getElementById('blog-index').value = '-1';
             });
 
-            // =======================================================
-            // CONSEILS
-            // =======================================================
             function renderConseils() {
                 const container = document.getElementById('conseils-list-admin');
                 if (!container) return;
@@ -564,9 +481,6 @@
                 document.getElementById('conseil-index').value = '-1';
             });
 
-            // =======================================================
-            // INFOS
-            // =======================================================
             function renderInfos() {
                 const container = document.getElementById('infos-list-admin');
                 if (!container) return;
@@ -623,157 +537,6 @@
                 document.getElementById('info-index').value = '-1';
             });
 
-            // =======================================================
-            // BONUS
-            // =======================================================
-            function renderBonus() {
-                const container = document.getElementById('bonus-list-admin');
-                if (!container) return;
-                container.innerHTML = '';
-                if (!data.bonus) data.bonus = [];
-                data.bonus.forEach((b, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'admin-item';
-                    div.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <img src="${b.image}" alt="${b.title}" class="bonus-preview">
-                            <div>
-                                <strong>${b.title}</strong> - ${b.active ? '✅ Actif' : '❌ Inactif'}<br>
-                                <small>${b.start} → ${b.end}</small>
-                            </div>
-                        </div>
-                        <div>
-                            <button onclick="editBonus(${index})">✏️</button>
-                            <button onclick="deleteBonus(${index})">🗑️</button>
-                        </div>
-                    `;
-                    container.appendChild(div);
-                });
-            }
-
-            window.editBonus = (index) => {
-                const b = data.bonus[index];
-                document.getElementById('bonus-title').value = b.title;
-                document.getElementById('bonus-description').value = b.description;
-                document.getElementById('bonus-image').value = b.image;
-                document.getElementById('bonus-link').value = b.link || '';
-                document.getElementById('bonus-start').value = b.start;
-                document.getElementById('bonus-end').value = b.end;
-                document.getElementById('bonus-active').checked = b.active;
-                document.getElementById('bonus-index').value = index;
-            };
-
-            window.deleteBonus = (index) => {
-                if (confirm('Supprimer ce bonus ?')) {
-                    data.bonus.splice(index, 1);
-                    saveData();
-                }
-            };
-
-            document.getElementById('bonus-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const index = parseInt(document.getElementById('bonus-index').value);
-                const newBonus = {
-                    title: document.getElementById('bonus-title').value,
-                    description: document.getElementById('bonus-description').value,
-                    image: document.getElementById('bonus-image').value,
-                    link: document.getElementById('bonus-link').value || null,
-                    start: document.getElementById('bonus-start').value,
-                    end: document.getElementById('bonus-end').value,
-                    active: document.getElementById('bonus-active').checked
-                };
-                if (!data.bonus) data.bonus = [];
-                if (index === -1) {
-                    data.bonus.push(newBonus);
-                } else {
-                    data.bonus[index] = newBonus;
-                }
-                saveData();
-                document.getElementById('bonus-form').reset();
-                document.getElementById('bonus-index').value = '-1';
-            });
-
-            document.getElementById('cancel-bonus').addEventListener('click', () => {
-                document.getElementById('bonus-form').reset();
-                document.getElementById('bonus-index').value = '-1';
-            });
-
-            // =======================================================
-            // BOOKMAKERS
-            // =======================================================
-            function renderBookmakersList() {
-                const container = document.getElementById('bookmakers-list-admin');
-                if (!container) return;
-                container.innerHTML = '';
-                if (!data.bookmakers) data.bookmakers = defaultData.bookmakers;
-                data.bookmakers.forEach((b, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'bookmaker-item';
-                    div.innerHTML = `
-                        <img src="${b.logo}" alt="${b.name}" onerror="this.src='assets/images/default-logo.png'">
-                        <div style="flex:1;">
-                            <strong>${b.name}</strong><br>
-                            <small>URL: ${b.url}</small>
-                        </div>
-                        <div>
-                            <button onclick="editBookmaker(${index})">✏️</button>
-                            <button onclick="deleteBookmaker(${index})">🗑️</button>
-                        </div>
-                    `;
-                    container.appendChild(div);
-                });
-            }
-
-            window.editBookmaker = (index) => {
-                const b = data.bookmakers[index];
-                // Créer un formulaire inline
-                const container = document.getElementById('bookmakers-list-admin');
-                const form = document.createElement('div');
-                form.className = 'admin-form inline-form';
-                form.innerHTML = `
-                    <input type="text" id="edit-bm-name" value="${b.name}" placeholder="Nom">
-                    <input type="url" id="edit-bm-logo" value="${b.logo}" placeholder="URL du logo">
-                    <input type="url" id="edit-bm-url" value="${b.url}" placeholder="Lien d'affiliation">
-                    <button id="save-bm-${index}" class="btn btn-primary">Enregistrer</button>
-                    <button id="cancel-bm-${index}" class="btn btn-secondary">Annuler</button>
-                `;
-                // Remplacer temporairement
-                const parent = container.parentNode;
-                container.style.display = 'none';
-                parent.insertBefore(form, container.nextSibling);
-
-                document.getElementById(`save-bm-${index}`).addEventListener('click', () => {
-                    data.bookmakers[index] = {
-                        name: document.getElementById('edit-bm-name').value,
-                        logo: document.getElementById('edit-bm-logo').value,
-                        url: document.getElementById('edit-bm-url').value
-                    };
-                    saveData();
-                    form.remove();
-                    container.style.display = 'block';
-                });
-                document.getElementById(`cancel-bm-${index}`).addEventListener('click', () => {
-                    form.remove();
-                    container.style.display = 'block';
-                });
-            };
-
-            window.deleteBookmaker = (index) => {
-                if (confirm('Supprimer ce bookmaker ?')) {
-                    data.bookmakers.splice(index, 1);
-                    saveData();
-                }
-            };
-
-            document.getElementById('add-bookmaker')?.addEventListener('click', () => {
-                if (!data.bookmakers) data.bookmakers = [];
-                data.bookmakers.push({ name: "Nouveau", logo: "assets/images/default-logo.png", url: "#" });
-                saveData();
-            });
-
-            // =======================================================
-            // EXPORT JSON
-            // =======================================================
             function updatePreview() {
                 const preview = document.getElementById('json-preview');
                 if (preview) {
@@ -799,9 +562,6 @@
                 }
             });
 
-            // =======================================================
-            // GESTION DES ONGLETS
-            // =======================================================
             document.querySelectorAll('.admin-tabs .tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.admin-tabs .tab-btn').forEach(b => b.classList.remove('active'));
@@ -816,19 +576,6 @@
                 renderBlog();
                 renderConseils();
                 renderInfos();
-                renderBonus();
-                renderBookmakersList();
-                // Mettre à jour le select des bookmakers
-                const select = document.getElementById('pronostic-bookmaker');
-                if (select && data.bookmakers) {
-                    select.innerHTML = '';
-                    data.bookmakers.forEach(b => {
-                        const opt = document.createElement('option');
-                        opt.value = b.name;
-                        opt.textContent = b.name;
-                        select.appendChild(opt);
-                    });
-                }
             }
 
             renderAllLists();
