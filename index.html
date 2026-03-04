@@ -40,18 +40,16 @@
             <p>Pronostics sportifs de qualité, analyses pointues et conseils pour maximiser vos gains. Rejoignez la communauté VIP dès maintenant !</p>
             <div>
                 <a href="pronos.html" class="btn btn-primary">Voir les pronostics</a>
-                <a href="#" id="install-app" class="btn btn-secondary" style="display: none;">📲 Télécharger l'App</a>
+                <!-- Bouton d'installation PWA (caché par défaut) -->
+                <a href="#" id="install-app" class="btn btn-secondary" style="display: none;">📲 Installer l'App</a>
+            </div>
+            <!-- Statistiques dynamiques -->
+            <div class="stats-badge">
+                👥 <span id="total-users-count">1 000</span> utilisateurs · 
+                📤 <span id="total-shares-count">10 000</span> partages
             </div>
         </div>
     </section>
-
-    <!-- Badge de statistiques -->
-    <div class="container">
-        <div class="stats-badge">
-            👥 <span id="total-users-count">1 000</span> utilisateurs · 
-            📤 <span id="total-shares-count">10 000</span> partages
-        </div>
-    </div>
 
     <!-- Popup guide d'installation pour iOS -->
     <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
@@ -72,7 +70,7 @@
                 </div>
             </div>
             <div class="ios-guide-note">
-                💡 Activez l'option <strong>"Ouvrir comme app web"</strong> pour une expérience optimale .
+                💡 L'application fonctionnera ensuite hors ligne et plus rapidement.
             </div>
             <div class="ios-guide-buttons">
                 <button id="close-ios-guide" class="btn btn-primary">Compris !</button>

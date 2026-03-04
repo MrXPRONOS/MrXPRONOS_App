@@ -1,64 +1,22 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec compteurs Supabase réels, gestion des partages, historique trié, bonus, etc.
- * Module ES6 (type="module")
+ * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
+ * fallback pour les images des bookmakers, affichage du pronostic Over 2.5,
+ * cases à cocher pour la validation, recherche dans les pronostics,
+ * tri de l'historique par catégorie (VIP, Pro, Simple), et intégration Supabase.
  */
 
 // =======================================================
-// IMPORT SUPABASE
+// CONFIGURATION SUPABASE (importée depuis config.js)
 // =======================================================
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { supabaseUrl, supabaseAnonKey } from './config.js'
+import { supabaseUrl, supabaseAnonKey } from './config.js';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-// =======================================================
-// FONCTIONS DE COMPTEURS RÉELS
-// =======================================================
-async function getCounterValue(counterName) {
-    const { data, error } = await supabase
-        .from('counters')
-        .select('value')
-        .eq('name', counterName)
-        .single()
-    if (error) {
-        console.error('Erreur récupération compteur:', error)
-        return null
-    }
-    return data.value
-}
-
-async function incrementCounter(counterName) {
-    try {
-        const current = await getCounterValue(counterName)
-        if (current === null) return
-        const newValue = current + 1
-        const { error } = await supabase
-            .from('counters')
-            .update({ value: newValue, updated_at: new Date().toISOString() })
-            .eq('name', counterName)
-        if (error) throw error
-        return newValue
-    } catch (error) {
-        console.error('Erreur incrémentation compteur:', error)
-    }
-}
-
-async function updateDisplayedCounters() {
-    const totalUsers = await getCounterValue('total_users') || 1000
-    const totalShares = await getCounterValue('total_shares') || 10000
-    const usersEl = document.getElementById('total-users-count')
-    const sharesEl = document.getElementById('total-shares-count')
-    if (usersEl) usersEl.textContent = totalUsers.toLocaleString()
-    if (sharesEl) sharesEl.textContent = totalShares.toLocaleString()
-}
-
-// =======================================================
-// GESTION DES VISITES (compteur utilisateurs)
-// =======================================================
-if (!localStorage.getItem('userCounted')) {
-    incrementCounter('total_users')
-    localStorage.setItem('userCounted', 'true')
+let supabase;
+try {
+    supabase = createClient(supabaseUrl, supabaseAnonKey);
+} catch (e) {
+    console.warn('⚠️ Supabase non initialisée, les compteurs ne seront pas mis à jour');
 }
 
 // =======================================================
@@ -68,7 +26,6 @@ let allData = null;
 let currentCategory = 'simple';
 let currentSubcat = 'pronostics';
 let currentDay = 'today';
-let searchTerm = '';
 
 const matchesContainer = document.getElementById('matches-container');
 const sharePopup = document.getElementById('share-popup');
@@ -84,6 +41,10 @@ const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
 // Limites de partages quotidiennes
 const shareLimits = { pro: 2, vip: 5 };
+
+// Variable pour la recherche
+let filteredMatchesWithoutSearch = [];
+let searchTerm = '';
 
 const POPULAR_LEAGUES = [
     "Premier League",
@@ -104,6 +65,75 @@ const POPULAR_LEAGUES = [
     "Liga Portugal",
     "Trendyol Super Lig"
 ];
+
+// =======================================================
+// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
+// =======================================================
+function getDailyShareCount() {
+    const lastReset = localStorage.getItem('shareLastReset');
+    const today = new Date().toDateString();
+    if (lastReset !== today) {
+        localStorage.setItem('shareLastReset', today);
+        localStorage.setItem('shareCount', '0');
+        return 0;
+    }
+    return parseInt(localStorage.getItem('shareCount') || '0');
+}
+
+function incrementShareCount() {
+    const current = getDailyShareCount();
+    const newCount = current + 1;
+    localStorage.setItem('shareCount', newCount.toString());
+    return newCount;
+}
+
+// =======================================================
+// FONCTIONS SUPABASE POUR LES COMPTEURS
+// =======================================================
+async function getCounterValue(counterName) {
+    if (!supabase) return null;
+    try {
+        const { data, error } = await supabase
+            .from('counters')
+            .select('value')
+            .eq('name', counterName)
+            .single();
+        if (error) throw error;
+        return data.value;
+    } catch (error) {
+        console.error('Erreur récupération compteur:', error);
+        return null;
+    }
+}
+
+async function updateDisplayedCounters() {
+    const usersEl = document.getElementById('total-users-count');
+    const sharesEl = document.getElementById('total-shares-count');
+    if (!usersEl && !sharesEl) return;
+
+    const totalUsers = await getCounterValue('total_users') ?? 1000;
+    const totalShares = await getCounterValue('total_shares') ?? 10000;
+
+    if (usersEl) usersEl.textContent = totalUsers.toLocaleString();
+    if (sharesEl) sharesEl.textContent = totalShares.toLocaleString();
+}
+
+async function incrementGlobalCounter(counterName) {
+    if (!supabase) return;
+    try {
+        const current = await getCounterValue(counterName);
+        if (current === null) return;
+        const newValue = current + 1;
+        const { error } = await supabase
+            .from('counters')
+            .update({ value: newValue, updated_at: new Date().toISOString() })
+            .eq('name', counterName);
+        if (error) throw error;
+        return newValue;
+    } catch (error) {
+        console.error('Erreur incrémentation compteur:', error);
+    }
+}
 
 // =======================================================
 // GESTION DE L'INSTALLATION PWA (Android & Desktop)
@@ -173,6 +203,12 @@ document.addEventListener('DOMContentLoaded', () => {
     showIosGuideIfNeeded();
     updateDisplayedCounters();
 
+    // Vérifier si c'est la première visite pour incrémenter le compteur global
+    if (!localStorage.getItem('userCounted')) {
+        incrementGlobalCounter('total_users');
+        localStorage.setItem('userCounted', 'true');
+    }
+
     if (matchesContainer) {
         initPronostics();
     } else if (document.getElementById('history-container')) {
@@ -185,7 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
     displayBlogList();
     displayBlogPost();
     displayConseils();
@@ -413,12 +448,12 @@ function share(platform) {
 
     window.open(url, '_blank');
 
-    // Incrémenter le compteur de partages quotidien
+    // Incrémenter le compteur quotidien local
     const newCount = incrementShareCount();
     // Incrémenter le compteur global Supabase
-    incrementCounter('total_shares');
+    incrementGlobalCounter('total_shares');
+
     updateShareCounter();
-    recordEvent('share');
 
     const target = shareLimits[currentCategory];
     if (newCount >= target) {
@@ -441,30 +476,6 @@ function updateShareCounter() {
     }
 }
 
-// =======================================================
-// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS (localStorage)
-// =======================================================
-function getDailyShareCount() {
-    const lastReset = localStorage.getItem('shareLastReset');
-    const today = new Date().toDateString();
-    if (lastReset !== today) {
-        localStorage.setItem('shareLastReset', today);
-        localStorage.setItem('shareCount', '0');
-        return 0;
-    }
-    return parseInt(localStorage.getItem('shareCount') || '0');
-}
-
-function incrementShareCount() {
-    const current = getDailyShareCount();
-    const newCount = current + 1;
-    localStorage.setItem('shareCount', newCount.toString());
-    return newCount;
-}
-
-// =======================================================
-// FONCTIONS POUR LES DATES ET FILTRES
-// =======================================================
 function getLocalDateString(day) {
     const now = new Date();
     const target = new Date(now);
@@ -521,8 +532,6 @@ function filterAndDisplay() {
     filteredMatchesWithoutSearch = sorted;
     applySearchFilter();
 }
-
-let filteredMatchesWithoutSearch = [];
 
 function applySearchFilter() {
     if (!filteredMatchesWithoutSearch) return;
@@ -684,7 +693,7 @@ function getStatusClass(status) {
 }
 
 // =======================================================
-// FONCTION POUR LES BOOKMAKERS
+// FONCTION POUR LES BOOKMAKERS (avec fallback)
 // =======================================================
 function renderBookmakers(bookmakers) {
     if (!bookmakers || bookmakers.length === 0) {
@@ -741,8 +750,9 @@ function recordEvent(type) {
 recordEvent('visit');
 
 // =======================================================
-// FONCTIONS POUR LES AUTRES PAGES (blog, conseils, infos, bonus)
+// FONCTIONS POUR LES AUTRES PAGES
 // =======================================================
+
 async function loadGeneratedContent() {
     try {
         const articlesResp = await fetch('articles.json?t=' + Date.now());
@@ -756,41 +766,6 @@ async function loadGeneratedContent() {
     } catch (error) {
         console.error('Erreur chargement contenu généré:', error);
     }
-}
-
-async function displayBonusList() {
-    const container = document.getElementById('bonus-grid');
-    if (!container) return;
-
-    const data = await loadDataGeneric();
-    const bonus = data?.bonus || [];
-    const activeBonus = bonus.filter(b => b.active && new Date(b.end) >= new Date());
-
-    if (activeBonus.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun bonus actif pour le moment.</div>';
-        return;
-    }
-
-    let html = '';
-    activeBonus.forEach(b => {
-        html += `
-            <div class="bonus-card">
-                <img src="${b.image}" alt="${b.title}" class="bonus-image">
-                <h3>${b.title}</h3>
-                <p>${b.description}</p>
-                <div class="bonus-footer">
-                    <span>Valable du ${formatDate(b.start)} au ${formatDate(b.end)}</span>
-                    ${b.link ? `<a href="${b.link}" target="_blank" class="btn btn-primary">Profiter</a>` : ''}
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-function formatDate(dateStr) {
-    const [y, m, d] = dateStr.split('-');
-    return `${d}/${m}/${y}`;
 }
 
 async function displayBlogList() {
@@ -874,6 +849,41 @@ async function displayInfos() {
     });
 }
 
+async function displayBonusList() {
+    const container = document.getElementById('bonus-grid');
+    if (!container) return;
+
+    const data = await loadDataGeneric();
+    const bonus = data?.bonus || [];
+    const activeBonus = bonus.filter(b => b.active && new Date(b.end) >= new Date());
+
+    if (activeBonus.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun bonus actif pour le moment.</div>';
+        return;
+    }
+
+    let html = '';
+    activeBonus.forEach(b => {
+        html += `
+            <div class="bonus-card">
+                <img src="${b.image}" alt="${b.title}" class="bonus-image">
+                <h3>${b.title}</h3>
+                <p>${b.description}</p>
+                <div class="bonus-footer">
+                    <span>Valable du ${formatDate(b.start)} au ${formatDate(b.end)}</span>
+                    ${b.link ? `<a href="${b.link}" target="_blank" class="btn btn-primary">Profiter</a>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function formatDate(dateStr) {
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
+}
+
 async function displayFootNews() {
     const container = document.getElementById('foot-news-container');
     if (!container) return;
@@ -905,7 +915,7 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// PAGE HISTORIQUE (triée par catégorie)
+// PAGE HISTORIQUE (avec tri par catégorie)
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
