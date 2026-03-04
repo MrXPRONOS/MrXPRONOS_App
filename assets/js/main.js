@@ -3,6 +3,7 @@
  * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
  * fallback pour les images des bookmakers, affichage du pronostic Over 2.5
  * et cases à cocher pour la validation. URLs de partage mises à jour.
+ * Gestion des partages quotidiens (reset chaque jour).
  */
 
 // =======================================================
@@ -25,8 +26,8 @@ const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
 const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
-let shareCount = parseInt(localStorage.getItem('shareCount') || '0');
-const shareLimits = { pro: 5, vip: 10 };
+// Limites de partages quotidiennes
+const shareLimits = { pro: 2, vip: 5 };
 
 const POPULAR_LEAGUES = [
     "Premier League",
@@ -47,6 +48,28 @@ const POPULAR_LEAGUES = [
     "Liga Portugal",
     "Trendyol Super Lig"
 ];
+
+// =======================================================
+// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
+// =======================================================
+
+function getDailyShareCount() {
+    const lastReset = localStorage.getItem('shareLastReset');
+    const today = new Date().toDateString();
+    if (lastReset !== today) {
+        localStorage.setItem('shareLastReset', today);
+        localStorage.setItem('shareCount', '0');
+        return 0;
+    }
+    return parseInt(localStorage.getItem('shareCount') || '0');
+}
+
+function incrementShareCount() {
+    const current = getDailyShareCount();
+    const newCount = current + 1;
+    localStorage.setItem('shareCount', newCount.toString());
+    return newCount;
+}
 
 // =======================================================
 // GESTION DE L'INSTALLATION PWA (Android & Desktop)
@@ -292,6 +315,7 @@ function handleCategoryChange() {
         filterAndDisplay();
     } else {
         const target = shareLimits[currentCategory];
+        const shareCount = getDailyShareCount();
         if (shareCount >= target) {
             hideVipLocked();
             filterAndDisplay();
@@ -304,6 +328,7 @@ function handleCategoryChange() {
 function showVipLocked(category) {
     if (vipLockedOverlay) {
         const target = shareLimits[category];
+        const shareCount = getDailyShareCount();
         const remaining = target - shareCount;
         vipLockedOverlay.querySelector('h3').textContent = `🔒 ${category === 'pro' ? 'Pronostics Pro' : 'Pronostics VIP'} verrouillés`;
         vipLockedOverlay.querySelector('p').innerHTML = `Partagez ce lien à <strong>${remaining}</strong> ami(s) pour débloquer.`;
@@ -313,6 +338,7 @@ function showVipLocked(category) {
         matchesContainer.style.display = 'none';
     } else {
         const target = shareLimits[category];
+        const shareCount = getDailyShareCount();
         showSharePopup(category, target - shareCount);
     }
 }
@@ -326,6 +352,7 @@ function hideVipLocked() {
 
 function showSharePopup(category, remaining) {
     if (!sharePopup) return;
+    const shareCount = getDailyShareCount();
     shareRemaining.textContent = remaining;
     shareCurrent.textContent = shareCount;
     shareTarget.textContent = shareLimits[category];
@@ -348,27 +375,30 @@ function share(platform) {
 
     window.open(url, '_blank');
 
-    shareCount++;
-    localStorage.setItem('shareCount', shareCount);
+    // Incrémenter le compteur quotidien
+    const newCount = incrementShareCount();
     updateShareCounter();
     recordEvent('share');
 
     const target = shareLimits[currentCategory];
-    if (shareCount >= target) {
+    if (newCount >= target) {
         hideVipLocked();
         filterAndDisplay();
     } else {
         if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
             showVipLocked(currentCategory);
         } else {
-            showSharePopup(currentCategory, target - shareCount);
+            showSharePopup(currentCategory, target - newCount);
         }
     }
 }
 
 function updateShareCounter() {
     const counter = document.getElementById('share-counter');
-    if (counter) counter.textContent = `🔥 ${shareCount} partages aujourd'hui`;
+    if (counter) {
+        const count = getDailyShareCount();
+        counter.textContent = `🔥 ${count} partages aujourd'hui`;
+    }
 }
 
 function getLocalDateString(day) {

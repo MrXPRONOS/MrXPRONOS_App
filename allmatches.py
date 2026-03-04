@@ -3,7 +3,7 @@
 
 """
 allmatches.py - Télécharge tous les matchs depuis le 1er janvier 2024 jusqu'à hier
-via l'API SportData et les sauvegarde dans cache/all_matches.json. 
+via l'API SportData et les sauvegarde dans cache/all_matches.json.  
 Exécution locale unique.
 """
 
