@@ -246,9 +246,8 @@ footer {
     transform: translateY(-2px);
 }
 
-/* Bouton installation (PWA) */
+/* Bouton installation PWA */
 #install-app {
-    margin-left: 1rem;
     animation: gentle-pulse 2s infinite;
 }
 
@@ -256,6 +255,19 @@ footer {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
+}
+
+/* =======================================================
+   STATISTIQUES (badge utilisateurs/partages)
+   ======================================================= */
+.stats-badge {
+    background: var(--noir-secondaire);
+    border: 1px solid var(--or);
+    border-radius: 30px;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-top: 1rem;
 }
 
 /* =======================================================
@@ -544,7 +556,29 @@ footer {
     border-color: var(--or);
 }
 
-/* Page contact */
+/* Barre de recherche */
+.search-container {
+    margin: 1rem 0;
+}
+.search-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 30px;
+    border: 1px solid var(--or);
+    background-color: var(--noir-secondaire);
+    color: var(--blanc);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+.search-input:focus {
+    border-color: var(--or-clair);
+}
+
+/* =======================================================
+   PAGE CONTACT
+   ======================================================= */
 .contact-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -582,17 +616,6 @@ footer {
 }
 .contact-card a:hover {
     color: var(--or);
-}
-
-/* Analyse complète ML (si utilisée) */
-.analysis-full {
-    background-color: rgba(212, 175, 55, 0.1);
-    border-left: 2px solid var(--or);
-    padding: 1rem;
-}
-.analysis-full p {
-    font-size: 0.8rem;
-    margin-bottom: 0.4rem;
 }
 
 /* =======================================================
@@ -635,6 +658,158 @@ footer {
     font-size: 0.8rem;
     color: #ccc;
     margin-bottom: 1rem;
+}
+
+/* =======================================================
+   BONUS & PROMO (page bonus)
+   ======================================================= */
+.bonus-selector {
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+.bonus-selector label {
+    color: var(--or);
+    font-weight: 600;
+}
+.bonus-select {
+    background-color: var(--noir-secondaire);
+    color: var(--blanc);
+    border: 1px solid var(--or);
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+}
+.bonus-select option {
+    background-color: var(--noir-secondaire);
+}
+
+/* Miniatures (4 par ligne) */
+.bonus-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+}
+.bonus-thumb {
+    background-color: var(--noir-secondaire);
+    border: 1px solid var(--or);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+.bonus-thumb:hover {
+    transform: scale(1.05);
+}
+.bonus-thumb img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+.bonus-thumb-title {
+    padding: 0.5rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--blanc);
+    background-color: var(--noir);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+    align-items: center;
+    justify-content: center;
+}
+.modal-content {
+    background-color: var(--noir-secondaire);
+    border: 2px solid var(--or);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    color: var(--blanc);
+}
+.close {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 2rem;
+    color: var(--or);
+    cursor: pointer;
+}
+.modal-image {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    margin-bottom: 1rem;
+}
+.modal-footer {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #ccc;
+    border-top: 1px solid var(--or);
+    padding-top: 1rem;
+}
+
+/* =======================================================
+   GRILLE POUR BLOG, CONSEILS (miniatures)
+   ======================================================= */
+.thumbnails-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 2rem 0;
+}
+.thumbnail-item {
+    background-color: var(--noir-secondaire);
+    border: 1px solid var(--or);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+.thumbnail-item:hover {
+    transform: scale(1.05);
+}
+.thumbnail-item img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+.thumbnail-title {
+    padding: 0.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--blanc);
+    background-color: var(--noir);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.blog-grid, .conseils-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
 }
 
 /* =======================================================
@@ -743,142 +918,17 @@ footer {
     color: #ccc;
 }
 
-.share-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
-
 .vip-locked-content .btn {
     min-width: 160px;
     margin: 0.25rem;
     flex: 1 1 auto;
 }
-
 @media (max-width: 480px) {
     .vip-locked-content .btn {
         min-width: 100%;
         width: 100%;
         margin: 0.25rem 0;
     }
-}
-
-/* =======================================================
-   LISTE HORIZONTALE SCROLLABLE
-   ======================================================= */
-.horizontal-scroll {
-    display: flex;
-    overflow-x: auto;
-    gap: 1rem;
-    padding: 1rem 0;
-    margin: 1rem 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--or) var(--noir-secondaire);
-}
-.horizontal-scroll::-webkit-scrollbar {
-    height: 8px;
-}
-.horizontal-scroll::-webkit-scrollbar-track {
-    background: var(--noir-secondaire);
-    border-radius: 4px;
-}
-.horizontal-scroll::-webkit-scrollbar-thumb {
-    background-color: var(--or);
-    border-radius: 4px;
-}
-.horizontal-item {
-    flex: 0 0 auto;
-    width: 120px;
-    cursor: pointer;
-    transition: transform 0.3s;
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--noir-secondaire);
-    border: 1px solid var(--or);
-}
-.horizontal-item:hover {
-    transform: scale(1.05);
-}
-.horizontal-item img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-}
-.horizontal-item .item-title {
-    padding: 0.5rem;
-    font-size: 0.8rem;
-    text-align: center;
-    color: var(--blanc);
-    background: var(--noir);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* =======================================================
-   CARTES BONUS
-   ======================================================= */
-.bonus-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-}
-.bonus-card {
-    background: var(--noir-secondaire);
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid var(--or);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-.bonus-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
-}
-.bonus-image {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-}
-.bonus-card h3 {
-    color: var(--or);
-    margin: 1rem 1rem 0.5rem;
-}
-.bonus-card p {
-    margin: 0 1rem 1rem;
-    color: #ccc;
-    font-size: 0.9rem;
-}
-.bonus-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background: var(--noir);
-    border-top: 1px solid var(--or);
-}
-.bonus-footer span {
-    font-size: 0.8rem;
-    color: #aaa;
-}
-.bonus-footer .btn {
-    padding: 0.4rem 1rem;
-    font-size: 0.8rem;
-}
-
-/* =======================================================
-   STATS BADGE
-   ======================================================= */
-.stats-badge {
-    background: var(--noir-secondaire);
-    border: 1px solid var(--or);
-    border-radius: 30px;
-    padding: 0.3rem 1rem;
-    font-size: 0.8rem;
-    display: inline-block;
-    margin-bottom: 1rem;
 }
 
 /* =======================================================
@@ -924,7 +974,7 @@ footer {
 }
 
 /* =======================================================
-   CASES À COCHER VERTES POUR LES PRONOSTICS VALIDÉS
+   CASES À COCHER VERTES
    ======================================================= */
 .prediction-checkbox:checked:disabled {
     accent-color: #4CAF50 !important;
@@ -954,86 +1004,6 @@ footer {
     margin-left: 8px;
     text-transform: uppercase;
     box-shadow: 0 2px 8px rgba(255,215,0,0.3);
-}
-
-/* =======================================================
-   FORMATAGE DES ARTICLES ET CONSEILS
-   ======================================================= */
-#blog-post,
-#conseils-list,
-#blog-list {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-#blog-post h1,
-#blog-post h2,
-#blog-post h3,
-#conseils-list .card h3,
-#blog-list .card h3 {
-    margin-top: 1.2rem;
-    margin-bottom: 0.8rem;
-    font-size: 1.1rem;
-}
-
-#blog-post p,
-#conseils-list .card p,
-#blog-list .card p {
-    margin-bottom: 0.8rem;
-    line-height: 1.6;
-    font-size: 0.9rem;
-}
-
-#blog-post ul,
-#blog-post ol,
-#conseils-list .card ul,
-#conseils-list .card ol,
-#blog-list .card ul,
-#blog-list .card ol {
-    margin-left: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-#blog-post blockquote,
-#conseils-list .card blockquote,
-#blog-list .card blockquote {
-    border-left: 4px solid var(--or);
-    padding-left: 1rem;
-    margin: 1rem 0;
-    font-style: italic;
-    color: #ccc;
-}
-
-/* Grille pour les articles et conseils (2 colonnes sur desktop) */
-#blog-list,
-#conseils-list {
-    display: grid;
-    gap: 20px;
-    grid-template-columns: 1fr;
-}
-@media (min-width: 768px) {
-    #blog-list,
-    #conseils-list {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* =======================================================
-   ACTUALITÉS FOOTBALL
-   ======================================================= */
-.news-grid {
-    display: grid;
-    gap: 20px;
-    grid-template-columns: 1fr;
-}
-@media (min-width: 768px) {
-    .news-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-.news-card img {
-    max-height: 200px;
-    object-fit: cover;
 }
 
 /* =======================================================
@@ -1084,17 +1054,148 @@ footer {
 }
 
 /* =======================================================
-   SKELETON LOADING (optionnel)
+   EN-TÊTE DE JOUR POUR L'HISTORIQUE
    ======================================================= */
-@keyframes skeleton-loading {
-    0% { background-color: #2a2a2a; }
-    50% { background-color: #3a3a3a; }
-    100% { background-color: #2a2a2a; }
+.day-header {
+    font-size: 1.5rem;
+    margin: 2rem 0 1rem;
+    text-transform: capitalize;
+    border-bottom: 2px solid var(--or);
+    padding-bottom: 0.5rem;
 }
 
-.skeleton {
-    animation: skeleton-loading 1.5s infinite;
+/* =======================================================
+   GUIDE D'INSTALLATION POUR IOS
+   ======================================================= */
+.ios-guide-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+    backdrop-filter: blur(5px);
+}
+.ios-guide-content {
+    background-color: var(--noir-secondaire);
+    border: 2px solid var(--or);
+    border-radius: 24px;
+    padding: 2rem;
+    max-width: 90%;
+    width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+    box-shadow: var(--shadow-hover);
+    animation: fadeInUp 0.3s;
+}
+.ios-guide-content h3 {
+    color: var(--or);
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+.ios-guide-steps {
+    text-align: left;
+    margin: 1.5rem 0;
+}
+.ios-guide-step {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    gap: 1rem;
+}
+.step-number {
+    background-color: var(--or);
+    color: var(--noir);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+.step-text {
+    color: var(--blanc);
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+.step-text strong {
+    color: var(--or);
+}
+.ios-guide-note {
+    background: rgba(212, 175, 55, 0.1);
+    border-left: 4px solid var(--or);
+    padding: 1rem;
+    margin: 1.5rem 0;
     border-radius: 8px;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+.ios-guide-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+/* =======================================================
+   BARRE DE CONFIANCE ANIMÉE
+   ======================================================= */
+.confidence-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #333;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.confidence-fill {
+    height: 100%;
+    width: 0;
+    background-color: var(--or);
+    transition: width 2s ease;
+}
+
+/* =======================================================
+   EFFET TICKET DE PARI
+   ======================================================= */
+.ticket {
+    background-color: #111;
+    border: 2px dashed var(--or);
+    padding: 1rem;
+    border-radius: 12px;
+    position: relative;
+}
+
+.ticket::before,
+.ticket::after {
+    content: "";
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background-color: var(--noir);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.ticket::before { left: -8px; }
+.ticket::after { right: -8px; }
+
+.ticket.winner {
+    border-color: #4CAF50;
+    background-color: rgba(76,175,80,0.1);
 }
 
 /* =======================================================
@@ -1157,90 +1258,6 @@ footer {
 }
 
 /* =======================================================
-   BARRE DE CONFIANCE ANIMÉE
-   ======================================================= */
-.confidence-bar {
-    width: 100%;
-    height: 8px;
-    background-color: #333;
-    border-radius: 20px;
-    overflow: hidden;
-    margin-top: 5px;
-    margin-bottom: 5px;
-}
-
-.confidence-fill {
-    height: 100%;
-    width: 0;
-    background-color: var(--or);
-    transition: width 2s ease;
-}
-
-/* =======================================================
-   EFFET TICKET DE PARI
-   ======================================================= */
-.ticket {
-    background-color: #111;
-    border: 2px dashed var(--or);
-    padding: 1rem;
-    border-radius: 12px;
-    position: relative;
-}
-
-.ticket::before,
-.ticket::after {
-    content: "";
-    position: absolute;
-    width: 15px;
-    height: 15px;
-    background-color: var(--noir);
-    border-radius: 50%;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.ticket::before { left: -8px; }
-.ticket::after { right: -8px; }
-
-.ticket.winner {
-    border-color: #4CAF50;
-    background-color: rgba(76,175,80,0.1);
-}
-
-/* =======================================================
-   EN-TÊTE DE JOUR POUR L'HISTORIQUE
-   ======================================================= */
-.day-header {
-    font-size: 1.5rem;
-    margin: 2rem 0 1rem;
-    text-transform: capitalize;
-    border-bottom: 2px solid var(--or);
-    padding-bottom: 0.5rem;
-}
-
-/* =======================================================
-   RECHERCHE
-   ======================================================= */
-.search-container {
-    margin: 1rem 0;
-}
-.search-input {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    border-radius: 30px;
-    border: 1px solid var(--or);
-    background-color: var(--noir-secondaire);
-    color: var(--blanc);
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.3s;
-}
-.search-input:focus {
-    border-color: var(--or-clair);
-}
-
-/* =======================================================
    RESPONSIVE (MOBILE FIRST)
    ======================================================= */
 @media (max-width: 768px) {
@@ -1297,233 +1314,10 @@ footer {
     .footer-links a {
         font-size: 0.75rem;
     }
-}
-
-/* assets/css/style.css - (ajouts pour les bonus) */
-
-/* =======================================================
-   BONUS PAGE
-   ======================================================= */
-.bonus-selector {
-    margin: 2rem 0;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-.bonus-selector label {
-    color: var(--or);
-    font-weight: 600;
-}
-.bonus-selector select {
-    background: var(--noir-secondaire);
-    color: var(--blanc);
-    border: 1px solid var(--or);
-    padding: 0.5rem 1rem;
-    border-radius: 30px;
-    font-family: 'Montserrat', sans-serif;
-    cursor: pointer;
-}
-.bonus-thumbnails {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    justify-content: center;
-    margin: 2rem 0;
-}
-.bonus-thumb {
-    width: 150px;
-    cursor: pointer;
-    transition: transform 0.3s;
-    text-align: center;
-}
-.bonus-thumb:hover {
-    transform: scale(1.05);
-}
-.bonus-thumb img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 12px;
-    border: 2px solid var(--or);
-}
-.bonus-thumb-title {
-    margin-top: 0.5rem;
-    font-weight: 600;
-    color: var(--or);
-}
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.8);
-    align-items: center;
-    justify-content: center;
-}
-.modal-content {
-    background: var(--noir-secondaire);
-    border: 2px solid var(--or);
-    border-radius: 20px;
-    padding: 2rem;
-    max-width: 500px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    position: relative;
-    animation: fadeInUp 0.3s;
-}
-.close {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    color: var(--or);
-    font-size: 2rem;
-    cursor: pointer;
-}
-.close:hover {
-    color: var(--or-clair);
-}
-/* Grille bonus (pour l'accueil) */
-.bonus-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-}
-.bonus-card {
-    background: var(--noir-secondaire);
-    border-radius: 20px;
-    overflow: hidden;
-    border: 1px solid var(--or);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-.bonus-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
-}
-.bonus-image {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-}
-.bonus-card h3 {
-    color: var(--or);
-    margin: 1rem 1rem 0.5rem;
-}
-.bonus-card p {
-    margin: 0 1rem 1rem;
-    color: #ccc;
-    font-size: 0.9rem;
-}
-.bonus-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background: var(--noir);
-    border-top: 1px solid var(--or);
-}
-.bonus-footer span {
-    font-size: 0.8rem;
-    color: #aaa;
-}
-.bonus-footer .btn {
-    padding: 0.4rem 1rem;
-    font-size: 0.8rem;
-}
-
-/* =======================================================
-   LISTE HORIZONTALE SCROLLABLE
-   ======================================================= */
-.horizontal-scroll {
-    display: flex;
-    overflow-x: auto;
-    gap: 1rem;
-    padding: 1rem 0;
-    margin: 1rem 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--or) var(--noir-secondaire);
-}
-.horizontal-scroll::-webkit-scrollbar {
-    height: 8px;
-}
-.horizontal-scroll::-webkit-scrollbar-track {
-    background: var(--noir-secondaire);
-    border-radius: 4px;
-}
-.horizontal-scroll::-webkit-scrollbar-thumb {
-    background-color: var(--or);
-    border-radius: 4px;
-}
-.horizontal-item {
-    flex: 0 0 auto;
-    width: 120px;
-    cursor: pointer;
-    transition: transform 0.3s;
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--noir-secondaire);
-    border: 1px solid var(--or);
-}
-.horizontal-item:hover {
-    transform: scale(1.05);
-}
-.horizontal-item img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-}
-.horizontal-item .item-title {
-    padding: 0.5rem;
-    font-size: 0.8rem;
-    text-align: center;
-    color: var(--blanc);
-    background: var(--noir);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* =======================================================
-   MODALE POUR CONSEILS
-   ======================================================= */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.8);
-    align-items: center;
-    justify-content: center;
-}
-.modal-content {
-    background: var(--noir-secondaire);
-    border: 2px solid var(--or);
-    border-radius: 20px;
-    padding: 2rem;
-    max-width: 500px;
-    width: 90%;
-    max-height: 80vh;
-    overflow-y: auto;
-    position: relative;
-    animation: fadeInUp 0.3s;
-}
-.close {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    color: var(--or);
-    font-size: 2rem;
-    cursor: pointer;
-}
-.close:hover {
-    color: var(--or-clair);
+    .bonus-thumbnails {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .thumbnails-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
