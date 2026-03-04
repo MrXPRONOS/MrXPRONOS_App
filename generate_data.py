@@ -4,7 +4,7 @@
 """
 generate_data.py - Génère les pronostics à partir des données SportData
 et des scores déjà en base (mis à jour par update_scores.py).
-Version avec exclusion des pronostics "12" (matchs équilibrés). 
+Version avec exclusion des pronostics "12", seuils ajustés, et logos via TheSportsDB.
 """
 
 import os
@@ -22,7 +22,7 @@ if not SPORTDATA_API_KEY:
     raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
 
 BSD_API_TOKEN = os.environ.get("BSD_API_TOKEN")  # optionnel
-THESPORTSDB_API_KEY = "3"
+THESPORTSDB_API_KEY = "3"  # clé publique pour thesportsdb
 
 SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
 HEADERS = {"x-api-key": SPORTDATA_API_KEY}
@@ -47,12 +47,17 @@ print("="*60)
 # FONCTIONS POUR LES LOGOS (BSD puis TheSportsDB)
 # =======================================================
 def get_logo_bsd(team_name):
+    """Interroge BSD pour obtenir le logo d'une équipe (nécessite mapping)."""
     if not BSD_API_TOKEN:
         return None
-    # À implémenter si mapping disponible
+    # Ici, vous pourriez ajouter un dictionnaire de correspondance
+    # Exemple : team_mapping = {"Real Madrid": 131, ...}
+    # puis construire l'URL avec l'ID correspondant.
+    # Faute de mapping, on retourne None et on utilisera le fallback TheSportsDB.
     return None
 
 def get_logo_thesportsdb(team_name):
+    """Interroge TheSportsDB pour obtenir le logo d'une équipe."""
     try:
         url = f"https://www.thesportsdb.com/api/v1/json/{THESPORTSDB_API_KEY}/searchteams.php?t={requests.utils.quote(team_name)}"
         resp = session.get(url, timeout=10)
@@ -66,6 +71,7 @@ def get_logo_thesportsdb(team_name):
     return None
 
 def get_team_logo(team_name):
+    """Obtenir le logo d'une équipe : BSD -> TheSportsDB -> None."""
     logo = get_logo_bsd(team_name)
     if logo:
         return logo
@@ -318,11 +324,11 @@ def main():
         analysis = analyze_h2h(h2h_list, base["home_team"], base["away_team"])
         prediction = generate_prediction(analysis)
 
-        # === NOUVEAU : ignorer les pronostics "12" ===
+        # === Ignorer les pronostics "12" ===
         if prediction["double_chance"] == "12":
             print(f"   ⚠️ Pronostic 12 (match équilibré) ignoré")
             continue
-        # ============================================
+        # ===================================
 
         score = calculate_xpronos_score(analysis, prediction)
         category = get_category(score)
@@ -362,9 +368,6 @@ def main():
                 match["verified_double"] = (home_score > away_score) or (home_score == away_score)
             elif dc == "X2":
                 match["verified_double"] = (home_score == away_score) or (home_score < away_score)
-            # Le cas "12" ne devrait plus arriver, mais on le laisse par sécurité
-            elif dc == "12":
-                match["verified_double"] = (home_score > away_score) or (home_score < away_score)
 
             total_goals = home_score + away_score
             match["verified_over"] = (total_goals > 2.5) if prediction["over_25"] else (total_goals <= 2.5)
@@ -375,10 +378,10 @@ def main():
     # Trier par date
     matches.sort(key=lambda x: x["event_date"] or "", reverse=True)
 
-    # Statistiques
+    # Statistiques (à améliorer si besoin)
     stats = {"total_bets": 0, "wins": 0, "roi": 0}
 
-    # Bookmakers par défaut
+    # Bookmakers par défaut (à remplacer par des URLs réelles)
     default_bookmakers = [
         {"name": "1xBet", "logo": "assets/images/1xbet.png", "url": "https://affiliation.com/1xbet"},
         {"name": "1win", "logo": "assets/images/1win.png", "url": "https://affiliation.com/1win"},
