@@ -1,10 +1,65 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
- * fallback pour les images des bookmakers, affichage du pronostic Over 2.5
- * et cases à cocher pour la validation. URLs de partage mises à jour.
- * Gestion des partages quotidiens (reset chaque jour).
+ * Version avec compteurs Supabase réels, gestion des partages, historique trié, bonus, etc.
+ * Module ES6 (type="module")
  */
+
+// =======================================================
+// IMPORT SUPABASE
+// =======================================================
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { supabaseUrl, supabaseAnonKey } from './config.js'
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// =======================================================
+// FONCTIONS DE COMPTEURS RÉELS
+// =======================================================
+async function getCounterValue(counterName) {
+    const { data, error } = await supabase
+        .from('counters')
+        .select('value')
+        .eq('name', counterName)
+        .single()
+    if (error) {
+        console.error('Erreur récupération compteur:', error)
+        return null
+    }
+    return data.value
+}
+
+async function incrementCounter(counterName) {
+    try {
+        const current = await getCounterValue(counterName)
+        if (current === null) return
+        const newValue = current + 1
+        const { error } = await supabase
+            .from('counters')
+            .update({ value: newValue, updated_at: new Date().toISOString() })
+            .eq('name', counterName)
+        if (error) throw error
+        return newValue
+    } catch (error) {
+        console.error('Erreur incrémentation compteur:', error)
+    }
+}
+
+async function updateDisplayedCounters() {
+    const totalUsers = await getCounterValue('total_users') || 1000
+    const totalShares = await getCounterValue('total_shares') || 10000
+    const usersEl = document.getElementById('total-users-count')
+    const sharesEl = document.getElementById('total-shares-count')
+    if (usersEl) usersEl.textContent = totalUsers.toLocaleString()
+    if (sharesEl) sharesEl.textContent = totalShares.toLocaleString()
+}
+
+// =======================================================
+// GESTION DES VISITES (compteur utilisateurs)
+// =======================================================
+if (!localStorage.getItem('userCounted')) {
+    incrementCounter('total_users')
+    localStorage.setItem('userCounted', 'true')
+}
 
 // =======================================================
 // VARIABLES GLOBALES
@@ -13,6 +68,7 @@ let allData = null;
 let currentCategory = 'simple';
 let currentSubcat = 'pronostics';
 let currentDay = 'today';
+let searchTerm = '';
 
 const matchesContainer = document.getElementById('matches-container');
 const sharePopup = document.getElementById('share-popup');
@@ -50,35 +106,12 @@ const POPULAR_LEAGUES = [
 ];
 
 // =======================================================
-// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
-// =======================================================
-
-function getDailyShareCount() {
-    const lastReset = localStorage.getItem('shareLastReset');
-    const today = new Date().toDateString();
-    if (lastReset !== today) {
-        localStorage.setItem('shareLastReset', today);
-        localStorage.setItem('shareCount', '0');
-        return 0;
-    }
-    return parseInt(localStorage.getItem('shareCount') || '0');
-}
-
-function incrementShareCount() {
-    const current = getDailyShareCount();
-    const newCount = current + 1;
-    localStorage.setItem('shareCount', newCount.toString());
-    return newCount;
-}
-
-// =======================================================
 // GESTION DE L'INSTALLATION PWA (Android & Desktop)
 // =======================================================
 let deferredPrompt;
 const installButton = document.getElementById('install-app');
 const iosGuidePopup = document.getElementById('ios-guide-popup');
 
-// Détection du système d'exploitation
 function getOS() {
     const userAgent = window.navigator.userAgent;
     if (/iPad|iPhone|iPod/.test(userAgent)) return 'iOS';
@@ -86,13 +119,11 @@ function getOS() {
     return 'Other';
 }
 
-// Vérifier si l'app est déjà installée (mode standalone)
 function isPwaInstalled() {
     return window.matchMedia('(display-mode: standalone)').matches || 
            window.navigator.standalone === true;
 }
 
-// Afficher le guide iOS si nécessaire
 function showIosGuideIfNeeded() {
     if (getOS() === 'iOS' && !isPwaInstalled()) {
         const lastClosed = localStorage.getItem('iosGuideLastClosed');
@@ -104,13 +135,11 @@ function showIosGuideIfNeeded() {
     }
 }
 
-// Fermer le guide iOS
 function closeIosGuide() {
     iosGuidePopup.style.display = 'none';
     localStorage.setItem('iosGuideLastClosed', Date.now().toString());
 }
 
-// Événement beforeinstallprompt (Android/Desktop)
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -119,7 +148,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 
-// Clic sur le bouton d'installation
 installButton?.addEventListener('click', async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
@@ -129,14 +157,12 @@ installButton?.addEventListener('click', async () => {
     installButton.style.display = 'none';
 });
 
-// Après installation
 window.addEventListener('appinstalled', () => {
     console.log('PWA installée');
     if (installButton) installButton.style.display = 'none';
     if (iosGuidePopup) iosGuidePopup.style.display = 'none';
 });
 
-// Boutons de fermeture du guide iOS
 document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
 document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
 
@@ -145,6 +171,8 @@ document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeI
 // =======================================================
 document.addEventListener('DOMContentLoaded', () => {
     showIosGuideIfNeeded();
+    updateDisplayedCounters();
+
     if (matchesContainer) {
         initPronostics();
     } else if (document.getElementById('history-container')) {
@@ -157,12 +185,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
     displayBlogList();
     displayBlogPost();
     displayConseils();
     displayInfos();
+    displayBonusList();
     displayFootNews();
     initScrollProgress();
+
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            applySearchFilter();
+        });
+    }
 });
 
 // =======================================================
@@ -375,8 +413,10 @@ function share(platform) {
 
     window.open(url, '_blank');
 
-    // Incrémenter le compteur quotidien
+    // Incrémenter le compteur de partages quotidien
     const newCount = incrementShareCount();
+    // Incrémenter le compteur global Supabase
+    incrementCounter('total_shares');
     updateShareCounter();
     recordEvent('share');
 
@@ -401,6 +441,30 @@ function updateShareCounter() {
     }
 }
 
+// =======================================================
+// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS (localStorage)
+// =======================================================
+function getDailyShareCount() {
+    const lastReset = localStorage.getItem('shareLastReset');
+    const today = new Date().toDateString();
+    if (lastReset !== today) {
+        localStorage.setItem('shareLastReset', today);
+        localStorage.setItem('shareCount', '0');
+        return 0;
+    }
+    return parseInt(localStorage.getItem('shareCount') || '0');
+}
+
+function incrementShareCount() {
+    const current = getDailyShareCount();
+    const newCount = current + 1;
+    localStorage.setItem('shareCount', newCount.toString());
+    return newCount;
+}
+
+// =======================================================
+// FONCTIONS POUR LES DATES ET FILTRES
+// =======================================================
 function getLocalDateString(day) {
     const now = new Date();
     const target = new Date(now);
@@ -454,7 +518,25 @@ function filterAndDisplay() {
     });
 
     const sorted = sortMatchesByLeague(filtered);
-    renderMatches(sorted);
+    filteredMatchesWithoutSearch = sorted;
+    applySearchFilter();
+}
+
+let filteredMatchesWithoutSearch = [];
+
+function applySearchFilter() {
+    if (!filteredMatchesWithoutSearch) return;
+    if (!searchTerm.trim()) {
+        renderMatches(filteredMatchesWithoutSearch);
+        return;
+    }
+    const term = searchTerm.toLowerCase().trim();
+    const filtered = filteredMatchesWithoutSearch.filter(m => 
+        m.home_team.toLowerCase().includes(term) ||
+        m.away_team.toLowerCase().includes(term) ||
+        (m.league && m.league.toLowerCase().includes(term))
+    );
+    renderMatches(filtered);
 }
 
 function formatMatchTime(isoString) {
@@ -602,10 +684,9 @@ function getStatusClass(status) {
 }
 
 // =======================================================
-// FONCTION POUR LES BOOKMAKERS (avec fallback)
+// FONCTION POUR LES BOOKMAKERS
 // =======================================================
 function renderBookmakers(bookmakers) {
-    // ==================== FALLBACK SI data.json vide ====================
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
@@ -618,7 +699,6 @@ function renderBookmakers(bookmakers) {
         ];
     }
 
-    // ==================== FOOTER ====================
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -631,7 +711,6 @@ function renderBookmakers(bookmakers) {
         });
     }
 
-    // ==================== SECTION BONUS (accueil) ====================
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
@@ -662,9 +741,8 @@ function recordEvent(type) {
 recordEvent('visit');
 
 // =======================================================
-// FONCTIONS POUR LES AUTRES PAGES
+// FONCTIONS POUR LES AUTRES PAGES (blog, conseils, infos, bonus)
 // =======================================================
-
 async function loadGeneratedContent() {
     try {
         const articlesResp = await fetch('articles.json?t=' + Date.now());
@@ -678,6 +756,41 @@ async function loadGeneratedContent() {
     } catch (error) {
         console.error('Erreur chargement contenu généré:', error);
     }
+}
+
+async function displayBonusList() {
+    const container = document.getElementById('bonus-grid');
+    if (!container) return;
+
+    const data = await loadDataGeneric();
+    const bonus = data?.bonus || [];
+    const activeBonus = bonus.filter(b => b.active && new Date(b.end) >= new Date());
+
+    if (activeBonus.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun bonus actif pour le moment.</div>';
+        return;
+    }
+
+    let html = '';
+    activeBonus.forEach(b => {
+        html += `
+            <div class="bonus-card">
+                <img src="${b.image}" alt="${b.title}" class="bonus-image">
+                <h3>${b.title}</h3>
+                <p>${b.description}</p>
+                <div class="bonus-footer">
+                    <span>Valable du ${formatDate(b.start)} au ${formatDate(b.end)}</span>
+                    ${b.link ? `<a href="${b.link}" target="_blank" class="btn btn-primary">Profiter</a>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function formatDate(dateStr) {
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
 }
 
 async function displayBlogList() {
@@ -792,7 +905,7 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// PAGE HISTORIQUE (sans aujourd'hui/demain, avec badges de catégorie et cases Over)
+// PAGE HISTORIQUE (triée par catégorie)
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -804,12 +917,10 @@ async function displayHistory() {
         return;
     }
 
-    // Date d'aujourd'hui à minuit pour la comparaison
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Filtrer les matchs dont la date est strictement inférieure à aujourd'hui
-    const historyMatches = allData.matches.filter(m => {
+    let historyMatches = allData.matches.filter(m => {
         const matchDate = new Date(m.event_date);
         return matchDate < today;
     });
@@ -819,10 +930,14 @@ async function displayHistory() {
         return;
     }
 
-    // Trier par date décroissante
-    historyMatches.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
+    const catOrder = { vip: 0, pro: 1, simple: 2 };
+    historyMatches.sort((a, b) => {
+        const orderA = catOrder[a.category] !== undefined ? catOrder[a.category] : 3;
+        const orderB = catOrder[b.category] !== undefined ? catOrder[b.category] : 3;
+        if (orderA !== orderB) return orderA - orderB;
+        return new Date(b.event_date) - new Date(a.event_date);
+    });
 
-    // Regrouper par jour
     const groupedByDay = {};
     historyMatches.forEach(m => {
         const dateStr = getLocalDateFromEvent(m.event_date);
@@ -909,7 +1024,6 @@ function updateSuccessRate() {
         container.style.display = 'none';
         return;
     }
-    // Un pari est considéré gagnant si les deux conditions sont remplies
     const successful = finished.filter(m => m.verified_double && m.verified_over).length;
     const rate = ((successful / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};

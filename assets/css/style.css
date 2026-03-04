@@ -1,6 +1,6 @@
 /* =======================================================
    STYLE.CSS - Mr XPRONOS
-   Design noir & or, optimisé sans dégradés
+   Design noir & or, moderne, optimisé sans dégradés
    ======================================================= */
 
 /* Police élégante Montserrat (Google Fonts) */
@@ -345,8 +345,6 @@ footer {
     font-weight: 600;
     transition: all 0.3s;
     font-size: 0.8rem;
-    flex: 1 1 auto; /* Permet aux boutons de s'étendre */
-    text-align: center;
 }
 .tab-btn.active, .day-btn.active {
     background-color: var(--or);
@@ -358,16 +356,6 @@ footer {
 }
 .tab-btn[style*="display: none"] {
     display: none !important;
-}
-
-/* Pour que les onglets occupent toute la largeur sur mobile */
-@media (max-width: 768px) {
-    .category-tabs, .day-filters {
-        justify-content: stretch;
-    }
-    .tab-btn, .day-btn {
-        flex: 1 1 0;
-    }
 }
 
 /* Grille des matchs : 2 colonnes sur desktop */
@@ -530,22 +518,6 @@ footer {
 .prediction-checkbox {
     margin-right: 5px;
     transform: scale(1.2);
-    accent-color: var(--or); /* Couleur par défaut (or) */
-}
-
-/* Cases cochées vertes pour les pronostics validés */
-.prediction-checkbox:checked:disabled {
-    accent-color: #4CAF50 !important;
-    opacity: 1 !important;
-    filter: none !important;
-}
-
-@supports not (accent-color: #4CAF50) {
-    .prediction-checkbox:checked:disabled {
-        background-color: #4CAF50;
-        border-color: #4CAF50;
-        color: white;
-    }
 }
 
 /* Sous-onglets VIP */
@@ -610,6 +582,17 @@ footer {
 }
 .contact-card a:hover {
     color: var(--or);
+}
+
+/* Analyse complète ML (si utilisée) */
+.analysis-full {
+    background-color: rgba(212, 175, 55, 0.1);
+    border-left: 2px solid var(--or);
+    padding: 1rem;
+}
+.analysis-full p {
+    font-size: 0.8rem;
+    margin-bottom: 0.4rem;
 }
 
 /* =======================================================
@@ -760,6 +743,144 @@ footer {
     color: #ccc;
 }
 
+.share-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.vip-locked-content .btn {
+    min-width: 160px;
+    margin: 0.25rem;
+    flex: 1 1 auto;
+}
+
+@media (max-width: 480px) {
+    .vip-locked-content .btn {
+        min-width: 100%;
+        width: 100%;
+        margin: 0.25rem 0;
+    }
+}
+
+/* =======================================================
+   LISTE HORIZONTALE SCROLLABLE
+   ======================================================= */
+.horizontal-scroll {
+    display: flex;
+    overflow-x: auto;
+    gap: 1rem;
+    padding: 1rem 0;
+    margin: 1rem 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--or) var(--noir-secondaire);
+}
+.horizontal-scroll::-webkit-scrollbar {
+    height: 8px;
+}
+.horizontal-scroll::-webkit-scrollbar-track {
+    background: var(--noir-secondaire);
+    border-radius: 4px;
+}
+.horizontal-scroll::-webkit-scrollbar-thumb {
+    background-color: var(--or);
+    border-radius: 4px;
+}
+.horizontal-item {
+    flex: 0 0 auto;
+    width: 120px;
+    cursor: pointer;
+    transition: transform 0.3s;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--noir-secondaire);
+    border: 1px solid var(--or);
+}
+.horizontal-item:hover {
+    transform: scale(1.05);
+}
+.horizontal-item img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+.horizontal-item .item-title {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    text-align: center;
+    color: var(--blanc);
+    background: var(--noir);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =======================================================
+   CARTES BONUS
+   ======================================================= */
+.bonus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+.bonus-card {
+    background: var(--noir-secondaire);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--or);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.bonus-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+.bonus-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+.bonus-card h3 {
+    color: var(--or);
+    margin: 1rem 1rem 0.5rem;
+}
+.bonus-card p {
+    margin: 0 1rem 1rem;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+.bonus-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--noir);
+    border-top: 1px solid var(--or);
+}
+.bonus-footer span {
+    font-size: 0.8rem;
+    color: #aaa;
+}
+.bonus-footer .btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+}
+
+/* =======================================================
+   STATS BADGE
+   ======================================================= */
+.stats-badge {
+    background: var(--noir-secondaire);
+    border: 1px solid var(--or);
+    border-radius: 30px;
+    padding: 0.3rem 1rem;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
 /* =======================================================
    MESSAGES DE CHARGEMENT / ERREUR
    ======================================================= */
@@ -800,6 +921,23 @@ footer {
 }
 .no-events {
     color: #AAAAAA;
+}
+
+/* =======================================================
+   CASES À COCHER VERTES POUR LES PRONOSTICS VALIDÉS
+   ======================================================= */
+.prediction-checkbox:checked:disabled {
+    accent-color: #4CAF50 !important;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+@supports not (accent-color: #4CAF50) {
+    .prediction-checkbox:checked:disabled {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+        color: white;
+    }
 }
 
 /* =======================================================
@@ -1081,95 +1219,25 @@ footer {
 }
 
 /* =======================================================
-   GUIDE D'INSTALLATION POUR IOS
+   RECHERCHE
    ======================================================= */
-.ios-guide-popup {
-    position: fixed;
-    top: 0;
-    left: 0;
+.search-container {
+    margin: 1rem 0;
+}
+.search-input {
     width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.9);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    padding: 1rem;
-    backdrop-filter: blur(5px);
-}
-
-.ios-guide-content {
+    padding: 0.8rem 1rem;
+    border-radius: 30px;
+    border: 1px solid var(--or);
     background-color: var(--noir-secondaire);
-    border: 2px solid var(--or);
-    border-radius: 24px;
-    padding: 2rem;
-    max-width: 90%;
-    width: 400px;
-    max-height: 90vh;
-    overflow-y: auto;
-    text-align: center;
-    box-shadow: var(--shadow-hover);
-    animation: fadeInUp 0.3s;
-}
-
-.ios-guide-content h3 {
-    color: var(--or);
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-}
-
-.ios-guide-steps {
-    text-align: left;
-    margin: 1.5rem 0;
-}
-
-.ios-guide-step {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1.2rem;
-    gap: 1rem;
-}
-
-.step-number {
-    background-color: var(--or);
-    color: var(--noir);
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-}
-
-.step-text {
     color: var(--blanc);
-    font-size: 0.95rem;
-    line-height: 1.4;
-}
-
-.step-text strong {
-    color: var(--or);
-}
-
-.ios-guide-note {
-    background: rgba(212, 175, 55, 0.1);
-    border-left: 4px solid var(--or);
-    padding: 1rem;
-    margin: 1.5rem 0;
-    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif;
     font-size: 0.9rem;
-    color: #ccc;
+    outline: none;
+    transition: border-color 0.3s;
 }
-
-.ios-guide-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 1.5rem;
-    flex-wrap: wrap;
+.search-input:focus {
+    border-color: var(--or-clair);
 }
 
 /* =======================================================
@@ -1228,15 +1296,5 @@ footer {
     }
     .footer-links a {
         font-size: 0.75rem;
-    }
-
-    .ios-guide-step {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-    }
-    
-    .step-number {
-        margin-bottom: 0.3rem;
     }
 }
