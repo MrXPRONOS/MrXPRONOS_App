@@ -1,7 +1,6 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec gestion de l'installation PWA, compteurs Supabase,
- * bonus, miniatures pour blog/conseils, et toutes les fonctionnalités.
+ * Version avec gestion de l'installation PWA, historique, bonus, et fallback images.
  */
 
 // =======================================================
@@ -32,49 +31,14 @@ const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
 const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
-// Limites de partages quotidiennes
 const shareLimits = { pro: 2, vip: 5 };
 
 const POPULAR_LEAGUES = [
-    "Premier League",
-    "LaLiga",
-    "Serie A",
-    "Bundesliga",
-    "Ligue 1",
-    "Eredivisie",
-    "Primeira Liga",
-    "Super Lig",
-    "Russian Premier League",
-    "MLS",
-    "Brasileirão",
-    "Liga Profesional",
-    "Jupiler Pro League",
-    "Super League",
-    "Championship",
-    "Liga Portugal",
-    "Trendyol Super Lig"
+    "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
+    "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
+    "MLS", "Brasileirão", "Liga Profesional", "Jupiler Pro League",
+    "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ];
-
-// =======================================================
-// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
-// =======================================================
-function getDailyShareCount() {
-    const lastReset = localStorage.getItem('shareLastReset');
-    const today = new Date().toDateString();
-    if (lastReset !== today) {
-        localStorage.setItem('shareLastReset', today);
-        localStorage.setItem('shareCount', '0');
-        return 0;
-    }
-    return parseInt(localStorage.getItem('shareCount') || '0');
-}
-
-function incrementShareCount() {
-    const current = getDailyShareCount();
-    const newCount = current + 1;
-    localStorage.setItem('shareCount', newCount.toString());
-    return newCount;
-}
 
 // =======================================================
 // FONCTIONS SUPABASE (COMPTEURS)
@@ -118,6 +82,27 @@ async function incrementCounter(counterName) {
 }
 
 // =======================================================
+// GESTION DES PARTAGES QUOTIDIENS
+// =======================================================
+function getDailyShareCount() {
+    const lastReset = localStorage.getItem('shareLastReset');
+    const today = new Date().toDateString();
+    if (lastReset !== today) {
+        localStorage.setItem('shareLastReset', today);
+        localStorage.setItem('shareCount', '0');
+        return 0;
+    }
+    return parseInt(localStorage.getItem('shareCount') || '0');
+}
+
+function incrementShareCount() {
+    const current = getDailyShareCount();
+    const newCount = current + 1;
+    localStorage.setItem('shareCount', newCount.toString());
+    return newCount;
+}
+
+// =======================================================
 // GESTION DE L'INSTALLATION PWA
 // =======================================================
 let deferredPrompt;
@@ -125,9 +110,9 @@ const installButton = document.getElementById('install-app');
 const iosGuidePopup = document.getElementById('ios-guide-popup');
 
 function getOS() {
-    const userAgent = window.navigator.userAgent;
-    if (/iPad|iPhone|iPod/.test(userAgent)) return 'iOS';
-    if (/Android/.test(userAgent)) return 'Android';
+    const ua = window.navigator.userAgent;
+    if (/iPad|iPhone|iPod/.test(ua)) return 'iOS';
+    if (/Android/.test(ua)) return 'Android';
     return 'Other';
 }
 
@@ -140,8 +125,8 @@ function showIosGuideIfNeeded() {
     if (getOS() === 'iOS' && !isPwaInstalled()) {
         const lastClosed = localStorage.getItem('iosGuideLastClosed');
         if (lastClosed) {
-            const hoursSinceClosed = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
-            if (hoursSinceClosed < 24) return;
+            const hoursSince = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
+            if (hoursSince < 24) return;
         }
         iosGuidePopup.style.display = 'flex';
     }
@@ -183,7 +168,7 @@ document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeI
 // =======================================================
 document.addEventListener('DOMContentLoaded', () => {
     showIosGuideIfNeeded();
-    updateDisplayedCounters(); // Met à jour les compteurs sur l'accueil
+    updateDisplayedCounters();
 
     if (matchesContainer) {
         initPronostics();
@@ -200,14 +185,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Afficher les miniatures pour blog et conseils si présentes
-    displayBlogThumbnails();
-    displayConseilsThumbnails();
     displayBlogList();
     displayBlogPost();
     displayConseils();
     displayInfos();
-    displayBonusList();   // pour la page bonus
+    displayBonusList();
     displayFootNews();
     initScrollProgress();
 
@@ -221,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // =======================================================
-// FONCTIONS POUR LA PAGE PRONOSTICS
+// FONCTIONS PRONOSTICS
 // =======================================================
 async function initPronostics() {
     await loadData();
@@ -675,7 +657,7 @@ function getStatusClass(status) {
 }
 
 // =======================================================
-// FONCTION POUR LES BOOKMAKERS
+// RENDER BOOKMAKERS (AVEC GESTION D'ERREUR)
 // =======================================================
 function renderBookmakers(bookmakers) {
     if (!bookmakers || bookmakers.length === 0) {
@@ -690,6 +672,7 @@ function renderBookmakers(bookmakers) {
         ];
     }
 
+    // Footer
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -697,18 +680,44 @@ function renderBookmakers(bookmakers) {
             a.href = b.url;
             a.target = '_blank';
             a.rel = 'noopener noreferrer';
-            a.innerHTML = `<img src="${b.logo}" alt="${b.name}" style="max-height:40px;">`;
+            const img = document.createElement('img');
+            img.src = b.logo;
+            img.alt = b.name;
+            img.style.maxHeight = '40px';
+            img.onerror = function() {
+                this.style.display = 'none';
+                const span = document.createElement('span');
+                span.textContent = b.name;
+                span.style.color = 'var(--or)';
+                span.style.fontWeight = '600';
+                span.style.fontSize = '0.8rem';
+                a.appendChild(span);
+            };
+            a.appendChild(img);
             bookmakersFooter.appendChild(a);
         });
     }
 
+    // Section bonus sur l'accueil
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
             const div = document.createElement('div');
             div.className = 'bookmaker-card';
-            div.innerHTML = `
-                <img src="${b.logo}" alt="${b.name}">
+            const img = document.createElement('img');
+            img.src = b.logo;
+            img.alt = b.name;
+            img.onerror = function() {
+                this.style.display = 'none';
+                const span = document.createElement('span');
+                span.textContent = b.name;
+                span.style.display = 'block';
+                span.style.marginBottom = '0.5rem';
+                span.style.color = 'var(--or)';
+                div.insertBefore(span, div.firstChild);
+            };
+            div.appendChild(img);
+            div.innerHTML += `
                 <h3>${b.name}</h3>
                 <p>Bonus de bienvenue jusqu'à 130€</p>
                 <a href="${b.url}" class="btn btn-primary" target="_blank">S'inscrire avec XPVIP</a>
@@ -719,7 +728,7 @@ function renderBookmakers(bookmakers) {
 }
 
 // =======================================================
-// FONCTIONS POUR LES STATISTIQUES (admin)
+// FONCTIONS POUR LES STATISTIQUES (admin) - événements locaux
 // =======================================================
 function recordEvent(type) {
     let events = JSON.parse(localStorage.getItem('userEvents')) || [];
@@ -732,44 +741,58 @@ function recordEvent(type) {
 recordEvent('visit');
 
 // =======================================================
-// FONCTIONS POUR LE BLOG
+// FONCTIONS POUR LE CONTENU GÉNÉRÉ
 // =======================================================
-async function displayBlogThumbnails() {
-    const container = document.getElementById('blog-thumbnails');
-    if (!container) return;
-
-    const data = await loadDataGeneric();
-    const articles = data?.blog || [];
-    if (articles.length === 0) return;
-
-    let html = '';
-    articles.slice(0, 8).forEach(article => {
-        let image = article.image_url || 'assets/images/default-logo.png';
-        let title = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        let slug = article.slug;
-        html += `
-            <div class="thumbnail-item" onclick="window.location.href='article.html?slug=${slug}'">
-                <img src="${image}" alt="${title}">
-                <div class="thumbnail-title">${title}</div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
+async function loadGeneratedContent() {
+    try {
+        const articlesResp = await fetch('articles.json?t=' + Date.now());
+        if (articlesResp.ok) window.generatedArticles = await articlesResp.json();
+        const conseilsResp = await fetch('conseils.json?t=' + Date.now());
+        if (conseilsResp.ok) window.generatedConseils = await conseilsResp.json();
+    } catch (error) {
+        console.error('Erreur chargement contenu généré:', error);
+    }
 }
 
+// =======================================================
+// BLOG
+// =======================================================
 async function displayBlogList() {
     const container = document.getElementById('blog-list');
     if (!container) return;
 
+    if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
-    const articles = data?.blog || [];
-    if (articles.length === 0) return;
+    const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
 
+    if (allArticles.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun article.</div>';
+        return;
+    }
+
+    // Liste horizontale des 8 premiers (vignettes)
+    const horizontalContainer = document.getElementById('blog-horizontal-list');
+    if (horizontalContainer) {
+        let hHtml = '';
+        allArticles.slice(0, 8).forEach(article => {
+            const title = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+            hHtml += `
+                <div class="horizontal-item" onclick="window.location.href='article.html?slug=${article.slug}'">
+                    <img src="${article.image_url || 'assets/images/default-logo.png'}" alt="${title}">
+                    <div class="item-title">${title}</div>
+                </div>
+            `;
+        });
+        horizontalContainer.innerHTML = hHtml;
+    }
+
+    // Grille complète
     let html = '';
-    articles.forEach(article => {
+    allArticles.forEach(article => {
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
         let excerpt = article.excerpt || article.content.substring(0, 200) + '...';
         let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 150) + '...';
+
         html += `
             <div class="card">
                 ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : ''}
@@ -791,8 +814,10 @@ async function displayBlogPost() {
     const slug = urlParams.get('slug');
     if (!slug) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
 
+    if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
-    const article = data?.blog?.find(a => a.slug === slug);
+    const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
+    const article = allArticles.find(a => a.slug === slug);
     if (!article) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
 
     let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
@@ -808,40 +833,44 @@ async function displayBlogPost() {
 }
 
 // =======================================================
-// FONCTIONS POUR LES CONSEILS
+// CONSEILS
 // =======================================================
-async function displayConseilsThumbnails() {
-    const container = document.getElementById('conseils-thumbnails');
-    if (!container) return;
-
-    const data = await loadDataGeneric();
-    const conseils = data?.conseils || [];
-    if (conseils.length === 0) return;
-
-    let html = '';
-    conseils.slice(0, 8).forEach(c => {
-        let image = c.image_url || 'assets/images/default-logo.png';
-        let title = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        html += `
-            <div class="thumbnail-item" onclick="window.location.href='conseils.html#${c.id}'">
-                <img src="${image}" alt="${title}">
-                <div class="thumbnail-title">${title}</div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
 async function displayConseils() {
     const container = document.getElementById('conseils-list');
     if (!container) return;
 
+    if (!window.generatedConseils) await loadGeneratedContent();
     const data = await loadDataGeneric();
-    const conseils = data?.conseils || [];
-    if (conseils.length === 0) return;
+    const allConseils = [...(window.generatedConseils || []), ...(data?.conseils || [])];
 
+    if (allConseils.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun conseil.</div>';
+        return;
+    }
+
+    // Liste horizontale des 8 premiers
+    const horizontalContainer = document.getElementById('conseils-horizontal-list');
+    if (horizontalContainer) {
+        let hHtml = '';
+        allConseils.slice(0, 8).forEach(conseil => {
+            const title = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+            // On stocke l'id dans l'attribut data-id pour pouvoir ouvrir une modale
+            hHtml += `
+                <div class="horizontal-item" onclick="showConseilDetail(${conseil.id})">
+                    <img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}">
+                    <div class="item-title">${title}</div>
+                </div>
+            `;
+        });
+        horizontalContainer.innerHTML = hHtml;
+    }
+
+    // Stocker les conseils pour la modale
+    window.conseilsData = allConseils;
+
+    // Grille complète (affichage normal)
     let html = '';
-    conseils.forEach(c => {
+    allConseils.forEach(c => {
         let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
         let htmlContent = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
         html += `
@@ -855,8 +884,22 @@ async function displayConseils() {
     container.innerHTML = html;
 }
 
+window.showConseilDetail = function(id) {
+    const conseil = window.conseilsData.find(c => c.id === id);
+    if (!conseil) return;
+    const modal = document.getElementById('conseil-modal');
+    document.getElementById('conseil-modal-title').textContent = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+    document.getElementById('conseil-modal-image').src = conseil.image_url || 'assets/images/default-logo.png';
+    document.getElementById('conseil-modal-content').innerHTML = window.marked ? window.marked.parse(conseil.content) : conseil.content.replace(/\n/g, '<br>');
+    modal.style.display = 'flex';
+};
+
+window.closeConseilModal = function() {
+    document.getElementById('conseil-modal').style.display = 'none';
+};
+
 // =======================================================
-// FONCTIONS POUR LES INFOS SPORT
+// INFOS
 // =======================================================
 async function displayInfos() {
     const container = document.getElementById('infos-list');
@@ -872,7 +915,7 @@ async function displayInfos() {
 }
 
 // =======================================================
-// FONCTIONS POUR LES ACTUALITÉS (RSS)
+// ACTUALITÉS (RSS)
 // =======================================================
 async function displayFootNews() {
     const container = document.getElementById('foot-news-container');
@@ -905,9 +948,8 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// FONCTIONS POUR LES BONUS (page bonus.html)
+// BONUS
 // =======================================================
-let currentBookmaker = null;
 let allBonus = [];
 
 async function initBonusPage() {
@@ -940,6 +982,8 @@ async function initBonusPage() {
         document.getElementById('bonus-thumbnails').innerHTML = '<p>Aucun bonus disponible.</p>';
     }
 }
+
+let currentBookmaker = null;
 
 function displayBonusThumbnails() {
     const container = document.getElementById('bonus-thumbnails');
@@ -1019,7 +1063,7 @@ function formatDate(dateStr) {
 }
 
 // =======================================================
-// PAGE HISTORIQUE
+// HISTORIQUE
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
