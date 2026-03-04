@@ -1,8 +1,8 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec gestion d'installation PWA (Android + guide iOS),
- * cases à cocher pour double chance et Over 2.5 (couleur verte si validé),
- * onglets de navigation sur toute la largeur.
+ * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
+ * fallback pour les images des bookmakers, affichage du pronostic Over 2.5
+ * et cases à cocher pour la validation. URLs de partage mises à jour.
  */
 
 // =======================================================
@@ -75,7 +75,7 @@ function showIosGuideIfNeeded() {
         const lastClosed = localStorage.getItem('iosGuideLastClosed');
         if (lastClosed) {
             const hoursSinceClosed = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
-            if (hoursSinceClosed < 24) return; // Ne pas réafficher pendant 24h
+            if (hoursSinceClosed < 24) return;
         }
         iosGuidePopup.style.display = 'flex';
     }
@@ -122,7 +122,6 @@ document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeI
 // =======================================================
 document.addEventListener('DOMContentLoaded', () => {
     showIosGuideIfNeeded();
-
     if (matchesContainer) {
         initPronostics();
     } else if (document.getElementById('history-container')) {
@@ -335,15 +334,16 @@ function showSharePopup(category, remaining) {
 }
 
 function share(platform) {
+    const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     let message = '';
     let url = '';
 
     if (platform === 'whatsapp') {
-        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\nhttps://votre-site.com\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${siteUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
         url = `https://wa.me/?text=${encodeURIComponent(message)}`;
     } else {
-        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\nhttps://votre-site.com\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
-        url = `https://t.me/share/url?url=${encodeURIComponent('https://votre-site.com')}&text=${encodeURIComponent(message)}`;
+        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${siteUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        url = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
     }
 
     window.open(url, '_blank');
@@ -476,7 +476,7 @@ function renderMatches(matches) {
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const defaultLogo = 'assets/images/default-logo.png';
 
-            const isWinner = m.verified_double && m.verified_over; // les deux validés
+            const isWinner = m.verified_double && m.verified_over;
             const winnerClass = isWinner ? 'winner' : '';
 
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
@@ -762,7 +762,7 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// PAGE HISTORIQUE (sans aujourd'hui/demain, avec badges et cases)
+// PAGE HISTORIQUE (sans aujourd'hui/demain, avec badges de catégorie et cases Over)
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -879,6 +879,7 @@ function updateSuccessRate() {
         container.style.display = 'none';
         return;
     }
+    // Un pari est considéré gagnant si les deux conditions sont remplies
     const successful = finished.filter(m => m.verified_double && m.verified_over).length;
     const rate = ((successful / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
