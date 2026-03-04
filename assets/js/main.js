@@ -1,7 +1,7 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
  * Version avec gestion de l'installation PWA, historique avec badges de catégorie,
- * et fallback pour les images des bookmakers.
+ * fallback pour les images des bookmakers et affichage du pronostic Over 2.5.
  */
 
 // =======================================================
@@ -465,6 +465,7 @@ function renderMatches(matches) {
                             <strong>Double chance :</strong> ${doubleChance}
                             ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
                         </p>
+                        <p><strong>Over 2.5 :</strong> ${pred.over_25 ? 'Oui' : 'Non'}</p>
                         <div class="confidence-bar">
                             <div class="confidence-fill" data-value="${confidence}"></div>
                         </div>
@@ -525,9 +526,20 @@ function getStatusClass(status) {
 // FONCTION POUR LES BOOKMAKERS (avec fallback)
 // =======================================================
 function renderBookmakers(bookmakers) {
-    if (!bookmakers) return;
-    
-    // Footer
+    // ==================== FALLBACK SI data.json vide ====================
+    if (!bookmakers || bookmakers.length === 0) {
+        console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
+        bookmakers = [
+            { name: "1xBet",     logo: "assets/images/1xbet.png",     url: "https://TON-LIEN-AFFILIATION-1XBET.com/?promo=XPVIP" },
+            { name: "1win",      logo: "assets/images/1win.png",      url: "https://TON-LIEN-AFFILIATION-1WIN.com/?promo=XPVIP" },
+            { name: "Betwinner", logo: "assets/images/betwinner.png", url: "https://TON-LIEN-AFFILIATION-BETWINNER.com/?promo=XPVIP" },
+            { name: "Melbet",    logo: "assets/images/melbet.png",    url: "https://TON-LIEN-AFFILIATION-MELBET.com/?promo=XPVIP" },
+            { name: "Linebet",   logo: "assets/images/linebet.png",   url: "https://TON-LIEN-AFFILIATION-LINEBET.com/?promo=XPVIP" },
+            { name: "888starz",  logo: "assets/images/888starz.png",  url: "https://TON-LIEN-AFFILIATION-888STARZ.com/?promo=XPVIP" }
+        ];
+    }
+
+    // ==================== FOOTER ====================
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -535,48 +547,22 @@ function renderBookmakers(bookmakers) {
             a.href = b.url;
             a.target = '_blank';
             a.rel = 'noopener noreferrer';
-            const img = document.createElement('img');
-            img.src = b.logo;
-            img.alt = b.name;
-            // Gestion d'erreur : si l'image ne charge pas, on la masque et on affiche le nom
-            img.onerror = function() {
-                this.style.display = 'none';
-                const span = document.createElement('span');
-                span.textContent = b.name;
-                span.style.color = 'var(--or)';
-                span.style.fontWeight = '600';
-                span.style.fontSize = '0.8rem';
-                a.appendChild(span);
-            };
-            a.appendChild(img);
+            a.innerHTML = `<img src="${b.logo}" alt="${b.name}" style="max-height:40px;">`;
             bookmakersFooter.appendChild(a);
         });
     }
-    
-    // Section bonus sur l'accueil
+
+    // ==================== SECTION BONUS (accueil) ====================
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
             const div = document.createElement('div');
             div.className = 'bookmaker-card';
-            // Création de l'image avec gestion d'erreur
-            const img = document.createElement('img');
-            img.src = b.logo;
-            img.alt = b.name;
-            img.onerror = function() {
-                this.style.display = 'none';
-                const span = document.createElement('span');
-                span.textContent = b.name;
-                span.style.display = 'block';
-                span.style.marginBottom = '0.5rem';
-                span.style.color = 'var(--or)';
-                div.insertBefore(span, div.firstChild);
-            };
-            div.appendChild(img);
-            div.innerHTML += `
+            div.innerHTML = `
+                <img src="${b.logo}" alt="${b.name}">
                 <h3>${b.name}</h3>
                 <p>Bonus de bienvenue jusqu'à 130€</p>
-                <a href="${b.url}" class="btn btn-primary" target="_blank">S'inscrire</a>
+                <a href="${b.url}" class="btn btn-primary" target="_blank">S'inscrire avec XPVIP</a>
             `;
             bookmakersBonus.appendChild(div);
         });
@@ -822,6 +808,7 @@ async function displayHistory() {
                     <div class="analysis-panel">
                         <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
                         <p><strong>Double chance :</strong> ${doubleChance}</p>
+                        <p><strong>Over 2.5 :</strong> ${pred.over_25 ? 'Oui' : 'Non'}</p>
                         <p><strong>Fiabilité :</strong> ${confidence}%</p>
                         <p><strong>Résultat :</strong> <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled> Validé</p>
                         ${premiumBadge}
