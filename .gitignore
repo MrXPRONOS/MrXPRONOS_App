@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 # Ignorer tout le dossier cache sauf le fichier all_matches.json
 cache/*
-!cache/all_matches.json
+
 !cache/tsdb_cache.json
 # Fichiers de logs
 *.log

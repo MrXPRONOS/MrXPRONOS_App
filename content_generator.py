@@ -4,7 +4,7 @@
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
 Ajoute la génération d'images avec fallback : Mistral -> Pixazo -> Lorem Picsum.
-Style d'image : dessin 2D attractif (illustration colorée). 
+Style d'image : dessin 2D attractif (illustration colorée).  
 """
 
 import os
