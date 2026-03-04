@@ -178,10 +178,6 @@ footer {
     margin: 1rem 0;
 }
 
-.social-links a {
-    display: inline-block;
-}
-
 .social-links img {
     width: 24px;
     height: 24px;
@@ -250,6 +246,18 @@ footer {
     transform: translateY(-2px);
 }
 
+/* Bouton installation (PWA) */
+#install-app {
+    margin-left: 1rem;
+    animation: gentle-pulse 2s infinite;
+}
+
+@keyframes gentle-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
 /* =======================================================
    CARTES GÉNÉRIQUES
    ======================================================= */
@@ -312,6 +320,10 @@ footer {
     max-width: 600px;
     margin: 0 auto 2rem;
     color: #ccc;
+}
+
+.hero .btn {
+    margin: 0 0.5rem;
 }
 
 /* =======================================================
@@ -774,7 +786,7 @@ footer {
 }
 
 /* =======================================================
-   CASES À COCHER VERTES POUR LES PRONOSTICS GAGNÉS
+   CASES À COCHER VERTES POUR LES PRONOSTICS VALIDÉS
    ======================================================= */
 .prediction-checkbox:checked:disabled {
     accent-color: #4CAF50 !important;
@@ -788,39 +800,6 @@ footer {
         border-color: #4CAF50;
         color: white;
     }
-}
-
-/* =======================================================
-   BADGES DE RÉSULTAT (gagné/perdu/en attente)
-   ======================================================= */
-.result-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    margin-left: 5px;
-}
-
-.result-badge.win {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.result-badge.loss {
-    background-color: #9E9E9E;
-    color: white;
-}
-
-.result-badge.pending {
-    background-color: #FFC107;
-    color: black;
-}
-
-.loss-icon {
-    color: #9E9E9E;
-    font-size: 1.2rem;
-    margin-left: 5px;
 }
 
 /* =======================================================
@@ -967,17 +946,6 @@ footer {
 }
 
 /* =======================================================
-   EN-TÊTE DE JOUR DANS L'HISTORIQUE
-   ======================================================= */
-.day-header {
-    font-size: 1.5rem;
-    margin: 2rem 0 1rem;
-    text-transform: capitalize;
-    border-bottom: 2px solid var(--or);
-    padding-bottom: 0.5rem;
-}
-
-/* =======================================================
    SKELETON LOADING (optionnel)
    ======================================================= */
 @keyframes skeleton-loading {
@@ -1102,6 +1070,17 @@ footer {
 }
 
 /* =======================================================
+   EN-TÊTE DE JOUR POUR L'HISTORIQUE
+   ======================================================= */
+.day-header {
+    font-size: 1.5rem;
+    margin: 2rem 0 1rem;
+    text-transform: capitalize;
+    border-bottom: 2px solid var(--or);
+    padding-bottom: 0.5rem;
+}
+
+/* =======================================================
    RESPONSIVE (MOBILE FIRST)
    ======================================================= */
 @media (max-width: 768px) {
@@ -1125,6 +1104,12 @@ footer {
 
     .hero p {
         font-size: 0.9rem;
+    }
+
+    .hero .btn {
+        display: block;
+        width: 80%;
+        margin: 0.5rem auto;
     }
 
     .bookmakers {

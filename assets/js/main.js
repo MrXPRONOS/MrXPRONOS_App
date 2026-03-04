@@ -1,7 +1,6 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec tri prioritaire des matchs (gagnés > perdus > sans score),
- * affichage des résultats, historique par jour, et fallback scores.
+ * Version adaptée au nouveau format data.json (over_25, badge, etc.)
  */
 
 // =======================================================
@@ -46,6 +45,34 @@ const POPULAR_LEAGUES = [
     "Liga Portugal",
     "Trendyol Super Lig"
 ];
+
+// =======================================================
+// GESTION DE L'INSTALLATION PWA
+// =======================================================
+let deferredPrompt;
+const installButton = document.getElementById('install-app');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installButton) {
+        installButton.style.display = 'inline-block';
+    }
+});
+
+installButton?.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`Installation : ${outcome}`);
+    deferredPrompt = null;
+    installButton.style.display = 'none';
+});
+
+window.addEventListener('appinstalled', () => {
+    console.log('PWA installée');
+    if (installButton) installButton.style.display = 'none';
+});
 
 // =======================================================
 // INITIALISATION
@@ -323,21 +350,8 @@ function getLocalDateFromEvent(isoString) {
     return `${year}-${month}-${day}`;
 }
 
-function sortMatchesByPriority(matches) {
+function sortMatchesByLeague(matches) {
     return matches.sort((a, b) => {
-        // Priorité 1 : matchs avec score (result défini)
-        const aHasScore = a.result !== undefined && a.result !== null;
-        const bHasScore = b.result !== undefined && b.result !== null;
-        if (aHasScore && !bHasScore) return -1;
-        if (!aHasScore && bHasScore) return 1;
-
-        // Priorité 2 : gagnés avant perdus
-        if (aHasScore && bHasScore) {
-            if (a.result === 'win' && b.result === 'loss') return -1;
-            if (a.result === 'loss' && b.result === 'win') return 1;
-        }
-
-        // Priorité 3 : par ligue populaire
         const leagueA = a.league || '';
         const leagueB = b.league || '';
         const indexA = POPULAR_LEAGUES.findIndex(l => leagueA.includes(l) || leagueA === l);
@@ -345,8 +359,6 @@ function sortMatchesByPriority(matches) {
         const rankA = indexA === -1 ? 999 : indexA;
         const rankB = indexB === -1 ? 999 : indexB;
         if (rankA !== rankB) return rankA - rankB;
-
-        // Priorité 4 : par date (plus tôt d'abord)
         const dateA = new Date(a.event_date || 0);
         const dateB = new Date(b.event_date || 0);
         return dateA - dateB;
@@ -366,7 +378,7 @@ function filterAndDisplay() {
         return m.category === targetCat && eventLocalDate === targetDate;
     });
 
-    const sorted = sortMatchesByPriority(filtered);
+    const sorted = sortMatchesByLeague(filtered);
     renderMatches(sorted);
 }
 
@@ -403,6 +415,7 @@ function renderMatches(matches) {
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
+            const over25 = pred.over_25 ? 'Oui' : 'Non';
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
@@ -413,20 +426,15 @@ function renderMatches(matches) {
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
 
-            let resultDisplay = '';
-            if (m.result === 'win') {
-                resultDisplay = `<span class="result-badge win">✅ Gagné</span>`;
-            } else if (m.result === 'loss') {
-                resultDisplay = `<span class="result-badge loss">❌ Perdu</span>`;
-            } else {
-                resultDisplay = `<span class="result-badge pending">⏳ En attente</span>`;
-            }
-
+            const verifiedDouble = m.verified_double ? 'checked' : '';
+            const verifiedOver = m.verified_over ? 'checked' : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const defaultLogo = 'assets/images/default-logo.png';
-            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
 
-            const winnerClass = m.result === 'win' ? 'winner' : '';
+            const isWinner = m.verified_double && m.verified_over;
+            const winnerClass = isWinner ? 'winner' : '';
+
+            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
 
             html += `
                 <div class="match-card ${winnerClass}" data-match-id="${m.id}">
@@ -456,14 +464,16 @@ function renderMatches(matches) {
                         <h4>Pronostic ${xpronosBadge}</h4>
                         <p>
                             <strong>Double chance :</strong> ${doubleChance}
-                            ${m.result === 'win' ? '<input type="checkbox" class="prediction-checkbox" checked disabled>' : ''}
-                            ${m.result === 'loss' ? '<span class="loss-icon">❌</span>' : ''}
+                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
+                        </p>
+                        <p>
+                            <strong>Over 2.5 :</strong> ${over25}
+                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}
                         </p>
                         <div class="confidence-bar">
                             <div class="confidence-fill" data-value="${confidence}"></div>
                         </div>
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
-                        ${resultDisplay}
                         ${premiumBadge}
                     </div>
                 </div>
@@ -703,13 +713,14 @@ async function displayHistory() {
         return;
     }
 
+    // Date d'aujourd'hui à minuit pour la comparaison
     const today = new Date();
-    const fourteenDaysAgo = new Date(today);
-    fourteenDaysAgo.setDate(today.getDate() - 14);
+    today.setHours(0, 0, 0, 0);
 
+    // Filtrer les matchs dont la date est strictement inférieure à aujourd'hui
     const historyMatches = allData.matches.filter(m => {
         const matchDate = new Date(m.event_date);
-        return matchDate >= fourteenDaysAgo;
+        return matchDate < today;
     });
 
     if (historyMatches.length === 0) {
@@ -717,8 +728,10 @@ async function displayHistory() {
         return;
     }
 
-    historyMatches.sort(sortMatchesByPriority);
+    // Trier par date décroissante
+    historyMatches.sort((a, b) => new Date(b.event_date) - new Date(a.event_date));
 
+    // Regrouper par jour
     const groupedByDay = {};
     historyMatches.forEach(m => {
         const dateStr = getLocalDateFromEvent(m.event_date);
@@ -747,17 +760,9 @@ async function displayHistory() {
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
 
+            const verifiedDouble = m.verified_double ? 'checked' : '';
             const defaultLogo = 'assets/images/default-logo.png';
-            const winnerClass = m.result === 'win' ? 'winner' : '';
-
-            let resultDisplay = '';
-            if (m.result === 'win') {
-                resultDisplay = `<span class="result-badge win">✅ Gagné</span>`;
-            } else if (m.result === 'loss') {
-                resultDisplay = `<span class="result-badge loss">❌ Perdu</span>`;
-            } else {
-                resultDisplay = `<span class="result-badge pending">⏳ En attente</span>`;
-            }
+            const winnerClass = m.verified_double ? 'winner' : '';
 
             html += `
                 <div class="match-card ${winnerClass}">
@@ -785,7 +790,7 @@ async function displayHistory() {
                         <h4>Pronostic</h4>
                         <p><strong>Double chance :</strong> ${doubleChance}</p>
                         <p><strong>Fiabilité :</strong> ${confidence}%</p>
-                        <p><strong>Résultat :</strong> ${resultDisplay}</p>
+                        <p><strong>Résultat :</strong> <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled> Validé</p>
                     </div>
                 </div>
             `;
@@ -801,13 +806,13 @@ function updateSuccessRate() {
     const container = document.getElementById('success-rate-container');
     if (!container) return;
     const matches = allData.matches || [];
-    const scored = matches.filter(m => m.result !== null && m.result !== undefined);
-    if (scored.length === 0) {
+    const finished = matches.filter(m => m.status && m.status.toLowerCase().includes('terminé'));
+    if (finished.length === 0) {
         container.style.display = 'none';
         return;
     }
-    const wins = scored.filter(m => m.result === 'win').length;
-    const rate = ((wins / scored.length) * 100).toFixed(1);
+    const successful = finished.filter(m => m.verified_double).length;
+    const rate = ((successful / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
     const roi = stats.roi || 0;
     container.innerHTML = `
