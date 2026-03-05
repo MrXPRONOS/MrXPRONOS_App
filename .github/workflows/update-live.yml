@@ -50,7 +50,8 @@ jobs:
           
           git commit -m "Mise à jour horaire $(date +'%Y-%m-%d %H:%M') [skip ci]"
           
-          git pull --rebase --autostash origin main
+          git fetch origin main
+          git rebase -X theirs origin/main
           
           git push origin main
         env:

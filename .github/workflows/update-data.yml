@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0   # nécessaire pour les commits
+          fetch-depth: 0
 
       - uses: actions/setup-python@v4
         with:
@@ -55,10 +55,8 @@ jobs:
           git config --global user.name 'github-actions'
           git config --global user.email 'actions@github.com'
           
-          # Ajouter tous les fichiers modifiés
           git add -A
           
-          # Vérifier s'il y a des changements à commiter
           if git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0
@@ -66,8 +64,9 @@ jobs:
           
           git commit -m "Mise à jour automatique $(date +'%Y-%m-%d') [skip ci]"
           
-          # Pull avec rebase pour éviter les conflits
-          git pull --rebase --autostash origin main
+          # Récupérer les dernières modifications et rebaser en acceptant nos versions en cas de conflit
+          git fetch origin main
+          git rebase -X theirs origin/main
           
           git push origin main
         env:
