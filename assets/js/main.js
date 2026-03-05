@@ -32,6 +32,9 @@ let allData = null;
 let currentCategory = 'simple';
 let currentSubcat = 'pronostics';
 let currentDay = 'today';
+// Variables globales pour la gestion du partage sécurisé
+let shareStartTime = null;
+let sharePending = false;
 
 const matchesContainer = document.getElementById('matches-container');
 const sharePopup = document.getElementById('share-popup');
@@ -449,6 +452,7 @@ function showSharePopup(category, remaining) {
     sharePopup.classList.add('active');
 }
 
+// Fonction de partage améliorée
 function share(platform) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     let message = '';
@@ -462,27 +466,56 @@ function share(platform) {
         url = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
     }
 
+    // Enregistrer le moment du clic
+    shareStartTime = Date.now();
+    sharePending = true;
+
+    // Ouvrir la fenêtre de partage
     window.open(url, '_blank');
 
-    const newCount = incrementShareCount();
-    updateShareCounter();
-    incrementCounter('total_shares');
-    updateDisplayedCounters(); // Met à jour l'affichage du compteur global
-    recordEvent('share');
+    // Attendre le retour sur la page
+    window.addEventListener('focus', onFocusAfterShare, { once: true });
 
-    const target = shareLimits[currentCategory];
-    if (newCount >= target) {
-        hideVipLocked();
-        filterAndDisplay();
-    } else {
-        if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
-            showVipLocked(currentCategory);
-        } else {
-            showSharePopup(currentCategory, target - newCount);
+    // Timeout de sécurité : si l'utilisateur ne revient pas dans les 2 minutes, on annule
+    setTimeout(() => {
+        if (sharePending) {
+            sharePending = false;
+            window.removeEventListener('focus', onFocusAfterShare);
         }
-    }
+    }, 120000);
 }
 
+// Fonction appelée quand l'utilisateur revient sur la page
+function onFocusAfterShare() {
+    if (!sharePending) return;
+
+    const elapsed = Date.now() - shareStartTime;
+    // Seuil minimum de 5 secondes pour éviter les clics accidentels
+    if (elapsed >= 5000) {
+        // Partage considéré comme valide
+        const newCount = incrementShareCount();
+        updateShareCounter();
+        incrementCounter('total_shares');
+        updateDisplayedCounters();
+        recordEvent('share');
+
+        const target = shareLimits[currentCategory];
+        if (newCount >= target) {
+            hideVipLocked();
+            filterAndDisplay();
+        } else {
+            if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
+                showVipLocked(currentCategory);
+            } else {
+                showSharePopup(currentCategory, target - newCount);
+            }
+        }
+    } else {
+        // Trop rapide, on considère que le partage n'a pas eu lieu
+        alert("Le partage n'a pas été pris en compte. Veuillez partager réellement le lien.");
+    }
+    sharePending = false;
+}
 function updateShareCounter() {
     const counter = document.getElementById('share-counter');
     if (counter) {
