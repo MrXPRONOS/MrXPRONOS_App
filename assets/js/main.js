@@ -1322,3 +1322,4 @@ async function displayTodayPicks() {
     });
     container.innerHTML = html;
 }
+
