@@ -14,6 +14,7 @@
  * - Affichage du taux de réussite basé uniquement sur le double chance
  * - Pronostics du jour sur la page d'accueil
  * - Mise à jour instantanée des compteurs après partage
+ * - Design unifié des cartes pour blog, conseils, infos et actualités
  */
 
 // =======================================================
@@ -32,9 +33,6 @@ let allData = null;
 let currentCategory = 'simple';
 let currentSubcat = 'pronostics';
 let currentDay = 'today';
-// Variables globales pour la gestion du partage sécurisé
-let shareStartTime = null;
-let sharePending = false;
 
 const matchesContainer = document.getElementById('matches-container');
 const sharePopup = document.getElementById('share-popup');
@@ -57,6 +55,10 @@ const POPULAR_LEAGUES = [
     "MLS", "Brasileirão", "Liga Profesional", "Jupiler Pro League",
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ];
+
+// Variables pour le partage sécurisé
+let shareStartTime = null;
+let sharePending = false;
 
 // =======================================================
 // FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
@@ -180,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Page d'accueil : charger les données pour les bookmakers, le compteur et les pronostics du jour
         loadDataGeneric().then(data => {
             if (data) {
-                allData = data; // Important : assigner à allData
+                allData = data;
                 renderBookmakers(data.bookmakers);
                 updateShareCounter();
                 displayTodayPicks();
@@ -452,7 +454,7 @@ function showSharePopup(category, remaining) {
     sharePopup.classList.add('active');
 }
 
-// Fonction de partage améliorée
+// Fonction de partage sécurisée
 function share(platform) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     let message = '';
@@ -466,17 +468,10 @@ function share(platform) {
         url = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
     }
 
-    // Enregistrer le moment du clic
     shareStartTime = Date.now();
     sharePending = true;
-
-    // Ouvrir la fenêtre de partage
     window.open(url, '_blank');
-
-    // Attendre le retour sur la page
     window.addEventListener('focus', onFocusAfterShare, { once: true });
-
-    // Timeout de sécurité : si l'utilisateur ne revient pas dans les 2 minutes, on annule
     setTimeout(() => {
         if (sharePending) {
             sharePending = false;
@@ -485,14 +480,10 @@ function share(platform) {
     }, 120000);
 }
 
-// Fonction appelée quand l'utilisateur revient sur la page
 function onFocusAfterShare() {
     if (!sharePending) return;
-
     const elapsed = Date.now() - shareStartTime;
-    // Seuil minimum de 5 secondes pour éviter les clics accidentels
     if (elapsed >= 5000) {
-        // Partage considéré comme valide
         const newCount = incrementShareCount();
         updateShareCounter();
         incrementCounter('total_shares');
@@ -511,11 +502,11 @@ function onFocusAfterShare() {
             }
         }
     } else {
-        // Trop rapide, on considère que le partage n'a pas eu lieu
         alert("Le partage n'a pas été pris en compte. Veuillez partager réellement le lien.");
     }
     sharePending = false;
 }
+
 function updateShareCounter() {
     const counter = document.getElementById('share-counter');
     if (counter) {
@@ -542,7 +533,6 @@ function getLocalDateFromEvent(isoString) {
     if (!isoString) return null;
     const date = new Date(isoString);
     if (isNaN(date)) return null;
-    // Ajuster au fuseau local
     date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -652,7 +642,6 @@ function renderMatches(matches) {
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const defaultLogo = 'assets/images/default-logo.png';
 
-            // Un pronostic est gagnant si verified_double est vrai (indépendamment de over_25)
             const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
 
@@ -749,7 +738,6 @@ function getStatusClass(status) {
 // =======================================================
 function renderBookmakers(bookmakers) {
     console.log('📢 renderBookmakers appelée avec:', bookmakers);
-    // Fallback si data.json ne fournit pas de bookmakers
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
@@ -762,7 +750,6 @@ function renderBookmakers(bookmakers) {
         ];
     }
 
-    // ==================== FOOTER ====================
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -790,7 +777,6 @@ function renderBookmakers(bookmakers) {
         });
     }
 
-    // ==================== SECTION BONUS (accueil) ====================
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
@@ -850,6 +836,30 @@ recordEvent('visit');
 // =======================================================
 // FONCTIONS POUR LE CONTENU GÉNÉRÉ (Blog, Conseils, etc.)
 // =======================================================
+
+function formatDate(dateString) {
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    } catch {
+        return dateString;
+    }
+}
+
+function createCard({ title, date, author, image, excerpt, link, linkText = "Lire la suite" }) {
+    return `
+        <div class="card">
+            ${image ? `<img src="${image}" alt="${title}" loading="lazy" class="card-image">` : ''}
+            <div class="card-content">
+                <h3><a href="${link}" style="color: var(--or); text-decoration: none;">${title}</a></h3>
+                <div class="meta">${date} ${author ? 'par ' + author : ''}</div>
+                ${excerpt ? `<p>${excerpt}</p>` : ''}
+                <a href="${link}" class="btn btn-secondary">${linkText}</a>
+            </div>
+        </div>
+    `;
+}
+
 async function loadGeneratedContent() {
     try {
         const articlesResp = await fetch('articles.json?t=' + Date.now());
@@ -894,16 +904,15 @@ async function displayBlogList() {
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
         let excerpt = article.excerpt || article.content.substring(0, 200) + '...';
         let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 150) + '...';
-
-        html += `
-            <div class="card">
-                ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
-                <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${cleanTitle}</a></h3>
-                <div class="meta">${article.date} par ${article.author} ${article.match ? '• ' + article.match : ''}</div>
-                <p>${cleanExcerpt}</p>
-                <a href="article.html?slug=${article.slug}" class="btn btn-secondary">Lire</a>
-            </div>
-        `;
+        html += createCard({
+            title: cleanTitle,
+            date: formatDate(article.date),
+            author: article.author,
+            image: article.image_url,
+            excerpt: cleanExcerpt,
+            link: `article.html?slug=${article.slug}`,
+            linkText: "Lire l'article"
+        });
     });
     container.innerHTML = html;
 }
@@ -967,16 +976,24 @@ async function displayConseils() {
     let html = '';
     allConseils.forEach(c => {
         let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        let htmlContent = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
-        html += `
-            <div class="card">
-                ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
-                <h3>${cleanTitle}</h3>
-                <div>${htmlContent}</div>
-            </div>
-        `;
+        let excerpt = c.content.substring(0, 150) + '...';
+        html += createCard({
+            title: cleanTitle,
+            date: formatDate(c.date),
+            image: c.image_url,
+            excerpt: excerpt,
+            link: `#`, // Pas de lien direct, on utilise le clic sur la carte
+            linkText: "Voir le conseil"
+        });
     });
     container.innerHTML = html;
+
+    const cards = container.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.addEventListener('click', () => {
+            showConseilDetail(allConseils[index].id);
+        });
+    });
 }
 
 window.showConseilDetail = function(id) {
@@ -1000,12 +1017,17 @@ async function displayInfos() {
     if (!container) return;
     const data = await loadDataGeneric();
     if (!data || !data.infos) return;
+    let html = '';
     data.infos.forEach(i => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<h3>${i.title}</h3><p>${i.content}</p>`;
-        container.appendChild(card);
+        html += createCard({
+            title: i.title,
+            date: i.date || '',
+            excerpt: i.content,
+            link: i.link || '#',
+            linkText: "En savoir plus"
+        });
     });
+    container.innerHTML = html;
 }
 
 async function displayFootNews() {
@@ -1021,15 +1043,14 @@ async function displayFootNews() {
         }
         let html = '';
         news.forEach(item => {
-            html += `
-                <div class="news-card card">
-                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" loading="lazy">` : ''}
-                    <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: var(--or);">${item.title}</a></h3>
-                    <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
-                    <p>${item.summary}</p>
-                    <a href="${item.link}" target="_blank" class="btn btn-secondary" style="margin-top:10px;">Lire la suite</a>
-                </div>
-            `;
+            html += createCard({
+                title: item.title,
+                date: formatDate(item.published),
+                image: item.image,
+                excerpt: item.summary,
+                link: item.link,
+                linkText: "Lire la suite"
+            });
         });
         container.innerHTML = html;
     } catch (error) {
@@ -1156,7 +1177,7 @@ function formatDate(dateStr) {
 }
 
 // =======================================================
-// PAGE HISTORIQUE (avec badges de catégorie)
+// PAGE HISTORIQUE
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -1273,7 +1294,6 @@ function updateSuccessRate() {
         container.style.display = 'none';
         return;
     }
-    // Un pari est considéré gagnant si verified_double est vrai
     const successful = finished.filter(m => m.verified_double).length;
     const rate = ((successful / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
@@ -1355,4 +1375,3 @@ async function displayTodayPicks() {
     });
     container.innerHTML = html;
 }
-
