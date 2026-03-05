@@ -689,6 +689,7 @@ function getStatusClass(status) {
     return '';
 }
 
+
 // =======================================================
 // RENDER BOOKMAKERS (VERSION CORRIGÉE AVEC FALLBACK ROBUSTE)
 // =======================================================
@@ -698,12 +699,12 @@ function renderBookmakers(bookmakers) {
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
-            { name: "1xBet",     logo: "assets/images/1xbet.png",     url: "https://TON-LIEN-AFFILIATION-1XBET.com/?promo=XPVIP" },
-            { name: "1win",      logo: "assets/images/1win.png",      url: "https://TON-LIEN-AFFILIATION-1WIN.com/?promo=XPVIP" },
-            { name: "Betwinner", logo: "assets/images/betwinner.png", url: "https://TON-LIEN-AFFILIATION-BETWINNER.com/?promo=XPVIP" },
-            { name: "Melbet",    logo: "assets/images/melbet.png",    url: "https://TON-LIEN-AFFILIATION-MELBET.com/?promo=XPVIP" },
-            { name: "Linebet",   logo: "assets/images/linebet.png",   url: "https://TON-LIEN-AFFILIATION-LINEBET.com/?promo=XPVIP" },
-            { name: "888starz",  logo: "assets/images/888starz.png",  url: "https://TON-LIEN-AFFILIATION-888STARZ.com/?promo=XPVIP" }
+            { name: "1xBet",     logo: "assets/images/1xbet.png",     url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599" },
+            { name: "1win",      logo: "assets/images/1win.png",      url: "https://1wrbgb.com/?open=register&p=qqcw" },
+            { name: "Betwinner", logo: "assets/images/betwinner.png", url: "https://bwredir.com/299Y" },
+            { name: "Melbet",    logo: "assets/images/melbet.png",    url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041" },
+            { name: "Linebet",   logo: "assets/images/linebet.png",   url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611" },
+            { name: "BetClic",   logo: "assets/images/betclic.png",   url: "https://betpari-click.com/2vY0?extid=USD" }
         ];
     }
 
