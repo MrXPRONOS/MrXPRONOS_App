@@ -112,15 +112,12 @@
     </div>
 
     <main class="container">
-        <!-- Section Pronostics du jour (SEO + dynamique) -->
+        <!-- Section Nos derniers pronostics validés (Pro & VIP) -->
         <section style="margin: 3rem 0;">
-            <h2 style="color: var(--or); margin-bottom: 1rem;">⚽ Pronostics du jour</h2>
-            <div id="today-picks" class="matches-grid">
-                <!-- Rempli dynamiquement par JavaScript -->
-                <div class="loading">Chargement des matchs...</div>
-            </div>
-            <div style="text-align: center; margin-top: 1.5rem;">
-                <a href="pronos.html" class="btn btn-primary">Voir tous les pronostics</a>
+            <h2 style="color: var(--or); margin-bottom: 1rem;">🏆 Nos derniers pronostics validés</h2>
+            <div id="today-picks" class="horizontal-scroll">
+                <!-- Rempli dynamiquement par displayLatestVerified() dans main.js -->
+                <div class="loading">Chargement...</div>
             </div>
         </section>
 
