@@ -3,7 +3,7 @@
 
 """
 historical_scores_fallback.py - Utilise football-data.co.uk pour récupérer les scores historiques.
-Version corrigée avec import manquant et point d'entrée.
+Version corrigée avec import manquant et point d'entrée. 
 """
 
 import pandas as pd
