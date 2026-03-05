@@ -1,19 +1,19 @@
 /**
- * main.js - Mr XPRONOS – Version finale optimisée
+ * main.js - Mr XPRONOS – Version ultime
  * 
  * Fonctionnalités :
  * - Pronostics avec filtres (Simple/Pro/VIP, aujourd'hui/demain/hier)
- * - Système de partage pour débloquer les niveaux Pro/VIP
+ * - Partage sécurisé avec token et vérification de retour
  * - Historique avec badges de catégorie
  * - Gestion offline robuste (cache + timeout)
+ * - Logos des clubs locaux avec fallback générique
+ * - Articles, conseils, infos en grille horizontale
  * - Installation PWA (Android/iOS)
  * - Bookmakers avec fallback et liens d'affiliation
  * - Statistiques locales (visites, partages)
  * - Lazy loading des images
  * - Correction des fuseaux horaires
- * - Affichage du taux de réussite basé uniquement sur le double chance
- * - Pronostics du jour sur la page d'accueil
- * - Mise à jour instantanée des compteurs après partage
+ * - Taux de réussite basé uniquement sur double chance
  */
 
 // =======================================================
@@ -32,9 +32,6 @@ let allData = null;
 let currentCategory = 'simple';
 let currentSubcat = 'pronostics';
 let currentDay = 'today';
-// Variables globales pour la gestion du partage sécurisé
-let shareStartTime = null;
-let sharePending = false;
 
 const matchesContainer = document.getElementById('matches-container');
 const sharePopup = document.getElementById('share-popup');
@@ -50,6 +47,15 @@ const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
 // Limites de partages quotidiennes
 const shareLimits = { pro: 2, vip: 5 };
+
+// Token de partage
+let shareToken = localStorage.getItem('shareToken');
+if (!shareToken) {
+    shareToken = crypto.randomUUID();
+    localStorage.setItem('shareToken', shareToken);
+}
+
+let shareStartTime = null;
 
 const POPULAR_LEAGUES = [
     "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
@@ -177,13 +183,13 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (document.getElementById('bonus-bookmaker-select')) {
         initBonusPage();
     } else {
-        // Page d'accueil : charger les données pour les bookmakers, le compteur et les pronostics du jour
+        // Page d'accueil : charger les données pour les bookmakers, le compteur et les derniers pronos validés
         loadDataGeneric().then(data => {
             if (data) {
-                allData = data; // Important : assigner à allData
+                allData = data;
                 renderBookmakers(data.bookmakers);
                 updateShareCounter();
-                displayTodayPicks();
+                displayLatestVerified(); // Affiche les derniers pronos Pro/VIP validés
             }
         });
     }
@@ -202,6 +208,13 @@ document.addEventListener('DOMContentLoaded', () => {
             applySearchFilter();
         });
     }
+
+    // Écouter le retour sur la page après partage
+    window.addEventListener('focus', () => {
+        if (shareStartTime && Date.now() - shareStartTime > 5000) { // 5 secondes minimum
+            verifyShare();
+        }
+    });
 });
 
 // =======================================================
@@ -452,70 +465,58 @@ function showSharePopup(category, remaining) {
     sharePopup.classList.add('active');
 }
 
-// Fonction de partage améliorée
+// Nouvelle fonction de partage avec token et temporisation
 function share(platform) {
-    const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
+    const baseUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
+    const shareUrl = `${baseUrl}?ref=${shareToken}`;
     let message = '';
     let url = '';
 
     if (platform === 'whatsapp') {
-        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${siteUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${shareUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
         url = `https://wa.me/?text=${encodeURIComponent(message)}`;
     } else {
-        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${siteUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
-        url = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
+        message = `🔥 *Mr XPRONOS* - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${shareUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(message)}`;
     }
 
-    // Enregistrer le moment du clic
     shareStartTime = Date.now();
-    sharePending = true;
-
-    // Ouvrir la fenêtre de partage
     window.open(url, '_blank');
-
-    // Attendre le retour sur la page
-    window.addEventListener('focus', onFocusAfterShare, { once: true });
-
-    // Timeout de sécurité : si l'utilisateur ne revient pas dans les 2 minutes, on annule
-    setTimeout(() => {
-        if (sharePending) {
-            sharePending = false;
-            window.removeEventListener('focus', onFocusAfterShare);
-        }
-    }, 120000);
 }
 
-// Fonction appelée quand l'utilisateur revient sur la page
-function onFocusAfterShare() {
-    if (!sharePending) return;
-
+// Vérification après retour
+function verifyShare() {
+    if (!shareStartTime) return;
     const elapsed = Date.now() - shareStartTime;
-    // Seuil minimum de 5 secondes pour éviter les clics accidentels
-    if (elapsed >= 5000) {
-        // Partage considéré comme valide
-        const newCount = incrementShareCount();
-        updateShareCounter();
-        incrementCounter('total_shares');
-        updateDisplayedCounters();
-        recordEvent('share');
-
-        const target = shareLimits[currentCategory];
-        if (newCount >= target) {
-            hideVipLocked();
-            filterAndDisplay();
-        } else {
-            if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
-                showVipLocked(currentCategory);
-            } else {
-                showSharePopup(currentCategory, target - newCount);
-            }
-        }
-    } else {
-        // Trop rapide, on considère que le partage n'a pas eu lieu
-        alert("Le partage n'a pas été pris en compte. Veuillez partager réellement le lien.");
+    if (elapsed < 5000) {
+        alert('⏳ Merci de passer au moins 5 secondes sur l\'application de partage avant de revenir.');
+        return;
     }
-    sharePending = false;
+
+    // Incrémenter le compteur quotidien
+    const newCount = incrementShareCount();
+    updateShareCounter();
+    incrementCounter('total_shares');
+    updateDisplayedCounters();
+    recordEvent('share');
+
+    // Réinitialiser le timer
+    shareStartTime = null;
+
+    // Vérifier si le seuil est atteint
+    const target = shareLimits[currentCategory];
+    if (newCount >= target) {
+        hideVipLocked();
+        filterAndDisplay();
+    } else {
+        if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
+            showVipLocked(currentCategory);
+        } else {
+            showSharePopup(currentCategory, target - newCount);
+        }
+    }
 }
+
 function updateShareCounter() {
     const counter = document.getElementById('share-counter');
     if (counter) {
@@ -608,6 +609,17 @@ function formatMatchTime(isoString) {
     return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
 
+// Fonction pour obtenir le chemin du logo local
+function getTeamLogoPath(teamName) {
+    if (!teamName) return 'assets/images/home.png'; // fallback générique
+    const normalized = teamName.toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+    // Vérifier si le fichier existe (par une tentative de chargement, mais on ne peut pas synchronously)
+    // On retourne le chemin, et on gère l'erreur avec onerror
+    return `assets/images/${normalized}.png`;
+}
+
 function renderMatches(matches) {
     if (!matchesContainer) return;
     if (matches.length === 0) {
@@ -650,9 +662,12 @@ function renderMatches(matches) {
             const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
 
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-            const defaultLogo = 'assets/images/default-logo.png';
+            const defaultLogo = 'assets/images/home.png'; // fallback générique
 
-            // Un pronostic est gagnant si verified_double est vrai (indépendamment de over_25)
+            const homeLogo = getTeamLogoPath(m.home_team);
+            const awayLogo = getTeamLogoPath(m.away_team);
+
+            // Un pronostic est gagnant si verified_double est vrai
             const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
 
@@ -664,13 +679,13 @@ function renderMatches(matches) {
                     <div class="match-info">
                         <div class="teams">
                             <div class="team">
-                                <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
+                                <img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='${defaultLogo}';">
                                 <span class="team-name">${m.home_team}</span>
                                 <span class="team-score">${m.home_score ?? '-'}</span>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
+                                <img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='${defaultLogo}';">
                                 <span class="team-name">${m.away_team}</span>
                                 <span class="team-score">${m.away_score ?? '-'}</span>
                             </div>
@@ -749,7 +764,6 @@ function getStatusClass(status) {
 // =======================================================
 function renderBookmakers(bookmakers) {
     console.log('📢 renderBookmakers appelée avec:', bookmakers);
-    // Fallback si data.json ne fournit pas de bookmakers
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
@@ -762,7 +776,6 @@ function renderBookmakers(bookmakers) {
         ];
     }
 
-    // ==================== FOOTER ====================
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -790,7 +803,6 @@ function renderBookmakers(bookmakers) {
         });
     }
 
-    // ==================== SECTION BONUS (accueil) ====================
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
@@ -848,7 +860,7 @@ function recordEvent(type) {
 recordEvent('visit');
 
 // =======================================================
-// FONCTIONS POUR LE CONTENU GÉNÉRÉ (Blog, Conseils, etc.)
+// FONCTIONS POUR LE CONTENU GÉNÉRÉ (Blog, Conseils, Infos) - Même design que les infos
 // =======================================================
 async function loadGeneratedContent() {
     try {
@@ -889,6 +901,7 @@ async function displayBlogList() {
         horizontalContainer.innerHTML = hHtml;
     }
 
+    // Affichage en grille (identique aux infos)
     let html = '';
     allArticles.forEach(article => {
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
@@ -1000,12 +1013,16 @@ async function displayInfos() {
     if (!container) return;
     const data = await loadDataGeneric();
     if (!data || !data.infos) return;
+    let html = '';
     data.infos.forEach(i => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `<h3>${i.title}</h3><p>${i.content}</p>`;
-        container.appendChild(card);
+        html += `
+            <div class="card">
+                <h3>${i.title}</h3>
+                <p>${i.content}</p>
+            </div>
+        `;
     });
+    container.innerHTML = html;
 }
 
 async function displayFootNews() {
@@ -1218,7 +1235,10 @@ async function displayHistory() {
             const statusClass = getStatusClass(m.status);
 
             const verifiedDouble = m.verified_double ? 'checked' : '';
-            const defaultLogo = 'assets/images/default-logo.png';
+            const defaultLogo = 'assets/images/home.png';
+            const homeLogo = getTeamLogoPath(m.home_team);
+            const awayLogo = getTeamLogoPath(m.away_team);
+
             const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
 
@@ -1231,13 +1251,13 @@ async function displayHistory() {
                     <div class="match-info">
                         <div class="teams">
                             <div class="team">
-                                <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
+                                <img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='${defaultLogo}';">
                                 <span class="team-name">${m.home_team}</span>
                                 <span class="team-score">${m.home_score ?? '-'}</span>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
+                                <img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='${defaultLogo}';">
                                 <span class="team-name">${m.away_team}</span>
                                 <span class="team-score">${m.away_score ?? '-'}</span>
                             </div>
@@ -1273,7 +1293,6 @@ function updateSuccessRate() {
         container.style.display = 'none';
         return;
     }
-    // Un pari est considéré gagnant si verified_double est vrai
     const successful = finished.filter(m => m.verified_double).length;
     const rate = ((successful / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
@@ -1304,10 +1323,10 @@ function initScrollProgress() {
 }
 
 // =======================================================
-// AFFICHAGE DES PRONOSTICS DU JOUR SUR L'ACCUEIL
+// AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL
 // =======================================================
-async function displayTodayPicks() {
-    const container = document.getElementById('today-picks');
+function displayLatestVerified() {
+    const container = document.getElementById('today-picks'); // On réutilise l'ID existant
     if (!container) return;
 
     if (!allData || !allData.matches) {
@@ -1315,44 +1334,40 @@ async function displayTodayPicks() {
         return;
     }
 
-    const today = getLocalDateString('today');
-    const todayMatches = allData.matches.filter(m => getLocalDateFromEvent(m.event_date) === today).slice(0, 3);
-    
-    if (todayMatches.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun match aujourd\'hui.</div>';
+    // Filtrer les matchs terminés et validés (verified_double true) des catégories pro et vip
+    const verified = allData.matches.filter(m => 
+        m.status && m.status.toLowerCase().includes('finished') && 
+        m.verified_double === true && 
+        (m.category === 'pro' || m.category === 'vip')
+    );
+
+    // Trier du plus récent au plus ancien et prendre les 4 premiers
+    const latest = verified.sort((a, b) => new Date(b.event_date) - new Date(a.event_date)).slice(0, 4);
+
+    if (latest.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun pronostic validé récent.</div>';
         return;
     }
 
     let html = '';
-    todayMatches.forEach(m => {
+    latest.forEach(m => {
         const pred = m.prediction || {};
         const doubleChance = pred.double_chance || 'N/A';
-        const defaultLogo = 'assets/images/default-logo.png';
+        const defaultLogo = 'assets/images/home.png';
+        const homeLogo = getTeamLogoPath(m.home_team);
+        const awayLogo = getTeamLogoPath(m.away_team);
+        const badgeClass = m.category === 'vip' ? 'badge-vip' : 'badge-pro';
         html += `
-            <div class="match-card">
-                <div class="match-info">
-                    <div class="teams">
-                        <div class="team">
-                            <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
-                            <span class="team-name">${m.home_team}</span>
-                        </div>
-                        <div class="vs">VS</div>
-                        <div class="team">
-                            <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
-                            <span class="team-name">${m.away_team}</span>
-                        </div>
-                    </div>
-                    <div class="match-meta">
-                        <span class="league-badge">${m.league || 'Ligue'}</span>
-                        <span class="status">${translateStatus(m.status)}</span>
-                    </div>
-                </div>
-                <div class="analysis-panel">
-                    <p><strong>Pronostic :</strong> ${doubleChance}</p>
+            <div class="horizontal-item verified-item" onclick="window.location.href='pronos.html?day=yesterday'">
+                <img src="${homeLogo}" alt="${m.home_team}" onerror="this.onerror=null; this.src='${defaultLogo}';">
+                <div class="vs-small">VS</div>
+                <img src="${awayLogo}" alt="${m.away_team}" onerror="this.onerror=null; this.src='${defaultLogo}';">
+                <div class="item-title">
+                    ${m.home_team} - ${m.away_team}<br>
+                    <span class="${badgeClass}">${m.category.toUpperCase()} ✅</span>
                 </div>
             </div>
         `;
     });
     container.innerHTML = html;
 }
-
