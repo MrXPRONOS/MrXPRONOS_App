@@ -49,6 +49,38 @@ const POPULAR_LEAGUES = [
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ];
 
+
+// Ajoutez ce code de diagnostic temporaire dans main.js
+async function diagnosticJSON() {
+    const files = ['data.json', 'articles.json', 'conseils.json', 'footnews.json'];
+    for (const file of files) {
+        try {
+            console.log(`🔍 Tentative de chargement de ${file}...`);
+            const resp = await fetch(file + '?t=' + Date.now());
+            console.log(`📡 ${file} : status ${resp.status} ${resp.statusText}`);
+            if (resp.ok) {
+                const text = await resp.text();
+                console.log(`📄 ${file} : ${text.length} caractères reçus`);
+                try {
+                    const json = JSON.parse(text);
+                    console.log(`✅ ${file} : JSON valide (${Array.isArray(json) ? json.length : 'objet'} éléments)`);
+                } catch (e) {
+                    console.error(`❌ ${file} : JSON invalide -`, e.message);
+                    console.log('Premiers 200 caractères :', text.substring(0, 200));
+                }
+            } else {
+                console.error(`❌ ${file} : échec de chargement`);
+            }
+        } catch (e) {
+            console.error(`❌ ${file} : erreur réseau -`, e);
+        }
+    }
+}
+
+// Appelez cette fonction après le chargement du DOM
+document.addEventListener('DOMContentLoaded', diagnosticJSON);
+
+
 // =======================================================
 // FONCTIONS SUPABASE (AVEC FALLBACK)
 // =======================================================
