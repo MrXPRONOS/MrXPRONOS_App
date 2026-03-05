@@ -112,14 +112,15 @@
     </div>
 
     <main class="container">
-        <!-- Section Derniers pronostics gagnants Pro/VIP -->
+        <!-- Section Nos derniers pronostics validés (Pro & VIP) -->
         <section style="margin: 3rem 0;">
-            <h2 style="color: var(--or); margin-bottom: 1rem;">🏆 Derniers pronostics gagnants (Pro/VIP)</h2>
-            <div id="latest-winners" class="winners-horizontal">
-                <!-- Rempli dynamiquement -->
+            <h2 style="color: var(--or); margin-bottom: 1rem;">🏆 Nos derniers pronostics validés</h2>
+            <div id="today-picks" class="horizontal-scroll">
+                <!-- Rempli dynamiquement par displayLatestVerified() dans main.js -->
                 <div class="loading">Chargement...</div>
             </div>
         </section>
+
         <!-- Section Pourquoi nous choisir ? -->
         <section style="margin: 3rem 0;">
             <h2 style="color: var(--or); margin-bottom: 2rem;">📊 Pourquoi nous choisir ?</h2>

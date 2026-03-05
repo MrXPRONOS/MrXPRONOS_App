@@ -176,6 +176,7 @@ footer {
     justify-content: center;
     gap: 1rem;
     margin: 1rem 0;
+    flex-wrap: wrap;
 }
 
 .social-links img {
@@ -271,7 +272,7 @@ footer {
 }
 
 /* =======================================================
-   CARTES GÉNÉRIQUES
+   CARTES GÉNÉRIQUES (pour blog, conseils, infos)
    ======================================================= */
 .card {
     background-color: var(--noir-secondaire);
@@ -281,6 +282,7 @@ footer {
     border-left: 4px solid var(--or);
     box-shadow: var(--shadow);
     transition: transform 0.3s, box-shadow 0.3s;
+    overflow: hidden;
 }
 
 .card:hover {
@@ -300,6 +302,14 @@ footer {
     margin-bottom: 0.5rem;
 }
 
+.card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
 .badge-premium {
     background-color: var(--or);
     color: #000;
@@ -308,6 +318,110 @@ footer {
     font-size: 0.7rem;
     font-weight: 700;
     display: inline-block;
+}
+
+/* =======================================================
+   GRILLES POUR BLOG, CONSEILS, INFOS
+   ======================================================= */
+.blog-grid, .conseils-grid, .infos-grid, .news-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+@media (max-width: 992px) {
+    .blog-grid, .conseils-grid, .infos-grid, .news-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .blog-grid, .conseils-grid, .infos-grid, .news-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .blog-grid, .conseils-grid, .infos-grid, .news-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =======================================================
+   SCROLL HORIZONTAL (pour les listes déroulantes)
+   ======================================================= */
+.horizontal-scroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 1rem 0;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.horizontal-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.horizontal-scroll::-webkit-scrollbar-thumb {
+    background: var(--or);
+    border-radius: 10px;
+}
+
+.horizontal-item {
+    flex: 0 0 auto;
+    width: 200px;
+    background-color: var(--noir-secondaire);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid var(--or);
+    transition: transform 0.3s;
+    scroll-snap-align: start;
+    cursor: pointer;
+}
+
+.horizontal-item:hover {
+    transform: scale(1.05);
+}
+
+.horizontal-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    background-color: var(--gris);
+    padding: 5px;
+}
+
+.horizontal-item .item-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--blanc);
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* Badges pour les pronostics validés */
+.badge-vip {
+    background-color: var(--or);
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.badge-pro {
+    background-color: var(--gris-clair);
+    color: var(--blanc);
+    padding: 2px 8px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border: 1px solid var(--or);
 }
 
 /* =======================================================
@@ -695,6 +809,11 @@ footer {
     gap: 1rem;
     margin-top: 2rem;
 }
+@media (max-width: 768px) {
+    .bonus-thumbnails {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 .bonus-thumb {
     background-color: var(--noir-secondaire);
     border: 1px solid var(--or);
@@ -767,112 +886,6 @@ footer {
     color: #ccc;
     border-top: 1px solid var(--or);
     padding-top: 1rem;
-}
-
-/* =======================================================
-   GRILLE POUR BLOG, CONSEILS (miniatures)
-   ======================================================= */
-.thumbnails-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-    margin: 2rem 0;
-}
-.thumbnail-item {
-    background-color: var(--noir-secondaire);
-    border: 1px solid var(--or);
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.3s;
-}
-.thumbnail-item:hover {
-    transform: scale(1.05);
-}
-.thumbnail-item img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-}
-.thumbnail-title {
-    padding: 0.5rem;
-    text-align: center;
-    font-size: 0.8rem;
-    color: var(--blanc);
-    background-color: var(--noir);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.blog-grid, .conseils-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-/* =======================================================
-   POPUP DE PARTAGE (CENTRÉ)
-   ======================================================= */
-.popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 1rem;
-    backdrop-filter: blur(5px);
-}
-.popup.active {
-    display: flex;
-}
-.popup-content {
-    background-color: var(--noir-secondaire);
-    border: 2px solid var(--or);
-    border-radius: 24px;
-    padding: 1.5rem;
-    max-width: 90%;
-    width: 400px;
-    max-height: 90vh;
-    overflow-y: auto;
-    text-align: center;
-    box-shadow: var(--shadow-hover);
-    animation: fadeInUp 0.3s;
-}
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-.popup-content h3 {
-    color: var(--or);
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-}
-.popup-content p {
-    margin-bottom: 1.2rem;
-    font-size: 0.9rem;
-}
-.share-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
-#close-popup {
-    margin-top: 1rem;
 }
 
 /* =======================================================
@@ -1314,11 +1327,4 @@ footer {
     .footer-links a {
         font-size: 0.75rem;
     }
-    .bonus-thumbnails {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    .thumbnails-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
-
