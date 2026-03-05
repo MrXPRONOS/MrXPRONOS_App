@@ -347,8 +347,8 @@
       "xpronos_score": 49,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
-      "verified_over": false
+      "verified_double": true,
+      "verified_over": true
     },
     {
       "id": 4635470,
@@ -1169,9 +1169,9 @@
         "league": "Premier League",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 1,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -1190,8 +1190,8 @@
         "xpronos_score": 49,
         "badge": "",
         "category": "simple",
-        "verified_double": false,
-        "verified_over": false
+        "verified_double": true,
+        "verified_over": true
       },
       {
         "id": 4466253,
