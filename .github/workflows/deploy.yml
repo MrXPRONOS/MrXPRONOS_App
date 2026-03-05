@@ -9,10 +9,10 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Generate config.js
+      - name: Generate config.js from template
         run: |
           sed "s|SUPABASE_URL|${{ secrets.SUPABASE_URL }}|g; s|SUPABASE_ANON_KEY|${{ secrets.SUPABASE_ANON_KEY }}|g" config.template.js > assets/js/config.js
 
@@ -22,3 +22,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./
           destination_dir: ./
+          keep_files: true   # Important : ne pas écraser les fichiers existants
