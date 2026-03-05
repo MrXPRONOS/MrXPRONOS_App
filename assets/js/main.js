@@ -12,6 +12,8 @@
  * - Lazy loading des images
  * - Correction des fuseaux horaires
  * - Affichage du taux de réussite
+ * - Pronostics du jour sur la page d'accueil
+ * - Mise à jour instantanée des compteurs après partage
  */
 
 // =======================================================
@@ -76,13 +78,38 @@ function incrementShareCount() {
 }
 
 // =======================================================
+// FONCTIONS POUR LES COMPTEURS GLOBAUX (avec fallback)
+// =======================================================
+async function getCounterValue(counterName) {
+    // Utilisation du localStorage comme fallback (Supabase optionnel)
+    const local = localStorage.getItem('counter_' + counterName);
+    return local ? parseInt(local) : (counterName === 'total_users' ? 1000 : 10000);
+}
+
+async function incrementCounter(counterName) {
+    // Incrémentation en localStorage uniquement (fallback)
+    const current = parseInt(localStorage.getItem('counter_' + counterName) || '0');
+    const newValue = current + 1;
+    localStorage.setItem('counter_' + counterName, newValue);
+    return newValue;
+}
+
+async function updateDisplayedCounters() {
+    const totalUsers = await getCounterValue('total_users');
+    const totalShares = await getCounterValue('total_shares');
+    const usersEl = document.getElementById('total-users-count');
+    const sharesEl = document.getElementById('total-shares-count');
+    if (usersEl) usersEl.textContent = totalUsers.toLocaleString();
+    if (sharesEl) sharesEl.textContent = totalShares.toLocaleString();
+}
+
+// =======================================================
 // GESTION DE L'INSTALLATION PWA (Android & Desktop)
 // =======================================================
 let deferredPrompt;
 const installButton = document.getElementById('install-app');
 const iosGuidePopup = document.getElementById('ios-guide-popup');
 
-// Détection du système d'exploitation
 function getOS() {
     const ua = window.navigator.userAgent;
     if (/iPad|iPhone|iPod/.test(ua)) return 'iOS';
@@ -90,31 +117,27 @@ function getOS() {
     return 'Other';
 }
 
-// Vérifier si l'app est déjà installée (mode standalone)
 function isPwaInstalled() {
     return window.matchMedia('(display-mode: standalone)').matches || 
            window.navigator.standalone === true;
 }
 
-// Afficher le guide iOS si nécessaire
 function showIosGuideIfNeeded() {
     if (getOS() === 'iOS' && !isPwaInstalled()) {
         const lastClosed = localStorage.getItem('iosGuideLastClosed');
         if (lastClosed) {
-            const hoursSinceClosed = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
-            if (hoursSinceClosed < 24) return;
+            const hoursSince = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
+            if (hoursSince < 24) return;
         }
         if (iosGuidePopup) iosGuidePopup.style.display = 'flex';
     }
 }
 
-// Fermer le guide iOS
 function closeIosGuide() {
     if (iosGuidePopup) iosGuidePopup.style.display = 'none';
     localStorage.setItem('iosGuideLastClosed', Date.now().toString());
 }
 
-// Événement beforeinstallprompt (Android/Desktop)
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -123,7 +146,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 
-// Clic sur le bouton d'installation
 installButton?.addEventListener('click', async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
@@ -133,14 +155,12 @@ installButton?.addEventListener('click', async () => {
     installButton.style.display = 'none';
 });
 
-// Après installation
 window.addEventListener('appinstalled', () => {
     console.log('PWA installée');
     if (installButton) installButton.style.display = 'none';
     if (iosGuidePopup) iosGuidePopup.style.display = 'none';
 });
 
-// Boutons de fermeture du guide iOS
 document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
 document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
 
@@ -149,6 +169,7 @@ document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeI
 // =======================================================
 document.addEventListener('DOMContentLoaded', () => {
     showIosGuideIfNeeded();
+    updateDisplayedCounters();
 
     if (matchesContainer) {
         initPronostics();
@@ -157,17 +178,17 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (document.getElementById('bonus-bookmaker-select')) {
         initBonusPage();
     } else {
-        // Page d'accueil : charger les données pour les bookmakers et le compteur
+        // Page d'accueil : charger les données pour les bookmakers, le compteur et les pronostics du jour
         loadDataGeneric().then(data => {
             if (data) {
+                allData = data; // Important : assigner à allData
                 renderBookmakers(data.bookmakers);
                 updateShareCounter();
-                displayTodayPicks(); // Affiche les pronostics du jour sur l'accueil
+                displayTodayPicks();
             }
         });
     }
 
-    // Charger les autres contenus si les conteneurs existent
     displayBlogList();
     displayBlogPost();
     displayConseils();
@@ -175,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
     displayFootNews();
     initScrollProgress();
 
-    // Barre de recherche sur la page pronostics
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
@@ -217,7 +237,6 @@ async function loadData() {
     let dataLoaded = false;
 
     try {
-        // Timeout de 8 secondes
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000);
 
@@ -238,7 +257,6 @@ async function loadData() {
         console.log('🌐 Hors ligne ou erreur réseau → utilisation du cache');
     }
 
-    // Fallback cache
     if (!dataLoaded) {
         const cached = localStorage.getItem('cachedData');
         if (cached) {
@@ -253,7 +271,6 @@ async function loadData() {
     }
 
     if (dataLoaded && allData) {
-        // Afficher un bandeau si mode hors ligne
         if (container && !navigator.onLine) {
             container.insertAdjacentHTML('afterbegin', `
                 <div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem;">
@@ -453,6 +470,8 @@ function share(platform) {
 
     const newCount = incrementShareCount();
     updateShareCounter();
+    incrementCounter('total_shares');
+    updateDisplayedCounters(); // Met à jour l'affichage du compteur global
     recordEvent('share');
 
     const target = shareLimits[currentCategory];
@@ -476,7 +495,6 @@ function updateShareCounter() {
     }
 }
 
-// Correction du fuseau horaire : ajuste la date pour correspondre au jour local
 function getLocalDateString(day) {
     const now = new Date();
     const target = new Date(now);
@@ -599,7 +617,6 @@ function renderMatches(matches) {
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
 
-            // Utiliser event_date pour la comparaison (champ date)
             const eventDate = m.event_date ? m.event_date.split('T')[0] : '';
             const yesterdayStr = getLocalDateString('yesterday');
             const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
@@ -998,6 +1015,123 @@ async function displayFootNews() {
 }
 
 // =======================================================
+// PAGE BONUS
+// =======================================================
+let allBonus = [];
+
+async function initBonusPage() {
+    const data = await loadDataGeneric();
+    allBonus = data?.bonus || [];
+
+    const select = document.getElementById('bonus-bookmaker-select');
+    if (!select) return;
+
+    const bookmakers = [...new Set(allBonus.map(b => b.bookmaker))].filter(Boolean);
+    bookmakers.sort();
+
+    bookmakers.forEach(bm => {
+        const option = document.createElement('option');
+        option.value = bm;
+        option.textContent = bm;
+        select.appendChild(option);
+    });
+
+    select.addEventListener('change', (e) => {
+        currentBookmaker = e.target.value;
+        displayBonusThumbnails();
+    });
+
+    if (bookmakers.length > 0) {
+        select.value = bookmakers[0];
+        currentBookmaker = bookmakers[0];
+        displayBonusThumbnails();
+    } else {
+        document.getElementById('bonus-thumbnails').innerHTML = '<p>Aucun bonus disponible.</p>';
+    }
+}
+
+let currentBookmaker = null;
+
+function displayBonusThumbnails() {
+    const container = document.getElementById('bonus-thumbnails');
+    if (!container) return;
+
+    const filtered = allBonus.filter(b => b.bookmaker === currentBookmaker && b.active && new Date(b.end_date) >= new Date());
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<p>Aucun bonus actif pour ce bookmaker.</p>';
+        return;
+    }
+
+    let html = '';
+    filtered.forEach(b => {
+        html += `
+            <div class="bonus-thumb" onclick="showBonusDetail(${b.id})">
+                <img src="${b.image}" alt="${b.title}" loading="lazy">
+                <div class="bonus-thumb-title">${b.title}</div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+
+    window.bonusDetails = filtered;
+}
+
+window.showBonusDetail = function(id) {
+    const bonus = window.bonusDetails.find(b => b.id === id);
+    if (!bonus) return;
+
+    const modal = document.getElementById('bonus-modal');
+    if (!modal) return;
+    document.getElementById('bonus-modal-title').textContent = bonus.title;
+    document.getElementById('bonus-modal-image').src = bonus.image;
+    document.getElementById('bonus-modal-description').innerHTML = bonus.description;
+    document.getElementById('bonus-modal-footer').innerHTML = bonus.footer || '';
+    document.getElementById('bonus-modal-link').href = bonus.link || '#';
+    modal.style.display = 'flex';
+};
+
+window.closeBonusModal = function() {
+    const modal = document.getElementById('bonus-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+async function displayBonusList() {
+    const container = document.getElementById('bonus-grid');
+    if (!container) return;
+
+    const data = await loadDataGeneric();
+    const bonus = data?.bonus || [];
+    const activeBonus = bonus.filter(b => b.active && new Date(b.end_date) >= new Date());
+
+    if (activeBonus.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun bonus actif pour le moment.</div>';
+        return;
+    }
+
+    let html = '';
+    activeBonus.forEach(b => {
+        html += `
+            <div class="bonus-card">
+                <img src="${b.image}" alt="${b.title}" class="bonus-image" loading="lazy">
+                <h3>${b.title}</h3>
+                <p>${b.description}</p>
+                <div class="bonus-footer">
+                    <span>Valable du ${formatDate(b.start_date)} au ${formatDate(b.end_date)}</span>
+                    ${b.link ? `<a href="${b.link}" target="_blank" class="btn btn-primary">Profiter</a>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function formatDate(dateStr) {
+    const [y, m, d] = dateStr.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+// =======================================================
 // PAGE HISTORIQUE (avec badges de catégorie)
 // =======================================================
 async function displayHistory() {
@@ -1153,8 +1287,11 @@ async function displayTodayPicks() {
     const container = document.getElementById('today-picks');
     if (!container) return;
 
-    await loadDataGeneric();
-    if (!allData) return;
+    // Utiliser allData qui a été chargé
+    if (!allData || !allData.matches) {
+        container.innerHTML = '<div class="loading">Chargement...</div>';
+        return;
+    }
 
     const today = getLocalDateString('today');
     const todayMatches = allData.matches.filter(m => getLocalDateFromEvent(m.event_date) === today).slice(0, 3);

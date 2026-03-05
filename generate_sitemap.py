@@ -3,7 +3,7 @@
 
 """
 generate_sitemap.py - Génère le sitemap.xml à partir des pages statiques et des articles.
-Exécution quotidienne.
+Exécution quotidienne. 
 """
 
 import json
