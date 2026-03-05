@@ -1,7 +1,5 @@
 /**
- * main.js - Script principal pour Mr XPRONOS
- * Version corrigée avec gestion d'erreur pour Supabase, dates harmonisées,
- * fallback bookmakers robuste et logs de débogage.
+ * main.js - Mr XPRONOS – Version complète et robuste offline avancé
  */
 
 // =======================================================
@@ -49,38 +47,6 @@ const POPULAR_LEAGUES = [
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ];
 
-
-// Ajoutez ce code de diagnostic temporaire dans main.js
-async function diagnosticJSON() {
-    const files = ['data.json', 'articles.json', 'conseils.json', 'footnews.json'];
-    for (const file of files) {
-        try {
-            console.log(`🔍 Tentative de chargement de ${file}...`);
-            const resp = await fetch(file + '?t=' + Date.now());
-            console.log(`📡 ${file} : status ${resp.status} ${resp.statusText}`);
-            if (resp.ok) {
-                const text = await resp.text();
-                console.log(`📄 ${file} : ${text.length} caractères reçus`);
-                try {
-                    const json = JSON.parse(text);
-                    console.log(`✅ ${file} : JSON valide (${Array.isArray(json) ? json.length : 'objet'} éléments)`);
-                } catch (e) {
-                    console.error(`❌ ${file} : JSON invalide -`, e.message);
-                    console.log('Premiers 200 caractères :', text.substring(0, 200));
-                }
-            } else {
-                console.error(`❌ ${file} : échec de chargement`);
-            }
-        } catch (e) {
-            console.error(`❌ ${file} : erreur réseau -`, e);
-        }
-    }
-}
-
-// Appelez cette fonction après le chargement du DOM
-document.addEventListener('DOMContentLoaded', diagnosticJSON);
-
-
 // =======================================================
 // FONCTIONS SUPABASE (AVEC FALLBACK)
 // =======================================================
@@ -99,10 +65,8 @@ async function getCounterValue(counterName) {
 
 async function incrementCounter(counterName) {
     if (supabaseAvailable) {
-        // Appel à une fonction RPC atomique (à créer dans Supabase)
         const { data, error } = await supabase.rpc('increment_counter', { counter_name: counterName });
         if (!error) return data;
-        // Fallback sur update manuel
         const current = await getCounterValue(counterName);
         if (current === null) return;
         const newValue = current + 1;
@@ -250,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // =======================================================
-// FONCTIONS PRONOSTICS
+// FONCTIONS PRONOSTICS (AVEC LOAD DATA ROBUSTE)
 // =======================================================
 async function initPronostics() {
     await loadData();
@@ -266,27 +230,77 @@ async function initPronostics() {
 }
 
 async function loadData() {
-    console.log('🔄 Chargement de data.json...');
+    console.log('🔄 Chargement pronostics (mode avancé offline)...');
+    
+    const container = document.getElementById('matches-container');
+    if (container) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:80px 20px; color:#aaa;">
+                <div style="font-size:60px; margin-bottom:20px;">⏳</div>
+                <div>Chargement des matchs...</div>
+            </div>`;
+    }
+
+    let dataLoaded = false;
+
     try {
-        const resp = await fetch('data.json?t=' + Date.now());
-        console.log('📡 Réponse fetch:', resp.status, resp.statusText);
-        if (!resp.ok) throw new Error('Erreur chargement');
-        allData = await resp.json();
-        console.log('✅ Données chargées:', allData);
-        localStorage.setItem('cachedData', JSON.stringify(allData));
-        renderBookmakers(allData.bookmakers);
-    } catch (error) {
-        console.error('❌ Erreur fetch:', error);
+        // Tentative réseau avec timeout (8 secondes)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+        const resp = await fetch('data.json?t=' + Date.now(), { 
+            signal: controller.signal,
+            cache: 'no-cache'
+        });
+        
+        clearTimeout(timeoutId);
+
+        if (resp.ok) {
+            allData = await resp.json();
+            console.log('✅ Données fraîches du serveur');
+            localStorage.setItem('cachedData', JSON.stringify(allData));
+            dataLoaded = true;
+        }
+    } catch (err) {
+        console.log('🌐 Hors ligne ou erreur réseau → utilisation du cache');
+    }
+
+    // FALLBACK CACHE
+    if (!dataLoaded) {
         const cached = localStorage.getItem('cachedData');
         if (cached) {
-            console.log('📦 Utilisation du cache');
-            allData = JSON.parse(cached);
-            if (matchesContainer) matchesContainer.innerHTML = '<div class="warning">⚠️ Données en cache.</div>';
-            renderBookmakers(allData.bookmakers);
-        } else {
-            console.log('🚫 Aucune donnée en cache');
-            if (matchesContainer) matchesContainer.innerHTML = '<div class="error">❌ Impossible de charger les données.</div>';
+            try {
+                allData = JSON.parse(cached);
+                console.log('📦 Pronos chargés depuis le cache local (' + allData.matches.length + ' matchs)');
+                dataLoaded = true;
+            } catch (e) {
+                console.error('❌ Cache corrompu', e);
+            }
         }
+    }
+
+    if (dataLoaded && allData) {
+        // Affichage du mode offline si nécessaire
+        if (container && !navigator.onLine) {
+            container.insertAdjacentHTML('afterbegin', `
+                <div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem;">
+                    📴 MODE HORS LIGNE — Pronostics du cache (${new Date().toLocaleDateString('fr-FR')})
+                </div>
+            `);
+        }
+
+        hideEmptyTabs();
+        maybeHideTabBar();
+        setupEventListeners();
+        updateSuccessRate();
+        filterAndDisplay();   // ← AFFICHE LES MATCHS !
+    } 
+    else if (container) {
+        container.innerHTML = `
+            <div class="error" style="text-align:center; padding:60px;">
+                ❌ Aucune donnée disponible.<br>
+                <small>Connectez-vous une première fois pour charger le cache.</small>
+            </div>`;
     }
 }
 
@@ -616,9 +630,7 @@ function renderMatches(matches) {
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
 
-            // Utiliser m.event_date pour la comparaison (champ date)
             const eventDate = m.event_date ? m.event_date.split('T')[0] : '';
-            const todayStr = getLocalDateString('today');
             const yesterdayStr = getLocalDateString('yesterday');
             const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
             const verifiedOver = (eventDate === yesterdayStr && m.verified_over) ? 'checked' : '';
@@ -721,13 +733,11 @@ function getStatusClass(status) {
     return '';
 }
 
-
 // =======================================================
 // RENDER BOOKMAKERS (VERSION CORRIGÉE AVEC FALLBACK ROBUSTE)
 // =======================================================
 function renderBookmakers(bookmakers) {
     console.log('📢 renderBookmakers appelée avec:', bookmakers);
-    // Fallback si data.json ne fournit pas de bookmakers
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
@@ -740,7 +750,6 @@ function renderBookmakers(bookmakers) {
         ];
     }
 
-    // ==================== FOOTER ====================
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -767,7 +776,6 @@ function renderBookmakers(bookmakers) {
         });
     }
 
-    // ==================== SECTION BONUS (accueil) ====================
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
