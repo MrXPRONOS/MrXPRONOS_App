@@ -17,7 +17,7 @@ from urllib3.util.retry import Retry
 # =======================================================
 # CONFIGURATION
 # =======================================================
-SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")
+SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY",'0b4628b4-83cc-4227-bed6-82c50d806514')
 if not SPORTDATA_API_KEY:
     raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
 
@@ -395,18 +395,11 @@ def main():
         {"name": "BetClic",   "logo": "assets/images/betclic.png",   "url": "https://betpari-click.com/2vY0?extid=USD"}
     ]
 
-    # Utiliser les bookmakers existants seulement s'ils ne sont pas vides, sinon prendre les défauts
-    existing_bookmakers = existing_data.get("bookmakers")
-    if not existing_bookmakers:
-        bookmakers_to_use = default_bookmakers
-    else:
-        bookmakers_to_use = existing_bookmakers
-
     data = {
         "matches": matches,
         "categories": categories,
         "stats": stats,
-        "bookmakers": bookmakers_to_use
+        "bookmakers": existing_data.get("bookmakers", default_bookmakers)
     }
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:

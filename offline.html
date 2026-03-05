@@ -60,23 +60,31 @@
     </div>
 
     <script>
-        // Affiche la date du cache si disponible
-        const cached = localStorage.getItem('cachedData');
-        if (cached) {
-            try {
-                const data = JSON.parse(cached);
-                const date = data.matches && data.matches[0] ? new Date(data.matches[0].event_date) : new Date();
-                document.getElementById('cache-date').textContent = date.toLocaleDateString('fr-FR', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long'
-                });
-            } catch (e) {
-                document.getElementById('cache-date').textContent = 'inconnue';
+        (function() {
+            const cached = localStorage.getItem('cachedData');
+            const span = document.getElementById('cache-date');
+            if (cached) {
+                try {
+                    const data = JSON.parse(cached);
+                    let lastDate = 'inconnue';
+                    if (data.matches && data.matches.length > 0) {
+                        const latest = data.matches[0].event_date || data.matches[0].date;
+                        const date = new Date(latest);
+                        lastDate = date.toLocaleDateString('fr-FR', {
+                            weekday: 'long',
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                    }
+                    span.textContent = lastDate;
+                } catch (e) {
+                    span.textContent = 'inconnue';
+                }
+            } else {
+                span.textContent = 'jamais';
             }
-        } else {
-            document.getElementById('cache-date').textContent = 'jamais';
-        }
+        })();
     </script>
 </body>
 </html>
