@@ -11,7 +11,7 @@
  * - Statistiques locales (visites, partages)
  * - Lazy loading des images
  * - Correction des fuseaux horaires
- * - Affichage du taux de réussite
+ * - Affichage du taux de réussite basé uniquement sur le double chance
  * - Pronostics du jour sur la page d'accueil
  * - Mise à jour instantanée des compteurs après partage
  */
@@ -78,29 +78,25 @@ function incrementShareCount() {
 }
 
 // =======================================================
-// FONCTIONS POUR LES COMPTEURS GLOBAUX (avec fallback)
+// FONCTIONS POUR LES COMPTEURS GLOBAUX
 // =======================================================
-async function getCounterValue(counterName) {
-    // Utilisation du localStorage comme fallback (Supabase optionnel)
-    const local = localStorage.getItem('counter_' + counterName);
-    return local ? parseInt(local) : (counterName === 'total_users' ? 1000 : 10000);
+function getCounterValue(counterName) {
+    const val = localStorage.getItem('counter_' + counterName);
+    return val ? parseInt(val) : (counterName === 'total_users' ? 1000 : 10000);
 }
 
-async function incrementCounter(counterName) {
-    // Incrémentation en localStorage uniquement (fallback)
-    const current = parseInt(localStorage.getItem('counter_' + counterName) || '0');
+function incrementCounter(counterName) {
+    const current = getCounterValue(counterName);
     const newValue = current + 1;
     localStorage.setItem('counter_' + counterName, newValue);
     return newValue;
 }
 
-async function updateDisplayedCounters() {
-    const totalUsers = await getCounterValue('total_users');
-    const totalShares = await getCounterValue('total_shares');
+function updateDisplayedCounters() {
     const usersEl = document.getElementById('total-users-count');
     const sharesEl = document.getElementById('total-shares-count');
-    if (usersEl) usersEl.textContent = totalUsers.toLocaleString();
-    if (sharesEl) sharesEl.textContent = totalShares.toLocaleString();
+    if (usersEl) usersEl.textContent = getCounterValue('total_users').toLocaleString();
+    if (sharesEl) sharesEl.textContent = getCounterValue('total_shares').toLocaleString();
 }
 
 // =======================================================
@@ -606,7 +602,6 @@ function renderMatches(matches) {
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
-            const over25 = pred.over_25 ? 'Oui' : 'Non';
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
@@ -620,12 +615,12 @@ function renderMatches(matches) {
             const eventDate = m.event_date ? m.event_date.split('T')[0] : '';
             const yesterdayStr = getLocalDateString('yesterday');
             const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
-            const verifiedOver = (eventDate === yesterdayStr && m.verified_over) ? 'checked' : '';
 
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const defaultLogo = 'assets/images/default-logo.png';
 
-            const isWinner = m.verified_double && m.verified_over;
+            // Un pronostic est gagnant si verified_double est vrai (indépendamment de over_25)
+            const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
 
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
@@ -659,10 +654,6 @@ function renderMatches(matches) {
                         <p>
                             <strong>Double chance :</strong> ${doubleChance}
                             ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
-                        </p>
-                        <p>
-                            <strong>Over 2.5 :</strong> ${over25}
-                            ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}
                         </p>
                         <div class="confidence-bar">
                             <div class="confidence-fill" data-value="${confidence}"></div>
@@ -873,7 +864,7 @@ async function displayBlogList() {
 
         html += `
             <div class="card">
-                ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;" loading="lazy">` : ''}
+                ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
                 <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${cleanTitle}</a></h3>
                 <div class="meta">${article.date} par ${article.author} ${article.match ? '• ' + article.match : ''}</div>
                 <p>${cleanExcerpt}</p>
@@ -904,7 +895,7 @@ async function displayBlogPost() {
     container.innerHTML = `
         <h1>${cleanTitle}</h1>
         <div class="meta">${article.date} par ${article.author}</div>
-        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:20px 0;" loading="lazy">` : ''}
+        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
         <div style="margin-top: 2rem;">${htmlContent}</div>
         <a href="blog.html" class="btn btn-secondary" style="margin-top: 2rem;">← Retour au blog</a>
     `;
@@ -946,7 +937,7 @@ async function displayConseils() {
         let htmlContent = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
         html += `
             <div class="card">
-                ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;" loading="lazy">` : ''}
+                ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
                 <h3>${cleanTitle}</h3>
                 <div>${htmlContent}</div>
             </div>
@@ -999,7 +990,7 @@ async function displayFootNews() {
         news.forEach(item => {
             html += `
                 <div class="news-card card">
-                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" style="width:100%; border-radius:8px; margin-bottom:10px;" loading="lazy">` : ''}
+                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" loading="lazy">` : ''}
                     <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: var(--or);">${item.title}</a></h3>
                     <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
                     <p>${item.summary}</p>
@@ -1183,7 +1174,6 @@ async function displayHistory() {
         groupedByDay[day].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
-            const over25 = pred.over_25 ? 'Oui' : 'Non';
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
@@ -1195,9 +1185,9 @@ async function displayHistory() {
             const statusClass = getStatusClass(m.status);
 
             const verifiedDouble = m.verified_double ? 'checked' : '';
-            const verifiedOver = m.verified_over ? 'checked' : '';
             const defaultLogo = 'assets/images/default-logo.png';
-            const winnerClass = (m.verified_double && m.verified_over) ? 'winner' : '';
+            const isWinner = m.verified_double;
+            const winnerClass = isWinner ? 'winner' : '';
 
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
@@ -1228,7 +1218,6 @@ async function displayHistory() {
                     <div class="analysis-panel">
                         <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
                         <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled></p>
-                        <p><strong>Over 2.5 :</strong> ${over25} <input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled></p>
                         <p><strong>Fiabilité :</strong> ${confidence}%</p>
                         ${premiumBadge}
                     </div>
@@ -1251,7 +1240,8 @@ function updateSuccessRate() {
         container.style.display = 'none';
         return;
     }
-    const successful = finished.filter(m => m.verified_double && m.verified_over).length;
+    // Un pari est considéré gagnant si verified_double est vrai
+    const successful = finished.filter(m => m.verified_double).length;
     const rate = ((successful / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
     const roi = stats.roi || 0;
@@ -1287,7 +1277,6 @@ async function displayTodayPicks() {
     const container = document.getElementById('today-picks');
     if (!container) return;
 
-    // Utiliser allData qui a été chargé
     if (!allData || !allData.matches) {
         container.innerHTML = '<div class="loading">Chargement...</div>';
         return;
@@ -1305,7 +1294,6 @@ async function displayTodayPicks() {
     todayMatches.forEach(m => {
         const pred = m.prediction || {};
         const doubleChance = pred.double_chance || 'N/A';
-        const over25 = pred.over_25 ? 'Oui' : 'Non';
         const defaultLogo = 'assets/images/default-logo.png';
         html += `
             <div class="match-card">
@@ -1327,7 +1315,7 @@ async function displayTodayPicks() {
                     </div>
                 </div>
                 <div class="analysis-panel">
-                    <p><strong>Pronostic :</strong> ${doubleChance} / Over ${over25}</p>
+                    <p><strong>Pronostic :</strong> ${doubleChance}</p>
                 </div>
             </div>
         `;
