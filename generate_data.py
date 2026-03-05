@@ -395,11 +395,18 @@ def main():
         {"name": "BetClic",   "logo": "assets/images/betclic.png",   "url": "https://betpari-click.com/2vY0?extid=USD"}
     ]
 
+    # Utiliser les bookmakers existants seulement s'ils ne sont pas vides, sinon prendre les défauts
+    existing_bookmakers = existing_data.get("bookmakers")
+    if not existing_bookmakers:
+        bookmakers_to_use = default_bookmakers
+    else:
+        bookmakers_to_use = existing_bookmakers
+
     data = {
         "matches": matches,
         "categories": categories,
         "stats": stats,
-        "bookmakers": existing_data.get("bookmakers", default_bookmakers)
+        "bookmakers": bookmakers_to_use
     }
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
