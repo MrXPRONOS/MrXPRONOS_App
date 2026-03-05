@@ -1029,7 +1029,7 @@
         "league": "CONMEBOL Sudamericana - 1st Stage",
         "league_logo": null,
         "venue": "",
-        "status": "2nd Half",
+        "status": "Ended",
         "home_score": 0,
         "away_score": 1,
         "h2h_analysis": {
@@ -1764,5 +1764,36 @@
     "wins": 0,
     "roi": 0
   },
-  "bookmakers": []
+  "bookmakers": [
+    {
+      "name": "1xBet",
+      "logo": "assets/images/1xbet.webp",
+      "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"
+    },
+    {
+      "name": "1win",
+      "logo": "assets/images/1win.webp",
+      "url": "https://1wrbgb.com/?open=register&p=qqcw"
+    },
+    {
+      "name": "Betwinner",
+      "logo": "assets/images/betwinner.webp",
+      "url": "https://bwredir.com/299Y"
+    },
+    {
+      "name": "Melbet",
+      "logo": "assets/images/melbet.webp",
+      "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041"
+    },
+    {
+      "name": "Linebet",
+      "logo": "assets/images/linebet.webp",
+      "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611"
+    },
+    {
+      "name": "BetClic",
+      "logo": "assets/images/betclic.webp",
+      "url": "https://betpari-click.com/2vY0?extid=USD"
+    }
+  ]
 }
