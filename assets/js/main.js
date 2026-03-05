@@ -1,6 +1,7 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version corrigée avec gestion d'erreur et dates harmonisées.
+ * Version corrigée avec gestion d'erreur pour Supabase, dates harmonisées,
+ * fallback bookmakers robuste et logs de débogage.
  */
 
 // =======================================================
@@ -233,20 +234,25 @@ async function initPronostics() {
 }
 
 async function loadData() {
+    console.log('🔄 Chargement de data.json...');
     try {
         const resp = await fetch('data.json?t=' + Date.now());
+        console.log('📡 Réponse fetch:', resp.status, resp.statusText);
         if (!resp.ok) throw new Error('Erreur chargement');
         allData = await resp.json();
+        console.log('✅ Données chargées:', allData);
         localStorage.setItem('cachedData', JSON.stringify(allData));
         renderBookmakers(allData.bookmakers);
     } catch (error) {
-        console.error(error);
+        console.error('❌ Erreur fetch:', error);
         const cached = localStorage.getItem('cachedData');
         if (cached) {
+            console.log('📦 Utilisation du cache');
             allData = JSON.parse(cached);
             if (matchesContainer) matchesContainer.innerHTML = '<div class="warning">⚠️ Données en cache.</div>';
             renderBookmakers(allData.bookmakers);
         } else {
+            console.log('🚫 Aucune donnée en cache');
             if (matchesContainer) matchesContainer.innerHTML = '<div class="error">❌ Impossible de charger les données.</div>';
         }
     }
@@ -684,9 +690,11 @@ function getStatusClass(status) {
 }
 
 // =======================================================
-// RENDER BOOKMAKERS
+// RENDER BOOKMAKERS (VERSION CORRIGÉE AVEC FALLBACK ROBUSTE)
 // =======================================================
 function renderBookmakers(bookmakers) {
+    console.log('📢 renderBookmakers appelée avec:', bookmakers);
+    // Fallback si data.json ne fournit pas de bookmakers
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
@@ -699,6 +707,7 @@ function renderBookmakers(bookmakers) {
         ];
     }
 
+    // ==================== FOOTER ====================
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -711,6 +720,7 @@ function renderBookmakers(bookmakers) {
             img.alt = b.name;
             img.style.maxHeight = '40px';
             img.onerror = function() {
+                console.log('❌ Image non chargée pour', b.name);
                 this.style.display = 'none';
                 const span = document.createElement('span');
                 span.textContent = b.name;
@@ -724,6 +734,7 @@ function renderBookmakers(bookmakers) {
         });
     }
 
+    // ==================== SECTION BONUS (accueil) ====================
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
@@ -733,6 +744,7 @@ function renderBookmakers(bookmakers) {
             img.src = b.logo;
             img.alt = b.name;
             img.onerror = function() {
+                console.log('❌ Image non chargée pour', b.name);
                 this.style.display = 'none';
                 const span = document.createElement('span');
                 span.textContent = b.name;
