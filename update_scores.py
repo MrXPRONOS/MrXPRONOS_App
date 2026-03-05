@@ -5,6 +5,7 @@
 update_scores.py - Met à jour uniquement les scores et statuts des matchs
 dans data.json, en conservant les pronostics existants.
 Exécution toutes les 20 minutes.
+Version corrigée : récupère les matchs des 3 derniers jours.
 """
 
 import os
@@ -27,16 +28,17 @@ session.mount('https://', HTTPAdapter(max_retries=retries))
 
 DATA_FILE = "data.json"
 today = datetime.now().date()
-yesterday = today - timedelta(days=1)
+# On récupère les 3 derniers jours pour rattraper les scores manquants
+days_to_fetch = [today, today - timedelta(days=1), today - timedelta(days=2)]
 
 print("="*60)
 print(f"🔄 MISE À JOUR DES SCORES - {today} {datetime.now().strftime('%H:%M')}")
 print("="*60)
 
-def fetch_games(date_from, date_to):
+def fetch_games(date):
     params = {
-        "startDate": date_from.strftime("%d/%m/%Y"),
-        "endDate": date_to.strftime("%d/%m/%Y"),
+        "startDate": date.strftime("%d/%m/%Y"),
+        "endDate": date.strftime("%d/%m/%Y"),
         "sports": 1,
         "showOdds": "false",
         "onlyMajorGames": "false"
@@ -47,15 +49,17 @@ def fetch_games(date_from, date_to):
         data = resp.json()
         return data.get("games", [])
     except Exception as e:
-        print(f"❌ Erreur: {e}")
+        print(f"❌ Erreur pour {date}: {e}")
         return []
 
 def main():
-    print("\n📅 Récupération des matchs d'aujourd'hui et d'hier...")
-    games_today = fetch_games(today, today)
-    games_yesterday = fetch_games(yesterday, yesterday)
-    all_games = games_today + games_yesterday
-    print(f"✅ {len(all_games)} matchs récupérés")
+    all_games = []
+    for day in days_to_fetch:
+        print(f"📅 Récupération des matchs du {day}...")
+        games = fetch_games(day)
+        all_games.extend(games)
+        print(f"   {len(games)} matchs")
+    print(f"✅ Total : {len(all_games)} matchs récupérés")
 
     if not all_games:
         print("Aucun nouveau match, arrêt.")

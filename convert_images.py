@@ -12,23 +12,18 @@ import json
 import glob
 from PIL import Image
 
-# Configuration
 IMAGE_DIR = "assets/images"
-OUTPUT_FORMAT = "webp"  # webp est largement supporté
-QUALITY = 85  # qualité pour la conversion (0-100)
+OUTPUT_FORMAT = "webp"
+QUALITY = 85
 
-# Liste des fichiers JSON à mettre à jour
 JSON_FILES = ["data.json", "articles.json", "conseils.json", "footnews.json"]
 
 def convert_image(filepath):
-    """Convertit une image au format WebP et retourne le nouveau chemin."""
     try:
         img = Image.open(filepath)
-        # Créer le nouveau nom de fichier
         basename = os.path.splitext(os.path.basename(filepath))[0]
         new_filename = f"{basename}.{OUTPUT_FORMAT}"
         new_filepath = os.path.join(IMAGE_DIR, new_filename)
-        # Enregistrer au nouveau format
         img.save(new_filepath, OUTPUT_FORMAT.upper(), quality=QUALITY)
         return new_filepath
     except Exception as e:
@@ -36,8 +31,7 @@ def convert_image(filepath):
         return None
 
 def update_json_files(old_path, new_path):
-    """Remplace toutes les occurrences de old_path par new_path dans les fichiers JSON."""
-    old = old_path.replace("\\", "/")  # normaliser les séparateurs
+    old = old_path.replace("\\", "/")
     new = new_path.replace("\\", "/")
     for json_file in JSON_FILES:
         if not os.path.exists(json_file):
@@ -48,7 +42,6 @@ def update_json_files(old_path, new_path):
             except:
                 print(f"⚠️ Impossible de lire {json_file}, passage...")
                 continue
-        # Parcourir récursivement pour remplacer les chemins
         modified = False
         if isinstance(data, dict):
             modified = replace_in_dict(data, old, new) or modified
@@ -84,12 +77,10 @@ def replace_in_list(lst, old, new):
     return modified
 
 def main():
-    # Vérifier que le dossier images existe
     if not os.path.exists(IMAGE_DIR):
         print(f"❌ Le dossier {IMAGE_DIR} n'existe pas.")
         return
 
-    # Récupérer tous les fichiers image (png, jpg, jpeg)
     images = glob.glob(os.path.join(IMAGE_DIR, "*.png")) + \
              glob.glob(os.path.join(IMAGE_DIR, "*.jpg")) + \
              glob.glob(os.path.join(IMAGE_DIR, "*.jpeg"))
@@ -104,10 +95,7 @@ def main():
         print(f"🔄 Conversion de {img_path}...")
         new_path = convert_image(img_path)
         if new_path:
-            # Mettre à jour les JSON
             update_json_files(img_path, new_path)
-            # Optionnel : supprimer l'ancien fichier
-            # os.remove(img_path)
             print(f"   → {new_path}")
 
     print("🎉 Conversion terminée.")

@@ -12,33 +12,6 @@
     <meta name="theme-color" content="#0D0D0D">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
-<!-- Popup guide d'installation pour iOS (identique à index.html) -->
-<div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
-    <div class="ios-guide-content">
-        <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
-        <div class="ios-guide-steps">
-            <div class="ios-guide-step">
-                <span class="step-number">1</span>
-                <span class="step-text">Touchez le bouton <strong>Partager</strong> <span style="font-size:1.2rem;">📤</span> en bas de l'écran</span>
-            </div>
-            <div class="ios-guide-step">
-                <span class="step-number">2</span>
-                <span class="step-text">Faites défiler vers le bas et sélectionnez <strong>"Sur l'écran d'accueil"</strong></span>
-            </div>
-            <div class="ios-guide-step">
-                <span class="step-number">3</span>
-                <span class="step-text">Touchez <strong>"Ajouter"</strong> en haut à droite</span>
-            </div>
-        </div>
-        <div class="ios-guide-note">
-            💡 Activez l'option <strong>"Ouvrir comme app web"</strong> pour une expérience optimale [citation:1].
-        </div>
-        <div class="ios-guide-buttons">
-            <button id="close-ios-guide" class="btn btn-primary">Compris !</button>
-            <button id="close-ios-guide-btn" class="btn btn-secondary">Plus tard</button>
-        </div>
-    </div>
-</div>
 <body>
     <header>
         <div class="container">
@@ -53,6 +26,7 @@
                     <li><a href="blog.html">Blog</a></li>
                     <li><a href="conseils.html">Conseils</a></li>
                     <li><a href="infos.html">Infos sport</a></li>
+                    <li><a href="bonus.html">Bonus & Promo</a></li>
                     <li><a href="contact.html" class="active">Contact</a></li>
                 </ul>
             </nav>
@@ -64,42 +38,36 @@
         <h1 style="color: var(--or); margin: 2rem 0;">📞 Nous contacter</h1>
         
         <div class="contact-grid">
-            <!-- Téléphone -->
             <div class="contact-card">
                 <img src="assets/images/phone.png" alt="Téléphone" class="contact-icon">
                 <h3>Téléphone</h3>
                 <p><a href="tel:+33612345678">+33 6 12 34 56 78</a></p>
             </div>
             
-            <!-- WhatsApp -->
             <div class="contact-card">
                 <img src="assets/images/whatsapp.png" alt="WhatsApp" class="contact-icon">
                 <h3>WhatsApp</h3>
                 <p><a href="https://wa.me/33612345678" target="_blank">+33 6 12 34 56 78</a></p>
             </div>
             
-            <!-- Telegram -->
             <div class="contact-card">
                 <img src="assets/images/telegram.png" alt="Telegram" class="contact-icon">
                 <h3>Telegram</h3>
                 <p><a href="https://t.me/mrxpronos" target="_blank">@mrxpronos</a></p>
             </div>
             
-            <!-- Instagram -->
             <div class="contact-card">
                 <img src="assets/images/instagram.png" alt="Instagram" class="contact-icon">
                 <h3>Instagram</h3>
                 <p><a href="https://instagram.com/mrxpronos" target="_blank">@mrxpronos</a></p>
             </div>
             
-            <!-- YouTube -->
             <div class="contact-card">
                 <img src="assets/images/youtube.png" alt="YouTube" class="contact-icon">
                 <h3>YouTube</h3>
                 <p><a href="https://youtube.com/@mrxpronos" target="_blank">Mr XPRONOS</a></p>
             </div>
             
-            <!-- Facebook -->
             <div class="contact-card">
                 <img src="assets/images/facebook.png" alt="Facebook" class="contact-icon">
                 <h3>Facebook</h3>
@@ -107,6 +75,33 @@
             </div>
         </div>
     </main>
+
+    <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
+        <div class="ios-guide-content">
+            <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
+            <div class="ios-guide-steps">
+                <div class="ios-guide-step">
+                    <span class="step-number">1</span>
+                    <span class="step-text">Touchez le bouton <strong>Partager</strong> 📤 en bas de l'écran</span>
+                </div>
+                <div class="ios-guide-step">
+                    <span class="step-number">2</span>
+                    <span class="step-text">Faites défiler et sélectionnez <strong>"Sur l'écran d'accueil"</strong></span>
+                </div>
+                <div class="ios-guide-step">
+                    <span class="step-number">3</span>
+                    <span class="step-text">Touchez <strong>"Ajouter"</strong> en haut à droite</span>
+                </div>
+            </div>
+            <div class="ios-guide-note">
+                💡 Activez l'option <strong>"Ouvrir comme app web"</strong> pour une expérience optimale.
+            </div>
+            <div class="ios-guide-buttons">
+                <button id="close-ios-guide" class="btn btn-primary">Compris !</button>
+                <button id="close-ios-guide-btn" class="btn btn-secondary">Plus tard</button>
+            </div>
+        </div>
+    </div>
 
     <footer>
         <div class="container">
@@ -117,6 +112,7 @@
                 <a href="blog.html">Blog</a>
                 <a href="conseils.html">Conseils</a>
                 <a href="infos.html">Infos sport</a>
+                <a href="bonus.html">Bonus & Promo</a>
                 <a href="contact.html">Contact</a>
             </div>
             <div class="social-links">
@@ -130,7 +126,7 @@
         </div>
     </footer>
 
-    <script src="assets/js/main.js"></script>
+    <script src="assets/js/main.js" type="module"></script>
     <script src="assets/js/pwa.js"></script>
 </body>
 </html>

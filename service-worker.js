@@ -1,3 +1,4 @@
+// service-worker.js - Service worker pour la PWA (à placer à la racine)
 const CACHE_NAME = 'mr-xpronos-v1';
 const urlsToCache = [
     './',
@@ -7,6 +8,7 @@ const urlsToCache = [
     './blog.html',
     './conseils.html',
     './infos.html',
+    './bonus.html',
     './contact.html',
     './article.html',
     './manifest.json',
@@ -32,47 +34,31 @@ const urlsToCache = [
 
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Mise en cache des ressources statiques');
-                return cache.addAll(urlsToCache);
-            })
+        caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
     );
 });
 
 self.addEventListener('activate', event => {
     event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.filter(name => name !== CACHE_NAME)
-                    .map(name => caches.delete(name))
-            );
-        })
+        caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))))
     );
 });
 
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
-
-    // Stratégie : réseau d'abord pour data.json, avec fallback cache
     if (url.pathname.endsWith('data.json')) {
         event.respondWith(
             fetch(event.request)
-                .then(response => {
-                    const responseClone = response.clone();
-                    caches.open(CACHE_NAME).then(cache => {
-                        cache.put(event.request, responseClone);
-                    });
-                    return response;
+                .then(res => {
+                    const clone = res.clone();
+                    caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+                    return res;
                 })
                 .catch(() => caches.match(event.request))
         );
-        return;
+    } else {
+        event.respondWith(
+            caches.match(event.request).then(res => res || fetch(event.request))
+        );
     }
-
-    // Pour les autres ressources, cache-first
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => response || fetch(event.request))
-    );
 });

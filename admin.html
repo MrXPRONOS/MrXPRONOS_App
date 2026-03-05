@@ -209,16 +209,16 @@
                         <input type="text" id="blog-author" value="Mr XPRONOS" required>
                     </div>
                     <div class="form-group">
-                        <label>Image (URL)</label>
-                        <input type="url" id="blog-image">
-                    </div>
-                    <div class="form-group">
                         <label>Extrait</label>
                         <textarea id="blog-excerpt" required></textarea>
                     </div>
                     <div class="form-group">
                         <label>Contenu (HTML autorisé)</label>
                         <textarea id="blog-content" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL</label>
+                        <input type="url" id="blog-image">
                     </div>
                     <input type="hidden" id="blog-index" value="-1">
                     <div class="admin-actions">
@@ -240,12 +240,12 @@
                         <input type="text" id="conseil-title" required>
                     </div>
                     <div class="form-group">
-                        <label>Image (URL)</label>
-                        <input type="url" id="conseil-image">
-                    </div>
-                    <div class="form-group">
                         <label>Contenu</label>
                         <textarea id="conseil-content" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL</label>
+                        <input type="url" id="conseil-image">
                     </div>
                     <input type="hidden" id="conseil-index" value="-1">
                     <div class="admin-actions">
@@ -300,7 +300,6 @@
                     <div class="form-group">
                         <label>Image (URL)</label>
                         <input type="url" id="bonus-image" required>
-                        <small>Entrez l'URL complète de l'image</small>
                     </div>
                     <div class="form-group">
                         <label>Lien (optionnel)</label>
@@ -371,10 +370,6 @@
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3>Utilisateurs uniques</h3>
-                    <div class="stat-value" id="total-users">-</div>
-                </div>
-                <div class="stat-card">
                     <h3>Visites</h3>
                     <div class="stat-value" id="total-visits">-</div>
                 </div>
@@ -383,24 +378,20 @@
                     <div class="stat-value" id="total-shares">-</div>
                 </div>
                 <div class="stat-card">
+                    <h3>Utilisateurs uniques</h3>
+                    <div class="stat-value" id="total-users">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Visites/jour</h3>
+                    <div class="stat-value" id="avg-visits">-</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Partages/jour</h3>
+                    <div class="stat-value" id="avg-shares">-</div>
+                </div>
+                <div class="stat-card">
                     <h3>Nouveaux utilisateurs</h3>
                     <div class="stat-value" id="new-users">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Anciens utilisateurs</h3>
-                    <div class="stat-value" id="old-users">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Utilisateurs en ligne</h3>
-                    <div class="stat-value" id="online-users">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Hors ligne</h3>
-                    <div class="stat-value" id="offline-users">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Moy. visites/jour</h3>
-                    <div class="stat-value" id="avg-visits">-</div>
                 </div>
             </div>
 
@@ -408,12 +399,11 @@
                 <canvas id="visitsChart"></canvas>
             </div>
             <div class="chart-container">
-                <canvas id="categoriesChart"></canvas>
+                <canvas id="pagesChart"></canvas>
             </div>
         </div>
     </main>
 
-    <script src="assets/js/admin-stats.js"></script>
     <script>
         (function() {
             // =======================================================
@@ -424,7 +414,7 @@
                     { match: "PSG - OM", cote: "1.85", analyse: "PSG en forme à domicile.", confidence: 75, premium: false, bookmaker: "1xBet" }
                 ],
                 blog: [
-                    { slug: "comment-bien-debuter", title: "Comment bien débuter dans les paris sportifs", date: "2025-03-01", author: "Mr XPRONOS", image_url: "", excerpt: "Les bases pour démarrer sans risque.", content: "<p>Contenu de l'article...</p>" }
+                    { slug: "comment-bien-debuter", title: "Comment bien débuter dans les paris sportifs", date: "2025-03-01", author: "Mr XPRONOS", excerpt: "Les bases pour démarrer sans risque.", content: "<p>Contenu de l'article...</p>", image_url: "" }
                 ],
                 conseils: [
                     { title: "Gestion de bankroll", content: "Ne misez jamais plus de 5% de votre capital.", image_url: "" }
@@ -433,7 +423,7 @@
                     { title: "Classement Ligue 1", content: "PSG en tête..." }
                 ],
                 bonus: [
-                    { id: 1, bookmaker: "1xBet", title: "Bonus de bienvenue", description: "100€ offerts", image: "assets/images/1xbet.png", link: "https://affiliation.com/1xbet", footer: "Conditions applicables", start_date: "2026-03-01", end_date: "2026-04-01", active: true }
+                    { bookmaker: "1xBet", title: "Bonus de bienvenue", description: "100€ offerts", image: "assets/images/1xbet.png", link: "https://affiliation.com/1xbet", footer: "Conditions applicables", start_date: "2025-03-01", end_date: "2025-04-01", active: true }
                 ],
                 bookmakers: [
                     { name: "1xBet", logo: "assets/images/1xbet.png", url: "https://affiliation.com/1xbet" },
@@ -534,7 +524,6 @@
                     div.innerHTML = `
                         <div>
                             <strong>${article.title}</strong> (${article.date}) - ${article.author}
-                            ${article.image_url ? '<br><img src="'+article.image_url+'" style="max-width:50px;">' : ''}
                         </div>
                         <div>
                             <button onclick="editBlog(${index})">✏️</button>
@@ -551,9 +540,9 @@
                 document.getElementById('blog-slug').value = a.slug;
                 document.getElementById('blog-date').value = a.date;
                 document.getElementById('blog-author').value = a.author;
-                document.getElementById('blog-image').value = a.image_url || '';
                 document.getElementById('blog-excerpt').value = a.excerpt;
                 document.getElementById('blog-content').value = a.content;
+                document.getElementById('blog-image').value = a.image_url || '';
                 document.getElementById('blog-index').value = index;
             };
 
@@ -572,9 +561,9 @@
                     title: document.getElementById('blog-title').value,
                     date: document.getElementById('blog-date').value,
                     author: document.getElementById('blog-author').value,
-                    image_url: document.getElementById('blog-image').value || null,
                     excerpt: document.getElementById('blog-excerpt').value,
-                    content: document.getElementById('blog-content').value
+                    content: document.getElementById('blog-content').value,
+                    image_url: document.getElementById('blog-image').value
                 };
                 if (index === -1) {
                     data.blog.push(newArticle);
@@ -604,7 +593,6 @@
                     div.innerHTML = `
                         <div>
                             <strong>${c.title}</strong>
-                            ${c.image_url ? '<br><img src="'+c.image_url+'" style="max-width:50px;">' : ''}
                         </div>
                         <div>
                             <button onclick="editConseil(${index})">✏️</button>
@@ -618,8 +606,8 @@
             window.editConseil = (index) => {
                 const c = data.conseils[index];
                 document.getElementById('conseil-title').value = c.title;
-                document.getElementById('conseil-image').value = c.image_url || '';
                 document.getElementById('conseil-content').value = c.content;
+                document.getElementById('conseil-image').value = c.image_url || '';
                 document.getElementById('conseil-index').value = index;
             };
 
@@ -635,8 +623,8 @@
                 const index = parseInt(document.getElementById('conseil-index').value);
                 const newConseil = {
                     title: document.getElementById('conseil-title').value,
-                    image_url: document.getElementById('conseil-image').value || null,
-                    content: document.getElementById('conseil-content').value
+                    content: document.getElementById('conseil-content').value,
+                    image_url: document.getElementById('conseil-image').value
                 };
                 if (index === -1) {
                     data.conseils.push(newConseil);
@@ -777,11 +765,9 @@
                 };
                 if (!data.bonus) data.bonus = [];
                 if (index === -1) {
-                    // Générer un id unique (simulé)
-                    newBonus.id = Date.now() + Math.floor(Math.random()*1000);
                     data.bonus.push(newBonus);
                 } else {
-                    data.bonus[index] = { ...data.bonus[index], ...newBonus };
+                    data.bonus[index] = newBonus;
                 }
                 saveData();
                 document.getElementById('bonus-form').reset();
@@ -831,9 +817,8 @@
                     <button id="save-bm-${index}" class="btn btn-primary">Enregistrer</button>
                     <button id="cancel-bm-${index}" class="btn btn-secondary">Annuler</button>
                 `;
-                const parent = container.parentNode;
                 container.style.display = 'none';
-                parent.insertBefore(form, container.nextSibling);
+                container.parentNode.insertBefore(form, container.nextSibling);
 
                 document.getElementById(`save-bm-${index}`).addEventListener('click', () => {
                     data.bookmakers[index] = {
@@ -860,8 +845,8 @@
 
             document.getElementById('add-bookmaker')?.addEventListener('click', () => {
                 if (!data.bookmakers) data.bookmakers = [];
-                data.bookmakers.push({ name: "Nouveau", logo: "assets/images/default-logo.png", url: "#" });
-                renderBookmakersList();
+                data.bookmakers.push({ name: "Nouveau bookmaker", logo: "assets/images/default-logo.png", url: "#" });
+                saveData();
             });
 
             // =======================================================
@@ -893,6 +878,255 @@
             });
 
             // =======================================================
+            // STATISTIQUES (réelles depuis localStorage)
+            // =======================================================
+            const periods = {
+                today: 'Aujourd\'hui',
+                yesterday: 'Hier',
+                currentWeek: 'Semaine en cours',
+                lastWeek: 'Semaine passée',
+                currentMonth: 'Mois en cours',
+                lastMonth: 'Mois passé',
+                currentYear: 'Année en cours',
+                lastYear: 'Année passée',
+                custom: 'Personnalisé'
+            };
+
+            let currentPeriod = 'today';
+            let customStart = null;
+            let customEnd = null;
+            let visitsChart = null;
+            let pagesChart = null;
+
+            const periodSelect = document.getElementById('period-select');
+            const customDateRange = document.getElementById('custom-date-range');
+            const startDateInput = document.getElementById('start-date');
+            const endDateInput = document.getElementById('end-date');
+            const applyCustomBtn = document.getElementById('apply-custom');
+
+            const totalVisitsEl = document.getElementById('total-visits');
+            const totalSharesEl = document.getElementById('total-shares');
+            const totalUsersEl = document.getElementById('total-users');
+            const avgVisitsEl = document.getElementById('avg-visits');
+            const avgSharesEl = document.getElementById('avg-shares');
+            const newUsersEl = document.getElementById('new-users');
+
+            // Remplir le select des périodes
+            for (const [value, label] of Object.entries(periods)) {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = label;
+                periodSelect.appendChild(option);
+            }
+            periodSelect.value = currentPeriod;
+
+            function getDateRange() {
+                const now = new Date();
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                let start, end;
+
+                switch (currentPeriod) {
+                    case 'today':
+                        start = today;
+                        end = new Date(today.getTime() + 24*60*60*1000 - 1);
+                        break;
+                    case 'yesterday':
+                        start = new Date(today.getTime() - 24*60*60*1000);
+                        end = new Date(today.getTime() - 1);
+                        break;
+                    case 'currentWeek':
+                        const dayOfWeek = today.getDay() || 7;
+                        const monday = new Date(today);
+                        monday.setDate(today.getDate() - dayOfWeek + 1);
+                        start = monday;
+                        end = new Date(today.getTime() + 24*60*60*1000 - 1);
+                        break;
+                    case 'lastWeek':
+                        const lastMonday = new Date(today);
+                        lastMonday.setDate(today.getDate() - (today.getDay() || 7) - 6);
+                        start = lastMonday;
+                        end = new Date(lastMonday.getTime() + 7*24*60*60*1000 - 1);
+                        break;
+                    case 'currentMonth':
+                        start = new Date(today.getFullYear(), today.getMonth(), 1);
+                        end = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
+                        break;
+                    case 'lastMonth':
+                        start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                        end = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59);
+                        break;
+                    case 'currentYear':
+                        start = new Date(today.getFullYear(), 0, 1);
+                        end = new Date(today.getFullYear(), 11, 31, 23, 59, 59);
+                        break;
+                    case 'lastYear':
+                        start = new Date(today.getFullYear() - 1, 0, 1);
+                        end = new Date(today.getFullYear() - 1, 11, 31, 23, 59, 59);
+                        break;
+                    case 'custom':
+                        if (customStart && customEnd) {
+                            start = new Date(customStart);
+                            end = new Date(customEnd);
+                            end.setHours(23, 59, 59);
+                        } else {
+                            start = today;
+                            end = new Date(today.getTime() + 24*60*60*1000 - 1);
+                        }
+                        break;
+                    default:
+                        start = today;
+                        end = new Date(today.getTime() + 24*60*60*1000 - 1);
+                }
+                return { start, end };
+            }
+
+            function updateStats() {
+                const { start, end } = getDateRange();
+
+                // Charger les événements depuis localStorage
+                const events = JSON.parse(localStorage.getItem('userEvents')) || [];
+                const filteredEvents = events.filter(e => {
+                    const d = new Date(e.timestamp);
+                    return d >= start && d <= end;
+                });
+
+                const visits = filteredEvents.filter(e => e.type === 'visit').length;
+                const shares = filteredEvents.filter(e => e.type === 'share').length;
+
+                // Utilisateurs uniques (basé sur une clé stockée en localStorage)
+                const uniqueUsers = new Set();
+                filteredEvents.forEach(e => {
+                    // On utilise l'userId stocké (généré aléatoirement à la première visite)
+                    const userId = e.userId || 'unknown';
+                    uniqueUsers.add(userId);
+                });
+                const totalUsers = uniqueUsers.size;
+
+                // Nouveaux utilisateurs : première visite dans la période
+                let firstVisit = localStorage.getItem('firstVisit');
+                if (!firstVisit) {
+                    firstVisit = new Date().toISOString();
+                    localStorage.setItem('firstVisit', firstVisit);
+                }
+                const firstVisitDate = new Date(firstVisit);
+                const isNew = firstVisitDate >= start && firstVisitDate <= end;
+                const newUsers = isNew ? 1 : 0;
+
+                // Moyennes par jour
+                const days = Math.max(1, Math.ceil((end - start) / (1000*60*60*24)));
+                const avgVisits = (visits / days).toFixed(1);
+                const avgShares = (shares / days).toFixed(1);
+
+                totalVisitsEl.textContent = visits;
+                totalSharesEl.textContent = shares;
+                totalUsersEl.textContent = totalUsers;
+                avgVisitsEl.textContent = avgVisits;
+                avgSharesEl.textContent = avgShares;
+                newUsersEl.textContent = newUsers;
+
+                // Graphiques
+                updateCharts(filteredEvents, start, end);
+            }
+
+            function initCharts() {
+                const ctxVisits = document.getElementById('visitsChart')?.getContext('2d');
+                const ctxPages = document.getElementById('pagesChart')?.getContext('2d');
+                if (ctxVisits) {
+                    visitsChart = new Chart(ctxVisits, {
+                        type: 'line',
+                        data: { labels: [], datasets: [{
+                            label: 'Visites',
+                            data: [],
+                            borderColor: '#D4AF37',
+                            backgroundColor: 'rgba(212,175,55,0.1)',
+                            tension: 0.4
+                        }] },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { labels: { color: '#FFF' } } },
+                            scales: { x: { ticks: { color: '#CCC' } }, y: { ticks: { color: '#CCC' } } }
+                        }
+                    });
+                }
+                if (ctxPages) {
+                    pagesChart = new Chart(ctxPages, {
+                        type: 'doughnut',
+                        data: { labels: [], datasets: [{
+                            data: [],
+                            backgroundColor: ['#D4AF37', '#4CAF50', '#2196F3', '#FF9800', '#9C27B0'],
+                            borderWidth: 0
+                        }] },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { labels: { color: '#FFF' } } }
+                        }
+                    });
+                }
+            }
+
+            function updateCharts(events, start, end) {
+                if (visitsChart) {
+                    const daysMap = new Map();
+                    const current = new Date(start);
+                    while (current <= end) {
+                        const dateStr = current.toISOString().split('T')[0];
+                        daysMap.set(dateStr, 0);
+                        current.setDate(current.getDate() + 1);
+                    }
+                    events.filter(e => e.type === 'visit').forEach(e => {
+                        const dateStr = new Date(e.timestamp).toISOString().split('T')[0];
+                        if (daysMap.has(dateStr)) {
+                            daysMap.set(dateStr, daysMap.get(dateStr) + 1);
+                        }
+                    });
+                    const labels = Array.from(daysMap.keys()).map(d => {
+                        const [y,m,day] = d.split('-');
+                        return `${day}/${m}`;
+                    });
+                    const data = Array.from(daysMap.values());
+                    visitsChart.data.labels = labels;
+                    visitsChart.data.datasets[0].data = data;
+                    visitsChart.update();
+                }
+                if (pagesChart) {
+                    const pageCounts = {};
+                    events.forEach(e => {
+                        if (e.page) {
+                            pageCounts[e.page] = (pageCounts[e.page] || 0) + 1;
+                        }
+                    });
+                    const labels = Object.keys(pageCounts);
+                    const data = Object.values(pageCounts);
+                    pagesChart.data.labels = labels;
+                    pagesChart.data.datasets[0].data = data;
+                    pagesChart.update();
+                }
+            }
+
+            periodSelect.addEventListener('change', () => {
+                currentPeriod = periodSelect.value;
+                if (currentPeriod === 'custom') {
+                    customDateRange.style.display = 'flex';
+                } else {
+                    customDateRange.style.display = 'none';
+                    updateStats();
+                }
+            });
+
+            applyCustomBtn.addEventListener('click', () => {
+                customStart = startDateInput.value;
+                customEnd = endDateInput.value;
+                if (customStart && customEnd) {
+                    updateStats();
+                } else {
+                    alert('Veuillez sélectionner une période valide.');
+                }
+            });
+
+            initCharts();
+            updateStats();
+
+            // =======================================================
             // GESTION DES ONGLETS
             // =======================================================
             document.querySelectorAll('.admin-tabs .tab-btn').forEach(btn => {
@@ -911,6 +1145,8 @@
                 renderInfos();
                 renderBonus();
                 renderBookmakersList();
+
+                // Mettre à jour le select des bookmakers dans le formulaire pronostics
                 const select = document.getElementById('pronostic-bookmaker');
                 if (select && data.bookmakers) {
                     select.innerHTML = '';
