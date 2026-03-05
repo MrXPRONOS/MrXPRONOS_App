@@ -3,9 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mr XPRONOS - Pronostics sportifs VIP</title>
-    <meta name="description" content="Pronostics sportifs gratuits et premium, analyses, conseils de paris. Code promo XPVIP chez 1xBet, 1win, Betwinner, Melbet, Linebet, 888starz.">
+    <title>Mr XPRONOS - Pronostics sportifs VIP et gratuits</title>
+    <meta name="description" content="Pronostics sportifs gratuits et premium, analyses H2H, conseils de paris. Code promo XPVIP chez 1xBet, 1win, Betwinner, Melbet, Linebet, BetClic.">
     <meta name="robots" content="index, follow">
+
+    <!-- Balises Open Graph (partage réseaux sociaux) -->
+    <meta property="og:title" content="Mr XPRONOS - Pronostics sportifs VIP">
+    <meta property="og:description" content="Pronostics sportifs gratuits et VIP. Analyses H2H, conseils et bonus exclusifs.">
+    <meta property="og:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
+    <meta property="og:url" content="https://mrxpronos.github.io/MrXPRONOS_App/">
+    <meta property="og:type" content="website">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mr XPRONOS - Pronostics sportifs VIP">
+    <meta name="twitter:description" content="Pronostics sportifs gratuits et VIP. Analyses H2H, conseils et bonus exclusifs.">
+    <meta name="twitter:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
+
+    <!-- JSON-LD pour Google (données structurées) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SportsOrganization",
+        "name": "Mr XPRONOS",
+        "url": "https://mrxpronos.github.io/MrXPRONOS_App/",
+        "logo": "https://mrxpronos.github.io/MrXPRONOS_App/assets/images/icon-192.png",
+        "sameAs": [
+            "https://t.me/mr_xpronos",
+            "https://www.instagram.com/mr_xpronos",
+            "https://www.facebook.com/share/1DsG6H6gf1/",
+            "https://youtube.com/@mrxpronos",
+            "https://www.threads.com/@mr_xpronos"
+        ]
+    }
+    </script>
+
     <link rel="icon" href="assets/images/favicon.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="manifest.json">
@@ -36,12 +68,14 @@
 
     <section class="hero">
         <div class="container">
-            <h1>Bienvenue chez Mr XPRONOS</h1>
-            <p>Pronostics sportifs de qualité, analyses pointues et conseils pour maximiser vos gains. Rejoignez la communauté VIP dès maintenant !</p>
+            <h1>Pronostics sportifs VIP et gratuits</h1>
+            <p>Analyses pointues, conseils pour maximiser vos gains et bonus exclusifs. Rejoignez la communauté Mr XPRONOS dès maintenant !</p>
             <div>
                 <a href="pronos.html" class="btn btn-primary">Voir les pronostics</a>
-                <a href="#" id="install-app" class="btn btn-secondary" style="display: none;">📲 Installer l'App</a>
+                <!-- Bouton d'installation PWA (caché par défaut) -->
+                <button type="button" id="install-app" class="btn btn-secondary" style="display: none;">📲 Installer l'App</button>
             </div>
+            <!-- Statistiques dynamiques -->
             <div class="stats-badge">
                 👥 <span id="total-users-count">1 000</span> utilisateurs · 
                 📤 <span id="total-shares-count">10 000</span> partages
@@ -49,6 +83,7 @@
         </div>
     </section>
 
+    <!-- Popup guide d'installation pour iOS -->
     <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
         <div class="ios-guide-content">
             <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
@@ -77,6 +112,19 @@
     </div>
 
     <main class="container">
+        <!-- Section Pronostics du jour (SEO + dynamique) -->
+        <section style="margin: 3rem 0;">
+            <h2 style="color: var(--or); margin-bottom: 1rem;">⚽ Pronostics du jour</h2>
+            <div id="today-picks" class="matches-grid">
+                <!-- Rempli dynamiquement par JavaScript -->
+                <div class="loading">Chargement des matchs...</div>
+            </div>
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="pronos.html" class="btn btn-primary">Voir tous les pronostics</a>
+            </div>
+        </section>
+
+        <!-- Section Pourquoi nous choisir ? -->
         <section style="margin: 3rem 0;">
             <h2 style="color: var(--or); margin-bottom: 2rem;">📊 Pourquoi nous choisir ?</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
@@ -95,11 +143,15 @@
             </div>
         </section>
 
+        <!-- Section Bonus Bookmakers -->
         <section style="margin: 3rem 0; background: var(--noir-secondaire); padding: 2rem; border-radius: 20px;">
             <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">🔥 Profitez des bonus exclusifs</h2>
-            <div id="bookmakers-bonus" class="bookmakers-grid"></div>
+            <div id="bookmakers-bonus" class="bookmakers-grid">
+                <!-- Rempli dynamiquement par JavaScript -->
+            </div>
         </section>
 
+        <!-- Section Témoignages -->
         <section style="margin: 3rem 0;">
             <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">💬 Ils nous font confiance</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
@@ -118,6 +170,7 @@
             </div>
         </section>
 
+        <!-- Section Compteur de partages -->
         <section style="margin: 3rem 0; text-align: center;">
             <div style="background: var(--or); color: var(--noir); padding: 2rem; border-radius: 20px;">
                 <h3 style="font-size: 2rem;" id="share-counter">🔥 0 partages aujourd'hui</h3>
@@ -139,19 +192,31 @@
                 <a href="contact.html">Contact</a>
             </div>
             <div class="social-links">
-                <a href="https://wa.me/22899201444" target="_blank" aria-label="WhatsApp"><img src="assets/images/whatsapp.png" alt="WhatsApp"></a>
-                <a href="https://t.me/mr_xpronos" target="_blank" aria-label="Telegram"><img src="assets/images/telegram.png" alt="Telegram"></a>
-                <a href="https://www.instagram.com/mr_xpronos?igsh=MXVpNjJydWdzM3FjMQ==" target="_blank" aria-label="Instagram"><img src="assets/images/instagram.png" alt="Instagram"></a>
-                <a href="https://www.facebook.com/share/1DsG6H6gf1/" target="_blank" aria-label="Facebook"><img src="assets/images/facebook.png" alt="Facebook"></a>
-                <a href="https://youtube.com/@mrxpronos?si=f6Z66923Lx9KF3ri" target="_blank" aria-label="YouTube"><img src="assets/images/youtube.png" alt="YouTube"></a>
-                <a href="https://www.threads.com/@mr_xpronos" target="_blank" aria-label="Threads"><img src="assets/images/threads.png" alt="Threads"></a>
+                <a href="https://wa.me/22899201444" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+                    <img src="assets/images/whatsapp.png" alt="WhatsApp" loading="lazy">
+                </a>
+                <a href="https://t.me/mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Telegram">
+                    <img src="assets/images/telegram.png" alt="Telegram" loading="lazy">
+                </a>
+                <a href="https://www.instagram.com/mr_xpronos?igsh=MXVpNjJydWdzM3FjMQ==" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                    <img src="assets/images/instagram.png" alt="Instagram" loading="lazy">
+                </a>
+                <a href="https://www.facebook.com/share/1DsG6H6gf1/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                    <img src="assets/images/facebook.png" alt="Facebook" loading="lazy">
+                </a>
+                <a href="https://youtube.com/@mrxpronos?si=f6Z66923Lx9KF3ri" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                    <img src="assets/images/youtube.png" alt="YouTube" loading="lazy">
+                </a>
+                <a href="https://www.threads.com/@mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Threads">
+                    <img src="assets/images/threads.png" alt="Threads" loading="lazy">
+                </a>
             </div>
             <div class="bookmakers" id="bookmakers-footer"></div>
             <p>&copy; 2025 Mr XPRONOS. Tous droits réservés. <span style="font-size:0.7rem; opacity:0.7;">18+ • Divertissement seulement</span></p>
         </div>
     </footer>
 
-    <script src="assets/js/main.js" type="module"></script>
+    <script type="module" src="assets/js/main.js"></script>
     <script src="assets/js/pwa.js"></script>
 </body>
 </html>

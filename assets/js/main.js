@@ -1,21 +1,26 @@
 /**
- * main.js - Mr XPRONOS – Version complète et robuste offline avancé
+ * main.js - Mr XPRONOS – Version finale optimisée
+ * 
+ * Fonctionnalités :
+ * - Pronostics avec filtres (Simple/Pro/VIP, aujourd'hui/demain/hier)
+ * - Système de partage pour débloquer les niveaux Pro/VIP
+ * - Historique avec badges de catégorie
+ * - Gestion offline robuste (cache + timeout)
+ * - Installation PWA (Android/iOS)
+ * - Bookmakers avec fallback et liens d'affiliation
+ * - Statistiques locales (visites, partages)
+ * - Lazy loading des images
+ * - Correction des fuseaux horaires
+ * - Affichage du taux de réussite
  */
 
 // =======================================================
-// IMPORT CONFIGURATION SUPABASE (optionnel)
+// Désactiver les logs en production (sauf localhost)
 // =======================================================
-let supabase = null;
-let supabaseAvailable = false;
-
-try {
-    const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
-    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-    supabase = createClient(supabaseUrl, supabaseAnonKey);
-    supabaseAvailable = true;
-    console.log('✅ Supabase connecté');
-} catch (error) {
-    console.warn('⚠️ Supabase non configuré, utilisation des compteurs locaux');
+if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
+    console.log = function() {};
+    console.warn = function() {};
+    console.error = function() {};
 }
 
 // =======================================================
@@ -38,6 +43,7 @@ const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
 const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
+// Limites de partages quotidiennes
 const shareLimits = { pro: 2, vip: 5 };
 
 const POPULAR_LEAGUES = [
@@ -48,53 +54,9 @@ const POPULAR_LEAGUES = [
 ];
 
 // =======================================================
-// FONCTIONS SUPABASE (AVEC FALLBACK)
+// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
 // =======================================================
-async function getCounterValue(counterName) {
-    if (supabaseAvailable) {
-        const { data, error } = await supabase
-            .from('counters')
-            .select('value')
-            .eq('name', counterName)
-            .single();
-        if (!error && data) return data.value;
-    }
-    const local = localStorage.getItem('counter_' + counterName);
-    return local ? parseInt(local) : (counterName === 'total_users' ? 1000 : 10000);
-}
 
-async function incrementCounter(counterName) {
-    if (supabaseAvailable) {
-        const { data, error } = await supabase.rpc('increment_counter', { counter_name: counterName });
-        if (!error) return data;
-        const current = await getCounterValue(counterName);
-        if (current === null) return;
-        const newValue = current + 1;
-        await supabase
-            .from('counters')
-            .update({ value: newValue, updated_at: new Date().toISOString() })
-            .eq('name', counterName);
-        return newValue;
-    } else {
-        const current = parseInt(localStorage.getItem('counter_' + counterName) || '0');
-        const newValue = current + 1;
-        localStorage.setItem('counter_' + counterName, newValue);
-        return newValue;
-    }
-}
-
-async function updateDisplayedCounters() {
-    const totalUsers = await getCounterValue('total_users');
-    const totalShares = await getCounterValue('total_shares');
-    const usersEl = document.getElementById('total-users-count');
-    const sharesEl = document.getElementById('total-shares-count');
-    if (usersEl) usersEl.textContent = totalUsers.toLocaleString();
-    if (sharesEl) sharesEl.textContent = totalShares.toLocaleString();
-}
-
-// =======================================================
-// GESTION DES PARTAGES QUOTIDIENS
-// =======================================================
 function getDailyShareCount() {
     const lastReset = localStorage.getItem('shareLastReset');
     const today = new Date().toDateString();
@@ -114,12 +76,13 @@ function incrementShareCount() {
 }
 
 // =======================================================
-// GESTION DE L'INSTALLATION PWA
+// GESTION DE L'INSTALLATION PWA (Android & Desktop)
 // =======================================================
 let deferredPrompt;
 const installButton = document.getElementById('install-app');
 const iosGuidePopup = document.getElementById('ios-guide-popup');
 
+// Détection du système d'exploitation
 function getOS() {
     const ua = window.navigator.userAgent;
     if (/iPad|iPhone|iPod/.test(ua)) return 'iOS';
@@ -127,27 +90,31 @@ function getOS() {
     return 'Other';
 }
 
+// Vérifier si l'app est déjà installée (mode standalone)
 function isPwaInstalled() {
     return window.matchMedia('(display-mode: standalone)').matches || 
            window.navigator.standalone === true;
 }
 
+// Afficher le guide iOS si nécessaire
 function showIosGuideIfNeeded() {
     if (getOS() === 'iOS' && !isPwaInstalled()) {
         const lastClosed = localStorage.getItem('iosGuideLastClosed');
         if (lastClosed) {
-            const hoursSince = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
-            if (hoursSince < 24) return;
+            const hoursSinceClosed = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
+            if (hoursSinceClosed < 24) return;
         }
         if (iosGuidePopup) iosGuidePopup.style.display = 'flex';
     }
 }
 
+// Fermer le guide iOS
 function closeIosGuide() {
     if (iosGuidePopup) iosGuidePopup.style.display = 'none';
     localStorage.setItem('iosGuideLastClosed', Date.now().toString());
 }
 
+// Événement beforeinstallprompt (Android/Desktop)
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -156,6 +123,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 
+// Clic sur le bouton d'installation
 installButton?.addEventListener('click', async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
@@ -165,12 +133,14 @@ installButton?.addEventListener('click', async () => {
     installButton.style.display = 'none';
 });
 
+// Après installation
 window.addEventListener('appinstalled', () => {
     console.log('PWA installée');
     if (installButton) installButton.style.display = 'none';
     if (iosGuidePopup) iosGuidePopup.style.display = 'none';
 });
 
+// Boutons de fermeture du guide iOS
 document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
 document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
 
@@ -179,7 +149,6 @@ document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeI
 // =======================================================
 document.addEventListener('DOMContentLoaded', () => {
     showIosGuideIfNeeded();
-    updateDisplayedCounters();
 
     if (matchesContainer) {
         initPronostics();
@@ -188,22 +157,25 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (document.getElementById('bonus-bookmaker-select')) {
         initBonusPage();
     } else {
+        // Page d'accueil : charger les données pour les bookmakers et le compteur
         loadDataGeneric().then(data => {
             if (data) {
                 renderBookmakers(data.bookmakers);
                 updateShareCounter();
+                displayTodayPicks(); // Affiche les pronostics du jour sur l'accueil
             }
         });
     }
 
+    // Charger les autres contenus si les conteneurs existent
     displayBlogList();
     displayBlogPost();
     displayConseils();
     displayInfos();
-    displayBonusList();
     displayFootNews();
     initScrollProgress();
 
+    // Barre de recherche sur la page pronostics
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
@@ -214,8 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // =======================================================
-// FONCTIONS PRONOSTICS (AVEC LOAD DATA ROBUSTE)
+// FONCTIONS POUR LA PAGE PRONOSTICS
 // =======================================================
+
 async function initPronostics() {
     await loadData();
     if (allData) {
@@ -230,7 +203,7 @@ async function initPronostics() {
 }
 
 async function loadData() {
-    console.log('🔄 Chargement pronostics (mode avancé offline)...');
+    console.log('🔄 Chargement des pronostics...');
     
     const container = document.getElementById('matches-container');
     if (container) {
@@ -244,7 +217,7 @@ async function loadData() {
     let dataLoaded = false;
 
     try {
-        // Tentative réseau avec timeout (8 secondes)
+        // Timeout de 8 secondes
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000);
 
@@ -265,7 +238,7 @@ async function loadData() {
         console.log('🌐 Hors ligne ou erreur réseau → utilisation du cache');
     }
 
-    // FALLBACK CACHE
+    // Fallback cache
     if (!dataLoaded) {
         const cached = localStorage.getItem('cachedData');
         if (cached) {
@@ -280,7 +253,7 @@ async function loadData() {
     }
 
     if (dataLoaded && allData) {
-        // Affichage du mode offline si nécessaire
+        // Afficher un bandeau si mode hors ligne
         if (container && !navigator.onLine) {
             container.insertAdjacentHTML('afterbegin', `
                 <div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem;">
@@ -288,14 +261,8 @@ async function loadData() {
                 </div>
             `);
         }
-
-        hideEmptyTabs();
-        maybeHideTabBar();
-        setupEventListeners();
-        updateSuccessRate();
-        filterAndDisplay();   // ← AFFICHE LES MATCHS !
-    } 
-    else if (container) {
+        renderBookmakers(allData.bookmakers);
+    } else if (container) {
         container.innerHTML = `
             <div class="error" style="text-align:center; padding:60px;">
                 ❌ Aucune donnée disponible.<br>
@@ -486,7 +453,6 @@ function share(platform) {
 
     const newCount = incrementShareCount();
     updateShareCounter();
-    incrementCounter('total_shares');
     recordEvent('share');
 
     const target = shareLimits[currentCategory];
@@ -510,6 +476,7 @@ function updateShareCounter() {
     }
 }
 
+// Correction du fuseau horaire : ajuste la date pour correspondre au jour local
 function getLocalDateString(day) {
     const now = new Date();
     const target = new Date(now);
@@ -528,6 +495,8 @@ function getLocalDateFromEvent(isoString) {
     if (!isoString) return null;
     const date = new Date(isoString);
     if (isNaN(date)) return null;
+    // Ajuster au fuseau local
+    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -630,6 +599,7 @@ function renderMatches(matches) {
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
 
+            // Utiliser event_date pour la comparaison (champ date)
             const eventDate = m.event_date ? m.event_date.split('T')[0] : '';
             const yesterdayStr = getLocalDateString('yesterday');
             const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
@@ -649,13 +619,13 @@ function renderMatches(matches) {
                     <div class="match-info">
                         <div class="teams">
                             <div class="team">
-                                <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
                                 <span class="team-name">${m.home_team}</span>
                                 <span class="team-score">${m.home_score ?? '-'}</span>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
                                 <span class="team-name">${m.away_team}</span>
                                 <span class="team-score">${m.away_score ?? '-'}</span>
                             </div>
@@ -734,10 +704,11 @@ function getStatusClass(status) {
 }
 
 // =======================================================
-// RENDER BOOKMAKERS (VERSION CORRIGÉE AVEC FALLBACK ROBUSTE)
+// FONCTION POUR LES BOOKMAKERS (avec fallback et liens d'affiliation)
 // =======================================================
 function renderBookmakers(bookmakers) {
     console.log('📢 renderBookmakers appelée avec:', bookmakers);
+    // Fallback si data.json ne fournit pas de bookmakers
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
@@ -750,6 +721,7 @@ function renderBookmakers(bookmakers) {
         ];
     }
 
+    // ==================== FOOTER ====================
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -761,6 +733,7 @@ function renderBookmakers(bookmakers) {
             img.src = b.logo;
             img.alt = b.name;
             img.style.maxHeight = '40px';
+            img.loading = 'lazy';
             img.onerror = function() {
                 console.log('❌ Image non chargée pour', b.name);
                 this.style.display = 'none';
@@ -776,14 +749,17 @@ function renderBookmakers(bookmakers) {
         });
     }
 
+    // ==================== SECTION BONUS (accueil) ====================
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
             const div = document.createElement('div');
             div.className = 'bookmaker-card';
+            
             const img = document.createElement('img');
             img.src = b.logo;
             img.alt = b.name;
+            img.loading = 'lazy';
             img.onerror = function() {
                 console.log('❌ Image non chargée pour', b.name);
                 this.style.display = 'none';
@@ -795,11 +771,22 @@ function renderBookmakers(bookmakers) {
                 div.insertBefore(span, div.firstChild);
             };
             div.appendChild(img);
-            div.innerHTML += `
-                <h3>${b.name}</h3>
-                <p>Bonus de bienvenue jusqu'à 130€</p>
-                <a href="${b.url}" class="btn btn-primary" target="_blank">S'inscrire avec XPVIP</a>
-            `;
+
+            const title = document.createElement('h3');
+            title.textContent = b.name;
+            div.appendChild(title);
+
+            const p = document.createElement('p');
+            p.textContent = 'Bonus de bienvenue jusqu\'à 130€';
+            div.appendChild(p);
+
+            const a = document.createElement('a');
+            a.href = b.url;
+            a.target = '_blank';
+            a.className = 'btn btn-primary';
+            a.textContent = 'S\'inscrire avec XPVIP';
+            div.appendChild(a);
+
             bookmakersBonus.appendChild(div);
         });
     }
@@ -820,7 +807,7 @@ function recordEvent(type) {
 recordEvent('visit');
 
 // =======================================================
-// FONCTIONS POUR LE CONTENU GÉNÉRÉ
+// FONCTIONS POUR LE CONTENU GÉNÉRÉ (Blog, Conseils, etc.)
 // =======================================================
 async function loadGeneratedContent() {
     try {
@@ -833,9 +820,6 @@ async function loadGeneratedContent() {
     }
 }
 
-// =======================================================
-// BLOG
-// =======================================================
 async function displayBlogList() {
     const container = document.getElementById('blog-list');
     if (!container) return;
@@ -856,7 +840,7 @@ async function displayBlogList() {
             const title = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
             hHtml += `
                 <div class="horizontal-item" onclick="window.location.href='article.html?slug=${article.slug}'">
-                    <img src="${article.image_url || 'assets/images/default-logo.png'}" alt="${title}">
+                    <img src="${article.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy">
                     <div class="item-title">${title}</div>
                 </div>
             `;
@@ -872,7 +856,7 @@ async function displayBlogList() {
 
         html += `
             <div class="card">
-                ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : ''}
+                ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;" loading="lazy">` : ''}
                 <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${cleanTitle}</a></h3>
                 <div class="meta">${article.date} par ${article.author} ${article.match ? '• ' + article.match : ''}</div>
                 <p>${cleanExcerpt}</p>
@@ -903,15 +887,12 @@ async function displayBlogPost() {
     container.innerHTML = `
         <h1>${cleanTitle}</h1>
         <div class="meta">${article.date} par ${article.author}</div>
-        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:20px 0;">` : ''}
+        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" style="max-width:100%; border-radius:8px; margin:20px 0;" loading="lazy">` : ''}
         <div style="margin-top: 2rem;">${htmlContent}</div>
         <a href="blog.html" class="btn btn-secondary" style="margin-top: 2rem;">← Retour au blog</a>
     `;
 }
 
-// =======================================================
-// CONSEILS
-// =======================================================
 async function displayConseils() {
     const container = document.getElementById('conseils-list');
     if (!container) return;
@@ -932,7 +913,7 @@ async function displayConseils() {
             const title = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
             hHtml += `
                 <div class="horizontal-item" onclick="showConseilDetail(${conseil.id})">
-                    <img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}">
+                    <img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy">
                     <div class="item-title">${title}</div>
                 </div>
             `;
@@ -948,7 +929,7 @@ async function displayConseils() {
         let htmlContent = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
         html += `
             <div class="card">
-                ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;">` : ''}
+                ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin-bottom:10px;" loading="lazy">` : ''}
                 <h3>${cleanTitle}</h3>
                 <div>${htmlContent}</div>
             </div>
@@ -973,9 +954,6 @@ window.closeConseilModal = function() {
     if (modal) modal.style.display = 'none';
 };
 
-// =======================================================
-// INFOS
-// =======================================================
 async function displayInfos() {
     const container = document.getElementById('infos-list');
     if (!container) return;
@@ -989,9 +967,6 @@ async function displayInfos() {
     });
 }
 
-// =======================================================
-// ACTUALITÉS (RSS)
-// =======================================================
 async function displayFootNews() {
     const container = document.getElementById('foot-news-container');
     if (!container) return;
@@ -1007,7 +982,7 @@ async function displayFootNews() {
         news.forEach(item => {
             html += `
                 <div class="news-card card">
-                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" style="width:100%; border-radius:8px; margin-bottom:10px;">` : ''}
+                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" style="width:100%; border-radius:8px; margin-bottom:10px;" loading="lazy">` : ''}
                     <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: var(--or);">${item.title}</a></h3>
                     <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
                     <p>${item.summary}</p>
@@ -1023,124 +998,7 @@ async function displayFootNews() {
 }
 
 // =======================================================
-// BONUS
-// =======================================================
-let allBonus = [];
-
-async function initBonusPage() {
-    const data = await loadDataGeneric();
-    allBonus = data?.bonus || [];
-
-    const select = document.getElementById('bonus-bookmaker-select');
-    if (!select) return;
-
-    const bookmakers = [...new Set(allBonus.map(b => b.bookmaker))].filter(Boolean);
-    bookmakers.sort();
-
-    bookmakers.forEach(bm => {
-        const option = document.createElement('option');
-        option.value = bm;
-        option.textContent = bm;
-        select.appendChild(option);
-    });
-
-    select.addEventListener('change', (e) => {
-        currentBookmaker = e.target.value;
-        displayBonusThumbnails();
-    });
-
-    if (bookmakers.length > 0) {
-        select.value = bookmakers[0];
-        currentBookmaker = bookmakers[0];
-        displayBonusThumbnails();
-    } else {
-        document.getElementById('bonus-thumbnails').innerHTML = '<p>Aucun bonus disponible.</p>';
-    }
-}
-
-let currentBookmaker = null;
-
-function displayBonusThumbnails() {
-    const container = document.getElementById('bonus-thumbnails');
-    if (!container) return;
-
-    const filtered = allBonus.filter(b => b.bookmaker === currentBookmaker && b.active && new Date(b.end_date) >= new Date());
-
-    if (filtered.length === 0) {
-        container.innerHTML = '<p>Aucun bonus actif pour ce bookmaker.</p>';
-        return;
-    }
-
-    let html = '';
-    filtered.forEach(b => {
-        html += `
-            <div class="bonus-thumb" onclick="showBonusDetail(${b.id})">
-                <img src="${b.image}" alt="${b.title}">
-                <div class="bonus-thumb-title">${b.title}</div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-
-    window.bonusDetails = filtered;
-}
-
-window.showBonusDetail = function(id) {
-    const bonus = window.bonusDetails.find(b => b.id === id);
-    if (!bonus) return;
-
-    const modal = document.getElementById('bonus-modal');
-    if (!modal) return;
-    document.getElementById('bonus-modal-title').textContent = bonus.title;
-    document.getElementById('bonus-modal-image').src = bonus.image;
-    document.getElementById('bonus-modal-description').innerHTML = bonus.description;
-    document.getElementById('bonus-modal-footer').innerHTML = bonus.footer || '';
-    document.getElementById('bonus-modal-link').href = bonus.link || '#';
-    modal.style.display = 'flex';
-};
-
-window.closeBonusModal = function() {
-    const modal = document.getElementById('bonus-modal');
-    if (modal) modal.style.display = 'none';
-};
-
-async function displayBonusList() {
-    const container = document.getElementById('bonus-grid');
-    if (!container) return;
-
-    const data = await loadDataGeneric();
-    const bonus = data?.bonus || [];
-    const activeBonus = bonus.filter(b => b.active && new Date(b.end_date) >= new Date());
-
-    if (activeBonus.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun bonus actif pour le moment.</div>';
-        return;
-    }
-
-    let html = '';
-    activeBonus.forEach(b => {
-        html += `
-            <div class="bonus-card">
-                <img src="${b.image}" alt="${b.title}" class="bonus-image">
-                <h3>${b.title}</h3>
-                <p>${b.description}</p>
-                <div class="bonus-footer">
-                    <span>Valable du ${formatDate(b.start_date)} au ${formatDate(b.end_date)}</span>
-                    ${b.link ? `<a href="${b.link}" target="_blank" class="btn btn-primary">Profiter</a>` : ''}
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-function formatDate(dateStr) {
-    const [y, m, d] = dateStr.split('-');
-    return `${d}/${m}/${y}`;
-}
-
-// =======================================================
-// HISTORIQUE
+// PAGE HISTORIQUE (avec badges de catégorie)
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -1216,13 +1074,13 @@ async function displayHistory() {
                     <div class="match-info">
                         <div class="teams">
                             <div class="team">
-                                <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
                                 <span class="team-name">${m.home_team}</span>
                                 <span class="team-score">${m.home_score ?? '-'}</span>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" onerror="this.src='${defaultLogo}'">
+                                <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
                                 <span class="team-name">${m.away_team}</span>
                                 <span class="team-score">${m.away_score ?? '-'}</span>
                             </div>
@@ -1286,4 +1144,56 @@ function initScrollProgress() {
         const scrolled = (winScroll / height) * 100;
         progressBar.style.width = scrolled + '%';
     });
+}
+
+// =======================================================
+// AFFICHAGE DES PRONOSTICS DU JOUR SUR L'ACCUEIL
+// =======================================================
+async function displayTodayPicks() {
+    const container = document.getElementById('today-picks');
+    if (!container) return;
+
+    await loadDataGeneric();
+    if (!allData) return;
+
+    const today = getLocalDateString('today');
+    const todayMatches = allData.matches.filter(m => getLocalDateFromEvent(m.event_date) === today).slice(0, 3);
+    
+    if (todayMatches.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun match aujourd\'hui.</div>';
+        return;
+    }
+
+    let html = '';
+    todayMatches.forEach(m => {
+        const pred = m.prediction || {};
+        const doubleChance = pred.double_chance || 'N/A';
+        const over25 = pred.over_25 ? 'Oui' : 'Non';
+        const defaultLogo = 'assets/images/default-logo.png';
+        html += `
+            <div class="match-card">
+                <div class="match-info">
+                    <div class="teams">
+                        <div class="team">
+                            <img src="${m.home_logo || defaultLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
+                            <span class="team-name">${m.home_team}</span>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="team">
+                            <img src="${m.away_logo || defaultLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" onerror="this.src='${defaultLogo}'">
+                            <span class="team-name">${m.away_team}</span>
+                        </div>
+                    </div>
+                    <div class="match-meta">
+                        <span class="league-badge">${m.league || 'Ligue'}</span>
+                        <span class="status">${translateStatus(m.status)}</span>
+                    </div>
+                </div>
+                <div class="analysis-panel">
+                    <p><strong>Pronostic :</strong> ${doubleChance} / Over ${over25}</p>
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
 }
