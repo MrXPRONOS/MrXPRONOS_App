@@ -4,7 +4,7 @@
 """
 generate_data.py - Génère les pronostics à partir des données SportData
 et des scores déjà en base (mis à jour par update_scores.py).
-Version avec exclusion des pronostics "12", seuils ajustés, et logos via TheSportsDB.
+Version avec exclusion des pronostics "12", seuils ajustés, et logos via TheSportsDB avec cache.
 """
 
 import os
@@ -17,11 +17,10 @@ from urllib3.util.retry import Retry
 # =======================================================
 # CONFIGURATION
 # =======================================================
-SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY",'0b4628b4-83cc-4227-bed6-82c50d806514')
+SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")
 if not SPORTDATA_API_KEY:
     raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
 
-BSD_API_TOKEN = os.environ.get("BSD_API_TOKEN")  # optionnel
 THESPORTSDB_API_KEY = "3"  # clé publique pour thesportsdb
 
 SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
@@ -38,26 +37,28 @@ yesterday = today - timedelta(days=1)
 DATA_FILE = "data.json"
 CACHE_DIR = "cache"
 GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
+LOGO_CACHE_FILE = os.path.join(CACHE_DIR, "logos_cache.json")
 
 print("="*60)
 print(f"🚀 GÉNÉRATION DES PRONOSTICS - {today}")
 print("="*60)
 
 # =======================================================
-# FONCTIONS POUR LES LOGOS (BSD puis TheSportsDB)
+# GESTION DU CACHE DES LOGOS
 # =======================================================
-def get_logo_bsd(team_name):
-    """Interroge BSD pour obtenir le logo d'une équipe (nécessite mapping)."""
-    if not BSD_API_TOKEN:
-        return None
-    # Ici, vous pourriez ajouter un dictionnaire de correspondance
-    # Exemple : team_mapping = {"Real Madrid": 131, ...}
-    # puis construire l'URL avec l'ID correspondant.
-    # Faute de mapping, on retourne None et on utilisera le fallback TheSportsDB.
-    return None
+logo_cache = {}
+if os.path.exists(LOGO_CACHE_FILE):
+    with open(LOGO_CACHE_FILE, 'r', encoding='utf-8') as f:
+        logo_cache = json.load(f)
+
+def save_logo_cache():
+    with open(LOGO_CACHE_FILE, 'w', encoding='utf-8') as f:
+        json.dump(logo_cache, f, indent=2)
 
 def get_logo_thesportsdb(team_name):
     """Interroge TheSportsDB pour obtenir le logo d'une équipe."""
+    if team_name in logo_cache:
+        return logo_cache[team_name]
     try:
         url = f"https://www.thesportsdb.com/api/v1/json/{THESPORTSDB_API_KEY}/searchteams.php?t={requests.utils.quote(team_name)}"
         resp = session.get(url, timeout=10)
@@ -65,16 +66,16 @@ def get_logo_thesportsdb(team_name):
             data = resp.json()
             teams = data.get("teams", [])
             if teams:
-                return teams[0].get("strTeamBadge") or teams[0].get("strTeamLogo")
+                logo = teams[0].get("strTeamBadge") or teams[0].get("strTeamLogo")
+                logo_cache[team_name] = logo
+                return logo
     except:
         pass
+    logo_cache[team_name] = None
     return None
 
 def get_team_logo(team_name):
-    """Obtenir le logo d'une équipe : BSD -> TheSportsDB -> None."""
-    logo = get_logo_bsd(team_name)
-    if logo:
-        return logo
+    """Obtenir le logo d'une équipe avec cache."""
     return get_logo_thesportsdb(team_name)
 
 # =======================================================
@@ -334,7 +335,7 @@ def main():
         category = get_category(score)
         badge = get_badge(score)
 
-        # Logos
+        # Logos avec cache
         home_logo = get_team_logo(base["home_team"])
         away_logo = get_team_logo(base["away_team"])
 
@@ -374,6 +375,9 @@ def main():
 
         matches.append(match)
         categories[category].append(match)
+
+    # Sauvegarder le cache des logos
+    save_logo_cache()
 
     # Trier par date
     matches.sort(key=lambda x: x["event_date"] or "", reverse=True)

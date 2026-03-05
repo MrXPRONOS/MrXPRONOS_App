@@ -38,14 +38,10 @@
     <main class="container">
         <h1 style="color: var(--or); margin: 2rem 0;">🎯 Conseils pour vos paris</h1>
 
-        <!-- Liste horizontale scrollable des conseils (vignettes) -->
         <div id="conseils-horizontal-list" class="horizontal-scroll"></div>
-
-        <!-- Grille des conseils -->
         <div id="conseils-list" class="conseils-grid"></div>
     </main>
 
-    <!-- Modal pour afficher le détail d'un conseil -->
     <div id="conseil-modal" class="modal" onclick="closeConseilModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <span class="close" onclick="closeConseilModal()">&times;</span>

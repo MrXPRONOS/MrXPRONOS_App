@@ -1,15 +1,23 @@
 /**
  * main.js - Script principal pour Mr XPRONOS
- * Version avec gestion de l'installation PWA, historique, bonus, et fallback images.
+ * Version corrigée avec gestion d'erreur et dates harmonisées.
  */
 
 // =======================================================
-// IMPORT CONFIGURATION SUPABASE (généré par GitHub Actions)
+// IMPORT CONFIGURATION SUPABASE (optionnel)
 // =======================================================
-import { supabaseUrl, supabaseAnonKey } from './config.js';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+let supabase = null;
+let supabaseAvailable = false;
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+try {
+    const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+    supabase = createClient(supabaseUrl, supabaseAnonKey);
+    supabaseAvailable = true;
+    console.log('✅ Supabase connecté');
+} catch (error) {
+    console.warn('⚠️ Supabase non configuré, utilisation des compteurs locaux');
+}
 
 // =======================================================
 // VARIABLES GLOBALES
@@ -41,44 +49,50 @@ const POPULAR_LEAGUES = [
 ];
 
 // =======================================================
-// FONCTIONS SUPABASE (COMPTEURS)
+// FONCTIONS SUPABASE (AVEC FALLBACK)
 // =======================================================
 async function getCounterValue(counterName) {
-    const { data, error } = await supabase
-        .from('counters')
-        .select('value')
-        .eq('name', counterName)
-        .single();
-    if (error) {
-        console.error('Erreur récupération compteur:', error);
-        return null;
+    if (supabaseAvailable) {
+        const { data, error } = await supabase
+            .from('counters')
+            .select('value')
+            .eq('name', counterName)
+            .single();
+        if (!error && data) return data.value;
     }
-    return data.value;
+    const local = localStorage.getItem('counter_' + counterName);
+    return local ? parseInt(local) : (counterName === 'total_users' ? 1000 : 10000);
+}
+
+async function incrementCounter(counterName) {
+    if (supabaseAvailable) {
+        // Appel à une fonction RPC atomique (à créer dans Supabase)
+        const { data, error } = await supabase.rpc('increment_counter', { counter_name: counterName });
+        if (!error) return data;
+        // Fallback sur update manuel
+        const current = await getCounterValue(counterName);
+        if (current === null) return;
+        const newValue = current + 1;
+        await supabase
+            .from('counters')
+            .update({ value: newValue, updated_at: new Date().toISOString() })
+            .eq('name', counterName);
+        return newValue;
+    } else {
+        const current = parseInt(localStorage.getItem('counter_' + counterName) || '0');
+        const newValue = current + 1;
+        localStorage.setItem('counter_' + counterName, newValue);
+        return newValue;
+    }
 }
 
 async function updateDisplayedCounters() {
-    const totalUsers = await getCounterValue('total_users') || 1000;
-    const totalShares = await getCounterValue('total_shares') || 10000;
+    const totalUsers = await getCounterValue('total_users');
+    const totalShares = await getCounterValue('total_shares');
     const usersEl = document.getElementById('total-users-count');
     const sharesEl = document.getElementById('total-shares-count');
     if (usersEl) usersEl.textContent = totalUsers.toLocaleString();
     if (sharesEl) sharesEl.textContent = totalShares.toLocaleString();
-}
-
-async function incrementCounter(counterName) {
-    try {
-        const current = await getCounterValue(counterName);
-        if (current === null) return;
-        const newValue = current + 1;
-        const { error } = await supabase
-            .from('counters')
-            .update({ value: newValue, updated_at: new Date().toISOString() })
-            .eq('name', counterName);
-        if (error) throw error;
-        return newValue;
-    } catch (error) {
-        console.error('Erreur incrémentation compteur:', error);
-    }
 }
 
 // =======================================================
@@ -128,12 +142,12 @@ function showIosGuideIfNeeded() {
             const hoursSince = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
             if (hoursSince < 24) return;
         }
-        iosGuidePopup.style.display = 'flex';
+        if (iosGuidePopup) iosGuidePopup.style.display = 'flex';
     }
 }
 
 function closeIosGuide() {
-    iosGuidePopup.style.display = 'none';
+    if (iosGuidePopup) iosGuidePopup.style.display = 'none';
     localStorage.setItem('iosGuideLastClosed', Date.now().toString());
 }
 
@@ -214,7 +228,7 @@ async function initPronostics() {
         updateSuccessRate();
         filterAndDisplay();
     } else {
-        matchesContainer.innerHTML = '<div class="error">❌ Erreur de chargement des données.</div>';
+        if (matchesContainer) matchesContainer.innerHTML = '<div class="error">❌ Erreur de chargement des données.</div>';
     }
 }
 
@@ -230,10 +244,10 @@ async function loadData() {
         const cached = localStorage.getItem('cachedData');
         if (cached) {
             allData = JSON.parse(cached);
-            matchesContainer.innerHTML = '<div class="warning">⚠️ Données en cache.</div>';
+            if (matchesContainer) matchesContainer.innerHTML = '<div class="warning">⚠️ Données en cache.</div>';
             renderBookmakers(allData.bookmakers);
         } else {
-            matchesContainer.innerHTML = '<div class="error">❌ Impossible de charger.</div>';
+            if (matchesContainer) matchesContainer.innerHTML = '<div class="error">❌ Impossible de charger les données.</div>';
         }
     }
 }
@@ -335,14 +349,19 @@ function setupEventListeners() {
         });
     });
 
-    document.getElementById('share-wa')?.addEventListener('click', () => share('whatsapp'));
-    document.getElementById('share-tg')?.addEventListener('click', () => share('telegram'));
-    document.getElementById('close-popup')?.addEventListener('click', () => {
-        sharePopup.classList.remove('active');
+    const shareWa = document.getElementById('share-wa');
+    const shareTg = document.getElementById('share-tg');
+    const closePopup = document.getElementById('close-popup');
+    if (shareWa) shareWa.addEventListener('click', () => share('whatsapp'));
+    if (shareTg) shareTg.addEventListener('click', () => share('telegram'));
+    if (closePopup) closePopup.addEventListener('click', () => {
+        if (sharePopup) sharePopup.classList.remove('active');
     });
 
-    document.getElementById('share-wa-locked')?.addEventListener('click', () => share('whatsapp'));
-    document.getElementById('share-tg-locked')?.addEventListener('click', () => share('telegram'));
+    const shareWaLocked = document.getElementById('share-wa-locked');
+    const shareTgLocked = document.getElementById('share-tg-locked');
+    if (shareWaLocked) shareWaLocked.addEventListener('click', () => share('whatsapp'));
+    if (shareTgLocked) shareTgLocked.addEventListener('click', () => share('telegram'));
 }
 
 function handleCategoryChange() {
@@ -368,10 +387,12 @@ function showVipLocked(category) {
         const remaining = target - shareCount;
         vipLockedOverlay.querySelector('h3').textContent = `🔒 ${category === 'pro' ? 'Pronostics Pro' : 'Pronostics VIP'} verrouillés`;
         vipLockedOverlay.querySelector('p').innerHTML = `Partagez ce lien à <strong>${remaining}</strong> ami(s) pour débloquer.`;
-        document.getElementById('share-count-locked').textContent = shareCount;
-        document.getElementById('share-target-locked').textContent = target;
+        const shareCountLocked = document.getElementById('share-count-locked');
+        const shareTargetLocked = document.getElementById('share-target-locked');
+        if (shareCountLocked) shareCountLocked.textContent = shareCount;
+        if (shareTargetLocked) shareTargetLocked.textContent = target;
         vipLockedOverlay.style.display = 'flex';
-        matchesContainer.style.display = 'none';
+        if (matchesContainer) matchesContainer.style.display = 'none';
     } else {
         const target = shareLimits[category];
         const shareCount = getDailyShareCount();
@@ -382,17 +403,17 @@ function showVipLocked(category) {
 function hideVipLocked() {
     if (vipLockedOverlay) {
         vipLockedOverlay.style.display = 'none';
-        matchesContainer.style.display = 'grid';
+        if (matchesContainer) matchesContainer.style.display = 'grid';
     }
 }
 
 function showSharePopup(category, remaining) {
     if (!sharePopup) return;
     const shareCount = getDailyShareCount();
-    shareRemaining.textContent = remaining;
-    shareCurrent.textContent = shareCount;
-    shareTarget.textContent = shareLimits[category];
-    shareMessage.innerHTML = `Pour accéder aux pronostics ${category === 'pro' ? 'Pro' : 'VIP'}, partagez ce lien à <span id="share-remaining">${remaining}</span> amis.`;
+    if (shareRemaining) shareRemaining.textContent = remaining;
+    if (shareCurrent) shareCurrent.textContent = shareCount;
+    if (shareTarget) shareTarget.textContent = shareLimits[category];
+    if (shareMessage) shareMessage.innerHTML = `Pour accéder aux pronostics ${category === 'pro' ? 'Pro' : 'VIP'}, partagez ce lien à <span id="share-remaining">${remaining}</span> amis.`;
     sharePopup.classList.add('active');
 }
 
@@ -478,7 +499,7 @@ function sortMatchesByLeague(matches) {
 
 function filterAndDisplay() {
     if (!allData || !allData.matches) {
-        matchesContainer.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
+        if (matchesContainer) matchesContainer.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
         return;
     }
 
@@ -520,6 +541,7 @@ function formatMatchTime(isoString) {
 }
 
 function renderMatches(matches) {
+    if (!matchesContainer) return;
     if (matches.length === 0) {
         matchesContainer.innerHTML = '<div class="no-events">Aucun match.</div>';
         return;
@@ -556,8 +578,13 @@ function renderMatches(matches) {
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
 
-            const verifiedDouble = m.verified_double ? 'checked' : '';
-            const verifiedOver = m.verified_over ? 'checked' : '';
+            // Utiliser m.event_date pour la comparaison (champ date)
+            const eventDate = m.event_date ? m.event_date.split('T')[0] : '';
+            const todayStr = getLocalDateString('today');
+            const yesterdayStr = getLocalDateString('yesterday');
+            const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
+            const verifiedOver = (eventDate === yesterdayStr && m.verified_over) ? 'checked' : '';
+
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const defaultLogo = 'assets/images/default-logo.png';
 
@@ -594,11 +621,11 @@ function renderMatches(matches) {
                         <h4>Pronostic ${xpronosBadge}</h4>
                         <p>
                             <strong>Double chance :</strong> ${doubleChance}
-                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
+                            ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
                         </p>
                         <p>
                             <strong>Over 2.5 :</strong> ${over25}
-                            ${m.date === getLocalDateString('yesterday') ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}
+                            ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedOver} disabled>` : ''}
                         </p>
                         <div class="confidence-bar">
                             <div class="confidence-fill" data-value="${confidence}"></div>
@@ -657,7 +684,7 @@ function getStatusClass(status) {
 }
 
 // =======================================================
-// RENDER BOOKMAKERS (AVEC GESTION D'ERREUR)
+// RENDER BOOKMAKERS
 // =======================================================
 function renderBookmakers(bookmakers) {
     if (!bookmakers || bookmakers.length === 0) {
@@ -672,7 +699,6 @@ function renderBookmakers(bookmakers) {
         ];
     }
 
-    // Footer
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -698,7 +724,6 @@ function renderBookmakers(bookmakers) {
         });
     }
 
-    // Section bonus sur l'accueil
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
@@ -728,13 +753,14 @@ function renderBookmakers(bookmakers) {
 }
 
 // =======================================================
-// FONCTIONS POUR LES STATISTIQUES (admin) - événements locaux
+// FONCTIONS POUR LES STATISTIQUES (admin)
 // =======================================================
 function recordEvent(type) {
     let events = JSON.parse(localStorage.getItem('userEvents')) || [];
     events.push({
         type: type,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        userId: localStorage.getItem('userId') || 'unknown'
     });
     localStorage.setItem('userEvents', JSON.stringify(events));
 }
@@ -770,7 +796,6 @@ async function displayBlogList() {
         return;
     }
 
-    // Liste horizontale des 8 premiers (vignettes)
     const horizontalContainer = document.getElementById('blog-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
@@ -786,7 +811,6 @@ async function displayBlogList() {
         horizontalContainer.innerHTML = hHtml;
     }
 
-    // Grille complète
     let html = '';
     allArticles.forEach(article => {
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
@@ -848,13 +872,11 @@ async function displayConseils() {
         return;
     }
 
-    // Liste horizontale des 8 premiers
     const horizontalContainer = document.getElementById('conseils-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
         allConseils.slice(0, 8).forEach(conseil => {
             const title = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-            // On stocke l'id dans l'attribut data-id pour pouvoir ouvrir une modale
             hHtml += `
                 <div class="horizontal-item" onclick="showConseilDetail(${conseil.id})">
                     <img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}">
@@ -865,10 +887,8 @@ async function displayConseils() {
         horizontalContainer.innerHTML = hHtml;
     }
 
-    // Stocker les conseils pour la modale
     window.conseilsData = allConseils;
 
-    // Grille complète (affichage normal)
     let html = '';
     allConseils.forEach(c => {
         let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
@@ -888,6 +908,7 @@ window.showConseilDetail = function(id) {
     const conseil = window.conseilsData.find(c => c.id === id);
     if (!conseil) return;
     const modal = document.getElementById('conseil-modal');
+    if (!modal) return;
     document.getElementById('conseil-modal-title').textContent = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
     document.getElementById('conseil-modal-image').src = conseil.image_url || 'assets/images/default-logo.png';
     document.getElementById('conseil-modal-content').innerHTML = window.marked ? window.marked.parse(conseil.content) : conseil.content.replace(/\n/g, '<br>');
@@ -895,7 +916,8 @@ window.showConseilDetail = function(id) {
 };
 
 window.closeConseilModal = function() {
-    document.getElementById('conseil-modal').style.display = 'none';
+    const modal = document.getElementById('conseil-modal');
+    if (modal) modal.style.display = 'none';
 };
 
 // =======================================================
@@ -1015,6 +1037,7 @@ window.showBonusDetail = function(id) {
     if (!bonus) return;
 
     const modal = document.getElementById('bonus-modal');
+    if (!modal) return;
     document.getElementById('bonus-modal-title').textContent = bonus.title;
     document.getElementById('bonus-modal-image').src = bonus.image;
     document.getElementById('bonus-modal-description').innerHTML = bonus.description;
@@ -1024,7 +1047,8 @@ window.showBonusDetail = function(id) {
 };
 
 window.closeBonusModal = function() {
-    document.getElementById('bonus-modal').style.display = 'none';
+    const modal = document.getElementById('bonus-modal');
+    if (modal) modal.style.display = 'none';
 };
 
 async function displayBonusList() {

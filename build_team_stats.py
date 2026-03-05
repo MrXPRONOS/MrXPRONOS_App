@@ -3,6 +3,7 @@
 """
 build_team_stats.py - Enrichit all_matches.json avec les statistiques de forme des équipes
 (5 derniers matchs, buts marqués/encaissés, etc.)
+Version corrigée pour utiliser les noms d'équipes comme clés.
 Exécuter après allmatches.py et avant generate_data.py.  
 """
 
@@ -14,21 +15,19 @@ def build_team_history(matches):
     """Construit pour chaque équipe la liste de ses matchs triés par date."""
     team_matches = defaultdict(list)
     for m in matches:
-        home_id = m["home_team_obj"]["id"]
-        away_id = m["away_team_obj"]["id"]
-        date = datetime.fromisoformat(m["event_date"].replace('Z', '+00:00'))
-        # On ajoute le match aux deux équipes
-        team_matches[home_id].append((date, m, "home"))
-        team_matches[away_id].append((date, m, "away"))
+        home_team = m["home_team"]
+        away_team = m["away_team"]
+        date = datetime.fromisoformat(m["start_time"].replace('Z', '+00:00'))
+        team_matches[home_team].append((date, m, "home"))
+        team_matches[away_team].append((date, m, "away"))
     # Trier par date pour chaque équipe
     for team in team_matches:
         team_matches[team].sort(key=lambda x: x[0])
     return team_matches
 
-def get_last_n_matches(team_id, current_match_index, team_matches, n=5):
+def get_last_n_matches(team, current_match_index, team_matches, n=5):
     """Retourne les n matchs précédant l'index donné (excluant le match courant)."""
-    matches = team_matches[team_id]
-    # current_match_index est l'index du match dans la liste triée
+    matches = team_matches[team]
     start = max(0, current_match_index - n)
     return [m for m in matches[start:current_match_index]]  # on exclut le match courant
 
@@ -90,7 +89,7 @@ def enrich_matches(matches):
     # Pour chaque match, on a besoin de trouver son index dans la liste de chaque équipe
     # On va d'abord créer un mapping match_id -> (index_home, index_away)
     match_indices = {}
-    for team_id, mlist in team_matches.items():
+    for team, mlist in team_matches.items():
         for idx, (date, match, side) in enumerate(mlist):
             match_id = match["id"]
             if match_id not in match_indices:
@@ -100,13 +99,13 @@ def enrich_matches(matches):
     enriched = []
     for m in matches:
         match_id = m["id"]
-        home_id = m["home_team_obj"]["id"]
-        away_id = m["away_team_obj"]["id"]
+        home_team = m["home_team"]
+        away_team = m["away_team"]
         idx_home = match_indices[match_id].get("home")
         idx_away = match_indices[match_id].get("away")
         # Récupérer les 5 derniers matchs pour chaque équipe avant ce match
-        home_last5 = get_last_n_matches(home_id, idx_home, team_matches, 5) if idx_home is not None else []
-        away_last5 = get_last_n_matches(away_id, idx_away, team_matches, 5) if idx_away is not None else []
+        home_last5 = get_last_n_matches(home_team, idx_home, team_matches, 5) if idx_home is not None else []
+        away_last5 = get_last_n_matches(away_team, idx_away, team_matches, 5) if idx_away is not None else []
         # Calculer les statistiques de forme pour chaque équipe
         home_form = compute_form(home_last5, 'home')
         away_form = compute_form(away_last5, 'away')

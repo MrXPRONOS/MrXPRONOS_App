@@ -4,26 +4,21 @@
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
 Ajoute la génération d'images avec fallback : Mistral -> Pixazo -> Lorem Picsum.
-Style d'image : dessin 2D attractif (illustration colorée).  
+Version corrigée : utilise uniquement Pixazo + fallback, car l'API Mistral image est instable.
 """
 
 import os
 import json
 import requests
 import uuid
-import time
 import random
 from datetime import datetime
-from mistralai import Mistral
-from mistralai.models import ToolFileChunk
 
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY")
 
 if not MISTRAL_API_KEY:
     raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
-
-client = Mistral(api_key=MISTRAL_API_KEY)
 
 PIXAZO_API_URL = "https://gateway.pixazo.ai/getImage/v1/getSDXLImage"
 
@@ -32,58 +27,11 @@ ARTICLES_FILE = "articles.json"
 CONSEILS_FILE = "conseils.json"
 
 POPULAR_LEAGUES = [
-    "Premier League",
-    "LaLiga",
-    "Serie A",
-    "Bundesliga",
-    "Ligue 1",
-    "Eredivisie",
-    "Primeira Liga",
-    "Super Lig",
-    "Russian Premier League",
-    "MLS",
-    "Brasileirão",
-    "Liga Profesional",
-    "Jupiler Pro League",
-    "Super League",
-    "Championship",
-    "Liga Portugal",
-    "Trendyol Super Lig"
+    "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
+    "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
+    "MLS", "Brasileirão", "Liga Profesional", "Jupiler Pro League",
+    "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ]
-
-def generate_image_mistral(prompt, prefix):
-    """Génère une image via l'API Mistral (image_generation)."""
-    try:
-        agent = client.beta.agents.create(
-            model="mistral-medium-2505",
-            name="Image Generation Agent",
-            description="Agent used to generate images.",
-            instructions="Use the image generation tool when you have to create images.",
-            tools=[{"type": "image_generation"}],
-            completion_args={
-                "temperature": 0.3,
-                "top_p": 0.95,
-            }
-        )
-        response = client.beta.conversations.start(
-            agent_id=agent.id,
-            inputs=prompt
-        )
-        for output in response.outputs:
-            if output.type == "message.output":
-                for chunk in output.content:
-                    if isinstance(chunk, ToolFileChunk):
-                        file_id = chunk.file_id
-                        file_bytes = client.files.download(file_id=file_id).read()
-                        filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.png"
-                        os.makedirs("assets/images", exist_ok=True)
-                        with open(filename, "wb") as f:
-                            f.write(file_bytes)
-                        return filename
-        return None
-    except Exception as e:
-        print(f"   ❌ Erreur Mistral image: {e}")
-        return None
 
 def generate_image_pixazo(prompt, prefix):
     """Génère une image via l'API Pixazo (Stable Diffusion XL)."""
@@ -129,13 +77,8 @@ def get_fallback_image_url(topic="football"):
 
 def generate_image_with_fallback(prompt, prefix, subject="football"):
     """
-    Tente de générer une image avec Mistral, puis Pixazo, puis fallback.
+    Tente de générer une image avec Pixazo, puis fallback.
     """
-    print(f"      📡 Tentative Mistral...")
-    img = generate_image_mistral(prompt, prefix)
-    if img:
-        return img
-
     if PIXAZO_API_KEY:
         img = generate_image_pixazo(prompt, prefix)
         if img:
@@ -282,7 +225,6 @@ def save_article(content, match):
     slug = ''.join(c if c.isalnum() else '-' for c in slug)
     slug = '-'.join(filter(None, slug.split('-')))
 
-    # Prompt pour image 2D attractive
     image_prompt = f"High-quality 2D illustration, vibrant colors, attractive style, football match scene: {match['home_team']} vs {match['away_team']} in the {match['league']} championship. Dynamic action, players in motion, stylized design, clean lines, appealing to fans."
     image_url = generate_image_with_fallback(image_prompt, prefix="article", subject="football")
 
@@ -321,7 +263,6 @@ def save_tip(content):
     lines = content.strip().split('\n')
     title = lines[0].replace('#', '').strip() if lines else "Conseil"
 
-    # Prompt pour image 2D attractive
     image_prompt = f"High-quality 2D illustration, vibrant colors, attractive style, illustrating a sports betting tip: {title}. A stylized character giving advice, with sports elements like a football and odds in the background, clean lines, appealing design."
     image_url = generate_image_with_fallback(image_prompt, prefix="conseil", subject="betting")
 

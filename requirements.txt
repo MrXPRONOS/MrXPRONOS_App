@@ -1,2 +1,8 @@
+# requirements.txt - Dépendances Python
 requests
 mistralai
+feedparser
+deep-translator
+Pillow
+supabase
+pandas

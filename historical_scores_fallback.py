@@ -3,6 +3,7 @@
 
 """
 historical_scores_fallback.py - Utilise football-data.co.uk pour récupérer les scores historiques.
+Version corrigée avec import manquant et point d'entrée.
 """
 
 import pandas as pd
@@ -10,6 +11,7 @@ import requests
 from io import StringIO
 import os
 import json
+import time
 from datetime import datetime
 
 class HistoricalScoresFallback:
@@ -92,6 +94,7 @@ class HistoricalScoresFallback:
                 self.data.append(m)
         
         # Sauvegarder
+        os.makedirs(os.path.dirname(self.CACHE_FILE), exist_ok=True)
         with open(self.CACHE_FILE, 'w', encoding='utf-8') as f:
             json.dump(self.data, f, ensure_ascii=False, indent=2)
         print(f"✅ Cache mis à jour : {len(self.data)} matchs")
@@ -120,3 +123,7 @@ class HistoricalScoresFallback:
                 if (m_home in away_norm or away_norm in m_home) and (m_away in home_norm or home_norm in m_away):
                     return m['away_score'], m['home_score']
         return None, None
+
+if __name__ == "__main__":
+    fb = HistoricalScoresFallback()
+    fb.update_cache()
