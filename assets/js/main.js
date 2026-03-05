@@ -7,7 +7,7 @@
  * - Historique avec badges de catégorie
  * - Gestion offline robuste (cache + timeout)
  * - Logos des clubs locaux avec fallback générique
- * - Articles, conseils, infos en grille horizontale
+ * - Articles, conseils, infos en grille (même design que les actualités)
  * - Installation PWA (Android/iOS)
  * - Bookmakers avec fallback et liens d'affiliation
  * - Statistiques locales (visites, partages)
@@ -615,8 +615,6 @@ function getTeamLogoPath(teamName) {
     const normalized = teamName.toLowerCase()
         .replace(/\s+/g, '-')
         .replace(/[^a-z0-9-]/g, '');
-    // Vérifier si le fichier existe (par une tentative de chargement, mais on ne peut pas synchronously)
-    // On retourne le chemin, et on gère l'erreur avec onerror
     return `assets/images/${normalized}.png`;
 }
 
@@ -667,7 +665,6 @@ function renderMatches(matches) {
             const homeLogo = getTeamLogoPath(m.home_team);
             const awayLogo = getTeamLogoPath(m.away_team);
 
-            // Un pronostic est gagnant si verified_double est vrai
             const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
 
@@ -901,20 +898,21 @@ async function displayBlogList() {
         horizontalContainer.innerHTML = hHtml;
     }
 
-    // Affichage en grille (identique aux infos)
     let html = '';
     allArticles.forEach(article => {
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        let excerpt = article.excerpt || article.content.substring(0, 200) + '...';
-        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 150) + '...';
+        let excerpt = article.excerpt || article.content.substring(0, 150) + '...';
+        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 120) + '...';
+        let imageUrl = article.image_url || 'assets/images/default-logo.png';
+        let articleDate = article.date ? new Date(article.date).toLocaleDateString('fr-FR') : '';
 
         html += `
-            <div class="card">
-                ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
+            <div class="news-card card">
+                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
                 <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${cleanTitle}</a></h3>
-                <div class="meta">${article.date} par ${article.author} ${article.match ? '• ' + article.match : ''}</div>
+                <p class="meta">${articleDate} par ${article.author || 'Mr XPRONOS'} ${article.match ? '• ' + article.match : ''}</p>
                 <p>${cleanExcerpt}</p>
-                <a href="article.html?slug=${article.slug}" class="btn btn-secondary">Lire</a>
+                <a href="article.html?slug=${article.slug}" class="btn btn-secondary" style="margin-top:10px;">Lire la suite</a>
             </div>
         `;
     });
@@ -980,12 +978,18 @@ async function displayConseils() {
     let html = '';
     allConseils.forEach(c => {
         let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        let htmlContent = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
+        let excerpt = c.content.substring(0, 150) + '...';
+        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 120) + '...';
+        let imageUrl = c.image_url || 'assets/images/default-logo.png';
+        let conseilDate = c.date ? new Date(c.date).toLocaleDateString('fr-FR') : '';
+
         html += `
-            <div class="card">
-                ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
+            <div class="news-card card" onclick="showConseilDetail(${c.id})" style="cursor: pointer;">
+                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
                 <h3>${cleanTitle}</h3>
-                <div>${htmlContent}</div>
+                <p class="meta">${conseilDate}</p>
+                <p>${cleanExcerpt}</p>
+                <button class="btn btn-secondary" style="margin-top:10px;">Lire le conseil</button>
             </div>
         `;
     });
@@ -1016,7 +1020,7 @@ async function displayInfos() {
     let html = '';
     data.infos.forEach(i => {
         html += `
-            <div class="card">
+            <div class="news-card card">
                 <h3>${i.title}</h3>
                 <p>${i.content}</p>
             </div>
@@ -1326,7 +1330,7 @@ function initScrollProgress() {
 // AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL
 // =======================================================
 function displayLatestVerified() {
-    const container = document.getElementById('today-picks'); // On réutilise l'ID existant
+    const container = document.getElementById('today-picks');
     if (!container) return;
 
     if (!allData || !allData.matches) {
@@ -1334,14 +1338,12 @@ function displayLatestVerified() {
         return;
     }
 
-    // Filtrer les matchs terminés et validés (verified_double true) des catégories pro et vip
     const verified = allData.matches.filter(m => 
         m.status && m.status.toLowerCase().includes('finished') && 
         m.verified_double === true && 
         (m.category === 'pro' || m.category === 'vip')
     );
 
-    // Trier du plus récent au plus ancien et prendre les 4 premiers
     const latest = verified.sort((a, b) => new Date(b.event_date) - new Date(a.event_date)).slice(0, 4);
 
     if (latest.length === 0) {
