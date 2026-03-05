@@ -385,14 +385,14 @@ def main():
     # Statistiques (à améliorer si besoin)
     stats = {"total_bets": 0, "wins": 0, "roi": 0}
 
-    # Bookmakers par défaut (à remplacer par des URLs réelles)
+    # Bookmakers par défaut (mis à jour avec vos liens)
     default_bookmakers = [
-        {"name": "1xBet", "logo": "assets/images/1xbet.png", "url": "https://affiliation.com/1xbet"},
-        {"name": "1win", "logo": "assets/images/1win.png", "url": "https://affiliation.com/1win"},
-        {"name": "Betwinner", "logo": "assets/images/betwinner.png", "url": "https://affiliation.com/betwinner"},
-        {"name": "Melbet", "logo": "assets/images/melbet.png", "url": "https://affiliation.com/melbet"},
-        {"name": "Linebet", "logo": "assets/images/linebet.png", "url": "https://affiliation.com/linebet"},
-        {"name": "888starz", "logo": "assets/images/888starz.png", "url": "https://affiliation.com/888starz"}
+        {"name": "1xBet",     "logo": "assets/images/1xbet.png",     "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"},
+        {"name": "1win",      "logo": "assets/images/1win.png",      "url": "https://1wrbgb.com/?open=register&p=qqcw"},
+        {"name": "Betwinner", "logo": "assets/images/betwinner.png", "url": "https://bwredir.com/299Y"},
+        {"name": "Melbet",    "logo": "assets/images/melbet.png",    "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041"},
+        {"name": "Linebet",   "logo": "assets/images/linebet.png",   "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611"},
+        {"name": "BetClic",   "logo": "assets/images/betclic.png",   "url": "https://betpari-click.com/2vY0?extid=USD"}
     ]
 
     data = {
