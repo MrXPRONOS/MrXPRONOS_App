@@ -9,13 +9,18 @@
  * - Gestion offline robuste (cache + timeout)
  * - Logos des clubs locaux avec fallback home.png / away.png
  * - Articles, conseils, actualités en grille avec modals et sauts de ligne
- * - Témoignages dynamiques générés quotidiennement
+ * - Témoignages dynamiques générés quotidiennement (avec noms et prénoms uniques)
+ * - Notifications de gains en direct (simulées toutes les heures)
  * - Installation PWA (Android/iOS)
  * - Bookmakers avec fallback et liens d'affiliation
  * - Statistiques locales (visites, partages) avec compteurs atomiques persistants
  * - Lazy loading des images
  * - Correction des fuseaux horaires
  * - Taux de réussite basé uniquement sur double chance
+ * - Affichage des derniers pronostics gagnants avec score et badges (corrigé)
+ * - Slider automatique des gains récents
+ * - Compteur animé de pronostics gagnants (réel)
+ * - Barre de taux de réussite animée (réelle)
  */
 
 // =======================================================
@@ -266,9 +271,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderBookmakers(data.bookmakers);
                 updateShareCounter();
                 displayLatestVerified(); // Affiche les derniers pronostics validés
+                startWinsSlider();        // Démarre le slider des gains
+                showSuccessRate();         // Affiche le taux de réussite (réel)
+                animateWins();             // Anime le compteur de gains (réel)
+            } else {
+                console.log("Aucune donnée chargée pour l'accueil");
             }
         });
         displayTestimonials();
+        startWinNotifications();          // Démarre les notifications de gains
     }
 
     displayBlogList();
@@ -836,7 +847,7 @@ function renderMatches(matches) {
 function translateStatus(status) {
     if (!status) return 'À venir';
     const s = status.toLowerCase();
-    if (s.includes('finished') || s.includes('terminé')) return 'Terminé';
+    if (s.includes('finished') || s.includes('terminé') || s.includes('ended')) return 'Terminé';
     if (s.includes('inprogress') || s.includes('live') || s.includes('en cours')) return 'En cours';
     if (s.includes('notstarted') || s.includes('à venir')) return 'À venir';
     if (s.includes('postponed')) return 'Reporté';
@@ -847,7 +858,7 @@ function translateStatus(status) {
 function getStatusClass(status) {
     if (!status) return '';
     const s = status.toLowerCase();
-    if (s.includes('finished') || s.includes('terminé')) return 'finished';
+    if (s.includes('finished') || s.includes('terminé') || s.includes('ended')) return 'finished';
     if (s.includes('inprogress') || s.includes('live') || s.includes('en cours')) return 'live';
     return '';
 }
@@ -1486,10 +1497,9 @@ function initScrollProgress() {
 }
 
 // =======================================================
-// AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL
+// AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL (CORRIGÉ)
 // =======================================================
 function displayLatestVerified() {
-
     const container = document.getElementById('today-picks');
     if (!container) return;
 
@@ -1498,82 +1508,205 @@ function displayLatestVerified() {
         return;
     }
 
-    const verified = allData.matches.filter(m => {
+    console.log("allData.matches:", allData.matches); // Debug
 
+    // Filtrer les matchs terminés, vérifiés gagnants, et des catégories Pro/VIP
+    const verified = allData.matches.filter(m => {
         if (!m.status) return false;
 
-        return (
-            m.status.toLowerCase().includes('finished') &&
-            m.verified_double === true &&
-            ['pro','vip'].includes(m.category)
-        );
+        // Accepter les statuts "finished", "terminé", "ended" (insensible à la casse)
+        const statusLower = m.status.toLowerCase();
+        const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
 
+        return (
+            isFinished &&
+            m.verified_double === true &&
+            (m.category === 'pro' || m.category === 'vip')
+            // On enlève la condition de date pour le débogage, mais on la remettra ensuite
+            // new Date(m.event_date) < new Date()
+        );
     });
 
+    console.log("Matchs validés trouvés (avant tri):", verified);
+
+    // Trier du plus récent au plus ancien et prendre les 4 premiers
     const latest = [...verified]
-        .sort((a,b)=> new Date(b.event_date) - new Date(a.event_date))
-        .slice(0,4);
+        .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
+        .slice(0, 4);
+
+    console.log("4 plus récents:", latest);
 
     if (latest.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun pronostic validé.</div>';
+        container.innerHTML = '<div class="no-events">Aucun pronostic validé récent.</div>';
         return;
     }
 
     let html = '';
-
     latest.forEach(m => {
-
-        const homeLogo = getTeamLogoPath(m.home_team,true);
-        const awayLogo = getTeamLogoPath(m.away_team,false);
-
+        const homeLogo = getTeamLogoPath(m.home_team, true);
+        const awayLogo = getTeamLogoPath(m.away_team, false);
+        const homeDefault = 'assets/images/home.png';
+        const awayDefault = 'assets/images/away.png';
         const score = `${m.home_score ?? '-'} - ${m.away_score ?? '-'}`;
-
         const badgeClass = m.category === 'vip' ? 'badge-vip' : 'badge-pro';
 
         html += `
-        <div class="verified-card" onclick="window.location.href='pronos.html?day=yesterday'">
-
-            <div class="teams">
-                <img src="${homeLogo}" onerror="this.src='assets/images/home.png'">
-                <span class="vs">VS</span>
-                <img src="${awayLogo}" onerror="this.src='assets/images/away.png'">
+            <div class="verified-card" onclick="window.location.href='pronos.html?day=yesterday'">
+                <div class="teams">
+                    <img src="${homeLogo}" alt="${m.home_team}" onerror="this.src='${homeDefault}';">
+                    <span class="vs">VS</span>
+                    <img src="${awayLogo}" alt="${m.away_team}" onerror="this.src='${awayDefault}';">
+                </div>
+                <div class="match-info">
+                    <div class="teams-name">
+                        ${m.home_team || 'Équipe A'} vs ${m.away_team || 'Équipe B'}
+                    </div>
+                    <div class="score">
+                        Score : <b>${score}</b>
+                    </div>
+                    <div class="prediction">
+                        Pronostic : <b>${m.prediction?.double_chance || 'N/A'}</b>
+                    </div>
+                    <div class="badges">
+                        <span class="${badgeClass}">${m.category.toUpperCase()}</span>
+                        <span class="badge-win">✅ GAGNÉ</span>
+                    </div>
+                </div>
             </div>
-
-            <div class="match-info">
-
-                <div class="teams-name">
-                    ${m.home_team} vs ${m.away_team}
-                </div>
-
-                <div class="score">
-                    Score : <b>${score}</b>
-                </div>
-
-                <div class="prediction">
-                    Pronostic : <b>${m.prediction?.double_chance || 'N/A'}</b>
-                </div>
-
-                <div class="badges">
-                    <span class="${badgeClass}">
-                        ${m.category.toUpperCase()}
-                    </span>
-
-                    <span class="badge-win">
-                        ✅ GAGNÉ
-                    </span>
-                </div>
-
-            </div>
-
-        </div>
         `;
     });
-
     container.innerHTML = html;
 }
 
 // =======================================================
-// TÉMOIGNAGES DYNAMIQUES
+// SLIDER DES GAINS (bandeau défilant)
+// =======================================================
+function startWinsSlider() {
+    const track = document.getElementById('wins-track');
+    if (!track || !allData || !allData.matches) return;
+
+    const wins = allData.matches.filter(m => {
+        if (!m.status) return false;
+        const statusLower = m.status.toLowerCase();
+        const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
+        return isFinished && m.verified_double === true;
+    })
+    .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
+    .slice(0, 10);
+
+    let html = '';
+    wins.forEach(m => {
+        const score = `${m.home_score ?? '-'} - ${m.away_score ?? '-'}`;
+        html += `
+            <div class="win-item">
+                ✅ 
+                <span>
+                    ${m.home_team} ${score} ${m.away_team}
+                </span>
+                🏆 ${m.prediction?.double_chance || ''}
+            </div>
+        `;
+    });
+
+    // Dupliquer pour un effet infini
+    track.innerHTML = html + html;
+}
+
+// =======================================================
+// NOTIFICATIONS DE GAINS EN DIRECT (POPUP) - AMÉLIORÉES
+// =======================================================
+function startWinNotifications() {
+    const popup = document.getElementById('win-popup');
+    if (!popup) return;
+
+    // Liste de prénoms et noms complets (pas de doublons dans une session)
+    const firstNames = ["Jean", "Michel", "David", "Lucas", "Thomas", "Patrick", "Samuel", "Kevin", "Éric", "Daniel", "Pierre", "Philippe", "Nicolas", "François", "Antoine"];
+    const lastNames = ["Martin", "Bernard", "Dubois", "Thomas", "Robert", "Richard", "Petit", "Durand", "Leroy", "Moreau", "Simon", "Laurent", "Lefebvre", "Michel", "Garcia"];
+
+    // Générer un ensemble unique de noms complets pour les 5 notifications
+    let usedNames = new Set();
+    let notifications = [];
+
+    while (notifications.length < 5) {
+        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+        const fullName = `${firstName} ${lastName}`;
+        if (!usedNames.has(fullName)) {
+            usedNames.add(fullName);
+            const gain = Math.floor(Math.random() * (200 - 45 + 1)) + 45; // entre 45 et 200
+            notifications.push({ name: fullName, gain });
+        }
+    }
+
+    // Rotation des notifications toutes les heures (3600000 ms)
+    let index = 0;
+    function showPopup() {
+        const { name, gain } = notifications[index];
+        popup.innerHTML = `💰 <b>${name}</b> a gagné <b>${gain}€</b> aujourd'hui grâce au VIP !`;
+        popup.classList.add('show');
+        setTimeout(() => {
+            popup.classList.remove('show');
+        }, 4000);
+        index = (index + 1) % notifications.length;
+    }
+
+    setInterval(showPopup, 3600000); // toutes les heures
+    showPopup(); // afficher immédiatement la première
+}
+
+// =======================================================
+// COMPTEUR ANIMÉ DE PRONOSTICS GAGNANTS (RÉEL)
+// =======================================================
+function animateWins() {
+    const el = document.getElementById('wins-count');
+    if (!el || !allData || !allData.matches) return;
+
+    // Compter les matchs terminés et gagnés
+    const winsCount = allData.matches.filter(m => {
+        if (!m.status) return false;
+        const statusLower = m.status.toLowerCase();
+        const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
+        return isFinished && m.verified_double === true;
+    }).length;
+
+    let count = 0;
+    const target = winsCount;
+
+    const interval = setInterval(() => {
+        count++;
+        el.textContent = count;
+        if (count >= target) {
+            clearInterval(interval);
+        }
+    }, 20);
+}
+
+// =======================================================
+// TAUX DE RÉUSSITE ANIMÉ (RÉEL)
+// =======================================================
+function showSuccessRate() {
+    const fill = document.getElementById('success-fill');
+    const percentEl = document.getElementById('success-percent');
+    if (!fill || !percentEl || !allData || !allData.matches) return;
+
+    const finished = allData.matches.filter(m => {
+        if (!m.status) return false;
+        const statusLower = m.status.toLowerCase();
+        return statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
+    });
+
+    let percent = 0;
+    if (finished.length > 0) {
+        const successful = finished.filter(m => m.verified_double).length;
+        percent = Math.round((successful / finished.length) * 100);
+    }
+
+    fill.style.width = percent + '%';
+    percentEl.textContent = percent + '%';
+}
+
+// =======================================================
+// TÉMOIGNAGES DYNAMIQUES (GÉNÉRÉS VIA JSON)
 // =======================================================
 async function displayTestimonials() {
     const container = document.getElementById('testimonials-container');
@@ -1595,9 +1728,9 @@ async function displayTestimonials() {
     } catch (e) {
         console.error('Erreur chargement témoignages', e);
         container.innerHTML = `
-            <div class="card"><p>"Grâce à Mr XPRONOS, j'ai multiplié mes gains par 3 en un mois !"</p><p style="margin-top:1rem;color:var(--or);">— Jean D.</p></div>
-            <div class="card"><p>"Les pronostics VIP sont incroyablement précis. Je recommande !"</p><p style="margin-top:1rem;color:var(--or);">— Marie L.</p></div>
-            <div class="card"><p>"Le système de partage permet d'accéder à des analyses de qualité gratuitement."</p><p style="margin-top:1rem;color:var(--or);">— Thomas P.</p></div>
+            <div class="card"><p>"Grâce à Mr XPRONOS, j'ai multiplié mes gains par 3 en un mois !"</p><p style="margin-top:1rem;color:var(--or);">— Jean Martin</p></div>
+            <div class="card"><p>"Les pronostics VIP sont incroyablement précis. Je recommande !"</p><p style="margin-top:1rem;color:var(--or);">— Marie Dubois</p></div>
+            <div class="card"><p>"Le système de partage permet d'accéder à des analyses de qualité gratuitement."</p><p style="margin-top:1rem;color:var(--or);">— Thomas Petit</p></div>
         `;
     }
 }

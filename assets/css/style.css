@@ -1383,3 +1383,218 @@ footer {
         font-size: 0.75rem;
     }
 }
+
+/* =======================================================
+   NOUVEAUX STYLES POUR L'AMÉLIORATION DE L'ACCUEIL
+   ======================================================= */
+
+/* Carte de pronostic validé (affichage horizontal) */
+.verified-card {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    background: #111;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.verified-card:hover {
+    transform: scale(1.02);
+    border-color: var(--or);
+}
+
+.verified-card .teams {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 100px;
+}
+
+.verified-card .teams img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    background: var(--gris);
+    border-radius: 6px;
+    padding: 3px;
+}
+
+.verified-card .vs {
+    font-size: 12px;
+    color: var(--or);
+    font-weight: bold;
+}
+
+.verified-card .match-info {
+    flex: 1;
+}
+
+.verified-card .teams-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+}
+
+.verified-card .score {
+    color: #00ff9c;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.verified-card .prediction {
+    font-size: 0.8rem;
+    color: #ccc;
+}
+
+.verified-card .badges {
+    margin-top: 5px;
+    display: flex;
+    gap: 5px;
+}
+
+.badge-win {
+    background: #00c853;
+    color: white;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Slider des gains */
+.wins-slider {
+    width: 100%;
+    overflow: hidden;
+    background: #0f0f0f;
+    border-top: 1px solid #222;
+    border-bottom: 1px solid #222;
+    padding: 8px 0;
+    margin: 15px 0;
+}
+
+.wins-track {
+    display: flex;
+    gap: 40px;
+    white-space: nowrap;
+    animation: scrollWins 25s linear infinite;
+}
+
+.win-item {
+    color: #00ff9c;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.win-item span {
+    color: #fff;
+    font-weight: 400;
+}
+
+@keyframes scrollWins {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Popup de notification de gains */
+.win-popup {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #111;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: 0.4s;
+    z-index: 9999;
+    border: 1px solid var(--or);
+}
+
+.win-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.win-popup b {
+    color: #00ff9c;
+}
+
+/* Compteur de pronostics gagnants */
+.stats-counter {
+    font-size: 18px;
+    font-weight: bold;
+    color: #FFD700;
+    margin: 20px 0;
+    text-align: center;
+}
+
+/* Barre de taux de réussite */
+.success-box {
+    margin: 20px 0;
+    padding: 15px;
+    background: #1A1A1A;
+    border-radius: 12px;
+    border: 1px solid var(--or);
+}
+
+.success-title {
+    font-size: 1rem;
+    color: #ccc;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.success-bar {
+    width: 100%;
+    height: 10px;
+    background: #222;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.success-fill {
+    height: 100%;
+    width: 0%;
+    background: #00ff9c;
+    transition: width 2s ease;
+}
+
+.success-percent {
+    margin-top: 5px;
+    font-weight: bold;
+    color: #00ff9c;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+/* Responsive pour mobile */
+@media (max-width: 480px) {
+    .verified-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    .verified-card .teams {
+        min-width: auto;
+    }
+    .win-popup {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        font-size: 12px;
+    }
+}
