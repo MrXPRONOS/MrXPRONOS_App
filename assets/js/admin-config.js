@@ -1,2 +1,3 @@
+// Configuration admin (remplacé par GitHub Actions)
 export const Crolivier = 'Crolivier';
 export const 14e2e0fe42f8df59b7f0b7d8ac40ce9442037f90973fd17dc56860abac15e1ac = '14e2e0fe42f8df59b7f0b7d8ac40ce9442037f90973fd17dc56860abac15e1ac';

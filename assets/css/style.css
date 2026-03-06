@@ -395,6 +395,16 @@ footer {
     word-break: break-word;
 }
 
+/* Réduction de la taille sur mobile */
+@media (max-width: 480px) {
+    .horizontal-item {
+        width: 150px;
+    }
+    .horizontal-item .item-title {
+        font-size: 0.8rem;
+    }
+}
+
 /* Badges pour les pronostics validés */
 .badge-vip {
     background-color: var(--or);

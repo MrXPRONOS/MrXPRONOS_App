@@ -6,15 +6,18 @@
     <title>Blog - Mr XPRONOS</title>
     <meta name="description" content="Blog sur les paris sportifs, analyses, stratégies et actualités.">
     <meta name="robots" content="index, follow">
+
     <meta property="og:title" content="Blog - Mr XPRONOS">
     <meta property="og:description" content="Blog sur les paris sportifs, analyses, stratégies et actualités.">
     <meta property="og:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
     <meta property="og:url" content="https://mrxpronos.github.io/MrXPRONOS_App/blog.html">
     <meta property="og:type" content="website">
+
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Blog - Mr XPRONOS">
     <meta name="twitter:description" content="Blog sur les paris sportifs, analyses, stratégies et actualités.">
     <meta name="twitter:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
+
     <link rel="icon" href="assets/images/favicon.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="manifest.json">
@@ -47,11 +50,13 @@
     <main class="container">
         <h1 style="color: var(--or); margin: 2rem 0;">📰 Blog</h1>
 
+        <!-- Liste horizontale des articles (miniatures) -->
         <div id="blog-horizontal-list" class="horizontal-scroll"></div>
+        <!-- Grille principale des articles -->
         <div id="blog-list" class="blog-grid"></div>
     </main>
 
-    <!-- Modal pour les articles -->
+    <!-- Modal pour les articles (popup) -->
     <div id="article-modal" class="modal" onclick="closeArticleModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <span class="close" onclick="closeArticleModal()">&times;</span>
@@ -62,6 +67,7 @@
         </div>
     </div>
 
+    <!-- Popup guide iOS (identique) -->
     <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
         <div class="ios-guide-content">
             <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
