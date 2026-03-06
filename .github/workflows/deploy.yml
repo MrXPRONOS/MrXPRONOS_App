@@ -17,10 +17,14 @@ jobs:
           sed "s|SUPABASE_URL|${{ secrets.SUPABASE_URL }}|g; s|SUPABASE_ANON_KEY|${{ secrets.SUPABASE_ANON_KEY }}|g" config.template.js > assets/js/config.js
 
       - name: Generate admin config (optional)
-        if: secrets.ADMIN_USER != '' && secrets.ADMIN_PASSWORD != ''
         run: |
-          PASSWORD_HASH=$(echo -n "${{ secrets.ADMIN_PASSWORD }}" | openssl dgst -sha256 | awk '{print $2}')
-          sed "s|ADMIN_USER|${{ secrets.ADMIN_USER }}|g; s|ADMIN_PASSWORD_HASH|$PASSWORD_HASH|g" admin-config.template.js > assets/js/admin-config.js
+          if [ -n "${{ secrets.ADMIN_USER }}" ] && [ -n "${{ secrets.ADMIN_PASSWORD }}" ]; then
+            PASSWORD_HASH=$(echo -n "${{ secrets.ADMIN_PASSWORD }}" | openssl dgst -sha256 | awk '{print $2}')
+            sed "s|ADMIN_USER|${{ secrets.ADMIN_USER }}|g; s|ADMIN_PASSWORD_HASH|$PASSWORD_HASH|g" admin-config.template.js > assets/js/admin-config.js
+            echo "Admin config generated."
+          else
+            echo "Secrets ADMIN_USER and ADMIN_PASSWORD not set, skipping admin config generation."
+          fi
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
