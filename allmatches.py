@@ -4,7 +4,7 @@
 """
 allmatches.py - Télécharge tous les matchs depuis 2024 jusqu'à hier
 via SportData, mois par mois, et sauvegarde dans cache/all_matches.json.
-À exécuter localement une fois.
+À exécuter localement une fois. 
 """
 
 import os
