@@ -1,24 +1,12 @@
 /**
- * main.js - Mr XPRONOS – Version ultime avec Supabase synchronisé
+ * main.js - Mr XPRONOS – Version améliorée
  * 
- * Fonctionnalités :
- * - Pronostics avec filtres (Simple/Pro/VIP, aujourd'hui/demain/hier)
- * - Partage simplifié avec délai de retour de 5 secondes
- * - Partage d'un pronostic spécifique
- * - Historique avec badges de catégorie
- * - Gestion offline robuste (cache + timeout)
- * - Logos des clubs locaux avec fallback home.png / away.png
- * - Articles, conseils, actualités en grille avec modals et sauts de ligne
- * - Témoignages dynamiques générés quotidiennement
- * - Notifications de gains en direct (simulées)
- * - Installation PWA
- * - Bookmakers avec fallback et liens d'affiliation
- * - Statistiques (visites, partages) stockées dans Supabase + fallback localStorage
- * - Lazy loading des images, decoding async
- * - Correction des fuseaux horaires
- * - Taux de réussite basé sur double chance
- * - Affichage des derniers pronostics gagnants (style historique, défilement horizontal)
- * - Slider des gains récents, compteur animé, barre de taux de réussite réelle
+ * Modifications :
+ * - Correction du bouton de partage sur la page pronostics
+ * - Gestion d'erreur plus robuste pour les appels Supabase
+ * - Amélioration de l'encodage des données dans les attributs data-*
+ * - Vérification de l'URL Supabase
+ * - Appels non bloquants pour l'incrémentation des compteurs
  */
 
 // =======================================================
@@ -39,12 +27,17 @@ let supabaseAvailable = false;
 async function initSupabase() {
     try {
         const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
+        // Vérification basique de l'URL
+        if (!supabaseUrl || !supabaseUrl.startsWith('https://')) {
+            throw new Error('URL Supabase invalide');
+        }
         const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
         supabase = createClient(supabaseUrl, supabaseAnonKey);
         supabaseAvailable = true;
         console.log('✅ Supabase connecté');
     } catch (error) {
         console.warn('⚠️ Supabase non configuré, utilisation des compteurs locaux');
+        supabaseAvailable = false;
     }
 }
 
@@ -68,14 +61,13 @@ const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
 const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
-// Limites de partages quotidiennes pour débloquer Pro/VIP
+// Limites de partages quotidiennes
 const shareLimits = { pro: 2, vip: 5 };
 
 // Variables pour le partage avec délai
 let shareStartTime = null;
 let sharePending = false;
 
-// Popular leagues for sorting
 const POPULAR_LEAGUES = [
     "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
     "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
@@ -89,10 +81,9 @@ const POPULAR_LEAGUES = [
 if (!localStorage.getItem('userId')) {
     localStorage.setItem('userId', 'user_' + Math.random().toString(36).substr(2, 9));
 }
-const userId = localStorage.getItem('userId');
 
 // =======================================================
-// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS (LOCAL)
+// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
 // =======================================================
 
 function getDailyShareCount() {
@@ -117,14 +108,10 @@ function incrementShareCount() {
 // SYSTÈME DE COMPTEURS AVEC SUPABASE (FALLBACK LOCALSTORAGE)
 // =======================================================
 
-const COUNTERS_KEY = 'mr_xpronos_stats'; // fallback localStorage
+const COUNTERS_KEY = 'mr_xpronos_stats'; // pour le fallback localStorage
 
-/**
- * Récupère la valeur d'un compteur (total_users ou total_shares) depuis Supabase.
- * Fallback localStorage.
- */
 async function getCounterValue(counterName) {
-    if (supabaseAvailable) {
+    if (supabaseAvailable && supabase) {
         try {
             const { data, error } = await supabase
                 .from('counters')
@@ -143,12 +130,8 @@ async function getCounterValue(counterName) {
     return stats[counterName] || (counterName === 'total_users' ? 1000 : 10000);
 }
 
-/**
- * Incrémente un compteur (total_users ou total_shares) via RPC Supabase.
- * Retourne la nouvelle valeur ou null.
- */
 async function incrementCounter(counterName) {
-    if (supabaseAvailable) {
+    if (supabaseAvailable && supabase) {
         try {
             const { data, error } = await supabase.rpc('increment_counter', {
                 counter_name: counterName
@@ -161,7 +144,7 @@ async function incrementCounter(counterName) {
             console.warn('Erreur RPC Supabase, fallback localStorage');
         }
     }
-    // Fallback localStorage (incrémentation simple)
+    // Fallback localStorage
     const stats = JSON.parse(localStorage.getItem(COUNTERS_KEY)) || {
         total_users: 1000,
         total_shares: 10000,
@@ -176,9 +159,6 @@ async function incrementCounter(counterName) {
     return newValue;
 }
 
-/**
- * Met à jour l'affichage des compteurs (utilisateurs et partages) dans le badge.
- */
 async function updateDisplayedCounters() {
     const usersEl = document.getElementById('total-users-count');
     const sharesEl = document.getElementById('total-shares-count');
@@ -199,13 +179,11 @@ window.addEventListener('storage', (event) => {
 });
 
 // =======================================================
-// ENREGISTREMENT DES ÉVÉNEMENTS DANS SUPABASE
+// ENREGISTREMENT DES ÉVÉNEMENTS (VISITES, PARTAGES) DANS SUPABASE
 // =======================================================
 
-/**
- * Enregistre un événement utilisateur (visite, partage) dans Supabase et localStorage.
- */
 function recordEvent(type) {
+    const userId = localStorage.getItem('userId') || 'unknown';
     const page = window.location.pathname;
     const timestamp = new Date().toISOString();
 
@@ -214,14 +192,15 @@ function recordEvent(type) {
     events.push({ type, timestamp, userId, page });
     localStorage.setItem('userEvents', JSON.stringify(events));
 
-    // Envoi à Supabase (si disponible)
-    if (supabaseAvailable) {
+    // Envoi à Supabase (si disponible) - ne pas bloquer
+    if (supabaseAvailable && supabase) {
         supabase
             .from('events')
             .insert({ type, user_id: userId, page })
             .then(({ error }) => {
-                if (error) console.error('Erreur envoi événement Supabase:', error);
-            });
+                if (error) console.warn('Erreur envoi événement Supabase:', error);
+            })
+            .catch(e => console.warn('Erreur réseau Supabase', e));
     }
 }
 
@@ -290,7 +269,6 @@ document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeI
 // INITIALISATION
 // =======================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialiser Supabase (ne bloque pas l'affichage)
     await initSupabase();
 
     showIosGuideIfNeeded();
@@ -309,10 +287,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 allData = data;
                 renderBookmakers(data.bookmakers);
                 updateShareCounter();
-                displayLatestVerified(); // Affiche les derniers pronostics validés
+                displayLatestVerified();
                 startWinsSlider();
                 showSuccessRate();
                 animateWins();
+            } else {
+                console.log("Aucune donnée chargée pour l'accueil");
             }
         });
         displayTestimonials();
@@ -334,74 +314,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Détection du retour après partage
     document.addEventListener('visibilitychange', () => {
         if (sharePending && !document.hidden) {
             const elapsed = Date.now() - shareStartTime;
             if (elapsed >= 5000) {
                 sharePending = false;
-                const newCount = incrementShareCount(); // local
+                const newCount = incrementShareCount();
                 updateShareCounter();
-
-                // Enregistrer le partage dans Supabase
-                if (supabaseAvailable) {
-                    supabase
-                        .from('shares')
-                        .insert({ user_id: userId, date: new Date().toISOString().split('T')[0] })
-                        .then(() => {
-                            // Incrémenter le compteur global
-                            incrementCounter('total_shares');
-                        });
-                } else {
-                    incrementCounter('total_shares'); // fallback localStorage
-                }
+                incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
                 recordEvent('share');
 
-                // Vérifier si l'utilisateur a assez partagé pour débloquer la catégorie
-                checkAndUnlockCategory();
+                const target = shareLimits[currentCategory];
+                if (newCount >= target) {
+                    hideVipLocked();
+                    filterAndDisplay();
+                } else {
+                    if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
+                        showVipLocked(currentCategory);
+                    } else {
+                        showSharePopup(currentCategory, target - newCount);
+                    }
+                }
             }
         }
     });
 
-    // Enregistrer la visite
     recordEvent('visit');
 });
 
 // =======================================================
-// VÉRIFICATION DU NOMBRE DE PARTAGES POUR DÉBLOQUER VIP
-// =======================================================
-async function checkAndUnlockCategory() {
-    if (!currentCategory || currentCategory === 'simple') return;
-    const target = shareLimits[currentCategory];
-    let shareCount = getDailyShareCount(); // local
-
-    if (supabaseAvailable) {
-        // Vérifier le nombre réel de partages de l'utilisateur aujourd'hui
-        const today = new Date().toISOString().split('T')[0];
-        const { count, error } = await supabase
-            .from('shares')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', userId)
-            .eq('date', today);
-        if (!error && count !== null) {
-            shareCount = count;
-        }
-    }
-
-    if (shareCount >= target) {
-        hideVipLocked();
-        filterAndDisplay();
-    } else {
-        if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
-            showVipLocked(currentCategory);
-        } else {
-            showSharePopup(currentCategory, target - shareCount);
-        }
-    }
-}
-
-// =======================================================
-// FONCTIONS POUR LA PAGE PRONOSTICS (inchangées, sauf où appelé)
+// FONCTIONS POUR LA PAGE PRONOSTICS
 // =======================================================
 
 async function initPronostics() {
@@ -597,8 +539,12 @@ function setupEventListeners() {
     // Écouteur pour les boutons de partage de pronostic individuel
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-share')) {
-            const matchData = JSON.parse(e.target.dataset.match);
-            sharePronostic(matchData);
+            try {
+                const matchData = JSON.parse(decodeURIComponent(e.target.dataset.match));
+                sharePronostic(matchData);
+            } catch (err) {
+                console.error('Erreur parsing données match', err);
+            }
         }
     });
 }
@@ -608,15 +554,21 @@ function handleCategoryChange() {
         hideVipLocked();
         filterAndDisplay();
     } else {
-        // Utiliser la fonction asynchrone
-        checkAndUnlockCategory();
+        const target = shareLimits[currentCategory];
+        const shareCount = getDailyShareCount();
+        if (shareCount >= target) {
+            hideVipLocked();
+            filterAndDisplay();
+        } else {
+            showVipLocked(currentCategory);
+        }
     }
 }
 
 function showVipLocked(category) {
     if (vipLockedOverlay) {
         const target = shareLimits[category];
-        const shareCount = getDailyShareCount(); // local pour l'affichage, mais sera recalculé par checkAndUnlockCategory
+        const shareCount = getDailyShareCount();
         const remaining = target - shareCount;
         vipLockedOverlay.querySelector('h3').textContent = `🔒 ${category === 'pro' ? 'Pronostics Pro' : 'Pronostics VIP'} verrouillés`;
         vipLockedOverlay.querySelector('p').innerHTML = `Partagez ce lien à <strong>${remaining}</strong> ami(s) pour débloquer.`;
@@ -658,10 +610,10 @@ function share(platform) {
     let url = '';
 
     if (platform === 'whatsapp') {
-        message = `🔥 3 matchs sûrs aujourd'hui !\n\nChelsea vs Arsenal\nDouble chance : 1X\nFiabilité : 87%\n\n📊 Voir les autres pronostics gratuits :\n${shareUrl}`;
+        message = `🔥 Mr XPRONOS - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${shareUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
         url = `https://wa.me/?text=${encodeURIComponent(message)}`;
     } else {
-        message = `🔥 3 matchs sûrs aujourd'hui !\n\nChelsea vs Arsenal\nDouble chance : 1X\nFiabilité : 87%\n\n📊 Voir les autres pronostics gratuits :\n${shareUrl}`;
+        message = `🔥 Mr XPRONOS - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${shareUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
         url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(message)}`;
     }
 
@@ -670,32 +622,28 @@ function share(platform) {
     sharePending = true;
 }
 
-// Fonction de partage d'un pronostic spécifique
+// Fonction de partage d'un pronostic spécifique (améliorée)
 function sharePronostic(match) {
-    try {
-        const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-        const message = `🔥 *Mr XPRONOS* - Pronostic du jour\n\n` +
-            `${match.home_team} vs ${match.away_team}\n` +
-            `Double chance : ${match.prediction.double_chance}\n` +
-            `Fiabilité : ${match.prediction.confidence}%\n\n` +
-            `👉 Analyse complète sur ${siteUrl}`;
+    const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
+    const message = `🔥 *Mr XPRONOS* - Pronostic du jour\n\n` +
+        `${match.home_team} vs ${match.away_team}\n` +
+        `Double chance : ${match.prediction.double_chance}\n` +
+        `Fiabilité : ${match.prediction.confidence}%\n\n` +
+        `👉 Analyse complète sur ${siteUrl}`;
 
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-        const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
 
-        if (confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)")) {
-            window.open(whatsappUrl, '_blank');
-        } else {
-            window.open(telegramUrl, '_blank');
-        }
-
-        // Incrémenter les compteurs en arrière-plan (ne pas attendre)
-        incrementShareCount();
-        incrementCounter('total_shares');
-        recordEvent('share');
-    } catch (e) {
-        console.error("Erreur lors du partage", e);
+    if (confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)")) {
+        window.open(whatsappUrl, '_blank');
+    } else {
+        window.open(telegramUrl, '_blank');
     }
+
+    // Incrémenter les compteurs de manière non bloquante
+    incrementShareCount();
+    incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
+    recordEvent('share');
 }
 
 function updateShareCounter() {
@@ -800,7 +748,7 @@ function getTeamLogoPath(teamName, isHome = true) {
 function renderMatches(matches) {
     if (!matchesContainer) return;
     if (matches.length === 0) {
-        matchesContainer.innerHTML = '<div class="no-events">📭 Aucun pronostic pour aujourd&#39;hui. Reviens demain pour de nouveaux matchs !</div>';
+        matchesContainer.innerHTML = '<div class="no-events">Aucun match.</div>';
         return;
     }
 
@@ -850,6 +798,9 @@ function renderMatches(matches) {
 
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
 
+            // Encodage sécurisé des données du match pour le partage
+            const matchDataEncoded = encodeURIComponent(JSON.stringify(m));
+
             html += `
                 <div class="match-card ${winnerClass}" data-match-id="${m.id}">
                     <div class="win-effect"></div>
@@ -885,7 +836,7 @@ function renderMatches(matches) {
                         </div>
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
                         ${premiumBadge}
-                        <button class="btn btn-secondary btn-share" data-match='${encodeURIComponent(JSON.stringify(m))}'>📤 Partager ce prono</button>
+                        <button class="btn btn-secondary btn-share" data-match='${matchDataEncoded}'>📤 Partager ce prono</button>
                     </div>
                 </div>
             `;
@@ -901,7 +852,7 @@ function renderMatches(matches) {
     });
 
     document.querySelectorAll('.match-card.winner').forEach(card => {
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 8; i++) { // Réduit à 8 sparks pour performance
             let spark = document.createElement('div');
             spark.className = 'spark';
             let dx = (Math.random() - 0.5) * 200;
@@ -1060,7 +1011,7 @@ async function displayBlogList() {
             const title = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
             hHtml += `
                 <div class="horizontal-item" onclick="showArticleDetail(${index})">
-                    <img src="${article.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy" decoding="async">
+                    <img src="${article.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy">
                     <div class="item-title">${title}</div>
                 </div>
             `;
@@ -1078,7 +1029,7 @@ async function displayBlogList() {
 
         html += `
             <div class="news-card card" onclick="showArticleDetail(${index})">
-                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" decoding="async" class="news-image">
+                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
                 <h3>${cleanTitle}</h3>
                 <p class="meta">${articleDate} par ${article.author || 'Mr XPRONOS'}</p>
                 <p>${cleanExcerpt}</p>
@@ -1136,7 +1087,7 @@ async function displayBlogPost() {
     container.innerHTML = `
         <h1>${cleanTitle}</h1>
         <div class="meta">${article.date} par ${article.author}</div>
-        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" loading="lazy" decoding="async">` : ''}
+        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
         <div style="margin-top: 2rem;">${htmlContent}</div>
         <a href="blog.html" class="btn btn-secondary" style="margin-top: 2rem;">← Retour au blog</a>
     `;
@@ -1165,7 +1116,7 @@ async function displayConseils() {
             const title = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
             hHtml += `
                 <div class="horizontal-item" onclick="showConseilDetail(${index})">
-                    <img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy" decoding="async">
+                    <img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy">
                     <div class="item-title">${title}</div>
                 </div>
             `;
@@ -1183,7 +1134,7 @@ async function displayConseils() {
 
         html += `
             <div class="news-card card" onclick="showConseilDetail(${index})">
-                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" decoding="async" class="news-image">
+                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
                 <h3>${cleanTitle}</h3>
                 <p class="meta">${conseilDate}</p>
                 <p>${cleanExcerpt}</p>
@@ -1250,7 +1201,7 @@ async function displayFootNews() {
         news.forEach((item, index) => {
             html += `
                 <div class="news-card card" onclick="showNewsDetail(${index})">
-                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" loading="lazy" decoding="async">` : ''}
+                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" loading="lazy">` : ''}
                     <h3>${item.title}</h3>
                     <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
                     <p>${item.summary}</p>
@@ -1342,7 +1293,7 @@ function displayBonusThumbnails() {
     filtered.forEach(b => {
         html += `
             <div class="bonus-thumb" onclick="showBonusDetail(${b.id})">
-                <img src="${b.image}" alt="${b.title}" loading="lazy" decoding="async">
+                <img src="${b.image}" alt="${b.title}" loading="lazy">
                 <div class="bonus-thumb-title">${b.title}</div>
             </div>
         `;
@@ -1388,7 +1339,7 @@ async function displayBonusList() {
     activeBonus.forEach(b => {
         html += `
             <div class="bonus-card">
-                <img src="${b.image}" alt="${b.title}" class="bonus-image" loading="lazy" decoding="async">
+                <img src="${b.image}" alt="${b.title}" class="bonus-image" loading="lazy">
                 <h3>${b.title}</h3>
                 <p>${b.description}</p>
                 <div class="bonus-footer">
@@ -1559,7 +1510,6 @@ function initScrollProgress() {
 
 // =======================================================
 // AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL
-// (même style que l'historique)
 // =======================================================
 function displayLatestVerified() {
     const container = document.getElementById('today-picks');
@@ -1570,6 +1520,7 @@ function displayLatestVerified() {
         return;
     }
 
+    // Filtrer les matchs terminés, vérifiés gagnants, et des catégories Pro/VIP
     const verified = allData.matches.filter(m => {
         if (!m.status) return false;
         const statusLower = m.status.toLowerCase();
@@ -1581,12 +1532,13 @@ function displayLatestVerified() {
         );
     });
 
+    // Trier du plus récent au plus ancien et prendre les 4 premiers
     const latest = [...verified]
         .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
         .slice(0, 4);
 
     if (latest.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun pronostic validé récent.</div>';
+        container.innerHTML = '<div class="no-events">📭 Aucun pronostic validé récent. Revenez plus tard !</div>';
         return;
     }
 
