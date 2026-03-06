@@ -3,14 +3,15 @@
  * 
  * Fonctionnalités :
  * - Pronostics avec filtres (Simple/Pro/VIP, aujourd'hui/demain/hier)
- * - Partage sécurisé avec token et vérification de retour
+ * - Partage simplifié (pas de token)
  * - Historique avec badges de catégorie
  * - Gestion offline robuste (cache + timeout)
  * - Logos des clubs locaux avec fallback générique
- * - Articles, conseils, infos en grille horizontale
+ * - Articles, conseils, actualités en grille avec modals
+ * - Témoignages dynamiques générés quotidiennement
  * - Installation PWA (Android/iOS)
  * - Bookmakers avec fallback et liens d'affiliation
- * - Statistiques locales (visites, partages)
+ * - Statistiques locales (visites, partages) avec compteurs atomiques
  * - Lazy loading des images
  * - Correction des fuseaux horaires
  * - Taux de réussite basé uniquement sur double chance
@@ -48,15 +49,6 @@ const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 // Limites de partages quotidiennes
 const shareLimits = { pro: 2, vip: 5 };
 
-// Token de partage
-let shareToken = localStorage.getItem('shareToken');
-if (!shareToken) {
-    shareToken = crypto.randomUUID();
-    localStorage.setItem('shareToken', shareToken);
-}
-
-let shareStartTime = null;
-
 const POPULAR_LEAGUES = [
     "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
     "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
@@ -87,29 +79,108 @@ function incrementShareCount() {
 }
 
 // =======================================================
-// FONCTIONS POUR LES COMPTEURS GLOBAUX
+// SYSTÈME DE COMPTEURS ATOMIQUES AVEC SYNCHRONISATION
 // =======================================================
-function getCounterValue(counterName) {
-    const val = localStorage.getItem('counter_' + counterName);
-    return val ? parseInt(val) : (counterName === 'total_users' ? 1000 : 10000);
+
+const COUNTERS_KEY = 'mr_xpronos_stats';
+
+function initCounters() {
+    const defaultStats = {
+        total_users: 1000,
+        total_shares: 10000,
+        lastUpdate: Date.now()
+    };
+    try {
+        const stored = localStorage.getItem(COUNTERS_KEY);
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (!parsed.total_users) parsed.total_users = 1000;
+            if (!parsed.total_shares) parsed.total_shares = 10000;
+            parsed.lastUpdate = parsed.lastUpdate || Date.now();
+            return parsed;
+        }
+    } catch (e) {}
+    return defaultStats;
 }
 
-function incrementCounter(counterName) {
-    const current = getCounterValue(counterName);
-    const newValue = current + 1;
-    localStorage.setItem('counter_' + counterName, newValue);
-    return newValue;
+function saveCounters(stats) {
+    stats.lastUpdate = Date.now();
+    localStorage.setItem(COUNTERS_KEY, JSON.stringify(stats));
+    return stats;
+}
+
+async function atomicIncrement(counterName) {
+    const maxRetries = 5;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        const stats = initCounters();
+        const oldValue = stats[counterName] || 0;
+        const newValue = oldValue + 1;
+
+        const newStats = { ...stats, [counterName]: newValue, lastUpdate: Date.now() };
+
+        const currentRaw = localStorage.getItem(COUNTERS_KEY);
+        if (currentRaw) {
+            try {
+                const currentStats = JSON.parse(currentRaw);
+                if (currentStats.lastUpdate !== stats.lastUpdate) {
+                    continue;
+                }
+            } catch (e) {}
+        }
+
+        localStorage.setItem(COUNTERS_KEY, JSON.stringify(newStats));
+
+        const verifyRaw = localStorage.getItem(COUNTERS_KEY);
+        if (verifyRaw) {
+            try {
+                const verifyStats = JSON.parse(verifyRaw);
+                if (verifyStats[counterName] === newValue) {
+                    return newValue;
+                }
+            } catch (e) {}
+        }
+    }
+    console.warn(`Échec de l'incrémentation après ${maxRetries} tentatives`);
+    return null;
+}
+
+function getCounterValue(counterName) {
+    const stats = initCounters();
+    return stats[counterName] || (counterName === 'total_users' ? 1000 : 10000);
 }
 
 function updateDisplayedCounters() {
+    const stats = initCounters();
     const usersEl = document.getElementById('total-users-count');
     const sharesEl = document.getElementById('total-shares-count');
-    if (usersEl) usersEl.textContent = getCounterValue('total_users').toLocaleString();
-    if (sharesEl) sharesEl.textContent = getCounterValue('total_shares').toLocaleString();
+    if (usersEl) usersEl.textContent = stats.total_users.toLocaleString();
+    if (sharesEl) sharesEl.textContent = stats.total_shares.toLocaleString();
+}
+
+window.addEventListener('storage', (event) => {
+    if (event.key === COUNTERS_KEY) {
+        updateDisplayedCounters();
+    }
+});
+
+let isTabVisible = !document.hidden;
+document.addEventListener('visibilitychange', () => {
+    isTabVisible = !document.hidden;
+});
+
+async function incrementCounter(counterName) {
+    if (!isTabVisible) {
+        return null;
+    }
+    const newValue = await atomicIncrement(counterName);
+    if (newValue !== null) {
+        updateDisplayedCounters();
+    }
+    return newValue;
 }
 
 // =======================================================
-// GESTION DE L'INSTALLATION PWA (Android & Desktop)
+// GESTION DE L'INSTALLATION PWA
 // =======================================================
 let deferredPrompt;
 const installButton = document.getElementById('install-app');
@@ -183,15 +254,16 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (document.getElementById('bonus-bookmaker-select')) {
         initBonusPage();
     } else {
-        // Page d'accueil : charger les données pour les bookmakers, le compteur et les derniers pronos validés
+        // Page d'accueil
         loadDataGeneric().then(data => {
             if (data) {
                 allData = data;
                 renderBookmakers(data.bookmakers);
                 updateShareCounter();
-                displayLatestVerified(); // Affiche les derniers pronos Pro/VIP validés
+                displayLatestVerified();
             }
         });
+        displayTestimonials();
     }
 
     displayBlogList();
@@ -208,13 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
             applySearchFilter();
         });
     }
-
-    // Écouter le retour sur la page après partage
-    window.addEventListener('focus', () => {
-        if (shareStartTime && Date.now() - shareStartTime > 5000) { // 5 secondes minimum
-            verifyShare();
-        }
-    });
 });
 
 // =======================================================
@@ -465,10 +530,9 @@ function showSharePopup(category, remaining) {
     sharePopup.classList.add('active');
 }
 
-// Nouvelle fonction de partage avec token et temporisation
 function share(platform) {
     const baseUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    const shareUrl = `${baseUrl}?ref=${shareToken}`;
+    const shareUrl = baseUrl;
     let message = '';
     let url = '';
 
@@ -480,30 +544,13 @@ function share(platform) {
         url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(message)}`;
     }
 
-    shareStartTime = Date.now();
     window.open(url, '_blank');
-}
 
-// Vérification après retour
-function verifyShare() {
-    if (!shareStartTime) return;
-    const elapsed = Date.now() - shareStartTime;
-    if (elapsed < 5000) {
-        alert('⏳ Merci de passer au moins 5 secondes sur l\'application de partage avant de revenir.');
-        return;
-    }
-
-    // Incrémenter le compteur quotidien
     const newCount = incrementShareCount();
     updateShareCounter();
     incrementCounter('total_shares');
-    updateDisplayedCounters();
     recordEvent('share');
 
-    // Réinitialiser le timer
-    shareStartTime = null;
-
-    // Vérifier si le seuil est atteint
     const target = shareLimits[currentCategory];
     if (newCount >= target) {
         hideVipLocked();
@@ -543,7 +590,6 @@ function getLocalDateFromEvent(isoString) {
     if (!isoString) return null;
     const date = new Date(isoString);
     if (isNaN(date)) return null;
-    // Ajuster au fuseau local
     date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -609,14 +655,11 @@ function formatMatchTime(isoString) {
     return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
 
-// Fonction pour obtenir le chemin du logo local
 function getTeamLogoPath(teamName) {
-    if (!teamName) return 'assets/images/home.png'; // fallback générique
+    if (!teamName) return 'assets/images/home.png';
     const normalized = teamName.toLowerCase()
         .replace(/\s+/g, '-')
         .replace(/[^a-z0-9-]/g, '');
-    // Vérifier si le fichier existe (par une tentative de chargement, mais on ne peut pas synchronously)
-    // On retourne le chemin, et on gère l'erreur avec onerror
     return `assets/images/${normalized}.png`;
 }
 
@@ -662,12 +705,11 @@ function renderMatches(matches) {
             const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
 
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-            const defaultLogo = 'assets/images/home.png'; // fallback générique
+            const defaultLogo = 'assets/images/home.png';
 
             const homeLogo = getTeamLogoPath(m.home_team);
             const awayLogo = getTeamLogoPath(m.away_team);
 
-            // Un pronostic est gagnant si verified_double est vrai
             const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
 
@@ -760,7 +802,7 @@ function getStatusClass(status) {
 }
 
 // =======================================================
-// FONCTION POUR LES BOOKMAKERS (avec fallback et liens d'affiliation)
+// FONCTION POUR LES BOOKMAKERS
 // =======================================================
 function renderBookmakers(bookmakers) {
     console.log('📢 renderBookmakers appelée avec:', bookmakers);
@@ -789,7 +831,6 @@ function renderBookmakers(bookmakers) {
             img.style.maxHeight = '40px';
             img.loading = 'lazy';
             img.onerror = function() {
-                console.log('❌ Image non chargée pour', b.name);
                 this.style.display = 'none';
                 const span = document.createElement('span');
                 span.textContent = b.name;
@@ -814,7 +855,6 @@ function renderBookmakers(bookmakers) {
             img.alt = b.name;
             img.loading = 'lazy';
             img.onerror = function() {
-                console.log('❌ Image non chargée pour', b.name);
                 this.style.display = 'none';
                 const span = document.createElement('span');
                 span.textContent = b.name;
@@ -853,14 +893,15 @@ function recordEvent(type) {
     events.push({
         type: type,
         timestamp: new Date().toISOString(),
-        userId: localStorage.getItem('userId') || 'unknown'
+        userId: localStorage.getItem('userId') || 'unknown',
+        page: window.location.pathname
     });
     localStorage.setItem('userEvents', JSON.stringify(events));
 }
 recordEvent('visit');
 
 // =======================================================
-// FONCTIONS POUR LE CONTENU GÉNÉRÉ (Blog, Conseils, Infos) - Même design que les infos
+// FONCTIONS POUR LE CONTENU GÉNÉRÉ (Blog, Conseils, Infos)
 // =======================================================
 async function loadGeneratedContent() {
     try {
@@ -873,6 +914,7 @@ async function loadGeneratedContent() {
     }
 }
 
+// ==================== ARTICLES ====================
 async function displayBlogList() {
     const container = document.getElementById('blog-list');
     if (!container) return;
@@ -886,13 +928,15 @@ async function displayBlogList() {
         return;
     }
 
+    window.articlesData = allArticles;
+
     const horizontalContainer = document.getElementById('blog-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
-        allArticles.slice(0, 8).forEach(article => {
+        allArticles.slice(0, 8).forEach((article, index) => {
             const title = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
             hHtml += `
-                <div class="horizontal-item" onclick="window.location.href='article.html?slug=${article.slug}'">
+                <div class="horizontal-item" onclick="showArticleDetail(${index})">
                     <img src="${article.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy">
                     <div class="item-title">${title}</div>
                 </div>
@@ -901,30 +945,48 @@ async function displayBlogList() {
         horizontalContainer.innerHTML = hHtml;
     }
 
-    // Affichage en grille (identique aux infos)
     let html = '';
-    allArticles.forEach(article => {
+    allArticles.forEach((article, index) => {
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        let excerpt = article.excerpt || article.content.substring(0, 200) + '...';
-        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 150) + '...';
+        let excerpt = article.excerpt || article.content.substring(0, 150) + '...';
+        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 120) + '...';
+        let imageUrl = article.image_url || 'assets/images/default-logo.png';
+        let articleDate = article.date ? new Date(article.date).toLocaleDateString('fr-FR') : '';
 
         html += `
-            <div class="card">
-                ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
-                <h3><a href="article.html?slug=${article.slug}" style="color: var(--or);">${cleanTitle}</a></h3>
-                <div class="meta">${article.date} par ${article.author} ${article.match ? '• ' + article.match : ''}</div>
+            <div class="news-card card" onclick="showArticleDetail(${index})">
+                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
+                <h3>${cleanTitle}</h3>
+                <p class="meta">${articleDate} par ${article.author || 'Mr XPRONOS'}</p>
                 <p>${cleanExcerpt}</p>
-                <a href="article.html?slug=${article.slug}" class="btn btn-secondary">Lire</a>
+                <button class="btn btn-secondary" style="margin-top:10px;">Lire la suite</button>
             </div>
         `;
     });
     container.innerHTML = html;
 }
 
+window.showArticleDetail = function(index) {
+    const article = window.articlesData[index];
+    if (!article) return;
+    const modal = document.getElementById('article-modal');
+    if (!modal) return;
+    document.getElementById('article-modal-title').textContent = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+    document.getElementById('article-modal-image').src = article.image_url || 'assets/images/default-logo.png';
+    let content = window.marked ? window.marked.parse(article.content) : article.content.replace(/\n/g, '<br>');
+    document.getElementById('article-modal-content').innerHTML = content;
+    document.getElementById('article-modal-link').href = 'article.html?slug=' + article.slug;
+    modal.style.display = 'flex';
+};
+
+window.closeArticleModal = function() {
+    const modal = document.getElementById('article-modal');
+    if (modal) modal.style.display = 'none';
+};
+
 async function displayBlogPost() {
     const container = document.getElementById('blog-post');
     if (!container) return;
-
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug');
     if (!slug) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
@@ -947,6 +1009,7 @@ async function displayBlogPost() {
     `;
 }
 
+// ==================== CONSEILS ====================
 async function displayConseils() {
     const container = document.getElementById('conseils-list');
     if (!container) return;
@@ -960,13 +1023,15 @@ async function displayConseils() {
         return;
     }
 
+    window.conseilsData = allConseils;
+
     const horizontalContainer = document.getElementById('conseils-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
-        allConseils.slice(0, 8).forEach(conseil => {
+        allConseils.slice(0, 8).forEach((conseil, index) => {
             const title = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
             hHtml += `
-                <div class="horizontal-item" onclick="showConseilDetail(${conseil.id})">
+                <div class="horizontal-item" onclick="showConseilDetail(${index})">
                     <img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy">
                     <div class="item-title">${title}</div>
                 </div>
@@ -975,31 +1040,36 @@ async function displayConseils() {
         horizontalContainer.innerHTML = hHtml;
     }
 
-    window.conseilsData = allConseils;
-
     let html = '';
-    allConseils.forEach(c => {
-        let cleanTitle = c.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        let htmlContent = window.marked ? window.marked.parse(c.content) : c.content.replace(/\n/g, '<br>');
+    allConseils.forEach((conseil, index) => {
+        let cleanTitle = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+        let excerpt = conseil.content.substring(0, 150) + '...';
+        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 120) + '...';
+        let imageUrl = conseil.image_url || 'assets/images/default-logo.png';
+        let conseilDate = conseil.date ? new Date(conseil.date).toLocaleDateString('fr-FR') : '';
+
         html += `
-            <div class="card">
-                ${c.image_url ? `<img src="${c.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
+            <div class="news-card card" onclick="showConseilDetail(${index})">
+                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
                 <h3>${cleanTitle}</h3>
-                <div>${htmlContent}</div>
+                <p class="meta">${conseilDate}</p>
+                <p>${cleanExcerpt}</p>
+                <button class="btn btn-secondary" style="margin-top:10px;">Lire le conseil</button>
             </div>
         `;
     });
     container.innerHTML = html;
 }
 
-window.showConseilDetail = function(id) {
-    const conseil = window.conseilsData.find(c => c.id === id);
+window.showConseilDetail = function(index) {
+    const conseil = window.conseilsData[index];
     if (!conseil) return;
     const modal = document.getElementById('conseil-modal');
     if (!modal) return;
     document.getElementById('conseil-modal-title').textContent = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
     document.getElementById('conseil-modal-image').src = conseil.image_url || 'assets/images/default-logo.png';
-    document.getElementById('conseil-modal-content').innerHTML = window.marked ? window.marked.parse(conseil.content) : conseil.content.replace(/\n/g, '<br>');
+    let content = window.marked ? window.marked.parse(conseil.content) : conseil.content.replace(/\n/g, '<br>');
+    document.getElementById('conseil-modal-content').innerHTML = content;
     modal.style.display = 'flex';
 };
 
@@ -1008,6 +1078,7 @@ window.closeConseilModal = function() {
     if (modal) modal.style.display = 'none';
 };
 
+// ==================== INFOS (actualités) ====================
 async function displayInfos() {
     const container = document.getElementById('infos-list');
     if (!container) return;
@@ -1016,7 +1087,7 @@ async function displayInfos() {
     let html = '';
     data.infos.forEach(i => {
         html += `
-            <div class="card">
+            <div class="news-card card">
                 <h3>${i.title}</h3>
                 <p>${i.content}</p>
             </div>
@@ -1036,15 +1107,16 @@ async function displayFootNews() {
             container.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>';
             return;
         }
+        window.newsData = news;
         let html = '';
-        news.forEach(item => {
+        news.forEach((item, index) => {
             html += `
-                <div class="news-card card">
+                <div class="news-card card" onclick="showNewsDetail(${index})">
                     ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" loading="lazy">` : ''}
-                    <h3><a href="${item.link}" target="_blank" rel="noopener noreferrer" style="color: var(--or);">${item.title}</a></h3>
+                    <h3>${item.title}</h3>
                     <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
                     <p>${item.summary}</p>
-                    <a href="${item.link}" target="_blank" class="btn btn-secondary" style="margin-top:10px;">Lire la suite</a>
+                    <button class="btn btn-secondary" style="margin-top:10px;">Lire la suite</button>
                 </div>
             `;
         });
@@ -1054,6 +1126,24 @@ async function displayFootNews() {
         container.innerHTML = '<div class="error">Impossible de charger les actualités.</div>';
     }
 }
+
+window.showNewsDetail = function(index) {
+    const news = window.newsData[index];
+    if (!news) return;
+    const modal = document.getElementById('news-modal');
+    if (!modal) return;
+    document.getElementById('news-modal-title').textContent = news.title;
+    document.getElementById('news-modal-image').src = news.image || 'assets/images/default-logo.png';
+    let content = news.summary;
+    document.getElementById('news-modal-content').innerHTML = `<p>${content}</p>`;
+    document.getElementById('news-modal-link').href = news.link || '#';
+    modal.style.display = 'flex';
+};
+
+window.closeNewsModal = function() {
+    const modal = document.getElementById('news-modal');
+    if (modal) modal.style.display = 'none';
+};
 
 // =======================================================
 // PAGE BONUS
@@ -1173,7 +1263,7 @@ function formatDate(dateStr) {
 }
 
 // =======================================================
-// PAGE HISTORIQUE (avec badges de catégorie)
+// PAGE HISTORIQUE
 // =======================================================
 async function displayHistory() {
     const container = document.getElementById('history-container');
@@ -1326,7 +1416,7 @@ function initScrollProgress() {
 // AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL
 // =======================================================
 function displayLatestVerified() {
-    const container = document.getElementById('today-picks'); // On réutilise l'ID existant
+    const container = document.getElementById('today-picks');
     if (!container) return;
 
     if (!allData || !allData.matches) {
@@ -1334,14 +1424,14 @@ function displayLatestVerified() {
         return;
     }
 
-    // Filtrer les matchs terminés et validés (verified_double true) des catégories pro et vip
+    const today = getLocalDateString('today');
     const verified = allData.matches.filter(m => 
         m.status && m.status.toLowerCase().includes('finished') && 
         m.verified_double === true && 
-        (m.category === 'pro' || m.category === 'vip')
+        (m.category === 'pro' || m.category === 'vip') &&
+        getLocalDateFromEvent(m.event_date) < today
     );
 
-    // Trier du plus récent au plus ancien et prendre les 4 premiers
     const latest = verified.sort((a, b) => new Date(b.event_date) - new Date(a.event_date)).slice(0, 4);
 
     if (latest.length === 0) {
@@ -1370,4 +1460,34 @@ function displayLatestVerified() {
         `;
     });
     container.innerHTML = html;
+}
+
+// =======================================================
+// TÉMOIGNAGES DYNAMIQUES
+// =======================================================
+async function displayTestimonials() {
+    const container = document.getElementById('testimonials-container');
+    if (!container) return;
+    try {
+        const resp = await fetch('testimonials.json?t=' + Date.now());
+        if (!resp.ok) throw new Error('Erreur');
+        const testimonials = await resp.json();
+        let html = '';
+        testimonials.forEach(t => {
+            html += `
+                <div class="card">
+                    <p>"${t.text}"</p>
+                    <p style="margin-top: 1rem; color: var(--or);">— ${t.name}</p>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    } catch (e) {
+        console.error('Erreur chargement témoignages', e);
+        container.innerHTML = `
+            <div class="card"><p>"Grâce à Mr XPRONOS, j'ai multiplié mes gains par 3 en un mois !"</p><p style="margin-top:1rem;color:var(--or);">— Jean D.</p></div>
+            <div class="card"><p>"Les pronostics VIP sont incroyablement précis. Je recommande !"</p><p style="margin-top:1rem;color:var(--or);">— Marie L.</p></div>
+            <div class="card"><p>"Le système de partage permet d'accéder à des analyses de qualité gratuitement."</p><p style="margin-top:1rem;color:var(--or);">— Thomas P.</p></div>
+        `;
+    }
 }
