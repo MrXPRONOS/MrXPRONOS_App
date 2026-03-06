@@ -4,7 +4,7 @@
 """
 generate_testimonials.py - Génère 3 témoignages aléatoires via Mistral
 et les sauvegarde dans testimonials.json.
-À exécuter quotidiennement. 
+À exécuter quotidiennement.  
 """
 
 import os
