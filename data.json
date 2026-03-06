@@ -907,8 +907,8 @@
       "xpronos_score": 64,
       "badge": "",
       "category": "pro",
-      "verified_double": false,
-      "verified_over": false
+      "verified_double": true,
+      "verified_over": true
     },
     {
       "id": 4624116,
@@ -2627,8 +2627,8 @@
         "xpronos_score": 64,
         "badge": "",
         "category": "pro",
-        "verified_double": false,
-        "verified_over": false
+        "verified_double": true,
+        "verified_over": true
       },
       {
         "id": 4463914,
