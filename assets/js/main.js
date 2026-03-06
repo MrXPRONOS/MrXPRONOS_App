@@ -17,7 +17,7 @@
  * - Lazy loading des images
  * - Correction des fuseaux horaires
  * - Taux de réussite basé uniquement sur double chance
- * - Affichage des derniers pronostics gagnants avec score et badges (corrigé)
+ * - Affichage des derniers pronostics gagnants avec score et badges (effet gagnant)
  * - Slider automatique des gains récents
  * - Compteur animé de pronostics gagnants (réel)
  * - Barre de taux de réussite animée (réelle)
@@ -119,10 +119,6 @@ function incrementShareCount() {
 
 const COUNTERS_KEY = 'mr_xpronos_stats'; // pour le fallback localStorage
 
-/**
- * Récupère la valeur d'un compteur (total_users ou total_shares).
- * Priorité à Supabase, fallback localStorage.
- */
 async function getCounterValue(counterName) {
     if (supabaseAvailable) {
         try {
@@ -143,10 +139,6 @@ async function getCounterValue(counterName) {
     return stats[counterName] || (counterName === 'total_users' ? 1000 : 10000);
 }
 
-/**
- * Incrémente un compteur (total_users ou total_shares) de façon atomique via RPC Supabase.
- * Fallback localStorage en cas d'échec.
- */
 async function incrementCounter(counterName) {
     if (supabaseAvailable) {
         try {
@@ -154,14 +146,14 @@ async function incrementCounter(counterName) {
                 counter_name: counterName
             });
             if (!error && data !== null) {
-                await updateDisplayedCounters(); // mise à jour de l'affichage
+                await updateDisplayedCounters();
                 return data;
             }
         } catch (e) {
             console.warn('Erreur RPC Supabase, fallback localStorage');
         }
     }
-    // Fallback localStorage (incrémentation simple)
+    // Fallback localStorage
     const stats = JSON.parse(localStorage.getItem(COUNTERS_KEY)) || {
         total_users: 1000,
         total_shares: 10000,
@@ -176,9 +168,6 @@ async function incrementCounter(counterName) {
     return newValue;
 }
 
-/**
- * Met à jour l'affichage des compteurs (utilisateurs et partages) dans le badge.
- */
 async function updateDisplayedCounters() {
     const usersEl = document.getElementById('total-users-count');
     const sharesEl = document.getElementById('total-shares-count');
@@ -192,7 +181,6 @@ async function updateDisplayedCounters() {
     }
 }
 
-// Écouter les modifications venant d'autres onglets (pour le fallback localStorage)
 window.addEventListener('storage', (event) => {
     if (event.key === COUNTERS_KEY) {
         updateDisplayedCounters();
@@ -203,9 +191,6 @@ window.addEventListener('storage', (event) => {
 // ENREGISTREMENT DES ÉVÉNEMENTS (VISITES, PARTAGES) DANS SUPABASE
 // =======================================================
 
-/**
- * Enregistre un événement utilisateur (visite, partage) dans localStorage et dans Supabase.
- */
 function recordEvent(type) {
     const userId = localStorage.getItem('userId') || 'unknown';
     const page = window.location.pathname;
@@ -292,7 +277,6 @@ document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeI
 // INITIALISATION
 // =======================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialiser Supabase (ne bloque pas, fallback si erreur)
     await initSupabase();
 
     showIosGuideIfNeeded();
@@ -311,16 +295,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 allData = data;
                 renderBookmakers(data.bookmakers);
                 updateShareCounter();
-                displayLatestVerified(); // Affiche les derniers pronostics validés
-                startWinsSlider();        // Démarre le slider des gains
-                showSuccessRate();         // Affiche le taux de réussite (réel)
-                animateWins();             // Anime le compteur de gains (réel)
+                displayLatestVerified();
+                startWinsSlider();
+                showSuccessRate();
+                animateWins();
             } else {
                 console.log("Aucune donnée chargée pour l'accueil");
             }
         });
         displayTestimonials();
-        startWinNotifications();          // Démarre les notifications de gains
+        startWinNotifications();
     }
 
     displayBlogList();
@@ -338,15 +322,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Détection du retour après partage
     document.addEventListener('visibilitychange', () => {
         if (sharePending && !document.hidden) {
             const elapsed = Date.now() - shareStartTime;
-            if (elapsed >= 5000) { // 5 secondes minimum
+            if (elapsed >= 5000) {
                 sharePending = false;
                 const newCount = incrementShareCount();
                 updateShareCounter();
-                incrementCounter('total_shares'); // ne pas attendre
+                incrementCounter('total_shares');
                 recordEvent('share');
 
                 const target = shareLimits[currentCategory];
@@ -364,7 +347,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Enregistrer la visite après initialisation
     recordEvent('visit');
 });
 
@@ -562,7 +544,6 @@ function setupEventListeners() {
     if (shareWaLocked) shareWaLocked.addEventListener('click', () => share('whatsapp'));
     if (shareTgLocked) shareTgLocked.addEventListener('click', () => share('telegram'));
 
-    // Écouteur pour les boutons de partage de pronostic individuel
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-share')) {
             const matchData = JSON.parse(e.target.dataset.match);
@@ -624,7 +605,6 @@ function showSharePopup(category, remaining) {
     sharePopup.classList.add('active');
 }
 
-// Fonction de partage général (pour débloquer les catégories)
 function share(platform) {
     const baseUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     const shareUrl = baseUrl;
@@ -644,7 +624,6 @@ function share(platform) {
     sharePending = true;
 }
 
-// Fonction de partage d'un pronostic spécifique
 function sharePronostic(match) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     const message = `🔥 *Mr XPRONOS* - Pronostic du jour\n\n` +
@@ -662,7 +641,6 @@ function sharePronostic(match) {
         window.open(telegramUrl, '_blank');
     }
 
-    // Incrémenter le compteur global (optionnel)
     incrementShareCount();
     incrementCounter('total_shares');
     recordEvent('share');
@@ -1526,7 +1504,7 @@ function initScrollProgress() {
 }
 
 // =======================================================
-// AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL (CORRIGÉ)
+// AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL
 // =======================================================
 function displayLatestVerified() {
     const container = document.getElementById('today-picks');
@@ -1537,13 +1515,10 @@ function displayLatestVerified() {
         return;
     }
 
-    // Filtrer les matchs terminés, vérifiés gagnants, et des catégories Pro/VIP
     const verified = allData.matches.filter(m => {
         if (!m.status) return false;
-
         const statusLower = m.status.toLowerCase();
         const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-
         return (
             isFinished &&
             m.verified_double === true &&
@@ -1551,7 +1526,6 @@ function displayLatestVerified() {
         );
     });
 
-    // Trier du plus récent au plus ancien et prendre les 4 premiers
     const latest = [...verified]
         .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
         .slice(0, 4);
@@ -1569,9 +1543,10 @@ function displayLatestVerified() {
         const awayDefault = 'assets/images/away.png';
         const score = `${m.home_score ?? '-'} - ${m.away_score ?? '-'}`;
         const badgeClass = m.category === 'vip' ? 'badge-vip' : 'badge-pro';
+        const winnerClass = 'winner';
 
         html += `
-            <div class="verified-card" onclick="window.location.href='pronos.html?day=yesterday'">
+            <div class="verified-card ${winnerClass}" onclick="window.location.href='pronos.html?day=yesterday'">
                 <div class="teams">
                     <img src="${homeLogo}" alt="${m.home_team}" onerror="this.src='${homeDefault}';">
                     <span class="vs">VS</span>
@@ -1628,22 +1603,19 @@ function startWinsSlider() {
         `;
     });
 
-    // Dupliquer pour un effet infini
     track.innerHTML = html + html;
 }
 
 // =======================================================
-// NOTIFICATIONS DE GAINS EN DIRECT (POPUP) - AMÉLIORÉES
+// NOTIFICATIONS DE GAINS EN DIRECT (POPUP)
 // =======================================================
 function startWinNotifications() {
     const popup = document.getElementById('win-popup');
     if (!popup) return;
 
-    // Liste de prénoms et noms complets (pas de doublons dans une session)
     const firstNames = ["Jean", "Michel", "David", "Lucas", "Thomas", "Patrick", "Samuel", "Kevin", "Éric", "Daniel", "Pierre", "Philippe", "Nicolas", "François", "Antoine"];
     const lastNames = ["Martin", "Bernard", "Dubois", "Thomas", "Robert", "Richard", "Petit", "Durand", "Leroy", "Moreau", "Simon", "Laurent", "Lefebvre", "Michel", "Garcia"];
 
-    // Générer un ensemble unique de noms complets pour les 5 notifications
     let usedNames = new Set();
     let notifications = [];
 
@@ -1653,12 +1625,11 @@ function startWinNotifications() {
         const fullName = `${firstName} ${lastName}`;
         if (!usedNames.has(fullName)) {
             usedNames.add(fullName);
-            const gain = Math.floor(Math.random() * (200 - 45 + 1)) + 45; // entre 45 et 200
+            const gain = Math.floor(Math.random() * (200 - 45 + 1)) + 45;
             notifications.push({ name: fullName, gain });
         }
     }
 
-    // Rotation des notifications toutes les heures (3600000 ms)
     let index = 0;
     function showPopup() {
         const { name, gain } = notifications[index];
@@ -1670,8 +1641,8 @@ function startWinNotifications() {
         index = (index + 1) % notifications.length;
     }
 
-    setInterval(showPopup, 3600000); // toutes les heures
-    showPopup(); // afficher immédiatement la première
+    setInterval(showPopup, 3600000);
+    showPopup();
 }
 
 // =======================================================
@@ -1681,7 +1652,6 @@ function animateWins() {
     const el = document.getElementById('wins-count');
     if (!el || !allData || !allData.matches) return;
 
-    // Compter les matchs terminés et gagnés
     const winsCount = allData.matches.filter(m => {
         if (!m.status) return false;
         const statusLower = m.status.toLowerCase();
@@ -1726,7 +1696,7 @@ function showSuccessRate() {
 }
 
 // =======================================================
-// TÉMOIGNAGES DYNAMIQUES (GÉNÉRÉS VIA JSON)
+// TÉMOIGNAGES DYNAMIQUES
 // =======================================================
 async function displayTestimonials() {
     const container = document.getElementById('testimonials-container');
