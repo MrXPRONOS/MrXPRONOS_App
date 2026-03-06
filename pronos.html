@@ -6,20 +6,26 @@
     <title>Pronostics - Mr XPRONOS</title>
     <meta name="description" content="Pronostics sportifs du jour, analyses H2H, conseils. Code promo XPVIP.">
     <meta name="robots" content="index, follow">
+
+    <!-- Balises Open Graph -->
     <meta property="og:title" content="Pronostics - Mr XPRONOS">
     <meta property="og:description" content="Pronostics sportifs du jour, analyses H2H, conseils. Code promo XPVIP.">
     <meta property="og:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
     <meta property="og:url" content="https://mrxpronos.github.io/MrXPRONOS_App/pronos.html">
     <meta property="og:type" content="website">
+
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Pronostics - Mr XPRONOS">
     <meta name="twitter:description" content="Pronostics sportifs du jour, analyses H2H, conseils. Code promo XPVIP.">
     <meta name="twitter:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
+
     <link rel="icon" href="assets/images/favicon.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Script marked pour le rendu Markdown (optionnel) -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
@@ -47,28 +53,34 @@
     <main class="container">
         <h1 style="color: var(--or); margin: 2rem 0 1rem;">📊 Pronostics et analyses</h1>
 
+        <!-- Barre de recherche -->
         <div class="search-container">
             <input type="text" id="search-input" placeholder="Rechercher une équipe ou une ligue..." class="search-input">
         </div>
 
+        <!-- Conteneur pour le taux de réussite (affiché si disponible) -->
         <div id="success-rate-container" class="success-rate" style="display: none;"></div>
 
+        <!-- Onglets de catégories (Simple, Pro, VIP) -->
         <div class="category-tabs">
             <button class="tab-btn active" data-cat="simple" aria-label="Afficher pronostics simples">Simple</button>
             <button class="tab-btn" data-cat="pro" aria-label="Afficher pronostics pro">Pro 🔒</button>
             <button class="tab-btn" data-cat="vip" aria-label="Afficher pronostics VIP">VIP 🔒</button>
         </div>
 
+        <!-- Filtres par jour (Aujourd'hui, Demain, Hier) -->
         <div class="day-filters">
             <button class="day-btn active" data-day="today" aria-label="Matchs aujourd'hui">Aujourd'hui</button>
             <button class="day-btn" data-day="tomorrow" aria-label="Matchs demain">Demain</button>
             <button class="day-btn" data-day="yesterday" aria-label="Matchs hier">Hier</button>
         </div>
 
+        <!-- Conteneur des matchs (rempli par renderMatches() dans main.js) -->
         <div id="matches-container" class="matches-grid">
             <div class="loading">Chargement des matchs...</div>
         </div>
 
+        <!-- Overlay VIP verrouillé (affiché quand les partages sont insuffisants) -->
         <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;">
             <div class="vip-locked-content">
                 <div class="lock-icon">🔒</div>
@@ -81,6 +93,7 @@
         </div>
     </main>
 
+    <!-- Popup de partage (fallback si l'overlay n'est pas utilisé) -->
     <div id="share-popup" class="popup">
         <div class="popup-content">
             <h3>🔒 Contenu premium</h3>
@@ -94,6 +107,7 @@
         </div>
     </div>
 
+    <!-- Popup guide iOS (identique à index.html) -->
     <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
         <div class="ios-guide-content">
             <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
@@ -121,6 +135,7 @@
         </div>
     </div>
 
+    <!-- Pied de page (identique à index.html) -->
     <footer>
         <div class="container">
             <div class="footer-links">

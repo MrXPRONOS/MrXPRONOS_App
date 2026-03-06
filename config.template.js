@@ -1,4 +1,3 @@
-// Fichier template pour la configuration Supabase
-// Ne pas modifier directement, sera remplacé par GitHub Actions
+// Configuration Supabase
 export const supabaseUrl = 'SUPABASE_URL';
 export const supabaseAnonKey = 'SUPABASE_ANON_KEY';
