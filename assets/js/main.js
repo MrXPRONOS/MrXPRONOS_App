@@ -1489,6 +1489,7 @@ function initScrollProgress() {
 // AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL
 // =======================================================
 function displayLatestVerified() {
+
     const container = document.getElementById('today-picks');
     if (!container) return;
 
@@ -1497,44 +1498,77 @@ function displayLatestVerified() {
         return;
     }
 
-    const today = getLocalDateString('today');
-    const verified = allData.matches.filter(m => 
-        m.status && m.status.toLowerCase().includes('finished') && 
-        m.verified_double === true && 
-        (m.category === 'pro' || m.category === 'vip') &&
-        getLocalDateFromEvent(m.event_date) < today
-    );
+    const verified = allData.matches.filter(m => {
 
-    console.log('Matchs validés trouvés :', verified); // Debug
+        if (!m.status) return false;
 
-    const latest = verified.sort((a, b) => new Date(b.event_date) - new Date(a.event_date)).slice(0, 4);
+        return (
+            m.status.toLowerCase().includes('finished') &&
+            m.verified_double === true &&
+            ['pro','vip'].includes(m.category)
+        );
+
+    });
+
+    const latest = [...verified]
+        .sort((a,b)=> new Date(b.event_date) - new Date(a.event_date))
+        .slice(0,4);
 
     if (latest.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun pronostic validé récent.</div>';
+        container.innerHTML = '<div class="no-events">Aucun pronostic validé.</div>';
         return;
     }
 
     let html = '';
+
     latest.forEach(m => {
-        const pred = m.prediction || {};
-        const doubleChance = pred.double_chance || 'N/A';
-        const homeDefault = 'assets/images/home.png';
-        const awayDefault = 'assets/images/away.png';
-        const homeLogo = getTeamLogoPath(m.home_team, true);
-        const awayLogo = getTeamLogoPath(m.away_team, false);
+
+        const homeLogo = getTeamLogoPath(m.home_team,true);
+        const awayLogo = getTeamLogoPath(m.away_team,false);
+
+        const score = `${m.home_score ?? '-'} - ${m.away_score ?? '-'}`;
+
         const badgeClass = m.category === 'vip' ? 'badge-vip' : 'badge-pro';
+
         html += `
-            <div class="horizontal-item verified-item" onclick="window.location.href='pronos.html?day=yesterday'">
-                <img src="${homeLogo}" alt="${m.home_team}" onerror="this.onerror=null; this.src='${homeDefault}';">
-                <div class="vs-small">VS</div>
-                <img src="${awayLogo}" alt="${m.away_team}" onerror="this.onerror=null; this.src='${awayDefault}';">
-                <div class="item-title">
-                    ${m.home_team} - ${m.away_team}<br>
-                    <span class="${badgeClass}">${m.category.toUpperCase()} ✅</span>
-                </div>
+        <div class="verified-card" onclick="window.location.href='pronos.html?day=yesterday'">
+
+            <div class="teams">
+                <img src="${homeLogo}" onerror="this.src='assets/images/home.png'">
+                <span class="vs">VS</span>
+                <img src="${awayLogo}" onerror="this.src='assets/images/away.png'">
             </div>
+
+            <div class="match-info">
+
+                <div class="teams-name">
+                    ${m.home_team} vs ${m.away_team}
+                </div>
+
+                <div class="score">
+                    Score : <b>${score}</b>
+                </div>
+
+                <div class="prediction">
+                    Pronostic : <b>${m.prediction?.double_chance || 'N/A'}</b>
+                </div>
+
+                <div class="badges">
+                    <span class="${badgeClass}">
+                        ${m.category.toUpperCase()}
+                    </span>
+
+                    <span class="badge-win">
+                        ✅ GAGNÉ
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
         `;
     });
+
     container.innerHTML = html;
 }
 
