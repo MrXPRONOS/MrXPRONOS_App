@@ -4,7 +4,7 @@
 download_logos_bsd.py
 Télécharge les logos des équipes depuis l'API BSD en utilisant les api_id,
 et met à jour data.json avec les chemins locaux.
-Utilisation : python download_logos_bsd.py
+Utilisation : python download_logos_bsd.py 
 """
 
 import os
