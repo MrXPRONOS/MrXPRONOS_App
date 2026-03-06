@@ -389,6 +389,10 @@ footer {
     border-radius: 30px;
     font-size: 0.7rem;
     font-weight: 700;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .badge-pro {
@@ -399,6 +403,10 @@ footer {
     font-size: 0.7rem;
     font-weight: 700;
     border: 1px solid var(--or);
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ==================== NEWS CARDS ==================== */
@@ -1462,9 +1470,10 @@ footer {
 }
 
 .verified-card .badges {
-    margin-top: 5px;
     display: flex;
     gap: 5px;
+    align-items: center; /* centrage vertical des badges */
+    margin-top: 5px;
 }
 
 .badge-win {
@@ -1474,9 +1483,13 @@ footer {
     border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Slider des gains */
+/* ==================== SLIDER DES GAINS ==================== */
 .wins-slider {
     width: 100%;
     overflow: hidden;
@@ -1517,7 +1530,7 @@ footer {
     }
 }
 
-/* Popup de gains */
+/* ==================== POPUP DE GAINS ==================== */
 .win-popup {
     position: fixed;
     bottom: 20px;
@@ -1544,7 +1557,7 @@ footer {
     color: #00ff9c;
 }
 
-/* Compteur de pronostics gagnants */
+/* ==================== COMPTEUR DE PRONOSTICS GAGNANTS ==================== */
 .stats-counter {
     font-size: 18px;
     font-weight: bold;
@@ -1553,7 +1566,7 @@ footer {
     text-align: center;
 }
 
-/* Barre de taux de réussite */
+/* ==================== BARRE DE TAUX DE RÉUSSITE ==================== */
 .success-box {
     margin: 20px 0;
     padding: 15px;
