@@ -6,11 +6,12 @@
     <title>Administration - Mr XPRONOS</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js pour les graphiques -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- TinyMCE pour l'éditeur WYSIWYG -->
+    <!-- TinyMCE pour l'éditeur WYSIWYG (remplacez "no-api-key" par votre clé) -->
     <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <style>
-        /* Styles spécifiques à l'admin */
+        /* Styles spécifiques à l'admin (en complément de style.css) */
         body {
             background: #0D0D0D;
             color: #fff;
@@ -272,17 +273,20 @@
     </style>
 </head>
 <body>
+    <!-- Conteneur de connexion -->
     <div id="login-container" class="login-container">
         <h2>🔐 Connexion Admin</h2>
         <input type="text" id="admin-username" placeholder="Nom d'utilisateur">
         <input type="password" id="admin-password" placeholder="Mot de passe">
         <button id="login-btn" class="btn btn-primary">Se connecter</button>
-        <div id="login-message" class="message" style="display: none;"></div>
+        <p style="color: #ccc; margin-top: 20px;">Identifiants par défaut : admin / admin</p>
     </div>
 
+    <!-- Contenu admin (caché tant que non connecté) -->
     <div id="admin-content" class="admin-container hidden">
         <h1>Panneau d'administration Mr XPRONOS</h1>
 
+        <!-- Onglets de navigation -->
         <div class="admin-tabs">
             <button class="tab-btn active" data-tab="pronostics">Pronostics</button>
             <button class="tab-btn" data-tab="blog">Blog</button>
@@ -406,7 +410,7 @@
             <div class="admin-list" id="conseils-list-admin"></div>
         </div>
 
-        <!-- Onglet Infos -->
+        <!-- Onglet Infos sport -->
         <div id="tab-infos" class="tab-pane">
             <h2>Gestion des infos sport</h2>
             <form id="info-form">
@@ -552,10 +556,21 @@
 
     <script type="module">
         // =======================================================
-        // AUTHENTIFICATION
+        // AUTHENTIFICATION AVEC FALLBACK LOCAL
         // =======================================================
-        import { ADMIN_USER, ADMIN_PASSWORD_HASH } from './assets/js/admin-config.js';
+        let ADMIN_USER = 'admin';
+        let ADMIN_PASSWORD_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // sha256 de 'admin'
 
+        // Tentative de chargement de la configuration depuis GitHub Actions (admin-config.js)
+        try {
+            const config = await import('./assets/js/admin-config.js');
+            ADMIN_USER = config.ADMIN_USER;
+            ADMIN_PASSWORD_HASH = config.ADMIN_PASSWORD_HASH;
+        } catch (e) {
+            console.warn('Fichier admin-config.js non trouvé, utilisation des identifiants par défaut (admin/admin)');
+        }
+
+        // Fonction de hachage SHA-256 (Web Crypto API)
         async function hashPassword(password) {
             const encoder = new TextEncoder();
             const data = encoder.encode(password);
@@ -569,9 +584,8 @@
         const loginBtn = document.getElementById('login-btn');
         const usernameInput = document.getElementById('admin-username');
         const passwordInput = document.getElementById('admin-password');
-        const loginMessage = document.getElementById('login-message');
 
-        // Vérifier si déjà connecté
+        // Vérifier si déjà connecté (session)
         if (sessionStorage.getItem('adminLoggedIn') === 'true') {
             loginContainer.classList.add('hidden');
             adminContent.classList.remove('hidden');
@@ -581,12 +595,6 @@
         loginBtn.addEventListener('click', async () => {
             const username = usernameInput.value;
             const password = passwordInput.value;
-            if (!username || !password) {
-                loginMessage.textContent = 'Veuillez remplir tous les champs.';
-                loginMessage.className = 'message error';
-                loginMessage.style.display = 'block';
-                return;
-            }
             const hashed = await hashPassword(password);
             if (username === ADMIN_USER && hashed === ADMIN_PASSWORD_HASH) {
                 sessionStorage.setItem('adminLoggedIn', 'true');
@@ -594,9 +602,7 @@
                 adminContent.classList.remove('hidden');
                 initAdmin();
             } else {
-                loginMessage.textContent = 'Nom d\'utilisateur ou mot de passe incorrect.';
-                loginMessage.className = 'message error';
-                loginMessage.style.display = 'block';
+                alert('Nom d\'utilisateur ou mot de passe incorrect');
             }
         });
 
@@ -629,7 +635,7 @@
         }
 
         // =======================================================
-        // INITIALISATION DES ÉDITEURS TINYMCE
+        // INITIALISATION DE TINYMCE (éditeur WYSIWYG)
         // =======================================================
         function initTinyMCE() {
             if (typeof tinymce !== 'undefined') {
@@ -647,7 +653,7 @@
         }
 
         // =======================================================
-        // RENDU DES LISTES
+        // RENDU DES LISTES (CRUD)
         // =======================================================
         function renderPronostics() {
             const container = document.getElementById('pronostics-list-admin');
@@ -1095,7 +1101,7 @@
         });
 
         // =======================================================
-        // STATISTIQUES
+        // STATISTIQUES (basées sur les événements localStorage)
         // =======================================================
         function initStats() {
             const events = JSON.parse(localStorage.getItem('userEvents')) || [];
@@ -1273,6 +1279,7 @@
             renderBonus();
             renderBookmakersList();
 
+            // Remplir le select des bookmakers dans le formulaire de pronostics
             const select = document.getElementById('pronostic-bookmaker');
             if (select && data.bookmakers) {
                 select.innerHTML = '';
@@ -1291,6 +1298,7 @@
             initTinyMCE();
             initStats();
 
+            // Gestion des onglets
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
