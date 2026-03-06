@@ -1,2 +1,2 @@
-export const supabaseUrl = 'https://votre-projet.supabase.co';
-export const supabaseAnonKey = 'votre-clé-anon-publique';
+export const supabaseUrl = 'https://nhwafcpndlufzzxexikh.supabase.co';
+export const supabaseAnonKey = 'sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt';
