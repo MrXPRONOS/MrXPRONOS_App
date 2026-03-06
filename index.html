@@ -3,27 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Titre de la page (important pour le SEO) -->
     <title>Mr XPRONOS - Pronostics sportifs VIP et gratuits</title>
-    <!-- Description (affichée dans les résultats de recherche) -->
     <meta name="description" content="Pronostics sportifs gratuits et premium, analyses H2H, conseils de paris. Code promo XPVIP chez 1xBet, 1win, Betwinner, Melbet, Linebet, BetClic.">
-    <!-- Autoriser l'indexation par les moteurs de recherche -->
     <meta name="robots" content="index, follow">
 
-    <!-- Balises Open Graph (pour le partage sur Facebook, WhatsApp, etc.) -->
+    <!-- Balises Open Graph (pour les réseaux sociaux) -->
     <meta property="og:title" content="Mr XPRONOS - Pronostics sportifs VIP">
     <meta property="og:description" content="Pronostics sportifs gratuits et VIP. Analyses H2H, conseils et bonus exclusifs.">
     <meta property="og:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
     <meta property="og:url" content="https://mrxpronos.github.io/MrXPRONOS_App/">
     <meta property="og:type" content="website">
 
-    <!-- Balises Twitter Card -->
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Mr XPRONOS - Pronostics sportifs VIP">
     <meta name="twitter:description" content="Pronostics sportifs gratuits et VIP. Analyses H2H, conseils et bonus exclusifs.">
     <meta name="twitter:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
 
-    <!-- Données structurées JSON-LD pour Google (améliore le référencement) -->
+    <!-- Données structurées JSON-LD pour Google -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -41,19 +38,20 @@
     }
     </script>
 
-    <!-- Icône du site (favicon) -->
+    <!-- Icône du site et manifest PWA -->
     <link rel="icon" href="assets/images/favicon.png">
-    <!-- Feuille de style principale -->
     <link rel="stylesheet" href="assets/css/style.css">
-    <!-- Manifest PWA (permet l'installation comme application) -->
     <link rel="manifest" href="manifest.json">
-    <!-- Couleur de thème pour les navigateurs mobiles -->
     <meta name="theme-color" content="#0D0D0D">
-    <!-- Police Google Fonts Montserrat -->
+
+    <!-- Google Fonts Montserrat -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- En-tête commun à toutes les pages -->
+
+    <!-- ======================================================= -->
+    <!-- EN-TÊTE (identique sur toutes les pages) -->
+    <!-- ======================================================= -->
     <header>
         <div class="container">
             <div class="logo">
@@ -75,7 +73,9 @@
         </div>
     </header>
 
-    <!-- Section Hero (bannière principale) -->
+    <!-- ======================================================= -->
+    <!-- SECTION HERO (BANNIÈRE PRINCIPALE) -->
+    <!-- ======================================================= -->
     <section class="hero">
         <div class="container">
             <h1>Pronostics sportifs VIP et gratuits</h1>
@@ -85,7 +85,7 @@
                 <!-- Bouton d'installation PWA (caché par défaut, affiché par JavaScript) -->
                 <button type="button" id="install-app" class="btn btn-secondary" style="display: none;">📲 Installer l'App</button>
             </div>
-            <!-- Badge avec les compteurs dynamiques (mis à jour par main.js) -->
+            <!-- Badge avec les compteurs globaux (utilisateurs et partages) -->
             <div class="stats-badge">
                 👥 <span id="total-users-count">1 000</span> utilisateurs · 
                 📤 <span id="total-shares-count">10 000</span> partages
@@ -93,7 +93,9 @@
         </div>
     </section>
 
-    <!-- Popup guide d'installation pour iOS (caché par défaut) -->
+    <!-- ======================================================= -->
+    <!-- POPUP GUIDE D'INSTALLATION POUR IOS (caché par défaut) -->
+    <!-- ======================================================= -->
     <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
         <div class="ios-guide-content">
             <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
@@ -121,18 +123,40 @@
         </div>
     </div>
 
-    <!-- Contenu principal de la page d'accueil -->
+    <!-- ======================================================= -->
+    <!-- CONTENU PRINCIPAL DE LA PAGE D'ACCUEIL -->
+    <!-- ======================================================= -->
     <main class="container">
-        <!-- Section Nos derniers pronostics validés (affiche les 4 derniers pronostics Pro/VIP gagnants) -->
+
+        <!-- -------------------- SECTION : DERNIERS PRONOSTICS VALIDÉS -------------------- -->
         <section style="margin: 3rem 0;">
             <h2 style="color: var(--or); margin-bottom: 1rem;">🏆 Nos derniers pronostics validés</h2>
-            <!-- Conteneur pour le défilement horizontal (rempli par displayLatestVerified() dans main.js) -->
-            <div id="today-picks" class="horizontal-scroll">
+            <!-- Conteneur pour les cartes des derniers pronostics gagnants (rempli par displayLatestVerified()) -->
+            <div id="today-picks" class="verified-container">
                 <div class="loading">Chargement...</div>
             </div>
         </section>
 
-        <!-- Section Pourquoi nous choisir ? (cartes explicatives) -->
+        <!-- -------------------- SLIDER DES GAINS RÉCENTS (bandeau défilant) -------------------- -->
+        <div class="wins-slider">
+            <div class="wins-track" id="wins-track"></div>
+        </div>
+
+        <!-- -------------------- COMPTEUR DE PRONOSTICS GAGNANTS -------------------- -->
+        <div class="stats-counter">
+            🔥 <span id="wins-count">0</span> pronostics gagnants ce mois
+        </div>
+
+        <!-- -------------------- BARRE DE TAUX DE RÉUSSITE -------------------- -->
+        <div class="success-box">
+            <div class="success-title">📈 Taux de réussite ce mois</div>
+            <div class="success-bar">
+                <div class="success-fill" id="success-fill"></div>
+            </div>
+            <div class="success-percent" id="success-percent">0%</div>
+        </div>
+
+        <!-- -------------------- SECTION : POURQUOI NOUS CHOISIR ? -------------------- -->
         <section style="margin: 3rem 0;">
             <h2 style="color: var(--or); margin-bottom: 2rem;">📊 Pourquoi nous choisir ?</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
@@ -151,30 +175,36 @@
             </div>
         </section>
 
-        <!-- Section Bonus Bookmakers (affiche les bookmakers partenaires) -->
+        <!-- -------------------- SECTION : BONUS BOOKMAKERS -------------------- -->
         <section style="margin: 3rem 0; background: var(--noir-secondaire); padding: 2rem; border-radius: 20px;">
             <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">🔥 Profitez des bonus exclusifs</h2>
-            <!-- Conteneur pour les cartes des bookmakers (rempli par renderBookmakers() dans main.js) -->
+            <!-- Conteneur pour les cartes des bookmakers (rempli par renderBookmakers()) -->
             <div id="bookmakers-bonus" class="bookmakers-grid"></div>
         </section>
 
-        <!-- Section Témoignages (générés dynamiquement) -->
+        <!-- -------------------- SECTION : TÉMOIGNAGES DYNAMIQUES -------------------- -->
         <section style="margin: 3rem 0;">
             <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">💬 Ils nous font confiance</h2>
-            <!-- Conteneur pour les témoignages (rempli par displayTestimonials() dans main.js) -->
+            <!-- Conteneur pour les témoignages (rempli par displayTestimonials()) -->
             <div id="testimonials-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;"></div>
         </section>
 
-        <!-- Section Compteur de partages quotidien -->
+        <!-- -------------------- SECTION : COMPTEUR DE PARTAGES QUOTIDIEN -------------------- -->
         <section style="margin: 3rem 0; text-align: center;">
             <div style="background: var(--or); color: var(--noir); padding: 2rem; border-radius: 20px;">
                 <h3 style="font-size: 2rem;" id="share-counter">🔥 0 partages aujourd'hui</h3>
                 <p>Rejoignez la communauté et débloquez des pronostics exclusifs !</p>
             </div>
         </section>
+
+        <!-- -------------------- POPUP DE NOTIFICATION DE GAINS (CACHÉ PAR DÉFAUT) -------------------- -->
+        <div id="win-popup" class="win-popup"></div>
+
     </main>
 
-    <!-- Pied de page commun à toutes les pages -->
+    <!-- ======================================================= -->
+    <!-- PIED DE PAGE (IDENTIQUE SUR TOUTES LES PAGES) -->
+    <!-- ======================================================= -->
     <footer>
         <div class="container">
             <div class="footer-links">
@@ -202,7 +232,10 @@
         </div>
     </footer>
 
-    <!-- Modals (fenêtres popup) pour les articles, conseils et actualités -->
+    <!-- ======================================================= -->
+    <!-- MODALS (POPUPS) POUR ARTICLES, CONSEILS ET ACTUALITÉS -->
+    <!-- ======================================================= -->
+
     <!-- Modal pour les articles -->
     <div id="article-modal" class="modal" onclick="closeArticleModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
@@ -235,8 +268,13 @@
         </div>
     </div>
 
-    <!-- Scripts JavaScript : main.js en tant que module, et pwa.js -->
+    <!-- ======================================================= -->
+    <!-- SCRIPTS JAVASCRIPT -->
+    <!-- ======================================================= -->
+    <!-- main.js en tant que module (permet les imports) -->
     <script type="module" src="assets/js/main.js"></script>
+    <!-- pwa.js pour l'enregistrement du service worker -->
     <script src="assets/js/pwa.js"></script>
+
 </body>
 </html>
