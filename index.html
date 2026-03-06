@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Titre de la page (important pour le SEO) -->
     <title>Mr XPRONOS - Pronostics sportifs VIP et gratuits</title>
+    <!-- Description (affichée dans les résultats de recherche) -->
     <meta name="description" content="Pronostics sportifs gratuits et premium, analyses H2H, conseils de paris. Code promo XPVIP chez 1xBet, 1win, Betwinner, Melbet, Linebet, BetClic.">
+    <!-- Autoriser l'indexation par les moteurs de recherche -->
     <meta name="robots" content="index, follow">
 
-    <!-- Balises Open Graph (pour les réseaux sociaux) -->
+    <!-- Balises Open Graph (pour le partage sur Facebook, WhatsApp, etc.) -->
     <meta property="og:title" content="Mr XPRONOS - Pronostics sportifs VIP">
     <meta property="og:description" content="Pronostics sportifs gratuits et VIP. Analyses H2H, conseils et bonus exclusifs.">
     <meta property="og:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
     <meta property="og:url" content="https://mrxpronos.github.io/MrXPRONOS_App/">
     <meta property="og:type" content="website">
 
-    <!-- Twitter Card -->
+    <!-- Balises Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Mr XPRONOS - Pronostics sportifs VIP">
     <meta name="twitter:description" content="Pronostics sportifs gratuits et VIP. Analyses H2H, conseils et bonus exclusifs.">
     <meta name="twitter:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
 
-    <!-- Données structurées JSON-LD pour Google -->
+    <!-- Données structurées JSON-LD pour Google (améliore le référencement) -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -38,19 +41,22 @@
     }
     </script>
 
-    <!-- Icône du site et manifest PWA -->
+    <!-- Icône du site (favicon) -->
     <link rel="icon" href="assets/images/favicon.png">
+    <!-- Feuille de style principale -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Manifest PWA (permet l'installation comme application) -->
     <link rel="manifest" href="manifest.json">
+    <!-- Couleur de thème pour les navigateurs mobiles -->
     <meta name="theme-color" content="#0D0D0D">
-
-    <!-- Google Fonts Montserrat -->
+    <!-- Police Google Fonts Montserrat -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Script marked pour le rendu Markdown (optionnel) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-
     <!-- ======================================================= -->
-    <!-- EN-TÊTE (identique sur toutes les pages) -->
+    <!-- EN-TÊTE (commun à toutes les pages)                     -->
     <!-- ======================================================= -->
     <header>
         <div class="container">
@@ -74,7 +80,7 @@
     </header>
 
     <!-- ======================================================= -->
-    <!-- SECTION HERO (BANNIÈRE PRINCIPALE) -->
+    <!-- SECTION HERO (bannière principale)                      -->
     <!-- ======================================================= -->
     <section class="hero">
         <div class="container">
@@ -85,7 +91,7 @@
                 <!-- Bouton d'installation PWA (caché par défaut, affiché par JavaScript) -->
                 <button type="button" id="install-app" class="btn btn-secondary" style="display: none;">📲 Installer l'App</button>
             </div>
-            <!-- Badge avec les compteurs globaux (utilisateurs et partages) -->
+            <!-- Badge avec les compteurs dynamiques (mis à jour par main.js) -->
             <div class="stats-badge">
                 👥 <span id="total-users-count">1 000</span> utilisateurs · 
                 📤 <span id="total-shares-count">10 000</span> partages
@@ -94,7 +100,7 @@
     </section>
 
     <!-- ======================================================= -->
-    <!-- POPUP GUIDE D'INSTALLATION POUR IOS (caché par défaut) -->
+    <!-- POPUP GUIDE D'INSTALLATION POUR IOS (caché par défaut)   -->
     <!-- ======================================================= -->
     <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
         <div class="ios-guide-content">
@@ -124,30 +130,29 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- CONTENU PRINCIPAL DE LA PAGE D'ACCUEIL -->
+    <!-- CONTENU PRINCIPAL DE LA PAGE D'ACCUEIL                  -->
     <!-- ======================================================= -->
     <main class="container">
-
-        <!-- -------------------- SECTION : DERNIERS PRONOSTICS VALIDÉS -------------------- -->
+        <!-- Section Nos derniers pronostics validés (affiche les 4 derniers pronostics Pro/VIP gagnants) -->
         <section style="margin: 3rem 0;">
             <h2 style="color: var(--or); margin-bottom: 1rem;">🏆 Nos derniers pronostics validés</h2>
-            <!-- Conteneur pour les cartes des derniers pronostics gagnants (rempli par displayLatestVerified()) -->
-            <div id="today-picks" class="verified-container">
+            <!-- Conteneur pour l'affichage horizontal (rempli par displayLatestVerified() dans main.js) -->
+            <div id="today-picks" class="horizontal-scroll">
                 <div class="loading">Chargement...</div>
             </div>
         </section>
 
-        <!-- -------------------- SLIDER DES GAINS RÉCENTS (bandeau défilant) -------------------- -->
+        <!-- Slider des gains récents (bandeau défilant) -->
         <div class="wins-slider">
             <div class="wins-track" id="wins-track"></div>
         </div>
 
-        <!-- -------------------- COMPTEUR DE PRONOSTICS GAGNANTS -------------------- -->
+        <!-- Compteur de pronostics gagnants (animé) -->
         <div class="stats-counter">
             🔥 <span id="wins-count">0</span> pronostics gagnants ce mois
         </div>
 
-        <!-- -------------------- BARRE DE TAUX DE RÉUSSITE -------------------- -->
+        <!-- Barre de taux de réussite animée -->
         <div class="success-box">
             <div class="success-title">📈 Taux de réussite ce mois</div>
             <div class="success-bar">
@@ -156,7 +161,7 @@
             <div class="success-percent" id="success-percent">0%</div>
         </div>
 
-        <!-- -------------------- SECTION : POURQUOI NOUS CHOISIR ? -------------------- -->
+        <!-- Section Pourquoi nous choisir ? (cartes explicatives) -->
         <section style="margin: 3rem 0;">
             <h2 style="color: var(--or); margin-bottom: 2rem;">📊 Pourquoi nous choisir ?</h2>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
@@ -175,35 +180,31 @@
             </div>
         </section>
 
-        <!-- -------------------- SECTION : BONUS BOOKMAKERS -------------------- -->
+        <!-- Section Bonus Bookmakers (affiche les bookmakers partenaires) -->
         <section style="margin: 3rem 0; background: var(--noir-secondaire); padding: 2rem; border-radius: 20px;">
             <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">🔥 Profitez des bonus exclusifs</h2>
-            <!-- Conteneur pour les cartes des bookmakers (rempli par renderBookmakers()) -->
+            <!-- Conteneur pour les cartes des bookmakers (rempli par renderBookmakers() dans main.js) -->
             <div id="bookmakers-bonus" class="bookmakers-grid"></div>
         </section>
 
-        <!-- -------------------- SECTION : TÉMOIGNAGES DYNAMIQUES -------------------- -->
+        <!-- Section Témoignages (générés dynamiquement) -->
         <section style="margin: 3rem 0;">
             <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">💬 Ils nous font confiance</h2>
-            <!-- Conteneur pour les témoignages (rempli par displayTestimonials()) -->
+            <!-- Conteneur pour les témoignages (rempli par displayTestimonials() dans main.js) -->
             <div id="testimonials-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;"></div>
         </section>
 
-        <!-- -------------------- SECTION : COMPTEUR DE PARTAGES QUOTIDIEN -------------------- -->
+        <!-- Section Compteur de partages quotidien -->
         <section style="margin: 3rem 0; text-align: center;">
             <div style="background: var(--or); color: var(--noir); padding: 2rem; border-radius: 20px;">
                 <h3 style="font-size: 2rem;" id="share-counter">🔥 0 partages aujourd'hui</h3>
                 <p>Rejoignez la communauté et débloquez des pronostics exclusifs !</p>
             </div>
         </section>
-
-        <!-- -------------------- POPUP DE NOTIFICATION DE GAINS (CACHÉ PAR DÉFAUT) -------------------- -->
-        <div id="win-popup" class="win-popup"></div>
-
     </main>
 
     <!-- ======================================================= -->
-    <!-- PIED DE PAGE (IDENTIQUE SUR TOUTES LES PAGES) -->
+    <!-- PIED DE PAGE (commun à toutes les pages)                -->
     <!-- ======================================================= -->
     <footer>
         <div class="container">
@@ -233,7 +234,7 @@
     </footer>
 
     <!-- ======================================================= -->
-    <!-- MODALS (POPUPS) POUR ARTICLES, CONSEILS ET ACTUALITÉS -->
+    <!-- MODALS (fenêtres popup) pour les articles, conseils et actualités -->
     <!-- ======================================================= -->
 
     <!-- Modal pour les articles -->
@@ -269,12 +270,16 @@
     </div>
 
     <!-- ======================================================= -->
-    <!-- SCRIPTS JAVASCRIPT -->
+    <!-- POPUP DE NOTIFICATION DE GAINS (caché par défaut)       -->
     <!-- ======================================================= -->
-    <!-- main.js en tant que module (permet les imports) -->
+    <div id="win-popup" class="win-popup"></div>
+
+    <!-- ======================================================= -->
+    <!-- SCRIPTS JAVASCRIPT                                      -->
+    <!-- ======================================================= -->
+    <!-- main.js en tant que module (permet les import dynamiques) -->
     <script type="module" src="assets/js/main.js"></script>
     <!-- pwa.js pour l'enregistrement du service worker -->
     <script src="assets/js/pwa.js"></script>
-
 </body>
 </html>
