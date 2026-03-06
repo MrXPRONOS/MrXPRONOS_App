@@ -10,7 +10,7 @@
     <!-- TinyMCE pour l'éditeur WYSIWYG -->
     <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <style>
-        /* Styles spécifiques à l'admin (inchangés) */
+        /* Styles spécifiques à l'admin */
         body {
             background: #0D0D0D;
             color: #fff;
@@ -277,6 +277,7 @@
         <input type="text" id="admin-username" placeholder="Nom d'utilisateur">
         <input type="password" id="admin-password" placeholder="Mot de passe">
         <button id="login-btn" class="btn btn-primary">Se connecter</button>
+        <div id="login-message" class="message" style="display: none;"></div>
     </div>
 
     <div id="admin-content" class="admin-container hidden">
@@ -293,7 +294,7 @@
             <button class="tab-btn" data-tab="stats">Statistiques</button>
         </div>
 
-        <!-- Contenu des onglets (inchangé) -->
+        <!-- Onglet Pronostics -->
         <div id="tab-pronostics" class="tab-pane active">
             <h2>Gestion des pronostics</h2>
             <form id="pronostic-form">
@@ -330,6 +331,7 @@
             <div class="admin-list" id="pronostics-list-admin"></div>
         </div>
 
+        <!-- Onglet Blog -->
         <div id="tab-blog" class="tab-pane">
             <h2>Gestion du blog</h2>
             <form id="blog-form">
@@ -379,6 +381,7 @@
             <div class="admin-list" id="blog-list-admin"></div>
         </div>
 
+        <!-- Onglet Conseils -->
         <div id="tab-conseils" class="tab-pane">
             <h2>Gestion des conseils</h2>
             <form id="conseil-form">
@@ -403,6 +406,7 @@
             <div class="admin-list" id="conseils-list-admin"></div>
         </div>
 
+        <!-- Onglet Infos -->
         <div id="tab-infos" class="tab-pane">
             <h2>Gestion des infos sport</h2>
             <form id="info-form">
@@ -423,6 +427,7 @@
             <div class="admin-list" id="infos-list-admin"></div>
         </div>
 
+        <!-- Onglet Bonus -->
         <div id="tab-bonus" class="tab-pane">
             <h2>Gestion des bonus</h2>
             <form id="bonus-form">
@@ -471,6 +476,7 @@
             <div class="admin-list" id="bonus-list-admin"></div>
         </div>
 
+        <!-- Onglet Bookmakers -->
         <div id="tab-bookmakers" class="tab-pane">
             <h2>Gestion des bookmakers</h2>
             <p>Les bookmakers apparaissent dans le footer et la section bonus. Modifiez leurs liens d'affiliation et logos.</p>
@@ -478,6 +484,7 @@
             <button id="add-bookmaker" class="btn btn-primary">Ajouter un bookmaker</button>
         </div>
 
+        <!-- Onglet Export JSON -->
         <div id="tab-export" class="tab-pane">
             <h2>Export JSON</h2>
             <p>Cliquez ci-dessous pour générer le fichier <code>data.json</code> contenant toutes les données actuelles.</p>
@@ -486,6 +493,7 @@
             <pre id="json-preview" style="background: #0D0D0D; padding: 15px; border-radius: 8px; border: 1px solid #D4AF37; margin-top: 20px; max-height: 400px; overflow: auto;"></pre>
         </div>
 
+        <!-- Onglet Statistiques -->
         <div id="tab-stats" class="tab-pane">
             <h2>Statistiques d'utilisation</h2>
             <div class="period-selector">
@@ -544,7 +552,7 @@
 
     <script type="module">
         // =======================================================
-        // AUTHENTIFICATION AVEC HACHAGE (utilise les secrets GitHub)
+        // AUTHENTIFICATION
         // =======================================================
         import { ADMIN_USER, ADMIN_PASSWORD_HASH } from './assets/js/admin-config.js';
 
@@ -561,8 +569,9 @@
         const loginBtn = document.getElementById('login-btn');
         const usernameInput = document.getElementById('admin-username');
         const passwordInput = document.getElementById('admin-password');
+        const loginMessage = document.getElementById('login-message');
 
-        // Vérifier si déjà connecté (session)
+        // Vérifier si déjà connecté
         if (sessionStorage.getItem('adminLoggedIn') === 'true') {
             loginContainer.classList.add('hidden');
             adminContent.classList.remove('hidden');
@@ -572,6 +581,12 @@
         loginBtn.addEventListener('click', async () => {
             const username = usernameInput.value;
             const password = passwordInput.value;
+            if (!username || !password) {
+                loginMessage.textContent = 'Veuillez remplir tous les champs.';
+                loginMessage.className = 'message error';
+                loginMessage.style.display = 'block';
+                return;
+            }
             const hashed = await hashPassword(password);
             if (username === ADMIN_USER && hashed === ADMIN_PASSWORD_HASH) {
                 sessionStorage.setItem('adminLoggedIn', 'true');
@@ -579,7 +594,9 @@
                 adminContent.classList.remove('hidden');
                 initAdmin();
             } else {
-                alert('Nom d\'utilisateur ou mot de passe incorrect');
+                loginMessage.textContent = 'Nom d\'utilisateur ou mot de passe incorrect.';
+                loginMessage.className = 'message error';
+                loginMessage.style.display = 'block';
             }
         });
 
@@ -630,7 +647,7 @@
         }
 
         // =======================================================
-        // RENDU DES LISTES (inchangé)
+        // RENDU DES LISTES
         // =======================================================
         function renderPronostics() {
             const container = document.getElementById('pronostics-list-admin');
@@ -1078,7 +1095,7 @@
         });
 
         // =======================================================
-        // STATISTIQUES (inchangé)
+        // STATISTIQUES
         // =======================================================
         function initStats() {
             const events = JSON.parse(localStorage.getItem('userEvents')) || [];
