@@ -1,5 +1,5 @@
 /**
- * main.js - Mr XPRONOS – Version ultime
+ * main.js - Mr XPRONOS – Version ultime avec Supabase
  * 
  * Fonctionnalités :
  * - Pronostics avec filtres (Simple/Pro/VIP, aujourd'hui/demain/hier)
@@ -13,18 +13,18 @@
  * - Notifications de gains en direct (simulées toutes les heures)
  * - Installation PWA (Android/iOS)
  * - Bookmakers avec fallback et liens d'affiliation
- * - Statistiques locales (visites, partages) avec compteurs atomiques persistants
+ * - Statistiques (visites, partages) stockées dans Supabase + fallback localStorage
  * - Lazy loading des images
  * - Correction des fuseaux horaires
  * - Taux de réussite basé uniquement sur double chance
- * - Affichage des derniers pronostics gagnants avec score et badges (corrigé)
+ * - Affichage des derniers pronostics gagnants avec score et badges
  * - Slider automatique des gains récents
  * - Compteur animé de pronostics gagnants (réel)
  * - Barre de taux de réussite animée (réelle)
  */
 
 // =======================================================
-// Désactiver les logs en production (sauf localhost)
+// DÉSACTIVATION DES LOGS EN PRODUCTION
 // =======================================================
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
     console.log = function() {};
@@ -33,13 +33,31 @@ if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1'
 }
 
 // =======================================================
+// IMPORT ET CONFIGURATION SUPABASE
+// =======================================================
+let supabase = null;
+let supabaseAvailable = false;
+
+try {
+    // Tentative de chargement de la configuration Supabase (générée par GitHub Actions)
+    const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+    supabase = createClient(supabaseUrl, supabaseAnonKey);
+    supabaseAvailable = true;
+    console.log('✅ Supabase connecté');
+} catch (error) {
+    console.warn('⚠️ Supabase non configuré, utilisation des compteurs locaux');
+}
+
+// =======================================================
 // VARIABLES GLOBALES
 // =======================================================
-let allData = null;
-let currentCategory = 'simple';
-let currentSubcat = 'pronostics';
-let currentDay = 'today';
+let allData = null;                     // Toutes les données chargées (matchs, bookmakers, etc.)
+let currentCategory = 'simple';          // Catégorie courante (simple, pro, vip)
+let currentSubcat = 'pronostics';        // Sous-catégorie pour VIP (pronostics ou analyses)
+let currentDay = 'today';                // Jour sélectionné (today, tomorrow, yesterday)
 
+// Éléments DOM principaux
 const matchesContainer = document.getElementById('matches-container');
 const sharePopup = document.getElementById('share-popup');
 const shareRemaining = document.getElementById('share-remaining');
@@ -52,13 +70,14 @@ const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
 const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
-// Limites de partages quotidiennes
+// Limites de partages quotidiennes pour débloquer Pro et VIP
 const shareLimits = { pro: 2, vip: 5 };
 
 // Variables pour le partage avec délai
 let shareStartTime = null;
 let sharePending = false;
 
+// Liste des ligues populaires pour le tri
 const POPULAR_LEAGUES = [
     "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
     "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
@@ -67,9 +86,20 @@ const POPULAR_LEAGUES = [
 ];
 
 // =======================================================
+// GÉNÉRATION D'UN IDENTIFIANT UNIQUE POUR L'UTILISATEUR
+// =======================================================
+if (!localStorage.getItem('userId')) {
+    localStorage.setItem('userId', 'user_' + Math.random().toString(36).substr(2, 9));
+}
+
+// =======================================================
 // FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
 // =======================================================
 
+/**
+ * Retourne le nombre de partages effectués aujourd'hui (stocké dans localStorage).
+ * Remet à zéro si la date a changé.
+ */
 function getDailyShareCount() {
     const lastReset = localStorage.getItem('shareLastReset');
     const today = new Date().toDateString();
@@ -81,6 +111,9 @@ function getDailyShareCount() {
     return parseInt(localStorage.getItem('shareCount') || '0');
 }
 
+/**
+ * Incrémente le compteur quotidien de partages.
+ */
 function incrementShareCount() {
     const current = getDailyShareCount();
     const newCount = current + 1;
@@ -89,105 +122,121 @@ function incrementShareCount() {
 }
 
 // =======================================================
-// SYSTÈME DE COMPTEURS ATOMIQUES AVEC SYNCHRONISATION
+// SYSTÈME DE COMPTEURS AVEC SUPABASE (FALLBACK LOCALSTORAGE)
 // =======================================================
 
-const COUNTERS_KEY = 'mr_xpronos_stats';
+const COUNTERS_KEY = 'mr_xpronos_stats'; // pour le fallback localStorage
 
-function initCounters() {
-    const defaultStats = {
+/**
+ * Récupère la valeur d'un compteur (total_users ou total_shares).
+ * Priorité à Supabase, fallback localStorage.
+ */
+async function getCounterValue(counterName) {
+    if (supabaseAvailable) {
+        try {
+            const { data, error } = await supabase
+                .from('counters')
+                .select(counterName)
+                .eq('id', 1)
+                .single();
+            if (!error && data) {
+                return data[counterName] || (counterName === 'total_users' ? 1000 : 10000);
+            }
+        } catch (e) {
+            console.warn('Erreur Supabase, fallback localStorage');
+        }
+    }
+    // Fallback localStorage
+    const stats = JSON.parse(localStorage.getItem(COUNTERS_KEY)) || {};
+    return stats[counterName] || (counterName === 'total_users' ? 1000 : 10000);
+}
+
+/**
+ * Incrémente un compteur (total_users ou total_shares) de façon atomique via RPC Supabase.
+ * Fallback localStorage en cas d'échec.
+ */
+async function incrementCounter(counterName) {
+    if (supabaseAvailable) {
+        try {
+            const { data, error } = await supabase.rpc('increment_counter', {
+                counter_name: counterName
+            });
+            if (!error && data !== null) {
+                await updateDisplayedCounters(); // mise à jour de l'affichage
+                return data;
+            }
+        } catch (e) {
+            console.warn('Erreur RPC Supabase, fallback localStorage');
+        }
+    }
+    // Fallback localStorage (incrémentation simple)
+    const stats = JSON.parse(localStorage.getItem(COUNTERS_KEY)) || {
         total_users: 1000,
         total_shares: 10000,
         lastUpdate: Date.now()
     };
-    try {
-        const stored = localStorage.getItem(COUNTERS_KEY);
-        if (stored) {
-            const parsed = JSON.parse(stored);
-            if (!parsed.total_users) parsed.total_users = 1000;
-            if (!parsed.total_shares) parsed.total_shares = 10000;
-            parsed.lastUpdate = parsed.lastUpdate || Date.now();
-            return parsed;
-        }
-    } catch (e) {}
-    return defaultStats;
-}
-
-function saveCounters(stats) {
+    const oldValue = stats[counterName] || (counterName === 'total_users' ? 1000 : 10000);
+    const newValue = oldValue + 1;
+    stats[counterName] = newValue;
     stats.lastUpdate = Date.now();
     localStorage.setItem(COUNTERS_KEY, JSON.stringify(stats));
-    return stats;
+    await updateDisplayedCounters();
+    return newValue;
 }
 
-async function atomicIncrement(counterName) {
-    const maxRetries = 5;
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-        const stats = initCounters();
-        const oldValue = stats[counterName] || 0;
-        const newValue = oldValue + 1;
-
-        const newStats = { ...stats, [counterName]: newValue, lastUpdate: Date.now() };
-
-        const currentRaw = localStorage.getItem(COUNTERS_KEY);
-        if (currentRaw) {
-            try {
-                const currentStats = JSON.parse(currentRaw);
-                if (currentStats.lastUpdate !== stats.lastUpdate) {
-                    continue;
-                }
-            } catch (e) {}
-        }
-
-        localStorage.setItem(COUNTERS_KEY, JSON.stringify(newStats));
-
-        const verifyRaw = localStorage.getItem(COUNTERS_KEY);
-        if (verifyRaw) {
-            try {
-                const verifyStats = JSON.parse(verifyRaw);
-                if (verifyStats[counterName] === newValue) {
-                    return newValue;
-                }
-            } catch (e) {}
-        }
-    }
-    console.warn(`Échec de l'incrémentation après ${maxRetries} tentatives`);
-    return null;
-}
-
-function getCounterValue(counterName) {
-    const stats = initCounters();
-    return stats[counterName] || (counterName === 'total_users' ? 1000 : 10000);
-}
-
-function updateDisplayedCounters() {
-    const stats = initCounters();
+/**
+ * Met à jour l'affichage des compteurs (utilisateurs et partages) dans le badge.
+ */
+async function updateDisplayedCounters() {
     const usersEl = document.getElementById('total-users-count');
     const sharesEl = document.getElementById('total-shares-count');
-    if (usersEl) usersEl.textContent = stats.total_users.toLocaleString();
-    if (sharesEl) sharesEl.textContent = stats.total_shares.toLocaleString();
+    if (usersEl) {
+        const users = await getCounterValue('total_users');
+        usersEl.textContent = users.toLocaleString();
+    }
+    if (sharesEl) {
+        const shares = await getCounterValue('total_shares');
+        sharesEl.textContent = shares.toLocaleString();
+    }
 }
 
+// Écouter les modifications venant d'autres onglets (pour le fallback localStorage)
 window.addEventListener('storage', (event) => {
     if (event.key === COUNTERS_KEY) {
         updateDisplayedCounters();
     }
 });
 
-let isTabVisible = !document.hidden;
-document.addEventListener('visibilitychange', () => {
-    isTabVisible = !document.hidden;
-});
+// =======================================================
+// ENREGISTREMENT DES ÉVÉNEMENTS (VISITES, PARTAGES) DANS SUPABASE
+// =======================================================
 
-async function incrementCounter(counterName) {
-    if (!isTabVisible) {
-        return null;
+/**
+ * Enregistre un événement utilisateur (visite, partage) dans localStorage et dans Supabase.
+ */
+function recordEvent(type) {
+    const userId = localStorage.getItem('userId') || 'unknown';
+    const page = window.location.pathname;
+    const timestamp = new Date().toISOString();
+
+    // Enregistrement local
+    let events = JSON.parse(localStorage.getItem('userEvents')) || [];
+    events.push({ type, timestamp, userId, page });
+    localStorage.setItem('userEvents', JSON.stringify(events));
+
+    // Envoi à Supabase (si disponible)
+    if (supabaseAvailable) {
+        supabase
+            .from('events')
+            .insert({ type, user_id: userId, page })
+            .then(({ error }) => {
+                if (error) console.error('Erreur envoi événement Supabase:', error);
+            });
     }
-    const newValue = await atomicIncrement(counterName);
-    if (newValue !== null) {
-        updateDisplayedCounters();
-    }
-    return newValue;
 }
+
+// Enregistrer la visite initiale
+recordEvent('visit');
 
 // =======================================================
 // GESTION DE L'INSTALLATION PWA
@@ -196,6 +245,9 @@ let deferredPrompt;
 const installButton = document.getElementById('install-app');
 const iosGuidePopup = document.getElementById('ios-guide-popup');
 
+/**
+ * Détection du système d'exploitation.
+ */
 function getOS() {
     const ua = window.navigator.userAgent;
     if (/iPad|iPhone|iPod/.test(ua)) return 'iOS';
@@ -203,11 +255,17 @@ function getOS() {
     return 'Other';
 }
 
+/**
+ * Vérifie si l'application est déjà installée (mode standalone).
+ */
 function isPwaInstalled() {
     return window.matchMedia('(display-mode: standalone)').matches || 
            window.navigator.standalone === true;
 }
 
+/**
+ * Affiche le guide d'installation pour iOS si nécessaire.
+ */
 function showIosGuideIfNeeded() {
     if (getOS() === 'iOS' && !isPwaInstalled()) {
         const lastClosed = localStorage.getItem('iosGuideLastClosed');
@@ -219,11 +277,15 @@ function showIosGuideIfNeeded() {
     }
 }
 
+/**
+ * Ferme le guide iOS.
+ */
 function closeIosGuide() {
     if (iosGuidePopup) iosGuidePopup.style.display = 'none';
     localStorage.setItem('iosGuideLastClosed', Date.now().toString());
 }
 
+// Événement beforeinstallprompt (pour Android/Desktop)
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -232,6 +294,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 
+// Clic sur le bouton d'installation
 installButton?.addEventListener('click', async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
@@ -241,47 +304,51 @@ installButton?.addEventListener('click', async () => {
     installButton.style.display = 'none';
 });
 
+// Après installation
 window.addEventListener('appinstalled', () => {
     console.log('PWA installée');
     if (installButton) installButton.style.display = 'none';
     if (iosGuidePopup) iosGuidePopup.style.display = 'none';
 });
 
+// Boutons de fermeture du guide iOS
 document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
 document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
 
 // =======================================================
-// INITIALISATION
+// INITIALISATION PRINCIPALE
 // =======================================================
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     showIosGuideIfNeeded();
-    updateDisplayedCounters();
+    await updateDisplayedCounters();
 
+    // Détection de la page via la présence d'éléments spécifiques
     if (matchesContainer) {
+        // Page pronostics
         initPronostics();
     } else if (document.getElementById('history-container')) {
+        // Page historique
         displayHistory();
     } else if (document.getElementById('bonus-bookmaker-select')) {
+        // Page bonus
         initBonusPage();
     } else {
         // Page d'accueil
-        loadDataGeneric().then(data => {
-            if (data) {
-                allData = data;
-                renderBookmakers(data.bookmakers);
-                updateShareCounter();
-                displayLatestVerified(); // Affiche les derniers pronostics validés
-                startWinsSlider();        // Démarre le slider des gains
-                showSuccessRate();         // Affiche le taux de réussite (réel)
-                animateWins();             // Anime le compteur de gains (réel)
-            } else {
-                console.log("Aucune donnée chargée pour l'accueil");
-            }
-        });
+        const data = await loadDataGeneric();
+        if (data) {
+            allData = data;
+            renderBookmakers(data.bookmakers);
+            updateShareCounter();
+            displayLatestVerified();   // Affiche les derniers pronostics validés
+            startWinsSlider();          // Démarre le slider des gains
+            showSuccessRate();           // Affiche le taux de réussite (réel)
+            animateWins();               // Anime le compteur de gains (réel)
+        }
         displayTestimonials();
-        startWinNotifications();          // Démarre les notifications de gains
+        startWinNotifications();        // Démarre les notifications de gains
     }
 
+    // Chargement des contenus générés (blog, conseils, infos) si les conteneurs existent
     displayBlogList();
     displayBlogPost();
     displayConseils();
@@ -289,6 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
     displayFootNews();
     initScrollProgress();
 
+    // Barre de recherche sur la page pronostics
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
@@ -305,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 sharePending = false;
                 const newCount = incrementShareCount();
                 updateShareCounter();
-                incrementCounter('total_shares');
+                incrementCounter('total_shares'); // ne pas attendre
                 recordEvent('share');
 
                 const target = shareLimits[currentCategory];
@@ -328,6 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // FONCTIONS POUR LA PAGE PRONOSTICS
 // =======================================================
 
+/**
+ * Initialise la page des pronostics.
+ */
 async function initPronostics() {
     await loadData();
     if (allData) {
@@ -341,6 +412,9 @@ async function initPronostics() {
     }
 }
 
+/**
+ * Charge les données depuis data.json (ou le cache) et les stocke dans allData.
+ */
 async function loadData() {
     console.log('🔄 Chargement des pronostics...');
     
@@ -356,6 +430,7 @@ async function loadData() {
     let dataLoaded = false;
 
     try {
+        // Timeout de 8 secondes
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000);
 
@@ -407,6 +482,9 @@ async function loadData() {
     }
 }
 
+/**
+ * Charge les données depuis data.json (générique, sans modifier allData).
+ */
 async function loadDataGeneric() {
     try {
         const resp = await fetch('data.json?t=' + Date.now());
@@ -420,6 +498,9 @@ async function loadDataGeneric() {
     }
 }
 
+/**
+ * Cache les onglets de catégories vides (simple, pro, vip) et ajuste l'onglet actif.
+ */
 function hideEmptyTabs() {
     const counts = { simple: 0, pro: 0, vip: 0 };
     allData.matches.forEach(m => counts[m.category]++);
@@ -446,6 +527,7 @@ function hideEmptyTabs() {
         if (tabBar) tabBar.style.display = 'none';
     }
 
+    // Gestion des sous-onglets VIP
     if (vipSubtabs) {
         const showPronostics = counts.vip > 0;
         const subtabBtns = vipSubtabs.querySelectorAll('.subtab-btn');
@@ -467,6 +549,9 @@ function hideEmptyTabs() {
     }
 }
 
+/**
+ * Cache la barre d'onglets si tous les onglets sont cachés.
+ */
 function maybeHideTabBar() {
     const tabBar = document.querySelector('.category-tabs');
     if (tabBar) {
@@ -475,6 +560,9 @@ function maybeHideTabBar() {
     }
 }
 
+/**
+ * Met en place les écouteurs d'événements (onglets, boutons de partage, etc.).
+ */
 function setupEventListeners() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', e => {
@@ -518,7 +606,7 @@ function setupEventListeners() {
     if (shareWaLocked) shareWaLocked.addEventListener('click', () => share('whatsapp'));
     if (shareTgLocked) shareTgLocked.addEventListener('click', () => share('telegram'));
 
-    // Écouteur pour les boutons de partage de pronostic individuel
+    // Écouteur pour les boutons de partage de pronostic individuel (délégué)
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-share')) {
             const matchData = JSON.parse(e.target.dataset.match);
@@ -527,6 +615,9 @@ function setupEventListeners() {
     });
 }
 
+/**
+ * Gère le changement de catégorie (vérification des partages pour Pro/VIP).
+ */
 function handleCategoryChange() {
     if (currentCategory === 'simple') {
         hideVipLocked();
@@ -543,6 +634,9 @@ function handleCategoryChange() {
     }
 }
 
+/**
+ * Affiche l'overlay de verrouillage pour les catégories Pro/VIP.
+ */
 function showVipLocked(category) {
     if (vipLockedOverlay) {
         const target = shareLimits[category];
@@ -563,6 +657,9 @@ function showVipLocked(category) {
     }
 }
 
+/**
+ * Cache l'overlay de verrouillage.
+ */
 function hideVipLocked() {
     if (vipLockedOverlay) {
         vipLockedOverlay.style.display = 'none';
@@ -570,6 +667,9 @@ function hideVipLocked() {
     }
 }
 
+/**
+ * Affiche le popup de partage (fallback si l'overlay n'est pas utilisé).
+ */
 function showSharePopup(category, remaining) {
     if (!sharePopup) return;
     const shareCount = getDailyShareCount();
@@ -580,7 +680,9 @@ function showSharePopup(category, remaining) {
     sharePopup.classList.add('active');
 }
 
-// Fonction de partage général (pour débloquer les catégories)
+/**
+ * Fonction de partage général (pour débloquer les catégories).
+ */
 function share(platform) {
     const baseUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     const shareUrl = baseUrl;
@@ -600,7 +702,9 @@ function share(platform) {
     sharePending = true;
 }
 
-// Fonction de partage d'un pronostic spécifique
+/**
+ * Fonction de partage d'un pronostic spécifique.
+ */
 function sharePronostic(match) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     const message = `🔥 *Mr XPRONOS* - Pronostic du jour\n\n` +
@@ -618,12 +722,15 @@ function sharePronostic(match) {
         window.open(telegramUrl, '_blank');
     }
 
-    // Incrémenter le compteur global (optionnel)
+    // Incrémenter le compteur global (sans attendre)
     incrementShareCount();
     incrementCounter('total_shares');
     recordEvent('share');
 }
 
+/**
+ * Met à jour l'affichage du compteur de partages quotidiens.
+ */
 function updateShareCounter() {
     const counter = document.getElementById('share-counter');
     if (counter) {
@@ -632,6 +739,13 @@ function updateShareCounter() {
     }
 }
 
+// =======================================================
+// FONCTIONS DE MANIPULATION DES DATES
+// =======================================================
+
+/**
+ * Retourne la date locale (YYYY-MM-DD) pour un jour relatif (today, tomorrow, yesterday).
+ */
 function getLocalDateString(day) {
     const now = new Date();
     const target = new Date(now);
@@ -646,10 +760,14 @@ function getLocalDateString(day) {
     return `${year}-${month}-${dayOfMonth}`;
 }
 
+/**
+ * Extrait la date locale (YYYY-MM-DD) d'une chaîne ISO (en tenant compte du fuseau horaire).
+ */
 function getLocalDateFromEvent(isoString) {
     if (!isoString) return null;
     const date = new Date(isoString);
     if (isNaN(date)) return null;
+    // Ajuster au fuseau local
     date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -657,6 +775,13 @@ function getLocalDateFromEvent(isoString) {
     return `${year}-${month}-${day}`;
 }
 
+// =======================================================
+// FONCTIONS DE TRI ET FILTRAGE DES MATCHS
+// =======================================================
+
+/**
+ * Trie les matchs par popularité de ligue (d'abord les ligues populaires, puis les autres), puis par date.
+ */
 function sortMatchesByLeague(matches) {
     return matches.sort((a, b) => {
         const leagueA = a.league || '';
@@ -672,6 +797,9 @@ function sortMatchesByLeague(matches) {
     });
 }
 
+/**
+ * Filtre et affiche les matchs selon la catégorie et le jour courants.
+ */
 function filterAndDisplay() {
     if (!allData || !allData.matches) {
         if (matchesContainer) matchesContainer.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
@@ -693,6 +821,9 @@ function filterAndDisplay() {
 let filteredMatchesWithoutSearch = [];
 let searchTerm = '';
 
+/**
+ * Applique le filtre de recherche sur les matchs préfiltrés.
+ */
 function applySearchFilter() {
     if (!filteredMatchesWithoutSearch) return;
     if (!searchTerm.trim()) {
@@ -708,6 +839,9 @@ function applySearchFilter() {
     renderMatches(filtered);
 }
 
+/**
+ * Formate l'heure d'un match à partir d'une chaîne ISO.
+ */
 function formatMatchTime(isoString) {
     if (!isoString) return 'Horaire inconnu';
     const date = new Date(isoString);
@@ -715,6 +849,10 @@ function formatMatchTime(isoString) {
     return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
 
+/**
+ * Retourne le chemin du logo local d'une équipe (en fonction du nom).
+ * Si le logo n'existe pas, le fallback onerror utilisera home.png ou away.png.
+ */
 function getTeamLogoPath(teamName, isHome = true) {
     if (!teamName) return isHome ? 'assets/images/home.png' : 'assets/images/away.png';
     const normalized = teamName.toLowerCase()
@@ -723,6 +861,9 @@ function getTeamLogoPath(teamName, isHome = true) {
     return `assets/images/${normalized}.png`;
 }
 
+/**
+ * Affiche les matchs dans le conteneur.
+ */
 function renderMatches(matches) {
     if (!matchesContainer) return;
     if (matches.length === 0) {
@@ -819,6 +960,7 @@ function renderMatches(matches) {
     });
     matchesContainer.innerHTML = html;
 
+    // Animation de la barre de confiance
     document.querySelectorAll('.confidence-fill').forEach(bar => {
         let value = bar.getAttribute('data-value');
         setTimeout(() => {
@@ -826,6 +968,7 @@ function renderMatches(matches) {
         }, 300);
     });
 
+    // Effet de feux d'artifice pour les matchs gagnants
     document.querySelectorAll('.match-card.winner').forEach(card => {
         for (let i = 0; i < 20; i++) {
             let spark = document.createElement('div');
@@ -844,6 +987,9 @@ function renderMatches(matches) {
     });
 }
 
+/**
+ * Traduit le statut d'un match en français.
+ */
 function translateStatus(status) {
     if (!status) return 'À venir';
     const s = status.toLowerCase();
@@ -855,6 +1001,9 @@ function translateStatus(status) {
     return status;
 }
 
+/**
+ * Retourne la classe CSS correspondant au statut.
+ */
 function getStatusClass(status) {
     if (!status) return '';
     const s = status.toLowerCase();
@@ -866,6 +1015,10 @@ function getStatusClass(status) {
 // =======================================================
 // FONCTION POUR LES BOOKMAKERS
 // =======================================================
+
+/**
+ * Affiche les bookmakers dans le footer et la section bonus de l'accueil.
+ */
 function renderBookmakers(bookmakers) {
     console.log('📢 renderBookmakers appelée avec:', bookmakers);
     if (!bookmakers || bookmakers.length === 0) {
@@ -880,6 +1033,7 @@ function renderBookmakers(bookmakers) {
         ];
     }
 
+    // Footer
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -906,6 +1060,7 @@ function renderBookmakers(bookmakers) {
         });
     }
 
+    // Section bonus de l'accueil
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
@@ -948,23 +1103,12 @@ function renderBookmakers(bookmakers) {
 }
 
 // =======================================================
-// FONCTIONS POUR LES STATISTIQUES (admin)
+// FONCTIONS POUR LE CONTENU GÉNÉRÉ (Blog, Conseils, Actualités)
 // =======================================================
-function recordEvent(type) {
-    let events = JSON.parse(localStorage.getItem('userEvents')) || [];
-    events.push({
-        type: type,
-        timestamp: new Date().toISOString(),
-        userId: localStorage.getItem('userId') || 'unknown',
-        page: window.location.pathname
-    });
-    localStorage.setItem('userEvents', JSON.stringify(events));
-}
-recordEvent('visit');
 
-// =======================================================
-// FONCTIONS POUR LE CONTENU GÉNÉRÉ (Blog, Conseils, Infos)
-// =======================================================
+/**
+ * Charge les articles et conseils générés depuis les fichiers JSON.
+ */
 async function loadGeneratedContent() {
     try {
         const articlesResp = await fetch('articles.json?t=' + Date.now());
@@ -977,6 +1121,10 @@ async function loadGeneratedContent() {
 }
 
 // ==================== ARTICLES ====================
+
+/**
+ * Affiche la liste des articles (grille + liste horizontale).
+ */
 async function displayBlogList() {
     const container = document.getElementById('blog-list');
     if (!container) return;
@@ -992,6 +1140,7 @@ async function displayBlogList() {
 
     window.articlesData = allArticles;
 
+    // Liste horizontale (miniatures)
     const horizontalContainer = document.getElementById('blog-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
@@ -1007,6 +1156,7 @@ async function displayBlogList() {
         horizontalContainer.innerHTML = hHtml;
     }
 
+    // Grille principale
     let html = '';
     allArticles.forEach((article, index) => {
         let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
@@ -1028,6 +1178,9 @@ async function displayBlogList() {
     container.innerHTML = html;
 }
 
+/**
+ * Affiche le détail d'un article dans une modal.
+ */
 window.showArticleDetail = function(index) {
     const article = window.articlesData[index];
     if (!article) return;
@@ -1051,6 +1204,9 @@ window.closeArticleModal = function() {
     if (modal) modal.style.display = 'none';
 };
 
+/**
+ * Affiche un article complet sur une page dédiée (article.html).
+ */
 async function displayBlogPost() {
     const container = document.getElementById('blog-post');
     if (!container) return;
@@ -1082,6 +1238,10 @@ async function displayBlogPost() {
 }
 
 // ==================== CONSEILS ====================
+
+/**
+ * Affiche la liste des conseils (grille + liste horizontale).
+ */
 async function displayConseils() {
     const container = document.getElementById('conseils-list');
     if (!container) return;
@@ -1097,6 +1257,7 @@ async function displayConseils() {
 
     window.conseilsData = allConseils;
 
+    // Liste horizontale
     const horizontalContainer = document.getElementById('conseils-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
@@ -1112,6 +1273,7 @@ async function displayConseils() {
         horizontalContainer.innerHTML = hHtml;
     }
 
+    // Grille principale
     let html = '';
     allConseils.forEach((conseil, index) => {
         let cleanTitle = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
@@ -1133,6 +1295,9 @@ async function displayConseils() {
     container.innerHTML = html;
 }
 
+/**
+ * Affiche le détail d'un conseil dans une modal.
+ */
 window.showConseilDetail = function(index) {
     const conseil = window.conseilsData[index];
     if (!conseil) return;
@@ -1155,7 +1320,11 @@ window.closeConseilModal = function() {
     if (modal) modal.style.display = 'none';
 };
 
-// ==================== INFOS (actualités) ====================
+// ==================== INFOS SPORT (statiques) ====================
+
+/**
+ * Affiche les infos sport (contenu statique).
+ */
 async function displayInfos() {
     const container = document.getElementById('infos-list');
     if (!container) return;
@@ -1173,6 +1342,11 @@ async function displayInfos() {
     container.innerHTML = html;
 }
 
+// ==================== ACTUALITÉS (RSS) ====================
+
+/**
+ * Affiche les actualités football (depuis footnews.json) avec modal.
+ */
 async function displayFootNews() {
     const container = document.getElementById('foot-news-container');
     if (!container) return;
@@ -1204,6 +1378,9 @@ async function displayFootNews() {
     }
 }
 
+/**
+ * Affiche le détail d'une actualité dans une modal.
+ */
 window.showNewsDetail = function(index) {
     const news = window.newsData[index];
     if (!news) return;
@@ -1233,6 +1410,9 @@ window.closeNewsModal = function() {
 // =======================================================
 let allBonus = [];
 
+/**
+ * Initialise la page bonus (sélecteur de bookmaker et vignettes).
+ */
 async function initBonusPage() {
     const data = await loadDataGeneric();
     allBonus = data?.bonus || [];
@@ -1266,6 +1446,9 @@ async function initBonusPage() {
 
 let currentBookmaker = null;
 
+/**
+ * Affiche les vignettes des bonus pour le bookmaker sélectionné.
+ */
 function displayBonusThumbnails() {
     const container = document.getElementById('bonus-thumbnails');
     if (!container) return;
@@ -1291,6 +1474,9 @@ function displayBonusThumbnails() {
     window.bonusDetails = filtered;
 }
 
+/**
+ * Affiche le détail d'un bonus dans une modal.
+ */
 window.showBonusDetail = function(id) {
     const bonus = window.bonusDetails.find(b => b.id === id);
     if (!bonus) return;
@@ -1310,6 +1496,9 @@ window.closeBonusModal = function() {
     if (modal) modal.style.display = 'none';
 };
 
+/**
+ * Affiche la liste complète des bonus (grille).
+ */
 async function displayBonusList() {
     const container = document.getElementById('bonus-grid');
     if (!container) return;
@@ -1340,6 +1529,9 @@ async function displayBonusList() {
     container.innerHTML = html;
 }
 
+/**
+ * Formate une date (YYYY-MM-DD) en JJ/MM/AAAA.
+ */
 function formatDate(dateStr) {
     const [y, m, d] = dateStr.split('-');
     return `${d}/${m}/${y}`;
@@ -1348,6 +1540,10 @@ function formatDate(dateStr) {
 // =======================================================
 // PAGE HISTORIQUE
 // =======================================================
+
+/**
+ * Affiche l'historique des pronostics (matchs antérieurs à aujourd'hui).
+ */
 async function displayHistory() {
     const container = document.getElementById('history-container');
     if (!container) return;
@@ -1371,6 +1567,7 @@ async function displayHistory() {
         return;
     }
 
+    // Tri par ordre de catégorie (VIP en premier, puis Pro, puis Simple), puis par date décroissante
     const catOrder = { vip: 0, pro: 1, simple: 2 };
     historyMatches.sort((a, b) => {
         const orderA = catOrder[a.category] !== undefined ? catOrder[a.category] : 3;
@@ -1379,6 +1576,7 @@ async function displayHistory() {
         return new Date(b.event_date) - new Date(a.event_date);
     });
 
+    // Regroupement par jour
     const groupedByDay = {};
     historyMatches.forEach(m => {
         const dateStr = getLocalDateFromEvent(m.event_date);
@@ -1458,6 +1656,10 @@ async function displayHistory() {
 // =======================================================
 // TAUX DE RÉUSSITE ET SCROLL PROGRESS
 // =======================================================
+
+/**
+ * Met à jour l'affichage du taux de réussite global.
+ */
 function updateSuccessRate() {
     const container = document.getElementById('success-rate-container');
     if (!container) return;
@@ -1484,6 +1686,9 @@ function updateSuccessRate() {
     container.style.display = 'flex';
 }
 
+/**
+ * Initialise la barre de progression du scroll.
+ */
 function initScrollProgress() {
     const progressBar = document.createElement('div');
     progressBar.className = 'scroll-progress';
@@ -1497,8 +1702,13 @@ function initScrollProgress() {
 }
 
 // =======================================================
-// AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL (CORRIGÉ)
+// FONCTIONS POUR L'ACCUEIL
 // =======================================================
+
+/**
+ * Affiche les 4 derniers pronostics gagnants (Pro/VIP) sur l'accueil.
+ * Version corrigée et robuste.
+ */
 function displayLatestVerified() {
     const container = document.getElementById('today-picks');
     if (!container) return;
@@ -1508,33 +1718,22 @@ function displayLatestVerified() {
         return;
     }
 
-    console.log("allData.matches:", allData.matches); // Debug
-
     // Filtrer les matchs terminés, vérifiés gagnants, et des catégories Pro/VIP
     const verified = allData.matches.filter(m => {
         if (!m.status) return false;
-
-        // Accepter les statuts "finished", "terminé", "ended" (insensible à la casse)
         const statusLower = m.status.toLowerCase();
         const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-
         return (
             isFinished &&
             m.verified_double === true &&
             (m.category === 'pro' || m.category === 'vip')
-            // On enlève la condition de date pour le débogage, mais on la remettra ensuite
-            // new Date(m.event_date) < new Date()
         );
     });
-
-    console.log("Matchs validés trouvés (avant tri):", verified);
 
     // Trier du plus récent au plus ancien et prendre les 4 premiers
     const latest = [...verified]
         .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
         .slice(0, 4);
-
-    console.log("4 plus récents:", latest);
 
     if (latest.length === 0) {
         container.innerHTML = '<div class="no-events">Aucun pronostic validé récent.</div>';
@@ -1578,9 +1777,9 @@ function displayLatestVerified() {
     container.innerHTML = html;
 }
 
-// =======================================================
-// SLIDER DES GAINS (bandeau défilant)
-// =======================================================
+/**
+ * Slider des gains récents (bandeau défilant des 10 derniers matchs gagnants).
+ */
 function startWinsSlider() {
     const track = document.getElementById('wins-track');
     if (!track || !allData || !allData.matches) return;
@@ -1612,18 +1811,18 @@ function startWinsSlider() {
     track.innerHTML = html + html;
 }
 
-// =======================================================
-// NOTIFICATIONS DE GAINS EN DIRECT (POPUP) - AMÉLIORÉES
-// =======================================================
+/**
+ * Notifications de gains en direct (popup) avec noms uniques toutes les heures.
+ */
 function startWinNotifications() {
     const popup = document.getElementById('win-popup');
     if (!popup) return;
 
-    // Liste de prénoms et noms complets (pas de doublons dans une session)
+    // Liste de prénoms et noms complets
     const firstNames = ["Jean", "Michel", "David", "Lucas", "Thomas", "Patrick", "Samuel", "Kevin", "Éric", "Daniel", "Pierre", "Philippe", "Nicolas", "François", "Antoine"];
     const lastNames = ["Martin", "Bernard", "Dubois", "Thomas", "Robert", "Richard", "Petit", "Durand", "Leroy", "Moreau", "Simon", "Laurent", "Lefebvre", "Michel", "Garcia"];
 
-    // Générer un ensemble unique de noms complets pour les 5 notifications
+    // Générer un ensemble unique de 5 noms complets
     let usedNames = new Set();
     let notifications = [];
 
@@ -1638,7 +1837,6 @@ function startWinNotifications() {
         }
     }
 
-    // Rotation des notifications toutes les heures (3600000 ms)
     let index = 0;
     function showPopup() {
         const { name, gain } = notifications[index];
@@ -1654,14 +1852,13 @@ function startWinNotifications() {
     showPopup(); // afficher immédiatement la première
 }
 
-// =======================================================
-// COMPTEUR ANIMÉ DE PRONOSTICS GAGNANTS (RÉEL)
-// =======================================================
+/**
+ * Compteur animé du nombre total de pronostics gagnés (réel).
+ */
 function animateWins() {
     const el = document.getElementById('wins-count');
     if (!el || !allData || !allData.matches) return;
 
-    // Compter les matchs terminés et gagnés
     const winsCount = allData.matches.filter(m => {
         if (!m.status) return false;
         const statusLower = m.status.toLowerCase();
@@ -1681,9 +1878,9 @@ function animateWins() {
     }, 20);
 }
 
-// =======================================================
-// TAUX DE RÉUSSITE ANIMÉ (RÉEL)
-// =======================================================
+/**
+ * Barre de taux de réussite animée (réelle).
+ */
 function showSuccessRate() {
     const fill = document.getElementById('success-fill');
     const percentEl = document.getElementById('success-percent');
@@ -1706,8 +1903,12 @@ function showSuccessRate() {
 }
 
 // =======================================================
-// TÉMOIGNAGES DYNAMIQUES (GÉNÉRÉS VIA JSON)
+// TÉMOIGNAGES DYNAMIQUES
 // =======================================================
+
+/**
+ * Affiche les témoignages depuis testimonials.json (fallback intégré).
+ */
 async function displayTestimonials() {
     const container = document.getElementById('testimonials-container');
     if (!container) return;
