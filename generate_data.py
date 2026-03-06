@@ -4,82 +4,85 @@
 """
 generate_data.py - Génère les pronostics à partir des données SportData
 et des scores déjà en base (mis à jour par update_scores.py).
-
-Ce script :
-- Récupère les matchs du jour, d'hier et de demain via l'API SportData.
-- Enrichit chaque match avec une analyse des confrontations directes (H2H)
-  basée sur l'historique chargé depuis all_matches.json.
-- Calcule un pronostic (double chance, over 2.5, confiance) et un score.
-- Catégorise les matchs en Simple / Pro / VIP selon le score.
-- Récupère les logos des équipes via TheSportsDB (avec cache local).
-- Sauvegarde le tout dans data.json, en conservant les bookmakers existants
-  ou en utilisant une liste par défaut.
-- Exclut les matchs avec un pronostic "12" (trop équilibré).
+Version améliorée avec prise en compte de la forme récente,
+de l'avantage domicile, de la pondération des compétitions,
+et d'autres facteurs pour augmenter la fiabilité.
 """
 
 import os
 import json
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 # =======================================================
 # CONFIGURATION
 # =======================================================
-
-# Clé API SportData (obligatoire)
-SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")
+SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY",'0b4628b4-83cc-4227-bed6-82c50d806514')
 if not SPORTDATA_API_KEY:
     raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
 
-# Clé publique pour TheSportsDB (gratuite)
-THESPORTSDB_API_KEY = "3"
+THESPORTSDB_API_KEY = "123"  # clé publique pour thesportsdb
 
-# URL de base de l'API SportData
 SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
 HEADERS = {"x-api-key": SPORTDATA_API_KEY}
 
-# Configuration des requêtes avec retry en cas d'échec
 session = requests.Session()
-retries = Retry(total=3, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+retries = Retry(total=3, backoff_factor=1, status_forcelist=[429,500,502,503,504])
 session.mount('https://', HTTPAdapter(max_retries=retries))
 
-# Dates d'intérêt
 today = datetime.now().date()
 tomorrow = today + timedelta(days=1)
 yesterday = today - timedelta(days=1)
 
-# Fichiers
 DATA_FILE = "data.json"
 CACHE_DIR = "cache"
-GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")   # Historique complet des matchs
-LOGO_CACHE_FILE = os.path.join(CACHE_DIR, "logos_cache.json")     # Cache des logos d'équipes
+GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
+LOGO_CACHE_FILE = os.path.join(CACHE_DIR, "logos_cache.json")
+
+# Ligues considérées comme fiables (pour ajuster la confiance)
+TRUSTED_LEAGUES = [
+    "Premier League",
+    "LaLiga",
+    "Serie A",
+    "Bundesliga",
+    "Ligue 1",
+    "Eredivisie",
+    "Primeira Liga",
+    "Russian Premier League",
+    "MLS",
+    "Brasileirão",
+    "Super Lig"
+]
+
+# Ligues avec une moyenne de buts élevée (pour over 2.5)
+HIGH_SCORING_LEAGUES = [
+    "Bundesliga",
+    "Eredivisie",
+    "Premier League",
+    "MLS",
+    "Brasileirão"
+]
 
 print("="*60)
-print(f"🚀 GÉNÉRATION DES PRONOSTICS - {today}")
+print(f"🚀 GÉNÉRATION DES PRONOSTICS AMÉLIORÉS - {today}")
 print("="*60)
 
 # =======================================================
 # GESTION DU CACHE DES LOGOS
 # =======================================================
-
 logo_cache = {}
 if os.path.exists(LOGO_CACHE_FILE):
     with open(LOGO_CACHE_FILE, 'r', encoding='utf-8') as f:
         logo_cache = json.load(f)
 
 def save_logo_cache():
-    """Sauvegarde le dictionnaire des logos dans le fichier cache."""
     with open(LOGO_CACHE_FILE, 'w', encoding='utf-8') as f:
         json.dump(logo_cache, f, indent=2)
 
 def get_logo_thesportsdb(team_name):
-    """
-    Interroge TheSportsDB pour obtenir l'URL du logo d'une équipe.
-    Utilise le cache pour éviter des appels répétés.
-    Retourne l'URL du logo ou None si non trouvé.
-    """
+    """Interroge TheSportsDB pour obtenir le logo d'une équipe."""
     if team_name in logo_cache:
         return logo_cache[team_name]
     try:
@@ -89,32 +92,26 @@ def get_logo_thesportsdb(team_name):
             data = resp.json()
             teams = data.get("teams", [])
             if teams:
-                # On préfère le badge (strTeamBadge) sinon le logo classique
                 logo = teams[0].get("strTeamBadge") or teams[0].get("strTeamLogo")
                 logo_cache[team_name] = logo
                 return logo
-    except Exception as e:
-        print(f"   ⚠️ Erreur lors de la récupération du logo pour {team_name}: {e}")
+    except:
+        pass
     logo_cache[team_name] = None
     return None
 
 def get_team_logo(team_name):
-    """Wrapper pour obtenir un logo avec gestion du cache."""
+    """Obtenir le logo d'une équipe avec cache."""
     return get_logo_thesportsdb(team_name)
 
 # =======================================================
 # FONCTIONS DE RÉCUPÉRATION DES DONNÉES SPORTDATA
 # =======================================================
-
 def fetch_games(date_from, date_to):
-    """
-    Récupère les matchs pour une période donnée via l'API SportData.
-    Retourne la liste des jeux (games) ou [] en cas d'erreur.
-    """
     params = {
         "startDate": date_from.strftime("%d/%m/%Y"),
         "endDate": date_to.strftime("%d/%m/%Y"),
-        "sports": 1,                # football
+        "sports": 1,
         "showOdds": "false",
         "onlyMajorGames": "false"
     }
@@ -128,17 +125,14 @@ def fetch_games(date_from, date_to):
         return []
 
 def extract_game_info(game):
-    """
-    Extrait les informations de base d'un match SportData.
-    Retourne un dictionnaire avec les champs utiles.
-    """
+    """Extrait les infos de base d'un match SportData."""
     start_time = game.get("startTime")
     competition = game.get("competitionDisplayName", "")
     home = game.get("homeCompetitor", {})
     away = game.get("awayCompetitor", {})
     home_score = home.get("score")
     away_score = away.get("score")
-    # Convertir les -1 (score non disponible) en None
+    # Convertir les -1 en None
     if home_score == -1:
         home_score = None
     if away_score == -1:
@@ -154,18 +148,113 @@ def extract_game_info(game):
         "away_score": away_score,
         "status_group": game.get("statusGroup"),
         "status_text": game.get("statusText"),
-        "is_finished": (game.get("statusGroup") == 4)   # 4 = terminé
+        "is_finished": (game.get("statusGroup") == 4)
     }
 
 # =======================================================
-# FONCTIONS D'ANALYSE H2H
+# FONCTIONS D'ANALYSE DE LA FORME DES ÉQUIPES
 # =======================================================
+def build_team_history(historical):
+    """Construit un dictionnaire avec tous les matchs par équipe, triés par date."""
+    team_matches = {}
+    for m in historical:
+        home = m["home_team"]
+        away = m["away_team"]
+        # Conversion en datetime naive (suppression du fuseau horaire)
+        date = datetime.fromisoformat(m["start_time"].replace('Z', '+00:00')).replace(tzinfo=None)
+        # Pour l'équipe à domicile
+        if home not in team_matches:
+            team_matches[home] = []
+        team_matches[home].append((date, m, "home"))
+        # Pour l'équipe à l'extérieur
+        if away not in team_matches:
+            team_matches[away] = []
+        team_matches[away].append((date, m, "away"))
+    # Trier par date pour chaque équipe (du plus récent au plus ancien)
+    for team in team_matches:
+        team_matches[team].sort(key=lambda x: x[0], reverse=True)
+    return team_matches
 
+def get_team_form(team, team_matches, last_games=5, max_days=365):
+    """
+    Calcule les statistiques de forme d'une équipe sur ses derniers matchs.
+    Retourne un dict avec victoires, nuls, défaites, buts marqués/encaissés,
+    et une note de forme pondérée par la récence.
+    """
+    matches = team_matches.get(team, [])
+    recent = []
+    for date, match, side in matches:
+        if match.get("is_finished") and match["home_score"] is not None:
+            # Ne garder que les matchs datant de moins de max_days
+            days_old = (datetime.now() - date).days
+            if days_old <= max_days:
+                recent.append((date, match, side))
+        if len(recent) >= last_games:
+            break
+
+    if not recent:
+        return None
+
+    wins = draws = losses = 0.0
+    goals_for = goals_against = 0.0
+    total_weight = 0.0
+    weighted_score = 0.0
+
+    for i, (date, match, side) in enumerate(recent):
+        # Pondération exponentielle (le match le plus récent a le plus de poids)
+        weight = 1.5 ** (len(recent) - i - 1)  # dernier match : 1.5^(0)=1, avant-dernier : 1.5, etc.
+        total_weight += weight
+
+        if side == "home":
+            gf = match["home_score"]
+            ga = match["away_score"]
+        else:
+            gf = match["away_score"]
+            ga = match["home_score"]
+
+        goals_for += gf * weight
+        goals_against += ga * weight
+
+        if gf > ga:
+            wins += 1 * weight
+        elif gf == ga:
+            draws += 1 * weight
+        else:
+            losses += 1 * weight
+
+    # Normaliser
+    wins /= total_weight
+    draws /= total_weight
+    losses /= total_weight
+    goals_for /= total_weight
+    goals_against /= total_weight
+
+    # Note de forme basée sur les points (victoire = 3, nul = 1)
+    points_per_game = (wins * 3 + draws) / (wins + draws + losses) if (wins+draws+losses)>0 else 0
+    # Normaliser sur 1
+    form_score = points_per_game / 3
+
+    return {
+        "wins": round(wins, 2),
+        "draws": round(draws, 2),
+        "losses": round(losses, 2),
+        "goals_for": round(goals_for, 2),
+        "goals_against": round(goals_against, 2),
+        "form_score": round(form_score, 3),
+        "matches_used": len(recent)
+    }
+
+def get_home_advantage(home_form, away_form):
+    """Calcule un avantage basé sur la forme à domicile (si disponible) mais ici on n'a pas de séparation.
+       On utilisera simplement la différence de forme."""
+    if home_form and away_form:
+        return home_form["form_score"] - away_form["form_score"]
+    return 0
+
+# =======================================================
+# FONCTIONS D'ANALYSE H2H (existantes, avec améliorations)
+# =======================================================
 def load_historical_matches():
-    """
-    Charge l'historique complet des matchs depuis all_matches.json.
-    Retourne une liste de matchs (format SportData) ou [] si fichier absent.
-    """
     if not os.path.exists(GLOBAL_CACHE_FILE):
         print("⚠️ Fichier historique introuvable. Exécutez d'abord allmatches.py.")
         return []
@@ -173,12 +262,8 @@ def load_historical_matches():
         return json.load(f)
 
 def weight_by_date(date_str):
-    """
-    Calcule un poids en fonction de l'ancienneté du match.
-    Les matchs récents (moins de 6 mois) ont un poids plus élevé.
-    """
     try:
-        match_date = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+        match_date = datetime.fromisoformat(date_str.replace('Z', '+00:00')).replace(tzinfo=None)
         days_old = (datetime.now() - match_date).days
         if days_old < 180:
             return 1.5
@@ -189,16 +274,19 @@ def weight_by_date(date_str):
     except:
         return 1.0
 
+def competition_weight(competition):
+    """Pondère selon l'importance de la compétition."""
+    comp_lower = competition.lower()
+    if "friendly" in comp_lower:
+        return 0.5
+    if "cup" in comp_lower or "playoff" in comp_lower:
+        return 1.3
+    return 1.0
+
 def get_h2h(historical, home_team, away_team, years=2):
-    """
-    Récupère les confrontations directes entre deux équipes
-    dans l'historique, limitées aux 'years' dernières années.
-    Retourne une liste de matchs triés du plus récent au plus ancien.
-    """
     cutoff_date = (datetime.now() - timedelta(days=365*years)).date()
     h2h = []
     for m in historical:
-        # On vérifie si le match oppose ces deux équipes (peu importe le sens)
         if (m["home_team"].lower() == home_team.lower() and m["away_team"].lower() == away_team.lower()) or \
            (m["home_team"].lower() == away_team.lower() and m["away_team"].lower() == home_team.lower()):
             try:
@@ -211,15 +299,6 @@ def get_h2h(historical, home_team, away_team, years=2):
     return h2h
 
 def analyze_h2h(h2h_list, current_home_team, current_away_team):
-    """
-    Analyse une liste de matchs H2H pour en extraire des statistiques.
-    Retourne un dictionnaire avec :
-        - total_matches : nombre de matchs analysés
-        - home_wins, away_wins, draws : scores pondérés
-        - home_dominance, away_dominance : proportions
-        - goals_avg : moyenne de buts par match
-        - over_25_prob : probabilité de plus de 2.5 buts
-    """
     home_score = 0.0
     away_score = 0.0
     draws_score = 0.0
@@ -228,16 +307,17 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
     over_25_count = 0
 
     for match in h2h_list:
-        # On ne prend que les matchs terminés avec des scores
         if not match.get("is_finished") or match["home_score"] is None or match["away_score"] is None:
             continue
-        weight = weight_by_date(match["start_time"])
+        date_weight = weight_by_date(match["start_time"])
+        comp_weight = competition_weight(match.get("competition", ""))
+        weight = date_weight * comp_weight
+
         matches_count += 1
         total_goals += (match["home_score"] + match["away_score"]) * weight
         if match["home_score"] + match["away_score"] > 2.5:
             over_25_count += 1
 
-        # Déterminer le vainqueur pondéré
         if match["home_score"] > match["away_score"]:
             if match["home_team"].lower() == current_home_team.lower():
                 home_score += weight
@@ -254,6 +334,7 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
     total_weighted = home_score + away_score + draws_score
     home_dominance = home_score / total_weighted if total_weighted > 0 else 0
     away_dominance = away_score / total_weighted if total_weighted > 0 else 0
+    draw_rate = draws_score / total_weighted if total_weighted > 0 else 0
     goals_avg = total_goals / matches_count if matches_count > 0 else 2.5
     over_25_prob = over_25_count / matches_count if matches_count > 0 else 0.5
 
@@ -264,18 +345,15 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
         "draws": round(draws_score, 2),
         "home_dominance": round(home_dominance, 3),
         "away_dominance": round(away_dominance, 3),
+        "draw_rate": round(draw_rate, 3),
         "goals_avg": round(goals_avg, 2),
         "over_25_prob": round(over_25_prob, 3)
     }
 
-def generate_prediction(analysis):
-    """
-    Génère le pronostic à partir des statistiques H2H.
-    Retourne un dictionnaire avec double_chance, over_25 et confidence.
-    """
-    total = analysis["total_matches"]
-    # Seuil pour considérer une domination significative
-    seuil = max(0.05, 0.5 / (total ** 0.5) if total > 0 else 0.1)
+def generate_prediction(analysis, home_form, away_form, league):
+    # Seuil de dominance pour éviter les matchs trop équilibrés
+    seuil = 0.55  # augmenté pour plus de rigueur
+
     if analysis["home_dominance"] > analysis["away_dominance"] + seuil:
         double_chance = "1X"
     elif analysis["away_dominance"] > analysis["home_dominance"] + seuil:
@@ -283,76 +361,89 @@ def generate_prediction(analysis):
     else:
         double_chance = "12"
 
+    # Over 2.5 basé sur la moyenne de buts H2H et la forme
     over_25 = analysis["over_25_prob"] > 0.6
+    if league in HIGH_SCORING_LEAGUES:
+        over_25 = over_25 or analysis["goals_avg"] > 2.8
 
-    # Calcul de la confiance de base (entre 50 et 80)
-    confidence = 50 + min(30, analysis["total_matches"] * 3)
+    # Calcul du score de confiance combiné
+    confiance = 50
+    confiance += min(20, analysis["total_matches"] * 3)  # +20 max pour 7 matchs
+    # Bonus pour dominance forte
     if max(analysis["home_dominance"], analysis["away_dominance"]) > 0.7:
-        confidence = min(confidence + 10, 95)
-    if analysis["over_25_prob"] > 0.7 or analysis["over_25_prob"] < 0.3:
-        confidence = min(confidence + 5, 95)
+        confiance += 10
+    # Bonus pour forme récente
+    if home_form and away_form:
+        form_diff = abs(home_form["form_score"] - away_form["form_score"])
+        if form_diff > 0.2:
+            confiance += 5
+        if home_form["form_score"] > 0.7 and away_form["form_score"] < 0.4:
+            confiance += 5
+    # Malus pour draw_rate élevé
+    if analysis["draw_rate"] > 0.4:
+        confiance -= 10
+    # Ajustement selon la ligue
+    if league in TRUSTED_LEAGUES:
+        confiance += 5
+    else:
+        confiance -= 5
+
+    # Limiter
+    confiance = max(0, min(100, confiance))
 
     return {
         "double_chance": double_chance,
         "over_25": over_25,
-        "confidence": confidence
+        "confidence": confiance
     }
 
-def calculate_xpronos_score(analysis, prediction):
-    """
-    Calcule un score (0-100) qui reflète la fiabilité du pronostic.
-    Sert à déterminer la catégorie (Simple, Pro, VIP).
-    """
+def calculate_xpronos_score(analysis, prediction, home_form, away_form, league):
     score = 0
-    # Plus il y a de matchs H2H, plus le score est élevé (max 42)
-    score += min(42, analysis["total_matches"] * 7)
-    # Bonus pour la domination (max 50)
+    score += min(40, analysis["total_matches"] * 6)
     dominance = max(analysis["home_dominance"], analysis["away_dominance"])
-    score += min(50, int(dominance * 100 * 0.7))
-    # Bonus si over_25 est significatif
+    score += min(30, int(dominance * 100 * 0.5))
     if prediction["over_25"]:
-        score += 20
+        score += 10
+    if home_form and away_form:
+        score += min(20, int((home_form["form_score"] + away_form["form_score"]) * 10))
+    if league in TRUSTED_LEAGUES:
+        score += 5
+    # Pénalité si trop de nuls
+    if analysis["draw_rate"] > 0.4:
+        score -= 10
     return min(score, 100)
 
 def get_category(score):
-    """Retourne la catégorie en fonction du score."""
-    if score >= 75:
+    if score >= 65:
         return "vip"
-    elif score >= 60:
+    elif score >= 55:
         return "pro"
     else:
         return "simple"
 
 def get_badge(score):
-    """Retourne un badge textuel pour les scores élevés."""
-    if score >= 90:
+    if score >= 85:
         return "🏆 PREMIUM LOCK"
-    elif score >= 80:
+    elif score >= 75:
         return "💎 VIP ELITE"
-    elif score >= 70:
+    elif score >= 65:
         return "🔥 ULTRA SAFE"
     return ""
 
 # =======================================================
 # FONCTION PRINCIPALE
 # =======================================================
-
 def main():
-    # 1. Charger les données existantes (pour conserver les scores mis à jour par update_scores.py)
+    # 1. Charger l'existant (scores déjà mis à jour)
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             existing_data = json.load(f)
             existing_matches = {m["id"]: m for m in existing_data.get("matches", [])}
     else:
-        existing_data = {
-            "matches": [],
-            "categories": {"simple": [], "pro": [], "vip": []},
-            "stats": {},
-            "bookmakers": []
-        }
+        existing_data = {"matches": [], "categories": {"simple": [], "pro": [], "vip": []}, "stats": {}, "bookmakers": []}
         existing_matches = {}
 
-    # 2. Récupérer les matchs d'aujourd'hui, demain et hier
+    # 2. Récupérer les matchs du jour/demain/hier via SportData
     print("\n📅 Récupération des matchs via SportData...")
     games_today = fetch_games(today, today)
     games_tomorrow = fetch_games(tomorrow, tomorrow)
@@ -360,24 +451,27 @@ def main():
     all_new_games = games_today + games_tomorrow + games_yesterday
     print(f"✅ {len(all_new_games)} matchs récupérés")
 
-    # 3. Extraire les informations de base pour chaque nouveau match
+    # 3. Construire un dictionnaire des infos de base
     new_infos = {g["id"]: extract_game_info(g) for g in all_new_games}
 
     # 4. Charger l'historique H2H
     historical = load_historical_matches()
     print(f"📂 Historique chargé : {len(historical)} matchs")
 
-    # 5. Préparer les listes de matchs et catégories
+    # 5. Construire l'historique des équipes pour la forme récente
+    team_matches = build_team_history(historical)
+    print(f"📊 Statistiques de forme calculées pour {len(team_matches)} équipes")
+
+    # 6. Préparer les nouvelles listes
     matches = []
     categories = {"simple": [], "pro": [], "vip": []}
 
-    # Union de tous les IDs (existants + nouveaux)
+    # Pour chaque match présent dans l'existant ou dans les nouvelles données
     all_ids = set(existing_matches.keys()) | set(new_infos.keys())
-
     for gid in all_ids:
         base = new_infos.get(gid)
         if base is None:
-            # Match uniquement dans l'existant (ancien), on le conserve tel quel
+            # Match uniquement dans l'existant (ancien), on le garde tel quel
             match = existing_matches[gid]
             matches.append(match)
             categories[match["category"]].append(match)
@@ -386,40 +480,48 @@ def main():
         # Match récent (aujourd'hui/demain/hier)
         existing = existing_matches.get(gid)
         if existing:
-            # Utiliser les scores de l'existant (plus frais, mis à jour par update_scores.py)
+            # Utiliser les scores de l'existant (plus frais)
             home_score = existing.get("home_score")
             away_score = existing.get("away_score")
             status = existing.get("status")
         else:
-            # Nouveau match, utiliser les scores de SportData (peut-être None)
+            # Nouveau match, utiliser les scores de SportData
             home_score = base["home_score"]
             away_score = base["away_score"]
             status = base["status_text"]
 
-        # Analyser les confrontations directes
+        # Calculer les H2H
         h2h_list = get_h2h(historical, base["home_team"], base["away_team"], years=2)
         if len(h2h_list) < 2:
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (H2H insuffisant)")
             continue
 
         analysis = analyze_h2h(h2h_list, base["home_team"], base["away_team"])
-        prediction = generate_prediction(analysis)
 
-        # === Ignorer les pronostics "12" (matchs trop équilibrés) ===
+        # Obtenir la forme des équipes
+        home_form = get_team_form(base["home_team"], team_matches, last_games=5)
+        away_form = get_team_form(base["away_team"], team_matches, last_games=5)
+
+        # Si une des équipes n'a pas de forme récente, on peut quand même continuer (mais score moins fiable)
+        if home_form is None or away_form is None:
+            print(f"   ⚠️ Forme incomplète pour {base['home_team'] if home_form is None else base['away_team']}")
+
+        prediction = generate_prediction(analysis, home_form, away_form, base["competition"])
+
+        # === Ignorer les pronostics "12" ===
         if prediction["double_chance"] == "12":
             print(f"   ⚠️ Pronostic 12 (match équilibré) ignoré")
             continue
-        # =========================================================
+        # ===================================
 
-        score = calculate_xpronos_score(analysis, prediction)
+        score = calculate_xpronos_score(analysis, prediction, home_form, away_form, base["competition"])
         category = get_category(score)
         badge = get_badge(score)
 
-        # Récupérer les logos avec le cache
+        # Logos avec cache
         home_logo = get_team_logo(base["home_team"])
         away_logo = get_team_logo(base["away_team"])
 
-        # Construire l'objet match complet
         match = {
             "id": gid,
             "date": base["date"],
@@ -429,21 +531,23 @@ def main():
             "home_logo": home_logo,
             "away_logo": away_logo,
             "league": base["competition"],
-            "league_logo": None,          # Non utilisé pour l'instant
-            "venue": "",                  # Non fourni par l'API
+            "league_logo": None,
+            "venue": "",
             "status": status,
             "home_score": home_score,
             "away_score": away_score,
             "h2h_analysis": analysis,
+            "home_form": home_form,
+            "away_form": away_form,
             "prediction": prediction,
             "xpronos_score": score,
             "badge": badge,
             "category": category,
-            "verified_double": False,      # Sera mis à jour ultérieurement
+            "verified_double": False,
             "verified_over": False
         }
 
-        # Vérification du pronostic si le match est déjà terminé
+        # Vérification si terminé
         if base["is_finished"] and home_score is not None and away_score is not None:
             dc = prediction["double_chance"]
             if dc == "1X":
@@ -460,13 +564,13 @@ def main():
     # Sauvegarder le cache des logos
     save_logo_cache()
 
-    # Trier les matchs par date (les plus récents en premier)
+    # Trier par date
     matches.sort(key=lambda x: x["event_date"] or "", reverse=True)
 
-    # Statistiques (pour l'instant vides, à enrichir plus tard)
+    # Statistiques (à améliorer si besoin)
     stats = {"total_bets": 0, "wins": 0, "roi": 0}
 
-    # Liste par défaut des bookmakers (utilisée si aucune donnée existante)
+    # Bookmakers par défaut (mis à jour avec vos liens)
     default_bookmakers = [
         {"name": "1xBet",     "logo": "assets/images/1xbet.png",     "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"},
         {"name": "1win",      "logo": "assets/images/1win.png",      "url": "https://1wrbgb.com/?open=register&p=qqcw"},
@@ -476,7 +580,6 @@ def main():
         {"name": "BetClic",   "logo": "assets/images/betclic.png",   "url": "https://betpari-click.com/2vY0?extid=USD"}
     ]
 
-    # Assembler les données finales
     data = {
         "matches": matches,
         "categories": categories,
@@ -484,7 +587,6 @@ def main():
         "bookmakers": existing_data.get("bookmakers", default_bookmakers)
     }
 
-    # Écrire le fichier data.json
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 

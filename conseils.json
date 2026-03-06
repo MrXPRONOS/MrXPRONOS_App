@@ -1,39 +1,57 @@
 [
   {
+    "title": "**📊 \"Les stats ne mentent pas… si tu sais les lire !\"**",
+    "content": "**📊 \"Les stats ne mentent pas… si tu sais les lire !\"**\n\nLes statistiques sont l’arme secrète des parieurs avisés. Mais attention : ce n’est pas la quantité qui compte, c’est la *qualité* et la *pertinence*. Une stat brute (ex. : \"l’équipe A gagne 60% de ses matchs\") est inutile sans contexte. Cherchez des données *ciblées* : performances à domicile/extérieur, face à des adversaires similaires, après une défaite, ou en fonction des absences de joueurs clés. Les stats avancées (xG en football, efficacité au rebond en NBA) révèlent des tendances invisibles à l’œil nu.\n\n**Exemple concret** : En Ligue 1, le PSG a un taux de possession moyen de 60%. Mais contre les équipes défensives (ex. : Nice), ce chiffre chute à 52%, avec seulement 35% de tirs cadrés. Un indicateur clé pour parier sur un match serré, même face à un \"petit\".\n\n**Recommandation finale** : Croisez toujours 2-3 stats *complémentaires* (ex. : possession + tirs cadrés + corners) et comparez-les aux cotes. Un bookmaker surévalue souvent les favoris \"statistiques\" – à vous de profiter des écarts ! 🎯 *#DataDrivenBetting*",
+    "date": "2026-03-06",
+    "image_url": "assets/images/conseil-dd38eb95.webp"
+  },
+  {
+    "title": "**🎯 \"Maîtrisez vos émotions : le secret pour parier comme un pro\"**",
+    "content": "**🎯 \"Maîtrisez vos émotions : le secret pour parier comme un pro\"**\n\nLa psychologie du parieur est l’art de garder la tête froide face aux aléas. Nos biais cognitifs (excès de confiance, aversion à la perte) nous poussent à prendre des décisions irrationnelles. Par exemple, après une série de pertes, on a tendance à augmenter les mises pour \"se refaire\" – une erreur fatale. À l’inverse, une victoire peut nous rendre trop optimistes, nous faisant ignorer les risques.\n\n**Exemple concret** : Vous misez sur une équipe favorite après 3 victoires consécutives, persuadé qu’elle va gagner. Pourtant, les statistiques montrent qu’elle est surévaluée (cote trop basse). Résultat : défaite et frustration.\n\n**Recommandation** : Fixez des règles strictes (montant max par pari, limite de pertes journalières) et tenez-vous-y. Avant chaque mise, demandez-vous : *\"Est-ce une décision rationnelle ou émotionnelle ?\"* Un parieur discipliné est un parieur gagnant. 🚀",
+    "date": "2026-03-06",
+    "image_url": "assets/images/conseil-e9283d72.webp"
+  },
+  {
+    "title": "**🔍 \"Décrypter les cotes : l’art de repérer les vraies opportunités\"**",
+    "content": "**🔍 \"Décrypter les cotes : l’art de repérer les vraies opportunités\"**\n\nLes cotes reflètent la probabilité perçue d’un résultat par les bookmakers, mais aussi leur marge. Une cote de **2.00** implique 50 % de chances (1/2.00), mais si vous estimez la probabilité réelle à 60 %, le pari devient rentable. Comparez toujours vos estimations aux cotes proposées : une cote **2.50** (40 % pour le book) peut cacher une valeur si vous évaluez les chances à 45 %.\n\n**Exemple** : En Ligue 1, le PSG affiche une cote de **1.50** pour gagner à domicile. Si votre analyse montre qu’ils gagnent 80 % du temps dans cette configuration, la cote sous-évalue leur probabilité (1/1.50 = 66,7 %). À éviter.\n\n**Recommandation** : Utilisez des outils comme *OddsPortal* pour comparer les cotes entre bookmakers et calculez la *probabilité implicite* (1/cote). Si votre estimation dépasse celle du book, misez. La valeur prime sur le pronostic ! 🎯",
+    "date": "2026-03-06",
+    "image_url": "assets/images/conseil-40a7ef29.webp"
+  },
+  {
     "title": "**🔍 \"Décrypter les cotes : le secret pour parier malin (et rentable)\"**",
     "content": "**🔍 \"Décrypter les cotes : le secret pour parier malin (et rentable)\"**\n\nLes cotes reflètent la probabilité d’un résultat selon le bookmaker, mais aussi sa marge. Une cote de **2.00** équivaut à 50% de chances (1/2.00). Comparez toujours cette probabilité à votre analyse : si vous estimez qu’un événement a **60% de chances** (cote idéale : **1.67**), une cote à **2.10** devient intéressante. Les bookmakers surévaluent souvent les outsiders pour attirer les parieurs – c’est là que se cachent les opportunités.\n\n**Exemple** : En Ligue 1, le PSG est coté **1.50** pour battre Nantes. Votre modèle donne **70% de chances** (cote équitable : **1.43**). La cote du bookmaker est trop basse – évitez. En revanche, une cote de **3.00** sur un nul (votre estimation : 35%) est sous-évaluée : pariez !\n\n**Recommandation** : Utilisez un tableau de conversion (cote ↔ probabilité) et comparez systématiquement avec vos propres calculs. Ciblez les écarts de **5-10%** entre votre évaluation et la cote proposée – c’est là que se niche la valeur. Et surtout : ne pariez jamais sans cette analyse ! 🎯",
     "date": "2026-03-06",
-    "image_url": "assets/images/conseil-befde900.png"
+    "image_url": "assets/images/conseil-befde900.webp"
   },
   {
     "title": "**🎯 \"Bankroll : La Règle d’Or pour Parier Sans Se Ruiner\"**",
     "content": "**🎯 \"Bankroll : La Règle d’Or pour Parier Sans Se Ruiner\"**\n\nLa **gestion de bankroll** est la pierre angulaire d’une stratégie de paris durable. Elle consiste à allouer un budget dédié (votre bankroll) et à miser des montants proportionnels pour limiter les risques. L’objectif ? Éviter les pertes catastrophiques et capitaliser sur le long terme, même en période de variance. Sans cette discipline, même les meilleurs pronostiqueurs finissent ruinés.\n\n**Exemple concret** : Avec une bankroll de 1 000 €, appliquez la règle des **1-2%** par pari. Une mise de 10-20 € par pronostic vous permet de tenir 50 à 100 coups, même en série noire. En cas de gain, ajustez vos mises en fonction de votre nouveau capital.\n\n**Recommandation finale** : Fixez un seuil de perte (ex : -20% de votre bankroll) et arrêtez-vous. Utilisez un tableau de suivi pour analyser vos performances. La patience et la rigueur paient plus que les coups de poker ! 🚀\n\n*— Mr XPRONOS*",
     "date": "2026-03-06",
-    "image_url": "assets/images/conseil-e262d3e4.png"
+    "image_url": "assets/images/conseil-e262d3e4.webp"
   },
   {
     "title": "**📊 \"Les stats ne mentent pas… si vous savez les lire !\"**",
     "content": "**📊 \"Les stats ne mentent pas… si vous savez les lire !\"**\n\nLes statistiques sont l’arme secrète des parieurs gagnants. Mais attention : ce n’est pas la quantité qui compte, c’est la *qualité* et la *pertinence*. Une stat brute (ex : \"l’équipe A marque 2 buts/match\") est inutile sans contexte. Comparez-la à des données opposées (défense adverse, forme récente, matchs à l’extérieur) et croisez plusieurs indicateurs pour identifier des tendances exploitables.\n\n**Exemple concret** :\nSur les 10 derniers matchs de Ligue 1, le PSG a marqué *au moins 2 buts* dans 80% des cas *à domicile* contre des équipes classées 10e ou moins. Un pari sur \"PSG +1,5 buts\" devient alors un value bet si les bookmakers l’estiment à 1,60.\n\n**Recommandation finale** :\nPriorisez les stats *contextualisées* (ex : performances post-trêve, sans joueur clé) et utilisez des outils comme *Understat* ou *FBref* pour des données avancées. Un parieur qui mise sur des stats isolées perdra toujours face à celui qui les interprète. 🎯",
     "date": "2026-03-06",
-    "image_url": "assets/images/conseil-77c144d1.png"
+    "image_url": "assets/images/conseil-77c144d1.webp"
   },
   {
     "title": "**🔍 \"Analyser un match comme un pro : la méthode XPRONOS pour miser malin\"**",
     "content": "**🔍 \"Analyser un match comme un pro : la méthode XPRONOS pour miser malin\"**\n\nAnalyser un match ne se limite pas aux stats brutes. **Ciblez 3 piliers** : *la forme récente* (5 derniers matchs, blessures, suspensions), *le contexte* (enjeu, motivation, rivalité) et *les tendances tactiques* (style de jeu, faiblesses défensives, performances à domicile/extérieur). Croisez ces données avec les cotes pour repérer les écarts de valeur. Un outil comme *WhoScored* ou *SofaScore* est indispensable, mais complétez toujours par une veille sur les réseaux sociaux (blessures de dernière minute, ambiance dans le vestiaire).\n\n**Exemple concret** : Avant PSG-Reims, vérifiez que Mbappé est bien titulaire (forme + absence de suspension). Si Reims encaisse souvent en 2e mi-temps (tendance tactique) et que le PSG est motivé par la Ligue des Champions (contexte), misez sur *\"+1,5 buts en 2e période\"* à cote attractive.\n\n**Recommandation finale** : **Ne pariez jamais sans avoir regardé les 2 derniers matchs des équipes** en vidéo (focus sur les transitions défensives et les corners). Notez vos analyses dans un tableau pour affiner votre œil. La régularité prime sur les coups de poker ! 🚀\n\n*— Mr XPRONOS*",
     "date": "2026-03-06",
-    "image_url": "assets/images/conseil-92d33165.png"
+    "image_url": "assets/images/conseil-92d33165.webp"
   },
   {
     "title": "**🎯 \"Bankroll : La Règle d’Or pour Parier Sans Se Ruiner\"**",
     "content": "**🎯 \"Bankroll : La Règle d’Or pour Parier Sans Se Ruiner\"**\n\n**Par Mr XPRONOS**\n\nLa **gestion de bankroll** est la pierre angulaire des paris sportifs rentables. Elle consiste à allouer un budget dédié (votre *bankroll*) et à définir des mises proportionnelles pour limiter les risques. L’objectif ? Éviter la ruine en cas de série noire et capitaliser sur le long terme. Une règle simple : ne misez jamais plus de **1 à 5% de votre bankroll** par pari, selon votre tolérance au risque. Sans cette discipline, même les meilleurs pronostics deviennent un jeu de hasard.\n\n**Exemple concret** :\nAvec une bankroll de **1 000 €**, misez **20 € max par pari** (2%). Si vous perdez 5 fois d’affilée (100 €), il vous reste 900 € pour rebondir. À l’inverse, sans gestion, une série de 10 paris à 100 € chacun vous met à zéro en un clin d’œil.\n\n**Recommandation finale** :\nUtilisez un **tableau de suivi** (Excel ou appli) pour noter chaque mise, gain et perte. Ajustez vos unités en fonction de l’évolution de votre bankroll. La patience et la rigueur paient : une gestion stricte transforme les paris en investissement, pas en loterie. 🚀",
     "date": "2026-03-06",
-    "image_url": "assets/images/conseil-24ab3637.png"
+    "image_url": "assets/images/conseil-24ab3637.webp"
   },
   {
     "title": "**📊 \"Les stats ne mentent pas… si vous savez les lire !\"**",
     "content": "**📊 \"Les stats ne mentent pas… si vous savez les lire !\"**\n\nLes statistiques sont l’arme secrète des parieurs avisés. Elles transforment l’intuition en stratégie en révélant des tendances cachées : formes récentes, performances à domicile/extérieur, ou encore confrontations directes. Mais attention : toutes les stats ne se valent pas. Privilégiez les données *contextualisées* (ex : buts marqués en 2e mi-temps contre des équipes défensives) plutôt que les chiffres bruts. L’objectif ? Identifier des *écarts de valeur* entre la réalité statistique et les cotes proposées.\n\n**Exemple concret** : En Ligue 1, l’OM a marqué 70% de ses buts après la 60e minute cette saison. Face à une équipe qui fatigue en défense (ex : Toulouse, -15% de duels gagnés en 2e mi-temps), miser sur *\"but après la 75e minute\"* à 2,50 peut être plus rentable qu’un simple *\"victoire de l’OM\"*.\n\n**Recommandation finale** : Croisez toujours 3 sources de stats (sites spécialisés, rapports d’avant-match, outils comme *Understat* ou *FBref*) et filtrez par période récente (5-10 derniers matchs). Une stat isolée est un piège ; une tendance confirmée est une opportunité. 🎯",
     "date": "2026-03-06",
-    "image_url": "assets/images/conseil-11772efc.png"
+    "image_url": "assets/images/conseil-11772efc.webp"
   },
   {
     "title": "**🔍 \"Analyser un match comme un pro : la méthode XPRONOS pour miser malin\"**",
