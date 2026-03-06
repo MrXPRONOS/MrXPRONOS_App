@@ -1,12 +1,26 @@
 /**
- * main.js - Mr XPRONOS – Version améliorée
+ * main.js - Mr XPRONOS – Version ultime avec Supabase (non bloquant)
  * 
- * Modifications :
- * - Correction du bouton de partage sur la page pronostics
- * - Gestion d'erreur plus robuste pour les appels Supabase
- * - Amélioration de l'encodage des données dans les attributs data-*
- * - Vérification de l'URL Supabase
- * - Appels non bloquants pour l'incrémentation des compteurs
+ * Fonctionnalités :
+ * - Pronostics avec filtres (Simple/Pro, plus de VIP en pratique)
+ * - Partage simplifié avec délai de retour de 5 secondes
+ * - Partage d'un pronostic spécifique (message incitatif)
+ * - Historique avec badges de catégorie
+ * - Gestion offline robuste (cache + timeout)
+ * - Logos des clubs locaux avec fallback home.png / away.png
+ * - Articles, conseils, actualités en grille avec modals et sauts de ligne
+ * - Témoignages dynamiques générés quotidiennement (avec noms et prénoms uniques)
+ * - Notifications de gains en direct (simulées toutes les heures)
+ * - Installation PWA (Android/iOS)
+ * - Bookmakers avec fallback et liens d'affiliation
+ * - Statistiques (visites, partages) stockées dans Supabase + fallback localStorage (affichage avec +)
+ * - Lazy loading des images
+ * - Correction des fuseaux horaires
+ * - Taux de réussite basé uniquement sur double chance
+ * - Affichage des derniers pronostics gagnants avec score et badges (effet gagnant)
+ * - Slider automatique des gains récents
+ * - Compteur animé de pronostics gagnants (réel)
+ * - Barre de taux de réussite animée (réelle)
  */
 
 // =======================================================
@@ -61,8 +75,8 @@ const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
 const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
-// Limites de partages quotidiennes
-const shareLimits = { pro: 2, vip: 5 };
+// Limites de partages quotidiennes (pro nécessite 3 partages, vip reste à 5 mais sera vide)
+const shareLimits = { pro: 3, vip: 5 };
 
 // Variables pour le partage avec délai
 let shareStartTime = null;
@@ -164,11 +178,11 @@ async function updateDisplayedCounters() {
     const sharesEl = document.getElementById('total-shares-count');
     if (usersEl) {
         const users = await getCounterValue('total_users');
-        usersEl.textContent = users.toLocaleString();
+        usersEl.textContent = users.toLocaleString() + '+';
     }
     if (sharesEl) {
         const shares = await getCounterValue('total_shares');
-        sharesEl.textContent = shares.toLocaleString();
+        sharesEl.textContent = shares.toLocaleString() + '+';
     }
 }
 
@@ -610,10 +624,10 @@ function share(platform) {
     let url = '';
 
     if (platform === 'whatsapp') {
-        message = `🔥 Mr XPRONOS - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${shareUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        message = `🔥 *Mr XPRONOS* – 3 matchs à ne pas manquer aujourd'hui !\n\n📊 *Analyses exclusives* et pronostics fiables.\n\n👉 Débloque l'accès PRO en partageant ce lien :\n${shareUrl}\n\n⚽ Arrête de perdre ton argent, rejoins les gagnants !`;
         url = `https://wa.me/?text=${encodeURIComponent(message)}`;
     } else {
-        message = `🔥 Mr XPRONOS - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${shareUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        message = `🔥 Mr XPRONOS – 3 matchs à ne pas manquer aujourd'hui !\n\n📊 Analyses exclusives et pronostics fiables.\n\n👉 Débloque l'accès PRO en partageant ce lien :\n${shareUrl}\n\n⚽ Arrête de perdre ton argent, rejoins les gagnants !`;
         url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(message)}`;
     }
 
@@ -625,14 +639,18 @@ function share(platform) {
 // Fonction de partage d'un pronostic spécifique (améliorée)
 function sharePronostic(match) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    const message = `🔥 *Mr XPRONOS* - Pronostic du jour\n\n` +
-        `${match.home_team} vs ${match.away_team}\n` +
-        `Double chance : ${match.prediction.double_chance}\n` +
-        `Fiabilité : ${match.prediction.confidence}%\n\n` +
+    const messageWhatsApp = `🔥 *Mr XPRONOS* – Pronostic du jour\n\n` +
+        `⚽ *${match.home_team} vs ${match.away_team}*\n` +
+        `📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n` +
         `👉 Analyse complète sur ${siteUrl}`;
 
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
+    const messageTelegram = `🔥 Mr XPRONOS – Pronostic du jour\n\n` +
+        `⚽ ${match.home_team} vs ${match.away_team}\n` +
+        `📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n` +
+        `👉 Analyse complète sur ${siteUrl}`;
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(messageWhatsApp)}`;
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(messageTelegram)}`;
 
     if (confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)")) {
         window.open(whatsappUrl, '_blank');
