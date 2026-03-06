@@ -672,33 +672,30 @@ function share(platform) {
 
 // Fonction de partage d'un pronostic spécifique
 function sharePronostic(match) {
-    const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    const message = `🔥 *Mr XPRONOS* - Pronostic du jour\n\n` +
-        `${match.home_team} vs ${match.away_team}\n` +
-        `Double chance : ${match.prediction.double_chance}\n` +
-        `Fiabilité : ${match.prediction.confidence}%\n\n` +
-        `👉 Analyse complète sur ${siteUrl}`;
+    try {
+        const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
+        const message = `🔥 *Mr XPRONOS* - Pronostic du jour\n\n` +
+            `${match.home_team} vs ${match.away_team}\n` +
+            `Double chance : ${match.prediction.double_chance}\n` +
+            `Fiabilité : ${match.prediction.confidence}%\n\n` +
+            `👉 Analyse complète sur ${siteUrl}`;
 
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(message)}`;
 
-    if (confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)")) {
-        window.open(whatsappUrl, '_blank');
-    } else {
-        window.open(telegramUrl, '_blank');
-    }
+        if (confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)")) {
+            window.open(whatsappUrl, '_blank');
+        } else {
+            window.open(telegramUrl, '_blank');
+        }
 
-    // Incrémenter le compteur local et Supabase
-    incrementShareCount();
-    if (supabaseAvailable) {
-        supabase
-            .from('shares')
-            .insert({ user_id: userId, date: new Date().toISOString().split('T')[0] })
-            .then(() => incrementCounter('total_shares'));
-    } else {
+        // Incrémenter les compteurs en arrière-plan (ne pas attendre)
+        incrementShareCount();
         incrementCounter('total_shares');
+        recordEvent('share');
+    } catch (e) {
+        console.error("Erreur lors du partage", e);
     }
-    recordEvent('share');
 }
 
 function updateShareCounter() {
