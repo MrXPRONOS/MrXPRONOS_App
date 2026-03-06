@@ -1,26 +1,24 @@
 /**
- * main.js - Mr XPRONOS – Version ultime avec Supabase (non bloquant)
+ * main.js - Mr XPRONOS – Version ultime avec Supabase synchronisé
  * 
  * Fonctionnalités :
  * - Pronostics avec filtres (Simple/Pro/VIP, aujourd'hui/demain/hier)
  * - Partage simplifié avec délai de retour de 5 secondes
- * - Partage d'un pronostic spécifique (image du prono + message)
+ * - Partage d'un pronostic spécifique
  * - Historique avec badges de catégorie
  * - Gestion offline robuste (cache + timeout)
  * - Logos des clubs locaux avec fallback home.png / away.png
  * - Articles, conseils, actualités en grille avec modals et sauts de ligne
- * - Témoignages dynamiques générés quotidiennement (avec noms et prénoms uniques)
- * - Notifications de gains en direct (simulées toutes les heures)
- * - Installation PWA (Android/iOS)
+ * - Témoignages dynamiques générés quotidiennement
+ * - Notifications de gains en direct (simulées)
+ * - Installation PWA
  * - Bookmakers avec fallback et liens d'affiliation
  * - Statistiques (visites, partages) stockées dans Supabase + fallback localStorage
- * - Lazy loading des images
+ * - Lazy loading des images, decoding async
  * - Correction des fuseaux horaires
- * - Taux de réussite basé uniquement sur double chance
- * - Affichage des derniers pronostics gagnants avec score et badges (effet gagnant)
- * - Slider automatique des gains récents
- * - Compteur animé de pronostics gagnants (réel)
- * - Barre de taux de réussite animée (réelle)
+ * - Taux de réussite basé sur double chance
+ * - Affichage des derniers pronostics gagnants (style historique, défilement horizontal)
+ * - Slider des gains récents, compteur animé, barre de taux de réussite réelle
  */
 
 // =======================================================
@@ -70,13 +68,14 @@ const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
 const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
-// Limites de partages quotidiennes
+// Limites de partages quotidiennes pour débloquer Pro/VIP
 const shareLimits = { pro: 2, vip: 5 };
 
 // Variables pour le partage avec délai
 let shareStartTime = null;
 let sharePending = false;
 
+// Popular leagues for sorting
 const POPULAR_LEAGUES = [
     "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
     "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
@@ -90,9 +89,10 @@ const POPULAR_LEAGUES = [
 if (!localStorage.getItem('userId')) {
     localStorage.setItem('userId', 'user_' + Math.random().toString(36).substr(2, 9));
 }
+const userId = localStorage.getItem('userId');
 
 // =======================================================
-// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
+// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS (LOCAL)
 // =======================================================
 
 function getDailyShareCount() {
@@ -117,8 +117,12 @@ function incrementShareCount() {
 // SYSTÈME DE COMPTEURS AVEC SUPABASE (FALLBACK LOCALSTORAGE)
 // =======================================================
 
-const COUNTERS_KEY = 'mr_xpronos_stats'; // pour le fallback localStorage
+const COUNTERS_KEY = 'mr_xpronos_stats'; // fallback localStorage
 
+/**
+ * Récupère la valeur d'un compteur (total_users ou total_shares) depuis Supabase.
+ * Fallback localStorage.
+ */
 async function getCounterValue(counterName) {
     if (supabaseAvailable) {
         try {
@@ -139,6 +143,10 @@ async function getCounterValue(counterName) {
     return stats[counterName] || (counterName === 'total_users' ? 1000 : 10000);
 }
 
+/**
+ * Incrémente un compteur (total_users ou total_shares) via RPC Supabase.
+ * Retourne la nouvelle valeur ou null.
+ */
 async function incrementCounter(counterName) {
     if (supabaseAvailable) {
         try {
@@ -153,7 +161,7 @@ async function incrementCounter(counterName) {
             console.warn('Erreur RPC Supabase, fallback localStorage');
         }
     }
-    // Fallback localStorage
+    // Fallback localStorage (incrémentation simple)
     const stats = JSON.parse(localStorage.getItem(COUNTERS_KEY)) || {
         total_users: 1000,
         total_shares: 10000,
@@ -168,6 +176,9 @@ async function incrementCounter(counterName) {
     return newValue;
 }
 
+/**
+ * Met à jour l'affichage des compteurs (utilisateurs et partages) dans le badge.
+ */
 async function updateDisplayedCounters() {
     const usersEl = document.getElementById('total-users-count');
     const sharesEl = document.getElementById('total-shares-count');
@@ -188,11 +199,13 @@ window.addEventListener('storage', (event) => {
 });
 
 // =======================================================
-// ENREGISTREMENT DES ÉVÉNEMENTS (VISITES, PARTAGES) DANS SUPABASE
+// ENREGISTREMENT DES ÉVÉNEMENTS DANS SUPABASE
 // =======================================================
 
+/**
+ * Enregistre un événement utilisateur (visite, partage) dans Supabase et localStorage.
+ */
 function recordEvent(type) {
-    const userId = localStorage.getItem('userId') || 'unknown';
     const page = window.location.pathname;
     const timestamp = new Date().toISOString();
 
@@ -277,6 +290,7 @@ document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeI
 // INITIALISATION
 // =======================================================
 document.addEventListener('DOMContentLoaded', async () => {
+    // Initialiser Supabase (ne bloque pas l'affichage)
     await initSupabase();
 
     showIosGuideIfNeeded();
@@ -295,12 +309,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 allData = data;
                 renderBookmakers(data.bookmakers);
                 updateShareCounter();
-                displayLatestVerified();
+                displayLatestVerified(); // Affiche les derniers pronostics validés
                 startWinsSlider();
                 showSuccessRate();
                 animateWins();
-            } else {
-                console.log("Aucune donnée chargée pour l'accueil");
             }
         });
         displayTestimonials();
@@ -322,36 +334,74 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Détection du retour après partage
     document.addEventListener('visibilitychange', () => {
         if (sharePending && !document.hidden) {
             const elapsed = Date.now() - shareStartTime;
             if (elapsed >= 5000) {
                 sharePending = false;
-                const newCount = incrementShareCount();
+                const newCount = incrementShareCount(); // local
                 updateShareCounter();
-                incrementCounter('total_shares');
+
+                // Enregistrer le partage dans Supabase
+                if (supabaseAvailable) {
+                    supabase
+                        .from('shares')
+                        .insert({ user_id: userId, date: new Date().toISOString().split('T')[0] })
+                        .then(() => {
+                            // Incrémenter le compteur global
+                            incrementCounter('total_shares');
+                        });
+                } else {
+                    incrementCounter('total_shares'); // fallback localStorage
+                }
                 recordEvent('share');
 
-                const target = shareLimits[currentCategory];
-                if (newCount >= target) {
-                    hideVipLocked();
-                    filterAndDisplay();
-                } else {
-                    if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
-                        showVipLocked(currentCategory);
-                    } else {
-                        showSharePopup(currentCategory, target - newCount);
-                    }
-                }
+                // Vérifier si l'utilisateur a assez partagé pour débloquer la catégorie
+                checkAndUnlockCategory();
             }
         }
     });
 
+    // Enregistrer la visite
     recordEvent('visit');
 });
 
 // =======================================================
-// FONCTIONS POUR LA PAGE PRONOSTICS
+// VÉRIFICATION DU NOMBRE DE PARTAGES POUR DÉBLOQUER VIP
+// =======================================================
+async function checkAndUnlockCategory() {
+    if (!currentCategory || currentCategory === 'simple') return;
+    const target = shareLimits[currentCategory];
+    let shareCount = getDailyShareCount(); // local
+
+    if (supabaseAvailable) {
+        // Vérifier le nombre réel de partages de l'utilisateur aujourd'hui
+        const today = new Date().toISOString().split('T')[0];
+        const { count, error } = await supabase
+            .from('shares')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('date', today);
+        if (!error && count !== null) {
+            shareCount = count;
+        }
+    }
+
+    if (shareCount >= target) {
+        hideVipLocked();
+        filterAndDisplay();
+    } else {
+        if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
+            showVipLocked(currentCategory);
+        } else {
+            showSharePopup(currentCategory, target - shareCount);
+        }
+    }
+}
+
+// =======================================================
+// FONCTIONS POUR LA PAGE PRONOSTICS (inchangées, sauf où appelé)
 // =======================================================
 
 async function initPronostics() {
@@ -544,6 +594,7 @@ function setupEventListeners() {
     if (shareWaLocked) shareWaLocked.addEventListener('click', () => share('whatsapp'));
     if (shareTgLocked) shareTgLocked.addEventListener('click', () => share('telegram'));
 
+    // Écouteur pour les boutons de partage de pronostic individuel
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-share')) {
             const matchData = JSON.parse(e.target.dataset.match);
@@ -557,21 +608,15 @@ function handleCategoryChange() {
         hideVipLocked();
         filterAndDisplay();
     } else {
-        const target = shareLimits[currentCategory];
-        const shareCount = getDailyShareCount();
-        if (shareCount >= target) {
-            hideVipLocked();
-            filterAndDisplay();
-        } else {
-            showVipLocked(currentCategory);
-        }
+        // Utiliser la fonction asynchrone
+        checkAndUnlockCategory();
     }
 }
 
 function showVipLocked(category) {
     if (vipLockedOverlay) {
         const target = shareLimits[category];
-        const shareCount = getDailyShareCount();
+        const shareCount = getDailyShareCount(); // local pour l'affichage, mais sera recalculé par checkAndUnlockCategory
         const remaining = target - shareCount;
         vipLockedOverlay.querySelector('h3').textContent = `🔒 ${category === 'pro' ? 'Pronostics Pro' : 'Pronostics VIP'} verrouillés`;
         vipLockedOverlay.querySelector('p').innerHTML = `Partagez ce lien à <strong>${remaining}</strong> ami(s) pour débloquer.`;
@@ -605,6 +650,7 @@ function showSharePopup(category, remaining) {
     sharePopup.classList.add('active');
 }
 
+// Fonction de partage général (pour débloquer les catégories)
 function share(platform) {
     const baseUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     const shareUrl = baseUrl;
@@ -612,10 +658,10 @@ function share(platform) {
     let url = '';
 
     if (platform === 'whatsapp') {
-        message = `🔥 Mr XPRONOS - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${shareUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        message = `🔥 3 matchs sûrs aujourd'hui !\n\nChelsea vs Arsenal\nDouble chance : 1X\nFiabilité : 87%\n\n📊 Voir les autres pronostics gratuits :\n${shareUrl}`;
         url = `https://wa.me/?text=${encodeURIComponent(message)}`;
     } else {
-        message = `🔥 Mr XPRONOS - Des pronostics fiables qui font la différence !\n\n📊 Hier encore, nos coupons ont rapporté gros. Aujourd'hui, ne rate pas les analyses exclusives.\n\n👉 Rejoins la communauté et débloque les pronostics Pro/VIP en partageant ce lien :\n\n${shareUrl}\n\n⚽ Arrête d'acheter des coupons qui perdent chaque jour. Un vrai pronostiqueur ne vend pas ses analyses si elles sont gagnantes. Rejoins-nous gratuitement !`;
+        message = `🔥 3 matchs sûrs aujourd'hui !\n\nChelsea vs Arsenal\nDouble chance : 1X\nFiabilité : 87%\n\n📊 Voir les autres pronostics gratuits :\n${shareUrl}`;
         url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(message)}`;
     }
 
@@ -624,6 +670,7 @@ function share(platform) {
     sharePending = true;
 }
 
+// Fonction de partage d'un pronostic spécifique
 function sharePronostic(match) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     const message = `🔥 *Mr XPRONOS* - Pronostic du jour\n\n` +
@@ -641,8 +688,16 @@ function sharePronostic(match) {
         window.open(telegramUrl, '_blank');
     }
 
+    // Incrémenter le compteur local et Supabase
     incrementShareCount();
-    incrementCounter('total_shares');
+    if (supabaseAvailable) {
+        supabase
+            .from('shares')
+            .insert({ user_id: userId, date: new Date().toISOString().split('T')[0] })
+            .then(() => incrementCounter('total_shares'));
+    } else {
+        incrementCounter('total_shares');
+    }
     recordEvent('share');
 }
 
@@ -748,7 +803,7 @@ function getTeamLogoPath(teamName, isHome = true) {
 function renderMatches(matches) {
     if (!matchesContainer) return;
     if (matches.length === 0) {
-        matchesContainer.innerHTML = '<div class="no-events">Aucun match.</div>';
+        matchesContainer.innerHTML = '<div class="no-events">📭 Aucun pronostic pour aujourd&#39;hui. Reviens demain pour de nouveaux matchs !</div>';
         return;
     }
 
@@ -804,13 +859,13 @@ function renderMatches(matches) {
                     <div class="match-info">
                         <div class="teams">
                             <div class="team">
-                                <img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='${homeDefault}';">
+                                <img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';">
                                 <span class="team-name">${m.home_team}</span>
                                 <span class="team-score">${m.home_score ?? '-'}</span>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                <img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='${awayDefault}';">
+                                <img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';">
                                 <span class="team-name">${m.away_team}</span>
                                 <span class="team-score">${m.away_score ?? '-'}</span>
                             </div>
@@ -833,7 +888,7 @@ function renderMatches(matches) {
                         </div>
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
                         ${premiumBadge}
-                        <button class="btn btn-secondary btn-share" data-match='${JSON.stringify(m).replace(/'/g, "&apos;")}'>📤 Partager ce prono</button>
+                        <button class="btn btn-secondary btn-share" data-match='${encodeURIComponent(JSON.stringify(m))}'>📤 Partager ce prono</button>
                     </div>
                 </div>
             `;
@@ -849,7 +904,7 @@ function renderMatches(matches) {
     });
 
     document.querySelectorAll('.match-card.winner').forEach(card => {
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 8; i++) {
             let spark = document.createElement('div');
             spark.className = 'spark';
             let dx = (Math.random() - 0.5) * 200;
@@ -914,6 +969,7 @@ function renderBookmakers(bookmakers) {
             img.alt = b.name;
             img.style.maxHeight = '40px';
             img.loading = 'lazy';
+            img.decoding = 'async';
             img.onerror = function() {
                 this.style.display = 'none';
                 const span = document.createElement('span');
@@ -938,6 +994,7 @@ function renderBookmakers(bookmakers) {
             img.src = b.logo;
             img.alt = b.name;
             img.loading = 'lazy';
+            img.decoding = 'async';
             img.onerror = function() {
                 this.style.display = 'none';
                 const span = document.createElement('span');
@@ -1006,7 +1063,7 @@ async function displayBlogList() {
             const title = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
             hHtml += `
                 <div class="horizontal-item" onclick="showArticleDetail(${index})">
-                    <img src="${article.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy">
+                    <img src="${article.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy" decoding="async">
                     <div class="item-title">${title}</div>
                 </div>
             `;
@@ -1024,7 +1081,7 @@ async function displayBlogList() {
 
         html += `
             <div class="news-card card" onclick="showArticleDetail(${index})">
-                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
+                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" decoding="async" class="news-image">
                 <h3>${cleanTitle}</h3>
                 <p class="meta">${articleDate} par ${article.author || 'Mr XPRONOS'}</p>
                 <p>${cleanExcerpt}</p>
@@ -1082,7 +1139,7 @@ async function displayBlogPost() {
     container.innerHTML = `
         <h1>${cleanTitle}</h1>
         <div class="meta">${article.date} par ${article.author}</div>
-        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
+        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" loading="lazy" decoding="async">` : ''}
         <div style="margin-top: 2rem;">${htmlContent}</div>
         <a href="blog.html" class="btn btn-secondary" style="margin-top: 2rem;">← Retour au blog</a>
     `;
@@ -1111,7 +1168,7 @@ async function displayConseils() {
             const title = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
             hHtml += `
                 <div class="horizontal-item" onclick="showConseilDetail(${index})">
-                    <img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy">
+                    <img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy" decoding="async">
                     <div class="item-title">${title}</div>
                 </div>
             `;
@@ -1129,7 +1186,7 @@ async function displayConseils() {
 
         html += `
             <div class="news-card card" onclick="showConseilDetail(${index})">
-                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
+                <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" decoding="async" class="news-image">
                 <h3>${cleanTitle}</h3>
                 <p class="meta">${conseilDate}</p>
                 <p>${cleanExcerpt}</p>
@@ -1196,7 +1253,7 @@ async function displayFootNews() {
         news.forEach((item, index) => {
             html += `
                 <div class="news-card card" onclick="showNewsDetail(${index})">
-                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" loading="lazy">` : ''}
+                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" loading="lazy" decoding="async">` : ''}
                     <h3>${item.title}</h3>
                     <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
                     <p>${item.summary}</p>
@@ -1288,7 +1345,7 @@ function displayBonusThumbnails() {
     filtered.forEach(b => {
         html += `
             <div class="bonus-thumb" onclick="showBonusDetail(${b.id})">
-                <img src="${b.image}" alt="${b.title}" loading="lazy">
+                <img src="${b.image}" alt="${b.title}" loading="lazy" decoding="async">
                 <div class="bonus-thumb-title">${b.title}</div>
             </div>
         `;
@@ -1334,7 +1391,7 @@ async function displayBonusList() {
     activeBonus.forEach(b => {
         html += `
             <div class="bonus-card">
-                <img src="${b.image}" alt="${b.title}" class="bonus-image" loading="lazy">
+                <img src="${b.image}" alt="${b.title}" class="bonus-image" loading="lazy" decoding="async">
                 <h3>${b.title}</h3>
                 <p>${b.description}</p>
                 <div class="bonus-footer">
@@ -1432,13 +1489,13 @@ async function displayHistory() {
                     <div class="match-info">
                         <div class="teams">
                             <div class="team">
-                                <img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='${homeDefault}';">
+                                <img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';">
                                 <span class="team-name">${m.home_team}</span>
                                 <span class="team-score">${m.home_score ?? '-'}</span>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                <img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='${awayDefault}';">
+                                <img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';">
                                 <span class="team-name">${m.away_team}</span>
                                 <span class="team-score">${m.away_score ?? '-'}</span>
                             </div>
@@ -1505,6 +1562,7 @@ function initScrollProgress() {
 
 // =======================================================
 // AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL
+// (même style que l'historique)
 // =======================================================
 function displayLatestVerified() {
     const container = document.getElementById('today-picks');
@@ -1537,35 +1595,50 @@ function displayLatestVerified() {
 
     let html = '';
     latest.forEach(m => {
-        const homeLogo = getTeamLogoPath(m.home_team, true);
-        const awayLogo = getTeamLogoPath(m.away_team, false);
+        const pred = m.prediction || {};
+        const doubleChance = pred.double_chance || 'N/A';
+        const confidence = pred.confidence || 0;
+        const matchTime = formatMatchTime(m.event_date);
+        const statusFr = translateStatus(m.status);
+        const statusClass = getStatusClass(m.status);
+        const verifiedDouble = m.verified_double ? 'checked' : '';
         const homeDefault = 'assets/images/home.png';
         const awayDefault = 'assets/images/away.png';
-        const score = `${m.home_score ?? '-'} - ${m.away_score ?? '-'}`;
-        const badgeClass = m.category === 'vip' ? 'badge-vip' : 'badge-pro';
-        const winnerClass = 'winner';
+        const homeLogo = getTeamLogoPath(m.home_team, true);
+        const awayLogo = getTeamLogoPath(m.away_team, false);
+        const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
+        const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
+        const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
 
         html += `
-            <div class="verified-card ${winnerClass}" onclick="window.location.href='pronos.html?day=yesterday'">
-                <div class="teams">
-                    <img src="${homeLogo}" alt="${m.home_team}" onerror="this.src='${homeDefault}';">
-                    <span class="vs">VS</span>
-                    <img src="${awayLogo}" alt="${m.away_team}" onerror="this.src='${awayDefault}';">
-                </div>
+            <div class="match-card winner" data-match-id="${m.id}">
+                <div class="win-effect"></div>
                 <div class="match-info">
-                    <div class="teams-name">
-                        ${m.home_team || 'Équipe A'} vs ${m.away_team || 'Équipe B'}
+                    <div class="teams">
+                        <div class="team">
+                            <img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';">
+                            <span class="team-name">${m.home_team}</span>
+                            <span class="team-score">${m.home_score ?? '-'}</span>
+                        </div>
+                        <div class="vs">VS</div>
+                        <div class="team">
+                            <img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';">
+                            <span class="team-name">${m.away_team}</span>
+                            <span class="team-score">${m.away_score ?? '-'}</span>
+                        </div>
                     </div>
-                    <div class="score">
-                        Score : <b>${score}</b>
+                    <div class="match-meta">
+                        <span class="league-badge">${m.league || 'Ligue'}</span>
+                        <span class="status ${statusClass}">${statusFr}</span>
+                        <span class="match-time"><i>🕒</i> ${matchTime}</span>
+                        ${m.venue ? `<span class="match-venue"><i>🏟️</i> ${m.venue}</span>` : ''}
                     </div>
-                    <div class="prediction">
-                        Pronostic : <b>${m.prediction?.double_chance || 'N/A'}</b>
-                    </div>
-                    <div class="badges">
-                        <span class="${badgeClass}">${m.category.toUpperCase()}</span>
-                        <span class="badge-win">✅ GAGNÉ</span>
-                    </div>
+                </div>
+                <div class="analysis-panel">
+                    <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
+                    <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled></p>
+                    <p><strong>Fiabilité :</strong> ${confidence}%</p>
+                    ${premiumBadge}
                 </div>
             </div>
         `;
