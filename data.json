@@ -630,7 +630,7 @@
       "league": "Ekstraklasa",
       "league_logo": null,
       "venue": "",
-      "status": "Just Ended",
+      "status": "Ended",
       "home_score": 2,
       "away_score": 1,
       "h2h_analysis": {
@@ -3094,7 +3094,6 @@
         "verified_over": true
       },
       {
-
         "id": 4649822,
         "date": "2026-03-07",
         "event_date": "2026-03-07T17:00:00+00:00",
@@ -3205,8 +3204,6 @@
         "verified_over": false
       },
       {
-
-
         "id": 4666778,
         "date": "2026-03-04",
         "event_date": "2026-03-04T20:00:00+00:00",
@@ -3540,7 +3537,6 @@
         "verified_over": true
       },
       {
-
         "id": 4673009,
         "date": "2026-03-07",
         "event_date": "2026-03-07T17:00:00+00:00",
@@ -3651,7 +3647,6 @@
         "verified_over": false
       },
       {
-
         "id": 4624116,
         "date": "2026-03-05",
         "event_date": "2026-03-05T17:45:00+00:00",
