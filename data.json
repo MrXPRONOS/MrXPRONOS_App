@@ -506,9 +506,9 @@
       "league": "Ekstraklasa",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "1st Half",
+      "home_score": 0,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -616,7 +616,7 @@
       "league": "Professional League",
       "league_logo": null,
       "venue": "",
-      "status": "Halftime",
+      "status": "2nd Half",
       "home_score": 1,
       "away_score": 0,
       "h2h_analysis": {
@@ -671,7 +671,7 @@
       "league": "Torneo Reservas - Clausura",
       "league_logo": null,
       "venue": "",
-      "status": "Just Ended",
+      "status": "Ended",
       "home_score": 5,
       "away_score": 1,
       "h2h_analysis": {
@@ -726,7 +726,7 @@
       "league": "A Lyga",
       "league_logo": null,
       "venue": "",
-      "status": "Just Ended",
+      "status": "Ended",
       "home_score": 0,
       "away_score": 2,
       "h2h_analysis": {
