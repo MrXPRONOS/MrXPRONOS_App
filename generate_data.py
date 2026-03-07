@@ -4,7 +4,7 @@
 """
 generate_data.py - Génère les pronostics à partir des données SportData
 Version améliorée avec avantage domicile, attaque/défense, et filtres.
-Ajoute le calcul du ROI basé sur des cotes estimées. 
+Ajoute le calcul du ROI basé sur des cotes estimées.  
 """
 
 import os
