@@ -841,7 +841,6 @@ function updateSuccessRate() {
     const rate = ((successful.length / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
     const roi = stats.roi || 0;
-    // Afficher le ROI s'il est différent de 0, sinon afficher "N/A"
     const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
     container.innerHTML = `
         <div class="success-rate-item"><div class="success-rate-value">${rate}%</div><div class="success-rate-label">Réussite</div></div>
@@ -1447,7 +1446,7 @@ window.closeNewsModal = function() {
 };
 
 // =======================================================
-// FONCTIONS VIP (surchargées par vip.js mais incluses ici pour sécurité)
+// FONCTIONS VIP (utilisant RPC Supabase)
 // =======================================================
 async function checkVipStatus() {
     if (!supabaseAvailable) return false;
@@ -1495,6 +1494,7 @@ function showVipLoginForm(container) {
             if (error || !data.valid) throw new Error('Code invalide');
             localStorage.setItem('mx_vip_code', code);
             showToast('Code VIP activé avec succès !', 'success');
+            // Recharger l'affichage pour afficher les matchs VIP
             window.location.reload();
         } catch (e) {
             alert('Code invalide ou expiré.');
