@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/</loc>
     <lastmod>2026-03-07</lastmod>
@@ -50,6 +51,18 @@
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/contact.html</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=fc-erzgebirge-aue-vs-aachen-le-choc-de-la-3-liga-qui-pourrait-tout-changer</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=alianza-reserves-vs-fuerte-san-francisco-reserves-le-choc-des-réserves-qui-pourrait-tout-changer</loc>
     <lastmod>2026-03-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -342,16 +355,16 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=manchester-city-vs-nottingham-forest-le-choc-des-extrêmes-en-premier-league</loc>
-    <lastmod>2026-03-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=sidama-bunna-vs-fasil-ketema-le-choc-éthiopien-qui-pourrait-tout-changer-en-premier-league</loc>
-    <lastmod>2026-03-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
 </urlset>
+=======
+  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/index.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/pronos.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/historique.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/blog.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/conseils.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/infos.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/bonus.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/contact.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+</urlset>
+
