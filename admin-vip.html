@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin VIP - Mr XPRONOS</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script type="module" src="assets/js/admin-vip.js"></script>
+    <style>
+        .vip-item { background: #1a1a1a; padding: 10px; margin: 5px 0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-deactivate { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        .btn-deactivate:hover { background: #c82333; }
+        #result { margin-top: 20px; padding: 10px; background: #2a2a2a; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gestion des codes VIP</h1>
+
+        <form id="vip-form">
+            <div class="form-group">
+                <label>ID Utilisateur (ex: MX-XXXX) :</label>
+                <input type="text" id="user-id" required placeholder="MX-XXXX">
+            </div>
+            <div class="form-group">
+                <label>IP (optionnel, laisser vide si inconnue) :</label>
+                <input type="text" id="ip-address" placeholder="192.168.1.1">
+            </div>
+            <div class="form-group">
+                <label>Durée (jours) :</label>
+                <input type="number" id="duration" value="30" min="1" step="1">
+            </div>
+            <button type="submit" class="btn btn-primary">Générer le code</button>
+        </form>
+
+        <div id="result"></div>
+
+        <hr>
+
+        <h2>Utilisateurs VIP actifs</h2>
+        <div id="vip-list"></div>
+    </div>
+</body>
+</html>

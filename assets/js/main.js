@@ -1,5 +1,5 @@
 /**
- * main.js - Mr XPRONOS – Version ultime avec Supabase (non bloquant)
+ * main.js - Mr XPRONOS – Version ultime avec Supabase (temps réel)
  * 
  * Fonctionnalités :
  * - Pronostics avec filtres (Simple/Pro/VIP)
@@ -13,15 +13,17 @@
  * - Notifications de gains en direct (simulées toutes les heures)
  * - Installation PWA (Android/iOS)
  * - Bookmakers avec fallback et liens d'affiliation
- * - Statistiques (visites, partages) stockées dans Supabase + fallback localStorage (affichage avec +)
+ * - Statistiques (visites, partages) stockées dans Supabase + fallback localStorage
+ * - Compteurs en temps réel (Supabase Realtime)
+ * - Utilisateurs uniques (UUID) et visiteurs en ligne
  * - Lazy loading des images
  * - Correction des fuseaux horaires
- * - Taux de réussite basé uniquement sur double chance
+ * - Taux de réussite basé sur double chance (et BTTS pour les VIP)
  * - Affichage des derniers pronostics gagnants avec score et badges (effet gagnant)
  * - Slider automatique des gains récents
  * - Compteur animé de pronostics gagnants (réel)
  * - Barre de taux de réussite animée (réelle)
- * - Gestion des pronostics combinés (double chance + BTTS) avec design VIP
+ * - Gestion des pronostics combinés VIP (double chance + BTTS)
  */
 
 // =======================================================
@@ -75,7 +77,7 @@ const bookmakersBonus = document.getElementById('bookmakers-bonus');
 const vipSubtabs = document.getElementById('vip-subtabs');
 const vipLockedOverlay = document.getElementById('vip-locked-overlay');
 
-// Limites de partages quotidiennes (pro nécessite 3 partages, vip reste à 5 mais sera vide)
+// Limites de partages quotidiennes (pro nécessite 3 partages)
 const shareLimits = { pro: 3, vip: 5 };
 
 // Variables pour le partage avec délai
@@ -92,8 +94,14 @@ const POPULAR_LEAGUES = [
 // =======================================================
 // GÉNÉRATION D'UN IDENTIFIANT UNIQUE POUR L'UTILISATEUR
 // =======================================================
-if (!localStorage.getItem('userId')) {
-    localStorage.setItem('userId', 'user_' + Math.random().toString(36).substr(2, 9));
+function getUserId() {
+    let userId = localStorage.getItem('userId');
+    if (!userId) {
+        userId = crypto.randomUUID();
+        localStorage.setItem('userId', userId);
+        incrementCounter('total_users'); // Incrémente le compteur global
+    }
+    return userId;
 }
 
 // =======================================================
@@ -119,95 +127,120 @@ function incrementShareCount() {
 }
 
 // =======================================================
-// SYSTÈME DE COMPTEURS AVEC SUPABASE (FALLBACK LOCALSTORAGE)
+// SYSTÈME DE COMPTEURS SUPABASE (TEMPS RÉEL)
 // =======================================================
 
-const COUNTERS_KEY = 'mr_xpronos_stats'; // pour le fallback localStorage
-
 async function getCounterValue(counterName) {
-    if (supabaseAvailable && supabase) {
-        try {
-            const { data, error } = await supabase
-                .from('counters')
-                .select(counterName)
-                .eq('id', 1)
-                .single();
-            if (!error && data) {
-                return data[counterName] || (counterName === 'total_users' ? 1000 : 10000);
-            }
-        } catch (e) {
-            console.warn('Erreur Supabase, fallback localStorage');
-        }
+    if (!supabaseAvailable) return 0;
+    try {
+        const { data, error } = await supabase
+            .from('counters')
+            .select(counterName)
+            .eq('id', 1)
+            .single();
+        if (error) throw error;
+        return data[counterName] || 0;
+    } catch (e) {
+        console.error('Erreur récupération compteur:', e);
+        return 0;
     }
-    // Fallback localStorage
-    const stats = JSON.parse(localStorage.getItem(COUNTERS_KEY)) || {};
-    return stats[counterName] || (counterName === 'total_users' ? 1000 : 10000);
 }
 
 async function incrementCounter(counterName) {
-    if (supabaseAvailable && supabase) {
-        try {
-            const { data, error } = await supabase.rpc('increment_counter', {
-                counter_name: counterName
-            });
-            if (!error && data !== null) {
-                await updateDisplayedCounters();
-                return data;
-            }
-        } catch (e) {
-            console.warn('Erreur RPC Supabase, fallback localStorage');
-        }
+    if (!supabaseAvailable) return;
+    try {
+        const { error } = await supabase.rpc('increment_counter', {
+            counter_name: counterName
+        });
+        if (error) throw error;
+        // La mise à jour en temps réel se fera via subscribeToCounters
+    } catch (e) {
+        console.error('Erreur incrémentation:', e);
     }
-    // Fallback localStorage
-    const stats = JSON.parse(localStorage.getItem(COUNTERS_KEY)) || {
-        total_users: 1000,
-        total_shares: 10000,
-        lastUpdate: Date.now()
-    };
-    const oldValue = stats[counterName] || (counterName === 'total_users' ? 1000 : 10000);
-    const newValue = oldValue + 1;
-    stats[counterName] = newValue;
-    stats.lastUpdate = Date.now();
-    localStorage.setItem(COUNTERS_KEY, JSON.stringify(stats));
-    await updateDisplayedCounters();
-    return newValue;
 }
 
 async function updateDisplayedCounters() {
     const usersEl = document.getElementById('total-users-count');
     const sharesEl = document.getElementById('total-shares-count');
-    if (usersEl) {
-        const users = await getCounterValue('total_users');
-        usersEl.textContent = users.toLocaleString() + '+';
-    }
-    if (sharesEl) {
-        const shares = await getCounterValue('total_shares');
-        sharesEl.textContent = shares.toLocaleString() + '+';
+    if (!supabaseAvailable) return;
+    try {
+        const { data, error } = await supabase
+            .from('counters')
+            .select('total_users, total_shares')
+            .eq('id', 1)
+            .single();
+        if (error) throw error;
+        if (usersEl) usersEl.textContent = data.total_users.toLocaleString() + '+';
+        if (sharesEl) sharesEl.textContent = data.total_shares.toLocaleString() + '+';
+    } catch (e) {
+        console.error('Erreur récupération counters:', e);
     }
 }
 
-window.addEventListener('storage', (event) => {
-    if (event.key === COUNTERS_KEY) {
-        updateDisplayedCounters();
+function subscribeToCounters() {
+    if (!supabaseAvailable) return;
+    supabase
+        .channel('counters-live')
+        .on(
+            'postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'counters' },
+            (payload) => {
+                const usersEl = document.getElementById('total-users-count');
+                const sharesEl = document.getElementById('total-shares-count');
+                if (usersEl) usersEl.textContent = payload.new.total_users.toLocaleString() + '+';
+                if (sharesEl) sharesEl.textContent = payload.new.total_shares.toLocaleString() + '+';
+            }
+        )
+        .subscribe();
+}
+
+// =======================================================
+// VISITEURS EN LIGNE
+// =======================================================
+
+async function updateOnlineStatus() {
+    const userId = getUserId();
+    if (!supabaseAvailable) return;
+    try {
+        await supabase
+            .from('online_users')
+            .upsert({ user_id: userId, last_seen: new Date().toISOString() });
+    } catch (e) {
+        console.error('Erreur mise à jour en ligne:', e);
     }
-});
+}
+
+async function displayOnlineUsers() {
+    const el = document.getElementById('online-users');
+    if (!el) return;
+    if (!supabaseAvailable) return;
+    try {
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60000).toISOString();
+        const { count, error } = await supabase
+            .from('online_users')
+            .select('*', { count: 'exact', head: true })
+            .gt('last_seen', fiveMinutesAgo);
+        if (error) throw error;
+        el.textContent = count || 0;
+    } catch (e) {
+        console.error('Erreur comptage en ligne:', e);
+    }
+}
+
+// Appeler périodiquement
+setInterval(updateOnlineStatus, 30000);
+setInterval(displayOnlineUsers, 10000); // mise à jour toutes les 10 secondes
 
 // =======================================================
 // ENREGISTREMENT DES ÉVÉNEMENTS (VISITES, PARTAGES) DANS SUPABASE
 // =======================================================
 
 function recordEvent(type) {
-    const userId = localStorage.getItem('userId') || 'unknown';
+    const userId = getUserId();
     const page = window.location.pathname;
-    const timestamp = new Date().toISOString();
 
-    // Enregistrement local
-    let events = JSON.parse(localStorage.getItem('userEvents')) || [];
-    events.push({ type, timestamp, userId, page });
-    localStorage.setItem('userEvents', JSON.stringify(events));
-
-    // Envoi à Supabase (si disponible)
-    if (supabaseAvailable && supabase) {
+    // Envoi à Supabase (si disponible) - ne pas bloquer
+    if (supabaseAvailable) {
         supabase
             .from('events')
             .insert({ type, user_id: userId, page })
@@ -284,9 +317,13 @@ document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeI
 // =======================================================
 document.addEventListener('DOMContentLoaded', async () => {
     await initSupabase();
+    getUserId(); // génère ou récupère l'ID utilisateur
+    await updateDisplayedCounters();
+    subscribeToCounters();
+    updateOnlineStatus();
+    displayOnlineUsers();
 
     showIosGuideIfNeeded();
-    updateDisplayedCounters();
 
     if (matchesContainer) {
         initPronostics();
@@ -655,13 +692,11 @@ function sharePronostic(match) {
     } else {
         messageWhatsApp = `🔥 *Mr XPRONOS* – Pronostic du jour\n\n` +
             `⚽ *${match.home_team} vs ${match.away_team}*\n` +
-            `📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n` +
-            (match.prediction.btts ? `⚽ *BTTS* : Oui (prob. ${Math.round(match.prediction.btts_probability*100)}%)\n` : '') +
+            `📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n` +
             `👉 Analyse complète sur ${siteUrl}`;
         messageTelegram = `🔥 Mr XPRONOS – Pronostic du jour\n\n` +
             `⚽ ${match.home_team} vs ${match.away_team}\n` +
-            `📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n` +
-            (match.prediction.btts ? `⚽ BTTS : Oui (prob. ${Math.round(match.prediction.btts_probability*100)}%)\n` : '') +
+            `📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n` +
             `👉 Analyse complète sur ${siteUrl}`;
     }
 
@@ -805,9 +840,6 @@ function renderMatches(matches) {
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
-            const over25 = pred.over_25 ? 'Oui' : 'Non';
-            const btts = pred.btts ? 'Oui' : 'Non';
-            const bttsProb = pred.btts_probability ? Math.round(pred.btts_probability * 100) : 0;
             const combo = pred.combo || null;
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
@@ -830,7 +862,10 @@ function renderMatches(matches) {
             const homeLogo = getTeamLogoPath(m.home_team, true);
             const awayLogo = getTeamLogoPath(m.away_team, false);
 
-            const isWinner = m.verified_double;
+            // Un pronostic est gagnant si :
+            // - double chance vérifié
+            // - et si c'est un VIP avec combo, BTTS doit être vérifié aussi
+            const isWinner = m.verified_double && (!combo || m.verified_btts);
             const winnerClass = isWinner ? 'winner' : '';
 
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
@@ -871,9 +906,7 @@ function renderMatches(matches) {
                             <strong>Double chance :</strong> ${doubleChance}
                             ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
                         </p>
-                        <p><strong>Over 2.5 :</strong> ${over25}</p>
-                        <p><strong>BTTS :</strong> ${btts} ${bttsProb > 0 ? `(${bttsProb}%)` : ''}</p>
-                        ${combo ? `<div class="combo-container"><span class="combo-label">🔥 COMBINÉ</span><span class="combo-value">${combo}</span></div>` : ''}
+                        ${combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" ${eventDate === yesterdayStr && m.verified_btts ? 'checked' : ''} disabled></p>` : ''}
                         <div class="confidence-bar">
                             <div class="confidence-fill" data-value="${confidence}"></div>
                         </div>
@@ -1464,12 +1497,14 @@ async function displayHistory() {
             const statusClass = getStatusClass(m.status);
 
             const verifiedDouble = m.verified_double ? 'checked' : '';
+            const verifiedBtts = m.verified_btts ? 'checked' : '';
             const homeDefault = 'assets/images/home.png';
             const awayDefault = 'assets/images/away.png';
             const homeLogo = getTeamLogoPath(m.home_team, true);
             const awayLogo = getTeamLogoPath(m.away_team, false);
 
-            const isWinner = m.verified_double;
+            // Pour l'historique, on considère un pronostic gagnant selon les mêmes règles
+            const isWinner = m.verified_double && (!m.prediction.combo || m.verified_btts);
             const winnerClass = isWinner ? 'winner' : '';
 
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
@@ -1501,6 +1536,7 @@ async function displayHistory() {
                     <div class="analysis-panel">
                         <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
                         <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled></p>
+                        ${m.prediction.combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" ${verifiedBtts} disabled></p>` : ''}
                         <p><strong>Fiabilité :</strong> ${confidence}%</p>
                         ${premiumBadge}
                     </div>
@@ -1518,13 +1554,21 @@ function updateSuccessRate() {
     const container = document.getElementById('success-rate-container');
     if (!container) return;
     const matches = allData.matches || [];
-    const finished = matches.filter(m => m.status === 'finished' && (m.verified_double !== undefined));
+    const finished = matches.filter(m => {
+        if (!m.status) return false;
+        const statusLower = m.status.toLowerCase();
+        return statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
+    });
+    const successful = finished.filter(m => {
+        const doubleOk = m.verified_double;
+        if (!m.prediction.combo) return doubleOk;
+        return doubleOk && m.verified_btts;
+    });
     if (finished.length === 0) {
         container.style.display = 'none';
         return;
     }
-    const successful = finished.filter(m => m.verified_double).length;
-    const rate = ((successful / finished.length) * 100).toFixed(1);
+    const rate = ((successful.length / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
     const roi = stats.roi || 0;
     container.innerHTML = `
@@ -1564,19 +1608,21 @@ function displayLatestVerified() {
         return;
     }
 
-    // Filtrer les matchs terminés, vérifiés gagnants, et des catégories Pro/VIP
     const verified = allData.matches.filter(m => {
         if (!m.status) return false;
         const statusLower = m.status.toLowerCase();
         const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-        return (
-            isFinished &&
-            m.verified_double === true &&
-            (m.category === 'pro' || m.category === 'vip')
-        );
+        if (!isFinished) return false;
+
+        const doubleOk = m.verified_double;
+        if (!m.prediction.combo) {
+            return doubleOk && (m.category === 'pro' || m.category === 'vip');
+        } else {
+            // Pour les VIP avec combo, les deux conditions doivent être remplies
+            return doubleOk && m.verified_btts && m.category === 'vip';
+        }
     });
 
-    // Trier du plus récent au plus ancien et prendre les 4 premiers
     const latest = [...verified]
         .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
         .slice(0, 4);
@@ -1594,7 +1640,6 @@ function displayLatestVerified() {
         const matchTime = formatMatchTime(m.event_date);
         const statusFr = translateStatus(m.status);
         const statusClass = getStatusClass(m.status);
-        const verifiedDouble = m.verified_double ? 'checked' : '';
         const homeDefault = 'assets/images/home.png';
         const awayDefault = 'assets/images/away.png';
         const homeLogo = getTeamLogoPath(m.home_team, true);
@@ -1629,7 +1674,8 @@ function displayLatestVerified() {
                 </div>
                 <div class="analysis-panel">
                     <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
-                    <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled></p>
+                    <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" checked disabled></p>
+                    ${m.prediction.combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" checked disabled></p>` : ''}
                     <p><strong>Fiabilité :</strong> ${confidence}%</p>
                     ${premiumBadge}
                 </div>
@@ -1638,6 +1684,7 @@ function displayLatestVerified() {
     });
     container.innerHTML = html;
 }
+
 // =======================================================
 // SLIDER DES GAINS (bandeau défilant)
 // =======================================================
@@ -1649,7 +1696,10 @@ function startWinsSlider() {
         if (!m.status) return false;
         const statusLower = m.status.toLowerCase();
         const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-        return isFinished && m.verified_double === true;
+        if (!isFinished) return false;
+        const doubleOk = m.verified_double;
+        if (!m.prediction.combo) return doubleOk;
+        return doubleOk && m.verified_btts;
     })
     .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
     .slice(0, 10);
@@ -1721,7 +1771,10 @@ function animateWins() {
         if (!m.status) return false;
         const statusLower = m.status.toLowerCase();
         const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-        return isFinished && m.verified_double === true;
+        if (!isFinished) return false;
+        const doubleOk = m.verified_double;
+        if (!m.prediction.combo) return doubleOk;
+        return doubleOk && m.verified_btts;
     }).length;
 
     let count = 0;
@@ -1752,7 +1805,11 @@ function showSuccessRate() {
 
     let percent = 0;
     if (finished.length > 0) {
-        const successful = finished.filter(m => m.verified_double).length;
+        const successful = finished.filter(m => {
+            const doubleOk = m.verified_double;
+            if (!m.prediction.combo) return doubleOk;
+            return doubleOk && m.verified_btts;
+        }).length;
         percent = Math.round((successful / finished.length) * 100);
     }
 
