@@ -506,7 +506,7 @@
       "league": "Ekstraklasa",
       "league_logo": null,
       "venue": "",
-      "status": "1st Half",
+      "status": "2nd Half",
       "home_score": 1,
       "away_score": 1,
       "h2h_analysis": {
@@ -561,9 +561,9 @@
       "league": "Pro League",
       "league_logo": null,
       "venue": "",
-      "status": "Halftime",
+      "status": "2nd Half",
       "home_score": 0,
-      "away_score": 0,
+      "away_score": 2,
       "h2h_analysis": {
         "total_matches": 3,
         "home_wins": 0.0,
@@ -616,7 +616,7 @@
       "league": "Professional League",
       "league_logo": null,
       "venue": "",
-      "status": "2nd Half",
+      "status": "Ended",
       "home_score": 1,
       "away_score": 0,
       "h2h_analysis": {
