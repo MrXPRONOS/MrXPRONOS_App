@@ -1,10 +1,15 @@
 /* =======================================================
    STYLE.CSS - Mr XPRONOS
    Design noir & or, moderne, optimisé sans dégradés
+   Inclut les styles pour les pronostics combinés VIP
    ======================================================= */
 
+/* Police élégante Montserrat (Google Fonts) */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
+/* =======================================================
+   VARIABLES DE COULEURS
+   ======================================================= */
 :root {
     --noir: #0D0D0D;
     --noir-secondaire: #1A1A1A;
@@ -17,8 +22,13 @@
     --gris-clair: #444;
     --shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     --shadow-hover: 0 12px 24px rgba(212, 175, 55, 0.2);
+    --vip-glow: 0 0 20px rgba(212, 175, 55, 0.6); /* Lueur VIP */
+    --combo-gradient: linear-gradient(135deg, #D4AF37, #FFD700, #D4AF37); /* Dégradé or pour combos */
 }
 
+/* =======================================================
+   RÉINITIALISATION DE BASE
+   ======================================================= */
 * {
     margin: 0;
     padding: 0;
@@ -42,7 +52,9 @@ body {
     padding: 0 15px;
 }
 
-/* ==================== HEADER ==================== */
+/* =======================================================
+   HEADER (EN-TÊTE)
+   ======================================================= */
 header {
     background-color: var(--noir-secondaire);
     padding: 0.8rem 0;
@@ -132,7 +144,9 @@ nav a.active {
     transform: scale(1.05);
 }
 
-/* ==================== FOOTER ==================== */
+/* =======================================================
+   FOOTER (PIED DE PAGE)
+   ======================================================= */
 footer {
     background-color: var(--noir-secondaire);
     padding: 1.5rem 0;
@@ -197,7 +211,9 @@ footer {
     transform: scale(1.1);
 }
 
-/* ==================== BOUTONS ==================== */
+/* =======================================================
+   BOUTONS
+   ======================================================= */
 .btn {
     display: inline-block;
     padding: 0.6rem 1.5rem;
@@ -234,6 +250,7 @@ footer {
     transform: translateY(-2px);
 }
 
+/* Bouton installation PWA */
 #install-app {
     animation: gentle-pulse 2s infinite;
 }
@@ -244,7 +261,9 @@ footer {
     100% { transform: scale(1); }
 }
 
-/* ==================== STATISTIQUES ==================== */
+/* =======================================================
+   STATISTIQUES (badge utilisateurs/partages)
+   ======================================================= */
 .stats-badge {
     background: var(--noir-secondaire);
     border: 1px solid var(--or);
@@ -255,7 +274,9 @@ footer {
     margin-top: 1rem;
 }
 
-/* ==================== CARTES GÉNÉRIQUES ==================== */
+/* =======================================================
+   CARTES GÉNÉRIQUES
+   ======================================================= */
 .card {
     background-color: var(--noir-secondaire);
     border-radius: 16px;
@@ -293,7 +314,9 @@ footer {
     display: inline-block;
 }
 
-/* ==================== GRILLES BLOG/CONSEILS/INFOS ==================== */
+/* =======================================================
+   GRILLES POUR BLOG, CONSEILS, INFOS
+   ======================================================= */
 .blog-grid, .conseils-grid, .infos-grid, .news-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -319,7 +342,9 @@ footer {
     }
 }
 
-/* ==================== SCROLL HORIZONTAL ==================== */
+/* =======================================================
+   SCROLL HORIZONTAL (pour les listes déroulantes)
+   ======================================================= */
 .horizontal-scroll {
     display: flex;
     gap: 1rem;
@@ -373,6 +398,7 @@ footer {
     word-break: break-word;
 }
 
+/* Réduction de la taille sur mobile */
 @media (max-width: 480px) {
     .horizontal-item {
         width: 150px;
@@ -382,6 +408,7 @@ footer {
     }
 }
 
+/* Badges pour les pronostics validés */
 .badge-vip {
     background-color: var(--or);
     color: #000;
@@ -409,7 +436,9 @@ footer {
     justify-content: center;
 }
 
-/* ==================== NEWS CARDS ==================== */
+/* =======================================================
+   CARTES NEWS (pour articles, conseils, actualités)
+   ======================================================= */
 .news-card {
     background-color: var(--noir-secondaire);
     border-radius: 12px;
@@ -461,7 +490,9 @@ footer {
     font-size: 0.8rem;
 }
 
-/* ==================== HERO ==================== */
+/* =======================================================
+   HERO SECTION (PAGE D'ACCUEIL)
+   ======================================================= */
 .hero {
     background-color: var(--noir-secondaire);
     padding: 4rem 0;
@@ -487,7 +518,9 @@ footer {
     margin: 0 0.5rem;
 }
 
-/* ==================== PAGE PRONOSTICS ==================== */
+/* =======================================================
+   PAGE PRONOSTICS (ONGLETS, CARTES, ANALYSES)
+   ======================================================= */
 .category-tabs, .day-filters {
     display: flex;
     gap: 0.5rem;
@@ -521,6 +554,7 @@ footer {
     display: none !important;
 }
 
+/* Grille des matchs : 2 colonnes sur desktop */
 .matches-grid {
     display: grid;
     gap: 20px;
@@ -534,6 +568,7 @@ footer {
     }
 }
 
+/* Carte de match de base */
 .match-card {
     background-color: var(--noir-secondaire);
     border-radius: 20px;
@@ -551,6 +586,34 @@ footer {
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
 }
 
+/* Style spécial pour les cartes VIP (avec combo) */
+.match-card-vip {
+    border: 2px solid var(--or);
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.5);
+    position: relative;
+    background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+}
+
+.match-card-vip::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 22px;
+    background: var(--combo-gradient);
+    z-index: -1;
+    opacity: 0.3;
+    filter: blur(5px);
+}
+
+.match-card-vip:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 35px rgba(212, 175, 55, 0.8);
+}
+
+/* Disposition desktop : carte en ligne */
 @media (min-width: 768px) {
     .match-card {
         flex-direction: row;
@@ -717,6 +780,7 @@ footer {
     white-space: nowrap;
 }
 
+/* Sous-onglets VIP */
 .vip-subtabs {
     display: flex;
     gap: 0.5rem;
@@ -742,6 +806,7 @@ footer {
     border-color: var(--or);
 }
 
+/* Barre de recherche */
 .search-container {
     margin: 1rem 0;
 }
@@ -763,7 +828,67 @@ footer {
     border-color: var(--or-clair);
 }
 
-/* ==================== PAGE CONTACT ==================== */
+/* =======================================================
+   STYLES SPÉCIFIQUES AUX PRONOSTICS COMBINÉS VIP
+   ======================================================= */
+
+/* Badge "COMBO VIP" flottant */
+.combo-badge {
+    display: inline-block;
+    background: var(--combo-gradient);
+    color: #000;
+    font-weight: 700;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 30px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+    align-self: flex-start;
+}
+
+/* Conteneur du combiné dans le panneau d'analyse */
+.combo-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(212, 175, 55, 0.15);
+    border-radius: 20px;
+    padding: 4px 10px;
+    margin: 5px 0;
+    border-left: 3px solid var(--or);
+}
+
+.combo-label {
+    font-size: 0.7rem;
+    color: #aaa;
+    text-transform: uppercase;
+}
+
+.combo-value {
+    font-weight: 700;
+    color: var(--or);
+    font-size: 0.9rem;
+    text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+}
+
+/* Style pour le bouton de partage sur les cartes VIP */
+.match-card-vip .btn-share {
+    background-color: var(--or);
+    color: #000;
+    border: none;
+    font-weight: 700;
+}
+
+.match-card-vip .btn-share:hover {
+    background-color: var(--or-clair);
+    transform: scale(1.05);
+}
+
+/* =======================================================
+   PAGE CONTACT
+   ======================================================= */
 .contact-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -809,7 +934,9 @@ footer {
     color: var(--or);
 }
 
-/* ==================== BOOKMAKERS DYNAMIQUES ==================== */
+/* =======================================================
+   BOOKMAKERS DYNAMIQUES (CARTES DE BONUS)
+   ======================================================= */
 .bookmakers-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -849,7 +976,9 @@ footer {
     margin-bottom: 1rem;
 }
 
-/* ==================== PAGE BONUS ==================== */
+/* =======================================================
+   BONUS & PROMO (page bonus)
+   ======================================================= */
 .bonus-selector {
     margin: 1.5rem 0;
     display: flex;
@@ -878,6 +1007,7 @@ footer {
     background-color: var(--noir-secondaire);
 }
 
+/* Miniatures (4 par ligne) */
 .bonus-thumbnails {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -921,7 +1051,7 @@ footer {
     text-overflow: ellipsis;
 }
 
-/* ==================== MODAL ==================== */
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -1002,7 +1132,9 @@ footer {
     background-color: #1a1a1a;
 }
 
-/* ==================== VIP LOCKED ==================== */
+/* =======================================================
+   OVERLAY VIP VERROUILLÉ
+   ======================================================= */
 .vip-locked-overlay {
     position: relative;
     min-height: 300px;
@@ -1057,7 +1189,9 @@ footer {
     }
 }
 
-/* ==================== MESSAGES DE CHARGEMENT / ERREUR ==================== */
+/* =======================================================
+   MESSAGES DE CHARGEMENT / ERREUR
+   ======================================================= */
 .loading, .error, .no-events, .warning {
     text-align: center;
     padding: 3rem 1rem;
@@ -1103,7 +1237,9 @@ footer {
     color: #AAAAAA;
 }
 
-/* ==================== CHECKBOX VERTES ==================== */
+/* =======================================================
+   CASES À COCHER VERTES
+   ======================================================= */
 .prediction-checkbox:checked:disabled {
     accent-color: #4CAF50 !important;
     opacity: 1 !important;
@@ -1118,7 +1254,9 @@ footer {
     }
 }
 
-/* ==================== BADGE XPRONOS ==================== */
+/* =======================================================
+   BADGE XPRONOS
+   ======================================================= */
 .xpronos-badge {
     display: inline-block;
     background-color: var(--or);
@@ -1132,7 +1270,9 @@ footer {
     box-shadow: 0 2px 8px rgba(255,215,0,0.3);
 }
 
-/* ==================== TAUX DE RÉUSSITE ==================== */
+/* =======================================================
+   TAUX DE RÉUSSITE GLOBAL
+   ======================================================= */
 .success-rate {
     background-color: var(--noir-secondaire);
     border-radius: 20px;
@@ -1163,7 +1303,9 @@ footer {
     color: #ccc;
 }
 
-/* ==================== SCROLL PROGRESS ==================== */
+/* =======================================================
+   SCROLL PROGRESS BAR
+   ======================================================= */
 .scroll-progress {
     position: fixed;
     top: 0;
@@ -1175,7 +1317,9 @@ footer {
     transition: width 0.1s;
 }
 
-/* ==================== EN-TÊTE DE JOUR HISTORIQUE ==================== */
+/* =======================================================
+   EN-TÊTE DE JOUR POUR L'HISTORIQUE
+   ======================================================= */
 .day-header {
     font-size: 1.5rem;
     margin: 2rem 0 1rem;
@@ -1184,7 +1328,9 @@ footer {
     padding-bottom: 0.5rem;
 }
 
-/* ==================== GUIDE IOS ==================== */
+/* =======================================================
+   GUIDE D'INSTALLATION POUR IOS
+   ======================================================= */
 .ios-guide-popup {
     position: fixed;
     top: 0;
@@ -1274,7 +1420,9 @@ footer {
     flex-wrap: wrap;
 }
 
-/* ==================== BARRE DE CONFIANCE ==================== */
+/* =======================================================
+   BARRE DE CONFIANCE ANIMÉE
+   ======================================================= */
 .confidence-bar {
     width: 100%;
     height: 8px;
@@ -1292,7 +1440,9 @@ footer {
     transition: width 2s ease;
 }
 
-/* ==================== TICKET DE PARI ==================== */
+/* =======================================================
+   EFFET TICKET DE PARI
+   ======================================================= */
 .ticket {
     background-color: #111;
     border: 2px dashed var(--or);
@@ -1321,7 +1471,9 @@ footer {
     background-color: rgba(76,175,80,0.1);
 }
 
-/* ==================== FEU D'ARTIFICE PRONO GAGNÉ ==================== */
+/* =======================================================
+   FEU D'ARTIFICE POUR PRONO GAGNÉ
+   ======================================================= */
 .win-effect {
     position: absolute;
     inset: 0;
@@ -1378,7 +1530,9 @@ footer {
     }
 }
 
-/* ==================== NOUVEAUX STYLES POUR L'ACCUEIL ==================== */
+/* =======================================================
+   NOUVEAUX STYLES POUR L'ACCUEIL (CARTES VALIDÉES)
+   ======================================================= */
 .verified-card {
     display: flex;
     gap: 12px;
@@ -1472,7 +1626,7 @@ footer {
 .verified-card .badges {
     display: flex;
     gap: 5px;
-    align-items: center; /* centrage vertical des badges */
+    align-items: center;
     margin-top: 5px;
 }
 
@@ -1489,7 +1643,9 @@ footer {
     justify-content: center;
 }
 
-/* ==================== SLIDER DES GAINS ==================== */
+/* =======================================================
+   SLIDER DES GAINS (bandeau défilant)
+   ======================================================= */
 .wins-slider {
     width: 100%;
     overflow: hidden;
@@ -1530,7 +1686,9 @@ footer {
     }
 }
 
-/* ==================== POPUP DE GAINS ==================== */
+/* =======================================================
+   POPUP DE GAINS (NOTIFICATIONS)
+   ======================================================= */
 .win-popup {
     position: fixed;
     bottom: 20px;
@@ -1557,7 +1715,9 @@ footer {
     color: #00ff9c;
 }
 
-/* ==================== COMPTEUR DE PRONOSTICS GAGNANTS ==================== */
+/* =======================================================
+   COMPTEUR DE PRONOSTICS GAGNANTS
+   ======================================================= */
 .stats-counter {
     font-size: 18px;
     font-weight: bold;
@@ -1566,7 +1726,9 @@ footer {
     text-align: center;
 }
 
-/* ==================== BARRE DE TAUX DE RÉUSSITE ==================== */
+/* =======================================================
+   BARRE DE TAUX DE RÉUSSITE
+   ======================================================= */
 .success-box {
     margin: 20px 0;
     padding: 15px;
@@ -1606,16 +1768,9 @@ footer {
     font-size: 1.1rem;
 }
 
-@media (max-width: 480px) {
-    .win-popup {
-        left: 10px;
-        right: 10px;
-        bottom: 10px;
-        font-size: 12px;
-    }
-}
-
-/* ==================== RESPONSIVE COMPLÉMENT ==================== */
+/* =======================================================
+   RESPONSIVE (MOBILE FIRST)
+   ======================================================= */
 @media (max-width: 768px) {
     header .container {
         flex-direction: column;
@@ -1670,19 +1825,36 @@ footer {
     .footer-links a {
         font-size: 0.75rem;
     }
+    .win-popup {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        font-size: 12px;
+    }
 }
 
-/* Pour les cartes dans le défilement horizontal de l'accueil */
-.horizontal-scroll .match-card {
+/* =======================================================
+   AFFICHAGE DES PRONOSTICS VALIDÉS SUR L'ACCUEIL (DÉFILEMENT HORIZONTAL)
+   ======================================================= */
+#today-picks.horizontal-scroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 1rem 0;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+#today-picks.horizontal-scroll .match-card {
+    flex: 0 0 auto;
     width: 350px;
-    flex-shrink: 0;
-    margin-right: 1rem;
+    scroll-snap-align: start;
     display: flex;
     flex-direction: column;
 }
 
 @media (max-width: 480px) {
-    .horizontal-scroll .match-card {
+    #today-picks.horizontal-scroll .match-card {
         width: 280px;
     }
 }

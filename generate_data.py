@@ -6,7 +6,7 @@ generate_data.py - Génère les pronostics à partir des données SportData
 et des scores déjà en base (mis à jour par update_scores.py).
 Version améliorée avec prise en compte de la forme récente,
 de l'avantage domicile, de la pondération des compétitions,
-et d'autres facteurs pour augmenter la fiabilité.
+et des combos (double chance + BTTS) pour les VIP.
 """
 
 import os
@@ -19,11 +19,12 @@ from urllib3.util.retry import Retry
 # =======================================================
 # CONFIGURATION
 # =======================================================
-SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY",'0b4628b4-83cc-4227-bed6-82c50d806514')
+SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")
 if not SPORTDATA_API_KEY:
     raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
 
-THESPORTSDB_API_KEY = "123"  # clé publique pour thesportsdb
+# Clé publique pour TheSportsDB
+THESPORTSDB_API_KEY = "3"
 
 SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
 HEADERS = {"x-api-key": SPORTDATA_API_KEY}
@@ -95,8 +96,8 @@ def get_logo_thesportsdb(team_name):
                 logo = teams[0].get("strTeamBadge") or teams[0].get("strTeamLogo")
                 logo_cache[team_name] = logo
                 return logo
-    except:
-        pass
+    except Exception as e:
+        print(f"⚠️ Erreur lors de la récupération du logo pour {team_name}: {e}")
     logo_cache[team_name] = None
     return None
 
@@ -160,8 +161,10 @@ def build_team_history(historical):
     for m in historical:
         home = m["home_team"]
         away = m["away_team"]
-        # Conversion en datetime naive (suppression du fuseau horaire)
-        date = datetime.fromisoformat(m["start_time"].replace('Z', '+00:00')).replace(tzinfo=None)
+        try:
+            date = datetime.fromisoformat(m["start_time"].replace('Z', '+00:00')).replace(tzinfo=None)
+        except:
+            continue
         # Pour l'équipe à domicile
         if home not in team_matches:
             team_matches[home] = []
@@ -185,7 +188,6 @@ def get_team_form(team, team_matches, last_games=5, max_days=365):
     recent = []
     for date, match, side in matches:
         if match.get("is_finished") and match["home_score"] is not None:
-            # Ne garder que les matchs datant de moins de max_days
             days_old = (datetime.now() - date).days
             if days_old <= max_days:
                 recent.append((date, match, side))
@@ -198,11 +200,9 @@ def get_team_form(team, team_matches, last_games=5, max_days=365):
     wins = draws = losses = 0.0
     goals_for = goals_against = 0.0
     total_weight = 0.0
-    weighted_score = 0.0
 
     for i, (date, match, side) in enumerate(recent):
-        # Pondération exponentielle (le match le plus récent a le plus de poids)
-        weight = 1.5 ** (len(recent) - i - 1)  # dernier match : 1.5^(0)=1, avant-dernier : 1.5, etc.
+        weight = 1.5 ** (len(recent) - i - 1)
         total_weight += weight
 
         if side == "home":
@@ -222,16 +222,13 @@ def get_team_form(team, team_matches, last_games=5, max_days=365):
         else:
             losses += 1 * weight
 
-    # Normaliser
     wins /= total_weight
     draws /= total_weight
     losses /= total_weight
     goals_for /= total_weight
     goals_against /= total_weight
 
-    # Note de forme basée sur les points (victoire = 3, nul = 1)
     points_per_game = (wins * 3 + draws) / (wins + draws + losses) if (wins+draws+losses)>0 else 0
-    # Normaliser sur 1
     form_score = points_per_game / 3
 
     return {
@@ -244,15 +241,8 @@ def get_team_form(team, team_matches, last_games=5, max_days=365):
         "matches_used": len(recent)
     }
 
-def get_home_advantage(home_form, away_form):
-    """Calcule un avantage basé sur la forme à domicile (si disponible) mais ici on n'a pas de séparation.
-       On utilisera simplement la différence de forme."""
-    if home_form and away_form:
-        return home_form["form_score"] - away_form["form_score"]
-    return 0
-
 # =======================================================
-# FONCTIONS D'ANALYSE H2H (existantes, avec améliorations)
+# FONCTIONS D'ANALYSE H2H ET BTTS
 # =======================================================
 def load_historical_matches():
     if not os.path.exists(GLOBAL_CACHE_FILE):
@@ -350,9 +340,25 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
         "over_25_prob": round(over_25_prob, 3)
     }
 
-def generate_prediction(analysis, home_form, away_form, league):
+def analyze_btts(h2h_list):
+    """Analyse si les deux équipes marquent souvent."""
+    btts_count = 0
+    matches = 0
+    for m in h2h_list:
+        if not m.get("is_finished"):
+            continue
+        if m["home_score"] is None or m["away_score"] is None:
+            continue
+        matches += 1
+        if m["home_score"] > 0 and m["away_score"] > 0:
+            btts_count += 1
+    if matches == 0:
+        return 0.5
+    return btts_count / matches
+
+def generate_prediction(analysis, home_form, away_form, league, h2h_list):
     # Seuil de dominance pour éviter les matchs trop équilibrés
-    seuil = 0.55  # augmenté pour plus de rigueur
+    seuil = 0.55
 
     if analysis["home_dominance"] > analysis["away_dominance"] + seuil:
         double_chance = "1X"
@@ -361,39 +367,46 @@ def generate_prediction(analysis, home_form, away_form, league):
     else:
         double_chance = "12"
 
-    # Over 2.5 basé sur la moyenne de buts H2H et la forme
+    # Over 2.5
     over_25 = analysis["over_25_prob"] > 0.6
     if league in HIGH_SCORING_LEAGUES:
         over_25 = over_25 or analysis["goals_avg"] > 2.8
 
+    # BTTS
+    btts_prob = analyze_btts(h2h_list)
+    btts = btts_prob > 0.6
+
+    # Combo
+    combo = None
+    if double_chance != "12" and btts:
+        combo = f"{double_chance} + BTTS"
+
     # Calcul du score de confiance combiné
     confiance = 50
-    confiance += min(20, analysis["total_matches"] * 3)  # +20 max pour 7 matchs
-    # Bonus pour dominance forte
+    confiance += min(20, analysis["total_matches"] * 3)
     if max(analysis["home_dominance"], analysis["away_dominance"]) > 0.7:
         confiance += 10
-    # Bonus pour forme récente
     if home_form and away_form:
         form_diff = abs(home_form["form_score"] - away_form["form_score"])
         if form_diff > 0.2:
             confiance += 5
         if home_form["form_score"] > 0.7 and away_form["form_score"] < 0.4:
             confiance += 5
-    # Malus pour draw_rate élevé
     if analysis["draw_rate"] > 0.4:
         confiance -= 10
-    # Ajustement selon la ligue
     if league in TRUSTED_LEAGUES:
         confiance += 5
     else:
         confiance -= 5
 
-    # Limiter
     confiance = max(0, min(100, confiance))
 
     return {
         "double_chance": double_chance,
         "over_25": over_25,
+        "btts": btts,
+        "btts_probability": round(btts_prob, 3),
+        "combo": combo,
         "confidence": confiance
     }
 
@@ -408,12 +421,17 @@ def calculate_xpronos_score(analysis, prediction, home_form, away_form, league):
         score += min(20, int((home_form["form_score"] + away_form["form_score"]) * 10))
     if league in TRUSTED_LEAGUES:
         score += 5
-    # Pénalité si trop de nuls
     if analysis["draw_rate"] > 0.4:
         score -= 10
+    # Bonus pour combo BTTS
+    if prediction.get("combo"):
+        score += 5
     return min(score, 100)
 
-def get_category(score):
+def get_category(score, prediction, analysis):
+    # Priorité VIP pour les combos avec au moins 3 matchs H2H
+    if prediction.get("combo") is not None and analysis["total_matches"] >= 3:
+        return "vip"
     if score >= 65:
         return "vip"
     elif score >= 55:
@@ -502,20 +520,19 @@ def main():
         home_form = get_team_form(base["home_team"], team_matches, last_games=5)
         away_form = get_team_form(base["away_team"], team_matches, last_games=5)
 
-        # Si une des équipes n'a pas de forme récente, on peut quand même continuer (mais score moins fiable)
         if home_form is None or away_form is None:
             print(f"   ⚠️ Forme incomplète pour {base['home_team'] if home_form is None else base['away_team']}")
 
-        prediction = generate_prediction(analysis, home_form, away_form, base["competition"])
+        # Générer la prédiction avec BTTS et combo
+        prediction = generate_prediction(analysis, home_form, away_form, base["competition"], h2h_list)
 
-        # === Ignorer les pronostics "12" ===
+        # Ignorer les pronostics "12"
         if prediction["double_chance"] == "12":
             print(f"   ⚠️ Pronostic 12 (match équilibré) ignoré")
             continue
-        # ===================================
 
         score = calculate_xpronos_score(analysis, prediction, home_form, away_form, base["competition"])
-        category = get_category(score)
+        category = get_category(score, prediction, analysis)
         badge = get_badge(score)
 
         # Logos avec cache
@@ -567,10 +584,10 @@ def main():
     # Trier par date
     matches.sort(key=lambda x: x["event_date"] or "", reverse=True)
 
-    # Statistiques (à améliorer si besoin)
+    # Statistiques
     stats = {"total_bets": 0, "wins": 0, "roi": 0}
 
-    # Bookmakers par défaut (mis à jour avec vos liens)
+    # Bookmakers par défaut
     default_bookmakers = [
         {"name": "1xBet",     "logo": "assets/images/1xbet.png",     "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"},
         {"name": "1win",      "logo": "assets/images/1win.png",      "url": "https://1wrbgb.com/?open=register&p=qqcw"},
@@ -592,6 +609,7 @@ def main():
 
     print(f"\n💾 {DATA_FILE} généré avec {len(matches)} matchs")
     print(f"📊 Catégories : Simple: {len(categories['simple'])}, Pro: {len(categories['pro'])}, VIP: {len(categories['vip'])}")
+    print(f"🎯 Combos BTTS générés : {sum(1 for m in matches if m['prediction'].get('combo'))}")
 
 if __name__ == "__main__":
     main()
