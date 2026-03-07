@@ -711,9 +711,9 @@
       "xpronos_score": 55,
       "badge": "",
       "category": "pro",
-      "verified_double": false,
-      "verified_btts": false,
-      "verified_over": false
+      "verified_double": true,
+      "verified_btts": true,
+      "verified_over": true
     },
     {
       "id": 4673009,
@@ -766,7 +766,7 @@
       "xpronos_score": 62,
       "badge": "",
       "category": "pro",
-      "verified_double": false,
+      "verified_double": true,
       "verified_btts": false,
       "verified_over": false
     },
@@ -3041,7 +3041,7 @@
         "league_logo": null,
         "venue": "",
         "status": "2nd Half",
-        "home_score": 3,
+        "home_score": 4,
         "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
@@ -3080,9 +3080,9 @@
         "xpronos_score": 55,
         "badge": "",
         "category": "pro",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false
+        "verified_double": true,
+        "verified_btts": true,
+        "verified_over": true
       },
       {
         "id": 4445498,
@@ -3570,7 +3570,7 @@
         "xpronos_score": 62,
         "badge": "",
         "category": "pro",
-        "verified_double": false,
+        "verified_double": true,
         "verified_btts": false,
         "verified_over": false
       },
@@ -3849,7 +3849,7 @@
   },
   "stats": {
     "total_bets": 0,
-    "wins": 20,
+    "wins": 22,
     "roi": 0
   },
   "bookmakers": [
