@@ -732,18 +732,13 @@
 
         async function createVipAccess(userId, ip, durationDays) {
             if (!supabase) throw new Error('Supabase non initialisé');
-            const code = generateVipCode();
-            const expiresAt = new Date();
-            expiresAt.setDate(expiresAt.getDate() + durationDays);
-
-            const { error } = await supabase.rpc('insert_vip_code', {
+            const { data, error } = await supabase.rpc('create_vip_code', {
                 p_user_id: userId,
-                p_vip_code: code,
-                p_ip_address: ip || '',
-                p_expires_at: expiresAt.toISOString()
+                p_ip_address: ip,
+                p_duration_days: durationDays
             });
             if (error) throw error;
-            return code;
+            return data;
         }
 
         async function loadActiveVips() {
