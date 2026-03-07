@@ -10,6 +10,10 @@ on:
       - 'requirements.txt'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   update:
     if: github.actor != 'github-actions[bot]'
@@ -31,6 +35,7 @@ jobs:
       - name: Generate pronostics (data.json)
         env:
           SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
+          THESPORTSDB_API_KEY: ${{ secrets.THESPORTSDB_API_KEY }}
         run: python generate_data.py
 
       - name: Convert images to WebP
@@ -75,3 +80,11 @@ jobs:
           git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify failure
+        if: failure()
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        with:
+          args: "Le workflow de mise à jour quotidienne a échoué sur {{ GITHUB_REPOSITORY }}"

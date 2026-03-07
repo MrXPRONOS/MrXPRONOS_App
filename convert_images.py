@@ -10,7 +10,10 @@ Utilise Pillow pour la conversion.
 import os
 import json
 import glob
+import logging
 from PIL import Image
+
+logger = logging.getLogger(__name__)
 
 IMAGE_DIR = "assets/images"
 OUTPUT_FORMAT = "webp"
@@ -27,7 +30,7 @@ def convert_image(filepath):
         img.save(new_filepath, OUTPUT_FORMAT.upper(), quality=QUALITY)
         return new_filepath
     except Exception as e:
-        print(f"❌ Erreur lors de la conversion de {filepath} : {e}")
+        logger.error(f"Erreur lors de la conversion de {filepath} : {e}")
         return None
 
 def update_json_files(old_path, new_path):
@@ -40,7 +43,7 @@ def update_json_files(old_path, new_path):
             try:
                 data = json.load(f)
             except:
-                print(f"⚠️ Impossible de lire {json_file}, passage...")
+                logger.warning(f"Impossible de lire {json_file}, passage...")
                 continue
         modified = False
         if isinstance(data, dict):
@@ -50,7 +53,7 @@ def update_json_files(old_path, new_path):
         if modified:
             with open(json_file, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
-            print(f"✅ {json_file} mis à jour")
+            logger.info(f"{json_file} mis à jour")
 
 def replace_in_dict(d, old, new):
     modified = False
@@ -78,7 +81,7 @@ def replace_in_list(lst, old, new):
 
 def main():
     if not os.path.exists(IMAGE_DIR):
-        print(f"❌ Le dossier {IMAGE_DIR} n'existe pas.")
+        logger.error(f"Le dossier {IMAGE_DIR} n'existe pas.")
         return
 
     images = glob.glob(os.path.join(IMAGE_DIR, "*.png")) + \
@@ -86,19 +89,19 @@ def main():
              glob.glob(os.path.join(IMAGE_DIR, "*.jpeg"))
 
     if not images:
-        print("✅ Aucune image à convertir.")
+        logger.info("Aucune image à convertir.")
         return
 
-    print(f"🔍 {len(images)} images trouvées.")
+    logger.info(f"{len(images)} images trouvées.")
 
     for img_path in images:
-        print(f"🔄 Conversion de {img_path}...")
+        logger.info(f"Conversion de {img_path}...")
         new_path = convert_image(img_path)
         if new_path:
             update_json_files(img_path, new_path)
-            print(f"   → {new_path}")
+            logger.info(f"→ {new_path}")
 
-    print("🎉 Conversion terminée.")
+    logger.info("Conversion terminée.")
 
 if __name__ == "__main__":
     main()

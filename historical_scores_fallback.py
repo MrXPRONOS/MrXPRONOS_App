@@ -3,10 +3,10 @@
 
 """
 historical_scores_fallback.py - Utilise football-data.co.uk pour récupérer les scores historiques.
-Version corrigée avec import manquant et point d'entrée.   
+Version corrigée sans pandas.
 """
 
-import pandas as pd
+import csv
 import requests
 from io import StringIO
 import os
@@ -48,21 +48,29 @@ class HistoricalScoresFallback:
             try:
                 response = requests.get(url, timeout=10)
                 if response.status_code == 200:
-                    df = pd.read_csv(StringIO(response.text))
-                    # Renommer les colonnes pour correspondre à notre format
-                    df = df.rename(columns={
-                        'Date': 'date',
-                        'HomeTeam': 'home_team',
-                        'AwayTeam': 'away_team',
-                        'FTHG': 'home_score',
-                        'FTAG': 'away_score'
-                    })
-                    df = df[['date', 'home_team', 'away_team', 'home_score', 'away_score']]
-                    # Convertir la date
-                    df['date'] = pd.to_datetime(df['date'], format='%d/%m/%y').dt.strftime('%Y-%m-%d')
-                    # Filtrer les lignes avec scores
-                    df = df.dropna(subset=['home_score', 'away_score'])
-                    matches = df.to_dict('records')
+                    # Utiliser csv.reader au lieu de pandas
+                    csv_reader = csv.DictReader(StringIO(response.text))
+                    matches = []
+                    for row in csv_reader:
+                        # Vérifier que les colonnes nécessaires existent
+                        if 'Date' not in row or 'HomeTeam' not in row or 'AwayTeam' not in row or 'FTHG' not in row or 'FTAG' not in row:
+                            continue
+                        try:
+                            # Convertir la date
+                            date_obj = datetime.strptime(row['Date'], '%d/%m/%y')
+                            event_date = date_obj.strftime('%Y-%m-%d')
+                        except:
+                            continue
+                        # Ignorer les lignes sans score
+                        if not row['FTHG'] or not row['FTAG']:
+                            continue
+                        matches.append({
+                            'date': event_date,
+                            'home_team': row['HomeTeam'],
+                            'away_team': row['AwayTeam'],
+                            'home_score': int(row['FTHG']),
+                            'away_score': int(row['FTAG'])
+                        })
                     all_matches.extend(matches)
                     print(f"   ✓ {league} : {len(matches)} matchs")
                 time.sleep(0.5)

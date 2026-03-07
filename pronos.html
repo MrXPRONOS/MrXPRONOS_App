@@ -20,7 +20,7 @@
     <meta name="twitter:description" content="Pronostics sportifs du jour, analyses H2H, conseils. Code promo XPVIP.">
     <meta name="twitter:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
 
-    <link rel="icon" href="assets/images/favicon.png">
+    <link rel="icon" href="assets/images/favicon.webp">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
@@ -65,7 +65,7 @@
         <div class="category-tabs">
             <button class="tab-btn active" data-cat="simple" aria-label="Afficher pronostics simples">Simple</button>
             <button class="tab-btn" data-cat="pro" aria-label="Afficher pronostics pro">Pro 🔒</button>
-            <button class="tab-btn" data-cat="vip" aria-label="Afficher pronostics VIP">VIP 🔒</button>
+            <button class="tab-btn" data-cat="vip" aria-label="Afficher pronostics VIP">VIP 💎</button>
         </div>
 
         <!-- Filtres par jour (Aujourd'hui, Demain, Hier) -->
@@ -80,22 +80,27 @@
             <div class="loading">Chargement des matchs...</div>
         </div>
 
-        <!-- Overlay VIP verrouillé (affiché quand les partages sont insuffisants) -->
+        <!-- Overlay VIP (utilisé pour le formulaire de connexion payant) -->
         <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;">
-            <div class="vip-locked-content">
-                <div class="lock-icon">🔒</div>
-                <h3>Contenu Premium</h3>
-                <p>Partagez pour débloquer les analyses exclusives.</p>
-                <button id="share-wa-locked" class="btn btn-primary" aria-label="Partager sur WhatsApp">Partager WhatsApp</button>
-                <button id="share-tg-locked" class="btn btn-primary" aria-label="Partager sur Telegram">Partager Telegram</button>
-                <p style="margin-top: 1rem; font-size: 0.8rem;">Partages actuels : <span id="share-count-locked">0</span>/<span id="share-target-locked">5</span></p>
-            </div>
+            <!-- Le contenu sera généré dynamiquement par main.js -->
         </div>
     </main>
 
-    
+    <!-- Popup de partage pour Pro (intégré dans le HTML) -->
+    <div id="share-popup" class="popup">
+        <div class="popup-content">
+            <h3>🔒 Contenu premium</h3>
+            <p id="share-message">Pour accéder aux pronostics Pro, partagez ce lien à <span id="share-remaining">3</span> amis sur WhatsApp ou Telegram.</p>
+            <div class="share-buttons">
+                <button id="share-wa" class="btn btn-primary">WhatsApp</button>
+                <button id="share-tg" class="btn btn-primary">Telegram</button>
+            </div>
+            <p>Partages actuels : <span id="share-current">0</span>/<span id="share-target">3</span></p>
+            <button id="close-popup" class="btn btn-secondary">Fermer</button>
+        </div>
+    </div>
 
-    <!-- Popup guide iOS (identique à index.html) -->
+    <!-- Popup guide iOS -->
     <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
         <div class="ios-guide-content">
             <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
@@ -123,7 +128,6 @@
         </div>
     </div>
 
-    <!-- Pied de page (identique à index.html) -->
     <footer>
         <div class="container">
             <div class="footer-links">
@@ -137,19 +141,22 @@
                 <a href="contact.html">Contact</a>
             </div>
             <div class="social-links">
-                <a href="https://wa.me/22899201444" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><img src="assets/images/whatsapp.png" alt="WhatsApp" loading="lazy"></a>
-                <a href="https://t.me/mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><img src="assets/images/telegram.png" alt="Telegram" loading="lazy"></a>
-                <a href="https://www.instagram.com/mr_xpronos?igsh=MXVpNjJydWdzM3FjMQ==" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="assets/images/instagram.png" alt="Instagram" loading="lazy"></a>
-                <a href="https://www.facebook.com/share/1DsG6H6gf1/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="assets/images/facebook.png" alt="Facebook" loading="lazy"></a>
-                <a href="https://youtube.com/@mrxpronos?si=f6Z66923Lx9KF3ri" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="assets/images/youtube.png" alt="YouTube" loading="lazy"></a>
-                <a href="https://www.threads.com/@mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Threads"><img src="assets/images/threads.png" alt="Threads" loading="lazy"></a>
+                <a href="https://wa.me/22899201444" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><img src="assets/images/whatsapp.webp" alt="WhatsApp" loading="lazy"></a>
+                <a href="https://t.me/mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><img src="assets/images/telegram.webp" alt="Telegram" loading="lazy"></a>
+                <a href="https://www.instagram.com/mr_xpronos?igsh=MXVpNjJydWdzM3FjMQ==" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="assets/images/instagram.webp" alt="Instagram" loading="lazy"></a>
+                <a href="https://www.facebook.com/share/1DsG6H6gf1/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="assets/images/facebook.webp" alt="Facebook" loading="lazy"></a>
+                <a href="https://youtube.com/@mrxpronos?si=f6Z66923Lx9KF3ri" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="assets/images/youtube.webp" alt="YouTube" loading="lazy"></a>
+                <a href="https://www.threads.com/@mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Threads"><img src="assets/images/threads.webp" alt="Threads" loading="lazy"></a>
             </div>
             <div class="bookmakers" id="bookmakers-footer"></div>
             <p>&copy; 2025 Mr XPRONOS. Tous droits réservés. <span style="font-size:0.7rem; opacity:0.7;">18+ • Divertissement seulement</span></p>
         </div>
     </footer>
 
+    <!-- Scripts principaux -->
     <script type="module" src="assets/js/main.js"></script>
     <script src="assets/js/pwa.js"></script>
+    <!-- Script VIP (chargé après main.js pour les surcharges) -->
+    <script type="module" src="assets/js/vip.js"></script>
 </body>
 </html>

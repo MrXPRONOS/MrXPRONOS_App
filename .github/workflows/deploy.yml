@@ -1,35 +1,77 @@
-name: Deploy to GitHub Pages
+name: Mise à jour quotidienne (données + contenu)
 
 on:
+  schedule:
+    - cron: '5 0 * * *'   # 00:05 UTC
   push:
-    branches: [ main ]
+    paths:
+      - '*.py'
+      - 'cache/all_matches.json'
+      - 'requirements.txt'
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  update:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Generate config.js from template
-        run: |
-          sed "s|SUPABASE_URL|${{ secrets.SUPABASE_URL }}|g; s|SUPABASE_ANON_KEY|${{ secrets.SUPABASE_ANON_KEY }}|g" config.template.js > assets/js/config.js
-
-      - name: Generate admin config (optional)
-        run: |
-          if [ -n "${{ secrets.ADMIN_USER }}" ] && [ -n "${{ secrets.ADMIN_PASSWORD }}" ]; then
-            PASSWORD_HASH=$(echo -n "${{ secrets.ADMIN_PASSWORD }}" | openssl dgst -sha256 | awk '{print $2}')
-            sed "s|ADMIN_USER|${{ secrets.ADMIN_USER }}|g; s|ADMIN_PASSWORD_HASH|$PASSWORD_HASH|g" admin-config.template.js > assets/js/admin-config.js
-            echo "Admin config generated."
-          else
-            echo "Secrets ADMIN_USER and ADMIN_PASSWORD not set, skipping admin config generation."
-          fi
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - uses: actions/checkout@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
-          destination_dir: ./
-          keep_files: true
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate pronostics (data.json)
+        env:
+          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
+        run: python generate_data.py
+
+      - name: Convert images to WebP
+        run: python convert_images.py
+
+      - name: Generate AI content (articles & tips + images)
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+        run: python content_generator.py
+
+      - name: Generate testimonials
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: python generate_testimonials.py
+
+      - name: Fetch football news
+        env:
+          FOOTBALL_RSS_FEED: ${{ secrets.FOOTBALL_RSS_FEED }}
+        run: python fetch_foot_news.py
+
+      - name: Generate sitemap
+        run: python generate_sitemap.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'actions@github.com'
+          
+          git add -A
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          
+          git commit -m "Mise à jour automatique $(date +'%Y-%m-%d') [skip ci]"
+          
+          git fetch origin main
+          git rebase -X theirs origin/main
+          
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

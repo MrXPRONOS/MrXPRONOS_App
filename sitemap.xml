@@ -55,18 +55,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=fc-erzgebirge-aue-vs-aachen-le-choc-de-la-3-liga-qui-pourrait-tout-changer</loc>
-    <lastmod>2026-03-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=alianza-reserves-vs-fuerte-san-francisco-reserves-le-choc-des-réserves-qui-pourrait-tout-changer</loc>
-    <lastmod>2026-03-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=fc-erzgebirge-aue-vs-aachen-le-choc-de-la-3-liga-qui-peut-tout-changer</loc>
     <lastmod>2026-03-07</lastmod>
     <changefreq>weekly</changefreq>
@@ -350,6 +338,18 @@
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=manchester-city-vs-nottingham-forest-le-choc-des-titans-contre-les-outsiders-en-premier-league</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=manchester-city-vs-nottingham-forest-le-choc-des-extrêmes-en-premier-league</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=sidama-bunna-vs-fasil-ketema-le-choc-éthiopien-qui-pourrait-tout-changer-en-premier-league</loc>
     <lastmod>2026-03-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
