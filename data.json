@@ -1,6 +1,538 @@
 {
   "matches": [
     {
+      "id": 4659410,
+      "date": "2026-03-08",
+      "event_date": "2026-03-08T23:00:00+00:00",
+      "home_team": "Houston Dynamo Academy",
+      "away_team": "Tacoma Defiance",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "MLS Next Pro",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.0,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "draw_rate": 0.0,
+        "goals_avg": 3.5,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "wins": 0.5,
+        "draws": 0.17,
+        "losses": 0.33,
+        "goals_for": 1.24,
+        "goals_against": 0.77,
+        "form_score": 0.555,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.4,
+        "draws": 0.42,
+        "losses": 0.18,
+        "goals_for": 1.66,
+        "goals_against": 1.45,
+        "form_score": 0.538,
+        "matches_used": 4
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 61
+      },
+      "xpronos_score": 52,
+      "badge": "",
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false
+    },
+    {
+      "id": 4626936,
+      "date": "2026-03-08",
+      "event_date": "2026-03-08T23:00:00+00:00",
+      "home_team": "Deportivo Saprissa",
+      "away_team": "Club Sport Herediano",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "liga FPD - Clausura",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 2.2,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "draw_rate": 0.0,
+        "goals_avg": 1.6,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "wins": 0.89,
+        "draws": 0.0,
+        "losses": 0.11,
+        "goals_for": 2.03,
+        "goals_against": 0.54,
+        "form_score": 0.886,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.88,
+        "draws": 0.0,
+        "losses": 0.12,
+        "goals_for": 2.54,
+        "goals_against": 1.09,
+        "form_score": 0.877,
+        "matches_used": 4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 61
+      },
+      "xpronos_score": 59,
+      "badge": "",
+      "category": "pro",
+      "verified_double": false,
+      "verified_over": false
+    },
+    {
+      "id": 4460910,
+      "date": "2026-03-08",
+      "event_date": "2026-03-08T18:00:00+00:00",
+      "home_team": "Rapid Bucuresti",
+      "away_team": "CS Universitatea Craiova",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Liga 1",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 3,
+        "home_wins": 0.0,
+        "away_wins": 2.0,
+        "draws": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.667,
+        "draw_rate": 0.333,
+        "goals_avg": 2.67,
+        "over_25_prob": 0.667
+      },
+      "home_form": {
+        "wins": 0.63,
+        "draws": 0.11,
+        "losses": 0.26,
+        "goals_for": 1.91,
+        "goals_against": 1.12,
+        "form_score": 0.668,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.83,
+        "draws": 0.17,
+        "losses": 0.0,
+        "goals_for": 2.57,
+        "goals_against": 0.89,
+        "form_score": 0.886,
+        "matches_used": 5
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 59
+      },
+      "xpronos_score": 73,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "vip",
+      "verified_double": false,
+      "verified_over": false
+    },
+    {
+      "id": 4652552,
+      "date": "2026-03-08",
+      "event_date": "2026-03-08T15:00:00+00:00",
+      "home_team": "NK Runavik",
+      "away_team": "Vikingur Gota",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Formuladeildin",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.0,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "draw_rate": 0.0,
+        "goals_avg": 2.0,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "wins": 0.82,
+        "draws": 0.0,
+        "losses": 0.18,
+        "goals_for": 4.91,
+        "goals_against": 0.97,
+        "form_score": 0.815,
+        "matches_used": 4
+      },
+      "away_form": {
+        "wins": 0.17,
+        "draws": 0.33,
+        "losses": 0.5,
+        "goals_for": 0.71,
+        "goals_against": 1.42,
+        "form_score": 0.281,
+        "matches_used": 5
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 71
+      },
+      "xpronos_score": 52,
+      "badge": "",
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false
+    },
+    {
+      "id": 4480903,
+      "date": "2026-03-08",
+      "event_date": "2026-03-08T15:00:00+00:00",
+      "home_team": "Volos NFC",
+      "away_team": "OFI Crete",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Super League",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.3,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "draw_rate": 0.0,
+        "goals_avg": 4.6,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "wins": 0.0,
+        "draws": 0.46,
+        "losses": 0.54,
+        "goals_for": 0.77,
+        "goals_against": 2.25,
+        "form_score": 0.153,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.69,
+        "draws": 0.12,
+        "losses": 0.18,
+        "goals_for": 2.11,
+        "goals_against": 0.95,
+        "form_score": 0.733,
+        "matches_used": 4
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 66
+      },
+      "xpronos_score": 60,
+      "badge": "",
+      "category": "pro",
+      "verified_double": false,
+      "verified_over": false
+    },
+    {
+      "id": 4492168,
+      "date": "2026-03-08",
+      "event_date": "2026-03-08T14:00:00+00:00",
+      "home_team": "KF Tirana",
+      "away_team": "Af Elbasani",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Abissnet Superiore",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 3,
+        "home_wins": 0.0,
+        "away_wins": 2.7,
+        "draws": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.643,
+        "draw_rate": 0.357,
+        "goals_avg": 4.7,
+        "over_25_prob": 0.667
+      },
+      "home_form": {
+        "wins": 0.0,
+        "draws": 0.5,
+        "losses": 0.5,
+        "goals_for": 1.11,
+        "goals_against": 2.3,
+        "form_score": 0.166,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.11,
+        "draws": 0.89,
+        "losses": 0.0,
+        "goals_for": 1.6,
+        "goals_against": 1.26,
+        "form_score": 0.409,
+        "matches_used": 5
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 59
+      },
+      "xpronos_score": 63,
+      "badge": "",
+      "category": "pro",
+      "verified_double": false,
+      "verified_over": false
+    },
+    {
+      "id": 4539484,
+      "date": "2026-03-08",
+      "event_date": "2026-03-08T13:15:00+00:00",
+      "home_team": "CSKA 1948 Sofia",
+      "away_team": "Botev Plovdiv",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Parva Liga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_wins": 0.0,
+        "away_wins": 1.0,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "draw_rate": 0.0,
+        "goals_avg": 1.0,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "wins": 0.47,
+        "draws": 0.0,
+        "losses": 0.53,
+        "goals_for": 2.21,
+        "goals_against": 0.84,
+        "form_score": 0.474,
+        "matches_used": 3
+      },
+      "away_form": {
+        "wins": 0.5,
+        "draws": 0.08,
+        "losses": 0.43,
+        "goals_for": 1.24,
+        "goals_against": 0.67,
+        "form_score": 0.523,
+        "matches_used": 5
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 58
+      },
+      "xpronos_score": 45,
+      "badge": "",
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false
+    },
+    {
+      "id": 4481297,
+      "date": "2026-03-08",
+      "event_date": "2026-03-08T12:30:00+00:00",
+      "home_team": "Arnavutköy Belediyespor",
+      "away_team": "Somaspor",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "2. Lig",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.0,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "draw_rate": 0.0,
+        "goals_avg": 1.0,
+        "over_25_prob": 0.0
+      },
+      "home_form": null,
+      "away_form": {
+        "wins": 0.0,
+        "draws": 0.0,
+        "losses": 1.0,
+        "goals_for": 0.0,
+        "goals_against": 3.0,
+        "form_score": 0.0,
+        "matches_used": 1
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 61
+      },
+      "xpronos_score": 42,
+      "badge": "",
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false
+    },
+    {
+      "id": 4679731,
+      "date": "2026-03-08",
+      "event_date": "2026-03-08T12:00:00+00:00",
+      "home_team": "Ben Guerdane",
+      "away_team": "Club Africain Tunis",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Division 1",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.5,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "draw_rate": 0.0,
+        "goals_avg": 2.5,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "wins": 0.0,
+        "draws": 0.79,
+        "losses": 0.21,
+        "goals_for": 0.0,
+        "goals_against": 0.42,
+        "form_score": 0.263,
+        "matches_used": 3
+      },
+      "away_form": {
+        "wins": 1.0,
+        "draws": 0.0,
+        "losses": 0.0,
+        "goals_for": 1.4,
+        "goals_against": 0.0,
+        "form_score": 1.0,
+        "matches_used": 2
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 54,
+      "badge": "",
+      "category": "simple",
+      "verified_double": false,
+      "verified_over": false
+    },
+    {
+      "id": 4656941,
+      "date": "2026-03-08",
+      "event_date": "2026-03-08T01:30:00+00:00",
+      "home_team": "CD Plaza Amador",
+      "away_team": "San Francisco FC",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Liga Panameña - Clausura",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 3,
+        "home_wins": 2.2,
+        "away_wins": 0.0,
+        "draws": 1.2,
+        "home_dominance": 0.647,
+        "away_dominance": 0.0,
+        "draw_rate": 0.353,
+        "goals_avg": 4.33,
+        "over_25_prob": 0.667
+      },
+      "home_form": {
+        "wins": 0.57,
+        "draws": 0.17,
+        "losses": 0.26,
+        "goals_for": 2.45,
+        "goals_against": 1.11,
+        "form_score": 0.63,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.0,
+        "draws": 0.88,
+        "losses": 0.12,
+        "goals_for": 1.62,
+        "goals_against": 2.35,
+        "form_score": 0.292,
+        "matches_used": 4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 59
+      },
+      "xpronos_score": 67,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "vip",
+      "verified_double": false,
+      "verified_over": false
+    },
+    {
       "id": 4671919,
       "date": "2026-03-07",
       "event_date": "2026-03-07T22:00:00+00:00",
@@ -605,9 +1137,9 @@
       "league": "Belarusian Cup - Quarter Finals",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "1st Half",
+      "home_score": 0,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 2.5,
@@ -659,9 +1191,9 @@
       "league": "Liga FUTVE - Apertura",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 0,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -699,8 +1231,8 @@
       "xpronos_score": 52,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
-      "verified_over": false
+      "verified_double": true,
+      "verified_over": true
     },
     {
       "id": 4633972,
@@ -713,9 +1245,9 @@
       "league": "Premier Division",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -754,7 +1286,7 @@
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over": false
+      "verified_over": true
     },
     {
       "id": 4508155,
@@ -767,9 +1299,9 @@
       "league": "Premier League",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 2.0,
@@ -807,8 +1339,8 @@
       "xpronos_score": 60,
       "badge": "",
       "category": "pro",
-      "verified_double": false,
-      "verified_over": false
+      "verified_double": true,
+      "verified_over": true
     },
     {
       "id": 4646343,
@@ -1466,6 +1998,52 @@
   "categories": {
     "simple": [
       {
+        "id": 4481297,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T12:30:00+00:00",
+        "home_team": "Arnavutköy Belediyespor",
+        "away_team": "Somaspor",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "2. Lig",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draw_rate": 0.0,
+          "goals_avg": 1.0,
+          "over_25_prob": 0.0
+        },
+        "home_form": null,
+        "away_form": {
+          "wins": 0.0,
+          "draws": 0.0,
+          "losses": 1.0,
+          "goals_for": 0.0,
+          "goals_against": 3.0,
+          "form_score": 0.0,
+          "matches_used": 1
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 61
+        },
+        "xpronos_score": 42,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false
+      },
+      {
         "id": 4481301,
         "date": "2026-03-07",
         "event_date": "2026-03-07T12:30:00+00:00",
@@ -1717,6 +2295,60 @@
         "verified_over": false
       },
       {
+        "id": 4539484,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T13:15:00+00:00",
+        "home_team": "CSKA 1948 Sofia",
+        "away_team": "Botev Plovdiv",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Parva Liga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 0.0,
+          "away_wins": 1.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draw_rate": 0.0,
+          "goals_avg": 1.0,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "wins": 0.47,
+          "draws": 0.0,
+          "losses": 0.53,
+          "goals_for": 2.21,
+          "goals_against": 0.84,
+          "form_score": 0.474,
+          "matches_used": 3
+        },
+        "away_form": {
+          "wins": 0.5,
+          "draws": 0.08,
+          "losses": 0.43,
+          "goals_for": 1.24,
+          "goals_against": 0.67,
+          "form_score": 0.523,
+          "matches_used": 5
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 58
+        },
+        "xpronos_score": 45,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false
+      },
+      {
         "id": 4670805,
         "date": "2026-03-07",
         "event_date": "2026-03-07T11:00:00+00:00",
@@ -1781,9 +2413,9 @@
         "league": "Premier Division",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 1,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -1822,6 +2454,60 @@
         "badge": "",
         "category": "simple",
         "verified_double": false,
+        "verified_over": true
+      },
+      {
+        "id": 4679731,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T12:00:00+00:00",
+        "home_team": "Ben Guerdane",
+        "away_team": "Club Africain Tunis",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Division 1",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.5,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draw_rate": 0.0,
+          "goals_avg": 2.5,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "wins": 0.0,
+          "draws": 0.79,
+          "losses": 0.21,
+          "goals_for": 0.0,
+          "goals_against": 0.42,
+          "form_score": 0.263,
+          "matches_used": 3
+        },
+        "away_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 1.4,
+          "goals_against": 0.0,
+          "form_score": 1.0,
+          "matches_used": 2
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 66
+        },
+        "xpronos_score": 54,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
         "verified_over": false
       },
       {
@@ -1835,9 +2521,9 @@
         "league": "Liga FUTVE - Apertura",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 0,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -1871,6 +2557,60 @@
           "double_chance": "X2",
           "over_25": false,
           "confidence": 66
+        },
+        "xpronos_score": 52,
+        "badge": "",
+        "category": "simple",
+        "verified_double": true,
+        "verified_over": true
+      },
+      {
+        "id": 4659410,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T23:00:00+00:00",
+        "home_team": "Houston Dynamo Academy",
+        "away_team": "Tacoma Defiance",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "MLS Next Pro",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draw_rate": 0.0,
+          "goals_avg": 3.5,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "wins": 0.5,
+          "draws": 0.17,
+          "losses": 0.33,
+          "goals_for": 1.24,
+          "goals_against": 0.77,
+          "form_score": 0.555,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.4,
+          "draws": 0.42,
+          "losses": 0.18,
+          "goals_for": 1.66,
+          "goals_against": 1.45,
+          "form_score": 0.538,
+          "matches_used": 4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 61
         },
         "xpronos_score": 52,
         "badge": "",
@@ -2067,6 +2807,60 @@
           "confidence": 61
         },
         "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_over": false
+      },
+      {
+        "id": 4652552,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T15:00:00+00:00",
+        "home_team": "NK Runavik",
+        "away_team": "Vikingur Gota",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Formuladeildin",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draw_rate": 0.0,
+          "goals_avg": 2.0,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "wins": 0.82,
+          "draws": 0.0,
+          "losses": 0.18,
+          "goals_for": 4.91,
+          "goals_against": 0.97,
+          "form_score": 0.815,
+          "matches_used": 4
+        },
+        "away_form": {
+          "wins": 0.17,
+          "draws": 0.33,
+          "losses": 0.5,
+          "goals_for": 0.71,
+          "goals_against": 1.42,
+          "form_score": 0.281,
+          "matches_used": 5
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 71
+        },
+        "xpronos_score": 52,
         "badge": "",
         "category": "simple",
         "verified_double": false,
@@ -2422,9 +3216,9 @@
         "league": "Premier League",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 1,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 2.0,
@@ -2460,6 +3254,60 @@
           "confidence": 71
         },
         "xpronos_score": 60,
+        "badge": "",
+        "category": "pro",
+        "verified_double": true,
+        "verified_over": true
+      },
+      {
+        "id": 4626936,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T23:00:00+00:00",
+        "home_team": "Deportivo Saprissa",
+        "away_team": "Club Sport Herediano",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "liga FPD - Clausura",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.2,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "draw_rate": 0.0,
+          "goals_avg": 1.6,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "wins": 0.89,
+          "draws": 0.0,
+          "losses": 0.11,
+          "goals_for": 2.03,
+          "goals_against": 0.54,
+          "form_score": 0.886,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.88,
+          "draws": 0.0,
+          "losses": 0.12,
+          "goals_for": 2.54,
+          "goals_against": 1.09,
+          "form_score": 0.877,
+          "matches_used": 4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 61
+        },
+        "xpronos_score": 59,
         "badge": "",
         "category": "pro",
         "verified_double": false,
@@ -2555,6 +3403,60 @@
         "verified_over": true
       },
       {
+        "id": 4492168,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T14:00:00+00:00",
+        "home_team": "KF Tirana",
+        "away_team": "Af Elbasani",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Abissnet Superiore",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 0.0,
+          "away_wins": 2.7,
+          "draws": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.643,
+          "draw_rate": 0.357,
+          "goals_avg": 4.7,
+          "over_25_prob": 0.667
+        },
+        "home_form": {
+          "wins": 0.0,
+          "draws": 0.5,
+          "losses": 0.5,
+          "goals_for": 1.11,
+          "goals_against": 2.3,
+          "form_score": 0.166,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.11,
+          "draws": 0.89,
+          "losses": 0.0,
+          "goals_for": 1.6,
+          "goals_against": 1.26,
+          "form_score": 0.409,
+          "matches_used": 5
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 59
+        },
+        "xpronos_score": 63,
+        "badge": "",
+        "category": "pro",
+        "verified_double": false,
+        "verified_over": false
+      },
+      {
         "id": 4624116,
         "date": "2026-03-05",
         "event_date": "2026-03-05T17:45:00+00:00",
@@ -2642,6 +3544,60 @@
         "category": "pro",
         "verified_double": true,
         "verified_over": true
+      },
+      {
+        "id": 4480903,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T15:00:00+00:00",
+        "home_team": "Volos NFC",
+        "away_team": "OFI Crete",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Super League",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.3,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draw_rate": 0.0,
+          "goals_avg": 4.6,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "wins": 0.0,
+          "draws": 0.46,
+          "losses": 0.54,
+          "goals_for": 0.77,
+          "goals_against": 2.25,
+          "form_score": 0.153,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.69,
+          "draws": 0.12,
+          "losses": 0.18,
+          "goals_for": 2.11,
+          "goals_against": 0.95,
+          "form_score": 0.733,
+          "matches_used": 4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 66
+        },
+        "xpronos_score": 60,
+        "badge": "",
+        "category": "pro",
+        "verified_double": false,
+        "verified_over": false
       }
     ],
     "vip": [
@@ -2694,6 +3650,60 @@
           "confidence": 66
         },
         "xpronos_score": 68,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "verified_double": false,
+        "verified_over": false
+      },
+      {
+        "id": 4460910,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T18:00:00+00:00",
+        "home_team": "Rapid Bucuresti",
+        "away_team": "CS Universitatea Craiova",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Liga 1",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 0.0,
+          "away_wins": 2.0,
+          "draws": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.667,
+          "draw_rate": 0.333,
+          "goals_avg": 2.67,
+          "over_25_prob": 0.667
+        },
+        "home_form": {
+          "wins": 0.63,
+          "draws": 0.11,
+          "losses": 0.26,
+          "goals_for": 1.91,
+          "goals_against": 1.12,
+          "form_score": 0.668,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.83,
+          "draws": 0.17,
+          "losses": 0.0,
+          "goals_for": 2.57,
+          "goals_against": 0.89,
+          "form_score": 0.886,
+          "matches_used": 5
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 59
+        },
+        "xpronos_score": 73,
         "badge": "🔥 ULTRA SAFE",
         "category": "vip",
         "verified_double": false,
@@ -2926,6 +3936,60 @@
           "confidence": 66
         },
         "xpronos_score": 69,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "verified_double": false,
+        "verified_over": false
+      },
+      {
+        "id": 4656941,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T01:30:00+00:00",
+        "home_team": "CD Plaza Amador",
+        "away_team": "San Francisco FC",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Liga Panameña - Clausura",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 2.2,
+          "away_wins": 0.0,
+          "draws": 1.2,
+          "home_dominance": 0.647,
+          "away_dominance": 0.0,
+          "draw_rate": 0.353,
+          "goals_avg": 4.33,
+          "over_25_prob": 0.667
+        },
+        "home_form": {
+          "wins": 0.57,
+          "draws": 0.17,
+          "losses": 0.26,
+          "goals_for": 2.45,
+          "goals_against": 1.11,
+          "form_score": 0.63,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.0,
+          "draws": 0.88,
+          "losses": 0.12,
+          "goals_for": 1.62,
+          "goals_against": 2.35,
+          "form_score": 0.292,
+          "matches_used": 4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 59
+        },
+        "xpronos_score": 67,
         "badge": "🔥 ULTRA SAFE",
         "category": "vip",
         "verified_double": false,

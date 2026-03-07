@@ -8,8 +8,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js pour les graphiques -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- TinyMCE pour l'éditeur WYSIWYG (remplacez "no-api-key" par votre clé) -->
-    <script src="https://cdn.tiny.cloud/1/otpp789kc1p3suhdzontubqo33foiyg0ovq56zp5nsrm916m/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <!-- TinyMCE pour l'éditeur WYSIWYG (clé fournie) -->
+    <script src="https://cdn.tiny.cloud/1/otpp789kc1p3suhdzontubqo33foiyg0ovq56zp5nsrm916m/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
     <style>
         /* Styles spécifiques à l'admin (en complément de style.css) */
         body {
@@ -640,11 +640,28 @@
         function initTinyMCE() {
             if (typeof tinymce !== 'undefined') {
                 tinymce.init({
-                    selector: '.tinymce',
-                    height: 300,
-                    menubar: false,
-                    plugins: 'lists link image code',
-                    toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code',
+                    selector: 'textarea.tinymce', // cible les textarea avec la classe tinymce
+                    plugins: [
+                        'anchor', 'autolink', 'charmap', 'codesample', 'emoticons',
+                        'link', 'lists', 'media', 'searchreplace', 'table',
+                        'visualblocks', 'wordcount',
+                        // Premium features en essai
+                        'checklist', 'mediaembed', 'casechange', 'formatpainter',
+                        'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen',
+                        'powerpaste', 'advtable', 'advcode', 'advtemplate', 'ai',
+                        'uploadcare', 'mentions', 'tinycomments', 'tableofcontents',
+                        'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss',
+                        'markdown', 'importword', 'exportword', 'exportpdf'
+                    ],
+                    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                    tinycomments_mode: 'embedded',
+                    tinycomments_author: 'Admin',
+                    mergetags_list: [
+                        { value: 'First.Name', title: 'First Name' },
+                        { value: 'Email', title: 'Email' },
+                    ],
+                    ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+                    uploadcare_public_key: '163749ea40dc5443a024',
                     content_style: 'body { font-family: Montserrat, sans-serif; font-size:14px; color:#fff; background:#0D0D0D; }',
                     skin: 'oxide-dark',
                     content_css: 'dark'

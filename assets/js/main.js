@@ -2,7 +2,7 @@
  * main.js - Mr XPRONOS – Version ultime avec Supabase (non bloquant)
  * 
  * Fonctionnalités :
- * - Pronostics avec filtres (Simple/Pro, plus de VIP en pratique)
+ * - Pronostics avec filtres (Simple/Pro/VIP)
  * - Partage simplifié avec délai de retour de 5 secondes
  * - Partage d'un pronostic spécifique (message incitatif)
  * - Historique avec badges de catégorie
@@ -21,6 +21,7 @@
  * - Slider automatique des gains récents
  * - Compteur animé de pronostics gagnants (réel)
  * - Barre de taux de réussite animée (réelle)
+ * - Gestion des pronostics combinés (double chance + BTTS) avec design VIP
  */
 
 // =======================================================
@@ -41,7 +42,6 @@ let supabaseAvailable = false;
 async function initSupabase() {
     try {
         const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
-        // Vérification basique de l'URL
         if (!supabaseUrl || !supabaseUrl.startsWith('https://')) {
             throw new Error('URL Supabase invalide');
         }
@@ -206,7 +206,7 @@ function recordEvent(type) {
     events.push({ type, timestamp, userId, page });
     localStorage.setItem('userEvents', JSON.stringify(events));
 
-    // Envoi à Supabase (si disponible) - ne pas bloquer
+    // Envoi à Supabase (si disponible)
     if (supabaseAvailable && supabase) {
         supabase
             .from('events')
@@ -639,15 +639,31 @@ function share(platform) {
 // Fonction de partage d'un pronostic spécifique (améliorée)
 function sharePronostic(match) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    const messageWhatsApp = `🔥 *Mr XPRONOS* – Pronostic du jour\n\n` +
-        `⚽ *${match.home_team} vs ${match.away_team}*\n` +
-        `📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n` +
-        `👉 Analyse complète sur ${siteUrl}`;
+    let messageWhatsApp, messageTelegram;
 
-    const messageTelegram = `🔥 Mr XPRONOS – Pronostic du jour\n\n` +
-        `⚽ ${match.home_team} vs ${match.away_team}\n` +
-        `📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n` +
-        `👉 Analyse complète sur ${siteUrl}`;
+    if (match.prediction.combo) {
+        messageWhatsApp = `🔥 *Mr XPRONOS* – *COMBO VIP* 🔥\n\n` +
+            `⚽ *${match.home_team} vs ${match.away_team}*\n` +
+            `📊 *Pronostic combiné :* ${match.prediction.combo}\n` +
+            `📈 Fiabilité : ${match.prediction.confidence}%\n\n` +
+            `👉 Analyse complète sur ${siteUrl}`;
+        messageTelegram = `🔥 Mr XPRONOS – COMBO VIP 🔥\n\n` +
+            `⚽ ${match.home_team} vs ${match.away_team}\n` +
+            `📊 Pronostic combiné : ${match.prediction.combo}\n` +
+            `📈 Fiabilité : ${match.prediction.confidence}%\n\n` +
+            `👉 Analyse complète sur ${siteUrl}`;
+    } else {
+        messageWhatsApp = `🔥 *Mr XPRONOS* – Pronostic du jour\n\n` +
+            `⚽ *${match.home_team} vs ${match.away_team}*\n` +
+            `📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n` +
+            (match.prediction.btts ? `⚽ *BTTS* : Oui (prob. ${Math.round(match.prediction.btts_probability*100)}%)\n` : '') +
+            `👉 Analyse complète sur ${siteUrl}`;
+        messageTelegram = `🔥 Mr XPRONOS – Pronostic du jour\n\n` +
+            `⚽ ${match.home_team} vs ${match.away_team}\n` +
+            `📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n` +
+            (match.prediction.btts ? `⚽ BTTS : Oui (prob. ${Math.round(match.prediction.btts_probability*100)}%)\n` : '') +
+            `👉 Analyse complète sur ${siteUrl}`;
+    }
 
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(messageWhatsApp)}`;
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(messageTelegram)}`;
@@ -658,7 +674,6 @@ function sharePronostic(match) {
         window.open(telegramUrl, '_blank');
     }
 
-    // Incrémenter les compteurs de manière non bloquante
     incrementShareCount();
     incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
     recordEvent('share');
@@ -790,6 +805,10 @@ function renderMatches(matches) {
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
+            const over25 = pred.over_25 ? 'Oui' : 'Non';
+            const btts = pred.btts ? 'Oui' : 'Non';
+            const bttsProb = pred.btts_probability ? Math.round(pred.btts_probability * 100) : 0;
+            const combo = pred.combo || null;
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
@@ -816,11 +835,14 @@ function renderMatches(matches) {
 
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
 
+            // Badge spécial pour les combos VIP
+            const comboBadge = combo ? `<div class="combo-badge">🎯 COMBO VIP</div>` : '';
+
             // Encodage sécurisé des données du match pour le partage
             const matchDataEncoded = encodeURIComponent(JSON.stringify(m));
 
             html += `
-                <div class="match-card ${winnerClass}" data-match-id="${m.id}">
+                <div class="match-card ${winnerClass} ${combo ? 'match-card-vip' : ''}" data-match-id="${m.id}">
                     <div class="win-effect"></div>
                     <div class="match-info">
                         <div class="teams">
@@ -849,11 +871,15 @@ function renderMatches(matches) {
                             <strong>Double chance :</strong> ${doubleChance}
                             ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
                         </p>
+                        <p><strong>Over 2.5 :</strong> ${over25}</p>
+                        <p><strong>BTTS :</strong> ${btts} ${bttsProb > 0 ? `(${bttsProb}%)` : ''}</p>
+                        ${combo ? `<div class="combo-container"><span class="combo-label">🔥 COMBINÉ</span><span class="combo-value">${combo}</span></div>` : ''}
                         <div class="confidence-bar">
                             <div class="confidence-fill" data-value="${confidence}"></div>
                         </div>
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
                         ${premiumBadge}
+                        ${comboBadge}
                         <button class="btn btn-secondary btn-share" data-match='${matchDataEncoded}'>📤 Partager ce prono</button>
                     </div>
                 </div>
@@ -870,7 +896,7 @@ function renderMatches(matches) {
     });
 
     document.querySelectorAll('.match-card.winner').forEach(card => {
-        for (let i = 0; i < 8; i++) { // Réduit à 8 sparks pour performance
+        for (let i = 0; i < 8; i++) {
             let spark = document.createElement('div');
             spark.className = 'spark';
             let dx = (Math.random() - 0.5) * 200;
@@ -1612,7 +1638,6 @@ function displayLatestVerified() {
     });
     container.innerHTML = html;
 }
-
 // =======================================================
 // SLIDER DES GAINS (bandeau défilant)
 // =======================================================
