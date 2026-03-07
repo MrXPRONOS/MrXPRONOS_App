@@ -767,8 +767,8 @@
       "league": "First League",
       "league_logo": null,
       "venue": "",
-      "status": "2nd Half",
-      "home_score": 1,
+      "status": "Ended",
+      "home_score": 2,
       "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
@@ -821,8 +821,8 @@
       "league": "Kategoria e Dytë",
       "league_logo": null,
       "venue": "",
-      "status": "2nd Half",
-      "home_score": 2,
+      "status": "Ended",
+      "home_score": 4,
       "away_score": 1,
       "h2h_analysis": {
         "total_matches": 3,
@@ -875,9 +875,9 @@
       "league": "3. Liga",
       "league_logo": null,
       "venue": "",
-      "status": "2nd Half",
+      "status": "Ended",
       "home_score": 1,
-      "away_score": 2,
+      "away_score": 3,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 2.5,
@@ -929,7 +929,7 @@
       "league": "2. Lig",
       "league_logo": null,
       "venue": "",
-      "status": "2nd Half",
+      "status": "Ended",
       "home_score": 0,
       "away_score": 0,
       "h2h_analysis": {
