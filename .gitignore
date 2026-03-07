@@ -18,4 +18,4 @@ env/
 Thumbs.db
 
 # Données sensibles
-#data.json
+data.json
