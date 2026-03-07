@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/</loc>
     <lastmod>2026-03-07</lastmod>
@@ -51,6 +50,18 @@
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/contact.html</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=ks-pogradeci-vs-korabi-peshkopi-le-choc-de-la-kategoria-e-dytë-qui-pourrait-tout-changer</loc>
+    <lastmod>2026-03-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=siauliai-vs-fk-zalgiris-le-choc-de-l-a-lyga-qui-pourrait-tout-changer</loc>
     <lastmod>2026-03-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -343,28 +354,4 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  <url>
-    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=sidama-bunna-vs-fasil-ketema-le-choc-des-titans-éthiopiens-qui-pourrait-tout-changer</loc>
-    <lastmod>2026-03-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=manchester-city-vs-nottingham-forest-le-choc-des-titans-contre-les-outsiders-en-premier-league</loc>
-    <lastmod>2026-03-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
 </urlset>
-=======
-  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/index.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/pronos.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/historique.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/blog.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/conseils.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/infos.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/bonus.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/contact.html</loc><lastmod>2026-03-07</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-</urlset>
-
