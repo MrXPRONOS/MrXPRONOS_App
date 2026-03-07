@@ -8,10 +8,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js pour les graphiques -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- TinyMCE pour l'éditeur WYSIWYG (clé fournie) -->
+    <!-- TinyMCE pour l'éditeur WYSIWYG (clé publique) -->
     <script src="https://cdn.tiny.cloud/1/otpp789kc1p3suhdzontubqo33foiyg0ovq56zp5nsrm916m/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+    <!-- Supabase JS (CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Styles spécifiques à l'admin (en complément de style.css) */
+        /* Styles spécifiques à l'admin */
         body {
             background: #0D0D0D;
             color: #fff;
@@ -28,6 +30,9 @@
             color: #D4AF37;
             margin-bottom: 30px;
             font-size: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .admin-tabs {
             display: flex;
@@ -78,7 +83,7 @@
             color: #ccc;
             font-weight: 500;
         }
-        input[type="text"], input[type="url"], input[type="date"], input[type="number"], select, textarea {
+        input[type="text"], input[type="url"], input[type="date"], input[type="number"], input[type="password"], select, textarea {
             width: 100%;
             padding: 12px;
             border-radius: 8px;
@@ -108,6 +113,7 @@
             display: flex;
             gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         .btn {
             padding: 12px 25px;
@@ -117,6 +123,8 @@
             cursor: pointer;
             transition: 0.3s;
             font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
         }
         .btn-primary {
             background: #D4AF37;
@@ -149,6 +157,7 @@
             align-items: center;
             padding: 15px;
             border-bottom: 1px solid #333;
+            flex-wrap: wrap;
         }
         .admin-item:last-child {
             border-bottom: none;
@@ -270,21 +279,76 @@
             color: #fff;
             display: block;
         }
+        /* Style pour la section VIP */
+        .vip-item {
+            background: #0D0D0D;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #D4AF37;
+        }
+        .vip-info {
+            flex: 1;
+        }
+        .vip-info small {
+            color: #aaa;
+            display: block;
+        }
+        .btn-deactivate {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-deactivate:hover {
+            background: #c82333;
+        }
+        .logout-btn {
+            background: #333;
+            color: #fff;
+            border: 1px solid #D4AF37;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .logout-btn:hover {
+            background: #444;
+        }
     </style>
 </head>
 <body>
+    <!-- Vérification du paramètre admin=true pour protéger l'accès -->
+    <script>
+        (function() {
+            if (!window.location.search.includes('admin=true')) {
+                window.location.href = 'index.html';
+            }
+        })();
+    </script>
+
     <!-- Conteneur de connexion -->
     <div id="login-container" class="login-container">
         <h2>🔐 Connexion Admin</h2>
-        <input type="text" id="admin-username" placeholder="Nom d'utilisateur">
-        <input type="password" id="admin-password" placeholder="Mot de passe">
-        <button id="login-btn" class="btn btn-primary">Se connecter</button>
-        <p style="color: #ccc; margin-top: 20px;">Identifiants par défaut : admin / admin</p>
+        <form id="login-form">
+            <input type="text" id="admin-username" name="username" placeholder="Nom d'utilisateur" required>
+            <input type="password" id="admin-password" name="password" placeholder="Mot de passe" required>
+            <button type="submit" id="login-btn" class="btn btn-primary">Se connecter</button>
+        </form>
+        <p style="color: #ccc; margin-top: 20px;">Les identifiants sont définis dans les variables GitHub.</p>
     </div>
 
     <!-- Contenu admin (caché tant que non connecté) -->
     <div id="admin-content" class="admin-container hidden">
-        <h1>Panneau d'administration Mr XPRONOS</h1>
+        <h1>
+            Panneau d'administration Mr XPRONOS
+            <button id="logout-btn" class="logout-btn">Déconnexion</button>
+        </h1>
 
         <!-- Onglets de navigation -->
         <div class="admin-tabs">
@@ -294,6 +358,7 @@
             <button class="tab-btn" data-tab="infos">Infos sport</button>
             <button class="tab-btn" data-tab="bonus">Bonus & Promo</button>
             <button class="tab-btn" data-tab="bookmakers">Bookmakers</button>
+            <button class="tab-btn" data-tab="vip">Codes VIP</button>
             <button class="tab-btn" data-tab="export">Export JSON</button>
             <button class="tab-btn" data-tab="stats">Statistiques</button>
         </div>
@@ -488,6 +553,33 @@
             <button id="add-bookmaker" class="btn btn-primary">Ajouter un bookmaker</button>
         </div>
 
+        <!-- Onglet Codes VIP -->
+        <div id="tab-vip" class="tab-pane">
+            <h2>Gestion des codes VIP</h2>
+            <form id="vip-form">
+                <div class="form-group">
+                    <label>ID Utilisateur (ex: MX-XXXX) :</label>
+                    <input type="text" id="user-id" required placeholder="MX-XXXX">
+                </div>
+                <div class="form-group">
+                    <label>IP (optionnel, laisser vide si inconnue) :</label>
+                    <input type="text" id="ip-address" placeholder="192.168.1.1">
+                </div>
+                <div class="form-group">
+                    <label>Durée (jours) :</label>
+                    <input type="number" id="duration" value="30" min="1" step="1">
+                </div>
+                <button type="submit" class="btn btn-primary">Générer le code</button>
+            </form>
+
+            <div id="vip-result" class="message" style="display: none;"></div>
+
+            <hr style="border-color:#444; margin:30px 0;">
+
+            <h3>Utilisateurs VIP actifs</h3>
+            <div id="vip-list" class="admin-list"></div>
+        </div>
+
         <!-- Onglet Export JSON -->
         <div id="tab-export" class="tab-pane">
             <h2>Export JSON</h2>
@@ -556,12 +648,11 @@
 
     <script type="module">
         // =======================================================
-        // AUTHENTIFICATION AVEC FALLBACK LOCAL
+        // IMPORT DES CONFIGURATIONS (admin-config.js)
         // =======================================================
         let ADMIN_USER = 'admin';
-        let ADMIN_PASSWORD_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // sha256 de 'admin'
+        let ADMIN_PASSWORD_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // sha256 de 'admin' (fallback)
 
-        // Tentative de chargement de la configuration depuis GitHub Actions (admin-config.js)
         try {
             const config = await import('./assets/js/admin-config.js');
             ADMIN_USER = config.ADMIN_USER;
@@ -570,7 +661,9 @@
             console.warn('Fichier admin-config.js non trouvé, utilisation des identifiants par défaut (admin/admin)');
         }
 
-        // Fonction de hachage SHA-256 (Web Crypto API)
+        // =======================================================
+        // AUTHENTIFICATION
+        // =======================================================
         async function hashPassword(password) {
             const encoder = new TextEncoder();
             const data = encoder.encode(password);
@@ -581,9 +674,10 @@
 
         const loginContainer = document.getElementById('login-container');
         const adminContent = document.getElementById('admin-content');
-        const loginBtn = document.getElementById('login-btn');
+        const loginForm = document.getElementById('login-form');
         const usernameInput = document.getElementById('admin-username');
         const passwordInput = document.getElementById('admin-password');
+        const logoutBtn = document.getElementById('logout-btn');
 
         // Vérifier si déjà connecté (session)
         if (sessionStorage.getItem('adminLoggedIn') === 'true') {
@@ -592,7 +686,8 @@
             initAdmin();
         }
 
-        loginBtn.addEventListener('click', async () => {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             const username = usernameInput.value;
             const password = passwordInput.value;
             const hashed = await hashPassword(password);
@@ -606,8 +701,75 @@
             }
         });
 
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('adminLoggedIn');
+            window.location.reload();
+        });
+
         // =======================================================
-        // DONNÉES PAR DÉFAUT
+        // INITIALISATION SUPABASE (pour la partie VIP)
+        // =======================================================
+        let supabase = null;
+        async function initSupabase() {
+            try {
+                const { supabaseUrl, supabaseAnonKey } = await import('./assets/js/config.js');
+                if (!supabaseUrl || !supabaseUrl.startsWith('https://')) throw new Error('URL Supabase invalide');
+                const { createClient } = window.supabase;
+                supabase = createClient(supabaseUrl, supabaseAnonKey);
+                console.log('✅ Supabase connecté');
+            } catch (error) {
+                console.warn('⚠️ Supabase non configuré, la gestion VIP sera désactivée');
+            }
+        }
+
+        // =======================================================
+        // FONCTIONS VIP
+        // =======================================================
+        function generateVipCode() {
+            return 'VIP-' + Math.random().toString(36).substring(2, 10).toUpperCase() +
+                   '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+        }
+
+        async function createVipAccess(userId, ip, durationDays) {
+            if (!supabase) throw new Error('Supabase non initialisé');
+            const code = generateVipCode();
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + durationDays);
+
+            const { error } = await supabase
+                .from('vip_users')
+                .insert({
+                    user_id: userId,
+                    vip_code: code,
+                    ip_address: ip || '',
+                    expires_at: expiresAt.toISOString(),
+                    is_active: true
+                });
+            if (error) throw error;
+            return code;
+        }
+
+        async function loadActiveVips() {
+            if (!supabase) return [];
+            const { data, error } = await supabase
+                .from('vip_users')
+                .select('*')
+                .eq('is_active', true)
+                .order('expires_at', { ascending: true });
+            if (error) throw error;
+            return data;
+        }
+
+        async function deactivateVip(code) {
+            if (!supabase) return;
+            await supabase
+                .from('vip_users')
+                .update({ is_active: false })
+                .eq('vip_code', code);
+        }
+
+        // =======================================================
+        // DONNÉES PAR DÉFAUT (pour les autres onglets)
         // =======================================================
         const defaultData = {
             pronostics: [],
@@ -635,43 +797,10 @@
         }
 
         // =======================================================
-        // INITIALISATION DE TINYMCE (éditeur WYSIWYG)
+        // FONCTIONS DE RENDU POUR CHAQUE ONGLET
         // =======================================================
-        function initTinyMCE() {
-            if (typeof tinymce !== 'undefined') {
-                tinymce.init({
-                    selector: 'textarea.tinymce', // cible les textarea avec la classe tinymce
-                    plugins: [
-                        'anchor', 'autolink', 'charmap', 'codesample', 'emoticons',
-                        'link', 'lists', 'media', 'searchreplace', 'table',
-                        'visualblocks', 'wordcount',
-                        // Premium features en essai
-                        'checklist', 'mediaembed', 'casechange', 'formatpainter',
-                        'pageembed', 'a11ychecker', 'tinymcespellchecker', 'permanentpen',
-                        'powerpaste', 'advtable', 'advcode', 'advtemplate', 'ai',
-                        'uploadcare', 'mentions', 'tinycomments', 'tableofcontents',
-                        'footnotes', 'mergetags', 'autocorrect', 'typography', 'inlinecss',
-                        'markdown', 'importword', 'exportword', 'exportpdf'
-                    ],
-                    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
-                    tinycomments_mode: 'embedded',
-                    tinycomments_author: 'Admin',
-                    mergetags_list: [
-                        { value: 'First.Name', title: 'First Name' },
-                        { value: 'Email', title: 'Email' },
-                    ],
-                    ai_request: (request, respondWith) => respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
-                    uploadcare_public_key: '163749ea40dc5443a024',
-                    content_style: 'body { font-family: Montserrat, sans-serif; font-size:14px; color:#fff; background:#0D0D0D; }',
-                    skin: 'oxide-dark',
-                    content_css: 'dark'
-                });
-            }
-        }
 
-        // =======================================================
-        // RENDU DES LISTES (CRUD)
-        // =======================================================
+        // Pronostics
         function renderPronostics() {
             const container = document.getElementById('pronostics-list-admin');
             if (!container) return;
@@ -680,13 +809,8 @@
                 const div = document.createElement('div');
                 div.className = 'admin-item';
                 div.innerHTML = `
-                    <div>
-                        <strong>${p.match}</strong> - Cote ${p.cote} (${p.bookmaker}) ${p.premium ? '⭐ VIP' : ''}
-                    </div>
-                    <div>
-                        <button onclick="editPronostic(${index})">✏️</button>
-                        <button onclick="deletePronostic(${index})">🗑️</button>
-                    </div>
+                    <div><strong>${p.match}</strong> - Cote ${p.cote} (${p.bookmaker}) ${p.premium ? '⭐ VIP' : ''}</div>
+                    <div><button onclick="editPronostic(${index})">✏️</button> <button onclick="deletePronostic(${index})">🗑️</button></div>
                 `;
                 container.appendChild(div);
             });
@@ -736,6 +860,7 @@
             document.getElementById('pronostic-index').value = '-1';
         });
 
+        // Blog
         function renderBlog() {
             const container = document.getElementById('blog-list-admin');
             if (!container) return;
@@ -744,13 +869,8 @@
                 const div = document.createElement('div');
                 div.className = 'admin-item';
                 div.innerHTML = `
-                    <div>
-                        <strong>${article.title}</strong> (${article.date}) - ${article.author}
-                    </div>
-                    <div>
-                        <button onclick="editBlog(${index})">✏️</button>
-                        <button onclick="deleteBlog(${index})">🗑️</button>
-                    </div>
+                    <div><strong>${article.title}</strong> (${article.date}) - ${article.author}</div>
+                    <div><button onclick="editBlog(${index})">✏️</button> <button onclick="deleteBlog(${index})">🗑️</button></div>
                 `;
                 container.appendChild(div);
             });
@@ -827,15 +947,11 @@
             const content = tinymce.get('blog-content') ? tinymce.get('blog-content').getContent() : document.getElementById('blog-content').value;
             const excerpt = document.getElementById('blog-excerpt').value;
             const previewDiv = document.getElementById('blog-preview-content');
-            previewDiv.innerHTML = `
-                <h3>${title}</h3>
-                <p><em>${excerpt}</em></p>
-                <hr>
-                ${content}
-            `;
+            previewDiv.innerHTML = `<h3>${title}</h3><p><em>${excerpt}</em></p><hr>${content}`;
             document.getElementById('blog-preview').style.display = 'block';
         });
 
+        // Conseils
         function renderConseils() {
             const container = document.getElementById('conseils-list-admin');
             if (!container) return;
@@ -844,13 +960,8 @@
                 const div = document.createElement('div');
                 div.className = 'admin-item';
                 div.innerHTML = `
-                    <div>
-                        <strong>${c.title}</strong>
-                    </div>
-                    <div>
-                        <button onclick="editConseil(${index})">✏️</button>
-                        <button onclick="deleteConseil(${index})">🗑️</button>
-                    </div>
+                    <div><strong>${c.title}</strong></div>
+                    <div><button onclick="editConseil(${index})">✏️</button> <button onclick="deleteConseil(${index})">🗑️</button></div>
                 `;
                 container.appendChild(div);
             });
@@ -910,6 +1021,7 @@
             }
         });
 
+        // Infos
         function renderInfos() {
             const container = document.getElementById('infos-list-admin');
             if (!container) return;
@@ -918,13 +1030,8 @@
                 const div = document.createElement('div');
                 div.className = 'admin-item';
                 div.innerHTML = `
-                    <div>
-                        <strong>${info.title}</strong>
-                    </div>
-                    <div>
-                        <button onclick="editInfo(${index})">✏️</button>
-                        <button onclick="deleteInfo(${index})">🗑️</button>
-                    </div>
+                    <div><strong>${info.title}</strong></div>
+                    <div><button onclick="editInfo(${index})">✏️</button> <button onclick="deleteInfo(${index})">🗑️</button></div>
                 `;
                 container.appendChild(div);
             });
@@ -966,11 +1073,12 @@
             document.getElementById('info-index').value = '-1';
         });
 
+        // Bonus
         function renderBonus() {
             const container = document.getElementById('bonus-list-admin');
             if (!container) return;
-            container.innerHTML = '';
             if (!data.bonus) data.bonus = [];
+            container.innerHTML = '';
             data.bonus.forEach((b, index) => {
                 const div = document.createElement('div');
                 div.className = 'admin-item';
@@ -982,10 +1090,7 @@
                             <small>${b.start_date} → ${b.end_date}</small>
                         </div>
                     </div>
-                    <div>
-                        <button onclick="editBonus(${index})">✏️</button>
-                        <button onclick="deleteBonus(${index})">🗑️</button>
-                    </div>
+                    <div><button onclick="editBonus(${index})">✏️</button> <button onclick="deleteBonus(${index})">🗑️</button></div>
                 `;
                 container.appendChild(div);
             });
@@ -1042,26 +1147,21 @@
             document.getElementById('bonus-index').value = '-1';
         });
 
+        // Bookmakers
         function renderBookmakersList() {
             const container = document.getElementById('bookmakers-list-admin');
             if (!container) return;
-            container.innerHTML = '';
             if (!data.bookmakers) data.bookmakers = defaultData.bookmakers;
+            container.innerHTML = '';
             data.bookmakers.forEach((b, index) => {
                 const div = document.createElement('div');
                 div.className = 'admin-item';
                 div.innerHTML = `
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <img src="${b.logo}" alt="${b.name}" style="width: 40px; height: 40px; object-fit: contain;" onerror="this.style.display='none'">
-                        <div>
-                            <strong>${b.name}</strong><br>
-                            <small>${b.url}</small>
-                        </div>
+                        <div><strong>${b.name}</strong><br><small>${b.url}</small></div>
                     </div>
-                    <div>
-                        <button onclick="editBookmaker(${index})">✏️</button>
-                        <button onclick="deleteBookmaker(${index})">🗑️</button>
-                    </div>
+                    <div><button onclick="editBookmaker(${index})">✏️</button> <button onclick="deleteBookmaker(${index})">🗑️</button></div>
                 `;
                 container.appendChild(div);
             });
@@ -1092,6 +1192,67 @@
             saveData();
         });
 
+        // VIP
+        async function renderVipList() {
+            const container = document.getElementById('vip-list');
+            if (!container) return;
+            try {
+                const vips = await loadActiveVips();
+                if (!vips || vips.length === 0) {
+                    container.innerHTML = '<p>Aucun utilisateur VIP actif.</p>';
+                    return;
+                }
+                container.innerHTML = vips.map(v => `
+                    <div class="vip-item">
+                        <div class="vip-info">
+                            <strong>${v.user_id}</strong><br>
+                            Code: ${v.vip_code}<br>
+                            <small>Expire le: ${new Date(v.expires_at).toLocaleDateString('fr-FR')}</small>
+                            ${v.ip_address ? `<small>IP: ${v.ip_address}</small>` : ''}
+                        </div>
+                        <button class="btn-deactivate" data-code="${v.vip_code}">Désactiver</button>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.btn-deactivate').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const code = e.target.dataset.code;
+                        if (confirm(`Désactiver le code ${code} ?`)) {
+                            await deactivateVip(code);
+                            renderVipList();
+                        }
+                    });
+                });
+            } catch (error) {
+                container.innerHTML = '<p class="error">Erreur de chargement des VIP.</p>';
+                console.error(error);
+            }
+        }
+
+        // =======================================================
+        // FONCTIONS GÉNÉRALES
+        // =======================================================
+        function renderAllLists() {
+            renderPronostics();
+            renderBlog();
+            renderConseils();
+            renderInfos();
+            renderBonus();
+            renderBookmakersList();
+
+            // Remplir le select des bookmakers dans le formulaire de pronostics
+            const select = document.getElementById('pronostic-bookmaker');
+            if (select && data.bookmakers) {
+                select.innerHTML = '';
+                data.bookmakers.forEach(b => {
+                    const opt = document.createElement('option');
+                    opt.value = b.name;
+                    opt.textContent = b.name;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
         function updatePreview() {
             const preview = document.getElementById('json-preview');
             if (preview) {
@@ -1118,7 +1279,7 @@
         });
 
         // =======================================================
-        // STATISTIQUES (basées sur les événements localStorage)
+        // STATISTIQUES (version simplifiée)
         // =======================================================
         function initStats() {
             const events = JSON.parse(localStorage.getItem('userEvents')) || [];
@@ -1288,29 +1449,29 @@
             updateStats();
         }
 
-        function renderAllLists() {
-            renderPronostics();
-            renderBlog();
-            renderConseils();
-            renderInfos();
-            renderBonus();
-            renderBookmakersList();
-
-            // Remplir le select des bookmakers dans le formulaire de pronostics
-            const select = document.getElementById('pronostic-bookmaker');
-            if (select && data.bookmakers) {
-                select.innerHTML = '';
-                data.bookmakers.forEach(b => {
-                    const opt = document.createElement('option');
-                    opt.value = b.name;
-                    opt.textContent = b.name;
-                    select.appendChild(opt);
+        // =======================================================
+        // TINYMCE INIT
+        // =======================================================
+        function initTinyMCE() {
+            if (typeof tinymce !== 'undefined') {
+                tinymce.init({
+                    selector: 'textarea.tinymce',
+                    plugins: 'anchor autolink charmap codesample emoticons link lists media searchreplace table visualblocks wordcount',
+                    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+                    content_style: 'body { font-family: Montserrat, sans-serif; font-size:14px; color:#fff; background:#0D0D0D; }',
+                    skin: 'oxide-dark',
+                    content_css: 'dark'
                 });
             }
         }
 
-        function initAdmin() {
+        // =======================================================
+        // INITIALISATION PRINCIPALE
+        // =======================================================
+        async function initAdmin() {
+            await initSupabase();
             renderAllLists();
+            await renderVipList();
             updatePreview();
             initTinyMCE();
             initStats();
@@ -1324,6 +1485,31 @@
                     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
                 });
             });
+
+            // Formulaire VIP
+            const vipForm = document.getElementById('vip-form');
+            if (vipForm) {
+                vipForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const userId = document.getElementById('user-id').value.trim();
+                    const ip = document.getElementById('ip-address').value.trim();
+                    const duration = parseInt(document.getElementById('duration').value);
+                    const resultDiv = document.getElementById('vip-result');
+
+                    try {
+                        const code = await createVipAccess(userId, ip, duration);
+                        resultDiv.className = 'message success';
+                        resultDiv.textContent = `Code généré : ${code}`;
+                        resultDiv.style.display = 'block';
+                        vipForm.reset();
+                        renderVipList();
+                    } catch (error) {
+                        resultDiv.className = 'message error';
+                        resultDiv.textContent = `Erreur : ${error.message}`;
+                        resultDiv.style.display = 'block';
+                    }
+                });
+            }
         }
     </script>
 </body>

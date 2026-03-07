@@ -4,9 +4,7 @@
 """
 generate_data.py - Génère les pronostics à partir des données SportData
 Version améliorée avec avantage domicile, attaque/défense, et filtres.
-Les catégories Simple et Pro n'affichent que le double chance.
-Les VIP ont le combo double chance + BTTS.
-La validation des VIP nécessite que les deux conditions soient remplies.
+Ajoute le calcul du ROI basé sur des cotes estimées.
 """
 
 import os
@@ -23,7 +21,7 @@ SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")
 if not SPORTDATA_API_KEY:
     raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
 
-THESPORTSDB_API_KEY = "3"
+THESPORTSDB_API_KEY = os.environ.get("THESPORTSDB_API_KEY", "3")
 
 SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
 HEADERS = {"x-api-key": SPORTDATA_API_KEY}
@@ -343,6 +341,21 @@ def analyze_btts(h2h_list):
         return 0.5
     return btts_count / matches
 
+def estimate_odds(category, double_chance, combo=False):
+    """
+    Estime une cote moyenne pour le type de pronostic.
+    """
+    if category == 'simple':
+        return 1.8
+    elif category == 'pro':
+        return 2.2
+    elif category == 'vip':
+        if combo:
+            return 3.0
+        else:
+            return 2.5
+    return 2.0
+
 def generate_prediction(analysis, home_form, away_form, league, h2h_list):
     # Avantage domicile
     home_dom = analysis["home_dominance"] + HOME_ADVANTAGE
@@ -545,10 +558,14 @@ def main():
         category = get_category(score, prediction, analysis)
         badge = get_badge(score)
 
+        # Estimation de la cote
+        odds = estimate_odds(category, prediction["double_chance"], prediction.get("combo") is not None)
+
         # Construction de la prédiction finale selon catégorie
         final_prediction = {
             "double_chance": prediction["double_chance"],
-            "confidence": prediction["confidence"]
+            "confidence": prediction["confidence"],
+            "odds": odds  # Ajout de la cote estimée
         }
         if category == "vip":
             if prediction.get("combo"):
@@ -604,15 +621,43 @@ def main():
 
     save_logo_cache()
     matches.sort(key=lambda x: x["event_date"] or "", reverse=True)
-    stats = {"total_bets": 0, "wins": 0, "roi": 0}
+
+    # =======================================================
+    # CALCUL DU ROI
+    # =======================================================
+    total_bets = 0
+    total_wins = 0
+    total_stake = 0  # on suppose une mise unitaire de 1
+    total_return = 0
+
+    for m in matches:
+        if m.get("verified_double"):  # considéré comme gagnant si double chance vérifié
+            total_wins += 1
+            odds = m["prediction"].get("odds", 2.0)
+            total_return += odds  # mise de 1
+        # Si le match est terminé mais non vérifié, c'est une perte (on ne compte que les terminés)
+        if m.get("status") and ("finished" in m["status"].lower() or "terminé" in m["status"].lower()):
+            total_bets += 1
+            total_stake += 1  # mise de 1
+
+    if total_bets > 0:
+        roi = ((total_return - total_stake) / total_stake) * 100
+    else:
+        roi = 0
+
+    stats = {
+        "total_bets": total_bets,
+        "wins": total_wins,
+        "roi": round(roi, 1)
+    }
 
     default_bookmakers = [
-        {"name": "1xBet",     "logo": "assets/images/1xbet.png",     "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"},
-        {"name": "1win",      "logo": "assets/images/1win.png",      "url": "https://1wrbgb.com/?open=register&p=qqcw"},
-        {"name": "Betwinner", "logo": "assets/images/betwinner.png", "url": "https://bwredir.com/299Y"},
-        {"name": "Melbet",    "logo": "assets/images/melbet.png",    "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041"},
-        {"name": "Linebet",   "logo": "assets/images/linebet.png",   "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611"},
-        {"name": "BetClic",   "logo": "assets/images/betclic.png",   "url": "https://betpari-click.com/2vY0?extid=USD"}
+        {"name": "1xBet",     "logo": "assets/images/1xbet.webp",     "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"},
+        {"name": "1win",      "logo": "assets/images/1win.webp",      "url": "https://1wrbgb.com/?open=register&p=qqcw"},
+        {"name": "Betwinner", "logo": "assets/images/betwinner.webp", "url": "https://bwredir.com/299Y"},
+        {"name": "Melbet",    "logo": "assets/images/melbet.webp",    "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041"},
+        {"name": "Linebet",   "logo": "assets/images/linebet.webp",   "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611"},
+        {"name": "BetClic",   "logo": "assets/images/betclic.webp",   "url": "https://betpari-click.com/2vY0?extid=USD"}
     ]
 
     data = {
@@ -628,6 +673,7 @@ def main():
     print(f"\n💾 {DATA_FILE} généré avec {len(matches)} matchs")
     print(f"📊 Catégories : Simple: {len(categories['simple'])}, Pro: {len(categories['pro'])}, VIP: {len(categories['vip'])}")
     print(f"🎯 Combos BTTS générés : {sum(1 for m in matches if m['prediction'].get('combo'))}")
+    print(f"💰 ROI estimé : {stats['roi']}% sur {stats['total_bets']} matchs terminés")
 
 if __name__ == "__main__":
     main()

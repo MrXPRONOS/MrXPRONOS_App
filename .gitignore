@@ -1,11 +1,11 @@
 # Python
 __pycache__/
 *.pyc
-# Ignorer tout le dossier cache sauf le fichier all_matches.json
 cache/*
 
 !cache/tsdb_cache.json
-# Fichiers de logs
+
+# Logs
 *.log
 
 # Environnement
@@ -17,6 +17,5 @@ env/
 .DS_Store
 Thumbs.db
 
-# Données sensibles (optionnel)
-#data.json  
-# si vous ne voulez pas versionner les données (mais si vous voulez les partager, ne pas l'exclure)
+# Données sensibles
+#data.json

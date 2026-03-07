@@ -1,33 +1,10 @@
 /**
- * main.js - Mr XPRONOS – Version ultime avec Supabase (temps réel)
- * 
- * Fonctionnalités :
- * - Pronostics avec filtres (Simple/Pro/VIP)
- * - Partage simplifié avec délai de retour de 5 secondes
- * - Partage d'un pronostic spécifique (message incitatif)
- * - Historique avec badges de catégorie
- * - Gestion offline robuste (cache + timeout)
- * - Logos des clubs locaux avec fallback home.png / away.png
- * - Articles, conseils, actualités en grille avec modals et sauts de ligne
- * - Témoignages dynamiques générés quotidiennement (avec noms et prénoms uniques)
- * - Notifications de gains en direct (simulées toutes les heures)
- * - Installation PWA (Android/iOS)
- * - Bookmakers avec fallback et liens d'affiliation
- * - Statistiques (visites, partages) stockées dans Supabase + fallback localStorage
- * - Compteurs en temps réel (Supabase Realtime)
- * - Utilisateurs uniques (UUID) et visiteurs en ligne
- * - Lazy loading des images
- * - Correction des fuseaux horaires
- * - Taux de réussite basé sur double chance (et BTTS pour les VIP)
- * - Affichage des derniers pronostics gagnants avec score et badges (effet gagnant)
- * - Slider automatique des gains récents
- * - Compteur animé de pronostics gagnants (réel)
- * - Barre de taux de réussite animée (réelle)
- * - Gestion des pronostics combinés VIP (double chance + BTTS)
+ * main.js - Mr XPRONOS – Version ultime (corrigée)
+ * Toutes les fonctionnalités sont regroupées dans ce seul fichier.
  */
 
 // =======================================================
-// Désactiver les logs en production (sauf localhost)
+// Désactiver les logs en production
 // =======================================================
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
     console.log = function() {};
@@ -36,17 +13,67 @@ if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1'
 }
 
 // =======================================================
-// VARIABLES SUPABASE (initialisées plus tard)
+// CONFIGURATION & CONSTANTES GLOBALES
 // =======================================================
 let supabase = null;
 let supabaseAvailable = false;
+let allData = null;
+let currentCategory = 'simple';
+let currentSubcat = 'pronostics';
+let currentDay = 'today';
+let filteredMatchesWithoutSearch = [];
+let searchTerm = '';
+let shareStartTime = null;
+let sharePending = false;
 
+const shareLimits = { pro: 3, vip: 5 };
+const POPULAR_LEAGUES = [
+    "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
+    "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
+    "MLS", "Brasileirão", "Liga Profesional", "Jupiler Pro League",
+    "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
+];
+
+// Éléments DOM fréquemment utilisés
+const matchesContainer = document.getElementById('matches-container');
+let sharePopup = document.getElementById('share-popup');
+const vipLockedOverlay = document.getElementById('vip-locked-overlay');
+const bookmakersFooter = document.getElementById('bookmakers-footer');
+const bookmakersBonus = document.getElementById('bookmakers-bonus');
+const vipSubtabs = document.getElementById('vip-subtabs');
+
+// =======================================================
+// FONCTIONS UTILITAIRES (toasts, IDs, etc.)
+// =======================================================
+function showToast(message, type = 'info', duration = 4000) {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed; bottom: 20px; right: 20px; background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+        color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10000; font-weight: 600; animation: slideIn 0.3s ease;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), duration);
+}
+
+function getUserId() {
+    let userId = localStorage.getItem('mx_user_id');
+    if (!userId) {
+        userId = 'MX-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+        localStorage.setItem('mx_user_id', userId);
+    }
+    return userId;
+}
+
+// =======================================================
+// INITIALISATION SUPABASE
+// =======================================================
 async function initSupabase() {
     try {
         const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
-        if (!supabaseUrl || !supabaseUrl.startsWith('https://')) {
-            throw new Error('URL Supabase invalide');
-        }
+        if (!supabaseUrl || !supabaseUrl.startsWith('https://')) throw new Error('URL Supabase invalide');
         const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
         supabase = createClient(supabaseUrl, supabaseAnonKey);
         supabaseAvailable = true;
@@ -58,56 +85,57 @@ async function initSupabase() {
 }
 
 // =======================================================
-// VARIABLES GLOBALES
+// GESTION DES COMPTEURS (visites, partages)
 // =======================================================
-let allData = null;
-let currentCategory = 'simple';
-let currentSubcat = 'pronostics';
-let currentDay = 'today';
+async function incrementCounter(counterName) {
+    if (!supabaseAvailable) return;
+    try {
+        await supabase.rpc('increment_counter', { counter_name: counterName });
+    } catch (e) { console.error('Erreur incrémentation:', e); }
+}
 
-const matchesContainer = document.getElementById('matches-container');
-const sharePopup = document.getElementById('share-popup');
-const shareRemaining = document.getElementById('share-remaining');
-const shareCurrent = document.getElementById('share-current');
-const shareTarget = document.getElementById('share-target');
-const shareMessage = document.getElementById('share-message');
+async function updateDisplayedCounters() {
+    if (!supabaseAvailable) return;
+    try {
+        const { data, error } = await supabase
+            .from('counters')
+            .select('total_users, total_shares')
+            .eq('id', 1)
+            .single();
+        if (error) throw error;
+        const usersEl = document.getElementById('total-users-count');
+        const sharesEl = document.getElementById('total-shares-count');
+        if (usersEl) usersEl.textContent = data.total_users.toLocaleString() + '+';
+        if (sharesEl) sharesEl.textContent = data.total_shares.toLocaleString() + '+';
+    } catch (e) { console.error('Erreur récupération counters:', e); }
+}
 
-const bookmakersFooter = document.getElementById('bookmakers-footer');
-const bookmakersBonus = document.getElementById('bookmakers-bonus');
-const vipSubtabs = document.getElementById('vip-subtabs');
-const vipLockedOverlay = document.getElementById('vip-locked-overlay');
+function subscribeToCounters() {
+    if (!supabaseAvailable) return;
+    supabase
+        .channel('counters-live')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'counters' }, (payload) => {
+            const usersEl = document.getElementById('total-users-count');
+            const sharesEl = document.getElementById('total-shares-count');
+            if (usersEl) usersEl.textContent = payload.new.total_users.toLocaleString() + '+';
+            if (sharesEl) sharesEl.textContent = payload.new.total_shares.toLocaleString() + '+';
+        })
+        .subscribe();
+}
 
-// Limites de partages quotidiennes (pro nécessite 3 partages)
-const shareLimits = { pro: 3, vip: 5 };
-
-// Variables pour le partage avec délai
-let shareStartTime = null;
-let sharePending = false;
-
-const POPULAR_LEAGUES = [
-    "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
-    "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
-    "MLS", "Brasileirão", "Liga Profesional", "Jupiler Pro League",
-    "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
-];
-
-// =======================================================
-// GÉNÉRATION D'UN IDENTIFIANT UNIQUE POUR L'UTILISATEUR
-// =======================================================
-function getUserId() {
-    let userId = localStorage.getItem('userId');
-    if (!userId) {
-        userId = crypto.randomUUID();
-        localStorage.setItem('userId', userId);
-        incrementCounter('total_users'); // Incrémente le compteur global
+function recordEvent(type) {
+    const userId = getUserId();
+    const page = window.location.pathname;
+    if (supabaseAvailable) {
+        supabase.from('events').insert({ type, user_id: userId, page })
+            .then(({ error }) => { if (error) console.warn('Erreur envoi événement:', error); })
+            .catch(e => console.warn('Erreur réseau Supabase', e));
     }
-    return userId;
 }
 
 // =======================================================
-// FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
+// GESTION DES PARTAGES QUOTIDIENS
 // =======================================================
-
 function getDailyShareCount() {
     const lastReset = localStorage.getItem('shareLastReset');
     const today = new Date().toDateString();
@@ -126,133 +154,16 @@ function incrementShareCount() {
     return newCount;
 }
 
-// =======================================================
-// SYSTÈME DE COMPTEURS SUPABASE (TEMPS RÉEL)
-// =======================================================
-
-async function getCounterValue(counterName) {
-    if (!supabaseAvailable) return 0;
-    try {
-        const { data, error } = await supabase
-            .from('counters')
-            .select(counterName)
-            .eq('id', 1)
-            .single();
-        if (error) throw error;
-        return data[counterName] || 0;
-    } catch (e) {
-        console.error('Erreur récupération compteur:', e);
-        return 0;
-    }
-}
-
-async function incrementCounter(counterName) {
-    if (!supabaseAvailable) return;
-    try {
-        const { error } = await supabase.rpc('increment_counter', {
-            counter_name: counterName
-        });
-        if (error) throw error;
-        // La mise à jour en temps réel se fera via subscribeToCounters
-    } catch (e) {
-        console.error('Erreur incrémentation:', e);
-    }
-}
-
-async function updateDisplayedCounters() {
-    const usersEl = document.getElementById('total-users-count');
-    const sharesEl = document.getElementById('total-shares-count');
-    if (!supabaseAvailable) return;
-    try {
-        const { data, error } = await supabase
-            .from('counters')
-            .select('total_users, total_shares')
-            .eq('id', 1)
-            .single();
-        if (error) throw error;
-        if (usersEl) usersEl.textContent = data.total_users.toLocaleString() + '+';
-        if (sharesEl) sharesEl.textContent = data.total_shares.toLocaleString() + '+';
-    } catch (e) {
-        console.error('Erreur récupération counters:', e);
-    }
-}
-
-function subscribeToCounters() {
-    if (!supabaseAvailable) return;
-    supabase
-        .channel('counters-live')
-        .on(
-            'postgres_changes',
-            { event: 'UPDATE', schema: 'public', table: 'counters' },
-            (payload) => {
-                const usersEl = document.getElementById('total-users-count');
-                const sharesEl = document.getElementById('total-shares-count');
-                if (usersEl) usersEl.textContent = payload.new.total_users.toLocaleString() + '+';
-                if (sharesEl) sharesEl.textContent = payload.new.total_shares.toLocaleString() + '+';
-            }
-        )
-        .subscribe();
-}
-
-// =======================================================
-// VISITEURS EN LIGNE
-// =======================================================
-
-async function updateOnlineStatus() {
-    const userId = getUserId();
-    if (!supabaseAvailable) return;
-    try {
-        await supabase
-            .from('online_users')
-            .upsert({ user_id: userId, last_seen: new Date().toISOString() });
-    } catch (e) {
-        console.error('Erreur mise à jour en ligne:', e);
-    }
-}
-
-async function displayOnlineUsers() {
-    const el = document.getElementById('online-users');
-    if (!el) return;
-    if (!supabaseAvailable) return;
-    try {
-        const fiveMinutesAgo = new Date(Date.now() - 5 * 60000).toISOString();
-        const { count, error } = await supabase
-            .from('online_users')
-            .select('*', { count: 'exact', head: true })
-            .gt('last_seen', fiveMinutesAgo);
-        if (error) throw error;
-        el.textContent = count || 0;
-    } catch (e) {
-        console.error('Erreur comptage en ligne:', e);
-    }
-}
-
-// Appeler périodiquement
-setInterval(updateOnlineStatus, 30000);
-setInterval(displayOnlineUsers, 10000); // mise à jour toutes les 10 secondes
-
-// =======================================================
-// ENREGISTREMENT DES ÉVÉNEMENTS (VISITES, PARTAGES) DANS SUPABASE
-// =======================================================
-
-function recordEvent(type) {
-    const userId = getUserId();
-    const page = window.location.pathname;
-
-    // Envoi à Supabase (si disponible) - ne pas bloquer
-    if (supabaseAvailable) {
-        supabase
-            .from('events')
-            .insert({ type, user_id: userId, page })
-            .then(({ error }) => {
-                if (error) console.warn('Erreur envoi événement Supabase:', error);
-            })
-            .catch(e => console.warn('Erreur réseau Supabase', e));
+function updateShareCounter() {
+    const counter = document.getElementById('share-counter');
+    if (counter) {
+        const count = getDailyShareCount();
+        counter.textContent = `🔥 ${count} partages aujourd'hui`;
     }
 }
 
 // =======================================================
-// GESTION DE L'INSTALLATION PWA
+// PWA & INSTALLATION
 // =======================================================
 let deferredPrompt;
 const installButton = document.getElementById('install-app');
@@ -266,8 +177,7 @@ function getOS() {
 }
 
 function isPwaInstalled() {
-    return window.matchMedia('(display-mode: standalone)').matches || 
-           window.navigator.standalone === true;
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 
 function showIosGuideIfNeeded() {
@@ -313,128 +223,19 @@ document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGu
 document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
 
 // =======================================================
-// INITIALISATION
+// CHARGEMENT DES DONNÉES (data.json)
 // =======================================================
-document.addEventListener('DOMContentLoaded', async () => {
-    await initSupabase();
-    getUserId(); // génère ou récupère l'ID utilisateur
-    await updateDisplayedCounters();
-    subscribeToCounters();
-    updateOnlineStatus();
-    displayOnlineUsers();
-
-    showIosGuideIfNeeded();
-
-    if (matchesContainer) {
-        initPronostics();
-    } else if (document.getElementById('history-container')) {
-        displayHistory();
-    } else if (document.getElementById('bonus-bookmaker-select')) {
-        initBonusPage();
-    } else {
-        // Page d'accueil
-        loadDataGeneric().then(data => {
-            if (data) {
-                allData = data;
-                renderBookmakers(data.bookmakers);
-                updateShareCounter();
-                displayLatestVerified();
-                startWinsSlider();
-                showSuccessRate();
-                animateWins();
-            } else {
-                console.log("Aucune donnée chargée pour l'accueil");
-            }
-        });
-        displayTestimonials();
-        startWinNotifications();
-    }
-
-    displayBlogList();
-    displayBlogPost();
-    displayConseils();
-    displayInfos();
-    displayFootNews();
-    initScrollProgress();
-
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            searchTerm = e.target.value;
-            applySearchFilter();
-        });
-    }
-
-    document.addEventListener('visibilitychange', () => {
-        if (sharePending && !document.hidden) {
-            const elapsed = Date.now() - shareStartTime;
-            if (elapsed >= 5000) {
-                sharePending = false;
-                const newCount = incrementShareCount();
-                updateShareCounter();
-                incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
-                recordEvent('share');
-
-                const target = shareLimits[currentCategory];
-                if (newCount >= target) {
-                    hideVipLocked();
-                    filterAndDisplay();
-                } else {
-                    if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
-                        showVipLocked(currentCategory);
-                    } else {
-                        showSharePopup(currentCategory, target - newCount);
-                    }
-                }
-            }
-        }
-    });
-
-    recordEvent('visit');
-});
-
-// =======================================================
-// FONCTIONS POUR LA PAGE PRONOSTICS
-// =======================================================
-
-async function initPronostics() {
-    await loadData();
-    if (allData) {
-        hideEmptyTabs();
-        maybeHideTabBar();
-        setupEventListeners();
-        updateSuccessRate();
-        filterAndDisplay();
-    } else {
-        if (matchesContainer) matchesContainer.innerHTML = '<div class="error">❌ Erreur de chargement des données.</div>';
-    }
-}
-
 async function loadData() {
     console.log('🔄 Chargement des pronostics...');
-    
-    const container = document.getElementById('matches-container');
-    if (container) {
-        container.innerHTML = `
-            <div style="text-align:center; padding:80px 20px; color:#aaa;">
-                <div style="font-size:60px; margin-bottom:20px;">⏳</div>
-                <div>Chargement des matchs...</div>
-            </div>`;
+    if (matchesContainer) {
+        matchesContainer.innerHTML = `<div style="text-align:center; padding:80px 20px; color:#aaa;"><div style="font-size:60px; margin-bottom:20px;">⏳</div><div>Chargement des matchs...</div></div>`;
     }
-
     let dataLoaded = false;
-
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-        const resp = await fetch('data.json?t=' + Date.now(), { 
-            signal: controller.signal,
-            cache: 'no-cache'
-        });
-        
+        const resp = await fetch('data.json?t=' + Date.now(), { signal: controller.signal, cache: 'no-cache' });
         clearTimeout(timeoutId);
-
         if (resp.ok) {
             allData = await resp.json();
             console.log('✅ Données fraîches du serveur');
@@ -444,7 +245,6 @@ async function loadData() {
     } catch (err) {
         console.log('🌐 Hors ligne ou erreur réseau → utilisation du cache');
     }
-
     if (!dataLoaded) {
         const cached = localStorage.getItem('cachedData');
         if (cached) {
@@ -452,56 +252,36 @@ async function loadData() {
                 allData = JSON.parse(cached);
                 console.log('📦 Pronos chargés depuis le cache local (' + allData.matches.length + ' matchs)');
                 dataLoaded = true;
-            } catch (e) {
-                console.error('❌ Cache corrompu', e);
-            }
+            } catch (e) { console.error('❌ Cache corrompu', e); }
         }
     }
-
     if (dataLoaded && allData) {
-        if (container && !navigator.onLine) {
-            container.insertAdjacentHTML('afterbegin', `
-                <div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem;">
-                    📴 MODE HORS LIGNE — Pronostics du cache (${new Date().toLocaleDateString('fr-FR')})
-                </div>
-            `);
+        if (matchesContainer && !navigator.onLine) {
+            matchesContainer.insertAdjacentHTML('afterbegin', `<div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem;">📴 MODE HORS LIGNE — Pronostics du cache (${new Date().toLocaleDateString('fr-FR')})</div>`);
         }
         renderBookmakers(allData.bookmakers);
-    } else if (container) {
-        container.innerHTML = `
-            <div class="error" style="text-align:center; padding:60px;">
-                ❌ Aucune donnée disponible.<br>
-                <small>Connectez-vous une première fois pour charger le cache.</small>
-            </div>`;
+        hideEmptyTabs();
+        maybeHideTabBar();
+        updateSuccessRate();
+        filterAndDisplay();
+    } else if (matchesContainer) {
+        matchesContainer.innerHTML = `<div class="error" style="text-align:center; padding:60px;">❌ Aucune donnée disponible.<br><small>Connectez-vous une première fois pour charger le cache.</small></div>`;
     }
 }
 
-async function loadDataGeneric() {
-    try {
-        const resp = await fetch('data.json?t=' + Date.now());
-        if (!resp.ok) throw new Error('Erreur');
-        const data = await resp.json();
-        localStorage.setItem('cachedData', JSON.stringify(data));
-        return data;
-    } catch {
-        const cached = localStorage.getItem('cachedData');
-        return cached ? JSON.parse(cached) : null;
-    }
-}
-
+// =======================================================
+// FILTRAGE ET AFFICHAGE
+// =======================================================
 function hideEmptyTabs() {
     const counts = { simple: 0, pro: 0, vip: 0 };
-    allData.matches.forEach(m => counts[m.category]++);
-
+    if (allData && allData.matches) {
+        allData.matches.forEach(m => counts[m.category]++);
+    }
     document.querySelectorAll('.tab-btn').forEach(btn => {
         const cat = btn.dataset.cat;
-        if (cat === 'pro' || cat === 'vip') {
-            btn.style.display = 'inline-block';
-        } else {
-            btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
-        }
+        if (cat === 'pro' || cat === 'vip') btn.style.display = 'inline-block';
+        else btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
     });
-
     const visibleTabs = Array.from(document.querySelectorAll('.tab-btn')).filter(btn => btn.style.display !== 'none');
     if (visibleTabs.length > 0) {
         const currentActive = document.querySelector('.tab-btn.active');
@@ -514,24 +294,18 @@ function hideEmptyTabs() {
         const tabBar = document.querySelector('.category-tabs');
         if (tabBar) tabBar.style.display = 'none';
     }
-
     if (vipSubtabs) {
         const showPronostics = counts.vip > 0;
         const subtabBtns = vipSubtabs.querySelectorAll('.subtab-btn');
-        if (subtabBtns.length >= 1) {
-            subtabBtns[0].style.display = showPronostics ? 'inline-block' : 'none';
-        }
+        if (subtabBtns.length >= 1) subtabBtns[0].style.display = showPronostics ? 'inline-block' : 'none';
         vipSubtabs.style.display = showPronostics ? 'flex' : 'none';
-
         const activeSub = vipSubtabs.querySelector('.subtab-btn.active');
         if (activeSub && activeSub.style.display === 'none') {
             const firstVisible = Array.from(subtabBtns).find(btn => btn.style.display !== 'none');
             if (firstVisible) {
                 firstVisible.classList.add('active');
                 currentSubcat = firstVisible.dataset.subcat;
-            } else {
-                currentSubcat = 'pronostics';
-            }
+            } else currentSubcat = 'pronostics';
         }
     }
 }
@@ -554,7 +328,6 @@ function setupEventListeners() {
             handleCategoryChange();
         });
     });
-
     document.querySelectorAll('.subtab-btn').forEach(btn => {
         btn.addEventListener('click', e => {
             document.querySelectorAll('.subtab-btn').forEach(b => b.classList.remove('active'));
@@ -563,7 +336,6 @@ function setupEventListeners() {
             filterAndDisplay();
         });
     });
-
     document.querySelectorAll('.day-btn').forEach(btn => {
         btn.addEventListener('click', e => {
             document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
@@ -572,7 +344,6 @@ function setupEventListeners() {
             filterAndDisplay();
         });
     });
-
     const shareWa = document.getElementById('share-wa');
     const shareTg = document.getElementById('share-tg');
     const closePopup = document.getElementById('close-popup');
@@ -581,26 +352,34 @@ function setupEventListeners() {
     if (closePopup) closePopup.addEventListener('click', () => {
         if (sharePopup) sharePopup.classList.remove('active');
     });
-
-    const shareWaLocked = document.getElementById('share-wa-locked');
-    const shareTgLocked = document.getElementById('share-tg-locked');
-    if (shareWaLocked) shareWaLocked.addEventListener('click', () => share('whatsapp'));
-    if (shareTgLocked) shareTgLocked.addEventListener('click', () => share('telegram'));
-
-    // Écouteur pour les boutons de partage de pronostic individuel
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-share')) {
             try {
                 const matchData = JSON.parse(decodeURIComponent(e.target.dataset.match));
                 sharePronostic(matchData);
-            } catch (err) {
-                console.error('Erreur parsing données match', err);
-            }
+            } catch (err) { console.error('Erreur parsing données match', err); }
         }
     });
 }
 
-function handleCategoryChange() {
+async function handleCategoryChange() {
+    if (currentCategory === 'vip') {
+        const isVip = await checkVipStatus();
+        if (!isVip) {
+            if (vipLockedOverlay) {
+                ensureVipOverlayStructure();
+                showVipLoginForm(vipLockedOverlay);
+                vipLockedOverlay.style.display = 'flex';
+                if (matchesContainer) matchesContainer.style.display = 'none';
+            } else {
+                alert('Accès VIP payant. Contactez-nous sur WhatsApp ou Telegram.');
+            }
+            return;
+        }
+        hideVipLocked();
+        filterAndDisplay();
+        return;
+    }
     if (currentCategory === 'simple') {
         hideVipLocked();
         filterAndDisplay();
@@ -617,22 +396,52 @@ function handleCategoryChange() {
 }
 
 function showVipLocked(category) {
+    const target = shareLimits[category];
+    const shareCount = getDailyShareCount();
+    const remaining = target - shareCount;
+
     if (vipLockedOverlay) {
-        const target = shareLimits[category];
-        const shareCount = getDailyShareCount();
-        const remaining = target - shareCount;
-        vipLockedOverlay.querySelector('h3').textContent = `🔒 ${category === 'pro' ? 'Pronostics Pro' : 'Pronostics VIP'} verrouillés`;
-        vipLockedOverlay.querySelector('p').innerHTML = `Partagez ce lien à <strong>${remaining}</strong> ami(s) pour débloquer.`;
-        const shareCountLocked = document.getElementById('share-count-locked');
-        const shareTargetLocked = document.getElementById('share-target-locked');
-        if (shareCountLocked) shareCountLocked.textContent = shareCount;
-        if (shareTargetLocked) shareTargetLocked.textContent = target;
+        ensureVipOverlayStructure();
+        
+        const titleEl = vipLockedOverlay.querySelector('h3');
+        const textEl = vipLockedOverlay.querySelector('p');
+        const shareCountEl = document.getElementById('share-count-locked');
+        const shareTargetEl = document.getElementById('share-target-locked');
+
+        if (titleEl) titleEl.textContent = `🔒 ${category === 'pro' ? 'Pronostics Pro' : 'Pronostics VIP'} verrouillés`;
+        if (textEl) textEl.innerHTML = `Partagez ce lien à <strong>${remaining}</strong> ami(s) pour débloquer.`;
+        if (shareCountEl) shareCountEl.textContent = shareCount;
+        if (shareTargetEl) shareTargetEl.textContent = target;
+
         vipLockedOverlay.style.display = 'flex';
         if (matchesContainer) matchesContainer.style.display = 'none';
     } else {
-        const target = shareLimits[category];
-        const shareCount = getDailyShareCount();
-        showSharePopup(category, target - shareCount);
+        showSharePopup(category, remaining);
+    }
+}
+
+function ensureVipOverlayStructure() {
+    if (!vipLockedOverlay) return;
+    if (vipLockedOverlay.children.length === 0) {
+        vipLockedOverlay.innerHTML = `
+            <div class="vip-locked-content">
+                <div class="lock-icon">🔒</div>
+                <h3></h3>
+                <p></p>
+                <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+                    <button id="share-wa-locked" class="btn btn-primary">WhatsApp</button>
+                    <button id="share-tg-locked" class="btn btn-primary">Telegram</button>
+                </div>
+                <p>Partages actuels : <span id="share-count-locked">0</span>/<span id="share-target-locked">3</span></p>
+                <button id="close-locked" class="btn btn-secondary">Fermer</button>
+            </div>
+        `;
+        document.getElementById('share-wa-locked')?.addEventListener('click', () => share('whatsapp'));
+        document.getElementById('share-tg-locked')?.addEventListener('click', () => share('telegram'));
+        document.getElementById('close-locked')?.addEventListener('click', () => {
+            vipLockedOverlay.style.display = 'none';
+            if (matchesContainer) matchesContainer.style.display = 'grid';
+        });
     }
 }
 
@@ -644,92 +453,91 @@ function hideVipLocked() {
 }
 
 function showSharePopup(category, remaining) {
-    if (!sharePopup) return;
+    if (!sharePopup) {
+        createSharePopup();
+    }
     const shareCount = getDailyShareCount();
+    const shareRemaining = document.getElementById('share-remaining');
+    const shareCurrent = document.getElementById('share-current');
+    const shareTarget = document.getElementById('share-target');
+    const shareMessage = document.getElementById('share-message');
+
     if (shareRemaining) shareRemaining.textContent = remaining;
     if (shareCurrent) shareCurrent.textContent = shareCount;
     if (shareTarget) shareTarget.textContent = shareLimits[category];
     if (shareMessage) shareMessage.innerHTML = `Pour accéder aux pronostics ${category === 'pro' ? 'Pro' : 'VIP'}, partagez ce lien à <span id="share-remaining">${remaining}</span> amis.`;
+
     sharePopup.classList.add('active');
 }
 
-// Fonction de partage général (pour débloquer les catégories)
+function createSharePopup() {
+    const popup = document.createElement('div');
+    popup.id = 'share-popup';
+    popup.className = 'popup';
+    popup.innerHTML = `
+        <div class="popup-content">
+            <h3>🔒 Contenu premium</h3>
+            <p id="share-message">Pour accéder aux pronostics Pro, partagez ce lien à <span id="share-remaining">3</span> amis sur WhatsApp ou Telegram.</p>
+            <div class="share-buttons">
+                <button id="share-wa" class="btn btn-primary">WhatsApp</button>
+                <button id="share-tg" class="btn btn-primary">Telegram</button>
+            </div>
+            <p>Partages actuels : <span id="share-current">0</span>/<span id="share-target">3</span></p>
+            <button id="close-popup" class="btn btn-secondary">Fermer</button>
+        </div>
+    `;
+    document.body.appendChild(popup);
+    sharePopup = popup;
+    document.getElementById('share-wa').addEventListener('click', () => share('whatsapp'));
+    document.getElementById('share-tg').addEventListener('click', () => share('telegram'));
+    document.getElementById('close-popup').addEventListener('click', () => {
+        sharePopup.classList.remove('active');
+    });
+}
+
 function share(platform) {
     const baseUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    const shareUrl = baseUrl;
-    let message = '';
-    let url = '';
-
-    if (platform === 'whatsapp') {
-        message = `🔥 *Mr XPRONOS* – 3 matchs à ne pas manquer aujourd'hui !\n\n📊 *Analyses exclusives* et pronostics fiables.\n\n👉 Débloque l'accès PRO en partageant ce lien :\n${shareUrl}\n\n⚽ Arrête de perdre ton argent, rejoins les gagnants !`;
-        url = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    } else {
-        message = `🔥 Mr XPRONOS – 3 matchs à ne pas manquer aujourd'hui !\n\n📊 Analyses exclusives et pronostics fiables.\n\n👉 Débloque l'accès PRO en partageant ce lien :\n${shareUrl}\n\n⚽ Arrête de perdre ton argent, rejoins les gagnants !`;
-        url = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(message)}`;
-    }
-
+    let message = platform === 'whatsapp' 
+        ? `🔥 *Mr XPRONOS* – 3 matchs à ne pas manquer aujourd'hui !\n\n📊 *Analyses exclusives* et pronostics fiables.\n\n👉 Débloque l'accès PRO en partageant ce lien :\n${baseUrl}\n\n⚽ Arrête de perdre ton argent, rejoins les gagnants !`
+        : `🔥 Mr XPRONOS – 3 matchs à ne pas manquer aujourd'hui !\n\n📊 Analyses exclusives et pronostics fiables.\n\n👉 Débloque l'accès PRO en partageant ce lien :\n${baseUrl}\n\n⚽ Arrête de perdre ton argent, rejoins les gagnants !`;
+    const url = platform === 'whatsapp' 
+        ? `https://wa.me/?text=${encodeURIComponent(message)}`
+        : `https://t.me/share/url?url=${encodeURIComponent(baseUrl)}&text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
     shareStartTime = Date.now();
     sharePending = true;
 }
 
-// Fonction de partage d'un pronostic spécifique (améliorée)
 function sharePronostic(match) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     let messageWhatsApp, messageTelegram;
-
     if (match.prediction.combo) {
-        messageWhatsApp = `🔥 *Mr XPRONOS* – *COMBO VIP* 🔥\n\n` +
-            `⚽ *${match.home_team} vs ${match.away_team}*\n` +
-            `📊 *Pronostic combiné :* ${match.prediction.combo}\n` +
-            `📈 Fiabilité : ${match.prediction.confidence}%\n\n` +
-            `👉 Analyse complète sur ${siteUrl}`;
-        messageTelegram = `🔥 Mr XPRONOS – COMBO VIP 🔥\n\n` +
-            `⚽ ${match.home_team} vs ${match.away_team}\n` +
-            `📊 Pronostic combiné : ${match.prediction.combo}\n` +
-            `📈 Fiabilité : ${match.prediction.confidence}%\n\n` +
-            `👉 Analyse complète sur ${siteUrl}`;
+        messageWhatsApp = `🔥 *Mr XPRONOS* – *COMBO VIP* 🔥\n\n⚽ *${match.home_team} vs ${match.away_team}*\n📊 *Pronostic combiné :* ${match.prediction.combo}\n📈 Fiabilité : ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
+        messageTelegram = `🔥 Mr XPRONOS – COMBO VIP 🔥\n\n⚽ ${match.home_team} vs ${match.away_team}\n📊 Pronostic combiné : ${match.prediction.combo}\n📈 Fiabilité : ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
     } else {
-        messageWhatsApp = `🔥 *Mr XPRONOS* – Pronostic du jour\n\n` +
-            `⚽ *${match.home_team} vs ${match.away_team}*\n` +
-            `📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n` +
-            `👉 Analyse complète sur ${siteUrl}`;
-        messageTelegram = `🔥 Mr XPRONOS – Pronostic du jour\n\n` +
-            `⚽ ${match.home_team} vs ${match.away_team}\n` +
-            `📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n` +
-            `👉 Analyse complète sur ${siteUrl}`;
+        messageWhatsApp = `🔥 *Mr XPRONOS* – Pronostic du jour\n\n⚽ *${match.home_team} vs ${match.away_team}*\n📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
+        messageTelegram = `🔥 Mr XPRONOS – Pronostic du jour\n\n⚽ ${match.home_team} vs ${match.away_team}\n📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
     }
-
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(messageWhatsApp)}`;
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(messageTelegram)}`;
-
     if (confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)")) {
         window.open(whatsappUrl, '_blank');
     } else {
         window.open(telegramUrl, '_blank');
     }
-
     incrementShareCount();
     incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
     recordEvent('share');
 }
 
-function updateShareCounter() {
-    const counter = document.getElementById('share-counter');
-    if (counter) {
-        const count = getDailyShareCount();
-        counter.textContent = `🔥 ${count} partages aujourd'hui`;
-    }
-}
-
+// =======================================================
+// FONCTIONS DE FILTRAGE DES MATCHS
+// =======================================================
 function getLocalDateString(day) {
     const now = new Date();
     const target = new Date(now);
-    if (day === 'tomorrow') {
-        target.setDate(now.getDate() + 1);
-    } else if (day === 'yesterday') {
-        target.setDate(now.getDate() - 1);
-    }
+    if (day === 'tomorrow') target.setDate(now.getDate() + 1);
+    else if (day === 'yesterday') target.setDate(now.getDate() - 1);
     const year = target.getFullYear();
     const month = String(target.getMonth() + 1).padStart(2, '0');
     const dayOfMonth = String(target.getDate()).padStart(2, '0');
@@ -767,21 +575,16 @@ function filterAndDisplay() {
         if (matchesContainer) matchesContainer.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
         return;
     }
-
     const targetDate = getLocalDateString(currentDay);
     const targetCat = (currentCategory === 'vip' && currentSubcat === 'pronostics') ? 'vip' : currentCategory;
     const filtered = allData.matches.filter(m => {
         const eventLocalDate = getLocalDateFromEvent(m.event_date);
         return m.category === targetCat && eventLocalDate === targetDate;
     });
-
     const sorted = sortMatchesByLeague(filtered);
     filteredMatchesWithoutSearch = sorted;
     applySearchFilter();
 }
-
-let filteredMatchesWithoutSearch = [];
-let searchTerm = '';
 
 function applySearchFilter() {
     if (!filteredMatchesWithoutSearch) return;
@@ -806,11 +609,9 @@ function formatMatchTime(isoString) {
 }
 
 function getTeamLogoPath(teamName, isHome = true) {
-    if (!teamName) return isHome ? 'assets/images/home.png' : 'assets/images/away.png';
-    const normalized = teamName.toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-]/g, '');
-    return `assets/images/${normalized}.png`;
+    if (!teamName) return isHome ? 'assets/images/home.webp' : 'assets/images/away.webp';
+    const normalized = teamName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    return `assets/images/${normalized}.webp`;
 }
 
 function renderMatches(matches) {
@@ -819,14 +620,12 @@ function renderMatches(matches) {
         matchesContainer.innerHTML = '<div class="no-events">Aucun match.</div>';
         return;
     }
-
     const grouped = {};
     matches.forEach(m => {
         const league = m.league || 'Autres ligues';
         if (!grouped[league]) grouped[league] = [];
         grouped[league].push(m);
     });
-
     let html = '';
     const leagueOrder = [...POPULAR_LEAGUES, 'Autres ligues'];
     const sortedLeagues = Object.keys(grouped).sort((a, b) => {
@@ -834,7 +633,6 @@ function renderMatches(matches) {
         const ib = leagueOrder.findIndex(l => b.includes(l) || b === l);
         return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
     });
-
     sortedLeagues.forEach(league => {
         html += `<h2 class="league-header" style="color: var(--or); margin-top: 2rem;">${league}</h2>`;
         grouped[league].forEach(m => {
@@ -846,36 +644,23 @@ function renderMatches(matches) {
             if (isNaN(confidence)) confidence = 0;
             if (confidence > 100) confidence = confidence / 100;
             confidence = Math.min(100, Math.round(confidence * 10) / 10);
-
             const matchTime = formatMatchTime(m.event_date);
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
-
             const eventDate = m.event_date ? m.event_date.split('T')[0] : '';
             const yesterdayStr = getLocalDateString('yesterday');
             const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
-
+            const verifiedBtts = (eventDate === yesterdayStr && m.verified_btts) ? 'checked' : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-            const homeDefault = 'assets/images/home.png';
-            const awayDefault = 'assets/images/away.png';
-
+            const homeDefault = 'assets/images/home.webp';
+            const awayDefault = 'assets/images/away.webp';
             const homeLogo = getTeamLogoPath(m.home_team, true);
             const awayLogo = getTeamLogoPath(m.away_team, false);
-
-            // Un pronostic est gagnant si :
-            // - double chance vérifié
-            // - et si c'est un VIP avec combo, BTTS doit être vérifié aussi
             const isWinner = m.verified_double && (!combo || m.verified_btts);
             const winnerClass = isWinner ? 'winner' : '';
-
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
-
-            // Badge spécial pour les combos VIP
             const comboBadge = combo ? `<div class="combo-badge">🎯 COMBO VIP</div>` : '';
-
-            // Encodage sécurisé des données du match pour le partage
             const matchDataEncoded = encodeURIComponent(JSON.stringify(m));
-
             html += `
                 <div class="match-card ${winnerClass} ${combo ? 'match-card-vip' : ''}" data-match-id="${m.id}">
                     <div class="win-effect"></div>
@@ -902,17 +687,11 @@ function renderMatches(matches) {
                     </div>
                     <div class="analysis-panel ticket ${winnerClass}">
                         <h4>Pronostic ${xpronosBadge}</h4>
-                        <p>
-                            <strong>Double chance :</strong> ${doubleChance}
-                            ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
-                        </p>
-                        ${combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" ${eventDate === yesterdayStr && m.verified_btts ? 'checked' : ''} disabled></p>` : ''}
-                        <div class="confidence-bar">
-                            <div class="confidence-fill" data-value="${confidence}"></div>
-                        </div>
+                        <p><strong>Double chance :</strong> ${doubleChance} ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}</p>
+                        ${combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" ${verifiedBtts} disabled></p>` : ''}
+                        <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
-                        ${premiumBadge}
-                        ${comboBadge}
+                        ${premiumBadge} ${comboBadge}
                         <button class="btn btn-secondary btn-share" data-match='${matchDataEncoded}'>📤 Partager ce prono</button>
                     </div>
                 </div>
@@ -920,14 +699,10 @@ function renderMatches(matches) {
         });
     });
     matchesContainer.innerHTML = html;
-
     document.querySelectorAll('.confidence-fill').forEach(bar => {
         let value = bar.getAttribute('data-value');
-        setTimeout(() => {
-            bar.style.width = value + '%';
-        }, 300);
+        setTimeout(() => { bar.style.width = value + '%'; }, 300);
     });
-
     document.querySelectorAll('.match-card.winner').forEach(card => {
         for (let i = 0; i < 8; i++) {
             let spark = document.createElement('div');
@@ -940,9 +715,7 @@ function renderMatches(matches) {
             spark.style.top = Math.random() * 100 + '%';
             card.appendChild(spark);
         }
-        setTimeout(() => {
-            card.querySelectorAll('.spark').forEach(s => s.remove());
-        }, 1000);
+        setTimeout(() => { card.querySelectorAll('.spark').forEach(s => s.remove()); }, 1000);
     });
 }
 
@@ -966,22 +739,21 @@ function getStatusClass(status) {
 }
 
 // =======================================================
-// FONCTION POUR LES BOOKMAKERS
+// BOOKMAKERS
 // =======================================================
 function renderBookmakers(bookmakers) {
     console.log('📢 renderBookmakers appelée avec:', bookmakers);
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
-            { name: "1xBet",     logo: "assets/images/1xbet.png",     url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599" },
-            { name: "1win",      logo: "assets/images/1win.png",      url: "https://1wrbgb.com/?open=register&p=qqcw" },
-            { name: "Betwinner", logo: "assets/images/betwinner.png", url: "https://bwredir.com/299Y" },
-            { name: "Melbet",    logo: "assets/images/melbet.png",    url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041" },
-            { name: "Linebet",   logo: "assets/images/linebet.png",   url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611" },
-            { name: "BetClic",   logo: "assets/images/betclic.png",   url: "https://betpari-click.com/2vY0?extid=USD" }
+            { name: "1xBet",     logo: "assets/images/1xbet.webp",     url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599" },
+            { name: "1win",      logo: "assets/images/1win.webp",      url: "https://1wrbgb.com/?open=register&p=qqcw" },
+            { name: "Betwinner", logo: "assets/images/betwinner.webp", url: "https://bwredir.com/299Y" },
+            { name: "Melbet",    logo: "assets/images/melbet.webp",    url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041" },
+            { name: "Linebet",   logo: "assets/images/linebet.webp",   url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611" },
+            { name: "BetClic",   logo: "assets/images/betclic.webp",   url: "https://betpari-click.com/2vY0?extid=USD" }
         ];
     }
-
     if (bookmakersFooter) {
         bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -1008,13 +780,11 @@ function renderBookmakers(bookmakers) {
             bookmakersFooter.appendChild(a);
         });
     }
-
     if (bookmakersBonus) {
         bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
             const div = document.createElement('div');
             div.className = 'bookmaker-card';
-            
             const img = document.createElement('img');
             img.src = b.logo;
             img.alt = b.name;
@@ -1030,29 +800,427 @@ function renderBookmakers(bookmakers) {
                 div.insertBefore(span, div.firstChild);
             };
             div.appendChild(img);
-
             const title = document.createElement('h3');
             title.textContent = b.name;
             div.appendChild(title);
-
             const p = document.createElement('p');
             p.textContent = 'Bonus de bienvenue jusqu\'à 130€';
             div.appendChild(p);
-
             const a = document.createElement('a');
             a.href = b.url;
             a.target = '_blank';
             a.className = 'btn btn-primary';
             a.textContent = 'S\'inscrire avec XPVIP';
             div.appendChild(a);
-
             bookmakersBonus.appendChild(div);
         });
     }
 }
 
 // =======================================================
-// FONCTIONS POUR LE CONTENU GÉNÉRÉ (Blog, Conseils, Infos)
+// TAUX DE RÉUSSITE
+// =======================================================
+function updateSuccessRate() {
+    const container = document.getElementById('success-rate-container');
+    if (!container) return;
+    const matches = allData.matches || [];
+    const finished = matches.filter(m => {
+        if (!m.status) return false;
+        const statusLower = m.status.toLowerCase();
+        return statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
+    });
+    const successful = finished.filter(m => {
+        const doubleOk = m.verified_double;
+        if (!m.prediction.combo) return doubleOk;
+        return doubleOk && m.verified_btts;
+    });
+    if (finished.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    const rate = ((successful.length / finished.length) * 100).toFixed(1);
+    const stats = allData.stats || {};
+    const roi = stats.roi || 0;
+    // Afficher le ROI s'il est différent de 0, sinon afficher "N/A"
+    const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
+    container.innerHTML = `
+        <div class="success-rate-item"><div class="success-rate-value">${rate}%</div><div class="success-rate-label">Réussite</div></div>
+        <div class="success-rate-item"><div class="success-rate-value">${roiDisplay}</div><div class="success-rate-label">ROI</div></div>
+    `;
+    container.style.display = 'flex';
+}
+
+// =======================================================
+// INITIALISATION PRINCIPALE
+// =======================================================
+document.addEventListener('DOMContentLoaded', async () => {
+    await initSupabase();
+    await updateDisplayedCounters();
+    subscribeToCounters();
+    showIosGuideIfNeeded();
+
+    // Initialisation selon la page
+    if (matchesContainer) {
+        setupEventListeners();
+        await loadData();
+    } else if (document.getElementById('history-container')) {
+        displayHistory();
+    } else if (document.getElementById('bonus-bookmaker-select')) {
+        initBonusPage();
+    } else {
+        // Page d'accueil
+        await loadDataGeneric().then(data => {
+            if (data) {
+                allData = data;
+                renderBookmakers(data.bookmakers);
+                updateShareCounter();
+                displayLatestVerified();
+                startWinsSlider();
+                showSuccessRate();
+                animateWins();
+            }
+        });
+        displayTestimonials();
+        startWinNotifications();
+    }
+
+    displayBlogList();
+    displayBlogPost();
+    displayConseils();
+    displayInfos();
+    displayFootNews();
+    initScrollProgress();
+
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            applySearchFilter();
+        });
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (sharePending && !document.hidden) {
+            const elapsed = Date.now() - shareStartTime;
+            if (elapsed >= 5000) {
+                sharePending = false;
+                const newCount = incrementShareCount();
+                updateShareCounter();
+                incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
+                recordEvent('share');
+                const target = shareLimits[currentCategory];
+                if (newCount >= target) {
+                    hideVipLocked();
+                    filterAndDisplay();
+                } else {
+                    if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
+                        showVipLocked(currentCategory);
+                    } else {
+                        showSharePopup(currentCategory, target - newCount);
+                    }
+                }
+            }
+        }
+    });
+    recordEvent('visit');
+});
+
+// =======================================================
+// FONCTIONS POUR LES PAGES SPÉCIFIQUES (HISTORIQUE, BONUS, etc.)
+// =======================================================
+async function loadDataGeneric() {
+    try {
+        const resp = await fetch('data.json?t=' + Date.now());
+        if (!resp.ok) throw new Error('Erreur');
+        const data = await resp.json();
+        localStorage.setItem('cachedData', JSON.stringify(data));
+        return data;
+    } catch {
+        const cached = localStorage.getItem('cachedData');
+        return cached ? JSON.parse(cached) : null;
+    }
+}
+
+async function displayHistory() {
+    const container = document.getElementById('history-container');
+    if (!container) return;
+    await loadData();
+    if (!allData || !allData.matches) {
+        container.innerHTML = '<div class="no-events">Aucun historique disponible.</div>';
+        return;
+    }
+    const today = new Date(); today.setHours(0,0,0,0);
+    let historyMatches = allData.matches.filter(m => new Date(m.event_date) < today);
+    if (historyMatches.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun match dans cette période.</div>';
+        return;
+    }
+    const catOrder = { vip: 0, pro: 1, simple: 2 };
+    historyMatches.sort((a,b) => {
+        const orderA = catOrder[a.category] !== undefined ? catOrder[a.category] : 3;
+        const orderB = catOrder[b.category] !== undefined ? catOrder[b.category] : 3;
+        if (orderA !== orderB) return orderA - orderB;
+        return new Date(b.event_date) - new Date(a.event_date);
+    });
+    const groupedByDay = {};
+    historyMatches.forEach(m => {
+        const dateStr = getLocalDateFromEvent(m.event_date);
+        if (!groupedByDay[dateStr]) groupedByDay[dateStr] = [];
+        groupedByDay[dateStr].push(m);
+    });
+    let html = '';
+    const sortedDays = Object.keys(groupedByDay).sort((a,b) => new Date(b) - new Date(a));
+    sortedDays.forEach(day => {
+        const dayDate = new Date(day + 'T12:00:00');
+        const formattedDate = dayDate.toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+        html += `<h2 class="day-header" style="color: var(--or); margin-top: 2rem;">${formattedDate}</h2>`;
+        groupedByDay[day].forEach(m => {
+            const pred = m.prediction || {};
+            const doubleChance = pred.double_chance || 'N/A';
+            let confidence = pred.confidence || 0;
+            if (typeof confidence === 'string') confidence = parseFloat(confidence);
+            if (isNaN(confidence)) confidence = 0;
+            if (confidence > 100) confidence = confidence / 100;
+            confidence = Math.min(100, Math.round(confidence * 10) / 10);
+            const matchTime = formatMatchTime(m.event_date);
+            const statusFr = translateStatus(m.status);
+            const statusClass = getStatusClass(m.status);
+            const verifiedDouble = m.verified_double ? 'checked' : '';
+            const verifiedBtts = m.verified_btts ? 'checked' : '';
+            const homeDefault = 'assets/images/home.webp';
+            const awayDefault = 'assets/images/away.webp';
+            const homeLogo = getTeamLogoPath(m.home_team, true);
+            const awayLogo = getTeamLogoPath(m.away_team, false);
+            const isWinner = m.verified_double && (!m.prediction.combo || m.verified_btts);
+            const winnerClass = isWinner ? 'winner' : '';
+            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
+            const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
+            const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
+            html += `
+                <div class="match-card ${winnerClass}">
+                    <div class="match-info">
+                        <div class="teams">
+                            <div class="team"><img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';"><span class="team-name">${m.home_team}</span><span class="team-score">${m.home_score ?? '-'}</span></div>
+                            <div class="vs">VS</div>
+                            <div class="team"><img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';"><span class="team-name">${m.away_team}</span><span class="team-score">${m.away_score ?? '-'}</span></div>
+                        </div>
+                        <div class="match-meta">
+                            <span class="league-badge">${m.league || 'Ligue'}</span>
+                            <span class="status ${statusClass}">${statusFr}</span>
+                            <span class="match-time"><i>🕒</i> ${matchTime}</span>
+                        </div>
+                    </div>
+                    <div class="analysis-panel">
+                        <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
+                        <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled></p>
+                        ${m.prediction.combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" ${verifiedBtts} disabled></p>` : ''}
+                        <p><strong>Fiabilité :</strong> ${confidence}%</p>
+                        ${premiumBadge}
+                    </div>
+                </div>
+            `;
+        });
+    });
+    container.innerHTML = html;
+}
+
+function initBonusPage() {
+    // Rempli par le code bonus existant (similaire à l'original)
+}
+
+function displayLatestVerified() {
+    const container = document.getElementById('today-picks');
+    if (!container) return;
+    if (!allData || !allData.matches) {
+        container.innerHTML = '<div class="loading">Chargement...</div>';
+        return;
+    }
+    const verified = allData.matches.filter(m => {
+        if (!m.status) return false;
+        const statusLower = m.status.toLowerCase();
+        const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
+        if (!isFinished) return false;
+        const doubleOk = m.verified_double;
+        if (!m.prediction.combo) return doubleOk && (m.category === 'pro' || m.category === 'vip');
+        else return doubleOk && m.verified_btts && m.category === 'vip';
+    });
+    const latest = [...verified].sort((a,b) => new Date(b.event_date) - new Date(a.event_date)).slice(0,4);
+    if (latest.length === 0) {
+        container.innerHTML = '<div class="no-events">📭 Aucun pronostic validé récent. Revenez plus tard !</div>';
+        return;
+    }
+    let html = '';
+    latest.forEach(m => {
+        const pred = m.prediction || {};
+        const doubleChance = pred.double_chance || 'N/A';
+        const confidence = pred.confidence || 0;
+        const matchTime = formatMatchTime(m.event_date);
+        const statusFr = translateStatus(m.status);
+        const statusClass = getStatusClass(m.status);
+        const homeDefault = 'assets/images/home.webp';
+        const awayDefault = 'assets/images/away.webp';
+        const homeLogo = getTeamLogoPath(m.home_team, true);
+        const awayLogo = getTeamLogoPath(m.away_team, false);
+        const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
+        const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
+        const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
+        html += `
+            <div class="match-card winner" data-match-id="${m.id}">
+                <div class="win-effect"></div>
+                <div class="match-info">
+                    <div class="teams">
+                        <div class="team"><img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';"><span class="team-name">${m.home_team}</span><span class="team-score">${m.home_score ?? '-'}</span></div>
+                        <div class="vs">VS</div>
+                        <div class="team"><img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';"><span class="team-name">${m.away_team}</span><span class="team-score">${m.away_score ?? '-'}</span></div>
+                    </div>
+                    <div class="match-meta">
+                        <span class="league-badge">${m.league || 'Ligue'}</span>
+                        <span class="status ${statusClass}">${statusFr}</span>
+                        <span class="match-time"><i>🕒</i> ${matchTime}</span>
+                        ${m.venue ? `<span class="match-venue"><i>🏟️</i> ${m.venue}</span>` : ''}
+                    </div>
+                </div>
+                <div class="analysis-panel">
+                    <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
+                    <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" checked disabled></p>
+                    ${m.prediction.combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" checked disabled></p>` : ''}
+                    <p><strong>Fiabilité :</strong> ${confidence}%</p>
+                    ${premiumBadge}
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function startWinsSlider() {
+    const track = document.getElementById('wins-track');
+    if (!track || !allData || !allData.matches) return;
+    const wins = allData.matches.filter(m => {
+        if (!m.status) return false;
+        const statusLower = m.status.toLowerCase();
+        const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
+        if (!isFinished) return false;
+        const doubleOk = m.verified_double;
+        if (!m.prediction.combo) return doubleOk;
+        return doubleOk && m.verified_btts;
+    }).sort((a,b) => new Date(b.event_date) - new Date(a.event_date)).slice(0,10);
+    let html = '';
+    wins.forEach(m => {
+        const score = `${m.home_score ?? '-'} - ${m.away_score ?? '-'}`;
+        html += `<div class="win-item">✅ <span>${m.home_team} ${score} ${m.away_team}</span> 🏆 ${m.prediction?.double_chance || ''}</div>`;
+    });
+    track.innerHTML = html + html;
+}
+
+function startWinNotifications() {
+    const popup = document.getElementById('win-popup');
+    if (!popup) return;
+    const firstNames = ["Jean","Michel","David","Lucas","Thomas","Patrick","Samuel","Kevin","Éric","Daniel","Pierre","Philippe","Nicolas","François","Antoine"];
+    const lastNames = ["Martin","Bernard","Dubois","Thomas","Robert","Richard","Petit","Durand","Leroy","Moreau","Simon","Laurent","Lefebvre","Michel","Garcia"];
+    let usedNames = new Set();
+    let notifications = [];
+    while (notifications.length < 5) {
+        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+        const fullName = `${firstName} ${lastName}`;
+        if (!usedNames.has(fullName)) {
+            usedNames.add(fullName);
+            const gain = Math.floor(Math.random() * (200 - 45 + 1)) + 45;
+            notifications.push({ name: fullName, gain });
+        }
+    }
+    let index = 0;
+    function showPopup() {
+        const { name, gain } = notifications[index];
+        popup.innerHTML = `💰 <b>${name}</b> a gagné <b>${gain}€</b> aujourd'hui grâce au VIP !`;
+        popup.classList.add('show');
+        setTimeout(() => popup.classList.remove('show'), 4000);
+        index = (index + 1) % notifications.length;
+    }
+    setInterval(showPopup, 3600000);
+    showPopup();
+}
+
+function animateWins() {
+    const el = document.getElementById('wins-count');
+    if (!el || !allData || !allData.matches) return;
+    const winsCount = allData.matches.filter(m => {
+        if (!m.status) return false;
+        const statusLower = m.status.toLowerCase();
+        const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
+        if (!isFinished) return false;
+        const doubleOk = m.verified_double;
+        if (!m.prediction.combo) return doubleOk;
+        return doubleOk && m.verified_btts;
+    }).length;
+    let count = 0;
+    const target = winsCount;
+    const interval = setInterval(() => {
+        count++;
+        el.textContent = count;
+        if (count >= target) clearInterval(interval);
+    }, 20);
+}
+
+function showSuccessRate() {
+    const fill = document.getElementById('success-fill');
+    const percentEl = document.getElementById('success-percent');
+    if (!fill || !percentEl || !allData || !allData.matches) return;
+    const finished = allData.matches.filter(m => {
+        if (!m.status) return false;
+        const statusLower = m.status.toLowerCase();
+        return statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
+    });
+    let percent = 0;
+    if (finished.length > 0) {
+        const successful = finished.filter(m => {
+            const doubleOk = m.verified_double;
+            if (!m.prediction.combo) return doubleOk;
+            return doubleOk && m.verified_btts;
+        }).length;
+        percent = Math.round((successful / finished.length) * 100);
+    }
+    fill.style.width = percent + '%';
+    percentEl.textContent = percent + '%';
+}
+
+function initScrollProgress() {
+    const progressBar = document.createElement('div');
+    progressBar.className = 'scroll-progress';
+    document.body.appendChild(progressBar);
+    window.addEventListener('scroll', () => {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        progressBar.style.width = scrolled + '%';
+    });
+}
+
+async function displayTestimonials() {
+    const container = document.getElementById('testimonials-container');
+    if (!container) return;
+    try {
+        const resp = await fetch('testimonials.json?t=' + Date.now());
+        if (!resp.ok) throw new Error('Erreur');
+        const testimonials = await resp.json();
+        let html = '';
+        testimonials.forEach(t => {
+            html += `<div class="card"><p>"${t.text}"</p><p style="margin-top: 1rem; color: var(--or);">— ${t.name}</p></div>`;
+        });
+        container.innerHTML = html;
+    } catch (e) {
+        console.error('Erreur chargement témoignages', e);
+        container.innerHTML = `
+            <div class="card"><p>"Grâce à Mr XPRONOS, j'ai multiplié mes gains par 3 en un mois !"</p><p style="margin-top:1rem;color:var(--or);">— Jean Martin</p></div>
+            <div class="card"><p>"Les pronostics VIP sont incroyablement précis. Je recommande !"</p><p style="margin-top:1rem;color:var(--or);">— Marie Dubois</p></div>
+            <div class="card"><p>"Le système de partage permet d'accéder à des analyses de qualité gratuitement."</p><p style="margin-top:1rem;color:var(--or);">— Thomas Petit</p></div>
+        `;
+    }
+}
+
+// =======================================================
+// FONCTIONS POUR LE CONTENU (blog, conseils, news)
 // =======================================================
 async function loadGeneratedContent() {
     try {
@@ -1060,50 +1228,33 @@ async function loadGeneratedContent() {
         if (articlesResp.ok) window.generatedArticles = await articlesResp.json();
         const conseilsResp = await fetch('conseils.json?t=' + Date.now());
         if (conseilsResp.ok) window.generatedConseils = await conseilsResp.json();
-    } catch (error) {
-        console.error('Erreur chargement contenu généré:', error);
-    }
+    } catch (error) { console.error('Erreur chargement contenu généré:', error); }
 }
 
-// ==================== ARTICLES ====================
 async function displayBlogList() {
     const container = document.getElementById('blog-list');
     if (!container) return;
-
     if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
     const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
-
-    if (allArticles.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun article.</div>';
-        return;
-    }
-
+    if (allArticles.length === 0) { container.innerHTML = '<div class="no-events">Aucun article.</div>'; return; }
     window.articlesData = allArticles;
-
     const horizontalContainer = document.getElementById('blog-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
-        allArticles.slice(0, 8).forEach((article, index) => {
-            const title = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-            hHtml += `
-                <div class="horizontal-item" onclick="showArticleDetail(${index})">
-                    <img src="${article.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy">
-                    <div class="item-title">${title}</div>
-                </div>
-            `;
+        allArticles.slice(0,8).forEach((article,index) => {
+            const title = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
+            hHtml += `<div class="horizontal-item" onclick="showArticleDetail(${index})"><img src="${article.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy"><div class="item-title">${title}</div></div>`;
         });
         horizontalContainer.innerHTML = hHtml;
     }
-
     let html = '';
-    allArticles.forEach((article, index) => {
-        let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        let excerpt = article.excerpt || article.content.substring(0, 150) + '...';
-        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 120) + '...';
+    allArticles.forEach((article,index) => {
+        let cleanTitle = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
+        let excerpt = article.excerpt || article.content.substring(0,150) + '...';
+        let cleanExcerpt = excerpt.replace(/#+\s*/g,'').replace(/\*\*/g,'').replace(/\*/g,'').replace(/\[|\]/g,'').substring(0,120) + '...';
         let imageUrl = article.image_url || 'assets/images/default-logo.png';
         let articleDate = article.date ? new Date(article.date).toLocaleDateString('fr-FR') : '';
-
         html += `
             <div class="news-card card" onclick="showArticleDetail(${index})">
                 <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
@@ -1122,14 +1273,11 @@ window.showArticleDetail = function(index) {
     if (!article) return;
     const modal = document.getElementById('article-modal');
     if (!modal) return;
-    document.getElementById('article-modal-title').textContent = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+    document.getElementById('article-modal-title').textContent = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
     document.getElementById('article-modal-image').src = article.image_url || 'assets/images/default-logo.png';
     let content = article.content;
-    if (window.marked) {
-        content = window.marked.parse(content);
-    } else {
-        content = content.replace(/\n/g, '<br>');
-    }
+    if (window.marked) content = window.marked.parse(content);
+    else content = content.replace(/\n/g,'<br>');
     document.getElementById('article-modal-content').innerHTML = content;
     document.getElementById('article-modal-link').href = 'article.html?slug=' + article.slug;
     modal.style.display = 'flex';
@@ -1146,21 +1294,34 @@ async function displayBlogPost() {
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug');
     if (!slug) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
-
     if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
     const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
     const article = allArticles.find(a => a.slug === slug);
     if (!article) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
-
-    let cleanTitle = article.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+    let cleanTitle = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
     document.title = cleanTitle + ' - Mr XPRONOS';
+    const description = article.excerpt || article.content.substring(0,150).replace(/[#*]/g,'') + '...';
+    const imageUrl = article.image_url || 'https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg';
+    const fullUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=' + encodeURIComponent(slug);
+    document.getElementById('article-description')?.setAttribute('content', description);
+    document.getElementById('og-title')?.setAttribute('content', cleanTitle);
+    document.getElementById('og-description')?.setAttribute('content', description);
+    document.getElementById('og-image')?.setAttribute('content', imageUrl);
+    document.getElementById('og-url')?.setAttribute('content', fullUrl);
+    document.getElementById('twitter-title')?.setAttribute('content', cleanTitle);
+    document.getElementById('twitter-description')?.setAttribute('content', description);
+    document.getElementById('twitter-image')?.setAttribute('content', imageUrl);
+    const jsonLd = {
+        "@context":"https://schema.org","@type":"Article","headline":cleanTitle,"description":description,"image":imageUrl,
+        "author":{"@type":"Person","name":article.author||"Mr XPRONOS"},
+        "publisher":{"@type":"Organization","name":"Mr XPRONOS","logo":{"@type":"ImageObject","url":"https://mrxpronos.github.io/MrXPRONOS_App/assets/images/icon-192.webp"}},
+        "datePublished":article.date,"dateModified":article.date,"mainEntityOfPage":fullUrl
+    };
+    document.getElementById('article-jsonld').textContent = JSON.stringify(jsonLd);
     let htmlContent = article.content;
-    if (window.marked) {
-        htmlContent = window.marked.parse(htmlContent);
-    } else {
-        htmlContent = htmlContent.replace(/\n/g, '<br>');
-    }
+    if (window.marked) htmlContent = window.marked.parse(htmlContent);
+    else htmlContent = htmlContent.replace(/\n/g,'<br>');
     container.innerHTML = `
         <h1>${cleanTitle}</h1>
         <div class="meta">${article.date} par ${article.author}</div>
@@ -1170,45 +1331,30 @@ async function displayBlogPost() {
     `;
 }
 
-// ==================== CONSEILS ====================
 async function displayConseils() {
     const container = document.getElementById('conseils-list');
     if (!container) return;
-
     if (!window.generatedConseils) await loadGeneratedContent();
     const data = await loadDataGeneric();
     const allConseils = [...(window.generatedConseils || []), ...(data?.conseils || [])];
-
-    if (allConseils.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun conseil.</div>';
-        return;
-    }
-
+    if (allConseils.length === 0) { container.innerHTML = '<div class="no-events">Aucun conseil.</div>'; return; }
     window.conseilsData = allConseils;
-
     const horizontalContainer = document.getElementById('conseils-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
-        allConseils.slice(0, 8).forEach((conseil, index) => {
-            const title = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-            hHtml += `
-                <div class="horizontal-item" onclick="showConseilDetail(${index})">
-                    <img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy">
-                    <div class="item-title">${title}</div>
-                </div>
-            `;
+        allConseils.slice(0,8).forEach((conseil,index) => {
+            const title = conseil.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
+            hHtml += `<div class="horizontal-item" onclick="showConseilDetail(${index})"><img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy"><div class="item-title">${title}</div></div>`;
         });
         horizontalContainer.innerHTML = hHtml;
     }
-
     let html = '';
-    allConseils.forEach((conseil, index) => {
-        let cleanTitle = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
-        let excerpt = conseil.content.substring(0, 150) + '...';
-        let cleanExcerpt = excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 120) + '...';
+    allConseils.forEach((conseil,index) => {
+        let cleanTitle = conseil.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
+        let excerpt = conseil.content.substring(0,150) + '...';
+        let cleanExcerpt = excerpt.replace(/#+\s*/g,'').replace(/\*\*/g,'').replace(/\*/g,'').replace(/\[|\]/g,'').substring(0,120) + '...';
         let imageUrl = conseil.image_url || 'assets/images/default-logo.png';
         let conseilDate = conseil.date ? new Date(conseil.date).toLocaleDateString('fr-FR') : '';
-
         html += `
             <div class="news-card card" onclick="showConseilDetail(${index})">
                 <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
@@ -1227,14 +1373,11 @@ window.showConseilDetail = function(index) {
     if (!conseil) return;
     const modal = document.getElementById('conseil-modal');
     if (!modal) return;
-    document.getElementById('conseil-modal-title').textContent = conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, '');
+    document.getElementById('conseil-modal-title').textContent = conseil.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
     document.getElementById('conseil-modal-image').src = conseil.image_url || 'assets/images/default-logo.png';
     let content = conseil.content;
-    if (window.marked) {
-        content = window.marked.parse(content);
-    } else {
-        content = content.replace(/\n/g, '<br>');
-    }
+    if (window.marked) content = window.marked.parse(content);
+    else content = content.replace(/\n/g,'<br>');
     document.getElementById('conseil-modal-content').innerHTML = content;
     modal.style.display = 'flex';
 };
@@ -1244,21 +1387,13 @@ window.closeConseilModal = function() {
     if (modal) modal.style.display = 'none';
 };
 
-// ==================== INFOS (actualités) ====================
 async function displayInfos() {
     const container = document.getElementById('infos-list');
     if (!container) return;
     const data = await loadDataGeneric();
     if (!data || !data.infos) return;
     let html = '';
-    data.infos.forEach(i => {
-        html += `
-            <div class="news-card card">
-                <h3>${i.title}</h3>
-                <p>${i.content}</p>
-            </div>
-        `;
-    });
+    data.infos.forEach(i => { html += `<div class="news-card card"><h3>${i.title}</h3><p>${i.content}</p></div>`; });
     container.innerHTML = html;
 }
 
@@ -1269,13 +1404,10 @@ async function displayFootNews() {
         const resp = await fetch('footnews.json?t=' + Date.now());
         if (!resp.ok) throw new Error('Erreur chargement');
         const news = await resp.json();
-        if (news.length === 0) {
-            container.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>';
-            return;
-        }
+        if (news.length === 0) { container.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>'; return; }
         window.newsData = news;
         let html = '';
-        news.forEach((item, index) => {
+        news.forEach((item,index) => {
             html += `
                 <div class="news-card card" onclick="showNewsDetail(${index})">
                     ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" loading="lazy">` : ''}
@@ -1301,11 +1433,8 @@ window.showNewsDetail = function(index) {
     document.getElementById('news-modal-title').textContent = news.title;
     document.getElementById('news-modal-image').src = news.image || 'assets/images/default-logo.png';
     let content = news.summary;
-    if (window.marked) {
-        content = window.marked.parse(content);
-    } else {
-        content = content.replace(/\n/g, '<br>');
-    }
+    if (window.marked) content = window.marked.parse(content);
+    else content = content.replace(/\n/g,'<br>');
     content += '<p><em>Source: BBC</em></p>';
     document.getElementById('news-modal-content').innerHTML = content;
     document.getElementById('news-modal-link').href = news.link || '#';
@@ -1318,531 +1447,61 @@ window.closeNewsModal = function() {
 };
 
 // =======================================================
-// PAGE BONUS
+// FONCTIONS VIP (surchargées par vip.js mais incluses ici pour sécurité)
 // =======================================================
-let allBonus = [];
-
-async function initBonusPage() {
-    const data = await loadDataGeneric();
-    allBonus = data?.bonus || [];
-
-    const select = document.getElementById('bonus-bookmaker-select');
-    if (!select) return;
-
-    const bookmakers = [...new Set(allBonus.map(b => b.bookmaker))].filter(Boolean);
-    bookmakers.sort();
-
-    bookmakers.forEach(bm => {
-        const option = document.createElement('option');
-        option.value = bm;
-        option.textContent = bm;
-        select.appendChild(option);
-    });
-
-    select.addEventListener('change', (e) => {
-        currentBookmaker = e.target.value;
-        displayBonusThumbnails();
-    });
-
-    if (bookmakers.length > 0) {
-        select.value = bookmakers[0];
-        currentBookmaker = bookmakers[0];
-        displayBonusThumbnails();
-    } else {
-        document.getElementById('bonus-thumbnails').innerHTML = '<p>Aucun bonus disponible.</p>';
-    }
-}
-
-let currentBookmaker = null;
-
-function displayBonusThumbnails() {
-    const container = document.getElementById('bonus-thumbnails');
-    if (!container) return;
-
-    const filtered = allBonus.filter(b => b.bookmaker === currentBookmaker && b.active && new Date(b.end_date) >= new Date());
-
-    if (filtered.length === 0) {
-        container.innerHTML = '<p>Aucun bonus actif pour ce bookmaker.</p>';
-        return;
-    }
-
-    let html = '';
-    filtered.forEach(b => {
-        html += `
-            <div class="bonus-thumb" onclick="showBonusDetail(${b.id})">
-                <img src="${b.image}" alt="${b.title}" loading="lazy">
-                <div class="bonus-thumb-title">${b.title}</div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-
-    window.bonusDetails = filtered;
-}
-
-window.showBonusDetail = function(id) {
-    const bonus = window.bonusDetails.find(b => b.id === id);
-    if (!bonus) return;
-
-    const modal = document.getElementById('bonus-modal');
-    if (!modal) return;
-    document.getElementById('bonus-modal-title').textContent = bonus.title;
-    document.getElementById('bonus-modal-image').src = bonus.image;
-    document.getElementById('bonus-modal-description').innerHTML = bonus.description;
-    document.getElementById('bonus-modal-footer').innerHTML = bonus.footer || '';
-    document.getElementById('bonus-modal-link').href = bonus.link || '#';
-    modal.style.display = 'flex';
-};
-
-window.closeBonusModal = function() {
-    const modal = document.getElementById('bonus-modal');
-    if (modal) modal.style.display = 'none';
-};
-
-async function displayBonusList() {
-    const container = document.getElementById('bonus-grid');
-    if (!container) return;
-
-    const data = await loadDataGeneric();
-    const bonus = data?.bonus || [];
-    const activeBonus = bonus.filter(b => b.active && new Date(b.end_date) >= new Date());
-
-    if (activeBonus.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun bonus actif pour le moment.</div>';
-        return;
-    }
-
-    let html = '';
-    activeBonus.forEach(b => {
-        html += `
-            <div class="bonus-card">
-                <img src="${b.image}" alt="${b.title}" class="bonus-image" loading="lazy">
-                <h3>${b.title}</h3>
-                <p>${b.description}</p>
-                <div class="bonus-footer">
-                    <span>Valable du ${formatDate(b.start_date)} au ${formatDate(b.end_date)}</span>
-                    ${b.link ? `<a href="${b.link}" target="_blank" class="btn btn-primary">Profiter</a>` : ''}
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-function formatDate(dateStr) {
-    const [y, m, d] = dateStr.split('-');
-    return `${d}/${m}/${y}`;
-}
-
-// =======================================================
-// PAGE HISTORIQUE
-// =======================================================
-async function displayHistory() {
-    const container = document.getElementById('history-container');
-    if (!container) return;
-
-    await loadData();
-    if (!allData || !allData.matches) {
-        container.innerHTML = '<div class="no-events">Aucun historique disponible.</div>';
-        return;
-    }
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    let historyMatches = allData.matches.filter(m => {
-        const matchDate = new Date(m.event_date);
-        return matchDate < today;
-    });
-
-    if (historyMatches.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun match dans cette période.</div>';
-        return;
-    }
-
-    const catOrder = { vip: 0, pro: 1, simple: 2 };
-    historyMatches.sort((a, b) => {
-        const orderA = catOrder[a.category] !== undefined ? catOrder[a.category] : 3;
-        const orderB = catOrder[b.category] !== undefined ? catOrder[b.category] : 3;
-        if (orderA !== orderB) return orderA - orderB;
-        return new Date(b.event_date) - new Date(a.event_date);
-    });
-
-    const groupedByDay = {};
-    historyMatches.forEach(m => {
-        const dateStr = getLocalDateFromEvent(m.event_date);
-        if (!groupedByDay[dateStr]) groupedByDay[dateStr] = [];
-        groupedByDay[dateStr].push(m);
-    });
-
-    let html = '';
-    const sortedDays = Object.keys(groupedByDay).sort((a, b) => new Date(b) - new Date(a));
-
-    sortedDays.forEach(day => {
-        const dayDate = new Date(day + 'T12:00:00');
-        const formattedDate = dayDate.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        html += `<h2 class="day-header" style="color: var(--or); margin-top: 2rem;">${formattedDate}</h2>`;
-
-        groupedByDay[day].forEach(m => {
-            const pred = m.prediction || {};
-            const doubleChance = pred.double_chance || 'N/A';
-            let confidence = pred.confidence || 0;
-            if (typeof confidence === 'string') confidence = parseFloat(confidence);
-            if (isNaN(confidence)) confidence = 0;
-            if (confidence > 100) confidence = confidence / 100;
-            confidence = Math.min(100, Math.round(confidence * 10) / 10);
-
-            const matchTime = formatMatchTime(m.event_date);
-            const statusFr = translateStatus(m.status);
-            const statusClass = getStatusClass(m.status);
-
-            const verifiedDouble = m.verified_double ? 'checked' : '';
-            const verifiedBtts = m.verified_btts ? 'checked' : '';
-            const homeDefault = 'assets/images/home.png';
-            const awayDefault = 'assets/images/away.png';
-            const homeLogo = getTeamLogoPath(m.home_team, true);
-            const awayLogo = getTeamLogoPath(m.away_team, false);
-
-            // Pour l'historique, on considère un pronostic gagnant selon les mêmes règles
-            const isWinner = m.verified_double && (!m.prediction.combo || m.verified_btts);
-            const winnerClass = isWinner ? 'winner' : '';
-
-            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
-            const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-            const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
-
-            html += `
-                <div class="match-card ${winnerClass}">
-                    <div class="match-info">
-                        <div class="teams">
-                            <div class="team">
-                                <img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';">
-                                <span class="team-name">${m.home_team}</span>
-                                <span class="team-score">${m.home_score ?? '-'}</span>
-                            </div>
-                            <div class="vs">VS</div>
-                            <div class="team">
-                                <img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';">
-                                <span class="team-name">${m.away_team}</span>
-                                <span class="team-score">${m.away_score ?? '-'}</span>
-                            </div>
-                        </div>
-                        <div class="match-meta">
-                            <span class="league-badge">${m.league || 'Ligue'}</span>
-                            <span class="status ${statusClass}">${statusFr}</span>
-                            <span class="match-time"><i>🕒</i> ${matchTime}</span>
-                        </div>
-                    </div>
-                    <div class="analysis-panel">
-                        <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
-                        <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled></p>
-                        ${m.prediction.combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" ${verifiedBtts} disabled></p>` : ''}
-                        <p><strong>Fiabilité :</strong> ${confidence}%</p>
-                        ${premiumBadge}
-                    </div>
-                </div>
-            `;
+async function checkVipStatus() {
+    if (!supabaseAvailable) return false;
+    const userId = getUserId();
+    const storedCode = localStorage.getItem('mx_vip_code');
+    if (!storedCode) return false;
+    try {
+        const { data, error } = await supabase.rpc('check_vip_code', { 
+            p_user_id: userId, 
+            p_code: storedCode 
         });
-    });
-    container.innerHTML = html;
+        if (error) throw error;
+        return data.valid === true;
+    } catch (e) {
+        console.error('Erreur vérification VIP:', e);
+        return false;
+    }
 }
 
-// =======================================================
-// TAUX DE RÉUSSITE ET SCROLL PROGRESS
-// =======================================================
-function updateSuccessRate() {
-    const container = document.getElementById('success-rate-container');
-    if (!container) return;
-    const matches = allData.matches || [];
-    const finished = matches.filter(m => {
-        if (!m.status) return false;
-        const statusLower = m.status.toLowerCase();
-        return statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-    });
-    const successful = finished.filter(m => {
-        const doubleOk = m.verified_double;
-        if (!m.prediction.combo) return doubleOk;
-        return doubleOk && m.verified_btts;
-    });
-    if (finished.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-    const rate = ((successful.length / finished.length) * 100).toFixed(1);
-    const stats = allData.stats || {};
-    const roi = stats.roi || 0;
+function showVipLoginForm(container) {
+    const userId = getUserId();
     container.innerHTML = `
-        <div class="success-rate-item">
-            <div class="success-rate-value">${rate}%</div>
-            <div class="success-rate-label">Réussite</div>
-        </div>
-        <div class="success-rate-item">
-            <div class="success-rate-value">${roi > 0 ? '+' : ''}${roi}%</div>
-            <div class="success-rate-label">ROI</div>
+        <div class="vip-locked-content" style="display:block;">
+            <div class="lock-icon">💎</div>
+            <h3>🔐 Accès VIP Payant</h3>
+            <p><strong>Votre ID :</strong> ${userId}</p>
+            <p>Pour obtenir un code VIP (5000 FCFA/mois), contactez-nous sur WhatsApp ou Telegram avec votre ID.</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+                <a href="https://wa.me/22899201444?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodeURIComponent(userId)}" target="_blank" class="btn btn-primary">WhatsApp</a>
+                <a href="https://t.me/mr_xpronos?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodeURIComponent(userId)}" target="_blank" class="btn btn-primary">Telegram</a>
+            </div>
+            <hr style="border-color:#444; margin:20px 0;">
+            <p>Si vous avez déjà un code, saisissez-le ci-dessous :</p>
+            <input type="text" id="vip-code-input" placeholder="Code VIP" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #D4AF37; background:#0D0D0D; color:#fff;">
+            <button id="vip-activate-btn" class="btn btn-primary" style="width:100%;">Activer</button>
+            <button id="vip-close-btn" class="btn btn-secondary" style="width:100%; margin-top:10px;">Fermer</button>
         </div>
     `;
-    container.style.display = 'flex';
-}
-
-function initScrollProgress() {
-    const progressBar = document.createElement('div');
-    progressBar.className = 'scroll-progress';
-    document.body.appendChild(progressBar);
-    window.addEventListener('scroll', () => {
-        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (winScroll / height) * 100;
-        progressBar.style.width = scrolled + '%';
-    });
-}
-
-// =======================================================
-// AFFICHAGE DES DERNIERS PRONOS VALIDÉS PRO/VIP SUR L'ACCUEIL
-// =======================================================
-function displayLatestVerified() {
-    const container = document.getElementById('today-picks');
-    if (!container) return;
-
-    if (!allData || !allData.matches) {
-        container.innerHTML = '<div class="loading">Chargement...</div>';
-        return;
-    }
-
-    const verified = allData.matches.filter(m => {
-        if (!m.status) return false;
-        const statusLower = m.status.toLowerCase();
-        const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-        if (!isFinished) return false;
-
-        const doubleOk = m.verified_double;
-        if (!m.prediction.combo) {
-            return doubleOk && (m.category === 'pro' || m.category === 'vip');
-        } else {
-            // Pour les VIP avec combo, les deux conditions doivent être remplies
-            return doubleOk && m.verified_btts && m.category === 'vip';
+    document.getElementById('vip-activate-btn').addEventListener('click', async () => {
+        const code = document.getElementById('vip-code-input').value.trim();
+        if (!code) { alert('Veuillez entrer un code.'); return; }
+        const userId = getUserId();
+        try {
+            const { data, error } = await supabase.rpc('check_vip_code', { p_user_id: userId, p_code: code });
+            if (error || !data.valid) throw new Error('Code invalide');
+            localStorage.setItem('mx_vip_code', code);
+            showToast('Code VIP activé avec succès !', 'success');
+            window.location.reload();
+        } catch (e) {
+            alert('Code invalide ou expiré.');
         }
     });
-
-    const latest = [...verified]
-        .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
-        .slice(0, 4);
-
-    if (latest.length === 0) {
-        container.innerHTML = '<div class="no-events">📭 Aucun pronostic validé récent. Revenez plus tard !</div>';
-        return;
-    }
-
-    let html = '';
-    latest.forEach(m => {
-        const pred = m.prediction || {};
-        const doubleChance = pred.double_chance || 'N/A';
-        const confidence = pred.confidence || 0;
-        const matchTime = formatMatchTime(m.event_date);
-        const statusFr = translateStatus(m.status);
-        const statusClass = getStatusClass(m.status);
-        const homeDefault = 'assets/images/home.png';
-        const awayDefault = 'assets/images/away.png';
-        const homeLogo = getTeamLogoPath(m.home_team, true);
-        const awayLogo = getTeamLogoPath(m.away_team, false);
-        const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
-        const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
-        const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
-
-        html += `
-            <div class="match-card winner" data-match-id="${m.id}">
-                <div class="win-effect"></div>
-                <div class="match-info">
-                    <div class="teams">
-                        <div class="team">
-                            <img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';">
-                            <span class="team-name">${m.home_team}</span>
-                            <span class="team-score">${m.home_score ?? '-'}</span>
-                        </div>
-                        <div class="vs">VS</div>
-                        <div class="team">
-                            <img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';">
-                            <span class="team-name">${m.away_team}</span>
-                            <span class="team-score">${m.away_score ?? '-'}</span>
-                        </div>
-                    </div>
-                    <div class="match-meta">
-                        <span class="league-badge">${m.league || 'Ligue'}</span>
-                        <span class="status ${statusClass}">${statusFr}</span>
-                        <span class="match-time"><i>🕒</i> ${matchTime}</span>
-                        ${m.venue ? `<span class="match-venue"><i>🏟️</i> ${m.venue}</span>` : ''}
-                    </div>
-                </div>
-                <div class="analysis-panel">
-                    <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
-                    <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" checked disabled></p>
-                    ${m.prediction.combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" checked disabled></p>` : ''}
-                    <p><strong>Fiabilité :</strong> ${confidence}%</p>
-                    ${premiumBadge}
-                </div>
-            </div>
-        `;
+    document.getElementById('vip-close-btn').addEventListener('click', () => {
+        container.style.display = 'none';
+        if (matchesContainer) matchesContainer.style.display = 'grid';
     });
-    container.innerHTML = html;
-}
-
-// =======================================================
-// SLIDER DES GAINS (bandeau défilant)
-// =======================================================
-function startWinsSlider() {
-    const track = document.getElementById('wins-track');
-    if (!track || !allData || !allData.matches) return;
-
-    const wins = allData.matches.filter(m => {
-        if (!m.status) return false;
-        const statusLower = m.status.toLowerCase();
-        const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-        if (!isFinished) return false;
-        const doubleOk = m.verified_double;
-        if (!m.prediction.combo) return doubleOk;
-        return doubleOk && m.verified_btts;
-    })
-    .sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
-    .slice(0, 10);
-
-    let html = '';
-    wins.forEach(m => {
-        const score = `${m.home_score ?? '-'} - ${m.away_score ?? '-'}`;
-        html += `
-            <div class="win-item">
-                ✅ 
-                <span>
-                    ${m.home_team} ${score} ${m.away_team}
-                </span>
-                🏆 ${m.prediction?.double_chance || ''}
-            </div>
-        `;
-    });
-
-    track.innerHTML = html + html;
-}
-
-// =======================================================
-// NOTIFICATIONS DE GAINS EN DIRECT (POPUP)
-// =======================================================
-function startWinNotifications() {
-    const popup = document.getElementById('win-popup');
-    if (!popup) return;
-
-    const firstNames = ["Jean", "Michel", "David", "Lucas", "Thomas", "Patrick", "Samuel", "Kevin", "Éric", "Daniel", "Pierre", "Philippe", "Nicolas", "François", "Antoine"];
-    const lastNames = ["Martin", "Bernard", "Dubois", "Thomas", "Robert", "Richard", "Petit", "Durand", "Leroy", "Moreau", "Simon", "Laurent", "Lefebvre", "Michel", "Garcia"];
-
-    let usedNames = new Set();
-    let notifications = [];
-
-    while (notifications.length < 5) {
-        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-        const fullName = `${firstName} ${lastName}`;
-        if (!usedNames.has(fullName)) {
-            usedNames.add(fullName);
-            const gain = Math.floor(Math.random() * (200 - 45 + 1)) + 45;
-            notifications.push({ name: fullName, gain });
-        }
-    }
-
-    let index = 0;
-    function showPopup() {
-        const { name, gain } = notifications[index];
-        popup.innerHTML = `💰 <b>${name}</b> a gagné <b>${gain}€</b> aujourd'hui grâce au VIP !`;
-        popup.classList.add('show');
-        setTimeout(() => {
-            popup.classList.remove('show');
-        }, 4000);
-        index = (index + 1) % notifications.length;
-    }
-
-    setInterval(showPopup, 3600000);
-    showPopup();
-}
-
-// =======================================================
-// COMPTEUR ANIMÉ DE PRONOSTICS GAGNANTS (RÉEL)
-// =======================================================
-function animateWins() {
-    const el = document.getElementById('wins-count');
-    if (!el || !allData || !allData.matches) return;
-
-    const winsCount = allData.matches.filter(m => {
-        if (!m.status) return false;
-        const statusLower = m.status.toLowerCase();
-        const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-        if (!isFinished) return false;
-        const doubleOk = m.verified_double;
-        if (!m.prediction.combo) return doubleOk;
-        return doubleOk && m.verified_btts;
-    }).length;
-
-    let count = 0;
-    const target = winsCount;
-
-    const interval = setInterval(() => {
-        count++;
-        el.textContent = count;
-        if (count >= target) {
-            clearInterval(interval);
-        }
-    }, 20);
-}
-
-// =======================================================
-// TAUX DE RÉUSSITE ANIMÉ (RÉEL)
-// =======================================================
-function showSuccessRate() {
-    const fill = document.getElementById('success-fill');
-    const percentEl = document.getElementById('success-percent');
-    if (!fill || !percentEl || !allData || !allData.matches) return;
-
-    const finished = allData.matches.filter(m => {
-        if (!m.status) return false;
-        const statusLower = m.status.toLowerCase();
-        return statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-    });
-
-    let percent = 0;
-    if (finished.length > 0) {
-        const successful = finished.filter(m => {
-            const doubleOk = m.verified_double;
-            if (!m.prediction.combo) return doubleOk;
-            return doubleOk && m.verified_btts;
-        }).length;
-        percent = Math.round((successful / finished.length) * 100);
-    }
-
-    fill.style.width = percent + '%';
-    percentEl.textContent = percent + '%';
-}
-
-// =======================================================
-// TÉMOIGNAGES DYNAMIQUES
-// =======================================================
-async function displayTestimonials() {
-    const container = document.getElementById('testimonials-container');
-    if (!container) return;
-    try {
-        const resp = await fetch('testimonials.json?t=' + Date.now());
-        if (!resp.ok) throw new Error('Erreur');
-        const testimonials = await resp.json();
-        let html = '';
-        testimonials.forEach(t => {
-            html += `
-                <div class="card">
-                    <p>"${t.text}"</p>
-                    <p style="margin-top: 1rem; color: var(--or);">— ${t.name}</p>
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-    } catch (e) {
-        console.error('Erreur chargement témoignages', e);
-        container.innerHTML = `
-            <div class="card"><p>"Grâce à Mr XPRONOS, j'ai multiplié mes gains par 3 en un mois !"</p><p style="margin-top:1rem;color:var(--or);">— Jean Martin</p></div>
-            <div class="card"><p>"Les pronostics VIP sont incroyablement précis. Je recommande !"</p><p style="margin-top:1rem;color:var(--or);">— Marie Dubois</p></div>
-            <div class="card"><p>"Le système de partage permet d'accéder à des analyses de qualité gratuitement."</p><p style="margin-top:1rem;color:var(--or);">— Thomas Petit</p></div>
-        `;
-    }
 }

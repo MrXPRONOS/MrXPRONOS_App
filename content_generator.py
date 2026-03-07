@@ -3,8 +3,7 @@
 
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
-Ajoute la génération d'images avec fallback : Mistral -> Pixazo -> Lorem Picsum.
-Version corrigée : utilise uniquement Pixazo + fallback, car l'API Mistral image est instable. 
+Ajoute la génération d'images avec fallback : Mistral -> Pixazo -> Unsplash -> Lorem Picsum.
 """
 
 import os
@@ -16,6 +15,7 @@ from datetime import datetime
 
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY")
+UNSPLASH_ACCESS_KEY = os.environ.get("UNSPLASH_ACCESS_KEY")
 
 if not MISTRAL_API_KEY:
     raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
@@ -70,19 +70,47 @@ def generate_image_pixazo(prompt, prefix):
         print(f"      ❌ Erreur Pixazo: {e}")
         return None
 
-def get_fallback_image_url(topic="football"):
+def get_unsplash_image(query="football"):
+    """Récupère une image aléatoire depuis Unsplash."""
+    if not UNSPLASH_ACCESS_KEY:
+        return None
+    try:
+        url = f"https://api.unsplash.com/photos/random?query={query}&client_id={UNSPLASH_ACCESS_KEY}"
+        resp = requests.get(url, timeout=10)
+        if resp.status_code == 200:
+            data = resp.json()
+            return data['urls']['regular']
+    except Exception as e:
+        print(f"      ⚠️ Erreur Unsplash: {e}")
+    return None
+
+def get_fallback_image_url(subject="football"):
     """Retourne une image de fallback (Lorem Picsum)."""
     seed = random.randint(1, 1000)
     return f"https://picsum.photos/seed/{seed}/768/400?grayscale"
 
 def generate_image_with_fallback(prompt, prefix, subject="football"):
     """
-    Tente de générer une image avec Pixazo, puis fallback.
+    Tente de générer une image avec Pixazo, puis Unsplash, puis fallback.
     """
     if PIXAZO_API_KEY:
         img = generate_image_pixazo(prompt, prefix)
         if img:
             return img
+
+    unsplash = get_unsplash_image(subject)
+    if unsplash:
+        # Télécharger l'image Unsplash localement
+        try:
+            img_resp = requests.get(unsplash, timeout=30)
+            img_resp.raise_for_status()
+            filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.jpg"
+            os.makedirs("assets/images", exist_ok=True)
+            with open(filename, "wb") as f:
+                f.write(img_resp.content)
+            return filename
+        except Exception as e:
+            print(f"      ⚠️ Erreur téléchargement Unsplash: {e}")
 
     print(f"      ℹ️ Utilisation du fallback Lorem Picsum")
     return get_fallback_image_url(subject)

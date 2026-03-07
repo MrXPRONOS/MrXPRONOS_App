@@ -2,19 +2,21 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_sitemap.py - Génère le sitemap.xml à partir des pages statiques et des articles.
-Exécution quotidienne. 
+generate_sitemap.py - Génère le sitemap.xml avec toutes les pages et articles
 """
 
 import json
+import os
+import logging
 from datetime import datetime
 
-BASE_URL = "https://mrxpronos.github.io/MrXPRONOS_App"  # À modifier si nécessaire
+logger = logging.getLogger(__name__)
+
+BASE_URL = "https://mrxpronos.github.io/MrXPRONOS_App"
 
 def generate_sitemap():
     urls = []
 
-    # Pages statiques
     static_pages = [
         "",
         "index.html",
@@ -29,16 +31,12 @@ def generate_sitemap():
     for page in static_pages:
         urls.append(f"{BASE_URL}/{page}")
 
-    # Articles
-    try:
+    if os.path.exists("articles.json"):
         with open("articles.json", "r", encoding="utf-8") as f:
             articles = json.load(f)
             for article in articles:
                 urls.append(f"{BASE_URL}/article.html?slug={article['slug']}")
-    except FileNotFoundError:
-        pass
 
-    # Écriture du sitemap
     with open("sitemap.xml", "w", encoding="utf-8") as f:
         f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
         f.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n')
@@ -50,7 +48,7 @@ def generate_sitemap():
             f.write('    <priority>0.8</priority>\n')
             f.write('  </url>\n')
         f.write('</urlset>\n')
-    print("✅ sitemap.xml généré")
+    logger.info("sitemap.xml généré")
 
 if __name__ == "__main__":
     generate_sitemap()

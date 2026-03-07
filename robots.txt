@@ -1,4 +1,3 @@
-# robots.txt - Pour le SEO
 User-agent: *
 Allow: /
 Sitemap: https://mrxpronos.github.io/MrXPRONOS_App/sitemap.xml
