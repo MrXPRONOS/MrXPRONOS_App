@@ -561,9 +561,9 @@
       "league": "Pro League",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "1st Half",
+      "home_score": 0,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 3,
         "home_wins": 0.0,
@@ -616,7 +616,7 @@
       "league": "Professional League",
       "league_logo": null,
       "venue": "",
-      "status": "1st Half",
+      "status": "Halftime",
       "home_score": 1,
       "away_score": 0,
       "h2h_analysis": {
@@ -671,8 +671,8 @@
       "league": "Torneo Reservas - Clausura",
       "league_logo": null,
       "venue": "",
-      "status": "2nd Half",
-      "home_score": 4,
+      "status": "Just Ended",
+      "home_score": 5,
       "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
@@ -711,9 +711,9 @@
       "xpronos_score": 55,
       "badge": "",
       "category": "pro",
-      "verified_double": false,
-      "verified_btts": false,
-      "verified_over": false
+      "verified_double": true,
+      "verified_btts": true,
+      "verified_over": true
     },
     {
       "id": 4673009,
@@ -726,7 +726,7 @@
       "league": "A Lyga",
       "league_logo": null,
       "venue": "",
-      "status": "2nd Half",
+      "status": "Just Ended",
       "home_score": 0,
       "away_score": 2,
       "h2h_analysis": {
@@ -766,7 +766,7 @@
       "xpronos_score": 62,
       "badge": "",
       "category": "pro",
-      "verified_double": false,
+      "verified_double": true,
       "verified_btts": false,
       "verified_over": false
     },
@@ -3041,7 +3041,7 @@
         "league_logo": null,
         "venue": "",
         "status": "2nd Half",
-        "home_score": 3,
+        "home_score": 4,
         "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
@@ -3080,9 +3080,9 @@
         "xpronos_score": 55,
         "badge": "",
         "category": "pro",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false
+        "verified_double": true,
+        "verified_btts": true,
+        "verified_over": true
       },
       {
         "id": 4445498,
@@ -3570,7 +3570,7 @@
         "xpronos_score": 62,
         "badge": "",
         "category": "pro",
-        "verified_double": false,
+        "verified_double": true,
         "verified_btts": false,
         "verified_over": false
       },
@@ -3849,7 +3849,7 @@
   },
   "stats": {
     "total_bets": 0,
-    "wins": 20,
+    "wins": 22,
     "roi": 0
   },
   "bookmakers": [

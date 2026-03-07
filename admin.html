@@ -736,15 +736,12 @@
             const expiresAt = new Date();
             expiresAt.setDate(expiresAt.getDate() + durationDays);
 
-            const { error } = await supabase
-                .from('vip_users')
-                .insert({
-                    user_id: userId,
-                    vip_code: code,
-                    ip_address: ip || '',
-                    expires_at: expiresAt.toISOString(),
-                    is_active: true
-                });
+            const { error } = await supabase.rpc('insert_vip_code', {
+                p_user_id: userId,
+                p_vip_code: code,
+                p_ip_address: ip || '',
+                p_expires_at: expiresAt.toISOString()
+            });
             if (error) throw error;
             return code;
         }
