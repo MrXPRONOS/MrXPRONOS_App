@@ -45,16 +45,13 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.5,
-        "combo": null,
         "confidence": 61
       },
       "xpronos_score": 52,
       "badge": "",
       "category": "simple",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -102,16 +99,13 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.0,
-        "combo": null,
         "confidence": 61
       },
       "xpronos_score": 59,
       "badge": "",
       "category": "pro",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -159,16 +153,13 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": true,
-        "btts": true,
-        "btts_probability": 1.0,
-        "combo": "X2 + BTTS",
         "confidence": 59
       },
-      "xpronos_score": 78,
-      "badge": "💎 VIP ELITE",
-      "category": "vip",
+      "xpronos_score": 68,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -216,16 +207,13 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.0,
-        "combo": null,
-        "confidence": 71
+        "confidence": 76
       },
       "xpronos_score": 52,
       "badge": "",
       "category": "simple",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -273,73 +261,13 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": true,
-        "btts": false,
-        "btts_probability": 0.5,
-        "combo": null,
         "confidence": 66
       },
-      "xpronos_score": 60,
+      "xpronos_score": 50,
       "badge": "",
-      "category": "pro",
+      "category": "simple",
       "verified_double": false,
-      "verified_over": false
-    },
-    {
-      "id": 4492168,
-      "date": "2026-03-08",
-      "event_date": "2026-03-08T14:00:00+00:00",
-      "home_team": "KF Tirana",
-      "away_team": "Af Elbasani",
-      "home_logo": null,
-      "away_logo": null,
-      "league": "Abissnet Superiore",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 3,
-        "home_wins": 0.0,
-        "away_wins": 2.7,
-        "draws": 1.5,
-        "home_dominance": 0.0,
-        "away_dominance": 0.643,
-        "draw_rate": 0.357,
-        "goals_avg": 4.7,
-        "over_25_prob": 0.667
-      },
-      "home_form": {
-        "wins": 0.0,
-        "draws": 0.5,
-        "losses": 0.5,
-        "goals_for": 1.11,
-        "goals_against": 2.3,
-        "form_score": 0.166,
-        "matches_used": 5
-      },
-      "away_form": {
-        "wins": 0.11,
-        "draws": 0.89,
-        "losses": 0.0,
-        "goals_for": 1.6,
-        "goals_against": 1.26,
-        "form_score": 0.409,
-        "matches_used": 5
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": true,
-        "btts": true,
-        "btts_probability": 1.0,
-        "combo": "X2 + BTTS",
-        "confidence": 59
-      },
-      "xpronos_score": 68,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "vip",
-      "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -387,65 +315,13 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.0,
-        "combo": null,
-        "confidence": 58
+        "confidence": 63
       },
       "xpronos_score": 45,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over": false
-    },
-    {
-      "id": 4481297,
-      "date": "2026-03-08",
-      "event_date": "2026-03-08T12:30:00+00:00",
-      "home_team": "Arnavutköy Belediyespor",
-      "away_team": "Somaspor",
-      "home_logo": null,
-      "away_logo": null,
-      "league": "2. Lig",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 2.0,
-        "draws": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "draw_rate": 0.0,
-        "goals_avg": 1.0,
-        "over_25_prob": 0.0
-      },
-      "home_form": null,
-      "away_form": {
-        "wins": 0.0,
-        "draws": 0.0,
-        "losses": 1.0,
-        "goals_for": 0.0,
-        "goals_against": 3.0,
-        "form_score": 0.0,
-        "matches_used": 1
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.0,
-        "combo": null,
-        "confidence": 61
-      },
-      "xpronos_score": 42,
-      "badge": "",
-      "category": "simple",
-      "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -493,16 +369,13 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.0,
-        "combo": null,
         "confidence": 66
       },
       "xpronos_score": 54,
       "badge": "",
       "category": "simple",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -550,16 +423,13 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": true,
-        "btts": false,
-        "btts_probability": 0.333,
-        "combo": null,
-        "confidence": 59
+        "confidence": 79
       },
-      "xpronos_score": 67,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "vip",
+      "xpronos_score": 57,
+      "badge": "",
+      "category": "pro",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -607,16 +477,13 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": false,
-        "btts": true,
-        "btts_probability": 0.667,
-        "combo": "1X + BTTS",
-        "confidence": 64
+        "confidence": 79
       },
       "xpronos_score": 64,
       "badge": "",
-      "category": "vip",
+      "category": "pro",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -664,16 +531,13 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": true,
-        "btts": true,
-        "btts_probability": 1.0,
-        "combo": "X2 + BTTS",
-        "confidence": 66
+        "confidence": 71
       },
-      "xpronos_score": 65,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "vip",
+      "xpronos_score": 55,
+      "badge": "",
+      "category": "pro",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -721,16 +585,13 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.333,
-        "combo": null,
         "confidence": 69
       },
       "xpronos_score": 59,
       "badge": "",
       "category": "pro",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -778,16 +639,13 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": true,
-        "btts": false,
-        "btts_probability": 0.0,
-        "combo": null,
-        "confidence": 66
+        "confidence": 71
       },
-      "xpronos_score": 69,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "vip",
+      "xpronos_score": 59,
+      "badge": "",
+      "category": "pro",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -835,16 +693,13 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": true,
-        "btts": false,
-        "btts_probability": 0.0,
-        "combo": null,
-        "confidence": 71
+        "confidence": 76
       },
-      "xpronos_score": 65,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "vip",
+      "xpronos_score": 55,
+      "badge": "",
+      "category": "pro",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -892,73 +747,13 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": true,
-        "btts": true,
-        "btts_probability": 1.0,
-        "combo": "X2 + BTTS",
         "confidence": 66
       },
-      "xpronos_score": 72,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "vip",
+      "xpronos_score": 62,
+      "badge": "",
+      "category": "pro",
       "verified_double": false,
-      "verified_over": false
-    },
-    {
-      "id": 4464700,
-      "date": "2026-03-07",
-      "event_date": "2026-03-07T14:30:00+00:00",
-      "home_team": "Mainz 05",
-      "away_team": "Stuttgart",
-      "home_logo": null,
-      "away_logo": null,
-      "league": "Bundesliga",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 1.5,
-        "draws": 1.0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.6,
-        "draw_rate": 0.4,
-        "goals_avg": 4.5,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "wins": 0.26,
-        "draws": 0.46,
-        "losses": 0.28,
-        "goals_for": 0.97,
-        "goals_against": 1.63,
-        "form_score": 0.409,
-        "matches_used": 5
-      },
-      "away_form": {
-        "wins": 0.72,
-        "draws": 0.0,
-        "losses": 0.28,
-        "goals_for": 2.55,
-        "goals_against": 0.68,
-        "form_score": 0.723,
-        "matches_used": 4
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": true,
-        "btts": false,
-        "btts_probability": 0.5,
-        "combo": null,
-        "confidence": 66
-      },
-      "xpronos_score": 68,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "vip",
-      "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -1006,16 +801,67 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.5,
-        "combo": null,
-        "confidence": 66
+        "confidence": 76
       },
       "xpronos_score": 49,
       "badge": "",
       "category": "simple",
       "verified_double": false,
+      "verified_btts": false,
+      "verified_over": false
+    },
+    {
+      "id": 4674117,
+      "date": "2026-03-07",
+      "event_date": "2026-03-07T13:00:00+00:00",
+      "home_team": "KS Pogradeci",
+      "away_team": "Korabi Peshkopi",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Kategoria e Dytë",
+      "league_logo": null,
+      "venue": "",
+      "status": "2nd Half",
+      "home_score": 2,
+      "away_score": 1,
+      "h2h_analysis": {
+        "total_matches": 3,
+        "home_wins": 3.0,
+        "away_wins": 1.0,
+        "draws": 0.0,
+        "home_dominance": 0.75,
+        "away_dominance": 0.25,
+        "draw_rate": 0.0,
+        "goals_avg": 4.83,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "wins": 1.0,
+        "draws": 0.0,
+        "losses": 0.0,
+        "goals_for": 2.07,
+        "goals_against": 0.81,
+        "form_score": 1.0,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.42,
+        "draws": 0.0,
+        "losses": 0.58,
+        "goals_for": 0.88,
+        "goals_against": 1.57,
+        "form_score": 0.415,
+        "matches_used": 4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "confidence": 74
+      },
+      "xpronos_score": 67,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
+      "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -1063,16 +909,13 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.5,
-        "combo": null,
         "confidence": 61
       },
       "xpronos_score": 46,
       "badge": "",
       "category": "simple",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -1120,16 +963,13 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.0,
-        "combo": null,
         "confidence": 66
       },
       "xpronos_score": 52,
       "badge": "",
       "category": "simple",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -1177,17 +1017,14 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.5,
-        "combo": null,
-        "confidence": 46
+        "confidence": 56
       },
       "xpronos_score": 34,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
-      "verified_over": false
+      "verified_double": true,
+      "verified_btts": false,
+      "verified_over": true
     },
     {
       "id": 4670805,
@@ -1234,16 +1071,13 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.5,
-        "combo": null,
-        "confidence": 66
+        "confidence": 71
       },
       "xpronos_score": 49,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -1291,17 +1125,14 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.5,
-        "combo": null,
         "confidence": 66
       },
       "xpronos_score": 52,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over": true
+      "verified_btts": false,
+      "verified_over": false
     },
     {
       "id": 4633972,
@@ -1348,17 +1179,14 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.0,
-        "combo": null,
         "confidence": 66
       },
       "xpronos_score": 53,
       "badge": "",
       "category": "simple",
       "verified_double": false,
-      "verified_over": true
+      "verified_btts": false,
+      "verified_over": false
     },
     {
       "id": 4508155,
@@ -1405,17 +1233,14 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.0,
-        "combo": null,
         "confidence": 71
       },
       "xpronos_score": 60,
       "badge": "",
       "category": "pro",
       "verified_double": true,
-      "verified_over": true
+      "verified_btts": false,
+      "verified_over": false
     },
     {
       "id": 4646343,
@@ -1462,16 +1287,13 @@
       },
       "prediction": {
         "double_chance": "1X",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.333,
-        "combo": null,
         "confidence": 64
       },
       "xpronos_score": 59,
       "badge": "",
       "category": "pro",
       "verified_double": false,
+      "verified_btts": false,
       "verified_over": false
     },
     {
@@ -1519,17 +1341,14 @@
       },
       "prediction": {
         "double_chance": "X2",
-        "over_25": false,
-        "btts": false,
-        "btts_probability": 0.0,
-        "combo": null,
-        "confidence": 61
+        "confidence": 66
       },
       "xpronos_score": 52,
       "badge": "",
       "category": "simple",
       "verified_double": true,
-      "verified_over": true
+      "verified_btts": true,
+      "verified_over": false
     },
     {
       "id": 4624116,
@@ -2079,55 +1898,6 @@
   "categories": {
     "simple": [
       {
-        "id": 4481297,
-        "date": "2026-03-08",
-        "event_date": "2026-03-08T12:30:00+00:00",
-        "home_team": "Arnavutköy Belediyespor",
-        "away_team": "Somaspor",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "2. Lig",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.0,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draw_rate": 0.0,
-          "goals_avg": 1.0,
-          "over_25_prob": 0.0
-        },
-        "home_form": null,
-        "away_form": {
-          "wins": 0.0,
-          "draws": 0.0,
-          "losses": 1.0,
-          "goals_for": 0.0,
-          "goals_against": 3.0,
-          "form_score": 0.0,
-          "matches_used": 1
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.0,
-          "combo": null,
-          "confidence": 61
-        },
-        "xpronos_score": 42,
-        "badge": "",
-        "category": "simple",
-        "verified_double": false,
-        "verified_over": false
-      },
-      {
         "id": 4481301,
         "date": "2026-03-07",
         "event_date": "2026-03-07T12:30:00+00:00",
@@ -2138,9 +1908,9 @@
         "league": "2. Lig",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Halftime",
+        "home_score": 0,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -2172,16 +1942,13 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.0,
-          "combo": null,
           "confidence": 66
         },
         "xpronos_score": 52,
         "badge": "",
         "category": "simple",
         "verified_double": false,
+        "verified_btts": false,
         "verified_over": false
       },
       {
@@ -2195,9 +1962,9 @@
         "league": "First League",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "1st Half",
+        "home_score": 0,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 2.7,
@@ -2229,16 +1996,13 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.5,
-          "combo": null,
-          "confidence": 66
+          "confidence": 76
         },
         "xpronos_score": 49,
         "badge": "",
         "category": "simple",
         "verified_double": false,
+        "verified_btts": false,
         "verified_over": false
       },
       {
@@ -2287,9 +2051,9 @@
         "league": "3. Liga",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "1st Half",
+        "home_score": 0,
+        "away_score": 2,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 2.5,
@@ -2321,16 +2085,13 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.5,
-          "combo": null,
           "confidence": 61
         },
         "xpronos_score": 46,
         "badge": "",
         "category": "simple",
         "verified_double": false,
+        "verified_btts": false,
         "verified_over": false
       },
       {
@@ -2344,9 +2105,9 @@
         "league": "First League",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "2nd Half",
+        "home_score": 4,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 1.5,
@@ -2378,17 +2139,14 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.5,
-          "combo": null,
-          "confidence": 46
+          "confidence": 56
         },
         "xpronos_score": 34,
         "badge": "",
         "category": "simple",
-        "verified_double": false,
-        "verified_over": false
+        "verified_double": true,
+        "verified_btts": false,
+        "verified_over": true
       },
       {
         "id": 4539484,
@@ -2435,16 +2193,13 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.0,
-          "combo": null,
-          "confidence": 58
+          "confidence": 63
         },
         "xpronos_score": 45,
         "badge": "",
         "category": "simple",
         "verified_double": false,
+        "verified_btts": false,
         "verified_over": false
       },
       {
@@ -2458,8 +2213,8 @@
         "league": "Belarusian Cup - Quarter Finals",
         "league_logo": null,
         "venue": "",
-        "status": "1st Half",
-        "home_score": 0,
+        "status": "Ended",
+        "home_score": 1,
         "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
@@ -2492,16 +2247,13 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.5,
-          "combo": null,
-          "confidence": 66
+          "confidence": 71
         },
         "xpronos_score": 49,
         "badge": "",
         "category": "simple",
-        "verified_double": false,
+        "verified_double": true,
+        "verified_btts": false,
         "verified_over": false
       },
       {
@@ -2549,17 +2301,14 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.0,
-          "combo": null,
           "confidence": 66
         },
         "xpronos_score": 53,
         "badge": "",
         "category": "simple",
         "verified_double": false,
-        "verified_over": true
+        "verified_btts": false,
+        "verified_over": false
       },
       {
         "id": 4679731,
@@ -2606,16 +2355,13 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.0,
-          "combo": null,
           "confidence": 66
         },
         "xpronos_score": 54,
         "badge": "",
         "category": "simple",
         "verified_double": false,
+        "verified_btts": false,
         "verified_over": false
       },
       {
@@ -2663,17 +2409,14 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.5,
-          "combo": null,
           "confidence": 66
         },
         "xpronos_score": 52,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over": true
+        "verified_btts": false,
+        "verified_over": false
       },
       {
         "id": 4659410,
@@ -2720,16 +2463,13 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.5,
-          "combo": null,
           "confidence": 61
         },
         "xpronos_score": 52,
         "badge": "",
         "category": "simple",
         "verified_double": false,
+        "verified_btts": false,
         "verified_over": false
       },
       {
@@ -2847,17 +2587,14 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.0,
-          "combo": null,
-          "confidence": 61
+          "confidence": 66
         },
         "xpronos_score": 52,
         "badge": "",
         "category": "simple",
         "verified_double": true,
-        "verified_over": true
+        "verified_btts": true,
+        "verified_over": false
       },
       {
         "id": 4635474,
@@ -2974,16 +2711,67 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.0,
-          "combo": null,
-          "confidence": 71
+          "confidence": 76
         },
         "xpronos_score": 52,
         "badge": "",
         "category": "simple",
         "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false
+      },
+      {
+        "id": 4480903,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T15:00:00+00:00",
+        "home_team": "Volos NFC",
+        "away_team": "OFI Crete",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Super League",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.3,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draw_rate": 0.0,
+          "goals_avg": 4.6,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "wins": 0.0,
+          "draws": 0.46,
+          "losses": 0.54,
+          "goals_for": 0.77,
+          "goals_against": 2.25,
+          "form_score": 0.153,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.69,
+          "draws": 0.12,
+          "losses": 0.18,
+          "goals_for": 2.11,
+          "goals_against": 0.95,
+          "form_score": 0.733,
+          "matches_used": 4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 66
+        },
+        "xpronos_score": 50,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_btts": false,
         "verified_over": false
       }
     ],
@@ -3059,6 +2847,114 @@
         "verified_over": true
       },
       {
+        "id": 4460910,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T18:00:00+00:00",
+        "home_team": "Rapid Bucuresti",
+        "away_team": "CS Universitatea Craiova",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Liga 1",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 0.0,
+          "away_wins": 2.0,
+          "draws": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.667,
+          "draw_rate": 0.333,
+          "goals_avg": 2.67,
+          "over_25_prob": 0.667
+        },
+        "home_form": {
+          "wins": 0.63,
+          "draws": 0.11,
+          "losses": 0.26,
+          "goals_for": 1.91,
+          "goals_against": 1.12,
+          "form_score": 0.668,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.83,
+          "draws": 0.17,
+          "losses": 0.0,
+          "goals_for": 2.57,
+          "goals_against": 0.89,
+          "form_score": 0.886,
+          "matches_used": 5
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 59
+        },
+        "xpronos_score": 68,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false
+      },
+      {
+        "id": 4674117,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T13:00:00+00:00",
+        "home_team": "KS Pogradeci",
+        "away_team": "Korabi Peshkopi",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Kategoria e Dytë",
+        "league_logo": null,
+        "venue": "",
+        "status": "2nd Half",
+        "home_score": 2,
+        "away_score": 1,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 3.0,
+          "away_wins": 1.0,
+          "draws": 0.0,
+          "home_dominance": 0.75,
+          "away_dominance": 0.25,
+          "draw_rate": 0.0,
+          "goals_avg": 4.83,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 2.07,
+          "goals_against": 0.81,
+          "form_score": 1.0,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.42,
+          "draws": 0.0,
+          "losses": 0.58,
+          "goals_for": 0.88,
+          "goals_against": 1.57,
+          "form_score": 0.415,
+          "matches_used": 4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 74
+        },
+        "xpronos_score": 67,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false
+      },
+      {
         "id": 4621147,
         "date": "2026-03-04",
         "event_date": "2026-03-04T11:00:00+00:00",
@@ -3092,6 +2988,114 @@
         "category": "pro",
         "verified_double": true,
         "verified_over": true
+      },
+      {
+        "id": 4649822,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T17:00:00+00:00",
+        "home_team": "Alianza Reserves",
+        "away_team": "Fuerte San Francisco Reserves",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Torneo Reservas - Clausura",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "draw_rate": 0.0,
+          "goals_avg": 5.5,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 3.28,
+          "goals_against": 0.86,
+          "form_score": 1.0,
+          "matches_used": 4
+        },
+        "away_form": {
+          "wins": 0.08,
+          "draws": 0.81,
+          "losses": 0.11,
+          "goals_for": 1.51,
+          "goals_against": 1.66,
+          "form_score": 0.346,
+          "matches_used": 5
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 76
+        },
+        "xpronos_score": 55,
+        "badge": "",
+        "category": "pro",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false
+      },
+      {
+        "id": 4445498,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T19:15:00+00:00",
+        "home_team": "Widzew Lodz",
+        "away_team": "Lech Poznan",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Ekstraklasa",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.2,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draw_rate": 0.0,
+          "goals_avg": 4.3,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "wins": 0.11,
+          "draws": 0.38,
+          "losses": 0.5,
+          "goals_for": 0.74,
+          "goals_against": 1.3,
+          "form_score": 0.242,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.57,
+          "draws": 0.17,
+          "losses": 0.26,
+          "goals_for": 2.17,
+          "goals_against": 2.11,
+          "form_score": 0.63,
+          "matches_used": 5
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 71
+        },
+        "xpronos_score": 55,
+        "badge": "",
+        "category": "pro",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false
       },
       {
         "id": 4666778,
@@ -3173,16 +3177,13 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.333,
-          "combo": null,
           "confidence": 64
         },
         "xpronos_score": 59,
         "badge": "",
         "category": "pro",
         "verified_double": false,
+        "verified_btts": false,
         "verified_over": false
       },
       {
@@ -3219,6 +3220,60 @@
         "category": "pro",
         "verified_double": false,
         "verified_over": true
+      },
+      {
+        "id": 4671919,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T22:00:00+00:00",
+        "home_team": "Raja Casablanca",
+        "away_team": "Olympique Safi",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Botola Pro",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 2.3,
+          "away_wins": 0.0,
+          "draws": 1.0,
+          "home_dominance": 0.697,
+          "away_dominance": 0.0,
+          "draw_rate": 0.303,
+          "goals_avg": 3.2,
+          "over_25_prob": 0.333
+        },
+        "home_form": {
+          "wins": 0.68,
+          "draws": 0.32,
+          "losses": 0.0,
+          "goals_for": 0.89,
+          "goals_against": 0.0,
+          "form_score": 0.789,
+          "matches_used": 3
+        },
+        "away_form": {
+          "wins": 0.19,
+          "draws": 0.55,
+          "losses": 0.26,
+          "goals_for": 1.0,
+          "goals_against": 0.87,
+          "form_score": 0.374,
+          "matches_used": 5
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 79
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false
       },
       {
         "id": 4626936,
@@ -3265,16 +3320,13 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.0,
-          "combo": null,
           "confidence": 61
         },
         "xpronos_score": 59,
         "badge": "",
         "category": "pro",
         "verified_double": false,
+        "verified_btts": false,
         "verified_over": false
       },
       {
@@ -3322,17 +3374,14 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.0,
-          "combo": null,
           "confidence": 71
         },
         "xpronos_score": 60,
         "badge": "",
         "category": "pro",
         "verified_double": true,
-        "verified_over": true
+        "verified_btts": false,
+        "verified_over": false
       },
       {
         "id": 4680468,
@@ -3379,16 +3428,13 @@
         },
         "prediction": {
           "double_chance": "X2",
-          "over_25": false,
-          "btts": false,
-          "btts_probability": 0.333,
-          "combo": null,
           "confidence": 69
         },
         "xpronos_score": 59,
         "badge": "",
         "category": "pro",
         "verified_double": false,
+        "verified_btts": false,
         "verified_over": false
       },
       {
@@ -3425,6 +3471,114 @@
         "category": "pro",
         "verified_double": true,
         "verified_over": true
+      },
+      {
+        "id": 4673009,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T17:00:00+00:00",
+        "home_team": "Siauliai",
+        "away_team": "FK Zalgiris",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "A Lyga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.5,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draw_rate": 0.0,
+          "goals_avg": 6.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "wins": 0.62,
+          "draws": 0.0,
+          "losses": 0.38,
+          "goals_for": 2.77,
+          "goals_against": 2.04,
+          "form_score": 0.616,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.89,
+          "draws": 0.0,
+          "losses": 0.11,
+          "goals_for": 2.95,
+          "goals_against": 1.57,
+          "form_score": 0.886,
+          "matches_used": 5
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 66
+        },
+        "xpronos_score": 62,
+        "badge": "",
+        "category": "pro",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false
+      },
+      {
+        "id": 4677207,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T18:00:00+00:00",
+        "home_team": "Al-Nasr Salalah",
+        "away_team": "Dhofar Salalah",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Professional League",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.3,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "draw_rate": 0.0,
+          "goals_avg": 4.6,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 2.0,
+          "goals_against": 1.0,
+          "form_score": 1.0,
+          "matches_used": 1
+        },
+        "away_form": {
+          "wins": 0.6,
+          "draws": 0.4,
+          "losses": 0.0,
+          "goals_for": 1.0,
+          "goals_against": 0.4,
+          "form_score": 0.733,
+          "matches_used": 2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 71
+        },
+        "xpronos_score": 59,
+        "badge": "",
+        "category": "pro",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false
       },
       {
         "id": 4624116,
@@ -3516,591 +3670,6 @@
         "verified_over": true
       },
       {
-        "id": 4480903,
-        "date": "2026-03-08",
-        "event_date": "2026-03-08T15:00:00+00:00",
-        "home_team": "Volos NFC",
-        "away_team": "OFI Crete",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Super League",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.3,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draw_rate": 0.0,
-          "goals_avg": 4.6,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "wins": 0.0,
-          "draws": 0.46,
-          "losses": 0.54,
-          "goals_for": 0.77,
-          "goals_against": 2.25,
-          "form_score": 0.153,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.69,
-          "draws": 0.12,
-          "losses": 0.18,
-          "goals_for": 2.11,
-          "goals_against": 0.95,
-          "form_score": 0.733,
-          "matches_used": 4
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "btts": false,
-          "btts_probability": 0.5,
-          "combo": null,
-          "confidence": 66
-        },
-        "xpronos_score": 60,
-        "badge": "",
-        "category": "pro",
-        "verified_double": false,
-        "verified_over": false
-      }
-    ],
-    "vip": [
-      {
-        "id": 4464700,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T14:30:00+00:00",
-        "home_team": "Mainz 05",
-        "away_team": "Stuttgart",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Bundesliga",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 1.5,
-          "draws": 1.0,
-          "home_dominance": 0.0,
-          "away_dominance": 0.6,
-          "draw_rate": 0.4,
-          "goals_avg": 4.5,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "wins": 0.26,
-          "draws": 0.46,
-          "losses": 0.28,
-          "goals_for": 0.97,
-          "goals_against": 1.63,
-          "form_score": 0.409,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.72,
-          "draws": 0.0,
-          "losses": 0.28,
-          "goals_for": 2.55,
-          "goals_against": 0.68,
-          "form_score": 0.723,
-          "matches_used": 4
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "btts": false,
-          "btts_probability": 0.5,
-          "combo": null,
-          "confidence": 66
-        },
-        "xpronos_score": 68,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "verified_double": false,
-        "verified_over": false
-      },
-      {
-        "id": 4460910,
-        "date": "2026-03-08",
-        "event_date": "2026-03-08T18:00:00+00:00",
-        "home_team": "Rapid Bucuresti",
-        "away_team": "CS Universitatea Craiova",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Liga 1",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_wins": 0.0,
-          "away_wins": 2.0,
-          "draws": 1.0,
-          "home_dominance": 0.0,
-          "away_dominance": 0.667,
-          "draw_rate": 0.333,
-          "goals_avg": 2.67,
-          "over_25_prob": 0.667
-        },
-        "home_form": {
-          "wins": 0.63,
-          "draws": 0.11,
-          "losses": 0.26,
-          "goals_for": 1.91,
-          "goals_against": 1.12,
-          "form_score": 0.668,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.83,
-          "draws": 0.17,
-          "losses": 0.0,
-          "goals_for": 2.57,
-          "goals_against": 0.89,
-          "form_score": 0.886,
-          "matches_used": 5
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "btts": true,
-          "btts_probability": 1.0,
-          "combo": "X2 + BTTS",
-          "confidence": 59
-        },
-        "xpronos_score": 78,
-        "badge": "💎 VIP ELITE",
-        "category": "vip",
-        "verified_double": false,
-        "verified_over": false
-      },
-      {
-        "id": 4649822,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T17:00:00+00:00",
-        "home_team": "Alianza Reserves",
-        "away_team": "Fuerte San Francisco Reserves",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Torneo Reservas - Clausura",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 2.0,
-          "away_wins": 0.0,
-          "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "draw_rate": 0.0,
-          "goals_avg": 5.5,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "wins": 1.0,
-          "draws": 0.0,
-          "losses": 0.0,
-          "goals_for": 3.28,
-          "goals_against": 0.86,
-          "form_score": 1.0,
-          "matches_used": 4
-        },
-        "away_form": {
-          "wins": 0.08,
-          "draws": 0.81,
-          "losses": 0.11,
-          "goals_for": 1.51,
-          "goals_against": 1.66,
-          "form_score": 0.346,
-          "matches_used": 5
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": true,
-          "btts": false,
-          "btts_probability": 0.0,
-          "combo": null,
-          "confidence": 71
-        },
-        "xpronos_score": 65,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "verified_double": false,
-        "verified_over": false
-      },
-      {
-        "id": 4621195,
-        "date": "2026-03-04",
-        "event_date": "2026-03-04T13:00:00+00:00",
-        "home_team": "Sheriff Tiraspol",
-        "away_team": "CSCA Buiucani",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Moldovan Cup",
-        "league_logo": null,
-        "venue": "",
-        "status": "Ended",
-        "home_score": 2,
-        "away_score": 0,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 2.0,
-          "away_wins": 0.0,
-          "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 4.0,
-          "over_25_prob": 1.0
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": true,
-          "confidence": 71
-        },
-        "xpronos_score": 84,
-        "badge": "💎 VIP ELITE",
-        "category": "vip",
-        "verified_double": true,
-        "verified_over": false
-      },
-      {
-        "id": 4445498,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T19:15:00+00:00",
-        "home_team": "Widzew Lodz",
-        "away_team": "Lech Poznan",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Ekstraklasa",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.2,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draw_rate": 0.0,
-          "goals_avg": 4.3,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "wins": 0.11,
-          "draws": 0.38,
-          "losses": 0.5,
-          "goals_for": 0.74,
-          "goals_against": 1.3,
-          "form_score": 0.242,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.57,
-          "draws": 0.17,
-          "losses": 0.26,
-          "goals_for": 2.17,
-          "goals_against": 2.11,
-          "form_score": 0.63,
-          "matches_used": 5
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "btts": true,
-          "btts_probability": 1.0,
-          "combo": "X2 + BTTS",
-          "confidence": 66
-        },
-        "xpronos_score": 65,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "verified_double": false,
-        "verified_over": false
-      },
-      {
-        "id": 4671919,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T22:00:00+00:00",
-        "home_team": "Raja Casablanca",
-        "away_team": "Olympique Safi",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Botola Pro",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_wins": 2.3,
-          "away_wins": 0.0,
-          "draws": 1.0,
-          "home_dominance": 0.697,
-          "away_dominance": 0.0,
-          "draw_rate": 0.303,
-          "goals_avg": 3.2,
-          "over_25_prob": 0.333
-        },
-        "home_form": {
-          "wins": 0.68,
-          "draws": 0.32,
-          "losses": 0.0,
-          "goals_for": 0.89,
-          "goals_against": 0.0,
-          "form_score": 0.789,
-          "matches_used": 3
-        },
-        "away_form": {
-          "wins": 0.19,
-          "draws": 0.55,
-          "losses": 0.26,
-          "goals_for": 1.0,
-          "goals_against": 0.87,
-          "form_score": 0.374,
-          "matches_used": 5
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
-          "btts": true,
-          "btts_probability": 0.667,
-          "combo": "1X + BTTS",
-          "confidence": 64
-        },
-        "xpronos_score": 64,
-        "badge": "",
-        "category": "vip",
-        "verified_double": false,
-        "verified_over": false
-      },
-      {
-        "id": 4492168,
-        "date": "2026-03-08",
-        "event_date": "2026-03-08T14:00:00+00:00",
-        "home_team": "KF Tirana",
-        "away_team": "Af Elbasani",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Abissnet Superiore",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_wins": 0.0,
-          "away_wins": 2.7,
-          "draws": 1.5,
-          "home_dominance": 0.0,
-          "away_dominance": 0.643,
-          "draw_rate": 0.357,
-          "goals_avg": 4.7,
-          "over_25_prob": 0.667
-        },
-        "home_form": {
-          "wins": 0.0,
-          "draws": 0.5,
-          "losses": 0.5,
-          "goals_for": 1.11,
-          "goals_against": 2.3,
-          "form_score": 0.166,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.11,
-          "draws": 0.89,
-          "losses": 0.0,
-          "goals_for": 1.6,
-          "goals_against": 1.26,
-          "form_score": 0.409,
-          "matches_used": 5
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "btts": true,
-          "btts_probability": 1.0,
-          "combo": "X2 + BTTS",
-          "confidence": 59
-        },
-        "xpronos_score": 68,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "verified_double": false,
-        "verified_over": false
-      },
-      {
-        "id": 4508970,
-        "date": "2026-03-04",
-        "event_date": "2026-03-04T18:00:00+00:00",
-        "home_team": "ZFC Meuselwitz",
-        "away_team": "Lokomotive Leipzig",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Regionalliga - Nordost",
-        "league_logo": null,
-        "venue": "",
-        "status": "Ended",
-        "home_score": 0,
-        "away_score": 1,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.0,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 4.0,
-          "over_25_prob": 1.0
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "confidence": 71
-        },
-        "xpronos_score": 84,
-        "badge": "💎 VIP ELITE",
-        "category": "vip",
-        "verified_double": true,
-        "verified_over": false
-      },
-      {
-        "id": 4673009,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T17:00:00+00:00",
-        "home_team": "Siauliai",
-        "away_team": "FK Zalgiris",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "A Lyga",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.5,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draw_rate": 0.0,
-          "goals_avg": 6.0,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "wins": 0.62,
-          "draws": 0.0,
-          "losses": 0.38,
-          "goals_for": 2.77,
-          "goals_against": 2.04,
-          "form_score": 0.616,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.89,
-          "draws": 0.0,
-          "losses": 0.11,
-          "goals_for": 2.95,
-          "goals_against": 1.57,
-          "form_score": 0.886,
-          "matches_used": 5
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "btts": true,
-          "btts_probability": 1.0,
-          "combo": "X2 + BTTS",
-          "confidence": 66
-        },
-        "xpronos_score": 72,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "verified_double": false,
-        "verified_over": false
-      },
-      {
-        "id": 4677207,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T18:00:00+00:00",
-        "home_team": "Al-Nasr Salalah",
-        "away_team": "Dhofar Salalah",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Professional League",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 2.3,
-          "away_wins": 0.0,
-          "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "draw_rate": 0.0,
-          "goals_avg": 4.6,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "wins": 1.0,
-          "draws": 0.0,
-          "losses": 0.0,
-          "goals_for": 2.0,
-          "goals_against": 1.0,
-          "form_score": 1.0,
-          "matches_used": 1
-        },
-        "away_form": {
-          "wins": 0.6,
-          "draws": 0.4,
-          "losses": 0.0,
-          "goals_for": 1.0,
-          "goals_against": 0.4,
-          "form_score": 0.733,
-          "matches_used": 2
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": true,
-          "btts": false,
-          "btts_probability": 0.0,
-          "combo": null,
-          "confidence": 66
-        },
-        "xpronos_score": 69,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "verified_double": false,
-        "verified_over": false
-      },
-      {
         "id": 4656941,
         "date": "2026-03-08",
         "event_date": "2026-03-08T01:30:00+00:00",
@@ -4145,16 +3714,85 @@
         },
         "prediction": {
           "double_chance": "1X",
-          "over_25": true,
-          "btts": false,
-          "btts_probability": 0.333,
-          "combo": null,
-          "confidence": 59
+          "confidence": 79
         },
-        "xpronos_score": 67,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
+        "xpronos_score": 57,
+        "badge": "",
+        "category": "pro",
         "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false
+      }
+    ],
+    "vip": [
+      {
+        "id": 4621195,
+        "date": "2026-03-04",
+        "event_date": "2026-03-04T13:00:00+00:00",
+        "home_team": "Sheriff Tiraspol",
+        "away_team": "CSCA Buiucani",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Moldovan Cup",
+        "league_logo": null,
+        "venue": "",
+        "status": "Ended",
+        "home_score": 2,
+        "away_score": 0,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 4.0,
+          "over_25_prob": 1.0
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 71
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "verified_double": true,
+        "verified_over": false
+      },
+      {
+        "id": 4508970,
+        "date": "2026-03-04",
+        "event_date": "2026-03-04T18:00:00+00:00",
+        "home_team": "ZFC Meuselwitz",
+        "away_team": "Lokomotive Leipzig",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Regionalliga - Nordost",
+        "league_logo": null,
+        "venue": "",
+        "status": "Ended",
+        "home_score": 0,
+        "away_score": 1,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 4.0,
+          "over_25_prob": 1.0
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 71
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "verified_double": true,
         "verified_over": false
       }
     ]
