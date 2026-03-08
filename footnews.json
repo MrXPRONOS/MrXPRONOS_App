@@ -1,5 +1,12 @@
 [
   {
+    "title": "« Scènes honteuses alors que la toxicité se répand dans la cravate de la Coupe Old Firm »",
+    "summary": "Comme si la laideur des 120 minutes ne suffisait pas, il y a eu une honte lorsque les supporters des Rangers et du Celtic ont envahi le terrain d'Ibrox, écrit Tom English.",
+    "link": "https://www.bbc.com/sport/football/articles/c5ykrzp9d26o?at_medium=RSS&at_campaign=rss",
+    "published": "Sun, 08 Mar 2026 18:13:23 GMT",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/ec7d/live/17011cf0-1b18-11f1-b048-c9424b2cf5fd.jpg"
+  },
+  {
     "title": "Dernier de la ligue, magie dans la coupe – le parcours « incroyable » de Port Vale",
     "summary": "Port Vale est dernier de la League One, mais n'a atteint les quarts de finale de la FA Cup que pour la deuxième fois de son histoire.",
     "link": "https://www.bbc.com/sport/football/articles/cy8g22120pdo?at_medium=RSS&at_campaign=rss",
@@ -7,39 +14,32 @@
     "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/9e75/live/d73819f0-1b14-11f1-a489-ff7ad54780bc.jpg"
   },
   {
-    "title": "La police sépare les supporters du Celtic et des Rangers après l'invasion du terrain d'Ibrox",
-    "summary": "Des fusées éclairantes ont été lancées alors que les supporters des deux côtés se déversaient sur le terrain après la victoire 4-2 du Celtic aux tirs au but.",
+    "title": "L'invasion \"honteuse\" du terrain par des supporters du Celtic et des Rangers condamnée par la police",
+    "summary": "Des arrestations ont eu lieu et des policiers et des supporters ont été blessés lors d'affrontements après la victoire 4-2 du Celtic aux tirs au but.",
     "link": "https://www.bbc.com/news/articles/cy4w22znlyvo?at_medium=RSS&at_campaign=rss",
-    "published": "Sun, 08 Mar 2026 18:00:04 GMT",
+    "published": "Sun, 08 Mar 2026 18:47:55 GMT",
     "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/5de0/live/931ad1a0-1b09-11f1-870b-03d961994130.jpg"
   },
   {
+    "title": "L'équipe de League One, Port Vale, étourdit Sunderland lors d'une défaite en FA Cup",
+    "summary": "L'équipe de League One, Port Vale, élimine l'équipe de Premier League Sunderland pour atteindre les quarts de finale de la FA Cup pour la première fois depuis 1954.",
+    "link": "https://www.bbc.com/sport/football/videos/cn9epqgj7z0o?at_medium=RSS&at_campaign=rss",
+    "published": "Sun, 08 Mar 2026 18:48:52 GMT",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/9f18/live/22353aa0-1b0b-11f1-b048-c9424b2cf5fd.jpg"
+  },
+  {
     "title": "Southampton élimine Fulham avec une pénalité dans les arrêts de jeu",
-    "summary": "Ross Stewart de Southampton marque un penalty dans le temps additionnel contre Fulham, ce qui envoie l'équipe du Championnat aux quarts de finale de la FA Cup.",
+    "summary": "Ross Stewart de Southampton marque un penalty dans les arrêts de jeu contre Fulham, ce qui envoie l'équipe du Championnat aux quarts de finale de la FA Cup.",
     "link": "https://www.bbc.com/sport/football/videos/cev7pk9zjpdo?at_medium=RSS&at_campaign=rss",
     "published": "Sun, 08 Mar 2026 16:06:17 GMT",
     "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/7675/live/7778ce90-1afd-11f1-801d-ed3cff6bf876.jpg"
   },
   {
-    "title": "Regardez les fans des Rangers et du Celtic envahir le terrain après le match nul en coupe",
-    "summary": "Les supporters des Rangers et du Celtic se précipitent sur le terrain d'Ibrox après la victoire des visiteurs aux tirs au but en quarts de finale de la Coupe d'Écosse.",
-    "link": "https://www.bbc.com/sport/football/videos/cr5lpjrpql6o?at_medium=RSS&at_campaign=rss",
-    "published": "Sun, 08 Mar 2026 17:12:24 GMT",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/3865/live/c6d72ae0-1b11-11f1-9120-a910fc22c6ac.jpg"
-  },
-  {
     "title": "Liverpool et Man Utd se plaignent auprès de X des messages « écoeurants » de Grok",
     "summary": "Le gouvernement britannique estime qu'il est \"écoeurant et irresponsable\" que l'outil d'IA de X, Grok, ait généré des messages explicites sur les catastrophes de Hillsborough et du Heysel, la mort de Diogo Jota et la catastrophe aérienne de Munich.",
     "link": "https://www.bbc.com/sport/football/articles/c1w5221prjgo?at_medium=RSS&at_campaign=rss",
-    "published": "Sun, 08 Mar 2026 17:42:18 GMT",
+    "published": "Sun, 08 Mar 2026 19:24:17 GMT",
     "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/0a55/live/0a841540-1b09-11f1-870b-03d961994130.jpg"
-  },
-  {
-    "title": "\"Quand tu es avec moi, tu ne t'ennuies pas\" - Malard apporte du soleil à Man Utd",
-    "summary": "BBC Sport rencontre l'attaquante de Manchester United et de la France Melvine Malard pour découvrir son histoire.",
-    "link": "https://www.bbc.com/sport/football/articles/c5y678er1e2o?at_medium=RSS&at_campaign=rss",
-    "published": "Sun, 08 Mar 2026 07:11:33 GMT",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/39aa/live/bcadf270-0a94-11f1-bcc6-0d256631bfbc.jpg"
   },
   {
     "title": "Manchester United cible Tavernier – les potins de dimanche",
@@ -47,6 +47,20 @@
     "link": "https://www.bbc.com/sport/football/articles/c8jxvyd4l39o?at_medium=RSS&at_campaign=rss",
     "published": "Sat, 07 Mar 2026 22:30:18 GMT",
     "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/25c2/live/f8f59000-1a73-11f1-b048-c9424b2cf5fd.png"
+  },
+  {
+    "title": "Regardez le Celtic battre les Rangers aux tirs au but pour atteindre les demi-finales de la Coupe d'Écosse",
+    "summary": "Regardez les moments forts alors que le Celtic a battu les Rangers aux tirs au but à Ibrox pour atteindre les demi-finales de la Coupe d'Écosse.",
+    "link": "https://www.bbc.com/sport/football/videos/clyxp54e97xo?at_medium=RSS&at_campaign=rss",
+    "published": "Sun, 08 Mar 2026 18:36:58 GMT",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/fcda/live/c3c778e0-1b1c-11f1-801d-ed3cff6bf876.jpg"
+  },
+  {
+    "title": "Regardez les fans des Rangers et du Celtic envahir le terrain après le match nul en coupe",
+    "summary": "Les supporters des Rangers et du Celtic se précipitent sur le terrain d'Ibrox après la victoire des visiteurs aux tirs au but en quarts de finale de la Coupe d'Écosse.",
+    "link": "https://www.bbc.com/sport/football/videos/cr5lpjrpql6o?at_medium=RSS&at_campaign=rss",
+    "published": "Sun, 08 Mar 2026 17:12:24 GMT",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/3865/live/c6d72ae0-1b11-11f1-9120-a910fc22c6ac.jpg"
   },
   {
     "title": "Marmoush tire deux fois sur Man City devant Newcastle",
@@ -70,22 +84,15 @@
     "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/36c1/live/9f740a40-1a3f-11f1-9120-a910fc22c6ac.jpg"
   },
   {
-    "title": "L'Écosse bat sept fois le Luxembourg lors des qualifications pour la Coupe du monde",
-    "summary": "Regardez l'Écosse battre le Luxembourg 7-0 lors de son match de qualification pour la Coupe du Monde Féminine à Hampden Park pour prendre la tête du Groupe B4 devant la Belgique à la différence de buts.",
-    "link": "https://www.bbc.com/sport/videos/ckg1pdv5drlo?at_medium=RSS&at_campaign=rss",
-    "published": "Sat, 07 Mar 2026 20:27:16 GMT",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/98ad/live/d7c0d760-1a63-11f1-801d-ed3cff6bf876.jpg"
-  },
-  {
-    "title": "Smith renvoie Wrexham devant contre Chelsea",
-    "summary": "Sam Smith de Wrexham dépasse la défense de Chelsea pour donner l'avantage à son équipe lors du cinquième tour de la FA Cup.",
-    "link": "https://www.bbc.com/sport/football/videos/cy7j2gj80l5o?at_medium=RSS&at_campaign=rss",
-    "published": "Sat, 07 Mar 2026 18:23:08 GMT",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/56e5/live/f1ccf3d0-1a51-11f1-9120-a910fc22c6ac.jpg"
+    "title": "\"Quand tu es avec moi, tu ne t'ennuies pas\" - Malard apporte du soleil à Man Utd",
+    "summary": "BBC Sport rencontre l'attaquante de Manchester United et de la France Melvine Malard pour découvrir son histoire.",
+    "link": "https://www.bbc.com/sport/football/articles/c5y678er1e2o?at_medium=RSS&at_campaign=rss",
+    "published": "Sun, 08 Mar 2026 07:11:33 GMT",
+    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/39aa/live/bcadf270-0a94-11f1-bcc6-0d256631bfbc.jpg"
   },
   {
     "title": "La course au Quadruple : la bataille d'Arsenal et Manchester City",
-    "summary": "Alors qu'Arsenal et Manchester City sont toujours en lice pour quatre trophées, BBC Sport examine qui d'autre a failli remporter le quadruple.",
+    "summary": "Alors qu'Arsenal et Manchester City sont toujours en lice pour quatre trophées, BBC Sport examine qui d'autre a failli remporter le Quadruple.",
     "link": "https://www.bbc.com/sport/articles/c0j56q8jegdo?at_medium=RSS&at_campaign=rss",
     "published": "Sat, 07 Mar 2026 21:55:33 GMT",
     "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/0e25/live/c1789e40-1958-11f1-a18b-234b2225fd29.jpg"
@@ -105,17 +112,10 @@
     "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/01ea/live/24ddfd40-1a2b-11f1-982c-cf4b6f34f92f.jpg"
   },
   {
-    "title": "Griffiths brille alors que le Pays de Galles a un aperçu de l'avenir",
-    "summary": "Mared Griffiths brille alors que le Pays de Galles a un aperçu de l'avenir lors de sa victoire écrasante en qualifications pour la Coupe du monde contre le Monténégro.",
-    "link": "https://www.bbc.com/sport/football/articles/c5ykrg5rr3eo?at_medium=RSS&at_campaign=rss",
-    "published": "Sun, 08 Mar 2026 04:45:17 GMT",
-    "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/24db/live/668b8e30-1a6f-11f1-92c3-4b80fe25ce7a.jpg"
-  },
-  {
     "title": "Un joueur adolescent d'Oxford United décède lors d'un match de l'académie",
     "summary": "Le joueur de 15 ans de l'académie d'Oxford United s'est effondré lors d'un match contre Fulham.",
     "link": "https://www.bbc.com/news/articles/c1jk22rd653o?at_medium=RSS&at_campaign=rss",
-    "published": "Sun, 08 Mar 2026 17:56:52 GMT",
+    "published": "Sun, 08 Mar 2026 19:12:02 GMT",
     "image": "https://ichef.bbci.co.uk/ace/standard/240/cpsprodpb/72e8/live/97d43c00-1afe-11f1-b293-0994cc1b0c5c.jpg"
   },
   {
