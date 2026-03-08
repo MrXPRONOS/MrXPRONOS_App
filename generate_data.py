@@ -3,24 +3,16 @@
 
 """
 generate_data.py - Moteur de pronostics football (double chance) version ultime
-Avec :
-- Récupération API SportData
-- Analyse H2H pondérée, forme des équipes
-- Modèle Poisson pour affiner les probabilités
-- Détection value bet cohérente
-- Filtres multiples (confiance, différence de buts, ligues, score)
-- ROI réaliste avec cotes double chance estimées
-- Logos équipes et compétitions avec cache
-- Tri par score de fiabilité
+Avec fallback Poisson quand H2H insuffisant
 """
 
 import os
 import json
 import requests
-import math
 from datetime import datetime, timedelta
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from math import exp, factorial
 
 # =======================================================
 # CONFIGURATION
@@ -429,6 +421,7 @@ def generate_prediction(analysis, home_form, away_form, league):
         double_chance = "12"
 
     confiance = 50
+    # Pénalité si pas d'historique H2H
     confiance += min(20, analysis["total_matches"] * 3)
 
     if max(home_dom, away_dom) > 0.7:
@@ -537,7 +530,6 @@ def poisson_probability(lambda_home, lambda_away, max_goals=6):
     lambda_away : moyenne de buts attendue pour l'équipe à l'extérieur
     Retourne (p_home, p_draw, p_away)
     """
-    from math import exp, factorial
     p_home = 0
     p_draw = 0
     p_away = 0
@@ -639,17 +631,10 @@ def main():
         status = base["status_text"] if base["status_text"] else (existing.get("status") if existing else "")
 
         # Analyses H2H et forme
-        h2h_list = get_h2h(historical, base["home_team"], base["away_team"], years=2)
-        if len(h2h_list) < 2:
-            print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (H2H insuffisant)")
-            continue
-
-        analysis = analyze_h2h(h2h_list, base["home_team"], base["away_team"])
-
         home_form = get_team_form(base["home_team"], team_matches, last_games=5)
         away_form = get_team_form(base["away_team"], team_matches, last_games=5)
 
-        # Filtres de forme
+        # Vérifier forme minimale
         if home_form is None and away_form is None:
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (pas de forme)")
             continue
@@ -663,6 +648,35 @@ def main():
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (peu de forme)")
             continue
 
+        # Récupérer H2H
+        h2h_list = get_h2h(historical, base["home_team"], base["away_team"], years=2)
+        if len(h2h_list) >= 2:
+            # Analyse H2H normale
+            analysis = analyze_h2h(h2h_list, base["home_team"], base["away_team"])
+            print(f"📊 Match {base['home_team']} vs {base['away_team']} - H2H OK")
+        else:
+            # Fallback Poisson si les deux équipes ont une forme suffisante
+            if home_form and away_form and home_form["matches_used"] >= 3 and away_form["matches_used"] >= 3:
+                print(f"⚠️ Match {base['home_team']} vs {base['away_team']} - H2H insuffisant, utilisation du modèle Poisson")
+                # Calculer les moyennes de buts attendues
+                lambda_home = (home_form["goals_for"] + away_form["goals_against"]) / 2
+                lambda_away = (away_form["goals_for"] + home_form["goals_against"]) / 2
+                p_home, p_draw, p_away = poisson_probability(lambda_home, lambda_away)
+                # Construire une analyse fictive
+                analysis = {
+                    "total_matches": 0,
+                    "home_wins": 0,
+                    "away_wins": 0,
+                    "draws": 0,
+                    "home_dominance": p_home,
+                    "away_dominance": p_away,
+                    "draw_rate": p_draw
+                }
+            else:
+                print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (H2H insuffisant et forme insuffisante)")
+                continue
+
+        # Filtre sur draw_rate trop élevé
         if analysis["draw_rate"] > 0.45:
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (draw_rate > 0.45)")
             continue
@@ -735,11 +749,11 @@ def main():
                 if vote_dict:
                     public_votes = vote_dict
 
-        # Calcul de la value bet avec prise en compte de la forme, avantage domicile, et plafonnement
+        # Calcul de la value bet
         value_bet = False
         if odds:
             dc = prediction["double_chance"]
-            # Notre probabilité estimée à partir de l'analyse H2H et de la forme
+            # Notre probabilité estimée
             home_dom = analysis["home_dominance"] + HOME_ADVANTAGE
             away_dom = analysis["away_dominance"]
             if dc == "1X":
@@ -757,10 +771,8 @@ def main():
             else:
                 our_prob = 0
 
-            # Plafonnement à 0.95
             our_prob = min(our_prob, 0.95)
 
-            # Probabilité implicite du bookmaker via estimate_dc_odds
             dc_odds = estimate_dc_odds(odds, dc)
             if dc_odds > 0:
                 book_prob = 1 / dc_odds
@@ -774,11 +786,11 @@ def main():
             "odds": estimate_odds(category, prediction["double_chance"])  # fallback
         }
 
-        # Calcul du score final de fiabilité
+        # Score final de fiabilité
         value_bet_bonus = 10 if value_bet else 0
         final_score = (score * 0.6) + (prediction["confidence"] * 0.2) + (value_bet_bonus * 0.2)
 
-        # Calcul des probabilités Poisson (optionnel, pour information)
+        # Calcul des probabilités Poisson (pour info)
         poisson_probs = None
         if home_form and away_form:
             lambda_home = (home_form["goals_for"] + away_form["goals_against"]) / 2
@@ -833,11 +845,11 @@ def main():
         matches.append(match)
         categories[category].append(match)
 
-    # Tri intelligent par score final décroissant (les meilleurs en premier)
+    # Tri intelligent par score final décroissant
     matches.sort(key=lambda x: x.get("final_score", 0), reverse=True)
 
     # =======================================================
-    # CALCUL DU ROI avec cotes double chance estimées
+    # CALCUL DU ROI
     # =======================================================
     total_bets = 0
     total_wins = 0
@@ -847,7 +859,6 @@ def main():
     for m in matches:
         if m.get("verified_double"):
             total_wins += 1
-            # Utiliser la cote double chance estimée à partir des cotes réelles si disponibles
             odds = m.get("odds")
             if odds:
                 dc = m["prediction"]["double_chance"]
