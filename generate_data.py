@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - Moteur de pronostics football (double chance) version assouplie
-Avec fallback Poisson quand H2H insuffisant, seuils ajustés pour générer des pronostics.
+generate_data.py - Moteur de pronostics football (double chance) version toutes ligues
+Suppression du filtre sur les ligues, seuils assouplis pour générer des pronostics sur tous les matchs.
 """
 
 import os
@@ -17,7 +17,7 @@ from math import exp, factorial
 # =======================================================
 # CONFIGURATION
 # =======================================================
-SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")
+SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY",'1b25cd7b-ed9f-4f7e-98a4-5996eb7115bc')
 if not SPORTDATA_API_KEY:
     raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
 
@@ -40,26 +40,11 @@ LOGOS_DIR = "assets/images/logos"
 COMPETITION_LOGOS_DIR = os.path.join(LOGOS_DIR, "competitions")
 os.makedirs(COMPETITION_LOGOS_DIR, exist_ok=True)
 
-# Ligues considérées comme fiables
-TRUSTED_LEAGUES = [
-    "Premier League",
-    "LaLiga",
-    "Serie A",
-    "Bundesliga",
-    "Ligue 1",
-    "Eredivisie",
-    "Primeira Liga",
-    "Russian Premier League",
-    "MLS",
-    "Brasileirão",
-    "Super Lig"
-]
-
 HOME_ADVANTAGE = 0.1
-CONFIDENCE_THRESHOLD = 50      # On ignore les matchs avec confidence < 50 (abaissé)
-GOAL_DIFF_THRESHOLD = 0.1      # Différence de buts minimum (abaissé)
-XPRONOS_THRESHOLD = 55         # Score xPronos minimum (abaissé)
-DOMINANCE_THRESHOLD = 0.4      # Seuil pour décider du double chance (abaissé)
+CONFIDENCE_THRESHOLD = 50      # On ignore les matchs avec confidence < 50
+GOAL_DIFF_THRESHOLD = 0.1      # Différence de buts minimum
+XPRONOS_THRESHOLD = 45         # Score xPronos minimum
+DOMINANCE_THRESHOLD = 0.4      # Seuil pour décider du double chance
 
 print("=" * 60)
 print(f"🚀 GÉNÉRATION DES PRONOSTICS (DOUBLE CHANCE UNIQUEMENT) - {today}")
@@ -444,10 +429,11 @@ def generate_prediction(analysis, home_form, away_form, league):
     if analysis["draw_rate"] > 0.4:
         confiance -= 10
 
-    if league in TRUSTED_LEAGUES:
-        confiance += 5
-    else:
-        confiance -= 5
+    # Suppression du bonus/malus sur les ligues
+    # if league in TRUSTED_LEAGUES:
+    #     confiance += 5
+    # else:
+    #     confiance -= 5
 
     confiance = max(0, min(100, confiance))
 
@@ -464,17 +450,18 @@ def calculate_xpronos_score(analysis, home_form, away_form, league):
     score += min(30, int(dominance * 100 * 0.5))
     if home_form and away_form:
         score += min(20, int((home_form["form_score"] + away_form["form_score"]) * 10))
-    if league in TRUSTED_LEAGUES:
-        score += 5
+    # Suppression du bonus ligues fiables
+    # if league in TRUSTED_LEAGUES:
+    #     score += 5
     if analysis["draw_rate"] > 0.4:
         score -= 10
     return min(score, 100)
 
 
 def get_category(score):
-    if score >= 70:
+    if score >= 55:
         return "vip"
-    elif score >= 55:
+    elif score >= 47:
         return "pro"
     else:
         return "simple"
@@ -719,10 +706,10 @@ def main():
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (score xPronos {score} < {XPRONOS_THRESHOLD})")
             continue
 
-        # Filtre sur les ligues non fiables si score < 65 (au lieu de 70)
-        if base["competition"] not in TRUSTED_LEAGUES and score < 65:
-            print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (ligue non fiable et score < 65)")
-            continue
+        # Suppression du filtre sur les ligues non fiables
+        # if base["competition"] not in TRUSTED_LEAGUES and score < 65:
+        #     print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (ligue non fiable et score < 65)")
+        #     continue
 
         # Téléchargement des logos
         home_logo = download_logo(base["home_competitor_id"], base["home_image_version"])
