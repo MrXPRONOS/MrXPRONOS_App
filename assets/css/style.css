@@ -1933,3 +1933,17 @@ footer {
         width: 100%;
     }
 }
+
+/* Correction pour les popups sur mobile : boutons en colonne */
+@media (max-width: 480px) {
+    #share-popup .popup-content .share-buttons,
+    #vip-locked-overlay .vip-contact-buttons {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    #share-popup .popup-content .share-buttons .btn,
+    #vip-locked-overlay .vip-contact-buttons .btn {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+}
