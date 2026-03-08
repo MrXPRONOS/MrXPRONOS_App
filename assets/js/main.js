@@ -1,5 +1,5 @@
 /**
- * main.js - Mr XPRONOS – Version ultime (corrigée)
+ * main.js - Mr XPRONOS – Version finale corrigée
  * Toutes les fonctionnalités sont regroupées dans ce seul fichier.
  */
 
@@ -681,8 +681,9 @@ function renderMatches(matches) {
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const homeDefault = 'assets/images/home.webp';
             const awayDefault = 'assets/images/away.webp';
-            const homeLogo = getTeamLogoPath(m.home_team, true);
-            const awayLogo = getTeamLogoPath(m.away_team, false);
+            // Utiliser les logos téléchargés si disponibles, sinon fallback par nom
+            const homeLogo = m.home_logo || getTeamLogoPath(m.home_team, true);
+            const awayLogo = m.away_logo || getTeamLogoPath(m.away_team, false);
             const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
@@ -978,8 +979,8 @@ async function displayHistory() {
             const verifiedDouble = m.verified_double ? 'checked' : '';
             const homeDefault = 'assets/images/home.webp';
             const awayDefault = 'assets/images/away.webp';
-            const homeLogo = getTeamLogoPath(m.home_team, true);
-            const awayLogo = getTeamLogoPath(m.away_team, false);
+            const homeLogo = m.home_logo || getTeamLogoPath(m.home_team, true);
+            const awayLogo = m.away_logo || getTeamLogoPath(m.away_team, false);
             const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
@@ -1045,8 +1046,8 @@ function displayLatestVerified() {
         const statusClass = getStatusClass(m.status);
         const homeDefault = 'assets/images/home.webp';
         const awayDefault = 'assets/images/away.webp';
-        const homeLogo = getTeamLogoPath(m.home_team, true);
-        const awayLogo = getTeamLogoPath(m.away_team, false);
+        const homeLogo = m.home_logo || getTeamLogoPath(m.home_team, true);
+        const awayLogo = m.away_logo || getTeamLogoPath(m.away_team, false);
         const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
         const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
         const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
