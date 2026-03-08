@@ -1,7 +1,7 @@
 /* =======================================================
    STYLE.CSS - Mr XPRONOS
    Design noir & or, moderne, optimisé sans dégradés
-   Inclut les styles pour les pronostics combinés VIP
+   Inclut les styles pour les pronostics et popups
    ======================================================= */
 
 /* Police élégante Montserrat (Google Fonts) */
@@ -22,8 +22,7 @@
     --gris-clair: #444;
     --shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     --shadow-hover: 0 12px 24px rgba(212, 175, 55, 0.2);
-    --vip-glow: 0 0 20px rgba(212, 175, 55, 0.6); /* Lueur VIP */
-    --combo-gradient: linear-gradient(135deg, #D4AF37, #FFD700, #D4AF37); /* Dégradé or pour combos */
+    --vip-glow: 0 0 20px rgba(212, 175, 55, 0.6);
 }
 
 /* =======================================================
@@ -398,7 +397,6 @@ footer {
     word-break: break-word;
 }
 
-/* Réduction de la taille sur mobile */
 @media (max-width: 480px) {
     .horizontal-item {
         width: 150px;
@@ -602,7 +600,7 @@ footer {
     right: -2px;
     bottom: -2px;
     border-radius: 22px;
-    background: var(--combo-gradient);
+    background: linear-gradient(135deg, #D4AF37, #FFD700, #D4AF37);
     z-index: -1;
     opacity: 0.3;
     filter: blur(5px);
@@ -835,7 +833,7 @@ footer {
 /* Badge "COMBO VIP" flottant */
 .combo-badge {
     display: inline-block;
-    background: var(--combo-gradient);
+    background: linear-gradient(135deg, #D4AF37, #FFD700, #D4AF37);
     color: #000;
     font-weight: 700;
     font-size: 0.7rem;
@@ -1769,6 +1767,73 @@ footer {
 }
 
 /* =======================================================
+   POPUP DE PARTAGE (CORRECTIONS MOBILE)
+   ======================================================= */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+
+.popup.active {
+    display: flex;
+}
+
+.popup-content {
+    background-color: var(--noir-secondaire);
+    border: 2px solid var(--or);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow-hover);
+}
+
+.popup-content h3 {
+    color: var(--or);
+    margin-bottom: 1rem;
+}
+
+.popup-content p {
+    margin-bottom: 1rem;
+    color: #ccc;
+}
+
+.share-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+.share-buttons .btn {
+    flex: 1;
+}
+
+/* Correction mobile : boutons en colonne */
+@media (max-width: 480px) {
+    .popup-content .share-buttons,
+    .vip-contact-buttons {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    .popup-content .share-buttons .btn,
+    .vip-contact-buttons .btn {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+}
+
+/* =======================================================
    RESPONSIVE (MOBILE FIRST)
    ======================================================= */
 @media (max-width: 768px) {
@@ -1856,94 +1921,5 @@ footer {
 @media (max-width: 480px) {
     #today-picks.horizontal-scroll .match-card {
         width: 280px;
-    }
-}
-
-/* =======================================================
-   POPUP DE PARTAGE
-   ======================================================= */
-.popup {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-    backdrop-filter: blur(5px);
-}
-
-.popup.active {
-    display: flex;
-}
-
-.popup-content {
-    background-color: var(--noir-secondaire);
-    border: 2px solid var(--or);
-    border-radius: 20px;
-    padding: 2rem;
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    box-shadow: var(--shadow-hover);
-}
-
-.popup-content h3 {
-    color: var(--or);
-    margin-bottom: 1rem;
-}
-
-.popup-content p {
-    margin-bottom: 1rem;
-    color: #ccc;
-}
-
-.share-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin: 1.5rem 0;
-}
-
-.share-buttons .btn {
-    flex: 1;
-}
-
-
-
-/* =======================================================
-   RESPONSIVE POUR LES POPUPS (boutons en colonne sur mobile)
-   ======================================================= */
-@media (max-width: 480px) {
-    .popup-content .share-buttons {
-        flex-direction: column;
-        gap: 10px;
-    }
-    .popup-content .share-buttons .btn {
-        width: 100%;
-    }
-    
-    .vip-contact-buttons {
-        flex-direction: column;
-    }
-    .vip-contact-buttons .btn {
-        width: 100%;
-    }
-}
-
-/* Correction pour les popups sur mobile : boutons en colonne */
-@media (max-width: 480px) {
-    #share-popup .popup-content .share-buttons,
-    #vip-locked-overlay .vip-contact-buttons {
-        flex-direction: column !important;
-        gap: 10px !important;
-    }
-    #share-popup .popup-content .share-buttons .btn,
-    #vip-locked-overlay .vip-contact-buttons .btn {
-        width: 100% !important;
-        margin: 0 !important;
     }
 }
