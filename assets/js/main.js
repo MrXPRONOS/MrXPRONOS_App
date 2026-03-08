@@ -1,6 +1,6 @@
 /**
- * main.js - Mr XPRONOS – Version sans combo/BTTS
- * Uniquement double chance.
+ * main.js - Mr XPRONOS – Version ultime (corrigée)
+ * Toutes les fonctionnalités sont regroupées dans ce seul fichier.
  */
 
 // =======================================================
@@ -262,7 +262,6 @@ async function loadData() {
         renderBookmakers(allData.bookmakers);
         hideEmptyTabs();
         maybeHideTabBar();
-        updateSuccessRate();
         filterAndDisplay();
     } else if (matchesContainer) {
         matchesContainer.innerHTML = `<div class="error" style="text-align:center; padding:60px;">❌ Aucune donnée disponible.<br><small>Connectez-vous une première fois pour charger le cache.</small></div>`;
@@ -273,14 +272,20 @@ async function loadData() {
 // FILTRAGE ET AFFICHAGE
 // =======================================================
 function hideEmptyTabs() {
+    const vipEnabled = localStorage.getItem('vipEnabled') !== 'false'; // true par défaut
     const counts = { simple: 0, pro: 0, vip: 0 };
     if (allData && allData.matches) {
         allData.matches.forEach(m => counts[m.category]++);
     }
     document.querySelectorAll('.tab-btn').forEach(btn => {
         const cat = btn.dataset.cat;
-        if (cat === 'pro' || cat === 'vip') btn.style.display = 'inline-block';
-        else btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
+        if (cat === 'vip' && !vipEnabled) {
+            btn.style.display = 'none';
+        } else if (cat === 'pro' || cat === 'vip') {
+            btn.style.display = 'inline-block';
+        } else {
+            btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
+        }
     });
     const visibleTabs = Array.from(document.querySelectorAll('.tab-btn')).filter(btn => btn.style.display !== 'none');
     if (visibleTabs.length > 0) {
@@ -295,7 +300,7 @@ function hideEmptyTabs() {
         if (tabBar) tabBar.style.display = 'none';
     }
     if (vipSubtabs) {
-        const showPronostics = counts.vip > 0;
+        const showPronostics = counts.vip > 0 && vipEnabled;
         const subtabBtns = vipSubtabs.querySelectorAll('.subtab-btn');
         if (subtabBtns.length >= 1) subtabBtns[0].style.display = showPronostics ? 'inline-block' : 'none';
         vipSubtabs.style.display = showPronostics ? 'flex' : 'none';
@@ -363,7 +368,17 @@ function setupEventListeners() {
 }
 
 async function handleCategoryChange() {
+    const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
     if (currentCategory === 'vip') {
+        if (!vipEnabled) {
+            alert('Les pronostics VIP sont temporairement désactivés.');
+            // Revenir à la catégorie simple
+            currentCategory = 'simple';
+            document.querySelector('.tab-btn[data-cat="simple"]').classList.add('active');
+            document.querySelector('.tab-btn[data-cat="vip"]').classList.remove('active');
+            filterAndDisplay();
+            return;
+        }
         const isVip = await checkVipStatus();
         if (!isVip) {
             if (vipLockedOverlay) {
@@ -428,7 +443,7 @@ function ensureVipOverlayStructure() {
                 <div class="lock-icon">🔒</div>
                 <h3></h3>
                 <p></p>
-                <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+                <div class="share-buttons vip-contact-buttons" style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
                     <button id="share-wa-locked" class="btn btn-primary">WhatsApp</button>
                     <button id="share-tg-locked" class="btn btn-primary">Telegram</button>
                 </div>
@@ -648,7 +663,7 @@ function renderMatches(matches) {
             const awayDefault = 'assets/images/away.webp';
             const homeLogo = getTeamLogoPath(m.home_team, true);
             const awayLogo = getTeamLogoPath(m.away_team, false);
-            const isWinner = m.verified_double;  // Uniquement double chance
+            const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
             const matchDataEncoded = encodeURIComponent(JSON.stringify(m));
@@ -732,7 +747,6 @@ function getStatusClass(status) {
 // BOOKMAKERS
 // =======================================================
 function renderBookmakers(bookmakers) {
-    console.log('📢 renderBookmakers appelée avec:', bookmakers);
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
@@ -808,34 +822,6 @@ function renderBookmakers(bookmakers) {
 }
 
 // =======================================================
-// TAUX DE RÉUSSITE
-// =======================================================
-function updateSuccessRate() {
-    const container = document.getElementById('success-rate-container');
-    if (!container) return;
-    const matches = allData.matches || [];
-    const finished = matches.filter(m => {
-        if (!m.status) return false;
-        const statusLower = m.status.toLowerCase();
-        return statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-    });
-    const successful = finished.filter(m => m.verified_double);
-    if (finished.length === 0) {
-        container.style.display = 'none';
-        return;
-    }
-    const rate = ((successful.length / finished.length) * 100).toFixed(1);
-    const stats = allData.stats || {};
-    const roi = stats.roi || 0;
-    const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
-    container.innerHTML = `
-        <div class="success-rate-item"><div class="success-rate-value">${rate}%</div><div class="success-rate-label">Réussite</div></div>
-        <div class="success-rate-item"><div class="success-rate-value">${roiDisplay}</div><div class="success-rate-label">ROI</div></div>
-    `;
-    container.style.display = 'flex';
-}
-
-// =======================================================
 // INITIALISATION PRINCIPALE
 // =======================================================
 document.addEventListener('DOMContentLoaded', async () => {
@@ -861,7 +847,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 updateShareCounter();
                 displayLatestVerified();
                 startWinsSlider();
-                showSuccessRate();
                 animateWins();
             }
         });
@@ -1139,24 +1124,6 @@ function animateWins() {
     }, 20);
 }
 
-function showSuccessRate() {
-    const fill = document.getElementById('success-fill');
-    const percentEl = document.getElementById('success-percent');
-    if (!fill || !percentEl || !allData || !allData.matches) return;
-    const finished = allData.matches.filter(m => {
-        if (!m.status) return false;
-        const statusLower = m.status.toLowerCase();
-        return statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
-    });
-    let percent = 0;
-    if (finished.length > 0) {
-        const successful = finished.filter(m => m.verified_double).length;
-        percent = Math.round((successful / finished.length) * 100);
-    }
-    fill.style.width = percent + '%';
-    percentEl.textContent = percent + '%';
-}
-
 function initScrollProgress() {
     const progressBar = document.createElement('div');
     progressBar.className = 'scroll-progress';
@@ -1419,7 +1386,7 @@ window.closeNewsModal = function() {
 };
 
 // =======================================================
-// FONCTIONS VIP (surchargées par vip.js mais incluses ici pour sécurité)
+// FONCTIONS VIP
 // =======================================================
 async function checkVipStatus() {
     if (!supabaseAvailable) return false;
@@ -1447,7 +1414,7 @@ function showVipLoginForm(container) {
             <h3>🔐 Accès VIP Payant</h3>
             <p><strong>Votre ID :</strong> ${userId}</p>
             <p>Pour obtenir un code VIP (5000 FCFA/mois), contactez-nous sur WhatsApp ou Telegram avec votre ID.</p>
-            <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;" class="vip-contact-buttons">
+            <div class="vip-contact-buttons" style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
                 <a href="https://wa.me/22899201444?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodeURIComponent(userId)}" target="_blank" class="btn btn-primary">WhatsApp</a>
                 <a href="https://t.me/mr_xpronos?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodeURIComponent(userId)}" target="_blank" class="btn btn-primary">Telegram</a>
             </div>
