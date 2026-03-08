@@ -739,9 +739,9 @@
       "league": "Liga Panameña - Clausura",
       "league_logo": null,
       "venue": "",
-      "status": "1st Half",
-      "home_score": 0,
-      "away_score": 0,
+      "status": "Ended",
+      "home_score": 2,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 3,
         "home_wins": 2.2,
