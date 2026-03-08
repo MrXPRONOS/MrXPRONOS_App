@@ -4,7 +4,7 @@
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
 Ajoute la génération d'images avec fallback : Mistral -> Pixazo -> Lorem Picsum.
-Version corrigée : utilise uniquement Pixazo + fallback, car l'API Mistral image est instable.   
+Version corrigée : utilise uniquement Pixazo + fallback, car l'API Mistral image est instable. 
 """
 
 import os
