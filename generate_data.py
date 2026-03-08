@@ -3,14 +3,13 @@
 
 """
 generate_data.py - Génère les pronostics à partir des données SportData
-Version améliorée avec avantage domicile, attaque/défense, et filtres.
-Ajoute le calcul du ROI basé sur des cotes estimées.  
+Version simplifiée : uniquement double chance, sans combo ni BTTS.
 """
 
 import os
 import json
 import requests
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -54,20 +53,11 @@ TRUSTED_LEAGUES = [
     "Super Lig"
 ]
 
-# Ligues avec moyenne de buts élevée (pour over 2.5, gardé pour info)
-HIGH_SCORING_LEAGUES = [
-    "Bundesliga",
-    "Eredivisie",
-    "Premier League",
-    "MLS",
-    "Brasileirão"
-]
-
 # Coefficient d'avantage domicile
 HOME_ADVANTAGE = 0.1
 
 print("="*60)
-print(f"🚀 GÉNÉRATION DES PRONOSTICS AMÉLIORÉS - {today}")
+print(f"🚀 GÉNÉRATION DES PRONOSTICS (DOUBLE CHANCE UNIQUEMENT) - {today}")
 print("="*60)
 
 # =======================================================
@@ -229,7 +219,7 @@ def get_team_form(team, team_matches, last_games=5, max_days=365):
     }
 
 # =======================================================
-# FONCTIONS D'ANALYSE H2H ET BTTS
+# FONCTIONS D'ANALYSE H2H (sans BTTS)
 # =======================================================
 def load_historical_matches():
     if not os.path.exists(GLOBAL_CACHE_FILE):
@@ -278,9 +268,7 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
     home_score = 0.0
     away_score = 0.0
     draws_score = 0.0
-    total_goals = 0.0
     matches_count = 0
-    over_25_count = 0
 
     for match in h2h_list:
         if not match.get("is_finished") or match["home_score"] is None or match["away_score"] is None:
@@ -290,9 +278,6 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
         weight = date_weight * comp_weight
 
         matches_count += 1
-        total_goals += (match["home_score"] + match["away_score"]) * weight
-        if match["home_score"] + match["away_score"] > 2.5:
-            over_25_count += 1
 
         if match["home_score"] > match["away_score"]:
             if match["home_team"].lower() == current_home_team.lower():
@@ -311,8 +296,6 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
     home_dominance = home_score / total_weighted if total_weighted > 0 else 0
     away_dominance = away_score / total_weighted if total_weighted > 0 else 0
     draw_rate = draws_score / total_weighted if total_weighted > 0 else 0
-    goals_avg = total_goals / matches_count if matches_count > 0 else 2.5
-    over_25_prob = over_25_count / matches_count if matches_count > 0 else 0.5
 
     return {
         "total_matches": matches_count,
@@ -321,27 +304,10 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
         "draws": round(draws_score, 2),
         "home_dominance": round(home_dominance, 3),
         "away_dominance": round(away_dominance, 3),
-        "draw_rate": round(draw_rate, 3),
-        "goals_avg": round(goals_avg, 2),
-        "over_25_prob": round(over_25_prob, 3)
+        "draw_rate": round(draw_rate, 3)
     }
 
-def analyze_btts(h2h_list):
-    btts_count = 0
-    matches = 0
-    for m in h2h_list:
-        if not m.get("is_finished"):
-            continue
-        if m["home_score"] is None or m["away_score"] is None:
-            continue
-        matches += 1
-        if m["home_score"] > 0 and m["away_score"] > 0:
-            btts_count += 1
-    if matches == 0:
-        return 0.5
-    return btts_count / matches
-
-def estimate_odds(category, double_chance, combo=False):
+def estimate_odds(category, double_chance):
     """
     Estime une cote moyenne pour le type de pronostic.
     """
@@ -350,13 +316,10 @@ def estimate_odds(category, double_chance, combo=False):
     elif category == 'pro':
         return 2.2
     elif category == 'vip':
-        if combo:
-            return 3.0
-        else:
-            return 2.5
+        return 2.5
     return 2.0
 
-def generate_prediction(analysis, home_form, away_form, league, h2h_list):
+def generate_prediction(analysis, home_form, away_form, league):
     # Avantage domicile
     home_dom = analysis["home_dominance"] + HOME_ADVANTAGE
     away_dom = analysis["away_dominance"]
@@ -369,20 +332,6 @@ def generate_prediction(analysis, home_form, away_form, league, h2h_list):
         double_chance = "X2"
     else:
         double_chance = "12"
-
-    # Over 2.5 (gardé pour calcul interne)
-    over_25 = analysis["over_25_prob"] > 0.6
-    if league in HIGH_SCORING_LEAGUES:
-        over_25 = over_25 or analysis["goals_avg"] > 2.8
-
-    # BTTS
-    btts_prob = analyze_btts(h2h_list)
-    btts = btts_prob > 0.6
-
-    # Combo pour VIP
-    combo = None
-    if double_chance != "12" and btts:
-        combo = f"{double_chance} + BTTS"
 
     # Calcul du score de confiance
     confiance = 50
@@ -422,14 +371,10 @@ def generate_prediction(analysis, home_form, away_form, league, h2h_list):
 
     return {
         "double_chance": double_chance,
-        "over_25": over_25,
-        "btts": btts,
-        "btts_probability": round(btts_prob, 3),
-        "combo": combo,
         "confidence": confiance
     }
 
-def calculate_xpronos_score(analysis, prediction, home_form, away_form, league):
+def calculate_xpronos_score(analysis, home_form, away_form, league):
     score = 0
     score += min(40, analysis["total_matches"] * 6)
     dominance = max(analysis["home_dominance"], analysis["away_dominance"])
@@ -440,28 +385,22 @@ def calculate_xpronos_score(analysis, prediction, home_form, away_form, league):
         score += 5
     if analysis["draw_rate"] > 0.4:
         score -= 10
-    if prediction.get("combo"):
-        score += 5
     return min(score, 100)
 
-def get_category(score, prediction, analysis):
-    # Priorité VIP pour les combos avec au moins 4 matchs H2H
-    if prediction.get("combo") is not None and analysis["total_matches"] >= 4:
+def get_category(score):
+    if score >= 70:
         return "vip"
-    if score >= 55:
-        return "vip"
-    elif score >= 50:
+    elif score >= 55:
         return "pro"
     else:
         return "simple"
 
 def get_badge(score):
-    if score >= 80:
+    if score >= 85:
         return "🏆 PREMIUM LOCK"
     elif score >= 70:
-        
         return "💎 VIP ELITE"
-    elif score >= 60:
+    elif score >= 65:
         return "🔥 ULTRA SAFE"
     return ""
 
@@ -549,30 +488,25 @@ def main():
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (draw_rate > 0.45)")
             continue
 
-        prediction = generate_prediction(analysis, home_form, away_form, base["competition"], h2h_list)
+        prediction = generate_prediction(analysis, home_form, away_form, base["competition"])
 
         if prediction["double_chance"] == "12":
             print(f"   ⚠️ Pronostic 12 (match équilibré) ignoré")
             continue
 
-        score = calculate_xpronos_score(analysis, prediction, home_form, away_form, base["competition"])
-        category = get_category(score, prediction, analysis)
+        score = calculate_xpronos_score(analysis, home_form, away_form, base["competition"])
+        category = get_category(score)
         badge = get_badge(score)
 
         # Estimation de la cote
-        odds = estimate_odds(category, prediction["double_chance"], prediction.get("combo") is not None)
+        odds = estimate_odds(category, prediction["double_chance"])
 
-        # Construction de la prédiction finale selon catégorie
+        # Construction de la prédiction finale
         final_prediction = {
             "double_chance": prediction["double_chance"],
             "confidence": prediction["confidence"],
-            "odds": odds  # Ajout de la cote estimée
+            "odds": odds
         }
-        if category == "vip":
-            if prediction.get("combo"):
-                final_prediction["combo"] = prediction["combo"]
-            final_prediction["btts"] = prediction["btts"]
-            final_prediction["btts_probability"] = prediction["btts_probability"]
 
         home_logo = get_team_logo(base["home_team"])
         away_logo = get_team_logo(base["away_team"])
@@ -599,7 +533,7 @@ def main():
             "badge": badge,
             "category": category,
             "verified_double": False,
-            "verified_btts": False,
+            "verified_btts": False,  # conservé pour compatibilité mais inutilisé
             "verified_over": False
         }
 
@@ -611,11 +545,7 @@ def main():
             elif dc == "X2":
                 match["verified_double"] = (home_score == away_score) or (home_score < away_score)
 
-            # Vérification BTTS (les deux équipes marquent)
-            match["verified_btts"] = (home_score > 0 and away_score > 0)
-            # Pour compatibilité avec l'ancien code, on garde verified_over (Over 2.5) mais on peut le supprimer si inutilisé
-            total_goals = home_score + away_score
-            match["verified_over"] = (total_goals > 2.5)
+            # On laisse verified_btts à False car on ne l'utilise plus
 
         matches.append(match)
         categories[category].append(match)
@@ -628,18 +558,17 @@ def main():
     # =======================================================
     total_bets = 0
     total_wins = 0
-    total_stake = 0  # on suppose une mise unitaire de 1
+    total_stake = 0
     total_return = 0
 
     for m in matches:
         if m.get("verified_double"):  # considéré comme gagnant si double chance vérifié
             total_wins += 1
             odds = m["prediction"].get("odds", 2.0)
-            total_return += odds  # mise de 1
-        # Si le match est terminé mais non vérifié, c'est une perte (on ne compte que les terminés)
+            total_return += odds
         if m.get("status") and ("finished" in m["status"].lower() or "terminé" in m["status"].lower()):
             total_bets += 1
-            total_stake += 1  # mise de 1
+            total_stake += 1
 
     if total_bets > 0:
         roi = ((total_return - total_stake) / total_stake) * 100
@@ -673,7 +602,6 @@ def main():
 
     print(f"\n💾 {DATA_FILE} généré avec {len(matches)} matchs")
     print(f"📊 Catégories : Simple: {len(categories['simple'])}, Pro: {len(categories['pro'])}, VIP: {len(categories['vip'])}")
-    print(f"🎯 Combos BTTS générés : {sum(1 for m in matches if m['prediction'].get('combo'))}")
     print(f"💰 ROI estimé : {stats['roi']}% sur {stats['total_bets']} matchs terminés")
 
 if __name__ == "__main__":

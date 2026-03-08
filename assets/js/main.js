@@ -1,6 +1,6 @@
 /**
- * main.js - Mr XPRONOS – Version ultime (corrigée)
- * Toutes les fonctionnalités sont regroupées dans ce seul fichier.
+ * main.js - Mr XPRONOS – Version sans combo/BTTS
+ * Uniquement double chance.
  */
 
 // =======================================================
@@ -510,14 +510,8 @@ function share(platform) {
 
 function sharePronostic(match) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    let messageWhatsApp, messageTelegram;
-    if (match.prediction.combo) {
-        messageWhatsApp = `🔥 *Mr XPRONOS* – *COMBO VIP* 🔥\n\n⚽ *${match.home_team} vs ${match.away_team}*\n📊 *Pronostic combiné :* ${match.prediction.combo}\n📈 Fiabilité : ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
-        messageTelegram = `🔥 Mr XPRONOS – COMBO VIP 🔥\n\n⚽ ${match.home_team} vs ${match.away_team}\n📊 Pronostic combiné : ${match.prediction.combo}\n📈 Fiabilité : ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
-    } else {
-        messageWhatsApp = `🔥 *Mr XPRONOS* – Pronostic du jour\n\n⚽ *${match.home_team} vs ${match.away_team}*\n📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
-        messageTelegram = `🔥 Mr XPRONOS – Pronostic du jour\n\n⚽ ${match.home_team} vs ${match.away_team}\n📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
-    }
+    const messageWhatsApp = `🔥 *Mr XPRONOS* – Pronostic du jour\n\n⚽ *${match.home_team} vs ${match.away_team}*\n📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
+    const messageTelegram = `🔥 Mr XPRONOS – Pronostic du jour\n\n⚽ ${match.home_team} vs ${match.away_team}\n📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(messageWhatsApp)}`;
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(messageTelegram)}`;
     if (confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)")) {
@@ -638,7 +632,6 @@ function renderMatches(matches) {
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
             const doubleChance = pred.double_chance || 'N/A';
-            const combo = pred.combo || null;
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
@@ -650,19 +643,17 @@ function renderMatches(matches) {
             const eventDate = m.event_date ? m.event_date.split('T')[0] : '';
             const yesterdayStr = getLocalDateString('yesterday');
             const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
-            const verifiedBtts = (eventDate === yesterdayStr && m.verified_btts) ? 'checked' : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const homeDefault = 'assets/images/home.webp';
             const awayDefault = 'assets/images/away.webp';
             const homeLogo = getTeamLogoPath(m.home_team, true);
             const awayLogo = getTeamLogoPath(m.away_team, false);
-            const isWinner = m.verified_double && (!combo || m.verified_btts);
+            const isWinner = m.verified_double;  // Uniquement double chance
             const winnerClass = isWinner ? 'winner' : '';
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
-            const comboBadge = combo ? `<div class="combo-badge">🎯 COMBO VIP</div>` : '';
             const matchDataEncoded = encodeURIComponent(JSON.stringify(m));
             html += `
-                <div class="match-card ${winnerClass} ${combo ? 'match-card-vip' : ''}" data-match-id="${m.id}">
+                <div class="match-card ${winnerClass}" data-match-id="${m.id}">
                     <div class="win-effect"></div>
                     <div class="match-info">
                         <div class="teams">
@@ -688,10 +679,9 @@ function renderMatches(matches) {
                     <div class="analysis-panel ticket ${winnerClass}">
                         <h4>Pronostic ${xpronosBadge}</h4>
                         <p><strong>Double chance :</strong> ${doubleChance} ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}</p>
-                        ${combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" ${verifiedBtts} disabled></p>` : ''}
                         <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
-                        ${premiumBadge} ${comboBadge}
+                        ${premiumBadge}
                         <button class="btn btn-secondary btn-share" data-match='${matchDataEncoded}'>📤 Partager ce prono</button>
                     </div>
                 </div>
@@ -829,11 +819,7 @@ function updateSuccessRate() {
         const statusLower = m.status.toLowerCase();
         return statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
     });
-    const successful = finished.filter(m => {
-        const doubleOk = m.verified_double;
-        if (!m.prediction.combo) return doubleOk;
-        return doubleOk && m.verified_btts;
-    });
+    const successful = finished.filter(m => m.verified_double);
     if (finished.length === 0) {
         container.style.display = 'none';
         return;
@@ -985,12 +971,11 @@ async function displayHistory() {
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
             const verifiedDouble = m.verified_double ? 'checked' : '';
-            const verifiedBtts = m.verified_btts ? 'checked' : '';
             const homeDefault = 'assets/images/home.webp';
             const awayDefault = 'assets/images/away.webp';
             const homeLogo = getTeamLogoPath(m.home_team, true);
             const awayLogo = getTeamLogoPath(m.away_team, false);
-            const isWinner = m.verified_double && (!m.prediction.combo || m.verified_btts);
+            const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
@@ -1012,7 +997,6 @@ async function displayHistory() {
                     <div class="analysis-panel">
                         <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
                         <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled></p>
-                        ${m.prediction.combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" ${verifiedBtts} disabled></p>` : ''}
                         <p><strong>Fiabilité :</strong> ${confidence}%</p>
                         ${premiumBadge}
                     </div>
@@ -1024,7 +1008,7 @@ async function displayHistory() {
 }
 
 function initBonusPage() {
-    // Rempli par le code bonus existant (similaire à l'original)
+    // À implémenter si nécessaire
 }
 
 function displayLatestVerified() {
@@ -1039,9 +1023,7 @@ function displayLatestVerified() {
         const statusLower = m.status.toLowerCase();
         const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
         if (!isFinished) return false;
-        const doubleOk = m.verified_double;
-        if (!m.prediction.combo) return doubleOk && (m.category === 'pro' || m.category === 'vip');
-        else return doubleOk && m.verified_btts && m.category === 'vip';
+        return m.verified_double && (m.category === 'pro' || m.category === 'vip');
     });
     const latest = [...verified].sort((a,b) => new Date(b.event_date) - new Date(a.event_date)).slice(0,4);
     if (latest.length === 0) {
@@ -1082,7 +1064,6 @@ function displayLatestVerified() {
                 <div class="analysis-panel">
                     <h4>Pronostic ${xpronosBadge} ${categoryBadge}</h4>
                     <p><strong>Double chance :</strong> ${doubleChance} <input type="checkbox" class="prediction-checkbox" checked disabled></p>
-                    ${m.prediction.combo ? `<p><strong>BTTS :</strong> Oui <input type="checkbox" class="prediction-checkbox" checked disabled></p>` : ''}
                     <p><strong>Fiabilité :</strong> ${confidence}%</p>
                     ${premiumBadge}
                 </div>
@@ -1100,9 +1081,7 @@ function startWinsSlider() {
         const statusLower = m.status.toLowerCase();
         const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
         if (!isFinished) return false;
-        const doubleOk = m.verified_double;
-        if (!m.prediction.combo) return doubleOk;
-        return doubleOk && m.verified_btts;
+        return m.verified_double;
     }).sort((a,b) => new Date(b.event_date) - new Date(a.event_date)).slice(0,10);
     let html = '';
     wins.forEach(m => {
@@ -1149,9 +1128,7 @@ function animateWins() {
         const statusLower = m.status.toLowerCase();
         const isFinished = statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
         if (!isFinished) return false;
-        const doubleOk = m.verified_double;
-        if (!m.prediction.combo) return doubleOk;
-        return doubleOk && m.verified_btts;
+        return m.verified_double;
     }).length;
     let count = 0;
     const target = winsCount;
@@ -1173,11 +1150,7 @@ function showSuccessRate() {
     });
     let percent = 0;
     if (finished.length > 0) {
-        const successful = finished.filter(m => {
-            const doubleOk = m.verified_double;
-            if (!m.prediction.combo) return doubleOk;
-            return doubleOk && m.verified_btts;
-        }).length;
+        const successful = finished.filter(m => m.verified_double).length;
         percent = Math.round((successful / finished.length) * 100);
     }
     fill.style.width = percent + '%';
@@ -1446,7 +1419,7 @@ window.closeNewsModal = function() {
 };
 
 // =======================================================
-// FONCTIONS VIP (utilisant RPC Supabase)
+// FONCTIONS VIP (surchargées par vip.js mais incluses ici pour sécurité)
 // =======================================================
 async function checkVipStatus() {
     if (!supabaseAvailable) return false;
@@ -1494,7 +1467,6 @@ function showVipLoginForm(container) {
             if (error || !data.valid) throw new Error('Code invalide');
             localStorage.setItem('mx_vip_code', code);
             showToast('Code VIP activé avec succès !', 'success');
-            // Recharger l'affichage pour afficher les matchs VIP
             window.location.reload();
         } catch (e) {
             alert('Code invalide ou expiré.');
