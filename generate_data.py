@@ -3,7 +3,7 @@
 
 """
 generate_data.py - Génère les pronostics à partir des données SportData
-Version simplifiée : uniquement double chance, sans combo ni BTTS.
+Version améliorée avec téléchargement des logos via l'API d'images SportAPI.
 """
 
 import os
@@ -20,8 +20,6 @@ SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")
 if not SPORTDATA_API_KEY:
     raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
 
-THESPORTSDB_API_KEY = os.environ.get("THESPORTSDB_API_KEY", "3")
-
 SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
 HEADERS = {"x-api-key": SPORTDATA_API_KEY}
 
@@ -36,7 +34,8 @@ yesterday = today - timedelta(days=1)
 DATA_FILE = "data.json"
 CACHE_DIR = "cache"
 GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
-LOGO_CACHE_FILE = os.path.join(CACHE_DIR, "logos_cache.json")
+LOGOS_DIR = "assets/images/logos"  # Dossier où stocker les logos
+os.makedirs(LOGOS_DIR, exist_ok=True)
 
 # Ligues considérées comme fiables
 TRUSTED_LEAGUES = [
@@ -61,37 +60,43 @@ print(f"🚀 GÉNÉRATION DES PRONOSTICS (DOUBLE CHANCE UNIQUEMENT) - {today}")
 print("="*60)
 
 # =======================================================
-# GESTION DU CACHE DES LOGOS
+# FONCTIONS DE TÉLÉCHARGEMENT DES LOGOS
 # =======================================================
-logo_cache = {}
-if os.path.exists(LOGO_CACHE_FILE):
-    with open(LOGO_CACHE_FILE, 'r', encoding='utf-8') as f:
-        logo_cache = json.load(f)
+def get_competitor_logo_url(competitor_id, image_version=None):
+    """Construit l'URL du logo d'un compétiteur."""
+    base_url = "https://v1.football.sportsapipro.com/images/competitors"
+    if image_version:
+        return f"{base_url}/{competitor_id}?imageVersion={image_version}"
+    return f"{base_url}/{competitor_id}"
 
-def save_logo_cache():
-    with open(LOGO_CACHE_FILE, 'w', encoding='utf-8') as f:
-        json.dump(logo_cache, f, indent=2)
+def download_logo(competitor_id, image_version=None):
+    """
+    Télécharge le logo d'un compétiteur et le sauvegarde localement.
+    Retourne le chemin relatif du fichier, ou None en cas d'échec.
+    """
+    # Nom de fichier basé sur l'ID du compétiteur
+    filename = f"competitor_{competitor_id}.png"
+    filepath = os.path.join(LOGOS_DIR, filename)
+    rel_path = f"assets/images/logos/{filename}"
 
-def get_logo_thesportsdb(team_name):
-    if team_name in logo_cache:
-        return logo_cache[team_name]
+    # Si le fichier existe déjà, on ne le télécharge pas à nouveau
+    if os.path.exists(filepath):
+        return rel_path
+
+    url = get_competitor_logo_url(competitor_id, image_version)
     try:
-        url = f"https://www.thesportsdb.com/api/v1/json/{THESPORTSDB_API_KEY}/searchteams.php?t={requests.utils.quote(team_name)}"
-        resp = session.get(url, timeout=10)
+        resp = session.get(url, headers=HEADERS, timeout=10)
         if resp.status_code == 200:
-            data = resp.json()
-            teams = data.get("teams", [])
-            if teams:
-                logo = teams[0].get("strTeamBadge") or teams[0].get("strTeamLogo")
-                logo_cache[team_name] = logo
-                return logo
+            with open(filepath, 'wb') as f:
+                f.write(resp.content)
+            print(f"✅ Logo téléchargé : {competitor_id}")
+            return rel_path
+        else:
+            print(f"⚠️ Échec téléchargement logo {competitor_id} (code {resp.status_code})")
     except Exception as e:
-        print(f"⚠️ Erreur lors de la récupération du logo pour {team_name}: {e}")
-    logo_cache[team_name] = None
-    return None
+        print(f"⚠️ Erreur téléchargement logo {competitor_id}: {e}")
 
-def get_team_logo(team_name):
-    return get_logo_thesportsdb(team_name)
+    return None
 
 # =======================================================
 # FONCTIONS DE RÉCUPÉRATION DES DONNÉES SPORTDATA
@@ -130,6 +135,10 @@ def extract_game_info(game):
         "date": start_time[:10] if start_time else "",
         "home_team": home.get("name", ""),
         "away_team": away.get("name", ""),
+        "home_competitor_id": home.get("id"),
+        "away_competitor_id": away.get("id"),
+        "home_image_version": home.get("imageVersion"),
+        "away_image_version": away.get("imageVersion"),
         "competition": competition,
         "home_score": home_score,
         "away_score": away_score,
@@ -219,7 +228,7 @@ def get_team_form(team, team_matches, last_games=5, max_days=365):
     }
 
 # =======================================================
-# FONCTIONS D'ANALYSE H2H (sans BTTS)
+# FONCTIONS D'ANALYSE H2H
 # =======================================================
 def load_historical_matches():
     if not os.path.exists(GLOBAL_CACHE_FILE):
@@ -308,9 +317,6 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
     }
 
 def estimate_odds(category, double_chance):
-    """
-    Estime une cote moyenne pour le type de pronostic.
-    """
     if category == 'simple':
         return 1.8
     elif category == 'pro':
@@ -320,10 +326,8 @@ def estimate_odds(category, double_chance):
     return 2.0
 
 def generate_prediction(analysis, home_form, away_form, league):
-    # Avantage domicile
     home_dom = analysis["home_dominance"] + HOME_ADVANTAGE
     away_dom = analysis["away_dominance"]
-
     seuil = 0.55
 
     if home_dom > away_dom + seuil:
@@ -333,15 +337,12 @@ def generate_prediction(analysis, home_form, away_form, league):
     else:
         double_chance = "12"
 
-    # Calcul du score de confiance
     confiance = 50
     confiance += min(20, analysis["total_matches"] * 3)
 
-    # Bonus pour dominance forte
     if max(home_dom, away_dom) > 0.7:
         confiance += 10
 
-    # Bonus pour forme récente
     if home_form and away_form:
         form_diff = abs(home_form["form_score"] - away_form["form_score"])
         if form_diff > 0.2:
@@ -349,7 +350,6 @@ def generate_prediction(analysis, home_form, away_form, league):
         if home_form["form_score"] > 0.7 and away_form["form_score"] < 0.4:
             confiance += 5
 
-        # Bonus attaque/défense
         attack_diff = home_form["goals_for"] - away_form["goals_for"]
         if attack_diff > 0.8:
             confiance += 5
@@ -357,11 +357,9 @@ def generate_prediction(analysis, home_form, away_form, league):
         if defense_diff > 0.8:
             confiance += 5
 
-    # Malus pour draw_rate élevé
     if analysis["draw_rate"] > 0.4:
         confiance -= 10
 
-    # Ajustement ligue
     if league in TRUSTED_LEAGUES:
         confiance += 5
     else:
@@ -444,6 +442,7 @@ def main():
     for gid in all_ids:
         base = new_infos.get(gid)
         if base is None:
+            # Match déjà existant, on le garde tel quel
             match = existing_matches[gid]
             matches.append(match)
             categories[match["category"]].append(match)
@@ -498,18 +497,16 @@ def main():
         category = get_category(score)
         badge = get_badge(score)
 
-        # Estimation de la cote
-        odds = estimate_odds(category, prediction["double_chance"])
+        # Téléchargement des logos
+        home_logo = download_logo(base["home_competitor_id"], base["home_image_version"])
+        away_logo = download_logo(base["away_competitor_id"], base["away_image_version"])
 
         # Construction de la prédiction finale
         final_prediction = {
             "double_chance": prediction["double_chance"],
             "confidence": prediction["confidence"],
-            "odds": odds
+            "odds": estimate_odds(category, prediction["double_chance"])
         }
-
-        home_logo = get_team_logo(base["home_team"])
-        away_logo = get_team_logo(base["away_team"])
 
         match = {
             "id": gid,
@@ -533,7 +530,7 @@ def main():
             "badge": badge,
             "category": category,
             "verified_double": False,
-            "verified_btts": False,  # conservé pour compatibilité mais inutilisé
+            "verified_btts": False,
             "verified_over": False
         }
 
@@ -545,12 +542,9 @@ def main():
             elif dc == "X2":
                 match["verified_double"] = (home_score == away_score) or (home_score < away_score)
 
-            # On laisse verified_btts à False car on ne l'utilise plus
-
         matches.append(match)
         categories[category].append(match)
 
-    save_logo_cache()
     matches.sort(key=lambda x: x["event_date"] or "", reverse=True)
 
     # =======================================================
@@ -562,7 +556,7 @@ def main():
     total_return = 0
 
     for m in matches:
-        if m.get("verified_double"):  # considéré comme gagnant si double chance vérifié
+        if m.get("verified_double"):
             total_wins += 1
             odds = m["prediction"].get("odds", 2.0)
             total_return += odds
@@ -603,6 +597,7 @@ def main():
     print(f"\n💾 {DATA_FILE} généré avec {len(matches)} matchs")
     print(f"📊 Catégories : Simple: {len(categories['simple'])}, Pro: {len(categories['pro'])}, VIP: {len(categories['vip'])}")
     print(f"💰 ROI estimé : {stats['roi']}% sur {stats['total_bets']} matchs terminés")
+    print(f"🖼️ Logos téléchargés dans {LOGOS_DIR}")
 
 if __name__ == "__main__":
     main()

@@ -85,13 +85,18 @@ async function initSupabase() {
 }
 
 // =======================================================
-// GESTION DES COMPTEURS (visites, partages)
+// GESTION DES COMPTEURS (visites, partages) via RPC
 // =======================================================
 async function incrementCounter(counterName) {
     if (!supabaseAvailable) return;
     try {
-        await supabase.rpc('increment_counter', { counter_name: counterName });
-    } catch (e) { console.error('Erreur incrémentation:', e); }
+        const { error } = await supabase.rpc('increment_counter', {
+            counter_name: counterName
+        });
+        if (error) console.error('Erreur incrémentation:', error);
+    } catch (e) {
+        console.error('Erreur réseau incrémentation:', e);
+    }
 }
 
 async function updateDisplayedCounters() {
@@ -99,37 +104,52 @@ async function updateDisplayedCounters() {
     try {
         const { data, error } = await supabase
             .from('counters')
-            .select('total_users, total_shares')
+            .select('total_visits, total_shares')
             .eq('id', 1)
             .single();
         if (error) throw error;
         const usersEl = document.getElementById('total-users-count');
         const sharesEl = document.getElementById('total-shares-count');
-        if (usersEl) usersEl.textContent = data.total_users.toLocaleString() + '+';
-        if (sharesEl) sharesEl.textContent = data.total_shares.toLocaleString() + '+';
-    } catch (e) { console.error('Erreur récupération counters:', e); }
+        if (usersEl) usersEl.textContent = (data.total_visits || 0).toLocaleString() + '+';
+        if (sharesEl) sharesEl.textContent = (data.total_shares || 0).toLocaleString() + '+';
+    } catch (e) {
+        console.error('Erreur récupération counters:', e);
+    }
 }
 
 function subscribeToCounters() {
     if (!supabaseAvailable) return;
     supabase
         .channel('counters-live')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'counters' }, (payload) => {
-            const usersEl = document.getElementById('total-users-count');
-            const sharesEl = document.getElementById('total-shares-count');
-            if (usersEl) usersEl.textContent = payload.new.total_users.toLocaleString() + '+';
-            if (sharesEl) sharesEl.textContent = payload.new.total_shares.toLocaleString() + '+';
-        })
+        .on(
+            'postgres_changes',
+            { event: 'UPDATE', schema: 'public', table: 'counters', filter: 'id=eq.1' },
+            (payload) => {
+                const usersEl = document.getElementById('total-users-count');
+                const sharesEl = document.getElementById('total-shares-count');
+                if (usersEl) usersEl.textContent = (payload.new.total_visits || 0).toLocaleString() + '+';
+                if (sharesEl) sharesEl.textContent = (payload.new.total_shares || 0).toLocaleString() + '+';
+            }
+        )
         .subscribe();
 }
 
-function recordEvent(type) {
+// =======================================================
+// ENREGISTREMENT DES ÉVÉNEMENTS (VISITES, PARTAGES) VIA RPC
+// =======================================================
+async function recordEvent(type) {
+    if (!supabaseAvailable) return;
     const userId = getUserId();
     const page = window.location.pathname;
-    if (supabaseAvailable) {
-        supabase.from('events').insert({ type, user_id: userId, page })
-            .then(({ error }) => { if (error) console.warn('Erreur envoi événement:', error); })
-            .catch(e => console.warn('Erreur réseau Supabase', e));
+    try {
+        const { error } = await supabase.rpc('record_event', {
+            p_type: type,
+            p_user_id: userId,
+            p_page: page
+        });
+        if (error) console.warn('Erreur enregistrement événement:', error);
+    } catch (e) {
+        console.warn('Erreur réseau Supabase (event):', e);
     }
 }
 
