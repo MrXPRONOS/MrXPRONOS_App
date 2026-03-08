@@ -519,7 +519,7 @@
       "league": "Formuladeildin",
       "league_logo": null,
       "venue": "",
-      "status": "1st Half",
+      "status": "2nd Half",
       "home_score": 0,
       "away_score": 0,
       "h2h_analysis": {
@@ -574,7 +574,7 @@
       "league": "Super League",
       "league_logo": null,
       "venue": "",
-      "status": "1st Half",
+      "status": "2nd Half",
       "home_score": 0,
       "away_score": 0,
       "h2h_analysis": {
@@ -629,7 +629,7 @@
       "league": "Parva Liga",
       "league_logo": null,
       "venue": "",
-      "status": "Just Ended",
+      "status": "Ended",
       "home_score": 0,
       "away_score": 0,
       "h2h_analysis": {
