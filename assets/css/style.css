@@ -1911,3 +1911,25 @@ footer {
 .share-buttons .btn {
     flex: 1;
 }
+
+
+
+/* =======================================================
+   RESPONSIVE POUR LES POPUPS (boutons en colonne sur mobile)
+   ======================================================= */
+@media (max-width: 480px) {
+    .popup-content .share-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .popup-content .share-buttons .btn {
+        width: 100%;
+    }
+    
+    .vip-contact-buttons {
+        flex-direction: column;
+    }
+    .vip-contact-buttons .btn {
+        width: 100%;
+    }
+}

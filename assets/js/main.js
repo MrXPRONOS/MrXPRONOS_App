@@ -1447,7 +1447,7 @@ function showVipLoginForm(container) {
             <h3>🔐 Accès VIP Payant</h3>
             <p><strong>Votre ID :</strong> ${userId}</p>
             <p>Pour obtenir un code VIP (5000 FCFA/mois), contactez-nous sur WhatsApp ou Telegram avec votre ID.</p>
-            <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+            <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;" class="vip-contact-buttons">
                 <a href="https://wa.me/22899201444?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodeURIComponent(userId)}" target="_blank" class="btn btn-primary">WhatsApp</a>
                 <a href="https://t.me/mr_xpronos?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodeURIComponent(userId)}" target="_blank" class="btn btn-primary">Telegram</a>
             </div>
