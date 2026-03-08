@@ -17,7 +17,7 @@ from math import exp, factorial
 # =======================================================
 # CONFIGURATION
 # =======================================================
-SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY",'1b25cd7b-ed9f-4f7e-98a4-5996eb7115bc')
+SPORTDATA_API_KEY = '1b25cd7b-ed9f-4f7e-98a4-5996eb7115bc'
 if not SPORTDATA_API_KEY:
     raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
 
