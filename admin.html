@@ -8,318 +8,68 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js pour les graphiques -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- TinyMCE pour l'éditeur WYSIWYG (clé publique) -->
+    <!-- TinyMCE pour l'éditeur WYSIWYG -->
     <script src="https://cdn.tiny.cloud/1/otpp789kc1p3suhdzontubqo33foiyg0ovq56zp5nsrm916m/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
-    <!-- Supabase JS (CDN) -->
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Styles spécifiques à l'admin */
-        body {
-            background: #0D0D0D;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        .admin-container {
-            max-width: 1400px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-        h1 {
-            color: #D4AF37;
-            margin-bottom: 30px;
-            font-size: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .admin-tabs {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #D4AF37;
-            padding-bottom: 10px;
-        }
-        .tab-btn {
-            background: #1A1A1A;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s;
-            font-size: 14px;
-        }
-        .tab-btn:hover, .tab-btn.active {
-            background: #D4AF37;
-            color: #000;
-        }
-        .tab-pane {
-            display: none;
-            background: #1A1A1A;
-            padding: 25px;
-            border-radius: 20px;
-            border: 1px solid #D4AF37;
-            margin-bottom: 30px;
-        }
-        .tab-pane.active {
-            display: block;
-        }
-        h2 {
-            color: #D4AF37;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #ccc;
-            font-weight: 500;
-        }
-        input[type="text"], input[type="url"], input[type="date"], input[type="number"], input[type="password"], select, textarea {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: #0D0D0D;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #D4AF37;
-        }
-        textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .checkbox-group input {
-            width: auto;
-        }
-        .admin-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        .btn {
-            padding: 12px 25px;
-            border-radius: 50px;
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-primary {
-            background: #D4AF37;
-            color: #000;
-        }
-        .btn-primary:hover {
-            background: #FFD700;
-        }
-        .btn-secondary {
-            background: #333;
-            color: #fff;
-            border: 1px solid #D4AF37;
-        }
-        .btn-secondary:hover {
-            background: #444;
-        }
-        .btn-danger {
-            background: #dc3545;
-            color: #fff;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        .admin-list {
-            margin-top: 30px;
-        }
-        .admin-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #333;
-            flex-wrap: wrap;
-        }
-        .admin-item:last-child {
-            border-bottom: none;
-        }
-        .admin-item button {
-            background: none;
-            border: none;
-            color: #D4AF37;
-            font-size: 1.2rem;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        .admin-item button:hover {
-            color: #FFD700;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background: #0D0D0D;
-            border: 1px solid #D4AF37;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-        }
-        .stat-card h3 {
-            color: #D4AF37;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-        .stat-card .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #fff;
-        }
-        .chart-container {
-            background: #0D0D0D;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 30px;
-            border: 1px solid #D4AF37;
-        }
-        .period-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .period-selector select, .period-selector input {
-            background: #0D0D0D;
-            border: 1px solid #D4AF37;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 8px;
-        }
-        .custom-range {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .preview-area {
-            margin-top: 20px;
-            padding: 20px;
-            background: #0D0D0D;
-            border-radius: 12px;
-            border: 1px dashed #D4AF37;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .preview-area h4 {
-            color: #D4AF37;
-            margin-top: 0;
-        }
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            background: #1A1A1A;
-            padding: 40px;
-            border-radius: 20px;
-            border: 2px solid #D4AF37;
-            text-align: center;
-        }
-        .login-container h2 {
-            color: #D4AF37;
-            margin-bottom: 30px;
-        }
-        .login-container input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: #0D0D0D;
-            color: #fff;
-        }
-        .login-container button {
-            width: 100%;
-        }
-        .hidden {
-            display: none;
-        }
-        .message {
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        .message.success {
-            background: #28a745;
-            color: #fff;
-            display: block;
-        }
-        .message.error {
-            background: #dc3545;
-            color: #fff;
-            display: block;
-        }
+        body { background: #0D0D0D; color: #fff; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
+        .admin-container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
+        h1 { color: #D4AF37; margin-bottom: 30px; font-size: 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .admin-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; border-bottom: 2px solid #D4AF37; padding-bottom: 10px; }
+        .tab-btn { background: #1A1A1A; color: #fff; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: 600; transition: 0.3s; font-size: 14px; }
+        .tab-btn:hover, .tab-btn.active { background: #D4AF37; color: #000; }
+        .tab-pane { display: none; background: #1A1A1A; padding: 25px; border-radius: 20px; border: 1px solid #D4AF37; margin-bottom: 30px; }
+        .tab-pane.active { display: block; }
+        h2 { color: #D4AF37; margin-top: 0; margin-bottom: 20px; font-size: 1.5rem; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: #ccc; font-weight: 500; }
+        input[type="text"], input[type="url"], input[type="date"], input[type="number"], input[type="password"], select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #0D0D0D; color: #fff; font-family: 'Montserrat', sans-serif; font-size: 14px; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #D4AF37; }
+        textarea { min-height: 150px; resize: vertical; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; }
+        .checkbox-group input { width: auto; }
+        .admin-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .btn { padding: 12px 25px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 14px; text-decoration: none; display: inline-block; }
+        .btn-primary { background: #D4AF37; color: #000; }
+        .btn-primary:hover { background: #FFD700; }
+        .btn-secondary { background: #333; color: #fff; border: 1px solid #D4AF37; }
+        .btn-secondary:hover { background: #444; }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-danger:hover { background: #c82333; }
+        .admin-list { margin-top: 30px; }
+        .admin-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #333; flex-wrap: wrap; }
+        .admin-item:last-child { border-bottom: none; }
+        .admin-item button { background: none; border: none; color: #D4AF37; font-size: 1.2rem; cursor: pointer; margin-left: 10px; }
+        .admin-item button:hover { color: #FFD700; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #0D0D0D; border: 1px solid #D4AF37; border-radius: 16px; padding: 20px; text-align: center; }
+        .stat-card h3 { color: #D4AF37; margin-bottom: 10px; font-size: 1rem; }
+        .stat-card .stat-value { font-size: 2rem; font-weight: 700; color: #fff; }
+        .chart-container { background: #0D0D0D; border-radius: 16px; padding: 20px; margin-bottom: 30px; border: 1px solid #D4AF37; }
+        .period-selector { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .period-selector select, .period-selector input { background: #0D0D0D; border: 1px solid #D4AF37; color: #fff; padding: 8px 12px; border-radius: 8px; }
+        .custom-range { display: flex; gap: 10px; align-items: center; }
+        .preview-area { margin-top: 20px; padding: 20px; background: #0D0D0D; border-radius: 12px; border: 1px dashed #D4AF37; max-height: 300px; overflow-y: auto; }
+        .preview-area h4 { color: #D4AF37; margin-top: 0; }
+        .login-container { max-width: 400px; margin: 100px auto; background: #1A1A1A; padding: 40px; border-radius: 20px; border: 2px solid #D4AF37; text-align: center; }
+        .login-container h2 { color: #D4AF37; margin-bottom: 30px; }
+        .login-container input { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #444; background: #0D0D0D; color: #fff; }
+        .login-container button { width: 100%; }
+        .hidden { display: none; }
+        .message { padding: 10px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .message.success { background: #28a745; color: #fff; display: block; }
+        .message.error { background: #dc3545; color: #fff; display: block; }
         /* Style pour la section VIP */
-        .vip-item {
-            background: #0D0D0D;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #D4AF37;
-        }
-        .vip-info {
-            flex: 1;
-        }
-        .vip-info small {
-            color: #aaa;
-            display: block;
-        }
-        .btn-deactivate {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .btn-deactivate:hover {
-            background: #c82333;
-        }
-        .logout-btn {
-            background: #333;
-            color: #fff;
-            border: 1px solid #D4AF37;
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .logout-btn:hover {
-            background: #444;
-        }
+        .vip-item { background: #0D0D0D; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #D4AF37; }
+        .vip-info { flex: 1; }
+        .vip-info small { color: #aaa; display: block; }
+        .btn-deactivate { background: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; }
+        .btn-deactivate:hover { background: #c82333; }
+        .logout-btn { background: #333; color: #fff; border: 1px solid #D4AF37; padding: 8px 16px; border-radius: 30px; cursor: pointer; font-size: 14px; }
+        .logout-btn:hover { background: #444; }
+        .help-text { color: #aaa; font-size: 0.9rem; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -359,6 +109,7 @@
             <button class="tab-btn" data-tab="bonus">Bonus & Promo</button>
             <button class="tab-btn" data-tab="bookmakers">Bookmakers</button>
             <button class="tab-btn" data-tab="vip">Codes VIP</button>
+            <button class="tab-btn" data-tab="settings">Paramètres</button>
             <button class="tab-btn" data-tab="export">Export JSON</button>
             <button class="tab-btn" data-tab="stats">Statistiques</button>
         </div>
@@ -580,6 +331,18 @@
             <div id="vip-list" class="admin-list"></div>
         </div>
 
+        <!-- Onglet Paramètres -->
+        <div id="tab-settings" class="tab-pane">
+            <h2>Paramètres de l'application</h2>
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="vip-toggle" style="width: auto;"> Afficher les pronostics VIP
+                </label>
+                <p class="help-text">Si désactivé, l'onglet VIP sera masqué pour tous les utilisateurs.</p>
+            </div>
+            <button id="save-settings" class="btn btn-primary">Enregistrer</button>
+        </div>
+
         <!-- Onglet Export JSON -->
         <div id="tab-export" class="tab-pane">
             <h2>Export JSON</h2>
@@ -657,6 +420,7 @@
             const config = await import('./assets/js/admin-config.js');
             ADMIN_USER = config.ADMIN_USER;
             ADMIN_PASSWORD_HASH = config.ADMIN_PASSWORD_HASH;
+            console.log('✅ Configuration admin chargée');
         } catch (e) {
             console.warn('Fichier admin-config.js non trouvé, utilisation des identifiants par défaut (admin/admin)');
         }
@@ -732,13 +496,21 @@
 
         async function createVipAccess(userId, ip, durationDays) {
             if (!supabase) throw new Error('Supabase non initialisé');
-            const { data, error } = await supabase.rpc('create_vip_code', {
-                p_user_id: userId,
-                p_ip_address: ip,
-                p_duration_days: durationDays
-            });
+            const code = generateVipCode();
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + durationDays);
+
+            const { error } = await supabase
+                .from('vip_users')
+                .insert({
+                    user_id: userId,
+                    vip_code: code,
+                    ip_address: ip || '',
+                    expires_at: expiresAt.toISOString(),
+                    is_active: true
+                });
             if (error) throw error;
-            return data;
+            return code;
         }
 
         async function loadActiveVips() {
@@ -1458,6 +1230,21 @@
         }
 
         // =======================================================
+        // GESTION DES PARAMÈTRES (affichage VIP)
+        // =======================================================
+        function initSettings() {
+            const vipToggle = document.getElementById('vip-toggle');
+            const saveSettingsBtn = document.getElementById('save-settings');
+            if (vipToggle && saveSettingsBtn) {
+                vipToggle.checked = localStorage.getItem('vipEnabled') !== 'false';
+                saveSettingsBtn.addEventListener('click', () => {
+                    localStorage.setItem('vipEnabled', vipToggle.checked);
+                    alert('Paramètre enregistré. Les modifications prendront effet au prochain chargement de la page.');
+                });
+            }
+        }
+
+        // =======================================================
         // INITIALISATION PRINCIPALE
         // =======================================================
         async function initAdmin() {
@@ -1467,6 +1254,7 @@
             updatePreview();
             initTinyMCE();
             initStats();
+            initSettings();
 
             // Gestion des onglets
             document.querySelectorAll('.tab-btn').forEach(btn => {
