@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - Moteur de pronostics football (double chance) version ultime
-Avec fallback Poisson quand H2H insuffisant
+generate_data.py - Moteur de pronostics football (double chance) version assouplie
+Avec fallback Poisson quand H2H insuffisant, seuils ajustés pour générer des pronostics.
 """
 
 import os
@@ -56,9 +56,10 @@ TRUSTED_LEAGUES = [
 ]
 
 HOME_ADVANTAGE = 0.1
-CONFIDENCE_THRESHOLD = 60      # On ignore les matchs avec confidence < 60
-GOAL_DIFF_THRESHOLD = 0.3      # Différence de buts minimum pour garder le match
-XPRONOS_THRESHOLD = 65         # Score xPronos minimum (optionnel, on peut commenter)
+CONFIDENCE_THRESHOLD = 50      # On ignore les matchs avec confidence < 50 (abaissé)
+GOAL_DIFF_THRESHOLD = 0.1      # Différence de buts minimum (abaissé)
+XPRONOS_THRESHOLD = 55         # Score xPronos minimum (abaissé)
+DOMINANCE_THRESHOLD = 0.4      # Seuil pour décider du double chance (abaissé)
 
 print("=" * 60)
 print(f"🚀 GÉNÉRATION DES PRONOSTICS (DOUBLE CHANCE UNIQUEMENT) - {today}")
@@ -411,7 +412,7 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
 def generate_prediction(analysis, home_form, away_form, league):
     home_dom = analysis["home_dominance"] + HOME_ADVANTAGE
     away_dom = analysis["away_dominance"]
-    seuil = 0.55
+    seuil = DOMINANCE_THRESHOLD
 
     if home_dom > away_dom + seuil:
         double_chance = "1X"
@@ -421,7 +422,6 @@ def generate_prediction(analysis, home_form, away_form, league):
         double_chance = "12"
 
     confiance = 50
-    # Pénalité si pas d'historique H2H
     confiance += min(20, analysis["total_matches"] * 3)
 
     if max(home_dom, away_dom) > 0.7:
@@ -634,17 +634,17 @@ def main():
         home_form = get_team_form(base["home_team"], team_matches, last_games=5)
         away_form = get_team_form(base["away_team"], team_matches, last_games=5)
 
-        # Vérifier forme minimale
+        # Vérifier forme minimale (assouplie)
         if home_form is None and away_form is None:
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (pas de forme)")
             continue
-        if home_form is None and away_form and away_form["matches_used"] < 2:
+        if home_form is None and away_form and away_form["matches_used"] < 1:
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (forme insuffisante)")
             continue
-        if away_form is None and home_form and home_form["matches_used"] < 2:
+        if away_form is None and home_form and home_form["matches_used"] < 1:
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (forme insuffisante)")
             continue
-        if home_form and home_form["matches_used"] < 2 and away_form and away_form["matches_used"] < 2:
+        if home_form and home_form["matches_used"] < 1 and away_form and away_form["matches_used"] < 1:
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (peu de forme)")
             continue
 
@@ -655,8 +655,8 @@ def main():
             analysis = analyze_h2h(h2h_list, base["home_team"], base["away_team"])
             print(f"📊 Match {base['home_team']} vs {base['away_team']} - H2H OK")
         else:
-            # Fallback Poisson si les deux équipes ont une forme suffisante
-            if home_form and away_form and home_form["matches_used"] >= 3 and away_form["matches_used"] >= 3:
+            # Fallback Poisson si les deux équipes ont une forme minimale
+            if home_form and away_form and home_form["matches_used"] >= 2 and away_form["matches_used"] >= 2:
                 print(f"⚠️ Match {base['home_team']} vs {base['away_team']} - H2H insuffisant, utilisation du modèle Poisson")
                 # Calculer les moyennes de buts attendues
                 lambda_home = (home_form["goals_for"] + away_form["goals_against"]) / 2
@@ -714,14 +714,14 @@ def main():
         category = get_category(score)
         badge = get_badge(score)
 
-        # Filtre optionnel sur le score xPronos
+        # Filtre optionnel sur le score xPronos (abaissé)
         if score < XPRONOS_THRESHOLD:
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (score xPronos {score} < {XPRONOS_THRESHOLD})")
             continue
 
-        # Filtre sur les ligues non fiables si score < 70
-        if base["competition"] not in TRUSTED_LEAGUES and score < 70:
-            print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (ligue non fiable et score < 70)")
+        # Filtre sur les ligues non fiables si score < 65 (au lieu de 70)
+        if base["competition"] not in TRUSTED_LEAGUES and score < 65:
+            print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (ligue non fiable et score < 65)")
             continue
 
         # Téléchargement des logos
