@@ -629,9 +629,9 @@
       "league": "Parva Liga",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "1st Half",
+      "home_score": 0,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 1,
         "home_wins": 0.0,
@@ -684,7 +684,7 @@
       "league": "Division 1",
       "league_logo": null,
       "venue": "",
-      "status": "1st Half",
+      "status": "2nd Half",
       "home_score": 0,
       "away_score": 0,
       "h2h_analysis": {
