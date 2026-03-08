@@ -468,11 +468,11 @@ def get_category(score):
 
 
 def get_badge(score):
-    if score >= 85:
+    if score >= 70:
         return "🏆 PREMIUM LOCK"
-    elif score >= 70:
+    elif score >= 60:
         return "💎 VIP ELITE"
-    elif score >= 65:
+    elif score >= 50:
         return "🔥 ULTRA SAFE"
     return ""
 
