@@ -30,7 +30,11 @@ jobs:
 
       - name: Update scores (data.json)
         env:
-          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY }}
+          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
         run: python update_scores.py
 
       - name: Convert images to WebP

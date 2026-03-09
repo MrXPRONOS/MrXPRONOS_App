@@ -1,15 +1,16 @@
 /**
- * main.js - Mr XPRONOS – Version finale corrigée
+ * main.js - Mr XPRONOS – Version ULTRA PRO
  * Toutes les fonctionnalités sont regroupées dans ce seul fichier.
+ * Inclut : visiteurs en ligne, compteurs temps réel, analytics, dashboard admin caché.
  */
 
 // =======================================================
-// Désactiver les logs en production
+// Désactiver les logs en production (sauf erreurs)
 // =======================================================
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
-    console.log = function() {};
-    console.warn = function() {};
-    console.error = function() {};
+    console.log = () => {};
+    console.warn = () => {};
+    // console.error reste actif pour le débogage
 }
 
 // =======================================================
@@ -34,16 +35,35 @@ const POPULAR_LEAGUES = [
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ];
 
-// Éléments DOM fréquemment utilisés
-const matchesContainer = document.getElementById('matches-container');
-let sharePopup = document.getElementById('share-popup');
-const vipLockedOverlay = document.getElementById('vip-locked-overlay');
-const bookmakersFooter = document.getElementById('bookmakers-footer');
-const bookmakersBonus = document.getElementById('bookmakers-bonus');
-const vipSubtabs = document.getElementById('vip-subtabs');
+// Cache des éléments DOM pour optimisation
+const DOM = {
+    matches: document.getElementById('matches-container'),
+    sharePopup: document.getElementById('share-popup'),
+    vipLockedOverlay: document.getElementById('vip-locked-overlay'),
+    bookmakersFooter: document.getElementById('bookmakers-footer'),
+    bookmakersBonus: document.getElementById('bookmakers-bonus'),
+    vipSubtabs: document.getElementById('vip-subtabs'),
+    usersCount: document.getElementById('total-users-count'),
+    sharesCount: document.getElementById('total-shares-count'),
+    shareCounter: document.getElementById('share-counter'),
+    onlineUsers: document.getElementById('online-users-count'),
+    iosGuidePopup: document.getElementById('ios-guide-popup'),
+    installButton: document.getElementById('install-app'),
+    searchInput: document.getElementById('search-input'),
+    winsCount: document.getElementById('wins-count'),
+    winsTrack: document.getElementById('wins-track'),
+    winPopup: document.getElementById('win-popup'),
+    testimonialsContainer: document.getElementById('testimonials-container'),
+    articleModal: document.getElementById('article-modal'),
+    conseilModal: document.getElementById('conseil-modal'),
+    newsModal: document.getElementById('news-modal'),
+    successRateContainer: document.getElementById('success-rate-container'),
+    successFill: document.getElementById('success-fill'),
+    successPercent: document.getElementById('success-percent')
+};
 
 // =======================================================
-// FONCTIONS UTILITAIRES (toasts, IDs, etc.)
+// FONCTIONS UTILITAIRES
 // =======================================================
 function showToast(message, type = 'info', duration = 4000) {
     const toast = document.createElement('div');
@@ -61,7 +81,7 @@ function showToast(message, type = 'info', duration = 4000) {
 function getUserId() {
     let userId = localStorage.getItem('mx_user_id');
     if (!userId) {
-        userId = 'MX-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+        userId = 'MX-' + crypto.randomUUID();
         localStorage.setItem('mx_user_id', userId);
     }
     return userId;
@@ -74,6 +94,7 @@ async function initSupabase() {
     try {
         const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
         if (!supabaseUrl || !supabaseUrl.startsWith('https://')) throw new Error('URL Supabase invalide');
+        if (!supabaseAnonKey) throw new Error('Clé Supabase manquante');
         const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
         supabase = createClient(supabaseUrl, supabaseAnonKey);
         supabaseAvailable = true;
@@ -85,22 +106,34 @@ async function initSupabase() {
 }
 
 // =======================================================
-// GESTION DES COMPTEURS (visites, partages) via RPC
+// GESTION DES COMPTEURS (visites, partages) avec fallback localStorage
 // =======================================================
 async function incrementCounter(counterName) {
-    if (!supabaseAvailable) return;
+    if (!supabaseAvailable) {
+        // Fallback localStorage
+        let local = parseInt(localStorage.getItem(counterName) || '0');
+        localStorage.setItem(counterName, local + 1);
+        return;
+    }
     try {
         const { error } = await supabase.rpc('increment_counter', {
             counter_name: counterName
         });
-        if (error) console.error('Erreur incrémentation:', error);
+        if (error) console.error('Erreur incrémentation RPC:', error);
     } catch (e) {
         console.error('Erreur réseau incrémentation:', e);
     }
 }
 
 async function updateDisplayedCounters() {
-    if (!supabaseAvailable) return;
+    if (!supabaseAvailable) {
+        // Fallback localStorage
+        const usersEl = DOM.usersCount;
+        const sharesEl = DOM.sharesCount;
+        if (usersEl) usersEl.textContent = (parseInt(localStorage.getItem('total_visits') || '0')).toLocaleString() + '+';
+        if (sharesEl) sharesEl.textContent = (parseInt(localStorage.getItem('total_shares') || '0')).toLocaleString() + '+';
+        return;
+    }
     try {
         const { data, error } = await supabase
             .from('counters')
@@ -108,10 +141,8 @@ async function updateDisplayedCounters() {
             .eq('id', 1)
             .single();
         if (error) throw error;
-        const usersEl = document.getElementById('total-users-count');
-        const sharesEl = document.getElementById('total-shares-count');
-        if (usersEl) usersEl.textContent = (data.total_visits || 0).toLocaleString() + '+';
-        if (sharesEl) sharesEl.textContent = (data.total_shares || 0).toLocaleString() + '+';
+        if (DOM.usersCount) DOM.usersCount.textContent = (data.total_visits || 0).toLocaleString() + '+';
+        if (DOM.sharesCount) DOM.sharesCount.textContent = (data.total_shares || 0).toLocaleString() + '+';
     } catch (e) {
         console.error('Erreur récupération counters:', e);
     }
@@ -125,31 +156,65 @@ function subscribeToCounters() {
             'postgres_changes',
             { event: 'UPDATE', schema: 'public', table: 'counters', filter: 'id=eq.1' },
             (payload) => {
-                const usersEl = document.getElementById('total-users-count');
-                const sharesEl = document.getElementById('total-shares-count');
-                if (usersEl) usersEl.textContent = (payload.new.total_visits || 0).toLocaleString() + '+';
-                if (sharesEl) sharesEl.textContent = (payload.new.total_shares || 0).toLocaleString() + '+';
+                if (DOM.usersCount) DOM.usersCount.textContent = (payload.new.total_visits || 0).toLocaleString() + '+';
+                if (DOM.sharesCount) DOM.sharesCount.textContent = (payload.new.total_shares || 0).toLocaleString() + '+';
             }
         )
-        .subscribe();
+        .subscribe((status) => {
+            if (status === 'SUBSCRIBED') console.log('📡 Realtime counters actif');
+        });
 }
 
 // =======================================================
-// ENREGISTREMENT DES ÉVÉNEMENTS (VISITES, PARTAGES) VIA RPC
+// ENREGISTREMENT DES ÉVÉNEMENTS VIA RPC
 // =======================================================
-async function recordEvent(type) {
+async function recordEvent(type, page = '') {
     if (!supabaseAvailable) return;
     const userId = getUserId();
-    const page = window.location.pathname;
     try {
         const { error } = await supabase.rpc('record_event', {
             p_type: type,
             p_user_id: userId,
-            p_page: page
+            p_page: page || window.location.pathname
         });
         if (error) console.warn('Erreur enregistrement événement:', error);
     } catch (e) {
         console.warn('Erreur réseau Supabase (event):', e);
+    }
+}
+
+// =======================================================
+// VISITEURS EN LIGNE (REALTIME PRESENCE)
+// =======================================================
+async function initOnlineUsers() {
+    if (!supabaseAvailable) return;
+    const channel = supabase.channel('online-users', {
+        config: { presence: { key: getUserId() } }
+    });
+    channel.on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        const onlineUsers = Object.keys(state).length;
+        if (DOM.onlineUsers) DOM.onlineUsers.textContent = onlineUsers;
+    });
+    await channel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') console.log('👥 Realtime online actif');
+    });
+    await channel.track({ online_at: new Date().toISOString() });
+}
+
+// =======================================================
+// ENREGISTREMENT D'UN NOUVEL UTILISATEUR UNIQUE
+// =======================================================
+async function registerUniqueUser() {
+    if (!supabaseAvailable) return;
+    const visited = localStorage.getItem('mx_registered');
+    if (visited) return;
+    localStorage.setItem('mx_registered', 'true');
+    try {
+        await supabase.from('users').insert({ user_id: getUserId() });
+        await supabase.rpc('increment_counter', { counter_name: 'unique_users' });
+    } catch (e) {
+        console.error('Erreur enregistrement unique user:', e);
     }
 }
 
@@ -175,10 +240,9 @@ function incrementShareCount() {
 }
 
 function updateShareCounter() {
-    const counter = document.getElementById('share-counter');
-    if (counter) {
+    if (DOM.shareCounter) {
         const count = getDailyShareCount();
-        counter.textContent = `🔥 ${count} partages aujourd'hui`;
+        DOM.shareCounter.textContent = `🔥 ${count} partages aujourd'hui`;
     }
 }
 
@@ -186,8 +250,6 @@ function updateShareCounter() {
 // PWA & INSTALLATION
 // =======================================================
 let deferredPrompt;
-const installButton = document.getElementById('install-app');
-const iosGuidePopup = document.getElementById('ios-guide-popup');
 
 function getOS() {
     const ua = window.navigator.userAgent;
@@ -207,48 +269,61 @@ function showIosGuideIfNeeded() {
             const hoursSince = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
             if (hoursSince < 24) return;
         }
-        if (iosGuidePopup) iosGuidePopup.style.display = 'flex';
+        if (DOM.iosGuidePopup) DOM.iosGuidePopup.style.display = 'flex';
     }
 }
 
 function closeIosGuide() {
-    if (iosGuidePopup) iosGuidePopup.style.display = 'none';
+    if (DOM.iosGuidePopup) DOM.iosGuidePopup.style.display = 'none';
     localStorage.setItem('iosGuideLastClosed', Date.now().toString());
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (installButton && !isPwaInstalled() && getOS() !== 'iOS') {
-        installButton.style.display = 'inline-block';
+    if (DOM.installButton && !isPwaInstalled() && getOS() !== 'iOS') {
+        DOM.installButton.style.display = 'inline-block';
     }
 });
 
-installButton?.addEventListener('click', async () => {
+DOM.installButton?.addEventListener('click', async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     console.log(`Installation : ${outcome}`);
     deferredPrompt = null;
-    installButton.style.display = 'none';
+    if (DOM.installButton) DOM.installButton.style.display = 'none';
 });
 
 window.addEventListener('appinstalled', () => {
     console.log('PWA installée');
-    if (installButton) installButton.style.display = 'none';
-    if (iosGuidePopup) iosGuidePopup.style.display = 'none';
+    if (DOM.installButton) DOM.installButton.style.display = 'none';
+    if (DOM.iosGuidePopup) DOM.iosGuidePopup.style.display = 'none';
 });
 
 document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
 document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
 
 // =======================================================
+// PROTECTION CONTRE LE SPAM DE VISITES (1 par jour)
+// =======================================================
+function countVisitOncePerDay() {
+    const today = new Date().toDateString();
+    const lastVisit = localStorage.getItem('mx_last_visit');
+    if (lastVisit !== today) {
+        localStorage.setItem('mx_last_visit', today);
+        incrementCounter('total_visits');
+        recordEvent('visit');
+    }
+}
+
+// =======================================================
 // CHARGEMENT DES DONNÉES (data.json)
 // =======================================================
 async function loadData() {
     console.log('🔄 Chargement des pronostics...');
-    if (matchesContainer) {
-        matchesContainer.innerHTML = `<div style="text-align:center; padding:80px 20px; color:#aaa;"><div style="font-size:60px; margin-bottom:20px;">⏳</div><div>Chargement des matchs...</div></div>`;
+    if (DOM.matches) {
+        DOM.matches.innerHTML = `<div style="text-align:center; padding:80px 20px; color:#aaa;"><div style="font-size:60px; margin-bottom:20px;">⏳</div><div>Chargement des matchs...</div></div>`;
     }
     let dataLoaded = false;
     try {
@@ -276,15 +351,16 @@ async function loadData() {
         }
     }
     if (dataLoaded && allData) {
-        if (matchesContainer && !navigator.onLine) {
-            matchesContainer.insertAdjacentHTML('afterbegin', `<div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem;">📴 MODE HORS LIGNE — Pronostics du cache (${new Date().toLocaleDateString('fr-FR')})</div>`);
+        if (DOM.matches && !navigator.onLine) {
+            DOM.matches.insertAdjacentHTML('afterbegin', `<div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem;">📴 MODE HORS LIGNE — Pronostics du cache (${new Date().toLocaleDateString('fr-FR')})</div>`);
         }
         renderBookmakers(allData.bookmakers);
         hideEmptyTabs();
         maybeHideTabBar();
         filterAndDisplay();
-    } else if (matchesContainer) {
-        matchesContainer.innerHTML = `<div class="error" style="text-align:center; padding:60px;">❌ Aucune donnée disponible.<br><small>Connectez-vous une première fois pour charger le cache.</small></div>`;
+        updateSuccessRate();
+    } else if (DOM.matches) {
+        DOM.matches.innerHTML = `<div class="error" style="text-align:center; padding:60px;">❌ Aucune donnée disponible.<br><small>Connectez-vous une première fois pour charger le cache.</small></div>`;
     }
 }
 
@@ -292,7 +368,7 @@ async function loadData() {
 // FILTRAGE ET AFFICHAGE
 // =======================================================
 function hideEmptyTabs() {
-    const vipEnabled = localStorage.getItem('vipEnabled') !== 'false'; // true par défaut
+    const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
     const counts = { simple: 0, pro: 0, vip: 0 };
     if (allData && allData.matches) {
         allData.matches.forEach(m => counts[m.category]++);
@@ -319,12 +395,12 @@ function hideEmptyTabs() {
         const tabBar = document.querySelector('.category-tabs');
         if (tabBar) tabBar.style.display = 'none';
     }
-    if (vipSubtabs) {
+    if (DOM.vipSubtabs) {
         const showPronostics = counts.vip > 0 && vipEnabled;
-        const subtabBtns = vipSubtabs.querySelectorAll('.subtab-btn');
+        const subtabBtns = DOM.vipSubtabs.querySelectorAll('.subtab-btn');
         if (subtabBtns.length >= 1) subtabBtns[0].style.display = showPronostics ? 'inline-block' : 'none';
-        vipSubtabs.style.display = showPronostics ? 'flex' : 'none';
-        const activeSub = vipSubtabs.querySelector('.subtab-btn.active');
+        DOM.vipSubtabs.style.display = showPronostics ? 'flex' : 'none';
+        const activeSub = DOM.vipSubtabs.querySelector('.subtab-btn.active');
         if (activeSub && activeSub.style.display === 'none') {
             const firstVisible = Array.from(subtabBtns).find(btn => btn.style.display !== 'none');
             if (firstVisible) {
@@ -375,7 +451,7 @@ function setupEventListeners() {
     if (shareWa) shareWa.addEventListener('click', () => share('whatsapp'));
     if (shareTg) shareTg.addEventListener('click', () => share('telegram'));
     if (closePopup) closePopup.addEventListener('click', () => {
-        if (sharePopup) sharePopup.classList.remove('active');
+        if (DOM.sharePopup) DOM.sharePopup.classList.remove('active');
     });
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('btn-share')) {
@@ -392,7 +468,6 @@ async function handleCategoryChange() {
     if (currentCategory === 'vip') {
         if (!vipEnabled) {
             alert('Les pronostics VIP sont temporairement désactivés.');
-            // Revenir à la catégorie simple
             currentCategory = 'simple';
             document.querySelector('.tab-btn[data-cat="simple"]').classList.add('active');
             document.querySelector('.tab-btn[data-cat="vip"]').classList.remove('active');
@@ -401,11 +476,11 @@ async function handleCategoryChange() {
         }
         const isVip = await checkVipStatus();
         if (!isVip) {
-            if (vipLockedOverlay) {
+            if (DOM.vipLockedOverlay) {
                 ensureVipOverlayStructure();
-                showVipLoginForm(vipLockedOverlay);
-                vipLockedOverlay.style.display = 'flex';
-                if (matchesContainer) matchesContainer.style.display = 'none';
+                showVipLoginForm(DOM.vipLockedOverlay);
+                DOM.vipLockedOverlay.style.display = 'flex';
+                if (DOM.matches) DOM.matches.style.display = 'none';
             } else {
                 alert('Accès VIP payant. Contactez-nous sur WhatsApp ou Telegram.');
             }
@@ -435,11 +510,10 @@ function showVipLocked(category) {
     const shareCount = getDailyShareCount();
     const remaining = target - shareCount;
 
-    if (vipLockedOverlay) {
+    if (DOM.vipLockedOverlay) {
         ensureVipOverlayStructure();
-        
-        const titleEl = vipLockedOverlay.querySelector('h3');
-        const textEl = vipLockedOverlay.querySelector('p');
+        const titleEl = DOM.vipLockedOverlay.querySelector('h3');
+        const textEl = DOM.vipLockedOverlay.querySelector('p');
         const shareCountEl = document.getElementById('share-count-locked');
         const shareTargetEl = document.getElementById('share-target-locked');
 
@@ -448,17 +522,17 @@ function showVipLocked(category) {
         if (shareCountEl) shareCountEl.textContent = shareCount;
         if (shareTargetEl) shareTargetEl.textContent = target;
 
-        vipLockedOverlay.style.display = 'flex';
-        if (matchesContainer) matchesContainer.style.display = 'none';
+        DOM.vipLockedOverlay.style.display = 'flex';
+        if (DOM.matches) DOM.matches.style.display = 'none';
     } else {
         showSharePopup(category, remaining);
     }
 }
 
 function ensureVipOverlayStructure() {
-    if (!vipLockedOverlay) return;
-    if (vipLockedOverlay.children.length === 0) {
-        vipLockedOverlay.innerHTML = `
+    if (!DOM.vipLockedOverlay) return;
+    if (DOM.vipLockedOverlay.children.length === 0) {
+        DOM.vipLockedOverlay.innerHTML = `
             <div class="vip-locked-content">
                 <div class="lock-icon">🔒</div>
                 <h3></h3>
@@ -474,21 +548,21 @@ function ensureVipOverlayStructure() {
         document.getElementById('share-wa-locked')?.addEventListener('click', () => share('whatsapp'));
         document.getElementById('share-tg-locked')?.addEventListener('click', () => share('telegram'));
         document.getElementById('close-locked')?.addEventListener('click', () => {
-            vipLockedOverlay.style.display = 'none';
-            if (matchesContainer) matchesContainer.style.display = 'grid';
+            DOM.vipLockedOverlay.style.display = 'none';
+            if (DOM.matches) DOM.matches.style.display = 'grid';
         });
     }
 }
 
 function hideVipLocked() {
-    if (vipLockedOverlay) {
-        vipLockedOverlay.style.display = 'none';
-        if (matchesContainer) matchesContainer.style.display = 'grid';
+    if (DOM.vipLockedOverlay) {
+        DOM.vipLockedOverlay.style.display = 'none';
+        if (DOM.matches) DOM.matches.style.display = 'grid';
     }
 }
 
 function showSharePopup(category, remaining) {
-    if (!sharePopup) {
+    if (!DOM.sharePopup) {
         createSharePopup();
     }
     const shareCount = getDailyShareCount();
@@ -502,7 +576,7 @@ function showSharePopup(category, remaining) {
     if (shareTarget) shareTarget.textContent = shareLimits[category];
     if (shareMessage) shareMessage.innerHTML = `Pour accéder aux pronostics ${category === 'pro' ? 'Pro' : 'VIP'}, partagez ce lien à <span id="share-remaining">${remaining}</span> amis.`;
 
-    sharePopup.classList.add('active');
+    DOM.sharePopup.classList.add('active');
 }
 
 function createSharePopup() {
@@ -522,11 +596,11 @@ function createSharePopup() {
         </div>
     `;
     document.body.appendChild(popup);
-    sharePopup = popup;
+    DOM.sharePopup = popup;
     document.getElementById('share-wa').addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg').addEventListener('click', () => share('telegram'));
     document.getElementById('close-popup').addEventListener('click', () => {
-        sharePopup.classList.remove('active');
+        DOM.sharePopup.classList.remove('active');
     });
 }
 
@@ -541,6 +615,8 @@ function share(platform) {
     window.open(url, '_blank');
     shareStartTime = Date.now();
     sharePending = true;
+    // Track share event
+    recordEvent('share_whatsapp');
 }
 
 function sharePronostic(match) {
@@ -551,12 +627,13 @@ function sharePronostic(match) {
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(messageTelegram)}`;
     if (confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)")) {
         window.open(whatsappUrl, '_blank');
+        recordEvent('share_whatsapp');
     } else {
         window.open(telegramUrl, '_blank');
+        recordEvent('share_telegram');
     }
     incrementShareCount();
-    incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
-    recordEvent('share');
+    incrementCounter('total_shares');
 }
 
 // =======================================================
@@ -601,7 +678,7 @@ function sortMatchesByLeague(matches) {
 
 function filterAndDisplay() {
     if (!allData || !allData.matches) {
-        if (matchesContainer) matchesContainer.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
+        if (DOM.matches) DOM.matches.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
         return;
     }
     const targetDate = getLocalDateString(currentDay);
@@ -644,9 +721,9 @@ function getTeamLogoPath(teamName, isHome = true) {
 }
 
 function renderMatches(matches) {
-    if (!matchesContainer) return;
+    if (!DOM.matches) return;
     if (matches.length === 0) {
-        matchesContainer.innerHTML = '<div class="no-events">Aucun match.</div>';
+        DOM.matches.innerHTML = '<div class="no-events">Aucun match.</div>';
         return;
     }
     const grouped = {};
@@ -681,7 +758,6 @@ function renderMatches(matches) {
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const homeDefault = 'assets/images/home.webp';
             const awayDefault = 'assets/images/away.webp';
-            // Utiliser les logos téléchargés si disponibles, sinon fallback par nom
             const homeLogo = m.home_logo || getTeamLogoPath(m.home_team, true);
             const awayLogo = m.away_logo || getTeamLogoPath(m.away_team, false);
             const isWinner = m.verified_double;
@@ -724,7 +800,7 @@ function renderMatches(matches) {
             `;
         });
     });
-    matchesContainer.innerHTML = html;
+    DOM.matches.innerHTML = html;
     document.querySelectorAll('.confidence-fill').forEach(bar => {
         let value = bar.getAttribute('data-value');
         setTimeout(() => { bar.style.width = value + '%'; }, 300);
@@ -771,16 +847,16 @@ function renderBookmakers(bookmakers) {
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
-            { name: "1xBet",     logo: "assets/images/1xbet.webp",     url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599" },
-            { name: "1win",      logo: "assets/images/1win.webp",      url: "https://1wrbgb.com/?open=register&p=qqcw" },
+            { name: "1xBet", logo: "assets/images/1xbet.webp", url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599" },
+            { name: "1win", logo: "assets/images/1win.webp", url: "https://1wrbgb.com/?open=register&p=qqcw" },
             { name: "Betwinner", logo: "assets/images/betwinner.webp", url: "https://bwredir.com/299Y" },
-            { name: "Melbet",    logo: "assets/images/melbet.webp",    url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041" },
-            { name: "Linebet",   logo: "assets/images/linebet.webp",   url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611" },
-            { name: "BetClic",   logo: "assets/images/betclic.webp",   url: "https://betpari-click.com/2vY0?extid=USD" }
+            { name: "Melbet", logo: "assets/images/melbet.webp", url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041" },
+            { name: "Linebet", logo: "assets/images/linebet.webp", url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611" },
+            { name: "BetClic", logo: "assets/images/betclic.webp", url: "https://betpari-click.com/2vY0?extid=USD" }
         ];
     }
-    if (bookmakersFooter) {
-        bookmakersFooter.innerHTML = '';
+    if (DOM.bookmakersFooter) {
+        DOM.bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
             const a = document.createElement('a');
             a.href = b.url;
@@ -802,11 +878,11 @@ function renderBookmakers(bookmakers) {
                 a.appendChild(span);
             };
             a.appendChild(img);
-            bookmakersFooter.appendChild(a);
+            DOM.bookmakersFooter.appendChild(a);
         });
     }
-    if (bookmakersBonus) {
-        bookmakersBonus.innerHTML = '';
+    if (DOM.bookmakersBonus) {
+        DOM.bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
             const div = document.createElement('div');
             div.className = 'bookmaker-card';
@@ -837,84 +913,41 @@ function renderBookmakers(bookmakers) {
             a.className = 'btn btn-primary';
             a.textContent = 'S\'inscrire avec XPVIP';
             div.appendChild(a);
-            bookmakersBonus.appendChild(div);
+            DOM.bookmakersBonus.appendChild(div);
         });
     }
 }
 
 // =======================================================
-// INITIALISATION PRINCIPALE
+// TAUX DE RÉUSSITE ET ROI
 // =======================================================
-document.addEventListener('DOMContentLoaded', async () => {
-    await initSupabase();
-    await updateDisplayedCounters();
-    subscribeToCounters();
-    showIosGuideIfNeeded();
-
-    // Initialisation selon la page
-    if (matchesContainer) {
-        setupEventListeners();
-        await loadData();
-    } else if (document.getElementById('history-container')) {
-        displayHistory();
-    } else if (document.getElementById('bonus-bookmaker-select')) {
-        initBonusPage();
-    } else {
-        // Page d'accueil
-        await loadDataGeneric().then(data => {
-            if (data) {
-                allData = data;
-                renderBookmakers(data.bookmakers);
-                updateShareCounter();
-                displayLatestVerified();
-                startWinsSlider();
-                animateWins();
-            }
-        });
-        displayTestimonials();
-        startWinNotifications();
+function updateSuccessRate() {
+    if (!DOM.successRateContainer) return;
+    if (!allData || !allData.matches) {
+        DOM.successRateContainer.style.display = 'none';
+        return;
     }
-
-    displayBlogList();
-    displayBlogPost();
-    displayConseils();
-    displayInfos();
-    displayFootNews();
-    initScrollProgress();
-
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            searchTerm = e.target.value;
-            applySearchFilter();
-        });
-    }
-
-    document.addEventListener('visibilitychange', () => {
-        if (sharePending && !document.hidden) {
-            const elapsed = Date.now() - shareStartTime;
-            if (elapsed >= 5000) {
-                sharePending = false;
-                const newCount = incrementShareCount();
-                updateShareCounter();
-                incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
-                recordEvent('share');
-                const target = shareLimits[currentCategory];
-                if (newCount >= target) {
-                    hideVipLocked();
-                    filterAndDisplay();
-                } else {
-                    if (vipLockedOverlay && vipLockedOverlay.style.display === 'flex') {
-                        showVipLocked(currentCategory);
-                    } else {
-                        showSharePopup(currentCategory, target - newCount);
-                    }
-                }
-            }
-        }
+    const matches = allData.matches;
+    const finished = matches.filter(m => {
+        if (!m.status) return false;
+        const statusLower = m.status.toLowerCase();
+        return statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
     });
-    recordEvent('visit');
-});
+    const successful = finished.filter(m => m.verified_double);
+    if (finished.length === 0) {
+        DOM.successRateContainer.style.display = 'none';
+        return;
+    }
+    const rate = ((successful.length / finished.length) * 100).toFixed(1);
+    const stats = allData.stats || {};
+    const roi = stats.roi || 0;
+    const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
+    DOM.successRateContainer.innerHTML = `
+        <div class="success-rate-item"><div class="success-rate-value">${rate}%</div><div class="success-rate-label">Réussite</div></div>
+        <div class="success-rate-item"><div class="success-rate-value">${roiDisplay}</div><div class="success-rate-label">ROI</div></div>
+    `;
+    DOM.successRateContainer.style.display = 'flex';
+}
 
 // =======================================================
 // FONCTIONS POUR LES PAGES SPÉCIFIQUES (HISTORIQUE, BONUS, etc.)
@@ -1080,8 +1113,7 @@ function displayLatestVerified() {
 }
 
 function startWinsSlider() {
-    const track = document.getElementById('wins-track');
-    if (!track || !allData || !allData.matches) return;
+    if (!DOM.winsTrack || !allData || !allData.matches) return;
     const wins = allData.matches.filter(m => {
         if (!m.status) return false;
         const statusLower = m.status.toLowerCase();
@@ -1094,12 +1126,11 @@ function startWinsSlider() {
         const score = `${m.home_score ?? '-'} - ${m.away_score ?? '-'}`;
         html += `<div class="win-item">✅ <span>${m.home_team} ${score} ${m.away_team}</span> 🏆 ${m.prediction?.double_chance || ''}</div>`;
     });
-    track.innerHTML = html + html;
+    DOM.winsTrack.innerHTML = html + html;
 }
 
 function startWinNotifications() {
-    const popup = document.getElementById('win-popup');
-    if (!popup) return;
+    if (!DOM.winPopup) return;
     const firstNames = ["Jean","Michel","David","Lucas","Thomas","Patrick","Samuel","Kevin","Éric","Daniel","Pierre","Philippe","Nicolas","François","Antoine"];
     const lastNames = ["Martin","Bernard","Dubois","Thomas","Robert","Richard","Petit","Durand","Leroy","Moreau","Simon","Laurent","Lefebvre","Michel","Garcia"];
     let usedNames = new Set();
@@ -1117,9 +1148,9 @@ function startWinNotifications() {
     let index = 0;
     function showPopup() {
         const { name, gain } = notifications[index];
-        popup.innerHTML = `💰 <b>${name}</b> a gagné <b>${gain}€</b> aujourd'hui grâce au VIP !`;
-        popup.classList.add('show');
-        setTimeout(() => popup.classList.remove('show'), 4000);
+        DOM.winPopup.innerHTML = `💰 <b>${name}</b> a gagné <b>${gain}€</b> aujourd'hui grâce au VIP !`;
+        DOM.winPopup.classList.add('show');
+        setTimeout(() => DOM.winPopup.classList.remove('show'), 4000);
         index = (index + 1) % notifications.length;
     }
     setInterval(showPopup, 3600000);
@@ -1127,8 +1158,7 @@ function startWinNotifications() {
 }
 
 function animateWins() {
-    const el = document.getElementById('wins-count');
-    if (!el || !allData || !allData.matches) return;
+    if (!DOM.winsCount || !allData || !allData.matches) return;
     const winsCount = allData.matches.filter(m => {
         if (!m.status) return false;
         const statusLower = m.status.toLowerCase();
@@ -1140,7 +1170,7 @@ function animateWins() {
     const target = winsCount;
     const interval = setInterval(() => {
         count++;
-        el.textContent = count;
+        DOM.winsCount.textContent = count;
         if (count >= target) clearInterval(interval);
     }, 20);
 }
@@ -1158,8 +1188,7 @@ function initScrollProgress() {
 }
 
 async function displayTestimonials() {
-    const container = document.getElementById('testimonials-container');
-    if (!container) return;
+    if (!DOM.testimonialsContainer) return;
     try {
         const resp = await fetch('testimonials.json?t=' + Date.now());
         if (!resp.ok) throw new Error('Erreur');
@@ -1168,10 +1197,10 @@ async function displayTestimonials() {
         testimonials.forEach(t => {
             html += `<div class="card"><p>"${t.text}"</p><p style="margin-top: 1rem; color: var(--or);">— ${t.name}</p></div>`;
         });
-        container.innerHTML = html;
+        DOM.testimonialsContainer.innerHTML = html;
     } catch (e) {
         console.error('Erreur chargement témoignages', e);
-        container.innerHTML = `
+        DOM.testimonialsContainer.innerHTML = `
             <div class="card"><p>"Grâce à Mr XPRONOS, j'ai multiplié mes gains par 3 en un mois !"</p><p style="margin-top:1rem;color:var(--or);">— Jean Martin</p></div>
             <div class="card"><p>"Les pronostics VIP sont incroyablement précis. Je recommande !"</p><p style="margin-top:1rem;color:var(--or);">— Marie Dubois</p></div>
             <div class="card"><p>"Le système de partage permet d'accéder à des analyses de qualité gratuitement."</p><p style="margin-top:1rem;color:var(--or);">— Thomas Petit</p></div>
@@ -1231,7 +1260,7 @@ async function displayBlogList() {
 window.showArticleDetail = function(index) {
     const article = window.articlesData[index];
     if (!article) return;
-    const modal = document.getElementById('article-modal');
+    const modal = DOM.articleModal;
     if (!modal) return;
     document.getElementById('article-modal-title').textContent = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
     document.getElementById('article-modal-image').src = article.image_url || 'assets/images/default-logo.png';
@@ -1244,7 +1273,7 @@ window.showArticleDetail = function(index) {
 };
 
 window.closeArticleModal = function() {
-    const modal = document.getElementById('article-modal');
+    const modal = DOM.articleModal;
     if (modal) modal.style.display = 'none';
 };
 
@@ -1331,7 +1360,7 @@ async function displayConseils() {
 window.showConseilDetail = function(index) {
     const conseil = window.conseilsData[index];
     if (!conseil) return;
-    const modal = document.getElementById('conseil-modal');
+    const modal = DOM.conseilModal;
     if (!modal) return;
     document.getElementById('conseil-modal-title').textContent = conseil.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
     document.getElementById('conseil-modal-image').src = conseil.image_url || 'assets/images/default-logo.png';
@@ -1343,7 +1372,7 @@ window.showConseilDetail = function(index) {
 };
 
 window.closeConseilModal = function() {
-    const modal = document.getElementById('conseil-modal');
+    const modal = DOM.conseilModal;
     if (modal) modal.style.display = 'none';
 };
 
@@ -1388,7 +1417,7 @@ async function displayFootNews() {
 window.showNewsDetail = function(index) {
     const news = window.newsData[index];
     if (!news) return;
-    const modal = document.getElementById('news-modal');
+    const modal = DOM.newsModal;
     if (!modal) return;
     document.getElementById('news-modal-title').textContent = news.title;
     document.getElementById('news-modal-image').src = news.image || 'assets/images/default-logo.png';
@@ -1402,7 +1431,7 @@ window.showNewsDetail = function(index) {
 };
 
 window.closeNewsModal = function() {
-    const modal = document.getElementById('news-modal');
+    const modal = DOM.newsModal;
     if (modal) modal.style.display = 'none';
 };
 
@@ -1455,6 +1484,7 @@ function showVipLoginForm(container) {
             if (error || !data.valid) throw new Error('Code invalide');
             localStorage.setItem('mx_vip_code', code);
             showToast('Code VIP activé avec succès !', 'success');
+            recordEvent('vip_conversion');
             window.location.reload();
         } catch (e) {
             alert('Code invalide ou expiré.');
@@ -1462,6 +1492,113 @@ function showVipLoginForm(container) {
     });
     document.getElementById('vip-close-btn').addEventListener('click', () => {
         container.style.display = 'none';
-        if (matchesContainer) matchesContainer.style.display = 'grid';
+        if (DOM.matches) DOM.matches.style.display = 'grid';
     });
 }
+
+// =======================================================
+// DASHBOARD ADMIN CACHÉ (accessible via ?admin=key)
+// =======================================================
+if (window.location.pathname.includes('admin.html') && window.location.search.includes('key=MXPRO2026')) {
+    // Charger les stats
+    (async () => {
+        await initSupabase();
+        const { data: views } = await supabase.from('analytics').select('*', { count: 'exact', head: true }).eq('event_type', 'page_view');
+        const { data: clicks } = await supabase.from('analytics').select('*', { count: 'exact', head: true }).eq('event_type', 'click_pronostic');
+        const { data: shares } = await supabase.from('analytics').select('*', { count: 'exact', head: true }).eq('event_type', 'share_whatsapp');
+        const { data: vip } = await supabase.from('analytics').select('*', { count: 'exact', head: true }).eq('event_type', 'vip_conversion');
+        const { data: online } = await supabase.from('online-users').select('*', { count: 'exact', head: true });
+        document.getElementById('online').textContent = online.count || 0;
+        document.getElementById('views').textContent = views.count || 0;
+        document.getElementById('clicks').textContent = clicks.count || 0;
+        document.getElementById('shares').textContent = shares.count || 0;
+        document.getElementById('vip').textContent = vip.count || 0;
+        const conversionRate = ((vip.count || 0) / (views.count || 1) * 100).toFixed(2);
+        document.getElementById('conversion-rate').textContent = conversionRate + '%';
+    })();
+}
+
+// =======================================================
+// INITIALISATION PRINCIPALE
+// =======================================================
+document.addEventListener('DOMContentLoaded', async () => {
+    await initSupabase();
+    await registerUniqueUser();
+    await initOnlineUsers();
+    await updateDisplayedCounters();
+    subscribeToCounters();
+    showIosGuideIfNeeded();
+    countVisitOncePerDay(); // Une seule visite par jour
+
+    // Tracker la page vue
+    recordEvent('page_view', window.location.pathname);
+
+    // Initialisation selon la page
+    if (DOM.matches) {
+        setupEventListeners();
+        await loadData();
+    } else if (document.getElementById('history-container')) {
+        displayHistory();
+    } else if (document.getElementById('bonus-bookmaker-select')) {
+        initBonusPage();
+    } else {
+        // Page d'accueil
+        await loadDataGeneric().then(data => {
+            if (data) {
+                allData = data;
+                renderBookmakers(data.bookmakers);
+                updateShareCounter();
+                displayLatestVerified();
+                startWinsSlider();
+                animateWins();
+                updateSuccessRate();
+            }
+        });
+        displayTestimonials();
+        startWinNotifications();
+    }
+
+    displayBlogList();
+    displayBlogPost();
+    displayConseils();
+    displayInfos();
+    displayFootNews();
+    initScrollProgress();
+
+    if (DOM.searchInput) {
+        DOM.searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            applySearchFilter();
+        });
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (sharePending && !document.hidden) {
+            const elapsed = Date.now() - shareStartTime;
+            if (elapsed >= 5000) {
+                sharePending = false;
+                const newCount = incrementShareCount();
+                updateShareCounter();
+                incrementCounter('total_shares');
+                const target = shareLimits[currentCategory];
+                if (newCount >= target) {
+                    hideVipLocked();
+                    filterAndDisplay();
+                } else {
+                    if (DOM.vipLockedOverlay && DOM.vipLockedOverlay.style.display === 'flex') {
+                        showVipLocked(currentCategory);
+                    } else {
+                        showSharePopup(currentCategory, target - newCount);
+                    }
+                }
+            }
+        }
+    });
+});
+
+// Tracker les clics sur les pronostics (exemple à attacher aux boutons)
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('btn-share')) {
+        recordEvent('click_pronostic');
+    }
+});
