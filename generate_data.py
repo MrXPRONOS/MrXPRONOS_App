@@ -2,32 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - Moteur de pronostics football (double chance) version toutes ligues
-Suppression du filtre sur les ligues, seuils assouplis pour générer des pronostics sur tous les matchs.
+generate_data.py - Moteur de pronostics football (double chance) avec rotation de clés API
+Utilise jusqu'à 5 clés pour éviter les limitations de taux.
 """
 
 import os
 import json
-import requests
+import random
 from datetime import datetime, timedelta
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
 from math import exp, factorial
+from api_utils import make_request  # Import du module partagé
 
 # =======================================================
-# CONFIGURATION
+# CONFIGURATION GÉNÉRALE
 # =======================================================
-SPORTDATA_API_KEY = '1b25cd7b-ed9f-4f7e-98a4-5996eb7115bc'
-if not SPORTDATA_API_KEY:
-    raise ValueError("La variable d'environnement SPORTDATA_API_KEY n'est pas définie")
-
 SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
 PREDICTIONS_URL = "https://v1.football.sportsapipro.com/games/predictions"
-HEADERS = {"x-api-key": SPORTDATA_API_KEY}
-
-session = requests.Session()
-retries = Retry(total=3, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
-session.mount('https://', HTTPAdapter(max_retries=retries))
 
 today = datetime.now().date()
 tomorrow = today + timedelta(days=1)
@@ -52,7 +42,7 @@ print("=" * 60)
 
 
 # =======================================================
-# FONCTIONS DE TÉLÉCHARGEMENT DES LOGOS
+# FONCTIONS DE TÉLÉCHARGEMENT DES LOGOS (utilisent make_request)
 # =======================================================
 def get_competitor_logo_url(competitor_id, image_version=None):
     base_url = "https://v1.football.sportsapipro.com/images/competitors"
@@ -71,7 +61,7 @@ def download_logo(competitor_id, image_version=None):
 
     url = get_competitor_logo_url(competitor_id, image_version)
     try:
-        resp = session.get(url, headers=HEADERS, timeout=10)
+        resp = make_request('GET', url, timeout=10)
         if resp.status_code == 200:
             with open(filepath, 'wb') as f:
                 f.write(resp.content)
@@ -102,7 +92,7 @@ def download_competition_logo(competition_id, image_version=None):
 
     url = get_competition_logo_url(competition_id, image_version)
     try:
-        resp = session.get(url, headers=HEADERS, timeout=10)
+        resp = make_request('GET', url, timeout=10)
         if resp.status_code == 200:
             with open(filepath, 'wb') as f:
                 f.write(resp.content)
@@ -117,7 +107,7 @@ def download_competition_logo(competition_id, image_version=None):
 
 
 # =======================================================
-# FONCTIONS DE RÉCUPÉRATION DES DONNÉES SPORTDATA
+# FONCTIONS DE RÉCUPÉRATION DES DONNÉES SPORTDATA (utilisent make_request)
 # =======================================================
 def fetch_games_with_comps(date_from, date_to):
     """Retourne (liste des matchs, liste des compétitions) pour une plage de dates."""
@@ -129,8 +119,7 @@ def fetch_games_with_comps(date_from, date_to):
         "onlyMajorGames": "false"
     }
     try:
-        resp = session.get(SPORTDATA_URL, headers=HEADERS, params=params, timeout=30)
-        resp.raise_for_status()
+        resp = make_request('GET', SPORTDATA_URL, params=params, timeout=30)
         data = resp.json()
         games = data.get("games", [])
         competitions = data.get("competitions", [])
@@ -144,7 +133,7 @@ def fetch_predictions(game_id):
     """Récupère les votes publics pour un match via /games/predictions."""
     params = {"gameId": game_id}
     try:
-        resp = session.get(PREDICTIONS_URL, headers=HEADERS, params=params, timeout=10)
+        resp = make_request('GET', PREDICTIONS_URL, params=params, timeout=10)
         if resp.status_code == 200:
             data = resp.json()
             games = data.get("games", [])
@@ -429,12 +418,6 @@ def generate_prediction(analysis, home_form, away_form, league):
     if analysis["draw_rate"] > 0.4:
         confiance -= 10
 
-    # Suppression du bonus/malus sur les ligues
-    # if league in TRUSTED_LEAGUES:
-    #     confiance += 5
-    # else:
-    #     confiance -= 5
-
     confiance = max(0, min(100, confiance))
 
     return {
@@ -450,9 +433,6 @@ def calculate_xpronos_score(analysis, home_form, away_form, league):
     score += min(30, int(dominance * 100 * 0.5))
     if home_form and away_form:
         score += min(20, int((home_form["form_score"] + away_form["form_score"]) * 10))
-    # Suppression du bonus ligues fiables
-    # if league in TRUSTED_LEAGUES:
-    #     score += 5
     if analysis["draw_rate"] > 0.4:
         score -= 10
     return min(score, 100)
@@ -705,11 +685,6 @@ def main():
         if score < XPRONOS_THRESHOLD:
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (score xPronos {score} < {XPRONOS_THRESHOLD})")
             continue
-
-        # Suppression du filtre sur les ligues non fiables
-        # if base["competition"] not in TRUSTED_LEAGUES and score < 65:
-        #     print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (ligue non fiable et score < 65)")
-        #     continue
 
         # Téléchargement des logos
         home_logo = download_logo(base["home_competitor_id"], base["home_image_version"])
