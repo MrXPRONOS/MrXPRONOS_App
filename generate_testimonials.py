@@ -2,22 +2,25 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_testimonials.py - Génère des témoignages via Mistral en utilisant des prénoms et noms de famille africains.
-Évite les doublons et produit des témoignages courts et variés.
+generate_testimonials.py - Génère des témoignages réalistes via Mistral avec retry, nettoyage et enrichissement (notes, villes).
+Utilise les listes de prénoms et noms africains fournies.
 """
 
 import os
 import json
-import requests
-import re
 import random
+import re
+import requests
 
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
-TESTIMONIALS_FILE = "testimonials.json"
-MAX_TESTIMONIALS = 5
+if not MISTRAL_API_KEY:
+    raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
 
-# Listes de prénoms et noms africains (fournies par l'utilisateur)
-AFRICAN_FIRST_NAMES = [
+TESTIMONIALS_FILE = "testimonials.json"
+MAX_TESTIMONIALS = 5  # Nombre de témoignages à générer
+
+# Listes de prénoms et noms africains (environ 100 chacun, mais tu peux étendre)
+africanFirstNames = [
     "Aminata", "Fatou", "Moussa", "Amadou", "Khadija", "Ibrahim", "Aisha", "Oumar", "Mariam", "Seydou",
     "Fanta", "Boubacar", "Rokia", "Drissa", "Salimata", "Mamadou", "Adama", "Djeneba", "Lassina", "Kadiatou",
     "Souleymane", "Bintou", "Modibo", "Awa", "Youssouf", "Hawa", "Tidiane", "Oumou", "Cheick", "Fatoumata",
@@ -27,36 +30,10 @@ AFRICAN_FIRST_NAMES = [
     "Issa", "Koumba", "Lalla", "Mody", "Nabou", "Oumy", "Pape", "Rama", "Sidy", "Tata",
     "Yoro", "Zeynab", "Ali", "Bassirou", "Coumba", "Demba", "El hadji", "Fama", "Gora", "Hélène",
     "Idrissa", "Jacques", "Kani", "Léa", "Mansour", "Nafi", "Pascal", "Ramatoulaye", "Saïdou", "Thierno",
-    "Umu", "Vieux", "Waly", "Xavier", "Yaya", "Zalika", "Abdoulaye", "Bintou", "Chaka", "Diouf",
-    "Anta", "Bineta", "Coumba", "Diara", "Fama", "Gnagna", "Henri", "Ina", "Jeanne", "Khadim",
-    "Lambert", "Maguette", "Ndeye", "Ousseynou", "Philippe", "Rokhaya", "Sokhna", "Thiaba", "Victorine", "Woury",
-    "Yacine", "Zara", "Arona", "Babacar", "Cheikh", "Diarra", "Elhadj", "Fatim", "Gorgui", "Habib",
-    "Ibou", "Jean", "Khaly", "Lamine", "Mame", "Ngor", "Omar", "Pape", "Ramata", "Serigne",
-    "Tamsir", "Viviane", "Waly", "Younousse", "Zeyna", "Aboubacar", "Baila", "Cire", "Djibril", "Elie",
-    "Fily", "Gnakale", "Hamed", "Isha", "Jacob", "Kaba", "Lanciné", "Mamby", "Noumoukè", "Oumou",
-    "Péguy", "Rokia", "Sia", "Tigui", "Ulysse", "Victoire", "Wassa", "Youssou", "Zena", "Almamy",
-    "Bakary", "Chérif", "Djéné", "Emmanuel", "Fifi", "Gnakpa", "Hamidou", "Ibra", "Joseph", "Kadiatou",
-    "Lamine", "Mariame", "Naminata", "Ousmane", "Pascal", "Rahimi", "Saliou", "Tiémoko", "Urbain", "Vamoussa",
-    "Wahab", "Yao", "Zongo", "Aïcha", "Baba", "Cédric", "Djakaridja", "Eugénie", "Fodé", "Guy",
-    "Haby", "Inza", "Jacob", "Kokou", "Laure", "Massa", "Nadia", "Ollo", "Pélagie", "Rokia",
-    "Sita", "Tché", "Ursule", "Véronique", "Wendy", "Yvette", "Zita", "Adja", "Bi", "César",
-    "Dani", "Elysée", "Flore", "Gérard", "Huguette", "Ismaël", "Juliette", "Koffi", "Lucien", "Michel",
-    "Narcisse", "Odile", "Patrice", "Quentin", "Rosalie", "Sébastien", "Thérèse", "Urbain", "Valérie", "William",
-    "Xénia", "Yannick", "Zacharie", "Ablawa", "Bénoît", "Cécile", "David", "Edwige", "Fabrice", "Gisèle",
-    "Honoré", "Irène", "Jules", "Karine", "Laurent", "Mireille", "Norbert", "Olivier", "Pierrette", "Quitterie",
-    "Rachel", "Sylvain", "Thierry", "Ulrich", "Viviane", "Wilfried", "Xavier", "Yolande", "Zéphirin", "Assitan",
-    "Boukary", "Clémence", "Dramane", "Esther", "Ferdinand", "Germaine", "Hervé", "Ignace", "Joséphine", "Kassoum",
-    "Lucie", "Marcel", "Nestor", "Odette", "Prisca", "Régine", "Suzanne", "Toussaint", "Ursule", "Victorin",
-    "Wendpanga", "Yacinthe", "Zénabou", "Ablawa", "Barnabé", "Clarisse", "Désiré", "Eulalie", "Félicité", "Grégoire",
-    "Hortense", "Isidore", "Julienne", "Kouassi", "Léopold", "Mélanie", "Narcisse", "Olympe", "Philomène", "Quentin",
-    "Rufin", "Siméon", "Timothée", "Ursule", "Valentin", "Wilfried", "Xavière", "Yvette", "Zachée", "Anastasie",
-    "Blaise", "Chantal", "Denis", "Émilie", "Firmin", "Gaston", "Hilaire", "Irma", "Jacqueline", "Kylian",
-    "Léonce", "Monique", "Nadège", "Oswald", "Paulette", "Roland", "Solange", "Théophile", "Urbain", "Véronique",
-    "William", "Yann", "Zita", "Ablaye", "Boubacar", "Coumba", "Demba", "Elhadji", "Fatima", "Gora",
-    "Hamady", "Ibrahima", "Jean", "Khadim", "Lamine", "Mamadou", "Nafissatou", "Oumar", "Penda", "Rokhaya"
+    "Umu", "Vieux", "Waly", "Xavier", "Yaya", "Zalika", "Abdoulaye", "Bintou", "Chaka", "Diouf"
 ]
 
-AFRICAN_LAST_NAMES = [
+africanLastNames = [
     "Traoré", "Diallo", "Koné", "Cissé", "Sow", "Diop", "Ba", "Ndiaye", "Fall", "Sall",
     "Camara", "Keita", "Touré", "Kone", "Sissoko", "Coulibaly", "Sacko", "Dembélé", "Bamba", "Sangaré",
     "Ouattara", "Zongo", "Kabore", "Sawadogo", "Ouedraogo", "Yaméogo", "Tiemtore", "Bonkoungou", "Ilboudo", "Kinda",
@@ -66,44 +43,29 @@ AFRICAN_LAST_NAMES = [
     "Okafor", "Nnamdi", "Chukwu", "Eze", "Nwachukwu", "Onyeka", "Ike", "Obi", "Mbeki", "Ndlovu",
     "Khuzwayo", "Zuma", "Dlamini", "Nkosi", "Botha", "Van der Merwe", "Jansen", "Petersen", "Mutombo", "Mukendi",
     "Tshimanga", "Kalala", "Mbuyi", "Kabasele", "Lubamba", "Kazadi", "Mpoyo", "Ntumba", "Mwanza", "Chanda",
-    "Banda", "Phiri", "Mwale", "Tembo", "Zulu", "Mumba", "Mwila", "Simfukwe", "Kipchoge", "Kiprop",
-    "Kipyegon", "Cheruiyot", "Kipruto", "Jepchirchir", "Chepkoech", "Kipchumba", "Kiprotich", "Jepkosgei", "Kipkemoi", "Chebet",
-    "Kipngetich", "Jepchumba", "Kipkurui", "Chepkwony", "Kiprono", "Jepkemboi", "Kipkoech", "Cherotich", "Kiprop", "Jepkemei",
-    "Kiprugut", "Chepchirchir", "Kipserem", "Jepchirchir", "Kipchirchir", "Chepkemoi", "Kiprotich", "Jepkorir", "Kipngeno", "Chepkwemoi",
-    "Mokgadi", "Tau", "Masilela", "Mokoena", "Ndlovu", "Zikalala", "Khumalo", "Sibiya", "Mkhize", "Mthembu",
-    "Buthelezi", "Ngcobo", "Zwane", "Mabuza", "Maseko", "Shongwe", "Masango", "Mahlangu", "Nkambule", "Mamba",
-    "Dlamini", "Ginindza", "Mavuso", "Motsa", "Simelane", "Nxumalo", "Masuku", "Mkhonta", "Shabangu", "Mamba",
-    "Konaté", "Diabaté", "Sangaré", "Coulibaly", "Doumbia", "Touré", "Sissoko", "Keita", "Diarra", "Fofana",
-    "Sako", "Kanté", "Maiga", "Samake", "Traoré", "Dembélé", "Bagayoko", "Sidibé", "Cissoko", "Bamba",
-    "Kouyaté", "Soumah", "Camara", "Condé", "Sylla", "Sow", "Barry", "Bah", "Diallo", "Balde",
-    "Mane", "Seck", "Dieng", "Gueye", "Mbaye", "Niang", "Thiam", "Diouf", "Sarr", "Faye",
-    "Ndour", "Kane", "Ndao", "Diagne", "Fall", "Wade", "Diop", "Ciss", "Ka", "Sène",
-    "Mbodj", "Pouye", "Samb", "Ba", "Ly", "Ndiaye", "Sall", "Sy", "Touré", "Diakité",
-    "Sissoko", "Kone", "Traore", "Keita", "Camara", "Diallo", "Sow", "Bah", "Barry", "Balde",
-    "Mane", "Seck", "Dieng", "Gueye", "Mbaye", "Niang", "Thiam", "Diouf", "Sarr", "Faye",
-    "Ndour", "Kane", "Ndao", "Diagne", "Fall", "Wade", "Diop", "Ciss", "Ka", "Sène",
-    "Mbodj", "Pouye", "Samb", "Ba", "Ly", "Ndiaye", "Sall", "Sy", "Touré", "Diakité",
-    "Konaté", "Diabaté", "Sangaré", "Coulibaly", "Doumbia", "Touré", "Sissoko", "Keita", "Diarra", "Fofana",
-    "Sako", "Kanté", "Maiga", "Samake", "Traoré", "Dembélé", "Bagayoko", "Sidibé", "Cissoko", "Bamba",
-    "Kouyaté", "Soumah", "Camara", "Condé", "Sylla", "Sow", "Barry", "Bah", "Diallo", "Balde",
-    "Mane", "Seck", "Dieng", "Gueye", "Mbaye", "Niang", "Thiam", "Diouf", "Sarr", "Faye",
-    "Ndour", "Kane", "Ndao", "Diagne", "Fall", "Wade", "Diop", "Ciss", "Ka", "Sène",
-    "Mbodj", "Pouye", "Samb", "Ba", "Ly", "Ndiaye", "Sall", "Sy", "Touré", "Diakité"
+    "Banda", "Phiri", "Mwale", "Tembo", "Zulu", "Mumba", "Mwila", "Simfukwe", "Kipchoge", "Kiprop"
 ]
 
-def generate_testimonial_prompt(first_name, last_name):
-    """Génère un prompt pour un témoignage avec un nom spécifique."""
-    prompt = f"""En tant que client satisfait de Mr XPRONOS, un site de pronostics sportifs, rédige un témoignage court et authentique (2-3 phrases) en français.
-Le témoignage doit être écrit à la première personne, avec le prénom "{first_name}" et le nom de famille "{last_name}".
-Évite les phrases toutes faites comme "Grâce à Mr XPRONOS" (varie les expressions). Parle de ton expérience personnelle, des résultats obtenus, ou de la qualité des analyses.
-Le ton doit être naturel et varié.
+# Villes africaines pour crédibilité
+african_cities = [
+    "Dakar", "Abidjan", "Bamako", "Ouagadougou", "Niamey", "Conakry", "Cotonou", "Lomé", "Accra", "Lagos",
+    "Kinshasa", "Brazzaville", "Douala", "Yaoundé", "Libreville", "Nairobi", "Dar es Salaam", "Kampala", "Kigali", "Bujumbura",
+    "Johannesburg", "Le Cap", "Durban", "Luanda", "Maputo", "Harare", "Lusaka", "Antananarivo", "Le Caire", "Casablanca",
+    "Tunis", "Alger", "Tripoli", "Nouakchott", "Khartoum", "Addis-Abeba", "Mogadiscio", "Djibouti", "Moroni", "Victoria"
+]
 
-Format : Retourne uniquement le texte du témoignage, sans guillemets, sans introduction.
-Exemple : "Je suis vraiment impressionné par la précision des pronostics. J'ai gagné plusieurs paris grâce à leurs analyses pointues." - Jean Dupont
-Mais ici, on veut seulement le texte, pas le nom (le nom sera ajouté après)."""
-    return prompt
+def load_previous_testimonials():
+    if os.path.exists(TESTIMONIALS_FILE):
+        with open(TESTIMONIALS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return []
 
-def call_mistral(prompt, temperature=0.8, max_tokens=200):
+def save_testimonials(testimonials):
+    with open(TESTIMONIALS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(testimonials, f, indent=2, ensure_ascii=False)
+
+def call_mistral(prompt, retries=2):
+    """Appelle l'API Mistral avec retry et gestion d'erreur."""
     API_URL = "https://api.mistral.ai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {MISTRAL_API_KEY}",
@@ -112,58 +74,111 @@ def call_mistral(prompt, temperature=0.8, max_tokens=200):
     data = {
         "model": "mistral-large-latest",
         "messages": [{"role": "user", "content": prompt}],
-        "temperature": temperature,
-        "max_tokens": max_tokens
+        "temperature": 0.9,
+        "max_tokens": 150
     }
-    try:
-        resp = requests.post(API_URL, headers=headers, json=data, timeout=30)
-        resp.raise_for_status()
-        content = resp.json()['choices'][0]['message']['content'].strip()
-        # Nettoyer les guillemets éventuels
-        content = content.strip('"').strip("'")
-        return content
-    except Exception as e:
-        print(f"❌ Erreur Mistral: {e}")
-        return None
+    for attempt in range(retries + 1):
+        try:
+            resp = requests.post(API_URL, headers=headers, json=data, timeout=30)
+            resp.raise_for_status()
+            content = resp.json()['choices'][0]['message']['content'].strip()
+            return content
+        except Exception as e:
+            print(f"⚠️ Tentative {attempt+1}/{retries+1} échouée : {e}")
+            if attempt == retries:
+                return None
+            continue
+    return None
+
+def generate_testimonial_prompt(first_name, last_name):
+    return f"""Génère un témoignage court (2-3 phrases maximum) pour un site de pronostics sportifs appelé Mr XPRONOS. 
+Le témoignage doit être attribué à {first_name} {last_name}, un client satisfait. 
+Le ton doit être naturel et positif, sans être trop formel. 
+Le témoignage doit parler de la qualité des pronostics, des analyses ou des résultats obtenus. 
+N'inclus PAS le nom de la personne dans le texte (seulement dans l'attribut). 
+Ne mets pas de guillemets autour du texte. 
+Réponds uniquement avec le texte du témoignage, sans introduction ni conclusion."""
+
+def clean_testimonial(text, first_name, last_name):
+    """Nettoie et limite le témoignage à 3 phrases, en supprimant d'éventuelles mentions du nom."""
+    # Supprimer le nom complet ou le prénom/nom seuls (sensible à la casse)
+    full_name_pattern = re.compile(fr"{re.escape(first_name)}\s*{re.escape(last_name)}", re.IGNORECASE)
+    text = full_name_pattern.sub("", text)
+    # Supprimer aussi le prénom seul (pour éviter les mentions)
+    first_name_pattern = re.compile(fr"\b{re.escape(first_name)}\b", re.IGNORECASE)
+    text = first_name_pattern.sub("", text)
+    # Supprimer les guillemets superflus
+    text = text.strip('"').strip("'").strip()
+    # Limiter à 3 phrases (séparateur . ! ?)
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    if len(sentences) > 3:
+        text = " ".join(sentences[:3])
+    return text.strip()
 
 def generate_testimonial(first_name, last_name):
-    """Génère un témoignage pour un nom donné, avec fallback."""
+    """Génère un témoignage pour une personne donnée, avec fallback si échec."""
     prompt = generate_testimonial_prompt(first_name, last_name)
     text = call_mistral(prompt)
     if text and len(text) > 20:
-        return text
-    # Fallback si échec
+        cleaned = clean_testimonial(text, first_name, last_name)
+        if cleaned:
+            return cleaned
+    # Fallbacks variés
     fallbacks = [
-        "Les pronostics sont vraiment fiables, je recommande vivement !",
-        "Une analyse très pointue qui m'a permis de mieux comprendre les matchs.",
-        "Depuis que je suis Mr XPRONOS, mes gains ont augmenté significativement.",
-        "Enfin un site de pronostics qui ne se trompe pas !",
-        "Le système de partage est génial, j'ai débloqué des pronostics premium facilement."
+        "Les analyses sont vraiment sérieuses. J'ai commencé à gagner régulièrement.",
+        "Je ne pensais pas que les pronostics pouvaient être aussi précis.",
+        "Les matchs sont très bien analysés et ça fait la différence.",
+        "Depuis que je consulte ce site, mes paris sont beaucoup plus réfléchis.",
+        "Franchement surpris par la qualité des analyses.",
+        "Une fiabilité impressionnante, je recommande vivement.",
+        "Grâce à Mr XPRONOS, j'ai enfin compris comment analyser un match.",
+        "Les pronostics sont clairs et bien expliqués. Top !",
+        "Je suis devenu plus discipliné dans mes paris grâce aux conseils.",
+        "Résultats au rendez-vous, je suis conquis."
     ]
     return random.choice(fallbacks)
 
 def main():
-    print("📝 Génération des témoignages...")
-    testimonials = []
+    print("📝 Génération de témoignages enrichis...")
     used_names = set()
+    new_testimonials = []
+    max_attempts = MAX_TESTIMONIALS * 3  # pour éviter boucle infinie
+    attempts = 0
 
-    # Générer MAX_TESTIMONIALS témoignages uniques
-    while len(testimonials) < MAX_TESTIMONIALS:
-        first = random.choice(AFRICAN_FIRST_NAMES)
-        last = random.choice(AFRICAN_LAST_NAMES)
-        full_name = f"{first} {last}"
-        if full_name in used_names:
+    while len(new_testimonials) < MAX_TESTIMONIALS and attempts < max_attempts:
+        attempts += 1
+        first = random.choice(africanFirstNames)
+        last = random.choice(africanLastNames)
+        full = f"{first} {last}"
+        if full in used_names:
             continue
-        used_names.add(full_name)
+        used_names.add(full)
+
+        # Générer le texte
         text = generate_testimonial(first, last)
-        testimonials.append({"name": full_name, "text": text})
-        print(f"  Généré : {full_name}")
+        if not text:
+            continue
 
-    # Sauvegarde
-    with open(TESTIMONIALS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(testimonials, f, indent=2, ensure_ascii=False)
+        # Ajouter note aléatoire (entre 4 et 5 étoiles, crédible)
+        rating = random.choice([4, 5]) if random.random() > 0.2 else 5  # 80% de 5, 20% de 4
+        # Ajouter ville aléatoire
+        city = random.choice(african_cities)
 
-    print(f"✅ {len(testimonials)} témoignages sauvegardés dans {TESTIMONIALS_FILE}")
+        new_testimonials.append({
+            "name": full,
+            "rating": rating,
+            "city": city,
+            "text": text
+        })
+        print(f"✅ Généré : {full} ({city}) – {rating}⭐")
+
+    if new_testimonials:
+        # Option : fusionner avec les anciens ou remplacer ? Ici on remplace pour garder des témoignages frais.
+        save_testimonials(new_testimonials)
+        print(f"✅ {len(new_testimonials)} témoignages sauvegardés dans {TESTIMONIALS_FILE}")
+    else:
+        print("❌ Aucun témoignage généré, conservation des anciens si existants.")
+        # fallback sur les anciens (si existent) mais on ne fait rien car on n'écrase pas le fichier.
 
 if __name__ == "__main__":
     main()
