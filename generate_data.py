@@ -43,7 +43,7 @@ os.makedirs(COMPETITION_LOGOS_DIR, exist_ok=True)
 HOME_ADVANTAGE = 0.1
 CONFIDENCE_THRESHOLD = 50      # On ignore les matchs avec confidence < 50
 GOAL_DIFF_THRESHOLD = 0.1      # Différence de buts minimum
-XPRONOS_THRESHOLD = 45         # Score xPronos minimum
+XPRONOS_THRESHOLD = 40         # Score xPronos minimum
 DOMINANCE_THRESHOLD = 0.4      # Seuil pour décider du double chance
 
 print("=" * 60)
@@ -459,9 +459,9 @@ def calculate_xpronos_score(analysis, home_form, away_form, league):
 
 
 def get_category(score):
-    if score >= 55:
+    if score >= 50:
         return "vip"
-    elif score >= 47:
+    elif score >= 45:
         return "pro"
     else:
         return "simple"
