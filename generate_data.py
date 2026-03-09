@@ -36,6 +36,8 @@ GOAL_DIFF_THRESHOLD = 0.1      # Différence de buts minimum
 XPRONOS_THRESHOLD = 45         # Score xPronos minimum
 DOMINANCE_THRESHOLD = 0.4      # Seuil pour décider du double chance
 
+value_bet = False  # Active les paris à valeur (1.5x ou plus)
+
 print("=" * 60)
 print(f"🚀 GÉNÉRATION DES PRONOSTICS (DOUBLE CHANCE UNIQUEMENT) - {today}")
 print("=" * 60)
@@ -668,23 +670,46 @@ def main():
 
         # Filtre sur les cotes trop faibles (adapté au double chance)
         odds = base.get("odds")
+        # =======================================================
+        # CALCUL DE LA VALUE BET
+        # =======================================================
+        
         if odds:
             dc = prediction["double_chance"]
-            if dc == "1X" and odds.get("home") and odds["home"] < 1.20:
-                print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (cote home trop faible pour 1X)")
-                continue
-            if dc == "X2" and odds.get("away") and odds["away"] < 1.20:
-                print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (cote away trop faible pour X2)")
-                continue
+            # Notre probabilité estimée
+            home_dom = analysis["home_dominance"] + HOME_ADVANTAGE
+            away_dom = analysis["away_dominance"]
+            if dc == "1X":
+                our_prob = (home_dom * 0.6) + (analysis["draw_rate"] * 0.4)
+                if home_form and away_form:
+                    form_diff = home_form["form_score"] - away_form["form_score"]
+                    our_prob += max(0, form_diff * 0.2)
+            elif dc == "X2":
+                our_prob = (away_dom * 0.6) + (analysis["draw_rate"] * 0.4)
+                if home_form and away_form:
+                    form_diff = home_form["form_score"] - away_form["form_score"]
+                    our_prob += max(0, -form_diff * 0.2)
+            elif dc == "12":
+                our_prob = home_dom + away_dom
+            else:
+                our_prob = 0
 
-        score = calculate_xpronos_score(analysis, home_form, away_form, base["competition"])
-        category = get_category(score)
-        badge = get_badge(score)
+            our_prob = min(our_prob, 0.95)
 
-        # Filtre optionnel sur le score xPronos (abaissé)
-        if score < XPRONOS_THRESHOLD:
-            print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (score xPronos {score} < {XPRONOS_THRESHOLD})")
-            continue
+            dc_odds = estimate_dc_odds(odds, dc)
+            if dc_odds > 0:
+                book_prob = 1 / dc_odds
+                if our_prob > book_prob + 0.05:
+                    value_bet = True
+
+                score = calculate_xpronos_score(analysis, home_form, away_form, base["competition"])
+                category = get_category(score)
+                badge = get_badge(score)
+
+                # Filtre optionnel sur le score xPronos (abaissé)
+                if score < XPRONOS_THRESHOLD:
+                    print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (score xPronos {score} < {XPRONOS_THRESHOLD})")
+                    continue
 
         # Téléchargement des logos
         home_logo = download_logo(base["home_competitor_id"], base["home_image_version"])
