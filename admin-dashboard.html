@@ -3,17 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Mr XPRONOS</title>
+    <title>Mr XPRONOS - Dashboard en direct</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js pour les graphiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background: #0D0D0D; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; }
-        .dashboard-container { max-width: 1200px; margin: 0 auto; }
-        h1 { color: #D4AF37; margin-bottom: 30px; }
+        body {
+            background: #0D0D0D;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #D4AF37;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .back-link {
+            color: #fff;
+            text-decoration: none;
+            background: #333;
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid #D4AF37;
+        }
+        .back-link:hover {
+            background: #444;
+        }
+        .period-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .period-selector select, .period-selector input {
+            background: #1A1A1A;
+            border: 1px solid #D4AF37;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        .custom-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
         .stat-card {
             background: #1A1A1A;
@@ -22,203 +75,419 @@
             padding: 20px;
             text-align: center;
         }
-        .stat-card h3 { color: #D4AF37; margin-bottom: 10px; font-size: 1.1rem; }
-        .stat-value { font-size: 2.5rem; font-weight: 700; color: #fff; }
-        .stat-label { color: #ccc; font-size: 0.9rem; margin-top: 5px; }
-        .info-box {
+        .stat-card h3 {
+            color: #D4AF37;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .stat-card small {
+            color: #aaa;
+            display: block;
+            margin-top: 5px;
+        }
+        .chart-container {
             background: #1A1A1A;
-            border: 1px solid #D4AF37;
             border-radius: 16px;
             padding: 20px;
-            margin-top: 30px;
+            margin-bottom: 30px;
+            border: 1px solid #D4AF37;
         }
-        .key-info { color: #D4AF37; font-weight: 600; }
+        .key-info {
+            text-align: center;
+            color: #aaa;
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 1px solid #333;
+        }
     </style>
-    <!-- Inclusion de Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="dashboard-container">
-        <h1>📊 Mr XPRONOS - Dashboard en temps réel</h1>
+    <div class="container">
+        <h1>
+            📊 Mr XPRONOS - Dashboard en temps réel
+            <a href="admin.html?admin=true" class="back-link">← Retour à l'admin</a>
+        </h1>
 
-        <!-- Vérification de la clé d'accès -->
-        <div id="access-error" style="display: none; color: #f44336; text-align: center; margin: 50px 0;">
-            ⚠️ Accès non autorisé. Utilisez le paramètre ?key=MXPRO2026.
+        <!-- Sélecteur de période -->
+        <div class="period-selector">
+            <label for="period-select">Période :</label>
+            <select id="period-select">
+                <option value="today">Aujourd'hui</option>
+                <option value="yesterday">Hier</option>
+                <option value="currentWeek">Semaine en cours</option>
+                <option value="lastWeek">Semaine passée</option>
+                <option value="currentMonth">Mois en cours</option>
+                <option value="lastMonth">Mois passé</option>
+                <option value="currentYear">Année en cours</option>
+                <option value="lastYear">Année passée</option>
+                <option value="custom">Personnalisé</option>
+            </select>
+            <div id="custom-range" class="custom-range" style="display: none;">
+                <input type="date" id="start-date">
+                <span>à</span>
+                <input type="date" id="end-date">
+                <button id="apply-custom" class="btn btn-secondary">Appliquer</button>
+            </div>
         </div>
 
-        <div id="dashboard-content">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>👥 Utilisateurs en ligne</h3>
-                    <div class="stat-value" id="online-users">0</div>
-                    <div class="stat-label">actuellement</div>
-                </div>
-                <div class="stat-card">
-                    <h3>👀 Pages vues</h3>
-                    <div class="stat-value" id="total-views">0</div>
-                    <div class="stat-label">total</div>
-                </div>
-                <div class="stat-card">
-                    <h3>🎯 Clics pronostics</h3>
-                    <div class="stat-value" id="total-clicks">0</div>
-                    <div class="stat-label">total</div>
-                </div>
-                <div class="stat-card">
-                    <h3>📤 Partages WhatsApp</h3>
-                    <div class="stat-value" id="total-shares">0</div>
-                    <div class="stat-label">total</div>
-                </div>
-                <div class="stat-card">
-                    <h3>💎 Conversions VIP</h3>
-                    <div class="stat-value" id="total-vip">0</div>
-                    <div class="stat-label">total</div>
-                </div>
-                <div class="stat-card">
-                    <h3>👥 Utilisateurs uniques</h3>
-                    <div class="stat-value" id="unique-users">0</div>
-                    <div class="stat-label">enregistrés</div>
-                </div>
+        <!-- Cartes statistiques -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>👥 Utilisateurs en ligne</h3>
+                <div class="stat-value" id="online">0</div>
+                <small>actuellement</small>
             </div>
+            <div class="stat-card">
+                <h3>👀 Pages vues</h3>
+                <div class="stat-value" id="views">0</div>
+                <small>sur la période</small>
+            </div>
+            <div class="stat-card">
+                <h3>🎯 Clics pronostics</h3>
+                <div class="stat-value" id="clicks">0</div>
+                <small>sur la période</small>
+            </div>
+            <div class="stat-card">
+                <h3>📤 Partages WhatsApp</h3>
+                <div class="stat-value" id="shares">0</div>
+                <small>sur la période</small>
+            </div>
+            <div class="stat-card">
+                <h3>💎 Conversions VIP</h3>
+                <div class="stat-value" id="vip">0</div>
+                <small>sur la période</small>
+            </div>
+            <div class="stat-card">
+                <h3>👥 Utilisateurs uniques</h3>
+                <div class="stat-value" id="unique-users">0</div>
+                <small>sur la période</small>
+            </div>
+            <div class="stat-card">
+                <h3>📈 Taux de conversion VIP</h3>
+                <div class="stat-value" id="conversion-rate">0.00%</div>
+                <small>des visiteurs deviennent VIP</small>
+            </div>
+        </div>
 
-            <div class="info-box">
-                <h3 style="color: #D4AF37;">📈 Taux de conversion VIP</h3>
-                <div style="font-size: 2rem; font-weight: 700; color: #fff;" id="conversion-rate">0.00%</div>
-                <div class="stat-label">des visiteurs deviennent VIP</div>
-            </div>
+        <!-- Graphiques -->
+        <div class="chart-container">
+            <canvas id="visitsChart"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="pagesChart"></canvas>
+        </div>
 
-            <div class="info-box" style="margin-top: 20px;">
-                <p class="key-info">🔑 Clé d'accès :</p>
-                <p>Utilisez le paramètre <code>?key=MXPRO2026</code> pour accéder à cette page.</p>
-            </div>
+        <div class="key-info">
+            🔑 Cette page est accessible avec le paramètre <code>?key=MXPRO2026</code> (admin-dashboard.html?key=MXPRO2026)
         </div>
     </div>
 
     <script type="module">
         // =======================================================
-        // VÉRIFICATION DE LA CLÉ D'ACCÈS
+        // CONFIGURATION & INITIALISATION SUPABASE
         // =======================================================
-        const urlParams = new URLSearchParams(window.location.search);
-        const accessKey = urlParams.get('key');
-        if (accessKey !== 'MXPRO2026') {
-            document.getElementById('dashboard-content').style.display = 'none';
-            document.getElementById('access-error').style.display = 'block';
-            throw new Error('Accès refusé');
-        }
+        let supabase = null;
+        let supabaseAvailable = false;
 
-        // =======================================================
-        // CONFIGURATION SUPABASE
-        // =======================================================
-        import { supabaseUrl, supabaseAnonKey } from './assets/js/config.js';
-
-        const { createClient } = window.supabase;
-        const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-        // =======================================================
-        // FONCTIONS DE CHARGEMENT DES STATISTIQUES
-        // =======================================================
-        async function loadStats() {
+        async function initSupabase() {
             try {
-                // 1. Récupérer les compteurs depuis la table 'counters' (id=1)
-                const { data: counters, error: countersError } = await supabase
-                    .from('counters')
-                    .select('total_visits, total_shares, unique_users')
-                    .eq('id', 1)
-                    .single();
-
-                if (countersError) throw countersError;
-
-                // Mise à jour des éléments DOM
-                document.getElementById('total-views').textContent = counters.total_visits || 0;
-                document.getElementById('total-shares').textContent = counters.total_shares || 0;
-                document.getElementById('unique-users').textContent = counters.unique_users || 0;
-
-                // 2. Compter les événements spécifiques depuis la table 'events' ou 'analytics'
-                // Selon votre structure, utilisez la table qui contient les événements.
-                // Ici on suppose une table 'events' avec colonnes 'type', 'user_id', 'page', 'timestamp'
-                const { count: clicks, error: clicksError } = await supabase
-                    .from('events')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('type', 'click_pronostic');
-
-                if (!clicksError) {
-                    document.getElementById('total-clicks').textContent = clicks || 0;
-                } else {
-                    console.warn('Erreur comptage clics:', clicksError);
-                }
-
-                const { count: vip, error: vipError } = await supabase
-                    .from('events')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('type', 'vip_conversion');
-
-                if (!vipError) {
-                    document.getElementById('total-vip').textContent = vip || 0;
-                } else {
-                    console.warn('Erreur comptage conversions VIP:', vipError);
-                }
-
-                // 3. Calculer le taux de conversion
-                const views = counters.total_visits || 0;
-                const vipCount = vip || 0;
-                const conversionRate = views > 0 ? ((vipCount / views) * 100).toFixed(2) : 0;
-                document.getElementById('conversion-rate').textContent = conversionRate + '%';
-
-            } catch (e) {
-                console.error('Erreur lors du chargement des statistiques:', e);
+                const { supabaseUrl, supabaseAnonKey } = await import('./assets/js/config.js');
+                if (!supabaseUrl || !supabaseUrl.startsWith('https://')) throw new Error('URL Supabase invalide');
+                if (!supabaseAnonKey) throw new Error('Clé Supabase manquante');
+                const { createClient } = window.supabase;
+                supabase = createClient(supabaseUrl, supabaseAnonKey);
+                supabaseAvailable = true;
+                console.log('✅ Supabase connecté (dashboard)');
+            } catch (error) {
+                console.error('❌ Erreur Supabase:', error);
+                document.querySelector('.stats-grid').innerHTML = '<p style="color: red;">Impossible de se connecter à Supabase. Vérifiez le fichier config.js</p>';
             }
         }
 
         // =======================================================
         // VISITEURS EN LIGNE (Realtime Presence)
         // =======================================================
+        let onlineChannel = null;
+
         async function initOnlineUsers() {
-            const channel = supabase.channel('online-users', {
+            if (!supabaseAvailable || !document.getElementById('online')) return;
+            const userId = 'dashboard-' + Math.random().toString(36).substring(2);
+            onlineChannel = supabase.channel('online-users', {
                 config: {
-                    presence: { key: 'admin-dashboard' } // une clé unique pour le dashboard
+                    presence: { key: userId }
                 }
             });
-
-            channel
+            onlineChannel
                 .on('presence', { event: 'sync' }, () => {
-                    const state = channel.presenceState();
+                    const state = onlineChannel.presenceState();
                     const onlineUsers = Object.keys(state).length;
-                    document.getElementById('online-users').textContent = onlineUsers;
+                    document.getElementById('online').textContent = onlineUsers;
                 })
                 .subscribe(async (status) => {
                     if (status === 'SUBSCRIBED') {
-                        await channel.track({ online_at: new Date().toISOString() });
+                        await onlineChannel.track({ online_at: new Date().toISOString() });
                     }
                 });
         }
 
         // =======================================================
-        // ABONNEMENT AUX MISES À JOUR EN TEMPS RÉEL (optionnel)
+        // GESTION DE LA PÉRIODE
         // =======================================================
-        function subscribeToUpdates() {
-            // Écouter les changements sur la table counters pour mettre à jour les valeurs en direct
-            supabase
-                .channel('counters-changes')
-                .on(
-                    'postgres_changes',
-                    { event: 'UPDATE', schema: 'public', table: 'counters', filter: 'id=eq.1' },
-                    (payload) => {
-                        document.getElementById('total-views').textContent = payload.new.total_visits || 0;
-                        document.getElementById('total-shares').textContent = payload.new.total_shares || 0;
-                        document.getElementById('unique-users').textContent = payload.new.unique_users || 0;
-                        // Recalculer le taux de conversion (nécessite aussi les conversions VIP, mais on ne les a pas en temps réel ici)
+        let currentPeriod = 'today';
+        let customStart = null;
+        let customEnd = null;
+
+        function getDateRange(period) {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            let start, end;
+
+            switch (period) {
+                case 'today':
+                    start = today;
+                    end = new Date(today.getTime() + 24*60*60*1000 - 1);
+                    break;
+                case 'yesterday':
+                    start = new Date(today.getTime() - 24*60*60*1000);
+                    end = new Date(today.getTime() - 1);
+                    break;
+                case 'currentWeek':
+                    const dayOfWeek = today.getDay() || 7;
+                    const monday = new Date(today);
+                    monday.setDate(today.getDate() - dayOfWeek + 1);
+                    start = monday;
+                    end = new Date(today.getTime() + 24*60*60*1000 - 1);
+                    break;
+                case 'lastWeek':
+                    const lastMonday = new Date(today);
+                    lastMonday.setDate(today.getDate() - (today.getDay() || 7) - 6);
+                    start = lastMonday;
+                    end = new Date(lastMonday.getTime() + 7*24*60*60*1000 - 1);
+                    break;
+                case 'currentMonth':
+                    start = new Date(today.getFullYear(), today.getMonth(), 1);
+                    end = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
+                    break;
+                case 'lastMonth':
+                    start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    end = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59);
+                    break;
+                case 'currentYear':
+                    start = new Date(today.getFullYear(), 0, 1);
+                    end = new Date(today.getFullYear(), 11, 31, 23, 59, 59);
+                    break;
+                case 'lastYear':
+                    start = new Date(today.getFullYear() - 1, 0, 1);
+                    end = new Date(today.getFullYear() - 1, 11, 31, 23, 59, 59);
+                    break;
+                case 'custom':
+                    if (customStart && customEnd) {
+                        start = new Date(customStart);
+                        end = new Date(customEnd);
+                        end.setHours(23, 59, 59);
+                    } else {
+                        start = today;
+                        end = new Date(today.getTime() + 24*60*60*1000 - 1);
                     }
-                )
-                .subscribe();
+                    break;
+                default:
+                    start = today;
+                    end = new Date(today.getTime() + 24*60*60*1000 - 1);
+            }
+            return { start, end };
+        }
+
+        // =======================================================
+        // CHARGEMENT DES STATISTIQUES
+        // =======================================================
+        async function loadStats(period) {
+            if (!supabaseAvailable) return;
+            const { start, end } = getDateRange(period);
+            const startISO = start.toISOString();
+            const endISO = end.toISOString();
+
+            try {
+                // Pages vues
+                const { count: views, error: errViews } = await supabase
+                    .from('analytics')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('event_type', 'visit')
+                    .gte('created_at', startISO)
+                    .lte('created_at', endISO);
+                if (!errViews) document.getElementById('views').textContent = views || 0;
+
+                // Clics pronostics
+                const { count: clicks, error: errClicks } = await supabase
+                    .from('analytics')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('event_type', 'click_pronostic')
+                    .gte('created_at', startISO)
+                    .lte('created_at', endISO);
+                if (!errClicks) document.getElementById('clicks').textContent = clicks || 0;
+
+                // Partages WhatsApp
+                const { count: shares, error: errShares } = await supabase
+                    .from('analytics')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('event_type', 'share_whatsapp')
+                    .gte('created_at', startISO)
+                    .lte('created_at', endISO);
+                if (!errShares) document.getElementById('shares').textContent = shares || 0;
+
+                // Conversions VIP
+                const { count: vip, error: errVip } = await supabase
+                    .from('analytics')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('event_type', 'vip_conversion')
+                    .gte('created_at', startISO)
+                    .lte('created_at', endISO);
+                if (!errVip) document.getElementById('vip').textContent = vip || 0;
+
+                // Utilisateurs uniques (distinct user_id)
+                const { data: uniqueData, error: errUnique } = await supabase
+                    .from('analytics')
+                    .select('user_id')
+                    .gte('created_at', startISO)
+                    .lte('created_at', endISO);
+                const uniqueUsers = uniqueData ? new Set(uniqueData.map(u => u.user_id)).size : 0;
+                document.getElementById('unique-users').textContent = uniqueUsers;
+
+                // Taux de conversion VIP
+                const viewsCount = parseInt(document.getElementById('views').textContent) || 0;
+                const vipCount = parseInt(document.getElementById('vip').textContent) || 0;
+                const conversionRate = viewsCount > 0 ? ((vipCount / viewsCount) * 100).toFixed(2) : 0;
+                document.getElementById('conversion-rate').textContent = conversionRate + '%';
+
+                // Mettre à jour les graphiques
+                await updateCharts(startISO, endISO);
+
+            } catch (e) {
+                console.error('Erreur chargement stats:', e);
+            }
+        }
+
+        // =======================================================
+        // GRAPHIQUES
+        // =======================================================
+        let visitsChart, pagesChart;
+
+        function initCharts() {
+            const ctxVisits = document.getElementById('visitsChart')?.getContext('2d');
+            const ctxPages = document.getElementById('pagesChart')?.getContext('2d');
+            if (ctxVisits) {
+                visitsChart = new Chart(ctxVisits, {
+                    type: 'line',
+                    data: { labels: [], datasets: [{ label: 'Visites', data: [], borderColor: '#D4AF37', backgroundColor: 'rgba(212,175,55,0.1)', tension: 0.4 }] },
+                    options: { responsive: true, plugins: { legend: { labels: { color: '#FFF' } } }, scales: { x: { ticks: { color: '#CCC' } }, y: { ticks: { color: '#CCC' } } } }
+                });
+            }
+            if (ctxPages) {
+                pagesChart = new Chart(ctxPages, {
+                    type: 'doughnut',
+                    data: { labels: [], datasets: [{ data: [], backgroundColor: ['#D4AF37', '#4CAF50', '#2196F3', '#FF9800', '#9C27B0'], borderWidth: 0 }] },
+                    options: { responsive: true, plugins: { legend: { labels: { color: '#FFF' } } } }
+                });
+            }
+        }
+
+        async function updateCharts(startISO, endISO) {
+            if (!supabaseAvailable || !visitsChart || !pagesChart) return;
+            try {
+                const { data: events, error } = await supabase
+                    .from('analytics')
+                    .select('created_at, page')
+                    .eq('event_type', 'visit')
+                    .gte('created_at', startISO)
+                    .lte('created_at', endISO);
+                if (error) throw error;
+
+                // Grouper par jour
+                const visitsByDay = {};
+                events.forEach(e => {
+                    const day = e.created_at.split('T')[0];
+                    visitsByDay[day] = (visitsByDay[day] || 0) + 1;
+                });
+                const labels = Object.keys(visitsByDay).sort();
+                const data = labels.map(l => visitsByDay[l]);
+                visitsChart.data.labels = labels;
+                visitsChart.data.datasets[0].data = data;
+                visitsChart.update();
+
+                // Répartition par page
+                const pageCounts = {};
+                events.forEach(e => {
+                    if (e.page) pageCounts[e.page] = (pageCounts[e.page] || 0) + 1;
+                });
+                pagesChart.data.labels = Object.keys(pageCounts);
+                pagesChart.data.datasets[0].data = Object.values(pageCounts);
+                pagesChart.update();
+
+            } catch (e) {
+                console.error('Erreur mise à jour graphiques:', e);
+            }
+        }
+
+        // =======================================================
+        // SÉLECTEUR DE PÉRIODE
+        // =======================================================
+        function initPeriodSelector() {
+            const periodSelect = document.getElementById('period-select');
+            const customRange = document.getElementById('custom-range');
+            const startDate = document.getElementById('start-date');
+            const endDate = document.getElementById('end-date');
+            const applyCustom = document.getElementById('apply-custom');
+
+            periodSelect.addEventListener('change', () => {
+                currentPeriod = periodSelect.value;
+                if (currentPeriod === 'custom') {
+                    customRange.style.display = 'flex';
+                } else {
+                    customRange.style.display = 'none';
+                    loadStats(currentPeriod);
+                }
+            });
+
+            applyCustom.addEventListener('click', () => {
+                customStart = startDate.value;
+                customEnd = endDate.value;
+                if (customStart && customEnd) {
+                    loadStats('custom');
+                } else {
+                    alert('Veuillez sélectionner une période valide.');
+                }
+            });
+
+            // Chargement initial
+            loadStats(currentPeriod);
+        }
+
+        // =======================================================
+        // RAFRAÎCHISSEMENT AUTOMATIQUE
+        // =======================================================
+        function startAutoRefresh() {
+            setInterval(() => {
+                if (currentPeriod === 'custom') return;
+                loadStats(currentPeriod);
+            }, 30000); // toutes les 30 secondes
         }
 
         // =======================================================
         // INITIALISATION
         // =======================================================
-        document.addEventListener('DOMContentLoaded', async () => {
-            await loadStats();
-            await initOnlineUsers();
-            subscribeToUpdates();
-        });
+        (async function() {
+            await initSupabase();
+            if (supabaseAvailable) {
+                initCharts();
+                await initOnlineUsers();
+                initPeriodSelector();
+                startAutoRefresh();
+            }
+        })();
     </script>
 </body>
 </html>
