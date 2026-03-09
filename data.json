@@ -1500,81 +1500,6 @@
       "trap_detected": false
     },
     {
-      "id": 4492168,
-      "date": "2026-03-08",
-      "event_date": "2026-03-08T14:00:00+00:00",
-      "home_team": "KF Tirana",
-      "away_team": "Af Elbasani",
-      "home_logo": "assets/images/logos/competitor_16051.png",
-      "away_logo": "assets/images/logos/competitor_77937.png",
-      "league": "Abissnet Superiore",
-      "league_logo": "assets/images/logos/competitions/competition_5794.png",
-      "venue": "",
-      "status": "Ended",
-      "home_score": 0,
-      "away_score": 1,
-      "h2h_analysis": {
-        "total_matches": 3,
-        "home_wins": 0.0,
-        "away_wins": 2.7,
-        "draws": 1.5,
-        "home_dominance": 0.0,
-        "away_dominance": 0.643,
-        "draw_rate": 0.357
-      },
-      "home_form": {
-        "wins": 0.0,
-        "draws": 0.5,
-        "losses": 0.5,
-        "goals_for": 1.11,
-        "goals_against": 2.3,
-        "form_score": 0.166,
-        "matches_used": 5
-      },
-      "away_form": {
-        "wins": 0.11,
-        "draws": 0.89,
-        "losses": 0.0,
-        "goals_for": 1.6,
-        "goals_against": 1.26,
-        "form_score": 0.409,
-        "matches_used": 5
-      },
-      "poisson_probs": {
-        "home": 0.229,
-        "draw": 0.219,
-        "away": 0.548
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "confidence": 64,
-        "odds": 1.45
-      },
-      "xpronos_score": 53,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "pro",
-      "verified_double": true,
-      "verified_btts": false,
-      "verified_over": false,
-      "odds": {
-        "home": 2.8,
-        "draw": 3.1,
-        "away": 2.25
-      },
-      "public_votes": null,
-      "value_bet": false,
-      "is_finished": true,
-      "final_score": 44.6,
-      "ai_score": 40.4,
-      "elo_home": 1533,
-      "elo_away": 1581,
-      "xg_home": 1.19,
-      "xg_away": 1.95,
-      "fatigue_home": 5,
-      "fatigue_away": 5,
-      "trap_detected": false
-    },
-    {
       "id": 4670805,
       "date": "2026-03-07",
       "event_date": "2026-03-07T11:00:00+00:00",
@@ -1703,6 +1628,81 @@
       "value_bet": true,
       "is_finished": true,
       "final_score": 44.6
+    },
+    {
+      "id": 4492168,
+      "date": "2026-03-08",
+      "event_date": "2026-03-08T14:00:00+00:00",
+      "home_team": "KF Tirana",
+      "away_team": "Af Elbasani",
+      "home_logo": "assets/images/logos/competitor_16051.png",
+      "away_logo": "assets/images/logos/competitor_77937.png",
+      "league": "Abissnet Superiore",
+      "league_logo": "assets/images/logos/competitions/competition_5794.png",
+      "venue": "",
+      "status": "Ended",
+      "home_score": 0,
+      "away_score": 1,
+      "h2h_analysis": {
+        "total_matches": 3,
+        "home_wins": 0.0,
+        "away_wins": 2.7,
+        "draws": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.643,
+        "draw_rate": 0.357
+      },
+      "home_form": {
+        "wins": 0.0,
+        "draws": 0.5,
+        "losses": 0.5,
+        "goals_for": 1.11,
+        "goals_against": 2.3,
+        "form_score": 0.166,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.11,
+        "draws": 0.89,
+        "losses": 0.0,
+        "goals_for": 1.6,
+        "goals_against": 1.26,
+        "form_score": 0.409,
+        "matches_used": 5
+      },
+      "poisson_probs": {
+        "home": 0.229,
+        "draw": 0.219,
+        "away": 0.548
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "confidence": 64,
+        "odds": 1.45
+      },
+      "xpronos_score": 53,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
+      "verified_double": true,
+      "verified_btts": false,
+      "verified_over": false,
+      "odds": {
+        "home": 2.8,
+        "draw": 3.1,
+        "away": 2.25
+      },
+      "public_votes": null,
+      "value_bet": false,
+      "is_finished": true,
+      "final_score": 44.6,
+      "ai_score": 40.4,
+      "elo_home": 1533,
+      "elo_away": 1581,
+      "xg_home": 1.19,
+      "xg_away": 1.95,
+      "fatigue_home": 5,
+      "fatigue_away": 5,
+      "trap_detected": false
     },
     {
       "id": 4659410,
@@ -2610,9 +2610,9 @@
       "verified_btts": false,
       "verified_over": false,
       "odds": {
-        "home": 1.67,
-        "draw": 3.6,
-        "away": 4.1
+        "home": 1.75,
+        "draw": 3.5,
+        "away": 3.75
       },
       "public_votes": null,
       "value_bet": false,
@@ -2700,6 +2700,81 @@
       "xg_away": 1.57,
       "fatigue_home": 2,
       "fatigue_away": 3,
+      "trap_detected": false
+    },
+    {
+      "id": 4659417,
+      "date": "2026-03-09",
+      "event_date": "2026-03-09T02:00:00+00:00",
+      "home_team": "The Town FC",
+      "away_team": "Los Angeles FC II",
+      "home_logo": "assets/images/logos/competitor_71175.png",
+      "away_logo": "assets/images/logos/competitor_74124.png",
+      "league": "MLS Next Pro",
+      "league_logo": "assets/images/logos/competitions/competition_7826.png",
+      "venue": "",
+      "status": "Ended",
+      "home_score": 4,
+      "away_score": 1,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 2.2,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "draw_rate": 0.0
+      },
+      "home_form": {
+        "wins": 0.12,
+        "draws": 0.18,
+        "losses": 0.69,
+        "goals_for": 1.22,
+        "goals_against": 1.42,
+        "form_score": 0.185,
+        "matches_used": 4
+      },
+      "away_form": {
+        "wins": 0.0,
+        "draws": 0.64,
+        "losses": 0.36,
+        "goals_for": 1.5,
+        "goals_against": 2.26,
+        "form_score": 0.213,
+        "matches_used": 5
+      },
+      "poisson_probs": {
+        "home": 0.442,
+        "draw": 0.232,
+        "away": 0.324
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "confidence": 71,
+        "odds": 1.45
+      },
+      "xpronos_score": 45,
+      "badge": "",
+      "category": "simple",
+      "verified_double": true,
+      "verified_btts": false,
+      "verified_over": false,
+      "odds": {
+        "home": 1.5,
+        "draw": 4.5,
+        "away": 4.2
+      },
+      "public_votes": null,
+      "value_bet": false,
+      "is_finished": true,
+      "final_score": 41.2,
+      "ai_score": 39.3,
+      "elo_home": 1537,
+      "elo_away": 1542,
+      "xg_home": 1.74,
+      "xg_away": 1.46,
+      "fatigue_home": 4,
+      "fatigue_away": 5,
       "trap_detected": false
     },
     {
@@ -2841,81 +2916,6 @@
       "final_score": 41.2
     },
     {
-      "id": 4518819,
-      "date": "2026-03-09",
-      "event_date": "2026-03-09T14:00:00+00:00",
-      "home_team": "Birmingham U21",
-      "away_team": "Chelsea U21",
-      "home_logo": "assets/images/logos/competitor_76614.png",
-      "away_logo": "assets/images/logos/competitor_50768.png",
-      "league": "Premier League 2 - Regular Season",
-      "league_logo": "assets/images/logos/competitions/competition_7623.png",
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 0,
-        "home_wins": 0,
-        "away_wins": 0,
-        "draws": 0,
-        "home_dominance": 0.5835019139699982,
-        "away_dominance": 0.1849185086183209,
-        "draw_rate": 0.22896683853694458
-      },
-      "home_form": {
-        "wins": 1.0,
-        "draws": 0.0,
-        "losses": 0.0,
-        "goals_for": 3.2,
-        "goals_against": 0.6,
-        "form_score": 1.0,
-        "matches_used": 2
-      },
-      "away_form": {
-        "wins": 0.6,
-        "draws": 0.0,
-        "losses": 0.4,
-        "goals_for": 1.2,
-        "goals_against": 0.4,
-        "form_score": 0.6,
-        "matches_used": 2
-      },
-      "poisson_probs": {
-        "home": 0.584,
-        "draw": 0.229,
-        "away": 0.185
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "confidence": 60,
-        "odds": 1.45
-      },
-      "xpronos_score": 45,
-      "badge": "",
-      "category": "simple",
-      "verified_double": false,
-      "verified_btts": false,
-      "verified_over": false,
-      "odds": {
-        "home": 7.5,
-        "draw": 6,
-        "away": 1.22
-      },
-      "public_votes": null,
-      "value_bet": true,
-      "is_finished": false,
-      "final_score": 41.0,
-      "ai_score": 56.0,
-      "elo_home": 1700,
-      "elo_away": 1620,
-      "xg_home": 1.8,
-      "xg_away": 0.9,
-      "fatigue_home": 2,
-      "fatigue_away": 2,
-      "trap_detected": false
-    },
-    {
       "id": 4468178,
       "date": "2026-03-08",
       "event_date": "2026-03-08T15:15:00+00:00",
@@ -2988,6 +2988,81 @@
       "xg_away": 1.02,
       "fatigue_home": 3,
       "fatigue_away": 5,
+      "trap_detected": false
+    },
+    {
+      "id": 4518819,
+      "date": "2026-03-09",
+      "event_date": "2026-03-09T14:00:00+00:00",
+      "home_team": "Birmingham U21",
+      "away_team": "Chelsea U21",
+      "home_logo": "assets/images/logos/competitor_76614.png",
+      "away_logo": "assets/images/logos/competitor_50768.png",
+      "league": "Premier League 2 - Regular Season",
+      "league_logo": "assets/images/logos/competitions/competition_7623.png",
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 0,
+        "home_wins": 0,
+        "away_wins": 0,
+        "draws": 0,
+        "home_dominance": 0.5835019139699982,
+        "away_dominance": 0.1849185086183209,
+        "draw_rate": 0.22896683853694458
+      },
+      "home_form": {
+        "wins": 1.0,
+        "draws": 0.0,
+        "losses": 0.0,
+        "goals_for": 3.2,
+        "goals_against": 0.6,
+        "form_score": 1.0,
+        "matches_used": 2
+      },
+      "away_form": {
+        "wins": 0.6,
+        "draws": 0.0,
+        "losses": 0.4,
+        "goals_for": 1.2,
+        "goals_against": 0.4,
+        "form_score": 0.6,
+        "matches_used": 2
+      },
+      "poisson_probs": {
+        "home": 0.584,
+        "draw": 0.229,
+        "away": 0.185
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "confidence": 60,
+        "odds": 1.45
+      },
+      "xpronos_score": 45,
+      "badge": "",
+      "category": "simple",
+      "verified_double": false,
+      "verified_btts": false,
+      "verified_over": false,
+      "odds": {
+        "home": 7,
+        "draw": 5.75,
+        "away": 1.25
+      },
+      "public_votes": null,
+      "value_bet": true,
+      "is_finished": false,
+      "final_score": 41.0,
+      "ai_score": 56.0,
+      "elo_home": 1700,
+      "elo_away": 1620,
+      "xg_home": 1.8,
+      "xg_away": 0.9,
+      "fatigue_home": 2,
+      "fatigue_away": 2,
       "trap_detected": false
     },
     {
@@ -3546,6 +3621,286 @@
   "categories": {
     "simple": [
       {
+        "id": 4656137,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T17:00:00+00:00",
+        "home_team": "Hapoel Petah Tikva U19",
+        "away_team": "Hapoel Tel Aviv U19",
+        "home_logo": "assets/images/logos/competitor_8817.png",
+        "away_logo": "assets/images/logos/competitor_8175.png",
+        "league": "Youth League - Championship Round",
+        "league_logo": "assets/images/logos/competitions/competition_525.png",
+        "venue": "",
+        "status": "Postponed",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 0,
+          "home_wins": 0,
+          "away_wins": 0,
+          "draws": 0,
+          "home_dominance": 0.11813322289219379,
+          "away_dominance": 0.6549047326013276,
+          "draw_rate": 0.22479264461298615
+        },
+        "home_form": {
+          "wins": 0.53,
+          "draws": 0.0,
+          "losses": 0.47,
+          "goals_for": 1.16,
+          "goals_against": 1.89,
+          "form_score": 0.526,
+          "matches_used": 3
+        },
+        "away_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 1.6,
+          "goals_against": 0.0,
+          "form_score": 1.0,
+          "matches_used": 2
+        },
+        "poisson_probs": {
+          "home": 0.118,
+          "draw": 0.225,
+          "away": 0.655
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 55,
+          "odds": 1.6
+        },
+        "xpronos_score": 45,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": null,
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 38.0
+      },
+      {
+        "id": 4539484,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T13:15:00+00:00",
+        "home_team": "CSKA 1948 Sofia",
+        "away_team": "Botev Plovdiv",
+        "home_logo": "assets/images/logos/competitor_53248.png",
+        "away_logo": "assets/images/logos/competitor_2286.png",
+        "league": "Parva Liga",
+        "league_logo": "assets/images/logos/competitions/competition_163.png",
+        "venue": "",
+        "status": "Ended",
+        "home_score": 0,
+        "away_score": 0,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 0.0,
+          "away_wins": 1.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draw_rate": 0.0
+        },
+        "home_form": {
+          "wins": 0.47,
+          "draws": 0.0,
+          "losses": 0.53,
+          "goals_for": 2.21,
+          "goals_against": 0.84,
+          "form_score": 0.474,
+          "matches_used": 3
+        },
+        "away_form": {
+          "wins": 0.5,
+          "draws": 0.08,
+          "losses": 0.43,
+          "goals_for": 1.24,
+          "goals_against": 0.67,
+          "form_score": 0.523,
+          "matches_used": 5
+        },
+        "poisson_probs": {
+          "home": 0.462,
+          "draw": 0.265,
+          "away": 0.273
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 68,
+          "odds": 1.6
+        },
+        "xpronos_score": 45,
+        "badge": "",
+        "category": "simple",
+        "verified_double": true,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 1.83,
+          "draw": 3.6,
+          "away": 4.1
+        },
+        "public_votes": null,
+        "value_bet": true,
+        "is_finished": true,
+        "final_score": 42.6,
+        "ai_score": 38.4,
+        "elo_home": 1594,
+        "elo_away": 1604,
+        "xg_home": 1.44,
+        "xg_away": 1.04,
+        "fatigue_home": 3,
+        "fatigue_away": 5,
+        "trap_detected": false
+      },
+      {
+        "id": 4637820,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T09:00:00+00:00",
+        "home_team": "Croydon Kings",
+        "away_team": "Adelaide City",
+        "home_logo": "assets/images/logos/competitor_26298.png",
+        "away_logo": "assets/images/logos/competitor_29184.png",
+        "league": "NPL South Australian",
+        "league_logo": null,
+        "venue": "",
+        "status": "Ended",
+        "home_score": 0,
+        "away_score": 4,
+        "h2h_analysis": {
+          "total_matches": 0,
+          "home_wins": 0,
+          "away_wins": 0,
+          "draws": 0,
+          "home_dominance": 0.6069536552623982,
+          "away_dominance": 0.19507580572554967,
+          "draw_rate": 0.18438988670145004
+        },
+        "home_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 3.6,
+          "goals_against": 1.0,
+          "form_score": 1.0,
+          "matches_used": 2
+        },
+        "away_form": {
+          "wins": 0.79,
+          "draws": 0.0,
+          "losses": 0.21,
+          "goals_for": 1.68,
+          "goals_against": 1.32,
+          "form_score": 0.789,
+          "matches_used": 3
+        },
+        "poisson_probs": {
+          "home": 0.607,
+          "draw": 0.184,
+          "away": 0.195
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 70,
+          "odds": 1.45
+        },
+        "xpronos_score": 47,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 3.1,
+          "draw": 3.6,
+          "away": 1.95
+        },
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 42.2
+      },
+      {
+        "id": 4659417,
+        "date": "2026-03-09",
+        "event_date": "2026-03-09T02:00:00+00:00",
+        "home_team": "The Town FC",
+        "away_team": "Los Angeles FC II",
+        "home_logo": "assets/images/logos/competitor_71175.png",
+        "away_logo": "assets/images/logos/competitor_74124.png",
+        "league": "MLS Next Pro",
+        "league_logo": "assets/images/logos/competitions/competition_7826.png",
+        "venue": "",
+        "status": "Ended",
+        "home_score": 4,
+        "away_score": 1,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.2,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "draw_rate": 0.0
+        },
+        "home_form": {
+          "wins": 0.12,
+          "draws": 0.18,
+          "losses": 0.69,
+          "goals_for": 1.22,
+          "goals_against": 1.42,
+          "form_score": 0.185,
+          "matches_used": 4
+        },
+        "away_form": {
+          "wins": 0.0,
+          "draws": 0.64,
+          "losses": 0.36,
+          "goals_for": 1.5,
+          "goals_against": 2.26,
+          "form_score": 0.213,
+          "matches_used": 5
+        },
+        "poisson_probs": {
+          "home": 0.442,
+          "draw": 0.232,
+          "away": 0.324
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 71,
+          "odds": 1.45
+        },
+        "xpronos_score": 45,
+        "badge": "",
+        "category": "simple",
+        "verified_double": true,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 1.5,
+          "draw": 4.5,
+          "away": 4.2
+        },
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 41.2,
+        "ai_score": 39.3,
+        "elo_home": 1537,
+        "elo_away": 1542,
+        "xg_home": 1.74,
+        "xg_away": 1.46,
+        "fatigue_home": 4,
+        "fatigue_away": 5,
+        "trap_detected": false
+      },
+      {
         "id": 4681946,
         "date": "2026-03-08",
         "event_date": "2026-03-08T21:00:00+00:00",
@@ -3830,491 +4185,6 @@
         "final_score": 45.6
       },
       {
-        "id": 4518271,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T16:00:00+00:00",
-        "home_team": "Racing de Veracruz",
-        "away_team": "Inter Playa del Carmen",
-        "home_logo": "assets/images/logos/competitor_76474.png",
-        "away_logo": "assets/images/logos/competitor_57674.png",
-        "league": "Liga Premier - Serie A",
-        "league_logo": "assets/images/logos/competitions/competition_7306.png",
-        "venue": "",
-        "status": "Ended",
-        "home_score": 5,
-        "away_score": 0,
-        "h2h_analysis": {
-          "total_matches": 0,
-          "home_wins": 0,
-          "away_wins": 0,
-          "draws": 0,
-          "home_dominance": 0.562488581911067,
-          "away_dominance": 0.1438144297422484,
-          "draw_rate": 0.29331035064762934
-        },
-        "home_form": {
-          "wins": 1.0,
-          "draws": 0.0,
-          "losses": 0.0,
-          "goals_for": 2.58,
-          "goals_against": 0.0,
-          "form_score": 1.0,
-          "matches_used": 3
-        },
-        "away_form": {
-          "wins": 1.0,
-          "draws": 0.0,
-          "losses": 0.0,
-          "goals_for": 1.0,
-          "goals_against": 0.0,
-          "form_score": 1.0,
-          "matches_used": 3
-        },
-        "poisson_probs": {
-          "home": 0.562,
-          "draw": 0.293,
-          "away": 0.144
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "confidence": 55,
-          "odds": 1.45
-        },
-        "xpronos_score": 48,
-        "badge": "",
-        "category": "simple",
-        "verified_double": true,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": null,
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": true,
-        "final_score": 39.8
-      },
-      {
-        "id": 4680443,
-        "date": "2026-03-08",
-        "event_date": "2026-03-08T19:00:00+00:00",
-        "home_team": "Porto Vitória",
-        "away_team": "Vitória/ES",
-        "home_logo": "assets/images/logos/competitor_72672.png",
-        "away_logo": "assets/images/logos/competitor_18912.png",
-        "league": "Capixaba - Semi Finals",
-        "league_logo": "assets/images/logos/competitions/competition_5064.png",
-        "venue": "",
-        "status": "Ended",
-        "home_score": 0,
-        "away_score": 4,
-        "h2h_analysis": {
-          "total_matches": 0,
-          "home_wins": 0,
-          "away_wins": 0,
-          "draws": 0,
-          "home_dominance": 0.1080143452833107,
-          "away_dominance": 0.7085914997783997,
-          "draw_rate": 0.17452302449179152
-        },
-        "home_form": {
-          "wins": 0.55,
-          "draws": 0.26,
-          "losses": 0.19,
-          "goals_for": 0.91,
-          "goals_against": 0.55,
-          "form_score": 0.64,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 1.0,
-          "draws": 0.0,
-          "losses": 0.0,
-          "goals_for": 4.0,
-          "goals_against": 0.6,
-          "form_score": 1.0,
-          "matches_used": 2
-        },
-        "poisson_probs": {
-          "home": 0.108,
-          "draw": 0.175,
-          "away": 0.709
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 65,
-          "odds": 1.6
-        },
-        "xpronos_score": 46,
-        "badge": "",
-        "category": "simple",
-        "verified_double": true,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 2.75,
-          "draw": 3.1,
-          "away": 2.35
-        },
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": true,
-        "final_score": 40.6,
-        "ai_score": 37.9,
-        "elo_home": 1628,
-        "elo_away": 1700,
-        "xg_home": 0.76,
-        "xg_away": 2.27,
-        "fatigue_home": 5,
-        "fatigue_away": 2,
-        "trap_detected": false
-      },
-      {
-        "id": 4473675,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T13:00:00+00:00",
-        "home_team": "FC Erzgebirge Aue",
-        "away_team": "Aachen",
-        "home_logo": "assets/images/logos/competitor_363.png",
-        "away_logo": "assets/images/logos/competitor_357.png",
-        "league": "3. Liga",
-        "league_logo": "assets/images/logos/competitions/competition_34.png",
-        "venue": "",
-        "status": "Ended",
-        "home_score": 1,
-        "away_score": 3,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 2.5,
-          "away_wins": 0.0,
-          "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "draw_rate": 0.0
-        },
-        "home_form": {
-          "wins": 0.21,
-          "draws": 0.0,
-          "losses": 0.79,
-          "goals_for": 1.0,
-          "goals_against": 1.89,
-          "form_score": 0.211,
-          "matches_used": 3
-        },
-        "away_form": {
-          "wins": 0.19,
-          "draws": 0.26,
-          "losses": 0.55,
-          "goals_for": 1.31,
-          "goals_against": 1.68,
-          "form_score": 0.275,
-          "matches_used": 5
-        },
-        "poisson_probs": {
-          "home": 0.32,
-          "draw": 0.244,
-          "away": 0.434
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "confidence": 66,
-          "odds": 1.45
-        },
-        "xpronos_score": 46,
-        "badge": "",
-        "category": "simple",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 2.7,
-          "draw": 3.3,
-          "away": 2.25
-        },
-        "public_votes": null,
-        "value_bet": true,
-        "is_finished": true,
-        "final_score": 42.8
-      },
-      {
-        "id": 4518819,
-        "date": "2026-03-09",
-        "event_date": "2026-03-09T14:00:00+00:00",
-        "home_team": "Birmingham U21",
-        "away_team": "Chelsea U21",
-        "home_logo": "assets/images/logos/competitor_76614.png",
-        "away_logo": "assets/images/logos/competitor_50768.png",
-        "league": "Premier League 2 - Regular Season",
-        "league_logo": "assets/images/logos/competitions/competition_7623.png",
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 0,
-          "home_wins": 0,
-          "away_wins": 0,
-          "draws": 0,
-          "home_dominance": 0.5835019139699982,
-          "away_dominance": 0.1849185086183209,
-          "draw_rate": 0.22896683853694458
-        },
-        "home_form": {
-          "wins": 1.0,
-          "draws": 0.0,
-          "losses": 0.0,
-          "goals_for": 3.2,
-          "goals_against": 0.6,
-          "form_score": 1.0,
-          "matches_used": 2
-        },
-        "away_form": {
-          "wins": 0.6,
-          "draws": 0.0,
-          "losses": 0.4,
-          "goals_for": 1.2,
-          "goals_against": 0.4,
-          "form_score": 0.6,
-          "matches_used": 2
-        },
-        "poisson_probs": {
-          "home": 0.584,
-          "draw": 0.229,
-          "away": 0.185
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "confidence": 60,
-          "odds": 1.45
-        },
-        "xpronos_score": 45,
-        "badge": "",
-        "category": "simple",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 7.5,
-          "draw": 6,
-          "away": 1.22
-        },
-        "public_votes": null,
-        "value_bet": true,
-        "is_finished": false,
-        "final_score": 41.0,
-        "ai_score": 56.0,
-        "elo_home": 1700,
-        "elo_away": 1620,
-        "xg_home": 1.8,
-        "xg_away": 0.9,
-        "fatigue_home": 2,
-        "fatigue_away": 2,
-        "trap_detected": false
-      },
-      {
-        "id": 4656137,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T17:00:00+00:00",
-        "home_team": "Hapoel Petah Tikva U19",
-        "away_team": "Hapoel Tel Aviv U19",
-        "home_logo": "assets/images/logos/competitor_8817.png",
-        "away_logo": "assets/images/logos/competitor_8175.png",
-        "league": "Youth League - Championship Round",
-        "league_logo": "assets/images/logos/competitions/competition_525.png",
-        "venue": "",
-        "status": "Postponed",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 0,
-          "home_wins": 0,
-          "away_wins": 0,
-          "draws": 0,
-          "home_dominance": 0.11813322289219379,
-          "away_dominance": 0.6549047326013276,
-          "draw_rate": 0.22479264461298615
-        },
-        "home_form": {
-          "wins": 0.53,
-          "draws": 0.0,
-          "losses": 0.47,
-          "goals_for": 1.16,
-          "goals_against": 1.89,
-          "form_score": 0.526,
-          "matches_used": 3
-        },
-        "away_form": {
-          "wins": 1.0,
-          "draws": 0.0,
-          "losses": 0.0,
-          "goals_for": 1.6,
-          "goals_against": 0.0,
-          "form_score": 1.0,
-          "matches_used": 2
-        },
-        "poisson_probs": {
-          "home": 0.118,
-          "draw": 0.225,
-          "away": 0.655
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 55,
-          "odds": 1.6
-        },
-        "xpronos_score": 45,
-        "badge": "",
-        "category": "simple",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": null,
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": true,
-        "final_score": 38.0
-      },
-      {
-        "id": 4539484,
-        "date": "2026-03-08",
-        "event_date": "2026-03-08T13:15:00+00:00",
-        "home_team": "CSKA 1948 Sofia",
-        "away_team": "Botev Plovdiv",
-        "home_logo": "assets/images/logos/competitor_53248.png",
-        "away_logo": "assets/images/logos/competitor_2286.png",
-        "league": "Parva Liga",
-        "league_logo": "assets/images/logos/competitions/competition_163.png",
-        "venue": "",
-        "status": "Ended",
-        "home_score": 0,
-        "away_score": 0,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_wins": 0.0,
-          "away_wins": 1.0,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draw_rate": 0.0
-        },
-        "home_form": {
-          "wins": 0.47,
-          "draws": 0.0,
-          "losses": 0.53,
-          "goals_for": 2.21,
-          "goals_against": 0.84,
-          "form_score": 0.474,
-          "matches_used": 3
-        },
-        "away_form": {
-          "wins": 0.5,
-          "draws": 0.08,
-          "losses": 0.43,
-          "goals_for": 1.24,
-          "goals_against": 0.67,
-          "form_score": 0.523,
-          "matches_used": 5
-        },
-        "poisson_probs": {
-          "home": 0.462,
-          "draw": 0.265,
-          "away": 0.273
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 68,
-          "odds": 1.6
-        },
-        "xpronos_score": 45,
-        "badge": "",
-        "category": "simple",
-        "verified_double": true,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 1.83,
-          "draw": 3.6,
-          "away": 4.1
-        },
-        "public_votes": null,
-        "value_bet": true,
-        "is_finished": true,
-        "final_score": 42.6,
-        "ai_score": 38.4,
-        "elo_home": 1594,
-        "elo_away": 1604,
-        "xg_home": 1.44,
-        "xg_away": 1.04,
-        "fatigue_home": 3,
-        "fatigue_away": 5,
-        "trap_detected": false
-      },
-      {
-        "id": 4637820,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T09:00:00+00:00",
-        "home_team": "Croydon Kings",
-        "away_team": "Adelaide City",
-        "home_logo": "assets/images/logos/competitor_26298.png",
-        "away_logo": "assets/images/logos/competitor_29184.png",
-        "league": "NPL South Australian",
-        "league_logo": null,
-        "venue": "",
-        "status": "Ended",
-        "home_score": 0,
-        "away_score": 4,
-        "h2h_analysis": {
-          "total_matches": 0,
-          "home_wins": 0,
-          "away_wins": 0,
-          "draws": 0,
-          "home_dominance": 0.6069536552623982,
-          "away_dominance": 0.19507580572554967,
-          "draw_rate": 0.18438988670145004
-        },
-        "home_form": {
-          "wins": 1.0,
-          "draws": 0.0,
-          "losses": 0.0,
-          "goals_for": 3.6,
-          "goals_against": 1.0,
-          "form_score": 1.0,
-          "matches_used": 2
-        },
-        "away_form": {
-          "wins": 0.79,
-          "draws": 0.0,
-          "losses": 0.21,
-          "goals_for": 1.68,
-          "goals_against": 1.32,
-          "form_score": 0.789,
-          "matches_used": 3
-        },
-        "poisson_probs": {
-          "home": 0.607,
-          "draw": 0.184,
-          "away": 0.195
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "confidence": 70,
-          "odds": 1.45
-        },
-        "xpronos_score": 47,
-        "badge": "",
-        "category": "simple",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 3.1,
-          "draw": 3.6,
-          "away": 1.95
-        },
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": true,
-        "final_score": 42.2
-      },
-      {
         "id": 4670805,
         "date": "2026-03-07",
         "event_date": "2026-03-07T11:00:00+00:00",
@@ -4376,6 +4246,69 @@
         "value_bet": false,
         "is_finished": true,
         "final_score": 44.6
+      },
+      {
+        "id": 4518271,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T16:00:00+00:00",
+        "home_team": "Racing de Veracruz",
+        "away_team": "Inter Playa del Carmen",
+        "home_logo": "assets/images/logos/competitor_76474.png",
+        "away_logo": "assets/images/logos/competitor_57674.png",
+        "league": "Liga Premier - Serie A",
+        "league_logo": "assets/images/logos/competitions/competition_7306.png",
+        "venue": "",
+        "status": "Ended",
+        "home_score": 5,
+        "away_score": 0,
+        "h2h_analysis": {
+          "total_matches": 0,
+          "home_wins": 0,
+          "away_wins": 0,
+          "draws": 0,
+          "home_dominance": 0.562488581911067,
+          "away_dominance": 0.1438144297422484,
+          "draw_rate": 0.29331035064762934
+        },
+        "home_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 2.58,
+          "goals_against": 0.0,
+          "form_score": 1.0,
+          "matches_used": 3
+        },
+        "away_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 1.0,
+          "goals_against": 0.0,
+          "form_score": 1.0,
+          "matches_used": 3
+        },
+        "poisson_probs": {
+          "home": 0.562,
+          "draw": 0.293,
+          "away": 0.144
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 55,
+          "odds": 1.45
+        },
+        "xpronos_score": 48,
+        "badge": "",
+        "category": "simple",
+        "verified_double": true,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": null,
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 39.8
       },
       {
         "id": 4468178,
@@ -4587,6 +4520,81 @@
         "final_score": 39.0
       },
       {
+        "id": 4680443,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T19:00:00+00:00",
+        "home_team": "Porto Vitória",
+        "away_team": "Vitória/ES",
+        "home_logo": "assets/images/logos/competitor_72672.png",
+        "away_logo": "assets/images/logos/competitor_18912.png",
+        "league": "Capixaba - Semi Finals",
+        "league_logo": "assets/images/logos/competitions/competition_5064.png",
+        "venue": "",
+        "status": "Ended",
+        "home_score": 0,
+        "away_score": 4,
+        "h2h_analysis": {
+          "total_matches": 0,
+          "home_wins": 0,
+          "away_wins": 0,
+          "draws": 0,
+          "home_dominance": 0.1080143452833107,
+          "away_dominance": 0.7085914997783997,
+          "draw_rate": 0.17452302449179152
+        },
+        "home_form": {
+          "wins": 0.55,
+          "draws": 0.26,
+          "losses": 0.19,
+          "goals_for": 0.91,
+          "goals_against": 0.55,
+          "form_score": 0.64,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 4.0,
+          "goals_against": 0.6,
+          "form_score": 1.0,
+          "matches_used": 2
+        },
+        "poisson_probs": {
+          "home": 0.108,
+          "draw": 0.175,
+          "away": 0.709
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 65,
+          "odds": 1.6
+        },
+        "xpronos_score": 46,
+        "badge": "",
+        "category": "simple",
+        "verified_double": true,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 2.75,
+          "draw": 3.1,
+          "away": 2.35
+        },
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 40.6,
+        "ai_score": 37.9,
+        "elo_home": 1628,
+        "elo_away": 1700,
+        "xg_home": 0.76,
+        "xg_away": 2.27,
+        "fatigue_home": 5,
+        "fatigue_away": 2,
+        "trap_detected": false
+      },
+      {
         "id": 4618042,
         "date": "2026-03-07",
         "event_date": "2026-03-07T09:00:00+00:00",
@@ -4788,6 +4796,73 @@
         "final_score": 42.6
       },
       {
+        "id": 4473675,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T13:00:00+00:00",
+        "home_team": "FC Erzgebirge Aue",
+        "away_team": "Aachen",
+        "home_logo": "assets/images/logos/competitor_363.png",
+        "away_logo": "assets/images/logos/competitor_357.png",
+        "league": "3. Liga",
+        "league_logo": "assets/images/logos/competitions/competition_34.png",
+        "venue": "",
+        "status": "Ended",
+        "home_score": 1,
+        "away_score": 3,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.5,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "draw_rate": 0.0
+        },
+        "home_form": {
+          "wins": 0.21,
+          "draws": 0.0,
+          "losses": 0.79,
+          "goals_for": 1.0,
+          "goals_against": 1.89,
+          "form_score": 0.211,
+          "matches_used": 3
+        },
+        "away_form": {
+          "wins": 0.19,
+          "draws": 0.26,
+          "losses": 0.55,
+          "goals_for": 1.31,
+          "goals_against": 1.68,
+          "form_score": 0.275,
+          "matches_used": 5
+        },
+        "poisson_probs": {
+          "home": 0.32,
+          "draw": 0.244,
+          "away": 0.434
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 66,
+          "odds": 1.45
+        },
+        "xpronos_score": 46,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 2.7,
+          "draw": 3.3,
+          "away": 2.25
+        },
+        "public_votes": null,
+        "value_bet": true,
+        "is_finished": true,
+        "final_score": 42.8
+      },
+      {
         "id": 4618060,
         "date": "2026-03-07",
         "event_date": "2026-03-07T17:00:00+00:00",
@@ -4912,9 +4987,9 @@
         "verified_btts": false,
         "verified_over": false,
         "odds": {
-          "home": 1.67,
-          "draw": 3.6,
-          "away": 4.1
+          "home": 1.75,
+          "draw": 3.5,
+          "away": 3.75
         },
         "public_votes": null,
         "value_bet": false,
@@ -4927,6 +5002,81 @@
         "xg_away": 1.01,
         "fatigue_home": 5,
         "fatigue_away": 5,
+        "trap_detected": false
+      },
+      {
+        "id": 4518819,
+        "date": "2026-03-09",
+        "event_date": "2026-03-09T14:00:00+00:00",
+        "home_team": "Birmingham U21",
+        "away_team": "Chelsea U21",
+        "home_logo": "assets/images/logos/competitor_76614.png",
+        "away_logo": "assets/images/logos/competitor_50768.png",
+        "league": "Premier League 2 - Regular Season",
+        "league_logo": "assets/images/logos/competitions/competition_7623.png",
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 0,
+          "home_wins": 0,
+          "away_wins": 0,
+          "draws": 0,
+          "home_dominance": 0.5835019139699982,
+          "away_dominance": 0.1849185086183209,
+          "draw_rate": 0.22896683853694458
+        },
+        "home_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 3.2,
+          "goals_against": 0.6,
+          "form_score": 1.0,
+          "matches_used": 2
+        },
+        "away_form": {
+          "wins": 0.6,
+          "draws": 0.0,
+          "losses": 0.4,
+          "goals_for": 1.2,
+          "goals_against": 0.4,
+          "form_score": 0.6,
+          "matches_used": 2
+        },
+        "poisson_probs": {
+          "home": 0.584,
+          "draw": 0.229,
+          "away": 0.185
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 60,
+          "odds": 1.45
+        },
+        "xpronos_score": 45,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 7,
+          "draw": 5.75,
+          "away": 1.25
+        },
+        "public_votes": null,
+        "value_bet": true,
+        "is_finished": false,
+        "final_score": 41.0,
+        "ai_score": 56.0,
+        "elo_home": 1700,
+        "elo_away": 1620,
+        "xg_home": 1.8,
+        "xg_away": 0.9,
+        "fatigue_home": 2,
+        "fatigue_away": 2,
         "trap_detected": false
       },
       {
@@ -4998,6 +5148,156 @@
       }
     ],
     "pro": [
+      {
+        "id": 4672529,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T14:00:00+00:00",
+        "home_team": "Independiente De La Chorrera U20",
+        "away_team": "Club Deportivo Bocas Fc",
+        "home_logo": "assets/images/logos/competitor_81768.png",
+        "away_logo": "assets/images/logos/competitor_81767.png",
+        "league": "Liga Prom - Clausura - Western Conference",
+        "league_logo": "assets/images/logos/competitions/competition_8124.png",
+        "venue": "",
+        "status": "Ended",
+        "home_score": 2,
+        "away_score": 2,
+        "h2h_analysis": {
+          "total_matches": 0,
+          "home_wins": 0,
+          "away_wins": 0,
+          "draws": 0,
+          "home_dominance": 0.6849586467557224,
+          "away_dominance": 0.09233692667017467,
+          "draw_rate": 0.10029799913827078
+        },
+        "home_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 7.2,
+          "goals_against": 0.4,
+          "form_score": 1.0,
+          "matches_used": 2
+        },
+        "away_form": {
+          "wins": 0.79,
+          "draws": 0.21,
+          "losses": 0.0,
+          "goals_for": 2.74,
+          "goals_against": 1.0,
+          "form_score": 0.86,
+          "matches_used": 3
+        },
+        "poisson_probs": {
+          "home": 0.685,
+          "draw": 0.1,
+          "away": 0.092
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 65,
+          "odds": 1.35
+        },
+        "xpronos_score": 48,
+        "badge": "",
+        "category": "pro",
+        "verified_double": true,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 2,
+          "draw": 3.6,
+          "away": 3
+        },
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 41.8,
+        "ai_score": 45.7,
+        "elo_home": 1700,
+        "elo_away": 1672,
+        "xg_home": 4.1,
+        "xg_away": 1.57,
+        "fatigue_home": 2,
+        "fatigue_away": 3,
+        "trap_detected": false
+      },
+      {
+        "id": 4650033,
+        "date": "2026-03-09",
+        "event_date": "2026-03-09T23:30:00+00:00",
+        "home_team": "Deportivo Recoleta",
+        "away_team": "Sportivo Ameliano",
+        "home_logo": "assets/images/logos/competitor_53209.png",
+        "away_logo": "assets/images/logos/competitor_56588.png",
+        "league": "Copa de Primera - Apertura",
+        "league_logo": "assets/images/logos/competitions/competition_621.png",
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 1.0,
+          "home_dominance": 0.6,
+          "away_dominance": 0.0,
+          "draw_rate": 0.4
+        },
+        "home_form": {
+          "wins": 0.54,
+          "draws": 0.0,
+          "losses": 0.46,
+          "goals_for": 1.68,
+          "goals_against": 1.27,
+          "form_score": 0.54,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.26,
+          "draws": 0.08,
+          "losses": 0.67,
+          "goals_for": 0.62,
+          "goals_against": 1.6,
+          "form_score": 0.281,
+          "matches_used": 5
+        },
+        "poisson_probs": {
+          "home": 0.535,
+          "draw": 0.246,
+          "away": 0.217
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 66,
+          "odds": 1.35
+        },
+        "xpronos_score": 50,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 2.88,
+          "draw": 3,
+          "away": 2.3
+        },
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": false,
+        "final_score": 43.2,
+        "ai_score": 52.8,
+        "elo_home": 1608,
+        "elo_away": 1556,
+        "xg_home": 1.64,
+        "xg_away": 0.95,
+        "fatigue_home": 5,
+        "fatigue_away": 5,
+        "trap_detected": false
+      },
       {
         "id": 4679731,
         "date": "2026-03-08",
@@ -5504,582 +5804,6 @@
         "trap_detected": false
       },
       {
-        "id": 4671919,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T22:00:00+00:00",
-        "home_team": "Raja Casablanca",
-        "away_team": "Olympique Safi",
-        "home_logo": "assets/images/logos/competitor_8204.png",
-        "away_logo": "assets/images/logos/competitor_8210.png",
-        "league": "Botola Pro",
-        "league_logo": "assets/images/logos/competitions/competition_557.png",
-        "venue": "",
-        "status": "Ended",
-        "home_score": 2,
-        "away_score": 0,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_wins": 2.3,
-          "away_wins": 0.0,
-          "draws": 1.0,
-          "home_dominance": 0.697,
-          "away_dominance": 0.0,
-          "draw_rate": 0.303
-        },
-        "home_form": {
-          "wins": 0.68,
-          "draws": 0.32,
-          "losses": 0.0,
-          "goals_for": 0.89,
-          "goals_against": 0.0,
-          "form_score": 0.789,
-          "matches_used": 3
-        },
-        "away_form": {
-          "wins": 0.19,
-          "draws": 0.55,
-          "losses": 0.26,
-          "goals_for": 1.0,
-          "goals_against": 0.87,
-          "form_score": 0.374,
-          "matches_used": 5
-        },
-        "poisson_probs": {
-          "home": 0.426,
-          "draw": 0.375,
-          "away": 0.199
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "confidence": 84,
-          "odds": 1.35
-        },
-        "xpronos_score": 59,
-        "badge": "",
-        "category": "pro",
-        "verified_double": true,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 1.5,
-          "draw": 3.4,
-          "away": 6.5
-        },
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": true,
-        "final_score": 52.2
-      },
-      {
-        "id": 4682474,
-        "date": "2026-03-08",
-        "event_date": "2026-03-08T21:00:00+00:00",
-        "home_team": "CD Fuerte San Francisco Morazan (W)",
-        "away_team": "Alianza (W)",
-        "home_logo": "assets/images/logos/competitor_85608.png",
-        "away_logo": "assets/images/logos/competitor_82137.png",
-        "league": "Liga Femenina",
-        "league_logo": "assets/images/logos/competitions/competition_8415.png",
-        "venue": "",
-        "status": "Ended",
-        "home_score": 0,
-        "away_score": 0,
-        "h2h_analysis": {
-          "total_matches": 0,
-          "home_wins": 0,
-          "away_wins": 0,
-          "draws": 0,
-          "home_dominance": 0.08712002986801849,
-          "away_dominance": 0.719534558674472,
-          "draw_rate": 0.10480501608397767
-        },
-        "home_form": {
-          "wins": 0.68,
-          "draws": 0.32,
-          "losses": 0.0,
-          "goals_for": 2.42,
-          "goals_against": 1.11,
-          "form_score": 0.789,
-          "matches_used": 3
-        },
-        "away_form": {
-          "wins": 1.0,
-          "draws": 0.0,
-          "losses": 0.0,
-          "goals_for": 6.43,
-          "goals_against": 0.25,
-          "form_score": 1.0,
-          "matches_used": 5
-        },
-        "poisson_probs": {
-          "home": 0.087,
-          "draw": 0.105,
-          "away": 0.72
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 65,
-          "odds": 1.45
-        },
-        "xpronos_score": 47,
-        "badge": "",
-        "category": "pro",
-        "verified_double": true,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": null,
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": true,
-        "final_score": 41.2,
-        "ai_score": 38.3,
-        "elo_home": 1657,
-        "elo_away": 1700,
-        "xg_home": 1.33,
-        "xg_away": 3.77,
-        "fatigue_home": 3,
-        "fatigue_away": 5,
-        "trap_detected": false
-      },
-      {
-        "id": 4459250,
-        "date": "2026-03-10",
-        "event_date": "2026-03-10T19:45:00+00:00",
-        "home_team": "H&W Welders",
-        "away_team": "Dundela FC",
-        "home_logo": "assets/images/logos/competitor_17041.png",
-        "away_logo": "assets/images/logos/competitor_13394.png",
-        "league": "NIFL Championship",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 2.5,
-          "away_wins": 0.0,
-          "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "draw_rate": 0.0
-        },
-        "home_form": {
-          "wins": 0.58,
-          "draws": 0.0,
-          "losses": 0.42,
-          "goals_for": 2.02,
-          "goals_against": 1.11,
-          "form_score": 0.585,
-          "matches_used": 4
-        },
-        "away_form": {
-          "wins": 0.47,
-          "draws": 0.0,
-          "losses": 0.53,
-          "goals_for": 1.63,
-          "goals_against": 1.89,
-          "form_score": 0.474,
-          "matches_used": 3
-        },
-        "poisson_probs": {
-          "home": 0.507,
-          "draw": 0.22,
-          "away": 0.268
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "confidence": 66,
-          "odds": 1.35
-        },
-        "xpronos_score": 52,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "pro",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": null,
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": false,
-        "final_score": 44.4,
-        "ai_score": 46.4,
-        "elo_home": 1617,
-        "elo_away": 1594,
-        "xg_home": 1.96,
-        "xg_away": 1.37,
-        "fatigue_home": 4,
-        "fatigue_away": 3,
-        "trap_detected": false
-      },
-      {
-        "id": 4680468,
-        "date": "2026-03-07",
-        "event_date": "2026-03-07T19:00:00+00:00",
-        "home_team": "Shabab Al Urdon",
-        "away_team": "Al Salt",
-        "home_logo": "assets/images/logos/competitor_8277.png",
-        "away_logo": "assets/images/logos/competitor_15387.png",
-        "league": "Pro League",
-        "league_logo": "assets/images/logos/competitions/competition_565.png",
-        "venue": "",
-        "status": "Ended",
-        "home_score": 0,
-        "away_score": 3,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_wins": 0.0,
-          "away_wins": 3.45,
-          "draws": 1.2,
-          "home_dominance": 0.0,
-          "away_dominance": 0.742,
-          "draw_rate": 0.258
-        },
-        "home_form": {
-          "wins": 0.0,
-          "draws": 0.54,
-          "losses": 0.46,
-          "goals_for": 0.69,
-          "goals_against": 1.34,
-          "form_score": 0.179,
-          "matches_used": 4
-        },
-        "away_form": {
-          "wins": 0.92,
-          "draws": 0.08,
-          "losses": 0.0,
-          "goals_for": 1.29,
-          "goals_against": 0.26,
-          "form_score": 0.949,
-          "matches_used": 5
-        },
-        "poisson_probs": {
-          "home": 0.134,
-          "draw": 0.289,
-          "away": 0.577
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 74,
-          "odds": 1.45
-        },
-        "xpronos_score": 59,
-        "badge": "",
-        "category": "pro",
-        "verified_double": true,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 3,
-          "draw": 2.9,
-          "away": 2.25
-        },
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": true,
-        "final_score": 50.2
-      },
-      {
-        "id": 4492168,
-        "date": "2026-03-08",
-        "event_date": "2026-03-08T14:00:00+00:00",
-        "home_team": "KF Tirana",
-        "away_team": "Af Elbasani",
-        "home_logo": "assets/images/logos/competitor_16051.png",
-        "away_logo": "assets/images/logos/competitor_77937.png",
-        "league": "Abissnet Superiore",
-        "league_logo": "assets/images/logos/competitions/competition_5794.png",
-        "venue": "",
-        "status": "Ended",
-        "home_score": 0,
-        "away_score": 1,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_wins": 0.0,
-          "away_wins": 2.7,
-          "draws": 1.5,
-          "home_dominance": 0.0,
-          "away_dominance": 0.643,
-          "draw_rate": 0.357
-        },
-        "home_form": {
-          "wins": 0.0,
-          "draws": 0.5,
-          "losses": 0.5,
-          "goals_for": 1.11,
-          "goals_against": 2.3,
-          "form_score": 0.166,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.11,
-          "draws": 0.89,
-          "losses": 0.0,
-          "goals_for": 1.6,
-          "goals_against": 1.26,
-          "form_score": 0.409,
-          "matches_used": 5
-        },
-        "poisson_probs": {
-          "home": 0.229,
-          "draw": 0.219,
-          "away": 0.548
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 64,
-          "odds": 1.45
-        },
-        "xpronos_score": 53,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "pro",
-        "verified_double": true,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 2.8,
-          "draw": 3.1,
-          "away": 2.25
-        },
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": true,
-        "final_score": 44.6,
-        "ai_score": 40.4,
-        "elo_home": 1533,
-        "elo_away": 1581,
-        "xg_home": 1.19,
-        "xg_away": 1.95,
-        "fatigue_home": 5,
-        "fatigue_away": 5,
-        "trap_detected": false
-      },
-      {
-        "id": 4510659,
-        "date": "2026-03-09",
-        "event_date": "2026-03-09T13:00:00+00:00",
-        "home_team": "Sileks Kratovo",
-        "away_team": "Vardar Skopje",
-        "home_logo": "assets/images/logos/competitor_12883.png",
-        "away_logo": "assets/images/logos/competitor_9337.png",
-        "league": "First League",
-        "league_logo": "assets/images/logos/competitions/competition_5632.png",
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.8,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draw_rate": 0.0
-        },
-        "home_form": {
-          "wins": 0.47,
-          "draws": 0.21,
-          "losses": 0.32,
-          "goals_for": 1.0,
-          "goals_against": 0.84,
-          "form_score": 0.544,
-          "matches_used": 3
-        },
-        "away_form": {
-          "wins": 0.43,
-          "draws": 0.5,
-          "losses": 0.08,
-          "goals_for": 2.26,
-          "goals_against": 1.19,
-          "form_score": 0.592,
-          "matches_used": 5
-        },
-        "poisson_probs": {
-          "home": 0.268,
-          "draw": 0.253,
-          "away": 0.477
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 66,
-          "odds": 1.45
-        },
-        "xpronos_score": 53,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "pro",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 3.9,
-          "draw": 3.5,
-          "away": 1.75
-        },
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": false,
-        "final_score": 45.0,
-        "ai_score": 41.0,
-        "elo_home": 1608,
-        "elo_away": 1618,
-        "xg_home": 1.09,
-        "xg_away": 1.55,
-        "fatigue_home": 3,
-        "fatigue_away": 5,
-        "trap_detected": false
-      },
-      {
-        "id": 4672529,
-        "date": "2026-03-08",
-        "event_date": "2026-03-08T14:00:00+00:00",
-        "home_team": "Independiente De La Chorrera U20",
-        "away_team": "Club Deportivo Bocas Fc",
-        "home_logo": "assets/images/logos/competitor_81768.png",
-        "away_logo": "assets/images/logos/competitor_81767.png",
-        "league": "Liga Prom - Clausura - Western Conference",
-        "league_logo": "assets/images/logos/competitions/competition_8124.png",
-        "venue": "",
-        "status": "Ended",
-        "home_score": 2,
-        "away_score": 2,
-        "h2h_analysis": {
-          "total_matches": 0,
-          "home_wins": 0,
-          "away_wins": 0,
-          "draws": 0,
-          "home_dominance": 0.6849586467557224,
-          "away_dominance": 0.09233692667017467,
-          "draw_rate": 0.10029799913827078
-        },
-        "home_form": {
-          "wins": 1.0,
-          "draws": 0.0,
-          "losses": 0.0,
-          "goals_for": 7.2,
-          "goals_against": 0.4,
-          "form_score": 1.0,
-          "matches_used": 2
-        },
-        "away_form": {
-          "wins": 0.79,
-          "draws": 0.21,
-          "losses": 0.0,
-          "goals_for": 2.74,
-          "goals_against": 1.0,
-          "form_score": 0.86,
-          "matches_used": 3
-        },
-        "poisson_probs": {
-          "home": 0.685,
-          "draw": 0.1,
-          "away": 0.092
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "confidence": 65,
-          "odds": 1.35
-        },
-        "xpronos_score": 48,
-        "badge": "",
-        "category": "pro",
-        "verified_double": true,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 2,
-          "draw": 3.6,
-          "away": 3
-        },
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": true,
-        "final_score": 41.8,
-        "ai_score": 45.7,
-        "elo_home": 1700,
-        "elo_away": 1672,
-        "xg_home": 4.1,
-        "xg_away": 1.57,
-        "fatigue_home": 2,
-        "fatigue_away": 3,
-        "trap_detected": false
-      },
-      {
-        "id": 4650033,
-        "date": "2026-03-09",
-        "event_date": "2026-03-09T23:30:00+00:00",
-        "home_team": "Deportivo Recoleta",
-        "away_team": "Sportivo Ameliano",
-        "home_logo": "assets/images/logos/competitor_53209.png",
-        "away_logo": "assets/images/logos/competitor_56588.png",
-        "league": "Copa de Primera - Apertura",
-        "league_logo": "assets/images/logos/competitions/competition_621.png",
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 1.5,
-          "away_wins": 0.0,
-          "draws": 1.0,
-          "home_dominance": 0.6,
-          "away_dominance": 0.0,
-          "draw_rate": 0.4
-        },
-        "home_form": {
-          "wins": 0.54,
-          "draws": 0.0,
-          "losses": 0.46,
-          "goals_for": 1.68,
-          "goals_against": 1.27,
-          "form_score": 0.54,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.26,
-          "draws": 0.08,
-          "losses": 0.67,
-          "goals_for": 0.62,
-          "goals_against": 1.6,
-          "form_score": 0.281,
-          "matches_used": 5
-        },
-        "poisson_probs": {
-          "home": 0.535,
-          "draw": 0.246,
-          "away": 0.217
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "confidence": 66,
-          "odds": 1.35
-        },
-        "xpronos_score": 50,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "pro",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 2.88,
-          "draw": 3,
-          "away": 2.3
-        },
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": false,
-        "final_score": 43.2,
-        "ai_score": 52.8,
-        "elo_home": 1608,
-        "elo_away": 1556,
-        "xg_home": 1.64,
-        "xg_away": 0.95,
-        "fatigue_home": 5,
-        "fatigue_away": 5,
-        "trap_detected": false
-      },
-      {
         "id": 4445498,
         "date": "2026-03-07",
         "event_date": "2026-03-07T19:15:00+00:00",
@@ -6145,6 +5869,73 @@
         "value_bet": true,
         "is_finished": true,
         "final_score": 47.2
+      },
+      {
+        "id": 4671919,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T22:00:00+00:00",
+        "home_team": "Raja Casablanca",
+        "away_team": "Olympique Safi",
+        "home_logo": "assets/images/logos/competitor_8204.png",
+        "away_logo": "assets/images/logos/competitor_8210.png",
+        "league": "Botola Pro",
+        "league_logo": "assets/images/logos/competitions/competition_557.png",
+        "venue": "",
+        "status": "Ended",
+        "home_score": 2,
+        "away_score": 0,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 2.3,
+          "away_wins": 0.0,
+          "draws": 1.0,
+          "home_dominance": 0.697,
+          "away_dominance": 0.0,
+          "draw_rate": 0.303
+        },
+        "home_form": {
+          "wins": 0.68,
+          "draws": 0.32,
+          "losses": 0.0,
+          "goals_for": 0.89,
+          "goals_against": 0.0,
+          "form_score": 0.789,
+          "matches_used": 3
+        },
+        "away_form": {
+          "wins": 0.19,
+          "draws": 0.55,
+          "losses": 0.26,
+          "goals_for": 1.0,
+          "goals_against": 0.87,
+          "form_score": 0.374,
+          "matches_used": 5
+        },
+        "poisson_probs": {
+          "home": 0.426,
+          "draw": 0.375,
+          "away": 0.199
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 84,
+          "odds": 1.35
+        },
+        "xpronos_score": 59,
+        "badge": "",
+        "category": "pro",
+        "verified_double": true,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 1.5,
+          "draw": 3.4,
+          "away": 6.5
+        },
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 52.2
       },
       {
         "id": 4673009,
@@ -6498,6 +6289,215 @@
         "final_score": 50.6
       },
       {
+        "id": 4682474,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T21:00:00+00:00",
+        "home_team": "CD Fuerte San Francisco Morazan (W)",
+        "away_team": "Alianza (W)",
+        "home_logo": "assets/images/logos/competitor_85608.png",
+        "away_logo": "assets/images/logos/competitor_82137.png",
+        "league": "Liga Femenina",
+        "league_logo": "assets/images/logos/competitions/competition_8415.png",
+        "venue": "",
+        "status": "Ended",
+        "home_score": 0,
+        "away_score": 0,
+        "h2h_analysis": {
+          "total_matches": 0,
+          "home_wins": 0,
+          "away_wins": 0,
+          "draws": 0,
+          "home_dominance": 0.08712002986801849,
+          "away_dominance": 0.719534558674472,
+          "draw_rate": 0.10480501608397767
+        },
+        "home_form": {
+          "wins": 0.68,
+          "draws": 0.32,
+          "losses": 0.0,
+          "goals_for": 2.42,
+          "goals_against": 1.11,
+          "form_score": 0.789,
+          "matches_used": 3
+        },
+        "away_form": {
+          "wins": 1.0,
+          "draws": 0.0,
+          "losses": 0.0,
+          "goals_for": 6.43,
+          "goals_against": 0.25,
+          "form_score": 1.0,
+          "matches_used": 5
+        },
+        "poisson_probs": {
+          "home": 0.087,
+          "draw": 0.105,
+          "away": 0.72
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 65,
+          "odds": 1.45
+        },
+        "xpronos_score": 47,
+        "badge": "",
+        "category": "pro",
+        "verified_double": true,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": null,
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 41.2,
+        "ai_score": 38.3,
+        "elo_home": 1657,
+        "elo_away": 1700,
+        "xg_home": 1.33,
+        "xg_away": 3.77,
+        "fatigue_home": 3,
+        "fatigue_away": 5,
+        "trap_detected": false
+      },
+      {
+        "id": 4459250,
+        "date": "2026-03-10",
+        "event_date": "2026-03-10T19:45:00+00:00",
+        "home_team": "H&W Welders",
+        "away_team": "Dundela FC",
+        "home_logo": "assets/images/logos/competitor_17041.png",
+        "away_logo": "assets/images/logos/competitor_13394.png",
+        "league": "NIFL Championship",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.5,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "draw_rate": 0.0
+        },
+        "home_form": {
+          "wins": 0.58,
+          "draws": 0.0,
+          "losses": 0.42,
+          "goals_for": 2.02,
+          "goals_against": 1.11,
+          "form_score": 0.585,
+          "matches_used": 4
+        },
+        "away_form": {
+          "wins": 0.47,
+          "draws": 0.0,
+          "losses": 0.53,
+          "goals_for": 1.63,
+          "goals_against": 1.89,
+          "form_score": 0.474,
+          "matches_used": 3
+        },
+        "poisson_probs": {
+          "home": 0.507,
+          "draw": 0.22,
+          "away": 0.268
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 66,
+          "odds": 1.35
+        },
+        "xpronos_score": 52,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": null,
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": false,
+        "final_score": 44.4,
+        "ai_score": 46.4,
+        "elo_home": 1617,
+        "elo_away": 1594,
+        "xg_home": 1.96,
+        "xg_away": 1.37,
+        "fatigue_home": 4,
+        "fatigue_away": 3,
+        "trap_detected": false
+      },
+      {
+        "id": 4680468,
+        "date": "2026-03-07",
+        "event_date": "2026-03-07T19:00:00+00:00",
+        "home_team": "Shabab Al Urdon",
+        "away_team": "Al Salt",
+        "home_logo": "assets/images/logos/competitor_8277.png",
+        "away_logo": "assets/images/logos/competitor_15387.png",
+        "league": "Pro League",
+        "league_logo": "assets/images/logos/competitions/competition_565.png",
+        "venue": "",
+        "status": "Ended",
+        "home_score": 0,
+        "away_score": 3,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 0.0,
+          "away_wins": 3.45,
+          "draws": 1.2,
+          "home_dominance": 0.0,
+          "away_dominance": 0.742,
+          "draw_rate": 0.258
+        },
+        "home_form": {
+          "wins": 0.0,
+          "draws": 0.54,
+          "losses": 0.46,
+          "goals_for": 0.69,
+          "goals_against": 1.34,
+          "form_score": 0.179,
+          "matches_used": 4
+        },
+        "away_form": {
+          "wins": 0.92,
+          "draws": 0.08,
+          "losses": 0.0,
+          "goals_for": 1.29,
+          "goals_against": 0.26,
+          "form_score": 0.949,
+          "matches_used": 5
+        },
+        "poisson_probs": {
+          "home": 0.134,
+          "draw": 0.289,
+          "away": 0.577
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 74,
+          "odds": 1.45
+        },
+        "xpronos_score": 59,
+        "badge": "",
+        "category": "pro",
+        "verified_double": true,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 3,
+          "draw": 2.9,
+          "away": 2.25
+        },
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 50.2
+      },
+      {
         "id": 4480903,
         "date": "2026-03-08",
         "event_date": "2026-03-08T15:00:00+00:00",
@@ -6570,6 +6570,156 @@
         "xg_away": 2.18,
         "fatigue_home": 5,
         "fatigue_away": 4,
+        "trap_detected": false
+      },
+      {
+        "id": 4492168,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T14:00:00+00:00",
+        "home_team": "KF Tirana",
+        "away_team": "Af Elbasani",
+        "home_logo": "assets/images/logos/competitor_16051.png",
+        "away_logo": "assets/images/logos/competitor_77937.png",
+        "league": "Abissnet Superiore",
+        "league_logo": "assets/images/logos/competitions/competition_5794.png",
+        "venue": "",
+        "status": "Ended",
+        "home_score": 0,
+        "away_score": 1,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 0.0,
+          "away_wins": 2.7,
+          "draws": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.643,
+          "draw_rate": 0.357
+        },
+        "home_form": {
+          "wins": 0.0,
+          "draws": 0.5,
+          "losses": 0.5,
+          "goals_for": 1.11,
+          "goals_against": 2.3,
+          "form_score": 0.166,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.11,
+          "draws": 0.89,
+          "losses": 0.0,
+          "goals_for": 1.6,
+          "goals_against": 1.26,
+          "form_score": 0.409,
+          "matches_used": 5
+        },
+        "poisson_probs": {
+          "home": 0.229,
+          "draw": 0.219,
+          "away": 0.548
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 64,
+          "odds": 1.45
+        },
+        "xpronos_score": 53,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "verified_double": true,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 2.8,
+          "draw": 3.1,
+          "away": 2.25
+        },
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 44.6,
+        "ai_score": 40.4,
+        "elo_home": 1533,
+        "elo_away": 1581,
+        "xg_home": 1.19,
+        "xg_away": 1.95,
+        "fatigue_home": 5,
+        "fatigue_away": 5,
+        "trap_detected": false
+      },
+      {
+        "id": 4510659,
+        "date": "2026-03-09",
+        "event_date": "2026-03-09T13:00:00+00:00",
+        "home_team": "Sileks Kratovo",
+        "away_team": "Vardar Skopje",
+        "home_logo": "assets/images/logos/competitor_12883.png",
+        "away_logo": "assets/images/logos/competitor_9337.png",
+        "league": "First League",
+        "league_logo": "assets/images/logos/competitions/competition_5632.png",
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.8,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "draw_rate": 0.0
+        },
+        "home_form": {
+          "wins": 0.47,
+          "draws": 0.21,
+          "losses": 0.32,
+          "goals_for": 1.0,
+          "goals_against": 0.84,
+          "form_score": 0.544,
+          "matches_used": 3
+        },
+        "away_form": {
+          "wins": 0.43,
+          "draws": 0.5,
+          "losses": 0.08,
+          "goals_for": 2.26,
+          "goals_against": 1.19,
+          "form_score": 0.592,
+          "matches_used": 5
+        },
+        "poisson_probs": {
+          "home": 0.268,
+          "draw": 0.253,
+          "away": 0.477
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 66,
+          "odds": 1.45
+        },
+        "xpronos_score": 53,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 3.9,
+          "draw": 3.5,
+          "away": 1.75
+        },
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": false,
+        "final_score": 45.0,
+        "ai_score": 41.0,
+        "elo_home": 1608,
+        "elo_away": 1618,
+        "xg_home": 1.09,
+        "xg_away": 1.55,
+        "fatigue_home": 3,
+        "fatigue_away": 5,
         "trap_detected": false
       }
     ],
@@ -6725,6 +6875,77 @@
         "trap_detected": false
       },
       {
+        "id": 4673011,
+        "date": "2026-03-10",
+        "event_date": "2026-03-10T18:00:00+00:00",
+        "home_team": "FK Zalgiris",
+        "away_team": "Suduva",
+        "home_logo": "assets/images/logos/competitor_2319.png",
+        "away_logo": "assets/images/logos/competitor_2316.png",
+        "league": "A Lyga",
+        "league_logo": "assets/images/logos/competitions/competition_166.png",
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 1.0,
+          "home_dominance": 0.6,
+          "away_dominance": 0.0,
+          "draw_rate": 0.4
+        },
+        "home_form": {
+          "wins": 0.89,
+          "draws": 0.0,
+          "losses": 0.11,
+          "goals_for": 2.95,
+          "goals_against": 1.57,
+          "form_score": 0.886,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.58,
+          "draws": 0.0,
+          "losses": 0.42,
+          "goals_for": 2.02,
+          "goals_against": 1.43,
+          "form_score": 0.585,
+          "matches_used": 4
+        },
+        "poisson_probs": {
+          "home": 0.467,
+          "draw": 0.204,
+          "away": 0.32
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 66,
+          "odds": 1.25
+        },
+        "xpronos_score": 56,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": null,
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": false,
+        "final_score": 46.8,
+        "ai_score": 57.2,
+        "elo_home": 1677,
+        "elo_away": 1617,
+        "xg_home": 2.19,
+        "xg_away": 1.79,
+        "fatigue_home": 5,
+        "fatigue_away": 4,
+        "trap_detected": false
+      },
+      {
         "id": 4626936,
         "date": "2026-03-08",
         "event_date": "2026-03-08T23:00:00+00:00",
@@ -6795,6 +7016,81 @@
         "elo_away": 1675,
         "xg_home": 1.56,
         "xg_away": 1.54,
+        "fatigue_home": 5,
+        "fatigue_away": 4,
+        "trap_detected": false
+      },
+      {
+        "id": 4656941,
+        "date": "2026-03-08",
+        "event_date": "2026-03-08T01:30:00+00:00",
+        "home_team": "CD Plaza Amador",
+        "away_team": "San Francisco FC",
+        "home_logo": "assets/images/logos/competitor_16064.png",
+        "away_logo": "assets/images/logos/competitor_16987.png",
+        "league": "Liga Panameña - Clausura",
+        "league_logo": "assets/images/logos/competitions/competition_5809.png",
+        "venue": "",
+        "status": "Ended",
+        "home_score": 2,
+        "away_score": 1,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 2.2,
+          "away_wins": 0.0,
+          "draws": 1.2,
+          "home_dominance": 0.647,
+          "away_dominance": 0.0,
+          "draw_rate": 0.353
+        },
+        "home_form": {
+          "wins": 0.57,
+          "draws": 0.17,
+          "losses": 0.26,
+          "goals_for": 2.45,
+          "goals_against": 1.11,
+          "form_score": 0.63,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.0,
+          "draws": 0.88,
+          "losses": 0.12,
+          "goals_for": 1.62,
+          "goals_against": 2.35,
+          "form_score": 0.292,
+          "matches_used": 4
+        },
+        "poisson_probs": {
+          "home": 0.592,
+          "draw": 0.189,
+          "away": 0.207
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 84,
+          "odds": 1.25
+        },
+        "xpronos_score": 57,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "verified_double": true,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 1.55,
+          "draw": 3.6,
+          "away": 5.25
+        },
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 51.0,
+        "ai_score": 65.0,
+        "elo_home": 1626,
+        "elo_away": 1558,
+        "xg_home": 2.4,
+        "xg_away": 1.37,
         "fatigue_home": 5,
         "fatigue_away": 4,
         "trap_detected": false
@@ -6944,159 +7240,13 @@
         "fatigue_home": 4,
         "fatigue_away": 5,
         "trap_detected": false
-      },
-      {
-        "id": 4673011,
-        "date": "2026-03-10",
-        "event_date": "2026-03-10T18:00:00+00:00",
-        "home_team": "FK Zalgiris",
-        "away_team": "Suduva",
-        "home_logo": "assets/images/logos/competitor_2319.png",
-        "away_logo": "assets/images/logos/competitor_2316.png",
-        "league": "A Lyga",
-        "league_logo": "assets/images/logos/competitions/competition_166.png",
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 1.5,
-          "away_wins": 0.0,
-          "draws": 1.0,
-          "home_dominance": 0.6,
-          "away_dominance": 0.0,
-          "draw_rate": 0.4
-        },
-        "home_form": {
-          "wins": 0.89,
-          "draws": 0.0,
-          "losses": 0.11,
-          "goals_for": 2.95,
-          "goals_against": 1.57,
-          "form_score": 0.886,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.58,
-          "draws": 0.0,
-          "losses": 0.42,
-          "goals_for": 2.02,
-          "goals_against": 1.43,
-          "form_score": 0.585,
-          "matches_used": 4
-        },
-        "poisson_probs": {
-          "home": 0.467,
-          "draw": 0.204,
-          "away": 0.32
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "confidence": 66,
-          "odds": 1.25
-        },
-        "xpronos_score": 56,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": null,
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": false,
-        "final_score": 46.8,
-        "ai_score": 57.2,
-        "elo_home": 1677,
-        "elo_away": 1617,
-        "xg_home": 2.19,
-        "xg_away": 1.79,
-        "fatigue_home": 5,
-        "fatigue_away": 4,
-        "trap_detected": false
-      },
-      {
-        "id": 4656941,
-        "date": "2026-03-08",
-        "event_date": "2026-03-08T01:30:00+00:00",
-        "home_team": "CD Plaza Amador",
-        "away_team": "San Francisco FC",
-        "home_logo": "assets/images/logos/competitor_16064.png",
-        "away_logo": "assets/images/logos/competitor_16987.png",
-        "league": "Liga Panameña - Clausura",
-        "league_logo": "assets/images/logos/competitions/competition_5809.png",
-        "venue": "",
-        "status": "Ended",
-        "home_score": 2,
-        "away_score": 1,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_wins": 2.2,
-          "away_wins": 0.0,
-          "draws": 1.2,
-          "home_dominance": 0.647,
-          "away_dominance": 0.0,
-          "draw_rate": 0.353
-        },
-        "home_form": {
-          "wins": 0.57,
-          "draws": 0.17,
-          "losses": 0.26,
-          "goals_for": 2.45,
-          "goals_against": 1.11,
-          "form_score": 0.63,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.0,
-          "draws": 0.88,
-          "losses": 0.12,
-          "goals_for": 1.62,
-          "goals_against": 2.35,
-          "form_score": 0.292,
-          "matches_used": 4
-        },
-        "poisson_probs": {
-          "home": 0.592,
-          "draw": 0.189,
-          "away": 0.207
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "confidence": 84,
-          "odds": 1.25
-        },
-        "xpronos_score": 57,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "verified_double": true,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 1.55,
-          "draw": 3.6,
-          "away": 5.25
-        },
-        "public_votes": null,
-        "value_bet": false,
-        "is_finished": true,
-        "final_score": 51.0,
-        "ai_score": 65.0,
-        "elo_home": 1626,
-        "elo_away": 1558,
-        "xg_home": 2.4,
-        "xg_away": 1.37,
-        "fatigue_home": 5,
-        "fatigue_away": 4,
-        "trap_detected": false
       }
     ]
   },
   "stats": {
-    "total_bets": 37,
-    "wins": 28,
-    "roi": 13.9
+    "total_bets": 38,
+    "wins": 29,
+    "roi": 14.2
   },
   "bookmakers": []
 }
