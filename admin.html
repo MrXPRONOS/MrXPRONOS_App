@@ -2,74 +2,284 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Administration - Mr XPRONOS</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Chart.js pour les graphiques -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- TinyMCE pour l'éditeur WYSIWYG -->
     <script src="https://cdn.tiny.cloud/1/otpp789kc1p3suhdzontubqo33foiyg0ovq56zp5nsrm916m/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Styles spécifiques à l'admin */
-        body { background: #0D0D0D; color: #fff; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
-        .admin-container { max-width: 1400px; margin: 20px auto; padding: 0 20px; }
-        h1 { color: #D4AF37; margin-bottom: 30px; font-size: 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .admin-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; border-bottom: 2px solid #D4AF37; padding-bottom: 10px; }
-        .tab-btn { background: #1A1A1A; color: #fff; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: 600; transition: 0.3s; font-size: 14px; }
-        .tab-btn:hover, .tab-btn.active { background: #D4AF37; color: #000; }
-        .tab-pane { display: none; background: #1A1A1A; padding: 25px; border-radius: 20px; border: 1px solid #D4AF37; margin-bottom: 30px; }
-        .tab-pane.active { display: block; }
-        h2 { color: #D4AF37; margin-top: 0; margin-bottom: 20px; font-size: 1.5rem; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; color: #ccc; font-weight: 500; }
-        input[type="text"], input[type="url"], input[type="date"], input[type="number"], input[type="password"], select, textarea { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #444; background: #0D0D0D; color: #fff; font-family: 'Montserrat', sans-serif; font-size: 14px; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: #D4AF37; }
-        textarea { min-height: 150px; resize: vertical; }
-        .checkbox-group { display: flex; align-items: center; gap: 10px; }
-        .checkbox-group input { width: auto; }
-        .admin-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-        .btn { padding: 12px 25px; border-radius: 50px; border: none; font-weight: 600; cursor: pointer; transition: 0.3s; font-size: 14px; text-decoration: none; display: inline-block; }
-        .btn-primary { background: #D4AF37; color: #000; }
-        .btn-primary:hover { background: #FFD700; }
-        .btn-secondary { background: #333; color: #fff; border: 1px solid #D4AF37; }
-        .btn-secondary:hover { background: #444; }
-        .btn-danger { background: #dc3545; color: #fff; }
-        .btn-danger:hover { background: #c82333; }
-        .admin-list { margin-top: 30px; }
-        .admin-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #333; flex-wrap: wrap; }
-        .admin-item:last-child { border-bottom: none; }
-        .admin-item button { background: none; border: none; color: #D4AF37; font-size: 1.2rem; cursor: pointer; margin-left: 10px; }
-        .admin-item button:hover { color: #FFD700; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: #0D0D0D; border: 1px solid #D4AF37; border-radius: 16px; padding: 20px; text-align: center; }
-        .stat-card h3 { color: #D4AF37; margin-bottom: 10px; font-size: 1rem; }
-        .stat-card .stat-value { font-size: 2rem; font-weight: 700; color: #fff; }
-        .chart-container { background: #0D0D0D; border-radius: 16px; padding: 20px; margin-bottom: 30px; border: 1px solid #D4AF37; }
-        .period-selector { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
-        .period-selector select, .period-selector input { background: #0D0D0D; border: 1px solid #D4AF37; color: #fff; padding: 8px 12px; border-radius: 8px; }
-        .custom-range { display: flex; gap: 10px; align-items: center; }
-        .preview-area { margin-top: 20px; padding: 20px; background: #0D0D0D; border-radius: 12px; border: 1px dashed #D4AF37; max-height: 300px; overflow-y: auto; }
-        .preview-area h4 { color: #D4AF37; margin-top: 0; }
-        .login-container { max-width: 400px; margin: 100px auto; background: #1A1A1A; padding: 40px; border-radius: 20px; border: 2px solid #D4AF37; text-align: center; }
-        .login-container h2 { color: #D4AF37; margin-bottom: 30px; }
-        .login-container input { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #444; background: #0D0D0D; color: #fff; }
-        .login-container button { width: 100%; }
-        .hidden { display: none; }
-        .message { padding: 10px; border-radius: 8px; margin-bottom: 20px; display: none; }
-        .message.success { background: #28a745; color: #fff; display: block; }
-        .message.error { background: #dc3545; color: #fff; display: block; }
-        /* Style pour la section VIP */
-        .vip-item { background: #0D0D0D; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #D4AF37; }
-        .vip-info { flex: 1; }
-        .vip-info small { color: #aaa; display: block; }
-        .btn-deactivate { background: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; }
-        .btn-deactivate:hover { background: #c82333; }
-        .logout-btn { background: #333; color: #fff; border: 1px solid #D4AF37; padding: 8px 16px; border-radius: 30px; cursor: pointer; font-size: 14px; }
-        .logout-btn:hover { background: #444; }
-        .help-text { color: #aaa; font-size: 0.9rem; margin-top: 5px; }
+        /* Styles spécifiques à l'admin (responsive) */
+        body {
+            background: #0D0D0D;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .admin-container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        h1 {
+            color: #D4AF37;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-dashboard {
+            background: #333;
+            color: #fff;
+            border: 1px solid #D4AF37;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-dashboard:hover {
+            background: #444;
+        }
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 10px;
+        }
+        .tab-btn {
+            background: #1A1A1A;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            font-size: 14px;
+            flex: 0 1 auto;
+        }
+        .tab-btn:hover, .tab-btn.active {
+            background: #D4AF37;
+            color: #000;
+        }
+        .tab-pane {
+            display: none;
+            background: #1A1A1A;
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid #D4AF37;
+            margin-bottom: 30px;
+        }
+        .tab-pane.active {
+            display: block;
+        }
+        h2 {
+            color: #D4AF37;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+            font-weight: 500;
+        }
+        input[type="text"], input[type="url"], input[type="date"], input[type="number"], input[type="password"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #0D0D0D;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #D4AF37;
+        }
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .checkbox-group input {
+            width: auto;
+        }
+        .admin-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 25px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background: #D4AF37;
+            color: #000;
+        }
+        .btn-primary:hover {
+            background: #FFD700;
+        }
+        .btn-secondary {
+            background: #333;
+            color: #fff;
+            border: 1px solid #D4AF37;
+        }
+        .btn-secondary:hover {
+            background: #444;
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .admin-list {
+            margin-top: 30px;
+        }
+        .admin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #333;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .admin-item:last-child {
+            border-bottom: none;
+        }
+        .admin-item button {
+            background: none;
+            border: none;
+            color: #D4AF37;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .admin-item button:hover {
+            color: #FFD700;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: #1A1A1A;
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid #D4AF37;
+            text-align: center;
+        }
+        .login-container h2 {
+            color: #D4AF37;
+            margin-bottom: 30px;
+        }
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background: #0D0D0D;
+            color: #fff;
+            box-sizing: border-box;
+        }
+        .login-container button {
+            width: 100%;
+        }
+        .hidden {
+            display: none;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success {
+            background: #28a745;
+            color: #fff;
+            display: block;
+        }
+        .message.error {
+            background: #dc3545;
+            color: #fff;
+            display: block;
+        }
+        .logout-btn {
+            background: #333;
+            color: #fff;
+            border: 1px solid #D4AF37;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .logout-btn:hover {
+            background: #444;
+        }
+        /* Responsive pour mobile */
+        @media (max-width: 768px) {
+            h1 {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .admin-tabs {
+                justify-content: center;
+            }
+            .tab-btn {
+                flex: 1 1 calc(50% - 10px);
+                text-align: center;
+            }
+            .admin-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .admin-item button {
+                margin-left: 0;
+                margin-right: 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .tab-btn {
+                flex: 1 1 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -97,7 +307,10 @@
     <div id="admin-content" class="admin-container hidden">
         <h1>
             Panneau d'administration Mr XPRONOS
-            <button id="logout-btn" class="logout-btn">Déconnexion</button>
+            <div class="header-buttons">
+                <a href="admin-dashboard.html?admin=true" target="_blank" class="btn-dashboard">📊 Dashboard en direct</a>
+                <button id="logout-btn" class="logout-btn">Déconnexion</button>
+            </div>
         </h1>
 
         <!-- Onglets de navigation -->
@@ -111,7 +324,6 @@
             <button class="tab-btn" data-tab="vip">Codes VIP</button>
             <button class="tab-btn" data-tab="settings">Paramètres</button>
             <button class="tab-btn" data-tab="export">Export JSON</button>
-            <button class="tab-btn" data-tab="stats">Statistiques</button>
         </div>
 
         <!-- Onglet Pronostics -->
@@ -322,11 +534,8 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Générer le code</button>
             </form>
-
             <div id="vip-result" class="message" style="display: none;"></div>
-
             <hr style="border-color:#444; margin:30px 0;">
-
             <h3>Utilisateurs VIP actifs</h3>
             <div id="vip-list" class="admin-list"></div>
         </div>
@@ -338,7 +547,7 @@
                 <label style="display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" id="vip-toggle" style="width: auto;"> Afficher les pronostics VIP
                 </label>
-                <p class="help-text">Si désactivé, l'onglet VIP sera masqué pour tous les utilisateurs.</p>
+                <p class="help-text" style="color: #aaa; margin-top: 5px;">Si désactivé, l'onglet VIP sera masqué pour tous les utilisateurs.</p>
             </div>
             <button id="save-settings" class="btn btn-primary">Enregistrer</button>
         </div>
@@ -351,62 +560,6 @@
             <button id="reset-data" class="btn btn-secondary" style="margin-left: 1rem;">Réinitialiser les données (exemple)</button>
             <pre id="json-preview" style="background: #0D0D0D; padding: 15px; border-radius: 8px; border: 1px solid #D4AF37; margin-top: 20px; max-height: 400px; overflow: auto;"></pre>
         </div>
-
-        <!-- Onglet Statistiques -->
-        <div id="tab-stats" class="tab-pane">
-            <h2>Statistiques d'utilisation</h2>
-            <div class="period-selector">
-                <label for="period-select">Période :</label>
-                <select id="period-select">
-                    <option value="today">Aujourd'hui</option>
-                    <option value="yesterday">Hier</option>
-                    <option value="week">Cette semaine</option>
-                    <option value="month">Ce mois</option>
-                    <option value="year">Cette année</option>
-                    <option value="custom">Personnalisé</option>
-                </select>
-                <div id="custom-range" class="custom-range" style="display: none;">
-                    <input type="date" id="start-date">
-                    <span>à</span>
-                    <input type="date" id="end-date">
-                    <button id="apply-custom" class="btn btn-secondary">Appliquer</button>
-                </div>
-            </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Visites</h3>
-                    <div class="stat-value" id="total-visits">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Partages</h3>
-                    <div class="stat-value" id="total-shares">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Utilisateurs uniques</h3>
-                    <div class="stat-value" id="total-users">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Visites/jour</h3>
-                    <div class="stat-value" id="avg-visits">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Partages/jour</h3>
-                    <div class="stat-value" id="avg-shares">-</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Nouveaux utilisateurs</h3>
-                    <div class="stat-value" id="new-users">-</div>
-                </div>
-            </div>
-
-            <div class="chart-container">
-                <canvas id="visitsChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas id="pagesChart"></canvas>
-            </div>
-        </div>
     </div>
 
     <script type="module">
@@ -414,13 +567,12 @@
         // IMPORT DES CONFIGURATIONS (admin-config.js)
         // =======================================================
         let ADMIN_USER = 'admin';
-        let ADMIN_PASSWORD_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // sha256 de 'admin' (fallback)
+        let ADMIN_PASSWORD_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // sha256 de 'admin'
 
         try {
             const config = await import('./assets/js/admin-config.js');
             ADMIN_USER = config.ADMIN_USER;
             ADMIN_PASSWORD_HASH = config.ADMIN_PASSWORD_HASH;
-            console.log('✅ Configuration admin chargée');
         } catch (e) {
             console.warn('Fichier admin-config.js non trouvé, utilisation des identifiants par défaut (admin/admin)');
         }
@@ -443,7 +595,6 @@
         const passwordInput = document.getElementById('admin-password');
         const logoutBtn = document.getElementById('logout-btn');
 
-        // Vérifier si déjà connecté (session)
         if (sessionStorage.getItem('adminLoggedIn') === 'true') {
             loginContainer.classList.add('hidden');
             adminContent.classList.remove('hidden');
@@ -480,14 +631,14 @@
                 if (!supabaseUrl || !supabaseUrl.startsWith('https://')) throw new Error('URL Supabase invalide');
                 const { createClient } = window.supabase;
                 supabase = createClient(supabaseUrl, supabaseAnonKey);
-                console.log('✅ Supabase connecté');
+                console.log('✅ Supabase connecté (admin)');
             } catch (error) {
                 console.warn('⚠️ Supabase non configuré, la gestion VIP sera désactivée');
             }
         }
 
         // =======================================================
-        // FONCTIONS VIP
+        // FONCTIONS VIP (inchangées)
         // =======================================================
         function generateVipCode() {
             return 'VIP-' + Math.random().toString(36).substring(2, 10).toUpperCase() +
@@ -499,7 +650,6 @@
             const code = generateVipCode();
             const expiresAt = new Date();
             expiresAt.setDate(expiresAt.getDate() + durationDays);
-
             const { error } = await supabase
                 .from('vip_users')
                 .insert({
@@ -847,7 +997,7 @@
                 const div = document.createElement('div');
                 div.className = 'admin-item';
                 div.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                         <img src="${b.image}" alt="${b.title}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
                         <div>
                             <strong>${b.title}</strong> (${b.bookmaker}) - ${b.active ? '✅ Actif' : '❌ Inactif'}<br>
@@ -921,7 +1071,7 @@
                 const div = document.createElement('div');
                 div.className = 'admin-item';
                 div.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                         <img src="${b.logo}" alt="${b.name}" style="width: 40px; height: 40px; object-fit: contain;" onerror="this.style.display='none'">
                         <div><strong>${b.name}</strong><br><small>${b.url}</small></div>
                     </div>
@@ -967,14 +1117,16 @@
                     return;
                 }
                 container.innerHTML = vips.map(v => `
-                    <div class="vip-item">
-                        <div class="vip-info">
+                    <div class="admin-item">
+                        <div>
                             <strong>${v.user_id}</strong><br>
                             Code: ${v.vip_code}<br>
                             <small>Expire le: ${new Date(v.expires_at).toLocaleDateString('fr-FR')}</small>
-                            ${v.ip_address ? `<small>IP: ${v.ip_address}</small>` : ''}
+                            ${v.ip_address ? `<br><small>IP: ${v.ip_address}</small>` : ''}
                         </div>
-                        <button class="btn-deactivate" data-code="${v.vip_code}">Désactiver</button>
+                        <div>
+                            <button class="btn-deactivate" data-code="${v.vip_code}">🚫 Désactiver</button>
+                        </div>
                     </div>
                 `).join('');
 
@@ -1043,174 +1195,16 @@
         });
 
         // =======================================================
-        // STATISTIQUES (version simplifiée)
+        // PARAMÈTRES (affichage VIP)
         // =======================================================
-        function initStats() {
-            const events = JSON.parse(localStorage.getItem('userEvents')) || [];
-            const periodSelect = document.getElementById('period-select');
-            const customRange = document.getElementById('custom-range');
-            const startDate = document.getElementById('start-date');
-            const endDate = document.getElementById('end-date');
-            const applyCustom = document.getElementById('apply-custom');
-
-            const totalVisits = document.getElementById('total-visits');
-            const totalShares = document.getElementById('total-shares');
-            const totalUsers = document.getElementById('total-users');
-            const avgVisits = document.getElementById('avg-visits');
-            const avgShares = document.getElementById('avg-shares');
-            const newUsers = document.getElementById('new-users');
-
-            let visitsChart, pagesChart;
-
-            periodSelect.addEventListener('change', () => {
-                if (periodSelect.value === 'custom') {
-                    customRange.style.display = 'flex';
-                } else {
-                    customRange.style.display = 'none';
-                    updateStats();
-                }
+        const vipToggle = document.getElementById('vip-toggle');
+        const saveSettingsBtn = document.getElementById('save-settings');
+        if (vipToggle && saveSettingsBtn) {
+            vipToggle.checked = localStorage.getItem('vipEnabled') !== 'false';
+            saveSettingsBtn.addEventListener('click', () => {
+                localStorage.setItem('vipEnabled', vipToggle.checked);
+                alert('Paramètre enregistré. Les modifications prendront effet au prochain chargement de la page.');
             });
-
-            applyCustom.addEventListener('click', updateStats);
-
-            function getDateRange() {
-                const now = new Date();
-                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                let start, end;
-
-                switch (periodSelect.value) {
-                    case 'today':
-                        start = today;
-                        end = new Date(today.getTime() + 24*60*60*1000 - 1);
-                        break;
-                    case 'yesterday':
-                        start = new Date(today.getTime() - 24*60*60*1000);
-                        end = new Date(today.getTime() - 1);
-                        break;
-                    case 'week':
-                        const dayOfWeek = today.getDay() || 7;
-                        const monday = new Date(today);
-                        monday.setDate(today.getDate() - dayOfWeek + 1);
-                        start = monday;
-                        end = new Date(today.getTime() + 24*60*60*1000 - 1);
-                        break;
-                    case 'month':
-                        start = new Date(today.getFullYear(), today.getMonth(), 1);
-                        end = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
-                        break;
-                    case 'year':
-                        start = new Date(today.getFullYear(), 0, 1);
-                        end = new Date(today.getFullYear(), 11, 31, 23, 59, 59);
-                        break;
-                    case 'custom':
-                        if (startDate.value && endDate.value) {
-                            start = new Date(startDate.value);
-                            end = new Date(endDate.value);
-                            end.setHours(23, 59, 59);
-                        } else {
-                            start = today;
-                            end = new Date(today.getTime() + 24*60*60*1000 - 1);
-                        }
-                        break;
-                    default:
-                        start = today;
-                        end = new Date(today.getTime() + 24*60*60*1000 - 1);
-                }
-                return { start, end };
-            }
-
-            function updateStats() {
-                const { start, end } = getDateRange();
-                const filtered = events.filter(e => {
-                    const d = new Date(e.timestamp);
-                    return d >= start && d <= end;
-                });
-
-                const visits = filtered.filter(e => e.type === 'visit').length;
-                const shares = filtered.filter(e => e.type === 'share').length;
-
-                const uniqueUsers = new Set(filtered.map(e => e.userId || 'unknown')).size;
-                const days = Math.max(1, Math.ceil((end - start) / (1000*60*60*24)));
-                const avgVisitsVal = (visits / days).toFixed(1);
-                const avgSharesVal = (shares / days).toFixed(1);
-
-                let firstVisit = localStorage.getItem('firstVisit');
-                if (!firstVisit) {
-                    firstVisit = new Date().toISOString();
-                    localStorage.setItem('firstVisit', firstVisit);
-                }
-                const firstVisitDate = new Date(firstVisit);
-                const isNew = firstVisitDate >= start && firstVisitDate <= end;
-                const newUsersVal = isNew ? 1 : 0;
-
-                totalVisits.textContent = visits;
-                totalShares.textContent = shares;
-                totalUsers.textContent = uniqueUsers;
-                avgVisits.textContent = avgVisitsVal;
-                avgShares.textContent = avgSharesVal;
-                newUsers.textContent = newUsersVal;
-
-                updateCharts(filtered, start, end);
-            }
-
-            function initCharts() {
-                const ctxVisits = document.getElementById('visitsChart')?.getContext('2d');
-                const ctxPages = document.getElementById('pagesChart')?.getContext('2d');
-                if (ctxVisits) {
-                    visitsChart = new Chart(ctxVisits, {
-                        type: 'line',
-                        data: { labels: [], datasets: [{ label: 'Visites', data: [], borderColor: '#D4AF37', backgroundColor: 'rgba(212,175,55,0.1)', tension: 0.4 }] },
-                        options: { responsive: true, plugins: { legend: { labels: { color: '#FFF' } } }, scales: { x: { ticks: { color: '#CCC' } }, y: { ticks: { color: '#CCC' } } } }
-                    });
-                }
-                if (ctxPages) {
-                    pagesChart = new Chart(ctxPages, {
-                        type: 'doughnut',
-                        data: { labels: [], datasets: [{ data: [], backgroundColor: ['#D4AF37', '#4CAF50', '#2196F3', '#FF9800', '#9C27B0'], borderWidth: 0 }] },
-                        options: { responsive: true, plugins: { legend: { labels: { color: '#FFF' } } } }
-                    });
-                }
-            }
-
-            function updateCharts(filtered, start, end) {
-                if (visitsChart) {
-                    const daysMap = new Map();
-                    const current = new Date(start);
-                    while (current <= end) {
-                        const dateStr = current.toISOString().split('T')[0];
-                        daysMap.set(dateStr, 0);
-                        current.setDate(current.getDate() + 1);
-                    }
-                    filtered.filter(e => e.type === 'visit').forEach(e => {
-                        const dateStr = new Date(e.timestamp).toISOString().split('T')[0];
-                        if (daysMap.has(dateStr)) {
-                            daysMap.set(dateStr, daysMap.get(dateStr) + 1);
-                        }
-                    });
-                    const labels = Array.from(daysMap.keys()).map(d => {
-                        const [y,m,day] = d.split('-');
-                        return `${day}/${m}`;
-                    });
-                    const data = Array.from(daysMap.values());
-                    visitsChart.data.labels = labels;
-                    visitsChart.data.datasets[0].data = data;
-                    visitsChart.update();
-                }
-                if (pagesChart) {
-                    const pageCounts = {};
-                    filtered.forEach(e => {
-                        if (e.page) {
-                            pageCounts[e.page] = (pageCounts[e.page] || 0) + 1;
-                        }
-                    });
-                    pagesChart.data.labels = Object.keys(pageCounts);
-                    pagesChart.data.datasets[0].data = Object.values(pageCounts);
-                    pagesChart.update();
-                }
-            }
-
-            initCharts();
-            updateStats();
         }
 
         // =======================================================
@@ -1230,21 +1224,6 @@
         }
 
         // =======================================================
-        // GESTION DES PARAMÈTRES (affichage VIP)
-        // =======================================================
-        function initSettings() {
-            const vipToggle = document.getElementById('vip-toggle');
-            const saveSettingsBtn = document.getElementById('save-settings');
-            if (vipToggle && saveSettingsBtn) {
-                vipToggle.checked = localStorage.getItem('vipEnabled') !== 'false';
-                saveSettingsBtn.addEventListener('click', () => {
-                    localStorage.setItem('vipEnabled', vipToggle.checked);
-                    alert('Paramètre enregistré. Les modifications prendront effet au prochain chargement de la page.');
-                });
-            }
-        }
-
-        // =======================================================
         // INITIALISATION PRINCIPALE
         // =======================================================
         async function initAdmin() {
@@ -1253,8 +1232,6 @@
             await renderVipList();
             updatePreview();
             initTinyMCE();
-            initStats();
-            initSettings();
 
             // Gestion des onglets
             document.querySelectorAll('.tab-btn').forEach(btn => {
