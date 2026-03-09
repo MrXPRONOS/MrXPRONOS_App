@@ -1923,3 +1923,32 @@ footer {
         width: 280px;
     }
 }
+
+/* =======================================================
+   ONGLETS ET FILTRES - PLEINE LARGEUR
+   ======================================================= */
+.category-tabs, .day-filters {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.category-tabs .tab-btn, .day-filters .day-btn {
+    flex: 1 1 auto;        /* Les boutons s'étirent pour remplir l'espace */
+    min-width: 80px;       /* Évite qu'ils deviennent trop petits */
+    text-align: center;    /* Centre le texte */
+}
+
+/* Sur mobile, les boutons passent en colonne et prennent toute la largeur */
+@media (max-width: 480px) {
+    .category-tabs, .day-filters {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    .category-tabs .tab-btn, .day-filters .day-btn {
+        width: 100%;
+        margin: 0;
+    }
+}

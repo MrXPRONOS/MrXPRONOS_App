@@ -1289,15 +1289,95 @@ function startWinsSlider() {
     DOM.winsTrack.innerHTML = html + html;
 }
 
+// =======================================================
+// NOTIFICATIONS DE GAINS (popup aléatoire) avec 300 prénoms et 300 noms africains
+// =======================================================
 function startWinNotifications() {
     if (!DOM.winPopup) return;
-    const firstNames = ["Jean","Michel","David","Lucas","Thomas","Patrick","Samuel","Kevin","Éric","Daniel","Pierre","Philippe","Nicolas","François","Antoine"];
-    const lastNames = ["Martin","Bernard","Dubois","Thomas","Robert","Richard","Petit","Durand","Leroy","Moreau","Simon","Laurent","Lefebvre","Michel","Garcia"];
+
+    // 300 prénoms africains (Afrique de l'Ouest, Centrale, Est, Australe, Maghreb)
+    const africanFirstNames = [
+        "Aminata", "Fatou", "Moussa", "Amadou", "Khadija", "Ibrahim", "Aisha", "Oumar", "Mariam", "Seydou",
+        "Fanta", "Boubacar", "Rokia", "Drissa", "Salimata", "Mamadou", "Adama", "Djeneba", "Lassina", "Kadiatou",
+        "Souleymane", "Bintou", "Modibo", "Awa", "Youssouf", "Hawa", "Tidiane", "Oumou", "Cheick", "Fatoumata",
+        "Mahamadou", "Ramatou", "Sékou", "Nana", "Karim", "Aïssatou", "Mamoudou", "Kankou", "Balla", "Maimouna",
+        "Ibrahima", "Diarra", "Samba", "Nagnouma", "Fodé", "Kadidia", "Lamine", "Massa", "Néné", "Ousmane",
+        "Penda", "Salif", "Ténin", "Yacouba", "Zara", "Baba", "Doussou", "Fousseni", "Gaoussou", "Haby",
+        "Issa", "Koumba", "Lalla", "Mody", "Nabou", "Oumy", "Pape", "Rama", "Sidy", "Tata",
+        "Yoro", "Zeynab", "Ali", "Bassirou", "Coumba", "Demba", "El hadji", "Fama", "Gora", "Hélène",
+        "Idrissa", "Jacques", "Kani", "Léa", "Mansour", "Nafi", "Pascal", "Ramatoulaye", "Saïdou", "Thierno",
+        "Umu", "Vieux", "Waly", "Xavier", "Yaya", "Zalika", "Abdoulaye", "Bintou", "Chaka", "Diouf",
+        "Anta", "Bineta", "Coumba", "Diara", "Fama", "Gnagna", "Henri", "Ina", "Jeanne", "Khadim",
+        "Lambert", "Maguette", "Ndeye", "Ousseynou", "Philippe", "Rokhaya", "Sokhna", "Thiaba", "Victorine", "Woury",
+        "Yacine", "Zara", "Arona", "Babacar", "Cheikh", "Diarra", "Elhadj", "Fatim", "Gorgui", "Habib",
+        "Ibou", "Jean", "Khaly", "Lamine", "Mame", "Ngor", "Omar", "Pape", "Ramata", "Serigne",
+        "Tamsir", "Viviane", "Waly", "Younousse", "Zeyna", "Aboubacar", "Baila", "Cire", "Djibril", "Elie",
+        "Fily", "Gnakale", "Hamed", "Isha", "Jacob", "Kaba", "Lanciné", "Mamby", "Noumoukè", "Oumou",
+        "Péguy", "Rokia", "Sia", "Tigui", "Ulysse", "Victoire", "Wassa", "Youssou", "Zena", "Almamy",
+        "Bakary", "Chérif", "Djéné", "Emmanuel", "Fifi", "Gnakpa", "Hamidou", "Ibra", "Joseph", "Kadiatou",
+        "Lamine", "Mariame", "Naminata", "Ousmane", "Pascal", "Rahimi", "Saliou", "Tiémoko", "Urbain", "Vamoussa",
+        "Wahab", "Yao", "Zongo", "Aïcha", "Baba", "Cédric", "Djakaridja", "Eugénie", "Fodé", "Guy",
+        "Haby", "Inza", "Jacob", "Kokou", "Laure", "Massa", "Nadia", "Ollo", "Pélagie", "Rokia",
+        "Sita", "Tché", "Ursule", "Véronique", "Wendy", "Yvette", "Zita", "Adja", "Bi", "César",
+        "Dani", "Elysée", "Flore", "Gérard", "Huguette", "Ismaël", "Juliette", "Koffi", "Lucien", "Michel",
+        "Narcisse", "Odile", "Patrice", "Quentin", "Rosalie", "Sébastien", "Thérèse", "Urbain", "Valérie", "William",
+        "Xénia", "Yannick", "Zacharie", "Ablawa", "Bénoît", "Cécile", "David", "Edwige", "Fabrice", "Gisèle",
+        "Honoré", "Irène", "Jules", "Karine", "Laurent", "Mireille", "Norbert", "Olivier", "Pierrette", "Quitterie",
+        "Rachel", "Sylvain", "Thierry", "Ulrich", "Viviane", "Wilfried", "Xavier", "Yolande", "Zéphirin", "Assitan",
+        "Boukary", "Clémence", "Dramane", "Esther", "Ferdinand", "Germaine", "Hervé", "Ignace", "Joséphine", "Kassoum",
+        "Lucie", "Marcel", "Nestor", "Odette", "Prisca", "Régine", "Suzanne", "Toussaint", "Ursule", "Victorin",
+        "Wendpanga", "Yacinthe", "Zénabou", "Ablawa", "Barnabé", "Clarisse", "Désiré", "Eulalie", "Félicité", "Grégoire",
+        "Hortense", "Isidore", "Julienne", "Kouassi", "Léopold", "Mélanie", "Narcisse", "Olympe", "Philomène", "Quentin",
+        "Rufin", "Siméon", "Timothée", "Ursule", "Valentin", "Wilfried", "Xavière", "Yvette", "Zachée", "Anastasie",
+        "Blaise", "Chantal", "Denis", "Émilie", "Firmin", "Gaston", "Hilaire", "Irma", "Jacqueline", "Kylian",
+        "Léonce", "Monique", "Nadège", "Oswald", "Paulette", "Roland", "Solange", "Théophile", "Urbain", "Véronique",
+        "William", "Yann", "Zita", "Ablaye", "Boubacar", "Coumba", "Demba", "Elhadji", "Fatima", "Gora",
+        "Hamady", "Ibrahima", "Jean", "Khadim", "Lamine", "Mamadou", "Nafissatou", "Oumar", "Penda", "Rokhaya"
+    ];
+
+    // 300 noms de famille africains
+    const africanLastNames = [
+        "Traoré", "Diallo", "Koné", "Cissé", "Sow", "Diop", "Ba", "Ndiaye", "Fall", "Sall",
+        "Camara", "Keita", "Touré", "Kone", "Sissoko", "Coulibaly", "Sacko", "Dembélé", "Bamba", "Sangaré",
+        "Ouattara", "Zongo", "Kabore", "Sawadogo", "Ouedraogo", "Yaméogo", "Tiemtore", "Bonkoungou", "Ilboudo", "Kinda",
+        "Mensah", "Adebayor", "Ofori", "Asare", "Agyemang", "Owusu", "Boateng", "Appiah", "Asamoah", "Toure",
+        "Diaby", "Kante", "Soumahoro", "Fofana", "Kouyate", "Sako", "Diarra", "Sissoko", "Aboubakar", "Mohamed",
+        "Ali", "Hassan", "Omar", "Ahmed", "Ibrahim", "Youssef", "Mahmoud", "Salah", "Nkosi", "Okonkwo",
+        "Okafor", "Nnamdi", "Chukwu", "Eze", "Nwachukwu", "Onyeka", "Ike", "Obi", "Mbeki", "Ndlovu",
+        "Khuzwayo", "Zuma", "Dlamini", "Nkosi", "Botha", "Van der Merwe", "Jansen", "Petersen", "Mutombo", "Mukendi",
+        "Tshimanga", "Kalala", "Mbuyi", "Kabasele", "Lubamba", "Kazadi", "Mpoyo", "Ntumba", "Mwanza", "Chanda",
+        "Banda", "Phiri", "Mwale", "Tembo", "Zulu", "Mumba", "Mwila", "Simfukwe", "Kipchoge", "Kiprop",
+        "Kipyegon", "Cheruiyot", "Kipruto", "Jepchirchir", "Chepkoech", "Kipchumba", "Kiprotich", "Jepkosgei", "Kipkemoi", "Chebet",
+        "Kipngetich", "Jepchumba", "Kipkurui", "Chepkwony", "Kiprono", "Jepkemboi", "Kipkoech", "Cherotich", "Kiprop", "Jepkemei",
+        "Kiprugut", "Chepchirchir", "Kipserem", "Jepchirchir", "Kipchirchir", "Chepkemoi", "Kiprotich", "Jepkorir", "Kipngeno", "Chepkwemoi",
+        "Mokgadi", "Tau", "Masilela", "Mokoena", "Ndlovu", "Zikalala", "Khumalo", "Sibiya", "Mkhize", "Mthembu",
+        "Buthelezi", "Ngcobo", "Zwane", "Mabuza", "Maseko", "Shongwe", "Masango", "Mahlangu", "Nkambule", "Mamba",
+        "Dlamini", "Ginindza", "Mavuso", "Motsa", "Simelane", "Nxumalo", "Masuku", "Mkhonta", "Shabangu", "Mamba",
+        "Konaté", "Diabaté", "Sangaré", "Coulibaly", "Doumbia", "Touré", "Sissoko", "Keita", "Diarra", "Fofana",
+        "Sako", "Kanté", "Maiga", "Samake", "Traoré", "Dembélé", "Bagayoko", "Sidibé", "Cissoko", "Bamba",
+        "Kouyaté", "Soumah", "Camara", "Condé", "Sylla", "Sow", "Barry", "Bah", "Diallo", "Balde",
+        "Mane", "Seck", "Dieng", "Gueye", "Mbaye", "Niang", "Thiam", "Diouf", "Sarr", "Faye",
+        "Ndour", "Kane", "Ndao", "Diagne", "Fall", "Wade", "Diop", "Ciss", "Ka", "Sène",
+        "Mbodj", "Pouye", "Samb", "Ba", "Ly", "Ndiaye", "Sall", "Sy", "Touré", "Diakité",
+        "Sissoko", "Kone", "Traore", "Keita", "Camara", "Diallo", "Sow", "Bah", "Barry", "Balde",
+        "Mane", "Seck", "Dieng", "Gueye", "Mbaye", "Niang", "Thiam", "Diouf", "Sarr", "Faye",
+        "Ndour", "Kane", "Ndao", "Diagne", "Fall", "Wade", "Diop", "Ciss", "Ka", "Sène",
+        "Mbodj", "Pouye", "Samb", "Ba", "Ly", "Ndiaye", "Sall", "Sy", "Touré", "Diakité",
+        "Konaté", "Diabaté", "Sangaré", "Coulibaly", "Doumbia", "Touré", "Sissoko", "Keita", "Diarra", "Fofana",
+        "Sako", "Kanté", "Maiga", "Samake", "Traoré", "Dembélé", "Bagayoko", "Sidibé", "Cissoko", "Bamba",
+        "Kouyaté", "Soumah", "Camara", "Condé", "Sylla", "Sow", "Barry", "Bah", "Diallo", "Balde",
+        "Mane", "Seck", "Dieng", "Gueye", "Mbaye", "Niang", "Thiam", "Diouf", "Sarr", "Faye",
+        "Ndour", "Kane", "Ndao", "Diagne", "Fall", "Wade", "Diop", "Ciss", "Ka", "Sène",
+        "Mbodj", "Pouye", "Samb", "Ba", "Ly", "Ndiaye", "Sall", "Sy", "Touré", "Diakité"
+    ];
+
     let usedNames = new Set();
     let notifications = [];
+
+    // Générer 5 notifications uniques
     while (notifications.length < 5) {
-        const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-        const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+        const firstName = africanFirstNames[Math.floor(Math.random() * africanFirstNames.length)];
+        const lastName = africanLastNames[Math.floor(Math.random() * africanLastNames.length)];
         const fullName = `${firstName} ${lastName}`;
         if (!usedNames.has(fullName)) {
             usedNames.add(fullName);
@@ -1305,6 +1385,7 @@ function startWinNotifications() {
             notifications.push({ name: fullName, gain });
         }
     }
+
     let index = 0;
     function showPopup() {
         const { name, gain } = notifications[index];
@@ -1313,7 +1394,7 @@ function startWinNotifications() {
         setTimeout(() => DOM.winPopup.classList.remove('show'), 4000);
         index = (index + 1) % notifications.length;
     }
-    setInterval(showPopup, 3600000);
+    setInterval(showPopup, 3600000); // toutes les heures
     showPopup();
 }
 

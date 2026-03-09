@@ -36,8 +36,6 @@ GOAL_DIFF_THRESHOLD = 0.1      # Différence de buts minimum
 XPRONOS_THRESHOLD = 45         # Score xPronos minimum
 DOMINANCE_THRESHOLD = 0.4      # Seuil pour décider du double chance
 
-
-
 print("=" * 60)
 print(f"🚀 GÉNÉRATION DES PRONOSTICS (DOUBLE CHANCE UNIQUEMENT) - {today}")
 print("=" * 60)
@@ -670,10 +668,53 @@ def main():
 
         # Filtre sur les cotes trop faibles (adapté au double chance)
         odds = base.get("odds")
+        if odds:
+            dc = prediction["double_chance"]
+            if dc == "1X" and odds.get("home") and odds["home"] < 1.20:
+                print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (cote home trop faible pour 1X)")
+                continue
+            if dc == "X2" and odds.get("away") and odds["away"] < 1.20:
+                print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (cote away trop faible pour X2)")
+                continue
+
+        score = calculate_xpronos_score(analysis, home_form, away_form, base["competition"])
+        category = get_category(score)
+        badge = get_badge(score)
+
+        # Filtre optionnel sur le score xPronos (abaissé)
+        if score < XPRONOS_THRESHOLD:
+            print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (score xPronos {score} < {XPRONOS_THRESHOLD})")
+            continue
+
+        # Téléchargement des logos
+        home_logo = download_logo(base["home_competitor_id"], base["home_image_version"])
+        away_logo = download_logo(base["away_competitor_id"], base["away_image_version"])
+        league_logo = download_competition_logo(base["competition_id"], base.get("competition_image_version"))
+
+        # Récupération des votes publics (uniquement pour les catégories pro et vip)
+        public_votes = None
+        if category in ["pro", "vip"]:
+            votes = fetch_predictions(gid)
+            if votes:
+                options = votes.get("options", [])
+                vote_dict = {}
+                for opt in options:
+                    num = opt.get("num")
+                    vote_data = opt.get("vote", {})
+                    percentage = vote_data.get("percentage")
+                    if num == 1:
+                        vote_dict["home"] = percentage
+                    elif num == 2:
+                        vote_dict["draw"] = percentage
+                    elif num == 3:
+                        vote_dict["away"] = percentage
+                if vote_dict:
+                    public_votes = vote_dict
+
         # =======================================================
         # CALCUL DE LA VALUE BET
         # =======================================================
-        value_bet = False  # Active les paris à valeur (1.5x ou plus)
+        value_bet = False
         if odds:
             dc = prediction["double_chance"]
             # Notre probabilité estimée
@@ -701,40 +742,6 @@ def main():
                 book_prob = 1 / dc_odds
                 if our_prob > book_prob + 0.05:
                     value_bet = True
-
-                score = calculate_xpronos_score(analysis, home_form, away_form, base["competition"])
-                category = get_category(score)
-                badge = get_badge(score)
-
-                # Filtre optionnel sur le score xPronos (abaissé)
-                if score < XPRONOS_THRESHOLD:
-                    print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (score xPronos {score} < {XPRONOS_THRESHOLD})")
-                    continue
-
-        # Téléchargement des logos
-        home_logo = download_logo(base["home_competitor_id"], base["home_image_version"])
-        away_logo = download_logo(base["away_competitor_id"], base["away_image_version"])
-        league_logo = download_competition_logo(base["competition_id"], base.get("competition_image_version"))
-
-        # Récupération des votes publics (uniquement pour les catégories pro et vip)
-        public_votes = None
-        if category in ["pro", "vip"]:
-            votes = fetch_predictions(gid)
-            if votes:
-                options = votes.get("options", [])
-                vote_dict = {}
-                for opt in options:
-                    num = opt.get("num")
-                    vote_data = opt.get("vote", {})
-                    percentage = vote_data.get("percentage")
-                    if num == 1:
-                        vote_dict["home"] = percentage
-                    elif num == 2:
-                        vote_dict["draw"] = percentage
-                    elif num == 3:
-                        vote_dict["away"] = percentage
-                if vote_dict:
-                    public_votes = vote_dict
 
         # =======================================================
         # CALCUL DES MÉTRIQUES AVANCÉES
@@ -779,7 +786,6 @@ def main():
             else:
                 votes_dc = 0
             # Si le public est trop confiant (>70%) sur un résultat différent du nôtre, on considère un piège
-            # Ici on considère un piège si le public est >70% sur un des trois résultats
             if (votes_home > 70 and dc != "1X") or (votes_draw > 70 and dc != "X2") or (votes_away > 70 and dc != "12"):
                 trap_detected = True
 
