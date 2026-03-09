@@ -3,24 +3,26 @@
 
 """
 content_generator.py - Génère des articles de blog et conseils via l'API Mistral.
-Ajoute la génération d'images avec fallback : Mistral -> Pixazo -> Lorem Picsum.
-Version corrigée : utilise uniquement Pixazo + fallback, car l'API Mistral image est instable. 
+Génère des images via Pixazo (si clé disponible), Unsplash (si clé disponible), 
+ou fallback Lorem Picsum. En cas d'échec de génération d'image, conserve l'image précédente.
 """
 
 import os
 import json
 import requests
-import uuid
 import random
+import uuid
 from datetime import datetime
 
+# =======================================================
+# CONFIGURATION
+# =======================================================
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY")
+UNSPLASH_ACCESS_KEY = os.environ.get("UNSPLASH_ACCESS_KEY")
 
 if not MISTRAL_API_KEY:
     raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
-
-PIXAZO_API_URL = "https://gateway.pixazo.ai/getImage/v1/getSDXLImage"
 
 DATA_FILE = "data.json"
 ARTICLES_FILE = "articles.json"
@@ -32,6 +34,10 @@ POPULAR_LEAGUES = [
     "MLS", "Brasileirão", "Liga Profesional", "Jupiler Pro League",
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ]
+
+# =======================================================
+# FONCTIONS DE GÉNÉRATION D'IMAGES
+# =======================================================
 
 def generate_image_pixazo(prompt, prefix):
     """Génère une image via l'API Pixazo (Stable Diffusion XL)."""
@@ -53,7 +59,10 @@ def generate_image_pixazo(prompt, prefix):
     }
     try:
         print(f"      📡 Tentative Pixazo...")
-        response = requests.post(PIXAZO_API_URL, json=payload, headers=headers, timeout=60)
+        response = requests.post(
+            "https://gateway.pixazo.ai/getImage/v1/getSDXLImage",
+            json=payload, headers=headers, timeout=60
+        )
         response.raise_for_status()
         data = response.json()
         image_url = data.get("imageUrl")
@@ -70,24 +79,111 @@ def generate_image_pixazo(prompt, prefix):
         print(f"      ❌ Erreur Pixazo: {e}")
         return None
 
-def get_fallback_image_url(topic="football"):
-    """Retourne une image de fallback (Lorem Picsum)."""
-    seed = random.randint(1, 1000)
-    return f"https://picsum.photos/seed/{seed}/768/400?grayscale"
+def generate_image_unsplash(prompt, prefix):
+    """Génère une image via l'API Unsplash (recherche et téléchargement)."""
+    if not UNSPLASH_ACCESS_KEY:
+        return None
+    # Construire une requête à partir du prompt
+    query = prompt.replace("High-quality", "").replace("2D illustration", "").strip()
+    if len(query) > 50:
+        query = query[:50]
+    url = "https://api.unsplash.com/search/photos"
+    headers = {"Authorization": f"Client-ID {UNSPLASH_ACCESS_KEY}"}
+    params = {
+        "query": query,
+        "per_page": 1,
+        "orientation": "landscape"
+    }
+    try:
+        print(f"      📡 Tentative Unsplash avec requête: {query}")
+        resp = requests.get(url, headers=headers, params=params, timeout=15)
+        resp.raise_for_status()
+        data = resp.json()
+        if data["results"]:
+            image_url = data["results"][0]["urls"]["regular"]
+            img_resp = requests.get(image_url, timeout=30)
+            img_resp.raise_for_status()
+            filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.jpg"
+            os.makedirs("assets/images", exist_ok=True)
+            with open(filename, "wb") as f:
+                f.write(img_resp.content)
+            return filename
+    except Exception as e:
+        print(f"      ❌ Erreur Unsplash: {e}")
+    return None
 
-def generate_image_with_fallback(prompt, prefix, subject="football"):
+def get_fallback_image_url(prefix, subject="football"):
+    """Retourne une image de fallback (Lorem Picsum) et la télécharge."""
+    seed = random.randint(1, 1000)
+    url = f"https://picsum.photos/seed/{seed}/768/400?grayscale"
+    try:
+        resp = requests.get(url, timeout=15)
+        resp.raise_for_status()
+        filename = f"assets/images/{prefix}-{uuid.uuid4().hex[:8]}.jpg"
+        os.makedirs("assets/images", exist_ok=True)
+        with open(filename, "wb") as f:
+            f.write(resp.content)
+        return filename
+    except Exception as e:
+        print(f"      ❌ Erreur fallback: {e}")
+        return None
+
+def generate_image_with_fallback(prompt, prefix, subject="football", old_image=None):
     """
-    Tente de générer une image avec Pixazo, puis fallback.
+    Tente de générer une image avec Pixazo, puis Unsplash, puis fallback.
+    Si toutes les tentatives échouent, retourne old_image (l'image précédente) ou None.
     """
+    # Pixazo
     if PIXAZO_API_KEY:
         img = generate_image_pixazo(prompt, prefix)
         if img:
             return img
 
-    print(f"      ℹ️ Utilisation du fallback Lorem Picsum")
-    return get_fallback_image_url(subject)
+    # Unsplash
+    if UNSPLASH_ACCESS_KEY:
+        img = generate_image_unsplash(prompt, prefix)
+        if img:
+            return img
+
+    # Fallback Lorem Picsum
+    img = get_fallback_image_url(prefix, subject)
+    if img:
+        return img
+
+    # Échec total : on garde l'ancienne image si fournie
+    if old_image:
+        print(f"      ℹ️ Conservation de l'image précédente: {old_image}")
+        return old_image
+
+    # Rien du tout
+    return None
+
+# =======================================================
+# FONCTIONS DE GÉNÉRATION DE TEXTE (Mistral)
+# =======================================================
+
+def call_mistral(prompt, temperature=0.7, max_tokens=2000):
+    API_URL = "https://api.mistral.ai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {MISTRAL_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "mistral-large-latest",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": temperature,
+        "max_tokens": max_tokens
+    }
+    try:
+        resp = requests.post(API_URL, headers=headers, json=data, timeout=120)
+        resp.raise_for_status()
+        return resp.json()['choices'][0]['message']['content']
+    except Exception as e:
+        print(f"❌ Erreur Mistral texte: {e}")
+        return None
 
 def load_today_matches():
+    """Charge les matchs du jour depuis data.json."""
     if not os.path.exists(DATA_FILE):
         print(f"❌ Fichier {DATA_FILE} introuvable")
         return []
@@ -124,26 +220,6 @@ def get_most_popular_matches(matches, count=2):
     if len(selected) < count:
         selected += other[:count - len(selected)]
     return selected
-
-def call_mistral(prompt, temperature=0.7, max_tokens=2000):
-    API_URL = "https://api.mistral.ai/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {MISTRAL_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    data = {
-        "model": "mistral-large-latest",
-        "messages": [{"role": "user", "content": prompt}],
-        "temperature": temperature,
-        "max_tokens": max_tokens
-    }
-    try:
-        resp = requests.post(API_URL, headers=headers, json=data, timeout=120)
-        resp.raise_for_status()
-        return resp.json()['choices'][0]['message']['content']
-    except Exception as e:
-        print(f"❌ Erreur Mistral texte: {e}")
-        return None
 
 def generate_blog_article(match):
     home_team = match['home_team']
@@ -204,20 +280,25 @@ L'auteur est "Mr XPRONOS".
 Génère en français uniquement."""
     return call_mistral(prompt, temperature=0.7, max_tokens=800)
 
-def save_article(content, match):
-    articles = []
+# =======================================================
+# SAUVEGARDE AVEC GESTION DES IMAGES (conservation si échec)
+# =======================================================
+
+def load_existing_articles():
     if os.path.exists(ARTICLES_FILE):
         try:
             with open(ARTICLES_FILE, 'r', encoding='utf-8') as f:
-                content_data = f.read().strip()
-                if content_data:
-                    articles = json.loads(content_data)
+                content = f.read().strip()
+                if content:
+                    return json.loads(content)
                 else:
-                    articles = []
+                    return []
         except (json.JSONDecodeError, IOError):
-            articles = []
-    else:
-        articles = []
+            return []
+    return []
+
+def save_article(content, match):
+    articles = load_existing_articles()
 
     lines = content.strip().split('\n')
     title = lines[0].replace('#', '').strip() if lines else "Article sans titre"
@@ -225,8 +306,21 @@ def save_article(content, match):
     slug = ''.join(c if c.isalnum() else '-' for c in slug)
     slug = '-'.join(filter(None, slug.split('-')))
 
+    # Rechercher si un article existe déjà avec le même match (pour conserver l'image)
+    old_image = None
+    for a in articles:
+        if a.get('match') == f"{match['home_team']} vs {match['away_team']}":
+            old_image = a.get('image_url')
+            break
+
+    # Prompt pour l'image
     image_prompt = f"High-quality 2D illustration, vibrant colors, attractive style, football match scene: {match['home_team']} vs {match['away_team']} in the {match['league']} championship. Dynamic action, players in motion, stylized design, clean lines, appealing to fans."
-    image_url = generate_image_with_fallback(image_prompt, prefix="article", subject="football")
+    image_url = generate_image_with_fallback(
+        prompt=image_prompt,
+        prefix="article",
+        subject="football",
+        old_image=old_image
+    )
 
     new = {
         "slug": slug[:100],
@@ -240,31 +334,47 @@ def save_article(content, match):
         "image_url": image_url
     }
     articles.insert(0, new)
-    articles = articles[:50]
+    articles = articles[:50]  # garder 50 articles max
     with open(ARTICLES_FILE, 'w', encoding='utf-8') as f:
         json.dump(articles, f, indent=2, ensure_ascii=False)
-    print(f"✅ Article sauvegardé : {title[:50]}... (image: {image_url})")
+    if image_url:
+        print(f"✅ Article sauvegardé : {title[:50]}... (image: {image_url})")
+    else:
+        print(f"✅ Article sauvegardé : {title[:50]}... (sans image)")
 
-def save_tip(content):
-    conseils = []
+def load_existing_conseils():
     if os.path.exists(CONSEILS_FILE):
         try:
             with open(CONSEILS_FILE, 'r', encoding='utf-8') as f:
-                content_data = f.read().strip()
-                if content_data:
-                    conseils = json.loads(content_data)
+                content = f.read().strip()
+                if content:
+                    return json.loads(content)
                 else:
-                    conseils = []
+                    return []
         except (json.JSONDecodeError, IOError):
-            conseils = []
-    else:
-        conseils = []
+            return []
+    return []
+
+def save_tip(content):
+    conseils = load_existing_conseils()
 
     lines = content.strip().split('\n')
     title = lines[0].replace('#', '').strip() if lines else "Conseil"
 
+    # Chercher un conseil avec le même titre pour conserver l'image (optionnel)
+    old_image = None
+    for c in conseils:
+        if c.get('title') == title:
+            old_image = c.get('image_url')
+            break
+
     image_prompt = f"High-quality 2D illustration, vibrant colors, attractive style, illustrating a sports betting tip: {title}. A stylized character giving advice, with sports elements like a football and odds in the background, clean lines, appealing design."
-    image_url = generate_image_with_fallback(image_prompt, prefix="conseil", subject="betting")
+    image_url = generate_image_with_fallback(
+        prompt=image_prompt,
+        prefix="conseil",
+        subject="betting",
+        old_image=old_image
+    )
 
     new = {
         "title": title,
@@ -273,14 +383,20 @@ def save_tip(content):
         "image_url": image_url
     }
     conseils.insert(0, new)
-    conseils = conseils[:100]
+    conseils = conseils[:100]  # garder 100 conseils max
     with open(CONSEILS_FILE, 'w', encoding='utf-8') as f:
         json.dump(conseils, f, indent=2, ensure_ascii=False)
-    print(f"✅ Conseil sauvegardé : {title[:50]}... (image: {image_url})")
+    if image_url:
+        print(f"✅ Conseil sauvegardé : {title[:50]}... (image: {image_url})")
+    else:
+        print(f"✅ Conseil sauvegardé : {title[:50]}... (sans image)")
 
+# =======================================================
+# MAIN
+# =======================================================
 def main():
     print("="*60)
-    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + images 2D attractives)")
+    print("🚀 GÉNÉRATION DE CONTENU IA (Mistral + images avec fallback)")
     print("="*60)
 
     today_matches = load_today_matches()
