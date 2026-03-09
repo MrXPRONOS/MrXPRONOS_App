@@ -11,9 +11,9 @@
       "league": "Liga Nacional - Clausura",
       "league_logo": "assets/images/logos/competitions/competition_5071.png",
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "1st Half",
+      "home_score": 0,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 3,
         "home_wins": 2.2,
@@ -866,8 +866,8 @@
       "league": "MLS Next Pro",
       "league_logo": "assets/images/logos/competitions/competition_7826.png",
       "venue": "",
-      "status": "2nd Half",
-      "home_score": 3,
+      "status": "Ended",
+      "home_score": 4,
       "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
