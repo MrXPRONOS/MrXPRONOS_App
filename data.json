@@ -1360,9 +1360,9 @@
       "league": "Premier League",
       "league_logo": "assets/images/logos/competitions/competition_129.png",
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Halftime",
+      "home_score": 0,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 2.2,
@@ -2078,7 +2078,7 @@
       "league": "Premier League",
       "league_logo": "assets/images/logos/competitions/competition_7318.png",
       "venue": "",
-      "status": "Halftime",
+      "status": "2nd Half",
       "home_score": 1,
       "away_score": 1,
       "h2h_analysis": {
@@ -2926,7 +2926,7 @@
       "league": "Premier League 2 - Regular Season",
       "league_logo": "assets/images/logos/competitions/competition_7623.png",
       "venue": "",
-      "status": "2nd Half",
+      "status": "Ended",
       "home_score": 1,
       "away_score": 4,
       "h2h_analysis": {
