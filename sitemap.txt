@@ -1,5 +1,4 @@
-https://mrxpronos.github.io/MrXPRONOS_App/
-https://mrxpronos.github.io/MrXPRONOS_App/index.html
+https://mrxpronos.github.io/MrXPRONOS_App
 https://mrxpronos.github.io/MrXPRONOS_App/pronos.html
 https://mrxpronos.github.io/MrXPRONOS_App/historique.html
 https://mrxpronos.github.io/MrXPRONOS_App/blog.html
@@ -7,6 +6,8 @@ https://mrxpronos.github.io/MrXPRONOS_App/conseils.html
 https://mrxpronos.github.io/MrXPRONOS_App/infos.html
 https://mrxpronos.github.io/MrXPRONOS_App/bonus.html
 https://mrxpronos.github.io/MrXPRONOS_App/contact.html
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=birmingham-u21-vs-chelsea-u21-le-choc-des-jeunes-talents-en-premier-league-2
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=the-town-fc-vs-los-angeles-fc-ii-un-choc-mls-next-pro-ne-pas-manquer
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=ethiopian-insurance-vs-hadiya-hossana-un-choc-décisif-en-premier-league-éthiopienne
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=veres-rivne-vs-lnz-cherkasy-le-choc-ukrainien-qui-pourrait-rebattre-les-cartes-de-la-premier-league
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=the-town-fc-vs-lafc-ii-le-choc-des-générations-en-mls-next-pro
@@ -54,6 +55,4 @@ https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=mainz-05-vs-stuttgar
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=kepez-bld-vs-inegolspor-le-choc-de-la-2-lig-qui-pourrait-tout-changer
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=mainz-05-vs-stuttgart-le-choc-rhénan-qui-pourrait-tout-changer-en-bundesliga
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=hapoel-afula-vs-bnei-yehuda-le-choc-de-la-national-league-qui-pourrait-tout-changer
-https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=zamalek-sc-vs-al-ittihad-le-choc-des-titans-égyptiens-et-saoudiens-en-premier-league
-https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=al-talaba-vs-al-qassim-le-choc-des-titans-du-championnat-irakien
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=zamalek-sc-vs-al-ittihad-le-choc-des-titans-égyptiens-et-saoudiens-en-premier-league
