@@ -1925,30 +1925,26 @@ footer {
 }
 
 /* =======================================================
-   ONGLETS ET FILTRES - PLEINE LARGEUR
+   ONGLETS DE CATÉGORIES ET FILTRES DE JOUR - PLEINE LARGEUR
    ======================================================= */
 .category-tabs, .day-filters {
-    display: flex;
-    gap: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
     margin: 1rem 0;
-    flex-wrap: wrap;
-    width: 100%;
 }
 
 .category-tabs .tab-btn, .day-filters .day-btn {
-    flex: 1 1 auto;        /* Les boutons s'étirent pour remplir l'espace */
-    min-width: 80px;       /* Évite qu'ils deviennent trop petits */
-    text-align: center;    /* Centre le texte */
+    width: 100%;
+    text-align: center;
+    padding: 0.5rem 0;   /* Ajustez la hauteur si nécessaire */
+    box-sizing: border-box;
+    font-size: 0.9rem;   /* Pour que le texte tienne bien */
 }
 
-/* Sur mobile, les boutons passent en colonne et prennent toute la largeur */
+/* Sur mobile, on passe en colonne pour une meilleure lisibilité */
 @media (max-width: 480px) {
     .category-tabs, .day-filters {
-        flex-direction: column;
-        gap: 0.3rem;
-    }
-    .category-tabs .tab-btn, .day-filters .day-btn {
-        width: 100%;
-        margin: 0;
+        grid-template-columns: 1fr;
     }
 }
