@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_testimonials.py - Génère des témoignages via Mistral avec des noms des listes fournies.
+generate_testimonials.py - Génère des témoignages via Mistral en utilisant des prénoms et noms de famille africains.
+Évite les doublons et produit des témoignages courts et variés.
 """
 
 import os
@@ -15,8 +16,8 @@ MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 TESTIMONIALS_FILE = "testimonials.json"
 MAX_TESTIMONIALS = 5
 
-# Listes fournies (à copier depuis le message)
-africanFirstNames = [
+# Listes de prénoms et noms africains (fournies par l'utilisateur)
+AFRICAN_FIRST_NAMES = [
     "Aminata", "Fatou", "Moussa", "Amadou", "Khadija", "Ibrahim", "Aisha", "Oumar", "Mariam", "Seydou",
     "Fanta", "Boubacar", "Rokia", "Drissa", "Salimata", "Mamadou", "Adama", "Djeneba", "Lassina", "Kadiatou",
     "Souleymane", "Bintou", "Modibo", "Awa", "Youssouf", "Hawa", "Tidiane", "Oumou", "Cheick", "Fatoumata",
@@ -55,7 +56,7 @@ africanFirstNames = [
     "Hamady", "Ibrahima", "Jean", "Khadim", "Lamine", "Mamadou", "Nafissatou", "Oumar", "Penda", "Rokhaya"
 ]
 
-africanLastNames = [
+AFRICAN_LAST_NAMES = [
     "Traoré", "Diallo", "Koné", "Cissé", "Sow", "Diop", "Ba", "Ndiaye", "Fall", "Sall",
     "Camara", "Keita", "Touré", "Kone", "Sissoko", "Coulibaly", "Sacko", "Dembélé", "Bamba", "Sangaré",
     "Ouattara", "Zongo", "Kabore", "Sawadogo", "Ouedraogo", "Yaméogo", "Tiemtore", "Bonkoungou", "Ilboudo", "Kinda",
@@ -90,70 +91,79 @@ africanLastNames = [
     "Mbodj", "Pouye", "Samb", "Ba", "Ly", "Ndiaye", "Sall", "Sy", "Touré", "Diakité"
 ]
 
-def load_previous_testimonials():
-    if os.path.exists(TESTIMONIALS_FILE):
-        with open(TESTIMONIALS_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return []
+def generate_testimonial_prompt(first_name, last_name):
+    """Génère un prompt pour un témoignage avec un nom spécifique."""
+    prompt = f"""En tant que client satisfait de Mr XPRONOS, un site de pronostics sportifs, rédige un témoignage court et authentique (2-3 phrases) en français.
+Le témoignage doit être écrit à la première personne, avec le prénom "{first_name}" et le nom de famille "{last_name}".
+Évite les phrases toutes faites comme "Grâce à Mr XPRONOS" (varie les expressions). Parle de ton expérience personnelle, des résultats obtenus, ou de la qualité des analyses.
+Le ton doit être naturel et varié.
 
-def save_testimonials(testimonials):
-    with open(TESTIMONIALS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(testimonials, f, indent=2, ensure_ascii=False)
+Format : Retourne uniquement le texte du témoignage, sans guillemets, sans introduction.
+Exemple : "Je suis vraiment impressionné par la précision des pronostics. J'ai gagné plusieurs paris grâce à leurs analyses pointues." - Jean Dupont
+Mais ici, on veut seulement le texte, pas le nom (le nom sera ajouté après)."""
+    return prompt
 
-def generate_one_testimonial(first_name, last_name):
-    prompt = f"""Génère un témoignage de client satisfait de Mr XPRONOS, un site de pronostics sportifs.
-Le client s'appelle {first_name} {last_name}. Écris un commentaire court (2-3 phrases) positif et varié.
-Réponds uniquement avec le texte du témoignage, sans guillemets ni mention du nom."""
+def call_mistral(prompt, temperature=0.8, max_tokens=200):
+    API_URL = "https://api.mistral.ai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {MISTRAL_API_KEY}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "mistral-large-latest",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": temperature,
+        "max_tokens": max_tokens
+    }
     try:
-        response = requests.post(
-            "https://api.mistral.ai/v1/chat/completions",
-            headers={"Authorization": f"Bearer {MISTRAL_API_KEY}", "Content-Type": "application/json"},
-            json={
-                "model": "mistral-large-latest",
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.8,
-                "max_tokens": 200
-            },
-            timeout=30
-        )
-        response.raise_for_status()
-        content = response.json()['choices'][0]['message']['content'].strip()
-        # Nettoyer si nécessaire
+        resp = requests.post(API_URL, headers=headers, json=data, timeout=30)
+        resp.raise_for_status()
+        content = resp.json()['choices'][0]['message']['content'].strip()
+        # Nettoyer les guillemets éventuels
+        content = content.strip('"').strip("'")
         return content
     except Exception as e:
-        print(f"⚠️ Erreur lors de la génération pour {first_name} {last_name}: {e}")
+        print(f"❌ Erreur Mistral: {e}")
         return None
+
+def generate_testimonial(first_name, last_name):
+    """Génère un témoignage pour un nom donné, avec fallback."""
+    prompt = generate_testimonial_prompt(first_name, last_name)
+    text = call_mistral(prompt)
+    if text and len(text) > 20:
+        return text
+    # Fallback si échec
+    fallbacks = [
+        "Les pronostics sont vraiment fiables, je recommande vivement !",
+        "Une analyse très pointue qui m'a permis de mieux comprendre les matchs.",
+        "Depuis que je suis Mr XPRONOS, mes gains ont augmenté significativement.",
+        "Enfin un site de pronostics qui ne se trompe pas !",
+        "Le système de partage est génial, j'ai débloqué des pronostics premium facilement."
+    ]
+    return random.choice(fallbacks)
 
 def main():
     print("📝 Génération des témoignages...")
-    previous = load_previous_testimonials()
-    # On va générer MAX_TESTIMONIALS nouveaux témoignages
-    new_testimonials = []
-    used_names = set()  # pour éviter les doublons dans la même session
-    for _ in range(MAX_TESTIMONIALS):
-        # Choisir un prénom et un nom aléatoires
-        first = random.choice(africanFirstNames)
-        last = random.choice(africanLastNames)
-        full = f"{first} {last}"
-        # Éviter les doublons (optionnel)
-        while full in used_names:
-            first = random.choice(africanFirstNames)
-            last = random.choice(africanLastNames)
-            full = f"{first} {last}"
-        used_names.add(full)
-        print(f"   Génération pour {full}...")
-        text = generate_one_testimonial(first, last)
-        if text:
-            new_testimonials.append({"name": full, "text": text})
-        else:
-            # Fallback : on prend un témoignage par défaut avec ce nom
-            default_text = f"Grâce à Mr XPRONOS, j'ai considérablement amélioré mes gains. Les analyses sont très précises et je recommande vivement !"
-            new_testimonials.append({"name": full, "text": default_text})
+    testimonials = []
+    used_names = set()
 
-    # On sauvegarde les nouveaux témoignages (on peut choisir de remplacer ou fusionner)
-    # Ici on remplace complètement pour avoir des témoignages frais à chaque exécution
-    save_testimonials(new_testimonials)
-    print(f"✅ {len(new_testimonials)} témoignages générés et sauvegardés.")
+    # Générer MAX_TESTIMONIALS témoignages uniques
+    while len(testimonials) < MAX_TESTIMONIALS:
+        first = random.choice(AFRICAN_FIRST_NAMES)
+        last = random.choice(AFRICAN_LAST_NAMES)
+        full_name = f"{first} {last}"
+        if full_name in used_names:
+            continue
+        used_names.add(full_name)
+        text = generate_testimonial(first, last)
+        testimonials.append({"name": full_name, "text": text})
+        print(f"  Généré : {full_name}")
+
+    # Sauvegarde
+    with open(TESTIMONIALS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(testimonials, f, indent=2, ensure_ascii=False)
+
+    print(f"✅ {len(testimonials)} témoignages sauvegardés dans {TESTIMONIALS_FILE}")
 
 if __name__ == "__main__":
     main()
