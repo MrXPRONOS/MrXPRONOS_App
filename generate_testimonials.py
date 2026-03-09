@@ -2,9 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_testimonials.py - Génère 3 témoignages aléatoires via Mistral
-et les ajoute en tête de testimonials.json (conserve les 10 plus récents).
-Version améliorée avec fallback sur les anciens témoignages.
+generate_testimonials.py - Génère des témoignages via Mistral avec fallback sur les anciens.
 """
 
 import os
@@ -13,37 +11,26 @@ import requests
 import re
 
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
-if not MISTRAL_API_KEY:
-    raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
+TESTIMONIALS_FILE = "testimonials.json"
+MAX_TESTIMONIALS = 5
 
-TESTIMONIALS_FILE = 'testimonials.json'
-MAX_TESTIMONIALS = 10
-
-def load_existing_testimonials():
-    """Charge les témoignages existants depuis le fichier JSON."""
+def load_previous_testimonials():
     if os.path.exists(TESTIMONIALS_FILE):
-        try:
-            with open(TESTIMONIALS_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError):
-            print("⚠️ Fichier testimonials.json corrompu, on repart de zéro.")
-            return []
+        with open(TESTIMONIALS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
     return []
 
 def save_testimonials(testimonials):
-    """Sauvegarde la liste des témoignages (tronquée à MAX_TESTIMONIALS)."""
     with open(TESTIMONIALS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(testimonials[:MAX_TESTIMONIALS], f, indent=2, ensure_ascii=False)
+        json.dump(testimonials, f, indent=2, ensure_ascii=False)
 
 def generate_new_testimonials():
-    """Appelle l'API Mistral pour générer 3 nouveaux témoignages."""
-    prompt = """Génère 3 témoignages de clients satisfaits de Mr XPRONOS, un site de pronostics sportifs. Pour chaque témoignage, donne un prénom (français) et un commentaire court (2-3 phrases). Les commentaires doivent être positifs et variés. Réponds au format JSON comme suit :
+    prompt = f"""Génère {MAX_TESTIMONIALS} témoignages de clients satisfaits de Mr XPRONOS, un site de pronostics sportifs. Pour chaque témoignage, donne un prénom (français) et un commentaire court (2-3 phrases). Les commentaires doivent être positifs et variés. Réponds au format JSON comme suit :
 [
-  {"name": "Prénom", "text": "Commentaire"},
+  {{"name": "Prénom", "text": "Commentaire"}},
   ...
 ]
 Uniquement le JSON, sans texte avant ni après."""
-    
     try:
         response = requests.post(
             "https://api.mistral.ai/v1/chat/completions",
@@ -52,7 +39,7 @@ Uniquement le JSON, sans texte avant ni après."""
                 "model": "mistral-large-latest",
                 "messages": [{"role": "user", "content": prompt}],
                 "temperature": 0.8,
-                "max_tokens": 500
+                "max_tokens": 800
             },
             timeout=30
         )
@@ -61,33 +48,35 @@ Uniquement le JSON, sans texte avant ni après."""
         match = re.search(r'\[.*\]', content, re.DOTALL)
         if match:
             new_testimonials = json.loads(match.group())
-            # Vérification minimale de structure
-            if isinstance(new_testimonials, list) and len(new_testimonials) == 3:
-                for t in new_testimonials:
-                    if not isinstance(t, dict) or 'name' not in t or 'text' not in t:
-                        raise ValueError("Format de témoignage invalide")
-                return new_testimonials
-        raise ValueError("Aucun JSON valide trouvé dans la réponse")
+            # Limiter à MAX_TESTIMONIALS
+            return new_testimonials[:MAX_TESTIMONIALS]
     except Exception as e:
-        print(f"❌ Erreur lors de la génération des témoignages: {e}")
-        return None
+        print(f"⚠️ Erreur lors de la génération: {e}")
+    return None
 
 def main():
     print("📝 Génération des témoignages...")
-    existing = load_existing_testimonials()
-    new_ones = generate_new_testimonials()
-    
-    if new_ones:
-        # Ajouter les nouveaux en tête de liste
-        updated = new_ones + existing
-        print(f"✅ {len(new_ones)} nouveaux témoignages générés.")
+    previous = load_previous_testimonials()
+    new = generate_new_testimonials()
+    if new:
+        # On garde les nouveaux, mais on peut aussi fusionner avec les anciens pour varier
+        # Ici on remplace complètement
+        save_testimonials(new)
+        print(f"✅ {len(new)} témoignages générés et sauvegardés.")
     else:
-        # Fallback : garder les existants
-        updated = existing
-        print("⚠️ Utilisation des anciens témoignages (fallback).")
-    
-    save_testimonials(updated)
-    print(f"💾 {len(updated[:MAX_TESTIMONIALS])} témoignages sauvegardés dans {TESTIMONIALS_FILE}")
+        # Fallback : on garde les anciens
+        if previous:
+            print(f"⚠️ Utilisation des {len(previous)} témoignages précédents.")
+            # On peut éventuellement les remélanger ou les laisser tels quels
+        else:
+            # Fallback ultime : témoignages par défaut
+            default = [
+                {"name": "Jean", "text": "Grâce à Mr XPRONOS, j'ai multiplié mes gains par 3 en un mois !"},
+                {"name": "Marie", "text": "Les pronostics VIP sont incroyablement précis. Je recommande !"},
+                {"name": "Thomas", "text": "Le système de partage permet d'accéder à des analyses de qualité gratuitement."}
+            ]
+            save_testimonials(default)
+            print("✅ Témoignages par défaut sauvegardés.")
 
 if __name__ == "__main__":
     main()
