@@ -508,9 +508,9 @@
       "league": "First League",
       "league_logo": "assets/images/logos/competitions/competition_5632.png",
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 2.7,
@@ -556,8 +556,8 @@
       "verified_over": false,
       "odds": {
         "home": 1.25,
-        "draw": 5.5,
-        "away": 9.5
+        "draw": 5.25,
+        "away": 11
       },
       "public_votes": null,
       "value_bet": false,
@@ -1360,9 +1360,9 @@
       "league": "Premier League",
       "league_logo": "assets/images/logos/competitions/competition_129.png",
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "2nd Half",
+      "home_score": 0,
+      "away_score": 2,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 2.2,
@@ -1407,9 +1407,9 @@
       "verified_btts": false,
       "verified_over": false,
       "odds": {
-        "home": 4.75,
-        "draw": 2.9,
-        "away": 1.8
+        "home": 4.5,
+        "draw": 2.88,
+        "away": 1.83
       },
       "public_votes": null,
       "value_bet": true,
@@ -1435,9 +1435,9 @@
       "league": "First League",
       "league_logo": "assets/images/logos/competitions/competition_5632.png",
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 0,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -1482,9 +1482,9 @@
       "verified_btts": false,
       "verified_over": false,
       "odds": {
-        "home": 3.9,
-        "draw": 3.5,
-        "away": 1.75
+        "home": 4.5,
+        "draw": 3.7,
+        "away": 1.65
       },
       "public_votes": null,
       "value_bet": false,
@@ -2050,9 +2050,9 @@
       "verified_btts": false,
       "verified_over": false,
       "odds": {
-        "home": 2.8,
+        "home": 2.88,
         "draw": 2.9,
-        "away": 2.38
+        "away": 2.3
       },
       "public_votes": null,
       "value_bet": false,
@@ -2078,9 +2078,9 @@
       "league": "Premier League",
       "league_logo": "assets/images/logos/competitions/competition_7318.png",
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 2.0,
@@ -2610,9 +2610,9 @@
       "verified_btts": false,
       "verified_over": false,
       "odds": {
-        "home": 1.75,
-        "draw": 3.5,
-        "away": 3.75
+        "home": 1.6,
+        "draw": 3.7,
+        "away": 4.5
       },
       "public_votes": null,
       "value_bet": false,
@@ -2926,9 +2926,9 @@
       "league": "Premier League 2 - Regular Season",
       "league_logo": "assets/images/logos/competitions/competition_7623.png",
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 4,
       "h2h_analysis": {
         "total_matches": 0,
         "home_wins": 0,
@@ -2974,7 +2974,7 @@
       "verified_over": false,
       "odds": {
         "home": 7,
-        "draw": 5.75,
+        "draw": 6,
         "away": 1.25
       },
       "public_votes": null,
@@ -4243,7 +4243,7 @@
         "verified_over": false,
         "odds": {
           "home": 7,
-          "draw": 5.75,
+          "draw": 6,
           "away": 1.25
         },
         "public_votes": null,
@@ -5062,9 +5062,9 @@
         "verified_btts": false,
         "verified_over": false,
         "odds": {
-          "home": 1.75,
-          "draw": 3.5,
-          "away": 3.75
+          "home": 1.6,
+          "draw": 3.7,
+          "away": 4.5
         },
         "public_votes": null,
         "value_bet": false,
@@ -5494,9 +5494,9 @@
         "verified_btts": false,
         "verified_over": false,
         "odds": {
-          "home": 4.75,
-          "draw": 2.9,
-          "away": 1.8
+          "home": 4.5,
+          "draw": 2.88,
+          "away": 1.83
         },
         "public_votes": null,
         "value_bet": true,
@@ -6062,9 +6062,9 @@
         "verified_btts": false,
         "verified_over": false,
         "odds": {
-          "home": 3.9,
-          "draw": 3.5,
-          "away": 1.75
+          "home": 4.5,
+          "draw": 3.7,
+          "away": 1.65
         },
         "public_votes": null,
         "value_bet": false,
@@ -6212,9 +6212,9 @@
         "verified_btts": false,
         "verified_over": false,
         "odds": {
-          "home": 2.8,
+          "home": 2.88,
           "draw": 2.9,
-          "away": 2.38
+          "away": 2.3
         },
         "public_votes": null,
         "value_bet": false,
@@ -7079,8 +7079,8 @@
         "verified_over": false,
         "odds": {
           "home": 1.25,
-          "draw": 5.5,
-          "away": 9.5
+          "draw": 5.25,
+          "away": 11
         },
         "public_votes": null,
         "value_bet": false,
