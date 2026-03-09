@@ -4,32 +4,22 @@
 """
 update_historical.py - Ajoute les matchs d'hier au cache global all_matches.json
 pour maintenir l'historique à jour.
-Exécution quotidienne (par exemple dans le workflow update-data.yml). 
+Utilise la rotation de clés API via api_utils.
+Exécution quotidienne.
 """
 
 import os
 import json
-import requests
 from datetime import datetime, timedelta
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+from api_utils import make_request
 
-SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")
-if not SPORTDATA_API_KEY:
-    raise ValueError("SPORTDATA_API_KEY non définie")
-
-BASE_URL = "https://v1.football.sportsapipro.com/games/allscores"
-HEADERS = {"x-api-key": SPORTDATA_API_KEY}
-
-session = requests.Session()
-retries = Retry(total=3, backoff_factor=1, status_forcelist=[429,500,502,503,504])
-session.mount('https://', HTTPAdapter(max_retries=retries))
-
+SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
 CACHE_DIR = "cache"
 CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
 yesterday = datetime.now().date() - timedelta(days=1)
 
 def fetch_games(date):
+    """Récupère les matchs pour une date donnée via l'API SportData."""
     params = {
         "startDate": date.strftime("%d/%m/%Y"),
         "endDate": date.strftime("%d/%m/%Y"),
@@ -37,10 +27,12 @@ def fetch_games(date):
         "showOdds": "false",
         "onlyMajorGames": "false"
     }
-    resp = session.get(BASE_URL, headers=HEADERS, params=params, timeout=30)
-    resp.raise_for_status()
-    data = resp.json()
-    return data.get("games", [])
+    try:
+        resp = make_request('GET', SPORTDATA_URL, params=params, timeout=30)
+        return resp.json().get("games", [])
+    except Exception as e:
+        print(f"❌ Erreur lors de la récupération des matchs pour {date}: {e}")
+        return []
 
 def extract_match_info(game):
     """Extrait les informations au même format que allmatches.py."""
@@ -71,12 +63,14 @@ def extract_match_info(game):
     }
 
 def load_existing():
+    """Charge le fichier de cache existant."""
     if os.path.exists(CACHE_FILE):
         with open(CACHE_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     return []
 
 def save(matches):
+    """Sauvegarde la liste des matchs dans le cache."""
     with open(CACHE_FILE, 'w', encoding='utf-8') as f:
         json.dump(matches, f, indent=2, ensure_ascii=False)
 
@@ -94,7 +88,7 @@ def main():
 
     # Charger l'existant
     all_matches = load_existing()
-    existing_ids = {m['id'] for m in all_matches}
+    existing_ids = {m['id'] for m in all_matches if m.get('id')}
 
     # Filtrer ceux qui ne sont pas déjà dans le cache
     to_add = [m for m in new_matches if m['id'] not in existing_ids]
