@@ -1,25 +1,6 @@
 /**
- * main.js - Mr XPRONOS – Version ultime avec Supabase et VIP payant
- * 
- * Fonctionnalités :
- * - Pronostics avec filtres (Simple/Pro/VIP)
- * - Partage pour débloquer les Pro (3 partages)
- * - VIP payant avec vérification via Supabase (codes mensuels)
- * - Gestion offline robuste (cache + timeout)
- * - Logos des clubs locaux avec fallback home.png / away.png
- * - Articles, conseils, actualités en grille avec modals et sauts de ligne
- * - Témoignages dynamiques
- * - Notifications de gains en direct
- * - Installation PWA
- * - Bookmakers avec fallback et liens d'affiliation
- * - Statistiques (visites, partages) stockées dans Supabase + fallback localStorage
- * - Compteurs en temps réel
- * - Utilisateurs uniques et visiteurs en ligne
- * - Lazy loading des images
- * - Taux de réussite basé sur double chance (et BTTS pour les VIP)
- * - Affichage des derniers pronostics gagnants avec score et badges
- * - Slider des gains récents
- * - Barre de taux de réussite animée
+ * main.js - Mr XPRONOS – Version finale corrigée
+ * Fusion des parties fonctionnelles de l'ancienne version avec les améliorations.
  */
 
 // =======================================================
@@ -88,11 +69,36 @@ const POPULAR_LEAGUES = [
 ];
 
 // =======================================================
+// FONCTIONS UTILITAIRES
+// =======================================================
+function getUserId() {
+    let userId = localStorage.getItem('mx_user_id');
+    if (!userId) {
+        userId = 'MX-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+        localStorage.setItem('mx_user_id', userId);
+    }
+    return userId;
+}
+
+function showToast(message, type = 'info', duration = 4000) {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed; bottom: 20px; right: 20px; background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+        color: white; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10000; font-weight: 600; animation: slideIn 0.3s ease;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), duration);
+}
+
+// =======================================================
 // FONCTIONS VIP (seront surchargées par vip.js)
 // =======================================================
 window.checkVipStatus = window.checkVipStatus || (async () => false);
 window.showVipLoginForm = window.showVipLoginForm || (() => {});
-window.getUserId = window.getUserId || (() => '');
+window.getUserId = window.getUserId || getUserId;
 
 // =======================================================
 // FONCTIONS DE GESTION DES PARTAGES QUOTIDIENS
@@ -117,24 +123,8 @@ function incrementShareCount() {
 }
 
 // =======================================================
-// SYSTÈME DE COMPTEURS SUPABASE (TEMPS RÉEL)
+// SYSTÈME DE COMPTEURS SUPABASE VIA RPC (fonctionnel)
 // =======================================================
-
-async function getCounterValue(counterName) {
-    if (!supabaseAvailable) return 0;
-    try {
-        const { data, error } = await supabase
-            .from('counters')
-            .select(counterName)
-            .eq('id', 1)
-            .single();
-        if (error) throw error;
-        return data[counterName] || 0;
-    } catch (e) {
-        console.error('Erreur récupération compteur:', e);
-        return 0;
-    }
-}
 
 async function incrementCounter(counterName) {
     if (!supabaseAvailable) return;
@@ -142,25 +132,25 @@ async function incrementCounter(counterName) {
         const { error } = await supabase.rpc('increment_counter', {
             counter_name: counterName
         });
-        if (error) throw error;
+        if (error) console.error('Erreur incrémentation:', error);
     } catch (e) {
-        console.error('Erreur incrémentation:', e);
+        console.error('Erreur réseau incrémentation:', e);
     }
 }
 
 async function updateDisplayedCounters() {
-    const usersEl = document.getElementById('total-users-count');
-    const sharesEl = document.getElementById('total-shares-count');
     if (!supabaseAvailable) return;
     try {
         const { data, error } = await supabase
             .from('counters')
-            .select('total_users, total_shares')
+            .select('total_visits, total_shares')
             .eq('id', 1)
             .single();
         if (error) throw error;
-        if (usersEl) usersEl.textContent = data.total_users.toLocaleString() + '+';
-        if (sharesEl) sharesEl.textContent = data.total_shares.toLocaleString() + '+';
+        const usersEl = document.getElementById('total-users-count');
+        const sharesEl = document.getElementById('total-shares-count');
+        if (usersEl) usersEl.textContent = (data.total_visits || 0).toLocaleString() + '+';
+        if (sharesEl) sharesEl.textContent = (data.total_shares || 0).toLocaleString() + '+';
     } catch (e) {
         console.error('Erreur récupération counters:', e);
     }
@@ -172,33 +162,34 @@ function subscribeToCounters() {
         .channel('counters-live')
         .on(
             'postgres_changes',
-            { event: 'UPDATE', schema: 'public', table: 'counters' },
+            { event: 'UPDATE', schema: 'public', table: 'counters', filter: 'id=eq.1' },
             (payload) => {
                 const usersEl = document.getElementById('total-users-count');
                 const sharesEl = document.getElementById('total-shares-count');
-                if (usersEl) usersEl.textContent = payload.new.total_users.toLocaleString() + '+';
-                if (sharesEl) sharesEl.textContent = payload.new.total_shares.toLocaleString() + '+';
+                if (usersEl) usersEl.textContent = (payload.new.total_visits || 0).toLocaleString() + '+';
+                if (sharesEl) sharesEl.textContent = (payload.new.total_shares || 0).toLocaleString() + '+';
             }
         )
         .subscribe();
 }
 
 // =======================================================
-// ENREGISTREMENT DES ÉVÉNEMENTS (VISITES, PARTAGES) DANS SUPABASE
+// ENREGISTREMENT DES ÉVÉNEMENTS VIA RPC
 // =======================================================
 
-function recordEvent(type) {
-    const userId = window.getUserId();
+async function recordEvent(type) {
+    if (!supabaseAvailable) return;
+    const userId = getUserId();
     const page = window.location.pathname;
-
-    if (supabaseAvailable) {
-        supabase
-            .from('events')
-            .insert({ type, user_id: userId, page })
-            .then(({ error }) => {
-                if (error) console.warn('Erreur envoi événement Supabase:', error);
-            })
-            .catch(e => console.warn('Erreur réseau Supabase', e));
+    try {
+        const { error } = await supabase.rpc('record_event', {
+            p_type: type,
+            p_user_id: userId,
+            p_page: page
+        });
+        if (error) console.warn('Erreur enregistrement événement:', error);
+    } catch (e) {
+        console.warn('Erreur réseau Supabase (event):', e);
     }
 }
 
@@ -290,6 +281,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 startWinsSlider();
                 showSuccessRate();
                 animateWins();
+                updateSuccessRate(); // pour l'accueil
             }
         });
         displayTestimonials();
@@ -830,8 +822,8 @@ function renderMatches(matches) {
             const homeDefault = 'assets/images/home.webp';
             const awayDefault = 'assets/images/away.webp';
 
-            const homeLogo = getTeamLogoPath(m.home_team, true);
-            const awayLogo = getTeamLogoPath(m.away_team, false);
+            const homeLogo = m.home_logo || getTeamLogoPath(m.home_team, true);
+            const awayLogo = m.away_logo || getTeamLogoPath(m.away_team, false);
 
             // Un pronostic est gagnant si double chance vérifié, et si combo BTTS est vérifié
             const isWinner = m.verified_double && (!combo || m.verified_btts);
@@ -1506,8 +1498,8 @@ async function displayHistory() {
             const verifiedBtts = m.verified_btts ? 'checked' : '';
             const homeDefault = 'assets/images/home.webp';
             const awayDefault = 'assets/images/away.webp';
-            const homeLogo = getTeamLogoPath(m.home_team, true);
-            const awayLogo = getTeamLogoPath(m.away_team, false);
+            const homeLogo = m.home_logo || getTeamLogoPath(m.home_team, true);
+            const awayLogo = m.away_logo || getTeamLogoPath(m.away_team, false);
 
             const isWinner = m.verified_double && (!m.prediction.combo || m.verified_btts);
             const winnerClass = isWinner ? 'winner' : '';
@@ -1558,6 +1550,10 @@ async function displayHistory() {
 function updateSuccessRate() {
     const container = document.getElementById('success-rate-container');
     if (!container) return;
+    if (!allData || !allData.matches) {
+        container.style.display = 'none';
+        return;
+    }
     const matches = allData.matches || [];
     const finished = matches.filter(m => {
         if (!m.status) return false;
@@ -1576,13 +1572,14 @@ function updateSuccessRate() {
     const rate = ((successful.length / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
     const roi = stats.roi || 0;
+    const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
     container.innerHTML = `
         <div class="success-rate-item">
             <div class="success-rate-value">${rate}%</div>
             <div class="success-rate-label">Réussite</div>
         </div>
         <div class="success-rate-item">
-            <div class="success-rate-value">${roi > 0 ? '+' : ''}${roi}%</div>
+            <div class="success-rate-value">${roiDisplay}</div>
             <div class="success-rate-label">ROI</div>
         </div>
     `;
@@ -1646,8 +1643,8 @@ function displayLatestVerified() {
         const statusClass = getStatusClass(m.status);
         const homeDefault = 'assets/images/home.webp';
         const awayDefault = 'assets/images/away.webp';
-        const homeLogo = getTeamLogoPath(m.home_team, true);
-        const awayLogo = getTeamLogoPath(m.away_team, false);
+        const homeLogo = m.home_logo || getTeamLogoPath(m.home_team, true);
+        const awayLogo = m.away_logo || getTeamLogoPath(m.away_team, false);
         const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
         const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
         const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
