@@ -6,11 +6,9 @@
     <title>Administration - Mr XPRONOS</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- TinyMCE pour l'éditeur WYSIWYG -->
-    <script src="https://cdn.tiny.cloud/1/w1ph8mxgvljs6dn69prpnx8t7e8y3evij9a9p8xtmqgdy6ym/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Chart.js pour les graphiques -->
+    <!-- Chart.js pour les graphiques (optionnel) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Styles spécifiques à l'admin (responsive) */
@@ -388,13 +386,12 @@
             <button class="tab-btn" data-tab="vip">Codes VIP</button>
             <button class="tab-btn" data-tab="settings">Paramètres</button>
             <button class="tab-btn" data-tab="export">Export JSON</button>
+            <button class="tab-btn" data-tab="generated-articles">📄 Articles générés</button>
         </div>
 
         <!-- Onglet Statistiques -->
         <div id="tab-stats" class="tab-pane">
             <h2>📊 Mr XPRONOS - Statistiques en temps réel</h2>
-            
-            <!-- Sélecteur de période -->
             <div class="period-selector">
                 <label for="period-select">Période :</label>
                 <select id="period-select">
@@ -415,7 +412,6 @@
                     <button id="apply-custom" class="btn btn-secondary">Appliquer</button>
                 </div>
             </div>
-
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>👥 Utilisateurs en ligne</h3>
@@ -450,7 +446,7 @@
                 <div class="stat-card">
                     <h3>📈 Taux de conversion VIP</h3>
                     <div class="stat-value" id="conversion-rate">0.00%</div>
-                    <small>sur la période</small>
+                    <small>des visiteurs deviennent VIP</small>
                 </div>
             </div>
             <div class="chart-container">
@@ -498,7 +494,7 @@
             <div class="admin-list" id="pronostics-list-admin"></div>
         </div>
 
-        <!-- Onglet Blog (avec champs SEO) -->
+        <!-- Onglet Blog (sans TinyMCE) -->
         <div id="tab-blog" class="tab-pane">
             <h2>Gestion du blog</h2>
             <form id="blog-form">
@@ -524,9 +520,9 @@
                 </div>
                 <div class="form-group">
                     <label>Contenu (HTML)</label>
-                    <textarea id="blog-content" required class="tinymce"></textarea>
+                    <textarea id="blog-content" required></textarea>
                 </div>
-                <!-- Champs SEO ajoutés -->
+                <!-- Champs SEO -->
                 <div class="form-group">
                     <label>Meta description (SEO, max 160 caractères)</label>
                     <textarea id="blog-meta-description" maxlength="160"></textarea>
@@ -575,7 +571,7 @@
                 </div>
                 <div class="form-group">
                     <label>Contenu</label>
-                    <textarea id="conseil-content" required class="tinymce"></textarea>
+                    <textarea id="conseil-content" required></textarea>
                 </div>
                 <div class="form-group">
                     <label>Image URL</label>
@@ -711,6 +707,14 @@
             <button id="export-json" class="btn btn-primary">Télécharger data.json</button>
             <button id="reset-data" class="btn btn-secondary" style="margin-left: 1rem;">Réinitialiser les données (exemple)</button>
             <pre id="json-preview" style="background: #0D0D0D; padding: 15px; border-radius: 8px; border: 1px solid #D4AF37; margin-top: 20px; max-height: 400px; overflow: auto;"></pre>
+        </div>
+
+        <!-- Onglet Articles générés -->
+        <div id="tab-generated-articles" class="tab-pane">
+            <h2>Articles générés automatiquement</h2>
+            <p>Liste des articles créés par le script <code>content_generator.py</code>. Vous pouvez les masquer (ils n'apparaîtront plus sur le site) et télécharger le fichier mis à jour.</p>
+            <div id="generated-articles-list" class="admin-list"></div>
+            <button id="download-articles" class="btn btn-primary">Télécharger articles.json</button>
         </div>
     </div>
 
@@ -970,12 +974,11 @@
                 }
             });
 
-            // Charger les stats initiales
             loadAdminStatsWithPeriod(currentPeriod);
         }
 
         // =======================================================
-        // GRAPHIQUES (adaptés à la période)
+        // GRAPHIQUES
         // =======================================================
         let visitsChart, pagesChart;
 
@@ -1011,7 +1014,6 @@
 
                 if (error) throw error;
 
-                // Grouper par jour
                 const visitsByDay = {};
                 events.forEach(e => {
                     const day = e.created_at.split('T')[0];
@@ -1023,7 +1025,6 @@
                 visitsChart.data.datasets[0].data = data;
                 visitsChart.update();
 
-                // Répartition par page
                 const pageCounts = {};
                 events.forEach(e => {
                     if (e.page) pageCounts[e.page] = (pageCounts[e.page] || 0) + 1;
@@ -1111,10 +1112,9 @@
         }
 
         // =======================================================
-        // FONCTIONS DE RENDU (CRUD) - inchangées (copiées depuis versions précédentes)
+        // FONCTIONS DE RENDU (CRUD) - inchangées
         // =======================================================
 
-        // Pronostics
         function renderPronostics() {
             const container = document.getElementById('pronostics-list-admin');
             if (!container) return;
@@ -1174,7 +1174,6 @@
             document.getElementById('pronostic-index').value = '-1';
         });
 
-        // Blog
         function renderBlog() {
             const container = document.getElementById('blog-list-admin');
             if (!container) return;
@@ -1197,11 +1196,7 @@
             document.getElementById('blog-date').value = a.date;
             document.getElementById('blog-author').value = a.author;
             document.getElementById('blog-excerpt').value = a.excerpt;
-            if (tinymce.get('blog-content')) {
-                tinymce.get('blog-content').setContent(a.content);
-            } else {
-                document.getElementById('blog-content').value = a.content;
-            }
+            document.getElementById('blog-content').value = a.content;
             document.getElementById('blog-meta-description').value = a.meta_description || '';
             document.getElementById('blog-keywords').value = a.keywords || '';
             document.getElementById('blog-og-image').value = a.og_image || '';
@@ -1221,12 +1216,6 @@
         document.getElementById('blog-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const index = parseInt(document.getElementById('blog-index').value);
-            let content;
-            if (tinymce.get('blog-content')) {
-                content = tinymce.get('blog-content').getContent();
-            } else {
-                content = document.getElementById('blog-content').value;
-            }
             let faq = document.getElementById('blog-faq').value;
             if (faq) {
                 try {
@@ -1244,7 +1233,7 @@
                 date: document.getElementById('blog-date').value,
                 author: document.getElementById('blog-author').value,
                 excerpt: document.getElementById('blog-excerpt').value,
-                content: content,
+                content: document.getElementById('blog-content').value,
                 meta_description: document.getElementById('blog-meta-description').value,
                 keywords: document.getElementById('blog-keywords').value,
                 og_image: document.getElementById('blog-og-image').value,
@@ -1264,9 +1253,6 @@
             saveData();
             document.getElementById('blog-form').reset();
             document.getElementById('blog-index').value = '-1';
-            if (tinymce.get('blog-content')) {
-                tinymce.get('blog-content').setContent('');
-            }
             document.getElementById('blog-preview').style.display = 'none';
         });
 
@@ -1295,22 +1281,18 @@
         document.getElementById('cancel-blog').addEventListener('click', () => {
             document.getElementById('blog-form').reset();
             document.getElementById('blog-index').value = '-1';
-            if (tinymce.get('blog-content')) {
-                tinymce.get('blog-content').setContent('');
-            }
             document.getElementById('blog-preview').style.display = 'none';
         });
 
         document.getElementById('preview-blog').addEventListener('click', () => {
             const title = document.getElementById('blog-title').value;
-            const content = tinymce.get('blog-content') ? tinymce.get('blog-content').getContent() : document.getElementById('blog-content').value;
+            const content = document.getElementById('blog-content').value;
             const excerpt = document.getElementById('blog-excerpt').value;
             const previewDiv = document.getElementById('blog-preview-content');
             previewDiv.innerHTML = `<h3>${title}</h3><p><em>${excerpt}</em></p><hr>${content}`;
             document.getElementById('blog-preview').style.display = 'block';
         });
 
-        // Conseils
         function renderConseils() {
             const container = document.getElementById('conseils-list-admin');
             if (!container) return;
@@ -1329,11 +1311,7 @@
         window.editConseil = (index) => {
             const c = data.conseils[index];
             document.getElementById('conseil-title').value = c.title;
-            if (tinymce.get('conseil-content')) {
-                tinymce.get('conseil-content').setContent(c.content);
-            } else {
-                document.getElementById('conseil-content').value = c.content;
-            }
+            document.getElementById('conseil-content').value = c.content;
             document.getElementById('conseil-image').value = c.image_url || '';
             document.getElementById('conseil-index').value = index;
         };
@@ -1348,15 +1326,9 @@
         document.getElementById('conseil-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const index = parseInt(document.getElementById('conseil-index').value);
-            let content;
-            if (tinymce.get('conseil-content')) {
-                content = tinymce.get('conseil-content').getContent();
-            } else {
-                content = document.getElementById('conseil-content').value;
-            }
             const newConseil = {
                 title: document.getElementById('conseil-title').value,
-                content: content,
+                content: document.getElementById('conseil-content').value,
                 image_url: document.getElementById('conseil-image').value
             };
             if (index === -1) {
@@ -1367,20 +1339,13 @@
             saveData();
             document.getElementById('conseil-form').reset();
             document.getElementById('conseil-index').value = '-1';
-            if (tinymce.get('conseil-content')) {
-                tinymce.get('conseil-content').setContent('');
-            }
         });
 
         document.getElementById('cancel-conseil').addEventListener('click', () => {
             document.getElementById('conseil-form').reset();
             document.getElementById('conseil-index').value = '-1';
-            if (tinymce.get('conseil-content')) {
-                tinymce.get('conseil-content').setContent('');
-            }
         });
 
-        // Infos
         function renderInfos() {
             const container = document.getElementById('infos-list-admin');
             if (!container) return;
@@ -1432,7 +1397,6 @@
             document.getElementById('info-index').value = '-1';
         });
 
-        // Bonus
         function renderBonus() {
             const container = document.getElementById('bonus-list-admin');
             if (!container) return;
@@ -1506,7 +1470,6 @@
             document.getElementById('bonus-index').value = '-1';
         });
 
-        // Bookmakers
         function renderBookmakersList() {
             const container = document.getElementById('bookmakers-list-admin');
             if (!container) return;
@@ -1551,7 +1514,6 @@
             saveData();
         });
 
-        // VIP
         async function renderVipList() {
             const container = document.getElementById('vip-list');
             if (!container) return;
@@ -1589,6 +1551,70 @@
                 console.error(error);
             }
         }
+
+        // =======================================================
+        // ARTICLES GÉNÉRÉS
+        // =======================================================
+        let generatedArticles = [];
+
+        async function loadGeneratedArticles() {
+            try {
+                const resp = await fetch('articles.json?t=' + Date.now());
+                if (resp.ok) {
+                    generatedArticles = await resp.json();
+                    renderGeneratedArticles();
+                } else {
+                    document.getElementById('generated-articles-list').innerHTML = '<p>Erreur de chargement.</p>';
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('generated-articles-list').innerHTML = '<p>Erreur réseau.</p>';
+            }
+        }
+
+        function renderGeneratedArticles() {
+            const container = document.getElementById('generated-articles-list');
+            if (!container) return;
+            if (generatedArticles.length === 0) {
+                container.innerHTML = '<p>Aucun article généré.</p>';
+                return;
+            }
+            let html = '';
+            generatedArticles.forEach((article, index) => {
+                const isActive = article.active !== false;
+                html += `
+                    <div class="admin-item">
+                        <div>
+                            <strong>${article.title}</strong><br>
+                            <small>${article.date} - ${article.author}</small><br>
+                            <small>Slug: ${article.slug}</small>
+                        </div>
+                        <div>
+                            <button class="toggle-active" data-index="${index}">${isActive ? '✅ Actif' : '❌ Inactif'}</button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            document.querySelectorAll('.toggle-active').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.dataset.index;
+                    generatedArticles[index].active = generatedArticles[index].active === false ? true : false;
+                    renderGeneratedArticles();
+                });
+            });
+        }
+
+        document.getElementById('download-articles').addEventListener('click', () => {
+            const jsonStr = JSON.stringify(generatedArticles, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'articles.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
 
         // =======================================================
         // FONCTIONS GÉNÉRALES
@@ -1638,9 +1664,6 @@
             }
         });
 
-        // =======================================================
-        // PARAMÈTRES (affichage VIP)
-        // =======================================================
         const vipToggle = document.getElementById('vip-toggle');
         const saveSettingsBtn = document.getElementById('save-settings');
         if (vipToggle && saveSettingsBtn) {
@@ -1652,22 +1675,6 @@
         }
 
         // =======================================================
-        // TINYMCE INIT
-        // =======================================================
-        function initTinyMCE() {
-            if (typeof tinymce !== 'undefined') {
-                tinymce.init({
-                    selector: 'textarea.tinymce',
-                    plugins: 'anchor autolink charmap codesample emoticons link lists media searchreplace table visualblocks wordcount',
-                    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link media | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-                    content_style: 'body { font-family: Montserrat, sans-serif; font-size:14px; color:#fff; background:#0D0D0D; }',
-                    skin: 'oxide-dark',
-                    content_css: 'dark'
-                });
-            }
-        }
-
-        // =======================================================
         // INITIALISATION PRINCIPALE
         // =======================================================
         async function initAdmin() {
@@ -1675,9 +1682,8 @@
             renderAllLists();
             await renderVipList();
             updatePreview();
-            initTinyMCE();
+            await loadGeneratedArticles();
 
-            // Statistiques
             if (supabaseAvailable) {
                 initCharts();
                 await initOnlineUsers();
@@ -1689,7 +1695,6 @@
                 }, 30000);
             }
 
-            // Gestion des onglets
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1699,7 +1704,6 @@
                 });
             });
 
-            // Formulaire VIP
             const vipForm = document.getElementById('vip-form');
             if (vipForm) {
                 vipForm.addEventListener('submit', async (e) => {
