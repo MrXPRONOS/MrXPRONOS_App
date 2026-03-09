@@ -58,7 +58,8 @@
             <input type="text" id="search-input" placeholder="Rechercher une équipe ou une ligue..." class="search-input">
         </div>
 
-        <!-- Le conteneur du taux de réussite (ROI) a été retiré à la demande du client -->
+        <!-- Conteneur pour le taux de réussite et ROI (AJOUTÉ) -->
+        <div id="success-rate-container" class="success-rate" style="display: none;"></div>
 
         <!-- Onglets de catégories (Simple, Pro, VIP) -->
         <div class="category-tabs">
@@ -74,18 +75,16 @@
             <button class="day-btn" data-day="yesterday" aria-label="Matchs hier">Hier</button>
         </div>
 
-        <!-- Conteneur des matchs (rempli par renderMatches() dans main.js) -->
+        <!-- Conteneur des matchs -->
         <div id="matches-container" class="matches-grid">
             <div class="loading">Chargement des matchs...</div>
         </div>
 
-        <!-- Overlay VIP (utilisé pour le formulaire de connexion payant) -->
-        <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;">
-            <!-- Le contenu sera généré dynamiquement par main.js -->
-        </div>
+        <!-- Overlay VIP -->
+        <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;"></div>
     </main>
 
-    <!-- Popup de partage pour Pro (intégré dans le HTML) -->
+    <!-- Popup de partage -->
     <div id="share-popup" class="popup">
         <div class="popup-content">
             <h3>🔒 Contenu premium</h3>
@@ -155,7 +154,6 @@
     <!-- Scripts principaux -->
     <script type="module" src="assets/js/main.js"></script>
     <script src="assets/js/pwa.js"></script>
-    <!-- Script VIP (chargé après main.js pour les surcharges) -->
     <script type="module" src="assets/js/vip.js"></script>
 </body>
 </html>
