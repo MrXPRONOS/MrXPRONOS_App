@@ -1425,7 +1425,7 @@
       "league_logo": "assets/images/logos/competitions/competition_5071.png",
       "venue": "",
       "status": "2nd Half",
-      "home_score": 2,
+      "home_score": 3,
       "away_score": 2,
       "h2h_analysis": {
         "total_matches": 3,
@@ -2162,8 +2162,8 @@
       "league": "MLS Next Pro",
       "league_logo": "assets/images/logos/competitions/competition_7826.png",
       "venue": "",
-      "status": "Halftime",
-      "home_score": 2,
+      "status": "2nd Half",
+      "home_score": 3,
       "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
