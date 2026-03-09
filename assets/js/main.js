@@ -1,11 +1,10 @@
 /**
- * main.js - Mr XPRONOS – Version ULTRA PRO
+ * main.js - Mr XPRONOS – Version ultime avec analytics et visiteurs en ligne
  * Toutes les fonctionnalités sont regroupées dans ce seul fichier.
- * Inclut : visiteurs en ligne, compteurs temps réel, analytics, dashboard admin caché.
  */
 
 // =======================================================
-// Désactiver les logs en production (sauf erreurs)
+// Désactiver les logs en production (garder les erreurs)
 // =======================================================
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
     console.log = () => {};
@@ -35,32 +34,62 @@ const POPULAR_LEAGUES = [
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ];
 
-// Cache des éléments DOM pour optimisation
+// Éléments DOM fréquemment utilisés (initialisés après chargement)
 const DOM = {
-    matches: document.getElementById('matches-container'),
-    sharePopup: document.getElementById('share-popup'),
-    vipLockedOverlay: document.getElementById('vip-locked-overlay'),
-    bookmakersFooter: document.getElementById('bookmakers-footer'),
-    bookmakersBonus: document.getElementById('bookmakers-bonus'),
-    vipSubtabs: document.getElementById('vip-subtabs'),
-    usersCount: document.getElementById('total-users-count'),
-    sharesCount: document.getElementById('total-shares-count'),
-    shareCounter: document.getElementById('share-counter'),
-    onlineUsers: document.getElementById('online-users-count'),
-    iosGuidePopup: document.getElementById('ios-guide-popup'),
-    installButton: document.getElementById('install-app'),
-    searchInput: document.getElementById('search-input'),
-    winsCount: document.getElementById('wins-count'),
-    winsTrack: document.getElementById('wins-track'),
-    winPopup: document.getElementById('win-popup'),
-    testimonialsContainer: document.getElementById('testimonials-container'),
-    articleModal: document.getElementById('article-modal'),
-    conseilModal: document.getElementById('conseil-modal'),
-    newsModal: document.getElementById('news-modal'),
-    successRateContainer: document.getElementById('success-rate-container'),
-    successFill: document.getElementById('success-fill'),
-    successPercent: document.getElementById('success-percent')
+    matches: null,
+    sharePopup: null,
+    vipLockedOverlay: null,
+    bookmakersFooter: null,
+    bookmakersBonus: null,
+    vipSubtabs: null,
+    usersCount: null,
+    onlineCount: null,
+    sharesCount: null,
+    winsCount: null,
+    successFill: null,
+    successPercent: null,
+    shareCounter: null,
+    winsTrack: null,
+    testimonials: null,
+    todayPicks: null,
+    searchInput: null,
+    historyContainer: null,
+    bonusSelect: null,
+    articleModal: null,
+    conseilModal: null,
+    newsModal: null,
+    winPopup: null,
+    iosGuidePopup: null,
+    installButton: null
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    DOM.matches = document.getElementById('matches-container');
+    DOM.sharePopup = document.getElementById('share-popup');
+    DOM.vipLockedOverlay = document.getElementById('vip-locked-overlay');
+    DOM.bookmakersFooter = document.getElementById('bookmakers-footer');
+    DOM.bookmakersBonus = document.getElementById('bookmakers-bonus');
+    DOM.vipSubtabs = document.getElementById('vip-subtabs');
+    DOM.usersCount = document.getElementById('total-users-count');
+    DOM.onlineCount = document.getElementById('online-users-count');
+    DOM.sharesCount = document.getElementById('total-shares-count');
+    DOM.winsCount = document.getElementById('wins-count');
+    DOM.successFill = document.getElementById('success-fill');
+    DOM.successPercent = document.getElementById('success-percent');
+    DOM.shareCounter = document.getElementById('share-counter');
+    DOM.winsTrack = document.getElementById('wins-track');
+    DOM.testimonials = document.getElementById('testimonials-container');
+    DOM.todayPicks = document.getElementById('today-picks');
+    DOM.searchInput = document.getElementById('search-input');
+    DOM.historyContainer = document.getElementById('history-container');
+    DOM.bonusSelect = document.getElementById('bonus-bookmaker-select');
+    DOM.articleModal = document.getElementById('article-modal');
+    DOM.conseilModal = document.getElementById('conseil-modal');
+    DOM.newsModal = document.getElementById('news-modal');
+    DOM.winPopup = document.getElementById('win-popup');
+    DOM.iosGuidePopup = document.getElementById('ios-guide-popup');
+    DOM.installButton = document.getElementById('install-app');
+});
 
 // =======================================================
 // FONCTIONS UTILITAIRES
@@ -106,13 +135,13 @@ async function initSupabase() {
 }
 
 // =======================================================
-// GESTION DES COMPTEURS (visites, partages) avec fallback localStorage
+// GESTION DES COMPTEURS (avec fallback localStorage)
 // =======================================================
 async function incrementCounter(counterName) {
     if (!supabaseAvailable) {
         // Fallback localStorage
-        let local = parseInt(localStorage.getItem(counterName) || '0');
-        localStorage.setItem(counterName, local + 1);
+        let local = localStorage.getItem(counterName) || 0;
+        localStorage.setItem(counterName, parseInt(local) + 1);
         return;
     }
     try {
@@ -126,22 +155,15 @@ async function incrementCounter(counterName) {
 }
 
 async function updateDisplayedCounters() {
-    if (!supabaseAvailable) {
-        // Fallback localStorage
-        const usersEl = DOM.usersCount;
-        const sharesEl = DOM.sharesCount;
-        if (usersEl) usersEl.textContent = (parseInt(localStorage.getItem('total_visits') || '0')).toLocaleString() + '+';
-        if (sharesEl) sharesEl.textContent = (parseInt(localStorage.getItem('total_shares') || '0')).toLocaleString() + '+';
-        return;
-    }
+    if (!supabaseAvailable) return;
     try {
         const { data, error } = await supabase
             .from('counters')
-            .select('total_visits, total_shares')
+            .select('total_visits, total_shares, unique_users')
             .eq('id', 1)
             .single();
         if (error) throw error;
-        if (DOM.usersCount) DOM.usersCount.textContent = (data.total_visits || 0).toLocaleString() + '+';
+        if (DOM.usersCount) DOM.usersCount.textContent = (data.unique_users || 0).toLocaleString() + '+';
         if (DOM.sharesCount) DOM.sharesCount.textContent = (data.total_shares || 0).toLocaleString() + '+';
     } catch (e) {
         console.error('Erreur récupération counters:', e);
@@ -156,7 +178,7 @@ function subscribeToCounters() {
             'postgres_changes',
             { event: 'UPDATE', schema: 'public', table: 'counters', filter: 'id=eq.1' },
             (payload) => {
-                if (DOM.usersCount) DOM.usersCount.textContent = (payload.new.total_visits || 0).toLocaleString() + '+';
+                if (DOM.usersCount) DOM.usersCount.textContent = (payload.new.unique_users || 0).toLocaleString() + '+';
                 if (DOM.sharesCount) DOM.sharesCount.textContent = (payload.new.total_shares || 0).toLocaleString() + '+';
             }
         )
@@ -166,17 +188,15 @@ function subscribeToCounters() {
 }
 
 // =======================================================
-// ENREGISTREMENT DES ÉVÉNEMENTS VIA RPC
+// ENREGISTREMENT DES ÉVÉNEMENTS
 // =======================================================
 async function recordEvent(type, page = '') {
     if (!supabaseAvailable) return;
     const userId = getUserId();
     try {
-        const { error } = await supabase.rpc('record_event', {
-            p_type: type,
-            p_user_id: userId,
-            p_page: page || window.location.pathname
-        });
+        const { error } = await supabase
+            .from('events')
+            .insert({ type, user_id: userId, page });
         if (error) console.warn('Erreur enregistrement événement:', error);
     } catch (e) {
         console.warn('Erreur réseau Supabase (event):', e);
@@ -184,38 +204,60 @@ async function recordEvent(type, page = '') {
 }
 
 // =======================================================
-// VISITEURS EN LIGNE (REALTIME PRESENCE)
+// GESTION DES VISITES (une fois par jour)
 // =======================================================
-async function initOnlineUsers() {
-    if (!supabaseAvailable) return;
-    const channel = supabase.channel('online-users', {
-        config: { presence: { key: getUserId() } }
-    });
-    channel.on('presence', { event: 'sync' }, () => {
-        const state = channel.presenceState();
-        const onlineUsers = Object.keys(state).length;
-        if (DOM.onlineUsers) DOM.onlineUsers.textContent = onlineUsers;
-    });
-    await channel.subscribe((status) => {
-        if (status === 'SUBSCRIBED') console.log('👥 Realtime online actif');
-    });
-    await channel.track({ online_at: new Date().toISOString() });
+function countVisitOncePerDay() {
+    const today = new Date().toDateString();
+    const lastVisit = localStorage.getItem('mx_last_visit');
+    if (lastVisit !== today) {
+        localStorage.setItem('mx_last_visit', today);
+        incrementCounter('total_visits');
+        recordEvent('visit', window.location.pathname);
+    }
 }
 
 // =======================================================
-// ENREGISTREMENT D'UN NOUVEL UTILISATEUR UNIQUE
+// GESTION DES UTILISATEURS UNIQUES
 // =======================================================
 async function registerUniqueUser() {
     if (!supabaseAvailable) return;
-    const visited = localStorage.getItem('mx_registered');
-    if (visited) return;
+    const userId = getUserId();
+    const registered = localStorage.getItem('mx_registered');
+    if (registered) return;
     localStorage.setItem('mx_registered', 'true');
     try {
-        await supabase.from('users').insert({ user_id: getUserId() });
+        await supabase.from('users').insert({ user_id: userId });
         await supabase.rpc('increment_counter', { counter_name: 'unique_users' });
     } catch (e) {
-        console.error('Erreur enregistrement unique user:', e);
+        console.error('Erreur enregistrement utilisateur unique:', e);
     }
+}
+
+// =======================================================
+// VISITEURS EN LIGNE (Realtime Presence)
+// =======================================================
+let onlineChannel = null;
+
+async function initOnlineUsers() {
+    if (!supabaseAvailable || !DOM.onlineCount) return;
+
+    onlineChannel = supabase.channel('online-users', {
+        config: {
+            presence: { key: getUserId() }
+        }
+    });
+
+    onlineChannel
+        .on('presence', { event: 'sync' }, () => {
+            const state = onlineChannel.presenceState();
+            const onlineUsers = Object.keys(state).length;
+            DOM.onlineCount.textContent = onlineUsers;
+        })
+        .subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+                await onlineChannel.track({ online_at: new Date().toISOString() });
+            }
+        });
 }
 
 // =======================================================
@@ -292,7 +334,7 @@ DOM.installButton?.addEventListener('click', async () => {
     const { outcome } = await deferredPrompt.userChoice;
     console.log(`Installation : ${outcome}`);
     deferredPrompt = null;
-    if (DOM.installButton) DOM.installButton.style.display = 'none';
+    DOM.installButton.style.display = 'none';
 });
 
 window.addEventListener('appinstalled', () => {
@@ -303,19 +345,6 @@ window.addEventListener('appinstalled', () => {
 
 document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
 document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
-
-// =======================================================
-// PROTECTION CONTRE LE SPAM DE VISITES (1 par jour)
-// =======================================================
-function countVisitOncePerDay() {
-    const today = new Date().toDateString();
-    const lastVisit = localStorage.getItem('mx_last_visit');
-    if (lastVisit !== today) {
-        localStorage.setItem('mx_last_visit', today);
-        incrementCounter('total_visits');
-        recordEvent('visit');
-    }
-}
 
 // =======================================================
 // CHARGEMENT DES DONNÉES (data.json)
@@ -365,10 +394,54 @@ async function loadData() {
 }
 
 // =======================================================
-// FILTRAGE ET AFFICHAGE
+// TAUX DE RÉUSSITE
+// =======================================================
+function updateSuccessRate() {
+    const container = document.getElementById('success-rate-container');
+    if (!container) return;
+    
+    if (!allData || !allData.matches) {
+        container.style.display = 'none';
+        return;
+    }
+
+    const matches = allData.matches;
+    const finished = matches.filter(m => {
+        if (!m.status) return false;
+        const s = m.status.toLowerCase();
+        return s.includes('finished') || s.includes('terminé') || s.includes('ended');
+    });
+
+    const successful = finished.filter(m => m.verified_double);
+
+    if (finished.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+
+    const rate = ((successful.length / finished.length) * 100).toFixed(1);
+    const stats = allData.stats || {};
+    const roi = stats.roi || 0;
+    const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
+
+    container.innerHTML = `
+        <div class="success-rate-item">
+            <div class="success-rate-value">${rate}%</div>
+            <div class="success-rate-label">Réussite</div>
+        </div>
+        <div class="success-rate-item">
+            <div class="success-rate-value">${roiDisplay}</div>
+            <div class="success-rate-label">ROI</div>
+        </div>
+    `;
+    container.style.display = 'flex';
+}
+
+// =======================================================
+// FILTRAGE ET AFFICHAGE (fonctions existantes, adaptées à DOM)
 // =======================================================
 function hideEmptyTabs() {
-    const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
+    const vipEnabled = localStorage.getItem('vipEnabled') !== 'false'; // true par défaut
     const counts = { simple: 0, pro: 0, vip: 0 };
     if (allData && allData.matches) {
         allData.matches.forEach(m => counts[m.category]++);
@@ -512,6 +585,7 @@ function showVipLocked(category) {
 
     if (DOM.vipLockedOverlay) {
         ensureVipOverlayStructure();
+        
         const titleEl = DOM.vipLockedOverlay.querySelector('h3');
         const textEl = DOM.vipLockedOverlay.querySelector('p');
         const shareCountEl = document.getElementById('share-count-locked');
@@ -615,8 +689,7 @@ function share(platform) {
     window.open(url, '_blank');
     shareStartTime = Date.now();
     sharePending = true;
-    // Track share event
-    recordEvent('share_whatsapp');
+    recordEvent('share', window.location.pathname);
 }
 
 function sharePronostic(match) {
@@ -627,13 +700,12 @@ function sharePronostic(match) {
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(messageTelegram)}`;
     if (confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)")) {
         window.open(whatsappUrl, '_blank');
-        recordEvent('share_whatsapp');
     } else {
         window.open(telegramUrl, '_blank');
-        recordEvent('share_telegram');
     }
     incrementShareCount();
-    incrementCounter('total_shares');
+    incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
+    recordEvent('share', window.location.pathname);
 }
 
 // =======================================================
@@ -847,12 +919,12 @@ function renderBookmakers(bookmakers) {
     if (!bookmakers || bookmakers.length === 0) {
         console.warn("⚠️ Aucun bookmaker dans data.json → utilisation du fallback");
         bookmakers = [
-            { name: "1xBet", logo: "assets/images/1xbet.webp", url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599" },
-            { name: "1win", logo: "assets/images/1win.webp", url: "https://1wrbgb.com/?open=register&p=qqcw" },
+            { name: "1xBet",     logo: "assets/images/1xbet.webp",     url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599" },
+            { name: "1win",      logo: "assets/images/1win.webp",      url: "https://1wrbgb.com/?open=register&p=qqcw" },
             { name: "Betwinner", logo: "assets/images/betwinner.webp", url: "https://bwredir.com/299Y" },
-            { name: "Melbet", logo: "assets/images/melbet.webp", url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041" },
-            { name: "Linebet", logo: "assets/images/linebet.webp", url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611" },
-            { name: "BetClic", logo: "assets/images/betclic.webp", url: "https://betpari-click.com/2vY0?extid=USD" }
+            { name: "Melbet",    logo: "assets/images/melbet.webp",    url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041" },
+            { name: "Linebet",   logo: "assets/images/linebet.webp",   url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611" },
+            { name: "BetClic",   logo: "assets/images/betclic.webp",   url: "https://betpari-click.com/2vY0?extid=USD" }
         ];
     }
     if (DOM.bookmakersFooter) {
@@ -919,35 +991,81 @@ function renderBookmakers(bookmakers) {
 }
 
 // =======================================================
-// TAUX DE RÉUSSITE ET ROI
+// INITIALISATION PRINCIPALE
 // =======================================================
-function updateSuccessRate() {
-    if (!DOM.successRateContainer) return;
-    if (!allData || !allData.matches) {
-        DOM.successRateContainer.style.display = 'none';
-        return;
+document.addEventListener('DOMContentLoaded', async () => {
+    await initSupabase();
+    await updateDisplayedCounters();
+    subscribeToCounters();
+    await registerUniqueUser();
+    await initOnlineUsers();
+    countVisitOncePerDay();
+    showIosGuideIfNeeded();
+
+    // Initialisation selon la page
+    if (DOM.matches) {
+        setupEventListeners();
+        await loadData();
+    } else if (DOM.historyContainer) {
+        displayHistory();
+    } else if (DOM.bonusSelect) {
+        initBonusPage();
+    } else {
+        // Page d'accueil
+        await loadDataGeneric().then(data => {
+            if (data) {
+                allData = data;
+                renderBookmakers(data.bookmakers);
+                updateShareCounter();
+                displayLatestVerified();
+                startWinsSlider();
+                animateWins();
+                updateSuccessRate();
+            }
+        });
+        displayTestimonials();
+        startWinNotifications();
     }
-    const matches = allData.matches;
-    const finished = matches.filter(m => {
-        if (!m.status) return false;
-        const statusLower = m.status.toLowerCase();
-        return statusLower.includes('finished') || statusLower.includes('terminé') || statusLower.includes('ended');
+
+    displayBlogList();
+    displayBlogPost();
+    displayConseils();
+    displayInfos();
+    displayFootNews();
+    initScrollProgress();
+
+    if (DOM.searchInput) {
+        DOM.searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            applySearchFilter();
+        });
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (sharePending && !document.hidden) {
+            const elapsed = Date.now() - shareStartTime;
+            if (elapsed >= 5000) {
+                sharePending = false;
+                const newCount = incrementShareCount();
+                updateShareCounter();
+                incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
+                recordEvent('share', window.location.pathname);
+                const target = shareLimits[currentCategory];
+                if (newCount >= target) {
+                    hideVipLocked();
+                    filterAndDisplay();
+                } else {
+                    if (DOM.vipLockedOverlay && DOM.vipLockedOverlay.style.display === 'flex') {
+                        showVipLocked(currentCategory);
+                    } else {
+                        showSharePopup(currentCategory, target - newCount);
+                    }
+                }
+            }
+        }
     });
-    const successful = finished.filter(m => m.verified_double);
-    if (finished.length === 0) {
-        DOM.successRateContainer.style.display = 'none';
-        return;
-    }
-    const rate = ((successful.length / finished.length) * 100).toFixed(1);
-    const stats = allData.stats || {};
-    const roi = stats.roi || 0;
-    const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
-    DOM.successRateContainer.innerHTML = `
-        <div class="success-rate-item"><div class="success-rate-value">${rate}%</div><div class="success-rate-label">Réussite</div></div>
-        <div class="success-rate-item"><div class="success-rate-value">${roiDisplay}</div><div class="success-rate-label">ROI</div></div>
-    `;
-    DOM.successRateContainer.style.display = 'flex';
-}
+    recordEvent('visit', window.location.pathname);
+});
 
 // =======================================================
 // FONCTIONS POUR LES PAGES SPÉCIFIQUES (HISTORIQUE, BONUS, etc.)
@@ -966,17 +1084,16 @@ async function loadDataGeneric() {
 }
 
 async function displayHistory() {
-    const container = document.getElementById('history-container');
-    if (!container) return;
+    if (!DOM.historyContainer) return;
     await loadData();
     if (!allData || !allData.matches) {
-        container.innerHTML = '<div class="no-events">Aucun historique disponible.</div>';
+        DOM.historyContainer.innerHTML = '<div class="no-events">Aucun historique disponible.</div>';
         return;
     }
     const today = new Date(); today.setHours(0,0,0,0);
     let historyMatches = allData.matches.filter(m => new Date(m.event_date) < today);
     if (historyMatches.length === 0) {
-        container.innerHTML = '<div class="no-events">Aucun match dans cette période.</div>';
+        DOM.historyContainer.innerHTML = '<div class="no-events">Aucun match dans cette période.</div>';
         return;
     }
     const catOrder = { vip: 0, pro: 1, simple: 2 };
@@ -1043,7 +1160,7 @@ async function displayHistory() {
             `;
         });
     });
-    container.innerHTML = html;
+    DOM.historyContainer.innerHTML = html;
 }
 
 function initBonusPage() {
@@ -1051,10 +1168,9 @@ function initBonusPage() {
 }
 
 function displayLatestVerified() {
-    const container = document.getElementById('today-picks');
-    if (!container) return;
+    if (!DOM.todayPicks) return;
     if (!allData || !allData.matches) {
-        container.innerHTML = '<div class="loading">Chargement...</div>';
+        DOM.todayPicks.innerHTML = '<div class="loading">Chargement...</div>';
         return;
     }
     const verified = allData.matches.filter(m => {
@@ -1066,7 +1182,7 @@ function displayLatestVerified() {
     });
     const latest = [...verified].sort((a,b) => new Date(b.event_date) - new Date(a.event_date)).slice(0,4);
     if (latest.length === 0) {
-        container.innerHTML = '<div class="no-events">📭 Aucun pronostic validé récent. Revenez plus tard !</div>';
+        DOM.todayPicks.innerHTML = '<div class="no-events">📭 Aucun pronostic validé récent. Revenez plus tard !</div>';
         return;
     }
     let html = '';
@@ -1109,7 +1225,7 @@ function displayLatestVerified() {
             </div>
         `;
     });
-    container.innerHTML = html;
+    DOM.todayPicks.innerHTML = html;
 }
 
 function startWinsSlider() {
@@ -1188,7 +1304,7 @@ function initScrollProgress() {
 }
 
 async function displayTestimonials() {
-    if (!DOM.testimonialsContainer) return;
+    if (!DOM.testimonials) return;
     try {
         const resp = await fetch('testimonials.json?t=' + Date.now());
         if (!resp.ok) throw new Error('Erreur');
@@ -1197,10 +1313,10 @@ async function displayTestimonials() {
         testimonials.forEach(t => {
             html += `<div class="card"><p>"${t.text}"</p><p style="margin-top: 1rem; color: var(--or);">— ${t.name}</p></div>`;
         });
-        DOM.testimonialsContainer.innerHTML = html;
+        DOM.testimonials.innerHTML = html;
     } catch (e) {
         console.error('Erreur chargement témoignages', e);
-        DOM.testimonialsContainer.innerHTML = `
+        DOM.testimonials.innerHTML = `
             <div class="card"><p>"Grâce à Mr XPRONOS, j'ai multiplié mes gains par 3 en un mois !"</p><p style="margin-top:1rem;color:var(--or);">— Jean Martin</p></div>
             <div class="card"><p>"Les pronostics VIP sont incroyablement précis. Je recommande !"</p><p style="margin-top:1rem;color:var(--or);">— Marie Dubois</p></div>
             <div class="card"><p>"Le système de partage permet d'accéder à des analyses de qualité gratuitement."</p><p style="margin-top:1rem;color:var(--or);">— Thomas Petit</p></div>
@@ -1260,8 +1376,7 @@ async function displayBlogList() {
 window.showArticleDetail = function(index) {
     const article = window.articlesData[index];
     if (!article) return;
-    const modal = DOM.articleModal;
-    if (!modal) return;
+    if (!DOM.articleModal) return;
     document.getElementById('article-modal-title').textContent = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
     document.getElementById('article-modal-image').src = article.image_url || 'assets/images/default-logo.png';
     let content = article.content;
@@ -1269,12 +1384,11 @@ window.showArticleDetail = function(index) {
     else content = content.replace(/\n/g,'<br>');
     document.getElementById('article-modal-content').innerHTML = content;
     document.getElementById('article-modal-link').href = 'article.html?slug=' + article.slug;
-    modal.style.display = 'flex';
+    DOM.articleModal.style.display = 'flex';
 };
 
 window.closeArticleModal = function() {
-    const modal = DOM.articleModal;
-    if (modal) modal.style.display = 'none';
+    if (DOM.articleModal) DOM.articleModal.style.display = 'none';
 };
 
 async function displayBlogPost() {
@@ -1360,20 +1474,18 @@ async function displayConseils() {
 window.showConseilDetail = function(index) {
     const conseil = window.conseilsData[index];
     if (!conseil) return;
-    const modal = DOM.conseilModal;
-    if (!modal) return;
+    if (!DOM.conseilModal) return;
     document.getElementById('conseil-modal-title').textContent = conseil.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
     document.getElementById('conseil-modal-image').src = conseil.image_url || 'assets/images/default-logo.png';
     let content = conseil.content;
     if (window.marked) content = window.marked.parse(content);
     else content = content.replace(/\n/g,'<br>');
     document.getElementById('conseil-modal-content').innerHTML = content;
-    modal.style.display = 'flex';
+    DOM.conseilModal.style.display = 'flex';
 };
 
 window.closeConseilModal = function() {
-    const modal = DOM.conseilModal;
-    if (modal) modal.style.display = 'none';
+    if (DOM.conseilModal) DOM.conseilModal.style.display = 'none';
 };
 
 async function displayInfos() {
@@ -1417,8 +1529,7 @@ async function displayFootNews() {
 window.showNewsDetail = function(index) {
     const news = window.newsData[index];
     if (!news) return;
-    const modal = DOM.newsModal;
-    if (!modal) return;
+    if (!DOM.newsModal) return;
     document.getElementById('news-modal-title').textContent = news.title;
     document.getElementById('news-modal-image').src = news.image || 'assets/images/default-logo.png';
     let content = news.summary;
@@ -1427,12 +1538,11 @@ window.showNewsDetail = function(index) {
     content += '<p><em>Source: BBC</em></p>';
     document.getElementById('news-modal-content').innerHTML = content;
     document.getElementById('news-modal-link').href = news.link || '#';
-    modal.style.display = 'flex';
+    DOM.newsModal.style.display = 'flex';
 };
 
 window.closeNewsModal = function() {
-    const modal = DOM.newsModal;
-    if (modal) modal.style.display = 'none';
+    if (DOM.newsModal) DOM.newsModal.style.display = 'none';
 };
 
 // =======================================================
@@ -1484,7 +1594,6 @@ function showVipLoginForm(container) {
             if (error || !data.valid) throw new Error('Code invalide');
             localStorage.setItem('mx_vip_code', code);
             showToast('Code VIP activé avec succès !', 'success');
-            recordEvent('vip_conversion');
             window.location.reload();
         } catch (e) {
             alert('Code invalide ou expiré.');
@@ -1495,110 +1604,3 @@ function showVipLoginForm(container) {
         if (DOM.matches) DOM.matches.style.display = 'grid';
     });
 }
-
-// =======================================================
-// DASHBOARD ADMIN CACHÉ (accessible via ?admin=key)
-// =======================================================
-if (window.location.pathname.includes('admin.html') && window.location.search.includes('key=MXPRO2026')) {
-    // Charger les stats
-    (async () => {
-        await initSupabase();
-        const { data: views } = await supabase.from('analytics').select('*', { count: 'exact', head: true }).eq('event_type', 'page_view');
-        const { data: clicks } = await supabase.from('analytics').select('*', { count: 'exact', head: true }).eq('event_type', 'click_pronostic');
-        const { data: shares } = await supabase.from('analytics').select('*', { count: 'exact', head: true }).eq('event_type', 'share_whatsapp');
-        const { data: vip } = await supabase.from('analytics').select('*', { count: 'exact', head: true }).eq('event_type', 'vip_conversion');
-        const { data: online } = await supabase.from('online-users').select('*', { count: 'exact', head: true });
-        document.getElementById('online').textContent = online.count || 0;
-        document.getElementById('views').textContent = views.count || 0;
-        document.getElementById('clicks').textContent = clicks.count || 0;
-        document.getElementById('shares').textContent = shares.count || 0;
-        document.getElementById('vip').textContent = vip.count || 0;
-        const conversionRate = ((vip.count || 0) / (views.count || 1) * 100).toFixed(2);
-        document.getElementById('conversion-rate').textContent = conversionRate + '%';
-    })();
-}
-
-// =======================================================
-// INITIALISATION PRINCIPALE
-// =======================================================
-document.addEventListener('DOMContentLoaded', async () => {
-    await initSupabase();
-    await registerUniqueUser();
-    await initOnlineUsers();
-    await updateDisplayedCounters();
-    subscribeToCounters();
-    showIosGuideIfNeeded();
-    countVisitOncePerDay(); // Une seule visite par jour
-
-    // Tracker la page vue
-    recordEvent('page_view', window.location.pathname);
-
-    // Initialisation selon la page
-    if (DOM.matches) {
-        setupEventListeners();
-        await loadData();
-    } else if (document.getElementById('history-container')) {
-        displayHistory();
-    } else if (document.getElementById('bonus-bookmaker-select')) {
-        initBonusPage();
-    } else {
-        // Page d'accueil
-        await loadDataGeneric().then(data => {
-            if (data) {
-                allData = data;
-                renderBookmakers(data.bookmakers);
-                updateShareCounter();
-                displayLatestVerified();
-                startWinsSlider();
-                animateWins();
-                updateSuccessRate();
-            }
-        });
-        displayTestimonials();
-        startWinNotifications();
-    }
-
-    displayBlogList();
-    displayBlogPost();
-    displayConseils();
-    displayInfos();
-    displayFootNews();
-    initScrollProgress();
-
-    if (DOM.searchInput) {
-        DOM.searchInput.addEventListener('input', (e) => {
-            searchTerm = e.target.value;
-            applySearchFilter();
-        });
-    }
-
-    document.addEventListener('visibilitychange', () => {
-        if (sharePending && !document.hidden) {
-            const elapsed = Date.now() - shareStartTime;
-            if (elapsed >= 5000) {
-                sharePending = false;
-                const newCount = incrementShareCount();
-                updateShareCounter();
-                incrementCounter('total_shares');
-                const target = shareLimits[currentCategory];
-                if (newCount >= target) {
-                    hideVipLocked();
-                    filterAndDisplay();
-                } else {
-                    if (DOM.vipLockedOverlay && DOM.vipLockedOverlay.style.display === 'flex') {
-                        showVipLocked(currentCategory);
-                    } else {
-                        showSharePopup(currentCategory, target - newCount);
-                    }
-                }
-            }
-        }
-    });
-});
-
-// Tracker les clics sur les pronostics (exemple à attacher aux boutons)
-document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('btn-share')) {
-        recordEvent('click_pronostic');
-    }
-});
