@@ -6,261 +6,219 @@
     <title>Admin Dashboard - Mr XPRONOS</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        body {
-            background: #0D0D0D;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            padding: 20px;
-        }
-        .dashboard {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: #D4AF37;
-            border-bottom: 2px solid #D4AF37;
-            padding-bottom: 10px;
-        }
-        .grid {
+        body { background: #0D0D0D; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; }
+        .dashboard-container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #D4AF37; margin-bottom: 30px; }
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin: 30px 0;
+            margin-bottom: 30px;
         }
-        .card {
+        .stat-card {
             background: #1A1A1A;
             border: 1px solid #D4AF37;
             border-radius: 16px;
             padding: 20px;
             text-align: center;
         }
-        .card h3 {
-            color: #D4AF37;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-        .card .value {
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-        .card .small {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-top: 5px;
-        }
-        .conversion {
-            margin-top: 20px;
+        .stat-card h3 { color: #D4AF37; margin-bottom: 10px; font-size: 1.1rem; }
+        .stat-value { font-size: 2.5rem; font-weight: 700; color: #fff; }
+        .stat-label { color: #ccc; font-size: 0.9rem; margin-top: 5px; }
+        .info-box {
             background: #1A1A1A;
             border: 1px solid #D4AF37;
             border-radius: 16px;
             padding: 20px;
+            margin-top: 30px;
         }
-        .conversion h2 {
-            color: #D4AF37;
-            margin-bottom: 20px;
-        }
-        .conversion-bar {
-            height: 20px;
-            background: #333;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-        .conversion-fill {
-            height: 100%;
-            background: #4CAF50;
-            width: 0%;
-            transition: width 0.5s;
-        }
-        .key {
-            color: #D4AF37;
-            font-weight: bold;
-        }
-        .lock-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-        }
-        .login-box {
-            max-width: 400px;
-            margin: 100px auto;
-            background: #1A1A1A;
-            border: 2px solid #D4AF37;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-        }
-        .login-box input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: #0D0D0D;
-            color: #fff;
-        }
-        .login-box button {
-            width: 100%;
-            padding: 12px;
-            background: #D4AF37;
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .login-box button:hover {
-            background: #FFD700;
-        }
-        .hidden {
-            display: none;
-        }
+        .key-info { color: #D4AF37; font-weight: 600; }
     </style>
+    <!-- Inclusion de Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div id="login-box" class="login-box">
-        <div class="lock-icon">🔐</div>
-        <h2>Accès Admin</h2>
-        <input type="password" id="admin-key" placeholder="Clé secrète">
-        <button onclick="checkAccess()">Entrer</button>
-        <p class="small">Clé par défaut : MXPRO2026</p>
-    </div>
-
-    <div id="dashboard" class="dashboard hidden">
+    <div class="dashboard-container">
         <h1>📊 Mr XPRONOS - Dashboard en temps réel</h1>
 
-        <div class="grid">
-            <div class="card">
-                <h3>👥 Utilisateurs en ligne</h3>
-                <div class="value" id="online">0</div>
-                <div class="small">actuellement</div>
-            </div>
-            <div class="card">
-                <h3>👀 Pages vues</h3>
-                <div class="value" id="views">0</div>
-                <div class="small">total</div>
-            </div>
-            <div class="card">
-                <h3>🎯 Clics pronostics</h3>
-                <div class="value" id="clicks">0</div>
-                <div class="small">total</div>
-            </div>
-            <div class="card">
-                <h3>📤 Partages WhatsApp</h3>
-                <div class="value" id="shares">0</div>
-                <div class="small">total</div>
-            </div>
-            <div class="card">
-                <h3>💎 Conversions VIP</h3>
-                <div class="value" id="vip">0</div>
-                <div class="small">total</div>
-            </div>
-            <div class="card">
-                <h3>👥 Utilisateurs uniques</h3>
-                <div class="value" id="unique">0</div>
-                <div class="small">enregistrés</div>
-            </div>
+        <!-- Vérification de la clé d'accès -->
+        <div id="access-error" style="display: none; color: #f44336; text-align: center; margin: 50px 0;">
+            ⚠️ Accès non autorisé. Utilisez le paramètre ?key=MXPRO2026.
         </div>
 
-        <div class="conversion">
-            <h2>📈 Taux de conversion VIP</h2>
-            <div class="conversion-bar">
-                <div class="conversion-fill" id="conversion-fill"></div>
+        <div id="dashboard-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>👥 Utilisateurs en ligne</h3>
+                    <div class="stat-value" id="online-users">0</div>
+                    <div class="stat-label">actuellement</div>
+                </div>
+                <div class="stat-card">
+                    <h3>👀 Pages vues</h3>
+                    <div class="stat-value" id="total-views">0</div>
+                    <div class="stat-label">total</div>
+                </div>
+                <div class="stat-card">
+                    <h3>🎯 Clics pronostics</h3>
+                    <div class="stat-value" id="total-clicks">0</div>
+                    <div class="stat-label">total</div>
+                </div>
+                <div class="stat-card">
+                    <h3>📤 Partages WhatsApp</h3>
+                    <div class="stat-value" id="total-shares">0</div>
+                    <div class="stat-label">total</div>
+                </div>
+                <div class="stat-card">
+                    <h3>💎 Conversions VIP</h3>
+                    <div class="stat-value" id="total-vip">0</div>
+                    <div class="stat-label">total</div>
+                </div>
+                <div class="stat-card">
+                    <h3>👥 Utilisateurs uniques</h3>
+                    <div class="stat-value" id="unique-users">0</div>
+                    <div class="stat-label">enregistrés</div>
+                </div>
             </div>
-            <p><span class="key" id="conversion-rate">0.00%</span> des visiteurs deviennent VIP</p>
-        </div>
 
-        <div class="conversion">
-            <h2>🔑 Clé d'accès</h2>
-            <p>Utilisez le paramètre <span class="key">?key=MXPRO2026</span> pour accéder à cette page.</p>
+            <div class="info-box">
+                <h3 style="color: #D4AF37;">📈 Taux de conversion VIP</h3>
+                <div style="font-size: 2rem; font-weight: 700; color: #fff;" id="conversion-rate">0.00%</div>
+                <div class="stat-label">des visiteurs deviennent VIP</div>
+            </div>
+
+            <div class="info-box" style="margin-top: 20px;">
+                <p class="key-info">🔑 Clé d'accès :</p>
+                <p>Utilisez le paramètre <code>?key=MXPRO2026</code> pour accéder à cette page.</p>
+            </div>
         </div>
     </div>
 
     <script type="module">
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-        // === CONFIGURATION ===
-        const SUPABASE_URL = 'https://nhwafcpndlufzzxexikh.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt';
-        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // === VÉRIFICATION ACCÈS ===
+        // =======================================================
+        // VÉRIFICATION DE LA CLÉ D'ACCÈS
+        // =======================================================
         const urlParams = new URLSearchParams(window.location.search);
-        const accessKey = urlParams.get('key') || '';
-
-        if (accessKey === 'MXPRO2026') {
-            document.getElementById('login-box').classList.add('hidden');
-            document.getElementById('dashboard').classList.remove('hidden');
-            initDashboard();
-        } else {
-            document.getElementById('login-box').classList.remove('hidden');
-            document.getElementById('dashboard').classList.add('hidden');
+        const accessKey = urlParams.get('key');
+        if (accessKey !== 'MXPRO2026') {
+            document.getElementById('dashboard-content').style.display = 'none';
+            document.getElementById('access-error').style.display = 'block';
+            throw new Error('Accès refusé');
         }
 
-        window.checkAccess = function() {
-            const key = document.getElementById('admin-key').value;
-            if (key === 'MXPRO2026') {
-                window.location.href = '?key=MXPRO2026';
-            } else {
-                alert('Clé incorrecte');
-            }
-        };
+        // =======================================================
+        // CONFIGURATION SUPABASE
+        // =======================================================
+        import { supabaseUrl, supabaseAnonKey } from './assets/js/config.js';
 
-        // === FONCTIONS DASHBOARD ===
+        const { createClient } = window.supabase;
+        const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+        // =======================================================
+        // FONCTIONS DE CHARGEMENT DES STATISTIQUES
+        // =======================================================
         async function loadStats() {
-            // Visiteurs en ligne via Presence
-            const channel = supabase.channel('online-users', {
-                config: { presence: { key: 'admin' } }
-            });
-            channel.on('presence', { event: 'sync' }, () => {
-                const state = channel.presenceState();
-                document.getElementById('online').textContent = Object.keys(state).length;
-            });
-            await channel.subscribe();
+            try {
+                // 1. Récupérer les compteurs depuis la table 'counters' (id=1)
+                const { data: counters, error: countersError } = await supabase
+                    .from('counters')
+                    .select('total_visits, total_shares, unique_users')
+                    .eq('id', 1)
+                    .single();
 
-            // Compteurs analytics
-            const { count: views } = await supabase
-                .from('analytics')
-                .select('*', { count: 'exact', head: true })
-                .eq('event_type', 'page_view');
-            document.getElementById('views').textContent = views || 0;
+                if (countersError) throw countersError;
 
-            const { count: clicks } = await supabase
-                .from('analytics')
-                .select('*', { count: 'exact', head: true })
-                .eq('event_type', 'click_pronostic');
-            document.getElementById('clicks').textContent = clicks || 0;
+                // Mise à jour des éléments DOM
+                document.getElementById('total-views').textContent = counters.total_visits || 0;
+                document.getElementById('total-shares').textContent = counters.total_shares || 0;
+                document.getElementById('unique-users').textContent = counters.unique_users || 0;
 
-            const { count: shares } = await supabase
-                .from('analytics')
-                .select('*', { count: 'exact', head: true })
-                .eq('event_type', 'share_whatsapp');
-            document.getElementById('shares').textContent = shares || 0;
+                // 2. Compter les événements spécifiques depuis la table 'events' ou 'analytics'
+                // Selon votre structure, utilisez la table qui contient les événements.
+                // Ici on suppose une table 'events' avec colonnes 'type', 'user_id', 'page', 'timestamp'
+                const { count: clicks, error: clicksError } = await supabase
+                    .from('events')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('type', 'click_pronostic');
 
-            const { count: vip } = await supabase
-                .from('analytics')
-                .select('*', { count: 'exact', head: true })
-                .eq('event_type', 'vip_conversion');
-            document.getElementById('vip').textContent = vip || 0;
+                if (!clicksError) {
+                    document.getElementById('total-clicks').textContent = clicks || 0;
+                } else {
+                    console.warn('Erreur comptage clics:', clicksError);
+                }
 
-            // Utilisateurs uniques
-            const { count: unique } = await supabase
-                .from('users')
-                .select('*', { count: 'exact', head: true });
-            document.getElementById('unique').textContent = unique || 0;
+                const { count: vip, error: vipError } = await supabase
+                    .from('events')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('type', 'vip_conversion');
 
-            // Taux de conversion
-            if (views && views > 0) {
-                const rate = ((vip / views) * 100).toFixed(2);
-                document.getElementById('conversion-rate').textContent = rate + '%';
-                document.getElementById('conversion-fill').style.width = rate + '%';
+                if (!vipError) {
+                    document.getElementById('total-vip').textContent = vip || 0;
+                } else {
+                    console.warn('Erreur comptage conversions VIP:', vipError);
+                }
+
+                // 3. Calculer le taux de conversion
+                const views = counters.total_visits || 0;
+                const vipCount = vip || 0;
+                const conversionRate = views > 0 ? ((vipCount / views) * 100).toFixed(2) : 0;
+                document.getElementById('conversion-rate').textContent = conversionRate + '%';
+
+            } catch (e) {
+                console.error('Erreur lors du chargement des statistiques:', e);
             }
         }
 
-        async function initDashboard() {
-            await loadStats();
-            // Mise à jour toutes les 10 secondes
-            setInterval(loadStats, 10000);
+        // =======================================================
+        // VISITEURS EN LIGNE (Realtime Presence)
+        // =======================================================
+        async function initOnlineUsers() {
+            const channel = supabase.channel('online-users', {
+                config: {
+                    presence: { key: 'admin-dashboard' } // une clé unique pour le dashboard
+                }
+            });
+
+            channel
+                .on('presence', { event: 'sync' }, () => {
+                    const state = channel.presenceState();
+                    const onlineUsers = Object.keys(state).length;
+                    document.getElementById('online-users').textContent = onlineUsers;
+                })
+                .subscribe(async (status) => {
+                    if (status === 'SUBSCRIBED') {
+                        await channel.track({ online_at: new Date().toISOString() });
+                    }
+                });
         }
+
+        // =======================================================
+        // ABONNEMENT AUX MISES À JOUR EN TEMPS RÉEL (optionnel)
+        // =======================================================
+        function subscribeToUpdates() {
+            // Écouter les changements sur la table counters pour mettre à jour les valeurs en direct
+            supabase
+                .channel('counters-changes')
+                .on(
+                    'postgres_changes',
+                    { event: 'UPDATE', schema: 'public', table: 'counters', filter: 'id=eq.1' },
+                    (payload) => {
+                        document.getElementById('total-views').textContent = payload.new.total_visits || 0;
+                        document.getElementById('total-shares').textContent = payload.new.total_shares || 0;
+                        document.getElementById('unique-users').textContent = payload.new.unique_users || 0;
+                        // Recalculer le taux de conversion (nécessite aussi les conversions VIP, mais on ne les a pas en temps réel ici)
+                    }
+                )
+                .subscribe();
+        }
+
+        // =======================================================
+        // INITIALISATION
+        // =======================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadStats();
+            await initOnlineUsers();
+            subscribeToUpdates();
+        });
     </script>
 </body>
 </html>
