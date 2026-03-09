@@ -36,7 +36,7 @@ GOAL_DIFF_THRESHOLD = 0.1      # Différence de buts minimum
 XPRONOS_THRESHOLD = 45         # Score xPronos minimum
 DOMINANCE_THRESHOLD = 0.4      # Seuil pour décider du double chance
 
-value_bet = False  # Active les paris à valeur (1.5x ou plus)
+
 
 print("=" * 60)
 print(f"🚀 GÉNÉRATION DES PRONOSTICS (DOUBLE CHANCE UNIQUEMENT) - {today}")
@@ -673,7 +673,7 @@ def main():
         # =======================================================
         # CALCUL DE LA VALUE BET
         # =======================================================
-        
+        value_bet = False  # Active les paris à valeur (1.5x ou plus)
         if odds:
             dc = prediction["double_chance"]
             # Notre probabilité estimée
