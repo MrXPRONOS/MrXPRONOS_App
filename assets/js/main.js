@@ -1,5 +1,5 @@
 /**
- * main.js - Mr XPRONOS – Version ultime avec analytics et visiteurs en ligne
+ * main.js - Mr XPRONOS – Version ultime avec analytics et affichage des métriques avancées
  * Toutes les fonctionnalités sont regroupées dans ce seul fichier.
  */
 
@@ -387,43 +387,64 @@ async function loadData() {
         hideEmptyTabs();
         maybeHideTabBar();
         filterAndDisplay();
-        updateSuccessRate();
+        updatePronosticsSuccessRate();
     } else if (DOM.matches) {
         DOM.matches.innerHTML = `<div class="error" style="text-align:center; padding:60px;">❌ Aucune donnée disponible.<br><small>Connectez-vous une première fois pour charger le cache.</small></div>`;
     }
 }
 
 // =======================================================
-// TAUX DE RÉUSSITE
+// TAUX DE RÉUSSITE (page d'accueil)
 // =======================================================
-function updateSuccessRate() {
-    const container = document.getElementById('success-rate-container');
-    if (!container) return;
-    
+function updateHomeSuccessRate() {
+    if (!DOM.successFill || !DOM.successPercent) return;
     if (!allData || !allData.matches) {
-        container.style.display = 'none';
+        DOM.successFill.style.width = '0%';
+        DOM.successPercent.textContent = '0%';
         return;
     }
-
     const matches = allData.matches;
     const finished = matches.filter(m => {
         if (!m.status) return false;
         const s = m.status.toLowerCase();
         return s.includes('finished') || s.includes('terminé') || s.includes('ended');
     });
+    if (finished.length === 0) {
+        DOM.successFill.style.width = '0%';
+        DOM.successPercent.textContent = '0%';
+        return;
+    }
+    const successful = finished.filter(m => m.verified_double).length;
+    const percent = Math.round((successful / finished.length) * 100);
+    DOM.successFill.style.width = percent + '%';
+    DOM.successPercent.textContent = percent + '%';
+}
 
+// =======================================================
+// TAUX DE RÉUSSITE ET ROI (page pronostics)
+// =======================================================
+function updatePronosticsSuccessRate() {
+    const container = document.getElementById('success-rate-container');
+    if (!container) return;
+    if (!allData || !allData.matches) {
+        container.style.display = 'none';
+        return;
+    }
+    const matches = allData.matches;
+    const finished = matches.filter(m => {
+        if (!m.status) return false;
+        const s = m.status.toLowerCase();
+        return s.includes('finished') || s.includes('terminé') || s.includes('ended');
+    });
     const successful = finished.filter(m => m.verified_double);
-
     if (finished.length === 0) {
         container.style.display = 'none';
         return;
     }
-
     const rate = ((successful.length / finished.length) * 100).toFixed(1);
     const stats = allData.stats || {};
     const roi = stats.roi || 0;
     const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
-
     container.innerHTML = `
         <div class="success-rate-item">
             <div class="success-rate-value">${rate}%</div>
@@ -792,6 +813,9 @@ function getTeamLogoPath(teamName, isHome = true) {
     return `assets/images/${normalized}.webp`;
 }
 
+// =======================================================
+// RENDU DES MATCHS AVEC MÉTRIQUES AVANCÉES
+// =======================================================
 function renderMatches(matches) {
     if (!DOM.matches) return;
     if (matches.length === 0) {
@@ -836,6 +860,25 @@ function renderMatches(matches) {
             const winnerClass = isWinner ? 'winner' : '';
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
             const matchDataEncoded = encodeURIComponent(JSON.stringify(m));
+
+            // Construction des badges avancés si les données existent
+            let advancedHtml = '';
+            if (m.ai_score) {
+                advancedHtml += `<div class="ai-score-badge">🤖 AI: ${m.ai_score}</div>`;
+            }
+            if (m.elo_home && m.elo_away) {
+                advancedHtml += `<div class="elo-info">📊 Elo: ${m.elo_home} - ${m.elo_away}</div>`;
+            }
+            if (m.xg_home && m.xg_away) {
+                advancedHtml += `<div class="xg-info">⚽ xG: ${m.xg_home.toFixed(2)} - ${m.xg_away.toFixed(2)}</div>`;
+            }
+            if (m.fatigue_home || m.fatigue_away) {
+                advancedHtml += `<div class="fatigue-info">😓 Fatigue: ${m.fatigue_home || '?'} - ${m.fatigue_away || '?'}</div>`;
+            }
+            if (m.trap_detected) {
+                advancedHtml += `<div class="trap-warning">⚠️ Piège bookmaker</div>`;
+            }
+
             html += `
                 <div class="match-card ${winnerClass}" data-match-id="${m.id}">
                     <div class="win-effect"></div>
@@ -866,6 +909,7 @@ function renderMatches(matches) {
                         <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
                         ${premiumBadge}
+                        ${advancedHtml} <!-- Métriques avancées ajoutées ici -->
                         <button class="btn btn-secondary btn-share" data-match='${matchDataEncoded}'>📤 Partager ce prono</button>
                     </div>
                 </div>
@@ -1020,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 displayLatestVerified();
                 startWinsSlider();
                 animateWins();
-                updateSuccessRate();
+                updateHomeSuccessRate();
             }
         });
         displayTestimonials();
