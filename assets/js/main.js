@@ -1,6 +1,6 @@
 /**
  * main.js - Mr XPRONOS – Version ultime avec analytics et visiteurs en ligne
- * Toutes les fonctionnalités sont regroupées dans ce seul fichier.
+ * Messages de partage améliorés et emojis corrigés.
  */
 
 // =======================================================
@@ -9,7 +9,7 @@
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
     console.log = () => {};
     console.warn = () => {};
-    // console.error reste actif pour le débogage
+    // console.error reste actif
 }
 
 // =======================================================
@@ -34,7 +34,7 @@ const POPULAR_LEAGUES = [
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ];
 
-// Éléments DOM fréquemment utilisés (initialisés après chargement)
+// Éléments DOM
 const DOM = {
     matches: null,
     sharePopup: null,
@@ -135,7 +135,7 @@ async function initSupabase() {
 }
 
 // =======================================================
-// GESTION DES COMPTEURS (avec fallback localStorage)
+// GESTION DES COMPTEURS (via RPC ou localStorage)
 // =======================================================
 async function incrementCounter(counterName) {
     if (!supabaseAvailable) {
@@ -187,7 +187,7 @@ function subscribeToCounters() {
 }
 
 // =======================================================
-// ENREGISTREMENT DES ÉVÉNEMENTS (table analytics)
+// ENREGISTREMENT DES ÉVÉNEMENTS
 // =======================================================
 async function recordEvent(type, page = '') {
     if (!supabaseAvailable) {
@@ -240,7 +240,7 @@ async function registerUniqueUser() {
 }
 
 // =======================================================
-// VISITEURS EN LIGNE (Realtime Presence)
+// VISITEURS EN LIGNE
 // =======================================================
 let onlineChannel = null;
 
@@ -465,10 +465,10 @@ function updatePronosticsSuccessRate() {
 }
 
 // =======================================================
-// FILTRAGE ET AFFICHAGE (fonctions existantes, adaptées à DOM)
+// FILTRAGE ET AFFICHAGE
 // =======================================================
 function hideEmptyTabs() {
-    const vipEnabled = localStorage.getItem('vipEnabled') !== 'false'; // true par défaut
+    const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
     const counts = { simple: 0, pro: 0, vip: 0 };
     if (allData && allData.matches) {
         allData.matches.forEach(m => counts[m.category]++);
@@ -705,11 +705,18 @@ function createSharePopup() {
     });
 }
 
+// =======================================================
+// NOUVELLES FONCTIONS DE PARTAGE (messages améliorés)
+// =======================================================
 function share(platform) {
     const baseUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    let message = platform === 'whatsapp' 
-        ? `🔥 *Mr XPRONOS* – 3 matchs à ne pas manquer aujourd'hui !\n\n📊 *Analyses exclusives* et pronostics fiables.\n\n👉 Débloque l'accès PRO en partageant ce lien :\n${baseUrl}\n\n⚽ Arrête de perdre ton argent, rejoins les gagnants !`
-        : `🔥 Mr XPRONOS – 3 matchs à ne pas manquer aujourd'hui !\n\n📊 Analyses exclusives et pronostics fiables.\n\n👉 Débloque l'accès PRO en partageant ce lien :\n${baseUrl}\n\n⚽ Arrête de perdre ton argent, rejoins les gagnants !`;
+    let message;
+    if (platform === 'whatsapp') {
+        message = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\nJe viens de découvrir ce site ⚽\n\nIls donnent :\n✔ plusieurs matchs analysés chaque jour\n✔ statistiques + analyse\n✔ pronostics fiables\n\n👇 Accède aux matchs du jour :\n${baseUrl}\n\n💰 Très utile pour les paris sportifs !`;
+    } else {
+        // Telegram : on enlève le premier lien et on met juste le texte + le lien à la fin
+        message = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\nJe viens de découvrir ce site ⚽\n\nIls donnent :\n✔ plusieurs matchs analysés chaque jour\n✔ statistiques + analyse\n✔ pronostics fiables\n\n👇 Accède aux matchs du jour :\n${baseUrl}\n\n💰 Très utile pour les paris sportifs !`;
+    }
     const url = platform === 'whatsapp' 
         ? `https://wa.me/?text=${encodeURIComponent(message)}`
         : `https://t.me/share/url?url=${encodeURIComponent(baseUrl)}&text=${encodeURIComponent(message)}`;
@@ -721,8 +728,10 @@ function share(platform) {
 
 function sharePronostic(match) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    const messageWhatsApp = `🔥 *Mr XPRONOS* – Pronostic du jour\n\n⚽ *${match.home_team} vs ${match.away_team}*\n📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
-    const messageTelegram = `🔥 Mr XPRONOS – Pronostic du jour\n\n⚽ ${match.home_team} vs ${match.away_team}\n📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👉 Analyse complète sur ${siteUrl}`;
+    // Message pour WhatsApp (avec emojis)
+    const messageWhatsApp = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\n⚽ *${match.home_team} vs ${match.away_team}*\n📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👇 Analyse complète :\n${siteUrl}\n\n💰 Rejoins les gagnants !`;
+    // Message pour Telegram (sans premier lien, juste le texte + lien)
+    const messageTelegram = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\n⚽ ${match.home_team} vs ${match.away_team}\n📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👇 Analyse complète :\n${siteUrl}\n\n💰 Rejoins les gagnants !`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(messageWhatsApp)}`;
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(messageTelegram)}`;
     if (confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)")) {
@@ -732,7 +741,6 @@ function sharePronostic(match) {
     }
     incrementShareCount();
     incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
-    // Enregistrer le clic sur pronostic ET le partage
     recordEvent('click_pronostic', window.location.pathname);
     recordEvent('share', window.location.pathname);
 }
@@ -1114,7 +1122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // =======================================================
-// FONCTIONS POUR LES PAGES SPÉCIFIQUES
+// FONCTIONS POUR LES PAGES SPÉCIFIQUES (HISTORIQUE, BONUS, etc.)
 // =======================================================
 async function loadDataGeneric() {
     try {
@@ -1387,7 +1395,9 @@ async function displayBlogList() {
     if (!container) return;
     if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
-    const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
+    let allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
+    // Filtrer les articles inactifs
+    allArticles = allArticles.filter(a => a.active !== false);
     if (allArticles.length === 0) { container.innerHTML = '<div class="no-events">Aucun article.</div>'; return; }
     window.articlesData = allArticles;
     const horizontalContainer = document.getElementById('blog-horizontal-list');
@@ -1445,7 +1455,8 @@ async function displayBlogPost() {
     if (!slug) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
     if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
-    const allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
+    let allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
+    allArticles = allArticles.filter(a => a.active !== false);
     const article = allArticles.find(a => a.slug === slug);
     if (!article) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
     let cleanTitle = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
@@ -1639,7 +1650,6 @@ function showVipLoginForm(container) {
             const { data, error } = await supabase.rpc('check_vip_code', { p_user_id: userId, p_code: code });
             if (error || !data.valid) throw new Error('Code invalide');
             localStorage.setItem('mx_vip_code', code);
-            // Enregistrer la conversion VIP
             recordEvent('vip_conversion', window.location.pathname);
             showToast('Code VIP activé avec succès !', 'success');
             window.location.reload();
