@@ -1,6 +1,6 @@
 /**
- * main.js - Mr XPRONOS – Version ultime avec analytics, PWA et visiteurs en ligne
- * Toutes les fonctionnalités sont regroupées dans ce seul fichier.
+ * main.js - Mr XPRONOS – Version corrigée et optimisée
+ * Corrections : gestion mémoire, sécurité XSS, race conditions
  */
 
 // =======================================================
@@ -25,6 +25,9 @@ let filteredMatchesWithoutSearch = [];
 let searchTerm = '';
 let shareStartTime = null;
 let sharePending = false;
+
+// Gestion des channels Supabase pour cleanup
+const activeChannels = new Set();
 
 const shareLimits = { pro: 3, vip: 5 };
 const POPULAR_LEAGUES = [
@@ -63,33 +66,20 @@ const DOM = {
     installButton: null
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    DOM.matches = document.getElementById('matches-container');
-    DOM.sharePopup = document.getElementById('share-popup');
-    DOM.vipLockedOverlay = document.getElementById('vip-locked-overlay');
-    DOM.bookmakersFooter = document.getElementById('bookmakers-footer');
-    DOM.bookmakersBonus = document.getElementById('bookmakers-bonus');
-    DOM.vipSubtabs = document.getElementById('vip-subtabs');
-    DOM.usersCount = document.getElementById('total-users-count');
-    DOM.onlineCount = document.getElementById('online-users-count');
-    DOM.sharesCount = document.getElementById('total-shares-count');
-    DOM.winsCount = document.getElementById('wins-count');
-    DOM.successFill = document.getElementById('success-fill');
-    DOM.successPercent = document.getElementById('success-percent');
-    DOM.shareCounter = document.getElementById('share-counter');
-    DOM.winsTrack = document.getElementById('wins-track');
-    DOM.testimonials = document.getElementById('testimonials-container');
-    DOM.todayPicks = document.getElementById('today-picks');
-    DOM.searchInput = document.getElementById('search-input');
-    DOM.historyContainer = document.getElementById('history-container');
-    DOM.bonusSelect = document.getElementById('bonus-bookmaker-select');
-    DOM.articleModal = document.getElementById('article-modal');
-    DOM.conseilModal = document.getElementById('conseil-modal');
-    DOM.newsModal = document.getElementById('news-modal');
-    DOM.winPopup = document.getElementById('win-popup');
-    DOM.iosGuidePopup = document.getElementById('ios-guide-popup');
-    DOM.installButton = document.getElementById('install-app');
-});
+// =======================================================
+// UTILITAIRES DE SÉCURITÉ (Anti-XSS)
+// =======================================================
+function escapeHtml(text) {
+    if (typeof text !== 'string') return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function escapeAttribute(text) {
+    if (typeof text !== 'string') return '';
+    return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 
 // =======================================================
 // FONCTIONS UTILITAIRES
@@ -110,37 +100,70 @@ function showToast(message, type = 'info', duration = 4000) {
 function getUserId() {
     let userId = localStorage.getItem('mx_user_id');
     if (!userId) {
-        userId = 'MX-' + crypto.randomUUID();
+        // Fallback si crypto.randomUUID n'est pas disponible
+        try {
+            userId = 'MX-' + crypto.randomUUID();
+        } catch (e) {
+            userId = 'MX-' + Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
         localStorage.setItem('mx_user_id', userId);
     }
     return userId;
 }
 
 // =======================================================
-// INITIALISATION SUPABASE
+// INITIALISATION SUPABASE (avec retry et timeout)
 // =======================================================
 async function initSupabase() {
+    const timeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout Supabase')), 5000)
+    );
+    
     try {
-        const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
-        if (!supabaseUrl || !supabaseUrl.startsWith('https://')) throw new Error('URL Supabase invalide');
-        if (!supabaseAnonKey) throw new Error('Clé Supabase manquante');
-        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-        supabase = createClient(supabaseUrl, supabaseAnonKey);
-        supabaseAvailable = true;
-        console.log('✅ Supabase connecté');
+        const initPromise = (async () => {
+            const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
+            if (!supabaseUrl || !supabaseUrl.startsWith('https://')) {
+                throw new Error('URL Supabase invalide');
+            }
+            if (!supabaseAnonKey) throw new Error('Clé Supabase manquante');
+            
+            const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+            supabase = createClient(supabaseUrl, supabaseAnonKey);
+            supabaseAvailable = true;
+            console.log('✅ Supabase connecté');
+        })();
+        
+        await Promise.race([initPromise, timeout]);
+        
     } catch (error) {
-        console.warn('⚠️ Supabase non configuré, utilisation des compteurs locaux');
+        console.warn('⚠️ Supabase non configuré:', error.message);
         supabaseAvailable = false;
     }
 }
+
+// =======================================================
+// NETTOYAGE DES CHANNELS (évite fuites mémoire)
+// =======================================================
+function cleanupChannels() {
+    activeChannels.forEach(channel => {
+        try {
+            channel.unsubscribe();
+        } catch (e) {
+            console.warn('Erreur unsubscribe channel:', e);
+        }
+    });
+    activeChannels.clear();
+}
+
+window.addEventListener('beforeunload', cleanupChannels);
 
 // =======================================================
 // GESTION DES COMPTEURS (avec fallback localStorage)
 // =======================================================
 async function incrementCounter(counterName) {
     if (!supabaseAvailable) {
-        let local = localStorage.getItem(counterName) || 0;
-        localStorage.setItem(counterName, parseInt(local) + 1);
+        let local = parseInt(localStorage.getItem(counterName) || '0');
+        localStorage.setItem(counterName, (local + 1).toString());
         return;
     }
     try {
@@ -162,8 +185,8 @@ async function updateDisplayedCounters() {
             .eq('id', 1)
             .single();
         if (error) throw error;
-        if (DOM.usersCount) DOM.usersCount.textContent = (data.unique_users || 0).toLocaleString() + '+';
-        if (DOM.sharesCount) DOM.sharesCount.textContent = (data.total_shares || 0).toLocaleString() + '+';
+        if (DOM.usersCount) DOM.usersCount.textContent = (data?.unique_users || 0).toLocaleString() + '+';
+        if (DOM.sharesCount) DOM.sharesCount.textContent = (data?.total_shares || 0).toLocaleString() + '+';
     } catch (e) {
         console.error('Erreur récupération counters:', e);
     }
@@ -171,18 +194,22 @@ async function updateDisplayedCounters() {
 
 function subscribeToCounters() {
     if (!supabaseAvailable) return;
-    supabase
+    
+    const channel = supabase
         .channel('counters-live')
         .on(
             'postgres_changes',
             { event: 'UPDATE', schema: 'public', table: 'counters', filter: 'id=eq.1' },
             (payload) => {
-                if (DOM.usersCount) DOM.usersCount.textContent = (payload.new.unique_users || 0).toLocaleString() + '+';
-                if (DOM.sharesCount) DOM.sharesCount.textContent = (payload.new.total_shares || 0).toLocaleString() + '+';
+                if (DOM.usersCount) DOM.usersCount.textContent = (payload.new?.unique_users || 0).toLocaleString() + '+';
+                if (DOM.sharesCount) DOM.sharesCount.textContent = (payload.new?.total_shares || 0).toLocaleString() + '+';
             }
         )
         .subscribe((status) => {
-            if (status === 'SUBSCRIBED') console.log('📡 Realtime counters actif');
+            if (status === 'SUBSCRIBED') {
+                console.log('📡 Realtime counters actif');
+                activeChannels.add(channel);
+            }
         });
 }
 
@@ -247,6 +274,15 @@ let onlineChannel = null;
 async function initOnlineUsers() {
     if (!supabaseAvailable || !DOM.onlineCount) return;
 
+    // Nettoyer l'ancien channel s'il existe
+    if (onlineChannel) {
+        try {
+            await onlineChannel.unsubscribe();
+        } catch (e) {
+            console.warn('Erreur unsubscribe ancien channel:', e);
+        }
+    }
+
     onlineChannel = supabase.channel('online-users', {
         config: {
             presence: { key: getUserId() }
@@ -257,11 +293,12 @@ async function initOnlineUsers() {
         .on('presence', { event: 'sync' }, () => {
             const state = onlineChannel.presenceState();
             const onlineUsers = Object.keys(state).length;
-            DOM.onlineCount.textContent = onlineUsers;
+            if (DOM.onlineCount) DOM.onlineCount.textContent = onlineUsers;
         })
         .subscribe(async (status) => {
             if (status === 'SUBSCRIBED') {
                 await onlineChannel.track({ online_at: new Date().toISOString() });
+                activeChannels.add(onlineChannel);
             }
         });
 }
@@ -297,7 +334,7 @@ function updateShareCounter() {
 // =======================================================
 // PWA & INSTALLATION (version robuste)
 // =======================================================
-let deferredPrompt;
+let deferredPrompt = null;
 
 function getOS() {
     const ua = window.navigator.userAgent;
@@ -307,7 +344,8 @@ function getOS() {
 }
 
 function isPwaInstalled() {
-    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    return window.matchMedia('(display-mode: standalone)').matches || 
+           window.navigator.standalone === true;
 }
 
 function showIosGuideIfNeeded() {
@@ -326,6 +364,7 @@ function closeIosGuide() {
     localStorage.setItem('iosGuideLastClosed', Date.now().toString());
 }
 
+// Gestionnaire d'installation PWA
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
@@ -335,33 +374,32 @@ window.addEventListener('beforeinstallprompt', (e) => {
     console.log('beforeinstallprompt capturé');
 });
 
-DOM.installButton?.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`Installation : ${outcome}`);
-        deferredPrompt = null;
-        DOM.installButton.style.display = 'none';
-    } else {
-        if (getOS() === 'iOS') {
-            showIosGuideIfNeeded();
+// Installation différée pour attendre le DOM
+function setupInstallButton() {
+    if (!DOM.installButton) return;
+    
+    DOM.installButton.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`Installation : ${outcome}`);
+            deferredPrompt = null;
+            DOM.installButton.style.display = 'none';
         } else {
-            alert('L\'installation automatique n\'est pas disponible. Utilisez le menu du navigateur (Ajouter à l\'écran d\'accueil).');
+            if (getOS() === 'iOS') {
+                showIosGuideIfNeeded();
+            } else {
+                alert('L\'installation automatique n\'est pas disponible. Utilisez le menu du navigateur (Ajouter à l\'écran d\'accueil).');
+            }
         }
-    }
-});
+    });
+}
 
 window.addEventListener('appinstalled', () => {
     console.log('PWA installée');
     if (DOM.installButton) DOM.installButton.style.display = 'none';
     if (DOM.iosGuidePopup) DOM.iosGuidePopup.style.display = 'none';
 });
-
-document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
-document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
-
-// Afficher le guide iOS si nécessaire (indépendant du bouton)
-showIosGuideIfNeeded();
 
 // =======================================================
 // CHARGEMENT DES DONNÉES (data.json)
@@ -371,12 +409,18 @@ async function loadData() {
     if (DOM.matches) {
         DOM.matches.innerHTML = `<div style="text-align:center; padding:80px 20px; color:#aaa;"><div style="font-size:60px; margin-bottom:20px;">⏳</div><div>Chargement des matchs...</div></div>`;
     }
+    
     let dataLoaded = false;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    
     try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
-        const resp = await fetch('data.json?t=' + Date.now(), { signal: controller.signal, cache: 'no-cache' });
+        const resp = await fetch('data.json?t=' + Date.now(), { 
+            signal: controller.signal, 
+            cache: 'no-cache' 
+        });
         clearTimeout(timeoutId);
+        
         if (resp.ok) {
             allData = await resp.json();
             console.log('✅ Données fraîches du serveur');
@@ -386,19 +430,27 @@ async function loadData() {
     } catch (err) {
         console.log('🌐 Hors ligne ou erreur réseau → utilisation du cache');
     }
+    
     if (!dataLoaded) {
         const cached = localStorage.getItem('cachedData');
         if (cached) {
             try {
                 allData = JSON.parse(cached);
-                console.log('📦 Pronos chargés depuis le cache local (' + allData.matches.length + ' matchs)');
+                console.log('📦 Pronos chargés depuis le cache local (' + allData?.matches?.length + ' matchs)');
                 dataLoaded = true;
-            } catch (e) { console.error('❌ Cache corrompu', e); }
+            } catch (e) { 
+                console.error('❌ Cache corrompu', e); 
+            }
         }
     }
+    
     if (dataLoaded && allData) {
         if (DOM.matches && !navigator.onLine) {
-            DOM.matches.insertAdjacentHTML('afterbegin', `<div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem;">📴 MODE HORS LIGNE — Pronostics du cache (${new Date().toLocaleDateString('fr-FR')})</div>`);
+            DOM.matches.insertAdjacentHTML('afterbegin', 
+                `<div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem;">
+                    📴 MODE HORS LIGNE — Pronostics du cache (${new Date().toLocaleDateString('fr-FR')})
+                </div>`
+            );
         }
         renderBookmakers(allData.bookmakers);
         hideEmptyTabs();
@@ -406,7 +458,10 @@ async function loadData() {
         filterAndDisplay();
         updatePronosticsSuccessRate();
     } else if (DOM.matches) {
-        DOM.matches.innerHTML = `<div class="error" style="text-align:center; padding:60px;">❌ Aucune donnée disponible.<br><small>Connectez-vous une première fois pour charger le cache.</small></div>`;
+        DOM.matches.innerHTML = `<div class="error" style="text-align:center; padding:60px;">
+            ❌ Aucune donnée disponible.<br>
+            <small>Connectez-vous une première fois pour charger le cache.</small>
+        </div>`;
     }
 }
 
@@ -476,7 +531,7 @@ function updatePronosticsSuccessRate() {
 }
 
 // =======================================================
-// FILTRAGE ET AFFICHAGE
+// FILTRAGE ET AFFICHAGE (VERSION SÉCURISÉE XSS)
 // =======================================================
 function hideEmptyTabs() {
     const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
@@ -569,7 +624,9 @@ function setupEventListeners() {
             try {
                 const matchData = JSON.parse(decodeURIComponent(e.target.dataset.match));
                 sharePronostic(matchData);
-            } catch (err) { console.error('Erreur parsing données match', err); }
+            } catch (err) { 
+                console.error('Erreur parsing données match', err); 
+            }
         }
     });
 }
@@ -580,8 +637,8 @@ async function handleCategoryChange() {
         if (!vipEnabled) {
             alert('Les pronostics VIP sont temporairement désactivés.');
             currentCategory = 'simple';
-            document.querySelector('.tab-btn[data-cat="simple"]').classList.add('active');
-            document.querySelector('.tab-btn[data-cat="vip"]').classList.remove('active');
+            document.querySelector('.tab-btn[data-cat="simple"]')?.classList.add('active');
+            document.querySelector('.tab-btn[data-cat="vip"]')?.classList.remove('active');
             filterAndDisplay();
             return;
         }
@@ -688,7 +745,7 @@ function showSharePopup(category, remaining) {
     if (shareTarget) shareTarget.textContent = shareLimits[category];
     if (shareMessage) shareMessage.innerHTML = `Pour accéder aux pronostics ${category === 'pro' ? 'Pro' : 'VIP'}, partagez ce lien à <span id="share-remaining">${remaining}</span> amis.`;
 
-    DOM.sharePopup.classList.add('active');
+    DOM.sharePopup?.classList.add('active');
 }
 
 function createSharePopup() {
@@ -709,10 +766,10 @@ function createSharePopup() {
     `;
     document.body.appendChild(popup);
     DOM.sharePopup = popup;
-    document.getElementById('share-wa').addEventListener('click', () => share('whatsapp'));
-    document.getElementById('share-tg').addEventListener('click', () => share('telegram'));
-    document.getElementById('close-popup').addEventListener('click', () => {
-        DOM.sharePopup.classList.remove('active');
+    document.getElementById('share-wa')?.addEventListener('click', () => share('whatsapp'));
+    document.getElementById('share-tg')?.addEventListener('click', () => share('telegram'));
+    document.getElementById('close-popup')?.addEventListener('click', () => {
+        DOM.sharePopup?.classList.remove('active');
     });
 }
 
@@ -721,16 +778,12 @@ function createSharePopup() {
 // =======================================================
 function share(platform) {
     const baseUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    let message;
-    if (platform === 'whatsapp') {
-        message = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\nJe viens de découvrir ce site ⚽\n\nIls donnent :\n✔ plusieurs matchs analysés chaque jour\n✔ statistiques + analyse\n✔ pronostics fiables\n\n👇 Accède aux matchs du jour :\n${baseUrl}\n\n💰 Très utile pour les paris sportifs !`;
-    } else {
-        // Telegram : on met le lien à la fin seulement
-        message = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\nJe viens de découvrir ce site ⚽\n\nIls donnent :\n✔ plusieurs matchs analysés chaque jour\n✔ statistiques + analyse\n✔ pronostics fiables\n\n👇 Accède aux matchs du jour :\n${baseUrl}\n\n💰 Très utile pour les paris sportifs !`;
-    }
+    const message = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\nJe viens de découvrir ce site ⚽\n\nIls donnent :\n✔ plusieurs matchs analysés chaque jour\n✔ statistiques + analyse\n✔ pronostics fiables\n\n👇 Accède aux matchs du jour :\n${baseUrl}\n\n💰 Très utile pour les paris sportifs !`;
+    
     const url = platform === 'whatsapp' 
         ? `https://wa.me/?text=${encodeURIComponent(message)}`
         : `https://t.me/share/url?url=${encodeURIComponent(baseUrl)}&text=${encodeURIComponent(message)}`;
+        
     window.open(url, '_blank');
     shareStartTime = Date.now();
     sharePending = true;
@@ -743,11 +796,13 @@ function sharePronostic(match) {
     const messageTelegram = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\n⚽ ${match.home_team} vs ${match.away_team}\n📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👇 Analyse complète :\n${siteUrl}\n\n💰 Rejoins les gagnants !`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(messageWhatsApp)}`;
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(messageTelegram)}`;
+    
     if (confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)")) {
         window.open(whatsappUrl, '_blank');
     } else {
         window.open(telegramUrl, '_blank');
     }
+    
     incrementShareCount();
     incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
     recordEvent('click_pronostic', window.location.pathname);
@@ -839,6 +894,9 @@ function getTeamLogoPath(teamName, isHome = true) {
     return `assets/images/${normalized}.webp`;
 }
 
+// =======================================================
+// RENDER MATCHES (VERSION SÉCURISÉE CONTRE XSS)
+// =======================================================
 function renderMatches(matches) {
     if (!DOM.matches) return;
     if (matches.length === 0) {
@@ -851,6 +909,7 @@ function renderMatches(matches) {
         if (!grouped[league]) grouped[league] = [];
         grouped[league].push(m);
     });
+    
     let html = '';
     const leagueOrder = [...POPULAR_LEAGUES, 'Autres ligues'];
     const sortedLeagues = Object.keys(grouped).sort((a, b) => {
@@ -858,16 +917,20 @@ function renderMatches(matches) {
         const ib = leagueOrder.findIndex(l => b.includes(l) || b === l);
         return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
     });
+    
     sortedLeagues.forEach(league => {
-        html += `<h2 class="league-header" style="color: var(--or); margin-top: 2rem;">${league}</h2>`;
+        // Échappement du nom de ligue
+        html += `<h2 class="league-header" style="color: var(--or); margin-top: 2rem;">${escapeHtml(league)}</h2>`;
+        
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
-            const doubleChance = pred.double_chance || 'N/A';
+            const doubleChance = escapeHtml(pred.double_chance || 'N/A');
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
             if (confidence > 100) confidence = confidence / 100;
             confidence = Math.min(100, Math.round(confidence * 10) / 10);
+            
             const matchTime = formatMatchTime(m.event_date);
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
@@ -875,19 +938,28 @@ function renderMatches(matches) {
             const yesterdayStr = getLocalDateString('yesterday');
             const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
+            
             const homeDefault = 'assets/images/home.webp';
             const awayDefault = 'assets/images/away.webp';
-            const homeLogo = m.home_logo || getTeamLogoPath(m.home_team, true);
-            const awayLogo = m.away_logo || getTeamLogoPath(m.away_team, false);
+            const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
+            const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
+            
             const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
-            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
-            const matchDataEncoded = encodeURIComponent(JSON.stringify(m));
+            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${escapeHtml(m.badge)}</span>` : '';
+            
+            // Données pour le partage (sérialisées et échappées)
+            const matchDataForSharing = {
+                home_team: m.home_team,
+                away_team: m.away_team,
+                prediction: { double_chance: pred.double_chance, confidence: confidence }
+            };
+            const matchDataEncoded = encodeURIComponent(JSON.stringify(matchDataForSharing));
 
             // Badges avancés
             let advancedHtml = '';
             if (m.ai_score) {
-                advancedHtml += `<div class="ai-score-badge">🤖 AI: ${m.ai_score}</div>`;
+                advancedHtml += `<div class="ai-score-badge">🤖 AI: ${escapeHtml(String(m.ai_score))}</div>`;
             }
             if (m.elo_home && m.elo_away) {
                 advancedHtml += `<div class="elo-info">📊 Elo: ${m.elo_home} - ${m.elo_away}</div>`;
@@ -902,28 +974,29 @@ function renderMatches(matches) {
                 advancedHtml += `<div class="trap-warning">⚠️ Piège bookmaker</div>`;
             }
 
+            // TOUTES LES DONNÉES DYNAMIQUES SONT ÉCHAPPÉES
             html += `
-                <div class="match-card ${winnerClass}" data-match-id="${m.id}">
+                <div class="match-card ${winnerClass}" data-match-id="${escapeAttribute(String(m.id))}">
                     <div class="win-effect"></div>
                     <div class="match-info">
                         <div class="teams">
                             <div class="team">
-                                <img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';">
-                                <span class="team-name">${m.home_team}</span>
+                                <img src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';">
+                                <span class="team-name">${escapeHtml(m.home_team)}</span>
                                 <span class="team-score">${m.home_score ?? '-'}</span>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                <img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';">
-                                <span class="team-name">${m.away_team}</span>
+                                <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';">
+                                <span class="team-name">${escapeHtml(m.away_team)}</span>
                                 <span class="team-score">${m.away_score ?? '-'}</span>
                             </div>
                         </div>
                         <div class="match-meta">
-                            <span class="league-badge">${m.league || 'Ligue'}</span>
+                            <span class="league-badge">${escapeHtml(m.league || 'Ligue')}</span>
                             <span class="status ${statusClass}">${statusFr}</span>
                             <span class="match-time"><i>🕒</i> ${matchTime}</span>
-                            ${m.venue ? `<span class="match-venue"><i>🏟️</i> ${m.venue}</span>` : ''}
+                            ${m.venue ? `<span class="match-venue"><i>🏟️</i> ${escapeHtml(m.venue)}</span>` : ''}
                         </div>
                     </div>
                     <div class="analysis-panel ticket ${winnerClass}">
@@ -933,17 +1006,24 @@ function renderMatches(matches) {
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
                         ${premiumBadge}
                         ${advancedHtml}
-                        <button class="btn btn-secondary btn-share" data-match='${matchDataEncoded}'>📤 Partager ce prono</button>
+                        <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}">📤 Partager ce prono</button>
                     </div>
                 </div>
             `;
         });
     });
+    
     DOM.matches.innerHTML = html;
-    document.querySelectorAll('.confidence-fill').forEach(bar => {
-        let value = bar.getAttribute('data-value');
-        setTimeout(() => { bar.style.width = value + '%'; }, 300);
+    
+    // Animation des barres de confiance
+    requestAnimationFrame(() => {
+        document.querySelectorAll('.confidence-fill').forEach(bar => {
+            let value = bar.getAttribute('data-value');
+            bar.style.width = value + '%';
+        });
     });
+    
+    // Effets visuels pour les gagnants
     document.querySelectorAll('.match-card.winner').forEach(card => {
         for (let i = 0; i < 8; i++) {
             let spark = document.createElement('div');
@@ -956,7 +1036,9 @@ function renderMatches(matches) {
             spark.style.top = Math.random() * 100 + '%';
             card.appendChild(spark);
         }
-        setTimeout(() => { card.querySelectorAll('.spark').forEach(s => s.remove()); }, 1000);
+        setTimeout(() => { 
+            card.querySelectorAll('.spark').forEach(s => s.remove()); 
+        }, 1000);
     });
 }
 
@@ -968,7 +1050,7 @@ function translateStatus(status) {
     if (s.includes('notstarted') || s.includes('à venir')) return 'À venir';
     if (s.includes('postponed')) return 'Reporté';
     if (s.includes('cancelled')) return 'Annulé';
-    return status;
+    return escapeHtml(status); // Échappement pour les statuts inconnus
 }
 
 function getStatusClass(status) {
@@ -994,6 +1076,7 @@ function renderBookmakers(bookmakers) {
             { name: "BetClic",   logo: "assets/images/betclic.webp",   url: "https://betpari-click.com/2vY0?extid=USD" }
         ];
     }
+    
     if (DOM.bookmakersFooter) {
         DOM.bookmakersFooter.innerHTML = '';
         bookmakers.forEach(b => {
@@ -1020,6 +1103,7 @@ function renderBookmakers(bookmakers) {
             DOM.bookmakersFooter.appendChild(a);
         });
     }
+    
     if (DOM.bookmakersBonus) {
         DOM.bookmakersBonus.innerHTML = '';
         bookmakers.forEach(b => {
@@ -1058,16 +1142,51 @@ function renderBookmakers(bookmakers) {
 }
 
 // =======================================================
-// INITIALISATION PRINCIPALE
+// INITIALISATION PRINCIPALE (CORRIGÉE)
 // =======================================================
 document.addEventListener('DOMContentLoaded', async () => {
+    // Initialisation DOM
+    DOM.matches = document.getElementById('matches-container');
+    DOM.sharePopup = document.getElementById('share-popup');
+    DOM.vipLockedOverlay = document.getElementById('vip-locked-overlay');
+    DOM.bookmakersFooter = document.getElementById('bookmakers-footer');
+    DOM.bookmakersBonus = document.getElementById('bookmakers-bonus');
+    DOM.vipSubtabs = document.getElementById('vip-subtabs');
+    DOM.usersCount = document.getElementById('total-users-count');
+    DOM.onlineCount = document.getElementById('online-users-count');
+    DOM.sharesCount = document.getElementById('total-shares-count');
+    DOM.winsCount = document.getElementById('wins-count');
+    DOM.successFill = document.getElementById('success-fill');
+    DOM.successPercent = document.getElementById('success-percent');
+    DOM.shareCounter = document.getElementById('share-counter');
+    DOM.winsTrack = document.getElementById('wins-track');
+    DOM.testimonials = document.getElementById('testimonials-container');
+    DOM.todayPicks = document.getElementById('today-picks');
+    DOM.searchInput = document.getElementById('search-input');
+    DOM.historyContainer = document.getElementById('history-container');
+    DOM.bonusSelect = document.getElementById('bonus-bookmaker-select');
+    DOM.articleModal = document.getElementById('article-modal');
+    DOM.conseilModal = document.getElementById('conseil-modal');
+    DOM.newsModal = document.getElementById('news-modal');
+    DOM.winPopup = document.getElementById('win-popup');
+    DOM.iosGuidePopup = document.getElementById('ios-guide-popup');
+    DOM.installButton = document.getElementById('install-app');
+
+    // Setup bouton install
+    setupInstallButton();
+    
+    // Setup fermeture iOS guide
+    document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
+    document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
+
+    // Initialisation Supabase et analytics
     await initSupabase();
     await updateDisplayedCounters();
     subscribeToCounters();
     await registerUniqueUser();
     await initOnlineUsers();
     countVisitOncePerDay();
-    showIosGuideIfNeeded(); // déjà appelé dans la section PWA, mais on le laisse aussi ici par sécurité
+    showIosGuideIfNeeded();
 
     // Initialisation selon la page
     if (DOM.matches) {
@@ -1079,21 +1198,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         initBonusPage();
     } else {
         // Page d'accueil
-        await loadDataGeneric().then(data => {
-            if (data) {
-                allData = data;
-                renderBookmakers(data.bookmakers);
-                updateShareCounter();
-                displayLatestVerified();
-                startWinsSlider();
-                animateWins();
-                updateHomeSuccessRate();
-            }
-        });
+        const data = await loadDataGeneric();
+        if (data) {
+            allData = data;
+            renderBookmakers(data.bookmakers);
+            updateShareCounter();
+            displayLatestVerified();
+            startWinsSlider();
+            animateWins();
+            updateHomeSuccessRate();
+        }
         displayTestimonials();
         startWinNotifications();
     }
 
+    // Contenu additionnel
     displayBlogList();
     displayBlogPost();
     displayConseils();
@@ -1101,6 +1220,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     displayFootNews();
     initScrollProgress();
 
+    // Recherche
     if (DOM.searchInput) {
         DOM.searchInput.addEventListener('input', (e) => {
             searchTerm = e.target.value;
@@ -1108,6 +1228,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Détection retour partage
     document.addEventListener('visibilitychange', () => {
         if (sharePending && !document.hidden) {
             const elapsed = Date.now() - shareStartTime;
@@ -1131,11 +1252,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     });
+    
     recordEvent('visit', window.location.pathname);
 });
 
 // =======================================================
-// FONCTIONS POUR LES PAGES SPÉCIFIQUES (HISTORIQUE, BONUS, etc.)
+// FONCTIONS POUR LES PAGES SPÉCIFIQUES
 // =======================================================
 async function loadDataGeneric() {
     try {
@@ -1181,10 +1303,10 @@ async function displayHistory() {
     sortedDays.forEach(day => {
         const dayDate = new Date(day + 'T12:00:00');
         const formattedDate = dayDate.toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-        html += `<h2 class="day-header" style="color: var(--or); margin-top: 2rem;">${formattedDate}</h2>`;
+        html += `<h2 class="day-header" style="color: var(--or); margin-top: 2rem;">${escapeHtml(formattedDate)}</h2>`;
         groupedByDay[day].forEach(m => {
             const pred = m.prediction || {};
-            const doubleChance = pred.double_chance || 'N/A';
+            const doubleChance = escapeHtml(pred.double_chance || 'N/A');
             let confidence = pred.confidence || 0;
             if (typeof confidence === 'string') confidence = parseFloat(confidence);
             if (isNaN(confidence)) confidence = 0;
@@ -1196,23 +1318,24 @@ async function displayHistory() {
             const verifiedDouble = m.verified_double ? 'checked' : '';
             const homeDefault = 'assets/images/home.webp';
             const awayDefault = 'assets/images/away.webp';
-            const homeLogo = m.home_logo || getTeamLogoPath(m.home_team, true);
-            const awayLogo = m.away_logo || getTeamLogoPath(m.away_team, false);
+            const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
+            const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
             const isWinner = m.verified_double;
             const winnerClass = isWinner ? 'winner' : '';
-            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
+            const xpronosBadge = m.badge ? `<span class="xpronos-badge">${escapeHtml(m.badge)}</span>` : '';
             const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
             const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
+            
             html += `
                 <div class="match-card ${winnerClass}">
                     <div class="match-info">
                         <div class="teams">
-                            <div class="team"><img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';"><span class="team-name">${m.home_team}</span><span class="team-score">${m.home_score ?? '-'}</span></div>
+                            <div class="team"><img src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';"><span class="team-name">${escapeHtml(m.home_team)}</span><span class="team-score">${m.home_score ?? '-'}</span></div>
                             <div class="vs">VS</div>
-                            <div class="team"><img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';"><span class="team-name">${m.away_team}</span><span class="team-score">${m.away_score ?? '-'}</span></div>
+                            <div class="team"><img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';"><span class="team-name">${escapeHtml(m.away_team)}</span><span class="team-score">${m.away_score ?? '-'}</span></div>
                         </div>
                         <div class="match-meta">
-                            <span class="league-badge">${m.league || 'Ligue'}</span>
+                            <span class="league-badge">${escapeHtml(m.league || 'Ligue')}</span>
                             <span class="status ${statusClass}">${statusFr}</span>
                             <span class="match-time"><i>🕒</i> ${matchTime}</span>
                         </div>
@@ -1255,32 +1378,33 @@ function displayLatestVerified() {
     let html = '';
     latest.forEach(m => {
         const pred = m.prediction || {};
-        const doubleChance = pred.double_chance || 'N/A';
+        const doubleChance = escapeHtml(pred.double_chance || 'N/A');
         const confidence = pred.confidence || 0;
         const matchTime = formatMatchTime(m.event_date);
         const statusFr = translateStatus(m.status);
         const statusClass = getStatusClass(m.status);
         const homeDefault = 'assets/images/home.webp';
         const awayDefault = 'assets/images/away.webp';
-        const homeLogo = m.home_logo || getTeamLogoPath(m.home_team, true);
-        const awayLogo = m.away_logo || getTeamLogoPath(m.away_team, false);
-        const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
+        const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
+        const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
+        const xpronosBadge = m.badge ? `<span class="xpronos-badge">${escapeHtml(m.badge)}</span>` : '';
         const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">🔒 Premium</span>' : '';
         const categoryBadge = m.category ? `<span class="badge-category badge-${m.category}">${m.category.toUpperCase()}</span>` : '';
+        
         html += `
-            <div class="match-card winner" data-match-id="${m.id}">
+            <div class="match-card winner" data-match-id="${escapeAttribute(String(m.id))}">
                 <div class="win-effect"></div>
                 <div class="match-info">
                     <div class="teams">
-                        <div class="team"><img src="${homeLogo}" alt="${m.home_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';"><span class="team-name">${m.home_team}</span><span class="team-score">${m.home_score ?? '-'}</span></div>
+                        <div class="team"><img src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';"><span class="team-name">${escapeHtml(m.home_team)}</span><span class="team-score">${m.home_score ?? '-'}</span></div>
                         <div class="vs">VS</div>
-                        <div class="team"><img src="${awayLogo}" alt="${m.away_team}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';"><span class="team-name">${m.away_team}</span><span class="team-score">${m.away_score ?? '-'}</span></div>
+                        <div class="team"><img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';"><span class="team-name">${escapeHtml(m.away_team)}</span><span class="team-score">${m.away_score ?? '-'}</span></div>
                     </div>
                     <div class="match-meta">
-                        <span class="league-badge">${m.league || 'Ligue'}</span>
+                        <span class="league-badge">${escapeHtml(m.league || 'Ligue')}</span>
                         <span class="status ${statusClass}">${statusFr}</span>
                         <span class="match-time"><i>🕒</i> ${matchTime}</span>
-                        ${m.venue ? `<span class="match-venue"><i>🏟️</i> ${m.venue}</span>` : ''}
+                        ${m.venue ? `<span class="match-venue"><i>🏟️</i> ${escapeHtml(m.venue)}</span>` : ''}
                     </div>
                 </div>
                 <div class="analysis-panel">
@@ -1304,20 +1428,27 @@ function startWinsSlider() {
         if (!isFinished) return false;
         return m.verified_double;
     }).sort((a,b) => new Date(b.event_date) - new Date(a.event_date)).slice(0,10);
+    
     let html = '';
     wins.forEach(m => {
         const score = `${m.home_score ?? '-'} - ${m.away_score ?? '-'}`;
-        html += `<div class="win-item">✅ <span>${m.home_team} ${score} ${m.away_team}</span> 🏆 ${m.prediction?.double_chance || ''}</div>`;
+        html += `<div class="win-item">✅ <span>${escapeHtml(m.home_team)} ${score} ${escapeHtml(m.away_team)}</span> 🏆 ${escapeHtml(m.prediction?.double_chance || '')}</div>`;
     });
-    DOM.winsTrack.innerHTML = html + html;
+    DOM.winsTrack.innerHTML = html + html; // Double pour le défilement infini
 }
 
 function startWinNotifications() {
-    if (!DOM.winPopup) return;
+    if (!DOM.winPopup) {
+        console.log('ℹ️ Notification popup non disponible');
+        return;
+    }
+    
     const firstNames = ["Jean","Michel","David","Lucas","Thomas","Patrick","Samuel","Kevin","Éric","Daniel","Pierre","Philippe","Nicolas","François","Antoine"];
     const lastNames = ["Martin","Bernard","Dubois","Thomas","Robert","Richard","Petit","Durand","Leroy","Moreau","Simon","Laurent","Lefebvre","Michel","Garcia"];
+    
     let usedNames = new Set();
     let notifications = [];
+    
     while (notifications.length < 5) {
         const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
         const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
@@ -1328,16 +1459,20 @@ function startWinNotifications() {
             notifications.push({ name: fullName, gain });
         }
     }
+    
     let index = 0;
     function showPopup() {
         const { name, gain } = notifications[index];
-        DOM.winPopup.innerHTML = `💰 <b>${name}</b> a gagné <b>${gain}€</b> aujourd'hui grâce au VIP !`;
+        DOM.winPopup.innerHTML = `💰 <b>${escapeHtml(name)}</b> a gagné <b>${gain}€</b> aujourd'hui grâce au VIP !`;
         DOM.winPopup.classList.add('show');
         setTimeout(() => DOM.winPopup.classList.remove('show'), 4000);
         index = (index + 1) % notifications.length;
     }
+    
+    // Première notification après 5 secondes
+    setTimeout(showPopup, 5000);
+    // Puis toutes les heures
     setInterval(showPopup, 3600000);
-    showPopup();
 }
 
 function animateWins() {
@@ -1349,6 +1484,7 @@ function animateWins() {
         if (!isFinished) return false;
         return m.verified_double;
     }).length;
+    
     let count = 0;
     const target = winsCount;
     const interval = setInterval(() => {
@@ -1378,7 +1514,7 @@ async function displayTestimonials() {
         const testimonials = await resp.json();
         let html = '';
         testimonials.forEach(t => {
-            html += `<div class="card"><p>"${t.text}"</p><p style="margin-top: 1rem; color: var(--or);">— ${t.name}</p></div>`;
+            html += `<div class="card"><p>"${escapeHtml(t.text)}"</p><p style="margin-top: 1rem; color: var(--or);">— ${escapeHtml(t.name)}</p></div>`;
         });
         DOM.testimonials.innerHTML = html;
     } catch (e) {
@@ -1400,7 +1536,9 @@ async function loadGeneratedContent() {
         if (articlesResp.ok) window.generatedArticles = await articlesResp.json();
         const conseilsResp = await fetch('conseils.json?t=' + Date.now());
         if (conseilsResp.ok) window.generatedConseils = await conseilsResp.json();
-    } catch (error) { console.error('Erreur chargement contenu généré:', error); }
+    } catch (error) { 
+        console.error('Erreur chargement contenu généré:', error); 
+    }
 }
 
 async function displayBlogList() {
@@ -1411,29 +1549,33 @@ async function displayBlogList() {
     let allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
     // Filtrer les articles inactifs (champ active === false)
     allArticles = allArticles.filter(a => a.active !== false);
-    if (allArticles.length === 0) { container.innerHTML = '<div class="no-events">Aucun article.</div>'; return; }
+    if (allArticles.length === 0) { 
+        container.innerHTML = '<div class="no-events">Aucun article.</div>'; 
+        return; 
+    }
     window.articlesData = allArticles;
     const horizontalContainer = document.getElementById('blog-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
         allArticles.slice(0,8).forEach((article,index) => {
-            const title = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
-            hHtml += `<div class="horizontal-item" onclick="showArticleDetail(${index})"><img src="${article.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy"><div class="item-title">${title}</div></div>`;
+            const title = escapeHtml(article.title.replace(/#+\s*/g,'').replace(/\*\*/g,''));
+            hHtml += `<div class="horizontal-item" onclick="showArticleDetail(${index})"><img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${title}" loading="lazy"><div class="item-title">${title}</div></div>`;
         });
         horizontalContainer.innerHTML = hHtml;
     }
     let html = '';
     allArticles.forEach((article,index) => {
-        let cleanTitle = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
+        let cleanTitle = escapeHtml(article.title.replace(/#+\s*/g,'').replace(/\*\*/g,''));
         let excerpt = article.excerpt || article.content.substring(0,150) + '...';
-        let cleanExcerpt = excerpt.replace(/#+\s*/g,'').replace(/\*\*/g,'').replace(/\*/g,'').replace(/\[|\]/g,'').substring(0,120) + '...';
-        let imageUrl = article.image_url || 'assets/images/default-logo.png';
+        let cleanExcerpt = escapeHtml(excerpt.replace(/#+\s*/g,'').replace(/\*\*/g,'').replace(/\*/g,'').replace(/\[|\]/g,'').substring(0,120) + '...');
+        let imageUrl = escapeAttribute(article.image_url || 'assets/images/default-logo.png');
         let articleDate = article.date ? new Date(article.date).toLocaleDateString('fr-FR') : '';
+        
         html += `
             <div class="news-card card" onclick="showArticleDetail(${index})">
                 <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
                 <h3>${cleanTitle}</h3>
-                <p class="meta">${articleDate} par ${article.author || 'Mr XPRONOS'}</p>
+                <p class="meta">${articleDate} par ${escapeHtml(article.author || 'Mr XPRONOS')}</p>
                 <p>${cleanExcerpt}</p>
                 <button class="btn btn-secondary" style="margin-top:10px;">Lire la suite</button>
             </div>
@@ -1452,7 +1594,7 @@ window.showArticleDetail = function(index) {
     if (window.marked) content = window.marked.parse(content);
     else content = content.replace(/\n/g,'<br>');
     document.getElementById('article-modal-content').innerHTML = content;
-    document.getElementById('article-modal-link').href = 'article.html?slug=' + article.slug;
+    document.getElementById('article-modal-link').href = 'article.html?slug=' + encodeURIComponent(article.slug);
     DOM.articleModal.style.display = 'flex';
 };
 
@@ -1465,18 +1607,27 @@ async function displayBlogPost() {
     if (!container) return;
     const urlParams = new URLSearchParams(window.location.search);
     const slug = urlParams.get('slug');
-    if (!slug) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
+    if (!slug) { 
+        container.innerHTML = '<p>Article non trouvé.</p>'; 
+        return; 
+    }
     if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
     let allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
     allArticles = allArticles.filter(a => a.active !== false);
     const article = allArticles.find(a => a.slug === slug);
-    if (!article) { container.innerHTML = '<p>Article non trouvé.</p>'; return; }
+    if (!article) { 
+        container.innerHTML = '<p>Article non trouvé.</p>'; 
+        return; 
+    }
+    
     let cleanTitle = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
     document.title = cleanTitle + ' - Mr XPRONOS';
     const description = article.excerpt || article.content.substring(0,150).replace(/[#*]/g,'') + '...';
     const imageUrl = article.image_url || 'https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg';
     const fullUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=' + encodeURIComponent(slug);
+    
+    // Métadonnées OpenGraph
     document.getElementById('article-description')?.setAttribute('content', description);
     document.getElementById('og-title')?.setAttribute('content', cleanTitle);
     document.getElementById('og-description')?.setAttribute('content', description);
@@ -1485,20 +1636,24 @@ async function displayBlogPost() {
     document.getElementById('twitter-title')?.setAttribute('content', cleanTitle);
     document.getElementById('twitter-description')?.setAttribute('content', description);
     document.getElementById('twitter-image')?.setAttribute('content', imageUrl);
+    
     const jsonLd = {
         "@context":"https://schema.org","@type":"Article","headline":cleanTitle,"description":description,"image":imageUrl,
         "author":{"@type":"Person","name":article.author||"Mr XPRONOS"},
         "publisher":{"@type":"Organization","name":"Mr XPRONOS","logo":{"@type":"ImageObject","url":"https://mrxpronos.github.io/MrXPRONOS_App/assets/images/icon-192.webp"}},
         "datePublished":article.date,"dateModified":article.date,"mainEntityOfPage":fullUrl
     };
-    document.getElementById('article-jsonld').textContent = JSON.stringify(jsonLd);
+    const jsonLdEl = document.getElementById('article-jsonld');
+    if (jsonLdEl) jsonLdEl.textContent = JSON.stringify(jsonLd);
+    
     let htmlContent = article.content;
     if (window.marked) htmlContent = window.marked.parse(htmlContent);
     else htmlContent = htmlContent.replace(/\n/g,'<br>');
+    
     container.innerHTML = `
-        <h1>${cleanTitle}</h1>
-        <div class="meta">${article.date} par ${article.author}</div>
-        ${article.image_url ? `<img src="${article.image_url}" alt="${cleanTitle}" loading="lazy">` : ''}
+        <h1>${escapeHtml(cleanTitle)}</h1>
+        <div class="meta">${article.date} par ${escapeHtml(article.author)}</div>
+        ${article.image_url ? `<img src="${escapeAttribute(article.image_url)}" alt="${escapeAttribute(cleanTitle)}" loading="lazy">` : ''}
         <div style="margin-top: 2rem;">${htmlContent}</div>
         <a href="blog.html" class="btn btn-secondary" style="margin-top: 2rem;">← Retour au blog</a>
     `;
@@ -1510,24 +1665,28 @@ async function displayConseils() {
     if (!window.generatedConseils) await loadGeneratedContent();
     const data = await loadDataGeneric();
     const allConseils = [...(window.generatedConseils || []), ...(data?.conseils || [])];
-    if (allConseils.length === 0) { container.innerHTML = '<div class="no-events">Aucun conseil.</div>'; return; }
+    if (allConseils.length === 0) { 
+        container.innerHTML = '<div class="no-events">Aucun conseil.</div>'; 
+        return; 
+    }
     window.conseilsData = allConseils;
     const horizontalContainer = document.getElementById('conseils-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
         allConseils.slice(0,8).forEach((conseil,index) => {
-            const title = conseil.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
-            hHtml += `<div class="horizontal-item" onclick="showConseilDetail(${index})"><img src="${conseil.image_url || 'assets/images/default-logo.png'}" alt="${title}" loading="lazy"><div class="item-title">${title}</div></div>`;
+            const title = escapeHtml(conseil.title.replace(/#+\s*/g,'').replace(/\*\*/g,''));
+            hHtml += `<div class="horizontal-item" onclick="showConseilDetail(${index})"><img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}" alt="${title}" loading="lazy"><div class="item-title">${title}</div></div>`;
         });
         horizontalContainer.innerHTML = hHtml;
     }
     let html = '';
     allConseils.forEach((conseil,index) => {
-        let cleanTitle = conseil.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
+        let cleanTitle = escapeHtml(conseil.title.replace(/#+\s*/g,'').replace(/\*\*/g,''));
         let excerpt = conseil.content.substring(0,150) + '...';
-        let cleanExcerpt = excerpt.replace(/#+\s*/g,'').replace(/\*\*/g,'').replace(/\*/g,'').replace(/\[|\]/g,'').substring(0,120) + '...';
-        let imageUrl = conseil.image_url || 'assets/images/default-logo.png';
+        let cleanExcerpt = escapeHtml(excerpt.replace(/#+\s*/g,'').replace(/\*\*/g,'').replace(/\*/g,'').replace(/\[|\]/g,'').substring(0,120) + '...');
+        let imageUrl = escapeAttribute(conseil.image_url || 'assets/images/default-logo.png');
         let conseilDate = conseil.date ? new Date(conseil.date).toLocaleDateString('fr-FR') : '';
+        
         html += `
             <div class="news-card card" onclick="showConseilDetail(${index})">
                 <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
@@ -1564,7 +1723,9 @@ async function displayInfos() {
     const data = await loadDataGeneric();
     if (!data || !data.infos) return;
     let html = '';
-    data.infos.forEach(i => { html += `<div class="news-card card"><h3>${i.title}</h3><p>${i.content}</p></div>`; });
+    data.infos.forEach(i => { 
+        html += `<div class="news-card card"><h3>${escapeHtml(i.title)}</h3><p>${escapeHtml(i.content)}</p></div>`; 
+    });
     container.innerHTML = html;
 }
 
@@ -1575,16 +1736,19 @@ async function displayFootNews() {
         const resp = await fetch('footnews.json?t=' + Date.now());
         if (!resp.ok) throw new Error('Erreur chargement');
         const news = await resp.json();
-        if (news.length === 0) { container.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>'; return; }
+        if (news.length === 0) { 
+            container.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>'; 
+            return; 
+        }
         window.newsData = news;
         let html = '';
         news.forEach((item,index) => {
             html += `
                 <div class="news-card card" onclick="showNewsDetail(${index})">
-                    ${item.image ? `<img src="${item.image}" alt="${item.title}" class="news-image" loading="lazy">` : ''}
-                    <h3>${item.title}</h3>
+                    ${item.image ? `<img src="${escapeAttribute(item.image)}" alt="${escapeAttribute(item.title)}" class="news-image" loading="lazy">` : ''}
+                    <h3>${escapeHtml(item.title)}</h3>
                     <p class="meta">${new Date(item.published).toLocaleDateString('fr-FR')}</p>
-                    <p>${item.summary}</p>
+                    <p>${escapeHtml(item.summary)}</p>
                     <button class="btn btn-secondary" style="margin-top:10px;">Lire la suite</button>
                 </div>
             `;
@@ -1629,7 +1793,7 @@ async function checkVipStatus() {
             p_code: storedCode 
         });
         if (error) throw error;
-        return data.valid === true;
+        return data?.valid === true;
     } catch (e) {
         console.error('Erreur vérification VIP:', e);
         return false;
@@ -1655,13 +1819,19 @@ function showVipLoginForm(container) {
             <button id="vip-close-btn" class="btn btn-secondary" style="width:100%; margin-top:10px;">Fermer</button>
         </div>
     `;
-    document.getElementById('vip-activate-btn').addEventListener('click', async () => {
-        const code = document.getElementById('vip-code-input').value.trim();
-        if (!code) { alert('Veuillez entrer un code.'); return; }
+    
+    document.getElementById('vip-activate-btn')?.addEventListener('click', async () => {
+        const codeInput = document.getElementById('vip-code-input');
+        if (!codeInput) return;
+        const code = codeInput.value.trim();
+        if (!code) { 
+            alert('Veuillez entrer un code.'); 
+            return; 
+        }
         const userId = getUserId();
         try {
             const { data, error } = await supabase.rpc('check_vip_code', { p_user_id: userId, p_code: code });
-            if (error || !data.valid) throw new Error('Code invalide');
+            if (error || !data?.valid) throw new Error('Code invalide');
             localStorage.setItem('mx_vip_code', code);
             recordEvent('vip_conversion', window.location.pathname);
             showToast('Code VIP activé avec succès !', 'success');
@@ -1670,7 +1840,8 @@ function showVipLoginForm(container) {
             alert('Code invalide ou expiré.');
         }
     });
-    document.getElementById('vip-close-btn').addEventListener('click', () => {
+    
+    document.getElementById('vip-close-btn')?.addEventListener('click', () => {
         container.style.display = 'none';
         if (DOM.matches) DOM.matches.style.display = 'grid';
     });
