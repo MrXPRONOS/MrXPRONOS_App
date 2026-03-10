@@ -1,6 +1,6 @@
 /**
- * main.js - Mr XPRONOS – Version ultime avec analytics et visiteurs en ligne
- * Messages de partage améliorés et emojis corrigés.
+ * main.js - Mr XPRONOS – Version ultime avec analytics, PWA et visiteurs en ligne
+ * Toutes les fonctionnalités sont regroupées dans ce seul fichier.
  */
 
 // =======================================================
@@ -9,7 +9,7 @@
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
     console.log = () => {};
     console.warn = () => {};
-    // console.error reste actif
+    // console.error reste actif pour le débogage
 }
 
 // =======================================================
@@ -34,7 +34,7 @@ const POPULAR_LEAGUES = [
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ];
 
-// Éléments DOM
+// Éléments DOM fréquemment utilisés (initialisés après chargement)
 const DOM = {
     matches: null,
     sharePopup: null,
@@ -135,7 +135,7 @@ async function initSupabase() {
 }
 
 // =======================================================
-// GESTION DES COMPTEURS (via RPC ou localStorage)
+// GESTION DES COMPTEURS (avec fallback localStorage)
 // =======================================================
 async function incrementCounter(counterName) {
     if (!supabaseAvailable) {
@@ -187,7 +187,7 @@ function subscribeToCounters() {
 }
 
 // =======================================================
-// ENREGISTREMENT DES ÉVÉNEMENTS
+// ENREGISTREMENT DES ÉVÉNEMENTS (table analytics)
 // =======================================================
 async function recordEvent(type, page = '') {
     if (!supabaseAvailable) {
@@ -240,7 +240,7 @@ async function registerUniqueUser() {
 }
 
 // =======================================================
-// VISITEURS EN LIGNE
+// VISITEURS EN LIGNE (Realtime Presence)
 // =======================================================
 let onlineChannel = null;
 
@@ -295,7 +295,7 @@ function updateShareCounter() {
 }
 
 // =======================================================
-// PWA & INSTALLATION
+// PWA & INSTALLATION (version robuste)
 // =======================================================
 let deferredPrompt;
 
@@ -329,18 +329,26 @@ function closeIosGuide() {
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (DOM.installButton && !isPwaInstalled() && getOS() !== 'iOS') {
+    if (DOM.installButton && !isPwaInstalled()) {
         DOM.installButton.style.display = 'inline-block';
     }
+    console.log('beforeinstallprompt capturé');
 });
 
 DOM.installButton?.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`Installation : ${outcome}`);
-    deferredPrompt = null;
-    DOM.installButton.style.display = 'none';
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`Installation : ${outcome}`);
+        deferredPrompt = null;
+        DOM.installButton.style.display = 'none';
+    } else {
+        if (getOS() === 'iOS') {
+            showIosGuideIfNeeded();
+        } else {
+            alert('L\'installation automatique n\'est pas disponible. Utilisez le menu du navigateur (Ajouter à l\'écran d\'accueil).');
+        }
+    }
 });
 
 window.addEventListener('appinstalled', () => {
@@ -351,6 +359,9 @@ window.addEventListener('appinstalled', () => {
 
 document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
 document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
+
+// Afficher le guide iOS si nécessaire (indépendant du bouton)
+showIosGuideIfNeeded();
 
 // =======================================================
 // CHARGEMENT DES DONNÉES (data.json)
@@ -714,7 +725,7 @@ function share(platform) {
     if (platform === 'whatsapp') {
         message = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\nJe viens de découvrir ce site ⚽\n\nIls donnent :\n✔ plusieurs matchs analysés chaque jour\n✔ statistiques + analyse\n✔ pronostics fiables\n\n👇 Accède aux matchs du jour :\n${baseUrl}\n\n💰 Très utile pour les paris sportifs !`;
     } else {
-        // Telegram : on enlève le premier lien et on met juste le texte + le lien à la fin
+        // Telegram : on met le lien à la fin seulement
         message = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\nJe viens de découvrir ce site ⚽\n\nIls donnent :\n✔ plusieurs matchs analysés chaque jour\n✔ statistiques + analyse\n✔ pronostics fiables\n\n👇 Accède aux matchs du jour :\n${baseUrl}\n\n💰 Très utile pour les paris sportifs !`;
     }
     const url = platform === 'whatsapp' 
@@ -728,9 +739,7 @@ function share(platform) {
 
 function sharePronostic(match) {
     const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    // Message pour WhatsApp (avec emojis)
     const messageWhatsApp = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\n⚽ *${match.home_team} vs ${match.away_team}*\n📈 *Double chance* : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👇 Analyse complète :\n${siteUrl}\n\n💰 Rejoins les gagnants !`;
-    // Message pour Telegram (sans premier lien, juste le texte + lien)
     const messageTelegram = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\n⚽ ${match.home_team} vs ${match.away_team}\n📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%\n\n👇 Analyse complète :\n${siteUrl}\n\n💰 Rejoins les gagnants !`;
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(messageWhatsApp)}`;
     const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(messageTelegram)}`;
@@ -874,6 +883,7 @@ function renderMatches(matches) {
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${m.badge}</span>` : '';
             const matchDataEncoded = encodeURIComponent(JSON.stringify(m));
 
+            // Badges avancés
             let advancedHtml = '';
             if (m.ai_score) {
                 advancedHtml += `<div class="ai-score-badge">🤖 AI: ${m.ai_score}</div>`;
@@ -1056,8 +1066,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     await registerUniqueUser();
     await initOnlineUsers();
     countVisitOncePerDay();
-    showIosGuideIfNeeded();
+    showIosGuideIfNeeded(); // déjà appelé dans la section PWA, mais on le laisse aussi ici par sécurité
 
+    // Initialisation selon la page
     if (DOM.matches) {
         setupEventListeners();
         await loadData();
@@ -1066,6 +1077,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else if (DOM.bonusSelect) {
         initBonusPage();
     } else {
+        // Page d'accueil
         await loadDataGeneric().then(data => {
             if (data) {
                 allData = data;
@@ -1396,7 +1408,7 @@ async function displayBlogList() {
     if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
     let allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
-    // Filtrer les articles inactifs
+    // Filtrer les articles inactifs (champ active === false)
     allArticles = allArticles.filter(a => a.active !== false);
     if (allArticles.length === 0) { container.innerHTML = '<div class="no-events">Aucun article.</div>'; return; }
     window.articlesData = allArticles;
