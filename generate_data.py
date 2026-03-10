@@ -455,9 +455,9 @@ def calculate_xpronos_score(analysis, home_form, away_form, league):
 
 
 def get_category(score):
-    if score >= 55:
+    if score >= 65:
         return "vip"
-    elif score >= 47:
+    elif score >= 55:
         return "pro"
     else:
         return "simple"
