@@ -103,21 +103,33 @@ def safe_get(dictionary: dict, key: str, default=None):
 
 
 def parse_datetime_safe(date_str: str) -> Optional[datetime]:
-    """Parse une date ISO de manière sécurisée"""
+    """Parse une date ISO de manière sécurisée et retourne toujours une date naive (sans timezone)"""
     if not date_str:
         return None
     try:
         # Gestion des formats avec et sans timezone
         if 'Z' in date_str:
-            return datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-        elif '+' in date_str or date_str.count('-') > 2:
-            return datetime.fromisoformat(date_str)
+            dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+        elif '+' in date_str or (date_str.count('-') > 2 and 'T' in date_str):
+            # Format avec timezone (+00:00)
+            dt = datetime.fromisoformat(date_str)
         else:
             # Format sans timezone
-            return datetime.fromisoformat(date_str).replace(tzinfo=timezone.utc)
+            return datetime.fromisoformat(date_str)
+        
+        # Convertir en datetime naive (sans timezone) pour comparaison
+        if dt.tzinfo is not None:
+            dt = dt.replace(tzinfo=None)
+        return dt
+        
     except (ValueError, AttributeError) as e:
         print(f"⚠️ Erreur parsing date {date_str}: {e}")
         return None
+
+
+def get_now_naive() -> datetime:
+    """Retourne la date/heure actuelle sans timezone (naive)"""
+    return datetime.now()
 
 
 # =======================================================
@@ -403,7 +415,7 @@ def get_team_form(team: str, team_matches: dict, last_games: int = 5,
         return None
         
     recent = []
-    now = datetime.now()
+    now = get_now_naive()  # Utiliser datetime naive pour comparaison
     
     for date, match, side in matches:
         if not isinstance(match, dict):
@@ -501,7 +513,8 @@ def weight_by_date(date_str: str) -> float:
         match_date = parse_datetime_safe(date_str)
         if match_date is None:
             return 1.0
-        days_old = (datetime.now() - match_date).days
+        now = get_now_naive()
+        days_old = (now - match_date).days
         if days_old < 180:
             return 1.5
         elif days_old < 365:
@@ -1010,15 +1023,13 @@ def main():
                 total_skipped += 1
                 continue
 
-        # Filtre temporel
+        # Filtre temporel - CORRIGÉ pour utiliser des datetimes naive
         try:
             match_time_str = base.get("start_time", "")
             if match_time_str:
                 match_time = parse_datetime_safe(match_time_str)
                 if match_time:
-                    now = datetime.now(timezone.utc)
-                    if match_time.tzinfo is None:
-                        match_time = match_time.replace(tzinfo=timezone.utc)
+                    now = get_now_naive()
                     time_diff = (match_time - now).total_seconds()
                     if 0 < time_diff < 1800:  # Entre maintenant et 30min
                         print(f"⚠️ Match {home_team} vs {away_team} ignoré (trop proche: {int(time_diff/60)}min)")
