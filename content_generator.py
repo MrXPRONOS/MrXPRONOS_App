@@ -13,6 +13,7 @@ import requests
 import random
 import uuid
 import re
+import time
 from datetime import datetime
 
 # =======================================================
@@ -20,9 +21,6 @@ from datetime import datetime
 # =======================================================
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY")
-
-if not MISTRAL_API_KEY:
-    raise ValueError("La variable MISTRAL_API_KEY n'est pas définie")
 
 DATA_FILE = "data.json"
 ARTICLES_FILE = "articles.json"
@@ -36,14 +34,41 @@ POPULAR_LEAGUES = [
 ]
 
 # =======================================================
-# FONCTIONS DE GÉNÉRATION D'IMAGES VIA MISTRAL
+# INITIALISATION MISTRAL (avec gestion d'erreur)
 # =======================================================
-from mistralai import Mistral
+mistral_client = None
+IMAGE_AGENT_ID = None
 
-mistral_client = Mistral(api_key=MISTRAL_API_KEY)
+def init_mistral():
+    """Initialise le client Mistral avec gestion d'erreur"""
+    global mistral_client, IMAGE_AGENT_ID
+    
+    if not MISTRAL_API_KEY:
+        print("⚠️ MISTRAL_API_KEY non définie - fonctionnalités Mistral désactivées")
+        return False
+    
+    try:
+        from mistralai import Mistral
+        mistral_client = Mistral(api_key=MISTRAL_API_KEY)
+        print("✅ Client Mistral initialisé")
+        
+        # Créer l'agent de génération d'images
+        IMAGE_AGENT_ID = create_image_agent()
+        return True
+        
+    except ImportError as e:
+        print(f"⚠️ Module mistralai non installé: {e}")
+        print("   Installez-le avec: pip install mistralai")
+        return False
+    except Exception as e:
+        print(f"⚠️ Erreur initialisation Mistral: {e}")
+        return False
 
-# Créer un agent de génération d'images (une seule fois)
 def create_image_agent():
+    """Créer un agent de génération d'images (une seule fois)"""
+    if not mistral_client:
+        return None
+        
     try:
         agent = mistral_client.beta.agents.create(
             model="mistral-medium-2505",
@@ -62,12 +87,18 @@ def create_image_agent():
         print(f"❌ Erreur création agent Mistral: {e}")
         return None
 
-IMAGE_AGENT_ID = create_image_agent()
+# Initialisation différée (sera fait dans main())
+# init_mistral()  # Ne pas appeler ici pour éviter l'erreur à l'import
+
+# =======================================================
+# FONCTIONS DE GÉNÉRATION D'IMAGES VIA MISTRAL
+# =======================================================
 
 def generate_image_mistral(prompt):
     """Génère une image via l'API Mistral (agent)."""
-    if not IMAGE_AGENT_ID:
+    if not mistral_client or not IMAGE_AGENT_ID:
         return None
+        
     try:
         response = mistral_client.beta.conversations.start(
             agent_id=IMAGE_AGENT_ID,
@@ -96,10 +127,12 @@ def generate_image_mistral(prompt):
 # =======================================================
 # FONCTIONS DE GÉNÉRATION D'IMAGES VIA PIXAZO (fallback)
 # =======================================================
+
 def generate_image_pixazo(prompt):
     """Génère une image via l'API Pixazo."""
     if not PIXAZO_API_KEY:
         return None
+        
     headers = {
         "Content-Type": "application/json",
         "Cache-Control": "no-cache",
@@ -139,25 +172,33 @@ def generate_image_pixazo(prompt):
 
 def generate_image_with_fallback(prompt):
     """Essaie Mistral puis Pixazo. Retourne None si les deux échouent."""
-    img = generate_image_mistral(prompt)
-    if img:
-        return img
+    # Essayer Mistral d'abord
+    if mistral_client and IMAGE_AGENT_ID:
+        img = generate_image_mistral(prompt)
+        if img:
+            return img
+    
+    # Fallback sur Pixazo
     img = generate_image_pixazo(prompt)
     if img:
         return img
+        
     print("      ❌ Aucune image générée (Mistral et Pixazo ont échoué)")
     return None
 
 # =======================================================
 # FONCTIONS DE GÉNÉRATION DE TEXTE (Mistral avec retry)
 # =======================================================
+
 def call_mistral(prompt, temperature=0.7, max_tokens=2000, retries=2):
     """Appelle l'API Mistral pour du texte avec retry."""
-    from mistralai import Mistral
-    client = Mistral(api_key=MISTRAL_API_KEY)
+    if not mistral_client:
+        print("⚠️ Client Mistral non disponible")
+        return None
+        
     for attempt in range(retries + 1):
         try:
-            response = client.chat.complete(
+            response = mistral_client.chat.complete(
                 model="mistral-large-latest",
                 messages=[{"role": "user", "content": prompt}],
                 temperature=temperature,
@@ -168,6 +209,7 @@ def call_mistral(prompt, temperature=0.7, max_tokens=2000, retries=2):
             print(f"⚠️ Tentative {attempt+1}/{retries+1} échouée : {e}")
             if attempt == retries:
                 return None
+            time.sleep(1)
     return None
 
 def extract_excerpt(text, length=150):
@@ -194,46 +236,73 @@ def load_today_matches():
     if not os.path.exists(DATA_FILE):
         print(f"❌ Fichier {DATA_FILE} introuvable")
         return []
-    with open(DATA_FILE, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+        
+    try:
+        with open(DATA_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"❌ Erreur chargement {DATA_FILE}: {e}")
+        return []
+        
     matches = data.get("matches", [])
     if not matches:
         return []
+        
     today = datetime.now().date()
     today_matches = []
+    
     for m in matches:
         try:
-            event_date = datetime.fromisoformat(m['event_date'].replace('Z', '+00:00')).date()
+            event_date_str = m.get('event_date', '')
+            if not event_date_str:
+                continue
+                
+            # Gestion des formats de date
+            if 'Z' in event_date_str:
+                event_date = datetime.fromisoformat(event_date_str.replace('Z', '+00:00')).date()
+            elif '+' in event_date_str:
+                event_date = datetime.fromisoformat(event_date_str).date()
+            else:
+                event_date = datetime.fromisoformat(event_date_str).date()
+                
             if event_date == today:
                 today_matches.append(m)
-        except:
+        except Exception as e:
             continue
+            
     return today_matches
 
 def get_most_popular_matches(matches, count=2):
+    """Sélectionne les matchs des ligues populaires en priorité"""
     if not matches:
         return []
+        
     popular = []
     other = []
+    
     for m in matches:
-        league_name = m['league']
-        if any(pop in league_name for pop in POPULAR_LEAGUES) or league_name in POPULAR_LEAGUES:
+        league_name = m.get('league', '')
+        is_popular = any(pop in league_name for pop in POPULAR_LEAGUES) or league_name in POPULAR_LEAGUES
+        if is_popular:
             popular.append(m)
         else:
             other.append(m)
+            
     random.shuffle(popular)
     random.shuffle(other)
+    
     selected = popular[:count]
     if len(selected) < count:
         selected += other[:count - len(selected)]
+        
     return selected
 
 def generate_blog_article(match):
     """Génère un article complet avec SEO, FAQ et métadonnées."""
-    home_team = match['home_team']
-    away_team = match['away_team']
-    league = match['league']
-    date = match['event_date']
+    home_team = match.get('home_team', 'Équipe A')
+    away_team = match.get('away_team', 'Équipe B')
+    league = match.get('league', 'Championnat')
+    date = match.get('event_date', '')
 
     prompt = f"""En tant que journaliste sportif expert pour Mr XPRONOS, rédige un article de blog complet et engageant en français sur le match suivant :
 
@@ -283,6 +352,7 @@ def generate_tip():
         "paris live vs pré-match"
     ]
     topic = random.choice(topics)
+    
     prompt = f"""En tant qu'expert en paris sportifs pour Mr XPRONOS, rédige un conseil pratique et actionable en français sur le thème : "{topic}".
 
 Le conseil doit inclure :
@@ -301,10 +371,14 @@ Génère en français uniquement."""
 
 def parse_meta_from_article(content):
     """Extrait la meta description et les mots-clés du contenu."""
+    if not content:
+        return "", "", ""
+        
     meta_desc = ""
     mots_cles = ""
     lines = content.split('\n')
     new_lines = []
+    
     for line in lines:
         if line.startswith("META_DESCRIPTION:"):
             meta_desc = line.replace("META_DESCRIPTION:", "").strip()
@@ -312,6 +386,7 @@ def parse_meta_from_article(content):
             mots_cles = line.replace("MOTS_CLES:", "").strip()
         else:
             new_lines.append(line)
+            
     cleaned_content = "\n".join(new_lines)
     return cleaned_content, meta_desc, mots_cles
 
@@ -320,6 +395,7 @@ def parse_meta_from_article(content):
 # =======================================================
 
 def load_existing_articles():
+    """Charge les articles existants"""
     if os.path.exists(ARTICLES_FILE):
         try:
             with open(ARTICLES_FILE, 'r', encoding='utf-8') as f:
@@ -328,11 +404,17 @@ def load_existing_articles():
                     return json.loads(content)
                 else:
                     return []
-        except (json.JSONDecodeError, IOError):
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"⚠️ Erreur chargement articles: {e}")
             return []
     return []
 
 def save_article(content, match):
+    """Sauvegarde un article avec image"""
+    if not content:
+        print("❌ Contenu vide, article non sauvegardé")
+        return
+        
     articles = load_existing_articles()
 
     content, meta_desc, mots_cles = parse_meta_from_article(content)
@@ -351,7 +433,7 @@ def save_article(content, match):
         slug = f"{base_slug}-{uuid.uuid4().hex[:6]}"
 
     # Construction du prompt pour l'image incluant les noms des équipes
-    image_prompt = f"Football match: {match['home_team']} vs {match['away_team']} in the {match['league']}. Dynamic action, players in motion, stadium atmosphere, high quality, realistic style."
+    image_prompt = f"Football match: {match.get('home_team', 'Team A')} vs {match.get('away_team', 'Team B')} in the {match.get('league', 'League')}. Dynamic action, players in motion, stadium atmosphere, high quality, realistic style."
     image_url = generate_image_with_fallback(image_prompt)
 
     if not image_url:
@@ -371,17 +453,22 @@ def save_article(content, match):
         "meta_description": meta_desc or excerpt[:150],
         "keywords": mots_cles or "pronostic, analyse, football, paris sportifs",
         "content": content,
-        "match": f"{match['home_team']} vs {match['away_team']}",
-        "league": match['league'],
+        "match": f"{match.get('home_team', '')} vs {match.get('away_team', '')}",
+        "league": match.get('league', ''),
         "image_url": image_url
     }
     articles.insert(0, new)
     articles = articles[:50]
-    with open(ARTICLES_FILE, 'w', encoding='utf-8') as f:
-        json.dump(articles, f, indent=2, ensure_ascii=False)
-    print(f"✅ Article sauvegardé : {title[:50]}... (image: {image_url})")
+    
+    try:
+        with open(ARTICLES_FILE, 'w', encoding='utf-8') as f:
+            json.dump(articles, f, indent=2, ensure_ascii=False)
+        print(f"✅ Article sauvegardé : {title[:50]}... (image: {image_url})")
+    except Exception as e:
+        print(f"❌ Erreur sauvegarde article: {e}")
 
 def load_existing_conseils():
+    """Charge les conseils existants"""
     if os.path.exists(CONSEILS_FILE):
         try:
             with open(CONSEILS_FILE, 'r', encoding='utf-8') as f:
@@ -390,11 +477,17 @@ def load_existing_conseils():
                     return json.loads(content)
                 else:
                     return []
-        except (json.JSONDecodeError, IOError):
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"⚠️ Erreur chargement conseils: {e}")
             return []
     return []
 
 def save_tip(content):
+    """Sauvegarde un conseil avec image"""
+    if not content:
+        print("❌ Contenu vide, conseil non sauvegardé")
+        return
+        
     conseils = load_existing_conseils()
     lines = content.strip().split('\n')
     title = lines[0].replace('#', '').strip() if lines else "Conseil"
@@ -420,17 +513,36 @@ def save_tip(content):
     }
     conseils.insert(0, new)
     conseils = conseils[:100]
-    with open(CONSEILS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(conseils, f, indent=2, ensure_ascii=False)
-    print(f"✅ Conseil sauvegardé : {title[:50]}... (image: {image_url})")
+    
+    try:
+        with open(CONSEILS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(conseils, f, indent=2, ensure_ascii=False)
+        print(f"✅ Conseil sauvegardé : {title[:50]}... (image: {image_url})")
+    except Exception as e:
+        print(f"❌ Erreur sauvegarde conseil: {e}")
 
 # =======================================================
 # MAIN
 # =======================================================
+
 def main():
     print("="*60)
     print("🚀 GÉNÉRATION DE CONTENU IA (avec images Mistral + Pixazo)")
     print("="*60)
+
+    # Initialisation de Mistral (avec gestion d'erreur)
+    mistral_available = init_mistral()
+    
+    if not mistral_available:
+        print("\n⚠️ ATTENTION: Mistral n'est pas disponible.")
+        print("   Vérifiez que:")
+        print("   1. La variable d'environnement MISTRAL_API_KEY est définie")
+        print("   2. Le module mistralai est installé: pip install mistralai")
+        print("\n   Le script va tenter de continuer avec Pixazo uniquement pour les images...")
+        
+        if not PIXAZO_API_KEY:
+            print("❌ Aucune clé API disponible (ni Mistral ni Pixazo). Arrêt.")
+            return
 
     today_matches = load_today_matches()
     if not today_matches:
@@ -439,21 +551,30 @@ def main():
         featured = get_most_popular_matches(today_matches, count=2)
         print(f"\n📝 Génération de {len(featured)} articles sur les matchs du jour...")
         for i, m in enumerate(featured, 1):
-            print(f"   Article {i}: {m['home_team']} vs {m['away_team']} ({m['league']})")
+            print(f"\n   Article {i}: {m.get('home_team', 'N/A')} vs {m.get('away_team', 'N/A')} ({m.get('league', 'N/A')})")
+            
+            if not mistral_available:
+                print("   ⚠️ Génération de texte impossible sans Mistral")
+                continue
+                
             art = generate_blog_article(m)
             if art:
                 save_article(art, m)
             else:
-                print(f"❌ Échec de génération du texte pour {m['home_team']} vs {m['away_team']}")
+                print(f"❌ Échec de génération du texte pour {m.get('home_team', 'N/A')} vs {m.get('away_team', 'N/A')}")
 
-    print(f"\n💡 Génération de 3 conseils...")
-    for i in range(3):
-        print(f"   Conseil {i+1}")
-        tip = generate_tip()
-        if tip:
-            save_tip(tip)
-        else:
-            print(f"❌ Échec de génération du texte pour le conseil {i+1}")
+    # Génération des conseils uniquement si Mistral est disponible
+    if mistral_available:
+        print(f"\n💡 Génération de 3 conseils...")
+        for i in range(3):
+            print(f"\n   Conseil {i+1}")
+            tip = generate_tip()
+            if tip:
+                save_tip(tip)
+            else:
+                print(f"❌ Échec de génération du texte pour le conseil {i+1}")
+    else:
+        print("\n💡 Génération de conseils ignorée (Mistral non disponible)")
 
     print("\n✅ Génération terminée")
 
