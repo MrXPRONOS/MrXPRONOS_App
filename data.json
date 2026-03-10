@@ -1329,7 +1329,7 @@
       "league": "Premiership",
       "league_logo": "assets/images/logos/competitions/competition_5511.png",
       "venue": "",
-      "status": "1st Half",
+      "status": "2nd Half",
       "home_score": 0,
       "away_score": 0,
       "h2h_analysis": {
@@ -2051,7 +2051,7 @@
       "league": "NIFL Championship",
       "league_logo": null,
       "venue": "",
-      "status": "1st Half",
+      "status": "2nd Half",
       "home_score": 2,
       "away_score": 0,
       "h2h_analysis": {
