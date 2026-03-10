@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-test_backtest_calibrate.py
+test_backtest_calibrate.py 
 Backtest utilisant les fonctions de generate_data.py
 Permet de tester différents seuils et de calculer le taux de réussite réel.
 """
