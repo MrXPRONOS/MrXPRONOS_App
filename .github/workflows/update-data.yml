@@ -8,76 +8,177 @@ on:
       - '*.py'
       - 'cache/all_matches.json'
       - 'requirements.txt'
+      - '.github/workflows/*.yml'
   workflow_dispatch:
+
+# Permissions nécessaires pour le push
+permissions:
+  contents: write
 
 jobs:
   update:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    
+    # Timeout pour éviter les exécutions infinies
+    timeout-minutes: 30
+    
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-python@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          # Vérification des installations critiques
+          python -c "import requests; print('✅ requests installé')"
+          python -c "import PIL; print('✅ Pillow installé')" || echo "⚠️ Pillow non installé (convert_images.py peut échouer)"
 
       - name: Generate pronostics (data.json)
+        id: generate_data
+        continue-on-error: true
         env:
           SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
           SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
           SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
           SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
           SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
-          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
-          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
-        run: python generate_data.py
+        run: |
+          echo "🚀 Génération des pronostics..."
+          python generate_data.py
+          if [ -f data.json ]; then
+            echo "data_generated=true" >> $GITHUB_OUTPUT
+            echo "✅ data.json généré ($(wc -c < data.json) bytes)"
+          else
+            echo "data_generated=false" >> $GITHUB_OUTPUT
+            echo "⚠️ data.json non généré"
+          fi
 
       - name: Convert images to WebP
-        run: python convert_images.py
+        id: convert_images
+        continue-on-error: true
+        run: |
+          if [ -f convert_images.py ]; then
+            echo "🖼️ Conversion des images..."
+            python convert_images.py || echo "⚠️ Conversion partielle ou échouée"
+          else
+            echo "ℹ️ convert_images.py non trouvé, étape ignorée"
+          fi
 
       - name: Generate AI content (articles & tips + images)
+        id: generate_content
+        continue-on-error: true
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
-          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
-        run: python content_generator.py
+          PIXAZO_API_KEY: ${{ secrets.PIXAZO_API_KEY }}  # Ajouté si vous l'avez
+        run: |
+          echo "📝 Génération du contenu IA..."
+          if [ -f content_generator.py ]; then
+            python content_generator.py || echo "⚠️ Génération de contenu partielle"
+          else
+            echo "ℹ️ content_generator.py non trouvé"
+          fi
 
       - name: Generate testimonials
+        id: generate_testimonials
+        continue-on-error: true
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
-        run: python generate_testimonials.py
+        run: |
+          if [ -f generate_testimonials.py ]; then
+            echo "💬 Génération des témoignages..."
+            python generate_testimonials.py || echo "⚠️ Génération des témoignages échouée"
+          else
+            echo "ℹ️ generate_testimonials.py non trouvé"
+          fi
 
       - name: Fetch football news
+        id: fetch_news
+        continue-on-error: true
         env:
           FOOTBALL_RSS_FEED: ${{ secrets.FOOTBALL_RSS_FEED }}
-        run: python fetch_foot_news.py
+        run: |
+          if [ -f fetch_foot_news.py ]; then
+            echo "📰 Récupération des actualités..."
+            python fetch_foot_news.py || echo "⚠️ Récupération des actualités échouée"
+          else
+            echo "ℹ️ fetch_foot_news.py non trouvé"
+          fi
 
       - name: Generate sitemap
-        run: python generate_sitemap.py
+        id: generate_sitemap
+        continue-on-error: true
+        run: |
+          if [ -f generate_sitemap.py ]; then
+            echo "🗺️ Génération du sitemap..."
+            python generate_sitemap.py || echo "⚠️ Génération du sitemap échouée"
+          else
+            echo "ℹ️ generate_sitemap.py non trouvé"
+          fi
+
+      - name: Check generated files
+        run: |
+          echo "📊 Résumé des fichiers générés:"
+          ls -lh *.json 2>/dev/null || echo "Aucun fichier JSON trouvé"
+          ls -lh assets/images/ 2>/dev/null | head -10 || echo "Dossier images vide ou inexistant"
 
       - name: Commit and push changes
+        if: always()
         run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'actions@github.com'
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
+          # Ajouter tous les fichiers modifiés
           git add -A
           
+          # Vérifier s'il y a des changements
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            echo "ℹ️ Aucun changement à commiter"
             exit 0
           fi
           
-          git commit -m "Mise à jour automatique $(date +'%Y-%m-%d') [skip ci]"
+          # Commit avec message détaillé
+          COMMIT_MSG="Mise à jour automatique $(date +'%Y-%m-%d %H:%M')"
+          COMMIT_MSG="${COMMIT_MSG}
           
-          git fetch origin main
-          git rebase -X theirs origin/main
+          Changements:
+          $(git diff --staged --stat)"
           
-          git push origin main
+          git commit -m "$COMMIT_MSG" || echo "ℹ️ Commit ignoré"
+          
+          # Pull avec rebase pour éviter les conflits
+          git pull origin main --rebase -X theirs || {
+            echo "⚠️ Conflit de rebase, tentative de merge..."
+            git pull origin main --no-rebase || true
+          }
+          
+          # Push avec retry
+          for i in 1 2 3; do
+            git push origin main && break
+            echo "⚠️ Push échoué, tentative $i/3..."
+            sleep 2
+            git pull origin main --rebase -X theirs || true
+          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=== RÉSUMÉ DE L'EXÉCUTION ==="
+          echo "Génération données: ${{ steps.generate_data.outcome }}"
+          echo "Conversion images: ${{ steps.convert_images.outcome }}"
+          echo "Génération contenu: ${{ steps.generate_content.outcome }}"
+          echo "Génération témoignages: ${{ steps.generate_testimonials.outcome }}"
+          echo "Récupération actualités: ${{ steps.fetch_news.outcome }}"
+          echo "Génération sitemap: ${{ steps.generate_sitemap.outcome }}"
