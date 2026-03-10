@@ -703,9 +703,9 @@ def calculate_xpronos_score(analysis: dict, home_form: Optional[dict],
 
 def get_category(score: int) -> str:
     """Détermine la catégorie selon le score"""
-    if score >= 55:
+    if score >= 50:
         return "vip"
-    elif score >= 45:
+    elif score >= 40:
         return "pro"
     else:
         return "simple"
