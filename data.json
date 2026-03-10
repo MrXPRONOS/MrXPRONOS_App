@@ -1717,81 +1717,6 @@
       "trap_detected": false
     },
     {
-      "id": 4650033,
-      "date": "2026-03-09",
-      "event_date": "2026-03-09T23:30:00+00:00",
-      "home_team": "Deportivo Recoleta",
-      "away_team": "Sportivo Ameliano",
-      "home_logo": "assets/images/logos/competitor_53209.png",
-      "away_logo": "assets/images/logos/competitor_56588.png",
-      "league": "Copa de Primera - Apertura",
-      "league_logo": "assets/images/logos/competitions/competition_621.png",
-      "venue": "",
-      "status": "Ended",
-      "home_score": 1,
-      "away_score": 1,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 1.5,
-        "away_wins": 0.0,
-        "draws": 1.0,
-        "home_dominance": 0.6,
-        "away_dominance": 0.0,
-        "draw_rate": 0.4
-      },
-      "home_form": {
-        "wins": 0.54,
-        "draws": 0.0,
-        "losses": 0.46,
-        "goals_for": 1.68,
-        "goals_against": 1.27,
-        "form_score": 0.54,
-        "matches_used": 5
-      },
-      "away_form": {
-        "wins": 0.26,
-        "draws": 0.08,
-        "losses": 0.67,
-        "goals_for": 0.62,
-        "goals_against": 1.6,
-        "form_score": 0.281,
-        "matches_used": 5
-      },
-      "poisson_probs": {
-        "home": 0.535,
-        "draw": 0.246,
-        "away": 0.217
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "confidence": 66,
-        "odds": 1.35
-      },
-      "xpronos_score": 50,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "pro",
-      "verified_double": false,
-      "verified_btts": false,
-      "verified_over": false,
-      "odds": {
-        "home": 101,
-        "draw": 9,
-        "away": 1.07
-      },
-      "public_votes": null,
-      "value_bet": true,
-      "is_finished": false,
-      "final_score": 45.2,
-      "ai_score": 52.8,
-      "elo_home": 1608,
-      "elo_away": 1556,
-      "xg_home": 1.64,
-      "xg_away": 0.95,
-      "fatigue_home": 5,
-      "fatigue_away": 5,
-      "trap_detected": false
-    },
-    {
       "id": 4510659,
       "date": "2026-03-09",
       "event_date": "2026-03-09T13:00:00+00:00",
@@ -2357,6 +2282,81 @@
       "xg_away": 0.59,
       "fatigue_home": 5,
       "fatigue_away": 1,
+      "trap_detected": false
+    },
+    {
+      "id": 4650033,
+      "date": "2026-03-09",
+      "event_date": "2026-03-09T23:30:00+00:00",
+      "home_team": "Deportivo Recoleta",
+      "away_team": "Sportivo Ameliano",
+      "home_logo": "assets/images/logos/competitor_53209.png",
+      "away_logo": "assets/images/logos/competitor_56588.png",
+      "league": "Copa de Primera - Apertura",
+      "league_logo": "assets/images/logos/competitions/competition_621.png",
+      "venue": "",
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 1,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 1.0,
+        "home_dominance": 0.6,
+        "away_dominance": 0.0,
+        "draw_rate": 0.4
+      },
+      "home_form": {
+        "wins": 0.54,
+        "draws": 0.0,
+        "losses": 0.46,
+        "goals_for": 1.68,
+        "goals_against": 1.27,
+        "form_score": 0.54,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.26,
+        "draws": 0.08,
+        "losses": 0.67,
+        "goals_for": 0.62,
+        "goals_against": 1.6,
+        "form_score": 0.281,
+        "matches_used": 5
+      },
+      "poisson_probs": {
+        "home": 0.535,
+        "draw": 0.246,
+        "away": 0.217
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "confidence": 66,
+        "odds": 1.35
+      },
+      "xpronos_score": 50,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
+      "verified_double": true,
+      "verified_btts": false,
+      "verified_over": false,
+      "odds": {
+        "home": 3.1,
+        "draw": 2.9,
+        "away": 2.2
+      },
+      "public_votes": null,
+      "value_bet": false,
+      "is_finished": true,
+      "final_score": 43.2,
+      "ai_score": 52.8,
+      "elo_home": 1608,
+      "elo_away": 1556,
+      "xg_home": 1.64,
+      "xg_away": 0.95,
+      "fatigue_home": 5,
+      "fatigue_away": 5,
       "trap_detected": false
     },
     {
@@ -6599,8 +6599,8 @@
         "league": "Copa de Primera - Apertura",
         "league_logo": "assets/images/logos/competitions/competition_621.png",
         "venue": "",
-        "status": "2nd Half",
-        "home_score": 0,
+        "status": "Ended",
+        "home_score": 1,
         "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
@@ -6642,18 +6642,18 @@
         "xpronos_score": 50,
         "badge": "🔥 ULTRA SAFE",
         "category": "pro",
-        "verified_double": false,
+        "verified_double": true,
         "verified_btts": false,
         "verified_over": false,
         "odds": {
-          "home": 101,
-          "draw": 9,
-          "away": 1.07
+          "home": 3.1,
+          "draw": 2.9,
+          "away": 2.2
         },
         "public_votes": null,
-        "value_bet": true,
-        "is_finished": false,
-        "final_score": 45.2,
+        "value_bet": false,
+        "is_finished": true,
+        "final_score": 43.2,
         "ai_score": 52.8,
         "elo_home": 1608,
         "elo_away": 1556,
@@ -7828,9 +7828,9 @@
     ]
   },
   "stats": {
-    "total_bets": 45,
-    "wins": 32,
-    "roi": 4.8
+    "total_bets": 46,
+    "wins": 33,
+    "roi": 6.2
   },
   "bookmakers": []
 }
