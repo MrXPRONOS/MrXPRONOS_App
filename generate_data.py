@@ -4,12 +4,13 @@
 """
 generate_data.py - Moteur de pronostics football (double chance) avec rotation de clés API
 Intègre les métriques avancées : Elo, xG, fatigue, piège bookmaker et score AI.
+Version améliorée avec normalisation des cotes, filtres, modèle ensemble, etc.
 """
 
 import os
 import json
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from math import exp, factorial
 from api_utils import make_request  # Import du module partagé
 
@@ -35,6 +36,21 @@ CONFIDENCE_THRESHOLD = 50      # On ignore les matchs avec confidence < 50
 GOAL_DIFF_THRESHOLD = 0.1      # Différence de buts minimum
 XPRONOS_THRESHOLD = 45         # Score xPronos minimum
 DOMINANCE_THRESHOLD = 0.4      # Seuil pour décider du double chance
+
+# Liste des ligues à ignorer (imprévisibles)
+BAD_LEAGUES = [
+    "friendly",
+    "u21",
+    "u19",
+    "women",
+    "reserve",
+    "youth",
+    "amateur"
+]
+
+def is_bad_league(name):
+    name = name.lower()
+    return any(b in name for b in BAD_LEAGUES)
 
 print("=" * 60)
 print(f"🚀 GÉNÉRATION DES PRONOSTICS (DOUBLE CHANCE UNIQUEMENT) - {today}")
@@ -439,9 +455,9 @@ def calculate_xpronos_score(analysis, home_form, away_form, league):
 
 
 def get_category(score):
-    if score >= 58:
+    if score >= 55:
         return "vip"
-    elif score >= 50:
+    elif score >= 47:
         return "pro"
     else:
         return "simple"
@@ -460,10 +476,19 @@ def get_badge(score):
 # =======================================================
 # FONCTIONS DE CALCUL DE VALUE BET ET MODÈLE POISSON
 # =======================================================
-def implied_probability(odds_decimal):
-    if odds_decimal and odds_decimal > 0:
-        return 1 / odds_decimal
-    return 0
+def normalize_odds(odds):
+    """Normalise les cotes pour obtenir les probabilités sans marge."""
+    if not odds or any(v is None for v in odds.values()):
+        return None
+    prob_home = 1 / odds["home"]
+    prob_draw = 1 / odds["draw"]
+    prob_away = 1 / odds["away"]
+    total = prob_home + prob_draw + prob_away
+    return {
+        "home": prob_home / total,
+        "draw": prob_draw / total,
+        "away": prob_away / total
+    }
 
 
 def estimate_dc_odds(odds, double_chance, margin=0.05):
@@ -473,18 +498,15 @@ def estimate_dc_odds(odds, double_chance, margin=0.05):
     double_chance: '1X', 'X2' ou '12'
     Retourne une cote décimale approximative (sans marge appliquée).
     """
-    prob_home = implied_probability(odds.get('home'))
-    prob_draw = implied_probability(odds.get('draw'))
-    prob_away = implied_probability(odds.get('away'))
-    total = prob_home + prob_draw + prob_away
-    if total == 0:
+    probs = normalize_odds(odds)
+    if not probs:
         return 0
     if double_chance == '1X':
-        prob = (prob_home + prob_draw) / total
+        prob = probs["home"] + probs["draw"]
     elif double_chance == 'X2':
-        prob = (prob_draw + prob_away) / total
+        prob = probs["draw"] + probs["away"]
     elif double_chance == '12':
-        prob = (prob_home + prob_away) / total
+        prob = probs["home"] + probs["away"]
     else:
         return 0
     return 1 / prob if prob > 0 else 0
@@ -597,6 +619,11 @@ def main():
         away_score = base["away_score"] if base["away_score"] is not None else (existing.get("away_score") if existing else None)
         status = base["status_text"] if base["status_text"] else (existing.get("status") if existing else "")
 
+        # Filtre sur les ligues faibles
+        if is_bad_league(base["competition"]):
+            print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (ligue faible)")
+            continue
+
         # Analyses H2H et forme
         home_form = get_team_form(base["home_team"], team_matches, last_games=5)
         away_form = get_team_form(base["away_team"], team_matches, last_games=5)
@@ -625,9 +652,9 @@ def main():
             # Fallback Poisson si les deux équipes ont une forme minimale
             if home_form and away_form and home_form["matches_used"] >= 2 and away_form["matches_used"] >= 2:
                 print(f"⚠️ Match {base['home_team']} vs {base['away_team']} - H2H insuffisant, utilisation du modèle Poisson")
-                # Calculer les moyennes de buts attendues
-                lambda_home = (home_form["goals_for"] + away_form["goals_against"]) / 2
-                lambda_away = (away_form["goals_for"] + home_form["goals_against"]) / 2
+                # Calculer les moyennes de buts attendues avec amélioration
+                lambda_home = (home_form["goals_for"] * 1.1 + away_form["goals_against"] * 0.9) / 2
+                lambda_away = (away_form["goals_for"] * 0.9 + home_form["goals_against"] * 1.1) / 2
                 p_home, p_draw, p_away = poisson_probability(lambda_home, lambda_away)
                 # Construire une analyse fictive
                 analysis = {
@@ -648,6 +675,11 @@ def main():
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (draw_rate > 0.45)")
             continue
 
+        # Filtre sur matchs trop équilibrés (écart de dominance < 0.15)
+        if abs(analysis["home_dominance"] - analysis["away_dominance"]) < 0.15:
+            print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (trop équilibré)")
+            continue
+
         prediction = generate_prediction(analysis, home_form, away_form, base["competition"])
 
         if prediction["double_chance"] == "12":
@@ -666,8 +698,24 @@ def main():
                 print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (différence buts trop faible: {goal_diff:.2f})")
                 continue
 
-        # Filtre sur les cotes trop faibles (adapté au double chance)
+        # Filtre temporel : ignorer les matchs dans moins de 30 minutes
+        try:
+            match_time = datetime.fromisoformat(base["start_time"].replace('Z', '+00:00'))
+            now = datetime.now(timezone.utc)
+            if (match_time - now).total_seconds() < 1800 and match_time > now:
+                print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (trop proche)")
+                continue
+        except:
+            pass
+
+        # Filtre anti-surprise : écart de cotes trop grand
         odds = base.get("odds")
+        if odds and odds.get("home") and odds.get("away"):
+            if abs(odds["home"] - odds["away"]) > 3:
+                print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (écart de cotes trop grand)")
+                continue
+
+        # Filtre sur les cotes trop faibles (adapté au double chance)
         if odds:
             dc = prediction["double_chance"]
             if dc == "1X" and odds.get("home") and odds["home"] < 1.20:
@@ -717,7 +765,8 @@ def main():
         value_bet = False
         if odds:
             dc = prediction["double_chance"]
-            # Notre probabilité estimée
+            # Notre probabilité estimée (combinaison de plusieurs sources)
+            # Utilisation de l'analyse H2H et forme
             home_dom = analysis["home_dominance"] + HOME_ADVANTAGE
             away_dom = analysis["away_dominance"]
             if dc == "1X":
@@ -758,10 +807,10 @@ def main():
         else:
             elo_away = elo_base
 
-        # 2. Expected Goals (xG) estimé
+        # 2. Expected Goals (xG) estimé avec amélioration
         if home_form and away_form:
-            xg_home = (home_form["goals_for"] + away_form["goals_against"]) / 2
-            xg_away = (away_form["goals_for"] + home_form["goals_against"]) / 2
+            xg_home = (home_form["goals_for"] * 1.1 + away_form["goals_against"] * 0.9) / 2
+            xg_away = (away_form["goals_for"] * 0.9 + home_form["goals_against"] * 1.1) / 2
         else:
             xg_home = xg_away = 1.2  # valeur par défaut
 
@@ -769,24 +818,20 @@ def main():
         fatigue_home = home_form["matches_used"] if home_form else 0
         fatigue_away = away_form["matches_used"] if away_form else 0
 
-        # 4. Détection des pièges bookmakers
+        # 4. Détection des pièges bookmakers (améliorée)
         trap_detected = False
-        if public_votes and prediction["double_chance"]:
-            # On calcule le pourcentage pour le double chance selon les votes
+        if public_votes and odds:
             dc = prediction["double_chance"]
             votes_home = public_votes.get("home", 0)
             votes_draw = public_votes.get("draw", 0)
             votes_away = public_votes.get("away", 0)
-            if dc == "1X":
-                votes_dc = votes_home + votes_draw
-            elif dc == "X2":
-                votes_dc = votes_draw + votes_away
-            elif dc == "12":
-                votes_dc = votes_home + votes_away
-            else:
-                votes_dc = 0
-            # Si le public est trop confiant (>70%) sur un résultat différent du nôtre, on considère un piège
-            if (votes_home > 70 and dc != "1X") or (votes_draw > 70 and dc != "X2") or (votes_away > 70 and dc != "12"):
+            # Si le public est trop confiant (>75%) sur un résultat différent du nôtre, on considère un piège
+            if (votes_home > 75 and dc != "1X") or (votes_draw > 75 and dc != "X2") or (votes_away > 75 and dc != "12"):
+                trap_detected = True
+            # Autre piège : public >75% sur une équipe et cote > 2 (anormal)
+            if votes_home > 75 and odds.get("home") and odds["home"] > 2:
+                trap_detected = True
+            if votes_away > 75 and odds.get("away") and odds["away"] > 2:
                 trap_detected = True
 
         # 5. Score AI (combinaison pondérée)
@@ -801,6 +846,47 @@ def main():
         ai_score = min(100, max(0, ai_score))  # on ramène entre 0 et 100
 
         # =======================================================
+        # MODÈLE ENSEMBLE (combinaison de probabilités)
+        # =======================================================
+        # Probabilité du marché normalisée
+        market_probs = normalize_odds(odds) if odds else None
+        # Probabilité du modèle Poisson
+        if home_form and away_form:
+            lambda_home_ens = (home_form["goals_for"] * 1.1 + away_form["goals_against"] * 0.9) / 2
+            lambda_away_ens = (away_form["goals_for"] * 0.9 + home_form["goals_against"] * 1.1) / 2
+            poisson_h, poisson_d, poisson_a = poisson_probability(lambda_home_ens, lambda_away_ens)
+        else:
+            poisson_h = poisson_d = poisson_a = 0.33
+
+        # Probabilité H2H (à partir de l'analyse)
+        h2h_h = analysis["home_dominance"]
+        h2h_d = analysis["draw_rate"]
+        h2h_a = analysis["away_dominance"]
+
+        # Probabilité forme (simple)
+        form_h = home_form["form_score"] if home_form else 0.5
+        form_a = away_form["form_score"] if away_form else 0.5
+        form_d = 1 - form_h - form_a  # approximation
+
+        # Pondérations (ajustables)
+        ensemble_h = (h2h_h * 0.4 + poisson_h * 0.3 + form_h * 0.3)
+        ensemble_d = (h2h_d * 0.4 + poisson_d * 0.3 + form_d * 0.3)
+        ensemble_a = (h2h_a * 0.4 + poisson_a * 0.3 + form_a * 0.3)
+        # Normalisation
+        total_ens = ensemble_h + ensemble_d + ensemble_a
+        ensemble_h /= total_ens
+        ensemble_d /= total_ens
+        ensemble_a /= total_ens
+
+        # Probabilité de double chance selon notre ensemble
+        if prediction["double_chance"] == "1X":
+            ensemble_prob_dc = ensemble_h + ensemble_d
+        elif prediction["double_chance"] == "X2":
+            ensemble_prob_dc = ensemble_d + ensemble_a
+        else:
+            ensemble_prob_dc = ensemble_h + ensemble_a
+
+        # =======================================================
 
         # Construction de la prédiction finale
         final_prediction = {
@@ -809,15 +895,20 @@ def main():
             "odds": estimate_odds(category, prediction["double_chance"])  # fallback
         }
 
-        # Score final de fiabilité (conservé pour compatibilité)
+        # Score final de fiabilité (nouvelle formule)
         value_bet_bonus = 10 if value_bet else 0
-        final_score = (score * 0.6) + (prediction["confidence"] * 0.2) + (value_bet_bonus * 0.2)
+        final_score = (
+            score * 0.35 +
+            prediction["confidence"] * 0.25 +
+            ai_score * 0.25 +
+            value_bet_bonus * 0.15
+        )
 
         # Calcul des probabilités Poisson (pour info)
         poisson_probs = None
         if home_form and away_form:
-            lambda_home = (home_form["goals_for"] + away_form["goals_against"]) / 2
-            lambda_away = (away_form["goals_for"] + home_form["goals_against"]) / 2
+            lambda_home = (home_form["goals_for"] * 1.1 + away_form["goals_against"] * 0.9) / 2
+            lambda_away = (away_form["goals_for"] * 0.9 + home_form["goals_against"] * 1.1) / 2
             p_home, p_draw, p_away = poisson_probability(lambda_home, lambda_away)
             poisson_probs = {
                 "home": round(p_home, 3),
@@ -863,7 +954,12 @@ def main():
             "xg_away": round(xg_away, 2),
             "fatigue_home": fatigue_home,
             "fatigue_away": fatigue_away,
-            "trap_detected": trap_detected
+            "trap_detected": trap_detected,
+            # Champs supplémentaires pour l'analyse
+            "ensemble_prob_home": round(ensemble_h, 3),
+            "ensemble_prob_draw": round(ensemble_d, 3),
+            "ensemble_prob_away": round(ensemble_a, 3),
+            "ensemble_prob_dc": round(ensemble_prob_dc, 3)
         }
 
         # Vérification si terminé
