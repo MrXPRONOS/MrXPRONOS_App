@@ -759,12 +759,13 @@ function sharePronostic(match) {
 // =======================================================
 function getLocalDateString(day) {
     const now = new Date();
-    const target = new Date(now);
-    if (day === 'tomorrow') target.setDate(now.getDate() + 1);
-    else if (day === 'yesterday') target.setDate(now.getDate() - 1);
-    const year = target.getFullYear();
-    const month = String(target.getMonth() + 1).padStart(2, '0');
-    const dayOfMonth = String(target.getDate()).padStart(2, '0');
+    // On travaille en UTC pour éviter les problèmes de fuseau horaire
+    const target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    if (day === 'tomorrow') target.setUTCDate(target.getUTCDate() + 1);
+    else if (day === 'yesterday') target.setUTCDate(target.getUTCDate() - 1);
+    const year = target.getUTCFullYear();
+    const month = String(target.getUTCMonth() + 1).padStart(2, '0');
+    const dayOfMonth = String(target.getUTCDate()).padStart(2, '0');
     return `${year}-${month}-${dayOfMonth}`;
 }
 
@@ -772,10 +773,10 @@ function getLocalDateFromEvent(isoString) {
     if (!isoString) return null;
     const date = new Date(isoString);
     if (isNaN(date)) return null;
-    date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    // Extraire la date en UTC
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
 
