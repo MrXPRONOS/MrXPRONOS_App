@@ -1,0 +1,29 @@
+name: Mise à jour des matchs en direct (toutes les minutes)
+
+on:
+  schedule:
+    - cron: '* * * * *'   # toutes les minutes (sous réserve des limites GitHub)
+  workflow_dispatch:
+
+jobs:
+  update-live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v3
+
+      - name: Configuration Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Installation des dépendances
+        run: |
+          pip install requests supabase
+
+      - name: Exécution du script de mise à jour live
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          BSD_API_TOKEN: ${{ secrets.BSD_API_TOKEN }}
+        run: python update_live.py

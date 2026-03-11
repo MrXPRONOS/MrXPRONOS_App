@@ -64,6 +64,20 @@ jobs:
             echo "⚠️ data.json non généré"
           fi
 
+      - name: Update pronostics in Supabase
+        id: update_supabase
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -f update_pronostics_supabase.py ]; then
+            echo "🔄 Mise à jour des pronostics dans Supabase..."
+            python update_pronostics_supabase.py
+          else
+            echo "ℹ️ update_pronostics_supabase.py non trouvé, étape ignorée"
+          fi
+
       - name: Convert images to WebP
         id: convert_images
         continue-on-error: true
@@ -177,6 +191,7 @@ jobs:
         run: |
           echo "=== RÉSUMÉ DE L'EXÉCUTION ==="
           echo "Génération données: ${{ steps.generate_data.outcome }}"
+          echo "Mise à jour Supabase: ${{ steps.update_supabase.outcome }}"
           echo "Conversion images: ${{ steps.convert_images.outcome }}"
           echo "Génération contenu: ${{ steps.generate_content.outcome }}"
           echo "Génération témoignages: ${{ steps.generate_testimonials.outcome }}"
