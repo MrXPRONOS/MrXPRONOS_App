@@ -1,36 +1,53 @@
 #!/usr/bin/env python3
 """
 update_live.py - Récupère les matchs en direct depuis l'API BSD,
-calcule les métriques (momentum, xG, etc.) et met à jour les tables Supabase.
-Exécuté périodiquement par GitHub Actions.
+calcule les métriques et met à jour les tables Supabase.
 """
 
 import os
+import sys
 import math
 import requests
 from supabase import create_client
 from datetime import datetime
-import json
 
+# Vérification des variables d'environnement avec messages explicites
+missing = []
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
-BSD_TOKEN = os.environ.get("BSD_API_TOKEN")
+if not SUPABASE_URL:
+    missing.append("SUPABASE_URL")
 
-if not SUPABASE_URL or not SUPABASE_KEY or not BSD_TOKEN:
-    raise ValueError("Variables d'environnement manquantes")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+if not SUPABASE_KEY:
+    missing.append("SUPABASE_KEY")
 
+BSD_API_TOKEN = os.environ.get("BSD_API_TOKEN")
+if not BSD_API_TOKEN:
+    missing.append("BSD_API_TOKEN")
+
+if missing:
+    print("❌ Variables d'environnement manquantes :", ", ".join(missing))
+    sys.exit(1)
+
+print("✅ Toutes les variables d'environnement sont présentes.")
+
+# Initialisation du client Supabase
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-HEADERS = {"Authorization": f"Token {BSD_TOKEN}"}
+HEADERS = {"Authorization": f"Token {BSD_API_TOKEN}"}
 BASE_URL = "https://sports.bzzoiro.com/api"
 
 
 def fetch_live():
     """Récupère les matchs en direct depuis l'API BSD."""
-    resp = requests.get(f"{BASE_URL}/live/", headers=HEADERS, timeout=15)
-    resp.raise_for_status()
-    data = resp.json()
-    return data.get("results", [])
+    try:
+        resp = requests.get(f"{BASE_URL}/live/", headers=HEADERS, timeout=15)
+        resp.raise_for_status()
+        data = resp.json()
+        return data.get("results", [])
+    except Exception as e:
+        print(f"❌ Erreur lors de la récupération des matchs live : {e}")
+        return []
 
 
 def compute_momentum(stats):
@@ -109,7 +126,6 @@ def generate_predictions(match, momentum, xg_h, xg_a):
     predictions = []
     total_momentum = momentum.get("total", 0)
 
-    # But dans les 5 minutes
     if total_momentum > 30:
         prob = min(0.5 + (total_momentum / 200), 0.8)
         predictions.append(
@@ -123,7 +139,6 @@ def generate_predictions(match, momentum, xg_h, xg_a):
             }
         )
 
-    # Over 2.5 buts
     total_xg = xg_h + xg_a
     if total_xg > 1.8 and match.get("current_minute", 0) > 30:
         prob = min(0.5 + total_xg / 4, 0.85)
@@ -137,7 +152,6 @@ def generate_predictions(match, momentum, xg_h, xg_a):
             }
         )
 
-    # Vainqueur live
     if total_momentum > 40:
         if momentum.get("home_ratio", 50) > 60:
             team = match.get("home_team", "")
@@ -198,7 +212,7 @@ def process_match(match):
 
 
 def main():
-    print(f"[{datetime.utcnow()}] Début de la mise à jour...")
+    print(f"[{datetime.utcnow()}] Début de la mise à jour live...")
     live = fetch_live()
     print(f"Récupéré {len(live)} matchs live")
 
@@ -215,9 +229,6 @@ def main():
         supabase.table("live_matches").delete().not_.in_("id", list(live_ids)).execute()
     else:
         supabase.table("live_matches").delete().neq("id", 0).execute()
-
-    # Mise à jour des matchs programmés (optionnel, via un autre endpoint)
-    # À adapter selon vos besoins
 
     print("Mise à jour terminée")
 
