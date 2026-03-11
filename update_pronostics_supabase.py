@@ -55,8 +55,8 @@ def main():
             'date': today
         }
 
-        # Upsert (on suppose que la colonne 'match' est unique ou on utilise un conflit sur match+date)
-        result = supabase.table('pronostics').upsert(pronostic, on_conflict='match').execute()
+        # Upsert avec contrainte unique sur (match, date)
+        result = supabase.table('pronostics').upsert(pronostic, on_conflict='match,date').execute()
 
         # Vérification basique
         if hasattr(result, 'error') and result.error:
