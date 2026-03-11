@@ -13,7 +13,7 @@ with open('data.json', 'r', encoding='utf-8') as f:
 matches = data.get('matches', [])
 today = datetime.now().date().isoformat()
 
-# Filtrer les matchs du jour (vous pouvez ajuster)
+#  Filtrer les matchs du jour (vous pouvez ajuster)
 today_matches = [m for m in matches if m.get('date') == today]
 
 # Insérer ou mettre à jour dans la table pronostics
