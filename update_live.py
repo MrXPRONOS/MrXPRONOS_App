@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 update_live.py - Récupère les matchs en direct depuis l'API BSD,
-calcule les métriques et met à jour les tables Supabase.
+calcule les métriques et met à jour les tables Supabase. 
 """
 
 import os
