@@ -1,9 +1,8 @@
-// assistant.js - Mr XPRONOS Assistant IA (Version Premium - Plein écran)
+// assistant.js - Mr XPRONOS Assistant IA (Version Premium)
 
 (function() {
     "use strict";
 
-    // Configuration
     const API_BASE = 'https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/assistant';
     
     const SUGGESTIONS = [
@@ -19,14 +18,14 @@
     localStorage.setItem('assistant_user_id', userId);
 
     // ==========================================
-    // STYLES - Version plein écran
+    // STYLES - Version finale (couleurs du site)
     // ==========================================
     const style = document.createElement('style');
     style.textContent = `
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
         
         :root {
-            --gold-primary: #D4AF37;
+            --gold-primary: #D4AF37;      /* Or du site */
             --gold-light: #FFD700;
             --gold-dark: #B8941F;
             --bg-dark: #0D0D0D;
@@ -44,7 +43,6 @@
             box-sizing: border-box;
         }
 
-        /* Bouton flottant */
         .assistant-button {
             position: fixed;
             bottom: 24px;
@@ -84,7 +82,6 @@
             filter: brightness(0) invert(1);
         }
 
-        /* Fenêtre principale - PLEIN ÉCRAN */
         .assistant-window {
             position: fixed;
             top: 0;
@@ -112,7 +109,6 @@
             display: flex;
         }
 
-        /* Header */
         .assistant-header {
             background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
             padding: 16px 20px;
@@ -191,7 +187,6 @@
             color: var(--accent-red);
         }
 
-        /* Zone des messages */
         .assistant-messages {
             flex: 1;
             overflow-y: auto;
@@ -214,14 +209,13 @@
             border-radius: 3px;
         }
 
-        /* Messages */
         .message {
             max-width: 90%;
             padding: 0;
             border-radius: 16px;
             word-wrap: break-word;
             font-size: 0.95rem;
-            line-height: 1.5;
+            line-height: 1.6;
             animation: message-appear 0.3s ease-out;
         }
         
@@ -249,137 +243,39 @@
             border-bottom-left-radius: 4px;
             border: var(--border-gold);
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            max-width: 100%; /* Permet aux tableaux de s'étendre */
+            max-width: 100%;
         }
 
         .message.assistant .message-content {
             padding: 16px;
-            overflow-x: auto; /* Pour les tableaux */
+            overflow-x: auto;
         }
 
-        /* Formatage HTML */
-        .message.assistant h1, .message.assistant h2, .message.assistant h3 {
-            margin: 0 0 12px 0;
-            color: var(--gold-light);
-            font-weight: 600;
-            line-height: 1.3;
-        }
-        
-        .message.assistant h1 { font-size: 1.4rem; border-bottom: 2px solid var(--gold-primary); padding-bottom: 8px; }
-        .message.assistant h2 { font-size: 1.2rem; }
-        .message.assistant h3 { font-size: 1.1rem; color: var(--gold-primary); }
-        
+        /* Style des paragraphes avec espacement */
         .message.assistant p {
             margin: 0 0 12px 0;
         }
         .message.assistant p:last-child {
             margin-bottom: 0;
         }
-        
-        .message.assistant ul, .message.assistant ol {
-            margin: 8px 0;
-            padding-left: 20px;
-        }
-        
-        .message.assistant li {
-            margin: 4px 0;
-        }
-        
-        .message.assistant ul li::marker {
-            color: var(--gold-primary);
-        }
-        
-        .message.assistant blockquote {
-            margin: 12px 0;
-            padding: 12px 16px;
-            background: rgba(212, 175, 55, 0.1);
-            border-left: 4px solid var(--gold-primary);
-            border-radius: 0 8px 8px 0;
-            font-style: italic;
-            color: var(--text-secondary);
-        }
-        
-        .message.assistant code {
-            background: rgba(212, 175, 55, 0.15);
-            color: var(--gold-light);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 0.9em;
-        }
-        
-        .message.assistant pre {
-            background: var(--bg-dark);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            border-radius: 8px;
-            padding: 12px;
-            overflow-x: auto;
-            margin: 12px 0;
-        }
-        
-        .message.assistant strong {
-            color: var(--gold-light);
-            font-weight: 600;
-        }
-        
-        .message.assistant em {
-            color: var(--gold-primary);
-            font-style: italic;
-        }
 
-        /* Liens en couleur or */
+        /* Liens en bleu clair */
         .message.assistant a {
-            color: var(--gold-light);
+            color: #64B5F6;  /* Bleu clair */
             text-decoration: underline;
             transition: color 0.2s;
         }
         
         .message.assistant a:hover {
-            color: var(--gold-primary);
+            color: #90CAF9;
         }
 
-        /* Tableaux avec police réduite */
-        .message.assistant .table-container {
-            overflow-x: auto;
-            margin: 12px 0;
-            border-radius: 8px;
-            border: var(--border-gold);
-        }
-        
-        .message.assistant table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.75rem; /* Réduction de la police */
-            background: var(--bg-dark);
-        }
-        
-        .message.assistant th {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
-            color: var(--gold-light);
-            font-weight: 600;
-            padding: 6px 8px;
-            text-align: left;
-            border-bottom: 2px solid var(--gold-primary);
-            white-space: nowrap;
-        }
-        
-        .message.assistant td {
-            padding: 6px 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            color: var(--text-primary);
-        }
-        
-        .message.assistant tr:hover td {
-            background: rgba(212, 175, 55, 0.05);
-        }
-
-        /* Horodatage */
+        /* Heure en gris lisible */
         .message-time {
-            font-size: 0.65rem;
-            color: var(--text-secondary);
+            font-size: 0.7rem;
+            color: #B0B0B0;  /* Gris clair */
             margin-top: 4px;
             text-align: right;
-            opacity: 0.7;
             padding: 0 16px 8px 16px;
         }
         
@@ -388,7 +284,21 @@
             padding-left: 16px;
         }
 
-        /* Boutons de feedback */
+        /* Tableaux responsives */
+        .message.assistant table {
+            font-size: 0.8rem;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        .message.assistant th, .message.assistant td {
+            border: 1px solid #444;
+            padding: 6px;
+        }
+        .message.assistant th {
+            background: rgba(212, 175, 55, 0.2);
+        }
+
+        /* Feedback buttons */
         .feedback-buttons {
             display: flex;
             gap: 8px;
@@ -404,15 +314,11 @@
             font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
         
         .feedback-btn:hover {
             background: var(--gold-primary);
             color: #000;
-            border-color: var(--gold-primary);
         }
         
         .feedback-btn:disabled {
@@ -441,10 +347,6 @@
             cursor: pointer;
             transition: all 0.2s;
             color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            font-weight: 500;
         }
         
         .suggestion-chip:hover {
@@ -454,7 +356,6 @@
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         }
 
-        /* Zone de saisie */
         .assistant-input-area {
             padding: 12px 16px;
             border-top: var(--border-gold);
@@ -481,10 +382,6 @@
             box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
         }
         
-        .assistant-input-area input::placeholder {
-            color: var(--text-secondary);
-        }
-        
         .assistant-input-area button {
             padding: 12px 20px;
             border-radius: 24px;
@@ -495,10 +392,6 @@
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         }
         
@@ -506,12 +399,7 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
         }
-        
-        .assistant-input-area button:active {
-            transform: translateY(0);
-        }
 
-        /* Indicateur de frappe */
         .typing-indicator {
             display: flex;
             gap: 4px;
@@ -519,10 +407,8 @@
             background: var(--bg-elevated);
             border-radius: 16px;
             align-self: flex-start;
-            border-bottom-left-radius: 4px;
             border: var(--border-gold);
             width: fit-content;
-            margin-bottom: 4px;
         }
         
         .typing-indicator span {
@@ -541,32 +427,18 @@
             40% { transform: scale(1); opacity: 1; }
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
-            .assistant-header-info h3 {
-                font-size: 1rem;
-            }
-            .assistant-avatar {
-                width: 36px;
-                height: 36px;
-                font-size: 20px;
-            }
-            .assistant-close {
-                font-size: 1.8rem;
-                width: 40px;
-                height: 40px;
-            }
-            .message {
-                max-width: 95%;
-            }
+            .assistant-header-info h3 { font-size: 1rem; }
+            .assistant-avatar { width: 36px; height: 36px; font-size: 20px; }
+            .assistant-close { font-size: 1.8rem; width: 40px; height: 40px; }
+            .message { max-width: 95%; }
         }
     `;
     document.head.appendChild(style);
 
     // ==========================================
-    // INTERFACE UTILISATEUR
+    // Interface
     // ==========================================
-    
     const button = document.createElement('div');
     button.className = 'assistant-button';
     button.innerHTML = '<img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="assistant">';
@@ -583,7 +455,7 @@
                     <h3>Mr XPRONOS</h3>
                     <div class="assistant-status">
                         <span class="status-dot"></span>
-                        <span>En ligne</span>
+                        <span>Expert en ligne</span>
                     </div>
                 </div>
             </div>
@@ -592,7 +464,7 @@
         <div class="assistant-messages" id="assistant-messages">
             <div class="message assistant">
                 <div class="message-content">
-                    <p>👋 <strong>Bonjour !</strong> Je suis votre assistant personnel pour les paris sportifs.</p>
+                    <p>👋 <strong>Bonjour !</strong> Je suis votre expert personnel pour les paris sportifs.</p>
                     <p>Je peux vous aider avec :</p>
                     <ul>
                         <li>Les pronostics du jour ⚽</li>
@@ -600,7 +472,7 @@
                         <li>Vos questions sur le site 💡</li>
                     </ul>
                 </div>
-                <div class="message-time">${getCurrentTime()}</div>
+                <div class="message-time">${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
             </div>
         </div>
         <div class="assistant-suggestions" id="assistant-suggestions"></div>
@@ -611,24 +483,15 @@
     `;
     document.body.appendChild(windowDiv);
 
-    // Références DOM
     const messagesDiv = document.getElementById('assistant-messages');
     const input = document.getElementById('assistant-input');
     const sendBtn = document.getElementById('assistant-send');
     const closeBtn = document.querySelector('.assistant-close');
     const suggestionsDiv = document.getElementById('assistant-suggestions');
 
-    // ==========================================
-    // FONCTIONS UTILITAIRES
-    // ==========================================
-    
+    // Fonctions
     function getCurrentTime() {
         return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function formatHTML(text) {
-        // On suppose que le backend renvoie déjà du HTML valide. On ne fait que l'encapsuler.
-        return text;
     }
 
     function addMessage(text, sender, isHTML = false, conversationId = null) {
@@ -637,12 +500,7 @@
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
-        
-        if (isHTML || sender === 'assistant') {
-            contentDiv.innerHTML = text; // On insère directement le HTML
-        } else {
-            contentDiv.textContent = text;
-        }
+        contentDiv.innerHTML = isHTML ? text : text.replace(/\n/g, '<br>');
         
         const timeDiv = document.createElement('div');
         timeDiv.className = 'message-time';
@@ -651,7 +509,6 @@
         msgDiv.appendChild(contentDiv);
         msgDiv.appendChild(timeDiv);
         
-        // Boutons de feedback pour les réponses de l'assistant
         if (sender === 'assistant' && conversationId) {
             const feedbackDiv = document.createElement('div');
             feedbackDiv.className = 'feedback-buttons';
@@ -690,18 +547,12 @@
         }
         
         messagesDiv.appendChild(msgDiv);
-        
-        // Scroll vers le bas
         setTimeout(() => {
-            messagesDiv.scrollTo({
-                top: messagesDiv.scrollHeight,
-                behavior: 'smooth'
-            });
+            messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
         }, 100);
     }
 
     let typingIndicator = null;
-    
     function showTyping() {
         if (typingIndicator) return;
         typingIndicator = document.createElement('div');
@@ -710,7 +561,6 @@
         messagesDiv.appendChild(typingIndicator);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
-
     function hideTyping() {
         if (typingIndicator) {
             typingIndicator.remove();
@@ -718,7 +568,6 @@
         }
     }
 
-    // Suggestions
     function renderSuggestions() {
         suggestionsDiv.innerHTML = '';
         SUGGESTIONS.forEach(s => {
@@ -733,7 +582,6 @@
         });
     }
 
-    // Envoi du message
     async function sendMessage() {
         const question = input.value.trim();
         if (!question) return;
@@ -745,59 +593,42 @@
         try {
             const response = await fetch(API_BASE, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ 
-                    question, 
-                    user_id: userId 
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question, user_id: userId })
             });
             
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Erreur ${response.status}: ${errorText}`);
+                throw new Error(`Erreur ${response.status}`);
             }
             
             const data = await response.json();
             hideTyping();
-            
-            // Ajouter la réponse avec l'ID de conversation si disponible
             addMessage(data.answer, 'assistant', true, data.conversation_id);
             
         } catch (error) {
             hideTyping();
-            addMessage(
-                "❌ **Oups !** Une erreur est survenue. Veuillez réessayer plus tard.\n\n" +
-                `_Erreur technique : ${error.message}_`, 
-                'assistant', 
-                true
-            );
-            console.error('Assistant Error:', error);
+            addMessage("❌ Une erreur est survenue. Veuillez réessayer plus tard.", 'assistant');
+            console.error(error);
         }
     }
 
-    // ==========================================
-    // ÉVÉNEMENTS
-    // ==========================================
-    
+    // Événements
     button.addEventListener('click', () => {
         isOpen = !isOpen;
         windowDiv.classList.toggle('open', isOpen);
         if (isOpen) {
-            button.classList.add('hidden'); // Masquer le bouton
+            button.classList.add('hidden');
             input.focus();
             renderSuggestions();
         } else {
-            button.classList.remove('hidden'); // Réafficher le bouton
+            button.classList.remove('hidden');
         }
     });
 
     closeBtn.addEventListener('click', () => {
         isOpen = false;
         windowDiv.classList.remove('open');
-        button.classList.remove('hidden'); // Réafficher le bouton
+        button.classList.remove('hidden');
     });
 
     sendBtn.addEventListener('click', sendMessage);
@@ -813,5 +644,5 @@
         }
     });
 
-    console.log('🎯 Mr XPRONOS Assistant chargé avec succès (plein écran)');
+    console.log('✅ Assistant IA chargé (version finale)');
 })();
