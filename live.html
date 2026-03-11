@@ -12,6 +12,9 @@
     <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
+    <!-- Recharts (optionnel) -->
+    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
+    
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
@@ -33,6 +36,7 @@
             --gold-light: #f5e7a3;
             --dark: #0a0a0a;
             --card: #121212;
+            --blue-link: #3b82f6; /* Bleu clair pour les liens */
         }
         
         body {
@@ -76,6 +80,10 @@
             50% { opacity: 0.4; }
         }
         
+        .momentum-bar {
+            transition: width 0.5s ease;
+        }
+        
         .notification-slide {
             animation: slide-in 0.3s ease;
         }
@@ -91,6 +99,20 @@
             }
         }
         
+        .scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .scroll-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .glass {
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
         .error-fallback {
             display: flex;
             flex-direction: column;
@@ -121,20 +143,31 @@
             border-color: #22C55E;
         }
         
-        .back-button {
-            background: #333;
-            border: 1px solid var(--gold);
-            border-radius: 30px;
-            padding: 8px 16px;
-            color: white;
-            cursor: pointer;
-            transition: 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
-        .back-button:hover {
-            background: #444;
+        
+        /* Liens en bleu clair */
+        a {
+            color: var(--blue-link);
+            text-decoration: underline;
+        }
+        a:hover {
+            color: #60a5fa;
+        }
+        
+        /* Espacement entre paragraphes */
+        p {
+            margin-bottom: 1rem;
+        }
+        p:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Couleur de l'heure */
+        .message-time {
+            color: #9ca3af !important; /* gris clair */
         }
     </style>
 </head>
@@ -190,7 +223,9 @@
         // ============================================================
         // Vérification des bibliothèques globales
         // ============================================================
-        const { useState, useEffect, useCallback, useRef } = React;
+        const { useState, useEffect, useCallback, useRef, useMemo } = React;
+        const Recharts = window.Recharts;
+        const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie } = Recharts || {};
         const lucide = window.lucide;
 
         // ============================================================
@@ -211,13 +246,17 @@
                             iconRef.current.appendChild(icon);
                         }
                     } catch (e) {
-                        console.warn(`Erreur icône ${name}:`, e);
+                        console.warn(`Erreur création icône ${name}:`, e);
                     }
                 }
             }, [name, size]);
             
             return <span ref={iconRef} className={className} />;
         };
+        
+        const GoldText = ({ children, className = "" }) => (
+            <span className={`gold-gradient font-bold ${className}`}>{children}</span>
+        );
         
         const Card = ({ children, className = "", onClick }) => (
             <div 
@@ -245,12 +284,36 @@
             );
         };
         
+        const MomentumGauge = ({ value, max = 100, label, showValue = true }) => {
+            const safeValue = value ?? 0;
+            const percentage = Math.min((safeValue / max) * 100, 100);
+            const color = percentage > 70 ? '#4CAF50' : percentage > 40 ? '#FFA500' : '#ff4444';
+            
+            return (
+                <div className="w-full">
+                    <div className="flex justify-between mb-1">
+                        <span className="text-xs text-gray-400">{label}</span>
+                        {showValue && <span className="text-xs font-bold" style={{ color }}>{safeValue.toFixed(1)}</span>}
+                    </div>
+                    <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{ width: `${percentage}%`, backgroundColor: color }}
+                        />
+                    </div>
+                </div>
+            );
+        };
+        
         // ============================================================
         // COMPOSANTS DE MATCH
         // ============================================================
         
         const LiveMatchCard = ({ match, onClick, isSelected }) => {
+            const momentum = match?.momentum_index || {};
+            const xg = { home: match?.xg_home || 0, away: match?.xg_away || 0 };
             const predictions = match?.predictions || [];
+            const highConfidence = predictions.filter(p => p?.confidence === 'high' && p?.probability > 0.8);
             
             return (
                 <Card 
@@ -264,14 +327,15 @@
                             <span className="text-gray-500 text-xs">|</span>
                             <span className="text-gray-400 text-xs">{match?.league?.name || ''}</span>
                         </div>
-                        {predictions.length > 0 && (
-                            <Badge color="gold">{predictions.length} prédiction{predictions.length > 1 ? 's' : ''}</Badge>
+                        {highConfidence.length > 0 && (
+                            <Badge color="gold">{highConfidence.length} alerte{highConfidence.length > 1 ? 's' : ''}</Badge>
                         )}
                     </div>
                     
                     <div className="flex justify-between items-center mb-4">
                         <div className="flex-1 text-right pr-4">
                             <div className="font-bold text-white">{match?.home_team || ''}</div>
+                            <div className="text-xs text-gray-400">xG: {(xg.home || 0).toFixed(2)}</div>
                         </div>
                         
                         <div className="px-4 py-2 bg-[#0a0a0a] rounded-lg border border-[#D4AF37]">
@@ -282,36 +346,33 @@
                         
                         <div className="flex-1 pl-4">
                             <div className="font-bold text-white">{match?.away_team || ''}</div>
+                            <div className="text-xs text-gray-400">xG: {(xg.away || 0).toFixed(2)}</div>
                         </div>
                     </div>
                     
-                    {predictions.length > 0 && (
+                    <div className="space-y-2">
+                        <MomentumGauge 
+                            value={momentum.total || 0} 
+                            max={100} 
+                            label="Momentum Total" 
+                        />
+                    </div>
+                    
+                    {highConfidence.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-[#2a2a2a]">
-                            <div className="flex flex-col gap-2">
-                                {predictions.map((pred, idx) => (
-                                    <div key={idx} className="bg-[#1a1a1a] p-2 rounded-lg border border-[#D4AF37]/30">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <span className={`text-xs font-bold ${
-                                                    pred.type === 'corners' ? 'text-blue-400' :
-                                                    pred.type === 'shots' ? 'text-orange-400' :
-                                                    pred.type === 'btts' ? 'text-green-400' : 'text-[#D4AF37]'
-                                                }`}>
-                                                    {pred.type === 'corners' && '⛳ Corners'}
-                                                    {pred.type === 'shots' && '🎯 Tirs'}
-                                                    {pred.type === 'btts' && '⚽ BTTS'}
-                                                    {pred.type === 'winner' && '🏆 Favori'}
-                                                </span>
-                                                <p className="text-xs text-gray-300 mt-1">{pred.detail}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <span className="text-sm font-bold text-green-400">
-                                                    {(pred.probability * 100).toFixed(0)}%
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div className="flex gap-2 flex-wrap">
+                                {highConfidence.slice(0, 3).map((pred, idx) => (
+                                    <span key={idx} className="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400">
+                                        {pred.type === 'corners' && '⛳ Corners'}
+                                        {pred.type === 'shots' && '🎯 Tirs'}
+                                        {pred.type === 'btts' && '⚽ BTTS'}
+                                        {pred.type === 'winner' && '🏆 Favori'}
+                                        {' '}{((pred.probability || 0) * 100).toFixed(0)}%
+                                    </span>
                                 ))}
+                                {highConfidence.length > 3 && (
+                                    <span className="text-xs text-gray-500">+{highConfidence.length - 3}</span>
+                                )}
                             </div>
                         </div>
                     )}
@@ -336,10 +397,12 @@
                 timeText = `Dans ${hours}h${mins.toString().padStart(2, '0')}`;
             }
             
+            const isSoon = diffMin > 0 && diffMin <= 30;
+            
             return (
-                <Card>
+                <Card className="opacity-80 hover:opacity-100">
                     <div className="flex justify-between items-start mb-2">
-                        <Badge color="gray">{timeText}</Badge>
+                        <Badge color={isSoon ? "orange" : "gray"}>{timeText}</Badge>
                         <span className="text-xs text-gray-500">{match?.league?.name || ''}</span>
                     </div>
                     
@@ -347,7 +410,9 @@
                         <div className="flex-1 text-right pr-3">
                             <div className="font-semibold text-white text-sm">{match?.home_team || ''}</div>
                         </div>
+                        
                         <div className="text-gray-500 text-xs">VS</div>
+                        
                         <div className="flex-1 pl-3">
                             <div className="font-semibold text-white text-sm">{match?.away_team || ''}</div>
                         </div>
@@ -365,7 +430,16 @@
         // ============================================================
         
         const MatchDetail = ({ match, onClose }) => {
-            const predictions = match?.predictions || [];
+            const [activeTab, setActiveTab] = useState('overview');
+            
+            if (!match) return null;
+            
+            const momentum = match.momentum_index || {};
+            const pressure = match.pressure_index || {};
+            const xg = { home: match.xg_home || 0, away: match.xg_away || 0 };
+            const stats = match.live_stats || { home: {}, away: {} };
+            const predictions = match.predictions || [];
+            const highConfidence = predictions.filter(p => p.confidence === 'high' && p.probability > 0.8);
             
             return (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -380,7 +454,7 @@
                                         <span className="text-gray-400">{match.league?.name || ''}</span>
                                     </div>
                                     <h2 className="text-2xl font-bold">
-                                        {match.home_team} <span className="text-[#D4AF37]">vs</span> {match.away_team}
+                                        {match.home_team || ''} <GoldText>vs</GoldText> {match.away_team || ''}
                                     </h2>
                                 </div>
                                 <button onClick={onClose} className="p-2 hover:bg-[#2a2a2a] rounded-lg">
@@ -390,47 +464,167 @@
                             
                             <div className="flex justify-center items-center gap-8 mt-6">
                                 <div className="text-center">
-                                    <div className="text-4xl font-bold text-[#D4AF37]">{match.home_score || 0}</div>
+                                    <div className="text-4xl font-bold gold-gradient">{match.home_score || 0}</div>
+                                    <div className="text-xs text-gray-400 mt-1">xG: {(xg.home || 0).toFixed(2)}</div>
                                 </div>
                                 <div className="text-2xl text-gray-600">-</div>
                                 <div className="text-center">
-                                    <div className="text-4xl font-bold text-[#D4AF37]">{match.away_score || 0}</div>
+                                    <div className="text-4xl font-bold gold-gradient">{match.away_score || 0}</div>
+                                    <div className="text-xs text-gray-400 mt-1">xG: {(xg.away || 0).toFixed(2)}</div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div className="p-6 overflow-y-auto max-h-[60vh]">
-                            {predictions.length === 0 ? (
-                                <div className="text-center text-gray-500 py-8">
-                                    Aucune prédiction haute confiance pour ce match
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    <h3 className="font-bold text-lg">🔮 Prédictions haute confiance</h3>
-                                    {predictions.map((pred, idx) => (
-                                        <div key={idx} className="bg-[#1a1a1a] rounded-xl p-4 border border-[#D4AF37]/30">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <span className="text-2xl">
-                                                    {pred.type === 'corners' && '⛳'}
-                                                    {pred.type === 'shots' && '🎯'}
-                                                    {pred.type === 'btts' && '⚽'}
-                                                    {pred.type === 'winner' && '🏆'}
-                                                </span>
-                                                <span className="font-bold text-[#D4AF37] capitalize">{pred.type}</span>
-                                                <Badge color="green">{((pred.probability || 0) * 100).toFixed(0)}% confiance</Badge>
-                                            </div>
-                                            <p className="text-white mb-2">{pred.detail}</p>
-                                            <p className="text-sm text-gray-400">{pred.message}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
+                        <div className="flex border-b border-[#2a2a2a]">
+                            {['overview', 'stats', 'predictions'].map(tab => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`flex-1 py-3 text-sm font-medium capitalize transition-colors ${
+                                        activeTab === tab 
+                                            ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' 
+                                            : 'text-gray-400 hover:text-white'
+                                    }`}
+                                >
+                                    {tab === 'overview' ? 'Vue d\'ensemble' : 
+                                     tab === 'stats' ? 'Statistiques' : 'Prédictions'}
+                                </button>
+                            ))}
                         </div>
                         
-                        <div className="p-4 border-t border-[#2a2a2a] flex justify-end">
-                            <button onClick={onClose} className="back-button">
-                                <Icon name="arrow-left" size={16} /> Retour
-                            </button>
+                        <div className="p-6 overflow-y-auto max-h-[60vh]">
+                            {activeTab === 'overview' && (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-[#0a0a0a] rounded-xl p-4">
+                                            <h4 className="text-sm font-bold text-gray-400 mb-3">Momentum</h4>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-sm">{match.home_team || ''}</span>
+                                                <div className="flex-1 mx-3 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                                    <div 
+                                                        className="h-full bg-green-500 rounded-full"
+                                                        style={{ width: `${momentum.home_ratio || 50}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-sm">{match.away_team || ''}</span>
+                                                <div className="flex-1 mx-3 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                                    <div 
+                                                        className="h-full bg-red-500 rounded-full"
+                                                        style={{ width: `${momentum.away_ratio || 50}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="bg-[#0a0a0a] rounded-xl p-4">
+                                            <h4 className="text-sm font-bold text-gray-400 mb-3">Pression</h4>
+                                            <div className="text-center">
+                                                <div className="text-2xl font-bold text-[#D4AF37]">
+                                                    {pressure.ratio?.toFixed(2) || '1.00'}
+                                                </div>
+                                                <div className="text-xs text-gray-500 mt-1">
+                                                    Ratio domination
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {highConfidence.length > 0 && (
+                                        <div>
+                                            <h4 className="text-sm font-bold text-gray-400 mb-3">Prédictions Haute Confiance</h4>
+                                            <div className="space-y-2">
+                                                {highConfidence.map((pred, idx) => (
+                                                    <div key={idx} className="p-3 rounded-lg border-l-4 border-green-500 bg-green-500/10">
+                                                        <div className="flex justify-between items-start">
+                                                            <div>
+                                                                <div className="font-semibold text-sm">{pred.message}</div>
+                                                                <div className="text-xs text-gray-400 mt-1">
+                                                                    Probabilité: {((pred.probability || 0) * 100).toFixed(1)}%
+                                                                </div>
+                                                            </div>
+                                                            {pred.odds_suggestion && (
+                                                                <Badge color="gold">Cote: {pred.odds_suggestion}</Badge>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            
+                            {activeTab === 'stats' && (
+                                <div className="space-y-4">
+                                    {['Possession', 'Tirs', 'Tirs cadrés', 'Corners', 'Fautes'].map(stat => {
+                                        const keyMap = {
+                                            'Possession': 'ball_possession',
+                                            'Tirs': 'total_shots',
+                                            'Tirs cadrés': 'shots_on_target',
+                                            'Corners': 'corner_kicks',
+                                            'Fautes': 'fouls'
+                                        };
+                                        const homeVal = stats.home?.[keyMap[stat]] ?? 0;
+                                        const awayVal = stats.away?.[keyMap[stat]] ?? 0;
+                                        const total = homeVal + awayVal || 1;
+                                        
+                                        return (
+                                            <div key={stat} className="bg-[#0a0a0a] rounded-xl p-4">
+                                                <div className="flex justify-between text-sm mb-2">
+                                                    <span className="font-bold">{homeVal}</span>
+                                                    <span className="text-gray-400">{stat}</span>
+                                                    <span className="font-bold">{awayVal}</span>
+                                                </div>
+                                                <div className="flex h-2 bg-gray-700 rounded-full overflow-hidden">
+                                                    <div 
+                                                        className="bg-green-500"
+                                                        style={{ width: `${(homeVal / total) * 100}%` }}
+                                                    />
+                                                    <div 
+                                                        className="bg-red-500"
+                                                        style={{ width: `${(awayVal / total) * 100}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                            
+                            {activeTab === 'predictions' && (
+                                <div className="space-y-4">
+                                    {highConfidence.length === 0 ? (
+                                        <div className="text-center text-gray-500 py-8">
+                                            Aucune prédiction haute confiance pour ce match
+                                        </div>
+                                    ) : (
+                                        highConfidence.map((pred, idx) => (
+                                            <div key={idx} className="bg-[#0a0a0a] rounded-xl p-4">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <div className="w-3 h-3 rounded-full bg-green-500" />
+                                                    <span className="font-bold capitalize">{pred.type}</span>
+                                                    <Badge color="green">haute confiance</Badge>
+                                                </div>
+                                                <p className="text-gray-300 mb-3">{pred.message}</p>
+                                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                                    <div className="bg-[#121212] rounded-lg p-2 text-center">
+                                                        <div className="text-gray-500 text-xs">Probabilité</div>
+                                                        <div className="font-bold text-[#D4AF37]">{((pred.probability || 0) * 100).toFixed(1)}%</div>
+                                                    </div>
+                                                    {pred.odds_suggestion && (
+                                                        <div className="bg-[#121212] rounded-lg p-2 text-center">
+                                                            <div className="text-gray-500 text-xs">Cote suggérée</div>
+                                                            <div className="font-bold">{pred.odds_suggestion}</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -441,27 +635,88 @@
         // COMPOSANTS PRINCIPAUX
         // ============================================================
         
-        const Header = ({ onBack }) => (
-            <header className="sticky top-0 z-40 bg-[#0a0a0a]/95 backdrop-blur border-b border-[#2a2a2a]">
-                <div className="max-w-7xl mx-auto px-4 py-4">
-                    <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                            <button onClick={onBack} className="back-button">
-                                <Icon name="arrow-left" size={16} /> Retour
-                            </button>
-                            <div className="w-10 h-10 bg-[#D4AF37] rounded-xl flex items-center justify-center ml-2">
-                                <Icon name="activity" size={24} className="text-black" />
+        const Header = ({ stats, notifications, notificationCount, onClearNotifications, onBack }) => {
+            const [showNotifications, setShowNotifications] = useState(false);
+            
+            return (
+                <header className="sticky top-0 z-40 bg-[#0a0a0a]/95 backdrop-blur border-b border-[#2a2a2a]">
+                    <div className="max-w-7xl mx-auto px-4 py-4">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <button onClick={onBack} className="p-2 hover:bg-[#2a2a2a] rounded-lg">
+                                    <Icon name="arrow-left" size={20} />
+                                </button>
+                                <div className="w-10 h-10 bg-[#D4AF37] rounded-xl flex items-center justify-center">
+                                    <Icon name="activity" size={24} className="text-black" />
+                                </div>
+                                <div>
+                                    <h1 className="text-xl font-bold gold-gradient">MrXPRONOS LIVE</h1>
+                                    <div className="flex items-center gap-3 text-xs text-gray-400">
+                                        <span className="flex items-center gap-1">
+                                            <span className="w-2 h-2 bg-green-500 rounded-full live-pulse" />
+                                            {stats?.matches_live || 0} live
+                                        </span>
+                                        <span>|</span>
+                                        <span>{stats?.matches_scheduled || 0} à venir</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <h1 className="text-xl font-bold gold-gradient">MrXPRONOS LIVE</h1>
+                            
+                            <div className="flex items-center gap-4">
+                                <div className="relative">
+                                    <button 
+                                        onClick={() => setShowNotifications(!showNotifications)}
+                                        className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors"
+                                    >
+                                        <Icon name="bell" size={20} />
+                                        {notificationCount > 0 && (
+                                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center font-bold">
+                                                {notificationCount}
+                                            </span>
+                                        )}
+                                    </button>
+                                    {showNotifications && (
+                                        <div className="absolute right-0 top-full mt-2 w-80 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-2xl z-50">
+                                            <div className="p-3 border-b border-[#2a2a2a] flex justify-between items-center">
+                                                <span className="font-bold text-sm">Notifications</span>
+                                                <button onClick={onClearNotifications} className="text-xs text-gray-400 hover:text-white">
+                                                    Tout effacer
+                                                </button>
+                                            </div>
+                                            <div className="max-h-96 overflow-y-auto">
+                                                {notifications.length === 0 ? (
+                                                    <div className="p-4 text-center text-gray-500 text-sm">
+                                                        Aucune notification
+                                                    </div>
+                                                ) : (
+                                                    notifications.map((notif, idx) => (
+                                                        <div key={idx} className={`p-3 border-b border-[#2a2a2a] hover:bg-[#252525] ${!notif.read ? 'bg-[#252525]/50' : ''}`}>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <span className={`w-2 h-2 rounded-full ${notif.priority === 'urgent' ? 'bg-red-500' : 'bg-[#D4AF37]'}`} />
+                                                                <span className="text-xs font-semibold text-gray-300">{notif.title}</span>
+                                                            </div>
+                                                            <p className="text-xs text-gray-400">{notif.message}</p>
+                                                            <span className="text-[10px] text-gray-600 mt-1 block">
+                                                                {new Date(notif.timestamp * 1000).toLocaleTimeString()}
+                                                            </span>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                                <button className="p-2 hover:bg-[#2a2a2a] rounded-lg">
+                                    <Icon name="settings" size={20} />
+                                </button>
                             </div>
                         </div>
                     </div>
-                </div>
-            </header>
-        );
+                </header>
+            );
+        };
         
-        const TodayOverview = ({ data }) => {
+        const TodayOverview = ({ data, onMatchClick }) => {
             if (!data) return null;
             
             return (
@@ -508,6 +763,7 @@
                     <div className="text-center py-12 text-gray-500">
                         <Icon name="radio" size={48} className="mx-auto mb-4 opacity-30" />
                         <p>Aucun match en direct pour le moment</p>
+                        <p className="text-sm mt-2">Les matchs apparaîtront automatiquement</p>
                     </div>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2">
@@ -533,7 +789,7 @@
                 
                 {matches.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
-                        Aucun match programmé
+                        Aucun match programmé dans les prochaines 24h
                     </div>
                 ) : (
                     <div className="grid gap-3 md:grid-cols-3">
@@ -549,25 +805,78 @@
             <div className="mb-8">
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                     <Icon name="target" size={20} className="text-[#D4AF37]" />
-                    Alertes Actives
+                    Alertes Haute Confiance
                 </h2>
                 
                 {predictions.length === 0 ? (
                     <div className="text-center py-8 text-gray-500 bg-[#121212] rounded-xl border border-[#2a2a2a]">
-                        Aucune alerte haute confiance
+                        Aucune alerte haute confiance pour le moment
                     </div>
                 ) : (
                     <div className="space-y-3">
                         {predictions.slice(0, 5).map((item, idx) => (
-                            <div key={idx} className="bg-[#121212] border border-[#D4AF37]/30 rounded-xl p-4">
-                                <div className="font-bold text-sm mb-1">{item.match.teams}</div>
-                                <div className="text-sm text-[#D4AF37]">{item.prediction.detail}</div>
-                                <div className="text-xs text-gray-400 mt-1">{item.prediction.message}</div>
-                                <div className="mt-2">
-                                    <Badge color="green">{(item.prediction.probability * 100).toFixed(0)}% confiance</Badge>
+                            <div key={idx} className="bg-[#121212] border border-[#D4AF37]/30 rounded-xl p-4 flex justify-between items-center">
+                                <div>
+                                    <div className="font-bold text-sm">{item.match.teams}</div>
+                                    <div className="text-xs text-gray-400">{item.match.score} • {item.match.minute}'</div>
+                                    <div className="text-sm text-[#D4AF37] mt-1">{item.prediction.message}</div>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-2xl font-bold text-green-500">
+                                        {(item.prediction.probability * 100).toFixed(0)}%
+                                    </div>
+                                    <div className="text-xs text-gray-500">confiance</div>
                                 </div>
                             </div>
                         ))}
+                    </div>
+                )}
+            </div>
+        );
+        
+        const PredictionHistory = ({ history }) => (
+            <div className="mt-8">
+                <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+                    <Icon name="history" size={20} className="text-[#D4AF37]" />
+                    Historique des pronostics (48h)
+                </h2>
+                
+                {history.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500 bg-[#121212] rounded-xl border border-[#2a2a2a]">
+                        Aucun historique
+                    </div>
+                ) : (
+                    <div className="bg-[#121212] rounded-xl border border-[#2a2a2a] overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                                <thead className="bg-[#0a0a0a] border-b border-[#2a2a2a]">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left">Match</th>
+                                        <th className="px-4 py-3 text-left">Prédiction</th>
+                                        <th className="px-4 py-3 text-left">Probabilité</th>
+                                        <th className="px-4 py-3 text-left">Résultat</th>
+                                        <th className="px-4 py-3 text-left">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {history.map((item, idx) => (
+                                        <tr key={idx} className="border-b border-[#2a2a2a] hover:bg-[#1a1a1a]">
+                                            <td className="px-4 py-3">{item.match}</td>
+                                            <td className="px-4 py-3 capitalize">{item.type}</td>
+                                            <td className="px-4 py-3">{(item.probability * 100).toFixed(0)}%</td>
+                                            <td className="px-4 py-3">
+                                                {item.validated ? (
+                                                    <span className="text-green-500">✓ Validé</span>
+                                                ) : (
+                                                    <span className="text-yellow-500">En attente</span>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3">{new Date(item.timestamp).toLocaleString('fr-FR')}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </div>
@@ -583,41 +892,35 @@
             const [scheduledMatches, setScheduledMatches] = useState([]);
             const [todayData, setTodayData] = useState(null);
             const [activePredictions, setActivePredictions] = useState([]);
+            const [predictionHistory, setPredictionHistory] = useState([]);
+            const [stats, setStats] = useState({ matches_live: 0, matches_scheduled: 0 });
             const [notifications, setNotifications] = useState([]);
             const [toast, setToast] = useState(null);
             const [loading, setLoading] = useState(true);
             const [error, setError] = useState(null);
             const [selectedMatch, setSelectedMatch] = useState(null);
+            const [selectedTab, setSelectedTab] = useState('live'); // live ou history
             
-            // Souscrire aux notifications en temps réel
+            // Sauvegarder userId
             useEffect(() => {
-                const channel = supabase
-                    .channel('user-notifications')
-                    .on('postgres_changes', 
-                        { event: 'INSERT', schema: 'public', table: 'user_notifications', filter: `user_id=eq.${userId}` },
-                        (payload) => {
-                            setNotifications(prev => [payload.new, ...prev]);
-                            setToast(payload.new);
-                        }
-                    )
-                    .subscribe();
-                
-                return () => supabase.removeChannel(channel);
+                localStorage.setItem('mrx_user_id', userId);
             }, [userId]);
             
-            // Charger les données
+            // Charger les données live (avec prédictions)
             const fetchLiveMatches = useCallback(async () => {
                 try {
                     const res = await fetch(`${EDGE_FUNCTION_URL}/matches`);
                     if (res.ok) {
                         const data = await res.json();
                         setLiveMatches(data.matches || []);
+                        setStats(prev => ({ ...prev, matches_live: data.matches.length }));
                     }
                 } catch (e) {
-                    console.error('Erreur live matches:', e);
+                    console.error('Erreur chargement live matches:', e);
                 }
             }, []);
             
+            // Charger les données d'ensemble (aujourd'hui)
             const fetchTodayData = useCallback(async () => {
                 try {
                     const res = await fetch(`${EDGE_FUNCTION_URL}/today`);
@@ -625,12 +928,14 @@
                         const data = await res.json();
                         setTodayData(data.data);
                         setScheduledMatches(data.data.scheduled.matches || []);
+                        setStats(prev => ({ ...prev, matches_scheduled: data.data.scheduled.count }));
                     }
                 } catch (e) {
-                    console.error('Erreur today:', e);
+                    console.error('Erreur chargement today:', e);
                 }
             }, []);
             
+            // Charger les alertes haute confiance
             const fetchPredictions = useCallback(async () => {
                 try {
                     const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/active`);
@@ -639,10 +944,37 @@
                         setActivePredictions(data.predictions || []);
                     }
                 } catch (e) {
-                    console.error('Erreur prédictions:', e);
+                    console.error('Erreur chargement prédictions:', e);
                 }
             }, []);
             
+            // Charger l'historique des pronostics (48h)
+            const fetchHistory = useCallback(async () => {
+                try {
+                    const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/history`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        setPredictionHistory(data.history || []);
+                    }
+                } catch (e) {
+                    console.error('Erreur chargement historique:', e);
+                }
+            }, []);
+            
+            // Charger les notifications
+            const fetchNotifications = useCallback(async () => {
+                try {
+                    const res = await fetch(`${EDGE_FUNCTION_URL}/notifications?user_id=${userId}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        setNotifications(data.notifications || []);
+                    }
+                } catch (e) {
+                    console.error('Erreur chargement notifications:', e);
+                }
+            }, [userId]);
+            
+            // Chargement initial et rafraîchissement
             useEffect(() => {
                 const loadAll = async () => {
                     setLoading(true);
@@ -650,7 +982,9 @@
                         await Promise.all([
                             fetchLiveMatches(),
                             fetchTodayData(),
-                            fetchPredictions()
+                            fetchPredictions(),
+                            fetchHistory(),
+                            fetchNotifications()
                         ]);
                     } catch (e) {
                         setError('Erreur de connexion au serveur.');
@@ -664,23 +998,33 @@
                 const intervalLive = setInterval(fetchLiveMatches, 30000);
                 const intervalToday = setInterval(fetchTodayData, 60000);
                 const intervalPred = setInterval(fetchPredictions, 30000);
+                const intervalNotif = setInterval(fetchNotifications, 30000);
                 
                 return () => {
                     clearInterval(intervalLive);
                     clearInterval(intervalToday);
                     clearInterval(intervalPred);
+                    clearInterval(intervalNotif);
                 };
-            }, [fetchLiveMatches, fetchTodayData, fetchPredictions]);
+            }, [fetchLiveMatches, fetchTodayData, fetchPredictions, fetchHistory, fetchNotifications]);
+            
+            const handleMatchSelect = (match) => {
+                setSelectedMatch(match);
+            };
+            
+            const clearNotifications = () => {
+                setNotifications([]);
+            };
             
             const handleBack = () => {
                 if (selectedMatch) {
                     setSelectedMatch(null);
                 } else {
-                    window.location.href = '/';
+                    window.history.back();
                 }
             };
             
-            const clearNotifications = () => setNotifications([]);
+            const unreadCount = notifications.filter(n => !n.read).length;
             
             if (loading) {
                 return (
@@ -699,7 +1043,10 @@
                         <div className="text-center">
                             <Icon name="alert-circle" size={48} className="mx-auto mb-4 text-red-500" />
                             <p className="text-gray-400 mb-4">{error}</p>
-                            <button onClick={() => window.location.reload()} className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg">
+                            <button 
+                                onClick={() => window.location.reload()}
+                                className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-semibold"
+                            >
                                 Réessayer
                             </button>
                         </div>
@@ -709,39 +1056,104 @@
             
             return (
                 <div className="min-h-screen bg-[#0a0a0a]">
-                    <Header onBack={handleBack} />
+                    <Header 
+                        stats={stats}
+                        notifications={notifications}
+                        notificationCount={unreadCount}
+                        onClearNotifications={clearNotifications}
+                        onBack={handleBack}
+                    />
                     
                     <main className="max-w-7xl mx-auto px-4 py-6">
-                        <TodayOverview data={todayData} />
-                        
-                        <div className="grid lg:grid-cols-3 gap-8">
-                            <div className="lg:col-span-2">
-                                <LiveMatchesSection 
-                                    matches={liveMatches}
-                                    selectedMatch={selectedMatch}
-                                    onSelectMatch={setSelectedMatch}
-                                />
+                        {!selectedMatch && (
+                            <>
+                                <div className="flex gap-4 mb-6">
+                                    <button 
+                                        onClick={() => setSelectedTab('live')}
+                                        className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                                            selectedTab === 'live' 
+                                                ? 'bg-[#D4AF37] text-black' 
+                                                : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]'
+                                        }`}
+                                    >
+                                        Live
+                                    </button>
+                                    <button 
+                                        onClick={() => setSelectedTab('history')}
+                                        className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                                            selectedTab === 'history' 
+                                                ? 'bg-[#D4AF37] text-black' 
+                                                : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]'
+                                        }`}
+                                    >
+                                        Historique
+                                    </button>
+                                </div>
                                 
-                                <ScheduledSection matches={scheduledMatches} />
-                            </div>
-                            
-                            <div className="lg:col-span-1">
-                                <ActivePredictions predictions={activePredictions} />
-                            </div>
-                        </div>
+                                {selectedTab === 'live' ? (
+                                    <>
+                                        <TodayOverview 
+                                            data={todayData}
+                                            onMatchClick={handleMatchSelect}
+                                        />
+                                        
+                                        <div className="grid lg:grid-cols-3 gap-8">
+                                            <div className="lg:col-span-2">
+                                                <LiveMatchesSection 
+                                                    matches={liveMatches}
+                                                    selectedMatch={selectedMatch}
+                                                    onSelectMatch={handleMatchSelect}
+                                                />
+                                                
+                                                <ScheduledSection matches={scheduledMatches} />
+                                            </div>
+                                            
+                                            <div className="lg:col-span-1">
+                                                <ActivePredictions predictions={activePredictions} />
+                                                
+                                                <div className="bg-[#121212] rounded-xl border border-[#2a2a2a] p-4 mt-6">
+                                                    <h3 className="font-bold mb-4 flex items-center gap-2">
+                                                        <Icon name="bar-chart-2" size={18} className="text-[#D4AF37]" />
+                                                        Performance
+                                                    </h3>
+                                                    <div className="space-y-3">
+                                                        <div className="flex justify-between text-sm">
+                                                            <span className="text-gray-400">Prédictions actives</span>
+                                                            <span className="font-bold">{activePredictions.length}</span>
+                                                        </div>
+                                                        <div className="flex justify-between text-sm">
+                                                            <span className="text-gray-400">Matchs en direct</span>
+                                                            <span className="font-bold text-green-500">{liveMatches.length}</span>
+                                                        </div>
+                                                        <div className="flex justify-between text-sm">
+                                                            <span className="text-gray-400">Matchs programmés</span>
+                                                            <span className="font-bold text-[#D4AF37]">{scheduledMatches.length}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <PredictionHistory history={predictionHistory} />
+                                )}
+                            </>
+                        )}
+                        
+                        {selectedMatch && (
+                            <MatchDetail 
+                                match={selectedMatch}
+                                onClose={() => setSelectedMatch(null)}
+                            />
+                        )}
                     </main>
-                    
-                    {selectedMatch && (
-                        <MatchDetail 
-                            match={selectedMatch}
-                            onClose={() => setSelectedMatch(null)}
-                        />
-                    )}
                     
                     {toast && (
                         <div className="fixed top-4 right-4 z-50 max-w-sm w-full bg-[#1a1a1a] border-l-4 border-[#D4AF37] rounded-lg shadow-2xl notification-slide p-4">
                             <div className="flex items-start gap-3">
-                                <Icon name="bell" size={20} className="text-[#D4AF37] mt-1" />
+                                <div className="mt-1">
+                                    <Icon name="bell" size={20} className="text-[#D4AF37]" />
+                                </div>
                                 <div className="flex-1">
                                     <h4 className="font-bold text-white text-sm">{toast.title}</h4>
                                     <p className="text-gray-400 text-xs mt-1">{toast.message}</p>
@@ -757,7 +1169,7 @@
         };
         
         // ============================================================
-        // Rendu
+        // Rendu avec ErrorBoundary
         // ============================================================
         const rootElement = document.getElementById('root');
         if (rootElement) {
@@ -767,6 +1179,8 @@
                     <App />
                 </ErrorBoundary>
             );
+        } else {
+            console.error('Element root introuvable');
         }
     </script>
 </body>
