@@ -16,7 +16,7 @@
     style.textContent = `
         #back-to-top {
             position: fixed;
-            bottom: 20px;
+            bottom: 35px;  /* Monté un peu plus haut */
             left: 20px;
             width: 50px;
             height: 50px;
@@ -35,11 +35,12 @@
             opacity: 0.8;
         }
         #back-to-top:hover {
-            transform: scale(1.1);
+            transform: scale(1.1) translateY(-3px); /* Effet de levitation au survol */
             opacity: 1;
             background: #000;
             color: #D4AF37;
             border-color: #D4AF37;
+            box-shadow: 0 6px 15px rgba(212,175,55,0.4);
         }
         #back-to-top.visible {
             display: flex;
@@ -50,7 +51,7 @@
                 width: 40px;
                 height: 40px;
                 font-size: 1.2rem;
-                bottom: 15px;
+                bottom: 25px;
                 left: 15px;
             }
         }
