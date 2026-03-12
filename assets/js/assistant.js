@@ -9,12 +9,12 @@
     // ============================================================
     const API_BASE = 'https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/assistant';
     
-    // Suggestions rapides (5 max)
-    const SUGGESTIONS = [
+    // Suggestions rapides par défaut (utilisées si le chargement échoue)
+    const DEFAULT_SUGGESTIONS = [
         { icon: '🎯', text: "Pronostic du jour" },
         { icon: '🎁', text: "Bonus 1xBet XPVIP" },
         { icon: '💰', text: "Meilleures cotes" },
-        { icon: '🚀', text: "Inscription 1win" },
+        { icon: '🎥', text: "LIVE VIP" },          // Promotion LIVE VIP
         { icon: '💡', text: "Conseils paris" }
     ];
 
@@ -37,6 +37,9 @@
     let isOpen = false;
     let userId = localStorage.getItem('assistant_user_id') || 'user_' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('assistant_user_id', userId);
+
+    // Historique des questions (max 5)
+    let questionHistory = JSON.parse(localStorage.getItem('assistant_history') || '[]').slice(-5);
 
     // ============================================================
     // STYLES (version corrigée avec couleurs du site)
@@ -475,6 +478,46 @@
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         }
 
+        /* Historique des questions */
+        .assistant-history {
+            padding: 0 12px 8px;
+            border-top: var(--border-gold);
+            background: var(--bg-dark);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .history-title {
+            width: 100%;
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        /* Actions rapides */
+        .quick-actions {
+            padding: 0 12px 12px;
+            border-top: var(--border-gold);
+            background: var(--bg-dark);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .quick-actions .btn {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            background: rgba(212,175,55,0.1);
+            border: 1px solid rgba(212,175,55,0.3);
+            color: var(--text-primary);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-actions .btn:hover {
+            background: var(--gold);
+            color: #000;
+        }
+
         /* Zone de saisie */
         .assistant-input-area {
             padding: 12px 16px;
@@ -482,10 +525,12 @@
             display: flex;
             gap: 8px;
             background: var(--bg-card);
+            flex-wrap: wrap;
         }
         
         .assistant-input-area input {
             flex: 1;
+            min-width: 200px;
             padding: 12px 16px;
             border-radius: 24px;
             border: var(--border-gold);
@@ -618,6 +663,7 @@
                     <ul>
                         <li>Les pronostics du jour ⚽</li>
                         <li>Les bonus bookmakers 🎁</li>
+                        <li>Le <strong>LIVE VIP</strong> 🎥 (matchs en direct)</li>
                         <li>Vos questions sur le site 💡</li>
                     </ul>
                     <p>Tous les montants sont indiqués en <strong>Francs CFA</strong> (1€ ≈ 650 F CFA).</p>
@@ -626,8 +672,11 @@
             </div>
         </div>
         <div class="assistant-suggestions" id="assistant-suggestions"></div>
+        <div class="assistant-history" id="assistant-history"></div>
+        <div class="quick-actions" id="quick-actions"></div>
         <div class="assistant-input-area">
-            <input type="text" id="assistant-input" placeholder="Posez votre question...">
+            <input type="text" id="assistant-input" placeholder="Posez votre question..." list="question-suggestions">
+            <datalist id="question-suggestions"></datalist>
             <button id="assistant-send">Envoyer</button>
         </div>
     `;
@@ -639,6 +688,9 @@
     const sendBtn = document.getElementById('assistant-send');
     const closeBtn = document.querySelector('.assistant-close');
     const suggestionsDiv = document.getElementById('assistant-suggestions');
+    const historyDiv = document.getElementById('assistant-history');
+    const quickActionsDiv = document.getElementById('quick-actions');
+    const datalist = document.getElementById('question-suggestions');
 
     // ============================================================
     // FONCTIONS UTILITAIRES
@@ -819,10 +871,26 @@
         }
     }
 
-    // Suggestions
-    function renderSuggestions() {
+    // Récupération des suggestions depuis l'API
+    async function fetchSuggestions() {
+        try {
+            const res = await fetch(`${API_BASE}/suggestions`);
+            if (!res.ok) throw new Error('Erreur suggestions');
+            const data = await res.json();
+            if (data.suggestions && data.suggestions.length) {
+                return data.suggestions.map((text, i) => ({ icon: '💬', text }));
+            }
+        } catch (e) {
+            console.warn('Erreur chargement suggestions', e);
+        }
+        return DEFAULT_SUGGESTIONS;
+    }
+
+    // Rendu des suggestions
+    async function renderSuggestions() {
+        const suggestions = await fetchSuggestions();
         suggestionsDiv.innerHTML = '';
-        SUGGESTIONS.forEach(s => {
+        suggestions.forEach(s => {
             const chip = document.createElement('span');
             chip.className = 'suggestion-chip';
             chip.innerHTML = `${s.icon} ${s.text}`;
@@ -831,6 +899,50 @@
                 sendMessage();
             });
             suggestionsDiv.appendChild(chip);
+        });
+
+        // Remplir le datalist
+        datalist.innerHTML = suggestions.map(s => `<option value="${s.text}">`).join('');
+    }
+
+    // Rendu de l'historique des questions
+    function renderHistory() {
+        historyDiv.innerHTML = '';
+        if (questionHistory.length === 0) return;
+        const title = document.createElement('div');
+        title.className = 'history-title';
+        title.textContent = 'Questions récentes :';
+        historyDiv.appendChild(title);
+        questionHistory.slice().reverse().forEach(q => {
+            const chip = document.createElement('span');
+            chip.className = 'suggestion-chip';
+            chip.textContent = q;
+            chip.addEventListener('click', () => {
+                input.value = q;
+                sendMessage();
+            });
+            historyDiv.appendChild(chip);
+        });
+    }
+
+    // Rendu des actions rapides
+    function renderQuickActions() {
+        quickActionsDiv.innerHTML = '';
+        const actions = [
+            { label: '📊 Pronostics du jour', value: 'Quels sont les pronostics du jour ?' },
+            { label: '🎁 Bonus 1xBet', value: 'Quel est le bonus 1xBet avec XPVIP ?' },
+            { label: '🎥 LIVE VIP', value: 'Comment accéder au LIVE VIP ?' },
+            { label: '📞 Support', value: 'Comment contacter le support ?' }
+        ];
+        actions.forEach(a => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.textContent = a.label;
+            btn.addEventListener('click', () => {
+                input.value = a.value;
+                sendMessage();
+            });
+            quickActionsDiv.appendChild(btn);
         });
     }
 
@@ -842,6 +954,14 @@
         addMessage(question, 'user');
         input.value = '';
         showTyping();
+
+        // Mettre à jour l'historique
+        if (!questionHistory.includes(question)) {
+            questionHistory.push(question);
+            if (questionHistory.length > 5) questionHistory.shift();
+            localStorage.setItem('assistant_history', JSON.stringify(questionHistory));
+            renderHistory();
+        }
 
         // Vérifier le cache
         const cachedAnswer = getFromCache(question);
@@ -900,6 +1020,8 @@
             button.classList.add('hidden');
             input.focus();
             renderSuggestions();
+            renderHistory();
+            renderQuickActions();
         } else {
             button.classList.remove('hidden');
         }
@@ -924,5 +1046,5 @@
         }
     });
 
-    console.log('🎯 Mr XPRONOS Assistant chargé avec succès (version finale)');
+    console.log('🎯 Mr XPRONOS Assistant chargé avec succès (version améliorée)');
 })();
