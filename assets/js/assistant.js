@@ -1,5 +1,6 @@
 // assistant.js - Mr XPRONOS Assistant IA (Version Premium)
 // Plein écran, couleurs conformes, liens bleus, espacement, F CFA, cache, personnalité professionnelle.
+// Modifications : suggestions supprimées, historique des questions récentes supprimé, bouton de vidage du cache ajouté, nettoyage automatique des entrées expirées.
 
 (function() {
     "use strict";
@@ -9,14 +10,8 @@
     // ============================================================
     const API_BASE = 'https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/assistant';
     
-    // Suggestions par défaut (utilisées si le chargement échoue)
-    const DEFAULT_SUGGESTIONS = [
-        { icon: '🎯', text: "Pronostic du jour" },
-        { icon: '🎥', text: "LIVE VIP" },
-        { icon: '💰', text: "Meilleures cotes" },
-        { icon: '🚀', text: "Inscription 1win" },
-        { icon: '💡', text: "Conseils paris" }
-    ];
+    // Suggestions désactivées (plus utilisées)
+    const DEFAULT_SUGGESTIONS = [];
 
     // Cache local des réponses (24h)
     const CACHE_TTL = 24 * 60 * 60 * 1000;
@@ -33,19 +28,28 @@
         console.warn('Erreur chargement cache', e);
     }
 
+    // Nettoyer les entrées expirées
+    function cleanExpiredCache() {
+        const now = Date.now();
+        for (let [key, value] of responseCache.entries()) {
+            if (now - value.timestamp > CACHE_TTL) {
+                responseCache.delete(key);
+            }
+        }
+        saveCache();
+    }
+    cleanExpiredCache();
+
     // Variables d'état
     let isOpen = false;
     let userId = localStorage.getItem('assistant_user_id') || 'user_' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('assistant_user_id', userId);
 
-    // Historique des questions (max 5)
-    let questionHistory = JSON.parse(localStorage.getItem('assistant_history') || '[]').slice(-5);
-
     // Clé pour stocker les messages
     const MESSAGES_STORAGE_KEY = 'assistant_messages';
 
     // ============================================================
-    // STYLES (inchangés, garder ceux existants)
+    // STYLES (avec ajout du bouton de vidage du cache)
     // ============================================================
     const style = document.createElement('style');
     style.textContent = `
@@ -216,6 +220,20 @@
         .assistant-close:hover {
             transform: scale(1.2) rotate(90deg);
             color: var(--accent-red);
+        }
+
+        /* Bouton de vidage du cache */
+        .clear-cache {
+            background: transparent;
+            border: none;
+            color: var(--gold);
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: transform 0.2s;
+        }
+        .clear-cache:hover {
+            transform: scale(1.2);
         }
 
         /* Zone des messages */
@@ -447,7 +465,7 @@
             cursor: not-allowed;
         }
 
-        /* Suggestions */
+        /* Suggestions (désactivées) */
         .assistant-suggestions {
             padding: 12px;
             border-top: var(--border-gold);
@@ -457,6 +475,7 @@
             background: var(--bg-dark);
             max-height: 80px;
             overflow-y: auto;
+            display: none; /* caché */
         }
         
         .suggestion-chip {
@@ -479,22 +498,6 @@
             color: #000;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
-        }
-
-        /* Historique des questions */
-        .assistant-history {
-            padding: 0 12px 8px;
-            border-top: var(--border-gold);
-            background: var(--bg-dark);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .history-title {
-            width: 100%;
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-bottom: 5px;
         }
 
         /* Actions rapides */
@@ -656,15 +659,16 @@
                     </div>
                 </div>
             </div>
-            <button class="assistant-close">&times;</button>
+            <div>
+                <button class="clear-cache" title="Vider le cache des réponses">🗑️</button>
+                <button class="assistant-close">&times;</button>
+            </div>
         </div>
         <div class="assistant-messages" id="assistant-messages"></div>
-        <div class="assistant-suggestions" id="assistant-suggestions"></div>
-        <div class="assistant-history" id="assistant-history"></div>
+        <div class="assistant-suggestions" id="assistant-suggestions" style="display: none;"></div>
         <div class="quick-actions" id="quick-actions"></div>
         <div class="assistant-input-area">
-            <input type="text" id="assistant-input" placeholder="Posez votre question..." list="question-suggestions">
-            <datalist id="question-suggestions"></datalist>
+            <input type="text" id="assistant-input" placeholder="Posez votre question...">
             <button id="assistant-send">Envoyer</button>
         </div>
     `;
@@ -675,10 +679,9 @@
     const input = document.getElementById('assistant-input');
     const sendBtn = document.getElementById('assistant-send');
     const closeBtn = document.querySelector('.assistant-close');
+    const clearCacheBtn = document.querySelector('.clear-cache');
     const suggestionsDiv = document.getElementById('assistant-suggestions');
-    const historyDiv = document.getElementById('assistant-history');
     const quickActionsDiv = document.getElementById('quick-actions');
-    const datalist = document.getElementById('question-suggestions');
 
     // ============================================================
     // GESTION DE LA PERSISTANCE DES MESSAGES
@@ -852,9 +855,57 @@
         return cached.answer;
     }
 
+    // Détecte si la réponse est un message d'absence de pronostics
+    function isNoPronoMessage(answer) {
+        return answer.includes('Aucun pronostic disponible');
+    }
+
     function formatMarkdown(text) {
-        // Identique à l'original (non reproduit pour concision)
-        return text;
+        // Gardé pour compatibilité mais non utilisé si backend renvoie HTML
+        if (!text) return '';
+        let html = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        // Titres
+        html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+        html = html.replace(/^## (.*$)/gim, '<h2>$2</h2>');
+        html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+        // Gras et italique
+        html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        // Code
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        // Blocs de code
+        html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+        // Citations
+        html = html.replace(/^&gt; (.*$)/gim, '<blockquote>$1</blockquote>');
+        // Listes
+        html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
+        html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+        html = html.replace(/<\/ul>\s*<ul>/g, '');
+        // Lignes horizontales
+        html = html.replace(/^---$/gim, '<hr style="border: none; border-top: 1px solid rgba(212,175,55,0.3); margin: 16px 0;">');
+        // Sauts de ligne
+        html = html.replace(/\n/g, '<br>');
+        // Tableaux simplifiés
+        if (html.includes('|')) {
+            const tableRegex = /((?:\|[^|\n]+\|+\n?)+)/g;
+            html = html.replace(tableRegex, (match) => {
+                const rows = match.trim().split('\n').filter(r => r.trim());
+                if (rows.length < 2) return match;
+                let tableHtml = '<div class="table-container"><table>';
+                rows.forEach((row, i) => {
+                    const cells = row.split('|').filter(c => c.trim());
+                    const tag = i === 0 ? 'th' : 'td';
+                    tableHtml += '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+                });
+                tableHtml += '</table></div>';
+                return tableHtml;
+            });
+        }
+        return html;
     }
 
     let typingIndicator = null;
@@ -875,65 +926,18 @@
         }
     }
 
-    // Récupération des suggestions depuis l'API
+    // Récupération des suggestions depuis l'API (désactivée)
     async function fetchSuggestions() {
-        try {
-            const res = await fetch(`${API_BASE}/suggestions`);
-            if (!res.ok) throw new Error('Erreur suggestions');
-            const data = await res.json();
-            if (data.suggestions && data.suggestions.length) {
-                const unique = [];
-                const seen = new Set();
-                data.suggestions.forEach(text => {
-                    if (!seen.has(text)) {
-                        seen.add(text);
-                        unique.push({ icon: '💬', text });
-                    }
-                });
-                return unique;
-            }
-        } catch (e) {
-            console.warn('Erreur chargement suggestions', e);
-        }
-        return DEFAULT_SUGGESTIONS;
+        return []; // Plus de suggestions
     }
 
+    // Rendu des suggestions (désactivé)
     async function renderSuggestions() {
-        const suggestions = await fetchSuggestions();
         suggestionsDiv.innerHTML = '';
-        suggestions.forEach(s => {
-            const chip = document.createElement('span');
-            chip.className = 'suggestion-chip';
-            chip.innerHTML = `${s.icon} ${s.text}`;
-            chip.addEventListener('click', () => {
-                input.value = s.text;
-                sendMessage();
-            });
-            suggestionsDiv.appendChild(chip);
-        });
-
-        datalist.innerHTML = suggestions.map(s => `<option value="${s.text}">`).join('');
+        // Ne rien afficher
     }
 
-    function renderHistory() {
-        historyDiv.innerHTML = '';
-        if (questionHistory.length === 0) return;
-        const title = document.createElement('div');
-        title.className = 'history-title';
-        title.textContent = 'Questions récentes :';
-        historyDiv.appendChild(title);
-        questionHistory.slice().reverse().forEach(q => {
-            const chip = document.createElement('span');
-            chip.className = 'suggestion-chip';
-            chip.textContent = q;
-            chip.addEventListener('click', () => {
-                input.value = q;
-                sendMessage();
-            });
-            historyDiv.appendChild(chip);
-        });
-    }
-
+    // Rendu des actions rapides
     function renderQuickActions() {
         quickActionsDiv.innerHTML = '';
         const actions = [
@@ -954,7 +958,22 @@
         });
     }
 
-    // Envoi du message avec cache
+    // Construire l'historique des messages pour l'envoyer au backend
+    function buildHistoryPayload() {
+        const messages = [];
+        const msgElements = messagesDiv.querySelectorAll('.message');
+        // Prendre les 10 derniers messages maximum
+        const recent = Array.from(msgElements).slice(-10);
+        recent.forEach(el => {
+            const role = el.classList.contains('user') ? 'user' : 'assistant';
+            const contentEl = el.querySelector('.message-content');
+            const contenu = role === 'assistant' ? contentEl.innerHTML : contentEl.textContent;
+            messages.push({ role, contenu });
+        });
+        return messages;
+    }
+
+    // Envoi du message avec cache et historique
     async function sendMessage() {
         const question = input.value.trim();
         if (!question) return;
@@ -963,15 +982,12 @@
         input.value = '';
         showTyping();
 
-        if (!questionHistory.includes(question)) {
-            questionHistory.push(question);
-            if (questionHistory.length > 5) questionHistory.shift();
-            localStorage.setItem('assistant_history', JSON.stringify(questionHistory));
-            renderHistory();
-        }
-
+        // Vérifier le cache local (seulement si pas d'historique)
+        const historique = buildHistoryPayload();
         const cachedAnswer = getFromCache(question);
-        if (cachedAnswer) {
+        const useCache = historique.length === 0 && cachedAnswer && !isNoPronoMessage(cachedAnswer);
+        
+        if (useCache) {
             hideTyping();
             addMessage(cachedAnswer, 'assistant', true, null, true);
             return;
@@ -986,7 +1002,8 @@
                 },
                 body: JSON.stringify({ 
                     question, 
-                    user_id: userId 
+                    user_id: userId,
+                    historique: historique
                 })
             });
             
@@ -998,7 +1015,11 @@
             const data = await response.json();
             hideTyping();
             
-            addToCache(question, data.answer);
+            // Mettre en cache seulement si pas d'historique et pas un message d'absence
+            if (historique.length === 0 && !isNoPronoMessage(data.answer)) {
+                addToCache(question, data.answer);
+            }
+            
             addMessage(data.answer, 'assistant', true, data.conversation_id, true);
             
         } catch (error) {
@@ -1025,8 +1046,7 @@
         if (isOpen) {
             button.classList.add('hidden');
             input.focus();
-            renderSuggestions();
-            renderHistory();
+            renderSuggestions(); // ne fait rien
             renderQuickActions();
         } else {
             button.classList.remove('hidden');
@@ -1037,6 +1057,14 @@
         isOpen = false;
         windowDiv.classList.remove('open');
         button.classList.remove('hidden');
+    });
+
+    clearCacheBtn.addEventListener('click', () => {
+        if (confirm('Vider le cache des réponses de l\'assistant ?')) {
+            responseCache.clear();
+            saveCache();
+            alert('Cache vidé.');
+        }
     });
 
     sendBtn.addEventListener('click', sendMessage);

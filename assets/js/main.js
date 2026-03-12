@@ -785,9 +785,29 @@ function share(platform) {
         : `https://t.me/share/url?url=${encodeURIComponent(baseUrl)}&text=${encodeURIComponent(message)}`;
         
     window.open(url, '_blank');
-    shareStartTime = Date.now();
-    sharePending = true;
+    
+    // Enregistrer l'événement de partage pour les analytics
     recordEvent('share', window.location.pathname);
+    
+    // Incrémenter le compteur après 5 secondes (délai pour laisser le temps de partager)
+    setTimeout(() => {
+        const newCount = incrementShareCount();
+        updateShareCounter();
+        incrementCounter('total_shares').catch(e => console.warn('Erreur incrémentation', e));
+        
+        // Mettre à jour l'affichage des verrous si nécessaire
+        const target = shareLimits[currentCategory];
+        if (newCount >= target) {
+            hideVipLocked();
+            filterAndDisplay();
+        } else {
+            if (DOM.vipLockedOverlay && DOM.vipLockedOverlay.style.display === 'flex') {
+                showVipLocked(currentCategory);
+            } else {
+                showSharePopup(currentCategory, target - newCount);
+            }
+        }
+    }, 5000);
 }
 
 function sharePronostic(match) {
