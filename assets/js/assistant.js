@@ -1,10 +1,15 @@
 // assistant.js - Mr XPRONOS Assistant IA (Version Premium)
+// Plein écran, couleurs conformes, liens bleus, espacement, F CFA, cache, personnalité professionnelle.
 
 (function() {
     "use strict";
 
+    // ============================================================
+    // CONFIGURATION
+    // ============================================================
     const API_BASE = 'https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/assistant';
     
+    // Suggestions rapides (5 max)
     const SUGGESTIONS = [
         { icon: '🎯', text: "Pronostic du jour" },
         { icon: '🎁', text: "Bonus 1xBet XPVIP" },
@@ -13,19 +18,35 @@
         { icon: '💡', text: "Conseils paris" }
     ];
 
+    // Cache local des réponses (pour éviter les appels API répétés)
+    const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 heures
+    let responseCache = new Map();
+
+    // Charger le cache depuis localStorage
+    try {
+        const cached = localStorage.getItem('assistant_response_cache');
+        if (cached) {
+            const parsed = JSON.parse(cached);
+            responseCache = new Map(parsed);
+        }
+    } catch (e) {
+        console.warn('Erreur chargement cache', e);
+    }
+
+    // Variables d'état
     let isOpen = false;
     let userId = localStorage.getItem('assistant_user_id') || 'user_' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('assistant_user_id', userId);
 
-    // ==========================================
-    // STYLES - Version finale (couleurs du site)
-    // ==========================================
+    // ============================================================
+    // STYLES (version corrigée avec couleurs du site)
+    // ============================================================
     const style = document.createElement('style');
     style.textContent = `
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
         
         :root {
-            --gold-primary: #D4AF37;      /* Or du site */
+            --gold: #D4AF37;
             --gold-light: #FFD700;
             --gold-dark: #B8941F;
             --bg-dark: #0D0D0D;
@@ -35,6 +56,7 @@
             --text-secondary: #A0A0A0;
             --accent-green: #22C55E;
             --accent-red: #EF4444;
+            --blue-link: #3b82f6;      /* Bleu clair pour les liens */
             --shadow-gold: 0 4px 20px rgba(212, 175, 55, 0.3);
             --border-gold: 1px solid rgba(212, 175, 55, 0.3);
         }
@@ -43,6 +65,7 @@
             box-sizing: border-box;
         }
 
+        /* Bouton flottant */
         .assistant-button {
             position: fixed;
             bottom: 24px;
@@ -50,7 +73,7 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-light) 50%, var(--gold-primary) 100%);
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
             box-shadow: var(--shadow-gold), 0 4px 15px rgba(0,0,0,0.5);
             cursor: pointer;
             z-index: 10000;
@@ -73,7 +96,7 @@
         
         .assistant-button:hover {
             transform: scale(1.1) rotate(5deg);
-            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-primary) 100%);
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
         }
         
         .assistant-button img {
@@ -82,6 +105,7 @@
             filter: brightness(0) invert(1);
         }
 
+        /* Fenêtre principale - PLEIN ÉCRAN */
         .assistant-window {
             position: fixed;
             top: 0;
@@ -109,10 +133,11 @@
             display: flex;
         }
 
+        /* Header */
         .assistant-header {
             background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-card) 100%);
             padding: 16px 20px;
-            border-bottom: 1px solid var(--gold-primary);
+            border-bottom: 1px solid var(--gold);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -128,7 +153,7 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--gold-primary), var(--gold-light));
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -170,7 +195,7 @@
         .assistant-close {
             background: transparent;
             border: none;
-            color: var(--gold-primary);
+            color: var(--gold);
             font-size: 2rem;
             cursor: pointer;
             line-height: 1;
@@ -187,6 +212,7 @@
             color: var(--accent-red);
         }
 
+        /* Zone des messages */
         .assistant-messages {
             flex: 1;
             overflow-y: auto;
@@ -205,17 +231,18 @@
             background: transparent;
         }
         .assistant-messages::-webkit-scrollbar-thumb {
-            background: var(--gold-primary);
+            background: var(--gold);
             border-radius: 3px;
         }
 
+        /* Messages */
         .message {
             max-width: 90%;
             padding: 0;
             border-radius: 16px;
             word-wrap: break-word;
             font-size: 0.95rem;
-            line-height: 1.6;
+            line-height: 1.5;
             animation: message-appear 0.3s ease-out;
         }
         
@@ -226,7 +253,7 @@
 
         .message.user {
             align-self: flex-end;
-            background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
             color: #000;
             border-bottom-right-radius: 4px;
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
@@ -251,31 +278,129 @@
             overflow-x: auto;
         }
 
-        /* Style des paragraphes avec espacement */
-        .message.assistant p {
+        /* Formatage HTML */
+        .message.assistant h1, .message.assistant h2, .message.assistant h3 {
             margin: 0 0 12px 0;
+            color: var(--gold-light);
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        .message.assistant h1 { font-size: 1.4rem; border-bottom: 2px solid var(--gold); padding-bottom: 8px; }
+        .message.assistant h2 { font-size: 1.2rem; }
+        .message.assistant h3 { font-size: 1.1rem; color: var(--gold); }
+        
+        .message.assistant p {
+            margin: 0 0 12px 0; /* Espacement entre paragraphes */
         }
         .message.assistant p:last-child {
             margin-bottom: 0;
         }
+        
+        .message.assistant ul, .message.assistant ol {
+            margin: 8px 0;
+            padding-left: 20px;
+        }
+        
+        .message.assistant li {
+            margin: 4px 0;
+        }
+        
+        .message.assistant ul li::marker {
+            color: var(--gold);
+        }
+        
+        .message.assistant blockquote {
+            margin: 12px 0;
+            padding: 12px 16px;
+            background: rgba(212, 175, 55, 0.1);
+            border-left: 4px solid var(--gold);
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+        
+        .message.assistant code {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold-light);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        .message.assistant pre {
+            background: var(--bg-dark);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+        
+        .message.assistant strong {
+            color: var(--gold-light);
+            font-weight: 600;
+        }
+        
+        .message.assistant em {
+            color: var(--gold);
+            font-style: italic;
+        }
 
         /* Liens en bleu clair */
         .message.assistant a {
-            color: #64B5F6;  /* Bleu clair */
+            color: var(--blue-link);
             text-decoration: underline;
             transition: color 0.2s;
         }
         
         .message.assistant a:hover {
-            color: #90CAF9;
+            color: #60a5fa;
         }
 
-        /* Heure en gris lisible */
+        /* Tableaux avec police réduite */
+        .message.assistant .table-container {
+            overflow-x: auto;
+            margin: 12px 0;
+            border-radius: 8px;
+            border: var(--border-gold);
+        }
+        
+        .message.assistant table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            background: var(--bg-dark);
+        }
+        
+        .message.assistant th {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(212, 175, 55, 0.1));
+            color: var(--gold-light);
+            font-weight: 600;
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 2px solid var(--gold);
+            white-space: nowrap;
+        }
+        
+        .message.assistant td {
+            padding: 6px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-primary);
+        }
+        
+        .message.assistant tr:hover td {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        /* Horodatage - gris clair pour meilleure lisibilité */
         .message-time {
-            font-size: 0.7rem;
-            color: #B0B0B0;  /* Gris clair */
+            font-size: 0.65rem;
+            color: #9ca3af !important;
             margin-top: 4px;
             text-align: right;
+            opacity: 0.9;
             padding: 0 16px 8px 16px;
         }
         
@@ -284,21 +409,7 @@
             padding-left: 16px;
         }
 
-        /* Tableaux responsives */
-        .message.assistant table {
-            font-size: 0.8rem;
-            border-collapse: collapse;
-            width: 100%;
-        }
-        .message.assistant th, .message.assistant td {
-            border: 1px solid #444;
-            padding: 6px;
-        }
-        .message.assistant th {
-            background: rgba(212, 175, 55, 0.2);
-        }
-
-        /* Feedback buttons */
+        /* Boutons de feedback */
         .feedback-buttons {
             display: flex;
             gap: 8px;
@@ -309,16 +420,20 @@
             background: rgba(212, 175, 55, 0.1);
             border: 1px solid rgba(212, 175, 55, 0.3);
             border-radius: 20px;
-            color: var(--gold-primary);
+            color: var(--gold);
             padding: 4px 12px;
             font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         
         .feedback-btn:hover {
-            background: var(--gold-primary);
+            background: var(--gold);
             color: #000;
+            border-color: var(--gold);
         }
         
         .feedback-btn:disabled {
@@ -347,15 +462,20 @@
             cursor: pointer;
             transition: all 0.2s;
             color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 500;
         }
         
         .suggestion-chip:hover {
-            background: var(--gold-primary);
+            background: var(--gold);
             color: #000;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         }
 
+        /* Zone de saisie */
         .assistant-input-area {
             padding: 12px 16px;
             border-top: var(--border-gold);
@@ -378,20 +498,28 @@
         
         .assistant-input-area input:focus {
             outline: none;
-            border-color: var(--gold-primary);
+            border-color: var(--gold);
             box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+        
+        .assistant-input-area input::placeholder {
+            color: var(--text-secondary);
         }
         
         .assistant-input-area button {
             padding: 12px 20px;
             border-radius: 24px;
             border: none;
-            background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
             color: #000;
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         }
         
@@ -399,7 +527,12 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
         }
+        
+        .assistant-input-area button:active {
+            transform: translateY(0);
+        }
 
+        /* Indicateur de frappe */
         .typing-indicator {
             display: flex;
             gap: 4px;
@@ -407,14 +540,16 @@
             background: var(--bg-elevated);
             border-radius: 16px;
             align-self: flex-start;
+            border-bottom-left-radius: 4px;
             border: var(--border-gold);
             width: fit-content;
+            margin-bottom: 4px;
         }
         
         .typing-indicator span {
             width: 8px;
             height: 8px;
-            background: var(--gold-primary);
+            background: var(--gold);
             border-radius: 50%;
             animation: typing-bounce 1.4s infinite ease-in-out both;
         }
@@ -427,18 +562,32 @@
             40% { transform: scale(1); opacity: 1; }
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
-            .assistant-header-info h3 { font-size: 1rem; }
-            .assistant-avatar { width: 36px; height: 36px; font-size: 20px; }
-            .assistant-close { font-size: 1.8rem; width: 40px; height: 40px; }
-            .message { max-width: 95%; }
+            .assistant-header-info h3 {
+                font-size: 1rem;
+            }
+            .assistant-avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 20px;
+            }
+            .assistant-close {
+                font-size: 1.8rem;
+                width: 40px;
+                height: 40px;
+            }
+            .message {
+                max-width: 95%;
+            }
         }
     `;
     document.head.appendChild(style);
 
-    // ==========================================
-    // Interface
-    // ==========================================
+    // ============================================================
+    // INTERFACE UTILISATEUR
+    // ============================================================
+    
     const button = document.createElement('div');
     button.className = 'assistant-button';
     button.innerHTML = '<img src="https://img.icons8.com/ios-filled/50/ffffff/chat.png" alt="assistant">';
@@ -455,7 +604,7 @@
                     <h3>Mr XPRONOS</h3>
                     <div class="assistant-status">
                         <span class="status-dot"></span>
-                        <span>Expert en ligne</span>
+                        <span>En ligne</span>
                     </div>
                 </div>
             </div>
@@ -464,15 +613,16 @@
         <div class="assistant-messages" id="assistant-messages">
             <div class="message assistant">
                 <div class="message-content">
-                    <p>👋 <strong>Bonjour !</strong> Je suis votre expert personnel pour les paris sportifs.</p>
+                    <p>👋 <strong>Bonjour !</strong> Je suis votre assistant personnel pour les paris sportifs.</p>
                     <p>Je peux vous aider avec :</p>
                     <ul>
                         <li>Les pronostics du jour ⚽</li>
                         <li>Les bonus bookmakers 🎁</li>
                         <li>Vos questions sur le site 💡</li>
                     </ul>
+                    <p>Tous les montants sont indiqués en <strong>Francs CFA</strong> (1€ ≈ 650 F CFA).</p>
                 </div>
-                <div class="message-time">${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
+                <div class="message-time">${getCurrentTime()}</div>
             </div>
         </div>
         <div class="assistant-suggestions" id="assistant-suggestions"></div>
@@ -483,15 +633,103 @@
     `;
     document.body.appendChild(windowDiv);
 
+    // Références DOM
     const messagesDiv = document.getElementById('assistant-messages');
     const input = document.getElementById('assistant-input');
     const sendBtn = document.getElementById('assistant-send');
     const closeBtn = document.querySelector('.assistant-close');
     const suggestionsDiv = document.getElementById('assistant-suggestions');
 
-    // Fonctions
+    // ============================================================
+    // FONCTIONS UTILITAIRES
+    // ============================================================
+    
     function getCurrentTime() {
         return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Sauvegarde du cache
+    function saveCache() {
+        try {
+            const toStore = JSON.stringify(Array.from(responseCache.entries()));
+            localStorage.setItem('assistant_response_cache', toStore);
+        } catch (e) {
+            console.warn('Erreur sauvegarde cache', e);
+        }
+    }
+
+    // Ajout au cache (avec expiration)
+    function addToCache(question, answer) {
+        responseCache.set(question, {
+            answer,
+            timestamp: Date.now()
+        });
+        // Limiter la taille du cache à 100 entrées
+        if (responseCache.size > 100) {
+            const oldestKey = responseCache.keys().next().value;
+            responseCache.delete(oldestKey);
+        }
+        saveCache();
+    }
+
+    // Recherche dans le cache (avec expiration)
+    function getFromCache(question) {
+        const cached = responseCache.get(question);
+        if (!cached) return null;
+        if (Date.now() - cached.timestamp > CACHE_TTL) {
+            responseCache.delete(question);
+            saveCache();
+            return null;
+        }
+        return cached.answer;
+    }
+
+    // Formateur de texte (pour les cas où le backend ne renvoie pas du HTML)
+    function formatMarkdown(text) {
+        if (!text) return '';
+        let html = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        // Titres
+        html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+        html = html.replace(/^## (.*$)/gim, '<h2>$2</h2>');
+        html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+        // Gras et italique
+        html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        // Code
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        // Blocs de code
+        html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+        // Citations
+        html = html.replace(/^&gt; (.*$)/gim, '<blockquote>$1</blockquote>');
+        // Listes
+        html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
+        html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+        html = html.replace(/<\/ul>\s*<ul>/g, '');
+        // Lignes horizontales
+        html = html.replace(/^---$/gim, '<hr style="border: none; border-top: 1px solid rgba(212,175,55,0.3); margin: 16px 0;">');
+        // Sauts de ligne
+        html = html.replace(/\n/g, '<br>');
+        // Tableaux simplifiés
+        if (html.includes('|')) {
+            const tableRegex = /((?:\|[^|\n]+\|+\n?)+)/g;
+            html = html.replace(tableRegex, (match) => {
+                const rows = match.trim().split('\n').filter(r => r.trim());
+                if (rows.length < 2) return match;
+                let tableHtml = '<div class="table-container"><table>';
+                rows.forEach((row, i) => {
+                    const cells = row.split('|').filter(c => c.trim());
+                    const tag = i === 0 ? 'th' : 'td';
+                    tableHtml += '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+                });
+                tableHtml += '</table></div>';
+                return tableHtml;
+            });
+        }
+        return html;
     }
 
     function addMessage(text, sender, isHTML = false, conversationId = null) {
@@ -500,7 +738,12 @@
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
-        contentDiv.innerHTML = isHTML ? text : text.replace(/\n/g, '<br>');
+        
+        if (isHTML || sender === 'assistant') {
+            contentDiv.innerHTML = text; // Le backend doit renvoyer du HTML
+        } else {
+            contentDiv.textContent = text;
+        }
         
         const timeDiv = document.createElement('div');
         timeDiv.className = 'message-time';
@@ -509,6 +752,7 @@
         msgDiv.appendChild(contentDiv);
         msgDiv.appendChild(timeDiv);
         
+        // Boutons de feedback pour les réponses de l'assistant
         if (sender === 'assistant' && conversationId) {
             const feedbackDiv = document.createElement('div');
             feedbackDiv.className = 'feedback-buttons';
@@ -547,12 +791,18 @@
         }
         
         messagesDiv.appendChild(msgDiv);
+        
+        // Scroll vers le bas
         setTimeout(() => {
-            messagesDiv.scrollTo({ top: messagesDiv.scrollHeight, behavior: 'smooth' });
+            messagesDiv.scrollTo({
+                top: messagesDiv.scrollHeight,
+                behavior: 'smooth'
+            });
         }, 100);
     }
 
     let typingIndicator = null;
+    
     function showTyping() {
         if (typingIndicator) return;
         typingIndicator = document.createElement('div');
@@ -561,6 +811,7 @@
         messagesDiv.appendChild(typingIndicator);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
+
     function hideTyping() {
         if (typingIndicator) {
             typingIndicator.remove();
@@ -568,6 +819,7 @@
         }
     }
 
+    // Suggestions
     function renderSuggestions() {
         suggestionsDiv.innerHTML = '';
         SUGGESTIONS.forEach(s => {
@@ -582,6 +834,7 @@
         });
     }
 
+    // Envoi du message avec cache
     async function sendMessage() {
         const question = input.value.trim();
         if (!question) return;
@@ -590,29 +843,56 @@
         input.value = '';
         showTyping();
 
+        // Vérifier le cache
+        const cachedAnswer = getFromCache(question);
+        if (cachedAnswer) {
+            hideTyping();
+            addMessage(cachedAnswer, 'assistant', true);
+            return;
+        }
+
         try {
             const response = await fetch(API_BASE, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question, user_id: userId })
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ 
+                    question, 
+                    user_id: userId 
+                })
             });
             
             if (!response.ok) {
-                throw new Error(`Erreur ${response.status}`);
+                const errorText = await response.text();
+                throw new Error(`Erreur ${response.status}: ${errorText}`);
             }
             
             const data = await response.json();
             hideTyping();
+            
+            // Mettre en cache
+            addToCache(question, data.answer);
+            
             addMessage(data.answer, 'assistant', true, data.conversation_id);
             
         } catch (error) {
             hideTyping();
-            addMessage("❌ Une erreur est survenue. Veuillez réessayer plus tard.", 'assistant');
-            console.error(error);
+            addMessage(
+                "❌ **Oups !** Une erreur est survenue. Veuillez réessayer plus tard.\n\n" +
+                `_Erreur technique : ${error.message}_`, 
+                'assistant', 
+                true
+            );
+            console.error('Assistant Error:', error);
         }
     }
 
-    // Événements
+    // ============================================================
+    // ÉVÉNEMENTS
+    // ============================================================
+    
     button.addEventListener('click', () => {
         isOpen = !isOpen;
         windowDiv.classList.toggle('open', isOpen);
@@ -644,5 +924,5 @@
         }
     });
 
-    console.log('✅ Assistant IA chargé (version finale)');
+    console.log('🎯 Mr XPRONOS Assistant chargé avec succès (version finale)');
 })();
