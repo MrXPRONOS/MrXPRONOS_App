@@ -129,9 +129,6 @@
             /* Deuxième ligne : menu sans bordures avec ombre en haut */
             .icon-nav {
                 width: 100%;
-                /* Suppression des bordures */
-                /* border-top: 2px solid #D4AF37; */
-                /* border-bottom: 2px solid #D4AF37; */
                 background: linear-gradient(180deg, #0D0D0D 0%, #1a1a1a 100%);
                 padding: 5px 10px;
                 overflow-x: auto;
@@ -140,7 +137,6 @@
                 scrollbar-width: thin;
                 scrollbar-color: #D4AF37 #0D0D0D;
                 box-sizing: border-box;
-                /* Ombre en haut uniquement */
                 box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5), inset 0 1px 3px rgba(255, 255, 255, 0.2);
                 box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 3px rgba(255, 255, 255, 0.2);
                 position: relative;
@@ -200,14 +196,20 @@
                 background: rgba(212, 175, 55, 0.1);
             }
 
-            /* Responsive */
+            /* Responsive : garantir que le logo et code promo restent sur la même ligne */
             @media (max-width: 600px) {
+                header .container {
+                    padding: 0.6rem 10px;
+                    width: 100%;
+                    max-width: none;
+                }
                 .logo a {
                     font-size: 1.4rem;
                 }
                 .promo-code {
                     font-size: 0.9rem;
                     padding: 0.4rem 1rem;
+                    margin-left: 5px;
                 }
                 .icon-nav-list .nav-icon {
                     font-size: 1.1rem;
@@ -220,12 +222,16 @@
                 }
             }
             @media (max-width: 400px) {
+                header .container {
+                    padding: 0.5rem 8px;
+                }
                 .logo a {
                     font-size: 1.2rem;
                 }
                 .promo-code {
                     font-size: 0.8rem;
                     padding: 0.3rem 0.8rem;
+                    margin-left: 3px;
                 }
                 .icon-nav-list .nav-icon {
                     font-size: 1rem;
@@ -235,6 +241,15 @@
                 }
                 .icon-nav-list a {
                     max-width: 50px;
+                }
+            }
+            @media (max-width: 320px) {
+                .logo a {
+                    font-size: 1rem;
+                }
+                .promo-code {
+                    font-size: 0.7rem;
+                    padding: 0.2rem 0.6rem;
                 }
             }
         `;
