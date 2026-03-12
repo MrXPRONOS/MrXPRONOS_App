@@ -1,6 +1,6 @@
 // assets/js/menu.js
-// Menu horizontal avec icônes Font Awesome, bordures haute et basse, sur une seule ligne
-// Placé en dessous du logo et du code promo
+// Menu horizontal avec icônes Font Awesome, placé sous le logo et le code promo
+
 (function() {
     'use strict';
 
@@ -19,11 +19,9 @@
         const header = document.querySelector('header');
         if (!header) return;
 
-        // Supprimer l'ancien menu s'il existe (dans le header ou en dessous)
+        // Supprimer l'ancien menu s'il existe
         const oldNav = header.querySelector('nav');
         if (oldNav) oldNav.remove();
-        const oldMenuRow = document.querySelector('.menu-row');
-        if (oldMenuRow) oldMenuRow.remove();
 
         // Créer le nouveau menu
         const nav = document.createElement('nav');
@@ -49,13 +47,13 @@
         });
         nav.appendChild(ul);
 
-        // Créer une ligne pour le menu en dessous du header
-        const menuRow = document.createElement('div');
-        menuRow.className = 'menu-row';
-        menuRow.appendChild(nav);
-
-        // Insérer le menu après le header
-        header.insertAdjacentElement('afterend', menuRow);
+        // Insérer le nav après le container (dans le header)
+        const container = header.querySelector('.container');
+        if (container) {
+            container.insertAdjacentElement('afterend', nav);
+        } else {
+            header.appendChild(nav);
+        }
 
         // Ajouter les styles
         addStyles();
@@ -64,25 +62,55 @@
     function addStyles() {
         const style = document.createElement('style');
         style.textContent = `
+            /* Ajustement du header pour deux lignes */
+            header {
+                display: flex;
+                flex-direction: column;
+            }
+            header .container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.8rem 15px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .logo {
+                flex-shrink: 0;
+            }
+            .logo a {
+                font-size: 1.6rem;
+                white-space: nowrap;
+                color: #D4AF37;
+                text-decoration: none;
+            }
+            .logo span {
+                color: #fff;
+            }
+            .promo-code {
+                flex-shrink: 0;
+                white-space: nowrap;
+                font-size: 1rem;
+                background: #D4AF37;
+                color: #000;
+                padding: 0.5rem 1.2rem;
+                border-radius: 30px;
+                font-weight: 700;
+            }
+
             /* Styles du menu à icônes */
-            .menu-row {
-                background: #0D0D0D;
+            .icon-nav {
+                width: 100%;
                 border-top: 2px solid #D4AF37;
                 border-bottom: 2px solid #D4AF37;
-                padding: 5px 0;
-                width: 100%;
-            }
-            .icon-nav {
-                max-width: 1200px;
-                margin: 0 auto;
-                display: flex;
-                justify-content: center;
+                background: #0D0D0D;
+                padding: 5px 10px;
                 overflow-x: auto;
                 white-space: nowrap;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: thin;
                 scrollbar-color: #D4AF37 #0D0D0D;
-                padding: 0 10px;
+                box-sizing: border-box;
             }
             .icon-nav::-webkit-scrollbar {
                 height: 4px;
@@ -113,23 +141,23 @@
                 align-items: center;
                 color: #fff;
                 text-decoration: none;
-                font-size: 0.75rem;
+                font-size: 0.7rem;
                 transition: color 0.3s;
-                padding: 5px 0;
+                padding: 3px 0;
                 border-radius: 8px;
                 white-space: nowrap;
                 width: 100%;
-                max-width: 80px;
+                max-width: 70px;
             }
             .icon-nav-list .nav-icon {
-                font-size: 1.3rem;
+                font-size: 1.2rem;
                 margin-bottom: 2px;
             }
             .icon-nav-list .nav-icon i {
                 color: inherit;
             }
             .icon-nav-list .nav-label {
-                font-size: 0.65rem;
+                font-size: 0.6rem;
                 font-weight: 500;
             }
             .icon-nav-list a:hover,
@@ -137,38 +165,7 @@
                 color: #D4AF37;
                 background: rgba(212, 175, 55, 0.1);
             }
-            /* Ajustement du header pour logo à gauche et promo à droite */
-            header .container {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: nowrap;
-                padding: 0.8rem 15px;
-                max-width: 1200px;
-                margin: 0 auto;
-            }
-            .logo {
-                flex-shrink: 0;
-            }
-            .logo a {
-                font-size: 1.6rem;
-                white-space: nowrap;
-                color: #D4AF37;
-                text-decoration: none;
-            }
-            .logo span {
-                color: #fff;
-            }
-            .promo-code {
-                flex-shrink: 0;
-                white-space: nowrap;
-                font-size: 1rem;
-                background: #D4AF37;
-                color: #000;
-                padding: 0.5rem 1.2rem;
-                border-radius: 30px;
-                font-weight: 700;
-            }
+
             /* Responsive */
             @media (max-width: 600px) {
                 .logo a {
@@ -178,6 +175,15 @@
                     font-size: 0.9rem;
                     padding: 0.4rem 1rem;
                 }
+                .icon-nav-list .nav-icon {
+                    font-size: 1.1rem;
+                }
+                .icon-nav-list .nav-label {
+                    font-size: 0.55rem;
+                }
+                .icon-nav-list a {
+                    max-width: 60px;
+                }
             }
             @media (max-width: 400px) {
                 .logo a {
@@ -186,6 +192,15 @@
                 .promo-code {
                     font-size: 0.8rem;
                     padding: 0.3rem 0.8rem;
+                }
+                .icon-nav-list .nav-icon {
+                    font-size: 1rem;
+                }
+                .icon-nav-list .nav-label {
+                    font-size: 0.5rem;
+                }
+                .icon-nav-list a {
+                    max-width: 50px;
                 }
             }
         `;
