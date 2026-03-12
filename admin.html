@@ -1658,6 +1658,12 @@
                     btn.classList.add('active');
                     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
                     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+
+                    // Fermer le menu mobile si on est sur petit écran
+                    if (window.innerWidth <= 768 && adminTabs && toggleTabs) {
+                        adminTabs.classList.add('collapsed');
+                        toggleTabs.textContent = 'Afficher le menu';
+                    }
                 });
             });
 
