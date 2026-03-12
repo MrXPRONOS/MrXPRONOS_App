@@ -2,24 +2,24 @@
 # -*- coding: utf-8 -*-
 
 """
-update_pronostics_supabase.py - Met à jour la table des pronostics du jour dans Supabase
+update_pronostics_supabase.py - Met à jour la table des pronostics dans Supabase
 à partir du fichier data.json généré par generate_data.py.
+Gère aujourd'hui, demain et hier (résultats validés).
 Utilise la variable d'environnement SUPABASE_KEY.
 """
 
 import os
 import json
 from supabase import create_client
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Configuration
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")  # Utilise la variable SUPABASE_KEY
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise ValueError("Les variables d'environnement SUPABASE_URL et SUPABASE_KEY sont requises")
 
-# Initialisation du client Supabase
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def main():
@@ -33,32 +33,48 @@ def main():
         data = json.load(f)
 
     matches = data.get('matches', [])
-    today = datetime.now().date().isoformat()
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=1)
+    yesterday = today - timedelta(days=1)
 
-    # Filtrer les matchs du jour (aujourd'hui)
-    today_matches = [m for m in matches if m.get('date') == today]
+    # Filtrer les matchs par date
+    today_matches = [m for m in matches if m.get('date') == today.isoformat()]
+    tomorrow_matches = [m for m in matches if m.get('date') == tomorrow.isoformat()]
+    yesterday_matches = [m for m in matches if m.get('date') == yesterday.isoformat()]
 
-    if not today_matches:
-        print(f"ℹ️ Aucun match pour aujourd'hui ({today}) dans data.json.")
-        return
+    print(f"📅 Mise à jour des pronostics dans Supabase...")
+    print(f"   Aujourd'hui ({today}) : {len(today_matches)} matchs")
+    print(f"   Demain ({tomorrow}) : {len(tomorrow_matches)} matchs")
+    print(f"   Hier ({yesterday}) : {len(yesterday_matches)} matchs")
 
-    print(f"📅 Mise à jour de {len(today_matches)} pronostics pour le {today} dans Supabase...")
-
-    # Insérer ou mettre à jour chaque match dans la table 'pronostics'
-    for m in today_matches:
-        # Construction de l'objet à upsert
+    # Insérer ou mettre à jour les matchs d'aujourd'hui et demain
+    for m in today_matches + tomorrow_matches:
         pronostic = {
             'match': f"{m['home_team']} vs {m['away_team']}",
             'prediction': m['prediction']['double_chance'],
-            'cote': m['prediction'].get('odds'),  # utiliser la cote si disponible
+            'cote': m['prediction'].get('odds'),
             'competition': m['league'],
-            'date': today
+            'date': m['date'],
+            'valide': False  # par défaut non validé
         }
-
         # Upsert avec contrainte unique sur (match, date)
         result = supabase.table('pronostics').upsert(pronostic, on_conflict='match,date').execute()
+        if hasattr(result, 'error') and result.error:
+            print(f"⚠️ Erreur pour {pronostic['match']}: {result.error}")
 
-        # Vérification basique
+    # Mettre à jour les résultats d'hier (marquer comme validé avec le résultat réel)
+    for m in yesterday_matches:
+        # Déterminer si le pronostic a été validé
+        verified = m.get('verified_double', False)
+        pronostic = {
+            'match': f"{m['home_team']} vs {m['away_team']}",
+            'prediction': m['prediction']['double_chance'],
+            'cote': m['prediction'].get('odds'),
+            'competition': m['league'],
+            'date': m['date'],
+            'valide': verified
+        }
+        result = supabase.table('pronostics').upsert(pronostic, on_conflict='match,date').execute()
         if hasattr(result, 'error') and result.error:
             print(f"⚠️ Erreur pour {pronostic['match']}: {result.error}")
 
