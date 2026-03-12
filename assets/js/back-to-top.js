@@ -11,12 +11,12 @@
     btn.innerHTML = '<i class="fas fa-arrow-up"></i>';
     document.body.appendChild(btn);
 
-    // Ajouter les styles
+    // Ajouter les styles avec z-index très élevé
     const style = document.createElement('style');
     style.textContent = `
         #back-to-top {
             position: fixed;
-            bottom: 35px;  /* Monté un peu plus haut */
+            bottom: 35px;
             left: 20px;
             width: 50px;
             height: 50px;
@@ -31,11 +31,11 @@
             justify-content: center;
             font-size: 1.5rem;
             transition: all 0.3s ease;
-            z-index: 999;
+            z-index: 10000; /* Très élevé pour être au-dessus de tout */
             opacity: 0.8;
         }
         #back-to-top:hover {
-            transform: scale(1.1) translateY(-3px); /* Effet de levitation au survol */
+            transform: scale(1.1) translateY(-3px);
             opacity: 1;
             background: #000;
             color: #D4AF37;
@@ -45,7 +45,7 @@
         #back-to-top.visible {
             display: flex;
         }
-        /* Ajustement pour mobile (plus petit) */
+        /* Ajustement pour mobile */
         @media (max-width: 768px) {
             #back-to-top {
                 width: 40px;
@@ -53,6 +53,7 @@
                 font-size: 1.2rem;
                 bottom: 25px;
                 left: 15px;
+                z-index: 10000;
             }
         }
     `;

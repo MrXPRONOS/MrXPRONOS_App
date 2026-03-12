@@ -1,6 +1,6 @@
 // assets/js/menu.js
 // Menu horizontal avec icônes Font Awesome, placé sous le logo et le code promo
-// Logo et code promo sont sur la même ligne en haut, menu en dessous
+// Logo et code promo sur la même ligne en haut, menu en dessous
 // Effet de pulsation sur le code promo, barre sans bordures avec ombre en haut
 
 (function() {
@@ -78,7 +78,7 @@
                 padding: 0.8rem 15px;
                 width: 100%;
                 box-sizing: border-box;
-                flex-wrap: nowrap;
+                flex-wrap: nowrap; /* Force la ligne horizontale */
             }
             .logo {
                 flex-shrink: 0;
@@ -138,7 +138,6 @@
                 scrollbar-color: #D4AF37 #0D0D0D;
                 box-sizing: border-box;
                 box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5), inset 0 1px 3px rgba(255, 255, 255, 0.2);
-                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 3px rgba(255, 255, 255, 0.2);
                 position: relative;
                 z-index: 10;
             }
@@ -199,16 +198,14 @@
             /* Responsive : garantir que le logo et code promo restent sur la même ligne */
             @media (max-width: 600px) {
                 header .container {
-                    padding: 0.6rem 10px;
-                    width: 100%;
-                    max-width: none;
+                    padding: 0.5rem 8px;
                 }
                 .logo a {
-                    font-size: 1.4rem;
+                    font-size: 1.2rem; /* Réduction pour mobile */
                 }
                 .promo-code {
-                    font-size: 0.9rem;
-                    padding: 0.4rem 1rem;
+                    font-size: 0.8rem; /* Réduction */
+                    padding: 0.3rem 0.8rem;
                     margin-left: 5px;
                 }
                 .icon-nav-list .nav-icon {
@@ -222,16 +219,12 @@
                 }
             }
             @media (max-width: 400px) {
-                header .container {
-                    padding: 0.5rem 8px;
-                }
                 .logo a {
-                    font-size: 1.2rem;
+                    font-size: 1rem; /* Encore plus petit */
                 }
                 .promo-code {
-                    font-size: 0.8rem;
-                    padding: 0.3rem 0.8rem;
-                    margin-left: 3px;
+                    font-size: 0.7rem;
+                    padding: 0.2rem 0.6rem;
                 }
                 .icon-nav-list .nav-icon {
                     font-size: 1rem;
@@ -245,11 +238,11 @@
             }
             @media (max-width: 320px) {
                 .logo a {
-                    font-size: 1rem;
+                    font-size: 0.9rem;
                 }
                 .promo-code {
-                    font-size: 0.7rem;
-                    padding: 0.2rem 0.6rem;
+                    font-size: 0.65rem;
+                    padding: 0.2rem 0.5rem;
                 }
             }
         `;
