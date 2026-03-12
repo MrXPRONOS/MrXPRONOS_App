@@ -21,7 +21,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Lucide Icons (remplacé par Font Awesome) -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
@@ -210,6 +210,15 @@
             width: 100%;
             margin: 5px 0;
         }
+
+        /* Logo team dans les cartes */
+        .team-logo-small {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -229,25 +238,19 @@
                 super(props);
                 this.state = { hasError: false, error: null };
             }
-
             static getDerivedStateFromError(error) {
                 return { hasError: true, error };
             }
-
             componentDidCatch(error, errorInfo) {
                 console.error('Error caught by boundary:', error, errorInfo);
             }
-
             render() {
                 if (this.state.hasError) {
                     return (
                         <div className="error-fallback">
                             <h1 className="text-2xl font-bold text-red-500 mb-4">Quelque chose s'est mal passé</h1>
                             <p className="text-gray-400 mb-4">{this.state.error?.toString()}</p>
-                            <button 
-                                onClick={() => window.location.reload()}
-                                className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg"
-                            >
+                            <button onClick={() => window.location.reload()} className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg">
                                 Recharger la page
                             </button>
                         </div>
@@ -257,13 +260,10 @@
             }
         }
 
-        const { useState, useEffect, useCallback, useRef, useMemo } = React;
-        const Recharts = window.Recharts;
-        const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie } = Recharts || {};
+        const { useState, useEffect, useCallback, useRef } = React;
 
-        // Composants utilitaires
+        // Composant icône Font Awesome
         const Icon = ({ name, size = 20, className = "" }) => {
-            // Utilisation de Font Awesome via des classes
             const iconMap = {
                 'arrow-left': 'fa-arrow-left',
                 'x': 'fa-times',
@@ -286,10 +286,7 @@
         );
         
         const Card = ({ children, className = "", onClick }) => (
-            <div 
-                onClick={onClick}
-                className={`bg-[#121212] border border-[#2a2a2a] rounded-xl p-4 card-hover ${onClick ? 'cursor-pointer' : ''} ${className}`}
-            >
+            <div onClick={onClick} className={`bg-[#121212] border border-[#2a2a2a] rounded-xl p-4 card-hover ${onClick ? 'cursor-pointer' : ''} ${className}`}>
                 {children}
             </div>
         );
@@ -303,19 +300,13 @@
                 orange: "bg-orange-500 text-black",
                 gray: "bg-gray-600 text-white"
             };
-            
-            return (
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colors[color] || colors.gold} ${className}`}>
-                    {children}
-                </span>
-            );
+            return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colors[color] || colors.gold} ${className}`}>{children}</span>;
         };
         
         const MomentumGauge = ({ value, max = 100, label, showValue = true }) => {
             const safeValue = value ?? 0;
             const percentage = Math.min((safeValue / max) * 100, 100);
             const color = percentage > 70 ? '#4CAF50' : percentage > 40 ? '#FFA500' : '#ff4444';
-            
             return (
                 <div className="w-full">
                     <div className="flex justify-between mb-1">
@@ -323,20 +314,16 @@
                         {showValue && <span className="text-xs font-bold" style={{ color }}>{safeValue.toFixed(1)}</span>}
                     </div>
                     <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                        <div 
-                            className="h-full rounded-full transition-all duration-500"
-                            style={{ width: `${percentage}%`, backgroundColor: color }}
-                        />
+                        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%`, backgroundColor: color }} />
                     </div>
                 </div>
             );
         };
         
-        // Composant d'overlay VIP
+        // Overlay VIP
         const VipLockOverlay = ({ onSubmit }) => {
             const [code, setCode] = useState('');
             const [error, setError] = useState('');
-
             const handleSubmit = (e) => {
                 e.preventDefault();
                 if (!code.trim()) {
@@ -345,7 +332,6 @@
                 }
                 onSubmit(code.trim());
             };
-
             return (
                 <div className="vip-locked-overlay">
                     <div className="vip-locked-content">
@@ -359,12 +345,7 @@
                             <a href="https://t.me/mr_xpronos?text=Bonjour%20Mr%20XPRONOS%2C%20voici%20mon%20ID%20VIP%20...%20Je%20veut%20integrer%20votre%20LIVE%20VIP%20.%20Par%20quel%20moyen%20je%20doit%20payer%20l'Abonnement%20VIP%20svp%3F" target="_blank" className="btn btn-primary">Telegram</a>
                         </div>
                         <form onSubmit={handleSubmit}>
-                            <input
-                                type="text"
-                                placeholder="Entrez votre code VIP"
-                                value={code}
-                                onChange={(e) => setCode(e.target.value)}
-                            />
+                            <input type="text" placeholder="Entrez votre code VIP" value={code} onChange={(e) => setCode(e.target.value)} />
                             {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
                             <button type="submit" className="btn btn-primary">Activer</button>
                             <button type="button" className="btn btn-secondary mt-2" onClick={() => window.location.href = 'index.html'}>
@@ -376,17 +357,16 @@
             );
         };
         
-        // Composants de match
+        // Carte de match en direct
         const LiveMatchCard = ({ match, onClick, isSelected }) => {
             const momentum = match?.momentum_index || {};
             const predictions = match?.predictions || [];
             const highConfidence = predictions.filter(p => p?.confidence === 'high');
+            const homeLogo = match.home_logo || 'assets/images/home.webp';
+            const awayLogo = match.away_logo || 'assets/images/away.webp';
             
             return (
-                <Card 
-                    onClick={() => onClick(match)}
-                    className={`${isSelected ? 'border-[#D4AF37]' : ''}`}
-                >
+                <Card onClick={() => onClick(match)} className={`${isSelected ? 'border-[#D4AF37]' : ''}`}>
                     <div className="flex justify-between items-start mb-3">
                         <div className="flex items-center gap-2">
                             <span className="live-pulse w-2 h-2 bg-red-500 rounded-full" />
@@ -394,14 +374,13 @@
                             <span className="text-gray-500 text-xs">|</span>
                             <span className="text-gray-400 text-xs">{match?.league?.name || ''}</span>
                         </div>
-                        {highConfidence.length > 0 && (
-                            <Badge color="gold">{highConfidence.length} alerte{highConfidence.length > 1 ? 's' : ''}</Badge>
-                        )}
+                        {highConfidence.length > 0 && <Badge color="gold">{highConfidence.length} alerte{highConfidence.length > 1 ? 's' : ''}</Badge>}
                     </div>
                     
                     <div className="flex justify-between items-center mb-4">
                         <div className="flex-1 text-right pr-4">
-                            <div className="font-bold text-white">{match?.home_team || ''}</div>
+                            <img src={homeLogo} alt={match.home_team} className="inline-block w-8 h-8 mr-2" onError={(e) => e.target.src='assets/images/home.webp'} />
+                            <span className="font-bold text-white">{match?.home_team || ''}</span>
                         </div>
                         
                         <div className="px-4 py-2 bg-[#0a0a0a] rounded-lg border border-[#D4AF37]">
@@ -411,16 +390,13 @@
                         </div>
                         
                         <div className="flex-1 pl-4">
-                            <div className="font-bold text-white">{match?.away_team || ''}</div>
+                            <img src={awayLogo} alt={match.away_team} className="inline-block w-8 h-8 mr-2" onError={(e) => e.target.src='assets/images/away.webp'} />
+                            <span className="font-bold text-white">{match?.away_team || ''}</span>
                         </div>
                     </div>
                     
                     <div className="space-y-2">
-                        <MomentumGauge 
-                            value={momentum.total || 0} 
-                            max={100} 
-                            label="Momentum Total" 
-                        />
+                        <MomentumGauge value={momentum.total || 0} max={100} label="Momentum Total" />
                     </div>
                     
                     {highConfidence.length > 0 && (
@@ -434,9 +410,7 @@
                                         {' '}{((pred.probability || 0) * 100).toFixed(0)}%
                                     </span>
                                 ))}
-                                {highConfidence.length > 3 && (
-                                    <span className="text-xs text-gray-500">+{highConfidence.length - 3}</span>
-                                )}
+                                {highConfidence.length > 3 && <span className="text-xs text-gray-500">+{highConfidence.length - 3}</span>}
                             </div>
                         </div>
                     )}
@@ -444,6 +418,7 @@
             );
         };
         
+        // Carte de match programmé
         const ScheduledMatchCard = ({ match }) => {
             const eventDate = new Date(match.event_date);
             const now = new Date();
@@ -460,7 +435,6 @@
                 const mins = diffMin % 60;
                 timeText = `Dans ${hours}h${mins.toString().padStart(2, '0')}`;
             }
-            
             const isSoon = diffMin > 0 && diffMin <= 30;
             
             return (
@@ -472,13 +446,11 @@
                     
                     <div className="flex justify-between items-center">
                         <div className="flex-1 text-right pr-3">
-                            <div className="font-semibold text-white text-sm">{match?.home_team || ''}</div>
+                            <span className="font-semibold text-white text-sm">{match?.home_team || ''}</span>
                         </div>
-                        
                         <div className="text-gray-500 text-xs">VS</div>
-                        
                         <div className="flex-1 pl-3">
-                            <div className="font-semibold text-white text-sm">{match?.away_team || ''}</div>
+                            <span className="font-semibold text-white text-sm">{match?.away_team || ''}</span>
                         </div>
                     </div>
                     
@@ -489,11 +461,10 @@
             );
         };
         
+        // Détail d'un match
         const MatchDetail = ({ match, onClose }) => {
             const [activeTab, setActiveTab] = useState('overview');
-            
             if (!match) return null;
-            
             const momentum = match.momentum_index || {};
             const stats = match.live_stats || { home: {}, away: {} };
             const predictions = match.predictions || [];
@@ -519,11 +490,7 @@
                                         {match.home_team || ''} <GoldText>vs</GoldText> {match.away_team || ''}
                                     </h2>
                                 </div>
-                                <button 
-                                    onClick={goBackToLive} 
-                                    className="p-2 hover:bg-[#2a2a2a] rounded-lg text-[#D4AF37] hover:text-[#f5e7a3] transition-colors"
-                                    aria-label="Fermer et retourner au live"
-                                >
+                                <button onClick={goBackToLive} className="p-2 hover:bg-[#2a2a2a] rounded-lg text-[#D4AF37] hover:text-[#f5e7a3] transition-colors">
                                     <Icon name="x" size={24} />
                                 </button>
                             </div>
@@ -541,17 +508,8 @@
                         
                         <div className="flex border-b border-[#2a2a2a]">
                             {['overview', 'stats', 'predictions'].map(tab => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveTab(tab)}
-                                    className={`flex-1 py-3 text-sm font-medium capitalize transition-colors ${
-                                        activeTab === tab 
-                                            ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' 
-                                            : 'text-gray-400 hover:text-white'
-                                    }`}
-                                >
-                                    {tab === 'overview' ? 'Vue d\'ensemble' : 
-                                     tab === 'stats' ? 'Statistiques' : 'Prédictions'}
+                                <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-3 text-sm font-medium capitalize transition-colors ${activeTab === tab ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' : 'text-gray-400 hover:text-white'}`}>
+                                    {tab === 'overview' ? 'Vue d\'ensemble' : tab === 'stats' ? 'Statistiques' : 'Prédictions'}
                                 </button>
                             ))}
                         </div>
@@ -565,24 +523,17 @@
                                             <div className="flex items-center justify-between mb-2">
                                                 <span className="text-sm">{match.home_team || ''}</span>
                                                 <div className="flex-1 mx-3 h-2 bg-gray-700 rounded-full overflow-hidden">
-                                                    <div 
-                                                        className="h-full bg-green-500 rounded-full"
-                                                        style={{ width: `${momentum.home_ratio || 50}%` }}
-                                                    />
+                                                    <div className="h-full bg-green-500 rounded-full" style={{ width: `${momentum.home_ratio || 50}%` }} />
                                                 </div>
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <span className="text-sm">{match.away_team || ''}</span>
                                                 <div className="flex-1 mx-3 h-2 bg-gray-700 rounded-full overflow-hidden">
-                                                    <div 
-                                                        className="h-full bg-red-500 rounded-full"
-                                                        style={{ width: `${momentum.away_ratio || 50}%` }}
-                                                    />
+                                                    <div className="h-full bg-red-500 rounded-full" style={{ width: `${momentum.away_ratio || 50}%` }} />
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    
                                     {highConfidence.length > 0 && (
                                         <div>
                                             <h4 className="text-sm font-bold text-gray-400 mb-3">Prédictions Haute Confiance</h4>
@@ -592,9 +543,7 @@
                                                         <div className="flex justify-between items-start">
                                                             <div>
                                                                 <div className="font-semibold text-sm">{pred.message}</div>
-                                                                <div className="text-xs text-gray-400 mt-1">
-                                                                    Probabilité: {((pred.probability || 0) * 100).toFixed(1)}%
-                                                                </div>
+                                                                <div className="text-xs text-gray-400 mt-1">Probabilité: {((pred.probability || 0) * 100).toFixed(1)}%</div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -618,7 +567,6 @@
                                         const homeVal = stats.home?.[keyMap[stat]] ?? 0;
                                         const awayVal = stats.away?.[keyMap[stat]] ?? 0;
                                         const total = homeVal + awayVal || 1;
-                                        
                                         return (
                                             <div key={stat} className="bg-[#0a0a0a] rounded-xl p-4">
                                                 <div className="flex justify-between text-sm mb-2">
@@ -627,14 +575,8 @@
                                                     <span className="font-bold">{awayVal}</span>
                                                 </div>
                                                 <div className="flex h-2 bg-gray-700 rounded-full overflow-hidden">
-                                                    <div 
-                                                        className="bg-green-500"
-                                                        style={{ width: `${(homeVal / total) * 100}%` }}
-                                                    />
-                                                    <div 
-                                                        className="bg-red-500"
-                                                        style={{ width: `${(awayVal / total) * 100}%` }}
-                                                    />
+                                                    <div className="bg-green-500" style={{ width: `${(homeVal / total) * 100}%` }} />
+                                                    <div className="bg-red-500" style={{ width: `${(awayVal / total) * 100}%` }} />
                                                 </div>
                                             </div>
                                         );
@@ -645,9 +587,7 @@
                             {activeTab === 'predictions' && (
                                 <div className="space-y-4">
                                     {highConfidence.length === 0 ? (
-                                        <div className="text-center text-gray-500 py-8">
-                                            Aucune prédiction haute confiance pour ce match
-                                        </div>
+                                        <div className="text-center text-gray-500 py-8">Aucune prédiction haute confiance pour ce match</div>
                                     ) : (
                                         highConfidence.map((pred, idx) => (
                                             <div key={idx} className="bg-[#0a0a0a] rounded-xl p-4">
@@ -674,10 +614,9 @@
             );
         };
         
-        // Composants principaux
+        // Header
         const Header = ({ stats, notifications, notificationCount, onClearNotifications, onBack }) => {
             const [showNotifications, setShowNotifications] = useState(false);
-            
             return (
                 <header className="sticky top-0 z-40 bg-[#0a0a0a]/95 backdrop-blur border-b border-[#2a2a2a]">
                     <div className="max-w-7xl mx-auto px-4 py-4">
@@ -687,15 +626,7 @@
                                     <Icon name="arrow-left" size={20} />
                                 </button>
                                 <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-[#D4AF37]">
-                                    <img 
-                                        src="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/favicon.png" 
-                                        alt="MrXPRONOS" 
-                                        className="w-full h-full object-contain"
-                                        onError={(e) => {
-                                            e.target.style.display = 'none';
-                                            e.target.parentNode.innerHTML = '<span class="text-black font-bold">M</span>';
-                                        }}
-                                    />
+                                    <img src="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/favicon.png" alt="MrXPRONOS" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.parentNode.innerHTML = '<span class="text-black font-bold">M</span>'; }} />
                                 </div>
                                 <div>
                                     <h1 className="text-xl font-bold gold-gradient">MrXPRONOS LIVE</h1>
@@ -712,10 +643,7 @@
                             
                             <div className="flex items-center gap-4">
                                 <div className="relative">
-                                    <button 
-                                        onClick={() => setShowNotifications(!showNotifications)}
-                                        className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors"
-                                    >
+                                    <button onClick={() => setShowNotifications(!showNotifications)} className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors">
                                         <Icon name="bell" size={20} />
                                         {notificationCount > 0 && (
                                             <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-xs flex items-center justify-center font-bold">
@@ -727,15 +655,11 @@
                                         <div className="absolute right-0 top-full mt-2 w-80 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-2xl z-50">
                                             <div className="p-3 border-b border-[#2a2a2a] flex justify-between items-center">
                                                 <span className="font-bold text-sm">Notifications</span>
-                                                <button onClick={onClearNotifications} className="text-xs text-gray-400 hover:text-white">
-                                                    Tout effacer
-                                                </button>
+                                                <button onClick={onClearNotifications} className="text-xs text-gray-400 hover:text-white">Tout effacer</button>
                                             </div>
                                             <div className="max-h-96 overflow-y-auto">
                                                 {notifications.length === 0 ? (
-                                                    <div className="p-4 text-center text-gray-500 text-sm">
-                                                        Aucune notification
-                                                    </div>
+                                                    <div className="p-4 text-center text-gray-500 text-sm">Aucune notification</div>
                                                 ) : (
                                                     notifications.map((notif, idx) => (
                                                         <div key={idx} className={`p-3 border-b border-[#2a2a2a] hover:bg-[#252525] ${!notif.read ? 'bg-[#252525]/50' : ''}`}>
@@ -744,9 +668,7 @@
                                                                 <span className="text-xs font-semibold text-gray-300">{notif.title}</span>
                                                             </div>
                                                             <p className="text-xs text-gray-400">{notif.message}</p>
-                                                            <span className="text-[10px] text-gray-600 mt-1 block">
-                                                                {new Date(notif.created_at).toLocaleTimeString()}
-                                                            </span>
+                                                            <span className="text-[10px] text-gray-600 mt-1 block">{new Date(notif.created_at).toLocaleTimeString()}</span>
                                                         </div>
                                                     ))
                                                 )}
@@ -763,33 +685,23 @@
         
         const TodayOverview = ({ data }) => {
             if (!data) return null;
-            
             return (
                 <div className="mb-8">
                     <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
                         <Icon name="calendar" size={20} className="text-[#D4AF37]" />
                         Aujourd'hui
                     </h2>
-                    
                     <div className="grid grid-cols-3 gap-4">
                         <Card className="text-center">
-                            <div className="text-3xl font-bold text-blue-400 mb-1">
-                                {data.scheduled?.count || 0}
-                            </div>
+                            <div className="text-3xl font-bold text-blue-400 mb-1">{data.scheduled?.count || 0}</div>
                             <div className="text-xs text-gray-400">Programmés</div>
                         </Card>
-                        
                         <Card className="text-center border-red-500/30">
-                            <div className="text-3xl font-bold text-red-500 mb-1 live-pulse">
-                                {data.live?.count || 0}
-                            </div>
+                            <div className="text-3xl font-bold text-red-500 mb-1 live-pulse">{data.live?.count || 0}</div>
                             <div className="text-xs text-gray-400">En direct</div>
                         </Card>
-                        
                         <Card className="text-center">
-                            <div className="text-3xl font-bold text-gray-400 mb-1">
-                                {data.finished?.count || 0}
-                            </div>
+                            <div className="text-3xl font-bold text-gray-400 mb-1">{data.finished?.count || 0}</div>
                             <div className="text-xs text-gray-400">Terminés</div>
                         </Card>
                     </div>
@@ -803,7 +715,6 @@
                     <Icon name="radio" size={20} className="text-red-500 live-pulse" />
                     Matchs en Direct
                 </h2>
-                
                 {matches.length === 0 ? (
                     <div className="text-center py-12 text-gray-500">
                         <Icon name="radio" size={48} className="mx-auto mb-4 opacity-30" />
@@ -813,12 +724,7 @@
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2">
                         {matches.map(match => (
-                            <LiveMatchCard 
-                                key={match.id}
-                                match={match}
-                                onClick={onSelectMatch}
-                                isSelected={selectedMatch?.id === match.id}
-                            />
+                            <LiveMatchCard key={match.id} match={match} onClick={onSelectMatch} isSelected={selectedMatch?.id === match.id} />
                         ))}
                     </div>
                 )}
@@ -831,16 +737,11 @@
                     <Icon name="clock" size={20} className="text-[#D4AF37]" />
                     Prochainement
                 </h2>
-                
                 {matches.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                        Aucun match programmé dans les prochaines 24h
-                    </div>
+                    <div className="text-center py-8 text-gray-500">Aucun match programmé dans les prochaines 24h</div>
                 ) : (
                     <div className="grid gap-3 md:grid-cols-3">
-                        {matches.slice(0, 6).map(match => (
-                            <ScheduledMatchCard key={match.id} match={match} />
-                        ))}
+                        {matches.slice(0, 6).map(match => <ScheduledMatchCard key={match.id} match={match} />)}
                     </div>
                 )}
             </div>
@@ -852,11 +753,8 @@
                     <Icon name="target" size={20} className="text-[#D4AF37]" />
                     Alertes Haute Confiance
                 </h2>
-                
                 {predictions.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500 bg-[#121212] rounded-xl border border-[#2a2a2a]">
-                        Aucune alerte haute confiance pour le moment
-                    </div>
+                    <div className="text-center py-8 text-gray-500 bg-[#121212] rounded-xl border border-[#2a2a2a]">Aucune alerte haute confiance pour le moment</div>
                 ) : (
                     <div className="space-y-3">
                         {predictions.slice(0, 5).map((item, idx) => (
@@ -867,9 +765,7 @@
                                     <div className="text-sm text-[#D4AF37] mt-1">{item.prediction.message}</div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-2xl font-bold text-green-500">
-                                        {(item.prediction.probability * 100).toFixed(0)}%
-                                    </div>
+                                    <div className="text-2xl font-bold text-green-500">{(item.prediction.probability * 100).toFixed(0)}%</div>
                                     <div className="text-xs text-gray-500">confiance</div>
                                 </div>
                             </div>
@@ -885,11 +781,8 @@
                     <Icon name="history" size={20} className="text-[#D4AF37]" />
                     Historique des pronostics (48h)
                 </h2>
-                
                 {history.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500 bg-[#121212] rounded-xl border border-[#2a2a2a]">
-                        Aucun historique
-                    </div>
+                    <div className="text-center py-8 text-gray-500 bg-[#121212] rounded-xl border border-[#2a2a2a]">Aucun historique</div>
                 ) : (
                     <div className="bg-[#121212] rounded-xl border border-[#2a2a2a] overflow-hidden">
                         <div className="overflow-x-auto">
@@ -945,19 +838,16 @@
             const [selectedMatch, setSelectedMatch] = useState(null);
             const [selectedTab, setSelectedTab] = useState('live');
             
-            // État VIP
             const [isVip, setIsVip] = useState(false);
             const [vipChecking, setVipChecking] = useState(true);
             const [vipCode, setVipCode] = useState(() => localStorage.getItem('mx_vip_code') || '');
             
-            // Référence pour comparer les prédictions actives précédentes
             const prevActivePredictionsRef = useRef([]);
             
             useEffect(() => {
                 localStorage.setItem('mrx_user_id', userId);
             }, [userId]);
             
-            // Vérification du code VIP
             const checkVip = useCallback(async (code) => {
                 if (!code) {
                     setIsVip(false);
@@ -980,14 +870,10 @@
                 checkVip(vipCode);
             }, [vipCode, checkVip]);
             
-            // Toutes les requêtes API doivent inclure le code VIP si disponible
             const apiFetch = useCallback(async (endpoint) => {
-                const url = vipCode 
-                    ? `${EDGE_FUNCTION_URL}${endpoint}?vip_code=${vipCode}`
-                    : `${EDGE_FUNCTION_URL}${endpoint}`;
+                const url = vipCode ? `${EDGE_FUNCTION_URL}${endpoint}?vip_code=${vipCode}` : `${EDGE_FUNCTION_URL}${endpoint}`;
                 const res = await fetch(url);
                 if (res.status === 403) {
-                    // Code invalide ou expiré
                     setIsVip(false);
                     localStorage.removeItem('mx_vip_code');
                     setVipCode('');
@@ -1004,9 +890,7 @@
                         setLiveMatches(data.matches || []);
                         setStats(prev => ({ ...prev, matches_live: data.matches.length }));
                     }
-                } catch (e) {
-                    console.error('Erreur chargement live matches:', e);
-                }
+                } catch (e) { console.error('Erreur live matches:', e); }
             }, [apiFetch]);
             
             const fetchTodayData = useCallback(async () => {
@@ -1018,9 +902,7 @@
                         setScheduledMatches(data.data.scheduled.matches || []);
                         setStats(prev => ({ ...prev, matches_scheduled: data.data.scheduled.count }));
                     }
-                } catch (e) {
-                    console.error('Erreur chargement today:', e);
-                }
+                } catch (e) { console.error('Erreur today:', e); }
             }, [apiFetch]);
             
             const fetchPredictions = useCallback(async () => {
@@ -1030,22 +912,18 @@
                         const data = await res.json();
                         setActivePredictions(data.predictions || []);
                     }
-                } catch (e) {
-                    console.error('Erreur chargement prédictions:', e);
-                }
+                } catch (e) { console.error('Erreur prédictions:', e); }
             }, [apiFetch]);
             
             const fetchHistory = useCallback(async () => {
                 try {
-                    const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/history`); // public
+                    const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/history`);
                     if (res.ok) {
                         const data = await res.json();
                         console.log("Historique reçu:", data);
                         setPredictionHistory(data.history || []);
                     }
-                } catch (e) {
-                    console.error('Erreur chargement historique:', e);
-                }
+                } catch (e) { console.error('Erreur historique:', e); }
             }, []);
             
             const fetchNotifications = useCallback(async () => {
@@ -1055,123 +933,77 @@
                         const data = await res.json();
                         setNotifications(data.notifications || []);
                     }
-                } catch (e) {
-                    console.error('Erreur chargement notifications:', e);
-                }
+                } catch (e) { console.error('Erreur notifications:', e); }
             }, [userId]);
             
-            // Effet pour déclencher un toast lors de l'arrivée d'une nouvelle prédiction haute confiance
+            // Realtime notifications
+            useEffect(() => {
+                if (!supabase) return;
+                const channel = supabase
+                    .channel('notifications-channel')
+                    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload) => {
+                        const notif = payload.new;
+                        if (notif.user_id === 'all' || notif.user_id === userId) {
+                            setToast({ title: notif.title, message: notif.message });
+                            setTimeout(() => setToast(null), 5000);
+                            fetchNotifications();
+                        }
+                    })
+                    .subscribe();
+                return () => { supabase.removeChannel(channel); };
+            }, [userId, fetchNotifications]);
+            
+            // Nouvelles prédictions toast
             useEffect(() => {
                 if (activePredictions.length > prevActivePredictionsRef.current.length) {
-                    const newOnes = activePredictions.filter(
-                        (pred, idx) => !prevActivePredictionsRef.current.some(
-                            old => old.prediction.message === pred.prediction.message
-                        )
-                    );
+                    const newOnes = activePredictions.filter(pred => !prevActivePredictionsRef.current.some(old => old.prediction.message === pred.prediction.message));
                     if (newOnes.length > 0) {
-                        setToast({
-                            title: "Nouvelle alerte haute confiance",
-                            message: newOnes[0].prediction.message,
-                        });
+                        setToast({ title: "Nouvelle alerte haute confiance", message: newOnes[0].prediction.message });
                         setTimeout(() => setToast(null), 5000);
                     }
                 }
                 prevActivePredictionsRef.current = activePredictions;
             }, [activePredictions]);
-
-            // Configuration de Realtime pour les notifications
-            useEffect(() => {
-                if (!supabase) return;
-                const channel = supabase
-                    .channel('notifications-channel')
-                    .on('postgres_changes', 
-                        { event: 'INSERT', schema: 'public', table: 'notifications' },
-                        (payload) => {
-                            const notif = payload.new;
-                            // Si la notification est pour tout le monde ou pour cet utilisateur
-                            if (notif.user_id === 'all' || notif.user_id === userId) {
-                                setToast({
-                                    title: notif.title,
-                                    message: notif.message,
-                                });
-                                setTimeout(() => setToast(null), 5000);
-                                // Recharger les notifications pour mettre à jour la liste
-                                fetchNotifications();
-                            }
-                        }
-                    )
-                    .subscribe();
-                return () => {
-                    supabase.removeChannel(channel);
-                };
-            }, [userId, fetchNotifications]);
             
             useEffect(() => {
                 const loadAll = async () => {
-                    if (!isVip) return; // Ne pas charger tant que non VIP
+                    if (!isVip) return;
                     setLoading(true);
                     try {
-                        await Promise.all([
-                            fetchLiveMatches(),
-                            fetchTodayData(),
-                            fetchPredictions(),
-                            fetchHistory(),
-                            fetchNotifications()
-                        ]);
+                        await Promise.all([fetchLiveMatches(), fetchTodayData(), fetchPredictions(), fetchHistory(), fetchNotifications()]);
                     } catch (e) {
                         setError('Erreur de connexion au serveur.');
                     } finally {
                         setLoading(false);
                     }
                 };
-                
                 if (!vipChecking && isVip) {
                     loadAll();
-                    
                     const intervalLive = setInterval(fetchLiveMatches, 30000);
                     const intervalToday = setInterval(fetchTodayData, 60000);
                     const intervalPred = setInterval(fetchPredictions, 30000);
                     const intervalNotif = setInterval(fetchNotifications, 30000);
-                    
                     return () => {
-                        clearInterval(intervalLive);
-                        clearInterval(intervalToday);
-                        clearInterval(intervalPred);
-                        clearInterval(intervalNotif);
+                        clearInterval(intervalLive); clearInterval(intervalToday); clearInterval(intervalPred); clearInterval(intervalNotif);
                     };
                 }
             }, [isVip, vipChecking, fetchLiveMatches, fetchTodayData, fetchPredictions, fetchHistory, fetchNotifications]);
             
-            const handleMatchSelect = (match) => {
-                setSelectedMatch(match);
-            };
-            
+            const handleMatchSelect = (match) => setSelectedMatch(match);
             const clearNotifications = async () => {
                 try {
-                    await fetch(`${EDGE_FUNCTION_URL}/notifications/mark-read`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ user_id: userId }),
-                    });
+                    await fetch(`${EDGE_FUNCTION_URL}/notifications/mark-read`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: userId }) });
                     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-                } catch (e) {
-                    console.error('Erreur lors du marquage des notifications:', e);
-                }
+                } catch (e) { console.error('Erreur mark-read:', e); }
             };
-            
-            const handleBack = () => {
-                window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/index.html';
-            };
-            
+            const handleBack = () => window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/index.html';
             const handleVipCodeSubmit = (code) => {
                 localStorage.setItem('mx_vip_code', code);
                 setVipCode(code);
-                // La vérification se fera via l'effet
             };
             
             const unreadCount = notifications.filter(n => !n.read).length;
             
-            // Affichage du chargement VIP
             if (vipChecking) {
                 return (
                     <div className="min-h-screen flex items-center justify-center">
@@ -1182,25 +1014,16 @@
                     </div>
                 );
             }
-            
-            // Si non VIP, afficher l'overlay
             if (!isVip) {
                 return <VipLockOverlay onSubmit={handleVipCodeSubmit} />;
             }
-            
-            // Si VIP mais erreur de chargement
             if (error) {
                 return (
                     <div className="min-h-screen flex items-center justify-center">
                         <div className="text-center">
                             <Icon name="alert-circle" size={48} className="mx-auto mb-4 text-red-500" />
                             <p className="text-gray-400 mb-4">{error}</p>
-                            <button 
-                                onClick={() => window.location.reload()}
-                                className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-semibold"
-                            >
-                                Réessayer
-                            </button>
+                            <button onClick={() => window.location.reload()} className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-semibold">Réessayer</button>
                         </div>
                     </div>
                 );
@@ -1208,40 +1031,14 @@
             
             return (
                 <div className="min-h-screen bg-[#0a0a0a]">
-                    <Header 
-                        stats={stats}
-                        notifications={notifications}
-                        notificationCount={unreadCount}
-                        onClearNotifications={clearNotifications}
-                        onBack={handleBack}
-                    />
-                    
+                    <Header stats={stats} notifications={notifications} notificationCount={unreadCount} onClearNotifications={clearNotifications} onBack={handleBack} />
                     <main className="max-w-7xl mx-auto px-4 py-6">
                         {!selectedMatch && (
                             <>
                                 <div className="flex gap-4 mb-6">
-                                    <button 
-                                        onClick={() => setSelectedTab('live')}
-                                        className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                                            selectedTab === 'live' 
-                                                ? 'bg-[#D4AF37] text-black' 
-                                                : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]'
-                                        }`}
-                                    >
-                                        Live
-                                    </button>
-                                    <button 
-                                        onClick={() => setSelectedTab('history')}
-                                        className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                                            selectedTab === 'history' 
-                                                ? 'bg-[#D4AF37] text-black' 
-                                                : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]'
-                                        }`}
-                                    >
-                                        Historique
-                                    </button>
+                                    <button onClick={() => setSelectedTab('live')} className={`px-4 py-2 rounded-lg font-semibold transition-colors ${selectedTab === 'live' ? 'bg-[#D4AF37] text-black' : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]'}`}>Live</button>
+                                    <button onClick={() => setSelectedTab('history')} className={`px-4 py-2 rounded-lg font-semibold transition-colors ${selectedTab === 'history' ? 'bg-[#D4AF37] text-black' : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]'}`}>Historique</button>
                                 </div>
-                                
                                 {selectedTab === 'live' ? (
                                     loading ? (
                                         <div className="text-center py-12">
@@ -1251,39 +1048,19 @@
                                     ) : (
                                         <>
                                             <TodayOverview data={todayData} />
-                                            
                                             <div className="grid lg:grid-cols-3 gap-8">
                                                 <div className="lg:col-span-2">
-                                                    <LiveMatchesSection 
-                                                        matches={liveMatches}
-                                                        selectedMatch={selectedMatch}
-                                                        onSelectMatch={handleMatchSelect}
-                                                    />
-                                                    
+                                                    <LiveMatchesSection matches={liveMatches} selectedMatch={selectedMatch} onSelectMatch={handleMatchSelect} />
                                                     <ScheduledSection matches={scheduledMatches} />
                                                 </div>
-                                                
                                                 <div className="lg:col-span-1">
                                                     <ActivePredictions predictions={activePredictions} />
-                                                    
                                                     <div className="bg-[#121212] rounded-xl border border-[#2a2a2a] p-4 mt-6">
-                                                        <h3 className="font-bold mb-4 flex items-center gap-2">
-                                                            <Icon name="bar-chart-2" size={18} className="text-[#D4AF37]" />
-                                                            Performance
-                                                        </h3>
+                                                        <h3 className="font-bold mb-4 flex items-center gap-2"><Icon name="bar-chart-2" size={18} className="text-[#D4AF37]" /> Performance</h3>
                                                         <div className="space-y-3">
-                                                            <div className="flex justify-between text-sm">
-                                                                <span className="text-gray-400">Prédictions actives</span>
-                                                                <span className="font-bold">{activePredictions.length}</span>
-                                                            </div>
-                                                            <div className="flex justify-between text-sm">
-                                                                <span className="text-gray-400">Matchs en direct</span>
-                                                                <span className="font-bold text-green-500">{liveMatches.length}</span>
-                                                            </div>
-                                                            <div className="flex justify-between text-sm">
-                                                                <span className="text-gray-400">Matchs programmés</span>
-                                                                <span className="font-bold text-[#D4AF37]">{scheduledMatches.length}</span>
-                                                            </div>
+                                                            <div className="flex justify-between text-sm"><span className="text-gray-400">Prédictions actives</span><span className="font-bold">{activePredictions.length}</span></div>
+                                                            <div className="flex justify-between text-sm"><span className="text-gray-400">Matchs en direct</span><span className="font-bold text-green-500">{liveMatches.length}</span></div>
+                                                            <div className="flex justify-between text-sm"><span className="text-gray-400">Matchs programmés</span><span className="font-bold text-[#D4AF37]">{scheduledMatches.length}</span></div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1295,28 +1072,17 @@
                                 )}
                             </>
                         )}
-                        
-                        {selectedMatch && (
-                            <MatchDetail 
-                                match={selectedMatch}
-                                onClose={() => setSelectedMatch(null)}
-                            />
-                        )}
+                        {selectedMatch && <MatchDetail match={selectedMatch} onClose={() => setSelectedMatch(null)} />}
                     </main>
-                    
                     {toast && (
                         <div className="fixed top-4 right-4 z-50 max-w-sm w-full bg-[#1a1a1a] border-l-4 border-[#D4AF37] rounded-lg shadow-2xl notification-slide p-4">
                             <div className="flex items-start gap-3">
-                                <div className="mt-1">
-                                    <Icon name="bell" size={20} className="text-[#D4AF37]" />
-                                </div>
+                                <div className="mt-1"><Icon name="bell" size={20} className="text-[#D4AF37]" /></div>
                                 <div className="flex-1">
                                     <h4 className="font-bold text-white text-sm">{toast.title}</h4>
                                     <p className="text-gray-400 text-xs mt-1">{toast.message}</p>
                                 </div>
-                                <button onClick={() => setToast(null)} className="text-gray-500 hover:text-white">
-                                    <Icon name="x" size={16} />
-                                </button>
+                                <button onClick={() => setToast(null)} className="text-gray-500 hover:text-white"><Icon name="x" size={16} /></button>
                             </div>
                         </div>
                     )}
@@ -1327,17 +1093,11 @@
         const rootElement = document.getElementById('root');
         if (rootElement) {
             const root = ReactDOM.createRoot(rootElement);
-            root.render(
-                <ErrorBoundary>
-                    <App />
-                </ErrorBoundary>
-            );
-        } else {
-            console.error('Element root introuvable');
+            root.render(<ErrorBoundary><App /></ErrorBoundary>);
         }
     </script>
 
-    <!-- Scripts globaux (menu, assistant, back-to-top) -->
+    <!-- Scripts globaux -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script src="assets/js/menu.js"></script>
     <script src="assets/js/assistant.js"></script>
