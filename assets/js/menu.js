@@ -5,9 +5,9 @@
 
     const menuItems = [
         { name: 'Accueil', icon: 'fa-home', url: 'index.html' },
-        { name: 'Pronostics', icon: 'fa-chart-line', url: 'pronos.html' },
+        { name: 'Coupons', icon: 'fa-chart-line', url: 'pronos.html' },
         { name: 'LIVE VIP', icon: 'fa-bolt', url: 'live.html' },
-        { name: 'Historique', icon: 'fa-clock-rotate-left', url: 'historique.html' },
+        { name: 'Histo', icon: 'fa-clock-rotate-left', url: 'historique.html' },
         { name: 'Bonus', icon: 'fa-gift', url: 'bonus.html' },
         { name: 'Blog', icon: 'fa-newspaper', url: 'blog.html' },
         { name: 'Conseils', icon: 'fa-lightbulb', url: 'conseils.html' },
@@ -70,7 +70,7 @@
                 border-top: 2px solid #D4AF37;
                 border-bottom: 2px solid #D4AF37;
                 background: #0D0D0D;
-                padding: 5px 10px; /* Padding pour éviter que les bords soient coupés */
+                padding: 5px 10px;
                 overflow-x: auto;
                 white-space: nowrap;
                 -webkit-overflow-scrolling: touch;
@@ -89,11 +89,15 @@
                 list-style: none;
                 margin: 0;
                 padding: 0;
-                gap: 1rem;
+                gap: 0;
                 flex-wrap: nowrap;
+                width: 100%;
             }
             .icon-nav-list li {
-                display: inline-block;
+                display: flex;
+                flex: 1;
+                min-width: 0;
+                justify-content: center;
             }
             .icon-nav-list a {
                 display: flex;
@@ -103,9 +107,11 @@
                 text-decoration: none;
                 font-size: 0.75rem;
                 transition: color 0.3s;
-                padding: 5px 8px;
+                padding: 5px 0;
                 border-radius: 8px;
                 white-space: nowrap;
+                width: 100%;
+                max-width: 80px;
             }
             .icon-nav-list .nav-icon {
                 font-size: 1.3rem;
@@ -138,7 +144,7 @@
                 margin-right: 10px;
             }
             .logo a {
-                font-size: 1.6rem; /* Taille d'origine */
+                font-size: 1.6rem;
                 white-space: nowrap;
                 color: #D4AF37;
                 text-decoration: none;
@@ -150,69 +156,43 @@
                 flex-shrink: 0;
                 white-space: nowrap;
                 margin-left: 10px;
-                font-size: 0.9rem; /* Taille d'origine */
+                font-size: 1rem;
                 background: #D4AF37;
                 color: #000;
-                padding: 0.4rem 1rem;
+                padding: 0.5rem 1.2rem;
                 border-radius: 30px;
                 font-weight: 700;
             }
             /* Responsive : on réduit la taille des éléments du menu */
             @media (max-width: 1000px) {
-                .icon-nav-list {
-                    gap: 0.7rem;
-                }
                 .icon-nav-list .nav-icon {
                     font-size: 1.2rem;
                 }
                 .icon-nav-list .nav-label {
                     font-size: 0.6rem;
                 }
-                .icon-nav-list a {
-                    padding: 4px 6px;
-                }
             }
             @media (max-width: 800px) {
-                .icon-nav-list {
-                    gap: 0.5rem;
-                }
-                .icon-nav-list a {
-                    padding: 4px 5px;
-                }
                 .icon-nav-list .nav-icon {
                     font-size: 1.1rem;
                 }
             }
             @media (max-width: 600px) {
-                .icon-nav-list {
-                    gap: 0.4rem;
-                }
-                .icon-nav-list a {
-                    padding: 3px 4px;
-                }
                 .icon-nav-list .nav-icon {
                     font-size: 1rem;
                 }
                 .icon-nav-list .nav-label {
                     font-size: 0.55rem;
                 }
-                /* On garde le logo et le code promo plus grands */
                 .logo a {
                     font-size: 1.4rem;
                 }
                 .promo-code {
-                    font-size: 0.8rem;
-                    padding: 0.3rem 0.7rem;
+                    font-size: 0.9rem;
+                    padding: 0.4rem 1rem;
                 }
             }
-            /* Pour les très petits écrans, on réduit encore plus */
             @media (max-width: 400px) {
-                .icon-nav-list {
-                    gap: 0.2rem;
-                }
-                .icon-nav-list a {
-                    padding: 2px 3px;
-                }
                 .icon-nav-list .nav-icon {
                     font-size: 0.9rem;
                 }
@@ -223,8 +203,8 @@
                     font-size: 1.2rem;
                 }
                 .promo-code {
-                    font-size: 0.7rem;
-                    padding: 0.2rem 0.5rem;
+                    font-size: 0.8rem;
+                    padding: 0.3rem 0.8rem;
                 }
             }
         `;
