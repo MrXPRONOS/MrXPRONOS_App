@@ -79,6 +79,7 @@
                 width: 100%;
                 box-sizing: border-box;
                 flex-wrap: nowrap; /* Force la ligne horizontale */
+                flex-direction: row; /* Pour surcharger la règle de style.css */
             }
             .logo {
                 flex-shrink: 0;
@@ -199,12 +200,14 @@
             @media (max-width: 600px) {
                 header .container {
                     padding: 0.5rem 8px;
+                    flex-direction: row !important; /* Forcer ligne horizontale */
+                    flex-wrap: nowrap !important;
                 }
                 .logo a {
-                    font-size: 1.2rem; /* Réduction pour mobile */
+                    font-size: 1.2rem;
                 }
                 .promo-code {
-                    font-size: 0.8rem; /* Réduction */
+                    font-size: 0.8rem;
                     padding: 0.3rem 0.8rem;
                     margin-left: 5px;
                 }
@@ -219,8 +222,11 @@
                 }
             }
             @media (max-width: 400px) {
+                header .container {
+                    padding: 0.5rem 5px;
+                }
                 .logo a {
-                    font-size: 1rem; /* Encore plus petit */
+                    font-size: 1rem;
                 }
                 .promo-code {
                     font-size: 0.7rem;
