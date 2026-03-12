@@ -41,7 +41,9 @@
     }
     </script>
 
+    <!-- Font Awesome (icônes modernes) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <link rel="icon" href="assets/images/favicon.png">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="manifest.json">
@@ -50,13 +52,12 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <script src="assets/js/menu.js"></script>
     <header>
         <div class="container">
             <div class="logo">
                 <a href="index.html">Mr <span>XPRONOS</span></a>
             </div>
-            <!-- Le <nav> a été supprimé -->
+            <!-- L'ancien menu <nav> a été supprimé, il sera généré par menu.js -->
             <div class="promo-code">Code Promo : XPVIP</div>
         </div>
     </header>
@@ -105,6 +106,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Overlay VIP (identique à celui de pronos.html) -->
+    <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;"></div>
 
     <main class="container">
         <!-- Section Nos derniers pronostics validés -->
@@ -231,10 +235,13 @@
 
     <div id="win-popup" class="win-popup"></div>
 
+    <!-- Scripts -->
     <script type="module" src="assets/js/main.js"></script>
     <script src="assets/js/pwa.js"></script>
     <script src="assets/js/assistant.js"></script>
-    <script src="assets/js/menu.js"></script>   <!-- Nouveau menu -->
+    <!-- Nouveau menu avec icônes Font Awesome -->
+    <script src="assets/js/menu.js"></script>
+    <!-- Bouton retour en haut -->
     <script src="assets/js/back-to-top.js"></script>
 </body>
 </html>

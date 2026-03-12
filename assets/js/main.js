@@ -778,7 +778,7 @@ function createSharePopup() {
 // =======================================================
 function share(platform) {
     const baseUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-    const message = `🔥 PRONOSTICS FOOTBALL GRATUITS\n\nJe viens de découvrir ce site ⚽\n\nIls donnent :\n✔ plusieurs matchs analysés chaque jour\n✔ statistiques + analyse\n✔ pronostics fiables\n\n👇 Accède aux matchs du jour :\n${baseUrl}\n\n💰 Très utile pour les paris sportifs !`;
+    const message = `🔥 PRONOSTICS FOOTBALL GRATUITS😱\n\nJe viens de découvrir ce site ⚽\n\nIls donnent :\n🎯 80% de précision\n🎯 80% des coupons gagnant chaque jour\n🎯 statistiques + analyse\n🎯 pronostics fiables\n\n👇 Accède aux matchs du jour :\n${baseUrl}\n\n💰 Très utile pour les paris sportifs !`;
     
     const url = platform === 'whatsapp' 
         ? `https://wa.me/?text=${encodeURIComponent(message)}`
@@ -1679,34 +1679,70 @@ async function displayBlogPost() {
     `;
 }
 
+/**
+ * Affiche la liste des conseils (page conseils.html)
+ * Filtre les conseils inactifs (active = false)
+ */
 async function displayConseils() {
     const container = document.getElementById('conseils-list');
     if (!container) return;
-    if (!window.generatedConseils) await loadGeneratedContent();
-    const data = await loadDataGeneric();
-    const allConseils = [...(window.generatedConseils || []), ...(data?.conseils || [])];
-    if (allConseils.length === 0) { 
-        container.innerHTML = '<div class="no-events">Aucun conseil.</div>'; 
-        return; 
+
+    // Charger les conseils depuis la source appropriée
+    let allConseils = [];
+    if (window.generatedConseils) {
+        allConseils = window.generatedConseils;
+    } else {
+        const data = await loadDataGeneric();
+        allConseils = data?.conseils || [];
     }
-    window.conseilsData = allConseils;
+
+    // Filtrer les conseils actifs (par défaut, si pas de champ active, on les affiche)
+    const actifs = allConseils.filter(c => c.active !== false);
+
+    if (actifs.length === 0) {
+        container.innerHTML = '<div class="no-events">Aucun conseil disponible pour le moment.</div>';
+        return;
+    }
+
+    // Stocker les conseils actifs pour les utiliser dans les modales
+    window.conseilsData = actifs;
+
+    // --- Affichage de la liste horizontale (si le conteneur existe) ---
     const horizontalContainer = document.getElementById('conseils-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
-        allConseils.slice(0,8).forEach((conseil,index) => {
-            const title = escapeHtml(conseil.title.replace(/#+\s*/g,'').replace(/\*\*/g,''));
-            hHtml += `<div class="horizontal-item" onclick="showConseilDetail(${index})"><img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}" alt="${title}" loading="lazy"><div class="item-title">${title}</div></div>`;
+        actifs.slice(0, 8).forEach((conseil, index) => {
+            // Nettoyer le titre (enlever le markdown)
+            const title = escapeHtml(conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, ''));
+            const imageUrl = escapeAttribute(conseil.image_url || 'assets/images/default-logo.png');
+            hHtml += `<div class="horizontal-item" onclick="showConseilDetail(${index})">
+                <img src="${imageUrl}" alt="${title}" loading="lazy">
+                <div class="item-title">${title}</div>
+            </div>`;
         });
         horizontalContainer.innerHTML = hHtml;
     }
+
+    // --- Affichage de la grille principale ---
     let html = '';
-    allConseils.forEach((conseil,index) => {
-        let cleanTitle = escapeHtml(conseil.title.replace(/#+\s*/g,'').replace(/\*\*/g,''));
-        let excerpt = conseil.content.substring(0,150) + '...';
-        let cleanExcerpt = escapeHtml(excerpt.replace(/#+\s*/g,'').replace(/\*\*/g,'').replace(/\*/g,'').replace(/\[|\]/g,'').substring(0,120) + '...');
+    actifs.forEach((conseil, index) => {
+        // Nettoyage du titre
+        let cleanTitle = escapeHtml(conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, ''));
+
+        // Création d'un extrait (premiers 150 caractères)
+        let excerpt = conseil.content.substring(0, 150) + '...';
+        let cleanExcerpt = escapeHtml(
+            excerpt
+                .replace(/#+\s*/g, '')
+                .replace(/\*\*/g, '')
+                .replace(/\*/g, '')
+                .replace(/\[|\]/g, '')
+                .substring(0, 120) + '...'
+        );
+
         let imageUrl = escapeAttribute(conseil.image_url || 'assets/images/default-logo.png');
         let conseilDate = conseil.date ? new Date(conseil.date).toLocaleDateString('fr-FR') : '';
-        
+
         html += `
             <div class="news-card card" onclick="showConseilDetail(${index})">
                 <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
@@ -1866,3 +1902,47 @@ function showVipLoginForm(container) {
         if (DOM.matches) DOM.matches.style.display = 'grid';
     });
 }
+
+
+// Fonction appelée lors du clic sur "LIVE VIP" dans le menu
+window.handleVipMenuClick = async function() {
+    // Vérifier si l'utilisateur est déjà VIP
+    const isVip = await checkVipStatus();
+    if (isVip) {
+        // Redirection vers la page live
+        window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/live.html';
+    } else {
+        // Afficher le popup VIP (identique à celui de pronos.html)
+        if (DOM.vipLockedOverlay) {
+            ensureVipOverlayStructure();
+            showVipLoginForm(DOM.vipLockedOverlay);
+            DOM.vipLockedOverlay.style.display = 'flex';
+            if (DOM.matches) DOM.matches.style.display = 'none';
+        } else {
+            alert('Accès VIP payant. Contactez-nous sur WhatsApp ou Telegram.');
+        }
+    }
+};
+
+// Fonction pour gérer le clic sur LIVE VIP (utilisée par le menu)
+window.handleVipClick = async function() {
+    const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
+    if (!vipEnabled) {
+        alert('Les pronostics VIP sont temporairement désactivés.');
+        return;
+    }
+    const isVip = await checkVipStatus();
+    if (!isVip) {
+        if (DOM.vipLockedOverlay) {
+            ensureVipOverlayStructure();
+            showVipLoginForm(DOM.vipLockedOverlay);
+            DOM.vipLockedOverlay.style.display = 'flex';
+            if (DOM.matches) DOM.matches.style.display = 'none';
+        } else {
+            alert('Accès VIP payant. Contactez-nous sur WhatsApp ou Telegram.');
+        }
+        return;
+    }
+    // Si VIP, rediriger vers la page live
+    window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/live.html';
+};

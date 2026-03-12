@@ -31,14 +31,30 @@
 
         const ul = document.createElement('ul');
         ul.className = 'icon-nav-list';
-
+        
         menuItems.forEach(item => {
             const li = document.createElement('li');
             const a = document.createElement('a');
-            a.href = item.url;
+            
+            // Pour LIVE VIP, on utilise un lien factice
+            if (item.url === 'live.html') {
+                a.href = 'javascript:void(0)'; // Empêche la navigation
+                a.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (typeof window.handleVipClick === 'function') {
+                        window.handleVipClick();
+                    } else {
+                        // Fallback : redirection directe
+                        window.location.href = 'live.html';
+                    }
+                });
+            } else {
+                a.href = item.url;
+            }
+            
             a.innerHTML = `<span class="nav-icon"><i class="fas ${item.icon}"></i></span><span class="nav-label">${item.name}</span>`;
-
-            // Marquer le lien actif
+            
+            // Marquage du lien actif (inchangé)
             const currentPath = window.location.pathname;
             if (currentPath.endsWith(item.url) || 
                 (item.url === 'index.html' && (currentPath === '/' || currentPath.endsWith('/')))) {
