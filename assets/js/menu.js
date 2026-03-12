@@ -1,8 +1,7 @@
 // assets/js/menu.js
 // Menu horizontal avec icônes Font Awesome, placé sous le logo et le code promo
 // Logo et code promo sont sur la même ligne en haut, menu en dessous
-// Effet de pulsation sur le code promo
-// Bordure inférieure du menu supprimée, seul le trait du haut reste.
+// Effet de pulsation sur le code promo, barre sans bordures avec ombre en haut
 
 (function() {
     'use strict';
@@ -127,10 +126,12 @@
                 }
             }
 
-            /* Deuxième ligne : menu */
+            /* Deuxième ligne : menu sans bordures avec ombre en haut */
             .icon-nav {
                 width: 100%;
-                border-top: 2px solid #D4AF37; /* Seulement la bordure haute */
+                /* Suppression des bordures */
+                /* border-top: 2px solid #D4AF37; */
+                /* border-bottom: 2px solid #D4AF37; */
                 background: linear-gradient(180deg, #0D0D0D 0%, #1a1a1a 100%);
                 padding: 5px 10px;
                 overflow-x: auto;
@@ -139,7 +140,8 @@
                 scrollbar-width: thin;
                 scrollbar-color: #D4AF37 #0D0D0D;
                 box-sizing: border-box;
-                /* Effet 3D */
+                /* Ombre en haut uniquement */
+                box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5), inset 0 1px 3px rgba(255, 255, 255, 0.2);
                 box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 3px rgba(255, 255, 255, 0.2);
                 position: relative;
                 z-index: 10;
