@@ -1,5 +1,5 @@
 // assets/js/menu.js
-// Menu moderne avec icônes pour Mr XPRONOS
+// Menu horizontal avec icônes, bordures haute et basse, sur une seule ligne
 (function() {
     'use strict';
 
@@ -66,7 +66,22 @@
                 flex: 1;
                 display: flex;
                 justify-content: center;
-                margin: 0 15px;
+                margin: 0 10px;
+                border-top: 2px solid #D4AF37;
+                border-bottom: 2px solid #D4AF37;
+                padding: 5px 0;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
+                scrollbar-color: #D4AF37 #0D0D0D;
+            }
+            .icon-nav::-webkit-scrollbar {
+                height: 4px;
+            }
+            .icon-nav::-webkit-scrollbar-thumb {
+                background: #D4AF37;
+                border-radius: 4px;
             }
             .icon-nav-list {
                 display: flex;
@@ -74,8 +89,10 @@
                 margin: 0;
                 padding: 0;
                 gap: 1.2rem;
-                flex-wrap: wrap;
-                justify-content: center;
+                flex-wrap: nowrap;
+            }
+            .icon-nav-list li {
+                display: inline-block;
             }
             .icon-nav-list a {
                 display: flex;
@@ -87,6 +104,7 @@
                 transition: color 0.3s;
                 padding: 5px;
                 border-radius: 8px;
+                white-space: nowrap;
             }
             .icon-nav-list .nav-icon {
                 font-size: 1.3rem;
@@ -106,7 +124,7 @@
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
             }
             .logo {
                 flex-shrink: 0;
@@ -114,9 +132,10 @@
             .promo-code {
                 flex-shrink: 0;
                 white-space: nowrap;
+                margin-left: 10px;
             }
-            /* Responsive : si trop petit, on réduit les gaps */
-            @media (max-width: 900px) {
+            /* Sur les petits écrans, on réduit l'espacement */
+            @media (max-width: 1000px) {
                 .icon-nav-list {
                     gap: 0.8rem;
                 }
@@ -127,7 +146,7 @@
                     font-size: 0.6rem;
                 }
             }
-            @media (max-width: 700px) {
+            @media (max-width: 800px) {
                 .icon-nav-list {
                     gap: 0.5rem;
                 }
