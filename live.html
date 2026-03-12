@@ -36,7 +36,7 @@
             --gold-light: #f5e7a3;
             --dark: #0a0a0a;
             --card: #121212;
-            --blue-link: #3b82f6; /* Bleu clair pour les liens */
+            --blue-link: #3b82f6;
         }
         
         body {
@@ -125,7 +125,6 @@
             padding: 20px;
         }
 
-        /* Styles pour les prédictions */
         .prediction-badge {
             background: rgba(212, 175, 55, 0.1);
             border: 1px solid rgba(212, 175, 55, 0.3);
@@ -148,7 +147,6 @@
             -webkit-overflow-scrolling: touch;
         }
         
-        /* Liens en bleu clair */
         a {
             color: var(--blue-link);
             text-decoration: underline;
@@ -157,7 +155,6 @@
             color: #60a5fa;
         }
         
-        /* Espacement entre paragraphes */
         p {
             margin-bottom: 1rem;
         }
@@ -165,9 +162,8 @@
             margin-bottom: 0;
         }
         
-        /* Couleur de l'heure */
         .message-time {
-            color: #9ca3af !important; /* gris clair */
+            color: #9ca3af !important;
         }
     </style>
 </head>
@@ -175,18 +171,14 @@
     <div id="root"></div>
     
     <script type="text/babel">
-        // ============================================================
         // Configuration Supabase
-        // ============================================================
         const SUPABASE_URL = 'https://nhwafcpndlufzzxexikh.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5od2FmY3BuZGx1Znp6eGV4aWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg4OTYwNTMsImV4cCI6MjA1NDQ3MjA1M30.8z2VQ_5vXl6kFqJvWq5mNv5w7J6pNk9Yt2wV5hL6Fz8';
         const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live`;
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // ============================================================
         // Error Boundary
-        // ============================================================
         class ErrorBoundary extends React.Component {
             constructor(props) {
                 super(props);
@@ -220,18 +212,12 @@
             }
         }
 
-        // ============================================================
-        // Vérification des bibliothèques globales
-        // ============================================================
         const { useState, useEffect, useCallback, useRef, useMemo } = React;
         const Recharts = window.Recharts;
         const { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie } = Recharts || {};
         const lucide = window.lucide;
 
-        // ============================================================
-        // COMPOSANTS UTILITAIRES
-        // ============================================================
-        
+        // Composants utilitaires
         const Icon = ({ name, size = 20, className = "" }) => {
             const iconRef = useRef(null);
             
@@ -305,15 +291,11 @@
             );
         };
         
-        // ============================================================
-        // COMPOSANTS DE MATCH
-        // ============================================================
-        
+        // Composants de match
         const LiveMatchCard = ({ match, onClick, isSelected }) => {
             const momentum = match?.momentum_index || {};
-            const xg = { home: match?.xg_home || 0, away: match?.xg_away || 0 };
             const predictions = match?.predictions || [];
-            const highConfidence = predictions.filter(p => p?.confidence === 'high' && p?.probability > 0.8);
+            const highConfidence = predictions.filter(p => p?.confidence === 'high');
             
             return (
                 <Card 
@@ -335,7 +317,6 @@
                     <div className="flex justify-between items-center mb-4">
                         <div className="flex-1 text-right pr-4">
                             <div className="font-bold text-white">{match?.home_team || ''}</div>
-                            <div className="text-xs text-gray-400">xG: {(xg.home || 0).toFixed(2)}</div>
                         </div>
                         
                         <div className="px-4 py-2 bg-[#0a0a0a] rounded-lg border border-[#D4AF37]">
@@ -346,7 +327,6 @@
                         
                         <div className="flex-1 pl-4">
                             <div className="font-bold text-white">{match?.away_team || ''}</div>
-                            <div className="text-xs text-gray-400">xG: {(xg.away || 0).toFixed(2)}</div>
                         </div>
                     </div>
                     
@@ -363,10 +343,9 @@
                             <div className="flex gap-2 flex-wrap">
                                 {highConfidence.slice(0, 3).map((pred, idx) => (
                                     <span key={idx} className="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400">
-                                        {pred.type === 'corners' && '⛳ Corners'}
-                                        {pred.type === 'shots' && '🎯 Tirs'}
-                                        {pred.type === 'btts' && '⚽ BTTS'}
-                                        {pred.type === 'winner' && '🏆 Favori'}
+                                        {pred.type === 'total_shots' && '🎯 Tirs'}
+                                        {pred.type === 'total_corners' && '⛳ Corners'}
+                                        {pred.type === 'total_fouls' && '🟨 Fautes'}
                                         {' '}{((pred.probability || 0) * 100).toFixed(0)}%
                                     </span>
                                 ))}
@@ -425,21 +404,15 @@
             );
         };
         
-        // ============================================================
-        // COMPOSANT DÉTAIL MATCH
-        // ============================================================
-        
         const MatchDetail = ({ match, onClose }) => {
             const [activeTab, setActiveTab] = useState('overview');
             
             if (!match) return null;
             
             const momentum = match.momentum_index || {};
-            const pressure = match.pressure_index || {};
-            const xg = { home: match.xg_home || 0, away: match.xg_away || 0 };
             const stats = match.live_stats || { home: {}, away: {} };
             const predictions = match.predictions || [];
-            const highConfidence = predictions.filter(p => p.confidence === 'high' && p.probability > 0.8);
+            const highConfidence = predictions.filter(p => p.confidence === 'high');
             
             return (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -465,12 +438,10 @@
                             <div className="flex justify-center items-center gap-8 mt-6">
                                 <div className="text-center">
                                     <div className="text-4xl font-bold gold-gradient">{match.home_score || 0}</div>
-                                    <div className="text-xs text-gray-400 mt-1">xG: {(xg.home || 0).toFixed(2)}</div>
                                 </div>
                                 <div className="text-2xl text-gray-600">-</div>
                                 <div className="text-center">
                                     <div className="text-4xl font-bold gold-gradient">{match.away_score || 0}</div>
-                                    <div className="text-xs text-gray-400 mt-1">xG: {(xg.away || 0).toFixed(2)}</div>
                                 </div>
                             </div>
                         </div>
@@ -517,18 +488,6 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
-                                        <div className="bg-[#0a0a0a] rounded-xl p-4">
-                                            <h4 className="text-sm font-bold text-gray-400 mb-3">Pression</h4>
-                                            <div className="text-center">
-                                                <div className="text-2xl font-bold text-[#D4AF37]">
-                                                    {pressure.ratio?.toFixed(2) || '1.00'}
-                                                </div>
-                                                <div className="text-xs text-gray-500 mt-1">
-                                                    Ratio domination
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                     
                                     {highConfidence.length > 0 && (
@@ -544,9 +503,6 @@
                                                                     Probabilité: {((pred.probability || 0) * 100).toFixed(1)}%
                                                                 </div>
                                                             </div>
-                                                            {pred.odds_suggestion && (
-                                                                <Badge color="gold">Cote: {pred.odds_suggestion}</Badge>
-                                                            )}
                                                         </div>
                                                     </div>
                                                 ))}
@@ -613,12 +569,6 @@
                                                         <div className="text-gray-500 text-xs">Probabilité</div>
                                                         <div className="font-bold text-[#D4AF37]">{((pred.probability || 0) * 100).toFixed(1)}%</div>
                                                     </div>
-                                                    {pred.odds_suggestion && (
-                                                        <div className="bg-[#121212] rounded-lg p-2 text-center">
-                                                            <div className="text-gray-500 text-xs">Cote suggérée</div>
-                                                            <div className="font-bold">{pred.odds_suggestion}</div>
-                                                        </div>
-                                                    )}
                                                 </div>
                                             </div>
                                         ))
@@ -631,10 +581,7 @@
             );
         };
         
-        // ============================================================
-        // COMPOSANTS PRINCIPAUX
-        // ============================================================
-        
+        // Composants principaux
         const Header = ({ stats, notifications, notificationCount, onClearNotifications, onBack }) => {
             const [showNotifications, setShowNotifications] = useState(false);
             
@@ -706,9 +653,6 @@
                                         </div>
                                     )}
                                 </div>
-                                <button className="p-2 hover:bg-[#2a2a2a] rounded-lg">
-                                    <Icon name="settings" size={20} />
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -716,7 +660,7 @@
             );
         };
         
-        const TodayOverview = ({ data, onMatchClick }) => {
+        const TodayOverview = ({ data }) => {
             if (!data) return null;
             
             return (
@@ -855,23 +799,25 @@
                                         <th className="px-4 py-3 text-left">Prédiction</th>
                                         <th className="px-4 py-3 text-left">Probabilité</th>
                                         <th className="px-4 py-3 text-left">Résultat</th>
-                                        <th className="px-4 py-3 text-left">Date</th>
+                                        <th className="px-4 py-3 text-left">Heure</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {history.map((item, idx) => (
                                         <tr key={idx} className="border-b border-[#2a2a2a] hover:bg-[#1a1a1a]">
                                             <td className="px-4 py-3">{item.match}</td>
-                                            <td className="px-4 py-3 capitalize">{item.type}</td>
+                                            <td className="px-4 py-3 capitalize">{item.type.replace('_', ' ')}</td>
                                             <td className="px-4 py-3">{(item.probability * 100).toFixed(0)}%</td>
                                             <td className="px-4 py-3">
                                                 {item.validated ? (
-                                                    <span className="text-green-500">✓ Validé</span>
+                                                    <span className={item.outcome === 'success' ? 'text-green-500' : 'text-red-500'}>
+                                                        {item.outcome === 'success' ? '✓ Réussi' : '✗ Échoué'}
+                                                    </span>
                                                 ) : (
                                                     <span className="text-yellow-500">En attente</span>
                                                 )}
                                             </td>
-                                            <td className="px-4 py-3">{new Date(item.timestamp).toLocaleString('fr-FR')}</td>
+                                            <td className="px-4 py-3">{new Date(item.timestamp).toLocaleTimeString('fr-FR')}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -882,10 +828,7 @@
             </div>
         );
         
-        // ============================================================
-        // APP PRINCIPALE
-        // ============================================================
-        
+        // Application principale
         const App = () => {
             const [userId] = useState(() => localStorage.getItem('mrx_user_id') || `user_${Date.now()}`);
             const [liveMatches, setLiveMatches] = useState([]);
@@ -899,14 +842,12 @@
             const [loading, setLoading] = useState(true);
             const [error, setError] = useState(null);
             const [selectedMatch, setSelectedMatch] = useState(null);
-            const [selectedTab, setSelectedTab] = useState('live'); // live ou history
+            const [selectedTab, setSelectedTab] = useState('live');
             
-            // Sauvegarder userId
             useEffect(() => {
                 localStorage.setItem('mrx_user_id', userId);
             }, [userId]);
             
-            // Charger les données live (avec prédictions)
             const fetchLiveMatches = useCallback(async () => {
                 try {
                     const res = await fetch(`${EDGE_FUNCTION_URL}/matches`);
@@ -920,7 +861,6 @@
                 }
             }, []);
             
-            // Charger les données d'ensemble (aujourd'hui)
             const fetchTodayData = useCallback(async () => {
                 try {
                     const res = await fetch(`${EDGE_FUNCTION_URL}/today`);
@@ -935,7 +875,6 @@
                 }
             }, []);
             
-            // Charger les alertes haute confiance
             const fetchPredictions = useCallback(async () => {
                 try {
                     const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/active`);
@@ -948,7 +887,6 @@
                 }
             }, []);
             
-            // Charger l'historique des pronostics (48h)
             const fetchHistory = useCallback(async () => {
                 try {
                     const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/history`);
@@ -961,7 +899,6 @@
                 }
             }, []);
             
-            // Charger les notifications
             const fetchNotifications = useCallback(async () => {
                 try {
                     const res = await fetch(`${EDGE_FUNCTION_URL}/notifications?user_id=${userId}`);
@@ -974,7 +911,6 @@
                 }
             }, [userId]);
             
-            // Chargement initial et rafraîchissement
             useEffect(() => {
                 const loadAll = async () => {
                     setLoading(true);
@@ -1020,11 +956,10 @@
                 if (selectedMatch) {
                     setSelectedMatch(null);
                 } else {
-                    // Si on vient d'une autre page, retour historique ; sinon, aller à l'accueil
                     if (document.referrer && document.referrer !== window.location.href) {
                         window.history.back();
                     } else {
-                        window.location.href = '/index.html'; // Redirection vers l'accueil
+                        window.location.href = '/index.html';
                     }
                 }
             };
@@ -1097,10 +1032,7 @@
                                 
                                 {selectedTab === 'live' ? (
                                     <>
-                                        <TodayOverview 
-                                            data={todayData}
-                                            onMatchClick={handleMatchSelect}
-                                        />
+                                        <TodayOverview data={todayData} />
                                         
                                         <div className="grid lg:grid-cols-3 gap-8">
                                             <div className="lg:col-span-2">
@@ -1173,9 +1105,6 @@
             );
         };
         
-        // ============================================================
-        // Rendu avec ErrorBoundary
-        // ============================================================
         const rootElement = document.getElementById('root');
         if (rootElement) {
             const root = ReactDOM.createRoot(rootElement);
