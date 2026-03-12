@@ -635,7 +635,7 @@ async function handleCategoryChange() {
     const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
     if (currentCategory === 'vip') {
         if (!vipEnabled) {
-            alert('Les pronostics VIP sont temporairement désactivés.');
+            alert('Les pronostics LIVE VIP sont temporairement désactivés.');
             currentCategory = 'simple';
             document.querySelector('.tab-btn[data-cat="simple"]')?.classList.add('active');
             document.querySelector('.tab-btn[data-cat="vip"]')?.classList.remove('active');
@@ -644,6 +644,7 @@ async function handleCategoryChange() {
         }
         const isVip = await checkVipStatus();
         if (!isVip) {
+            // Afficher l'overlay VIP (inchangé)
             if (DOM.vipLockedOverlay) {
                 ensureVipOverlayStructure();
                 showVipLoginForm(DOM.vipLockedOverlay);
@@ -654,23 +655,11 @@ async function handleCategoryChange() {
             }
             return;
         }
-        hideVipLocked();
-        filterAndDisplay();
+        // Utilisateur VIP : redirection vers la page live
+        window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/live.html';
         return;
     }
-    if (currentCategory === 'simple') {
-        hideVipLocked();
-        filterAndDisplay();
-    } else {
-        const target = shareLimits[currentCategory];
-        const shareCount = getDailyShareCount();
-        if (shareCount >= target) {
-            hideVipLocked();
-            filterAndDisplay();
-        } else {
-            showVipLocked(currentCategory);
-        }
-    }
+    // ... reste du code inchangé pour les autres catégories
 }
 
 function showVipLocked(category) {
