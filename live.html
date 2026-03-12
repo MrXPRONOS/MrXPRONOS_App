@@ -165,6 +165,51 @@
         .message-time {
             color: #9ca3af !important;
         }
+
+        /* Overlay VIP */
+        .vip-locked-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .vip-locked-content {
+            background: #121212;
+            border: 2px solid #D4AF37;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(212,175,55,0.3);
+        }
+        .vip-locked-content h2 {
+            color: #D4AF37;
+            margin-bottom: 15px;
+        }
+        .vip-locked-content input {
+            width: 100%;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 50px;
+            border: 1px solid #D4AF37;
+            background: #0a0a0a;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+        }
+        .vip-locked-content button {
+            width: 100%;
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
@@ -219,48 +264,40 @@
 
         // Composants utilitaires
         const Icon = ({ name, size = 20, className = "" }) => {
-        const iconRef = useRef(null);
-
-        // Table de correspondance pour le fallback
-        const fallbackSymbol = {
-            'arrow-left': '←',
-            'x': '✕',
-            'bell': '🔔',
-            'activity': '⚡',
-            'calendar': '📅',
-            'radio': '📻',
-            'clock': '⏰',
-            'target': '🎯',
-            'history': '📜',
-            'bar-chart-2': '📊',
-            'alert-circle': '⚠️'
-        };
-
-        useEffect(() => {
-            if (iconRef.current && window.lucide?.icons?.[name]) {
-            // Si Lucide est disponible, on l'utilise
-            iconRef.current.innerHTML = '';
-            try {
-                const icon = window.lucide.createElement(window.lucide.icons[name]);
-                if (icon) {
-                icon.setAttribute('width', size);
-                icon.setAttribute('height', size);
-                iconRef.current.appendChild(icon);
+            const iconRef = useRef(null);
+            
+            useEffect(() => {
+                if (iconRef.current && window.lucide && window.lucide.icons && window.lucide.icons[name]) {
+                    iconRef.current.innerHTML = '';
+                    try {
+                        const icon = window.lucide.createElement(window.lucide.icons[name]);
+                        if (icon) {
+                            icon.setAttribute('width', size);
+                            icon.setAttribute('height', size);
+                            iconRef.current.appendChild(icon);
+                        }
+                    } catch (e) {
+                        console.warn(`Erreur création icône ${name}:`, e);
+                    }
+                } else {
+                    // Fallback simple
+                    iconRef.current.innerText = {
+                        'arrow-left': '←',
+                        'x': '✕',
+                        'bell': '🔔',
+                        'activity': '⚡',
+                        'calendar': '📅',
+                        'radio': '📻',
+                        'clock': '⏰',
+                        'target': '🎯',
+                        'history': '📜',
+                        'bar-chart-2': '📊',
+                        'alert-circle': '⚠️'
+                    }[name] || '?';
                 }
-            } catch (e) {
-                console.warn(`Erreur création icône ${name}:`, e);
-                // En cas d'erreur, on affiche le fallback
-                iconRef.current.innerText = fallbackSymbol[name] || '?';
-            }
-            } else {
-            // Lucide non disponible : afficher le fallback
-            if (iconRef.current) {
-                iconRef.current.innerText = fallbackSymbol[name] || '?';
-            }
-            }
-        }, [name, size]);
-
-        return <span ref={iconRef} className={`inline-block ${className}`} style={{ fontSize: size }} />;
+            }, [name, size]);
+            
+            return <span ref={iconRef} className={className} style={{ fontSize: size }} />;
         };
         
         const GoldText = ({ children, className = "" }) => (
@@ -309,6 +346,50 @@
                             className="h-full rounded-full transition-all duration-500"
                             style={{ width: `${percentage}%`, backgroundColor: color }}
                         />
+                    </div>
+                </div>
+            );
+        };
+        
+        // Composant d'overlay VIP
+        const VipLockOverlay = ({ onSubmit }) => {
+            const [code, setCode] = useState('');
+            const [error, setError] = useState('');
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!code.trim()) {
+                    setError('Veuillez entrer un code');
+                    return;
+                }
+                onSubmit(code.trim());
+            };
+
+            return (
+                <div className="vip-locked-overlay">
+                    <div className="vip-locked-content">
+                        <h2 className="text-3xl font-bold gold-gradient mb-4">🔒 LIVE VIP</h2>
+                        <p className="text-gray-300 mb-6">
+                            Les matchs en direct sont réservés aux abonnés VIP.<br />
+                            Pour obtenir un code (5000 FCFA/mois), contactez-nous sur WhatsApp ou Telegram.
+                        </p>
+                        <div className="flex justify-center gap-4 mb-6">
+                            <a href="https://wa.me/22899201444?text=Bonjour%2C%20je%20souhaite%20obtenir%20un%20code%20VIP%20pour%20MrXPRONOS%20LIVE" target="_blank" className="btn btn-primary">WhatsApp</a>
+                            <a href="https://t.me/mr_xpronos?text=Bonjour%2C%20je%20souhaite%20obtenir%20un%20code%20VIP%20pour%20MrXPRONOS%20LIVE" target="_blank" className="btn btn-primary">Telegram</a>
+                        </div>
+                        <form onSubmit={handleSubmit}>
+                            <input
+                                type="text"
+                                placeholder="Entrez votre code VIP"
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                            />
+                            {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+                            <button type="submit" className="btn btn-primary">Activer</button>
+                            <button type="button" className="btn btn-secondary mt-2" onClick={() => window.location.href = 'index.html'}>
+                                Retour à l'accueil
+                            </button>
+                        </form>
                     </div>
                 </div>
             );
@@ -437,7 +518,6 @@
             const predictions = match.predictions || [];
             const highConfidence = predictions.filter(p => p.confidence === 'high');
             
-            // Fonction pour rediriger vers la page live
             const goBackToLive = () => {
                 window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/live.html';
             };
@@ -458,7 +538,6 @@
                                         {match.home_team || ''} <GoldText>vs</GoldText> {match.away_team || ''}
                                     </h2>
                                 </div>
-                                {/* Bouton croix en haut à droite avec couleur or */}
                                 <button 
                                     onClick={goBackToLive} 
                                     className="p-2 hover:bg-[#2a2a2a] rounded-lg text-[#D4AF37] hover:text-[#f5e7a3] transition-colors"
@@ -626,14 +705,12 @@
                                 <button onClick={onBack} className="p-2 hover:bg-[#2a2a2a] rounded-lg">
                                     <Icon name="arrow-left" size={20} />
                                 </button>
-                                {/* Remplacer l'icône par l'image favicon */}
                                 <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-[#D4AF37]">
                                     <img 
                                         src="assets/images/favicon.png" 
                                         alt="MrXPRONOS" 
                                         className="w-full h-full object-contain"
                                         onError={(e) => {
-                                            // Fallback si l'image n'existe pas
                                             e.target.style.display = 'none';
                                             e.target.parentNode.innerHTML = '<span class="text-black font-bold">M</span>';
                                         }}
@@ -887,6 +964,11 @@
             const [selectedMatch, setSelectedMatch] = useState(null);
             const [selectedTab, setSelectedTab] = useState('live');
             
+            // État VIP
+            const [isVip, setIsVip] = useState(false);
+            const [vipChecking, setVipChecking] = useState(true);
+            const [vipCode, setVipCode] = useState(() => localStorage.getItem('mx_vip_code') || '');
+            
             // Référence pour comparer les prédictions actives précédentes
             const prevActivePredictionsRef = useRef([]);
             
@@ -894,9 +976,48 @@
                 localStorage.setItem('mrx_user_id', userId);
             }, [userId]);
             
+            // Vérification du code VIP
+            const checkVip = useCallback(async (code) => {
+                if (!code) {
+                    setIsVip(false);
+                    setVipChecking(false);
+                    return;
+                }
+                try {
+                    const res = await fetch(`${EDGE_FUNCTION_URL}/check-vip?code=${code}`);
+                    const data = await res.json();
+                    setIsVip(data.valid === true);
+                } catch (e) {
+                    console.error('Erreur vérification VIP:', e);
+                    setIsVip(false);
+                } finally {
+                    setVipChecking(false);
+                }
+            }, []);
+            
+            useEffect(() => {
+                checkVip(vipCode);
+            }, [vipCode, checkVip]);
+            
+            // Toutes les requêtes API doivent inclure le code VIP si disponible
+            const apiFetch = useCallback(async (endpoint) => {
+                const url = vipCode 
+                    ? `${EDGE_FUNCTION_URL}${endpoint}?vip_code=${vipCode}`
+                    : `${EDGE_FUNCTION_URL}${endpoint}`;
+                const res = await fetch(url);
+                if (res.status === 403) {
+                    // Code invalide ou expiré
+                    setIsVip(false);
+                    localStorage.removeItem('mx_vip_code');
+                    setVipCode('');
+                    throw new Error('Accès VIP requis');
+                }
+                return res;
+            }, [vipCode]);
+            
             const fetchLiveMatches = useCallback(async () => {
                 try {
-                    const res = await fetch(`${EDGE_FUNCTION_URL}/matches`);
+                    const res = await apiFetch('/matches');
                     if (res.ok) {
                         const data = await res.json();
                         setLiveMatches(data.matches || []);
@@ -905,11 +1026,11 @@
                 } catch (e) {
                     console.error('Erreur chargement live matches:', e);
                 }
-            }, []);
+            }, [apiFetch]);
             
             const fetchTodayData = useCallback(async () => {
                 try {
-                    const res = await fetch(`${EDGE_FUNCTION_URL}/today`);
+                    const res = await apiFetch('/today');
                     if (res.ok) {
                         const data = await res.json();
                         setTodayData(data.data);
@@ -919,11 +1040,11 @@
                 } catch (e) {
                     console.error('Erreur chargement today:', e);
                 }
-            }, []);
+            }, [apiFetch]);
             
             const fetchPredictions = useCallback(async () => {
                 try {
-                    const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/active`);
+                    const res = await apiFetch('/predictions/active');
                     if (res.ok) {
                         const data = await res.json();
                         setActivePredictions(data.predictions || []);
@@ -931,11 +1052,11 @@
                 } catch (e) {
                     console.error('Erreur chargement prédictions:', e);
                 }
-            }, []);
+            }, [apiFetch]);
             
             const fetchHistory = useCallback(async () => {
                 try {
-                    const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/history`);
+                    const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/history`); // public
                     if (res.ok) {
                         const data = await res.json();
                         setPredictionHistory(data.history || []);
@@ -960,7 +1081,6 @@
             // Effet pour déclencher un toast lors de l'arrivée d'une nouvelle prédiction haute confiance
             useEffect(() => {
                 if (activePredictions.length > prevActivePredictionsRef.current.length) {
-                    // Trouver les nouvelles prédictions
                     const newOnes = activePredictions.filter(
                         (pred, idx) => !prevActivePredictionsRef.current.some(
                             old => old.prediction.message === pred.prediction.message
@@ -971,7 +1091,6 @@
                             title: "Nouvelle alerte haute confiance",
                             message: newOnes[0].prediction.message,
                         });
-                        // Auto-disparition après 5 secondes
                         setTimeout(() => setToast(null), 5000);
                     }
                 }
@@ -980,6 +1099,7 @@
             
             useEffect(() => {
                 const loadAll = async () => {
+                    if (!isVip) return; // Ne pas charger tant que non VIP
                     setLoading(true);
                     try {
                         await Promise.all([
@@ -996,34 +1116,34 @@
                     }
                 };
                 
-                loadAll();
-                
-                const intervalLive = setInterval(fetchLiveMatches, 30000);
-                const intervalToday = setInterval(fetchTodayData, 60000);
-                const intervalPred = setInterval(fetchPredictions, 30000);
-                const intervalNotif = setInterval(fetchNotifications, 30000);
-                
-                return () => {
-                    clearInterval(intervalLive);
-                    clearInterval(intervalToday);
-                    clearInterval(intervalPred);
-                    clearInterval(intervalNotif);
-                };
-            }, [fetchLiveMatches, fetchTodayData, fetchPredictions, fetchHistory, fetchNotifications]);
+                if (!vipChecking && isVip) {
+                    loadAll();
+                    
+                    const intervalLive = setInterval(fetchLiveMatches, 30000);
+                    const intervalToday = setInterval(fetchTodayData, 60000);
+                    const intervalPred = setInterval(fetchPredictions, 30000);
+                    const intervalNotif = setInterval(fetchNotifications, 30000);
+                    
+                    return () => {
+                        clearInterval(intervalLive);
+                        clearInterval(intervalToday);
+                        clearInterval(intervalPred);
+                        clearInterval(intervalNotif);
+                    };
+                }
+            }, [isVip, vipChecking, fetchLiveMatches, fetchTodayData, fetchPredictions, fetchHistory, fetchNotifications]);
             
             const handleMatchSelect = (match) => {
                 setSelectedMatch(match);
             };
             
             const clearNotifications = async () => {
-                // Marquer toutes les notifications comme lues via l'API
                 try {
                     await fetch(`${EDGE_FUNCTION_URL}/notifications/mark-read`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ user_id: userId }),
                     });
-                    // Mettre à jour l'état local
                     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
                 } catch (e) {
                     console.error('Erreur lors du marquage des notifications:', e);
@@ -1031,23 +1151,35 @@
             };
             
             const handleBack = () => {
-                // Redirection directe vers l'index
                 window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/index.html';
+            };
+            
+            const handleVipCodeSubmit = (code) => {
+                localStorage.setItem('mx_vip_code', code);
+                setVipCode(code);
+                // La vérification se fera via l'effet
             };
             
             const unreadCount = notifications.filter(n => !n.read).length;
             
-            if (loading) {
+            // Affichage du chargement VIP
+            if (vipChecking) {
                 return (
                     <div className="min-h-screen flex items-center justify-center">
                         <div className="text-center">
                             <div className="w-16 h-16 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                            <p className="text-gray-400">Chargement...</p>
+                            <p className="text-gray-400">Vérification de l'accès...</p>
                         </div>
                     </div>
                 );
             }
             
+            // Si non VIP, afficher l'overlay
+            if (!isVip) {
+                return <VipLockOverlay onSubmit={handleVipCodeSubmit} />;
+            }
+            
+            // Si VIP mais erreur de chargement
             if (error) {
                 return (
                     <div className="min-h-screen flex items-center justify-center">
@@ -1102,46 +1234,53 @@
                                 </div>
                                 
                                 {selectedTab === 'live' ? (
-                                    <>
-                                        <TodayOverview data={todayData} />
-                                        
-                                        <div className="grid lg:grid-cols-3 gap-8">
-                                            <div className="lg:col-span-2">
-                                                <LiveMatchesSection 
-                                                    matches={liveMatches}
-                                                    selectedMatch={selectedMatch}
-                                                    onSelectMatch={handleMatchSelect}
-                                                />
-                                                
-                                                <ScheduledSection matches={scheduledMatches} />
-                                            </div>
+                                    loading ? (
+                                        <div className="text-center py-12">
+                                            <div className="w-12 h-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                                            <p className="text-gray-400">Chargement des matchs live...</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <TodayOverview data={todayData} />
                                             
-                                            <div className="lg:col-span-1">
-                                                <ActivePredictions predictions={activePredictions} />
+                                            <div className="grid lg:grid-cols-3 gap-8">
+                                                <div className="lg:col-span-2">
+                                                    <LiveMatchesSection 
+                                                        matches={liveMatches}
+                                                        selectedMatch={selectedMatch}
+                                                        onSelectMatch={handleMatchSelect}
+                                                    />
+                                                    
+                                                    <ScheduledSection matches={scheduledMatches} />
+                                                </div>
                                                 
-                                                <div className="bg-[#121212] rounded-xl border border-[#2a2a2a] p-4 mt-6">
-                                                    <h3 className="font-bold mb-4 flex items-center gap-2">
-                                                        <Icon name="bar-chart-2" size={18} className="text-[#D4AF37]" />
-                                                        Performance
-                                                    </h3>
-                                                    <div className="space-y-3">
-                                                        <div className="flex justify-between text-sm">
-                                                            <span className="text-gray-400">Prédictions actives</span>
-                                                            <span className="font-bold">{activePredictions.length}</span>
-                                                        </div>
-                                                        <div className="flex justify-between text-sm">
-                                                            <span className="text-gray-400">Matchs en direct</span>
-                                                            <span className="font-bold text-green-500">{liveMatches.length}</span>
-                                                        </div>
-                                                        <div className="flex justify-between text-sm">
-                                                            <span className="text-gray-400">Matchs programmés</span>
-                                                            <span className="font-bold text-[#D4AF37]">{scheduledMatches.length}</span>
+                                                <div className="lg:col-span-1">
+                                                    <ActivePredictions predictions={activePredictions} />
+                                                    
+                                                    <div className="bg-[#121212] rounded-xl border border-[#2a2a2a] p-4 mt-6">
+                                                        <h3 className="font-bold mb-4 flex items-center gap-2">
+                                                            <Icon name="bar-chart-2" size={18} className="text-[#D4AF37]" />
+                                                            Performance
+                                                        </h3>
+                                                        <div className="space-y-3">
+                                                            <div className="flex justify-between text-sm">
+                                                                <span className="text-gray-400">Prédictions actives</span>
+                                                                <span className="font-bold">{activePredictions.length}</span>
+                                                            </div>
+                                                            <div className="flex justify-between text-sm">
+                                                                <span className="text-gray-400">Matchs en direct</span>
+                                                                <span className="font-bold text-green-500">{liveMatches.length}</span>
+                                                            </div>
+                                                            <div className="flex justify-between text-sm">
+                                                                <span className="text-gray-400">Matchs programmés</span>
+                                                                <span className="font-bold text-[#D4AF37]">{scheduledMatches.length}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </>
+                                        </>
+                                    )
                                 ) : (
                                     <PredictionHistory history={predictionHistory} />
                                 )}
