@@ -1,6 +1,6 @@
 // assistant.js - Mr XPRONOS Assistant IA (Version Premium)
 // Plein écran, couleurs conformes, liens bleus, espacement, F CFA, cache, personnalité professionnelle.
-// Modifications : suggestions supprimées, bouton de vidage du cache ajouté, nettoyage automatique des entrées expirées.
+// Modifications : suggestions supprimées, historique des questions récentes supprimé, bouton de vidage du cache ajouté, nettoyage automatique des entrées expirées.
 
 (function() {
     "use strict";
@@ -44,9 +44,6 @@
     let isOpen = false;
     let userId = localStorage.getItem('assistant_user_id') || 'user_' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('assistant_user_id', userId);
-
-    // Historique des questions (max 5)
-    let questionHistory = JSON.parse(localStorage.getItem('assistant_history') || '[]').slice(-5);
 
     // Clé pour stocker les messages
     const MESSAGES_STORAGE_KEY = 'assistant_messages';
@@ -503,22 +500,6 @@
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         }
 
-        /* Historique des questions */
-        .assistant-history {
-            padding: 0 12px 8px;
-            border-top: var(--border-gold);
-            background: var(--bg-dark);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .history-title {
-            width: 100%;
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-bottom: 5px;
-        }
-
         /* Actions rapides */
         .quick-actions {
             padding: 0 12px 12px;
@@ -685,7 +666,6 @@
         </div>
         <div class="assistant-messages" id="assistant-messages"></div>
         <div class="assistant-suggestions" id="assistant-suggestions" style="display: none;"></div>
-        <div class="assistant-history" id="assistant-history"></div>
         <div class="quick-actions" id="quick-actions"></div>
         <div class="assistant-input-area">
             <input type="text" id="assistant-input" placeholder="Posez votre question...">
@@ -701,7 +681,6 @@
     const closeBtn = document.querySelector('.assistant-close');
     const clearCacheBtn = document.querySelector('.clear-cache');
     const suggestionsDiv = document.getElementById('assistant-suggestions');
-    const historyDiv = document.getElementById('assistant-history');
     const quickActionsDiv = document.getElementById('quick-actions');
 
     // ============================================================
@@ -958,26 +937,6 @@
         // Ne rien afficher
     }
 
-    // Rendu de l'historique des questions
-    function renderHistory() {
-        historyDiv.innerHTML = '';
-        if (questionHistory.length === 0) return;
-        const title = document.createElement('div');
-        title.className = 'history-title';
-        title.textContent = 'Questions récentes :';
-        historyDiv.appendChild(title);
-        questionHistory.slice().reverse().forEach(q => {
-            const chip = document.createElement('span');
-            chip.className = 'suggestion-chip';
-            chip.textContent = q;
-            chip.addEventListener('click', () => {
-                input.value = q;
-                sendMessage();
-            });
-            historyDiv.appendChild(chip);
-        });
-    }
-
     // Rendu des actions rapides
     function renderQuickActions() {
         quickActionsDiv.innerHTML = '';
@@ -1022,13 +981,6 @@
         addMessage(question, 'user', false, null, true);
         input.value = '';
         showTyping();
-
-        if (!questionHistory.includes(question)) {
-            questionHistory.push(question);
-            if (questionHistory.length > 5) questionHistory.shift();
-            localStorage.setItem('assistant_history', JSON.stringify(questionHistory));
-            renderHistory();
-        }
 
         // Vérifier le cache local (seulement si pas d'historique)
         const historique = buildHistoryPayload();
@@ -1095,7 +1047,6 @@
             button.classList.add('hidden');
             input.focus();
             renderSuggestions(); // ne fait rien
-            renderHistory();
             renderQuickActions();
         } else {
             button.classList.remove('hidden');
@@ -1132,5 +1083,5 @@
     // Restaurer les messages au chargement
     loadMessages();
 
-    console.log('🎯 Mr XPRONOS Assistant chargé avec succès (version améliorée avec persistance et historique)');
+    console.log('🎯 Mr XPRONOS Assistant chargé avec succès (version améliorée avec persistance)');
 })();
