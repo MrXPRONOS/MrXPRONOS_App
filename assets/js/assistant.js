@@ -38,9 +38,6 @@
     let userId = localStorage.getItem('assistant_user_id') || 'user_' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('assistant_user_id', userId);
 
-    // Historique des questions (max 5)
-    let questionHistory = JSON.parse(localStorage.getItem('assistant_history') || '[]').slice(-5);
-
     // ============================================================
     // STYLES (version corrigée avec couleurs du site)
     // ============================================================
@@ -478,22 +475,6 @@
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         }
 
-        /* Historique des questions */
-        .assistant-history {
-            padding: 0 12px 8px;
-            border-top: var(--border-gold);
-            background: var(--bg-dark);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .history-title {
-            width: 100%;
-            font-size: 0.8rem;
-            color: #aaa;
-            margin-bottom: 5px;
-        }
-
         /* Actions rapides */
         .quick-actions {
             padding: 0 12px 12px;
@@ -672,7 +653,6 @@
             </div>
         </div>
         <div class="assistant-suggestions" id="assistant-suggestions"></div>
-        <div class="assistant-history" id="assistant-history"></div>
         <div class="quick-actions" id="quick-actions"></div>
         <div class="assistant-input-area">
             <input type="text" id="assistant-input" placeholder="Posez votre question..." list="question-suggestions">
@@ -688,7 +668,6 @@
     const sendBtn = document.getElementById('assistant-send');
     const closeBtn = document.querySelector('.assistant-close');
     const suggestionsDiv = document.getElementById('assistant-suggestions');
-    const historyDiv = document.getElementById('assistant-history');
     const quickActionsDiv = document.getElementById('quick-actions');
     const datalist = document.getElementById('question-suggestions');
 
@@ -905,26 +884,6 @@
         datalist.innerHTML = suggestions.map(s => `<option value="${s.text}">`).join('');
     }
 
-    // Rendu de l'historique des questions
-    function renderHistory() {
-        historyDiv.innerHTML = '';
-        if (questionHistory.length === 0) return;
-        const title = document.createElement('div');
-        title.className = 'history-title';
-        title.textContent = 'Questions récentes :';
-        historyDiv.appendChild(title);
-        questionHistory.slice().reverse().forEach(q => {
-            const chip = document.createElement('span');
-            chip.className = 'suggestion-chip';
-            chip.textContent = q;
-            chip.addEventListener('click', () => {
-                input.value = q;
-                sendMessage();
-            });
-            historyDiv.appendChild(chip);
-        });
-    }
-
     // Rendu des actions rapides
     function renderQuickActions() {
         quickActionsDiv.innerHTML = '';
@@ -954,14 +913,6 @@
         addMessage(question, 'user');
         input.value = '';
         showTyping();
-
-        // Mettre à jour l'historique
-        if (!questionHistory.includes(question)) {
-            questionHistory.push(question);
-            if (questionHistory.length > 5) questionHistory.shift();
-            localStorage.setItem('assistant_history', JSON.stringify(questionHistory));
-            renderHistory();
-        }
 
         // Vérifier le cache
         const cachedAnswer = getFromCache(question);
@@ -1020,7 +971,6 @@
             button.classList.add('hidden');
             input.focus();
             renderSuggestions();
-            renderHistory();
             renderQuickActions();
         } else {
             button.classList.remove('hidden');
