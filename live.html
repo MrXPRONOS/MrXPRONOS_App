@@ -1020,7 +1020,12 @@
                 if (selectedMatch) {
                     setSelectedMatch(null);
                 } else {
-                    window.history.back();
+                    // Si on vient d'une autre page, retour historique ; sinon, aller à l'accueil
+                    if (document.referrer && document.referrer !== window.location.href) {
+                        window.history.back();
+                    } else {
+                        window.location.href = '/index.html'; // Redirection vers l'accueil
+                    }
                 }
             };
             
