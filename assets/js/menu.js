@@ -78,8 +78,8 @@
                 padding: 0.8rem 15px;
                 width: 100%;
                 box-sizing: border-box;
-                flex-wrap: nowrap; /* Force la ligne horizontale */
-                flex-direction: row; /* Pour surcharger la règle de style.css */
+                flex-wrap: nowrap;
+                flex-direction: row;
             }
             .logo {
                 flex-shrink: 0;
@@ -114,20 +114,13 @@
                 box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
             }
 
-            /* Animation de pulsation */
             @keyframes gentle-pulse {
-                0% {
-                    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
-                }
-                70% {
-                    box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
-                }
-                100% {
-                    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
-                }
+                0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+                70% { box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
             }
 
-            /* Deuxième ligne : menu sans bordures avec ombre en haut */
+            /* Deuxième ligne : menu */
             .icon-nav {
                 width: 100%;
                 background: linear-gradient(180deg, #0D0D0D 0%, #1a1a1a 100%);
@@ -139,6 +132,7 @@
                 scrollbar-color: #D4AF37 #0D0D0D;
                 box-sizing: border-box;
                 box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5), inset 0 1px 3px rgba(255, 255, 255, 0.2);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6), inset 0 1px 3px rgba(255, 255, 255, 0.2);
                 position: relative;
                 z-index: 10;
             }
@@ -183,9 +177,6 @@
                 font-size: 1.2rem;
                 margin-bottom: 2px;
             }
-            .icon-nav-list .nav-icon i {
-                color: inherit;
-            }
             .icon-nav-list .nav-label {
                 font-size: 0.6rem;
                 font-weight: 500;
@@ -196,11 +187,11 @@
                 background: rgba(212, 175, 55, 0.1);
             }
 
-            /* Responsive : garantir que le logo et code promo restent sur la même ligne */
+            /* Responsive */
             @media (max-width: 600px) {
                 header .container {
                     padding: 0.5rem 8px;
-                    flex-direction: row !important; /* Forcer ligne horizontale */
+                    flex-direction: row !important;
                     flex-wrap: nowrap !important;
                 }
                 .logo a {
