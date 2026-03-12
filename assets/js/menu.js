@@ -86,18 +86,20 @@
                 white-space: nowrap;
             }
             .logo a {
-                font-size: 1.6rem;
+                font-size: 1.8rem; /* Agrandi */
                 white-space: nowrap;
                 color: #D4AF37;
                 text-decoration: none;
+                font-weight: bold; /* Gras pour tout le texte */
             }
             .logo span {
                 color: #fff;
+                font-weight: bold; /* XPRONOS aussi en gras */
             }
             .promo-code {
                 flex-shrink: 0;
                 white-space: nowrap;
-                font-size: 1rem;
+                font-size: 1.1rem; /* Agrandi */
                 background: #D4AF37;
                 color: #000;
                 padding: 0.5rem 1.2rem;
@@ -177,6 +179,9 @@
                 font-size: 1.2rem;
                 margin-bottom: 2px;
             }
+            .icon-nav-list .nav-icon i {
+                color: inherit;
+            }
             .icon-nav-list .nav-label {
                 font-size: 0.6rem;
                 font-weight: 500;
@@ -195,10 +200,10 @@
                     flex-wrap: nowrap !important;
                 }
                 .logo a {
-                    font-size: 1.2rem;
+                    font-size: 1.4rem; /* Réduit proportionnellement */
                 }
                 .promo-code {
-                    font-size: 0.8rem;
+                    font-size: 0.9rem;
                     padding: 0.3rem 0.8rem;
                     margin-left: 5px;
                 }
@@ -213,14 +218,11 @@
                 }
             }
             @media (max-width: 400px) {
-                header .container {
-                    padding: 0.5rem 5px;
-                }
                 .logo a {
-                    font-size: 1rem;
+                    font-size: 1.2rem;
                 }
                 .promo-code {
-                    font-size: 0.7rem;
+                    font-size: 0.8rem;
                     padding: 0.2rem 0.6rem;
                 }
                 .icon-nav-list .nav-icon {
@@ -231,15 +233,6 @@
                 }
                 .icon-nav-list a {
                     max-width: 50px;
-                }
-            }
-            @media (max-width: 320px) {
-                .logo a {
-                    font-size: 0.9rem;
-                }
-                .promo-code {
-                    font-size: 0.65rem;
-                    padding: 0.2rem 0.5rem;
                 }
             }
         `;
