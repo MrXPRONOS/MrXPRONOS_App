@@ -1,5 +1,6 @@
 // assets/js/menu.js
 // Menu horizontal avec icônes Font Awesome, placé sous le logo et le code promo
+// Logo et code promo sont sur la même ligne en haut, menu en dessous
 
 (function() {
     'use strict';
@@ -62,11 +63,13 @@
     function addStyles() {
         const style = document.createElement('style');
         style.textContent = `
-            /* Ajustement du header pour deux lignes */
+            /* Header : deux lignes */
             header {
                 display: flex;
                 flex-direction: column;
+                width: 100%;
             }
+            /* Première ligne : logo et code promo côte à côte */
             header .container {
                 display: flex;
                 justify-content: space-between;
@@ -74,9 +77,11 @@
                 padding: 0.8rem 15px;
                 width: 100%;
                 box-sizing: border-box;
+                flex-wrap: nowrap; /* Empêche le passage à la ligne */
             }
             .logo {
                 flex-shrink: 0;
+                white-space: nowrap;
             }
             .logo a {
                 font-size: 1.6rem;
@@ -96,9 +101,10 @@
                 padding: 0.5rem 1.2rem;
                 border-radius: 30px;
                 font-weight: 700;
+                margin-left: 10px; /* Espace de sécurité */
             }
 
-            /* Styles du menu à icônes */
+            /* Deuxième ligne : menu */
             .icon-nav {
                 width: 100%;
                 border-top: 2px solid #D4AF37;
@@ -166,7 +172,7 @@
                 background: rgba(212, 175, 55, 0.1);
             }
 
-            /* Responsive */
+            /* Responsive : on réduit les tailles mais on garde la ligne */
             @media (max-width: 600px) {
                 .logo a {
                     font-size: 1.4rem;
