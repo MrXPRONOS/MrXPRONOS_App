@@ -219,25 +219,48 @@
 
         // Composants utilitaires
         const Icon = ({ name, size = 20, className = "" }) => {
-            const iconRef = useRef(null);
-            
-            useEffect(() => {
-                if (iconRef.current && window.lucide && window.lucide.icons && window.lucide.icons[name]) {
-                    iconRef.current.innerHTML = '';
-                    try {
-                        const icon = window.lucide.createElement(window.lucide.icons[name]);
-                        if (icon) {
-                            icon.setAttribute('width', size);
-                            icon.setAttribute('height', size);
-                            iconRef.current.appendChild(icon);
-                        }
-                    } catch (e) {
-                        console.warn(`Erreur création icône ${name}:`, e);
-                    }
+        const iconRef = useRef(null);
+
+        // Table de correspondance pour le fallback
+        const fallbackSymbol = {
+            'arrow-left': '←',
+            'x': '✕',
+            'bell': '🔔',
+            'activity': '⚡',
+            'calendar': '📅',
+            'radio': '📻',
+            'clock': '⏰',
+            'target': '🎯',
+            'history': '📜',
+            'bar-chart-2': '📊',
+            'alert-circle': '⚠️'
+        };
+
+        useEffect(() => {
+            if (iconRef.current && window.lucide?.icons?.[name]) {
+            // Si Lucide est disponible, on l'utilise
+            iconRef.current.innerHTML = '';
+            try {
+                const icon = window.lucide.createElement(window.lucide.icons[name]);
+                if (icon) {
+                icon.setAttribute('width', size);
+                icon.setAttribute('height', size);
+                iconRef.current.appendChild(icon);
                 }
-            }, [name, size]);
-            
-            return <span ref={iconRef} className={className} />;
+            } catch (e) {
+                console.warn(`Erreur création icône ${name}:`, e);
+                // En cas d'erreur, on affiche le fallback
+                iconRef.current.innerText = fallbackSymbol[name] || '?';
+            }
+            } else {
+            // Lucide non disponible : afficher le fallback
+            if (iconRef.current) {
+                iconRef.current.innerText = fallbackSymbol[name] || '?';
+            }
+            }
+        }, [name, size]);
+
+        return <span ref={iconRef} className={`inline-block ${className}`} style={{ fontSize: size }} />;
         };
         
         const GoldText = ({ children, className = "" }) => (
@@ -414,6 +437,11 @@
             const predictions = match.predictions || [];
             const highConfidence = predictions.filter(p => p.confidence === 'high');
             
+            // Fonction pour rediriger vers la page live
+            const goBackToLive = () => {
+                window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/live.html';
+            };
+            
             return (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
                     <div className="bg-[#121212] rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-[#2a2a2a]">
@@ -430,7 +458,12 @@
                                         {match.home_team || ''} <GoldText>vs</GoldText> {match.away_team || ''}
                                     </h2>
                                 </div>
-                                <button onClick={onClose} className="p-2 hover:bg-[#2a2a2a] rounded-lg">
+                                {/* Bouton croix en haut à droite avec couleur or */}
+                                <button 
+                                    onClick={goBackToLive} 
+                                    className="p-2 hover:bg-[#2a2a2a] rounded-lg text-[#D4AF37] hover:text-[#f5e7a3] transition-colors"
+                                    aria-label="Fermer et retourner au live"
+                                >
                                     <Icon name="x" size={24} />
                                 </button>
                             </div>
@@ -593,8 +626,18 @@
                                 <button onClick={onBack} className="p-2 hover:bg-[#2a2a2a] rounded-lg">
                                     <Icon name="arrow-left" size={20} />
                                 </button>
-                                <div className="w-10 h-10 bg-[#D4AF37] rounded-xl flex items-center justify-center">
-                                    <Icon name="activity" size={24} className="text-black" />
+                                {/* Remplacer l'icône par l'image favicon */}
+                                <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-[#D4AF37]">
+                                    <img 
+                                        src="assets/images/favicon.png" 
+                                        alt="MrXPRONOS" 
+                                        className="w-full h-full object-contain"
+                                        onError={(e) => {
+                                            // Fallback si l'image n'existe pas
+                                            e.target.style.display = 'none';
+                                            e.target.parentNode.innerHTML = '<span class="text-black font-bold">M</span>';
+                                        }}
+                                    />
                                 </div>
                                 <div>
                                     <h1 className="text-xl font-bold gold-gradient">MrXPRONOS LIVE</h1>
@@ -644,7 +687,7 @@
                                                             </div>
                                                             <p className="text-xs text-gray-400">{notif.message}</p>
                                                             <span className="text-[10px] text-gray-600 mt-1 block">
-                                                                {new Date(notif.timestamp * 1000).toLocaleTimeString()}
+                                                                {new Date(notif.created_at).toLocaleTimeString()}
                                                             </span>
                                                         </div>
                                                     ))
@@ -844,6 +887,9 @@
             const [selectedMatch, setSelectedMatch] = useState(null);
             const [selectedTab, setSelectedTab] = useState('live');
             
+            // Référence pour comparer les prédictions actives précédentes
+            const prevActivePredictionsRef = useRef([]);
+            
             useEffect(() => {
                 localStorage.setItem('mrx_user_id', userId);
             }, [userId]);
@@ -911,6 +957,27 @@
                 }
             }, [userId]);
             
+            // Effet pour déclencher un toast lors de l'arrivée d'une nouvelle prédiction haute confiance
+            useEffect(() => {
+                if (activePredictions.length > prevActivePredictionsRef.current.length) {
+                    // Trouver les nouvelles prédictions
+                    const newOnes = activePredictions.filter(
+                        (pred, idx) => !prevActivePredictionsRef.current.some(
+                            old => old.prediction.message === pred.prediction.message
+                        )
+                    );
+                    if (newOnes.length > 0) {
+                        setToast({
+                            title: "Nouvelle alerte haute confiance",
+                            message: newOnes[0].prediction.message,
+                        });
+                        // Auto-disparition après 5 secondes
+                        setTimeout(() => setToast(null), 5000);
+                    }
+                }
+                prevActivePredictionsRef.current = activePredictions;
+            }, [activePredictions]);
+            
             useEffect(() => {
                 const loadAll = async () => {
                     setLoading(true);
@@ -948,20 +1015,24 @@
                 setSelectedMatch(match);
             };
             
-            const clearNotifications = () => {
-                setNotifications([]);
+            const clearNotifications = async () => {
+                // Marquer toutes les notifications comme lues via l'API
+                try {
+                    await fetch(`${EDGE_FUNCTION_URL}/notifications/mark-read`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId }),
+                    });
+                    // Mettre à jour l'état local
+                    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+                } catch (e) {
+                    console.error('Erreur lors du marquage des notifications:', e);
+                }
             };
             
             const handleBack = () => {
-                if (selectedMatch) {
-                    setSelectedMatch(null);
-                } else {
-                    if (document.referrer && document.referrer !== window.location.href) {
-                        window.history.back();
-                    } else {
-                        window.location.href = '/index.html';
-                    }
-                }
+                // Redirection directe vers l'index
+                window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/index.html';
             };
             
             const unreadCount = notifications.filter(n => !n.read).length;

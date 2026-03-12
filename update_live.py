@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
 update_live.py - Récupère les matchs en direct depuis l'API BSD,
-calcule les métriques et met à jour les tables Supabase. 
+met à jour la table live_matches et valide les prédictions.
 """
 
 import os
 import sys
-import math
 import requests
 from supabase import create_client
-from datetime import datetime
+from datetime import datetime, timedelta
+import math
 
-# Vérification des variables d'environnement avec messages explicites
+# Vérification des variables d'environnement
 missing = []
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 if not SUPABASE_URL:
@@ -31,7 +31,7 @@ if missing:
 
 print("✅ Toutes les variables d'environnement sont présentes.")
 
-# Initialisation du client Supabase
+# Initialisation Supabase
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 HEADERS = {"Authorization": f"Token {BSD_API_TOKEN}"}
@@ -121,75 +121,14 @@ def compute_xg(stats, minute):
     return round(xg_h, 2), round(xg_a, 2)
 
 
-def generate_predictions(match, momentum, xg_h, xg_a):
-    """Génère des prédictions simples."""
-    predictions = []
-    total_momentum = momentum.get("total", 0)
-
-    if total_momentum > 30:
-        prob = min(0.5 + (total_momentum / 200), 0.8)
-        predictions.append(
-            {
-                "prediction_type": "goal_next_5min",
-                "probability": round(prob, 3),
-                "confidence": "high" if prob > 0.6 else "medium",
-                "message": f"But probable dans les 5min (momentum {total_momentum:.0f}%)",
-                "odds_suggestion": 1.7 if prob > 0.6 else 2.0,
-                "expiry_minute": match.get("current_minute", 0) + 5,
-            }
-        )
-
-    total_xg = xg_h + xg_a
-    if total_xg > 1.8 and match.get("current_minute", 0) > 30:
-        prob = min(0.5 + total_xg / 4, 0.85)
-        predictions.append(
-            {
-                "prediction_type": "over_25_goals",
-                "probability": round(prob, 3),
-                "confidence": "high" if prob > 0.7 else "medium",
-                "message": f"Plus de 2.5 buts probable (xG total {total_xg:.2f})",
-                "odds_suggestion": 1.5,
-            }
-        )
-
-    if total_momentum > 40:
-        if momentum.get("home_ratio", 50) > 60:
-            team = match.get("home_team", "")
-            prob = min(0.5 + total_momentum / 100, 0.85)
-            predictions.append(
-                {
-                    "prediction_type": "match_winner_live",
-                    "probability": round(prob, 3),
-                    "confidence": "high" if prob > 0.7 else "medium",
-                    "message": f"{team} va gagner (momentum dominant)",
-                    "odds_suggestion": 1.6,
-                }
-            )
-        elif momentum.get("home_ratio", 50) < 40:
-            team = match.get("away_team", "")
-            prob = min(0.5 + total_momentum / 100, 0.85)
-            predictions.append(
-                {
-                    "prediction_type": "match_winner_live",
-                    "probability": round(prob, 3),
-                    "confidence": "high" if prob > 0.7 else "medium",
-                    "message": f"{team} va gagner (momentum dominant)",
-                    "odds_suggestion": 1.6,
-                }
-            )
-
-    return predictions
-
-
 def process_match(match):
-    """Transforme un match brut en objet enrichi pour Supabase."""
+    """Transforme un match brut en objet pour Supabase."""
     stats = match.get("live_stats", {})
     minute = match.get("current_minute", 0)
 
     momentum = compute_momentum(stats)
     pressure = compute_pressure(stats, minute)
     xg_h, xg_a = compute_xg(stats, minute)
-    predictions = generate_predictions(match, momentum, xg_h, xg_a)
 
     return {
         "id": match["id"],
@@ -206,9 +145,78 @@ def process_match(match):
         "pressure": pressure,
         "xg_home": xg_h,
         "xg_away": xg_a,
-        "predictions": predictions,
         "updated_at": datetime.utcnow().isoformat(),
     }
+
+
+def validate_predictions():
+    """Valide les prédictions en cours avec les matchs terminés des dernières 48h."""
+    try:
+        # Récupérer les prédictions non validées
+        preds_resp = supabase.table("predictions").select("*").eq("validated", False).execute()
+        predictions = preds_resp.data
+        if not predictions:
+            return
+
+        # Récupérer les matchs terminés des dernières 48h depuis BSD
+        now = datetime.utcnow()
+        from_date = (now - timedelta(days=2)).strftime("%Y-%m-%d")
+        to_date = now.strftime("%Y-%m-%d")
+        events_resp = requests.get(
+            f"{BASE_URL}/events/",
+            headers=HEADERS,
+            params={"date_from": from_date, "date_to": to_date, "status": "finished"},
+            timeout=15,
+        )
+        events_resp.raise_for_status()
+        finished_matches = events_resp.json().get("results", [])
+
+        # Créer un dictionnaire pour un accès rapide
+        match_map = {m["id"]: m for m in finished_matches}
+
+        for pred in predictions:
+            match = match_map.get(pred["match_id"])
+            if not match:
+                continue
+
+            # Récupérer les stats finales
+            stats = match.get("live_stats", {})
+            outcome = False
+            if pred["type"] == "total_shots":
+                total = (stats.get("home", {}).get("total_shots", 0) +
+                         stats.get("away", {}).get("total_shots", 0))
+                outcome = total > pred["threshold"]
+            elif pred["type"] == "total_corners":
+                total = (stats.get("home", {}).get("corner_kicks", 0) +
+                         stats.get("away", {}).get("corner_kicks", 0))
+                outcome = total > pred["threshold"]
+            elif pred["type"] == "total_fouls":
+                total = (stats.get("home", {}).get("fouls", 0) +
+                         stats.get("away", {}).get("fouls", 0))
+                outcome = total > pred["threshold"]
+            # Ajouter d'autres types si nécessaire
+
+            # Mettre à jour la prédiction
+            supabase.table("predictions").update({
+                "validated": True,
+                "outcome": "success" if outcome else "failure",
+                "updated_at": datetime.utcnow().isoformat()
+            }).eq("id", pred["id"]).execute()
+
+            # Créer une notification pour l'utilisateur
+            supabase.table("notifications").insert({
+                "user_id": "all",
+                "title": "Pronostic validé",
+                "message": f"{pred['match_label']} : {pred['type']} - {'✅ réussi' if outcome else '❌ échoué'}",
+                "priority": "normal",
+                "read": False,
+                "created_at": datetime.utcnow().isoformat()
+            }).execute()
+
+            print(f"✅ Prédiction {pred['id']} validée : {outcome}")
+
+    except Exception as e:
+        print(f"❌ Erreur lors de la validation des prédictions : {e}")
 
 
 def main():
@@ -217,10 +225,8 @@ def main():
     print(f"Récupéré {len(live)} matchs live")
 
     live_ids = set()
-
     for m in live:
         enriched = process_match(m)
-        # Upsert dans la table live_matches
         supabase.table("live_matches").upsert(enriched, on_conflict="id").execute()
         live_ids.add(m["id"])
 
@@ -230,7 +236,11 @@ def main():
     else:
         supabase.table("live_matches").delete().neq("id", 0).execute()
 
-    print("Mise à jour terminée")
+    print("Mise à jour des matchs live terminée")
+
+    # Lancer la validation des prédictions
+    validate_predictions()
+    print("Validation des prédictions terminée")
 
 
 if __name__ == "__main__":
