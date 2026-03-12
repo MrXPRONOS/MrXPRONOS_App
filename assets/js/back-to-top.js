@@ -1,5 +1,6 @@
 // assets/js/back-to-top.js
 // Bouton flottant "Retour en haut" en bas à gauche
+// Masqué automatiquement quand l'assistant est ouvert (classe .assistant-open sur body)
 
 (function() {
     'use strict';
@@ -11,7 +12,7 @@
     btn.innerHTML = '<i class="fas fa-arrow-up"></i>';
     document.body.appendChild(btn);
 
-    // Ajouter les styles avec z-index très élevé
+    // Ajouter les styles
     const style = document.createElement('style');
     style.textContent = `
         #back-to-top {
@@ -31,7 +32,7 @@
             justify-content: center;
             font-size: 1.5rem;
             transition: all 0.3s ease;
-            z-index: 10000; /* Très élevé pour être au-dessus de tout */
+            z-index: 10000;
             opacity: 0.8;
         }
         #back-to-top:hover {
@@ -45,7 +46,10 @@
         #back-to-top.visible {
             display: flex;
         }
-        /* Ajustement pour mobile */
+        /* Cacher le bouton quand l'assistant est ouvert */
+        body.assistant-open #back-to-top {
+            display: none !important;
+        }
         @media (max-width: 768px) {
             #back-to-top {
                 width: 40px;
@@ -53,7 +57,6 @@
                 font-size: 1.2rem;
                 bottom: 25px;
                 left: 15px;
-                z-index: 10000;
             }
         }
     `;

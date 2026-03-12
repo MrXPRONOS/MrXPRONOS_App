@@ -1,6 +1,8 @@
 // assistant.js - Mr XPRONOS Assistant IA (Version Premium)
 // Plein écran, couleurs conformes, liens bleus, espacement, F CFA, cache, personnalité professionnelle.
-// Modifications : suggestions supprimées, historique des questions récentes supprimé, bouton de vidage du cache ajouté, nettoyage automatique des entrées expirées.
+// Modifications : suggestions supprimées, historique des questions récentes supprimé, bouton de vidage du cache ajouté,
+// nettoyage automatique des entrées expirées, persistance des messages, envoi de l'historique au backend,
+// bouton "Retour en bas" dans l'assistant, et classe body pour masquer le bouton global.
 
 (function() {
     "use strict";
@@ -49,7 +51,7 @@
     const MESSAGES_STORAGE_KEY = 'assistant_messages';
 
     // ============================================================
-    // STYLES (avec ajout du bouton de vidage du cache)
+    // STYLES (avec ajout du bouton de vidage du cache et du bouton bas)
     // ============================================================
     const style = document.createElement('style');
     style.textContent = `
@@ -246,6 +248,7 @@
             gap: 16px;
             background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-dark) 100%);
             scroll-behavior: smooth;
+            position: relative;
         }
         
         .assistant-messages::-webkit-scrollbar {
@@ -418,17 +421,19 @@
             background: rgba(212, 175, 55, 0.05);
         }
 
-        /* Horodatage - gris clair pour meilleure lisibilité */
+        /* Horodatage - noir pour l'utilisateur, gris clair pour l'assistant */
         .message-time {
             font-size: 0.65rem;
-            color: #9ca3af !important;
             margin-top: 4px;
             text-align: right;
             opacity: 0.9;
             padding: 0 16px 8px 16px;
         }
-        
+        .message.user .message-time {
+            color: #000000 !important;
+        }
         .message.assistant .message-time {
+            color: #cccccc !important;
             text-align: left;
             padding-left: 16px;
         }
@@ -522,6 +527,35 @@
         .quick-actions .btn:hover {
             background: var(--gold);
             color: #000;
+        }
+
+        /* Bouton "Retour en bas" */
+        .back-to-bottom {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #D4AF37;
+            color: #000;
+            border: 2px solid #D4AF37;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            z-index: 10001;
+        }
+        .back-to-bottom:hover {
+            transform: scale(1.1);
+            background: #000;
+            color: #D4AF37;
+        }
+        .back-to-bottom.visible {
+            display: flex;
         }
 
         /* Zone de saisie */
@@ -665,6 +699,7 @@
             </div>
         </div>
         <div class="assistant-messages" id="assistant-messages"></div>
+        <button class="back-to-bottom" id="back-to-bottom" aria-label="Aller en bas"><i class="fas fa-arrow-down"></i></button>
         <div class="assistant-suggestions" id="assistant-suggestions" style="display: none;"></div>
         <div class="quick-actions" id="quick-actions"></div>
         <div class="assistant-input-area">
@@ -682,6 +717,7 @@
     const clearCacheBtn = document.querySelector('.clear-cache');
     const suggestionsDiv = document.getElementById('assistant-suggestions');
     const quickActionsDiv = document.getElementById('quick-actions');
+    const bottomBtn = document.getElementById('back-to-bottom');
 
     // ============================================================
     // GESTION DE LA PERSISTANCE DES MESSAGES
@@ -926,6 +962,24 @@
         }
     }
 
+    // Gestion du scroll pour le bouton "Retour en bas"
+    messagesDiv.addEventListener('scroll', () => {
+        const isAtBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < 50;
+        if (isAtBottom) {
+            bottomBtn.classList.remove('visible');
+        } else {
+            bottomBtn.classList.add('visible');
+        }
+    });
+
+    // Clic sur le bouton bas
+    bottomBtn.addEventListener('click', () => {
+        messagesDiv.scrollTo({
+            top: messagesDiv.scrollHeight,
+            behavior: 'smooth'
+        });
+    });
+
     // Récupération des suggestions depuis l'API (désactivée)
     async function fetchSuggestions() {
         return []; // Plus de suggestions
@@ -1044,11 +1098,17 @@
         isOpen = !isOpen;
         windowDiv.classList.toggle('open', isOpen);
         if (isOpen) {
+            document.body.classList.add('assistant-open');
             button.classList.add('hidden');
             input.focus();
             renderSuggestions(); // ne fait rien
             renderQuickActions();
+            // Forcer une vérification du scroll après l'ouverture
+            setTimeout(() => {
+                messagesDiv.dispatchEvent(new Event('scroll'));
+            }, 100);
         } else {
+            document.body.classList.remove('assistant-open');
             button.classList.remove('hidden');
         }
     });
@@ -1056,6 +1116,7 @@
     closeBtn.addEventListener('click', () => {
         isOpen = false;
         windowDiv.classList.remove('open');
+        document.body.classList.remove('assistant-open');
         button.classList.remove('hidden');
     });
 
@@ -1076,6 +1137,7 @@
         if (e.key === 'Escape' && isOpen) {
             isOpen = false;
             windowDiv.classList.remove('open');
+            document.body.classList.remove('assistant-open');
             button.classList.remove('hidden');
         }
     });
