@@ -1,6 +1,7 @@
 // assets/js/menu.js
 // Menu horizontal avec icônes Font Awesome, placé sous le logo et le code promo
 // Logo et code promo sont sur la même ligne en haut, menu en dessous
+// Effet de pulsation sur le code promo
 
 (function() {
     'use strict';
@@ -77,7 +78,7 @@
                 padding: 0.8rem 15px;
                 width: 100%;
                 box-sizing: border-box;
-                flex-wrap: nowrap; /* Empêche le passage à la ligne */
+                flex-wrap: nowrap;
             }
             .logo {
                 flex-shrink: 0;
@@ -101,7 +102,28 @@
                 padding: 0.5rem 1.2rem;
                 border-radius: 30px;
                 font-weight: 700;
-                margin-left: 10px; /* Espace de sécurité */
+                margin-left: 10px;
+                animation: gentle-pulse 2s infinite;
+                box-shadow: 0 0 0 rgba(212, 175, 55, 0.4);
+                transition: transform 0.3s, box-shadow 0.3s;
+            }
+            .promo-code:hover {
+                animation: none;
+                transform: scale(1.05);
+                box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
+            }
+
+            /* Animation de pulsation */
+            @keyframes gentle-pulse {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+                }
+                70% {
+                    box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+                }
+                100% {
+                    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+                }
             }
 
             /* Deuxième ligne : menu */
@@ -172,7 +194,7 @@
                 background: rgba(212, 175, 55, 0.1);
             }
 
-            /* Responsive : on réduit les tailles mais on garde la ligne */
+            /* Responsive */
             @media (max-width: 600px) {
                 .logo a {
                     font-size: 1.4rem;
