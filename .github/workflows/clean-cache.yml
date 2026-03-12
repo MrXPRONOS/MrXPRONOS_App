@@ -1,0 +1,17 @@
+name: Nettoyage quotidien du cache
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # tous les jours à minuit UTC
+  workflow_dispatch:
+
+jobs:
+  clean-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appeler la fonction de nettoyage
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/clean-cache
