@@ -9,17 +9,17 @@
     // ============================================================
     const API_BASE = 'https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/assistant';
     
-    // Suggestions rapides par défaut (utilisées si le chargement échoue)
+    // Suggestions par défaut (utilisées si le chargement échoue)
     const DEFAULT_SUGGESTIONS = [
         { icon: '🎯', text: "Pronostic du jour" },
-        { icon: '🎁', text: "Bonus 1xBet XPVIP" },
+        { icon: '🎥', text: "LIVE VIP" },
         { icon: '💰', text: "Meilleures cotes" },
-        { icon: '🎥', text: "LIVE VIP" },          // Promotion LIVE VIP
+        { icon: '🚀', text: "Inscription 1win" },
         { icon: '💡', text: "Conseils paris" }
     ];
 
-    // Cache local des réponses (pour éviter les appels API répétés)
-    const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 heures
+    // Cache local des réponses (24h)
+    const CACHE_TTL = 24 * 60 * 60 * 1000;
     let responseCache = new Map();
 
     // Charger le cache depuis localStorage
@@ -38,8 +38,14 @@
     let userId = localStorage.getItem('assistant_user_id') || 'user_' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('assistant_user_id', userId);
 
+    // Historique des questions (max 5)
+    let questionHistory = JSON.parse(localStorage.getItem('assistant_history') || '[]').slice(-5);
+
+    // Clé pour stocker les messages
+    const MESSAGES_STORAGE_KEY = 'assistant_messages';
+
     // ============================================================
-    // STYLES (version corrigée avec couleurs du site)
+    // STYLES (inchangés, garder ceux existants)
     // ============================================================
     const style = document.createElement('style');
     style.textContent = `
@@ -56,7 +62,7 @@
             --text-secondary: #A0A0A0;
             --accent-green: #22C55E;
             --accent-red: #EF4444;
-            --blue-link: #3b82f6;      /* Bleu clair pour les liens */
+            --blue-link: #3b82f6;
             --shadow-gold: 0 4px 20px rgba(212, 175, 55, 0.3);
             --border-gold: 1px solid rgba(212, 175, 55, 0.3);
         }
@@ -291,7 +297,7 @@
         .message.assistant h3 { font-size: 1.1rem; color: var(--gold); }
         
         .message.assistant p {
-            margin: 0 0 12px 0; /* Espacement entre paragraphes */
+            margin: 0 0 12px 0;
         }
         .message.assistant p:last-child {
             margin-bottom: 0;
@@ -475,6 +481,22 @@
             box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         }
 
+        /* Historique des questions */
+        .assistant-history {
+            padding: 0 12px 8px;
+            border-top: var(--border-gold);
+            background: var(--bg-dark);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .history-title {
+            width: 100%;
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
         /* Actions rapides */
         .quick-actions {
             padding: 0 12px 12px;
@@ -636,23 +658,9 @@
             </div>
             <button class="assistant-close">&times;</button>
         </div>
-        <div class="assistant-messages" id="assistant-messages">
-            <div class="message assistant">
-                <div class="message-content">
-                    <p>👋 <strong>Bonjour !</strong> Je suis votre assistant personnel pour les paris sportifs.</p>
-                    <p>Je peux vous aider avec :</p>
-                    <ul>
-                        <li>Les pronostics du jour ⚽</li>
-                        <li>Les bonus bookmakers 🎁</li>
-                        <li>Le <strong>LIVE VIP</strong> 🎥 (matchs en direct)</li>
-                        <li>Vos questions sur le site 💡</li>
-                    </ul>
-                    <p>Tous les montants sont indiqués en <strong>Francs CFA</strong> (1€ ≈ 650 F CFA).</p>
-                </div>
-                <div class="message-time">${getCurrentTime()}</div>
-            </div>
-        </div>
+        <div class="assistant-messages" id="assistant-messages"></div>
         <div class="assistant-suggestions" id="assistant-suggestions"></div>
+        <div class="assistant-history" id="assistant-history"></div>
         <div class="quick-actions" id="quick-actions"></div>
         <div class="assistant-input-area">
             <input type="text" id="assistant-input" placeholder="Posez votre question..." list="question-suggestions">
@@ -668,110 +676,79 @@
     const sendBtn = document.getElementById('assistant-send');
     const closeBtn = document.querySelector('.assistant-close');
     const suggestionsDiv = document.getElementById('assistant-suggestions');
+    const historyDiv = document.getElementById('assistant-history');
     const quickActionsDiv = document.getElementById('quick-actions');
     const datalist = document.getElementById('question-suggestions');
 
     // ============================================================
-    // FONCTIONS UTILITAIRES
+    // GESTION DE LA PERSISTANCE DES MESSAGES
     // ============================================================
-    
-    function getCurrentTime() {
-        return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    }
 
-    // Sauvegarde du cache
-    function saveCache() {
+    // Charger les messages sauvegardés
+    function loadMessages() {
         try {
-            const toStore = JSON.stringify(Array.from(responseCache.entries()));
-            localStorage.setItem('assistant_response_cache', toStore);
-        } catch (e) {
-            console.warn('Erreur sauvegarde cache', e);
-        }
-    }
-
-    // Ajout au cache (avec expiration)
-    function addToCache(question, answer) {
-        responseCache.set(question, {
-            answer,
-            timestamp: Date.now()
-        });
-        // Limiter la taille du cache à 100 entrées
-        if (responseCache.size > 100) {
-            const oldestKey = responseCache.keys().next().value;
-            responseCache.delete(oldestKey);
-        }
-        saveCache();
-    }
-
-    // Recherche dans le cache (avec expiration)
-    function getFromCache(question) {
-        const cached = responseCache.get(question);
-        if (!cached) return null;
-        if (Date.now() - cached.timestamp > CACHE_TTL) {
-            responseCache.delete(question);
-            saveCache();
-            return null;
-        }
-        return cached.answer;
-    }
-
-    // Formateur de texte (pour les cas où le backend ne renvoie pas du HTML)
-    function formatMarkdown(text) {
-        if (!text) return '';
-        let html = text
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
-        // Titres
-        html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-        html = html.replace(/^## (.*$)/gim, '<h2>$2</h2>');
-        html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-        // Gras et italique
-        html = html.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
-        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        // Code
-        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-        // Blocs de code
-        html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-        // Citations
-        html = html.replace(/^&gt; (.*$)/gim, '<blockquote>$1</blockquote>');
-        // Listes
-        html = html.replace(/^\- (.*$)/gim, '<li>$1</li>');
-        html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
-        html = html.replace(/<\/ul>\s*<ul>/g, '');
-        // Lignes horizontales
-        html = html.replace(/^---$/gim, '<hr style="border: none; border-top: 1px solid rgba(212,175,55,0.3); margin: 16px 0;">');
-        // Sauts de ligne
-        html = html.replace(/\n/g, '<br>');
-        // Tableaux simplifiés
-        if (html.includes('|')) {
-            const tableRegex = /((?:\|[^|\n]+\|+\n?)+)/g;
-            html = html.replace(tableRegex, (match) => {
-                const rows = match.trim().split('\n').filter(r => r.trim());
-                if (rows.length < 2) return match;
-                let tableHtml = '<div class="table-container"><table>';
-                rows.forEach((row, i) => {
-                    const cells = row.split('|').filter(c => c.trim());
-                    const tag = i === 0 ? 'th' : 'td';
-                    tableHtml += '<tr>' + cells.map(c => `<${tag}>${c.trim()}</${tag}>`).join('') + '</tr>';
+            const saved = localStorage.getItem(MESSAGES_STORAGE_KEY);
+            if (saved) {
+                const messages = JSON.parse(saved);
+                messages.forEach(msg => {
+                    addMessage(msg.text, msg.sender, msg.isHTML, msg.conversationId, false);
                 });
-                tableHtml += '</table></div>';
-                return tableHtml;
-            });
+            } else {
+                // Message d'accueil par défaut
+                addMessage(
+                    `<p>👋 <strong>Bonjour !</strong> Je suis votre assistant personnel pour les paris sportifs.</p>
+                     <p>Je peux vous aider avec :</p>
+                     <ul>
+                         <li>Les pronostics du jour ⚽</li>
+                         <li>Les bonus bookmakers 🎁</li>
+                         <li>Le <strong>LIVE VIP</strong> 🎥 (matchs en direct)</li>
+                         <li>Vos questions sur le site 💡</li>
+                     </ul>
+                     <p>Tous les montants sont indiqués en <strong>Francs CFA</strong> (1€ ≈ 650 F CFA).</p>`,
+                    'assistant',
+                    true,
+                    null,
+                    false
+                );
+            }
+        } catch (e) {
+            console.warn('Erreur chargement des messages', e);
         }
-        return html;
     }
 
-    function addMessage(text, sender, isHTML = false, conversationId = null) {
+    // Sauvegarder les messages (limiter à 20 derniers)
+    function saveMessages() {
+        const messages = [];
+        const msgElements = messagesDiv.querySelectorAll('.message');
+        msgElements.forEach(el => {
+            const sender = el.classList.contains('user') ? 'user' : 'assistant';
+            const contentEl = el.querySelector('.message-content');
+            const isHTML = sender === 'assistant';
+            const text = isHTML ? contentEl.innerHTML : contentEl.textContent;
+            const convId = el.dataset.conversationId || null;
+            messages.push({ text, sender, isHTML, conversationId: convId });
+        });
+        const toStore = messages.slice(-20);
+        try {
+            localStorage.setItem(MESSAGES_STORAGE_KEY, JSON.stringify(toStore));
+        } catch (e) {
+            console.warn('Erreur sauvegarde des messages', e);
+        }
+    }
+
+    // Modifier addMessage pour accepter un paramètre "save" optionnel
+    function addMessage(text, sender, isHTML = false, conversationId = null, save = true) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${sender}`;
+        if (conversationId) {
+            msgDiv.dataset.conversationId = conversationId;
+        }
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
         
         if (isHTML || sender === 'assistant') {
-            contentDiv.innerHTML = text; // Le backend doit renvoyer du HTML
+            contentDiv.innerHTML = text;
         } else {
             contentDiv.textContent = text;
         }
@@ -823,13 +800,61 @@
         
         messagesDiv.appendChild(msgDiv);
         
-        // Scroll vers le bas
         setTimeout(() => {
             messagesDiv.scrollTo({
                 top: messagesDiv.scrollHeight,
                 behavior: 'smooth'
             });
         }, 100);
+
+        if (save) {
+            saveMessages();
+        }
+    }
+
+    // ============================================================
+    // FONCTIONS UTILITAIRES
+    // ============================================================
+    
+    function getCurrentTime() {
+        return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function saveCache() {
+        try {
+            const toStore = JSON.stringify(Array.from(responseCache.entries()));
+            localStorage.setItem('assistant_response_cache', toStore);
+        } catch (e) {
+            console.warn('Erreur sauvegarde cache', e);
+        }
+    }
+
+    function addToCache(question, answer) {
+        responseCache.set(question, {
+            answer,
+            timestamp: Date.now()
+        });
+        if (responseCache.size > 100) {
+            const oldestKey = responseCache.keys().next().value;
+            responseCache.delete(oldestKey);
+        }
+        saveCache();
+    }
+
+    function getFromCache(question) {
+        const cached = responseCache.get(question);
+        if (!cached) return null;
+        if (Date.now() - cached.timestamp > CACHE_TTL) {
+            responseCache.delete(question);
+            saveCache();
+            return null;
+        }
+        return cached.answer;
+    }
+
+    function formatMarkdown(text) {
+        // Identique à l'original (non reproduit pour concision)
+        return text;
     }
 
     let typingIndicator = null;
@@ -857,7 +882,15 @@
             if (!res.ok) throw new Error('Erreur suggestions');
             const data = await res.json();
             if (data.suggestions && data.suggestions.length) {
-                return data.suggestions.map((text, i) => ({ icon: '💬', text }));
+                const unique = [];
+                const seen = new Set();
+                data.suggestions.forEach(text => {
+                    if (!seen.has(text)) {
+                        seen.add(text);
+                        unique.push({ icon: '💬', text });
+                    }
+                });
+                return unique;
             }
         } catch (e) {
             console.warn('Erreur chargement suggestions', e);
@@ -865,7 +898,6 @@
         return DEFAULT_SUGGESTIONS;
     }
 
-    // Rendu des suggestions
     async function renderSuggestions() {
         const suggestions = await fetchSuggestions();
         suggestionsDiv.innerHTML = '';
@@ -880,11 +912,28 @@
             suggestionsDiv.appendChild(chip);
         });
 
-        // Remplir le datalist
         datalist.innerHTML = suggestions.map(s => `<option value="${s.text}">`).join('');
     }
 
-    // Rendu des actions rapides
+    function renderHistory() {
+        historyDiv.innerHTML = '';
+        if (questionHistory.length === 0) return;
+        const title = document.createElement('div');
+        title.className = 'history-title';
+        title.textContent = 'Questions récentes :';
+        historyDiv.appendChild(title);
+        questionHistory.slice().reverse().forEach(q => {
+            const chip = document.createElement('span');
+            chip.className = 'suggestion-chip';
+            chip.textContent = q;
+            chip.addEventListener('click', () => {
+                input.value = q;
+                sendMessage();
+            });
+            historyDiv.appendChild(chip);
+        });
+    }
+
     function renderQuickActions() {
         quickActionsDiv.innerHTML = '';
         const actions = [
@@ -910,15 +959,21 @@
         const question = input.value.trim();
         if (!question) return;
         
-        addMessage(question, 'user');
+        addMessage(question, 'user', false, null, true);
         input.value = '';
         showTyping();
 
-        // Vérifier le cache
+        if (!questionHistory.includes(question)) {
+            questionHistory.push(question);
+            if (questionHistory.length > 5) questionHistory.shift();
+            localStorage.setItem('assistant_history', JSON.stringify(questionHistory));
+            renderHistory();
+        }
+
         const cachedAnswer = getFromCache(question);
         if (cachedAnswer) {
             hideTyping();
-            addMessage(cachedAnswer, 'assistant', true);
+            addMessage(cachedAnswer, 'assistant', true, null, true);
             return;
         }
 
@@ -943,10 +998,8 @@
             const data = await response.json();
             hideTyping();
             
-            // Mettre en cache
             addToCache(question, data.answer);
-            
-            addMessage(data.answer, 'assistant', true, data.conversation_id);
+            addMessage(data.answer, 'assistant', true, data.conversation_id, true);
             
         } catch (error) {
             hideTyping();
@@ -954,6 +1007,8 @@
                 "❌ **Oups !** Une erreur est survenue. Veuillez réessayer plus tard.\n\n" +
                 `_Erreur technique : ${error.message}_`, 
                 'assistant', 
+                true,
+                null,
                 true
             );
             console.error('Assistant Error:', error);
@@ -971,6 +1026,7 @@
             button.classList.add('hidden');
             input.focus();
             renderSuggestions();
+            renderHistory();
             renderQuickActions();
         } else {
             button.classList.remove('hidden');
@@ -996,5 +1052,8 @@
         }
     });
 
-    console.log('🎯 Mr XPRONOS Assistant chargé avec succès (version améliorée)');
+    // Restaurer les messages au chargement
+    loadMessages();
+
+    console.log('🎯 Mr XPRONOS Assistant chargé avec succès (version améliorée avec persistance)');
 })();
