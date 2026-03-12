@@ -54,7 +54,7 @@
             header.appendChild(nav);
         }
 
-        // Ajouter les styles (ajustés pour Font Awesome)
+        // Ajouter les styles
         addStyles();
     }
 
@@ -70,7 +70,7 @@
                 border-top: 2px solid #D4AF37;
                 border-bottom: 2px solid #D4AF37;
                 background: #0D0D0D;
-                padding: 5px 0;
+                padding: 5px 10px; /* Padding pour éviter que les bords soient coupés */
                 overflow-x: auto;
                 white-space: nowrap;
                 -webkit-overflow-scrolling: touch;
@@ -129,28 +129,35 @@
                 justify-content: space-between;
                 align-items: center;
                 flex-wrap: nowrap;
-                padding: 0.8rem 10px;
+                padding: 0.8rem 15px;
                 max-width: 100%;
                 overflow: hidden;
             }
             .logo {
                 flex-shrink: 0;
+                margin-right: 10px;
             }
             .logo a {
-                font-size: 1.4rem;
+                font-size: 1.6rem; /* Taille d'origine */
                 white-space: nowrap;
+                color: #D4AF37;
+                text-decoration: none;
+            }
+            .logo span {
+                color: #fff;
             }
             .promo-code {
                 flex-shrink: 0;
                 white-space: nowrap;
                 margin-left: 10px;
-                font-size: 0.8rem;
+                font-size: 0.9rem; /* Taille d'origine */
                 background: #D4AF37;
                 color: #000;
-                padding: 0.3rem 0.8rem;
+                padding: 0.4rem 1rem;
                 border-radius: 30px;
+                font-weight: 700;
             }
-            /* Responsive */
+            /* Responsive : on réduit la taille des éléments du menu */
             @media (max-width: 1000px) {
                 .icon-nav-list {
                     gap: 0.7rem;
@@ -161,12 +168,8 @@
                 .icon-nav-list .nav-label {
                     font-size: 0.6rem;
                 }
-                .logo a {
-                    font-size: 1.2rem;
-                }
-                .promo-code {
-                    font-size: 0.7rem;
-                    padding: 0.2rem 0.6rem;
+                .icon-nav-list a {
+                    padding: 4px 6px;
                 }
             }
             @media (max-width: 800px) {
@@ -174,18 +177,15 @@
                     gap: 0.5rem;
                 }
                 .icon-nav-list a {
-                    padding: 4px 6px;
+                    padding: 4px 5px;
                 }
                 .icon-nav-list .nav-icon {
-                    font-size: 1.1rem;
-                }
-                .logo a {
                     font-size: 1.1rem;
                 }
             }
             @media (max-width: 600px) {
                 .icon-nav-list {
-                    gap: 0.3rem;
+                    gap: 0.4rem;
                 }
                 .icon-nav-list a {
                     padding: 3px 4px;
@@ -196,12 +196,35 @@
                 .icon-nav-list .nav-label {
                     font-size: 0.55rem;
                 }
+                /* On garde le logo et le code promo plus grands */
                 .logo a {
-                    font-size: 1rem;
+                    font-size: 1.4rem;
                 }
                 .promo-code {
-                    font-size: 0.6rem;
-                    padding: 0.2rem 0.4rem;
+                    font-size: 0.8rem;
+                    padding: 0.3rem 0.7rem;
+                }
+            }
+            /* Pour les très petits écrans, on réduit encore plus */
+            @media (max-width: 400px) {
+                .icon-nav-list {
+                    gap: 0.2rem;
+                }
+                .icon-nav-list a {
+                    padding: 2px 3px;
+                }
+                .icon-nav-list .nav-icon {
+                    font-size: 0.9rem;
+                }
+                .icon-nav-list .nav-label {
+                    font-size: 0.5rem;
+                }
+                .logo a {
+                    font-size: 1.2rem;
+                }
+                .promo-code {
+                    font-size: 0.7rem;
+                    padding: 0.2rem 0.5rem;
                 }
             }
         `;
