@@ -1,5 +1,6 @@
 // assets/js/menu.js
 // Menu horizontal avec icônes Font Awesome, bordures haute et basse, sur une seule ligne
+// Les éléments prennent toute la largeur disponible de manière équitable
 (function() {
     'use strict';
 
@@ -96,7 +97,7 @@
             .icon-nav-list li {
                 display: flex;
                 flex: 1;
-                min-width: 0;
+                min-width: 0; /* permet au contenu de se réduire si nécessaire */
                 justify-content: center;
             }
             .icon-nav-list a {
@@ -110,8 +111,7 @@
                 padding: 5px 0;
                 border-radius: 8px;
                 white-space: nowrap;
-                width: 100%;
-                max-width: 80px;
+                width: 100%; /* occupe toute la largeur du li */
             }
             .icon-nav-list .nav-icon {
                 font-size: 1.3rem;
@@ -144,7 +144,7 @@
                 margin-right: 10px;
             }
             .logo a {
-                font-size: 1.6rem;
+                font-size: 1.6rem; /* taille conservée */
                 white-space: nowrap;
                 color: #D4AF37;
                 text-decoration: none;
@@ -156,14 +156,14 @@
                 flex-shrink: 0;
                 white-space: nowrap;
                 margin-left: 10px;
-                font-size: 1rem;
+                font-size: 1rem; /* légèrement agrandi */
                 background: #D4AF37;
                 color: #000;
                 padding: 0.5rem 1.2rem;
                 border-radius: 30px;
                 font-weight: 700;
             }
-            /* Responsive : on réduit la taille des éléments du menu */
+            /* Responsive : on réduit la taille des icônes du menu */
             @media (max-width: 1000px) {
                 .icon-nav-list .nav-icon {
                     font-size: 1.2rem;
