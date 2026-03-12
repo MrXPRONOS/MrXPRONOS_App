@@ -1,6 +1,6 @@
 // assets/js/menu.js
 // Menu horizontal avec icônes Font Awesome, bordures haute et basse, sur une seule ligne
-// Les éléments prennent toute la largeur disponible de manière équitable
+// Placé en dessous du logo et du code promo
 (function() {
     'use strict';
 
@@ -16,12 +16,14 @@
     ];
 
     function createMenu() {
-        const header = document.querySelector('header .container');
+        const header = document.querySelector('header');
         if (!header) return;
 
-        // Supprimer l'ancien menu s'il existe
+        // Supprimer l'ancien menu s'il existe (dans le header ou en dessous)
         const oldNav = header.querySelector('nav');
         if (oldNav) oldNav.remove();
+        const oldMenuRow = document.querySelector('.menu-row');
+        if (oldMenuRow) oldMenuRow.remove();
 
         // Créer le nouveau menu
         const nav = document.createElement('nav');
@@ -47,13 +49,13 @@
         });
         nav.appendChild(ul);
 
-        // Insérer le nav après le logo
-        const logo = header.querySelector('.logo');
-        if (logo) {
-            logo.insertAdjacentElement('afterend', nav);
-        } else {
-            header.appendChild(nav);
-        }
+        // Créer une ligne pour le menu en dessous du header
+        const menuRow = document.createElement('div');
+        menuRow.className = 'menu-row';
+        menuRow.appendChild(nav);
+
+        // Insérer le menu après le header
+        header.insertAdjacentElement('afterend', menuRow);
 
         // Ajouter les styles
         addStyles();
@@ -63,20 +65,24 @@
         const style = document.createElement('style');
         style.textContent = `
             /* Styles du menu à icônes */
-            .icon-nav {
-                flex: 1;
-                display: flex;
-                justify-content: center;
-                margin: 0 5px;
+            .menu-row {
+                background: #0D0D0D;
                 border-top: 2px solid #D4AF37;
                 border-bottom: 2px solid #D4AF37;
-                background: #0D0D0D;
-                padding: 5px 10px;
+                padding: 5px 0;
+                width: 100%;
+            }
+            .icon-nav {
+                max-width: 1200px;
+                margin: 0 auto;
+                display: flex;
+                justify-content: center;
                 overflow-x: auto;
                 white-space: nowrap;
                 -webkit-overflow-scrolling: touch;
                 scrollbar-width: thin;
                 scrollbar-color: #D4AF37 #0D0D0D;
+                padding: 0 10px;
             }
             .icon-nav::-webkit-scrollbar {
                 height: 4px;
@@ -93,11 +99,12 @@
                 gap: 0;
                 flex-wrap: nowrap;
                 width: 100%;
+                justify-content: space-around;
             }
             .icon-nav-list li {
                 display: flex;
                 flex: 1;
-                min-width: 0; /* permet au contenu de se réduire si nécessaire */
+                min-width: 0;
                 justify-content: center;
             }
             .icon-nav-list a {
@@ -111,7 +118,8 @@
                 padding: 5px 0;
                 border-radius: 8px;
                 white-space: nowrap;
-                width: 100%; /* occupe toute la largeur du li */
+                width: 100%;
+                max-width: 80px;
             }
             .icon-nav-list .nav-icon {
                 font-size: 1.3rem;
@@ -129,22 +137,21 @@
                 color: #D4AF37;
                 background: rgba(212, 175, 55, 0.1);
             }
-            /* Ajustement du header pour contenir le menu */
+            /* Ajustement du header pour logo à gauche et promo à droite */
             header .container {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 flex-wrap: nowrap;
                 padding: 0.8rem 15px;
-                max-width: 100%;
-                overflow: hidden;
+                max-width: 1200px;
+                margin: 0 auto;
             }
             .logo {
                 flex-shrink: 0;
-                margin-right: 10px;
             }
             .logo a {
-                font-size: 1.6rem; /* taille conservée */
+                font-size: 1.6rem;
                 white-space: nowrap;
                 color: #D4AF37;
                 text-decoration: none;
@@ -155,35 +162,15 @@
             .promo-code {
                 flex-shrink: 0;
                 white-space: nowrap;
-                margin-left: 10px;
-                font-size: 1rem; /* légèrement agrandi */
+                font-size: 1rem;
                 background: #D4AF37;
                 color: #000;
                 padding: 0.5rem 1.2rem;
                 border-radius: 30px;
                 font-weight: 700;
             }
-            /* Responsive : on réduit la taille des icônes du menu */
-            @media (max-width: 1000px) {
-                .icon-nav-list .nav-icon {
-                    font-size: 1.2rem;
-                }
-                .icon-nav-list .nav-label {
-                    font-size: 0.6rem;
-                }
-            }
-            @media (max-width: 800px) {
-                .icon-nav-list .nav-icon {
-                    font-size: 1.1rem;
-                }
-            }
+            /* Responsive */
             @media (max-width: 600px) {
-                .icon-nav-list .nav-icon {
-                    font-size: 1rem;
-                }
-                .icon-nav-list .nav-label {
-                    font-size: 0.55rem;
-                }
                 .logo a {
                     font-size: 1.4rem;
                 }
@@ -193,12 +180,6 @@
                 }
             }
             @media (max-width: 400px) {
-                .icon-nav-list .nav-icon {
-                    font-size: 0.9rem;
-                }
-                .icon-nav-list .nav-label {
-                    font-size: 0.5rem;
-                }
                 .logo a {
                     font-size: 1.2rem;
                 }
