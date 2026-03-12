@@ -1,30 +1,48 @@
-// assets/js/menu.js - Barre de navigation inférieure pour mobile
+// assets/js/menu.js
+// Menu moderne responsive pour Mr XPRONOS
 (function() {
     'use strict';
 
-    // Configuration des éléments de navigation
-    const navItems = [
-        { name: 'Accueil', icon: '🏠', url: 'index.html' },
-        { name: 'Pronostics', icon: '📊', url: 'pronos.html' },
-        { name: 'LIVE VIP', icon: '🔴', url: 'live.html' },
-        { name: 'Historique', icon: '📜', url: 'historique.html' },
-        { name: 'Bonus', icon: '🎁', url: 'bonus.html' }
+    const menuItems = [
+        { name: 'Accueil', url: 'index.html' },
+        { name: 'Pronostics', url: 'pronos.html' },
+        { name: 'LIVE VIP', url: 'live.html' },
+        { name: 'Historique', url: 'historique.html' },
+        { name: 'Bonus', url: 'bonus.html' },
+        { name: 'Blog', url: 'blog.html' },
+        { name: 'Conseils', url: 'conseils.html' },
+        { name: 'Contact', url: 'contact.html' }
     ];
 
-    // Créer la barre de navigation
-    function createBottomNav() {
-        const nav = document.createElement('nav');
-        nav.className = 'mobile-bottom-nav';
-        nav.setAttribute('aria-label', 'Navigation principale');
+    function createMenu() {
+        const header = document.querySelector('header .container');
+        if (!header) return;
 
+        // Supprimer l'ancien menu s'il existe
+        const oldNav = header.querySelector('nav');
+        if (oldNav) oldNav.remove();
+
+        // Créer le nouveau menu
+        const nav = document.createElement('nav');
+        nav.className = 'main-nav';
+
+        // Bouton hamburger pour mobile
+        const hamburger = document.createElement('button');
+        hamburger.className = 'hamburger';
+        hamburger.setAttribute('aria-label', 'Menu');
+        hamburger.innerHTML = '<span></span><span></span><span></span>';
+        nav.appendChild(hamburger);
+
+        // Liste des liens
         const ul = document.createElement('ul');
-        navItems.forEach(item => {
+        ul.className = 'nav-links';
+
+        menuItems.forEach(item => {
             const li = document.createElement('li');
             const a = document.createElement('a');
             a.href = item.url;
-            a.innerHTML = `<span class="nav-icon">${item.icon}</span><span class="nav-label">${item.name}</span>`;
+            a.textContent = item.name;
 
-            // Vérifier si l'URL correspond à la page courante
             const currentPath = window.location.pathname;
             if (currentPath.endsWith(item.url) || 
                 (item.url === 'index.html' && (currentPath === '/' || currentPath.endsWith('/')))) {
@@ -34,68 +52,167 @@
             ul.appendChild(li);
         });
         nav.appendChild(ul);
-        return nav;
+
+        // Insérer le nav après le logo
+        const logo = header.querySelector('.logo');
+        if (logo) {
+            logo.insertAdjacentElement('afterend', nav);
+        } else {
+            header.appendChild(nav);
+        }
+
+        // Gestion du hamburger
+        const overlay = document.createElement('div');
+        overlay.className = 'nav-overlay';
+        document.body.appendChild(overlay);
+
+        hamburger.addEventListener('click', () => {
+            ul.classList.toggle('open');
+            overlay.classList.toggle('open');
+            document.body.style.overflow = ul.classList.contains('open') ? 'hidden' : '';
+        });
+
+        overlay.addEventListener('click', () => {
+            ul.classList.remove('open');
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+        });
+
+        ul.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                ul.classList.remove('open');
+                overlay.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Ajouter les styles modifiés
+        addStyles();
     }
 
-    // Initialisation
-    function init() {
-        const nav = createBottomNav();
-        document.body.appendChild(nav);
-
-        // Ajouter un padding-bottom au body pour éviter que le contenu soit caché
-        document.body.style.paddingBottom = '70px';
-
-        // Styles de la barre (intégrés ici pour éviter un fichier CSS supplémentaire)
+    function addStyles() {
         const style = document.createElement('style');
         style.textContent = `
-            .mobile-bottom-nav {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                background: #0D0D0D;
-                border-top: 2px solid #D4AF37;
-                box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
-                z-index: 1000;
-                font-family: 'Montserrat', sans-serif;
-            }
-            .mobile-bottom-nav ul {
+            /* Styles du nouveau menu */
+            .main-nav {
                 display: flex;
-                justify-content: space-around;
                 align-items: center;
+                /* Supprimé margin-left: auto pour éviter conflit avec promo-code */
+                margin-right: 20px; /* Espace avant le code promo */
+            }
+
+            .hamburger {
+                display: none;
+                flex-direction: column;
+                justify-content: space-around;
+                width: 30px;
+                height: 30px;
+                background: transparent;
+                border: none;
+                cursor: pointer;
+                padding: 0;
+                z-index: 1001;
+            }
+            .hamburger span {
+                display: block;
+                width: 100%;
+                height: 3px;
+                background: #D4AF37;
+                border-radius: 3px;
+                transition: all 0.3s;
+            }
+
+            .nav-links {
+                display: flex;
                 list-style: none;
                 margin: 0;
-                padding: 8px 0;
+                padding: 0;
+                gap: 1.5rem;
             }
-            .mobile-bottom-nav li {
-                flex: 1;
-                text-align: center;
-            }
-            .mobile-bottom-nav a {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                color: #888;
+            .nav-links a {
+                color: #fff;
                 text-decoration: none;
-                font-size: 0.7rem;
+                font-weight: 500;
+                font-size: 0.9rem;
                 transition: color 0.3s;
+                position: relative;
+                padding-bottom: 5px;
             }
-            .mobile-bottom-nav a.active {
+            .nav-links a::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 0;
+                height: 2px;
+                background-color: #D4AF37;
+                transition: width 0.3s;
+            }
+            .nav-links a:hover::after,
+            .nav-links a.active::after {
+                width: 100%;
+            }
+            .nav-links a:hover,
+            .nav-links a.active {
                 color: #D4AF37;
             }
-            .mobile-bottom-nav .nav-icon {
-                font-size: 1.5rem;
-                margin-bottom: 2px;
+
+            /* Overlay pour mobile */
+            .nav-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+                opacity: 0;
+                transition: opacity 0.3s;
             }
-            .mobile-bottom-nav .nav-label {
-                font-size: 0.6rem;
+            .nav-overlay.open {
+                display: block;
+                opacity: 1;
             }
-            @media (min-width: 769px) {
-                .mobile-bottom-nav {
+
+            /* Responsive mobile */
+            @media (max-width: 768px) {
+                .hamburger {
+                    display: flex;
+                }
+                .nav-links {
+                    position: fixed;
+                    top: 0;
+                    right: -300px;
+                    width: 280px;
+                    height: 100vh;
+                    background: #0D0D0D;
+                    flex-direction: column;
+                    padding: 80px 20px 20px;
+                    gap: 1rem;
+                    transition: right 0.3s ease;
+                    z-index: 1000;
+                    border-left: 2px solid #D4AF37;
+                    box-shadow: -2px 0 10px rgba(0,0,0,0.5);
+                }
+                .nav-links.open {
+                    right: 0;
+                }
+                .nav-links a {
+                    display: block;
+                    padding: 12px;
+                    font-size: 1.1rem;
+                    border-radius: 8px;
+                }
+                .nav-links a:hover,
+                .nav-links a.active {
+                    background: rgba(212,175,55,0.2);
+                }
+                .nav-links a::after {
                     display: none;
                 }
-                body {
-                    padding-bottom: 0 !important;
+                .main-nav {
+                    margin-right: 0; /* pas de marge sur mobile */
                 }
             }
         `;
@@ -103,8 +220,8 @@
     }
 
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', createMenu);
     } else {
-        init();
+        createMenu();
     }
 })();
