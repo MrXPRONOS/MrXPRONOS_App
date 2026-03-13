@@ -1,0 +1,29 @@
+name: Notifications push programmées
+
+on:
+  schedule:
+    - cron: '0 7 * * *'   # 7h UTC (ajustez selon votre fuseau)
+    - cron: '0 18 * * *'  # 18h UTC
+  workflow_dispatch:
+
+jobs:
+  send-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appeler la fonction pour les coupons du matin
+        if: github.event.schedule == '0 7 * * *'
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -d '{"title":"📊 Nouveaux coupons !","body":"Les pronostics du jour sont disponibles.","url":"https://mrxpronos.github.io/MrXPRONOS_App/pronos.html"}' \
+            https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/push-notifications
+
+      - name: Appeler la fonction pour le rappel du soir
+        if: github.event.schedule == '0 18 * * *'
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -d '{"title":"⚽ Toujours là !","body":"Les pronostics du jour sont encore disponibles.","url":"https://mrxpronos.github.io/MrXPRONOS_App/pronos.html"}' \
+            https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/push-notifications
