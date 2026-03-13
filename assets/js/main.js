@@ -141,6 +141,68 @@ async function initSupabase() {
     }
 }
 
+
+// main.js - à ajouter après l'initialisation de supabase
+
+async function subscribeToPush() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+    console.log('Push non supporté');
+    return;
+  }
+
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      console.log('Permission refusée');
+      return;
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+    let subscription = await registration.pushManager.getSubscription();
+    
+    if (!subscription) {
+      // Générer les clés VAPID (à faire côté serveur, mais on peut utiliser une clé publique)
+      const publicKey = await fetch(`${SUPABASE_URL}/functions/v1/vapid-public-key`).then(res => res.text());
+      const convertedKey = urlBase64ToUint8Array(publicKey);
+      
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: convertedKey
+      });
+    }
+
+    // Envoyer l'abonnement à Supabase
+    await fetch(`${SUPABASE_URL}/functions/v1/push-subscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: userId,
+        subscription
+      })
+    });
+
+    console.log('Abonnement push enregistré');
+  } catch (err) {
+    console.error('Erreur push:', err);
+  }
+}
+
+// Appeler la fonction après connexion
+subscribeToPush();
+
+// Fonction utilitaire pour convertir base64
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+
 // =======================================================
 // NETTOYAGE DES CHANNELS (évite fuites mémoire)
 // =======================================================

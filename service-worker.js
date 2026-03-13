@@ -277,7 +277,7 @@ self.addEventListener('push', (event) => {
     };
     
     event.waitUntil(
-        self.registration.showNotification('Mr XPRONOS', options)
+        self.registration.showNotification(data.title, options)
     );
 });
 
@@ -289,4 +289,11 @@ self.addEventListener('notificationclick', (event) => {
             clients.openWindow('./pronos.html')
         );
     }
+});
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow(event.notification.data.url)
+  );
 });
