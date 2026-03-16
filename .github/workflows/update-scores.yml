@@ -1,34 +1,41 @@
-name: Mise à jour horaire (statuts et vérifications)
+name: Mise à jour fréquente (toutes les 10 minutes)
 
 on:
   schedule:
-    - cron: '0 * * * *'   # toutes les heures
+    - cron: '*/10 * * * *'      # toutes les 10 minutes
   push:
     paths:
       - 'generate_data.py'
       - 'update_scores.py'
-      - '*.py'
+      - 'update_pronostics_supabase.py'
+      - 'convert_images.py'
+      - 'requirements.txt'
       - '.github/workflows/*.yml'
   workflow_dispatch:
 
 permissions:
   contents: write
 
+env:
+  PYTHON_VERSION: '3.10'
+
 jobs:
-  update-live:
+  update-data:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
       - name: Install dependencies
@@ -37,6 +44,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Update scores (data.json)
+        id: update_scores
         env:
           SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
           SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
@@ -46,25 +54,42 @@ jobs:
         run: python update_scores.py
 
       - name: Update pronostics in Supabase
+        id: update_supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python update_pronostics_supabase.py
 
       - name: Convert images to WebP
+        id: convert_images
         run: python convert_images.py
 
+      - name: Validate data.json (syntax check)
+        run: |
+          python -m json.tool data.json > /dev/null || { echo "❌ data.json invalide"; exit 1; }
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          git add -A
+          if git diff --staged --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Commit and push changes
+        if: steps.check_changes.outputs.has_changes == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add -A
-          if git diff --staged --quiet; then
-            echo "ℹ️ Aucun changement à commiter"
-            exit 0
-          fi
-          git commit -m "Mise à jour horaire $(date +'%Y-%m-%d %H:%M') [skip ci]"
-          git pull origin main --rebase -X theirs || git pull origin main --no-rebase || true
+          git commit -m "Mise à jour $(date +'%Y-%m-%d %H:%M') [skip ci]"
+          git pull --rebase origin main || { echo "❌ Échec du rebase"; exit 1; }
           git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Send notification on failure (optional)
+        if: failure()
+        run: |
+          echo "Une étape a échoué. Vous pouvez ajouter ici un webhook (Telegram, Slack...)"
