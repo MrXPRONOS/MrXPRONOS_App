@@ -210,15 +210,6 @@
             width: 100%;
             margin: 5px 0;
         }
-
-        /* Logo team dans les cartes */
-        .team-logo-small {
-            width: 24px;
-            height: 24px;
-            object-fit: contain;
-            margin-right: 5px;
-            vertical-align: middle;
-        }
     </style>
 </head>
 <body>
@@ -320,8 +311,8 @@
             );
         };
         
-        // Overlay VIP
-        const VipLockOverlay = ({ onSubmit }) => {
+        // Overlay VIP avec message personnalisé
+        const VipLockOverlay = ({ onSubmit, userId }) => {
             const [code, setCode] = useState('');
             const [error, setError] = useState('');
             const handleSubmit = (e) => {
@@ -332,6 +323,10 @@
                 }
                 onSubmit(code.trim());
             };
+            const message = `Bonjour Mr XPRONOS, voici mon ID VIP ${userId}. Je veut integrer votre LIVE VIP . Par quel moyen je doit payer l'Abonnement VIP svp?`;
+            const waLink = `https://wa.me/22899201444?text=${encodeURIComponent(message)}`;
+            const tgLink = `https://t.me/mr_xpronos?text=${encodeURIComponent(message)}`;
+            
             return (
                 <div className="vip-locked-overlay">
                     <div className="vip-locked-content">
@@ -341,8 +336,8 @@
                             Pour obtenir un code (5000 FCFA/mois), contactez-nous sur WhatsApp ou Telegram.
                         </p>
                         <div className="flex justify-center gap-4 mb-6">
-                            <a href="https://wa.me/22899201444?text=Bonjour%20Mr%20XPRONOS%2C%20voici%20mon%20ID%20VIP%20...%20Je%20veut%20integrer%20votre%20LIVE%20VIP%20.%20Par%20quel%20moyen%20je%20doit%20payer%20l'Abonnement%20VIP%20svp%3F" target="_blank" className="btn btn-primary">WhatsApp</a>
-                            <a href="https://t.me/mr_xpronos?text=Bonjour%20Mr%20XPRONOS%2C%20voici%20mon%20ID%20VIP%20...%20Je%20veut%20integrer%20votre%20LIVE%20VIP%20.%20Par%20quel%20moyen%20je%20doit%20payer%20l'Abonnement%20VIP%20svp%3F" target="_blank" className="btn btn-primary">Telegram</a>
+                            <a href={waLink} target="_blank" className="btn btn-primary">WhatsApp</a>
+                            <a href={tgLink} target="_blank" className="btn btn-primary">Telegram</a>
                         </div>
                         <form onSubmit={handleSubmit}>
                             <input type="text" placeholder="Entrez votre code VIP" value={code} onChange={(e) => setCode(e.target.value)} />
@@ -362,8 +357,8 @@
             const momentum = match?.momentum_index || {};
             const predictions = match?.predictions || [];
             const highConfidence = predictions.filter(p => p?.confidence === 'high');
-            const homeLogo = match.home_logo || 'assets/images/home.webp';
-            const awayLogo = match.away_logo || 'assets/images/away.webp';
+            const homeLogo = match.home_logo || 'https://mrxpronos.github.io/MrXPRONOS_App/assets/images/home.webp';
+            const awayLogo = match.away_logo || 'https://mrxpronos.github.io/MrXPRONOS_App/assets/images/away.webp';
             
             return (
                 <Card onClick={() => onClick(match)} className={`${isSelected ? 'border-[#D4AF37]' : ''}`}>
@@ -379,7 +374,7 @@
                     
                     <div className="flex justify-between items-center mb-4">
                         <div className="flex-1 text-right pr-4">
-                            <img src={homeLogo} alt={match.home_team} className="inline-block w-8 h-8 mr-2" onError={(e) => e.target.src='assets/images/home.webp'} />
+                            <img src={homeLogo} alt={match.home_team} className="inline-block w-8 h-8 mr-2" onError={(e) => e.target.src='https://mrxpronos.github.io/MrXPRONOS_App/assets/images/home.webp'} />
                             <span className="font-bold text-white">{match?.home_team || ''}</span>
                         </div>
                         
@@ -390,7 +385,7 @@
                         </div>
                         
                         <div className="flex-1 pl-4">
-                            <img src={awayLogo} alt={match.away_team} className="inline-block w-8 h-8 mr-2" onError={(e) => e.target.src='assets/images/away.webp'} />
+                            <img src={awayLogo} alt={match.away_team} className="inline-block w-8 h-8 mr-2" onError={(e) => e.target.src='https://mrxpronos.github.io/MrXPRONOS_App/assets/images/away.webp'} />
                             <span className="font-bold text-white">{match?.away_team || ''}</span>
                         </div>
                     </div>
@@ -870,8 +865,14 @@
                 checkVip(vipCode);
             }, [vipCode, checkVip]);
             
+            // Fonction apiFetch corrigée pour gérer les paramètres existants
             const apiFetch = useCallback(async (endpoint) => {
-                const url = vipCode ? `${EDGE_FUNCTION_URL}${endpoint}?vip_code=${vipCode}` : `${EDGE_FUNCTION_URL}${endpoint}`;
+                let url = `${EDGE_FUNCTION_URL}${endpoint}`;
+                if (vipCode) {
+                    // Si l'URL a déjà des paramètres, on ajoute avec &, sinon avec ?
+                    url += endpoint.includes('?') ? `&vip_code=${vipCode}` : `?vip_code=${vipCode}`;
+                }
+                console.log(`Fetching ${url}`);
                 const res = await fetch(url);
                 if (res.status === 403) {
                     setIsVip(false);
@@ -884,13 +885,17 @@
             
             const fetchLiveMatches = useCallback(async () => {
                 try {
+                    console.log('Fetching live matches...');
                     const res = await apiFetch('/matches');
                     if (res.ok) {
                         const data = await res.json();
+                        console.log('Live matches data:', data);
                         setLiveMatches(data.matches || []);
                         setStats(prev => ({ ...prev, matches_live: data.matches.length }));
                     }
-                } catch (e) { console.error('Erreur live matches:', e); }
+                } catch (e) {
+                    console.error('Erreur live matches:', e);
+                }
             }, [apiFetch]);
             
             const fetchTodayData = useCallback(async () => {
@@ -902,7 +907,9 @@
                         setScheduledMatches(data.data.scheduled.matches || []);
                         setStats(prev => ({ ...prev, matches_scheduled: data.data.scheduled.count }));
                     }
-                } catch (e) { console.error('Erreur today:', e); }
+                } catch (e) {
+                    console.error('Erreur today:', e);
+                }
             }, [apiFetch]);
             
             const fetchPredictions = useCallback(async () => {
@@ -912,18 +919,22 @@
                         const data = await res.json();
                         setActivePredictions(data.predictions || []);
                     }
-                } catch (e) { console.error('Erreur prédictions:', e); }
+                } catch (e) {
+                    console.error('Erreur prédictions:', e);
+                }
             }, [apiFetch]);
             
             const fetchHistory = useCallback(async () => {
                 try {
-                    const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/history`);
+                    const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/history`); // public
                     if (res.ok) {
                         const data = await res.json();
                         console.log("Historique reçu:", data);
                         setPredictionHistory(data.history || []);
                     }
-                } catch (e) { console.error('Erreur historique:', e); }
+                } catch (e) {
+                    console.error('Erreur historique:', e);
+                }
             }, []);
             
             const fetchNotifications = useCallback(async () => {
@@ -933,7 +944,9 @@
                         const data = await res.json();
                         setNotifications(data.notifications || []);
                     }
-                } catch (e) { console.error('Erreur notifications:', e); }
+                } catch (e) {
+                    console.error('Erreur notifications:', e);
+                }
             }, [userId]);
             
             // Realtime notifications
@@ -965,26 +978,29 @@
                 prevActivePredictionsRef.current = activePredictions;
             }, [activePredictions]);
             
+            // Chargement initial et intervales
             useEffect(() => {
-                const loadAll = async () => {
-                    if (!isVip) return;
-                    setLoading(true);
-                    try {
-                        await Promise.all([fetchLiveMatches(), fetchTodayData(), fetchPredictions(), fetchHistory(), fetchNotifications()]);
-                    } catch (e) {
-                        setError('Erreur de connexion au serveur.');
-                    } finally {
-                        setLoading(false);
-                    }
-                };
                 if (!vipChecking && isVip) {
-                    loadAll();
+                    setLoading(true);
+                    // On utilise Promise.allSettled pour que chaque requête soit indépendante
+                    Promise.allSettled([
+                        fetchLiveMatches(),
+                        fetchTodayData(),
+                        fetchPredictions(),
+                        fetchHistory(),
+                        fetchNotifications()
+                    ]).finally(() => setLoading(false));
+                    
                     const intervalLive = setInterval(fetchLiveMatches, 30000);
                     const intervalToday = setInterval(fetchTodayData, 60000);
                     const intervalPred = setInterval(fetchPredictions, 30000);
                     const intervalNotif = setInterval(fetchNotifications, 30000);
+                    
                     return () => {
-                        clearInterval(intervalLive); clearInterval(intervalToday); clearInterval(intervalPred); clearInterval(intervalNotif);
+                        clearInterval(intervalLive);
+                        clearInterval(intervalToday);
+                        clearInterval(intervalPred);
+                        clearInterval(intervalNotif);
                     };
                 }
             }, [isVip, vipChecking, fetchLiveMatches, fetchTodayData, fetchPredictions, fetchHistory, fetchNotifications]);
@@ -1015,7 +1031,7 @@
                 );
             }
             if (!isVip) {
-                return <VipLockOverlay onSubmit={handleVipCodeSubmit} />;
+                return <VipLockOverlay onSubmit={handleVipCodeSubmit} userId={userId} />;
             }
             if (error) {
                 return (
