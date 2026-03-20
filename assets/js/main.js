@@ -1623,14 +1623,16 @@ async function loadGeneratedContent() {
     }
 }
 
+// =======================================================
+// FONCTIONS POUR LE CONTENU (blog, conseils, news)
+// =======================================================
 async function displayBlogList() {
     const container = document.getElementById('blog-list');
     if (!container) return;
     if (!window.generatedArticles) await loadGeneratedContent();
     const data = await loadDataGeneric();
     let allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
-    // Filtrer les articles inactifs (champ active === false)
-    allArticles = allArticles.filter(a => a.active !== false);
+    // Suppression du filtre sur 'active' : tous les articles sont affichés
     if (allArticles.length === 0) { 
         container.innerHTML = '<div class="no-events">Aucun article.</div>'; 
         return; 
@@ -1666,84 +1668,9 @@ async function displayBlogList() {
     container.innerHTML = html;
 }
 
-window.showArticleDetail = function(index) {
-    const article = window.articlesData[index];
-    if (!article) return;
-    if (!DOM.articleModal) return;
-    document.getElementById('article-modal-title').textContent = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
-    document.getElementById('article-modal-image').src = article.image_url || 'assets/images/default-logo.png';
-    let content = article.content;
-    if (window.marked) content = window.marked.parse(content);
-    else content = content.replace(/\n/g,'<br>');
-    document.getElementById('article-modal-content').innerHTML = content;
-    document.getElementById('article-modal-link').href = 'article.html?slug=' + encodeURIComponent(article.slug);
-    DOM.articleModal.style.display = 'flex';
-};
-
-window.closeArticleModal = function() {
-    if (DOM.articleModal) DOM.articleModal.style.display = 'none';
-};
-
-async function displayBlogPost() {
-    const container = document.getElementById('blog-post');
-    if (!container) return;
-    const urlParams = new URLSearchParams(window.location.search);
-    const slug = urlParams.get('slug');
-    if (!slug) { 
-        container.innerHTML = '<p>Article non trouvé.</p>'; 
-        return; 
-    }
-    if (!window.generatedArticles) await loadGeneratedContent();
-    const data = await loadDataGeneric();
-    let allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
-    allArticles = allArticles.filter(a => a.active !== false);
-    const article = allArticles.find(a => a.slug === slug);
-    if (!article) { 
-        container.innerHTML = '<p>Article non trouvé.</p>'; 
-        return; 
-    }
-    
-    let cleanTitle = article.title.replace(/#+\s*/g,'').replace(/\*\*/g,'');
-    document.title = cleanTitle + ' - Mr XPRONOS';
-    const description = article.excerpt || article.content.substring(0,150).replace(/[#*]/g,'') + '...';
-    const imageUrl = article.image_url || 'https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg';
-    const fullUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=' + encodeURIComponent(slug);
-    
-    // Métadonnées OpenGraph
-    document.getElementById('article-description')?.setAttribute('content', description);
-    document.getElementById('og-title')?.setAttribute('content', cleanTitle);
-    document.getElementById('og-description')?.setAttribute('content', description);
-    document.getElementById('og-image')?.setAttribute('content', imageUrl);
-    document.getElementById('og-url')?.setAttribute('content', fullUrl);
-    document.getElementById('twitter-title')?.setAttribute('content', cleanTitle);
-    document.getElementById('twitter-description')?.setAttribute('content', description);
-    document.getElementById('twitter-image')?.setAttribute('content', imageUrl);
-    
-    const jsonLd = {
-        "@context":"https://schema.org","@type":"Article","headline":cleanTitle,"description":description,"image":imageUrl,
-        "author":{"@type":"Person","name":article.author||"Mr XPRONOS"},
-        "publisher":{"@type":"Organization","name":"Mr XPRONOS","logo":{"@type":"ImageObject","url":"https://mrxpronos.github.io/MrXPRONOS_App/assets/images/icon-192.webp"}},
-        "datePublished":article.date,"dateModified":article.date,"mainEntityOfPage":fullUrl
-    };
-    const jsonLdEl = document.getElementById('article-jsonld');
-    if (jsonLdEl) jsonLdEl.textContent = JSON.stringify(jsonLd);
-    
-    let htmlContent = article.content;
-    if (window.marked) htmlContent = window.marked.parse(htmlContent);
-    else htmlContent = htmlContent.replace(/\n/g,'<br>');
-    
-    container.innerHTML = `
-        <h1>${escapeHtml(cleanTitle)}</h1>
-        <div class="meta">${article.date} par ${escapeHtml(article.author)}</div>
-        ${article.image_url ? `<img src="${escapeAttribute(article.image_url)}" alt="${escapeAttribute(cleanTitle)}" loading="lazy">` : ''}
-        <div style="margin-top: 2rem;">${htmlContent}</div>
-        <a href="blog.html" class="btn btn-secondary" style="margin-top: 2rem;">← Retour au blog</a>
-    `;
-}
-
 /**
  * Affiche la liste des conseils (page conseils.html)
- * Filtre les conseils inactifs (active = false)
+ * Tous les conseils sont affichés (plus de filtrage)
  */
 async function displayConseils() {
     const container = document.getElementById('conseils-list');
@@ -1758,15 +1685,15 @@ async function displayConseils() {
         allConseils = data?.conseils || [];
     }
 
-    // Filtrer les conseils actifs (par défaut, si pas de champ active, on les affiche)
-    const actifs = allConseils.filter(c => c.active !== false);
+    // Plus de filtrage : on affiche tous les conseils
+    const actifs = allConseils;
 
     if (actifs.length === 0) {
         container.innerHTML = '<div class="no-events">Aucun conseil disponible pour le moment.</div>';
         return;
     }
 
-    // Stocker les conseils actifs pour les utiliser dans les modales
+    // Stocker les conseils pour les utiliser dans les modales
     window.conseilsData = actifs;
 
     // --- Affichage de la liste horizontale (si le conteneur existe) ---
