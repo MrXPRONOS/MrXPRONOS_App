@@ -4,245 +4,281 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Administration - Mr XPRONOS</title>
-    <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Chart.js pour les graphiques -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Font Awesome pour les icônes -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Styles spécifiques à l'admin (responsive) */
+        :root {
+            --or: #D4AF37;
+            --or-light: #FFD700;
+            --or-dark: #B8941F;
+            --noir: #0D0D0D;
+            --noir-second: #1A1A1A;
+            --gris: #2A2A2A;
+            --text: #FFFFFF;
+            --text-light: #CCCCCC;
+            --shadow: 0 10px 30px rgba(0,0,0,0.5);
+            --shadow-gold: 0 0 25px rgba(212,175,55,0.35);
+        }
+
         body {
-            background: #0D0D0D;
-            color: #fff;
+            background: var(--noir);
+            color: var(--text);
             font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 0;
         }
+
         .admin-container {
             max-width: 1400px;
             margin: 20px auto;
-            padding: 0 20px;
+            padding: 0 15px;
         }
+
         h1 {
-            color: #D4AF37;
-            margin-bottom: 30px;
-            font-size: 2rem;
+            color: var(--or);
+            font-size: 2.1rem;
+            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
         }
-        .header-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .btn-dashboard {
-            background: #333;
-            color: #fff;
-            border: 1px solid #D4AF37;
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-dashboard:hover {
-            background: #444;
-        }
-        /* Menu burger pour les onglets */
+
+        /* ==================== TABS ==================== */
         .mobile-tabs-toggle {
             display: none;
-            background: #D4AF37;
+            background: var(--or);
             color: #000;
             border: none;
+            padding: 12px 20px;
             border-radius: 30px;
-            padding: 10px 20px;
-            font-weight: 600;
-            margin-bottom: 10px;
-            cursor: pointer;
+            font-weight: 700;
+            margin-bottom: 15px;
             width: 100%;
             text-align: left;
-            position: relative;
         }
-        .mobile-tabs-toggle::after {
-            content: '☰';
-            position: absolute;
-            right: 20px;
-            font-size: 1.2rem;
-        }
+
         .admin-tabs {
             display: flex;
-            gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #D4AF37;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--or);
             padding-bottom: 10px;
-            transition: all 0.3s ease;
         }
-        .admin-tabs.collapsed {
-            display: none;
-        }
+
         .tab-btn {
-            background: #1A1A1A;
-            color: #fff;
+            background: var(--gris);
+            color: var(--text);
             border: none;
-            padding: 10px 20px;
+            padding: 12px 22px;
             border-radius: 30px;
-            cursor: pointer;
             font-weight: 600;
-            transition: 0.3s;
-            font-size: 14px;
-            flex: 0 1 auto;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
         }
+
         .tab-btn:hover, .tab-btn.active {
-            background: #D4AF37;
+            background: var(--or);
             color: #000;
+            transform: translateY(-2px);
         }
-        .tab-pane {
+
+        /* ==================== ICÔNES FONT AWESOME DORÉES ==================== */
+        .admin-item button i,
+        .tab-btn i,
+        .modal-close,
+        .btn i,
+        .stat-card i {
+            color: var(--or);
+            transition: all 0.3s;
+        }
+
+        .admin-item button:hover i,
+        .tab-btn:hover i,
+        .modal-close:hover,
+        .btn:hover i {
+            color: var(--or-light);
+            transform: scale(1.15);
+        }
+
+        /* ==================== MODALES ==================== */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(12px);
             display: none;
-            background: #1A1A1A;
-            padding: 25px;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 15px;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: var(--noir-second);
+            border: 2px solid var(--or);
             border-radius: 20px;
-            border: 1px solid #D4AF37;
-            margin-bottom: 30px;
+            width: 100%;
+            max-width: 620px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-gold);
+            animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .tab-pane.active {
-            display: block;
+
+        @keyframes modalPop {
+            from { transform: scale(0.7) translateY(40px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
         }
-        h2 {
-            color: #D4AF37;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
+
+        .modal-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid rgba(212,175,55,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--noir-second), #111);
         }
-        h3 {
-            color: #D4AF37;
-            margin: 20px 0 10px;
-            font-size: 1.2rem;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background: #0D0D0D;
-            border: 1px solid #D4AF37;
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-        }
-        .stat-card h3 {
-            color: #D4AF37;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-        .stat-card .stat-value {
+
+        .modal-close {
+            background: none;
+            border: none;
             font-size: 2rem;
-            font-weight: 700;
-            color: #fff;
+            color: var(--or);
+            cursor: pointer;
+            transition: transform 0.3s;
         }
+
+        .modal-close:hover {
+            transform: rotate(90deg) scale(1.1);
+            color: #EF4444;
+        }
+
+        /* ==================== GRAPHES CHART.JS ==================== */
         .chart-container {
-            background: #0D0D0D;
+            background: var(--gris);
             border-radius: 16px;
             padding: 20px;
-            margin-bottom: 30px;
-            border: 1px solid #D4AF37;
+            border: 1px solid var(--or);
+            margin-bottom: 25px;
         }
-        .period-selector {
+
+        canvas {
+            max-height: 380px !important;
+        }
+
+        /* ==================== LISTES ADMIN ==================== */
+        .admin-item {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            justify-content: space-between;
             align-items: center;
+            padding: 16px;
+            background: var(--gris);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid var(--or);
         }
-        .period-selector select, .period-selector input {
-            background: #0D0D0D;
-            border: 1px solid #D4AF37;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 8px;
+
+        .admin-item button {
+            background: none;
+            border: none;
+            font-size: 1.35rem;
+            cursor: pointer;
+            padding: 6px;
+            margin-left: 8px;
         }
-        .custom-range {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+
+        /* ==================== SWITCH TOGGLE ==================== */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+            margin-right: 12px;
         }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #444;
+            transition: .3s;
+            border-radius: 26px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background: var(--or); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        /* ==================== FORMULAIRES ==================== */
         .form-group {
             margin-bottom: 20px;
         }
         label {
             display: block;
-            margin-bottom: 5px;
-            color: #ccc;
+            margin-bottom: 6px;
             font-weight: 500;
+            color: #ccc;
         }
-        input[type="text"], input[type="url"], input[type="date"], input[type="number"], input[type="password"], select, textarea {
+        input, select, textarea {
             width: 100%;
             padding: 12px;
-            border-radius: 8px;
+            background: var(--noir);
             border: 1px solid #444;
-            background: #0D0D0D;
+            border-radius: 10px;
             color: #fff;
             font-family: 'Montserrat', sans-serif;
             font-size: 14px;
-            box-sizing: border-box;
         }
         input:focus, select:focus, textarea:focus {
+            border-color: var(--or);
             outline: none;
-            border-color: #D4AF37;
-        }
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .checkbox-group input {
-            width: auto;
-        }
-        .admin-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            box-shadow: 0 0 0 3px rgba(212,175,55,0.2);
         }
         .btn {
-            padding: 12px 25px;
+            padding: 12px 24px;
             border-radius: 50px;
-            border: none;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s;
+            border: none;
             font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         .btn-primary {
-            background: #D4AF37;
+            background: var(--or);
             color: #000;
         }
         .btn-primary:hover {
-            background: #FFD700;
+            background: var(--or-light);
+            transform: translateY(-2px);
         }
         .btn-secondary {
             background: #333;
             color: #fff;
-            border: 1px solid #D4AF37;
+            border: 1px solid var(--or);
         }
         .btn-secondary:hover {
             background: #444;
+            transform: translateY(-2px);
         }
         .btn-danger {
             background: #dc3545;
@@ -251,627 +287,294 @@
         .btn-danger:hover {
             background: #c82333;
         }
-        .btn-small {
-            padding: 5px 10px;
-            font-size: 0.8rem;
-        }
-        .admin-list {
-            margin-top: 30px;
-        }
-        .admin-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #333;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .admin-item:last-child {
-            border-bottom: none;
-        }
-        .admin-item button {
-            background: none;
-            border: none;
-            color: #D4AF37;
-            font-size: 1.2rem;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        .admin-item button:hover {
-            color: #FFD700;
-        }
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            background: #1A1A1A;
-            padding: 40px;
-            border-radius: 20px;
-            border: 2px solid #D4AF37;
-            text-align: center;
-        }
-        .login-container h2 {
-            color: #D4AF37;
+
+        /* ==================== STATS ==================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
             margin-bottom: 30px;
         }
-        .login-container input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: #0D0D0D;
-            color: #fff;
-            box-sizing: border-box;
+        .stat-card {
+            background: var(--gris);
+            border: 1px solid var(--or);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
         }
-        .login-container button {
-            width: 100%;
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
-        .hidden {
-            display: none;
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--or-light);
         }
-        .message {
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
+
+        /* ==================== PREVIEW ==================== */
+        .preview-area {
+            margin-top: 20px;
+            border: 2px solid var(--or);
+            padding: 20px;
+            background: #111;
+            border-radius: 12px;
         }
-        .message.success {
-            background: #28a745;
-            color: #fff;
-            display: block;
+        .preview-area h4 {
+            color: var(--or);
+            margin-top: 0;
         }
-        .message.error {
-            background: #dc3545;
-            color: #fff;
-            display: block;
-        }
-        .logout-btn {
-            background: #333;
-            color: #fff;
-            border: 1px solid #D4AF37;
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .logout-btn:hover {
-            background: #444;
-        }
-        .help-text {
-            color: #aaa;
-            font-size: 0.9rem;
-            margin-top: 5px;
-        }
-        /* Styles pour la FAQ */
-        .faq-item {
-            background: #0D0D0D;
-            border: 1px solid #444;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-        }
-        .faq-official {
-            border-left: 4px solid #D4AF37;
-        }
-        .faq-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .feedback-item {
-            background: #0D0D0D;
-            border: 1px solid #D4AF37;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-        }
-        .feedback-positive {
-            border-left: 4px solid #28a745;
-        }
-        .feedback-negative {
-            border-left: 4px solid #dc3545;
-        }
-        .prediction-item {
-            background: #0D0D0D;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border: 1px solid #444;
-        }
-        .prediction-high {
-            border-left: 4px solid #28a745;
-        }
-        .prediction-medium {
-            border-left: 4px solid #D4AF37;
-        }
-        .prediction-low {
-            border-left: 4px solid #ff4444;
-        }
+
+        /* ==================== MOBILE ==================== */
         @media (max-width: 768px) {
-            h1 {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .mobile-tabs-toggle {
-                display: block;
-            }
-            .admin-tabs {
-                flex-direction: column;
-                gap: 5px;
-            }
-            .admin-tabs .tab-btn {
-                width: 100%;
-                text-align: center;
-            }
-            .admin-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .admin-item button {
-                margin-left: 0;
-                margin-right: 10px;
-            }
-            .period-selector {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .custom-range {
-                flex-direction: column;
-            }
-        }
-        @media (max-width: 480px) {
-            .tab-btn {
-                flex: 1 1 100%;
-            }
+            .mobile-tabs-toggle { display: block; }
+            .admin-tabs { flex-direction: column; }
+            .admin-tabs.collapsed { display: none; }
+            h1 { font-size: 1.8rem; }
+            .stats-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <!-- Vérification du paramètre admin=true pour protéger l'accès -->
-    <script>
-        (function() {
-            if (!window.location.search.includes('admin=true')) {
-                window.location.href = 'index.html';
-            }
-        })();
-    </script>
-
-    <!-- Conteneur de connexion -->
-    <div id="login-container" class="login-container">
-        <h2>🔐 Connexion Admin</h2>
+    <div id="login-container" class="login-container" style="max-width:400px; margin:100px auto; background:#1A1A1A; padding:40px; border-radius:20px; border:2px solid #D4AF37; text-align:center;">
+        <h2 style="color:#D4AF37;">🔐 Connexion Admin</h2>
         <form id="login-form">
-            <input type="text" id="admin-username" name="username" placeholder="Nom d'utilisateur" required>
-            <input type="password" id="admin-password" name="password" placeholder="Mot de passe" required>
-            <button type="submit" id="login-btn" class="btn btn-primary">Se connecter</button>
+            <input type="text" id="admin-username" placeholder="Nom d'utilisateur" required style="width:100%; margin-bottom:20px; padding:12px; border-radius:8px; background:#0D0D0D; color:#fff; border:1px solid #444;">
+            <input type="password" id="admin-password" placeholder="Mot de passe" required style="width:100%; margin-bottom:20px; padding:12px; border-radius:8px; background:#0D0D0D; color:#fff; border:1px solid #444;">
+            <button type="submit" class="btn btn-primary" style="width:100%;">Se connecter</button>
         </form>
-        <p style="color: #ccc; margin-top: 20px;">Les identifiants sont définis dans les variables GitHub.</p>
+        <p style="color:#ccc; margin-top:20px;">Les identifiants sont définis dans les variables GitHub.</p>
     </div>
 
-    <!-- Contenu admin (caché tant que non connecté) -->
     <div id="admin-content" class="admin-container hidden">
         <h1>
-            Admin Mr XPRONOS
+            Panneau d'administration Mr XPRONOS
             <div class="header-buttons">
-                <a href="admin-dashboard.html?key=MXPRO2026" target="_blank" class="btn-dashboard">📊 Dashboard en direct</a>
-                <button id="logout-btn" class="logout-btn">Déconnexion</button>
+                <a href="admin-dashboard.html?key=MXPRO2026" target="_blank" class="btn-dashboard" style="background:#333; color:#fff; border:1px solid #D4AF37; padding:8px 16px; border-radius:30px;">📊 Dashboard en direct</a>
+                <button id="logout-btn" class="logout-btn" style="background:#333; color:#fff; border:1px solid #D4AF37; padding:8px 16px; border-radius:30px;">Déconnexion</button>
             </div>
         </h1>
 
-        <!-- Menu burger pour les onglets -->
         <button class="mobile-tabs-toggle" id="toggle-tabs">Menu</button>
-
-        <!-- Onglets de navigation -->
         <div class="admin-tabs">
-            <button class="tab-btn" data-tab="stats">📊 Statistiques</button>
-            <button class="tab-btn active" data-tab="pronostics">Pronostics</button>
-            <button class="tab-btn" data-tab="blog">Blog</button>
-            <button class="tab-btn" data-tab="conseils">Conseils</button>
-            <button class="tab-btn" data-tab="infos">Infos sport</button>
-            <button class="tab-btn" data-tab="bonus">Bonus & Promo</button>
-            <button class="tab-btn" data-tab="bookmakers">Bookmakers</button>
-            <button class="tab-btn" data-tab="vip">Codes VIP</button>
-            <button class="tab-btn" data-tab="assistant">🤖 Assistant</button>
-            <button class="tab-btn" data-tab="live-predictions">⚡ Live Prédictions</button>
-            <button class="tab-btn" data-tab="settings">Paramètres</button>
-            <button class="tab-btn" data-tab="export">Export JSON</button>
-            <button class="tab-btn" data-tab="generated-articles">📄 Articles générés</button>
+            <button class="tab-btn" data-tab="stats"><i class="fas fa-chart-line"></i> Statistiques</button>
+            <button class="tab-btn active" data-tab="pronostics"><i class="fas fa-futbol"></i> Pronostics</button>
+            <button class="tab-btn" data-tab="blog"><i class="fas fa-newspaper"></i> Blog</button>
+            <button class="tab-btn" data-tab="conseils"><i class="fas fa-lightbulb"></i> Conseils</button>
+            <button class="tab-btn" data-tab="infos"><i class="fas fa-info-circle"></i> Infos sport</button>
+            <button class="tab-btn" data-tab="bonus"><i class="fas fa-gift"></i> Bonus & Promo</button>
+            <button class="tab-btn" data-tab="bookmakers"><i class="fas fa-book"></i> Bookmakers</button>
+            <button class="tab-btn" data-tab="vip"><i class="fas fa-crown"></i> Codes VIP</button>
+            <button class="tab-btn" data-tab="assistant"><i class="fas fa-robot"></i> Assistant</button>
+            <button class="tab-btn" data-tab="live-predictions"><i class="fas fa-bolt"></i> Live Prédictions</button>
+            <button class="tab-btn" data-tab="settings"><i class="fas fa-sliders-h"></i> Paramètres</button>
+            <button class="tab-btn" data-tab="export"><i class="fas fa-file-export"></i> Export JSON</button>
+            <button class="tab-btn" data-tab="generated-articles"><i class="fas fa-file-alt"></i> Articles générés</button>
         </div>
 
-        <!-- Onglet Statistiques -->
+        <!-- ==================== STATS ==================== -->
         <div id="tab-stats" class="tab-pane">
-            <h2>📊 Mr XPRONOS - Statistiques en temps réel</h2>
-            <div class="period-selector">
-                <label for="period-select">Période :</label>
-                <select id="period-select">
-                    <option value="today">Aujourd'hui</option>
-                    <option value="yesterday">Hier</option>
-                    <option value="currentWeek">Semaine en cours</option>
-                    <option value="lastWeek">Semaine passée</option>
-                    <option value="currentMonth">Mois en cours</option>
-                    <option value="lastMonth">Mois passé</option>
-                    <option value="currentYear">Année en cours</option>
-                    <option value="lastYear">Année passée</option>
-                    <option value="custom">Personnalisé</option>
-                </select>
-                <div id="custom-range" class="custom-range" style="display: none;">
-                    <input type="date" id="start-date">
-                    <span>à</span>
-                    <input type="date" id="end-date">
-                    <button id="apply-custom" class="btn btn-secondary">Appliquer</button>
-                </div>
-            </div>
+            <h2>📊 Statistiques en temps réel</h2>
             <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>👥 Utilisateurs en ligne</h3>
-                    <div class="stat-value" id="online">0</div>
-                    <small>actuellement</small>
-                </div>
-                <div class="stat-card">
-                    <h3>👀 Pages vues</h3>
-                    <div class="stat-value" id="views">0</div>
-                    <small>sur la période</small>
-                </div>
-                <div class="stat-card">
-                    <h3>🎯 Clics pronostics</h3>
-                    <div class="stat-value" id="clicks">0</div>
-                    <small>sur la période</small>
-                </div>
-                <div class="stat-card">
-                    <h3>📤 Partages WhatsApp</h3>
-                    <div class="stat-value" id="shares">0</div>
-                    <small>sur la période</small>
-                </div>
-                <div class="stat-card">
-                    <h3>💎 Conversions VIP</h3>
-                    <div class="stat-value" id="vip">0</div>
-                    <small>sur la période</small>
-                </div>
-                <div class="stat-card">
-                    <h3>👥 Utilisateurs uniques</h3>
-                    <div class="stat-value" id="unique-users">0</div>
-                    <small>sur la période</small>
-                </div>
-                <div class="stat-card">
-                    <h3>📈 Taux de conversion VIP</h3>
-                    <div class="stat-value" id="conversion-rate">0.00%</div>
-                    <small>des visiteurs deviennent VIP</small>
-                </div>
+                <div class="stat-card"><i class="fas fa-users"></i> <h3>Utilisateurs en ligne</h3><div class="stat-value" id="online">0</div></div>
+                <div class="stat-card"><i class="fas fa-eye"></i> <h3>Pages vues</h3><div class="stat-value" id="views">0</div></div>
+                <div class="stat-card"><i class="fas fa-chart-simple"></i> <h3>Clics pronostics</h3><div class="stat-value" id="clicks">0</div></div>
+                <div class="stat-card"><i class="fas fa-share-alt"></i> <h3>Partages WhatsApp</h3><div class="stat-value" id="shares">0</div></div>
+                <div class="stat-card"><i class="fas fa-crown"></i> <h3>Conversions VIP</h3><div class="stat-value" id="vip">0</div></div>
+                <div class="stat-card"><i class="fas fa-user-check"></i> <h3>Utilisateurs uniques</h3><div class="stat-value" id="unique-users">0</div></div>
+                <div class="stat-card"><i class="fas fa-chart-line"></i> <h3>Taux conversion VIP</h3><div class="stat-value" id="conversion-rate">0%</div></div>
             </div>
-            <div class="chart-container">
-                <canvas id="visitsChart"></canvas>
-            </div>
-            <div class="chart-container">
-                <canvas id="pagesChart"></canvas>
-            </div>
+            <div class="chart-container"><canvas id="visitsChart"></canvas></div>
+            <div class="chart-container"><canvas id="pagesChart"></canvas></div>
         </div>
 
-        <!-- Onglet Pronostics (inchangé) -->
+        <!-- ==================== PRONOSTICS ==================== -->
         <div id="tab-pronostics" class="tab-pane active">
             <h2>Gestion des pronostics</h2>
             <form id="pronostic-form">
-                <div class="form-group">
-                    <label>Match</label>
-                    <input type="text" id="pronostic-match" required placeholder="ex: PSG - OM">
-                </div>
-                <div class="form-group">
-                    <label>Cote</label>
-                    <input type="text" id="pronostic-cote" required placeholder="ex: 1.85">
-                </div>
-                <div class="form-group">
-                    <label>Analyse</label>
-                    <textarea id="pronostic-analyse" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Confiance (%)</label>
-                    <input type="number" id="pronostic-confidence" min="0" max="100" required>
-                </div>
-                <div class="form-group">
-                    <label>Bookmaker</label>
-                    <select id="pronostic-bookmaker"></select>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="pronostic-premium">
-                    <label for="pronostic-premium">Premium (VIP)</label>
-                </div>
+                <div class="form-group"><label>Match</label><input type="text" id="pronostic-match" required placeholder="ex: PSG - OM"></div>
+                <div class="form-group"><label>Cote</label><input type="text" id="pronostic-cote" required></div>
+                <div class="form-group"><label>Analyse</label><textarea id="pronostic-analyse" required></textarea></div>
+                <div class="form-group"><label>Confiance (%)</label><input type="number" id="pronostic-confidence" min="0" max="100" required></div>
+                <div class="form-group"><label>Bookmaker</label><select id="pronostic-bookmaker"></select></div>
+                <div class="checkbox-group"><input type="checkbox" id="pronostic-premium"><label>Premium (VIP)</label></div>
                 <input type="hidden" id="pronostic-index" value="-1">
                 <div class="admin-actions">
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
                     <button type="button" id="cancel-pronostic" class="btn btn-secondary">Annuler</button>
                 </div>
             </form>
-            <div class="admin-list" id="pronostics-list-admin"></div>
+            <div id="pronostics-list-admin" class="admin-list"></div>
         </div>
 
-        <!-- Onglet Blog -->
+        <!-- ==================== BLOG ==================== -->
         <div id="tab-blog" class="tab-pane">
             <h2>Gestion du blog</h2>
             <form id="blog-form">
-                <div class="form-group">
-                    <label>Titre</label>
-                    <input type="text" id="blog-title" required>
-                </div>
-                <div class="form-group">
-                    <label>Slug (URL)</label>
-                    <input type="text" id="blog-slug" required>
-                </div>
-                <div class="form-group">
-                    <label>Date</label>
-                    <input type="date" id="blog-date" required>
-                </div>
-                <div class="form-group">
-                    <label>Auteur</label>
-                    <input type="text" id="blog-author" value="Mr XPRONOS" required>
-                </div>
-                <div class="form-group">
-                    <label>Extrait (excerpt)</label>
-                    <textarea id="blog-excerpt" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Contenu (HTML)</label>
-                    <textarea id="blog-content" required></textarea>
-                </div>
-                <!-- Champs SEO -->
-                <div class="form-group">
-                    <label>Meta description (SEO, max 160 caractères)</label>
-                    <textarea id="blog-meta-description" maxlength="160"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Mots clés SEO (séparés par des virgules)</label>
-                    <input type="text" id="blog-keywords" placeholder="ex: pronostic PSG, analyse football">
-                </div>
-                <div class="form-group">
-                    <label>Image OpenGraph (URL)</label>
-                    <input type="url" id="blog-og-image" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                    <label>FAQ (JSON format)</label>
-                    <textarea id="blog-faq" placeholder='[{"q":"Question","a":"Réponse"}]'></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Image URL principale</label>
-                    <input type="url" id="blog-image">
-                </div>
-                <div class="form-group">
-                    <label>Match associé (optionnel)</label>
-                    <input type="text" id="blog-match">
-                </div>
+                <div class="form-group"><label>Titre</label><input type="text" id="blog-title" required></div>
+                <div class="form-group"><label>Slug (URL)</label><input type="text" id="blog-slug" required></div>
+                <div class="form-group"><label>Date</label><input type="date" id="blog-date" required></div>
+                <div class="form-group"><label>Auteur</label><input type="text" id="blog-author" value="Mr XPRONOS" required></div>
+                <div class="form-group"><label>Extrait (excerpt)</label><textarea id="blog-excerpt" required></textarea></div>
+                <div class="form-group"><label>Contenu (HTML)</label><textarea id="blog-content" required></textarea></div>
+                <div class="form-group"><label>Meta description (SEO)</label><textarea id="blog-meta-description" maxlength="160"></textarea></div>
+                <div class="form-group"><label>Mots clés SEO</label><input type="text" id="blog-keywords"></div>
+                <div class="form-group"><label>Image OpenGraph (URL)</label><input type="url" id="blog-og-image"></div>
+                <div class="form-group"><label>FAQ (JSON)</label><textarea id="blog-faq" placeholder='[{"q":"Question","a":"Réponse"}]'></textarea></div>
+                <div class="form-group"><label>Image URL principale</label><input type="url" id="blog-image"></div>
+                <div class="form-group"><label>Match associé</label><input type="text" id="blog-match"></div>
+                <input type="hidden" id="blog-index" value="-1">
                 <div class="admin-actions">
                     <button type="button" id="generate-seo" class="btn btn-secondary">⚡ Générer SEO auto</button>
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
                     <button type="button" id="cancel-blog" class="btn btn-secondary">Annuler</button>
-                    <button type="button" id="preview-blog" class="btn btn-secondary">Aperçu</button>
+                    <button type="button" id="preview-blog" class="btn btn-secondary"><i class="fas fa-eye"></i> Aperçu</button>
                 </div>
             </form>
-            <div id="blog-preview" class="preview-area" style="display: none;">
+            <div id="blog-preview" class="preview-area" style="display:none;">
                 <h4>Aperçu de l'article</h4>
                 <div id="blog-preview-content"></div>
             </div>
-            <div class="admin-list" id="blog-list-admin"></div>
+            <div id="blog-list-admin" class="admin-list"></div>
         </div>
 
-        <!-- Onglet Conseils (avec champ active) -->
+        <!-- ==================== CONSEILS ==================== -->
         <div id="tab-conseils" class="tab-pane">
             <h2>Gestion des conseils</h2>
             <form id="conseil-form">
-                <div class="form-group">
-                    <label>Titre</label>
-                    <input type="text" id="conseil-title" required>
-                </div>
-                <div class="form-group">
-                    <label>Contenu</label>
-                    <textarea id="conseil-content" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Image URL</label>
-                    <input type="url" id="conseil-image">
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="conseil-active" checked>
-                    <label for="conseil-active">Actif (affiché sur le site)</label>
-                </div>
+                <div class="form-group"><label>Titre</label><input type="text" id="conseil-title" required></div>
+                <div class="form-group"><label>Contenu</label><textarea id="conseil-content" required></textarea></div>
+                <div class="form-group"><label>Image URL</label><input type="url" id="conseil-image"></div>
+                <div class="checkbox-group"><input type="checkbox" id="conseil-active" checked><label>Actif (affiché sur le site)</label></div>
                 <input type="hidden" id="conseil-index" value="-1">
                 <div class="admin-actions">
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
                     <button type="button" id="cancel-conseil" class="btn btn-secondary">Annuler</button>
+                    <button type="button" id="preview-conseil" class="btn btn-secondary"><i class="fas fa-eye"></i> Aperçu</button>
                 </div>
             </form>
-            <div class="admin-list" id="conseils-list-admin"></div>
+            <div id="conseil-preview" class="preview-area" style="display:none;">
+                <h4>Aperçu du conseil</h4>
+                <div id="conseil-preview-content"></div>
+            </div>
+            <div id="conseils-list-admin" class="admin-list"></div>
         </div>
 
-        <!-- Onglet Infos sport -->
+        <!-- ==================== INFOS SPORT ==================== -->
         <div id="tab-infos" class="tab-pane">
             <h2>Gestion des infos sport</h2>
             <form id="info-form">
-                <div class="form-group">
-                    <label>Titre</label>
-                    <input type="text" id="info-title" required>
-                </div>
-                <div class="form-group">
-                    <label>Contenu</label>
-                    <textarea id="info-content" required></textarea>
-                </div>
+                <div class="form-group"><label>Titre</label><input type="text" id="info-title" required></div>
+                <div class="form-group"><label>Contenu</label><textarea id="info-content" required></textarea></div>
                 <input type="hidden" id="info-index" value="-1">
                 <div class="admin-actions">
                     <button type="submit" class="btn btn-primary">Enregistrer</button>
                     <button type="button" id="cancel-info" class="btn btn-secondary">Annuler</button>
                 </div>
             </form>
-            <div class="admin-list" id="infos-list-admin"></div>
+            <div id="infos-list-admin" class="admin-list"></div>
         </div>
 
-        <!-- Onglet Bonus -->
+        <!-- ==================== BONUS ==================== -->
         <div id="tab-bonus" class="tab-pane">
             <h2>Gestion des bonus</h2>
             <form id="bonus-form">
-                <div class="form-group">
-                    <label>Bookmaker</label>
-                    <input type="text" id="bonus-bookmaker" required>
-                </div>
-                <div class="form-group">
-                    <label>Titre</label>
-                    <input type="text" id="bonus-title" required>
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="bonus-description" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Image (URL)</label>
-                    <input type="url" id="bonus-image" required>
-                </div>
-                <div class="form-group">
-                    <label>Lien (optionnel)</label>
-                    <input type="url" id="bonus-link">
-                </div>
-                <div class="form-group">
-                    <label>Footer (texte optionnel)</label>
-                    <input type="text" id="bonus-footer">
-                </div>
-                <div class="form-group">
-                    <label>Date de début</label>
-                    <input type="date" id="bonus-start" required>
-                </div>
-                <div class="form-group">
-                    <label>Date de fin</label>
-                    <input type="date" id="bonus-end" required>
-                </div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="bonus-active" checked>
-                    <label for="bonus-active">Actif</label>
-                </div>
+                <div class="form-group"><label>Bookmaker</label><input type="text" id="bonus-bookmaker" required></div>
+                <div class="form-group"><label>Titre</label><input type="text" id="bonus-title" required></div>
+                <div class="form-group"><label>Description</label><textarea id="bonus-description" required></textarea></div>
+                <div class="form-group"><label>Image (URL)</label><input type="url" id="bonus-image" required></div>
+                <div class="form-group"><label>Lien</label><input type="url" id="bonus-link"></div>
+                <div class="form-group"><label>Footer</label><input type="text" id="bonus-footer"></div>
+                <div class="form-group"><label>Date début</label><input type="date" id="bonus-start" required></div>
+                <div class="form-group"><label>Date fin</label><input type="date" id="bonus-end" required></div>
+                <div class="checkbox-group"><input type="checkbox" id="bonus-active" checked><label>Actif</label></div>
                 <input type="hidden" id="bonus-index" value="-1">
                 <div class="admin-actions">
                     <button type="submit" class="btn btn-primary">Enregistrer</button>
                     <button type="button" id="cancel-bonus" class="btn btn-secondary">Annuler</button>
                 </div>
             </form>
-            <div class="admin-list" id="bonus-list-admin"></div>
+            <div id="bonus-list-admin" class="admin-list"></div>
         </div>
 
-        <!-- Onglet Bookmakers -->
+        <!-- ==================== BOOKMAKERS ==================== -->
         <div id="tab-bookmakers" class="tab-pane">
             <h2>Gestion des bookmakers</h2>
-            <p>Les bookmakers apparaissent dans le footer et la section bonus. 1xBet est mis en avant.</p>
             <div id="bookmakers-list-admin" class="admin-list"></div>
             <button id="add-bookmaker" class="btn btn-primary">Ajouter un bookmaker</button>
         </div>
 
-        <!-- Onglet Codes VIP -->
+        <!-- ==================== CODES VIP ==================== -->
         <div id="tab-vip" class="tab-pane">
             <h2>Gestion des codes VIP</h2>
             <form id="vip-form">
-                <div class="form-group">
-                    <label>ID Utilisateur (ex: MX-XXXX) :</label>
-                    <input type="text" id="user-id" required placeholder="MX-XXXX">
-                </div>
-                <div class="form-group">
-                    <label>IP (optionnel, laisser vide si inconnue) :</label>
-                    <input type="text" id="ip-address" placeholder="192.168.1.1">
-                </div>
-                <div class="form-group">
-                    <label>Durée (jours) :</label>
-                    <input type="number" id="duration" value="30" min="1" step="1">
-                </div>
+                <div class="form-group"><label>ID Utilisateur</label><input type="text" id="user-id" required placeholder="MX-XXXX"></div>
+                <div class="form-group"><label>IP (optionnel)</label><input type="text" id="ip-address"></div>
+                <div class="form-group"><label>Durée (jours)</label><input type="number" id="duration" value="30"></div>
                 <button type="submit" class="btn btn-primary">Générer le code</button>
             </form>
-            <div id="vip-result" class="message" style="display: none;"></div>
-            <hr style="border-color:#444; margin:30px 0;">
+            <div id="vip-result" class="message" style="display:none;"></div>
             <h3>Utilisateurs VIP actifs</h3>
             <div id="vip-list" class="admin-list"></div>
         </div>
 
-        <!-- Onglet Assistant avec nouvelles fonctionnalités -->
+        <!-- ==================== ASSISTANT ==================== -->
         <div id="tab-assistant" class="tab-pane">
-            <h2>🤖 Assistant IA - Statistiques et gestion</h2>
+            <h2>🤖 Assistant IA - Statistiques</h2>
             <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Questions totales</h3>
-                    <div class="stat-value" id="total-questions">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Taux de réponse en cache</h3>
-                    <div class="stat-value" id="cache-rate">0%</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Feedbacks positifs</h3>
-                    <div class="stat-value" id="positive-feedback">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Feedbacks négatifs</h3>
-                    <div class="stat-value" id="negative-feedback">0</div>
-                </div>
+                <div class="stat-card"><h3>Questions totales</h3><div class="stat-value" id="total-questions">0</div></div>
+                <div class="stat-card"><h3>Taux de réponse en cache</h3><div class="stat-value" id="cache-rate">0%</div></div>
+                <div class="stat-card"><h3>Feedbacks positifs</h3><div class="stat-value" id="positive-feedback">0</div></div>
+                <div class="stat-card"><h3>Feedbacks négatifs</h3><div class="stat-value" id="negative-feedback">0</div></div>
             </div>
-
             <h3>FAQ - Questions fréquentes</h3>
             <div id="faq-list" class="admin-list"></div>
-            <div class="admin-actions">
-                <button id="add-faq" class="btn btn-primary">Ajouter une question</button>
-            </div>
-
+            <div class="admin-actions"><button id="add-faq" class="btn btn-primary">Ajouter une question</button></div>
             <h3>Actions sur l'assistant</h3>
             <div class="admin-actions">
-                <button id="generate-embeddings" class="btn btn-secondary">Générer les embeddings</button>
-                <button id="clear-pronostics-cache" class="btn btn-danger">Vider le cache des pronostics</button>
-                <button id="clear-assistant-cache" class="btn btn-danger">Vider le cache de l'assistant (FAQ)</button>
+                <button id="generate-embeddings" class="btn btn-secondary">Générer embeddings</button>
+                <button id="clear-pronostics-cache" class="btn btn-danger">Vider cache pronostics</button>
+                <button id="clear-assistant-cache" class="btn btn-danger">Vider cache assistant (FAQ)</button>
             </div>
-
-            <h3>Questions sans réponse satisfaisante</h3>
-            <div id="unanswered-questions"></div>
-
-            <h3>Derniers feedbacks</h3>
-            <div id="recent-feedbacks"></div>
-
-            <h3>Conversations récentes</h3>
-            <div id="recent-conversations"></div>
+            <h3>Questions sans réponse satisfaisante</h3><div id="unanswered-questions"></div>
+            <h3>Derniers feedbacks</h3><div id="recent-feedbacks"></div>
+            <h3>Conversations récentes</h3><div id="recent-conversations"></div>
         </div>
 
-        <!-- Onglet Live Prédictions -->
+        <!-- ==================== LIVE PRÉDICTIONS ==================== -->
         <div id="tab-live-predictions" class="tab-pane">
             <h2>⚡ Prédictions en direct</h2>
             <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Prédictions actives</h3>
-                    <div class="stat-value" id="active-predictions-count">0</div>
-                </div>
-                <div class="stat-card">
-                    <h3>Taux de réussite</h3>
-                    <div class="stat-value" id="prediction-success-rate">0%</div>
-                </div>
+                <div class="stat-card"><h3>Prédictions actives</h3><div class="stat-value" id="active-predictions-count">0</div></div>
+                <div class="stat-card"><h3>Taux de réussite</h3><div class="stat-value" id="prediction-success-rate">0%</div></div>
             </div>
-            <h3>Prédictions haute confiance en cours</h3>
-            <div id="active-predictions-list"></div>
-            <h3>Historique des prédictions (48h)</h3>
-            <div id="predictions-history"></div>
-            <h3>Dernières notifications</h3>
-            <div id="notifications-list"></div>
+            <h3>Prédictions haute confiance en cours</h3><div id="active-predictions-list"></div>
+            <h3>Historique (48h)</h3><div id="predictions-history"></div>
+            <h3>Dernières notifications</h3><div id="notifications-list"></div>
         </div>
 
-        <!-- Onglet Paramètres -->
+        <!-- ==================== PARAMÈTRES ==================== -->
         <div id="tab-settings" class="tab-pane">
             <h2>Paramètres de l'application</h2>
             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="vip-toggle" style="width: auto;"> Afficher les pronostics VIP
-                </label>
-                <p class="help-text">Si désactivé, l'onglet VIP sera masqué pour tous les utilisateurs.</p>
+                <label><input type="checkbox" id="vip-toggle"> Afficher les pronostics VIP</label>
+                <p class="help-text">Si désactivé, l'onglet VIP sera masqué.</p>
             </div>
             <button id="save-settings" class="btn btn-primary">Enregistrer</button>
         </div>
 
-        <!-- Onglet Export JSON -->
+        <!-- ==================== EXPORT JSON ==================== -->
         <div id="tab-export" class="tab-pane">
             <h2>Export JSON</h2>
-            <p>Cliquez ci-dessous pour générer le fichier <code>data.json</code> contenant toutes les données actuelles.</p>
+            <p>Cliquez ci-dessous pour générer data.json.</p>
             <button id="export-json" class="btn btn-primary">Télécharger data.json</button>
-            <button id="reset-data" class="btn btn-secondary" style="margin-left: 1rem;">Réinitialiser les données (exemple)</button>
-            <pre id="json-preview" style="background: #0D0D0D; padding: 15px; border-radius: 8px; border: 1px solid #D4AF37; margin-top: 20px; max-height: 400px; overflow: auto;"></pre>
+            <button id="reset-data" class="btn btn-secondary">Réinitialiser données (exemple)</button>
+            <pre id="json-preview" style="background:#0D0D0D; padding:15px; border-radius:8px; border:1px solid #D4AF37; margin-top:20px; max-height:400px; overflow:auto;"></pre>
         </div>
 
-        <!-- Onglet Articles générés -->
+        <!-- ==================== ARTICLES GÉNÉRÉS ==================== -->
         <div id="tab-generated-articles" class="tab-pane">
             <h2>Articles générés automatiquement</h2>
-            <p>Liste des articles créés par le script <code>content_generator.py</code>. Vous pouvez les masquer (ils n'apparaîtront plus sur le site) et télécharger le fichier mis à jour.</p>
             <div id="generated-articles-list" class="admin-list"></div>
             <button id="download-articles" class="btn btn-primary">Télécharger articles.json</button>
         </div>
@@ -879,22 +582,10 @@
 
     <script type="module">
         // =======================================================
-        // IMPORT DES CONFIGURATIONS (admin-config.js)
-        // =======================================================
-        let ADMIN_USER = 'admin';
-        let ADMIN_PASSWORD_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // sha256 de 'admin'
-
-        try {
-            const config = await import('./assets/js/admin-config.js');
-            ADMIN_USER = config.ADMIN_USER;
-            ADMIN_PASSWORD_HASH = config.ADMIN_PASSWORD_HASH;
-        } catch (e) {
-            console.warn('Fichier admin-config.js non trouvé, utilisation des identifiants par défaut (admin/admin)');
-        }
-
-        // =======================================================
         // AUTHENTIFICATION
         // =======================================================
+        let ADMIN_USER = 'admin';
+        let ADMIN_PASSWORD_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // sha256('admin')
         async function hashPassword(password) {
             const encoder = new TextEncoder();
             const data = encoder.encode(password);
@@ -906,8 +597,6 @@
         const loginContainer = document.getElementById('login-container');
         const adminContent = document.getElementById('admin-content');
         const loginForm = document.getElementById('login-form');
-        const usernameInput = document.getElementById('admin-username');
-        const passwordInput = document.getElementById('admin-password');
         const logoutBtn = document.getElementById('logout-btn');
 
         if (sessionStorage.getItem('adminLoggedIn') === 'true') {
@@ -918,8 +607,8 @@
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = usernameInput.value;
-            const password = passwordInput.value;
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
             const hashed = await hashPassword(password);
             if (username === ADMIN_USER && hashed === ADMIN_PASSWORD_HASH) {
                 sessionStorage.setItem('adminLoggedIn', 'true');
@@ -927,7 +616,7 @@
                 adminContent.classList.remove('hidden');
                 initAdmin();
             } else {
-                alert('Nom d\'utilisateur ou mot de passe incorrect');
+                alert('Identifiants incorrects');
             }
         });
 
@@ -937,313 +626,7 @@
         });
 
         // =======================================================
-        // INITIALISATION SUPABASE
-        // =======================================================
-        let supabase = null;
-        let supabaseAvailable = false;
-
-        async function initSupabase() {
-            try {
-                const { supabaseUrl, supabaseAnonKey } = await import('./assets/js/config.js');
-                if (!supabaseUrl || !supabaseUrl.startsWith('https://')) throw new Error('URL Supabase invalide');
-                const { createClient } = window.supabase;
-                supabase = createClient(supabaseUrl, supabaseAnonKey);
-                supabaseAvailable = true;
-                console.log('✅ Supabase connecté (admin)');
-            } catch (error) {
-                console.warn('⚠️ Supabase non configuré, statistiques non disponibles');
-                supabaseAvailable = false;
-            }
-        }
-
-        // =======================================================
-        // VISITEURS EN LIGNE (Realtime Presence)
-        // =======================================================
-        let onlineChannel = null;
-
-        async function initOnlineUsers() {
-            if (!supabaseAvailable || !document.getElementById('online')) return;
-            const userId = 'admin-' + Math.random().toString(36).substring(2);
-            onlineChannel = supabase.channel('online-users', {
-                config: {
-                    presence: { key: userId }
-                }
-            });
-            onlineChannel
-                .on('presence', { event: 'sync' }, () => {
-                    const state = onlineChannel.presenceState();
-                    const onlineUsers = Object.keys(state).length;
-                    document.getElementById('online').textContent = onlineUsers;
-                })
-                .subscribe(async (status) => {
-                    if (status === 'SUBSCRIBED') {
-                        await onlineChannel.track({ online_at: new Date().toISOString() });
-                    }
-                });
-        }
-
-        // =======================================================
-        // GESTION DE LA PÉRIODE POUR LES STATISTIQUES
-        // =======================================================
-        let currentPeriod = 'today';
-        let customStart = null;
-        let customEnd = null;
-
-        function getDateRange(period) {
-            const now = new Date();
-            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            let start, end;
-            // ... (identique au code précédent)
-            switch (period) {
-                case 'today':
-                    start = today;
-                    end = new Date(today.getTime() + 24*60*60*1000 - 1);
-                    break;
-                case 'yesterday':
-                    start = new Date(today.getTime() - 24*60*60*1000);
-                    end = new Date(today.getTime() - 1);
-                    break;
-                case 'currentWeek':
-                    const dayOfWeek = today.getDay() || 7;
-                    const monday = new Date(today);
-                    monday.setDate(today.getDate() - dayOfWeek + 1);
-                    start = monday;
-                    end = new Date(today.getTime() + 24*60*60*1000 - 1);
-                    break;
-                case 'lastWeek':
-                    const lastMonday = new Date(today);
-                    lastMonday.setDate(today.getDate() - (today.getDay() || 7) - 6);
-                    start = lastMonday;
-                    end = new Date(lastMonday.getTime() + 7*24*60*60*1000 - 1);
-                    break;
-                case 'currentMonth':
-                    start = new Date(today.getFullYear(), today.getMonth(), 1);
-                    end = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
-                    break;
-                case 'lastMonth':
-                    start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                    end = new Date(today.getFullYear(), today.getMonth(), 0, 23, 59, 59);
-                    break;
-                case 'currentYear':
-                    start = new Date(today.getFullYear(), 0, 1);
-                    end = new Date(today.getFullYear(), 11, 31, 23, 59, 59);
-                    break;
-                case 'lastYear':
-                    start = new Date(today.getFullYear() - 1, 0, 1);
-                    end = new Date(today.getFullYear() - 1, 11, 31, 23, 59, 59);
-                    break;
-                case 'custom':
-                    if (customStart && customEnd) {
-                        start = new Date(customStart);
-                        end = new Date(customEnd);
-                        end.setHours(23, 59, 59);
-                    } else {
-                        start = today;
-                        end = new Date(today.getTime() + 24*60*60*1000 - 1);
-                    }
-                    break;
-                default:
-                    start = today;
-                    end = new Date(today.getTime() + 24*60*60*1000 - 1);
-            }
-            return { start, end };
-        }
-
-        async function loadAdminStatsWithPeriod(period) {
-            if (!supabaseAvailable) return;
-            const { start, end } = getDateRange(period);
-            const startISO = start.toISOString();
-            const endISO = end.toISOString();
-
-            try {
-                const { count: views, error: errViews } = await supabase
-                    .from('analytics')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('event_type', 'visit')
-                    .gte('created_at', startISO)
-                    .lte('created_at', endISO);
-                document.getElementById('views').textContent = views || 0;
-
-                const { count: clicks, error: errClicks } = await supabase
-                    .from('analytics')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('event_type', 'click_pronostic')
-                    .gte('created_at', startISO)
-                    .lte('created_at', endISO);
-                document.getElementById('clicks').textContent = clicks || 0;
-
-                const { count: shares, error: errShares } = await supabase
-                    .from('analytics')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('event_type', 'share_whatsapp')
-                    .gte('created_at', startISO)
-                    .lte('created_at', endISO);
-                document.getElementById('shares').textContent = shares || 0;
-
-                const { count: vip, error: errVip } = await supabase
-                    .from('analytics')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('event_type', 'vip_conversion')
-                    .gte('created_at', startISO)
-                    .lte('created_at', endISO);
-                document.getElementById('vip').textContent = vip || 0;
-
-                const { data: uniqueUsersData, error: errUnique } = await supabase
-                    .from('analytics')
-                    .select('user_id')
-                    .gte('created_at', startISO)
-                    .lte('created_at', endISO);
-                const uniqueUsers = uniqueUsersData ? new Set(uniqueUsersData.map(u => u.user_id)).size : 0;
-                document.getElementById('unique-users').textContent = uniqueUsers;
-
-                const viewsCount = parseInt(document.getElementById('views').textContent) || 0;
-                const vipCount = parseInt(document.getElementById('vip').textContent) || 0;
-                const conversionRate = viewsCount > 0 ? ((vipCount / viewsCount) * 100).toFixed(2) : 0;
-                document.getElementById('conversion-rate').textContent = conversionRate + '%';
-
-            } catch (e) {
-                console.error('Erreur chargement stats admin avec période:', e);
-            }
-        }
-
-        function initPeriodSelector() {
-            const periodSelect = document.getElementById('period-select');
-            const customRange = document.getElementById('custom-range');
-            const startDate = document.getElementById('start-date');
-            const endDate = document.getElementById('end-date');
-            const applyCustom = document.getElementById('apply-custom');
-
-            periodSelect.addEventListener('change', () => {
-                currentPeriod = periodSelect.value;
-                if (currentPeriod === 'custom') {
-                    customRange.style.display = 'flex';
-                } else {
-                    customRange.style.display = 'none';
-                    loadAdminStatsWithPeriod(currentPeriod);
-                }
-            });
-
-            applyCustom.addEventListener('click', () => {
-                customStart = startDate.value;
-                customEnd = endDate.value;
-                if (customStart && customEnd) {
-                    loadAdminStatsWithPeriod('custom');
-                } else {
-                    alert('Veuillez sélectionner une période valide.');
-                }
-            });
-
-            loadAdminStatsWithPeriod(currentPeriod);
-        }
-
-        // =======================================================
-        // GRAPHIQUES
-        // =======================================================
-        let visitsChart, pagesChart;
-
-        function initCharts() {
-            const ctxVisits = document.getElementById('visitsChart')?.getContext('2d');
-            const ctxPages = document.getElementById('pagesChart')?.getContext('2d');
-            if (ctxVisits) {
-                visitsChart = new Chart(ctxVisits, {
-                    type: 'line',
-                    data: { labels: [], datasets: [{ label: 'Visites', data: [], borderColor: '#D4AF37', backgroundColor: 'rgba(212,175,55,0.1)', tension: 0.4 }] },
-                    options: { responsive: true, plugins: { legend: { labels: { color: '#FFF' } } }, scales: { x: { ticks: { color: '#CCC' } }, y: { ticks: { color: '#CCC' } } } }
-                });
-            }
-            if (ctxPages) {
-                pagesChart = new Chart(ctxPages, {
-                    type: 'doughnut',
-                    data: { labels: [], datasets: [{ data: [], backgroundColor: ['#D4AF37', '#4CAF50', '#2196F3', '#FF9800', '#9C27B0'], borderWidth: 0 }] },
-                    options: { responsive: true, plugins: { legend: { labels: { color: '#FFF' } } } }
-                });
-            }
-        }
-
-        async function updateCharts() {
-            if (!supabaseAvailable || !visitsChart || !pagesChart) return;
-            const { start, end } = getDateRange(currentPeriod);
-            try {
-                const { data: events, error } = await supabase
-                    .from('analytics')
-                    .select('created_at, page')
-                    .eq('event_type', 'visit')
-                    .gte('created_at', start.toISOString())
-                    .lte('created_at', end.toISOString());
-
-                if (error) throw error;
-
-                const visitsByDay = {};
-                events.forEach(e => {
-                    const day = e.created_at.split('T')[0];
-                    visitsByDay[day] = (visitsByDay[day] || 0) + 1;
-                });
-                const labels = Object.keys(visitsByDay).sort();
-                const data = labels.map(l => visitsByDay[l]);
-                visitsChart.data.labels = labels;
-                visitsChart.data.datasets[0].data = data;
-                visitsChart.update();
-
-                const pageCounts = {};
-                events.forEach(e => {
-                    if (e.page) pageCounts[e.page] = (pageCounts[e.page] || 0) + 1;
-                });
-                pagesChart.data.labels = Object.keys(pageCounts);
-                pagesChart.data.datasets[0].data = Object.values(pageCounts);
-                pagesChart.update();
-
-            } catch (e) {
-                console.error('Erreur mise à jour graphiques:', e);
-            }
-        }
-
-        // =======================================================
-        // FONCTIONS VIP (inchangées)
-        // =======================================================
-        function generateVipCode() {
-            return 'VIP-' + Math.random().toString(36).substring(2, 10).toUpperCase() +
-                   '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-        }
-
-        async function createVipAccess(userId, ip, durationDays) {
-            if (!supabase) throw new Error('Supabase non initialisé');
-            const code = generateVipCode();
-            const expiresAt = new Date();
-            expiresAt.setDate(expiresAt.getDate() + durationDays);
-            const { error } = await supabase
-                .from('vip_users')
-                .insert({
-                    user_id: userId,
-                    vip_code: code,
-                    ip_address: ip || '',
-                    expires_at: expiresAt.toISOString(),
-                    is_active: true
-                });
-            if (error) throw error;
-            return code;
-        }
-
-        async function loadActiveVips() {
-            if (!supabase) return [];
-            const { data, error } = await supabase
-                .from('vip_users')
-                .select('*')
-                .eq('is_active', true)
-                .order('expires_at', { ascending: true });
-            if (error) throw error;
-            return data;
-        }
-
-        async function deactivateVip(code) {
-            if (!supabase) return;
-            await supabase
-                .from('vip_users')
-                .update({ is_active: false })
-                .eq('vip_code', code);
-        }
-
-        // =======================================================
-        // DONNÉES PAR DÉFAUT (pour les autres onglets)
+        // DONNÉES PAR DÉFAUT
         // =======================================================
         const defaultData = {
             pronostics: [],
@@ -1260,437 +643,260 @@
                 { name: "BetClic", logo: "assets/images/betclic.png", url: "https://betpari-click.com/2vY0?extid=USD" }
             ]
         };
-
         let data = JSON.parse(localStorage.getItem('mrXpronosData')) || defaultData;
 
         function saveData() {
             localStorage.setItem('mrXpronosData', JSON.stringify(data, null, 2));
             renderAllLists();
             updatePreview();
-            alert('Données sauvegardées avec succès');
+            alert('✅ Sauvegardé avec succès');
         }
 
-        // =======================================================
-        // FONCTIONS DE RENDU (CRUD) - avec champ active pour conseils
-        // =======================================================
-        function renderPronostics() { /* ... inchangé ... */ }
-        function renderBlog() { /* ... inchangé ... */ }
-        function renderConseils() { /* ... inchangé ... */ }
-        function renderInfos() { /* ... inchangé ... */ }
-        function renderBonus() { /* ... inchangé ... */ }
-        function renderBookmakersList() { /* ... inchangé ... */ }
-        async function renderVipList() { /* ... inchangé ... */ }
-
-        // Pour gagner de la place, on laisse les implémentations précédentes.
-        // Dans un vrai fichier, vous devez inclure les fonctions complètes.
-        // Nous les supposons déjà définies plus tôt dans le code réel.
-        // Pour la concision, nous les omettrons ici, mais dans votre code, elles doivent être présentes.
-
-        // =======================================================
-        // ARTICLES GÉNÉRÉS
-        // =======================================================
-        let generatedArticles = [];
-        async function loadGeneratedArticles() { /* ... */ }
-        function renderGeneratedArticles() { /* ... */ }
-
-        // =======================================================
-        // FONCTIONS POUR L'ONGLET ASSISTANT (NOUVELLES)
-        // =======================================================
-        async function loadFaq() {
-            if (!supabaseAvailable) return;
-            const { data, error } = await supabase
-                .from('faq')
-                .select('*')
-                .order('usage_count', { ascending: false })
-                .limit(100);
-            if (error) {
-                console.error(error);
-                return;
-            }
-            const container = document.getElementById('faq-list');
-            if (!container) return;
-            container.innerHTML = data.map(faq => `
-                <div class="admin-item ${faq.is_official ? 'faq-official' : ''}">
-                    <div>
-                        <strong>${escapeHtml(faq.question)}</strong><br>
-                        <small>Réponse: ${escapeHtml(faq.reponse.substring(0, 80))}...</small><br>
-                        <small>Utilisations: ${faq.usage_count} | ${faq.is_official ? '✅ Officiel' : '❌ Non officiel'}</small>
-                    </div>
-                    <div class="faq-actions">
-                        <button class="btn-small" onclick="editFaq('${faq.id}')">✏️ Éditer</button>
-                        <button class="btn-small" onclick="deleteFaq('${faq.id}')">🗑️ Supprimer</button>
-                        <button class="btn-small" onclick="toggleOfficial('${faq.id}', ${faq.is_official})">
-                            ${faq.is_official ? 'Retirer officiel' : 'Marquer officiel'}
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        window.editFaq = async (id) => {
-            const { data, error } = await supabase.from('faq').select('*').eq('id', id).single();
-            if (error) return alert('Erreur: ' + error.message);
-            const question = prompt('Modifier la question', data.question);
-            if (question === null) return;
-            const reponse = prompt('Modifier la réponse (HTML autorisé)', data.reponse);
-            if (reponse === null) return;
-            await supabase.from('faq').update({ question, reponse }).eq('id', id);
-            loadFaq();
-        };
-
-        window.deleteFaq = async (id) => {
-            if (!confirm('Supprimer cette FAQ ?')) return;
-            await supabase.from('faq').delete().eq('id', id);
-            loadFaq();
-        };
-
-        window.toggleOfficial = async (id, current) => {
-            await supabase.from('faq').update({ is_official: !current }).eq('id', id);
-            loadFaq();
-        };
-
-        document.getElementById('add-faq')?.addEventListener('click', async () => {
-            const question = prompt('Question');
-            if (!question) return;
-            const reponse = prompt('Réponse (en HTML)');
-            if (!reponse) return;
-            try {
-                const embedding = await generateEmbeddingViaEdge(question);
-                await supabase.from('faq').insert({
-                    question,
-                    reponse,
-                    embedding,
-                    usage_count: 0,
-                    is_official: false
-                });
-                loadFaq();
-            } catch (e) {
-                alert('Erreur lors de la génération de l\'embedding : ' + e.message);
-            }
-        });
-
-        async function generateEmbeddingViaEdge(text) {
-            const res = await fetch('https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/generate-embedding', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text })
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
             });
-            if (!res.ok) {
-                const error = await res.text();
-                throw new Error(`Erreur ${res.status}: ${error}`);
-            }
-            const data = await res.json();
-            return data.embedding;
         }
 
-        document.getElementById('generate-embeddings')?.addEventListener('click', async () => {
-            if (!confirm('Générer les embeddings pour toutes les FAQ sans embedding ?')) return;
-            const { data, error } = await supabase
-                .from('faq')
-                .select('id, question')
-                .is('embedding', null);
-            if (error) return alert('Erreur: ' + error.message);
-            if (!data.length) return alert('Aucune FAQ sans embedding');
-            let count = 0;
-            for (const faq of data) {
-                try {
-                    const embedding = await generateEmbeddingViaEdge(faq.question);
-                    await supabase.from('faq').update({ embedding }).eq('id', faq.id);
-                    count++;
-                } catch (e) {
-                    console.error('Erreur pour', faq.question, e);
-                }
-            }
-            alert(`${count} embeddings générés avec succès.`);
-        });
-
-        document.getElementById('clear-pronostics-cache')?.addEventListener('click', async () => {
-            if (!confirm('Vider le cache des pronostics ?')) return;
-            await supabase.from('pronostics_cache').delete().eq('id', 1);
-            alert('Cache des pronostics vidé.');
-        });
-
-        document.getElementById('clear-assistant-cache')?.addEventListener('click', async () => {
-            if (!confirm('Vider le cache de l\'assistant ? Cela supprimera tous les embeddings.')) return;
-            await supabase.from('faq').update({ embedding: null }).neq('id', 0);
-            alert('Embeddings supprimés. Les FAQ restent mais devront être régénérées.');
-        });
-
-        function escapeHtml(text) {
-            if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        async function loadAssistantStats() {
-            if (!supabaseAvailable) return;
-            try {
-                // Total des conversations
-                const { count: totalConv, error: errConv } = await supabase
-                    .from('conversations')
-                    .select('*', { count: 'exact', head: true });
-                if (!errConv) document.getElementById('total-questions').textContent = totalConv || 0;
-
-                // Taux de cache
-                const { count: cacheConv, error: errCache } = await supabase
-                    .from('conversations')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('from_cache', true);
-                if (!errCache && totalConv) {
-                    const rate = ((cacheConv / totalConv) * 100).toFixed(1);
-                    document.getElementById('cache-rate').textContent = rate + '%';
-                }
-
-                // Feedbacks
-                const { data: feedbacks, error: errFeed } = await supabase
-                    .from('feedback')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(20);
-                if (!errFeed) {
-                    const pos = feedbacks.filter(f => f.feedback === true).length;
-                    const neg = feedbacks.filter(f => f.feedback === false).length;
-                    document.getElementById('positive-feedback').textContent = pos;
-                    document.getElementById('negative-feedback').textContent = neg;
-
-                    const feedDiv = document.getElementById('recent-feedbacks');
-                    feedDiv.innerHTML = feedbacks.map(f => `
-                        <div class="feedback-item ${f.feedback ? 'feedback-positive' : 'feedback-negative'}">
-                            <p><strong>Question:</strong> ${escapeHtml(f.question)}</p>
-                            <p><strong>Réponse:</strong> ${escapeHtml(f.reponse.substring(0, 100))}...</p>
-                            <p><small>${new Date(f.created_at).toLocaleString()}</small></p>
-                        </div>
-                    `).join('');
-                }
-
-                // Questions sans réponse satisfaisante (feedback négatif)
-                const { data: unanswered } = await supabase
-                    .from('feedback')
-                    .select('*')
-                    .eq('feedback', false)
-                    .order('created_at', { ascending: false })
-                    .limit(10);
-                const unansDiv = document.getElementById('unanswered-questions');
-                unansDiv.innerHTML = unanswered && unanswered.length ? unanswered.map(f => `
-                    <div class="feedback-item feedback-negative">
-                        <p><strong>Question:</strong> ${escapeHtml(f.question)}</p>
-                        <p><strong>Réponse:</strong> ${escapeHtml(f.reponse.substring(0, 100))}...</p>
-                        <p><small>${new Date(f.created_at).toLocaleString()}</small></p>
-                    </div>
-                `).join('') : '<p>Aucune question sans réponse.</p>';
-
-                // Dernières conversations
-                const { data: convs } = await supabase
-                    .from('conversations')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(10);
-                const convDiv = document.getElementById('recent-conversations');
-                convDiv.innerHTML = convs && convs.length ? convs.map(c => `
+        // ==================== RENDU BLOG ====================
+        function renderBlog() {
+            const container = document.getElementById('blog-list-admin');
+            if (!container) return;
+            let html = '';
+            data.blog.forEach((article, index) => {
+                const active = article.active !== false;
+                html += `
                     <div class="admin-item">
+                        <div><strong>${escapeHtml(article.title)}</strong><br><small>${article.date || ''}</small></div>
                         <div>
-                            <strong>${escapeHtml(c.question.substring(0, 50))}...</strong><br>
-                            <small>${c.from_cache ? '🔁 Cache' : '🤖 IA'}</small>
+                            <label class="switch"><input type="checkbox" ${active ? 'checked' : ''} onchange="toggleBlogActive(${index}, this.checked)"><span class="slider"></span></label>
+                            <button onclick="editBlog(${index})"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteBlog(${index})"><i class="fas fa-trash"></i></button>
                         </div>
-                        <div><small>${new Date(c.created_at).toLocaleString()}</small></div>
                     </div>
-                `).join('') : '<p>Aucune conversation.</p>';
-
-                await loadFaq();
-            } catch (e) {
-                console.error('Erreur chargement stats assistant:', e);
-            }
+                `;
+            });
+            container.innerHTML = html || '<p>Aucun article.</p>';
         }
+        window.toggleBlogActive = function(index, active) { data.blog[index].active = active; saveData(); };
+        window.editBlog = (index) => {
+            const a = data.blog[index];
+            document.getElementById('blog-title').value = a.title;
+            document.getElementById('blog-slug').value = a.slug;
+            document.getElementById('blog-date').value = a.date;
+            document.getElementById('blog-author').value = a.author;
+            document.getElementById('blog-excerpt').value = a.excerpt;
+            document.getElementById('blog-content').value = a.content;
+            document.getElementById('blog-meta-description').value = a.meta_description || '';
+            document.getElementById('blog-keywords').value = a.keywords || '';
+            document.getElementById('blog-og-image').value = a.og_image || '';
+            document.getElementById('blog-faq').value = a.faq ? JSON.stringify(a.faq) : '';
+            document.getElementById('blog-image').value = a.image_url || '';
+            document.getElementById('blog-match').value = a.match || '';
+            document.getElementById('blog-index').value = index;
+        };
+        window.deleteBlog = (index) => { if(confirm('Supprimer ?')) { data.blog.splice(index,1); saveData(); } };
 
-        // =======================================================
-        // FONCTIONS POUR L'ONGLET LIVE PRÉDICTIONS
-        // =======================================================
-        async function loadLivePredictions() {
-            if (!supabaseAvailable) return;
-            try {
-                const EDGE_FUNCTION_URL = 'https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live';
-                const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/active`);
-                if (res.ok) {
-                    const data = await res.json();
-                    const preds = data.predictions || [];
-                    document.getElementById('active-predictions-count').textContent = preds.length;
-                    const listDiv = document.getElementById('active-predictions-list');
-                    listDiv.innerHTML = preds.map(p => `
-                        <div class="prediction-item prediction-high">
-                            <p><strong>${p.match.teams}</strong> - ${p.prediction.message}</p>
-                            <p>Probabilité: ${(p.prediction.probability * 100).toFixed(0)}%</p>
-                            <p><small>Type: ${p.prediction.type}</small></p>
+        // ==================== RENDU CONSEILS ====================
+        function renderConseils() {
+            const container = document.getElementById('conseils-list-admin');
+            if (!container) return;
+            let html = '';
+            data.conseils.forEach((conseil, index) => {
+                const active = conseil.active !== false;
+                html += `
+                    <div class="admin-item">
+                        <div><strong>${escapeHtml(conseil.title)}</strong><br><small>${conseil.date || ''}</small></div>
+                        <div>
+                            <label class="switch"><input type="checkbox" ${active ? 'checked' : ''} onchange="toggleConseilActive(${index}, this.checked)"><span class="slider"></span></label>
+                            <button onclick="editConseil(${index})"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteConseil(${index})"><i class="fas fa-trash"></i></button>
                         </div>
-                    `).join('');
-                }
-
-                const histRes = await fetch(`${EDGE_FUNCTION_URL}/predictions/history`);
-                if (histRes.ok) {
-                    const histData = await histRes.json();
-                    const history = histData.history || [];
-                    const total = history.length;
-                    const success = history.filter(h => h.outcome === 'success').length;
-                    const rate = total > 0 ? ((success / total) * 100).toFixed(1) : 0;
-                    document.getElementById('prediction-success-rate').textContent = rate + '%';
-
-                    const histDiv = document.getElementById('predictions-history');
-                    histDiv.innerHTML = history.slice(-20).reverse().map(h => `
-                        <div class="admin-item">
-                            <div>
-                                <strong>${h.match}</strong><br>
-                                Type: ${h.type}, Prob: ${(h.probability * 100).toFixed(0)}%
-                            </div>
-                            <div>
-                                ${h.validated ? (h.outcome === 'success' ? '✅' : '❌') : '⏳'}
-                                <small>${new Date(h.timestamp).toLocaleString()}</small>
-                            </div>
-                        </div>
-                    `).join('');
-                }
-
-                const notifRes = await fetch(`${EDGE_FUNCTION_URL}/notifications?user_id=admin`);
-                if (notifRes.ok) {
-                    const notifData = await notifRes.json();
-                    const notifDiv = document.getElementById('notifications-list');
-                    notifDiv.innerHTML = (notifData.notifications || []).slice(-10).reverse().map(n => `
-                        <div class="admin-item">
-                            <div><strong>${n.title}</strong><br>${n.message}</div>
-                            <div><small>${new Date(n.timestamp * 1000).toLocaleString()}</small></div>
-                        </div>
-                    `).join('');
-                }
-            } catch (e) {
-                console.error('Erreur chargement live predictions:', e);
-            }
+                    </div>
+                `;
+            });
+            container.innerHTML = html || '<p>Aucun conseil.</p>';
         }
+        window.toggleConseilActive = function(index, active) { data.conseils[index].active = active; saveData(); };
+        window.editConseil = (index) => {
+            const c = data.conseils[index];
+            document.getElementById('conseil-title').value = c.title;
+            document.getElementById('conseil-content').value = c.content;
+            document.getElementById('conseil-image').value = c.image_url || '';
+            document.getElementById('conseil-active').checked = c.active !== false;
+            document.getElementById('conseil-index').value = index;
+        };
+        window.deleteConseil = (index) => { if(confirm('Supprimer ?')) { data.conseils.splice(index,1); saveData(); } };
 
-        // =======================================================
-        // FONCTIONS GÉNÉRALES
-        // =======================================================
+        // ==================== AUTRES RENDU ====================
+        function renderPronostics() { /* à compléter si besoin */ }
+        function renderInfos() { /* à compléter si besoin */ }
+        function renderBonus() { /* à compléter si besoin */ }
+        function renderBookmakersList() { /* à compléter si besoin */ }
+
         function renderAllLists() {
-            // Appeler toutes les fonctions de rendu
-            if (typeof renderPronostics === 'function') renderPronostics();
-            if (typeof renderBlog === 'function') renderBlog();
-            if (typeof renderConseils === 'function') renderConseils();
-            if (typeof renderInfos === 'function') renderInfos();
-            if (typeof renderBonus === 'function') renderBonus();
-            if (typeof renderBookmakersList === 'function') renderBookmakersList();
+            renderBlog();
+            renderConseils();
+            renderPronostics();
+            renderInfos();
+            renderBonus();
+            renderBookmakersList();
         }
 
         function updatePreview() {
             const preview = document.getElementById('json-preview');
-            if (preview) {
-                preview.textContent = JSON.stringify(data, null, 2);
-            }
+            if (preview) preview.textContent = JSON.stringify(data, null, 2);
         }
 
-        document.getElementById('export-json').addEventListener('click', () => {
-            const jsonStr = JSON.stringify(data, null, 2);
-            const blob = new Blob([jsonStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'data.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-
-        document.getElementById('reset-data').addEventListener('click', () => {
-            if (confirm('Réinitialiser avec les données d\'exemple ?')) {
-                data = JSON.parse(JSON.stringify(defaultData));
-                saveData();
-            }
-        });
-
-        const vipToggle = document.getElementById('vip-toggle');
-        const saveSettingsBtn = document.getElementById('save-settings');
-        if (vipToggle && saveSettingsBtn) {
-            vipToggle.checked = localStorage.getItem('vipEnabled') !== 'false';
-            saveSettingsBtn.addEventListener('click', () => {
-                localStorage.setItem('vipEnabled', vipToggle.checked);
-                alert('Paramètre enregistré. Les modifications prendront effet au prochain chargement de la page.');
+        // ==================== GRAPHIQUES ====================
+        let visitsChart, pagesChart;
+        function initCharts() {
+            const visitsCtx = document.getElementById('visitsChart')?.getContext('2d');
+            const pagesCtx = document.getElementById('pagesChart')?.getContext('2d');
+            if (!visitsCtx || !pagesCtx) return;
+            visitsChart = new Chart(visitsCtx, {
+                type: 'line', data: { labels: ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'], datasets: [{ label: 'Visites', data: [1240,1890,1650,2100,1780,2450,1980], borderColor: '#D4AF37', backgroundColor: 'rgba(212,175,55,0.1)', tension: 0.4 }] },
+                options: { responsive: true, plugins: { legend: { labels: { color: '#fff' } }, tooltip: { backgroundColor: '#1A1A1A', titleColor: '#D4AF37' } }, scales: { y: { ticks: { color: '#aaa' } }, x: { ticks: { color: '#aaa' } } } }
+            });
+            pagesChart = new Chart(pagesCtx, {
+                type: 'bar', data: { labels: ['Accueil','Pronos','Blog','Conseils','Live VIP'], datasets: [{ label: 'Pages vues', data: [4520,3870,2140,1680,980], backgroundColor: '#D4AF37' }] },
+                options: { responsive: true, plugins: { legend: { labels: { color: '#fff' } }, tooltip: { backgroundColor: '#1A1A1A', titleColor: '#D4AF37' } }, scales: { y: { ticks: { color: '#aaa' } }, x: { ticks: { color: '#aaa' } } } }
             });
         }
 
-        // Menu burger pour les onglets
-        const toggleTabs = document.getElementById('toggle-tabs');
-        const adminTabs = document.querySelector('.admin-tabs');
-        if (toggleTabs && adminTabs) {
-            toggleTabs.addEventListener('click', () => {
-                adminTabs.classList.toggle('collapsed');
-                toggleTabs.textContent = adminTabs.classList.contains('collapsed') ? 'Afficher le menu' : 'Menu';
-            });
-            if (window.innerWidth <= 768) {
-                adminTabs.classList.add('collapsed');
-                toggleTabs.textContent = 'Afficher le menu';
-            }
-        }
+        // ==================== FORMULAIRES & PRÉVISUALISATION ====================
+        document.getElementById('preview-blog')?.addEventListener('click', () => {
+            const previewDiv = document.getElementById('blog-preview');
+            const contentDiv = document.getElementById('blog-preview-content');
+            const title = document.getElementById('blog-title').value || 'Titre';
+            const content = document.getElementById('blog-content').value || 'Contenu...';
+            contentDiv.innerHTML = `<h2 style="color:#D4AF37;">${escapeHtml(title)}</h2><div style="color:#ccc;">${content.replace(/\n/g, '<br>')}</div>`;
+            previewDiv.style.display = 'block';
+        });
+        document.getElementById('preview-conseil')?.addEventListener('click', () => {
+            const previewDiv = document.getElementById('conseil-preview');
+            const contentDiv = document.getElementById('conseil-preview-content');
+            const title = document.getElementById('conseil-title').value || 'Titre';
+            const content = document.getElementById('conseil-content').value || 'Contenu...';
+            contentDiv.innerHTML = `<h3 style="color:#D4AF37;">${escapeHtml(title)}</h3><div>${content.replace(/\n/g, '<br>')}</div>`;
+            previewDiv.style.display = 'block';
+        });
 
-        // =======================================================
-        // INITIALISATION PRINCIPALE
-        // =======================================================
+        // ==================== INITIALISATION ====================
         async function initAdmin() {
-            await initSupabase();
             renderAllLists();
-            await renderVipList();
             updatePreview();
-            await loadGeneratedArticles();
-
-            if (supabaseAvailable) {
-                initCharts();
-                await initOnlineUsers();
-                initPeriodSelector();
-                setInterval(() => {
-                    if (currentPeriod === 'custom') return;
-                    loadAdminStatsWithPeriod(currentPeriod);
-                    updateCharts();
-                }, 30000);
-                await loadAssistantStats();
-                await loadLivePredictions();
-                setInterval(loadAssistantStats, 60000);
-                setInterval(loadLivePredictions, 30000);
+            initCharts();
+            // Tabs toggle
+            const toggleTabs = document.getElementById('toggle-tabs');
+            const adminTabs = document.querySelector('.admin-tabs');
+            if (toggleTabs && adminTabs) {
+                toggleTabs.addEventListener('click', () => {
+                    adminTabs.classList.toggle('collapsed');
+                    toggleTabs.textContent = adminTabs.classList.contains('collapsed') ? 'Afficher le menu' : 'Menu';
+                });
+                if (window.innerWidth <= 768) adminTabs.classList.add('collapsed');
             }
-
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
                     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
                     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-
-                    // Fermer le menu mobile si on est sur petit écran
-                    if (window.innerWidth <= 768 && adminTabs && toggleTabs) {
+                    if (window.innerWidth <= 768 && adminTabs) {
                         adminTabs.classList.add('collapsed');
-                        toggleTabs.textContent = 'Afficher le menu';
+                        if (toggleTabs) toggleTabs.textContent = 'Afficher le menu';
                     }
                 });
             });
-
-            const vipForm = document.getElementById('vip-form');
-            if (vipForm) {
-                vipForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const userId = document.getElementById('user-id').value.trim();
-                    const ip = document.getElementById('ip-address').value.trim();
-                    const duration = parseInt(document.getElementById('duration').value);
-                    const resultDiv = document.getElementById('vip-result');
-
-                    try {
-                        const code = await createVipAccess(userId, ip, duration);
-                        resultDiv.className = 'message success';
-                        resultDiv.textContent = `Code généré : ${code}`;
-                        resultDiv.style.display = 'block';
-                        vipForm.reset();
-                        renderVipList();
-                    } catch (error) {
-                        resultDiv.className = 'message error';
-                        resultDiv.textContent = `Erreur : ${error.message}`;
-                        resultDiv.style.display = 'block';
-                    }
+            // Formulaire blog
+            document.getElementById('blog-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const index = parseInt(document.getElementById('blog-index').value);
+                const newArticle = {
+                    slug: document.getElementById('blog-slug').value,
+                    title: document.getElementById('blog-title').value,
+                    date: document.getElementById('blog-date').value,
+                    author: document.getElementById('blog-author').value,
+                    excerpt: document.getElementById('blog-excerpt').value,
+                    content: document.getElementById('blog-content').value,
+                    meta_description: document.getElementById('blog-meta-description').value,
+                    keywords: document.getElementById('blog-keywords').value,
+                    og_image: document.getElementById('blog-og-image').value,
+                    faq: document.getElementById('blog-faq').value ? JSON.parse(document.getElementById('blog-faq').value) : [],
+                    image_url: document.getElementById('blog-image').value,
+                    match: document.getElementById('blog-match').value || undefined,
+                    active: true
+                };
+                if (index === -1) data.blog.push(newArticle);
+                else data.blog[index] = newArticle;
+                saveData();
+                document.getElementById('blog-form').reset();
+                document.getElementById('blog-index').value = '-1';
+                document.getElementById('blog-preview').style.display = 'none';
+            });
+            document.getElementById('cancel-blog').addEventListener('click', () => {
+                document.getElementById('blog-form').reset();
+                document.getElementById('blog-index').value = '-1';
+                document.getElementById('blog-preview').style.display = 'none';
+            });
+            // Formulaire conseils
+            document.getElementById('conseil-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const index = parseInt(document.getElementById('conseil-index').value);
+                const newConseil = {
+                    title: document.getElementById('conseil-title').value,
+                    content: document.getElementById('conseil-content').value,
+                    image_url: document.getElementById('conseil-image').value,
+                    active: document.getElementById('conseil-active').checked,
+                    date: new Date().toISOString().split('T')[0]
+                };
+                if (index === -1) data.conseils.push(newConseil);
+                else data.conseils[index] = newConseil;
+                saveData();
+                document.getElementById('conseil-form').reset();
+                document.getElementById('conseil-index').value = '-1';
+                document.getElementById('conseil-preview').style.display = 'none';
+            });
+            document.getElementById('cancel-conseil').addEventListener('click', () => {
+                document.getElementById('conseil-form').reset();
+                document.getElementById('conseil-index').value = '-1';
+                document.getElementById('conseil-preview').style.display = 'none';
+            });
+            // Boutons génériques
+            document.getElementById('export-json').addEventListener('click', () => {
+                const jsonStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'data.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+            document.getElementById('reset-data').addEventListener('click', () => {
+                if (confirm('Réinitialiser avec les données d\'exemple ?')) {
+                    data = JSON.parse(JSON.stringify(defaultData));
+                    saveData();
+                }
+            });
+            const vipToggle = document.getElementById('vip-toggle');
+            const saveSettings = document.getElementById('save-settings');
+            if (vipToggle && saveSettings) {
+                vipToggle.checked = localStorage.getItem('vipEnabled') !== 'false';
+                saveSettings.addEventListener('click', () => {
+                    localStorage.setItem('vipEnabled', vipToggle.checked);
+                    alert('Paramètre enregistré.');
                 });
             }
         }
+
+        // ==================== FIN ====================
+        window.initAdmin = initAdmin;
     </script>
 </body>
 </html>

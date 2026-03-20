@@ -1626,53 +1626,47 @@ async function loadGeneratedContent() {
 // =======================================================
 // FONCTIONS POUR LE CONTENU (blog, conseils, news)
 // =======================================================
-// =======================================================
-// FONCTIONS POUR LE CONTENU (blog, conseils, news)
-// =======================================================
+// ==================== BLOG ====================
 async function displayBlogList() {
     console.log("📝 displayBlogList() appelée");
     const container = document.getElementById('blog-list');
-    if (!container) {
-        console.warn("❌ #blog-list introuvable dans le DOM");
-        return;
-    }
+    if (!container) return;
+
     if (!window.generatedArticles) {
-        console.log("Chargement des articles générés...");
         await loadGeneratedContent();
     }
     const data = await loadDataGeneric();
-    console.log("Données génériques chargées :", data);
     
     let allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
-    console.log("Tous les articles (bruts) :", allArticles);
     
-    // Suppression du filtre sur 'active'
-    if (allArticles.length === 0) { 
-        console.warn("Aucun article trouvé");
-        container.innerHTML = '<div class="no-events">Aucun article.</div>'; 
-        return; 
-    }
-    
-    window.articlesData = allArticles;
+    // ✅ NOUVEAU : on affiche tout sauf ceux explicitement désactivés
+    const displayedArticles = allArticles.filter(article => article.active !== false);
+
+    window.articlesData = displayedArticles;
+
+    // Liste horizontale
     const horizontalContainer = document.getElementById('blog-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
-        allArticles.slice(0,8).forEach((article,index) => {
-            const title = escapeHtml(article.title.replace(/#+\s*/g,'').replace(/\*\*/g,''));
-            hHtml += `<div class="horizontal-item" onclick="showArticleDetail(${index})"><img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${title}" loading="lazy"><div class="item-title">${title}</div></div>`;
+        displayedArticles.slice(0, 8).forEach((article, index) => {
+            const title = escapeHtml(article.title.replace(/#+\s*/g, '').replace(/\*\*/g, ''));
+            hHtml += `<div class="horizontal-item" onclick="showArticleDetail(${index})">
+                <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${title}">
+                <div class="item-title">${title}</div>
+            </div>`;
         });
         horizontalContainer.innerHTML = hHtml;
-        console.log("✅ Liste horizontale des articles mise à jour");
     }
-    
+
+    // Grille principale
     let html = '';
-    allArticles.forEach((article,index) => {
-        let cleanTitle = escapeHtml(article.title.replace(/#+\s*/g,'').replace(/\*\*/g,''));
-        let excerpt = article.excerpt || article.content.substring(0,150) + '...';
-        let cleanExcerpt = escapeHtml(excerpt.replace(/#+\s*/g,'').replace(/\*\*/g,'').replace(/\*/g,'').replace(/\[|\]/g,'').substring(0,120) + '...');
+    displayedArticles.forEach((article, index) => {
+        let cleanTitle = escapeHtml(article.title.replace(/#+\s*/g, '').replace(/\*\*/g, ''));
+        let excerpt = article.excerpt || article.content.substring(0, 150) + '...';
+        let cleanExcerpt = escapeHtml(excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 120) + '...');
         let imageUrl = escapeAttribute(article.image_url || 'assets/images/default-logo.png');
         let articleDate = article.date ? new Date(article.date).toLocaleDateString('fr-FR') : '';
-        
+
         html += `
             <div class="news-card card" onclick="showArticleDetail(${index})">
                 <img src="${imageUrl}" alt="${cleanTitle}" loading="lazy" class="news-image">
@@ -1683,19 +1677,15 @@ async function displayBlogList() {
             </div>
         `;
     });
-    container.innerHTML = html;
-    console.log("✅ Grille des articles affichée, " + allArticles.length + " articles");
+    container.innerHTML = html || '<div class="no-events">Aucun article pour le moment.</div>';
 }
 
+// ==================== CONSEILS ====================
 async function displayConseils() {
     console.log("💡 displayConseils() appelée");
     const container = document.getElementById('conseils-list');
-    if (!container) {
-        console.warn("❌ #conseils-list introuvable dans le DOM");
-        return;
-    }
+    if (!container) return;
 
-    // Charger les conseils
     let allConseils = [];
     if (window.generatedConseils) {
         allConseils = window.generatedConseils;
@@ -1703,48 +1693,33 @@ async function displayConseils() {
         const data = await loadDataGeneric();
         allConseils = data?.conseils || [];
     }
-    console.log("Tous les conseils (bruts) :", allConseils);
 
-    // Plus de filtrage
-    const actifs = allConseils;
+    // ✅ NOUVEAU : on affiche tout sauf ceux explicitement désactivés
+    const displayedConseils = allConseils.filter(conseil => conseil.active !== false);
 
-    if (actifs.length === 0) {
-        console.warn("Aucun conseil trouvé");
-        container.innerHTML = '<div class="no-events">Aucun conseil disponible pour le moment.</div>';
-        return;
-    }
-
-    window.conseilsData = actifs;
+    window.conseilsData = displayedConseils;
 
     // Liste horizontale
     const horizontalContainer = document.getElementById('conseils-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
-        actifs.slice(0, 8).forEach((conseil, index) => {
+        displayedConseils.slice(0, 8).forEach((conseil, index) => {
             const title = escapeHtml(conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, ''));
             const imageUrl = escapeAttribute(conseil.image_url || 'assets/images/default-logo.png');
             hHtml += `<div class="horizontal-item" onclick="showConseilDetail(${index})">
-                <img src="${imageUrl}" alt="${title}" loading="lazy">
+                <img src="${imageUrl}" alt="${title}">
                 <div class="item-title">${title}</div>
             </div>`;
         });
         horizontalContainer.innerHTML = hHtml;
-        console.log("✅ Liste horizontale des conseils mise à jour");
     }
 
     // Grille principale
     let html = '';
-    actifs.forEach((conseil, index) => {
+    displayedConseils.forEach((conseil, index) => {
         let cleanTitle = escapeHtml(conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, ''));
         let excerpt = conseil.content.substring(0, 150) + '...';
-        let cleanExcerpt = escapeHtml(
-            excerpt
-                .replace(/#+\s*/g, '')
-                .replace(/\*\*/g, '')
-                .replace(/\*/g, '')
-                .replace(/\[|\]/g, '')
-                .substring(0, 120) + '...'
-        );
+        let cleanExcerpt = escapeHtml(excerpt.replace(/#+\s*/g, '').replace(/\*\*/g, '').replace(/\*/g, '').replace(/\[|\]/g, '').substring(0, 120) + '...');
         let imageUrl = escapeAttribute(conseil.image_url || 'assets/images/default-logo.png');
         let conseilDate = conseil.date ? new Date(conseil.date).toLocaleDateString('fr-FR') : '';
 
@@ -1758,8 +1733,7 @@ async function displayConseils() {
             </div>
         `;
     });
-    container.innerHTML = html;
-    console.log("✅ Grille des conseils affichée, " + actifs.length + " conseils");
+    container.innerHTML = html || '<div class="no-events">Aucun conseil disponible pour le moment.</div>';
 }
 
 window.showConseilDetail = function(index) {
