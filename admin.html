@@ -430,6 +430,7 @@
                 </div>
             </form>
             <div id="blog-preview" class="preview-area" style="display:none;"><h4>Aperçu de l'article</h4><div id="blog-preview-content"></div></div>
+            <button id="activate-all-blog" class="btn btn-secondary">Activer tous les articles</button>
             <div id="blog-list-admin" class="admin-list"></div>
         </div>
 
@@ -449,6 +450,7 @@
                 </div>
             </form>
             <div id="conseil-preview" class="preview-area" style="display:none;"><h4>Aperçu du conseil</h4><div id="conseil-preview-content"></div></div>
+            <button id="activate-all-conseils" class="btn btn-secondary">Activer tous les conseils</button>
             <div id="conseils-list-admin" class="admin-list"></div>
         </div>
 
@@ -675,7 +677,7 @@
             document.getElementById('blog-index').value = idx;
         };
         window.deleteBlog = (idx) => { if(confirm('Supprimer ?')) { data.blog.splice(idx,1); saveData(); } };
-
+        
         // ==================== RENDU CONSEILS ====================
         function renderConseils() {
             const container = document.getElementById('conseils-list-admin');
@@ -860,6 +862,19 @@
                     if (window.innerWidth <= 768 && adminTabs) { adminTabs.classList.add('collapsed'); toggleTabs.textContent = 'Afficher le menu'; }
                 });
             });
+
+            document.getElementById('activate-all-blog')?.addEventListener('click', () => {
+                data.blog.forEach(article => article.active = true);
+                saveData();
+                alert('Tous les articles sont maintenant actifs.');
+            });
+
+            document.getElementById('activate-all-conseils')?.addEventListener('click', () => {
+                data.conseils.forEach(conseil => conseil.active = true);
+                saveData();
+                alert('Tous les conseils sont maintenant actifs.');
+            });
+
 
             // Blog generate SEO
             document.getElementById('generate-seo')?.addEventListener('click', () => {
