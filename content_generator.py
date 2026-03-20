@@ -87,9 +87,6 @@ def create_image_agent():
         print(f"❌ Erreur création agent Mistral: {e}")
         return None
 
-# Initialisation différée (sera fait dans main())
-# init_mistral()  # Ne pas appeler ici pour éviter l'erreur à l'import
-
 # =======================================================
 # FONCTIONS DE GÉNÉRATION D'IMAGES VIA MISTRAL
 # =======================================================
@@ -410,7 +407,7 @@ def load_existing_articles():
     return []
 
 def save_article(content, match):
-    """Sauvegarde un article avec image"""
+    """Sauvegarde un article avec image et active: True par défaut"""
     if not content:
         print("❌ Contenu vide, article non sauvegardé")
         return
@@ -455,7 +452,8 @@ def save_article(content, match):
         "content": content,
         "match": f"{match.get('home_team', '')} vs {match.get('away_team', '')}",
         "league": match.get('league', ''),
-        "image_url": image_url
+        "image_url": image_url,
+        "active": True   # ← AJOUT : visible par défaut
     }
     articles.insert(0, new)
     articles = articles[:50]
@@ -463,7 +461,7 @@ def save_article(content, match):
     try:
         with open(ARTICLES_FILE, 'w', encoding='utf-8') as f:
             json.dump(articles, f, indent=2, ensure_ascii=False)
-        print(f"✅ Article sauvegardé : {title[:50]}... (image: {image_url})")
+        print(f"✅ Article sauvegardé : {title[:50]}... (image: {image_url}, active: True)")
     except Exception as e:
         print(f"❌ Erreur sauvegarde article: {e}")
 
@@ -483,7 +481,7 @@ def load_existing_conseils():
     return []
 
 def save_tip(content):
-    """Sauvegarde un conseil avec image"""
+    """Sauvegarde un conseil avec image et active: True par défaut"""
     if not content:
         print("❌ Contenu vide, conseil non sauvegardé")
         return
@@ -509,7 +507,8 @@ def save_tip(content):
         "date": datetime.utcnow().isoformat() + "Z",
         "reading_time": read_time,
         "excerpt": excerpt,
-        "image_url": image_url
+        "image_url": image_url,
+        "active": True   # ← AJOUT : visible par défaut
     }
     conseils.insert(0, new)
     conseils = conseils[:100]
@@ -517,7 +516,7 @@ def save_tip(content):
     try:
         with open(CONSEILS_FILE, 'w', encoding='utf-8') as f:
             json.dump(conseils, f, indent=2, ensure_ascii=False)
-        print(f"✅ Conseil sauvegardé : {title[:50]}... (image: {image_url})")
+        print(f"✅ Conseil sauvegardé : {title[:50]}... (image: {image_url}, active: True)")
     except Exception as e:
         print(f"❌ Erreur sauvegarde conseil: {e}")
 
