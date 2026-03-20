@@ -4,7 +4,7 @@
 """
 content_generator.py - Générateur de contenu IA pour Mr XPRONOS
 Version avec génération d'images via Mistral (priorité) et Pixazo (fallback).
-Aucune image ne signifie aucun article ni conseil publié.
+Aucune image ne signifie aucun article ni conseil publié. 
 """
 
 import os
