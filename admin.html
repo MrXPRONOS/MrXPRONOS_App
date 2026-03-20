@@ -6,8 +6,8 @@
     <title>Administration - Mr XPRONOS</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --or: #D4AF37;
@@ -17,7 +17,6 @@
             --noir-second: #1A1A1A;
             --gris: #2A2A2A;
             --text: #FFFFFF;
-            --text-light: #CCCCCC;
             --shadow: 0 10px 30px rgba(0,0,0,0.5);
             --shadow-gold: 0 0 25px rgba(212,175,55,0.35);
         }
@@ -33,13 +32,13 @@
         .admin-container {
             max-width: 1400px;
             margin: 20px auto;
-            padding: 0 15px;
+            padding: 0 20px;
         }
 
         h1 {
             color: var(--or);
-            font-size: 2.1rem;
-            margin-bottom: 25px;
+            font-size: 2rem;
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -47,7 +46,26 @@
             gap: 15px;
         }
 
-        /* ==================== TABS ==================== */
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-dashboard {
+            background: #333;
+            color: #fff;
+            border: 1px solid var(--or);
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-dashboard:hover { background: #444; }
+
+        /* Menu burger */
         .mobile-tabs-toggle {
             display: none;
             background: var(--or);
@@ -60,16 +78,16 @@
             width: 100%;
             text-align: left;
         }
-
         .admin-tabs {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             border-bottom: 2px solid var(--or);
             padding-bottom: 10px;
+            transition: all 0.3s ease;
         }
-
+        .admin-tabs.collapsed { display: none; }
         .tab-btn {
             background: var(--gris);
             color: var(--text);
@@ -78,124 +96,135 @@
             border-radius: 30px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: 0.3s;
             font-size: 0.95rem;
         }
-
         .tab-btn:hover, .tab-btn.active {
             background: var(--or);
             color: #000;
             transform: translateY(-2px);
         }
 
-        /* ==================== ICÔNES FONT AWESOME DORÉES ==================== */
-        .admin-item button i,
-        .tab-btn i,
-        .modal-close,
-        .btn i,
-        .stat-card i {
-            color: var(--or);
-            transition: all 0.3s;
-        }
-
-        .admin-item button:hover i,
-        .tab-btn:hover i,
-        .modal-close:hover,
-        .btn:hover i {
-            color: var(--or-light);
-            transform: scale(1.15);
-        }
-
-        /* ==================== MODALES ==================== */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.92);
-            backdrop-filter: blur(12px);
+        .tab-pane {
             display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-            padding: 15px;
-        }
-
-        .modal.active { display: flex; }
-
-        .modal-content {
             background: var(--noir-second);
-            border: 2px solid var(--or);
+            padding: 25px;
             border-radius: 20px;
-            width: 100%;
-            max-width: 620px;
-            max-height: 92vh;
-            overflow-y: auto;
-            box-shadow: var(--shadow-gold);
-            animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid var(--or);
+            margin-bottom: 30px;
         }
+        .tab-pane.active { display: block; }
 
-        @keyframes modalPop {
-            from { transform: scale(0.7) translateY(40px); opacity: 0; }
-            to { transform: scale(1) translateY(0); opacity: 1; }
+        h2 { color: var(--or); margin-top: 0; margin-bottom: 20px; font-size: 1.5rem; }
+        h3 { color: var(--or); margin: 20px 0 10px; font-size: 1.2rem; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
-
-        .modal-header {
-            padding: 18px 24px;
-            border-bottom: 1px solid rgba(212,175,55,0.3);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(135deg, var(--noir-second), #111);
+        .stat-card {
+            background: var(--gris);
+            border: 1px solid var(--or);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
         }
+        .stat-card h3 { margin-bottom: 10px; font-size: 1rem; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: var(--or-light); }
 
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 2rem;
-            color: var(--or);
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .modal-close:hover {
-            transform: rotate(90deg) scale(1.1);
-            color: #EF4444;
-        }
-
-        /* ==================== GRAPHES CHART.JS ==================== */
         .chart-container {
             background: var(--gris);
             border-radius: 16px;
             padding: 20px;
+            margin-bottom: 30px;
             border: 1px solid var(--or);
-            margin-bottom: 25px;
         }
 
-        canvas {
-            max-height: 380px !important;
+        .period-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
         }
+        .period-selector select, .period-selector input {
+            background: var(--noir);
+            border: 1px solid var(--or);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        .custom-range { display: flex; gap: 10px; align-items: center; }
 
-        /* ==================== LISTES ADMIN ==================== */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: #ccc; font-weight: 500; }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--noir);
+            border: 1px solid #444;
+            border-radius: 12px;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--or);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(212,175,55,0.2);
+        }
+        textarea { min-height: 100px; resize: vertical; }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .checkbox-group input { width: auto; }
+
+        .admin-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .btn {
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary { background: var(--or); color: #000; }
+        .btn-primary:hover { background: var(--or-light); transform: translateY(-2px); }
+        .btn-secondary { background: #333; color: #fff; border: 1px solid var(--or); }
+        .btn-secondary:hover { background: #444; transform: translateY(-2px); }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-small { padding: 5px 10px; font-size: 0.8rem; }
+
+        .admin-list { margin-top: 30px; }
         .admin-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px;
+            padding: 15px;
             background: var(--gris);
             border-radius: 12px;
             margin-bottom: 12px;
             border-left: 4px solid var(--or);
+            flex-wrap: wrap;
+            gap: 10px;
         }
-
         .admin-item button {
             background: none;
             border: none;
-            font-size: 1.35rem;
+            font-size: 1.2rem;
             cursor: pointer;
-            padding: 6px;
             margin-left: 8px;
+            color: var(--or);
         }
+        .admin-item button:hover { color: var(--or-light); }
 
-        /* ==================== SWITCH TOGGLE ==================== */
+        /* Switch */
         .switch {
             position: relative;
             display: inline-block;
@@ -226,93 +255,6 @@
         input:checked + .slider { background: var(--or); }
         input:checked + .slider:before { transform: translateX(24px); }
 
-        /* ==================== FORMULAIRES ==================== */
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            color: #ccc;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            background: var(--noir);
-            border: 1px solid #444;
-            border-radius: 10px;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--or);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(212,175,55,0.2);
-        }
-        .btn {
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-primary {
-            background: var(--or);
-            color: #000;
-        }
-        .btn-primary:hover {
-            background: var(--or-light);
-            transform: translateY(-2px);
-        }
-        .btn-secondary {
-            background: #333;
-            color: #fff;
-            border: 1px solid var(--or);
-        }
-        .btn-secondary:hover {
-            background: #444;
-            transform: translateY(-2px);
-        }
-        .btn-danger {
-            background: #dc3545;
-            color: #fff;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
-        /* ==================== STATS ==================== */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background: var(--gris);
-            border: 1px solid var(--or);
-            border-radius: 16px;
-            padding: 20px;
-            text-align: center;
-            transition: transform 0.3s;
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--or-light);
-        }
-
-        /* ==================== PREVIEW ==================== */
         .preview-area {
             margin-top: 20px;
             border: 2px solid var(--or);
@@ -320,38 +262,77 @@
             background: #111;
             border-radius: 12px;
         }
-        .preview-area h4 {
-            color: var(--or);
-            margin-top: 0;
-        }
+        .preview-area h4 { color: var(--or); margin-top: 0; }
 
-        /* ==================== MOBILE ==================== */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            background: var(--noir-second);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid var(--or);
+            text-align: center;
+        }
+        .login-container h2 { color: var(--or); margin-bottom: 30px; }
+        .login-container input {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .hidden { display: none; }
+        .message { padding: 10px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .message.success { background: #28a745; color: #fff; display: block; }
+        .message.error { background: #dc3545; color: #fff; display: block; }
+        .logout-btn {
+            background: #333;
+            color: #fff;
+            border: 1px solid var(--or);
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        .logout-btn:hover { background: #444; }
+        .help-text { color: #aaa; font-size: 0.9rem; margin-top: 5px; }
+
         @media (max-width: 768px) {
+            h1 { flex-direction: column; align-items: flex-start; }
             .mobile-tabs-toggle { display: block; }
-            .admin-tabs { flex-direction: column; }
-            .admin-tabs.collapsed { display: none; }
-            h1 { font-size: 1.8rem; }
-            .stats-grid { grid-template-columns: 1fr; }
+            .admin-tabs { flex-direction: column; gap: 5px; }
+            .admin-tabs .tab-btn { width: 100%; text-align: center; }
+            .admin-item { flex-direction: column; align-items: flex-start; }
+            .admin-item button { margin-left: 0; margin-right: 10px; }
+            .period-selector, .custom-range { flex-direction: column; align-items: stretch; }
+        }
+        @media (max-width: 480px) {
+            .tab-btn { flex: 1 1 100%; }
         }
     </style>
 </head>
 <body>
-    <div id="login-container" class="login-container" style="max-width:400px; margin:100px auto; background:#1A1A1A; padding:40px; border-radius:20px; border:2px solid #D4AF37; text-align:center;">
-        <h2 style="color:#D4AF37;">🔐 Connexion Admin</h2>
+    <script>
+        // Vérification du paramètre admin=true
+        if (!window.location.search.includes('admin=true')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+
+    <!-- Conteneur de connexion -->
+    <div id="login-container" class="login-container">
+        <h2>🔐 Connexion Admin</h2>
         <form id="login-form">
-            <input type="text" id="admin-username" placeholder="Nom d'utilisateur" required style="width:100%; margin-bottom:20px; padding:12px; border-radius:8px; background:#0D0D0D; color:#fff; border:1px solid #444;">
-            <input type="password" id="admin-password" placeholder="Mot de passe" required style="width:100%; margin-bottom:20px; padding:12px; border-radius:8px; background:#0D0D0D; color:#fff; border:1px solid #444;">
-            <button type="submit" class="btn btn-primary" style="width:100%;">Se connecter</button>
+            <input type="text" id="admin-username" placeholder="Nom d'utilisateur" required>
+            <input type="password" id="admin-password" placeholder="Mot de passe" required>
+            <button type="submit" class="btn btn-primary">Se connecter</button>
         </form>
-        <p style="color:#ccc; margin-top:20px;">Les identifiants sont définis dans les variables GitHub.</p>
+        <p style="color: #ccc; margin-top: 20px;">Les identifiants sont définis dans les variables GitHub.</p>
     </div>
 
+    <!-- Contenu admin (caché tant que non connecté) -->
     <div id="admin-content" class="admin-container hidden">
         <h1>
-            Panneau d'administration Mr XPRONOS
+            Admin Mr XPRONOS
             <div class="header-buttons">
-                <a href="admin-dashboard.html?key=MXPRO2026" target="_blank" class="btn-dashboard" style="background:#333; color:#fff; border:1px solid #D4AF37; padding:8px 16px; border-radius:30px;">📊 Dashboard en direct</a>
-                <button id="logout-btn" class="logout-btn" style="background:#333; color:#fff; border:1px solid #D4AF37; padding:8px 16px; border-radius:30px;">Déconnexion</button>
+                <a href="admin-dashboard.html?key=MXPRO2026" target="_blank" class="btn-dashboard">📊 Dashboard en direct</a>
+                <button id="logout-btn" class="logout-btn">Déconnexion</button>
             </div>
         </h1>
 
@@ -372,23 +353,43 @@
             <button class="tab-btn" data-tab="generated-articles"><i class="fas fa-file-alt"></i> Articles générés</button>
         </div>
 
-        <!-- ==================== STATS ==================== -->
+        <!-- Onglet Statistiques -->
         <div id="tab-stats" class="tab-pane">
             <h2>📊 Statistiques en temps réel</h2>
+            <div class="period-selector">
+                <label for="period-select">Période :</label>
+                <select id="period-select">
+                    <option value="today">Aujourd'hui</option>
+                    <option value="yesterday">Hier</option>
+                    <option value="currentWeek">Semaine en cours</option>
+                    <option value="lastWeek">Semaine passée</option>
+                    <option value="currentMonth">Mois en cours</option>
+                    <option value="lastMonth">Mois passé</option>
+                    <option value="currentYear">Année en cours</option>
+                    <option value="lastYear">Année passée</option>
+                    <option value="custom">Personnalisé</option>
+                </select>
+                <div id="custom-range" class="custom-range" style="display: none;">
+                    <input type="date" id="start-date">
+                    <span>à</span>
+                    <input type="date" id="end-date">
+                    <button id="apply-custom" class="btn btn-secondary">Appliquer</button>
+                </div>
+            </div>
             <div class="stats-grid">
-                <div class="stat-card"><i class="fas fa-users"></i> <h3>Utilisateurs en ligne</h3><div class="stat-value" id="online">0</div></div>
-                <div class="stat-card"><i class="fas fa-eye"></i> <h3>Pages vues</h3><div class="stat-value" id="views">0</div></div>
-                <div class="stat-card"><i class="fas fa-chart-simple"></i> <h3>Clics pronostics</h3><div class="stat-value" id="clicks">0</div></div>
-                <div class="stat-card"><i class="fas fa-share-alt"></i> <h3>Partages WhatsApp</h3><div class="stat-value" id="shares">0</div></div>
-                <div class="stat-card"><i class="fas fa-crown"></i> <h3>Conversions VIP</h3><div class="stat-value" id="vip">0</div></div>
-                <div class="stat-card"><i class="fas fa-user-check"></i> <h3>Utilisateurs uniques</h3><div class="stat-value" id="unique-users">0</div></div>
-                <div class="stat-card"><i class="fas fa-chart-line"></i> <h3>Taux conversion VIP</h3><div class="stat-value" id="conversion-rate">0%</div></div>
+                <div class="stat-card"><h3>👥 En ligne</h3><div class="stat-value" id="online">0</div><small>actuellement</small></div>
+                <div class="stat-card"><h3>👀 Pages vues</h3><div class="stat-value" id="views">0</div><small>sur période</small></div>
+                <div class="stat-card"><h3>🎯 Clics pronostics</h3><div class="stat-value" id="clicks">0</div><small>sur période</small></div>
+                <div class="stat-card"><h3>📤 Partages WhatsApp</h3><div class="stat-value" id="shares">0</div><small>sur période</small></div>
+                <div class="stat-card"><h3>💎 Conversions VIP</h3><div class="stat-value" id="vip">0</div><small>sur période</small></div>
+                <div class="stat-card"><h3>👥 Utilisateurs uniques</h3><div class="stat-value" id="unique-users">0</div><small>sur période</small></div>
+                <div class="stat-card"><h3>📈 Taux conversion VIP</h3><div class="stat-value" id="conversion-rate">0.00%</div><small>des visiteurs</small></div>
             </div>
             <div class="chart-container"><canvas id="visitsChart"></canvas></div>
             <div class="chart-container"><canvas id="pagesChart"></canvas></div>
         </div>
 
-        <!-- ==================== PRONOSTICS ==================== -->
+        <!-- Onglet Pronostics -->
         <div id="tab-pronostics" class="tab-pane active">
             <h2>Gestion des pronostics</h2>
             <form id="pronostic-form">
@@ -399,15 +400,12 @@
                 <div class="form-group"><label>Bookmaker</label><select id="pronostic-bookmaker"></select></div>
                 <div class="checkbox-group"><input type="checkbox" id="pronostic-premium"><label>Premium (VIP)</label></div>
                 <input type="hidden" id="pronostic-index" value="-1">
-                <div class="admin-actions">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
-                    <button type="button" id="cancel-pronostic" class="btn btn-secondary">Annuler</button>
-                </div>
+                <div class="admin-actions"><button type="submit" class="btn btn-primary">Enregistrer</button><button type="button" id="cancel-pronostic" class="btn btn-secondary">Annuler</button></div>
             </form>
             <div id="pronostics-list-admin" class="admin-list"></div>
         </div>
 
-        <!-- ==================== BLOG ==================== -->
+        <!-- Onglet Blog -->
         <div id="tab-blog" class="tab-pane">
             <h2>Gestion du blog</h2>
             <form id="blog-form">
@@ -426,19 +424,16 @@
                 <input type="hidden" id="blog-index" value="-1">
                 <div class="admin-actions">
                     <button type="button" id="generate-seo" class="btn btn-secondary">⚡ Générer SEO auto</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
                     <button type="button" id="cancel-blog" class="btn btn-secondary">Annuler</button>
-                    <button type="button" id="preview-blog" class="btn btn-secondary"><i class="fas fa-eye"></i> Aperçu</button>
+                    <button type="button" id="preview-blog" class="btn btn-secondary">Aperçu</button>
                 </div>
             </form>
-            <div id="blog-preview" class="preview-area" style="display:none;">
-                <h4>Aperçu de l'article</h4>
-                <div id="blog-preview-content"></div>
-            </div>
+            <div id="blog-preview" class="preview-area" style="display:none;"><h4>Aperçu de l'article</h4><div id="blog-preview-content"></div></div>
             <div id="blog-list-admin" class="admin-list"></div>
         </div>
 
-        <!-- ==================== CONSEILS ==================== -->
+        <!-- Onglet Conseils -->
         <div id="tab-conseils" class="tab-pane">
             <h2>Gestion des conseils</h2>
             <form id="conseil-form">
@@ -448,34 +443,28 @@
                 <div class="checkbox-group"><input type="checkbox" id="conseil-active" checked><label>Actif (affiché sur le site)</label></div>
                 <input type="hidden" id="conseil-index" value="-1">
                 <div class="admin-actions">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
                     <button type="button" id="cancel-conseil" class="btn btn-secondary">Annuler</button>
-                    <button type="button" id="preview-conseil" class="btn btn-secondary"><i class="fas fa-eye"></i> Aperçu</button>
+                    <button type="button" id="preview-conseil" class="btn btn-secondary">Aperçu</button>
                 </div>
             </form>
-            <div id="conseil-preview" class="preview-area" style="display:none;">
-                <h4>Aperçu du conseil</h4>
-                <div id="conseil-preview-content"></div>
-            </div>
+            <div id="conseil-preview" class="preview-area" style="display:none;"><h4>Aperçu du conseil</h4><div id="conseil-preview-content"></div></div>
             <div id="conseils-list-admin" class="admin-list"></div>
         </div>
 
-        <!-- ==================== INFOS SPORT ==================== -->
+        <!-- Onglet Infos sport -->
         <div id="tab-infos" class="tab-pane">
             <h2>Gestion des infos sport</h2>
             <form id="info-form">
                 <div class="form-group"><label>Titre</label><input type="text" id="info-title" required></div>
                 <div class="form-group"><label>Contenu</label><textarea id="info-content" required></textarea></div>
                 <input type="hidden" id="info-index" value="-1">
-                <div class="admin-actions">
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
-                    <button type="button" id="cancel-info" class="btn btn-secondary">Annuler</button>
-                </div>
+                <div class="admin-actions"><button type="submit" class="btn btn-primary">Enregistrer</button><button type="button" id="cancel-info" class="btn btn-secondary">Annuler</button></div>
             </form>
             <div id="infos-list-admin" class="admin-list"></div>
         </div>
 
-        <!-- ==================== BONUS ==================== -->
+        <!-- Onglet Bonus -->
         <div id="tab-bonus" class="tab-pane">
             <h2>Gestion des bonus</h2>
             <form id="bonus-form">
@@ -489,22 +478,19 @@
                 <div class="form-group"><label>Date fin</label><input type="date" id="bonus-end" required></div>
                 <div class="checkbox-group"><input type="checkbox" id="bonus-active" checked><label>Actif</label></div>
                 <input type="hidden" id="bonus-index" value="-1">
-                <div class="admin-actions">
-                    <button type="submit" class="btn btn-primary">Enregistrer</button>
-                    <button type="button" id="cancel-bonus" class="btn btn-secondary">Annuler</button>
-                </div>
+                <div class="admin-actions"><button type="submit" class="btn btn-primary">Enregistrer</button><button type="button" id="cancel-bonus" class="btn btn-secondary">Annuler</button></div>
             </form>
             <div id="bonus-list-admin" class="admin-list"></div>
         </div>
 
-        <!-- ==================== BOOKMAKERS ==================== -->
+        <!-- Onglet Bookmakers -->
         <div id="tab-bookmakers" class="tab-pane">
             <h2>Gestion des bookmakers</h2>
             <div id="bookmakers-list-admin" class="admin-list"></div>
             <button id="add-bookmaker" class="btn btn-primary">Ajouter un bookmaker</button>
         </div>
 
-        <!-- ==================== CODES VIP ==================== -->
+        <!-- Onglet Codes VIP -->
         <div id="tab-vip" class="tab-pane">
             <h2>Gestion des codes VIP</h2>
             <form id="vip-form">
@@ -518,17 +504,16 @@
             <div id="vip-list" class="admin-list"></div>
         </div>
 
-        <!-- ==================== ASSISTANT ==================== -->
+        <!-- Onglet Assistant -->
         <div id="tab-assistant" class="tab-pane">
             <h2>🤖 Assistant IA - Statistiques</h2>
             <div class="stats-grid">
                 <div class="stat-card"><h3>Questions totales</h3><div class="stat-value" id="total-questions">0</div></div>
-                <div class="stat-card"><h3>Taux de réponse en cache</h3><div class="stat-value" id="cache-rate">0%</div></div>
+                <div class="stat-card"><h3>Taux réponse en cache</h3><div class="stat-value" id="cache-rate">0%</div></div>
                 <div class="stat-card"><h3>Feedbacks positifs</h3><div class="stat-value" id="positive-feedback">0</div></div>
                 <div class="stat-card"><h3>Feedbacks négatifs</h3><div class="stat-value" id="negative-feedback">0</div></div>
             </div>
-            <h3>FAQ - Questions fréquentes</h3>
-            <div id="faq-list" class="admin-list"></div>
+            <h3>FAQ - Questions fréquentes</h3><div id="faq-list" class="admin-list"></div>
             <div class="admin-actions"><button id="add-faq" class="btn btn-primary">Ajouter une question</button></div>
             <h3>Actions sur l'assistant</h3>
             <div class="admin-actions">
@@ -536,45 +521,41 @@
                 <button id="clear-pronostics-cache" class="btn btn-danger">Vider cache pronostics</button>
                 <button id="clear-assistant-cache" class="btn btn-danger">Vider cache assistant (FAQ)</button>
             </div>
-            <h3>Questions sans réponse satisfaisante</h3><div id="unanswered-questions"></div>
+            <h3>Questions sans réponse</h3><div id="unanswered-questions"></div>
             <h3>Derniers feedbacks</h3><div id="recent-feedbacks"></div>
             <h3>Conversations récentes</h3><div id="recent-conversations"></div>
         </div>
 
-        <!-- ==================== LIVE PRÉDICTIONS ==================== -->
+        <!-- Onglet Live Prédictions -->
         <div id="tab-live-predictions" class="tab-pane">
             <h2>⚡ Prédictions en direct</h2>
             <div class="stats-grid">
                 <div class="stat-card"><h3>Prédictions actives</h3><div class="stat-value" id="active-predictions-count">0</div></div>
                 <div class="stat-card"><h3>Taux de réussite</h3><div class="stat-value" id="prediction-success-rate">0%</div></div>
             </div>
-            <h3>Prédictions haute confiance en cours</h3><div id="active-predictions-list"></div>
+            <h3>Prédictions haute confiance</h3><div id="active-predictions-list"></div>
             <h3>Historique (48h)</h3><div id="predictions-history"></div>
             <h3>Dernières notifications</h3><div id="notifications-list"></div>
         </div>
 
-        <!-- ==================== PARAMÈTRES ==================== -->
+        <!-- Onglet Paramètres -->
         <div id="tab-settings" class="tab-pane">
-            <h2>Paramètres de l'application</h2>
-            <div class="form-group">
-                <label><input type="checkbox" id="vip-toggle"> Afficher les pronostics VIP</label>
-                <p class="help-text">Si désactivé, l'onglet VIP sera masqué.</p>
-            </div>
+            <h2>Paramètres</h2>
+            <div class="form-group"><label><input type="checkbox" id="vip-toggle"> Afficher les pronostics VIP</label><p class="help-text">Si désactivé, l'onglet VIP sera masqué.</p></div>
             <button id="save-settings" class="btn btn-primary">Enregistrer</button>
         </div>
 
-        <!-- ==================== EXPORT JSON ==================== -->
+        <!-- Onglet Export JSON -->
         <div id="tab-export" class="tab-pane">
             <h2>Export JSON</h2>
-            <p>Cliquez ci-dessous pour générer data.json.</p>
             <button id="export-json" class="btn btn-primary">Télécharger data.json</button>
-            <button id="reset-data" class="btn btn-secondary">Réinitialiser données (exemple)</button>
+            <button id="reset-data" class="btn btn-secondary">Réinitialiser (exemple)</button>
             <pre id="json-preview" style="background:#0D0D0D; padding:15px; border-radius:8px; border:1px solid #D4AF37; margin-top:20px; max-height:400px; overflow:auto;"></pre>
         </div>
 
-        <!-- ==================== ARTICLES GÉNÉRÉS ==================== -->
+        <!-- Onglet Articles générés -->
         <div id="tab-generated-articles" class="tab-pane">
-            <h2>Articles générés automatiquement</h2>
+            <h2>Articles générés</h2>
             <div id="generated-articles-list" class="admin-list"></div>
             <button id="download-articles" class="btn btn-primary">Télécharger articles.json</button>
         </div>
@@ -585,7 +566,14 @@
         // AUTHENTIFICATION
         // =======================================================
         let ADMIN_USER = 'admin';
-        let ADMIN_PASSWORD_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918'; // sha256('admin')
+        let ADMIN_PASSWORD_HASH = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918';
+
+        try {
+            const config = await import('./assets/js/admin-config.js');
+            ADMIN_USER = config.ADMIN_USER;
+            ADMIN_PASSWORD_HASH = config.ADMIN_PASSWORD_HASH;
+        } catch (e) {}
+
         async function hashPassword(password) {
             const encoder = new TextEncoder();
             const data = encoder.encode(password);
@@ -626,7 +614,7 @@
         });
 
         // =======================================================
-        // DONNÉES PAR DÉFAUT
+        // DONNÉES LOCALES (avec champ active)
         // =======================================================
         const defaultData = {
             pronostics: [],
@@ -645,46 +633,33 @@
         };
         let data = JSON.parse(localStorage.getItem('mrXpronosData')) || defaultData;
 
-        function saveData() {
-            localStorage.setItem('mrXpronosData', JSON.stringify(data, null, 2));
-            renderAllLists();
-            updatePreview();
-            alert('✅ Sauvegardé avec succès');
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
+        function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+        function saveData() { localStorage.setItem('mrXpronosData', JSON.stringify(data, null, 2)); renderAllLists(); updatePreview(); alert('✅ Sauvegardé avec succès'); }
+        function updatePreview() { const preview = document.getElementById('json-preview'); if(preview) preview.textContent = JSON.stringify(data, null, 2); }
 
         // ==================== RENDU BLOG ====================
         function renderBlog() {
             const container = document.getElementById('blog-list-admin');
             if (!container) return;
             let html = '';
-            data.blog.forEach((article, index) => {
+            data.blog.forEach((article, idx) => {
                 const active = article.active !== false;
                 html += `
                     <div class="admin-item">
                         <div><strong>${escapeHtml(article.title)}</strong><br><small>${article.date || ''}</small></div>
                         <div>
-                            <label class="switch"><input type="checkbox" ${active ? 'checked' : ''} onchange="toggleBlogActive(${index}, this.checked)"><span class="slider"></span></label>
-                            <button onclick="editBlog(${index})"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteBlog(${index})"><i class="fas fa-trash"></i></button>
+                            <label class="switch"><input type="checkbox" ${active ? 'checked' : ''} onchange="toggleBlogActive(${idx}, this.checked)"><span class="slider"></span></label>
+                            <button onclick="editBlog(${idx})"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteBlog(${idx})"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
             });
             container.innerHTML = html || '<p>Aucun article.</p>';
         }
-        window.toggleBlogActive = function(index, active) { data.blog[index].active = active; saveData(); };
-        window.editBlog = (index) => {
-            const a = data.blog[index];
+        window.toggleBlogActive = (idx, active) => { data.blog[idx].active = active; saveData(); };
+        window.editBlog = (idx) => {
+            const a = data.blog[idx];
             document.getElementById('blog-title').value = a.title;
             document.getElementById('blog-slug').value = a.slug;
             document.getElementById('blog-date').value = a.date;
@@ -697,60 +672,106 @@
             document.getElementById('blog-faq').value = a.faq ? JSON.stringify(a.faq) : '';
             document.getElementById('blog-image').value = a.image_url || '';
             document.getElementById('blog-match').value = a.match || '';
-            document.getElementById('blog-index').value = index;
+            document.getElementById('blog-index').value = idx;
         };
-        window.deleteBlog = (index) => { if(confirm('Supprimer ?')) { data.blog.splice(index,1); saveData(); } };
+        window.deleteBlog = (idx) => { if(confirm('Supprimer ?')) { data.blog.splice(idx,1); saveData(); } };
 
         // ==================== RENDU CONSEILS ====================
         function renderConseils() {
             const container = document.getElementById('conseils-list-admin');
             if (!container) return;
             let html = '';
-            data.conseils.forEach((conseil, index) => {
-                const active = conseil.active !== false;
+            data.conseils.forEach((c, idx) => {
+                const active = c.active !== false;
                 html += `
                     <div class="admin-item">
-                        <div><strong>${escapeHtml(conseil.title)}</strong><br><small>${conseil.date || ''}</small></div>
+                        <div><strong>${escapeHtml(c.title)}</strong><br><small>${c.date || ''}</small></div>
                         <div>
-                            <label class="switch"><input type="checkbox" ${active ? 'checked' : ''} onchange="toggleConseilActive(${index}, this.checked)"><span class="slider"></span></label>
-                            <button onclick="editConseil(${index})"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteConseil(${index})"><i class="fas fa-trash"></i></button>
+                            <label class="switch"><input type="checkbox" ${active ? 'checked' : ''} onchange="toggleConseilActive(${idx}, this.checked)"><span class="slider"></span></label>
+                            <button onclick="editConseil(${idx})"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteConseil(${idx})"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
             });
             container.innerHTML = html || '<p>Aucun conseil.</p>';
         }
-        window.toggleConseilActive = function(index, active) { data.conseils[index].active = active; saveData(); };
-        window.editConseil = (index) => {
-            const c = data.conseils[index];
+        window.toggleConseilActive = (idx, active) => { data.conseils[idx].active = active; saveData(); };
+        window.editConseil = (idx) => {
+            const c = data.conseils[idx];
             document.getElementById('conseil-title').value = c.title;
             document.getElementById('conseil-content').value = c.content;
             document.getElementById('conseil-image').value = c.image_url || '';
             document.getElementById('conseil-active').checked = c.active !== false;
-            document.getElementById('conseil-index').value = index;
+            document.getElementById('conseil-index').value = idx;
         };
-        window.deleteConseil = (index) => { if(confirm('Supprimer ?')) { data.conseils.splice(index,1); saveData(); } };
+        window.deleteConseil = (idx) => { if(confirm('Supprimer ?')) { data.conseils.splice(idx,1); saveData(); } };
 
-        // ==================== AUTRES RENDU ====================
-        function renderPronostics() { /* à compléter si besoin */ }
-        function renderInfos() { /* à compléter si besoin */ }
-        function renderBonus() { /* à compléter si besoin */ }
-        function renderBookmakersList() { /* à compléter si besoin */ }
-
-        function renderAllLists() {
-            renderBlog();
-            renderConseils();
-            renderPronostics();
-            renderInfos();
-            renderBonus();
-            renderBookmakersList();
+        // ==================== AUTRES RENDU SIMPLIFIÉS ====================
+        function renderPronostics() {
+            const container = document.getElementById('pronostics-list-admin');
+            if (!container) return;
+            let html = '';
+            data.pronostics.forEach((p, idx) => {
+                html += `<div class="admin-item"><div><strong>${p.match}</strong> - Cote ${p.cote} (${p.bookmaker}) ${p.premium ? '⭐ VIP' : ''}</div><div><button onclick="editPronostic(${idx})"><i class="fas fa-edit"></i></button><button onclick="deletePronostic(${idx})"><i class="fas fa-trash"></i></button></div></div>`;
+            });
+            container.innerHTML = html || '<p>Aucun pronostic.</p>';
         }
+        window.editPronostic = (idx) => { const p = data.pronostics[idx]; document.getElementById('pronostic-match').value = p.match; document.getElementById('pronostic-cote').value = p.cote; document.getElementById('pronostic-analyse').value = p.analyse; document.getElementById('pronostic-confidence').value = p.confidence; document.getElementById('pronostic-bookmaker').value = p.bookmaker; document.getElementById('pronostic-premium').checked = p.premium; document.getElementById('pronostic-index').value = idx; };
+        window.deletePronostic = (idx) => { if(confirm('Supprimer ?')) { data.pronostics.splice(idx,1); saveData(); } };
+        document.getElementById('pronostic-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const idx = parseInt(document.getElementById('pronostic-index').value);
+            const newP = { match: document.getElementById('pronostic-match').value, cote: document.getElementById('pronostic-cote').value, analyse: document.getElementById('pronostic-analyse').value, confidence: parseInt(document.getElementById('pronostic-confidence').value), bookmaker: document.getElementById('pronostic-bookmaker').value, premium: document.getElementById('pronostic-premium').checked };
+            if (idx === -1) data.pronostics.push(newP); else data.pronostics[idx] = newP;
+            saveData();
+            document.getElementById('pronostic-form').reset();
+            document.getElementById('pronostic-index').value = '-1';
+        });
+        document.getElementById('cancel-pronostic').addEventListener('click', () => { document.getElementById('pronostic-form').reset(); document.getElementById('pronostic-index').value = '-1'; });
 
-        function updatePreview() {
-            const preview = document.getElementById('json-preview');
-            if (preview) preview.textContent = JSON.stringify(data, null, 2);
+        function renderInfos() {
+            const container = document.getElementById('infos-list-admin');
+            if (!container) return;
+            let html = '';
+            data.infos.forEach((i, idx) => { html += `<div class="admin-item"><div><strong>${i.title}</strong></div><div><button onclick="editInfo(${idx})"><i class="fas fa-edit"></i></button><button onclick="deleteInfo(${idx})"><i class="fas fa-trash"></i></button></div></div>`; });
+            container.innerHTML = html || '<p>Aucune info.</p>';
         }
+        window.editInfo = (idx) => { const i = data.infos[idx]; document.getElementById('info-title').value = i.title; document.getElementById('info-content').value = i.content; document.getElementById('info-index').value = idx; };
+        window.deleteInfo = (idx) => { if(confirm('Supprimer ?')) { data.infos.splice(idx,1); saveData(); } };
+        document.getElementById('info-form').addEventListener('submit', (e) => {
+            e.preventDefault(); const idx = parseInt(document.getElementById('info-index').value); const newInfo = { title: document.getElementById('info-title').value, content: document.getElementById('info-content').value };
+            if (idx === -1) data.infos.push(newInfo); else data.infos[idx] = newInfo; saveData(); document.getElementById('info-form').reset(); document.getElementById('info-index').value = '-1';
+        });
+        document.getElementById('cancel-info').addEventListener('click', () => { document.getElementById('info-form').reset(); document.getElementById('info-index').value = '-1'; });
+
+        function renderBonus() {
+            const container = document.getElementById('bonus-list-admin');
+            if (!container) return;
+            let html = '';
+            data.bonus.forEach((b, idx) => { html += `<div class="admin-item"><div><strong>${b.title}</strong> (${b.bookmaker}) - ${b.active ? '✅ Actif' : '❌ Inactif'}</div><div><button onclick="editBonus(${idx})"><i class="fas fa-edit"></i></button><button onclick="deleteBonus(${idx})"><i class="fas fa-trash"></i></button></div></div>`; });
+            container.innerHTML = html || '<p>Aucun bonus.</p>';
+        }
+        window.editBonus = (idx) => { const b = data.bonus[idx]; document.getElementById('bonus-bookmaker').value = b.bookmaker; document.getElementById('bonus-title').value = b.title; document.getElementById('bonus-description').value = b.description; document.getElementById('bonus-image').value = b.image; document.getElementById('bonus-link').value = b.link || ''; document.getElementById('bonus-footer').value = b.footer || ''; document.getElementById('bonus-start').value = b.start_date; document.getElementById('bonus-end').value = b.end_date; document.getElementById('bonus-active').checked = b.active; document.getElementById('bonus-index').value = idx; };
+        window.deleteBonus = (idx) => { if(confirm('Supprimer ?')) { data.bonus.splice(idx,1); saveData(); } };
+        document.getElementById('bonus-form').addEventListener('submit', (e) => {
+            e.preventDefault(); const idx = parseInt(document.getElementById('bonus-index').value); const newBonus = { bookmaker: document.getElementById('bonus-bookmaker').value, title: document.getElementById('bonus-title').value, description: document.getElementById('bonus-description').value, image: document.getElementById('bonus-image').value, link: document.getElementById('bonus-link').value, footer: document.getElementById('bonus-footer').value, start_date: document.getElementById('bonus-start').value, end_date: document.getElementById('bonus-end').value, active: document.getElementById('bonus-active').checked };
+            if (idx === -1) data.bonus.push(newBonus); else data.bonus[idx] = newBonus; saveData(); document.getElementById('bonus-form').reset(); document.getElementById('bonus-index').value = '-1';
+        });
+        document.getElementById('cancel-bonus').addEventListener('click', () => { document.getElementById('bonus-form').reset(); document.getElementById('bonus-index').value = '-1'; });
+
+        function renderBookmakersList() {
+            const container = document.getElementById('bookmakers-list-admin');
+            if (!container) return;
+            let html = '';
+            data.bookmakers.forEach((b, idx) => { html += `<div class="admin-item"><div><img src="${b.logo}" style="width:40px; height:40px; object-fit:contain;"> <strong>${b.name}</strong><br><small>${b.url}</small></div><div><button onclick="editBookmaker(${idx})"><i class="fas fa-edit"></i></button><button onclick="deleteBookmaker(${idx})"><i class="fas fa-trash"></i></button></div></div>`; });
+            container.innerHTML = html || '<p>Aucun bookmaker.</p>';
+        }
+        window.editBookmaker = (idx) => { const b = data.bookmakers[idx]; const newName = prompt('Nom', b.name); if(newName){ const newLogo = prompt('Logo URL', b.logo); if(newLogo){ const newUrl = prompt('Lien affiliation', b.url); if(newUrl){ data.bookmakers[idx] = { name: newName, logo: newLogo, url: newUrl }; saveData(); } } } };
+        window.deleteBookmaker = (idx) => { if(confirm('Supprimer ?')) { data.bookmakers.splice(idx,1); saveData(); } };
+        document.getElementById('add-bookmaker').addEventListener('click', () => { data.bookmakers.push({ name: "Nouveau bookmaker", logo: "assets/images/default-logo.png", url: "#" }); saveData(); });
+
+        function renderAllLists() { renderBlog(); renderConseils(); renderPronostics(); renderInfos(); renderBonus(); renderBookmakersList(); }
 
         // ==================== GRAPHIQUES ====================
         let visitsChart, pagesChart;
@@ -768,7 +789,7 @@
             });
         }
 
-        // ==================== FORMULAIRES & PRÉVISUALISATION ====================
+        // ==================== PRÉVISUALISATION ====================
         document.getElementById('preview-blog')?.addEventListener('click', () => {
             const previewDiv = document.getElementById('blog-preview');
             const contentDiv = document.getElementById('blog-preview-content');
@@ -785,6 +806,35 @@
             contentDiv.innerHTML = `<h3 style="color:#D4AF37;">${escapeHtml(title)}</h3><div>${content.replace(/\n/g, '<br>')}</div>`;
             previewDiv.style.display = 'block';
         });
+
+        // ==================== SUPABASE ET STATISTIQUES (existant simplifié) ====================
+        let supabase = null;
+        let supabaseAvailable = false;
+
+        async function initSupabase() {
+            try {
+                const { supabaseUrl, supabaseAnonKey } = await import('./assets/js/config.js');
+                const { createClient } = window.supabase;
+                supabase = createClient(supabaseUrl, supabaseAnonKey);
+                supabaseAvailable = true;
+                console.log('✅ Supabase connecté');
+            } catch (e) {
+                console.warn('Supabase non configuré');
+                supabaseAvailable = false;
+            }
+        }
+
+        // Fonctions stats (simulées pour l'exemple)
+        async function loadAdminStatsWithPeriod(period) { /* ... */ }
+        function initPeriodSelector() { /* ... */ }
+        async function updateCharts() { /* ... */ }
+        async function initOnlineUsers() { /* ... */ }
+        async function loadAssistantStats() { /* ... */ }
+        async function loadLivePredictions() { /* ... */ }
+        async function renderVipList() { /* ... */ }
+        async function generateEmbeddingViaEdge(text) { return []; }
+        async function loadFaq() { /* ... */ }
+        async function loadGeneratedArticles() { /* ... */ }
 
         // ==================== INITIALISATION ====================
         async function initAdmin() {
@@ -807,96 +857,53 @@
                     btn.classList.add('active');
                     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
                     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-                    if (window.innerWidth <= 768 && adminTabs) {
-                        adminTabs.classList.add('collapsed');
-                        if (toggleTabs) toggleTabs.textContent = 'Afficher le menu';
-                    }
+                    if (window.innerWidth <= 768 && adminTabs) { adminTabs.classList.add('collapsed'); toggleTabs.textContent = 'Afficher le menu'; }
                 });
             });
-            // Formulaire blog
-            document.getElementById('blog-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const index = parseInt(document.getElementById('blog-index').value);
-                const newArticle = {
-                    slug: document.getElementById('blog-slug').value,
-                    title: document.getElementById('blog-title').value,
-                    date: document.getElementById('blog-date').value,
-                    author: document.getElementById('blog-author').value,
-                    excerpt: document.getElementById('blog-excerpt').value,
-                    content: document.getElementById('blog-content').value,
-                    meta_description: document.getElementById('blog-meta-description').value,
-                    keywords: document.getElementById('blog-keywords').value,
-                    og_image: document.getElementById('blog-og-image').value,
-                    faq: document.getElementById('blog-faq').value ? JSON.parse(document.getElementById('blog-faq').value) : [],
-                    image_url: document.getElementById('blog-image').value,
-                    match: document.getElementById('blog-match').value || undefined,
-                    active: true
-                };
-                if (index === -1) data.blog.push(newArticle);
-                else data.blog[index] = newArticle;
-                saveData();
-                document.getElementById('blog-form').reset();
-                document.getElementById('blog-index').value = '-1';
-                document.getElementById('blog-preview').style.display = 'none';
+
+            // Blog generate SEO
+            document.getElementById('generate-seo')?.addEventListener('click', () => {
+                const title = document.getElementById('blog-title').value;
+                if(title){
+                    document.getElementById('blog-meta-description').value = `Analyse complète de ${title}. Pronostics, statistiques.`;
+                    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                    if(!document.getElementById('blog-slug').value) document.getElementById('blog-slug').value = slug;
+                    const faq = [{"q":`Quel est le pronostic pour ${title} ?`,"a":"Consultez notre analyse."}];
+                    document.getElementById('blog-faq').value = JSON.stringify(faq);
+                } else alert('Saisissez d\'abord un titre');
             });
-            document.getElementById('cancel-blog').addEventListener('click', () => {
-                document.getElementById('blog-form').reset();
-                document.getElementById('blog-index').value = '-1';
-                document.getElementById('blog-preview').style.display = 'none';
+
+            // Export / Reset
+            document.getElementById('export-json')?.addEventListener('click', () => {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'data.json'; a.click(); URL.revokeObjectURL(url);
             });
-            // Formulaire conseils
-            document.getElementById('conseil-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const index = parseInt(document.getElementById('conseil-index').value);
-                const newConseil = {
-                    title: document.getElementById('conseil-title').value,
-                    content: document.getElementById('conseil-content').value,
-                    image_url: document.getElementById('conseil-image').value,
-                    active: document.getElementById('conseil-active').checked,
-                    date: new Date().toISOString().split('T')[0]
-                };
-                if (index === -1) data.conseils.push(newConseil);
-                else data.conseils[index] = newConseil;
-                saveData();
-                document.getElementById('conseil-form').reset();
-                document.getElementById('conseil-index').value = '-1';
-                document.getElementById('conseil-preview').style.display = 'none';
+            document.getElementById('reset-data')?.addEventListener('click', () => {
+                if(confirm('Réinitialiser ?')) { data = JSON.parse(JSON.stringify(defaultData)); saveData(); }
             });
-            document.getElementById('cancel-conseil').addEventListener('click', () => {
-                document.getElementById('conseil-form').reset();
-                document.getElementById('conseil-index').value = '-1';
-                document.getElementById('conseil-preview').style.display = 'none';
-            });
-            // Boutons génériques
-            document.getElementById('export-json').addEventListener('click', () => {
-                const jsonStr = JSON.stringify(data, null, 2);
-                const blob = new Blob([jsonStr], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'data.json';
-                a.click();
-                URL.revokeObjectURL(url);
-            });
-            document.getElementById('reset-data').addEventListener('click', () => {
-                if (confirm('Réinitialiser avec les données d\'exemple ?')) {
-                    data = JSON.parse(JSON.stringify(defaultData));
-                    saveData();
-                }
-            });
+
+            // VIP toggle
             const vipToggle = document.getElementById('vip-toggle');
             const saveSettings = document.getElementById('save-settings');
-            if (vipToggle && saveSettings) {
+            if(vipToggle && saveSettings){
                 vipToggle.checked = localStorage.getItem('vipEnabled') !== 'false';
-                saveSettings.addEventListener('click', () => {
-                    localStorage.setItem('vipEnabled', vipToggle.checked);
-                    alert('Paramètre enregistré.');
+                saveSettings.addEventListener('click', () => { localStorage.setItem('vipEnabled', vipToggle.checked); alert('Paramètre enregistré.'); });
+            }
+
+            // VIP form (simulé)
+            const vipForm = document.getElementById('vip-form');
+            if(vipForm){
+                vipForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const userId = document.getElementById('user-id').value;
+                    const ip = document.getElementById('ip-address').value;
+                    const duration = parseInt(document.getElementById('duration').value);
+                    const code = 'VIP-' + Math.random().toString(36).substring(2, 10).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+                    document.getElementById('vip-result').innerHTML = `<div class="message success">Code généré : ${code}</div>`;
+                    setTimeout(() => document.getElementById('vip-result').innerHTML = '', 5000);
                 });
             }
         }
-
-        // ==================== FIN ====================
-        window.initAdmin = initAdmin;
     </script>
 </body>
 </html>
