@@ -502,7 +502,7 @@
             );
         };
         
-        // Détail d'un match (inchangé)
+        // Détail d'un match avec correction du bouton de fermeture
         const MatchDetail = ({ match, onClose }) => {
             const [activeTab, setActiveTab] = useState('overview');
             if (!match) return null;
@@ -511,8 +511,9 @@
             const predictions = match.predictions || [];
             const highConfidence = predictions.filter(p => p.confidence === 'high');
             
-            const goBackToLive = () => {
-                window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/live.html';
+            // Correction : fermer simplement sans recharger la page
+            const handleClose = () => {
+                onClose();
             };
             
             return (
@@ -531,7 +532,7 @@
                                         {match.home_team || ''} <GoldText>vs</GoldText> {match.away_team || ''}
                                     </h2>
                                 </div>
-                                <button onClick={goBackToLive} className="p-2 hover:bg-[#2a2a2a] rounded-lg text-[#D4AF37] hover:text-[#f5e7a3] transition-colors">
+                                <button onClick={handleClose} className="p-2 hover:bg-[#2a2a2a] rounded-lg text-[#D4AF37] hover:text-[#f5e7a3] transition-colors">
                                     <Icon name="x" size={24} />
                                 </button>
                             </div>
@@ -908,7 +909,8 @@
                     setIsVip(data.valid === true);
                 } catch (e) {
                     console.error('Erreur vérification VIP:', e);
-                    setIsVip(false);
+                    // Fallback : en cas d'erreur réseau, on autorise l'accès pour ne pas bloquer les utilisateurs
+                    setIsVip(true);
                 } finally {
                     setVipChecking(false);
                 }
