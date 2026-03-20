@@ -1626,17 +1626,33 @@ async function loadGeneratedContent() {
 // =======================================================
 // FONCTIONS POUR LE CONTENU (blog, conseils, news)
 // =======================================================
+// =======================================================
+// FONCTIONS POUR LE CONTENU (blog, conseils, news)
+// =======================================================
 async function displayBlogList() {
+    console.log("📝 displayBlogList() appelée");
     const container = document.getElementById('blog-list');
-    if (!container) return;
-    if (!window.generatedArticles) await loadGeneratedContent();
+    if (!container) {
+        console.warn("❌ #blog-list introuvable dans le DOM");
+        return;
+    }
+    if (!window.generatedArticles) {
+        console.log("Chargement des articles générés...");
+        await loadGeneratedContent();
+    }
     const data = await loadDataGeneric();
+    console.log("Données génériques chargées :", data);
+    
     let allArticles = [...(window.generatedArticles || []), ...(data?.blog || [])];
-    // Suppression du filtre sur 'active' : tous les articles sont affichés
+    console.log("Tous les articles (bruts) :", allArticles);
+    
+    // Suppression du filtre sur 'active'
     if (allArticles.length === 0) { 
+        console.warn("Aucun article trouvé");
         container.innerHTML = '<div class="no-events">Aucun article.</div>'; 
         return; 
     }
+    
     window.articlesData = allArticles;
     const horizontalContainer = document.getElementById('blog-horizontal-list');
     if (horizontalContainer) {
@@ -1646,7 +1662,9 @@ async function displayBlogList() {
             hHtml += `<div class="horizontal-item" onclick="showArticleDetail(${index})"><img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${title}" loading="lazy"><div class="item-title">${title}</div></div>`;
         });
         horizontalContainer.innerHTML = hHtml;
+        console.log("✅ Liste horizontale des articles mise à jour");
     }
+    
     let html = '';
     allArticles.forEach((article,index) => {
         let cleanTitle = escapeHtml(article.title.replace(/#+\s*/g,'').replace(/\*\*/g,''));
@@ -1666,17 +1684,18 @@ async function displayBlogList() {
         `;
     });
     container.innerHTML = html;
+    console.log("✅ Grille des articles affichée, " + allArticles.length + " articles");
 }
 
-/**
- * Affiche la liste des conseils (page conseils.html)
- * Tous les conseils sont affichés (plus de filtrage)
- */
 async function displayConseils() {
+    console.log("💡 displayConseils() appelée");
     const container = document.getElementById('conseils-list');
-    if (!container) return;
+    if (!container) {
+        console.warn("❌ #conseils-list introuvable dans le DOM");
+        return;
+    }
 
-    // Charger les conseils depuis la source appropriée
+    // Charger les conseils
     let allConseils = [];
     if (window.generatedConseils) {
         allConseils = window.generatedConseils;
@@ -1684,24 +1703,24 @@ async function displayConseils() {
         const data = await loadDataGeneric();
         allConseils = data?.conseils || [];
     }
+    console.log("Tous les conseils (bruts) :", allConseils);
 
-    // Plus de filtrage : on affiche tous les conseils
+    // Plus de filtrage
     const actifs = allConseils;
 
     if (actifs.length === 0) {
+        console.warn("Aucun conseil trouvé");
         container.innerHTML = '<div class="no-events">Aucun conseil disponible pour le moment.</div>';
         return;
     }
 
-    // Stocker les conseils pour les utiliser dans les modales
     window.conseilsData = actifs;
 
-    // --- Affichage de la liste horizontale (si le conteneur existe) ---
+    // Liste horizontale
     const horizontalContainer = document.getElementById('conseils-horizontal-list');
     if (horizontalContainer) {
         let hHtml = '';
         actifs.slice(0, 8).forEach((conseil, index) => {
-            // Nettoyer le titre (enlever le markdown)
             const title = escapeHtml(conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, ''));
             const imageUrl = escapeAttribute(conseil.image_url || 'assets/images/default-logo.png');
             hHtml += `<div class="horizontal-item" onclick="showConseilDetail(${index})">
@@ -1710,15 +1729,13 @@ async function displayConseils() {
             </div>`;
         });
         horizontalContainer.innerHTML = hHtml;
+        console.log("✅ Liste horizontale des conseils mise à jour");
     }
 
-    // --- Affichage de la grille principale ---
+    // Grille principale
     let html = '';
     actifs.forEach((conseil, index) => {
-        // Nettoyage du titre
         let cleanTitle = escapeHtml(conseil.title.replace(/#+\s*/g, '').replace(/\*\*/g, ''));
-
-        // Création d'un extrait (premiers 150 caractères)
         let excerpt = conseil.content.substring(0, 150) + '...';
         let cleanExcerpt = escapeHtml(
             excerpt
@@ -1728,7 +1745,6 @@ async function displayConseils() {
                 .replace(/\[|\]/g, '')
                 .substring(0, 120) + '...'
         );
-
         let imageUrl = escapeAttribute(conseil.image_url || 'assets/images/default-logo.png');
         let conseilDate = conseil.date ? new Date(conseil.date).toLocaleDateString('fr-FR') : '';
 
@@ -1743,6 +1759,7 @@ async function displayConseils() {
         `;
     });
     container.innerHTML = html;
+    console.log("✅ Grille des conseils affichée, " + actifs.length + " conseils");
 }
 
 window.showConseilDetail = function(index) {
