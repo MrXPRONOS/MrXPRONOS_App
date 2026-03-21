@@ -2,354 +2,130 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - Moteur de pronostics football (double chance) avec API V2
-Intègre les métriques avancées : Elo, xG, fatigue, piège bookmaker et score AI.
-Version améliorée avec poids dynamiques, value bet avancé, suspicion detection.
+generate_data.py - Moteur de pronostics football (double chance) avec rotation de clés API
+Intègre les métriques avancées : Elo, xG, fatigue, piège bookmaker, score AI,
+et Machine Learning auto-apprenant.
+Version améliorée avec poids dynamiques, value bet renforcé, score de suspicion, etc.
 """
 
 import os
-import sys
 import json
-import time
 import random
-import hashlib
-import requests
+import time
+import re
+import uuid
 from datetime import datetime, timedelta, timezone
 from math import exp, factorial
 from typing import Dict, List, Optional, Tuple, Any
 
-# =======================================================
-# CONFIGURATION
-# =======================================================
+# Import conditionnel pour éviter les erreurs si le module n'existe pas
+try:
+    from api_utils import make_request
+except ImportError:
+    # Fallback si api_utils n'est pas disponible
+    import requests
+    def make_request(method: str, url: str, **kwargs):
+        """Fallback request function"""
+        if method.upper() == 'GET':
+            return requests.get(url, **kwargs)
+        elif method.upper() == 'POST':
+            return requests.post(url, **kwargs)
+        else:
+            raise ValueError(f"Unsupported method: {method}")
 
-# Récupération des clés API (rotation)
-API_KEYS = []
-for i in range(1, 6):
-    key = os.environ.get(f"SPORTDATA_API_KEY_{i}")
-    if key:
-        API_KEYS.append(key)
-if not API_KEYS:
-    single_key = os.environ.get("SPORTDATA_API_KEY")
-    if single_key:
-        API_KEYS = [single_key]
-    else:
-        raise ValueError("Aucune clé API trouvée. Définissez SPORTDATA_API_KEY_1..5 ou SPORTDATA_API_KEY")
+# Import du modèle ML s'il existe
+try:
+    from ml_model import load_model, predict_proba
+    ml_model = load_model()
+except (ImportError, Exception):
+    ml_model = None
 
-# API V2
-V2_BASE = "https://v2.football.sportsapipro.com"
+# =======================================================
+# CONFIGURATION GÉNÉRALE
+# =======================================================
+SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
+PREDICTIONS_URL = "https://v1.football.sportsapipro.com/games/predictions"
+
+today = datetime.now().date()
+tomorrow = today + timedelta(days=1)
+yesterday = today - timedelta(days=1)
+
+DATA_FILE = "data.json"
 CACHE_DIR = "cache"
-os.makedirs(CACHE_DIR, exist_ok=True)
+GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
+LOGOS_DIR = "assets/images/logos"
+COMPETITION_LOGOS_DIR = os.path.join(LOGOS_DIR, "competitions")
 
-# Paramètres
+# Création des répertoires
+try:
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    os.makedirs(LOGOS_DIR, exist_ok=True)
+    os.makedirs(COMPETITION_LOGOS_DIR, exist_ok=True)
+except OSError as e:
+    print(f"❌ Erreur création répertoires: {e}")
+    raise
+
 HOME_ADVANTAGE = 0.1
 CONFIDENCE_THRESHOLD = 50
 GOAL_DIFF_THRESHOLD = 0.1
 XPRONOS_THRESHOLD = 35
 DOMINANCE_THRESHOLD = 0.4
-BET_SCORE_THRESHOLD = 55  # seuil pour accepter un match
 
-BAD_LEAGUES = ["friendly", "u21", "u19", "women", "reserve", "youth", "amateur"]
+# Liste des ligues à ignorer
+BAD_LEAGUES = [
+    "friendly",
+    "u21",
+    "u19",
+    "women",
+    "reserve",
+    "youth",
+    "amateur"
+]
 
-# =======================================================
-# FONCTIONS DE CACHE ET REQUÊTES
-# =======================================================
+def is_bad_league(name: str) -> bool:
+    """Vérifie si une ligue doit être ignorée"""
+    if not name:
+        return False
+    name = name.lower()
+    return any(b in name for b in BAD_LEAGUES)
 
-def cache_get(key: str):
-    """Récupère une entrée du cache local."""
-    path = os.path.join(CACHE_DIR, f"{key}.json")
-    if os.path.exists(path):
-        try:
-            with open(path, 'r') as f:
-                return json.load(f)
-        except:
-            pass
-    return None
+print("=" * 60)
+print(f"🚀 GÉNÉRATION DES PRONOSTICS (DOUBLE CHANCE UNIQUEMENT) - {today}")
+print("=" * 60)
 
-def cache_set(key: str, data):
-    """Enregistre une entrée dans le cache local."""
-    path = os.path.join(CACHE_DIR, f"{key}.json")
-    with open(path, 'w') as f:
-        json.dump(data, f)
-
-def make_request_v2(endpoint: str, params: dict = None, use_cache: bool = True, max_retries: int = 3):
-    """
-    Effectue une requête vers l'API V2 avec rotation de clés, retry et cache.
-    endpoint: chemin complet après la base (ex: /api/live)
-    """
-    url = f"{V2_BASE}{endpoint}"
-    if params:
-        # Construction de la query string
-        query = "&".join(f"{k}={v}" for k, v in params.items())
-        url = f"{url}?{query}"
-
-    # Clé de cache (basée sur endpoint + paramètres)
-    cache_key = endpoint.replace('/', '_') + (f"_{hash(str(params))}" if params else "")
-    if use_cache:
-        cached = cache_get(cache_key)
-        if cached:
-            return cached
-
-    for attempt in range(max_retries):
-        # Rotation des clés
-        api_key = API_KEYS[attempt % len(API_KEYS)]
-        headers = {"x-api-key": api_key}
-        try:
-            resp = requests.get(url, headers=headers, timeout=15)
-            if resp.status_code == 200:
-                data = resp.json()
-                if use_cache:
-                    cache_set(cache_key, data)
-                return data
-            else:
-                print(f"⚠️ V2 {endpoint}: erreur {resp.status_code} avec clé {api_key[:8]}...")
-        except Exception as e:
-            print(f"⚠️ V2 {endpoint}: tentative {attempt+1}/{max_retries} échouée: {e}")
-            time.sleep(1)
-    raise Exception(f"Impossible d'appeler V2 {endpoint} après {max_retries} tentatives")
 
 # =======================================================
-# DÉCOUVERTE DES IDS (avec cache)
-# =======================================================
-
-def search_entity(query: str, entity_type: str):
-    """
-    Recherche un ID par nom via /api/search.
-    entity_type: 'teams', 'players', 'tournaments'
-    Retourne le premier ID trouvé, ou None.
-    """
-    data = make_request_v2("/api/search", params={"q": query})
-    for item in data.get(entity_type, []):
-        if item["name"].lower() == query.lower():
-            return item["id"]
-    # Fallback: premier résultat
-    if data.get(entity_type):
-        return data[entity_type][0]["id"]
-    return None
-
-def get_team_id(team_name: str) -> Optional[int]:
-    """Retourne l'ID d'une équipe via cache."""
-    cache_key = f"team_id_{team_name}"
-    cached = cache_get(cache_key)
-    if cached:
-        return cached
-    team_id = search_entity(team_name, "teams")
-    if team_id:
-        cache_set(cache_key, team_id)
-    return team_id
-
-def get_tournament_id(league_name: str) -> Optional[int]:
-    """Retourne l'ID d'une compétition."""
-    cache_key = f"tournament_id_{league_name}"
-    cached = cache_get(cache_key)
-    if cached:
-        return cached
-    tourn_id = search_entity(league_name, "tournaments")
-    if tourn_id:
-        cache_set(cache_key, tourn_id)
-    return tourn_id
-
-def get_current_season(tournament_id: int) -> Optional[int]:
-    """
-    Récupère l'ID de la saison en cours pour un tournoi.
-    """
-    cache_key = f"season_{tournament_id}"
-    cached = cache_get(cache_key)
-    if cached:
-        return cached
-    try:
-        data = make_request_v2(f"/api/tournaments/{tournament_id}/seasons")
-        seasons = data.get("seasons", [])
-        if not seasons:
-            return None
-        # Trouver la saison en cours (celle qui n'est pas terminée)
-        today = datetime.now().date()
-        for s in seasons:
-            start = datetime.fromisoformat(s.get("start", "")).date() if s.get("start") else None
-            end = datetime.fromisoformat(s.get("end", "")).date() if s.get("end") else None
-            if start and end and start <= today <= end:
-                season_id = s["id"]
-                cache_set(cache_key, season_id)
-                return season_id
-        # Fallback: première saison
-        season_id = seasons[0]["id"]
-        cache_set(cache_key, season_id)
-        return season_id
-    except Exception as e:
-        print(f"⚠️ Erreur récupération saison pour {tournament_id}: {e}")
-        return None
-
-# =======================================================
-# RÉCUPÉRATION DES MATCHS VIA V2
-# =======================================================
-
-def fetch_games_v2(date_from: datetime, date_to: datetime) -> List[dict]:
-    """
-    Récupère les matchs pour une plage de dates via l'API V2.
-    Utilise l'endpoint /api/schedule/{date}.
-    """
-    games = []
-    current = date_from
-    while current <= date_to:
-        date_str = current.strftime("%Y-%m-%d")
-        try:
-            data = make_request_v2(f"/api/schedule/{date_str}")
-            games.extend(data.get("events", []))
-        except Exception as e:
-            print(f"❌ Erreur V2 pour {date_str}: {e}")
-        current += timedelta(days=1)
-    return games
-
-def extract_game_info_v2(game: dict) -> dict:
-    """Extrait les informations de base d'un match V2."""
-    home = game.get("homeTeam", {})
-    away = game.get("awayTeam", {})
-    tournament = game.get("tournament", {})
-    start_time = game.get("startTime") or game.get("start_time")
-    home_score = home.get("score")
-    away_score = away.get("score")
-    if home_score == -1: home_score = None
-    if away_score == -1: away_score = None
-    status = game.get("statusText", "")
-    is_finished = status.lower() in ("finished", "terminé", "ended")
-    return {
-        "id": str(game["id"]),
-        "start_time": start_time,
-        "date": start_time[:10] if start_time else "",
-        "home_team": home.get("name", ""),
-        "away_team": away.get("name", ""),
-        "home_team_id": home.get("id"),
-        "away_team_id": away.get("id"),
-        "competition": tournament.get("name", ""),
-        "competition_id": tournament.get("id"),
-        "home_score": home_score,
-        "away_score": away_score,
-        "status": status,
-        "is_finished": is_finished,
-        "odds": extract_odds_v2(game.get("odds", {})),
-        "live_stats": extract_live_stats_v2(game),
-    }
-
-def extract_odds_v2(odds_data: dict) -> Optional[dict]:
-    """
-    Extrait les cotes 1X2 depuis la structure V2.
-    """
-    # Exemple: odds_data peut contenir "pre_match", "live", etc.
-    pre = odds_data.get("pre_match", {})
-    markets = pre.get("markets", [])
-    for market in markets:
-        if market.get("name") == "Match Winner" or market.get("type") == 1:
-            outcomes = market.get("outcomes", [])
-            odds = {}
-            for o in outcomes:
-                if o.get("name") == "Home":
-                    odds["home"] = o.get("decimal")
-                elif o.get("name") == "Draw":
-                    odds["draw"] = o.get("decimal")
-                elif o.get("name") == "Away":
-                    odds["away"] = o.get("decimal")
-            if odds:
-                return odds
-    return None
-
-def extract_live_stats_v2(game: dict) -> dict:
-    """
-    Extrait les statistiques live (si disponibles) de la réponse V2.
-    """
-    # Les stats live sont souvent dans "live" -> "statistics"
-    live = game.get("live", {})
-    stats = live.get("statistics", {})
-    # Structure attendue: { "home": {...}, "away": {...} }
-    return stats
-
-# =======================================================
-# RÉCUPÉRATION DES DONNÉES DE FORME
-# =======================================================
-
-def get_team_form_v2(team_id: int, tournament_id: int, season_id: int, max_games: int = 5) -> Optional[dict]:
-    """
-    Récupère les résultats récents d'une équipe via V2 (endpoint events/last).
-    Retourne un dictionnaire similaire à l'ancien format.
-    """
-    try:
-        data = make_request_v2(f"/api/teams/{team_id}/events/last/0")
-        events = data.get("events", [])[:max_games]
-        if not events:
-            return None
-        wins = draws = losses = 0.0
-        goals_for = goals_against = 0.0
-        for ev in events:
-            home = ev.get("homeTeam", {})
-            away = ev.get("awayTeam", {})
-            home_score = home.get("score")
-            away_score = away.get("score")
-            if home_score is None or away_score is None:
-                continue
-            if ev.get("status") == "finished":
-                if home.get("id") == team_id:
-                    gf = home_score
-                    ga = away_score
-                else:
-                    gf = away_score
-                    ga = home_score
-                goals_for += gf
-                goals_against += ga
-                if gf > ga:
-                    wins += 1
-                elif gf == ga:
-                    draws += 1
-                else:
-                    losses += 1
-        total = wins + draws + losses
-        if total == 0:
-            return None
-        form_score = (wins * 3 + draws) / (total * 3)
-        return {
-            "wins": wins / total,
-            "draws": draws / total,
-            "losses": losses / total,
-            "goals_for": goals_for / total,
-            "goals_against": goals_against / total,
-            "form_score": form_score,
-            "matches_used": total
-        }
-    except Exception as e:
-        print(f"⚠️ Erreur forme équipe {team_id}: {e}")
-        return None
-
-# =======================================================
-# RÉCUPÉRATION DE L'HISTORIQUE H2H
-# =======================================================
-
-def get_h2h_v2(match_id: int) -> List[dict]:
-    """
-    Récupère l'historique des confrontations directes via V2.
-    Retourne une liste de matchs (format libre).
-    """
-    try:
-        data = make_request_v2(f"/api/match/{match_id}/h2h")
-        return data.get("matches", [])
-    except:
-        return []
-
-# =======================================================
-# FONCTIONS DE CALCUL (inchangées mais utilisées avec les nouvelles données)
+# FONCTIONS UTILITAIRES DE ROBUSTESSE
 # =======================================================
 
 def safe_division(numerator: float, denominator: float, default: float = 0.0) -> float:
+    """Division sécurisée évitant la division par zéro"""
     if denominator == 0 or denominator is None:
         return default
     return numerator / denominator
 
+
+def safe_get(dictionary: dict, key: str, default=None):
+    """Récupération sécurisée avec valeur par défaut"""
+    if dictionary is None:
+        return default
+    return dictionary.get(key, default)
+
+
 def parse_datetime_safe(date_str: str) -> Optional[datetime]:
+    """Parse une date ISO de manière sécurisée et retourne toujours une date naive (sans timezone)"""
     if not date_str:
         return None
     try:
+        # Gestion des formats avec et sans timezone
         if 'Z' in date_str:
             dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
         elif '+' in date_str or (date_str.count('-') > 2 and 'T' in date_str):
             dt = datetime.fromisoformat(date_str)
         else:
             return datetime.fromisoformat(date_str)
+        
+        # Convertir en datetime naive (sans timezone) pour comparaison
         if dt.tzinfo is not None:
             dt = dt.replace(tzinfo=None)
         return dt
@@ -357,37 +133,225 @@ def parse_datetime_safe(date_str: str) -> Optional[datetime]:
         print(f"⚠️ Erreur parsing date {date_str}: {e}")
         return None
 
+
 def get_now_naive() -> datetime:
+    """Retourne la date/heure actuelle sans timezone (naive)"""
     return datetime.now()
 
-def weight_by_date(date_str: str) -> float:
-    try:
-        match_date = parse_datetime_safe(date_str)
-        if match_date is None:
-            return 1.0
-        now = get_now_naive()
-        days_old = (now - match_date).days
-        if days_old < 180:
-            return 1.5
-        elif days_old < 365:
-            return 1.2
-        else:
-            return 1.0
-    except:
-        return 1.0
 
-def competition_weight(competition: str) -> float:
-    if not competition:
-        return 1.0
-    comp_lower = competition.lower()
-    if "friendly" in comp_lower:
-        return 0.5
-    if "cup" in comp_lower or "playoff" in comp_lower:
-        return 1.3
-    return 1.0
+# =======================================================
+# FONCTIONS DE TÉLÉCHARGEMENT DES LOGOS (inchangées)
+# =======================================================
+
+def get_competitor_logo_url(competitor_id: str, image_version: Optional[str] = None) -> str:
+    base_url = "https://v1.football.sportsapipro.com/images/competitors"
+    if image_version:
+        return f"{base_url}/{competitor_id}?imageVersion={image_version}"
+    return f"{base_url}/{competitor_id}"
+
+
+def download_logo(competitor_id: str, image_version: Optional[str] = None, 
+                  max_retries: int = 3) -> Optional[str]:
+    if not competitor_id:
+        return None
+    filename = f"competitor_{competitor_id}.png"
+    filepath = os.path.join(LOGOS_DIR, filename)
+    rel_path = f"assets/images/logos/{filename}"
+
+    if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+        return rel_path
+
+    url = get_competitor_logo_url(competitor_id, image_version)
+    
+    for attempt in range(max_retries):
+        try:
+            resp = make_request('GET', url, timeout=10)
+            if resp.status_code == 200 and len(resp.content) > 0:
+                with open(filepath, 'wb') as f:
+                    f.write(resp.content)
+                print(f"✅ Logo téléchargé : {competitor_id}")
+                return rel_path
+        except Exception as e:
+            print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo {competitor_id}: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(1)
+    return None
+
+
+def get_competition_logo_url(competition_id: str, image_version: Optional[str] = None) -> str:
+    base_url = "https://v1.football.sportsapipro.com/images/competitions"
+    if image_version:
+        return f"{base_url}/{competition_id}?imageVersion={image_version}"
+    return f"{base_url}/{competition_id}"
+
+
+def download_competition_logo(competition_id: str, image_version: Optional[str] = None,
+                              max_retries: int = 3) -> Optional[str]:
+    if not competition_id:
+        return None
+    filename = f"competition_{competition_id}.png"
+    filepath = os.path.join(COMPETITION_LOGOS_DIR, filename)
+    rel_path = f"assets/images/logos/competitions/{filename}"
+
+    if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+        return rel_path
+
+    url = get_competition_logo_url(competition_id, image_version)
+    
+    for attempt in range(max_retries):
+        try:
+            resp = make_request('GET', url, timeout=10)
+            if resp.status_code == 200 and len(resp.content) > 0:
+                with open(filepath, 'wb') as f:
+                    f.write(resp.content)
+                print(f"✅ Logo compétition téléchargé : {competition_id}")
+                return rel_path
+        except Exception as e:
+            print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo compétition {competition_id}: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(1)
+    return None
+
+
+# =======================================================
+# FONCTIONS DE RÉCUPÉRATION DES DONNÉES
+# =======================================================
+
+def fetch_games_with_comps(date_from: datetime, date_to: datetime, 
+                           max_retries: int = 3) -> Tuple[List[dict], List[dict]]:
+    """Récupère les matchs et compétitions pour une plage de dates"""
+    params = {
+        "startDate": date_from.strftime("%d/%m/%Y"),
+        "endDate": date_to.strftime("%d/%m/%Y"),
+        "sports": 1,
+        "showOdds": "true",
+        "onlyMajorGames": "false"
+    }
+    
+    for attempt in range(max_retries):
+        try:
+            resp = make_request('GET', SPORTDATA_URL, params=params, timeout=30)
+            if resp is None:
+                continue
+            resp.raise_for_status()
+            data = resp.json()
+            if not isinstance(data, dict):
+                print(f"❌ Format de réponse invalide: {type(data)}")
+                return [], []
+            games = data.get("games", [])
+            competitions = data.get("competitions", [])
+            if not isinstance(games, list) or not isinstance(competitions, list):
+                print("❌ Format des données invalide")
+                return [], []
+            return games, competitions
+        except Exception as e:
+            print(f"❌ Erreur SportData (tentative {attempt + 1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                time.sleep(2)
+    return [], []
+
+
+def fetch_predictions(game_id: str, max_retries: int = 3) -> Optional[dict]:
+    """Récupère les votes publics pour un match"""
+    if not game_id:
+        return None
+    params = {"gameId": game_id}
+    for attempt in range(max_retries):
+        try:
+            resp = make_request('GET', PREDICTIONS_URL, params=params, timeout=10)
+            if resp and resp.status_code == 200:
+                data = resp.json()
+                games = data.get("games", [])
+                if games and isinstance(games, list):
+                    game_data = games[0]
+                    if isinstance(game_data, dict):
+                        promoted = game_data.get("promotedPredictions", {})
+                        predictions = promoted.get("predictions", [])
+                        for pred in predictions:
+                            if pred.get("type") == 1:
+                                return pred
+            return None
+        except Exception as e:
+            print(f"⚠️ Erreur récupération votes match {game_id} (tentative {attempt + 1}): {e}")
+            if attempt < max_retries - 1:
+                time.sleep(1)
+    return None
+
+
+def extract_game_info(game: dict, comp_image_map: dict) -> Optional[dict]:
+    """Extrait les informations de base d'un match"""
+    if not isinstance(game, dict):
+        return None
+    try:
+        start_time = game.get("start_time") or game.get("startTime", "")
+        competition = game.get("competitionDisplayName", "")
+        competition_id = game.get("competitionId")
+        competition_image_version = comp_image_map.get(competition_id) if competition_id else None
+
+        home = game.get("homeCompetitor", {}) or {}
+        away = game.get("awayCompetitor", {}) or {}
+        
+        home_score = home.get("score")
+        away_score = away.get("score")
+        if home_score == -1 or home_score is None:
+            home_score = None
+        if away_score == -1 or away_score is None:
+            away_score = None
+
+        odds_data = game.get("odds")
+        odds = None
+        if odds_data and isinstance(odds_data, dict):
+            options = odds_data.get("options", [])
+            if isinstance(options, list):
+                cotes = {}
+                for opt in options:
+                    if isinstance(opt, dict):
+                        num = opt.get("num")
+                        rate = opt.get("rate", {}) or {}
+                        decimal = rate.get("decimal")
+                        if num == 1 and decimal:
+                            cotes["home"] = float(decimal)
+                        elif num == 2 and decimal:
+                            cotes["draw"] = float(decimal)
+                        elif num == 3 and decimal:
+                            cotes["away"] = float(decimal)
+                if cotes:
+                    odds = cotes
+
+        return {
+            "id": str(game.get("id", "")),
+            "start_time": start_time,
+            "date": start_time[:10] if start_time else "",
+            "home_team": str(home.get("name", "")),
+            "away_team": str(away.get("name", "")),
+            "home_competitor_id": str(home.get("id", "")) if home.get("id") else None,
+            "away_competitor_id": str(away.get("id", "")) if away.get("id") else None,
+            "home_image_version": home.get("imageVersion"),
+            "away_image_version": away.get("imageVersion"),
+            "competition": str(competition),
+            "competition_id": str(competition_id) if competition_id else None,
+            "competition_image_version": competition_image_version,
+            "home_score": home_score,
+            "away_score": away_score,
+            "status_group": game.get("statusGroup"),
+            "status_text": game.get("statusText", ""),
+            "is_finished": (game.get("statusGroup") == 4),
+            "odds": odds
+        }
+    except Exception as e:
+        print(f"❌ Erreur extraction info match: {e}")
+        return None
+
+
+# =======================================================
+# FONCTIONS D'ANALYSE DE LA FORME
+# =======================================================
 
 def build_team_history(historical: List[dict]) -> dict:
+    """Construit l'historique des matchs par équipe"""
     team_matches = {}
+    if not isinstance(historical, list):
+        return team_matches
     for m in historical:
         if not isinstance(m, dict):
             continue
@@ -411,7 +375,10 @@ def build_team_history(historical: List[dict]) -> dict:
         team_matches[team].sort(key=lambda x: x[0], reverse=True)
     return team_matches
 
-def get_team_form(team: str, team_matches: dict, last_games: int = 5, max_days: int = 365) -> Optional[dict]:
+
+def get_team_form(team: str, team_matches: dict, last_games: int = 5, 
+                  max_days: int = 365) -> Optional[dict]:
+    """Calcule la forme récente d'une équipe"""
     if not team or not isinstance(team_matches, dict):
         return None
     matches = team_matches.get(team, [])
@@ -430,36 +397,45 @@ def get_team_form(team: str, team_matches: dict, last_games: int = 5, max_days: 
             break
     if not recent:
         return None
+
     wins = draws = losses = 0.0
     goals_for = goals_against = 0.0
     total_weight = 0.0
+
     for i, (date, match, side) in enumerate(recent):
         weight = 1.5 ** (len(recent) - i - 1)
         total_weight += weight
+
         if side == "home":
             gf = match.get("home_score", 0) or 0
             ga = match.get("away_score", 0) or 0
         else:
             gf = match.get("away_score", 0) or 0
             ga = match.get("home_score", 0) or 0
+
         goals_for += gf * weight
         goals_against += ga * weight
+
         if gf > ga:
             wins += weight
         elif gf == ga:
             draws += weight
         else:
             losses += weight
+
     if total_weight == 0:
         return None
+
     wins_norm = wins / total_weight
     draws_norm = draws / total_weight
     losses_norm = losses / total_weight
     goals_for_norm = goals_for / total_weight
     goals_against_norm = goals_against / total_weight
+
     total_results = wins + draws + losses
     points_per_game = safe_division(wins * 3 + draws, total_results, 0)
     form_score = safe_division(points_per_game, 3, 0)
+
     return {
         "wins": round(wins_norm, 2),
         "draws": round(draws_norm, 2),
@@ -470,11 +446,93 @@ def get_team_form(team: str, team_matches: dict, last_games: int = 5, max_days: 
         "matches_used": len(recent)
     }
 
-def analyze_h2h(h2h_list: List[dict], current_home_team: str, current_away_team: str) -> dict:
+
+# =======================================================
+# FONCTIONS D'ANALYSE H2H
+# =======================================================
+
+def load_historical_matches() -> List[dict]:
+    """Charge les matchs historiques depuis le cache"""
+    if not os.path.exists(GLOBAL_CACHE_FILE):
+        print("⚠️ Fichier historique introuvable. Exécutez d'abord allmatches.py.")
+        return []
+    try:
+        with open(GLOBAL_CACHE_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                return data
+            else:
+                print("⚠️ Format historique invalide")
+                return []
+    except Exception as e:
+        print(f"❌ Erreur chargement historique: {e}")
+        return []
+
+
+def weight_by_date(date_str: str) -> float:
+    """Calcule le poids d'un match selon son ancienneté"""
+    try:
+        match_date = parse_datetime_safe(date_str)
+        if match_date is None:
+            return 1.0
+        now = get_now_naive()
+        days_old = (now - match_date).days
+        if days_old < 180:
+            return 1.5
+        elif days_old < 365:
+            return 1.2
+        else:
+            return 1.0
+    except:
+        return 1.0
+
+
+def competition_weight(competition: str) -> float:
+    """Calcule le poids selon le type de compétition"""
+    if not competition:
+        return 1.0
+    comp_lower = competition.lower()
+    if "friendly" in comp_lower:
+        return 0.5
+    if "cup" in comp_lower or "playoff" in comp_lower:
+        return 1.3
+    return 1.0
+
+
+def get_h2h(historical: List[dict], home_team: str, away_team: str, 
+            years: int = 2) -> List[dict]:
+    """Récupère l'historique H2H entre deux équipes"""
+    if not historical or not home_team or not away_team:
+        return []
+    cutoff_date = (datetime.now() - timedelta(days=365 * years)).date()
+    h2h = []
+    home_lower = home_team.lower()
+    away_lower = away_team.lower()
+    for m in historical:
+        if not isinstance(m, dict):
+            continue
+        m_home = (m.get("home_team") or "").lower()
+        m_away = (m.get("away_team") or "").lower()
+        if (m_home == home_lower and m_away == away_lower) or \
+           (m_home == away_lower and m_away == home_lower):
+            try:
+                match_date = parse_datetime_safe(m.get("start_time", ""))
+                if match_date and match_date.date() >= cutoff_date:
+                    h2h.append(m)
+            except:
+                continue
+    h2h.sort(key=lambda x: x.get("start_time", ""), reverse=True)
+    return h2h
+
+
+def analyze_h2h(h2h_list: List[dict], current_home_team: str, 
+                current_away_team: str) -> dict:
+    """Analyse les statistiques H2H"""
     home_score = 0.0
     away_score = 0.0
     draws_score = 0.0
     matches_count = 0
+
     if not h2h_list or not current_home_team or not current_away_team:
         return {
             "total_matches": 0,
@@ -485,7 +543,9 @@ def analyze_h2h(h2h_list: List[dict], current_home_team: str, current_away_team:
             "away_dominance": 0.0,
             "draw_rate": 0.0
         }
+
     current_home_lower = current_home_team.lower()
+    
     for match in h2h_list:
         if not isinstance(match, dict):
             continue
@@ -494,10 +554,12 @@ def analyze_h2h(h2h_list: List[dict], current_home_team: str, current_away_team:
         date_weight = weight_by_date(match.get("start_time", ""))
         comp_weight = competition_weight(match.get("competition", ""))
         weight = date_weight * comp_weight
+
         matches_count += 1
         home_s = match.get("home_score", 0)
         away_s = match.get("away_score", 0)
         match_home_team = (match.get("home_team") or "").lower()
+
         if home_s > away_s:
             if match_home_team == current_home_lower:
                 home_score += weight
@@ -510,6 +572,7 @@ def analyze_h2h(h2h_list: List[dict], current_home_team: str, current_away_team:
                 home_score += weight
         else:
             draws_score += weight
+
     total_weighted = home_score + away_score + draws_score
     return {
         "total_matches": matches_count,
@@ -521,32 +584,106 @@ def analyze_h2h(h2h_list: List[dict], current_home_team: str, current_away_team:
         "draw_rate": safe_division(draws_score, total_weighted, 0)
     }
 
-def poisson_probability(lambda_home: float, lambda_away: float, max_goals: int = 6) -> Tuple[float, float, float]:
-    lambda_home = max(0.1, float(lambda_home))
-    lambda_away = max(0.1, float(lambda_away))
-    p_home = 0.0
-    p_draw = 0.0
-    p_away = 0.0
-    try:
-        for i in range(max_goals + 1):
-            for j in range(max_goals + 1):
-                prob = (exp(-lambda_home) * (lambda_home ** i) / factorial(i)) * \
-                       (exp(-lambda_away) * (lambda_away ** j) / factorial(j))
-                if i > j:
-                    p_home += prob
-                elif i == j:
-                    p_draw += prob
-                else:
-                    p_away += prob
-    except (OverflowError, ValueError):
-        return 0.33, 0.34, 0.33
-    total = p_home + p_draw + p_away
-    if total > 0:
-        return p_home / total, p_draw / total, p_away / total
+
+def generate_prediction(analysis: dict, home_form: Optional[dict], 
+                       away_form: Optional[dict], league: str) -> dict:
+    """Génère la prédiction double chance"""
+    if not isinstance(analysis, dict):
+        analysis = {}
+    home_dom = analysis.get("home_dominance", 0) + HOME_ADVANTAGE
+    away_dom = analysis.get("away_dominance", 0)
+    seuil = DOMINANCE_THRESHOLD
+
+    if home_dom > away_dom + seuil:
+        double_chance = "1X"
+    elif away_dom > home_dom + seuil:
+        double_chance = "X2"
     else:
-        return 0.33, 0.34, 0.33
+        double_chance = "12"
+
+    confiance = 50
+    confiance += min(20, analysis.get("total_matches", 0) * 3)
+    if max(home_dom, away_dom) > 0.7:
+        confiance += 10
+
+    if home_form and away_form:
+        form_diff = abs(home_form.get("form_score", 0) - away_form.get("form_score", 0))
+        if form_diff > 0.2:
+            confiance += 5
+        if home_form.get("form_score", 0) > 0.7 and away_form.get("form_score", 0) < 0.4:
+            confiance += 5
+        attack_diff = home_form.get("goals_for", 0) - away_form.get("goals_for", 0)
+        if attack_diff > 0.8:
+            confiance += 5
+        defense_diff = away_form.get("goals_against", 0) - home_form.get("goals_against", 0)
+        if defense_diff > 0.8:
+            confiance += 5
+
+    # Réduction de confiance au lieu de skip pour certains filtres
+    if analysis.get("draw_rate", 0) > 0.45:
+        confiance -= 10
+    # dom_diff faible → pénalité
+    dom_diff = abs(analysis.get("home_dominance", 0) - analysis.get("away_dominance", 0))
+    if dom_diff < 0.15:
+        confiance -= 5
+    # goal_diff faible → pénalité
+    if home_form and away_form:
+        goal_diff = abs(home_form.get("goals_for", 0) - away_form.get("goals_for", 0))
+        if goal_diff < GOAL_DIFF_THRESHOLD:
+            confiance -= 5
+
+    confiance = max(0, min(100, confiance))
+
+    return {
+        "double_chance": double_chance,
+        "confidence": confiance
+    }
+
+
+def calculate_xpronos_score(analysis: dict, home_form: Optional[dict], 
+                           away_form: Optional[dict], league: str) -> int:
+    """Calcule le score xPronos"""
+    if not isinstance(analysis, dict):
+        analysis = {}
+    score = 0
+    score += min(40, analysis.get("total_matches", 0) * 6)
+    dominance = max(analysis.get("home_dominance", 0), analysis.get("away_dominance", 0))
+    score += min(30, int(dominance * 100 * 0.5))
+    if home_form and away_form:
+        form_sum = home_form.get("form_score", 0) + away_form.get("form_score", 0)
+        score += min(20, int(form_sum * 10))
+    if analysis.get("draw_rate", 0) > 0.4:
+        score -= 10
+    return max(0, min(score, 100))
+
+
+def get_category(score: int) -> str:
+    """Détermine la catégorie selon le score"""
+    if score >= 50:
+        return "pro"
+    elif score >= 40:
+        return "pro"
+    else:
+        return "simple"
+
+
+def get_badge(score: int) -> str:
+    """Retourne le badge selon le score"""
+    if score >= 70:
+        return "🏆 PREMIUM LOCK"
+    elif score >= 60:
+        return "💎 VIP ELITE"
+    elif score >= 50:
+        return "🔥 ULTRA SAFE"
+    return ""
+
+
+# =======================================================
+# FONCTIONS DE CALCUL DE VALUE BET ET MODÈLE POISSON
+# =======================================================
 
 def normalize_odds(odds: dict) -> Optional[dict]:
+    """Normalise les cotes pour obtenir les probabilités sans marge"""
     if not odds or not isinstance(odds, dict):
         return None
     home = odds.get("home")
@@ -571,7 +708,9 @@ def normalize_odds(odds: dict) -> Optional[dict]:
         "away": prob_away / total
     }
 
+
 def estimate_dc_odds(odds: dict, double_chance: str, margin: float = 0.05) -> float:
+    """Estime la cote double chance à partir des cotes 1X2"""
     probs = normalize_odds(odds)
     if not probs:
         return 0.0
@@ -587,155 +726,123 @@ def estimate_dc_odds(odds: dict, double_chance: str, margin: float = 0.05) -> fl
         return 0.0
     return 1 / prob
 
-def dynamic_weights(h2h_count: int) -> Tuple[float, float, float]:
-    if h2h_count >= 5:
-        return 0.5, 0.3, 0.2
-    elif h2h_count >= 2:
-        return 0.3, 0.4, 0.3
-    else:
-        return 0.2, 0.5, 0.3
 
-# =======================================================
-# FONCTIONS DE PRÉDICTION
-# =======================================================
-
-def generate_prediction(analysis: dict, home_form: Optional[dict], away_form: Optional[dict], league: str) -> dict:
-    home_dom = analysis.get("home_dominance", 0) + HOME_ADVANTAGE
-    away_dom = analysis.get("away_dominance", 0)
-    seuil = DOMINANCE_THRESHOLD
-    if home_dom > away_dom + seuil:
-        double_chance = "1X"
-    elif away_dom > home_dom + seuil:
-        double_chance = "X2"
+def poisson_probability(lambda_home: float, lambda_away: float, 
+                       max_goals: int = 6) -> Tuple[float, float, float]:
+    """Calcule les probabilités selon le modèle de Poisson"""
+    lambda_home = max(0.1, float(lambda_home))
+    lambda_away = max(0.1, float(lambda_away))
+    p_home = 0.0
+    p_draw = 0.0
+    p_away = 0.0
+    try:
+        for i in range(max_goals + 1):
+            for j in range(max_goals + 1):
+                prob = (exp(-lambda_home) * (lambda_home ** i) / factorial(i)) * \
+                       (exp(-lambda_away) * (lambda_away ** j) / factorial(j))
+                if i > j:
+                    p_home += prob
+                elif i == j:
+                    p_draw += prob
+                else:
+                    p_away += prob
+    except (OverflowError, ValueError):
+        return 0.33, 0.34, 0.33
+    total = p_home + p_draw + p_away
+    if total > 0:
+        return p_home / total, p_draw / total, p_away / total
     else:
-        double_chance = "12"
-    confiance = 50
-    confiance += min(20, analysis.get("total_matches", 0) * 3)
-    if max(home_dom, away_dom) > 0.7:
-        confiance += 10
-    if home_form and away_form:
-        form_diff = abs(home_form.get("form_score", 0) - away_form.get("form_score", 0))
-        if form_diff > 0.2:
-            confiance += 5
-        if home_form.get("form_score", 0) > 0.7 and away_form.get("form_score", 0) < 0.4:
-            confiance += 5
-        attack_diff = home_form.get("goals_for", 0) - away_form.get("goals_for", 0)
-        if attack_diff > 0.8:
-            confiance += 5
-        defense_diff = away_form.get("goals_against", 0) - home_form.get("goals_against", 0)
-        if defense_diff > 0.8:
-            confiance += 5
-    if analysis.get("draw_rate", 0) > 0.4:
-        confiance -= 10
-    confiance = max(0, min(100, confiance))
-    return {
-        "double_chance": double_chance,
-        "confidence": confiance
+        return 0.33, 0.34, 0.33
+
+
+def estimate_odds(category: str, double_chance: str) -> float:
+    """Estime une cote moyenne pour le double chance selon la catégorie"""
+    odds_map = {
+        "vip": {"1X": 1.25, "X2": 1.35, "12": 1.30},
+        "pro": {"1X": 1.35, "X2": 1.45, "12": 1.40},
+        "simple": {"1X": 1.45, "X2": 1.60, "12": 1.50}
     }
+    cat_odds = odds_map.get(category, odds_map["simple"])
+    return cat_odds.get(double_chance, 1.40)
 
-def calculate_xpronos_score(analysis: dict, home_form: Optional[dict], away_form: Optional[dict], league: str) -> int:
-    score = 0
-    score += min(40, analysis.get("total_matches", 0) * 6)
-    dominance = max(analysis.get("home_dominance", 0), analysis.get("away_dominance", 0))
-    score += min(30, int(dominance * 100 * 0.5))
-    if home_form and away_form:
-        form_sum = home_form.get("form_score", 0) + away_form.get("form_score", 0)
-        score += min(20, int(form_sum * 10))
-    if analysis.get("draw_rate", 0) > 0.4:
-        score -= 10
-    return max(0, min(score, 100))
-
-def get_category(score: int) -> str:
-    if score >= 50:
-        return "pro"
-    elif score >= 40:
-        return "pro"
-    else:
-        return "simple"
-
-def get_badge(score: int) -> str:
-    if score >= 70:
-        return "🏆 PREMIUM LOCK"
-    elif score >= 60:
-        return "💎 VIP ELITE"
-    elif score >= 50:
-        return "🔥 ULTRA SAFE"
-    return ""
-
-def is_bad_league(name: str) -> bool:
-    if not name:
-        return False
-    name = name.lower()
-    return any(b in name for b in BAD_LEAGUES)
 
 # =======================================================
 # FONCTION PRINCIPALE
 # =======================================================
 
 def main():
-    today = datetime.now().date()
-    tomorrow = today + timedelta(days=1)
-    yesterday = today - timedelta(days=1)
-
-    DATA_FILE = "data.json"
-
-    print("="*60)
-    print(f"🚀 GÉNÉRATION DES PRONOSTICS (DOUBLE CHANCE) - {today}")
-    print("="*60)
-
-    # 1. Charger les matchs via V2
-    print("\n📅 Récupération des matchs via API V2...")
-    games_today = fetch_games_v2(today, today)
-    games_tomorrow = fetch_games_v2(tomorrow, tomorrow)
-    games_yesterday = fetch_games_v2(yesterday, yesterday)
-    all_new_games = games_today + games_tomorrow + games_yesterday
-
-    # Extraire les infos de base
-    new_infos = {}
-    for g in all_new_games:
-        info = extract_game_info_v2(g)
-        if info and info.get("id"):
-            new_infos[info["id"]] = info
-
-    print(f"✅ {len(new_infos)} matchs récupérés")
-
-    # 2. Charger l'historique H2H (à partir du cache historique local)
-    #    Pour simplifier, on va utiliser un fichier global d'historique (all_matches.json)
-    #    Ici on suppose qu'il existe déjà (généré par un script séparé)
-    historical = []
-    try:
-        with open("cache/all_matches.json", "r") as f:
-            historical = json.load(f)
-        print(f"📂 Historique chargé : {len(historical)} matchs")
-    except:
-        print("⚠️ Aucun historique trouvé, les H2H seront basés sur les matchs récents.")
-
-    team_matches = build_team_history(historical)
-
-    # 3. Charger l'existant pour conserver les données non modifiées
-    existing_data = {"matches": [], "categories": {"simple": [], "pro": [], "vip": []}, "stats": {}, "bookmakers": []}
+    # 1. Charger l'existant
+    existing_data = {"matches": [], "categories": {"simple": [], "pro": [], "vip": []}, 
+                     "stats": {}, "bookmakers": []}
     existing_matches = {}
     if os.path.exists(DATA_FILE):
         try:
-            with open(DATA_FILE, 'r') as f:
+            with open(DATA_FILE, 'r', encoding='utf-8') as f:
                 loaded = json.load(f)
-                existing_data = loaded
-                existing_matches = {str(m.get("id", "")): m for m in loaded.get("matches", [])}
-        except:
-            pass
+                if isinstance(loaded, dict):
+                    existing_data = loaded
+                    existing_matches = {str(m.get("id", "")): m 
+                                       for m in loaded.get("matches", []) if isinstance(m, dict)}
+        except Exception as e:
+            print(f"❌ Erreur chargement fichier existant: {e}")
 
+    # 2. Récupérer les matchs
+    print("\n📅 Récupération des matchs via SportData...")
+    games_today, comps_today = fetch_games_with_comps(today, today)
+    games_tomorrow, comps_tomorrow = fetch_games_with_comps(tomorrow, tomorrow)
+    games_yesterday, comps_yesterday = fetch_games_with_comps(yesterday, yesterday)
+
+    all_new_games = (games_today or []) + (games_tomorrow or []) + (games_yesterday or [])
+    all_comps = {}
+    for comp in (comps_today or []) + (comps_tomorrow or []) + (comps_yesterday or []):
+        if isinstance(comp, dict) and comp.get("id"):
+            all_comps[comp["id"]] = comp
+    all_comps_list = list(all_comps.values())
+    comp_image_map = {}
+    for comp in all_comps_list:
+        comp_id = comp.get("id")
+        if comp_id:
+            comp_image_map[str(comp_id)] = comp.get("imageVersion")
+
+    print(f"✅ {len(all_new_games)} matchs récupérés, {len(all_comps_list)} compétitions uniques")
+
+    new_infos = {}
+    for g in all_new_games:
+        if isinstance(g, dict):
+            info = extract_game_info(g, comp_image_map)
+            if info and info.get("id"):
+                new_infos[info["id"]] = info
+
+    # 3. Charger l'historique H2H
+    historical = load_historical_matches()
+    print(f"📂 Historique chargé : {len(historical)} matchs")
+
+    # 4. Construire l'historique des équipes
+    team_matches = build_team_history(historical)
+    print(f"📊 Statistiques de forme calculées pour {len(team_matches)} équipes")
+
+    # 5. Préparer les nouvelles listes
     matches = []
     categories = {"simple": [], "pro": [], "vip": []}
+
+    all_ids = set(existing_matches.keys()) | set(new_infos.keys())
     total_processed = 0
     total_skipped = 0
 
-    all_ids = set(existing_matches.keys()) | set(new_infos.keys())
+    # Charger le modèle ML si disponible
+    global ml_model
+    if ml_model is None:
+        try:
+            from ml_model import load_model
+            ml_model = load_model()
+        except:
+            pass
 
     for gid in all_ids:
         total_processed += 1
         if gid not in new_infos:
             match = existing_matches.get(gid)
-            if match:
+            if match and isinstance(match, dict):
                 matches.append(match)
                 cat = match.get("category", "simple")
                 if cat in categories:
@@ -745,152 +852,167 @@ def main():
         base = new_infos[gid]
         existing = existing_matches.get(gid, {})
 
-        home_team = base.get("home_team", "")
-        away_team = base.get("away_team", "")
-        league = base.get("competition", "")
+        home_score = base.get("home_score")
+        if home_score is None:
+            home_score = existing.get("home_score") if isinstance(existing, dict) else None
+        away_score = base.get("away_score")
+        if away_score is None:
+            away_score = existing.get("away_score") if isinstance(existing, dict) else None
+        status = base.get("status_text") or (existing.get("status") if isinstance(existing, dict) else "")
 
-        # Filtre ligue
-        if is_bad_league(league):
-            print(f"⚠️ Match {home_team} vs {away_team} ignoré (ligue faible)")
+        if is_bad_league(base.get("competition", "")):
+            print(f"⚠️ Match {base.get('home_team', '')} vs {base.get('away_team', '')} ignoré (ligue faible)")
             total_skipped += 1
             continue
 
-        # Récupération des formes via V2 si possible
-        home_form = None
-        away_form = None
-        tournament_id = base.get("competition_id")
-        if tournament_id:
-            season_id = get_current_season(tournament_id)
-            if season_id:
-                home_id = base.get("home_team_id")
-                away_id = base.get("away_team_id")
-                if home_id:
-                    home_form = get_team_form_v2(home_id, tournament_id, season_id)
-                if away_id:
-                    away_form = get_team_form_v2(away_id, tournament_id, season_id)
-        # Fallback sur la forme locale
-        if not home_form or home_form.get("matches_used", 0) == 0:
-            home_form = get_team_form(home_team, team_matches, last_games=5)
-        if not away_form or away_form.get("matches_used", 0) == 0:
-            away_form = get_team_form(away_team, team_matches, last_games=5)
+        home_team = base.get("home_team", "")
+        away_team = base.get("away_team", "")
+        home_form = get_team_form(home_team, team_matches, last_games=5) if home_team else None
+        away_form = get_team_form(away_team, team_matches, last_games=5) if away_team else None
 
-        # Vérifier qu'on a au moins une forme
-        if (not home_form or home_form.get("matches_used", 0) == 0) and (not away_form or away_form.get("matches_used", 0) == 0):
+        form_valid = False
+        if home_form is not None or away_form is not None:
+            home_matches = home_form.get("matches_used", 0) if home_form else 0
+            away_matches = away_form.get("matches_used", 0) if away_form else 0
+            if home_matches > 0 or away_matches > 0:
+                form_valid = True
+        if not form_valid:
             print(f"⚠️ Match {home_team} vs {away_team} ignoré (forme insuffisante)")
             total_skipped += 1
             continue
 
-        # H2H
-        h2h_list = get_h2h_v2(gid) if gid.isdigit() else []
+        h2h_list = get_h2h(historical, home_team, away_team, years=2)
         if len(h2h_list) >= 2:
             analysis = analyze_h2h(h2h_list, home_team, away_team)
         else:
-            # Fallback Poisson basé sur la forme
-            gf_h = home_form.get("goals_for", 1.2) if home_form else 1.2
-            ga_h = home_form.get("goals_against", 1.2) if home_form else 1.2
-            gf_a = away_form.get("goals_for", 1.2) if away_form else 1.2
-            ga_a = away_form.get("goals_against", 1.2) if away_form else 1.2
-            lambda_home = (gf_h * 1.1 + ga_a * 0.9) / 2
-            lambda_away = (gf_a * 0.9 + ga_h * 1.1) / 2
-            p_home, p_draw, p_away = poisson_probability(lambda_home, lambda_away)
-            analysis = {
-                "total_matches": 0,
-                "home_wins": 0,
-                "away_wins": 0,
-                "draws": 0,
-                "home_dominance": p_home,
-                "away_dominance": p_away,
-                "draw_rate": p_draw
-            }
+            # Fallback Poisson
+            home_matches = home_form.get("matches_used", 0) if home_form else 0
+            away_matches = away_form.get("matches_used", 0) if away_form else 0
+            if home_matches >= 2 and away_matches >= 2:
+                gf_h = home_form.get("goals_for", 1.2) if home_form else 1.2
+                ga_h = home_form.get("goals_against", 1.2) if home_form else 1.2
+                gf_a = away_form.get("goals_for", 1.2) if away_form else 1.2
+                ga_a = away_form.get("goals_against", 1.2) if away_form else 1.2
+                lambda_home = (gf_h * 1.1 + ga_a * 0.9) / 2
+                lambda_away = (gf_a * 0.9 + ga_h * 1.1) / 2
+                p_home, p_draw, p_away = poisson_probability(lambda_home, lambda_away)
+                analysis = {
+                    "total_matches": 0,
+                    "home_wins": 0,
+                    "away_wins": 0,
+                    "draws": 0,
+                    "home_dominance": p_home,
+                    "away_dominance": p_away,
+                    "draw_rate": p_draw
+                }
+            else:
+                print(f"⚠️ Match {home_team} vs {away_team} ignoré (H2H et forme insuffisants)")
+                total_skipped += 1
+                continue
 
-        # Filtre draw_rate (downgrade au lieu de skip)
-        if analysis.get("draw_rate", 0) > 0.45:
-            print(f"⚠️ Match {home_team} vs {away_team} draw_rate élevé -> baisse confiance")
-            # On continue mais on réduira la confiance plus tard
+        # ===== PRÉDICTION (avec réductions de confiance au lieu de skip) =====
+        prediction = generate_prediction(analysis, home_form, away_form, base.get("competition", ""))
 
-        # Différence de domination
-        dom_diff = abs(analysis.get("home_dominance", 0) - analysis.get("away_dominance", 0))
-        if dom_diff < 0.15:
-            print(f"⚠️ Match {home_team} vs {away_team} trop équilibré -> baisse confiance")
-            # On continue, la confiance sera ajustée
-
-        prediction = generate_prediction(analysis, home_form, away_form, league)
         if prediction.get("double_chance") == "12":
             print(f"   ⚠️ Pronostic 12 (match équilibré) ignoré")
             total_skipped += 1
             continue
 
-        # Ajustement confiance pour draw_rate élevé
-        if analysis.get("draw_rate", 0) > 0.45:
-            prediction["confidence"] = max(0, prediction["confidence"] - 10)
-
-        # Seuil confiance
+        # Filtre sur la confiance (peut encore skip si trop bas)
         if prediction.get("confidence", 0) < CONFIDENCE_THRESHOLD:
             print(f"⚠️ Match {home_team} vs {away_team} ignoré (confiance insuffisante)")
             total_skipped += 1
             continue
 
-        # Filtre sur les cotes (value bet amélioré)
+        # Filtre temporel (inchangé)
+        try:
+            match_time_str = base.get("start_time", "")
+            if match_time_str:
+                match_time = parse_datetime_safe(match_time_str)
+                if match_time:
+                    now = get_now_naive()
+                    time_diff = (match_time - now).total_seconds()
+                    if 0 < time_diff < 1800:
+                        print(f"⚠️ Match {home_team} vs {away_team} ignoré (trop proche)")
+                        total_skipped += 1
+                        continue
+        except Exception as e:
+            print(f"⚠️ Erreur vérification temps match: {e}")
+
+        # Filtre anti-surprise : écart de cotes
         odds = base.get("odds")
-        value_bet = False
-        if odds:
-            dc = prediction.get("double_chance", "")
-            home_dom = analysis.get("home_dominance", 0) + HOME_ADVANTAGE
-            away_dom = analysis.get("away_dominance", 0)
-            draw_rate = analysis.get("draw_rate", 0)
-            if dc == "1X":
-                our_prob = (home_dom * 0.6) + (draw_rate * 0.4)
-                if home_form and away_form:
-                    form_diff = home_form.get("form_score", 0) - away_form.get("form_score", 0)
-                    our_prob += max(0, form_diff * 0.2)
-            elif dc == "X2":
-                our_prob = (away_dom * 0.6) + (draw_rate * 0.4)
-                if home_form and away_form:
-                    form_diff = home_form.get("form_score", 0) - away_form.get("form_score", 0)
-                    our_prob += max(0, -form_diff * 0.2)
-            else:
-                our_prob = 0
-            our_prob = min(our_prob, 0.95)
-            dc_odds = estimate_dc_odds(odds, dc)
-            if dc_odds > 0:
-                book_prob = 1 / dc_odds
-                edge = our_prob - book_prob
-                if edge > 0.03:
-                    value_bet = True
-                elif edge > 0:
-                    value_bet = "weak"
-                else:
-                    value_bet = False
+        if odds and isinstance(odds, dict):
+            home_odd = odds.get("home")
+            away_odd = odds.get("away")
+            if home_odd and away_odd:
+                if abs(float(home_odd) - float(away_odd)) > 3:
+                    print(f"⚠️ Match {home_team} vs {away_team} ignoré (écart de cotes trop grand)")
+                    total_skipped += 1
+                    continue
 
-        # Score xPronos
-        score = calculate_xpronos_score(analysis, home_form, away_form, league)
-        category = get_category(score)
-        badge = get_badge(score)
+        # Récupération des votes publics
+        public_votes = None
+        votes = fetch_predictions(gid)
+        if votes and isinstance(votes, dict):
+            options = votes.get("options", [])
+            if isinstance(options, list):
+                vote_dict = {}
+                for opt in options:
+                    if isinstance(opt, dict):
+                        num = opt.get("num")
+                        vote_data = opt.get("vote", {}) or {}
+                        percentage = vote_data.get("percentage")
+                        if num == 1:
+                            vote_dict["home"] = percentage
+                        elif num == 2:
+                            vote_dict["draw"] = percentage
+                        elif num == 3:
+                            vote_dict["away"] = percentage
+                if vote_dict:
+                    public_votes = vote_dict
 
-        if score < XPRONOS_THRESHOLD:
-            print(f"⚠️ Match {home_team} vs {away_team} ignoré (score xPronos {score})")
-            total_skipped += 1
-            continue
+        # ===== CALCUL DES MÉTRIQUES AVANCÉES =====
+        # 1. Elo rating
+        elo_base = 1500
+        elo_home = elo_base
+        elo_away = elo_base
+        if home_form:
+            elo_home = int(elo_base + (home_form.get("form_score", 0) * 200))
+        if away_form:
+            elo_away = int(elo_base + (away_form.get("form_score", 0) * 200))
 
-        # Mise à jour des champs avancés
-        elo_home = 1500 + int((home_form.get("form_score", 0) * 200) if home_form else 0)
-        elo_away = 1500 + int((away_form.get("form_score", 0) * 200) if away_form else 0)
-
-        # xG simplifié
+        # 2. xG estimé
+        xg_home = xg_away = 1.2
         if home_form and away_form:
-            xg_home = (home_form.get("goals_for", 1.2) * 1.1 + away_form.get("goals_against", 1.2) * 0.9) / 2
-            xg_away = (away_form.get("goals_for", 1.2) * 0.9 + home_form.get("goals_against", 1.2) * 1.1) / 2
-        else:
-            xg_home = xg_away = 1.2
+            gf_h = home_form.get("goals_for", 1.2)
+            ga_h = home_form.get("goals_against", 1.2)
+            gf_a = away_form.get("goals_for", 1.2)
+            ga_a = away_form.get("goals_against", 1.2)
+            xg_home = (gf_h * 1.1 + ga_a * 0.9) / 2
+            xg_away = (gf_a * 0.9 + ga_h * 1.1) / 2
 
+        # 3. Fatigue
         fatigue_home = home_form.get("matches_used", 0) if home_form else 0
         fatigue_away = away_form.get("matches_used", 0) if away_form else 0
 
-        # Ensemble probabilities avec poids dynamiques
+        # 4. Probabilités Poisson
+        if home_form and away_form:
+            gf_h = home_form.get("goals_for", 1.2)
+            ga_h = home_form.get("goals_against", 1.2)
+            gf_a = away_form.get("goals_for", 1.2)
+            ga_a = away_form.get("goals_against", 1.2)
+            lambda_home = (gf_h * 1.1 + ga_a * 0.9) / 2
+            lambda_away = (gf_a * 0.9 + ga_h * 1.1) / 2
+            p_home, p_draw, p_away = poisson_probability(lambda_home, lambda_away)
+            poisson_probs = {"home": round(p_home, 3), "draw": round(p_draw, 3), "away": round(p_away, 3)}
+        else:
+            poisson_probs = {"home": 0.33, "draw": 0.34, "away": 0.33}
+
+        # ===== MODÈLE ENSEMBLE AVEC POIDS DYNAMIQUES =====
         h2h_h = analysis.get("home_dominance", 0)
-        h2h_a = analysis.get("away_dominance", 0)
         h2h_d = analysis.get("draw_rate", 0)
-        poisson_h, poisson_d, poisson_a = poisson_probability(xg_home, xg_away) if home_form and away_form else (0.33,0.34,0.33)
+        h2h_a = analysis.get("away_dominance", 0)
+
         form_h = home_form.get("form_score", 0.5) if home_form else 0.5
         form_a = away_form.get("form_score", 0.5) if away_form else 0.5
         form_sum = form_h + form_a
@@ -902,15 +1024,21 @@ def main():
         form_d_norm = 1 - form_h_norm - form_a_norm
         if form_d_norm < 0:
             form_d_norm = 0
-            total = form_h_norm + form_a_norm
-            if total > 0:
-                form_h_norm /= total
-                form_a_norm /= total
 
-        w_h2h, w_poi, w_form = dynamic_weights(analysis.get("total_matches", 0))
-        ensemble_h = h2h_h * w_h2h + poisson_h * w_poi + form_h_norm * w_form
-        ensemble_d = h2h_d * w_h2h + poisson_d * w_poi + form_d_norm * w_form
-        ensemble_a = h2h_a * w_h2h + poisson_a * w_poi + form_a_norm * w_form
+        # Poids dynamiques selon le nombre de matchs H2H
+        h2h_count = len(h2h_list)
+        if h2h_count >= 5:
+            w_h2h, w_poi, w_form = 0.5, 0.3, 0.2
+        elif h2h_count >= 2:
+            w_h2h, w_poi, w_form = 0.3, 0.4, 0.3
+        else:
+            w_h2h, w_poi, w_form = 0.2, 0.5, 0.3
+
+        ensemble_h = (h2h_h * w_h2h) + (poisson_probs["home"] * w_poi) + (form_h_norm * w_form)
+        ensemble_d = (h2h_d * w_h2h) + (poisson_probs["draw"] * w_poi) + (form_d_norm * w_form)
+        ensemble_a = (h2h_a * w_h2h) + (poisson_probs["away"] * w_poi) + (form_a_norm * w_form)
+
+        # Normalisation
         total_ens = ensemble_h + ensemble_d + ensemble_a
         if total_ens < 0.0001:
             ensemble_h, ensemble_d, ensemble_a = 0.33, 0.34, 0.33
@@ -927,52 +1055,128 @@ def main():
         else:
             ensemble_prob_dc = ensemble_h + ensemble_a
 
-        # Détection de suspicion
+        # ===== VALUE BET AMÉLIORÉ =====
+        value_bet = False
+        value_bet_strength = None
+        if odds and isinstance(odds, dict):
+            our_prob = ensemble_prob_dc
+            dc_odds = estimate_dc_odds(odds, dc)
+            if dc_odds > 0:
+                book_prob = 1 / dc_odds
+                edge = our_prob - book_prob
+                if edge > 0.03:
+                    value_bet = True
+                    value_bet_strength = "strong"
+                elif edge > 0:
+                    value_bet = True
+                    value_bet_strength = "weak"
+                else:
+                    value_bet = False
+                    value_bet_strength = None
+
+        # ===== DÉTECTION DE PIÈGES (SUSPICION SCORE) =====
         suspicion_score = 0
-        # (pas de votes publics ici, mais on peut ajouter plus tard)
+        if public_votes:
+            if public_votes.get("home", 0) > 80:
+                suspicion_score += 20
+            if public_votes.get("away", 0) > 80:
+                suspicion_score += 20
+        if odds and public_votes:
+            home_odd = odds.get("home")
+            away_odd = odds.get("away")
+            if home_odd and public_votes.get("home", 0) > 70 and home_odd > 2.5:
+                suspicion_score += 30
+            if away_odd and public_votes.get("away", 0) > 70 and away_odd > 2.5:
+                suspicion_score += 30
+        # Écart entre modèle et bookmaker
         if odds:
-            # Écart modèle vs bookmaker
-            book_probs = normalize_odds(odds)
-            if book_probs:
-                book_prob = book_probs["home"] if dc == "1X" else (book_probs["draw"] + book_probs["away"]) if dc == "X2" else (book_probs["home"] + book_probs["away"])
-                if abs(ensemble_prob_dc - book_prob) > 0.25:
-                    suspicion_score += 25
+            book_prob = 1 / estimate_dc_odds(odds, dc) if estimate_dc_odds(odds, dc) > 0 else 0
+            if abs(ensemble_prob_dc - book_prob) > 0.25:
+                suspicion_score += 25
+        # Domination faible
+        dom_diff = abs(analysis.get("home_dominance", 0) - analysis.get("away_dominance", 0))
         if dom_diff < 0.1 and odds:
             suspicion_score += 15
+
         trap_detected = suspicion_score > 40
 
-        # Score AI enrichi
+        # ===== SCORE AI AVANCÉ =====
+        xpronos_score = calculate_xpronos_score(analysis, home_form, away_form, base.get("competition", ""))
+        conf = prediction.get("confidence", 0)
         ai_score = (
-            score * 0.25 +
-            prediction.get("confidence", 0) * 0.25 +
+            xpronos_score * 0.25 +
+            conf * 0.25 +
             (ensemble_prob_dc * 100) * 0.2 +
-            (10 if value_bet and value_bet != "weak" else 0) +
+            (10 if value_bet else 0) +
             (-10 if trap_detected else 0)
         )
         ai_score = max(0, min(100, ai_score))
 
-        # Score final "bettable"
+        # ===== FINAL SCORE =====
+        final_score = (
+            xpronos_score * 0.35 +
+            conf * 0.25 +
+            ai_score * 0.25 +
+            (10 if value_bet else 0) * 0.15
+        )
+
+        # ===== BET SCORE POUR FILTRAGE FINAL =====
         bet_score = (
-            score * 0.4 +
+            final_score * 0.4 +
             (ensemble_prob_dc * 100) * 0.3 +
-            (10 if value_bet and value_bet != "weak" else 0) -
+            (10 if value_bet else 0) -
             (10 if trap_detected else 0)
         )
-        if bet_score < BET_SCORE_THRESHOLD:
-            print(f"⚠️ Match {home_team} vs {away_team} ignoré (bet_score {bet_score:.1f} < {BET_SCORE_THRESHOLD})")
+        if bet_score < 55:
+            print(f"⚠️ Match {home_team} vs {away_team} ignoré (bet_score {bet_score:.1f})")
             total_skipped += 1
             continue
 
-        final_score = (
-            score * 0.35 +
-            prediction.get("confidence", 0) * 0.25 +
-            ai_score * 0.25 +
-            (10 if value_bet and value_bet != "weak" else 0) * 0.15
-        )
+        # ===== FEATURES POUR LE MACHINE LEARNING =====
+        ml_features = {
+            "home_form": home_form.get("form_score", 0) if home_form else 0,
+            "away_form": away_form.get("form_score", 0) if away_form else 0,
+            "h2h_home": analysis.get("home_dominance", 0),
+            "h2h_away": analysis.get("away_dominance", 0),
+            "draw_rate": analysis.get("draw_rate", 0),
+            "elo_diff": elo_home - elo_away,
+            "xg_diff": xg_home - xg_away,
+            "odds_home": odds.get("home", 0) if odds else 0,
+            "odds_away": odds.get("away", 0) if odds else 0,
+            "confidence": prediction.get("confidence", 0),
+            "ensemble_dc": ensemble_prob_dc
+        }
+        ml_label = 1 if existing.get("verified_double", False) else 0
 
-        # Valeur par défaut pour odds
-        if not odds:
-            odds = {"home": 1.85, "draw": 3.4, "away": 3.6}  # fallback
+        # ===== PRÉDICTION ML (si modèle disponible) =====
+        ml_prob = 0.5
+        if ml_model is not None:
+            features_list = [
+                ml_features["home_form"],
+                ml_features["away_form"],
+                ml_features["h2h_home"],
+                ml_features["h2h_away"],
+                ml_features["draw_rate"],
+                ml_features["elo_diff"],
+                ml_features["xg_diff"],
+                ml_features["odds_home"],
+                ml_features["odds_away"],
+                ml_features["confidence"],
+                ml_features["ensemble_dc"]
+            ]
+            try:
+                ml_prob = ml_model.predict_proba([features_list])[0][1]
+            except:
+                pass
+
+        # ===== CONSTRUCTION FINALE DU MATCH =====
+        category = get_category(xpronos_score)
+        badge = get_badge(xpronos_score)
+
+        # Logos
+        home_logo = download_logo(base.get("home_competitor_id"), base.get("home_image_version"))
+        away_logo = download_logo(base.get("away_competitor_id"), base.get("away_image_version"))
+        league_logo = download_competition_logo(base.get("competition_id"), base.get("competition_image_version"))
 
         match = {
             "id": gid,
@@ -980,36 +1184,29 @@ def main():
             "event_date": base.get("start_time", ""),
             "home_team": home_team,
             "away_team": away_team,
-            "home_logo": None,  # à implémenter via V2 /api/teams/{id}/image
-            "away_logo": None,
-            "league": league,
-            "league_logo": None,
+            "home_logo": home_logo,
+            "away_logo": away_logo,
+            "league": base.get("competition", ""),
+            "league_logo": league_logo,
             "venue": "",
-            "status": base.get("status", ""),
-            "home_score": base.get("home_score"),
-            "away_score": base.get("away_score"),
+            "status": status,
+            "home_score": home_score,
+            "away_score": away_score,
             "h2h_analysis": analysis,
             "home_form": home_form,
             "away_form": away_form,
-            "poisson_probs": {
-                "home": poisson_h,
-                "draw": poisson_d,
-                "away": poisson_a
-            },
-            "prediction": {
-                "double_chance": dc,
-                "confidence": prediction.get("confidence"),
-                "odds": estimate_dc_odds(odds, dc) if odds else 1.4
-            },
-            "xpronos_score": score,
+            "poisson_probs": poisson_probs,
+            "prediction": prediction,
+            "xpronos_score": xpronos_score,
             "badge": badge,
             "category": category,
             "verified_double": False,
             "verified_btts": False,
             "verified_over": False,
             "odds": odds,
-            "public_votes": None,
+            "public_votes": public_votes,
             "value_bet": value_bet,
+            "value_bet_strength": value_bet_strength,
             "is_finished": base.get("is_finished", False),
             "final_score": round(final_score, 1),
             "ai_score": round(ai_score, 1),
@@ -1020,41 +1217,54 @@ def main():
             "fatigue_home": fatigue_home,
             "fatigue_away": fatigue_away,
             "trap_detected": trap_detected,
+            "suspicion_score": suspicion_score,
+            "bet_score": round(bet_score, 1),
             "ensemble_prob_home": round(ensemble_h, 3),
             "ensemble_prob_draw": round(ensemble_d, 3),
             "ensemble_prob_away": round(ensemble_a, 3),
             "ensemble_prob_dc": round(ensemble_prob_dc, 3),
-            "bet_score": round(bet_score, 1),
-            "suspicion_score": suspicion_score
+            "ml_features": ml_features,
+            "ml_label": ml_label,
+            "ml_prob": ml_prob
         }
 
-        # Vérifier si le match est terminé pour mettre à jour verified_double
-        if base.get("is_finished") and base.get("home_score") is not None and base.get("away_score") is not None:
+        if base.get("is_finished") and home_score is not None and away_score is not None:
             dc = prediction.get("double_chance", "")
             if dc == "1X":
-                match["verified_double"] = (base["home_score"] > base["away_score"]) or (base["home_score"] == base["away_score"])
+                match["verified_double"] = (home_score > away_score) or (home_score == away_score)
             elif dc == "X2":
-                match["verified_double"] = (base["home_score"] == base["away_score"]) or (base["home_score"] < base["away_score"])
+                match["verified_double"] = (home_score == away_score) or (home_score < away_score)
 
         matches.append(match)
         categories[category].append(match)
 
-    # Tri par bet_score décroissant
-    matches.sort(key=lambda x: x.get("bet_score", 0), reverse=True)
+    # Tri par score final décroissant
+    matches.sort(key=lambda x: x.get("final_score", 0), reverse=True)
 
-    # Calcul ROI
+    # Calcul du ROI
     total_bets = 0
     total_wins = 0
     total_stake = 0.0
     total_return = 0.0
+
     for m in matches:
         if m.get("verified_double"):
             total_wins += 1
-            odds_value = m.get("prediction", {}).get("odds", 2.0)
+            match_odds = m.get("odds")
+            if match_odds and isinstance(match_odds, dict):
+                dc = m.get("prediction", {}).get("double_chance", "")
+                dc_odds = estimate_dc_odds(match_odds, dc)
+                if dc_odds > 0:
+                    odds_value = dc_odds
+                else:
+                    odds_value = m.get("prediction", {}).get("odds", 2.0)
+            else:
+                odds_value = m.get("prediction", {}).get("odds", 2.0)
             total_return += odds_value
         if m.get("is_finished"):
             total_bets += 1
             total_stake += 1.0
+
     roi = safe_division((total_return - total_stake), total_stake, 0) * 100
 
     stats = {
@@ -1082,16 +1292,22 @@ def main():
         "matches": matches,
         "categories": categories,
         "stats": stats,
-        "bookmakers": existing_data.get("bookmakers", default_bookmakers)
+        "bookmakers": existing_data.get("bookmakers", default_bookmakers) if isinstance(existing_data, dict) else default_bookmakers
     }
 
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    try:
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        print(f"\n💾 {DATA_FILE} généré avec succès")
+    except Exception as e:
+        print(f"❌ Erreur sauvegarde fichier: {e}")
+        return
 
-    print(f"\n💾 {DATA_FILE} généré avec succès")
     print(f"📊 Matchs traités: {total_processed}, ignorés: {total_skipped}")
     print(f"📈 Catégories : Simple: {len(categories['simple'])}, Pro: {len(categories['pro'])}, VIP: {len(categories['vip'])}")
     print(f"💰 ROI estimé : {stats['roi']}% sur {stats['total_bets']} matchs terminés")
+    print(f"🖼️ Logos dans {LOGOS_DIR}")
+
 
 if __name__ == "__main__":
     try:
