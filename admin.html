@@ -405,7 +405,7 @@
             <div id="pronostics-list-admin" class="admin-list"></div>
         </div>
 
-        <!-- Onglet Blog -->
+        <!-- Onglet Blog avec bouton "Tout activer" -->
         <div id="tab-blog" class="tab-pane">
             <h2>Gestion du blog</h2>
             <form id="blog-form">
@@ -430,11 +430,14 @@
                 </div>
             </form>
             <div id="blog-preview" class="preview-area" style="display:none;"><h4>Aperçu de l'article</h4><div id="blog-preview-content"></div></div>
-            <button id="activate-all-blog" class="btn btn-secondary">Activer tous les articles</button>
             <div id="blog-list-admin" class="admin-list"></div>
+            <!-- Bouton "Tout activer" pour les articles -->
+            <div style="margin-top: 20px;">
+                <button id="activate-all-blog" class="btn btn-secondary"><i class="fas fa-check-double"></i> Activer tous les articles</button>
+            </div>
         </div>
 
-        <!-- Onglet Conseils -->
+        <!-- Onglet Conseils avec bouton "Tout activer" -->
         <div id="tab-conseils" class="tab-pane">
             <h2>Gestion des conseils</h2>
             <form id="conseil-form">
@@ -450,8 +453,11 @@
                 </div>
             </form>
             <div id="conseil-preview" class="preview-area" style="display:none;"><h4>Aperçu du conseil</h4><div id="conseil-preview-content"></div></div>
-            <button id="activate-all-conseils" class="btn btn-secondary">Activer tous les conseils</button>
             <div id="conseils-list-admin" class="admin-list"></div>
+            <!-- Bouton "Tout activer" pour les conseils -->
+            <div style="margin-top: 20px;">
+                <button id="activate-all-conseils" class="btn btn-secondary"><i class="fas fa-check-double"></i> Activer tous les conseils</button>
+            </div>
         </div>
 
         <!-- Onglet Infos sport -->
@@ -677,7 +683,7 @@
             document.getElementById('blog-index').value = idx;
         };
         window.deleteBlog = (idx) => { if(confirm('Supprimer ?')) { data.blog.splice(idx,1); saveData(); } };
-        
+
         // ==================== RENDU CONSEILS ====================
         function renderConseils() {
             const container = document.getElementById('conseils-list-admin');
@@ -809,6 +815,18 @@
             previewDiv.style.display = 'block';
         });
 
+        // ==================== BOUTONS "TOUT ACTIVER" ====================
+        document.getElementById('activate-all-blog')?.addEventListener('click', () => {
+            data.blog.forEach(article => article.active = true);
+            saveData();
+            alert('Tous les articles sont maintenant actifs.');
+        });
+        document.getElementById('activate-all-conseils')?.addEventListener('click', () => {
+            data.conseils.forEach(conseil => conseil.active = true);
+            saveData();
+            alert('Tous les conseils sont maintenant actifs.');
+        });
+
         // ==================== SUPABASE ET STATISTIQUES (existant simplifié) ====================
         let supabase = null;
         let supabaseAvailable = false;
@@ -862,19 +880,6 @@
                     if (window.innerWidth <= 768 && adminTabs) { adminTabs.classList.add('collapsed'); toggleTabs.textContent = 'Afficher le menu'; }
                 });
             });
-
-            document.getElementById('activate-all-blog')?.addEventListener('click', () => {
-                data.blog.forEach(article => article.active = true);
-                saveData();
-                alert('Tous les articles sont maintenant actifs.');
-            });
-
-            document.getElementById('activate-all-conseils')?.addEventListener('click', () => {
-                data.conseils.forEach(conseil => conseil.active = true);
-                saveData();
-                alert('Tous les conseils sont maintenant actifs.');
-            });
-
 
             // Blog generate SEO
             document.getElementById('generate-seo')?.addEventListener('click', () => {
