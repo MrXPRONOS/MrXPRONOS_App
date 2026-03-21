@@ -66,11 +66,11 @@ except OSError as e:
     raise
 
 HOME_ADVANTAGE = 0.1
-CONFIDENCE_THRESHOLD = 50   # abaissé pour garder plus de matchs
+CONFIDENCE_THRESHOLD = 70   # abaissé pour garder plus de matchs
 GOAL_DIFF_THRESHOLD = 0.1
-XPRONOS_THRESHOLD = 60
+XPRONOS_THRESHOLD = 70
 DOMINANCE_THRESHOLD = 0.4
-BET_SCORE_THRESHOLD = 65   # nouveau seuil
+BET_SCORE_THRESHOLD = 75   # nouveau seuil
 
 # Liste des ligues à ignorer (on ne skip plus, on pénalise)
 BAD_LEAGUES = [
@@ -714,7 +714,7 @@ def get_category(score: int) -> str:
     """Détermine la catégorie selon le score"""
     if score >= 70:
         return "pro"
-    elif score >= 70:
+    elif score >= 80:
         return "pro"
     else:
         return "simple"
