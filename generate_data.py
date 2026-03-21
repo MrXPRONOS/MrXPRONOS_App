@@ -68,7 +68,7 @@ except OSError as e:
 HOME_ADVANTAGE = 0.1
 CONFIDENCE_THRESHOLD = 50   # abaissé pour garder plus de matchs
 GOAL_DIFF_THRESHOLD = 0.1
-XPRONOS_THRESHOLD = 35
+XPRONOS_THRESHOLD = 50
 DOMINANCE_THRESHOLD = 0.4
 BET_SCORE_THRESHOLD = 45   # nouveau seuil
 
@@ -712,9 +712,9 @@ def calculate_xpronos_score(analysis: dict, home_form: Optional[dict],
 
 def get_category(score: int) -> str:
     """Détermine la catégorie selon le score"""
-    if score >= 50:
+    if score >= 70:
         return "pro"
-    elif score >= 40:
+    elif score >= 60:
         return "pro"
     else:
         return "simple"
