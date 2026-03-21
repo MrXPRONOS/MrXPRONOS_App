@@ -86,7 +86,7 @@ def create_image_agent():
     except Exception as e:
         print(f"❌ Erreur création agent Mistral: {e}")
         return None
-
+    
 # =======================================================
 # FONCTIONS DE GÉNÉRATION D'IMAGES VIA MISTRAL
 # =======================================================
