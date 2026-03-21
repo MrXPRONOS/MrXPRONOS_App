@@ -1,0 +1,1314 @@
+
+Football V2
+Football V2 API Overview
+Enhanced Football API with 147+ endpoints — shotmaps, AI insights, player heatmaps, tournament brackets, WebSocket live scores, and more
+
+​
+Base URL
+https://v2.football.sportsapipro.com
+​
+What’s Different in V2?
+The V2 Football API provides enhanced data coverage with significantly more endpoints and richer data compared to V1:
+147+ Endpoints
+Match, Tournament, Team, Player, Manager, Referee, Venue, Rankings, Odds, Fantasy
+Advanced Analytics
+Shotmaps with xG, heatmaps, momentum graphs, AI-generated match insights
+Path Parameters
+RESTful path parameters instead of query strings (e.g., /api/match/12345)
+WebSocket Support
+Real-time live scores via WebSocket at wss://v2.football.sportsapipro.com/ws
+​
+Authentication
+Same x-api-key header as V1 — your existing API key works for both versions:
+curl -X GET "https://v2.football.sportsapipro.com/api/live" \
+  -H "x-api-key: YOUR_API_KEY"
+​
+V1 vs V2 Comparison
+Feature	V1	V2
+Base URL	v1.football.sportsapipro.com	v2.football.sportsapipro.com
+Parameter style	Query strings (?gameId=123)	Path parameters (/api/match/123)
+Match endpoints	12	39
+Player endpoints	6	22
+Team endpoints	8	17
+Tournament endpoints	5	28
+Shotmaps & xG	❌	✅
+AI Insights	❌	✅
+Player Heatmaps	❌	✅
+Manager/Referee Data	❌	✅
+Venue Data	❌	✅
+WebSocket Live	❌	✅
+Fantasy Data	❌	✅
+​
+Important: Entity ID Discovery
+Entity IDs (players, matches, teams, venues, referees) are numeric and must be discovered dynamically — never hardcode them.
+Discovery flow:
+Use /api/search?q=arsenal to find team/player IDs
+Use /api/live or /api/schedule/{date} to find match IDs
+Use /api/match/{id} to extract venue, referee, and player IDs from the response
+Use /api/tournaments/{id}/seasons to discover valid season IDs
+​
+Endpoint Categories
+Match (39 endpoints)
+Lineups, statistics, shotmaps, AI insights, odds, heatmaps, penalties, highlights
+Tournament (28 endpoints)
+Standings, top players/teams, brackets, team of the week, media, venues
+Team (17 endpoints)
+Squad, transfers, performance, goal distributions, statistics, featured events
+Player (22 endpoints)
+Statistics, heatmaps, transfer history, characteristics, penalty history, ratings
+Manager / Referee / Venue
+Manager careers & stats, referee statistics, venue details and events
+Global & Search
+Live scores, search, schedule, trending, countries, leagues, news
+Rankings
+FIFA rankings, rankings by type, featured events
+Odds
+Featured events with odds, popular events, odds providers
+Fantasy
+Fantasy player data, fixtures, player of the season awards
+​
+WebSocket Real-Time
+Real-time live scores, match events, statistics, and odds are available via WebSocket with sub-second latency.
+For full WebSocket documentation including channels, response types, delivery modes, and code examples, see the WebSocket Real-Time API page.
+
+
+Football V2
+Match Endpoints
+V2 Football API — 39 match sub-endpoints covering scores, analytics, odds, lineups, shotmaps, AI insights, and more
+
+​
+Base URL
+https://v2.football.sportsapipro.com
+All match endpoints use the pattern /api/match/{matchId}/...
+Finding Match IDs: Use /api/live for current matches, /api/schedule/{date} for scheduled matches, or /api/search?q=team to find matches by team name. Match IDs are numeric (e.g., 14025056).
+​
+Core Match Data
+​
+Get Match Details
+GET /api/match/{matchId}
+Returns full match details including scores, teams, venue, status, timestamps, and entity IDs for players, referees, and venues.
+​
+matchId
+numberrequired
+Numeric match ID. Discover via /api/live, /api/schedule/{date}, or /api/search.
+​
+Get Lineups
+GET /api/match/{matchId}/lineups
+Returns confirmed starting lineups for both teams, including formation, player positions, jersey numbers, and substitutes.
+Availability: Only available once lineups are confirmed — typically 30–60 minutes before kick-off. Returns empty for matches further in the future.
+​
+Get Statistics
+GET /api/match/{matchId}/statistics
+Returns match statistics: possession, shots (on/off target), passes, fouls, corners, offsides, and more. Broken down by period (1st half, 2nd half, total).
+Availability: Available during live matches and after full-time. Not available for pre-match.
+​
+Get Incidents
+GET /api/match/{matchId}/incidents
+Returns all match events in chronological order: goals, cards (yellow/red), substitutions, VAR decisions, penalty shootout events.
+​
+Get Scores
+GET /api/match/{matchId}/scores
+Returns detailed score breakdown including period scores (1st half, 2nd half), extra time, penalty shootout results, and aggregate scores for two-legged ties.
+​
+Get Referee
+GET /api/match/{matchId}/referee
+Returns referee details assigned to the match. Use the returned referee.id to call referee-specific endpoints.
+​
+Get Venue
+GET /api/match/{matchId}/venue
+Returns venue information: name, city, country, capacity, and coordinates. Use the returned venue.id for venue-specific endpoints.
+​
+Advanced Analytics
+​
+Shotmap
+GET /api/match/{matchId}/shotmap
+Returns shot map data with xG (expected goals) values for each shot, including coordinates, player, shot type (foot/header), and outcome (goal/saved/blocked/off-target).
+Availability: Available during live matches (updates in real-time) and after full-time. Not available pre-match.
+​
+Momentum Graph
+GET /api/match/{matchId}/graph
+Returns match momentum/pressure graph data over time. Each data point represents the attacking pressure at a given minute.
+​
+Average Positions
+GET /api/match/{matchId}/average-positions
+Returns average player positions on the pitch for both teams. Useful for tactical analysis and formation visualization.
+Availability: Available during live matches and after full-time only.
+​
+AI Insights
+GET /api/match/{matchId}/ai-insights?lang={lang}
+Returns AI-generated post-match analysis with key talking points, tactical observations, and performance summaries.
+​
+lang
+stringdefault:"en"
+Language code for the analysis (e.g., en, es, de, fr, pt).
+Availability: Post-match only. Not available for all matches — primarily top-tier competitions. Returns 404 for matches without AI analysis.
+​
+Team Heatmap
+GET /api/match/{matchId}/heatmap/{teamId}
+Returns team heatmap data for the match, showing areas of the pitch where the team was most active.
+​
+teamId
+numberrequired
+Numeric team ID. Get from the match details response (homeTeam.id or awayTeam.id).
+​
+Player-Specific
+​
+Best Players / MOTM
+GET /api/match/{matchId}/best-players
+Returns the best-performing players from the match with ratings and key statistics.
+​
+Award Details
+GET /api/match/{matchId}/award
+Returns official man-of-the-match award details.
+​
+All Player Statistics
+GET /api/match/{matchId}/player-statistics
+Returns comprehensive statistics for all players in the match: passes, tackles, shots, dribbles, duels, and ratings.
+​
+Specific Player Statistics
+GET /api/match/{matchId}/player/{playerId}/statistics
+Returns detailed statistics for a specific player in the match.
+​
+playerId
+numberrequired
+Numeric player ID. Get from lineups or match details.
+​
+Player Shotmap
+GET /api/match/{matchId}/player/{playerId}/shotmap
+Returns shot map data for a specific player in the match, with xG values and shot outcomes.
+​
+Betting & Odds
+​
+Featured Odds
+GET /api/match/{matchId}/odds?scope={scope}&provider={provider}
+Returns odds for the match from a specific provider.
+​
+scope
+stringdefault:"featured"
+featured for main markets or all for all available markets.
+​
+provider
+numberdefault:"1"
+Odds provider ID. Use /api/odds/providers/{countryCode} to list available providers.
+​
+All Odds
+GET /api/match/{matchId}/odds/all
+Returns odds from all available providers and markets.
+​
+Pre-Match Odds
+GET /api/match/{matchId}/odds/pre-match
+Returns pre-match odds snapshot. Available before kick-off.
+Availability: Pre-match only. Returns 404 after the match has ended.
+​
+Live Odds
+GET /api/match/{matchId}/odds/live
+Returns live in-play odds that update during the match.
+Availability: Live matches only. Returns 404 for pre-match or finished matches.
+​
+Winning Odds
+GET /api/match/{matchId}/winning-odds
+Returns the winning odds movement for the match.
+​
+Team Streaks
+GET /api/match/{matchId}/streaks
+Returns recent streak data for both teams (e.g., “5 wins in a row”, “unbeaten in 10”).
+​
+Streaks with Odds
+GET /api/match/{matchId}/streaks/odds
+Returns streak data combined with relevant odds markets.
+​
+Pre-Match Data
+The following endpoints are pre-match only. They return 404 for live or finished matches.
+​
+Head to Head
+GET /api/match/{matchId}/h2h
+Returns head-to-head history between the two teams: previous meetings, results, and statistics.
+​
+Pre-Game Form
+GET /api/match/{matchId}/pregame-form
+Returns recent form for both teams going into the match (last 5–10 results).
+​
+Predicted Lineups
+GET /api/match/{matchId}/predicted-lineups
+Returns AI-predicted lineups before the official lineups are announced.
+Predicted lineups are replaced by confirmed lineups once available (typically 30–60 min before kick-off).
+​
+Missing Players
+GET /api/match/{matchId}/missing-players
+Returns injured and suspended players for both teams, including injury type and expected return date.
+​
+Media & Social
+​
+Highlights
+GET /api/match/{matchId}/highlights
+Returns video highlight links for the match (when available).
+​
+Media
+GET /api/match/{matchId}/media
+Returns media content associated with the match (photos, videos).
+​
+Media Summary
+GET /api/match/{matchId}/media-summary?country={country}
+Returns a localized media summary of the match.
+​
+country
+stringdefault:"INT"
+Country code for localized content (e.g., GB, US, INT for international).
+​
+Tweets
+GET /api/match/{matchId}/tweets
+Returns tweets related to the match from official team and league accounts.
+​
+Comments
+GET /api/match/{matchId}/comments
+Returns user comments/discussions about the match.
+​
+Fan Votes
+GET /api/match/{matchId}/votes
+Returns fan voting results (e.g., player of the match polls).
+​
+Other
+​
+Managers
+GET /api/match/{matchId}/managers
+Returns manager/head coach details for both teams. Use the returned manager.id for manager-specific endpoints.
+​
+Penalties
+GET /api/match/{matchId}/penalties
+Returns penalty shootout details: order, takers, outcomes, and scores after each kick.
+Only available for matches that went to a penalty shootout.
+​
+TV Channels
+GET /api/match/{matchId}/channels
+Returns TV broadcast channels organized by country, including channel names and broadcast times.
+​
+Jerseys
+GET /api/match/{matchId}/jerseys
+Returns home and away jersey details for both teams: colors, patterns, and goalkeeper kit.
+​
+Fantasy
+GET /api/match/{matchId}/fantasy
+Returns fantasy-relevant data for the match: points, bonuses, and player ownership.
+​
+Example Requests
+
+cURL
+
+JavaScript
+
+Python
+import requests
+
+response = requests.get(
+    'https://v2.football.sportsapipro.com/api/match/14025056/statistics',
+    headers={'x-api-key': 'YOUR_API_KEY'}
+)
+data = response.json()
+
+
+Football V2
+Tournament Endpoints
+V2 Football API — 28 tournament endpoints for seasons, standings, statistics, brackets, team of the week, and more
+
+​
+Base URL
+https://v2.football.sportsapipro.com
+Season IDs must be discovered dynamically. Always call /api/tournaments/{id}/seasons first to get valid season IDs. Season IDs change every year and are specific to each tournament. Never hardcode them.
+​
+Seasons
+​
+Get Tournament Seasons
+GET /api/tournaments/{id}/seasons
+Returns all available seasons for a tournament. Call this first to discover valid seasonId values for other endpoints.
+​
+id
+numberrequired
+Numeric tournament ID. Use /api/search?q=premier+league or /api/leagues to discover.
+​
+Standings
+​
+Overall Standings
+GET /api/tournament/{tournamentId}/season/{seasonId}/standings
+Returns the full league table with points, wins, draws, losses, goals for/against, and goal difference.
+​
+Home Standings
+GET /api/tournament/{tournamentId}/season/{seasonId}/standings/home
+Returns standings based on home matches only.
+​
+Away Standings
+GET /api/tournament/{tournamentId}/season/{seasonId}/standings/away
+Returns standings based on away matches only.
+​
+Statistics & Rankings
+​
+Top Players
+GET /api/tournament/{tournamentId}/season/{seasonId}/top-players?type={type}
+Returns top-performing players in the tournament season (top scorers, assists, etc.).
+​
+type
+stringdefault:"overall"
+Filter by match location: overall, home, or away.
+​
+Top Teams
+GET /api/tournament/{tournamentId}/season/{seasonId}/top-teams?type={type}
+Returns top-performing teams by various metrics.
+​
+Top Ratings
+GET /api/tournament/{tournamentId}/season/{seasonId}/top-ratings?type={type}
+Returns player ratings leaderboard for the season.
+​
+Season Statistics
+GET /api/tournament/{tournamentId}/season/{seasonId}/statistics
+Returns aggregate season statistics: total goals, cards, average goals per match, etc.
+​
+Statistics Info
+GET /api/tournament/{tournamentId}/season/{seasonId}/statistics/info
+Returns metadata about available statistics types for the season.
+​
+Player Statistics Types
+GET /api/tournament/{tournamentId}/season/{seasonId}/player-statistics/types
+Returns available player statistic categories (e.g., goals, assists, tackles, saves).
+​
+Team Statistics Types
+GET /api/tournament/{tournamentId}/season/{seasonId}/team-statistics/types
+Returns available team statistic categories.
+​
+Player of the Season
+GET /api/tournament/{tournamentId}/season/{seasonId}/player-of-the-season
+Returns the player of the season award details, including nominees and winner.
+​
+Rounds & Events
+​
+All Rounds
+GET /api/tournament/{tournamentId}/season/{seasonId}/rounds
+Returns all matchday rounds for the season with round numbers and status.
+​
+Round Matches
+GET /api/tournament/{tournamentId}/season/{seasonId}/round/{round}
+Returns all matches in a specific round/matchday.
+​
+Events by Round
+GET /api/tournament/{tournamentId}/season/{seasonId}/events/round/{round}
+Returns detailed event data for a specific round.
+​
+Events by Round & Slug
+GET /api/tournament/{tournamentId}/season/{seasonId}/events/round/{round}/slug/{slug}
+Returns events filtered by round and slug identifier.
+​
+Last Events (Paginated)
+GET /api/tournament/{tournamentId}/season/{seasonId}/events/last/{page}
+Returns recent completed matches in the tournament, paginated. Page 0 returns the most recent.
+​
+page
+numberrequired
+Page number (0-indexed). Start with 0 for the most recent events.
+​
+Brackets & Cup Tournaments
+​
+Knockout / Cup Tree
+GET /api/tournament/{tournamentId}/season/{seasonId}/knockout
+Returns the bracket/knockout tree for cup tournaments (e.g., FA Cup, Champions League). Includes all rounds from Round of 32 to the Final.
+Only available for cup/knockout tournaments. League tournaments will return empty data.
+​
+Team of the Week
+​
+Available Periods
+GET /api/tournament/{tournamentId}/season/{seasonId}/team-of-the-week/periods
+Returns available Team of the Week periods (matchdays). Use the returned periodId values to fetch specific team-of-the-week selections.
+​
+Team of the Week by Period
+GET /api/tournament/{tournamentId}/season/{seasonId}/team-of-the-week/{periodId}
+Returns the best XI for a specific matchday period, including formation, player ratings, and key stats.
+​
+periodId
+numberrequired
+Period ID from the /team-of-the-week/periods endpoint.
+​
+Team Performance
+​
+Team Performance Graph
+GET /api/tournament/{tournamentId}/season/{seasonId}/team/{teamId}/performance-graph
+Returns a team’s performance trajectory over the season — position changes after each matchday.
+​
+Team Events
+GET /api/tournament/{tournamentId}/season/{seasonId}/team-events?type={type}
+Returns all events for teams in the tournament season.
+​
+type
+stringdefault:"total"
+Filter: total, home, or away.
+​
+Tournament Info
+​
+Tournament Details
+GET /api/tournament/{tournamentId}/info
+Returns tournament metadata: name, country, logo, tier, and current season.
+​
+Season Info
+GET /api/tournament/{tournamentId}/season/{seasonId}/info
+Returns season-specific information: start/end dates, number of teams, current round.
+​
+Featured Events
+GET /api/tournament/{tournamentId}/featured-events
+Returns highlighted/featured matches for the tournament (e.g., derbies, title deciders).
+​
+Tournament Image
+GET /api/tournament/{tournamentId}/image
+Returns the tournament logo/badge image URL.
+​
+Tournament Media
+GET /api/tournament/{tournamentId}/media
+GET /api/tournament/{tournamentId}/season/{seasonId}/media
+Returns media content (photos, videos) for the tournament or a specific season.
+Not all tournaments have media content. Top-tier leagues are more likely to have media available.
+​
+Venues
+GET /api/tournament/{tournamentId}/season/{seasonId}/venues
+Returns all venues used in the tournament season, with capacity, location, and coordinates.
+​
+Example Requests
+
+cURL
+
+JavaScript
+
+Python
+import requests
+
+headers = {'x-api-key': 'YOUR_API_KEY'}
+
+# Step 1: Discover seasons
+seasons = requests.get(
+    'https://v2.football.sportsapipro.com/api/tournaments/17/seasons',
+    headers=headers
+).json()
+
+# Step 2: Get standings
+season_id = seasons['seasons'][0]['id']  # e.g., 61627
+standings = requests.get(
+    f'https://v2.football.sportsapipro.com/api/tournament/17/season/{season_id}/standings',
+    headers=headers
+).json()
+Was this page helpful?
+
+
+
+
+
+Football V2
+Team Endpoints
+V2 Football API — 17 team endpoints for squad, transfers, statistics, goal distributions, and events
+
+​
+Base URL
+https://v2.football.sportsapipro.com
+Finding Team IDs: Use /api/search?q=arsenal to find team IDs, or extract them from match details (homeTeam.id, awayTeam.id).
+​
+Team Profile
+​
+Team Details
+GET /api/teams/{teamId}
+Returns team metadata: name, short name, country, venue, manager, founded year, and competition info.
+​
+teamId
+numberrequired
+Numeric team ID. Discover via /api/search or match details.
+​
+Team Squad / Players
+GET /api/teams/{teamId}/players
+Returns the full squad with player details: name, position, nationality, jersey number, age, market value, and contract expiry.
+​
+Team Image
+GET /api/teams/{teamId}/image
+Returns the team crest/badge image URL.
+​
+Events
+​
+Last Events (Paginated)
+GET /api/teams/{teamId}/events/last/{page}
+Returns the team’s most recent completed matches, paginated.
+​
+page
+numberrequired
+Page number (0-indexed). Start with 0 for the most recent events.
+​
+Next Events (Paginated)
+GET /api/teams/{teamId}/events/next/{page}
+Returns upcoming scheduled matches for the team, paginated.
+​
+Near Events
+GET /api/teams/{teamId}/near-events
+Returns the closest past and upcoming events around the current date.
+​
+Featured Event
+GET /api/teams/{teamId}/featured-event
+Returns the team’s most prominent upcoming match (e.g., next league fixture, derby, or cup match).
+​
+Statistics
+​
+Team Statistics in Tournament Season
+GET /api/teams/{teamId}/tournament/{tournamentId}/season/{seasonId}/statistics?type={type}
+Returns detailed team statistics for a specific tournament and season.
+​
+type
+stringdefault:"overall"
+Filter by match location: overall, home, or away.
+Use /api/tournaments/{id}/seasons to discover valid seasonId values.
+​
+Goal Distributions
+GET /api/teams/{teamId}/tournament/{tournamentId}/season/{seasonId}/goal-distributions
+Returns when goals were scored and conceded, broken down by time intervals (0–15, 16–30, 31–45, 46–60, 61–75, 76–90 minutes).
+​
+Performance / Recent Form
+GET /api/teams/{teamId}/performance
+Returns the team’s recent form: last N results, win/draw/loss streak, and performance trend.
+​
+Metadata
+​
+Tournaments
+GET /api/teams/{teamId}/unique-tournaments
+Returns all competitions the team participates in (e.g., Premier League, Champions League, FA Cup).
+​
+Transfers
+GET /api/teams/{teamId}/transfers
+Returns the team’s transfer activity: signings, departures, loan deals, and transfer fees.
+​
+Media
+GET /api/teams/{teamId}/media
+Returns media content associated with the team (photos, videos).
+​
+Available Seasons
+Discover which seasons have data available for this team:
+GET /api/teams/{teamId}/player-statistics/seasons
+GET /api/teams/{teamId}/standings/seasons
+GET /api/teams/{teamId}/team-statistics/seasons
+Use these endpoints to find valid season IDs before calling season-specific statistics endpoints.
+​
+Example Requests
+
+cURL
+
+JavaScript
+
+Python
+import requests
+
+response = requests.get(
+    'https://v2.football.sportsapipro.com/api/teams/42/players',
+    headers={'x-api-key': 'YOUR_API_KEY'}
+)
+squad = response.json()
+
+
+Football V2
+Player Endpoints
+V2 Football API — 22 player endpoints for profiles, statistics, heatmaps, transfer history, ratings, and more
+
+​
+Base URL
+https://v2.football.sportsapipro.com
+Finding Player IDs: Use /api/search?q=haaland to find player IDs, or extract them from match lineups (/api/match/{id}/lineups) or team squads (/api/teams/{id}/players).
+​
+Player Profile
+​
+Player Details
+GET /api/players/{playerId}
+Returns player profile: name, nationality, age, height, weight, position, current team, shirt number, preferred foot, and market value.
+​
+playerId
+numberrequired
+Numeric player ID (e.g., 934235 for Haaland). Discover via search, lineups, or squads.
+​
+Player Image
+GET /api/players/{playerId}/image
+Returns the player’s profile photo URL.
+​
+Characteristics
+GET /api/players/{playerId}/characteristics
+Returns player traits and playing style descriptions (e.g., “Strong in the air”, “Clinical finisher”).
+​
+Attribute Overviews
+GET /api/players/{playerId}/attribute-overviews
+Returns radar chart data for player attributes: attacking, defending, technical, physical, and mental categories with numeric scores.
+​
+Last Year Summary
+GET /api/players/{playerId}/last-year-summary
+Returns a summary of the player’s performance over the last calendar year: goals, assists, appearances, and ratings.
+​
+Statistics
+​
+Overall Statistics
+GET /api/players/{playerId}/statistics
+Returns career statistics across all competitions: goals, assists, appearances, minutes, cards, and ratings.
+​
+Statistics Seasons
+GET /api/players/{playerId}/statistics/seasons
+Returns all seasons with available statistics. Use this to discover valid season IDs for season-specific endpoints.
+​
+Career Stats by Match Type
+GET /api/players/{playerId}/statistics/match-type?type={type}
+Returns career statistics filtered by match type.
+​
+type
+string
+Match type filter (e.g., domestic league, cup, international).
+​
+Tournament Season Statistics
+GET /api/players/{playerId}/tournament/{tournamentId}/season/{seasonId}/statistics?type={type}
+Returns player statistics for a specific tournament and season.
+​
+type
+stringdefault:"overall"
+Filter: overall, home, or away.
+​
+National Team Statistics
+GET /api/players/{playerId}/national-team-statistics
+Returns international career statistics: caps, goals, and assists for the national team.
+​
+Visual Data
+​
+Match Heatmap
+GET /api/players/{playerId}/match/{matchId}/heatmap
+Returns heatmap data showing the player’s movement and positioning during a specific match.
+​
+Season Heatmap
+GET /api/players/{playerId}/tournament/{tournamentId}/season/{seasonId}/heatmap?type={type}
+Returns an aggregated heatmap across all matches in a tournament season.
+​
+type
+stringdefault:"overall"
+Filter: overall, home, or away.
+​
+Season Ratings
+GET /api/players/{playerId}/tournament/{tournamentId}/season/{seasonId}/ratings?type={type}
+Returns match-by-match player ratings throughout the season — useful for performance trend charts.
+​
+type
+stringdefault:"overall"
+Filter: overall, home, or away.
+​
+Events
+​
+Last Events (Paginated)
+GET /api/players/{playerId}/events/last/{page}
+Returns the player’s most recent matches with stats and ratings, paginated.
+​
+page
+numberrequired
+Page number (0-indexed). Start with 0 for the most recent.
+​
+Next Events (Paginated)
+GET /api/players/{playerId}/events/next/{page}
+Returns upcoming scheduled matches for the player’s current team, paginated.
+​
+Transfer & Career
+​
+Transfer History
+GET /api/players/{playerId}/transfer-history
+Returns complete transfer history: clubs, dates, fees, and transfer types (permanent, loan, free).
+​
+Unique Tournaments
+GET /api/players/{playerId}/unique-tournaments
+Returns all competitions the player has participated in throughout their career.
+​
+Penalty History
+GET /api/players/{playerId}/penalty-history
+Returns the player’s career penalty record: taken, scored, missed, and saved.
+​
+Tournament Penalty History
+GET /api/players/{playerId}/tournament/{tournamentId}/season/{seasonId}/penalty-history
+Returns penalty record for a specific tournament season.
+​
+Media
+​
+Media
+GET /api/players/{playerId}/media
+Returns media content associated with the player (photos).
+​
+Media Videos
+GET /api/players/{playerId}/media/videos
+Returns video highlights and clips featuring the player.
+​
+Fantasy
+​
+Fantasy Competitions
+GET /api/players/{playerId}/fantasy/competitions
+Returns fantasy competitions the player is registered in, along with the player’s fantasy ID.
+Important: Fantasy IDs are NOT the same as player IDs. Use this endpoint to discover the fantasyId, then pass it to /api/fantasy/player/{fantasyId} endpoints. See Fantasy Endpoints.
+​
+Example Requests
+
+cURL
+
+JavaScript
+
+Python
+import requests
+
+response = requests.get(
+    'https://v2.football.sportsapipro.com/api/players/934235/statistics',
+    headers={'x-api-key': 'YOUR_API_KEY'}
+)
+stats = response.json()
+
+
+
+Football V2
+Manager, Referee & Venue Endpoints
+V2 Football API — Manager careers and stats, referee statistics, venue details and event history
+
+​
+Base URL
+https://v2.football.sportsapipro.com
+Finding IDs: Get manager, referee, and venue IDs from match details (/api/match/{matchId}). The response includes referee.id, venue.id, and manager data. You can also use /api/match/{matchId}/managers for manager IDs.
+​
+Manager Endpoints
+​
+Manager Details
+GET /api/managers/{managerId}
+Returns manager profile: name, nationality, age, date of birth, current team, and preferred formation.
+​
+managerId
+numberrequired
+Numeric manager ID (e.g., 793451). Discover from match details or match managers endpoint.
+​
+Manager Image
+GET /api/managers/{managerId}/image
+Returns the manager’s profile photo URL.
+​
+Manager Career
+GET /api/managers/{managerId}/career
+Returns complete managerial career history: clubs managed, dates, win/loss/draw records, and trophies.
+​
+Manager Last Events
+GET /api/managers/{managerId}/events/last/{page}
+Returns recent matches managed, paginated with results and scores.
+​
+page
+numberrequired
+Page number (0-indexed).
+​
+Manager Next Events
+GET /api/managers/{managerId}/events/next/{page}
+Returns upcoming matches for the manager’s current team, paginated.
+​
+Manager Tournament Statistics
+GET /api/managers/{managerId}/tournament/{tournamentId}/season/{seasonId}/statistics
+Returns the manager’s statistics in a specific tournament season: wins, draws, losses, points per game.
+The manager must have been active in the specified tournament/season. Returns 404 otherwise.
+​
+Referee Endpoints
+​
+Referee Details
+GET /api/referee/{refereeId}
+Returns referee profile: name, nationality, age, and career stats summary.
+​
+refereeId
+numberrequired
+Numeric referee ID. Discover from match details (/api/match/{matchId}).
+​
+Referee Image
+GET /api/referee/{refereeId}/image
+Returns the referee’s profile photo URL.
+​
+Referee Tournament Statistics
+GET /api/referee/{refereeId}/tournament/{tournamentId}/season/{seasonId}/statistics
+Returns referee statistics for a specific tournament season: matches officiated, cards given, penalties awarded.
+​
+Referee Last Events
+GET /api/referee/{refereeId}/events/last/{page}
+Returns recent matches officiated by the referee, paginated.
+​
+Referee Next Events
+GET /api/referee/{refereeId}/events/next/{page}
+Returns upcoming matches assigned to the referee, paginated.
+​
+Venue Endpoints
+​
+Venue Details
+GET /api/venue/{venueId}
+Returns venue information: name, city, country, capacity, surface type, coordinates, and photo.
+​
+venueId
+numberrequired
+Numeric venue ID (e.g., 624 for Emirates Stadium). Discover from match details (/api/match/{matchId}) or team details.
+​
+Venue Last Events
+GET /api/venue/{venueId}/events/last/{page}
+Returns recent matches played at the venue, paginated.
+​
+Venue Next Events
+GET /api/venue/{venueId}/events/next/{page}
+Returns upcoming matches scheduled at the venue, paginated.
+​
+Example Requests
+
+cURL
+
+JavaScript
+
+Python
+import requests
+
+headers = {'x-api-key': 'YOUR_API_KEY'}
+
+# Get manager career
+career = requests.get(
+    'https://v2.football.sportsapipro.com/api/managers/793451/career',
+    headers=headers
+).json()
+Was this page helpful?
+
+
+Football V2
+Global, Search & Schedule Endpoints
+V2 Football API — Live scores, search, match schedules, trending events, countries, leagues, and news
+
+​
+Base URL
+https://v2.football.sportsapipro.com
+​
+Live Data
+​
+Live Scores
+GET /api/live
+Returns all currently live matches with simplified score data, match status, and minute. Use this as the primary source for discovering live match IDs.
+​
+All Live Events
+GET /api/live/all
+Returns all live events unfiltered with full raw data (more verbose than /api/live).
+​
+Today’s Matches
+GET /api/today
+Returns all matches scheduled for today across all competitions.
+​
+Trending Events
+GET /api/trending
+Returns the top 20 events sorted by attendance and popularity — great for featuring “hot” matches.
+​
+Trending Players
+GET /api/trending-players
+Returns currently trending players based on recent performance and media attention.
+​
+Live Tournaments
+GET /api/live-tournaments
+Returns tournaments that currently have live matches in progress. Useful for building a sidebar of active competitions.
+​
+Newly Added Events
+GET /api/newly-added-events
+Returns recently added fixtures that weren’t previously in the schedule (e.g., rescheduled matches, cup draws).
+​
+Search
+​
+Search All
+GET /api/search?q={query}
+Search across teams, players, and tournaments simultaneously. Returns entity IDs that can be used with other endpoints.
+​
+q
+stringrequired
+Search query (e.g., arsenal, messi, premier league). Minimum 2 characters.
+This is the primary way to discover entity IDs for teams, players, and tournaments when you don’t have them from another API call.
+​
+Schedule
+​
+Events by Date
+GET /api/schedule/{date}
+Returns all matches for a specific date, grouped by tournament.
+​
+date
+stringrequired
+Date in YYYY-MM-DD format (e.g., 2025-03-15).
+​
+Scheduled Tournaments by Date
+GET /api/scheduled-tournaments/{date}
+Returns tournaments that have matches on a specific date — useful for building a competition filter.
+​
+date
+stringrequired
+Date in YYYY-MM-DD format.
+​
+Event Count
+GET /api/event-count
+Returns a global count of events across all sports and competitions.
+​
+Countries & Categories
+​
+All Countries
+GET /api/countries
+Returns all countries with basic info (name, code, flag URL).
+​
+All Countries (Extended)
+GET /api/countries/all
+Returns all countries with subcategories and additional metadata.
+​
+Category Tournaments
+GET /api/categories/{categoryId}/tournaments
+Returns all tournaments within a specific category (country or region).
+​
+categoryId
+numberrequired
+Category ID from the countries endpoint.
+​
+Country Flag
+GET /api/country/{code}/flag
+Returns the flag image URL for a country code.
+​
+code
+stringrequired
+Two-letter country code in uppercase (e.g., GB, US, DE).
+​
+Leagues
+​
+All Leagues
+GET /api/leagues?country={country}&refresh={refresh}
+Returns all leagues grouped by country. Useful for building a competition browser.
+​
+country
+string
+Optional country slug to filter leagues (e.g., england, spain).
+​
+refresh
+boolean
+Set to true to bypass cache and get fresh data.
+​
+All Tournaments (Flat)
+GET /api/tournaments?refresh={refresh}
+Returns all tournaments as a flat list (not grouped by country).
+​
+Tournament Seasons
+GET /api/tournaments/{id}/seasons
+Returns all available seasons for a tournament. See Tournament Endpoints for season-specific data.
+​
+News
+​
+Sports News
+GET /api/news?lang={lang}
+Returns the latest sports news articles.
+​
+lang
+stringdefault:"en"
+Language code (e.g., en, es, de, fr, pt, it).
+​
+Example Requests
+
+cURL
+
+JavaScript
+
+Python
+import requests
+
+headers = {'x-api-key': 'YOUR_API_KEY'}
+
+# Search for a team
+results = requests.get(
+    'https://v2.football.sportsapipro.com/api/search?q=arsenal',
+    headers=headers
+).json()
+Was this page helpful?
+
+
+Football V2
+Rankings Endpoints
+V2 Football API — FIFA world rankings, regional rankings, and featured ranking events
+
+​
+Base URL
+https://v2.football.sportsapipro.com
+​
+Endpoints
+​
+FIFA World Rankings
+GET /api/rankings
+Returns the current FIFA world rankings (type 1 by default). Includes rank, team, points, and previous rank.
+​
+Rankings by ID
+GET /api/rankings/{rankingId}
+Returns a specific ranking edition by its ID.
+​
+rankingId
+numberrequired
+Numeric ranking ID.
+​
+Rankings by Type
+GET /api/rankings/type/{typeId}
+Returns rankings filtered by type/confederation.
+​
+typeId
+numberrequired
+Ranking type ID.
+Type ID	Description
+1	FIFA World Rankings
+2	UEFA Rankings
+3	AFC Rankings
+​
+Rankings Featured Events
+GET /api/rankings/type/{typeId}/featured-events
+Returns featured international events associated with a ranking type (e.g., World Cup qualifiers for FIFA rankings).
+​
+Example Requests
+
+cURL
+
+JavaScript
+
+Python
+import requests
+
+rankings = requests.get(
+    'https://v2.football.sportsapipro.com/api/rankings',
+    headers={'x-api-key': 'YOUR_API_KEY'}
+).json()
+Was this page helpful?
+
+
+Football V2
+Odds Endpoints
+V2 Football API — Featured events with odds, popular events, and odds provider discovery
+
+​
+Base URL
+https://v2.football.sportsapipro.com
+For match-specific odds (pre-match, live, all markets), see Match Endpoints → Betting & Odds.
+​
+Endpoints
+​
+Featured Events with Odds
+GET /api/odds/featured-events
+Returns highlighted matches with pre-match odds from major bookmakers. Great for building a “Today’s Best Odds” section.
+​
+Popular Events (Most Bet On)
+GET /api/odds/popular-events
+Returns the most-bet-on events currently, ranked by betting volume and interest.
+​
+Odds Providers by Country
+GET /api/odds/providers/{countryCode}
+Returns all available odds providers/bookmakers for a specific country.
+​
+countryCode
+stringrequired
+Two-letter country code in uppercase (e.g., GB, US, DE, NG).
+​
+Featured Odds Providers
+GET /api/odds/providers/{countryCode}/featured
+Returns the top/featured bookmakers for a country — the most popular and well-known providers.
+​
+Web Odds Providers
+GET /api/odds/providers/{countryCode}/odds
+Returns odds providers with web/online presence for a country.
+​
+Example Requests
+
+cURL
+
+JavaScript
+
+Python
+import requests
+
+featured = requests.get(
+    'https://v2.football.sportsapipro.com/api/odds/featured-events',
+    headers={'x-api-key': 'YOUR_API_KEY'}
+).json()
+Was this page helpful?
+
+
+Football V2
+Fantasy & Player of the Season Endpoints
+V2 Football API — Fantasy player data, fixtures, and player of the season awards
+
+​
+Base URL
+https://v2.football.sportsapipro.com
+Fantasy IDs are NOT player IDs. You must first discover the fantasy ID using /api/players/{playerId}/fantasy/competitions (see Player Endpoints → Fantasy), then use the returned fantasyId with the endpoints below.
+Discovery flow:
+Get the regular player ID via search or lineups
+Call GET /api/players/{playerId}/fantasy/competitions
+Extract the fantasyId from the response
+Use that fantasyId in the endpoints below
+​
+Fantasy Endpoints
+​
+Fantasy Player Details
+GET /api/fantasy/player/{fantasyId}
+Returns fantasy-specific player data: ownership percentage, price, total points, points per game, and form.
+​
+fantasyId
+numberrequired
+Fantasy player ID (NOT the regular player ID). Discover via /api/players/{playerId}/fantasy/competitions.
+​
+Fantasy Player Fixtures
+GET /api/fantasy/player/{fantasyId}/fixtures
+Returns upcoming fixtures with difficulty ratings for the fantasy player — useful for transfer planning and captaincy decisions.
+​
+Player of the Season
+​
+Highest Ratings
+GET /api/player-of-the-season/highest-ratings
+Returns players with the highest average ratings across all competitions.
+​
+Available Years
+GET /api/player-of-the-season/available-years
+Returns all years with Player of the Season data available.
+​
+Most Awards (Paginated)
+GET /api/player-of-the-season/most-awards?page={page}
+Returns players ranked by the number of Player of the Season awards received.
+​
+page
+numberdefault:"0"
+Page number for pagination (0-indexed).
+​
+Top Competitions
+GET /api/player-of-the-season/top-competitions
+Returns competitions ranked by prestige/quality of their Player of the Season awards.
+​
+Example Requests
+
+cURL
+
+JavaScript
+
+Python
+import requests
+
+headers = {'x-api-key': 'YOUR_API_KEY'}
+
+# Step 1: Get fantasy ID
+fantasy_comps = requests.get(
+    'https://v2.football.sportsapipro.com/api/players/934235/fantasy/competitions',
+    headers=headers
+).json()
+
+fantasy_id = fantasy_comps['fantasyId']  # extract from response
+
+# Step 2: Get fantasy fixtures
+fixtures = requests.get(
+    f'https://v2.football.sportsapipro.com/api/fantasy/player/{fantasy_id}/fixtures',
+    headers=headers
+).json()
+Was this page helpful?
+
+
+Football V2
+WebSocket Real-Time API
+Connect to the WebSocket server for real-time live scores, match events, statistics, and odds with sub-second latency
+
+​
+Connection
+wss://v2.football.sportsapipro.com/ws?x-api-key=YOUR_API_KEY
+​
+Authentication
+Pass your API key via:
+Query string (recommended for browser clients): ?x-api-key=YOUR_API_KEY
+Header: x-api-key: YOUR_API_KEY
+​
+Sport Selection
+Optionally set the x-sport header during connection to scope live-scores to a specific sport (default: football).
+Supported values: football, basketball, ice-hockey, tennis, rugby, handball, volleyball, baseball, american-football, cricket, futsal, mma, motorsport, darts, snooker, badminton, table-tennis, beach-volley, cycling, esports, bandy, aussie-rules, floorball, minifootball, waterpolo.
+​
+Message Format
+All messages are JSON. Send actions to subscribe/unsubscribe from channels:
+{ "action": "subscribe", "channel": "live-scores" }
+{ "action": "subscribe", "channel": "match:14109842" }
+{ "action": "subscribe", "channel": "match:14109842:incidents" }
+{ "action": "unsubscribe", "channel": "match:14109842" }
+{ "action": "ping", "channel": "live-scores" }
+​
+Available Channels
+Channel	Description	Delivery
+live-scores	All live match scores & status changes (auto-scoped to your x-sport)	NATS push — sub-second
+live-scores:{sport}	Live scores for a specific sport (e.g. live-scores:basketball)	NATS push — sub-second
+match:{matchId}	Score & status updates for a single match	NATS push — sub-second
+match:{matchId}:incidents	Goals, cards, substitutions, VAR decisions	NATS-triggered fetch — sub-second
+match:{matchId}:stats	Match statistics (possession, shots, passes)	NATS-triggered fetch — sub-second
+match:{matchId}:odds	Live odds from all providers	NATS-triggered fetch — sub-second
+match:{matchId}:lineups	Team lineups (typically available pre-match)	Polling — 60s interval
+​
+Delivery Modes
+NATS push — Data is pushed directly from the real-time feed with no delay
+NATS-triggered fetch — When any match update is detected, detailed data is fetched instantly (no waiting for poll cycle)
+Polling — Data is fetched at regular intervals (used for lineups which rarely change)
+​
+Response Types
+​
+welcome
+Sent immediately on connection:
+{
+  "type": "welcome",
+  "message": "SportsAPIData WebSocket v3.1 — All Channels Sub-Second",
+  "sport": "football",
+  "natsConnected": true,
+  "channels": ["live-scores", "match:{matchId}", "..."]
+}
+​
+subscribed
+Confirms a channel subscription:
+{
+  "type": "subscribed",
+  "channel": "match:14109842:incidents",
+  "mode": "realtime (NATS-triggered fetch, 15000ms safety-net poll)"
+}
+​
+snapshot
+Last known data sent immediately upon subscribing (if available):
+{
+  "channel": "match:14109842",
+  "type": "snapshot",
+  "data": { ... },
+  "timestamp": 1710729600000
+}
+​
+update
+New data pushed in real-time:
+{
+  "channel": "match:14109842:incidents",
+  "type": "update",
+  "data": { ... },
+  "source": "nats",
+  "timestamp": 1710729600437
+}
+​
+pong
+Response to a ping (for keep-alive):
+{
+  "type": "pong",
+  "channel": "live-scores",
+  "timestamp": 1710729600000
+}
+​
+Quick Start Examples
+
+JavaScript (Browser)
+
+Python
+
+cURL (wscat)
+import websockets, asyncio, json
+
+async def connect():
+    uri = "wss://v2.football.sportsapipro.com/ws?x-api-key=YOUR_API_KEY"
+    async with websockets.connect(uri) as ws:
+        await ws.send(json.dumps({"action": "subscribe", "channel": "live-scores"}))
+        async for message in ws:
+            data = json.loads(message)
+            print(f"[{data['type']}] {data.get('channel', '')}")
+
+asyncio.run(connect())
+​
+Best Practices
+Subscribe only to channels you need
+
+Use incidents for real-time match events
+
+Handle snapshot messages
+
+Send periodic pings
+
+Reconnect with backoff
+
+Unsubscribe when done
+
+Was this page helpful?
+
+

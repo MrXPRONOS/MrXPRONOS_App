@@ -19,8 +19,8 @@ from datetime import datetime
 # =======================================================
 # CONFIGURATION
 # =======================================================
-MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
-PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY")
+MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY",'A0h3FOSN2iKebTooCdzQ1k3APP1S7Hob')
+PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY",'1d7def69c0474c2c9ed037d3ad800b96')
 
 DATA_FILE = "data.json"
 ARTICLES_FILE = "articles.json"
