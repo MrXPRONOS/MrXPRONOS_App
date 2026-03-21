@@ -7,10 +7,9 @@ Utilisé par tous les scripts qui appellent SportData API.
 """
 
 import os
-import random
+import time
 import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+from typing import Optional, Dict
 
 # Récupération des clés API depuis les variables d'environnement
 API_KEYS = []
@@ -27,31 +26,47 @@ if not API_KEYS:
     else:
         raise ValueError("Aucune clé API trouvée. Définissez SPORTDATA_API_KEY ou SPORTDATA_API_KEY_1 à SPORTDATA_API_KEY_5")
 
-def make_request(method, url, params=None, data=None, headers=None, timeout=30):
-    """
-    Effectue une requête HTTP avec une clé API choisie aléatoirement.
-    Gère les retries en cas d'erreur 429, 500, etc.
-    """
-    # Choisir une clé aléatoire
-    api_key = random.choice(API_KEYS)
-    request_headers = {"x-api-key": api_key}
-    if headers:
-        request_headers.update(headers)
 
-    # Créer une session avec retry
-    session = requests.Session()
-    retries = Retry(total=3, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
-    session.mount('https://', HTTPAdapter(max_retries=retries))
+def make_request_with_rotation(
+    method: str,
+    url: str,
+    params: Optional[Dict] = None,
+    data: Optional[Dict] = None,
+    headers: Optional[Dict] = None,
+    timeout: int = 30,
+    max_retries: int = 3
+):
+    """
+    Effectue une requête HTTP avec rotation de clés API.
+    """
+    for attempt in range(max_retries):
+        for i, api_key in enumerate(API_KEYS):
+            request_headers = {"x-api-key": api_key}
+            if headers:
+                request_headers.update(headers)
 
-    try:
-        if method.upper() == 'GET':
-            resp = session.get(url, headers=request_headers, params=params, timeout=timeout)
-        elif method.upper() == 'POST':
-            resp = session.post(url, headers=request_headers, params=params, data=data, timeout=timeout)
-        else:
-            raise ValueError(f"Méthode non supportée: {method}")
-        resp.raise_for_status()
-        return resp
-    except Exception as e:
-        print(f"❌ Erreur lors de la requête {url} avec clé {api_key[:8]}...: {e}")
-        raise
+            try:
+                if method.upper() == 'GET':
+                    resp = requests.get(url, headers=request_headers, params=params, timeout=timeout)
+                elif method.upper() == 'POST':
+                    resp = requests.post(url, headers=request_headers, params=params, data=data, timeout=timeout)
+                else:
+                    raise ValueError(f"Méthode non supportée: {method}")
+
+                if resp.status_code == 200:
+                    return resp
+                else:
+                    print(f"⚠️ Clé {i} renvoie {resp.status_code} pour {url}")
+            except Exception as e:
+                print(f"⚠️ Clé {i} échoue: {e}")
+
+            time.sleep(1)  # pause courte entre les clés
+
+        time.sleep(2)  # pause avant le prochain cycle
+
+    return None
+
+
+# Pour rétrocompatibilité, garder une fonction `make_request` qui appelle la nouvelle
+def make_request(method, url, **kwargs):
+    return make_request_with_rotation(method, url, **kwargs)
