@@ -1,0 +1,534 @@
+{
+  "teams": {
+    "79421": {
+      "status": "success",
+      "timestamp": 1774074417.0760841
+    },
+    "67481": {
+      "status": "success",
+      "timestamp": 1774074417.0764556
+    },
+    "15406": {
+      "status": "success",
+      "timestamp": 1774074417.0994816
+    },
+    "82136": {
+      "status": "success",
+      "timestamp": 1774074417.0996912
+    },
+    "49466": {
+      "status": "success",
+      "timestamp": 1774074417.168
+    },
+    "24086": {
+      "status": "success",
+      "timestamp": 1774074417.1682692
+    },
+    "13027": {
+      "status": "success",
+      "timestamp": 1774074417.1960387
+    },
+    "71128": {
+      "status": "success",
+      "timestamp": 1774074417.1962976
+    },
+    "7289": {
+      "status": "success",
+      "timestamp": 1774074497.4359019
+    },
+    "8637": {
+      "status": "success",
+      "timestamp": 1774074497.4362144
+    },
+    "21310": {
+      "status": "success",
+      "timestamp": 1774074497.744054
+    },
+    "2319": {
+      "status": "success",
+      "timestamp": 1774074497.7444007
+    },
+    "16041": {
+      "status": "success",
+      "timestamp": 1774074497.8285818
+    },
+    "16040": {
+      "status": "success",
+      "timestamp": 1774074497.828927
+    },
+    "24801": {
+      "status": "success",
+      "timestamp": 1774074497.9380832
+    },
+    "15541": {
+      "status": "success",
+      "timestamp": 1774074497.9384737
+    },
+    "26648": {
+      "status": "success",
+      "timestamp": 1774074497.9531422
+    },
+    "57565": {
+      "status": "success",
+      "timestamp": 1774074497.953484
+    },
+    "1260": {
+      "status": "success",
+      "timestamp": 1774074497.9613426
+    },
+    "9339": {
+      "status": "success",
+      "timestamp": 1774074497.9616952
+    },
+    "45619": {
+      "status": "success",
+      "timestamp": 1774074498.0354805
+    },
+    "91034": {
+      "status": "failed",
+      "timestamp": 1774074576.928171
+    },
+    "2137": {
+      "status": "success",
+      "timestamp": 1774074657.8163595
+    },
+    "49063": {
+      "status": "success",
+      "timestamp": 1774074657.816797
+    },
+    "38": {
+      "status": "success",
+      "timestamp": 1774074738.0013871
+    },
+    "108": {
+      "status": "success",
+      "timestamp": 1774074738.0018463
+    },
+    "107": {
+      "status": "success",
+      "timestamp": 1774074738.0635448
+    },
+    "106": {
+      "status": "success",
+      "timestamp": 1774074738.0640206
+    },
+    "2155": {
+      "status": "success",
+      "timestamp": 1774074738.105627
+    },
+    "2174": {
+      "status": "success",
+      "timestamp": 1774074738.1061058
+    },
+    "85681": {
+      "status": "success",
+      "timestamp": 1774074738.1237116
+    },
+    "23727": {
+      "status": "success",
+      "timestamp": 1774074738.1241477
+    },
+    "9256": {
+      "status": "success",
+      "timestamp": 1774074738.1327682
+    },
+    "164": {
+      "status": "success",
+      "timestamp": 1774074738.1332097
+    },
+    "43": {
+      "status": "success",
+      "timestamp": 1774074738.283467
+    },
+    "61": {
+      "status": "success",
+      "timestamp": 1774074738.2840085
+    },
+    "12404": {
+      "status": "success",
+      "timestamp": 1774074738.3255262
+    },
+    "68969": {
+      "status": "success",
+      "timestamp": 1774074738.3260832
+    },
+    "1173": {
+      "status": "success",
+      "timestamp": 1774074738.447807
+    },
+    "1171": {
+      "status": "success",
+      "timestamp": 1774074738.4483974
+    },
+    "2224": {
+      "status": "success",
+      "timestamp": 1774074738.5217638
+    },
+    "6016": {
+      "status": "success",
+      "timestamp": 1774074738.5223682
+    },
+    "872": {
+      "status": "success",
+      "timestamp": 1774074738.6107655
+    },
+    "869": {
+      "status": "success",
+      "timestamp": 1774074738.611369
+    },
+    "310": {
+      "status": "success",
+      "timestamp": 1774074738.7360609
+    },
+    "312": {
+      "status": "success",
+      "timestamp": 1774074738.7367287
+    },
+    "2182": {
+      "status": "success",
+      "timestamp": 1774074738.8099809
+    },
+    "2179": {
+      "status": "success",
+      "timestamp": 1774074738.8106537
+    },
+    "909": {
+      "status": "success",
+      "timestamp": 1774074739.025191
+    },
+    "904": {
+      "status": "success",
+      "timestamp": 1774074739.0258818
+    },
+    "6062": {
+      "status": "success",
+      "timestamp": 1774074739.035244
+    },
+    "18023": {
+      "status": "success",
+      "timestamp": 1774074739.0358427
+    },
+    "5629": {
+      "status": "success",
+      "timestamp": 1774074739.1187286
+    },
+    "14363": {
+      "status": "success",
+      "timestamp": 1774074739.1194365
+    },
+    "119": {
+      "status": "success",
+      "timestamp": 1774074818.3591406
+    },
+    "77": {
+      "status": "success",
+      "timestamp": 1774074818.3598757
+    },
+    "1980": {
+      "status": "success",
+      "timestamp": 1774074818.4876382
+    },
+    "1983": {
+      "status": "success",
+      "timestamp": 1774074818.4883661
+    },
+    "21922": {
+      "status": "success",
+      "timestamp": 1774074818.578622
+    },
+    "14034": {
+      "status": "success",
+      "timestamp": 1774074818.5793679
+    },
+    "84905": {
+      "status": "success",
+      "timestamp": 1774074818.8510017
+    },
+    "2069": {
+      "status": "success",
+      "timestamp": 1774074818.8517861
+    },
+    "11990": {
+      "status": "success",
+      "timestamp": 1774074818.8602428
+    },
+    "10480": {
+      "status": "success",
+      "timestamp": 1774074818.860943
+    },
+    "1750": {
+      "status": "success",
+      "timestamp": 1774074819.054071
+    },
+    "7186": {
+      "status": "success",
+      "timestamp": 1774074819.0549028
+    },
+    "18055": {
+      "status": "success",
+      "timestamp": 1774074819.1052988
+    },
+    "18168": {
+      "status": "success",
+      "timestamp": 1774074819.1061614
+    },
+    "2228": {
+      "status": "success",
+      "timestamp": 1774074819.130539
+    },
+    "9579": {
+      "status": "success",
+      "timestamp": 1774074819.131316
+    },
+    "81768": {
+      "status": "success",
+      "timestamp": 1774074819.1625924
+    },
+    "81786": {
+      "status": "success",
+      "timestamp": 1774074819.163461
+    },
+    "13445": {
+      "status": "success",
+      "timestamp": 1774074819.3660028
+    },
+    "9217": {
+      "status": "success",
+      "timestamp": 1774074819.3669384
+    },
+    "19995": {
+      "status": "success",
+      "timestamp": 1774074819.402616
+    },
+    "74167": {
+      "status": "success",
+      "timestamp": 1774074819.4034932
+    },
+    "2068": {
+      "status": "success",
+      "timestamp": 1774074819.4922507
+    },
+    "2063": {
+      "status": "success",
+      "timestamp": 1774074819.4931538
+    },
+    "67475": {
+      "status": "success",
+      "timestamp": 1774074819.561298
+    },
+    "67489": {
+      "status": "success",
+      "timestamp": 1774074819.5623517
+    },
+    "15317": {
+      "status": "success",
+      "timestamp": 1774074819.6262877
+    },
+    "13021": {
+      "status": "success",
+      "timestamp": 1774074819.6272333
+    },
+    "77003": {
+      "status": "success",
+      "timestamp": 1774074819.6675425
+    },
+    "14030": {
+      "status": "success",
+      "timestamp": 1774074819.6684697
+    },
+    "19160": {
+      "status": "success",
+      "timestamp": 1774074819.6774182
+    },
+    "69463": {
+      "status": "success",
+      "timestamp": 1774074819.6783037
+    },
+    "17": {
+      "status": "success",
+      "timestamp": 1774074819.697428
+    },
+    "30": {
+      "status": "success",
+      "timestamp": 1774074819.698346
+    },
+    "454": {
+      "status": "success",
+      "timestamp": 1774074819.7297306
+    },
+    "335": {
+      "status": "success",
+      "timestamp": 1774074819.7307093
+    },
+    "53633": {
+      "status": "success",
+      "timestamp": 1774074819.8606992
+    },
+    "53643": {
+      "status": "success",
+      "timestamp": 1774074819.8616898
+    },
+    "17041": {
+      "status": "success",
+      "timestamp": 1774074819.87952
+    },
+    "17045": {
+      "status": "success",
+      "timestamp": 1774074819.880497
+    }
+  },
+  "competitions": {
+    "7608": {
+      "status": "success",
+      "timestamp": 1774074417.076676
+    },
+    "7514": {
+      "status": "success",
+      "timestamp": 1774074417.1001256
+    },
+    "6220": {
+      "status": "success",
+      "timestamp": 1774074417.1686509
+    },
+    "5677": {
+      "status": "failed",
+      "timestamp": 1774074497.3460712
+    },
+    "620": {
+      "status": "success",
+      "timestamp": 1774074497.436642
+    },
+    "166": {
+      "status": "success",
+      "timestamp": 1774074497.7447844
+    },
+    "5805": {
+      "status": "success",
+      "timestamp": 1774074497.829339
+    },
+    "165": {
+      "status": "success",
+      "timestamp": 1774074497.938886
+    },
+    "6223": {
+      "status": "success",
+      "timestamp": 1774074497.953917
+    },
+    "141": {
+      "status": "success",
+      "timestamp": 1774074497.9621553
+    },
+    "7698": {
+      "status": "failed",
+      "timestamp": 1774074657.792297
+    },
+    "5820": {
+      "status": "failed",
+      "timestamp": 1774074737.7751772
+    },
+    "7": {
+      "status": "success",
+      "timestamp": 1774074738.002398
+    },
+    "148": {
+      "status": "success",
+      "timestamp": 1774074738.106681
+    },
+    "6153": {
+      "status": "success",
+      "timestamp": 1774074738.1246927
+    },
+    "12": {
+      "status": "success",
+      "timestamp": 1774074738.1351001
+    },
+    "4": {
+      "status": "success",
+      "timestamp": 1774074738.2847335
+    },
+    "5515": {
+      "status": "success",
+      "timestamp": 1774074738.326728
+    },
+    "98": {
+      "status": "success",
+      "timestamp": 1774074738.448992
+    },
+    "153": {
+      "status": "success",
+      "timestamp": 1774074738.5230448
+    },
+    "72": {
+      "status": "success",
+      "timestamp": 1774074738.6120262
+    },
+    "6168": {
+      "status": "success",
+      "timestamp": 1774074738.7373717
+    },
+    "150": {
+      "status": "success",
+      "timestamp": 1774074738.8112848
+    },
+    "73": {
+      "status": "success",
+      "timestamp": 1774074739.0265455
+    },
+    "7741": {
+      "status": "success",
+      "timestamp": 1774074739.036577
+    },
+    "5639": {
+      "status": "failed",
+      "timestamp": 1774074818.3055527
+    },
+    "2": {
+      "status": "success",
+      "timestamp": 1774074818.3605602
+    },
+    "131": {
+      "status": "success",
+      "timestamp": 1774074818.4893324
+    },
+    "5443": {
+      "status": "success",
+      "timestamp": 1774074818.8525496
+    },
+    "5621": {
+      "status": "success",
+      "timestamp": 1774074818.8616507
+    },
+    "112": {
+      "status": "success",
+      "timestamp": 1774074819.055671
+    },
+    "154": {
+      "status": "success",
+      "timestamp": 1774074819.1320956
+    },
+    "8124": {
+      "status": "success",
+      "timestamp": 1774074819.164239
+    },
+    "7939": {
+      "status": "success",
+      "timestamp": 1774074819.4043345
+    },
+    "137": {
+      "status": "success",
+      "timestamp": 1774074819.494032
+    },
+    "5062": {
+      "status": "success",
+      "timestamp": 1774074819.679193
+    },
+    "26": {
+      "status": "success",
+      "timestamp": 1774074819.7316535
+    },
+    "7143": {
+      "status": "success",
+      "timestamp": 1774074819.8627641
+    }
+  }
+}

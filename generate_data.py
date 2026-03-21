@@ -5,7 +5,7 @@
 generate_data.py - Moteur de pronostics football (double chance uniquement)
 Avec rotation de clés API, ML, filtres optimisés.
 Version sans votes publics ni pronostics "12".
-Cache des logos avec retry quotidien.
+Cache des logos avec une seule tentative.
 """
 
 import os
@@ -161,7 +161,7 @@ def save_logo_cache(cache):
 
 
 # =======================================================
-# FONCTIONS DE TÉLÉCHARGEMENT DES LOGOS AVEC CACHE
+# FONCTIONS DE TÉLÉCHARGEMENT DES LOGOS (une seule tentative)
 # =======================================================
 
 def get_competitor_logo_url(competitor_id: str, image_version: Optional[str] = None) -> str:
@@ -229,6 +229,7 @@ def download_logo(competitor_id: str, image_version: Optional[str] = None) -> Op
     cache["teams"] = team_cache
     save_logo_cache(cache)
     return None
+
 
 def get_competition_logo_url(competition_id: str, image_version: Optional[str] = None) -> str:
     base_url = "https://v1.football.sportsapipro.com/images/competitions"
@@ -1084,6 +1085,7 @@ def main():
         # ===== VALUE BET AMÉLIORÉ =====
         value_bet = False
         value_bet_strength = None
+        book_prob = 0.0   # initialisation par défaut
         if odds and isinstance(odds, dict):
             our_prob = ensemble_prob_dc
             dc_odds = estimate_dc_odds(odds, dc)
@@ -1106,7 +1108,7 @@ def main():
             home_odd = odds.get("home")
             away_odd = odds.get("away")
             # On ne conserve que les parties sans votes publics
-        if abs(ensemble_prob_dc - book_prob) > 0.25:
+        if book_prob > 0 and abs(ensemble_prob_dc - book_prob) > 0.25:
             suspicion_score += 25
         dom_diff = abs(analysis.get("home_dominance", 0) - analysis.get("away_dominance", 0))
         if dom_diff < 0.1 and odds:
