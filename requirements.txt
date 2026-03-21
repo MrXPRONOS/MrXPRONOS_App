@@ -4,3 +4,5 @@ feedparser
 deep-translator
 Pillow
 supabase
+joblib
+scikit-learn
