@@ -3,8 +3,9 @@
 
 """
 generate_data.py - Moteur de pronostics football (double chance uniquement)
-Avec rotation de clés API, ML, et filtres optimisés.
+Avec rotation de clés API, ML, filtres optimisés.
 Version sans votes publics ni pronostics "12".
+Cache des logos avec retry quotidien.
 """
 
 import os
@@ -53,6 +54,7 @@ CACHE_DIR = "cache"
 GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
 LOGOS_DIR = "assets/images/logos"
 COMPETITION_LOGOS_DIR = os.path.join(LOGOS_DIR, "competitions")
+LOGO_CACHE_FILE = "logo_cache.json"
 
 # Création des répertoires
 try:
@@ -70,7 +72,7 @@ XPRONOS_THRESHOLD = 35
 DOMINANCE_THRESHOLD = 0.4
 BET_SCORE_THRESHOLD = 45   # nouveau seuil
 
-# Liste des ligues à ignorer
+# Liste des ligues à ignorer (on ne skip plus, on pénalise)
 BAD_LEAGUES = [
     "friendly",
     "u21",
@@ -82,7 +84,7 @@ BAD_LEAGUES = [
 ]
 
 def is_bad_league(name: str) -> bool:
-    """Vérifie si une ligue doit être ignorée"""
+    """Vérifie si une ligue doit être considérée comme faible"""
     if not name:
         return False
     name = name.lower()
@@ -136,7 +138,30 @@ def get_now_naive() -> datetime:
 
 
 # =======================================================
-# FONCTIONS DE TÉLÉCHARGEMENT DES LOGOS (inchangées)
+# CACHE DES LOGOS
+# =======================================================
+
+def load_logo_cache():
+    """Charge le cache des logos depuis le fichier."""
+    if os.path.exists(LOGO_CACHE_FILE):
+        try:
+            with open(LOGO_CACHE_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            pass
+    return {"teams": {}, "competitions": {}}
+
+def save_logo_cache(cache):
+    """Sauvegarde le cache des logos."""
+    try:
+        with open(LOGO_CACHE_FILE, 'w', encoding='utf-8') as f:
+            json.dump(cache, f, indent=2)
+    except Exception as e:
+        print(f"⚠️ Erreur sauvegarde cache logos: {e}")
+
+
+# =======================================================
+# FONCTIONS DE TÉLÉCHARGEMENT DES LOGOS AVEC CACHE
 # =======================================================
 
 def get_competitor_logo_url(competitor_id: str, image_version: Optional[str] = None) -> str:
@@ -150,11 +175,36 @@ def download_logo(competitor_id: str, image_version: Optional[str] = None,
                   max_retries: int = 3) -> Optional[str]:
     if not competitor_id:
         return None
+
+    cache = load_logo_cache()
+    team_cache = cache.get("teams", {})
+    now = time.time()
+    retry_delay = 24 * 3600  # 24 heures
+
+    # Vérifier si déjà tenté récemment
+    if competitor_id in team_cache:
+        entry = team_cache[competitor_id]
+        if entry.get("status") == "success":
+            filename = f"competitor_{competitor_id}.png"
+            filepath = os.path.join(LOGOS_DIR, filename)
+            if os.path.exists(filepath):
+                return f"assets/images/logos/{filename}"
+        elif entry.get("status") == "failed":
+            last_attempt = entry.get("timestamp", 0)
+            if now - last_attempt < retry_delay:
+                return None  # ne pas retenter avant 24h
+            # sinon, on retente (pas de return)
+
     filename = f"competitor_{competitor_id}.png"
     filepath = os.path.join(LOGOS_DIR, filename)
     rel_path = f"assets/images/logos/{filename}"
 
+    # Vérifier si le fichier existe déjà (au cas où)
     if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+        # Mettre à jour le cache en succès
+        team_cache[competitor_id] = {"status": "success", "timestamp": time.time()}
+        cache["teams"] = team_cache
+        save_logo_cache(cache)
         return rel_path
 
     url = get_competitor_logo_url(competitor_id, image_version)
@@ -166,11 +216,19 @@ def download_logo(competitor_id: str, image_version: Optional[str] = None,
                 with open(filepath, 'wb') as f:
                     f.write(resp.content)
                 print(f"✅ Logo téléchargé : {competitor_id}")
+                team_cache[competitor_id] = {"status": "success", "timestamp": time.time()}
+                cache["teams"] = team_cache
+                save_logo_cache(cache)
                 return rel_path
         except Exception as e:
             print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo {competitor_id}: {e}")
             if attempt < max_retries - 1:
                 time.sleep(1)
+
+    # Échec définitif pour cette exécution
+    team_cache[competitor_id] = {"status": "failed", "timestamp": time.time()}
+    cache["teams"] = team_cache
+    save_logo_cache(cache)
     return None
 
 
@@ -185,11 +243,32 @@ def download_competition_logo(competition_id: str, image_version: Optional[str] 
                               max_retries: int = 3) -> Optional[str]:
     if not competition_id:
         return None
+
+    cache = load_logo_cache()
+    comp_cache = cache.get("competitions", {})
+    now = time.time()
+    retry_delay = 24 * 3600
+
+    if competition_id in comp_cache:
+        entry = comp_cache[competition_id]
+        if entry.get("status") == "success":
+            filename = f"competition_{competition_id}.png"
+            filepath = os.path.join(COMPETITION_LOGOS_DIR, filename)
+            if os.path.exists(filepath):
+                return f"assets/images/logos/competitions/{filename}"
+        elif entry.get("status") == "failed":
+            last_attempt = entry.get("timestamp", 0)
+            if now - last_attempt < retry_delay:
+                return None
+
     filename = f"competition_{competition_id}.png"
     filepath = os.path.join(COMPETITION_LOGOS_DIR, filename)
     rel_path = f"assets/images/logos/competitions/{filename}"
 
     if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
+        comp_cache[competition_id] = {"status": "success", "timestamp": time.time()}
+        cache["competitions"] = comp_cache
+        save_logo_cache(cache)
         return rel_path
 
     url = get_competition_logo_url(competition_id, image_version)
@@ -201,11 +280,18 @@ def download_competition_logo(competition_id: str, image_version: Optional[str] 
                 with open(filepath, 'wb') as f:
                     f.write(resp.content)
                 print(f"✅ Logo compétition téléchargé : {competition_id}")
+                comp_cache[competition_id] = {"status": "success", "timestamp": time.time()}
+                cache["competitions"] = comp_cache
+                save_logo_cache(cache)
                 return rel_path
         except Exception as e:
             print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo compétition {competition_id}: {e}")
             if attempt < max_retries - 1:
                 time.sleep(1)
+
+    comp_cache[competition_id] = {"status": "failed", "timestamp": time.time()}
+    cache["competitions"] = comp_cache
+    save_logo_cache(cache)
     return None
 
 
@@ -826,10 +912,6 @@ def main():
         if away_score is None:
             away_score = existing.get("away_score") if isinstance(existing, dict) else None
         status = base.get("status_text") or (existing.get("status") if isinstance(existing, dict) else "")
-
-        if is_bad_league(base.get("competition", "")):
-            # On ne skip plus, on pénalisera plus tard
-            pass
 
         home_team = base.get("home_team", "")
         away_team = base.get("away_team", "")
