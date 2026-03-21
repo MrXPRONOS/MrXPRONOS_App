@@ -2,34 +2,27 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - Moteur de pronostics football (double chance uniquement)
-Avec rotation de clés API, ML, filtres optimisés.
-Version sans votes publics ni pronostics "12".
-Cache des logos avec une seule tentative.
+generate_data.py - Moteur de pronostics football (double chance) avec rotation de clés API
+Intègre les métriques avancées : Elo, xG, fatigue, piège bookmaker et score AI.
+Version avec support auto-apprentissage (ML) et sans votes publics.
 """
 
 import os
 import json
 import random
 import time
-import re
-import uuid
 from datetime import datetime, timedelta, timezone
 from math import exp, factorial
 from typing import Dict, List, Optional, Tuple, Any
 
-# Import conditionnel pour éviter les erreurs si le module n'existe pas
+# Import du module de requêtes avec rotation de clés
 try:
     from api_utils import make_request
 except ImportError:
-    # Fallback si api_utils n'est pas disponible
     import requests
     def make_request(method: str, url: str, **kwargs):
-        """Fallback request function"""
         if method.upper() == 'GET':
             return requests.get(url, **kwargs)
-        elif method.upper() == 'POST':
-            return requests.post(url, **kwargs)
         else:
             raise ValueError(f"Unsupported method: {method}")
 
@@ -54,7 +47,6 @@ CACHE_DIR = "cache"
 GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
 LOGOS_DIR = "assets/images/logos"
 COMPETITION_LOGOS_DIR = os.path.join(LOGOS_DIR, "competitions")
-LOGO_CACHE_FILE = "logo_cache.json"
 
 # Création des répertoires
 try:
@@ -66,13 +58,12 @@ except OSError as e:
     raise
 
 HOME_ADVANTAGE = 0.1
-CONFIDENCE_THRESHOLD = 70   # abaissé pour garder plus de matchs
+CONFIDENCE_THRESHOLD = 50
 GOAL_DIFF_THRESHOLD = 0.1
-XPRONOS_THRESHOLD = 70
+XPRONOS_THRESHOLD = 35
 DOMINANCE_THRESHOLD = 0.4
-BET_SCORE_THRESHOLD = 75   # nouveau seuil
 
-# Liste des ligues à ignorer (on ne skip plus, on pénalise)
+# Liste des ligues à ignorer
 BAD_LEAGUES = [
     "friendly",
     "u21",
@@ -84,7 +75,6 @@ BAD_LEAGUES = [
 ]
 
 def is_bad_league(name: str) -> bool:
-    """Vérifie si une ligue doit être considérée comme faible"""
     if not name:
         return False
     name = name.lower()
@@ -96,25 +86,22 @@ print("=" * 60)
 
 
 # =======================================================
-# FONCTIONS UTILITAIRES DE ROBUSTESSE
+# FONCTIONS UTILITAIRES
 # =======================================================
 
 def safe_division(numerator: float, denominator: float, default: float = 0.0) -> float:
-    """Division sécurisée évitant la division par zéro"""
     if denominator == 0 or denominator is None:
         return default
     return numerator / denominator
 
 
 def safe_get(dictionary: dict, key: str, default=None):
-    """Récupération sécurisée avec valeur par défaut"""
     if dictionary is None:
         return default
     return dictionary.get(key, default)
 
 
 def parse_datetime_safe(date_str: str) -> Optional[datetime]:
-    """Parse une date ISO de manière sécurisée et retourne toujours une date naive (sans timezone)"""
     if not date_str:
         return None
     try:
@@ -133,35 +120,11 @@ def parse_datetime_safe(date_str: str) -> Optional[datetime]:
 
 
 def get_now_naive() -> datetime:
-    """Retourne la date/heure actuelle sans timezone (naive)"""
     return datetime.now()
 
 
 # =======================================================
-# CACHE DES LOGOS
-# =======================================================
-
-def load_logo_cache():
-    """Charge le cache des logos depuis le fichier."""
-    if os.path.exists(LOGO_CACHE_FILE):
-        try:
-            with open(LOGO_CACHE_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except:
-            pass
-    return {"teams": {}, "competitions": {}}
-
-def save_logo_cache(cache):
-    """Sauvegarde le cache des logos."""
-    try:
-        with open(LOGO_CACHE_FILE, 'w', encoding='utf-8') as f:
-            json.dump(cache, f, indent=2)
-    except Exception as e:
-        print(f"⚠️ Erreur sauvegarde cache logos: {e}")
-
-
-# =======================================================
-# FONCTIONS DE TÉLÉCHARGEMENT DES LOGOS (une seule tentative)
+# FONCTIONS DE TÉLÉCHARGEMENT DES LOGOS
 # =======================================================
 
 def get_competitor_logo_url(competitor_id: str, image_version: Optional[str] = None) -> str:
@@ -171,63 +134,30 @@ def get_competitor_logo_url(competitor_id: str, image_version: Optional[str] = N
     return f"{base_url}/{competitor_id}"
 
 
-def download_logo(competitor_id: str, image_version: Optional[str] = None) -> Optional[str]:
-    """
-    Télécharge le logo d'une équipe. Une seule tentative, pas de retry.
-    """
+def download_logo(competitor_id: str, image_version: Optional[str] = None, 
+                  max_retries: int = 3) -> Optional[str]:
     if not competitor_id:
         return None
-
-    cache = load_logo_cache()
-    team_cache = cache.get("teams", {})
-    now = time.time()
-    retry_delay = 24 * 3600  # 24 heures
-
-    # Vérifier si déjà tenté récemment
-    if competitor_id in team_cache:
-        entry = team_cache[competitor_id]
-        if entry.get("status") == "success":
-            filename = f"competitor_{competitor_id}.png"
-            filepath = os.path.join(LOGOS_DIR, filename)
-            if os.path.exists(filepath):
-                return f"assets/images/logos/{filename}"
-        elif entry.get("status") == "failed":
-            last_attempt = entry.get("timestamp", 0)
-            if now - last_attempt < retry_delay:
-                return None  # ne pas retenter avant 24h
-            # sinon, on retente (une seule fois)
-
     filename = f"competitor_{competitor_id}.png"
     filepath = os.path.join(LOGOS_DIR, filename)
     rel_path = f"assets/images/logos/{filename}"
 
-    # Si le fichier existe déjà, on le considère comme succès
     if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
-        team_cache[competitor_id] = {"status": "success", "timestamp": now}
-        cache["teams"] = team_cache
-        save_logo_cache(cache)
         return rel_path
 
     url = get_competitor_logo_url(competitor_id, image_version)
-
-    # Une seule tentative
-    try:
-        resp = make_request('GET', url, timeout=10)
-        if resp and resp.status_code == 200 and len(resp.content) > 0:
-            with open(filepath, 'wb') as f:
-                f.write(resp.content)
-            print(f"✅ Logo téléchargé : {competitor_id}")
-            team_cache[competitor_id] = {"status": "success", "timestamp": now}
-            cache["teams"] = team_cache
-            save_logo_cache(cache)
-            return rel_path
-    except Exception as e:
-        print(f"⚠️ Échec téléchargement logo {competitor_id}: {e}")
-
-    # Échec définitif
-    team_cache[competitor_id] = {"status": "failed", "timestamp": now}
-    cache["teams"] = team_cache
-    save_logo_cache(cache)
+    for attempt in range(max_retries):
+        try:
+            resp = make_request('GET', url, timeout=10)
+            if resp and resp.status_code == 200 and len(resp.content) > 0:
+                with open(filepath, 'wb') as f:
+                    f.write(resp.content)
+                print(f"✅ Logo téléchargé : {competitor_id}")
+                return rel_path
+        except Exception as e:
+            print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo {competitor_id}: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(1)
     return None
 
 
@@ -238,58 +168,30 @@ def get_competition_logo_url(competition_id: str, image_version: Optional[str] =
     return f"{base_url}/{competition_id}"
 
 
-def download_competition_logo(competition_id: str, image_version: Optional[str] = None) -> Optional[str]:
-    """
-    Télécharge le logo d'une compétition. Une seule tentative, pas de retry.
-    """
+def download_competition_logo(competition_id: str, image_version: Optional[str] = None,
+                              max_retries: int = 3) -> Optional[str]:
     if not competition_id:
         return None
-
-    cache = load_logo_cache()
-    comp_cache = cache.get("competitions", {})
-    now = time.time()
-    retry_delay = 24 * 3600
-
-    if competition_id in comp_cache:
-        entry = comp_cache[competition_id]
-        if entry.get("status") == "success":
-            filename = f"competition_{competition_id}.png"
-            filepath = os.path.join(COMPETITION_LOGOS_DIR, filename)
-            if os.path.exists(filepath):
-                return f"assets/images/logos/competitions/{filename}"
-        elif entry.get("status") == "failed":
-            last_attempt = entry.get("timestamp", 0)
-            if now - last_attempt < retry_delay:
-                return None
-
     filename = f"competition_{competition_id}.png"
     filepath = os.path.join(COMPETITION_LOGOS_DIR, filename)
     rel_path = f"assets/images/logos/competitions/{filename}"
 
     if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
-        comp_cache[competition_id] = {"status": "success", "timestamp": now}
-        cache["competitions"] = comp_cache
-        save_logo_cache(cache)
         return rel_path
 
     url = get_competition_logo_url(competition_id, image_version)
-
-    try:
-        resp = make_request('GET', url, timeout=10)
-        if resp and resp.status_code == 200 and len(resp.content) > 0:
-            with open(filepath, 'wb') as f:
-                f.write(resp.content)
-            print(f"✅ Logo compétition téléchargé : {competition_id}")
-            comp_cache[competition_id] = {"status": "success", "timestamp": now}
-            cache["competitions"] = comp_cache
-            save_logo_cache(cache)
-            return rel_path
-    except Exception as e:
-        print(f"⚠️ Échec téléchargement logo compétition {competition_id}: {e}")
-
-    comp_cache[competition_id] = {"status": "failed", "timestamp": now}
-    cache["competitions"] = comp_cache
-    save_logo_cache(cache)
+    for attempt in range(max_retries):
+        try:
+            resp = make_request('GET', url, timeout=10)
+            if resp and resp.status_code == 200 and len(resp.content) > 0:
+                with open(filepath, 'wb') as f:
+                    f.write(resp.content)
+                print(f"✅ Logo compétition téléchargé : {competition_id}")
+                return rel_path
+        except Exception as e:
+            print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo compétition {competition_id}: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(1)
     return None
 
 
@@ -297,9 +199,8 @@ def download_competition_logo(competition_id: str, image_version: Optional[str] 
 # FONCTIONS DE RÉCUPÉRATION DES DONNÉES
 # =======================================================
 
-def fetch_games_with_comps(date_from: datetime, date_to: datetime,
+def fetch_games_with_comps(date_from: datetime, date_to: datetime, 
                            max_retries: int = 3) -> Tuple[List[dict], List[dict]]:
-    """Récupère les matchs et compétitions pour une plage de dates"""
     params = {
         "startDate": date_from.strftime("%d/%m/%Y"),
         "endDate": date_to.strftime("%d/%m/%Y"),
@@ -307,7 +208,6 @@ def fetch_games_with_comps(date_from: datetime, date_to: datetime,
         "showOdds": "true",
         "onlyMajorGames": "false"
     }
-
     for attempt in range(max_retries):
         try:
             resp = make_request('GET', SPORTDATA_URL, params=params, timeout=30)
@@ -332,7 +232,6 @@ def fetch_games_with_comps(date_from: datetime, date_to: datetime,
 
 
 def extract_game_info(game: dict, comp_image_map: dict) -> Optional[dict]:
-    """Extrait les informations de base d'un match"""
     if not isinstance(game, dict):
         return None
     try:
@@ -343,7 +242,7 @@ def extract_game_info(game: dict, comp_image_map: dict) -> Optional[dict]:
 
         home = game.get("homeCompetitor", {}) or {}
         away = game.get("awayCompetitor", {}) or {}
-
+        
         home_score = home.get("score")
         away_score = away.get("score")
         if home_score == -1 or home_score is None:
@@ -401,7 +300,6 @@ def extract_game_info(game: dict, comp_image_map: dict) -> Optional[dict]:
 # =======================================================
 
 def build_team_history(historical: List[dict]) -> dict:
-    """Construit l'historique des matchs par équipe"""
     team_matches = {}
     if not isinstance(historical, list):
         return team_matches
@@ -429,9 +327,8 @@ def build_team_history(historical: List[dict]) -> dict:
     return team_matches
 
 
-def get_team_form(team: str, team_matches: dict, last_games: int = 5,
+def get_team_form(team: str, team_matches: dict, last_games: int = 5, 
                   max_days: int = 365) -> Optional[dict]:
-    """Calcule la forme récente d'une équipe"""
     if not team or not isinstance(team_matches, dict):
         return None
     matches = team_matches.get(team, [])
@@ -505,7 +402,6 @@ def get_team_form(team: str, team_matches: dict, last_games: int = 5,
 # =======================================================
 
 def load_historical_matches() -> List[dict]:
-    """Charge les matchs historiques depuis le cache"""
     if not os.path.exists(GLOBAL_CACHE_FILE):
         print("⚠️ Fichier historique introuvable. Exécutez d'abord allmatches.py.")
         return []
@@ -523,7 +419,6 @@ def load_historical_matches() -> List[dict]:
 
 
 def weight_by_date(date_str: str) -> float:
-    """Calcule le poids d'un match selon son ancienneté"""
     try:
         match_date = parse_datetime_safe(date_str)
         if match_date is None:
@@ -541,7 +436,6 @@ def weight_by_date(date_str: str) -> float:
 
 
 def competition_weight(competition: str) -> float:
-    """Calcule le poids selon le type de compétition"""
     if not competition:
         return 1.0
     comp_lower = competition.lower()
@@ -552,9 +446,8 @@ def competition_weight(competition: str) -> float:
     return 1.0
 
 
-def get_h2h(historical: List[dict], home_team: str, away_team: str,
+def get_h2h(historical: List[dict], home_team: str, away_team: str, 
             years: int = 2) -> List[dict]:
-    """Récupère l'historique H2H entre deux équipes"""
     if not historical or not home_team or not away_team:
         return []
     cutoff_date = (datetime.now() - timedelta(days=365 * years)).date()
@@ -578,9 +471,8 @@ def get_h2h(historical: List[dict], home_team: str, away_team: str,
     return h2h
 
 
-def analyze_h2h(h2h_list: List[dict], current_home_team: str,
+def analyze_h2h(h2h_list: List[dict], current_home_team: str, 
                 current_away_team: str) -> dict:
-    """Analyse les statistiques H2H"""
     home_score = 0.0
     away_score = 0.0
     draws_score = 0.0
@@ -598,7 +490,6 @@ def analyze_h2h(h2h_list: List[dict], current_home_team: str,
         }
 
     current_home_lower = current_home_team.lower()
-
     for match in h2h_list:
         if not isinstance(match, dict):
             continue
@@ -638,26 +529,24 @@ def analyze_h2h(h2h_list: List[dict], current_home_team: str,
     }
 
 
-def generate_prediction(analysis: dict, home_form: Optional[dict],
+def generate_prediction(analysis: dict, home_form: Optional[dict], 
                        away_form: Optional[dict], league: str) -> dict:
-    """Génère la prédiction double chance (sans 12)"""
     if not isinstance(analysis, dict):
         analysis = {}
     home_dom = analysis.get("home_dominance", 0) + HOME_ADVANTAGE
     away_dom = analysis.get("away_dominance", 0)
     seuil = DOMINANCE_THRESHOLD
 
-    # On ne garde que 1X ou X2, jamais 12
     if home_dom > away_dom + seuil:
         double_chance = "1X"
     elif away_dom > home_dom + seuil:
         double_chance = "X2"
     else:
-        # Si trop équilibré, on ne prend pas le match (on skip)
-        return None
+        double_chance = "12"
 
     confiance = 50
     confiance += min(20, analysis.get("total_matches", 0) * 3)
+
     if max(home_dom, away_dom) > 0.7:
         confiance += 10
 
@@ -674,16 +563,8 @@ def generate_prediction(analysis: dict, home_form: Optional[dict],
         if defense_diff > 0.8:
             confiance += 5
 
-    # Pénalités (au lieu de skip)
-    if analysis.get("draw_rate", 0) > 0.45:
+    if analysis.get("draw_rate", 0) > 0.4:
         confiance -= 10
-    dom_diff = abs(analysis.get("home_dominance", 0) - analysis.get("away_dominance", 0))
-    if dom_diff < 0.15:
-        confiance -= 5
-    if home_form and away_form:
-        goal_diff = abs(home_form.get("goals_for", 0) - away_form.get("goals_for", 0))
-        if goal_diff < GOAL_DIFF_THRESHOLD:
-            confiance -= 5
 
     confiance = max(0, min(100, confiance))
 
@@ -693,9 +574,8 @@ def generate_prediction(analysis: dict, home_form: Optional[dict],
     }
 
 
-def calculate_xpronos_score(analysis: dict, home_form: Optional[dict],
+def calculate_xpronos_score(analysis: dict, home_form: Optional[dict], 
                            away_form: Optional[dict], league: str) -> int:
-    """Calcule le score xPronos"""
     if not isinstance(analysis, dict):
         analysis = {}
     score = 0
@@ -711,17 +591,15 @@ def calculate_xpronos_score(analysis: dict, home_form: Optional[dict],
 
 
 def get_category(score: int) -> str:
-    """Détermine la catégorie selon le score"""
-    if score >= 70:
+    if score >= 50:
         return "pro"
-    elif score >= 80:
+    elif score >= 40:
         return "pro"
     else:
         return "simple"
 
 
 def get_badge(score: int) -> str:
-    """Retourne le badge selon le score"""
     if score >= 70:
         return "🏆 PREMIUM LOCK"
     elif score >= 60:
@@ -736,7 +614,6 @@ def get_badge(score: int) -> str:
 # =======================================================
 
 def normalize_odds(odds: dict) -> Optional[dict]:
-    """Normalise les cotes pour obtenir les probabilités sans marge"""
     if not odds or not isinstance(odds, dict):
         return None
     home = odds.get("home")
@@ -763,7 +640,6 @@ def normalize_odds(odds: dict) -> Optional[dict]:
 
 
 def estimate_dc_odds(odds: dict, double_chance: str, margin: float = 0.05) -> float:
-    """Estime la cote double chance à partir des cotes 1X2"""
     probs = normalize_odds(odds)
     if not probs:
         return 0.0
@@ -771,6 +647,8 @@ def estimate_dc_odds(odds: dict, double_chance: str, margin: float = 0.05) -> fl
         prob = probs["home"] + probs["draw"]
     elif double_chance == 'X2':
         prob = probs["draw"] + probs["away"]
+    elif double_chance == '12':
+        prob = probs["home"] + probs["away"]
     else:
         return 0.0
     if prob <= 0:
@@ -778,9 +656,8 @@ def estimate_dc_odds(odds: dict, double_chance: str, margin: float = 0.05) -> fl
     return 1 / prob
 
 
-def poisson_probability(lambda_home: float, lambda_away: float,
+def poisson_probability(lambda_home: float, lambda_away: float, 
                        max_goals: int = 6) -> Tuple[float, float, float]:
-    """Calcule les probabilités selon le modèle de Poisson"""
     lambda_home = max(0.1, float(lambda_home))
     lambda_away = max(0.1, float(lambda_away))
     p_home = 0.0
@@ -807,7 +684,6 @@ def poisson_probability(lambda_home: float, lambda_away: float,
 
 
 def estimate_odds(category: str, double_chance: str) -> float:
-    """Estime une cote moyenne pour le double chance selon la catégorie"""
     odds_map = {
         "vip": {"1X": 1.25, "X2": 1.35, "12": 1.30},
         "pro": {"1X": 1.35, "X2": 1.45, "12": 1.40},
@@ -823,7 +699,7 @@ def estimate_odds(category: str, double_chance: str) -> float:
 
 def main():
     # 1. Charger l'existant
-    existing_data = {"matches": [], "categories": {"simple": [], "pro": [], "vip": []},
+    existing_data = {"matches": [], "categories": {"simple": [], "pro": [], "vip": []}, 
                      "stats": {}, "bookmakers": []}
     existing_matches = {}
     if os.path.exists(DATA_FILE):
@@ -832,7 +708,7 @@ def main():
                 loaded = json.load(f)
                 if isinstance(loaded, dict):
                     existing_data = loaded
-                    existing_matches = {str(m.get("id", "")): m
+                    existing_matches = {str(m.get("id", "")): m 
                                        for m in loaded.get("matches", []) if isinstance(m, dict)}
         except Exception as e:
             print(f"❌ Erreur chargement fichier existant: {e}")
@@ -849,6 +725,7 @@ def main():
         if isinstance(comp, dict) and comp.get("id"):
             all_comps[comp["id"]] = comp
     all_comps_list = list(all_comps.values())
+
     comp_image_map = {}
     for comp in all_comps_list:
         comp_id = comp.get("id")
@@ -864,15 +741,12 @@ def main():
             if info and info.get("id"):
                 new_infos[info["id"]] = info
 
-    # 3. Charger l'historique H2H
     historical = load_historical_matches()
     print(f"📂 Historique chargé : {len(historical)} matchs")
 
-    # 4. Construire l'historique des équipes
     team_matches = build_team_history(historical)
     print(f"📊 Statistiques de forme calculées pour {len(team_matches)} équipes")
 
-    # 5. Préparer les nouvelles listes
     matches = []
     categories = {"simple": [], "pro": [], "vip": []}
 
@@ -911,6 +785,12 @@ def main():
             away_score = existing.get("away_score") if isinstance(existing, dict) else None
         status = base.get("status_text") or (existing.get("status") if isinstance(existing, dict) else "")
 
+        # Ligues faibles : on ignore (comme dans la version originale)
+        if is_bad_league(base.get("competition", "")):
+            print(f"⚠️ Match {base.get('home_team', '')} vs {base.get('away_team', '')} ignoré (ligue faible)")
+            total_skipped += 1
+            continue
+
         home_team = base.get("home_team", "")
         away_team = base.get("away_team", "")
         home_form = get_team_form(home_team, team_matches, last_games=5) if home_team else None
@@ -931,7 +811,6 @@ def main():
         if len(h2h_list) >= 2:
             analysis = analyze_h2h(h2h_list, home_team, away_team)
         else:
-            # Fallback Poisson
             home_matches = home_form.get("matches_used", 0) if home_form else 0
             away_matches = away_form.get("matches_used", 0) if away_form else 0
             if home_matches >= 2 and away_matches >= 2:
@@ -956,25 +835,37 @@ def main():
                 total_skipped += 1
                 continue
 
-        # ===== PRÉDICTION (sans 12) =====
-        prediction = generate_prediction(analysis, home_form, away_form, base.get("competition", ""))
-        if prediction is None:
-            print(f"   ⚠️ Match {home_team} vs {away_team} ignoré (trop équilibré, pronostic 12 non retenu)")
+        # Filtres originaux
+        if analysis.get("draw_rate", 0) > 0.45:
+            print(f"⚠️ Match {home_team} vs {away_team} ignoré (draw_rate > 0.45)")
             total_skipped += 1
             continue
 
-        # Appliquer les pénalités pour ligue faible (au lieu de skip)
-        if is_bad_league(base.get("competition", "")):
-            prediction["confidence"] -= 15
-            print(f"⚠️ Match {home_team} vs {away_team} ligue faible → confiance réduite à {prediction['confidence']}%")
+        dom_diff = abs(analysis.get("home_dominance", 0) - analysis.get("away_dominance", 0))
+        if dom_diff < 0.15:
+            print(f"⚠️ Match {home_team} vs {away_team} ignoré (trop équilibré)")
+            total_skipped += 1
+            continue
 
-        # Filtre sur la confiance
+        prediction = generate_prediction(analysis, home_form, away_form, base.get("competition", ""))
+
+        if prediction.get("double_chance") == "12":
+            print(f"   ⚠️ Pronostic 12 (match équilibré) ignoré")
+            total_skipped += 1
+            continue
+
         if prediction.get("confidence", 0) < CONFIDENCE_THRESHOLD:
             print(f"⚠️ Match {home_team} vs {away_team} ignoré (confiance insuffisante)")
             total_skipped += 1
             continue
 
-        # Filtre temporel
+        if home_form and away_form:
+            goal_diff = abs(home_form.get("goals_for", 0) - away_form.get("goals_for", 0))
+            if goal_diff < GOAL_DIFF_THRESHOLD:
+                print(f"⚠️ Match {home_team} vs {away_team} ignoré (différence buts trop faible: {goal_diff:.2f})")
+                total_skipped += 1
+                continue
+
         try:
             match_time_str = base.get("start_time", "")
             if match_time_str:
@@ -983,13 +874,12 @@ def main():
                     now = get_now_naive()
                     time_diff = (match_time - now).total_seconds()
                     if 0 < time_diff < 1800:
-                        print(f"⚠️ Match {home_team} vs {away_team} ignoré (trop proche)")
+                        print(f"⚠️ Match {home_team} vs {away_team} ignoré (trop proche: {int(time_diff/60)}min)")
                         total_skipped += 1
                         continue
         except Exception as e:
-            print(f"⚠️ Erreur vérification temps match: {e}")
+            print(f"⚠️ Erreur vérification temps match {home_team} vs {away_team}: {e}")
 
-        # Filtre anti-surprise : écart de cotes
         odds = base.get("odds")
         if odds and isinstance(odds, dict):
             home_odd = odds.get("home")
@@ -999,9 +889,61 @@ def main():
                     print(f"⚠️ Match {home_team} vs {away_team} ignoré (écart de cotes trop grand)")
                     total_skipped += 1
                     continue
+            dc = prediction.get("double_chance", "")
+            if dc == "1X" and home_odd and float(home_odd) < 1.20:
+                print(f"⚠️ Match {home_team} vs {away_team} ignoré (cote home trop faible pour 1X)")
+                total_skipped += 1
+                continue
+            if dc == "X2" and away_odd and float(away_odd) < 1.20:
+                print(f"⚠️ Match {home_team} vs {away_team} ignoré (cote away trop faible pour X2)")
+                total_skipped += 1
+                continue
 
-        # ===== CALCUL DES MÉTRIQUES AVANCÉES =====
-        # 1. Elo rating
+        score = calculate_xpronos_score(analysis, home_form, away_form, base.get("competition", ""))
+        category = get_category(score)
+        badge = get_badge(score)
+
+        if score < XPRONOS_THRESHOLD:
+            print(f"⚠️ Match {home_team} vs {away_team} ignoré (score xPronos {score} < {XPRONOS_THRESHOLD})")
+            total_skipped += 1
+            continue
+
+        home_logo = download_logo(base.get("home_competitor_id"), base.get("home_image_version"))
+        away_logo = download_logo(base.get("away_competitor_id"), base.get("away_image_version"))
+        league_logo = download_competition_logo(base.get("competition_id"), base.get("competition_image_version"))
+
+        # Pas de votes publics (supprimés)
+        public_votes = None
+
+        # ===== VALUE BET (original) =====
+        value_bet = False
+        if odds and isinstance(odds, dict):
+            dc = prediction.get("double_chance", "")
+            home_dom = analysis.get("home_dominance", 0) + HOME_ADVANTAGE
+            away_dom = analysis.get("away_dominance", 0)
+            draw_rate = analysis.get("draw_rate", 0)
+            if dc == "1X":
+                our_prob = (home_dom * 0.6) + (draw_rate * 0.4)
+                if home_form and away_form:
+                    form_diff = home_form.get("form_score", 0) - away_form.get("form_score", 0)
+                    our_prob += max(0, form_diff * 0.2)
+            elif dc == "X2":
+                our_prob = (away_dom * 0.6) + (draw_rate * 0.4)
+                if home_form and away_form:
+                    form_diff = home_form.get("form_score", 0) - away_form.get("form_score", 0)
+                    our_prob += max(0, -form_diff * 0.2)
+            elif dc == "12":
+                our_prob = home_dom + away_dom
+            else:
+                our_prob = 0
+            our_prob = min(our_prob, 0.95)
+            dc_odds = estimate_dc_odds(odds, dc)
+            if dc_odds > 0:
+                book_prob = 1 / dc_odds
+                if our_prob > book_prob + 0.05:
+                    value_bet = True
+
+        # ===== MÉTRIQUES AVANCÉES =====
         elo_base = 1500
         elo_home = elo_base
         elo_away = elo_base
@@ -1010,7 +952,6 @@ def main():
         if away_form:
             elo_away = int(elo_base + (away_form.get("form_score", 0) * 200))
 
-        # 2. xG estimé
         xg_home = xg_away = 1.2
         if home_form and away_form:
             gf_h = home_form.get("goals_for", 1.2)
@@ -1020,24 +961,43 @@ def main():
             xg_home = (gf_h * 1.1 + ga_a * 0.9) / 2
             xg_away = (gf_a * 0.9 + ga_h * 1.1) / 2
 
-        # 3. Fatigue
         fatigue_home = home_form.get("matches_used", 0) if home_form else 0
         fatigue_away = away_form.get("matches_used", 0) if away_form else 0
 
-        # 4. Probabilités Poisson
+        # ===== DÉTECTION DE PIÈGES (sans votes) =====
+        trap_detected = False
+        # (aucune donnée de vote, on garde la logique originale sans votes)
+        # Optionnel : on peut utiliser l'écart de probabilité comme indicateur
+        if odds:
+            dc_odds_val = estimate_dc_odds(odds, prediction.get("double_chance", ""))
+            if dc_odds_val > 0:
+                book_prob = 1 / dc_odds_val
+                # notre probabilité de double chance calculée
+                home_dom = analysis.get("home_dominance", 0) + HOME_ADVANTAGE
+                away_dom = analysis.get("away_dominance", 0)
+                draw_rate = analysis.get("draw_rate", 0)
+                dc_prob = (home_dom + draw_rate) if prediction.get("double_chance") == "1X" else (away_dom + draw_rate)
+                if abs(dc_prob - book_prob) > 0.25:
+                    trap_detected = True
+
+        # ===== SCORE AI =====
+        elo_diff = (elo_home - elo_away) / 200.0
+        conf = prediction.get("confidence", 0)
+        ai_score = score * 0.4 + conf * 0.3 + max(0, min(100, elo_diff * 50))
+        ai_score = max(0, min(100, ai_score))
+
+        # ===== MODÈLE ENSEMBLE (poids fixes) =====
         if home_form and away_form:
             gf_h = home_form.get("goals_for", 1.2)
             ga_h = home_form.get("goals_against", 1.2)
             gf_a = away_form.get("goals_for", 1.2)
             ga_a = away_form.get("goals_against", 1.2)
-            lambda_home = (gf_h * 1.1 + ga_a * 0.9) / 2
-            lambda_away = (gf_a * 0.9 + ga_h * 1.1) / 2
-            p_home, p_draw, p_away = poisson_probability(lambda_home, lambda_away)
-            poisson_probs = {"home": round(p_home, 3), "draw": round(p_draw, 3), "away": round(p_away, 3)}
+            lambda_home_ens = (gf_h * 1.1 + ga_a * 0.9) / 2
+            lambda_away_ens = (gf_a * 0.9 + ga_h * 1.1) / 2
+            poisson_h, poisson_d, poisson_a = poisson_probability(lambda_home_ens, lambda_away_ens)
         else:
-            poisson_probs = {"home": 0.33, "draw": 0.34, "away": 0.33}
+            poisson_h = poisson_d = poisson_a = 0.33
 
-        # ===== MODÈLE ENSEMBLE AVEC POIDS DYNAMIQUES =====
         h2h_h = analysis.get("home_dominance", 0)
         h2h_d = analysis.get("draw_rate", 0)
         h2h_a = analysis.get("away_dominance", 0)
@@ -1053,100 +1013,38 @@ def main():
         form_d_norm = 1 - form_h_norm - form_a_norm
         if form_d_norm < 0:
             form_d_norm = 0
+            total = form_h_norm + form_a_norm
+            if total > 0:
+                form_h_norm /= total
+                form_a_norm /= total
 
-        # Poids dynamiques selon le nombre de matchs H2H
-        h2h_count = len(h2h_list)
-        if h2h_count >= 5:
-            w_h2h, w_poi, w_form = 0.5, 0.3, 0.2
-        elif h2h_count >= 2:
-            w_h2h, w_poi, w_form = 0.3, 0.4, 0.3
-        else:
-            w_h2h, w_poi, w_form = 0.2, 0.5, 0.3
-
-        ensemble_h = (h2h_h * w_h2h) + (poisson_probs["home"] * w_poi) + (form_h_norm * w_form)
-        ensemble_d = (h2h_d * w_h2h) + (poisson_probs["draw"] * w_poi) + (form_d_norm * w_form)
-        ensemble_a = (h2h_a * w_h2h) + (poisson_probs["away"] * w_poi) + (form_a_norm * w_form)
-
-        # Normalisation
+        ensemble_h = h2h_h * 0.4 + poisson_h * 0.3 + form_h_norm * 0.3
+        ensemble_d = h2h_d * 0.4 + poisson_d * 0.3 + form_d_norm * 0.3
+        ensemble_a = h2h_a * 0.4 + poisson_a * 0.3 + form_a_norm * 0.3
         total_ens = ensemble_h + ensemble_d + ensemble_a
-        if total_ens < 0.0001:
-            ensemble_h, ensemble_d, ensemble_a = 0.33, 0.34, 0.33
-        else:
+        if total_ens > 0:
             ensemble_h /= total_ens
             ensemble_d /= total_ens
             ensemble_a /= total_ens
+        else:
+            ensemble_h = ensemble_d = ensemble_a = 0.33
 
         dc = prediction.get("double_chance", "")
         if dc == "1X":
             ensemble_prob_dc = ensemble_h + ensemble_d
-        else:  # dc == "X2"
+        elif dc == "X2":
             ensemble_prob_dc = ensemble_d + ensemble_a
+        else:
+            ensemble_prob_dc = ensemble_h + ensemble_a
 
-        # ===== VALUE BET AMÉLIORÉ =====
-        value_bet = False
-        value_bet_strength = None
-        book_prob = 0.0   # initialisation par défaut
-        if odds and isinstance(odds, dict):
-            our_prob = ensemble_prob_dc
-            dc_odds = estimate_dc_odds(odds, dc)
-            if dc_odds > 0:
-                book_prob = 1 / dc_odds
-                edge = our_prob - book_prob
-                if edge > 0.03:
-                    value_bet = True
-                    value_bet_strength = "strong"
-                elif edge > 0:
-                    value_bet = True
-                    value_bet_strength = "weak"
-                else:
-                    value_bet = False
-                    value_bet_strength = None
+        final_prediction = {
+            "double_chance": dc,
+            "confidence": conf,
+            "odds": estimate_odds(category, dc)
+        }
 
-        # ===== DÉTECTION DE PIÈGES (sans votes publics) =====
-        suspicion_score = 0
-        if odds:
-            home_odd = odds.get("home")
-            away_odd = odds.get("away")
-            # On ne conserve que les parties sans votes publics
-        if book_prob > 0 and abs(ensemble_prob_dc - book_prob) > 0.25:
-            suspicion_score += 25
-        dom_diff = abs(analysis.get("home_dominance", 0) - analysis.get("away_dominance", 0))
-        if dom_diff < 0.1 and odds:
-            suspicion_score += 15
-
-        trap_detected = suspicion_score > 40
-
-        # ===== SCORE AI AVANCÉ =====
-        xpronos_score = calculate_xpronos_score(analysis, home_form, away_form, base.get("competition", ""))
-        conf = prediction.get("confidence", 0)
-        ai_score = (
-            xpronos_score * 0.25 +
-            conf * 0.25 +
-            (ensemble_prob_dc * 100) * 0.2 +
-            (10 if value_bet else 0) +
-            (-10 if trap_detected else 0)
-        )
-        ai_score = max(0, min(100, ai_score))
-
-        # ===== FINAL SCORE =====
-        final_score = (
-            xpronos_score * 0.35 +
-            conf * 0.25 +
-            ai_score * 0.25 +
-            (10 if value_bet else 0) * 0.15
-        )
-
-        # ===== BET SCORE POUR FILTRAGE FINAL =====
-        bet_score = (
-            final_score * 0.4 +
-            (ensemble_prob_dc * 100) * 0.3 +
-            (10 if value_bet else 0) -
-            (10 if trap_detected else 0)
-        )
-        if bet_score < BET_SCORE_THRESHOLD:
-            print(f"⚠️ Match {home_team} vs {away_team} ignoré (bet_score {bet_score:.1f})")
-            total_skipped += 1
-            continue
+        value_bet_bonus = 10 if value_bet else 0
+        final_score = score * 0.35 + conf * 0.25 + ai_score * 0.25 + value_bet_bonus * 0.15
 
         # ===== FEATURES POUR LE MACHINE LEARNING =====
         ml_features = {
@@ -1164,7 +1062,6 @@ def main():
         }
         ml_label = 1 if existing.get("verified_double", False) else 0
 
-        # ===== PRÉDICTION ML (si modèle disponible) =====
         ml_prob = 0.5
         if ml_model is not None:
             features_list = [
@@ -1186,14 +1083,6 @@ def main():
                 pass
 
         # ===== CONSTRUCTION FINALE DU MATCH =====
-        category = get_category(xpronos_score)
-        badge = get_badge(xpronos_score)
-
-        # Logos
-        home_logo = download_logo(base.get("home_competitor_id"), base.get("home_image_version"))
-        away_logo = download_logo(base.get("away_competitor_id"), base.get("away_image_version"))
-        league_logo = download_competition_logo(base.get("competition_id"), base.get("competition_image_version"))
-
         match = {
             "id": gid,
             "date": base.get("date", ""),
@@ -1212,17 +1101,16 @@ def main():
             "home_form": home_form,
             "away_form": away_form,
             "poisson_probs": poisson_probs,
-            "prediction": prediction,
-            "xpronos_score": xpronos_score,
+            "prediction": final_prediction,
+            "xpronos_score": score,
             "badge": badge,
             "category": category,
             "verified_double": False,
             "verified_btts": False,
             "verified_over": False,
             "odds": odds,
-            "public_votes": None,      # plus utilisé
+            "public_votes": public_votes,
             "value_bet": value_bet,
-            "value_bet_strength": value_bet_strength,
             "is_finished": base.get("is_finished", False),
             "final_score": round(final_score, 1),
             "ai_score": round(ai_score, 1),
@@ -1233,8 +1121,6 @@ def main():
             "fatigue_home": fatigue_home,
             "fatigue_away": fatigue_away,
             "trap_detected": trap_detected,
-            "suspicion_score": suspicion_score,
-            "bet_score": round(bet_score, 1),
             "ensemble_prob_home": round(ensemble_h, 3),
             "ensemble_prob_draw": round(ensemble_d, 3),
             "ensemble_prob_away": round(ensemble_a, 3),
@@ -1254,15 +1140,13 @@ def main():
         matches.append(match)
         categories[category].append(match)
 
-    # Tri par score final décroissant
     matches.sort(key=lambda x: x.get("final_score", 0), reverse=True)
 
-    # Calcul du ROI
+    # ROI
     total_bets = 0
     total_wins = 0
     total_stake = 0.0
     total_return = 0.0
-
     for m in matches:
         if m.get("verified_double"):
             total_wins += 1
@@ -1270,10 +1154,7 @@ def main():
             if match_odds and isinstance(match_odds, dict):
                 dc = m.get("prediction", {}).get("double_chance", "")
                 dc_odds = estimate_dc_odds(match_odds, dc)
-                if dc_odds > 0:
-                    odds_value = dc_odds
-                else:
-                    odds_value = m.get("prediction", {}).get("odds", 2.0)
+                odds_value = dc_odds if dc_odds > 0 else m.get("prediction", {}).get("odds", 2.0)
             else:
                 odds_value = m.get("prediction", {}).get("odds", 2.0)
             total_return += odds_value
