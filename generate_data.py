@@ -212,8 +212,10 @@ def download_logo(competitor_id: str, image_version: Optional[str] = None) -> Op
 
     # Une seule tentative
     try:
-        resp = make_request('GET', url, timeout=10)
-        if resp and resp.status_code == 200 and len(resp.content) > 0:
+        # Utiliser requests directement pour éviter les retries de make_request
+        import requests
+        resp = requests.get(url, timeout=10)
+        if resp.status_code == 200 and len(resp.content) > 0:
             with open(filepath, 'wb') as f:
                 f.write(resp.content)
             print(f"✅ Logo téléchargé : {competitor_id}")
@@ -221,6 +223,8 @@ def download_logo(competitor_id: str, image_version: Optional[str] = None) -> Op
             cache["teams"] = team_cache
             save_logo_cache(cache)
             return rel_path
+        else:
+            print(f"⚠️ Échec téléchargement logo {competitor_id} (code {resp.status_code})")
     except Exception as e:
         print(f"⚠️ Échec téléchargement logo {competitor_id}: {e}")
 
@@ -229,6 +233,7 @@ def download_logo(competitor_id: str, image_version: Optional[str] = None) -> Op
     cache["teams"] = team_cache
     save_logo_cache(cache)
     return None
+
 
 
 def get_competition_logo_url(competition_id: str, image_version: Optional[str] = None) -> str:
@@ -275,8 +280,9 @@ def download_competition_logo(competition_id: str, image_version: Optional[str] 
     url = get_competition_logo_url(competition_id, image_version)
 
     try:
-        resp = make_request('GET', url, timeout=10)
-        if resp and resp.status_code == 200 and len(resp.content) > 0:
+        import requests
+        resp = requests.get(url, timeout=10)
+        if resp.status_code == 200 and len(resp.content) > 0:
             with open(filepath, 'wb') as f:
                 f.write(resp.content)
             print(f"✅ Logo compétition téléchargé : {competition_id}")
@@ -284,6 +290,8 @@ def download_competition_logo(competition_id: str, image_version: Optional[str] 
             cache["competitions"] = comp_cache
             save_logo_cache(cache)
             return rel_path
+        else:
+            print(f"⚠️ Échec téléchargement logo compétition {competition_id} (code {resp.status_code})")
     except Exception as e:
         print(f"⚠️ Échec téléchargement logo compétition {competition_id}: {e}")
 
