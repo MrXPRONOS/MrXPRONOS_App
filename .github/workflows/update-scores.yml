@@ -2,7 +2,7 @@ name: Mise à jour fréquente (toutes les 10 minutes)
 
 on:
   schedule:
-    - cron: '*/10 * * * *'      # toutes les 10 minutes
+    - cron: '0 * * * *'   # toutes les heures
   push:
     paths:
       - 'generate_data.py'
