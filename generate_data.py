@@ -171,8 +171,10 @@ def get_competitor_logo_url(competitor_id: str, image_version: Optional[str] = N
     return f"{base_url}/{competitor_id}"
 
 
-def download_logo(competitor_id: str, image_version: Optional[str] = None,
-                  max_retries: int = 3) -> Optional[str]:
+def download_logo(competitor_id: str, image_version: Optional[str] = None) -> Optional[str]:
+    """
+    Télécharge le logo d'une équipe. Une seule tentative, pas de retry.
+    """
     if not competitor_id:
         return None
 
@@ -193,44 +195,40 @@ def download_logo(competitor_id: str, image_version: Optional[str] = None,
             last_attempt = entry.get("timestamp", 0)
             if now - last_attempt < retry_delay:
                 return None  # ne pas retenter avant 24h
-            # sinon, on retente (pas de return)
+            # sinon, on retente (une seule fois)
 
     filename = f"competitor_{competitor_id}.png"
     filepath = os.path.join(LOGOS_DIR, filename)
     rel_path = f"assets/images/logos/{filename}"
 
-    # Vérifier si le fichier existe déjà (au cas où)
+    # Si le fichier existe déjà, on le considère comme succès
     if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
-        # Mettre à jour le cache en succès
-        team_cache[competitor_id] = {"status": "success", "timestamp": time.time()}
+        team_cache[competitor_id] = {"status": "success", "timestamp": now}
         cache["teams"] = team_cache
         save_logo_cache(cache)
         return rel_path
 
     url = get_competitor_logo_url(competitor_id, image_version)
 
-    for attempt in range(max_retries):
-        try:
-            resp = make_request('GET', url, timeout=10)
-            if resp and resp.status_code == 200 and len(resp.content) > 0:
-                with open(filepath, 'wb') as f:
-                    f.write(resp.content)
-                print(f"✅ Logo téléchargé : {competitor_id}")
-                team_cache[competitor_id] = {"status": "success", "timestamp": time.time()}
-                cache["teams"] = team_cache
-                save_logo_cache(cache)
-                return rel_path
-        except Exception as e:
-            print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo {competitor_id}: {e}")
-            if attempt < max_retries - 1:
-                time.sleep(1)
+    # Une seule tentative
+    try:
+        resp = make_request('GET', url, timeout=10)
+        if resp and resp.status_code == 200 and len(resp.content) > 0:
+            with open(filepath, 'wb') as f:
+                f.write(resp.content)
+            print(f"✅ Logo téléchargé : {competitor_id}")
+            team_cache[competitor_id] = {"status": "success", "timestamp": now}
+            cache["teams"] = team_cache
+            save_logo_cache(cache)
+            return rel_path
+    except Exception as e:
+        print(f"⚠️ Échec téléchargement logo {competitor_id}: {e}")
 
-    # Échec définitif pour cette exécution
-    team_cache[competitor_id] = {"status": "failed", "timestamp": time.time()}
+    # Échec définitif
+    team_cache[competitor_id] = {"status": "failed", "timestamp": now}
     cache["teams"] = team_cache
     save_logo_cache(cache)
     return None
-
 
 def get_competition_logo_url(competition_id: str, image_version: Optional[str] = None) -> str:
     base_url = "https://v1.football.sportsapipro.com/images/competitions"
@@ -239,8 +237,10 @@ def get_competition_logo_url(competition_id: str, image_version: Optional[str] =
     return f"{base_url}/{competition_id}"
 
 
-def download_competition_logo(competition_id: str, image_version: Optional[str] = None,
-                              max_retries: int = 3) -> Optional[str]:
+def download_competition_logo(competition_id: str, image_version: Optional[str] = None) -> Optional[str]:
+    """
+    Télécharge le logo d'une compétition. Une seule tentative, pas de retry.
+    """
     if not competition_id:
         return None
 
@@ -266,30 +266,27 @@ def download_competition_logo(competition_id: str, image_version: Optional[str] 
     rel_path = f"assets/images/logos/competitions/{filename}"
 
     if os.path.exists(filepath) and os.path.getsize(filepath) > 0:
-        comp_cache[competition_id] = {"status": "success", "timestamp": time.time()}
+        comp_cache[competition_id] = {"status": "success", "timestamp": now}
         cache["competitions"] = comp_cache
         save_logo_cache(cache)
         return rel_path
 
     url = get_competition_logo_url(competition_id, image_version)
 
-    for attempt in range(max_retries):
-        try:
-            resp = make_request('GET', url, timeout=10)
-            if resp and resp.status_code == 200 and len(resp.content) > 0:
-                with open(filepath, 'wb') as f:
-                    f.write(resp.content)
-                print(f"✅ Logo compétition téléchargé : {competition_id}")
-                comp_cache[competition_id] = {"status": "success", "timestamp": time.time()}
-                cache["competitions"] = comp_cache
-                save_logo_cache(cache)
-                return rel_path
-        except Exception as e:
-            print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo compétition {competition_id}: {e}")
-            if attempt < max_retries - 1:
-                time.sleep(1)
+    try:
+        resp = make_request('GET', url, timeout=10)
+        if resp and resp.status_code == 200 and len(resp.content) > 0:
+            with open(filepath, 'wb') as f:
+                f.write(resp.content)
+            print(f"✅ Logo compétition téléchargé : {competition_id}")
+            comp_cache[competition_id] = {"status": "success", "timestamp": now}
+            cache["competitions"] = comp_cache
+            save_logo_cache(cache)
+            return rel_path
+    except Exception as e:
+        print(f"⚠️ Échec téléchargement logo compétition {competition_id}: {e}")
 
-    comp_cache[competition_id] = {"status": "failed", "timestamp": time.time()}
+    comp_cache[competition_id] = {"status": "failed", "timestamp": now}
     cache["competitions"] = comp_cache
     save_logo_cache(cache)
     return None
