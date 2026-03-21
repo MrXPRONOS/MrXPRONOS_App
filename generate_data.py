@@ -5,6 +5,7 @@
 generate_data.py - Moteur de pronostics football (double chance) avec rotation de clés API
 Intègre les métriques avancées : Elo, xG, fatigue, piège bookmaker et score AI.
 Version avec support auto-apprentissage (ML) et sans votes publics.
+Corrigé : poisson_probs défini par défaut.
 """
 
 import os
@@ -966,13 +967,10 @@ def main():
 
         # ===== DÉTECTION DE PIÈGES (sans votes) =====
         trap_detected = False
-        # (aucune donnée de vote, on garde la logique originale sans votes)
-        # Optionnel : on peut utiliser l'écart de probabilité comme indicateur
         if odds:
             dc_odds_val = estimate_dc_odds(odds, prediction.get("double_chance", ""))
             if dc_odds_val > 0:
                 book_prob = 1 / dc_odds_val
-                # notre probabilité de double chance calculée
                 home_dom = analysis.get("home_dominance", 0) + HOME_ADVANTAGE
                 away_dom = analysis.get("away_dominance", 0)
                 draw_rate = analysis.get("draw_rate", 0)
@@ -1044,7 +1042,7 @@ def main():
         }
 
         value_bet_bonus = 10 if value_bet else 0
-        final_score = score * 0.35 + conf * 0.25 + ai_score * 0.25 + value_bet_bonus * 0.15
+        final_score_val = score * 0.35 + conf * 0.25 + ai_score * 0.25 + value_bet_bonus * 0.15
 
         # ===== FEATURES POUR LE MACHINE LEARNING =====
         ml_features = {
@@ -1082,6 +1080,22 @@ def main():
             except:
                 pass
 
+        # ===== PROBABILITÉS POISSON POUR INFO =====
+        poisson_probs = {"home": 0.33, "draw": 0.34, "away": 0.33}
+        if home_form and away_form:
+            gf_h = home_form.get("goals_for", 1.2)
+            ga_h = home_form.get("goals_against", 1.2)
+            gf_a = away_form.get("goals_for", 1.2)
+            ga_a = away_form.get("goals_against", 1.2)
+            lambda_home = (gf_h * 1.1 + ga_a * 0.9) / 2
+            lambda_away = (gf_a * 0.9 + ga_h * 1.1) / 2
+            p_home, p_draw, p_away = poisson_probability(lambda_home, lambda_away)
+            poisson_probs = {
+                "home": round(p_home, 3),
+                "draw": round(p_draw, 3),
+                "away": round(p_away, 3)
+            }
+
         # ===== CONSTRUCTION FINALE DU MATCH =====
         match = {
             "id": gid,
@@ -1112,7 +1126,7 @@ def main():
             "public_votes": public_votes,
             "value_bet": value_bet,
             "is_finished": base.get("is_finished", False),
-            "final_score": round(final_score, 1),
+            "final_score": round(final_score_val, 1),
             "ai_score": round(ai_score, 1),
             "elo_home": elo_home,
             "elo_away": elo_away,
