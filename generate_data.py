@@ -510,7 +510,7 @@ def calculate_xpronos_score(analysis: dict, home_form: Optional[dict], away_form
     return max(0, min(score, 100))
 
 def get_category(score: int) -> str:
-    return "vip" if score >= 50 else "pro" if score >= 40 else "simple"
+    return "vip" if score >= 70 else "pro" if score >= 50 else "simple"
 
 def get_badge(score: int) -> str:
     if score >= 70:
