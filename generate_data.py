@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - Moteur de pronostics football (double chance) avec rotation de clés API
-Intègre les métriques avancées : Elo, xG, fatigue, piège bookmaker, score AI,
-et Machine Learning auto-apprenant.
-Version améliorée avec poids dynamiques, value bet renforcé, score de suspicion, etc.
+generate_data.py - Moteur de pronostics football (double chance uniquement)
+Avec rotation de clés API, ML, et filtres optimisés.
+Version sans votes publics ni pronostics "12".
 """
 
 import os
@@ -44,7 +43,6 @@ except (ImportError, Exception):
 # CONFIGURATION GÉNÉRALE
 # =======================================================
 SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
-PREDICTIONS_URL = "https://v1.football.sportsapipro.com/games/predictions"
 
 today = datetime.now().date()
 tomorrow = today + timedelta(days=1)
@@ -66,10 +64,11 @@ except OSError as e:
     raise
 
 HOME_ADVANTAGE = 0.1
-CONFIDENCE_THRESHOLD = 50
+CONFIDENCE_THRESHOLD = 40   # abaissé pour garder plus de matchs
 GOAL_DIFF_THRESHOLD = 0.1
 XPRONOS_THRESHOLD = 35
 DOMINANCE_THRESHOLD = 0.4
+BET_SCORE_THRESHOLD = 45   # nouveau seuil
 
 # Liste des ligues à ignorer
 BAD_LEAGUES = [
@@ -117,15 +116,12 @@ def parse_datetime_safe(date_str: str) -> Optional[datetime]:
     if not date_str:
         return None
     try:
-        # Gestion des formats avec et sans timezone
         if 'Z' in date_str:
             dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
         elif '+' in date_str or (date_str.count('-') > 2 and 'T' in date_str):
             dt = datetime.fromisoformat(date_str)
         else:
             return datetime.fromisoformat(date_str)
-        
-        # Convertir en datetime naive (sans timezone) pour comparaison
         if dt.tzinfo is not None:
             dt = dt.replace(tzinfo=None)
         return dt
@@ -150,7 +146,7 @@ def get_competitor_logo_url(competitor_id: str, image_version: Optional[str] = N
     return f"{base_url}/{competitor_id}"
 
 
-def download_logo(competitor_id: str, image_version: Optional[str] = None, 
+def download_logo(competitor_id: str, image_version: Optional[str] = None,
                   max_retries: int = 3) -> Optional[str]:
     if not competitor_id:
         return None
@@ -162,11 +158,11 @@ def download_logo(competitor_id: str, image_version: Optional[str] = None,
         return rel_path
 
     url = get_competitor_logo_url(competitor_id, image_version)
-    
+
     for attempt in range(max_retries):
         try:
             resp = make_request('GET', url, timeout=10)
-            if resp.status_code == 200 and len(resp.content) > 0:
+            if resp and resp.status_code == 200 and len(resp.content) > 0:
                 with open(filepath, 'wb') as f:
                     f.write(resp.content)
                 print(f"✅ Logo téléchargé : {competitor_id}")
@@ -197,11 +193,11 @@ def download_competition_logo(competition_id: str, image_version: Optional[str] 
         return rel_path
 
     url = get_competition_logo_url(competition_id, image_version)
-    
+
     for attempt in range(max_retries):
         try:
             resp = make_request('GET', url, timeout=10)
-            if resp.status_code == 200 and len(resp.content) > 0:
+            if resp and resp.status_code == 200 and len(resp.content) > 0:
                 with open(filepath, 'wb') as f:
                     f.write(resp.content)
                 print(f"✅ Logo compétition téléchargé : {competition_id}")
@@ -217,7 +213,7 @@ def download_competition_logo(competition_id: str, image_version: Optional[str] 
 # FONCTIONS DE RÉCUPÉRATION DES DONNÉES
 # =======================================================
 
-def fetch_games_with_comps(date_from: datetime, date_to: datetime, 
+def fetch_games_with_comps(date_from: datetime, date_to: datetime,
                            max_retries: int = 3) -> Tuple[List[dict], List[dict]]:
     """Récupère les matchs et compétitions pour une plage de dates"""
     params = {
@@ -227,7 +223,7 @@ def fetch_games_with_comps(date_from: datetime, date_to: datetime,
         "showOdds": "true",
         "onlyMajorGames": "false"
     }
-    
+
     for attempt in range(max_retries):
         try:
             resp = make_request('GET', SPORTDATA_URL, params=params, timeout=30)
@@ -251,33 +247,6 @@ def fetch_games_with_comps(date_from: datetime, date_to: datetime,
     return [], []
 
 
-def fetch_predictions(game_id: str, max_retries: int = 3) -> Optional[dict]:
-    """Récupère les votes publics pour un match"""
-    if not game_id:
-        return None
-    params = {"gameId": game_id}
-    for attempt in range(max_retries):
-        try:
-            resp = make_request('GET', PREDICTIONS_URL, params=params, timeout=10)
-            if resp and resp.status_code == 200:
-                data = resp.json()
-                games = data.get("games", [])
-                if games and isinstance(games, list):
-                    game_data = games[0]
-                    if isinstance(game_data, dict):
-                        promoted = game_data.get("promotedPredictions", {})
-                        predictions = promoted.get("predictions", [])
-                        for pred in predictions:
-                            if pred.get("type") == 1:
-                                return pred
-            return None
-        except Exception as e:
-            print(f"⚠️ Erreur récupération votes match {game_id} (tentative {attempt + 1}): {e}")
-            if attempt < max_retries - 1:
-                time.sleep(1)
-    return None
-
-
 def extract_game_info(game: dict, comp_image_map: dict) -> Optional[dict]:
     """Extrait les informations de base d'un match"""
     if not isinstance(game, dict):
@@ -290,7 +259,7 @@ def extract_game_info(game: dict, comp_image_map: dict) -> Optional[dict]:
 
         home = game.get("homeCompetitor", {}) or {}
         away = game.get("awayCompetitor", {}) or {}
-        
+
         home_score = home.get("score")
         away_score = away.get("score")
         if home_score == -1 or home_score is None:
@@ -376,7 +345,7 @@ def build_team_history(historical: List[dict]) -> dict:
     return team_matches
 
 
-def get_team_form(team: str, team_matches: dict, last_games: int = 5, 
+def get_team_form(team: str, team_matches: dict, last_games: int = 5,
                   max_days: int = 365) -> Optional[dict]:
     """Calcule la forme récente d'une équipe"""
     if not team or not isinstance(team_matches, dict):
@@ -499,7 +468,7 @@ def competition_weight(competition: str) -> float:
     return 1.0
 
 
-def get_h2h(historical: List[dict], home_team: str, away_team: str, 
+def get_h2h(historical: List[dict], home_team: str, away_team: str,
             years: int = 2) -> List[dict]:
     """Récupère l'historique H2H entre deux équipes"""
     if not historical or not home_team or not away_team:
@@ -525,7 +494,7 @@ def get_h2h(historical: List[dict], home_team: str, away_team: str,
     return h2h
 
 
-def analyze_h2h(h2h_list: List[dict], current_home_team: str, 
+def analyze_h2h(h2h_list: List[dict], current_home_team: str,
                 current_away_team: str) -> dict:
     """Analyse les statistiques H2H"""
     home_score = 0.0
@@ -545,7 +514,7 @@ def analyze_h2h(h2h_list: List[dict], current_home_team: str,
         }
 
     current_home_lower = current_home_team.lower()
-    
+
     for match in h2h_list:
         if not isinstance(match, dict):
             continue
@@ -585,21 +554,23 @@ def analyze_h2h(h2h_list: List[dict], current_home_team: str,
     }
 
 
-def generate_prediction(analysis: dict, home_form: Optional[dict], 
+def generate_prediction(analysis: dict, home_form: Optional[dict],
                        away_form: Optional[dict], league: str) -> dict:
-    """Génère la prédiction double chance"""
+    """Génère la prédiction double chance (sans 12)"""
     if not isinstance(analysis, dict):
         analysis = {}
     home_dom = analysis.get("home_dominance", 0) + HOME_ADVANTAGE
     away_dom = analysis.get("away_dominance", 0)
     seuil = DOMINANCE_THRESHOLD
 
+    # On ne garde que 1X ou X2, jamais 12
     if home_dom > away_dom + seuil:
         double_chance = "1X"
     elif away_dom > home_dom + seuil:
         double_chance = "X2"
     else:
-        double_chance = "12"
+        # Si trop équilibré, on ne prend pas le match (on skip)
+        return None
 
     confiance = 50
     confiance += min(20, analysis.get("total_matches", 0) * 3)
@@ -619,14 +590,12 @@ def generate_prediction(analysis: dict, home_form: Optional[dict],
         if defense_diff > 0.8:
             confiance += 5
 
-    # Réduction de confiance au lieu de skip pour certains filtres
+    # Pénalités (au lieu de skip)
     if analysis.get("draw_rate", 0) > 0.45:
         confiance -= 10
-    # dom_diff faible → pénalité
     dom_diff = abs(analysis.get("home_dominance", 0) - analysis.get("away_dominance", 0))
     if dom_diff < 0.15:
         confiance -= 5
-    # goal_diff faible → pénalité
     if home_form and away_form:
         goal_diff = abs(home_form.get("goals_for", 0) - away_form.get("goals_for", 0))
         if goal_diff < GOAL_DIFF_THRESHOLD:
@@ -640,7 +609,7 @@ def generate_prediction(analysis: dict, home_form: Optional[dict],
     }
 
 
-def calculate_xpronos_score(analysis: dict, home_form: Optional[dict], 
+def calculate_xpronos_score(analysis: dict, home_form: Optional[dict],
                            away_form: Optional[dict], league: str) -> int:
     """Calcule le score xPronos"""
     if not isinstance(analysis, dict):
@@ -718,8 +687,6 @@ def estimate_dc_odds(odds: dict, double_chance: str, margin: float = 0.05) -> fl
         prob = probs["home"] + probs["draw"]
     elif double_chance == 'X2':
         prob = probs["draw"] + probs["away"]
-    elif double_chance == '12':
-        prob = probs["home"] + probs["away"]
     else:
         return 0.0
     if prob <= 0:
@@ -727,7 +694,7 @@ def estimate_dc_odds(odds: dict, double_chance: str, margin: float = 0.05) -> fl
     return 1 / prob
 
 
-def poisson_probability(lambda_home: float, lambda_away: float, 
+def poisson_probability(lambda_home: float, lambda_away: float,
                        max_goals: int = 6) -> Tuple[float, float, float]:
     """Calcule les probabilités selon le modèle de Poisson"""
     lambda_home = max(0.1, float(lambda_home))
@@ -772,7 +739,7 @@ def estimate_odds(category: str, double_chance: str) -> float:
 
 def main():
     # 1. Charger l'existant
-    existing_data = {"matches": [], "categories": {"simple": [], "pro": [], "vip": []}, 
+    existing_data = {"matches": [], "categories": {"simple": [], "pro": [], "vip": []},
                      "stats": {}, "bookmakers": []}
     existing_matches = {}
     if os.path.exists(DATA_FILE):
@@ -781,7 +748,7 @@ def main():
                 loaded = json.load(f)
                 if isinstance(loaded, dict):
                     existing_data = loaded
-                    existing_matches = {str(m.get("id", "")): m 
+                    existing_matches = {str(m.get("id", "")): m
                                        for m in loaded.get("matches", []) if isinstance(m, dict)}
         except Exception as e:
             print(f"❌ Erreur chargement fichier existant: {e}")
@@ -861,9 +828,8 @@ def main():
         status = base.get("status_text") or (existing.get("status") if isinstance(existing, dict) else "")
 
         if is_bad_league(base.get("competition", "")):
-            print(f"⚠️ Match {base.get('home_team', '')} vs {base.get('away_team', '')} ignoré (ligue faible)")
-            total_skipped += 1
-            continue
+            # On ne skip plus, on pénalisera plus tard
+            pass
 
         home_team = base.get("home_team", "")
         away_team = base.get("away_team", "")
@@ -910,21 +876,25 @@ def main():
                 total_skipped += 1
                 continue
 
-        # ===== PRÉDICTION (avec réductions de confiance au lieu de skip) =====
+        # ===== PRÉDICTION (sans 12) =====
         prediction = generate_prediction(analysis, home_form, away_form, base.get("competition", ""))
-
-        if prediction.get("double_chance") == "12":
-            print(f"   ⚠️ Pronostic 12 (match équilibré) ignoré")
+        if prediction is None:
+            print(f"   ⚠️ Match {home_team} vs {away_team} ignoré (trop équilibré, pronostic 12 non retenu)")
             total_skipped += 1
             continue
 
-        # Filtre sur la confiance (peut encore skip si trop bas)
+        # Appliquer les pénalités pour ligue faible (au lieu de skip)
+        if is_bad_league(base.get("competition", "")):
+            prediction["confidence"] -= 15
+            print(f"⚠️ Match {home_team} vs {away_team} ligue faible → confiance réduite à {prediction['confidence']}%")
+
+        # Filtre sur la confiance
         if prediction.get("confidence", 0) < CONFIDENCE_THRESHOLD:
             print(f"⚠️ Match {home_team} vs {away_team} ignoré (confiance insuffisante)")
             total_skipped += 1
             continue
 
-        # Filtre temporel (inchangé)
+        # Filtre temporel
         try:
             match_time_str = base.get("start_time", "")
             if match_time_str:
@@ -949,27 +919,6 @@ def main():
                     print(f"⚠️ Match {home_team} vs {away_team} ignoré (écart de cotes trop grand)")
                     total_skipped += 1
                     continue
-
-        # Récupération des votes publics
-        public_votes = None
-        votes = fetch_predictions(gid)
-        if votes and isinstance(votes, dict):
-            options = votes.get("options", [])
-            if isinstance(options, list):
-                vote_dict = {}
-                for opt in options:
-                    if isinstance(opt, dict):
-                        num = opt.get("num")
-                        vote_data = opt.get("vote", {}) or {}
-                        percentage = vote_data.get("percentage")
-                        if num == 1:
-                            vote_dict["home"] = percentage
-                        elif num == 2:
-                            vote_dict["draw"] = percentage
-                        elif num == 3:
-                            vote_dict["away"] = percentage
-                if vote_dict:
-                    public_votes = vote_dict
 
         # ===== CALCUL DES MÉTRIQUES AVANCÉES =====
         # 1. Elo rating
@@ -1050,10 +999,8 @@ def main():
         dc = prediction.get("double_chance", "")
         if dc == "1X":
             ensemble_prob_dc = ensemble_h + ensemble_d
-        elif dc == "X2":
+        else:  # dc == "X2"
             ensemble_prob_dc = ensemble_d + ensemble_a
-        else:
-            ensemble_prob_dc = ensemble_h + ensemble_a
 
         # ===== VALUE BET AMÉLIORÉ =====
         value_bet = False
@@ -1074,26 +1021,14 @@ def main():
                     value_bet = False
                     value_bet_strength = None
 
-        # ===== DÉTECTION DE PIÈGES (SUSPICION SCORE) =====
+        # ===== DÉTECTION DE PIÈGES (sans votes publics) =====
         suspicion_score = 0
-        if public_votes:
-            if public_votes.get("home", 0) > 80:
-                suspicion_score += 20
-            if public_votes.get("away", 0) > 80:
-                suspicion_score += 20
-        if odds and public_votes:
+        if odds:
             home_odd = odds.get("home")
             away_odd = odds.get("away")
-            if home_odd and public_votes.get("home", 0) > 70 and home_odd > 2.5:
-                suspicion_score += 30
-            if away_odd and public_votes.get("away", 0) > 70 and away_odd > 2.5:
-                suspicion_score += 30
-        # Écart entre modèle et bookmaker
-        if odds:
-            book_prob = 1 / estimate_dc_odds(odds, dc) if estimate_dc_odds(odds, dc) > 0 else 0
-            if abs(ensemble_prob_dc - book_prob) > 0.25:
-                suspicion_score += 25
-        # Domination faible
+            # On ne conserve que les parties sans votes publics
+        if abs(ensemble_prob_dc - book_prob) > 0.25:
+            suspicion_score += 25
         dom_diff = abs(analysis.get("home_dominance", 0) - analysis.get("away_dominance", 0))
         if dom_diff < 0.1 and odds:
             suspicion_score += 15
@@ -1127,7 +1062,7 @@ def main():
             (10 if value_bet else 0) -
             (10 if trap_detected else 0)
         )
-        if bet_score < 55:
+        if bet_score < BET_SCORE_THRESHOLD:
             print(f"⚠️ Match {home_team} vs {away_team} ignoré (bet_score {bet_score:.1f})")
             total_skipped += 1
             continue
@@ -1204,7 +1139,7 @@ def main():
             "verified_btts": False,
             "verified_over": False,
             "odds": odds,
-            "public_votes": public_votes,
+            "public_votes": None,      # plus utilisé
             "value_bet": value_bet,
             "value_bet_strength": value_bet_strength,
             "is_finished": base.get("is_finished", False),
