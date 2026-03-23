@@ -161,8 +161,7 @@ def get_competition_logo_url(competition_id: str, image_version: Optional[str] =
     return f"{base_url}/{competition_id}"
 
 
-def download_logo(competitor_id: Optional[str], image_version: Optional[str] = None,
-                  max_retries: int = 2) -> Optional[str]:
+def download_logo(competitor_id: Optional[str], image_version: Optional[str] = None) -> Optional[str]:
     if not DOWNLOAD_LOGOS:
         return None
 
@@ -181,32 +180,29 @@ def download_logo(competitor_id: Optional[str], image_version: Optional[str] = N
 
     url = get_competitor_logo_url(competitor_id, image_version)
 
-    for attempt in range(max_retries):
-        try:
-            resp = make_request("GET", url, timeout=10)
+    try:
+        resp = make_request("GET", url, timeout=10, max_retries=1)
 
-            if resp is None:
-                print(f"⚠️ Aucune réponse pour logo {competitor_id}")
-            elif resp.status_code == 200 and len(resp.content) > 0:
-                with open(filepath, "wb") as f:
-                    f.write(resp.content)
-                print(f"✅ Logo téléchargé : {competitor_id}")
-                return rel_path
-            else:
-                print(f"⚠️ Échec téléchargement logo {competitor_id} (code {resp.status_code})")
+        if resp is None:
+            FAILED_LOGO_IDS.add(competitor_id)
+            return None
 
-        except Exception as e:
-            print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo {competitor_id}: {e}")
+        if resp.status_code == 200 and len(resp.content) > 0:
+            with open(filepath, "wb") as f:
+                f.write(resp.content)
+            print(f"✅ Logo téléchargé : {competitor_id}")
+            return rel_path
 
-        if attempt < max_retries - 1:
-            time.sleep(0.5)
+        print(f"⚠️ Échec téléchargement logo {competitor_id} (code {resp.status_code})")
+
+    except Exception as e:
+        print(f"⚠️ Erreur téléchargement logo {competitor_id}: {e}")
 
     FAILED_LOGO_IDS.add(competitor_id)
     return None
 
 
-def download_competition_logo(competition_id: Optional[str], image_version: Optional[str] = None,
-                              max_retries: int = 2) -> Optional[str]:
+def download_competition_logo(competition_id: Optional[str], image_version: Optional[str] = None) -> Optional[str]:
     if not DOWNLOAD_LOGOS:
         return None
 
@@ -225,25 +221,23 @@ def download_competition_logo(competition_id: Optional[str], image_version: Opti
 
     url = get_competition_logo_url(competition_id, image_version)
 
-    for attempt in range(max_retries):
-        try:
-            resp = make_request("GET", url, timeout=10)
+    try:
+        resp = make_request("GET", url, timeout=10, max_retries=1)
 
-            if resp is None:
-                print(f"⚠️ Aucune réponse pour logo compétition {competition_id}")
-            elif resp.status_code == 200 and len(resp.content) > 0:
-                with open(filepath, "wb") as f:
-                    f.write(resp.content)
-                print(f"✅ Logo compétition téléchargé : {competition_id}")
-                return rel_path
-            else:
-                print(f"⚠️ Échec téléchargement logo compétition {competition_id} (code {resp.status_code})")
+        if resp is None:
+            FAILED_COMP_LOGO_IDS.add(competition_id)
+            return None
 
-        except Exception as e:
-            print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo compétition {competition_id}: {e}")
+        if resp.status_code == 200 and len(resp.content) > 0:
+            with open(filepath, "wb") as f:
+                f.write(resp.content)
+            print(f"✅ Logo compétition téléchargé : {competition_id}")
+            return rel_path
 
-        if attempt < max_retries - 1:
-            time.sleep(0.5)
+        print(f"⚠️ Échec téléchargement logo compétition {competition_id} (code {resp.status_code})")
+
+    except Exception as e:
+        print(f"⚠️ Erreur téléchargement logo compétition {competition_id}: {e}")
 
     FAILED_COMP_LOGO_IDS.add(competition_id)
     return None
