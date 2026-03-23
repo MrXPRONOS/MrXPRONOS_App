@@ -1,6 +1,6 @@
 /**
  * main.js - Mr XPRONOS
- * Version corrigée complète, multi-pages, robuste
+ * Version fusionnée : stable (chargement matchs) + améliorations PWA, bonus, modales
  */
 
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
@@ -19,11 +19,14 @@ let currentDay = 'today';
 let filteredMatchesWithoutSearch = [];
 let searchTerm = '';
 let usingCachedData = false;
-let generatedContentPromise = null;
+
+let deferredPrompt = null;
 let onlineChannel = null;
 let pendingShare = null;
+let generatedContentPromise = null;
 
 const activeChannels = new Set();
+
 const shareLimits = { pro: 3, vip: 5 };
 
 const POPULAR_LEAGUES = [
@@ -31,45 +34,6 @@ const POPULAR_LEAGUES = [
     "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
     "MLS", "Brasileirão", "Liga Profesional", "Jupiler Pro League",
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
-];
-
-const DEFAULT_BOOKMAKERS = [
-    {
-        name: "1xBet",
-        logo: "assets/images/1xbet.webp",
-        url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
-        desc: "Bonus de bienvenue jusqu'à 130€"
-    },
-    {
-        name: "1win",
-        logo: "assets/images/1win.webp",
-        url: "https://1wrbgb.com/?open=register&p=qqcw",
-        desc: "Bonus exclusif avec XPVIP"
-    },
-    {
-        name: "Betwinner",
-        logo: "assets/images/betwinner.webp",
-        url: "https://bwredir.com/299Y",
-        desc: "Offre spéciale nouveaux joueurs"
-    },
-    {
-        name: "Melbet",
-        logo: "assets/images/melbet.webp",
-        url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
-        desc: "Bonus premium Melbet avec inscription rapide"
-    },
-    {
-        name: "Linebet",
-        logo: "assets/images/linebet.webp",
-        url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
-        desc: "Bonus et promotions spéciales Linebet"
-    },
-    {
-        name: "Betclic",
-        logo: "assets/images/betclic.webp",
-        url: "https://betpari-click.com/2vY0?extid=USD",
-        desc: "Offre de bienvenue Betclic"
-    }
 ];
 
 const DOM = {
@@ -225,7 +189,6 @@ function sanitizeHtml(unsafeHtml = '') {
             [...child.attributes].forEach(attr => {
                 const name = attr.name.toLowerCase();
                 const value = attr.value || '';
-
                 const isAllowed =
                     (allowedAttrs[tag] && allowedAttrs[tag].has(name)) ||
                     (allowedAttrs['*'] && allowedAttrs['*'].has(name));
@@ -371,8 +334,12 @@ async function initSupabase() {
         const initPromise = (async () => {
             const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
 
-            if (!supabaseUrl || !supabaseUrl.startsWith('https://')) throw new Error('URL Supabase invalide');
-            if (!supabaseAnonKey) throw new Error('Clé Supabase manquante');
+            if (!supabaseUrl || !supabaseUrl.startsWith('https://')) {
+                throw new Error('URL Supabase invalide');
+            }
+            if (!supabaseAnonKey) {
+                throw new Error('Clé Supabase manquante');
+            }
 
             supabaseConfig.url = supabaseUrl;
             supabaseConfig.anonKey = supabaseAnonKey;
@@ -380,6 +347,7 @@ async function initSupabase() {
             const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
             supabase = createClient(supabaseUrl, supabaseAnonKey);
             supabaseAvailable = true;
+            console.log('✅ Supabase connecté');
         })();
 
         await Promise.race([initPromise, timeout]);
@@ -388,6 +356,65 @@ async function initSupabase() {
         supabaseAvailable = false;
     }
 }
+
+/* =======================================================
+   PUSH (optionnel, gardé de la version fonctionnelle)
+   ======================================================= */
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+}
+
+async function subscribeToPush(askPermission = false) {
+    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!supabaseConfig.url) return;
+
+    try {
+        let permission = Notification.permission;
+        if (permission === 'default' && askPermission) {
+            permission = await Notification.requestPermission();
+        }
+        if (permission !== 'granted') return;
+
+        const swReady = await Promise.race([
+            navigator.serviceWorker.ready,
+            new Promise((_, reject) => setTimeout(() => reject(new Error('SW timeout')), 5000))
+        ]);
+
+        let subscription = await swReady.pushManager.getSubscription();
+
+        if (!subscription) {
+            const keyResp = await fetch(`${supabaseConfig.url}/functions/v1/vapid-public-key`);
+            if (!keyResp.ok) throw new Error('Clé VAPID non récupérée');
+
+            const publicKey = (await keyResp.text()).trim();
+            const convertedKey = urlBase64ToUint8Array(publicKey);
+
+            subscription = await swReady.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: convertedKey
+            });
+        }
+
+        const userId = getUserId();
+
+        await fetch(`${supabaseConfig.url}/functions/v1/push-subscribe`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId, subscription })
+        });
+    } catch (err) {
+        console.error('Erreur push:', err);
+    }
+}
+
+window.enablePushNotifications = async function () {
+    await subscribeToPush(true);
+};
 
 /* =======================================================
    COUNTERS / ANALYTICS
@@ -469,7 +496,8 @@ async function registerUniqueUser() {
     if (!supabaseAvailable || !supabase) return;
 
     const userId = getUserId();
-    if (localStorage.getItem('mx_registered')) return;
+    const registered = localStorage.getItem('mx_registered');
+    if (registered) return;
 
     try {
         const { error } = await supabase.from('users').insert({ user_id: userId });
@@ -515,7 +543,7 @@ async function initOnlineUsers() {
 }
 
 /* =======================================================
-   PWA UI HELPERS
+   PWA
    ======================================================= */
 function getOS() {
     const ua = window.navigator.userAgent;
@@ -549,37 +577,33 @@ function setupInstallButton() {
     if (!DOM.installButton) return;
 
     DOM.installButton.addEventListener('click', async () => {
-        try {
-            if (window.MrXPWA?.getState()?.deferredPrompt) {
-                const accepted = await window.MrXPWA.promptInstall();
-                if (accepted) {
-                    showToast('Application installée avec succès !', 'success');
-                    DOM.installButton.style.display = 'none';
-                }
-                return;
-            }
-
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            DOM.installButton.style.display = 'none';
+        } else {
             if (getOS() === 'iOS') {
                 showIosGuideIfNeeded();
             } else {
                 alert("Utilisez le menu du navigateur pour ajouter l'application à l'écran d'accueil.");
             }
-        } catch (e) {
-            console.error('Erreur installation app:', e);
-        }
-    });
-
-    window.addEventListener('mrx-pwa-state-change', () => {
-        const state = window.MrXPWA?.getState();
-        if (!state || !DOM.installButton) return;
-
-        if (state.isInstalled) {
-            DOM.installButton.style.display = 'none';
-        } else if (state.installAvailable) {
-            DOM.installButton.style.display = 'inline-block';
         }
     });
 }
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (DOM.installButton && !isPwaInstalled()) {
+        DOM.installButton.style.display = 'inline-block';
+    }
+});
+
+window.addEventListener('appinstalled', () => {
+    if (DOM.installButton) DOM.installButton.style.display = 'none';
+    if (DOM.iosGuidePopup) DOM.iosGuidePopup.style.display = 'none';
+});
 
 /* =======================================================
    SHARE / VIP
@@ -839,8 +863,6 @@ async function checkVipStatus() {
     }
 }
 
-window.checkVipStatus = checkVipStatus;
-
 function showVipLoginForm(container) {
     const userId = getUserId();
     const encodedUserId = encodeURIComponent(userId);
@@ -876,8 +898,6 @@ function showVipLoginForm(container) {
         const uid = getUserId();
 
         try {
-            if (!supabase || !supabaseAvailable) throw new Error('Supabase indisponible');
-
             const { data, error } = await supabase.rpc('check_vip_code', {
                 p_user_id: uid,
                 p_code: code
@@ -900,8 +920,6 @@ function showVipLoginForm(container) {
         if (DOM.matches) DOM.matches.style.display = 'grid';
     });
 }
-
-window.showVipLoginForm = showVipLoginForm;
 
 window.handleVipMenuClick = async function () {
     const isVip = await checkVipStatus();
@@ -937,29 +955,25 @@ async function fetchJsonWithCache(url, cacheKey, timeoutMs = 8000) {
         const data = await resp.json();
         localStorage.setItem(cacheKey, JSON.stringify(data));
         return { data, fromCache: false };
-    } catch (e) {
+    } catch {
         clearTimeout(timeoutId);
         const cached = localStorage.getItem(cacheKey);
-        if (cached) return { data: safeJsonParse(cached, null), fromCache: true };
-        console.error('Erreur fetch/cache:', e);
+        if (cached) {
+            return { data: safeJsonParse(cached, null), fromCache: true };
+        }
         return { data: null, fromCache: false };
     }
 }
 
 async function loadData() {
-    if (DOM.matches) {
-        DOM.matches.innerHTML = `<div class="loading">Chargement des matchs...</div>`;
-    }
-
     const { data, fromCache } = await fetchJsonWithCache(`data.json?t=${Date.now()}`, 'cachedData', 8000);
     usingCachedData = fromCache;
     allData = data;
 
-    if (!allData || !Array.isArray(allData.matches)) {
+    if (!allData) {
         if (DOM.matches) {
             DOM.matches.innerHTML = `<div class="error">❌ Aucune donnée disponible.</div>`;
         }
-        renderBookmakers();
         return;
     }
 
@@ -977,111 +991,91 @@ async function loadDataGeneric() {
 }
 
 /* =======================================================
-   DATE HELPERS
-   ======================================================= */
-function getLocalDateString(day) {
-    const date = new Date();
-
-    if (day === 'tomorrow') date.setDate(date.getDate() + 1);
-    else if (day === 'yesterday') date.setDate(date.getDate() - 1);
-
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-}
-
-function getLocalDateFromEvent(isoString) {
-    if (!isoString) return null;
-
-    const date = new Date(isoString);
-    if (isNaN(date)) return null;
-
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-}
-
-/* =======================================================
    BOOKMAKERS
    ======================================================= */
-function getBookmakersList(bookmakers) {
-    if (Array.isArray(bookmakers) && bookmakers.length) return bookmakers;
-    if (Array.isArray(allData?.bookmakers) && allData.bookmakers.length) return allData.bookmakers;
-    return DEFAULT_BOOKMAKERS;
-}
+function renderBookmakers(bookmakers) {
+    const defaultBookmakers = [
+        { name: "1xBet", logo: "assets/images/1xbet.webp", url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599" },
+        { name: "1win", logo: "assets/images/1win.webp", url: "https://1wrbgb.com/?open=register&p=qqcw" },
+        { name: "Betwinner", logo: "assets/images/betwinner.webp", url: "https://bwredir.com/299Y" },
+        { name: "Melbet", logo: "assets/images/melbet.webp", url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041" },
+        { name: "Linebet", logo: "assets/images/linebet.webp", url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611" },
+        { name: "BetClic", logo: "assets/images/betclic.webp", url: "https://betpari-click.com/2vY0?extid=USD" }
+    ];
 
-function normalizeBookmaker(b) {
-    return {
-        name: b?.name || 'Bookmaker',
-        logo: b?.logo || 'assets/images/default-logo.webp',
-        url: b?.url || '#',
-        desc: b?.desc || `Bonus exclusif chez ${b?.name || 'ce bookmaker'}`
-    };
-}
-
-function renderBookmakers(bookmakers = null) {
-    const list = getBookmakersList(bookmakers).map(normalizeBookmaker);
+    const items = Array.isArray(bookmakers) && bookmakers.length ? bookmakers : defaultBookmakers;
 
     if (DOM.bookmakersFooter) {
-        DOM.bookmakersFooter.innerHTML = list.map(b => `
-            <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="bookmaker-item">
-                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
-                <span>${escapeHtml(b.name)}</span>
-            </a>
-        `).join('');
+        DOM.bookmakersFooter.innerHTML = '';
+        items.forEach(b => {
+            const a = document.createElement('a');
+            a.href = b.url;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+
+            const img = document.createElement('img');
+            img.src = b.logo;
+            img.alt = b.name;
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            img.style.maxHeight = '40px';
+
+            img.onerror = function () {
+                this.style.display = 'none';
+                const span = document.createElement('span');
+                span.textContent = b.name;
+                span.style.color = 'var(--or)';
+                span.style.fontWeight = '600';
+                span.style.fontSize = '0.8rem';
+                a.appendChild(span);
+            };
+
+            a.appendChild(img);
+            DOM.bookmakersFooter.appendChild(a);
+        });
     }
 
     if (DOM.bookmakersBonus) {
-        DOM.bookmakersBonus.innerHTML = list.map(b => `
-            <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="bookmaker-item">
-                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
-                <span>${escapeHtml(b.name)}</span>
-            </a>
-        `).join('');
+        DOM.bookmakersBonus.innerHTML = '';
+        items.forEach(b => {
+            const div = document.createElement('div');
+            div.className = 'bookmaker-card';
+            div.innerHTML = `
+                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" decoding="async">
+                <h3>${escapeHtml(b.name)}</h3>
+                <p>Bonus de bienvenue jusqu'à 130€</p>
+                <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">S'inscrire avec XPVIP</a>
+            `;
+            DOM.bookmakersBonus.appendChild(div);
+        });
     }
-}
-
-/* =======================================================
-   SUCCESS RATE
-   ======================================================= */
-function calculateSuccessRate(matches) {
-    if (!Array.isArray(matches) || !matches.length) return 0;
-
-    const finished = matches.filter(m => isFinishedMatch(m));
-    if (!finished.length) return 0;
-
-    const won = finished.filter(m => m.verified_double).length;
-    return Math.round((won / finished.length) * 100);
-}
-
-function updatePronosticsSuccessRate() {
-    if (!DOM.successFill || !DOM.successPercent || !Array.isArray(allData?.matches)) return;
-
-    const targetCat = currentCategory === 'vip' ? 'vip' : currentCategory;
-    const matches = allData.matches.filter(m => String(m.category || '').toLowerCase() === targetCat);
-    const rate = calculateSuccessRate(matches);
-
-    DOM.successFill.style.width = `${rate}%`;
-    DOM.successPercent.textContent = `${rate}%`;
-}
-
-function updateHomeSuccessRate() {
-    if (!DOM.successFill || !DOM.successPercent || !Array.isArray(allData?.matches)) return;
-
-    const premiumMatches = allData.matches.filter(m =>
-        isFinishedMatch(m) && (m.category === 'pro' || m.category === 'vip')
-    );
-    const rate = calculateSuccessRate(premiumMatches);
-
-    DOM.successFill.style.width = `${rate}%`;
-    DOM.successPercent.textContent = `${rate}%`;
 }
 
 /* =======================================================
    PRONOS PAGE
    ======================================================= */
+function getLocalDateString(day) {
+    const now = new Date();
+    const target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    if (day === 'tomorrow') target.setUTCDate(target.getUTCDate() + 1);
+    else if (day === 'yesterday') target.setUTCDate(target.getUTCDate() - 1);
+
+    const y = target.getUTCFullYear();
+    const m = String(target.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(target.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+function getLocalDateFromEvent(isoString) {
+    if (!isoString) return null;
+    const date = new Date(isoString);
+    if (isNaN(date)) return null;
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(date.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
 function sortMatchesByLeague(matches) {
     return matches.sort((a, b) => {
         const leagueA = a.league || '';
@@ -1102,9 +1096,9 @@ function translateStatus(status) {
     if (!status) return 'À venir';
     const s = String(status).toLowerCase();
 
-    if (s.includes('finished') || s.includes('terminé') || s.includes('ended') || s === 'ft') return 'Terminé';
+    if (s.includes('finished') || s.includes('terminé') || s.includes('ended')) return 'Terminé';
     if (s.includes('inprogress') || s.includes('live') || s.includes('en cours')) return 'En cours';
-    if (s.includes('notstarted') || s.includes('à venir') || s.includes('scheduled')) return 'À venir';
+    if (s.includes('notstarted') || s.includes('à venir')) return 'À venir';
     if (s.includes('postponed')) return 'Reporté';
     if (s.includes('cancelled')) return 'Annulé';
 
@@ -1114,7 +1108,7 @@ function translateStatus(status) {
 function getStatusClass(status) {
     if (!status) return '';
     const s = String(status).toLowerCase();
-    if (s.includes('finished') || s.includes('terminé') || s.includes('ended') || s === 'ft') return 'finished';
+    if (s.includes('finished') || s.includes('terminé') || s.includes('ended')) return 'finished';
     if (s.includes('inprogress') || s.includes('live') || s.includes('en cours')) return 'live';
     return '';
 }
@@ -1128,7 +1122,9 @@ function formatMatchTime(isoString) {
 
 function getTeamLogoPath(teamName, isHome = true) {
     if (!teamName) return isHome ? 'assets/images/home.webp' : 'assets/images/away.webp';
-    const normalized = String(teamName).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    const normalized = String(teamName).toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
     return `assets/images/${normalized}.webp`;
 }
 
@@ -1138,8 +1134,7 @@ function hideEmptyTabs() {
 
     if (allData?.matches) {
         allData.matches.forEach(m => {
-            const cat = String(m.category || '').toLowerCase().trim();
-            if (counts[cat] !== undefined) counts[cat]++;
+            if (counts[m.category] !== undefined) counts[m.category]++;
         });
     }
 
@@ -1150,12 +1145,15 @@ function hideEmptyTabs() {
         else btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
     });
 
-    if (DOM.vipSubtabs) DOM.vipSubtabs.style.display = vipEnabled ? 'flex' : 'none';
+    if (DOM.vipSubtabs) {
+        DOM.vipSubtabs.style.display = vipEnabled ? 'flex' : 'none';
+    }
 }
 
 function maybeHideTabBar() {
     const tabBar = qs('.category-tabs');
     if (!tabBar) return;
+
     const visibleTabs = qsa('.tab-btn', tabBar).filter(btn => btn.style.display !== 'none');
     tabBar.style.display = visibleTabs.length === 0 ? 'none' : 'grid';
 }
@@ -1169,26 +1167,18 @@ function filterAndDisplay() {
     const targetDate = getLocalDateString(currentDay);
     const targetCat = (currentCategory === 'vip' && currentSubcat === 'pronostics') ? 'vip' : currentCategory;
 
-    let filtered = allData.matches.filter(m => {
+    const filtered = allData.matches.filter(m => {
         const eventLocalDate = getLocalDateFromEvent(m.event_date);
-        const category = String(m.category || '').toLowerCase().trim();
-        return category === targetCat && eventLocalDate === targetDate;
+        return m.category === targetCat && eventLocalDate === targetDate;
     });
-
-    if (!filtered.length) {
-        filtered = allData.matches.filter(m => {
-            const category = String(m.category || '').toLowerCase().trim();
-            return category === targetCat;
-        });
-    }
 
     filteredMatchesWithoutSearch = sortMatchesByLeague(filtered);
     applySearchFilter();
-    updatePronosticsSuccessRate();
 }
 
 function applySearchFilter() {
-    if (!DOM.matches || !filteredMatchesWithoutSearch) return;
+    if (!DOM.matches) return;
+    if (!filteredMatchesWithoutSearch) return;
 
     if (!searchTerm.trim()) {
         renderMatches(filteredMatchesWithoutSearch);
@@ -1227,8 +1217,8 @@ function renderMatches(matches) {
     });
 
     let html = offlineBanner;
-    const leagueOrder = [...POPULAR_LEAGUES, 'Autres ligues'];
 
+    const leagueOrder = [...POPULAR_LEAGUES, 'Autres ligues'];
     const sortedLeagues = Object.keys(grouped).sort((a, b) => {
         const ia = leagueOrder.findIndex(l => a.includes(l) || a === l);
         const ib = leagueOrder.findIndex(l => b.includes(l) || b === l);
@@ -1240,13 +1230,17 @@ function renderMatches(matches) {
 
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
-            const confidence = Math.min(100, Math.round(toFloatSafe(pred.confidence, 0) * 10) / 10);
+            const doubleChance = escapeHtml(pred.double_chance || 'N/A');
+
+            let confidence = toFloatSafe(pred.confidence, 0);
+            if (confidence > 100) confidence = confidence / 100;
+            confidence = Math.min(100, Math.round(confidence * 10) / 10);
 
             const matchTime = formatMatchTime(m.event_date);
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
 
-            const eventDate = getLocalDateFromEvent(m.event_date) || '';
+            const eventDate = m.event_date ? String(m.event_date).split('T')[0] : '';
             const yesterdayStr = getLocalDateString('yesterday');
             const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
 
@@ -1257,7 +1251,8 @@ function renderMatches(matches) {
             const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
             const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
 
-            const winnerClass = m.verified_double ? 'winner' : '';
+            const isWinner = !!m.verified_double;
+            const winnerClass = isWinner ? 'winner' : '';
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${escapeHtml(m.badge)}</span>` : '';
 
             const matchDataForSharing = {
@@ -1271,11 +1266,27 @@ function renderMatches(matches) {
             const matchDataEncoded = encodeURIComponent(JSON.stringify(matchDataForSharing));
 
             let advancedHtml = '';
-            if (m.ai_score !== undefined && m.ai_score !== null) advancedHtml += `<div class="ai-score-badge">🤖 AI: ${escapeHtml(String(m.ai_score))}</div>`;
-            if (m.elo_home !== undefined && m.elo_away !== undefined) advancedHtml += `<div class="elo-info">📊 Elo: ${escapeHtml(String(m.elo_home))} - ${escapeHtml(String(m.elo_away))}</div>`;
-            if (m.xg_home !== undefined && m.xg_away !== undefined) advancedHtml += `<div class="xg-info">⚽ xG: ${escapeHtml(String(m.xg_home))} - ${escapeHtml(String(m.xg_away))}</div>`;
-            if (m.fatigue_home !== undefined || m.fatigue_away !== undefined) advancedHtml += `<div class="fatigue-info">😓 Fatigue: ${escapeHtml(String(m.fatigue_home ?? '?'))} - ${escapeHtml(String(m.fatigue_away ?? '?'))}</div>`;
-            if (m.trap_detected) advancedHtml += `<div class="trap-warning">⚠️ Piège bookmaker</div>`;
+
+            if (m.ai_score !== undefined && m.ai_score !== null) {
+                advancedHtml += `<div class="ai-score-badge">🤖 AI: ${escapeHtml(String(m.ai_score))}</div>`;
+            }
+            if (m.elo_home !== undefined && m.elo_away !== undefined) {
+                advancedHtml += `<div class="elo-info">📊 Elo: ${escapeHtml(String(m.elo_home))} - ${escapeHtml(String(m.elo_away))}</div>`;
+            }
+
+            const xgHome = toFloatSafe(m.xg_home, null);
+            const xgAway = toFloatSafe(m.xg_away, null);
+            if (xgHome !== null && xgAway !== null) {
+                advancedHtml += `<div class="xg-info">⚽ xG: ${xgHome.toFixed(2)} - ${xgAway.toFixed(2)}</div>`;
+            }
+
+            if (m.fatigue_home !== undefined || m.fatigue_away !== undefined) {
+                advancedHtml += `<div class="fatigue-info">😓 Fatigue: ${escapeHtml(String(m.fatigue_home ?? '?'))} - ${escapeHtml(String(m.fatigue_away ?? '?'))}</div>`;
+            }
+
+            if (m.trap_detected) {
+                advancedHtml += `<div class="trap-warning">⚠️ Piège bookmaker</div>`;
+            }
 
             html += `
                 <div class="match-card ${winnerClass}">
@@ -1303,7 +1314,7 @@ function renderMatches(matches) {
                     </div>
                     <div class="analysis-panel ticket ${winnerClass}">
                         <h4>Pronostic ${xpronosBadge}</h4>
-                        <p><strong>Double chance :</strong> ${escapeHtml(pred.double_chance || 'N/A')} ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}</p>
+                        <p><strong>Double chance :</strong> ${doubleChance} ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}</p>
                         <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
                         ${premiumBadge}
@@ -1374,18 +1385,21 @@ async function displayHistory() {
             const pred = m.prediction || {};
             const confidence = toFloatSafe(pred.confidence, 0);
 
+            const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
+            const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
+
             html += `
                 <div class="match-card ${m.verified_double ? 'winner' : ''}">
                     <div class="match-info">
                         <div class="teams">
                             <div class="team">
-                                <img src="${escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true))}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='assets/images/home.webp';">
+                                <img src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy">
                                 <span class="team-name">${escapeHtml(m.home_team)}</span>
                                 <span class="team-score">${m.home_score ?? '-'}</span>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                <img src="${escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false))}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='assets/images/away.webp';">
+                                <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
                                 <span class="team-name">${escapeHtml(m.away_team)}</span>
                                 <span class="team-score">${m.away_score ?? '-'}</span>
                             </div>
@@ -1405,7 +1419,7 @@ async function displayHistory() {
 }
 
 /* =======================================================
-   CONTENT / BLOG / CONSEILS / INFOS / BONUS / HOME
+   CONTENT GENERATION
    ======================================================= */
 async function loadGeneratedContent() {
     if (generatedContentPromise) return generatedContentPromise;
@@ -1429,6 +1443,9 @@ async function loadGeneratedContent() {
     return generatedContentPromise;
 }
 
+/* =======================================================
+   BLOG
+   ======================================================= */
 window.showArticleDetail = function (index) {
     const article = window.articlesData?.[index];
     if (!article) return;
@@ -1439,7 +1456,7 @@ window.showArticleDetail = function (index) {
     }
 
     const title = stripMarkdown(article.title || 'Article');
-    const image = article.image_url || 'assets/images/default-logo.webp';
+    const image = article.image_url || 'assets/images/default-logo.png';
     const contentHtml = renderSafeRichContent(article.content || '');
 
     const titleEl = document.getElementById('article-modal-title');
@@ -1479,7 +1496,7 @@ async function displayBlogList() {
     if (horizontalContainer) {
         horizontalContainer.innerHTML = allArticles.slice(0, 8).map((article, index) => `
             <div class="horizontal-item" onclick="showArticleDetail(${index})">
-                <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.webp')}" alt="${escapeAttribute(stripMarkdown(article.title || 'Article'))}">
+                <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(article.title || 'Article'))}">
                 <div class="item-title">${escapeHtml(stripMarkdown(article.title || 'Article'))}</div>
             </div>
         `).join('');
@@ -1487,7 +1504,7 @@ async function displayBlogList() {
 
     DOM.blogList.innerHTML = allArticles.map((article, index) => `
         <div class="news-card card" onclick="showArticleDetail(${index})">
-            <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.webp')}" alt="${escapeAttribute(stripMarkdown(article.title || 'Article'))}" loading="lazy" class="news-image">
+            <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(article.title || 'Article'))}" loading="lazy" class="news-image">
             <h3>${escapeHtml(stripMarkdown(article.title || 'Article'))}</h3>
             <p>${escapeHtml(stripMarkdown((article.excerpt || article.content || '').slice(0, 120)))}...</p>
             <button class="btn btn-secondary" style="margin-top:10px;">Lire la suite</button>
@@ -1525,7 +1542,7 @@ async function displayBlogPost() {
 
     DOM.blogPost.innerHTML = `
         <article class="card article-page-card">
-            <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.webp')}" alt="${escapeAttribute(title)}" class="news-image" loading="lazy">
+            <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(title)}" class="news-image" loading="lazy">
             <h1>${escapeHtml(title)}</h1>
             <div class="article-content">${contentHtml}</div>
         </article>
@@ -1535,6 +1552,9 @@ async function displayBlogPost() {
     if (titleMeta) titleMeta.textContent = `${title} - Mr XPRONOS`;
 }
 
+/* =======================================================
+   CONSEILS
+   ======================================================= */
 async function displayConseils() {
     if (!DOM.conseilsList) return;
 
@@ -1551,7 +1571,7 @@ async function displayConseils() {
     if (horizontalContainer) {
         horizontalContainer.innerHTML = window.conseilsData.slice(0, 8).map((conseil, index) => `
             <div class="horizontal-item" onclick="showConseilDetail(${index})">
-                <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.webp')}" alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}">
+                <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}">
                 <div class="item-title">${escapeHtml(stripMarkdown(conseil.title || 'Conseil'))}</div>
             </div>
         `).join('');
@@ -1559,7 +1579,7 @@ async function displayConseils() {
 
     DOM.conseilsList.innerHTML = window.conseilsData.map((conseil, index) => `
         <div class="news-card card" onclick="showConseilDetail(${index})">
-            <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.webp')}" alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}" loading="lazy" class="news-image">
+            <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}" loading="lazy" class="news-image">
             <h3>${escapeHtml(stripMarkdown(conseil.title || 'Conseil'))}</h3>
             <p>${escapeHtml(stripMarkdown((conseil.content || '').slice(0, 120)))}...</p>
             <button class="btn btn-secondary" style="margin-top:10px;">Lire le conseil</button>
@@ -1571,12 +1591,11 @@ window.showConseilDetail = function (index) {
     const conseil = window.conseilsData?.[index];
     if (!conseil || !DOM.conseilModal) return;
 
-    const titleEl = document.getElementById('conseil-modal-title');
-    if (titleEl) titleEl.textContent = stripMarkdown(conseil.title || 'Conseil');
+    document.getElementById('conseil-modal-title').textContent = stripMarkdown(conseil.title || 'Conseil');
 
     const img = document.getElementById('conseil-modal-image');
     if (img) {
-        img.src = conseil.image_url || 'assets/images/default-logo.webp';
+        img.src = conseil.image_url || 'assets/images/default-logo.png';
         img.alt = stripMarkdown(conseil.title || 'Conseil');
     }
 
@@ -1592,6 +1611,9 @@ window.closeConseilModal = function () {
     if (DOM.conseilModal) DOM.conseilModal.style.display = 'none';
 };
 
+/* =======================================================
+   INFOS / NEWS
+   ======================================================= */
 async function displayInfos() {
     if (!DOM.infosList) return;
 
@@ -1643,7 +1665,7 @@ window.showNewsDetail = function (index) {
 
     if (titleEl) titleEl.textContent = news.title || 'Actualité';
     if (img) {
-        img.src = news.image || 'assets/images/default-logo.webp';
+        img.src = news.image || 'assets/images/default-logo.png';
         img.alt = news.title || 'Actualité';
     }
     if (contentEl) {
@@ -1662,17 +1684,67 @@ window.closeNewsModal = function () {
     if (DOM.newsModal) DOM.newsModal.style.display = 'none';
 };
 
+/* =======================================================
+   BONUS
+   ======================================================= */
 function initBonusPage() {
-    const sourceBookmakers = getBookmakersList(allData?.bookmakers).map(normalizeBookmaker);
+    const defaultBookmakers = [
+        {
+            name: "1xBet",
+            logo: "assets/images/1xbet.webp",
+            url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
+            desc: "Bonus de bienvenue jusqu'à 130€"
+        },
+        {
+            name: "1win",
+            logo: "assets/images/1win.webp",
+            url: "https://1wrbgb.com/?open=register&p=qqcw",
+            desc: "Bonus exclusif avec XPVIP"
+        },
+        {
+            name: "Betwinner",
+            logo: "assets/images/betwinner.webp",
+            url: "https://bwredir.com/299Y",
+            desc: "Offre spéciale nouveaux joueurs"
+        },
+        {
+            name: "Melbet",
+            logo: "assets/images/melbet.webp",
+            url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
+            desc: "Bonus premium Melbet avec inscription rapide"
+        },
+        {
+            name: "Linebet",
+            logo: "assets/images/linebet.webp",
+            url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
+            desc: "Bonus et promotions spéciales Linebet"
+        },
+        {
+            name: "Betclic",
+            logo: "assets/images/betclic.webp",
+            url: "https://betpari-click.com/2vY0?extid=USD",
+            desc: "Offre de bienvenue Betclic"
+        }
+    ];
+
+    // Si data.json contient déjà bookmakers, on les utilise
+    const sourceBookmakers = Array.isArray(allData?.bookmakers) && allData.bookmakers.length
+        ? allData.bookmakers.map(b => ({
+            name: b.name || "Bookmaker",
+            logo: b.logo || "assets/images/default-logo.webp",
+            url: b.url || "#",
+            desc: b.desc || `Bonus exclusif chez ${b.name || "ce bookmaker"}`
+        }))
+        : defaultBookmakers;
 
     window.currentBonusBookmakers = sourceBookmakers;
 
     if (DOM.bonusSelect) {
         DOM.bonusSelect.innerHTML = sourceBookmakers.map((b, i) =>
             `<option value="${i}">${escapeHtml(b.name)}</option>`
-        ).join('');
+        ).join("");
 
-        DOM.bonusSelect.addEventListener('change', () => {
+        DOM.bonusSelect.addEventListener("change", () => {
             const index = parseInt(DOM.bonusSelect.value, 10);
             highlightBonusCard(index);
         });
@@ -1682,39 +1754,30 @@ function initBonusPage() {
 }
 
 function renderBonusGrid(bookmakers) {
-    if (DOM.bonusGrid) {
-        DOM.bonusGrid.innerHTML = bookmakers.map((b, i) => `
-            <div class="bookmaker-card bonus-bookmaker-card" data-index="${i}">
-                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
-                <h3>${escapeHtml(b.name)}</h3>
-                <p>${escapeHtml(b.desc || 'Bonus exclusif bookmaker')}</p>
-                <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-                    <button class="btn btn-secondary" onclick="openBonusModal(${i})">Détails</button>
-                    <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter</a>
-                </div>
-            </div>
-        `).join('');
-    }
+    if (!DOM.bonusGrid) return;
 
-    if (DOM.bonusThumbnails) {
-        DOM.bonusThumbnails.innerHTML = bookmakers.map((b, i) => `
-            <div class="bonus-thumb" onclick="openBonusModal(${i})">
-                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
-                <div class="bonus-thumb-title">${escapeHtml(b.name)}</div>
+    DOM.bonusGrid.innerHTML = bookmakers.map((b, i) => `
+        <div class="bookmaker-card bonus-bookmaker-card" data-index="${i}">
+            <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+            <h3>${escapeHtml(b.name)}</h3>
+            <p>${escapeHtml(b.desc || "Bonus exclusif bookmaker")}</p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+                <button class="btn btn-secondary" onclick="openBonusModal(${i})">Détails</button>
+                <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter</a>
             </div>
-        `).join('');
-    }
+        </div>
+    `).join("");
 }
 
 function highlightBonusCard(index) {
-    qsa('.bonus-bookmaker-card').forEach(card => {
-        card.classList.remove('active-bonus-card');
+    qsa(".bonus-bookmaker-card").forEach(card => {
+        card.classList.remove("active-bonus-card");
     });
 
     const target = document.querySelector(`.bonus-bookmaker-card[data-index="${index}"]`);
     if (target) {
-        target.classList.add('active-bonus-card');
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        target.classList.add("active-bonus-card");
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 }
 
@@ -1722,43 +1785,50 @@ window.openBonusModal = function (index) {
     const b = window.currentBonusBookmakers?.[index];
     if (!b || !DOM.bonusModal) return;
 
-    const titleEl = document.getElementById('bonus-modal-title');
-    const img = document.getElementById('bonus-modal-image');
-    const descEl = document.getElementById('bonus-modal-description');
-    const footerEl = document.getElementById('bonus-modal-footer');
-    const linkEl = document.getElementById('bonus-modal-link');
+    const titleEl = document.getElementById("bonus-modal-title");
+    const img = document.getElementById("bonus-modal-image");
+    const descEl = document.getElementById("bonus-modal-description");
+    const footerEl = document.getElementById("bonus-modal-footer");
+    const linkEl = document.getElementById("bonus-modal-link");
 
     if (titleEl) titleEl.textContent = b.name;
 
     if (img) {
-        img.src = b.logo || 'assets/images/default-logo.webp';
-        img.alt = b.name || 'Bookmaker';
+        img.src = b.logo || "assets/images/default-logo.webp";
+        img.alt = b.name || "Bookmaker";
     }
 
     if (descEl) {
         descEl.innerHTML = `
-            <p>${escapeHtml(b.desc || 'Bonus exclusif bookmaker')}</p>
-            <p style="margin-top:10px;">Utilisez le code promo <strong>XPVIP</strong> si l'offre le permet.</p>
+            <p>${escapeHtml(b.desc || "Bonus exclusif bookmaker")}</p>
+            <p style="margin-top:10px;">
+                Utilisez le code promo <strong>XPVIP</strong> si l'offre le permet.
+            </p>
         `;
     }
 
     if (footerEl) {
-        footerEl.textContent = 'Inscription via notre lien recommandé.';
+        footerEl.textContent = "Inscription via notre lien recommandé.";
     }
 
     if (linkEl) {
-        linkEl.href = b.url || '#';
-        linkEl.target = '_blank';
-        linkEl.rel = 'noopener noreferrer';
+        linkEl.href = b.url || "#";
+        linkEl.target = "_blank";
+        linkEl.rel = "noopener noreferrer";
     }
 
-    DOM.bonusModal.style.display = 'flex';
+    DOM.bonusModal.style.display = "flex";
 };
 
 window.closeBonusModal = function () {
-    if (DOM.bonusModal) DOM.bonusModal.style.display = 'none';
+    if (DOM.bonusModal) {
+        DOM.bonusModal.style.display = "none";
+    }
 };
 
+/* =======================================================
+   HOME WIDGETS
+   ======================================================= */
 function displayLatestVerified() {
     if (!DOM.todayPicks || !allData?.matches) return;
 
@@ -1777,13 +1847,13 @@ function displayLatestVerified() {
             <div class="match-info">
                 <div class="teams">
                     <div class="team">
-                        <img src="${escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true))}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='assets/images/home.webp';">
+                        <img src="${escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true))}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy">
                         <span class="team-name">${escapeHtml(m.home_team)}</span>
                         <span class="team-score">${m.home_score ?? '-'}</span>
                     </div>
                     <div class="vs">VS</div>
                     <div class="team">
-                        <img src="${escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false))}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='assets/images/away.webp';">
+                        <img src="${escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false))}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
                         <span class="team-name">${escapeHtml(m.away_team)}</span>
                         <span class="team-score">${m.away_score ?? '-'}</span>
                     </div>
@@ -1878,6 +1948,58 @@ function startWinNotifications() {
     setTimeout(showPopup, 5000);
 }
 
+function updateHomeSuccessRate() {
+    if (!DOM.successFill || !DOM.successPercent || !allData?.matches) return;
+
+    const finished = allData.matches.filter(isFinishedMatch);
+    if (finished.length === 0) {
+        DOM.successFill.style.width = '0%';
+        DOM.successPercent.textContent = '0%';
+        return;
+    }
+
+    const successful = finished.filter(m => m.verified_double).length;
+    const percent = Math.round((successful / finished.length) * 100);
+
+    DOM.successFill.style.width = percent + '%';
+    DOM.successPercent.textContent = percent + '%';
+}
+
+function updatePronosticsSuccessRate() {
+    if (!DOM.successRateContainer) return;
+    if (!allData?.matches) {
+        DOM.successRateContainer.style.display = 'none';
+        return;
+    }
+
+    const finished = allData.matches.filter(isFinishedMatch);
+    const successful = finished.filter(m => m.verified_double);
+
+    if (finished.length === 0) {
+        DOM.successRateContainer.style.display = 'none';
+        return;
+    }
+
+    const rate = ((successful.length / finished.length) * 100).toFixed(1);
+    const roi = Number(allData?.stats?.roi || 0);
+    const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
+
+    DOM.successRateContainer.innerHTML = `
+        <div class="success-rate-item">
+            <div class="success-rate-value">${escapeHtml(rate)}%</div>
+            <div class="success-rate-label">Réussite</div>
+        </div>
+        <div class="success-rate-item">
+            <div class="success-rate-value">${escapeHtml(roiDisplay)}</div>
+            <div class="success-rate-label">ROI</div>
+        </div>
+    `;
+    DOM.successRateContainer.style.display = 'flex';
+}
+
+/* =======================================================
+   SCROLL PROGRESS
+   ======================================================= */
 function initScrollProgress() {
     if (document.querySelector('.scroll-progress')) return;
     const progressBar = document.createElement('div');
@@ -2002,7 +2124,7 @@ async function handleCategoryChange() {
 }
 
 /* =======================================================
-   INIT
+   INIT APP
    ======================================================= */
 document.addEventListener('DOMContentLoaded', async () => {
     initDOM();
@@ -2018,6 +2140,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     countVisitOncePerDay();
     showIosGuideIfNeeded();
 
+    if (Notification.permission === 'granted') {
+        subscribeToPush(false);
+    }
+
     const page = detectPage();
 
     switch (page) {
@@ -2027,39 +2153,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             break;
 
         case 'history':
-            allData = await loadDataGeneric();
             await displayHistory();
-            renderBookmakers(allData?.bookmakers);
+            renderBookmakers();
             break;
 
         case 'blog-list':
-            allData = await loadDataGeneric();
             await displayBlogList();
-            renderBookmakers(allData?.bookmakers);
+            renderBookmakers();
             break;
 
         case 'blog-post':
-            allData = await loadDataGeneric();
             await displayBlogPost();
-            renderBookmakers(allData?.bookmakers);
+            renderBookmakers();
             break;
 
         case 'conseils':
-            allData = await loadDataGeneric();
             await displayConseils();
-            renderBookmakers(allData?.bookmakers);
+            renderBookmakers();
             break;
 
         case 'bonus':
-            allData = await loadDataGeneric();
             initBonusPage();
-            renderBookmakers(allData?.bookmakers);
+            renderBookmakers();
             break;
 
         case 'infos':
-            allData = await loadDataGeneric();
             await displayFootNews();
-            renderBookmakers(allData?.bookmakers);
+            renderBookmakers();
             break;
 
         case 'home': {
@@ -2071,8 +2191,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 startWinsSlider();
                 animateWins();
                 updateHomeSuccessRate();
-            } else {
-                renderBookmakers();
             }
             await displayTestimonials();
             startWinNotifications();
@@ -2080,11 +2198,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         default:
-            allData = await loadDataGeneric();
-            renderBookmakers(allData?.bookmakers);
+            renderBookmakers();
             break;
     }
 
-    await displayInfos();
+    await displayInfos(); // ne fait rien si le container n'existe pas
     initScrollProgress();
 });
