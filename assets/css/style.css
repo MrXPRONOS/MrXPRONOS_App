@@ -1,11 +1,7 @@
 /* =======================================================
    STYLE.CSS - Mr XPRONOS
-   Design noir & or, moderne, optimisé sans dégradés
-   Inclut les styles pour les pronostics et popups
+   Design noir & or, moderne, optimisé
    ======================================================= */
-
-/* Police élégante Montserrat (Google Fonts) */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 /* =======================================================
    VARIABLES DE COULEURS
@@ -20,6 +16,9 @@
     --blanc: #FFFFFF;
     --gris: #2A2A2A;
     --gris-clair: #444;
+    --rouge: #FF6B6B;
+    --orange: #FFA500;
+
     --shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
     --shadow-hover: 0 12px 24px rgba(212, 175, 55, 0.2);
     --vip-glow: 0 0 20px rgba(212, 175, 55, 0.6);
@@ -34,14 +33,29 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Montserrat', sans-serif;
     background-color: var(--noir);
     color: var(--blanc);
     line-height: 1.5;
     font-size: 14px;
-    scroll-behavior: smooth;
     min-height: 100vh;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
 }
 
 .container {
@@ -52,7 +66,70 @@ body {
 }
 
 /* =======================================================
-   HEADER (EN-TÊTE)
+   ANIMATIONS GLOBALES
+   ======================================================= */
+@keyframes gentle-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.02); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulseWin {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.92; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes sparkFly {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--dx, 100px), var(--dy, -100px)) scale(0);
+        opacity: 0;
+    }
+}
+
+@keyframes scrollWins {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* =======================================================
+   HEADER
    ======================================================= */
 header {
     background-color: var(--noir-secondaire);
@@ -69,6 +146,7 @@ header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     flex-wrap: wrap;
 }
 
@@ -88,6 +166,13 @@ header .container {
 .logo span {
     color: var(--blanc);
     font-weight: 400;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 nav ul {
@@ -144,7 +229,7 @@ nav a.active {
 }
 
 /* =======================================================
-   FOOTER (PIED DE PAGE)
+   FOOTER
    ======================================================= */
 footer {
     background-color: var(--noir-secondaire);
@@ -188,7 +273,7 @@ footer {
 }
 
 .social-links a:hover img {
-    transform: scale(1.2);
+    transform: scale(1.15);
 }
 
 .bookmakers {
@@ -202,12 +287,12 @@ footer {
 .bookmakers img {
     width: 100%;
     border-radius: 10px;
-    opacity: 0.9;
+    opacity: 0.95;
     transition: transform 0.3s;
 }
 
 .bookmakers a:hover img {
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
 
 /* =======================================================
@@ -249,19 +334,12 @@ footer {
     transform: translateY(-2px);
 }
 
-/* Bouton installation PWA */
 #install-app {
     animation: gentle-pulse 2s infinite;
 }
 
-@keyframes gentle-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
 /* =======================================================
-   STATISTIQUES (badge utilisateurs/partages)
+   BADGES / STATS
    ======================================================= */
 .stats-badge {
     background: var(--noir-secondaire);
@@ -271,6 +349,66 @@ footer {
     font-size: 0.9rem;
     display: inline-block;
     margin-top: 1rem;
+}
+
+.badge-premium {
+    background-color: var(--or);
+    color: #000;
+    padding: 0.2rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.badge-category {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 8px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.badge-simple {
+    background-color: #2b2b2b;
+    color: #fff;
+    border: 1px solid #666;
+}
+
+.badge-pro,
+.badge-category.badge-pro {
+    background-color: var(--gris-clair);
+    color: var(--blanc);
+    border: 1px solid var(--or);
+}
+
+.badge-vip,
+.badge-category.badge-vip {
+    background-color: var(--or);
+    color: #000;
+}
+
+.badge-category.badge-simple {
+    background-color: #2b2b2b;
+    color: #fff;
+    border: 1px solid #666;
+}
+
+.badge-win {
+    background: #00c853;
+    color: white;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* =======================================================
@@ -303,20 +441,13 @@ footer {
     margin-bottom: 0.5rem;
 }
 
-.badge-premium {
-    background-color: var(--or);
-    color: #000;
-    padding: 0.2rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    display: inline-block;
-}
-
 /* =======================================================
-   GRILLES POUR BLOG, CONSEILS, INFOS
+   GRILLES
    ======================================================= */
-.blog-grid, .conseils-grid, .infos-grid, .news-grid {
+.blog-grid,
+.conseils-grid,
+.infos-grid,
+.news-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1.5rem;
@@ -324,25 +455,34 @@ footer {
 }
 
 @media (max-width: 992px) {
-    .blog-grid, .conseils-grid, .infos-grid, .news-grid {
+    .blog-grid,
+    .conseils-grid,
+    .infos-grid,
+    .news-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 }
 
 @media (max-width: 768px) {
-    .blog-grid, .conseils-grid, .infos-grid, .news-grid {
+    .blog-grid,
+    .conseils-grid,
+    .infos-grid,
+    .news-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 480px) {
-    .blog-grid, .conseils-grid, .infos-grid, .news-grid {
+    .blog-grid,
+    .conseils-grid,
+    .infos-grid,
+    .news-grid {
         grid-template-columns: 1fr;
     }
 }
 
 /* =======================================================
-   SCROLL HORIZONTAL (pour les listes déroulantes)
+   SCROLL HORIZONTAL
    ======================================================= */
 .horizontal-scroll {
     display: flex;
@@ -383,7 +523,7 @@ footer {
     width: 60px;
     height: 60px;
     object-fit: contain;
-    margin-bottom: 0.5rem;
+    margin: 0 auto 0.5rem;
     border-radius: 8px;
     background-color: var(--gris);
     padding: 5px;
@@ -401,48 +541,21 @@ footer {
     .horizontal-item {
         width: 150px;
     }
+
     .horizontal-item .item-title {
         font-size: 0.8rem;
     }
 }
 
-/* Badges pour les pronostics validés */
-.badge-vip {
-    background-color: var(--or);
-    color: #000;
-    padding: 2px 8px;
-    border-radius: 30px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.badge-pro {
-    background-color: var(--gris-clair);
-    color: var(--blanc);
-    padding: 2px 8px;
-    border-radius: 30px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    border: 1px solid var(--or);
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
 /* =======================================================
-   CARTES NEWS (pour articles, conseils, actualités)
+   NEWS / ARTICLES / CONSEILS
    ======================================================= */
 .news-card {
     background-color: var(--noir-secondaire);
     border-radius: 12px;
     padding: 1rem;
     border: 1px solid var(--gris-clair);
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -488,8 +601,58 @@ footer {
     font-size: 0.8rem;
 }
 
+.article-page-card {
+    max-width: 900px;
+    margin: 2rem auto;
+}
+
+.article-content,
+.modal-content,
+#article-modal-content,
+#conseil-modal-content,
+#news-modal-content {
+    line-height: 1.7;
+    color: #ddd;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4,
+.modal-content h1,
+.modal-content h2,
+.modal-content h3,
+.modal-content h4 {
+    color: var(--or);
+    margin: 1rem 0 0.6rem;
+}
+
+.article-content p,
+.modal-content p {
+    margin-bottom: 1em;
+}
+
+.article-content ul,
+.article-content ol,
+.modal-content ul,
+.modal-content ol {
+    margin: 0.8rem 0 1rem 1.4rem;
+}
+
+.article-content a,
+.modal-content a {
+    color: var(--or-clair);
+    text-decoration: underline;
+}
+
+.article-content img,
+.modal-content img {
+    max-width: 100%;
+    border-radius: 10px;
+}
+
 /* =======================================================
-   HERO SECTION (PAGE D'ACCUEIL)
+   HERO
    ======================================================= */
 .hero {
     background-color: var(--noir-secondaire);
@@ -517,42 +680,110 @@ footer {
 }
 
 /* =======================================================
-   PAGE PRONOSTICS (ONGLETS, CARTES, ANALYSES)
+   PRONOSTICS - ONGLETS / FILTRES
    ======================================================= */
-.category-tabs, .day-filters {
-    display: flex;
-    gap: 0.5rem;
+.category-tabs,
+.day-filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
     margin: 1rem 0;
-    flex-wrap: wrap;
+    width: 100%;
 }
 
-.tab-btn, .day-btn {
+.category-tabs .tab-btn,
+.day-filters .day-btn {
+    width: 100%;
+    text-align: center;
+    padding: 0.6rem 0.5rem;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+    min-width: 0;
+}
+
+.tab-btn,
+.day-btn {
     background-color: var(--noir-secondaire);
     color: var(--blanc);
     border: 1px solid var(--or);
-    padding: 0.5rem 1.2rem;
     border-radius: 30px;
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s;
-    font-size: 0.8rem;
 }
 
-.tab-btn.active, .day-btn.active {
+.tab-btn.active,
+.day-btn.active {
     background-color: var(--or);
     color: var(--noir);
     border-color: var(--or);
 }
 
-.tab-btn:hover, .day-btn:hover {
-    transform: scale(1.05);
+.tab-btn:hover,
+.day-btn:hover {
+    transform: scale(1.03);
 }
 
 .tab-btn[style*="display: none"] {
     display: none !important;
 }
 
-/* Grille des matchs : 2 colonnes sur desktop */
+.day-filters .day-btn {
+    white-space: nowrap;
+}
+
+.vip-subtabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.5rem 0 1rem;
+    flex-wrap: wrap;
+}
+
+.subtab-btn {
+    background-color: var(--noir-secondaire);
+    color: var(--blanc);
+    border: 1px solid var(--or);
+    padding: 0.4rem 1rem;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-size: 0.75rem;
+}
+
+.subtab-btn.active {
+    background-color: var(--or);
+    color: var(--noir);
+    border-color: var(--or);
+}
+
+/* =======================================================
+   RECHERCHE
+   ======================================================= */
+.search-container {
+    margin: 1rem 0;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 30px;
+    border: 1px solid var(--or);
+    background-color: var(--noir-secondaire);
+    color: var(--blanc);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-input:focus {
+    border-color: var(--or-clair);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+/* =======================================================
+   MATCHS
+   ======================================================= */
 .matches-grid {
     display: grid;
     gap: 20px;
@@ -566,7 +797,6 @@ footer {
     }
 }
 
-/* Carte de match de base */
 .match-card {
     background-color: var(--noir-secondaire);
     border-radius: 20px;
@@ -581,49 +811,33 @@ footer {
 
 .match-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.25);
 }
 
-/* Style spécial pour les cartes VIP (avec combo) */
 .match-card-vip {
     border: 2px solid var(--or);
-    box-shadow: 0 0 25px rgba(212, 175, 55, 0.5);
-    position: relative;
-    background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
-}
-
-.match-card-vip::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    border-radius: 22px;
-    background: linear-gradient(135deg, #D4AF37, #FFD700, #D4AF37);
-    z-index: -1;
-    opacity: 0.3;
-    filter: blur(5px);
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.35);
+    background-color: #121212;
 }
 
 .match-card-vip:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 35px rgba(212, 175, 55, 0.8);
+    box-shadow: 0 0 35px rgba(212, 175, 55, 0.55);
 }
 
-/* Disposition desktop : carte en ligne */
 @media (min-width: 768px) {
     .match-card {
         flex-direction: row;
     }
+
     .match-info {
         flex: 2;
     }
+
     .analysis-panel {
         flex: 1;
         border-left: 2px solid var(--or);
         padding: 1rem;
-        background-color: rgba(0,0,0,0.3);
+        background-color: rgba(0, 0, 0, 0.3);
     }
 }
 
@@ -655,7 +869,7 @@ footer {
     padding: 8px;
     margin-bottom: 8px;
     border: 1px solid var(--gris-clair);
-    transition: border 0.3s;
+    transition: border-color 0.3s;
 }
 
 .match-card:hover .team-logo {
@@ -721,13 +935,8 @@ footer {
     animation: pulse 1.5s infinite;
 }
 
-@keyframes pulse {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.02); }
-    100% { opacity: 1; transform: scale(1); }
-}
-
-.match-time, .match-venue {
+.match-time,
+.match-venue {
     color: #aaa;
     font-size: 0.7rem;
     display: flex;
@@ -735,24 +944,38 @@ footer {
     gap: 5px;
 }
 
-.match-time i, .match-venue i {
+.match-time i,
+.match-venue i {
     color: var(--or);
     width: 16px;
 }
 
+.analysis-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .analysis-panel h4 {
     color: var(--or);
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.4rem;
     font-size: 1rem;
     display: flex;
     align-items: center;
     gap: 5px;
+    flex-wrap: wrap;
 }
 
 .analysis-panel p {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.2rem;
     font-size: 0.8rem;
     line-height: 1.4;
+}
+
+.analysis-panel .btn-share {
+    margin-top: 10px;
+    align-self: flex-start;
+    white-space: nowrap;
 }
 
 .verified {
@@ -765,75 +988,58 @@ footer {
     transform: scale(1.2);
 }
 
-/* Correction du chevauchement sur la page pronostics */
-.analysis-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.prediction-checkbox:checked:disabled {
+    accent-color: #4CAF50 !important;
+    opacity: 1 !important;
+    filter: none !important;
 }
 
-.analysis-panel .btn-share {
-    margin-top: 10px;
-    align-self: flex-start;
-    white-space: nowrap;
-}
-
-/* Sous-onglets VIP */
-.vip-subtabs {
-    display: flex;
-    gap: 0.5rem;
-    margin: 0.5rem 0 1rem 0;
-    flex-wrap: wrap;
-}
-
-.subtab-btn {
-    background-color: var(--noir-secondaire);
-    color: var(--blanc);
-    border: 1px solid var(--or);
-    padding: 0.4rem 1rem;
-    border-radius: 30px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-    font-size: 0.75rem;
-}
-
-.subtab-btn.active {
-    background-color: var(--or);
-    color: var(--noir);
-    border-color: var(--or);
-}
-
-/* Barre de recherche */
-.search-container {
-    margin: 1rem 0;
-}
-
-.search-input {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    border-radius: 30px;
-    border: 1px solid var(--or);
-    background-color: var(--noir-secondaire);
-    color: var(--blanc);
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.9rem;
-    outline: none;
-    transition: border-color 0.3s;
-}
-
-.search-input:focus {
-    border-color: var(--or-clair);
+@supports not (accent-color: #4CAF50) {
+    .prediction-checkbox:checked:disabled {
+        background-color: #4CAF50;
+        border-color: #4CAF50;
+        color: white;
+    }
 }
 
 /* =======================================================
-   STYLES SPÉCIFIQUES AUX PRONOSTICS COMBINÉS VIP
+   INFOS AVANCÉES MATCH
    ======================================================= */
+.ai-score-badge,
+.elo-info,
+.xg-info,
+.fatigue-info,
+.trap-warning {
+    font-size: 0.75rem;
+    border-radius: 10px;
+    padding: 0.4rem 0.6rem;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+}
 
-/* Badge "COMBO VIP" flottant */
+.ai-score-badge {
+    color: var(--or-clair);
+    font-weight: 700;
+}
+
+.elo-info,
+.xg-info,
+.fatigue-info {
+    color: #ddd;
+}
+
+.trap-warning {
+    color: #ffb84d;
+    border-color: rgba(255, 184, 77, 0.5);
+    font-weight: 700;
+}
+
+/* =======================================================
+   COMBO VIP
+   ======================================================= */
 .combo-badge {
     display: inline-block;
-    background: linear-gradient(135deg, #D4AF37, #FFD700, #D4AF37);
+    background-color: var(--or);
     color: #000;
     font-weight: 700;
     font-size: 0.7rem;
@@ -842,16 +1048,15 @@ footer {
     margin-bottom: 5px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.35);
     align-self: flex-start;
 }
 
-/* Conteneur du combiné dans le panneau d'analyse */
 .combo-container {
     display: flex;
     align-items: center;
     gap: 6px;
-    background: rgba(212, 175, 55, 0.15);
+    background: rgba(212, 175, 55, 0.12);
     border-radius: 20px;
     padding: 4px 10px;
     margin: 5px 0;
@@ -868,10 +1073,9 @@ footer {
     font-weight: 700;
     color: var(--or);
     font-size: 0.9rem;
-    text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+    text-shadow: 0 0 5px rgba(212, 175, 55, 0.35);
 }
 
-/* Style pour le bouton de partage sur les cartes VIP */
 .match-card-vip .btn-share {
     background-color: var(--or);
     color: #000;
@@ -885,7 +1089,7 @@ footer {
 }
 
 /* =======================================================
-   PAGE CONTACT
+   CONTACT
    ======================================================= */
 .contact-grid {
     display: grid;
@@ -911,7 +1115,7 @@ footer {
 .contact-icon {
     width: 64px;
     height: 64px;
-    margin-bottom: 0.8rem;
+    margin: 0 auto 0.8rem;
     object-fit: contain;
 }
 
@@ -933,7 +1137,7 @@ footer {
 }
 
 /* =======================================================
-   BOOKMAKERS DYNAMIQUES (CARTES DE BONUS)
+   BOOKMAKERS BONUS
    ======================================================= */
 .bookmakers-grid {
     display: grid;
@@ -959,7 +1163,7 @@ footer {
 .bookmaker-card img {
     max-width: 80px;
     height: auto;
-    margin-bottom: 0.5rem;
+    margin: 0 auto 0.5rem;
 }
 
 .bookmaker-card h3 {
@@ -975,7 +1179,7 @@ footer {
 }
 
 /* =======================================================
-   BONUS & PROMO (page bonus)
+   BONUS
    ======================================================= */
 .bonus-selector {
     margin: 1.5rem 0;
@@ -1005,18 +1209,11 @@ footer {
     background-color: var(--noir-secondaire);
 }
 
-/* Miniatures (4 par ligne) */
 .bonus-thumbnails {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
     margin-top: 2rem;
-}
-
-@media (max-width: 768px) {
-    .bonus-thumbnails {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
 
 .bonus-thumb {
@@ -1049,18 +1246,20 @@ footer {
     text-overflow: ellipsis;
 }
 
-/* Modal */
+/* =======================================================
+   MODALS
+   ======================================================= */
 .modal {
     display: none;
     position: fixed;
     z-index: 1000;
-    left: 0;
-    top: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.8);
     align-items: center;
     justify-content: center;
+    padding: 1rem;
 }
 
 .modal-content {
@@ -1068,7 +1267,7 @@ footer {
     border: 2px solid var(--or);
     border-radius: 20px;
     padding: 2rem;
-    max-width: 500px;
+    max-width: 700px;
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
@@ -1083,13 +1282,16 @@ footer {
     font-size: 2rem;
     color: var(--or);
     cursor: pointer;
+    line-height: 1;
 }
 
 .modal-image {
     width: 100%;
-    max-height: 200px;
+    max-height: 250px;
     object-fit: contain;
     margin-bottom: 1rem;
+    border-radius: 10px;
+    background-color: #111;
 }
 
 .modal-footer {
@@ -1098,12 +1300,6 @@ footer {
     color: #ccc;
     border-top: 1px solid var(--or);
     padding-top: 1rem;
-}
-
-/* Amélioration du formatage dans les modals */
-.modal-content p {
-    margin-bottom: 1em;
-    line-height: 1.6;
 }
 
 .modal-content table {
@@ -1122,7 +1318,7 @@ footer {
 
 .modal-content th {
     background-color: #222;
-    color: #D4AF37;
+    color: var(--or);
     font-weight: 600;
 }
 
@@ -1131,12 +1327,12 @@ footer {
 }
 
 /* =======================================================
-   OVERLAY VIP VERROUILLÉ
+   OVERLAY VIP
    ======================================================= */
 .vip-locked-overlay {
     position: relative;
     min-height: 300px;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     background: rgba(0,0,0,0.85);
@@ -1179,18 +1375,21 @@ footer {
     flex: 1 1 auto;
 }
 
-@media (max-width: 480px) {
-    .vip-locked-content .btn {
-        min-width: 100%;
-        width: 100%;
-        margin: 0.25rem 0;
-    }
+.vip-contact-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
 }
 
 /* =======================================================
-   MESSAGES DE CHARGEMENT / ERREUR
+   LOADING / ERROR / EMPTY
    ======================================================= */
-.loading, .error, .no-events, .warning {
+.loading,
+.error,
+.no-events,
+.warning {
     text-align: center;
     padding: 3rem 1rem;
     background-color: var(--noir-secondaire);
@@ -1217,39 +1416,18 @@ footer {
     margin-top: 1rem;
 }
 
-@keyframes spinner {
-    to { transform: rotate(360deg); }
-}
-
 .error {
-    color: #FF6B6B;
-    border-color: #FF6B6B;
+    color: var(--rouge);
+    border-color: var(--rouge);
 }
 
 .warning {
-    color: #FFA500;
-    border-color: #FFA500;
+    color: var(--orange);
+    border-color: var(--orange);
 }
 
 .no-events {
-    color: #AAAAAA;
-}
-
-/* =======================================================
-   CASES À COCHER VERTES
-   ======================================================= */
-.prediction-checkbox:checked:disabled {
-    accent-color: #4CAF50 !important;
-    opacity: 1 !important;
-    filter: none !important;
-}
-
-@supports not (accent-color: #4CAF50) {
-    .prediction-checkbox:checked:disabled {
-        background-color: #4CAF50;
-        border-color: #4CAF50;
-        color: white;
-    }
+    color: #aaaaaa;
 }
 
 /* =======================================================
@@ -1269,7 +1447,7 @@ footer {
 }
 
 /* =======================================================
-   TAUX DE RÉUSSITE GLOBAL
+   TAUX DE RÉUSSITE
    ======================================================= */
 .success-rate {
     background-color: var(--noir-secondaire);
@@ -1301,8 +1479,47 @@ footer {
     color: #ccc;
 }
 
+.success-box {
+    margin: 20px 0;
+    padding: 15px;
+    background: #1A1A1A;
+    border-radius: 12px;
+    border: 1px solid var(--or);
+}
+
+.success-title {
+    font-size: 1rem;
+    color: #ccc;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.success-bar {
+    width: 100%;
+    height: 10px;
+    background: #222;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.success-fill {
+    height: 100%;
+    width: 0%;
+    background: #00ff9c;
+    transition: width 2s ease;
+}
+
+.success-percent {
+    margin-top: 5px;
+    font-weight: bold;
+    color: #00ff9c;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
 /* =======================================================
-   SCROLL PROGRESS BAR
+   SCROLL PROGRESS
    ======================================================= */
 .scroll-progress {
     position: fixed;
@@ -1316,7 +1533,7 @@ footer {
 }
 
 /* =======================================================
-   EN-TÊTE DE JOUR POUR L'HISTORIQUE
+   HISTORIQUE
    ======================================================= */
 .day-header {
     font-size: 1.5rem;
@@ -1327,12 +1544,11 @@ footer {
 }
 
 /* =======================================================
-   GUIDE D'INSTALLATION POUR IOS
+   GUIDE IOS
    ======================================================= */
 .ios-guide-popup {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.9);
@@ -1355,7 +1571,7 @@ footer {
     overflow-y: auto;
     text-align: center;
     box-shadow: var(--shadow-hover);
-    animation: fadeInUp 0.3s;
+    animation: fadeInUp 0.3s ease;
 }
 
 .ios-guide-content h3 {
@@ -1419,7 +1635,7 @@ footer {
 }
 
 /* =======================================================
-   BARRE DE CONFIANCE ANIMÉE
+   BARRE DE CONFIANCE
    ======================================================= */
 .confidence-bar {
     width: 100%;
@@ -1439,7 +1655,7 @@ footer {
 }
 
 /* =======================================================
-   EFFET TICKET DE PARI
+   EFFET TICKET
    ======================================================= */
 .ticket {
     background-color: #111;
@@ -1470,7 +1686,7 @@ footer {
 }
 
 /* =======================================================
-   FEU D'ARTIFICE POUR PRONO GAGNÉ
+   EFFETS GAGNANTS
    ======================================================= */
 .win-effect {
     position: absolute;
@@ -1500,12 +1716,6 @@ footer {
     z-index: 10;
 }
 
-@keyframes pulseWin {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.05); opacity: 0.9; }
-    100% { transform: scale(1); opacity: 1; }
-}
-
 .spark {
     position: absolute;
     width: 4px;
@@ -1517,19 +1727,8 @@ footer {
     z-index: 20;
 }
 
-@keyframes sparkFly {
-    0% {
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-    }
-    100% {
-        transform: translate(var(--dx, 100px), var(--dy, -100px)) scale(0);
-        opacity: 0;
-    }
-}
-
 /* =======================================================
-   NOUVEAUX STYLES POUR L'ACCUEIL (CARTES VALIDÉES)
+   CARTES VALIDÉES ACCUEIL
    ======================================================= */
 .verified-card {
     display: flex;
@@ -1572,17 +1771,12 @@ footer {
     z-index: 10;
 }
 
-@media (max-width: 480px) {
-    .verified-card {
-        width: 240px;
-    }
-}
-
 .verified-card .teams {
     display: flex;
     align-items: center;
     gap: 5px;
     min-width: 100px;
+    margin-bottom: 0;
 }
 
 .verified-card .teams img {
@@ -1598,10 +1792,12 @@ footer {
     font-size: 12px;
     color: var(--or);
     font-weight: bold;
+    padding: 2px 8px;
 }
 
 .verified-card .match-info {
     flex: 1;
+    padding: 0;
 }
 
 .verified-card .teams-name {
@@ -1628,21 +1824,8 @@ footer {
     margin-top: 5px;
 }
 
-.badge-win {
-    background: #00c853;
-    color: white;
-    padding: 3px 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
 /* =======================================================
-   SLIDER DES GAINS (bandeau défilant)
+   SLIDER DES GAINS
    ======================================================= */
 .wins-slider {
     width: 100%;
@@ -1675,17 +1858,8 @@ footer {
     font-weight: 400;
 }
 
-@keyframes scrollWins {
-    0% {
-        transform: translateX(100%);
-    }
-    100% {
-        transform: translateX(-100%);
-    }
-}
-
 /* =======================================================
-   POPUP DE GAINS (NOTIFICATIONS)
+   POPUP GAINS
    ======================================================= */
 .win-popup {
     position: fixed;
@@ -1713,9 +1887,6 @@ footer {
     color: #00ff9c;
 }
 
-/* =======================================================
-   COMPTEUR DE PRONOSTICS GAGNANTS
-   ======================================================= */
 .stats-counter {
     font-size: 18px;
     font-weight: bold;
@@ -1725,55 +1896,12 @@ footer {
 }
 
 /* =======================================================
-   BARRE DE TAUX DE RÉUSSITE
-   ======================================================= */
-.success-box {
-    margin: 20px 0;
-    padding: 15px;
-    background: #1A1A1A;
-    border-radius: 12px;
-    border: 1px solid var(--or);
-}
-
-.success-title {
-    font-size: 1rem;
-    color: #ccc;
-    margin-bottom: 8px;
-    text-align: center;
-}
-
-.success-bar {
-    width: 100%;
-    height: 10px;
-    background: #222;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 5px;
-}
-
-.success-fill {
-    height: 100%;
-    width: 0%;
-    background: #00ff9c;
-    transition: width 2s ease;
-}
-
-.success-percent {
-    margin-top: 5px;
-    font-weight: bold;
-    color: #00ff9c;
-    text-align: center;
-    font-size: 1.1rem;
-}
-
-/* =======================================================
-   POPUP DE PARTAGE (CORRECTIONS MOBILE)
+   POPUP PARTAGE
    ======================================================= */
 .popup {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8);
@@ -1781,6 +1909,7 @@ footer {
     justify-content: center;
     z-index: 2000;
     backdrop-filter: blur(5px);
+    padding: 1rem;
 }
 
 .popup.active {
@@ -1813,33 +1942,57 @@ footer {
     gap: 1rem;
     justify-content: center;
     margin: 1.5rem 0;
+    flex-wrap: wrap;
 }
 
 .share-buttons .btn {
     flex: 1;
 }
 
-/* Correction mobile : boutons en colonne */
+/* =======================================================
+   TODAY PICKS HORIZONTAL
+   ======================================================= */
+#today-picks.horizontal-scroll {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 1rem 0;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+#today-picks.horizontal-scroll .match-card {
+    flex: 0 0 auto;
+    width: 350px;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+}
+
 @media (max-width: 480px) {
-    .popup-content .share-buttons,
-    .vip-contact-buttons {
-        flex-direction: column !important;
-        gap: 10px !important;
-    }
-    .popup-content .share-buttons .btn,
-    .vip-contact-buttons .btn {
-        width: 100% !important;
-        margin: 0 !important;
+    #today-picks.horizontal-scroll .match-card {
+        width: 280px;
     }
 }
 
 /* =======================================================
-   RESPONSIVE (MOBILE FIRST)
+   RESPONSIVE
    ======================================================= */
+@media (max-width: 992px) {
+    .bonus-thumbnails {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
     header .container {
         flex-direction: column;
         gap: 0.8rem;
+    }
+
+    .header-actions {
+        justify-content: center;
+        width: 100%;
     }
 
     nav ul {
@@ -1872,88 +2025,81 @@ footer {
     .match-card {
         flex-direction: column;
     }
+
     .analysis-panel {
         border-left: none;
         border-top: 2px solid var(--or);
         padding: 0.8rem;
     }
+
     .team-logo {
         width: 45px;
         height: 45px;
     }
+
     .team-score {
         font-size: 1.3rem;
     }
+
     .footer-links {
         gap: 0.8rem;
     }
+
     .footer-links a {
         font-size: 0.75rem;
     }
+
     .win-popup {
         left: 10px;
         right: 10px;
         bottom: 10px;
         font-size: 12px;
     }
-}
 
-/* =======================================================
-   AFFICHAGE DES PRONOSTICS VALIDÉS SUR L'ACCUEIL (DÉFILEMENT HORIZONTAL)
-   ======================================================= */
-#today-picks.horizontal-scroll {
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    padding: 1rem 0;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-}
-
-#today-picks.horizontal-scroll .match-card {
-    flex: 0 0 auto;
-    width: 350px;
-    scroll-snap-align: start;
-    display: flex;
-    flex-direction: column;
-}
-
-@media (max-width: 480px) {
-    #today-picks.horizontal-scroll .match-card {
-        width: 280px;
+    .bonus-thumbnails {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
-/* =======================================================
-   ONGLETS DE CATÉGORIES ET FILTRES DE JOUR - PLEINE LARGEUR
-   ======================================================= */
-.category-tabs, .day-filters {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin: 1rem 0;
-    width: 100%;
-}
-
-.category-tabs .tab-btn, .day-filters .day-btn {
-    width: 100%;
-    text-align: center;
-    padding: 0.5rem 0;
-    box-sizing: border-box;
-    font-size: 0.9rem;
-}
-
-.day-filters .day-btn {
-    white-space: nowrap; /* Empêche le texte de passer à la ligne pour les filtres */
-}
-
-/* Sur mobile, les onglets passent en colonne, les filtres ajustent la police */
 @media (max-width: 480px) {
     .category-tabs {
         grid-template-columns: 1fr;
     }
+
+    .day-filters {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .day-filters .day-btn {
         font-size: 0.8rem;
-        padding: 0.4rem 0;
+        padding: 0.4rem 0.2rem;
+    }
+
+    .popup-content .share-buttons,
+    .vip-contact-buttons,
+    .ios-guide-buttons {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .popup-content .share-buttons .btn,
+    .vip-contact-buttons .btn,
+    .ios-guide-buttons .btn,
+    .vip-locked-content .btn {
+        width: 100% !important;
+        min-width: 100% !important;
+        margin: 0 !important;
+    }
+
+    .verified-card {
+        width: 240px;
+    }
+
+    .horizontal-item {
+        width: 150px;
+    }
+
+    .horizontal-item .item-title {
+        font-size: 0.8rem;
     }
 }
