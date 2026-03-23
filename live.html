@@ -4,33 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>MrXPRONOS LIVE - Prédictions Football Temps Réel</title>
-    
-    <!-- React & ReactDOM -->
+
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    
-    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Recharts (optionnel) -->
     <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
-    
-    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-        
+
+        * { font-family: 'Inter', sans-serif; }
+
         :root {
             --gold: #D4AF37;
             --gold-light: #f5e7a3;
@@ -38,79 +25,38 @@
             --card: #121212;
             --blue-link: #3b82f6;
         }
-        
+
         body {
             background-color: var(--dark);
             color: #e0e0e0;
             margin: 0;
             padding: 0;
         }
-        
+
         .gold-gradient {
             background: linear-gradient(135deg, #D4AF37 0%, #f5e7a3 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
-        .gold-border {
-            border-color: #D4AF37;
-        }
-        
-        .gold-bg {
-            background-color: #D4AF37;
-        }
-        
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        
+
+        .card-hover { transition: all 0.3s ease; }
         .card-hover:hover {
             border-color: #D4AF37;
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(212, 175, 55, 0.15);
         }
-        
-        .live-pulse {
-            animation: pulse-live 2s infinite;
-        }
-        
+
+        .live-pulse { animation: pulse-live 2s infinite; }
         @keyframes pulse-live {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
         }
-        
-        .momentum-bar {
-            transition: width 0.5s ease;
-        }
-        
-        .notification-slide {
-            animation: slide-in 0.3s ease;
-        }
-        
+
+        .notification-slide { animation: slide-in 0.3s ease; }
         @keyframes slide-in {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        .scroll-hide::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .scroll-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        
-        .glass {
-            background: rgba(18, 18, 18, 0.95);
-            backdrop-filter: blur(10px);
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         .error-fallback {
@@ -125,48 +71,13 @@
             padding: 20px;
         }
 
-        .prediction-badge {
-            background: rgba(212, 175, 55, 0.1);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            border-radius: 16px;
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin: 2px;
-        }
-        
-        .prediction-high {
-            background: rgba(34, 197, 94, 0.2);
-            border-color: #22C55E;
-        }
-        
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
         a {
             color: var(--blue-link);
             text-decoration: underline;
         }
-        a:hover {
-            color: #60a5fa;
-        }
-        
-        p {
-            margin-bottom: 1rem;
-        }
-        p:last-child {
-            margin-bottom: 0;
-        }
-        
-        .message-time {
-            color: #9ca3af !important;
-        }
 
-        /* Overlay VIP amélioré */
+        a:hover { color: #60a5fa; }
+
         .vip-locked-overlay {
             position: fixed;
             top: 0;
@@ -181,6 +92,7 @@
             justify-content: center;
             padding: 20px;
         }
+
         .vip-locked-content {
             background: #121212;
             border: 2px solid #D4AF37;
@@ -191,10 +103,12 @@
             text-align: center;
             box-shadow: 0 0 30px rgba(212,175,55,0.3);
         }
+
         .vip-locked-content h2 {
             color: #D4AF37;
             margin-bottom: 15px;
         }
+
         .vip-locked-content input {
             width: 100%;
             padding: 15px;
@@ -205,41 +119,54 @@
             color: white;
             font-size: 16px;
             text-align: center;
+            box-sizing: border-box;
         }
-        .vip-locked-content button {
+
+        .vip-locked-content button,
+        .vip-locked-content a.btn {
             width: 100%;
             margin: 5px 0;
+            box-sizing: border-box;
         }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 16px;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #D4AF37;
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: #2a2a2a;
+            color: #fff;
+        }
+
         .btn-wa {
             background: #25D366;
             color: #000;
             font-weight: bold;
         }
-        .btn-wa:hover {
-            background: #128C7E;
-            transform: scale(1.02);
-        }
+
+        .btn-wa:hover { background: #128C7E; }
+
         .social-proof {
             font-size: 0.75rem;
             color: #aaa;
         }
+
         .highlight {
             color: #D4AF37;
             font-weight: bold;
         }
-        .badge-hot {
-            background: #EF4444;
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 8px;
-            border-radius: 20px;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0% { opacity: 0.7; }
-            50% { opacity: 1; transform: scale(1.05); }
-            100% { opacity: 0.7; }
-        }
+
         .top-opportunity {
             background: linear-gradient(135deg, #1a1a1a, #0D0D0D);
             border-left: 4px solid #22C55E;
@@ -248,16 +175,14 @@
 </head>
 <body>
     <div id="root"></div>
-    
+
     <script type="text/babel">
-        // Configuration Supabase
         const SUPABASE_URL = 'https://nhwafcpndlufzzxexikh.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5od2FmY3BuZGx1Znp6eGV4aWtoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg4OTYwNTMsImV4cCI6MjA1NDQ3MjA1M30.8z2VQ_5vXl6kFqJvWq5mNv5w7J6pNk9Yt2wV5hL6Fz8';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
         const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live`;
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Error Boundary
         class ErrorBoundary extends React.Component {
             constructor(props) {
                 super(props);
@@ -274,7 +199,7 @@
                     return (
                         <div className="error-fallback">
                             <h1 className="text-2xl font-bold text-red-500 mb-4">Quelque chose s'est mal passé</h1>
-                            <p className="text-gray-400 mb-4">{this.state.error?.toString()}</p>
+                            <p className="text-gray-400 mb-4">{String(this.state.error || 'Erreur inconnue')}</p>
                             <button onClick={() => window.location.reload()} className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg">
                                 Recharger la page
                             </button>
@@ -285,9 +210,16 @@
             }
         }
 
-        const { useState, useEffect, useCallback, useRef } = React;
+        const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
-        // Composant icône Font Awesome
+        function safeJsonParse(value, fallback) {
+            try {
+                return value ? JSON.parse(value) : fallback;
+            } catch {
+                return fallback;
+            }
+        }
+
         const Icon = ({ name, size = 20, className = "" }) => {
             const iconMap = {
                 'arrow-left': 'fa-arrow-left',
@@ -305,17 +237,17 @@
             const faClass = iconMap[name] || 'fa-question';
             return <i className={`fas ${faClass} ${className}`} style={{ fontSize: size }} />;
         };
-        
+
         const GoldText = ({ children, className = "" }) => (
             <span className={`gold-gradient font-bold ${className}`}>{children}</span>
         );
-        
+
         const Card = ({ children, className = "", onClick }) => (
             <div onClick={onClick} className={`bg-[#121212] border border-[#2a2a2a] rounded-xl p-4 card-hover ${onClick ? 'cursor-pointer' : ''} ${className}`}>
                 {children}
             </div>
         );
-        
+
         const Badge = ({ children, color = "gold", className = "" }) => {
             const colors = {
                 gold: "bg-[#D4AF37] text-black",
@@ -327,7 +259,7 @@
             };
             return <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colors[color] || colors.gold} ${className}`}>{children}</span>;
         };
-        
+
         const MomentumGauge = ({ value, max = 100, label, showValue = true }) => {
             const safeValue = value ?? 0;
             const percentage = Math.min((safeValue / max) * 100, 100);
@@ -344,21 +276,24 @@
                 </div>
             );
         };
-        
-        // Overlay VIP amélioré (marketing)
+
         const VipLockOverlay = ({ onSubmit }) => {
             const [code, setCode] = useState('');
             const [error, setError] = useState('');
+
             const handleSubmit = (e) => {
                 e.preventDefault();
                 if (!code.trim()) {
                     setError('Veuillez entrer un code');
                     return;
                 }
+                setError('');
                 onSubmit(code.trim());
             };
-            const waLink = `https://wa.me/22899201444?text=Bonjour%20Mr%20XPRONOS%2C%20voici%20mon%20ID%20VIP%20...%20Je%20veut%20integrer%20votre%20LIVE%20VIP%20.%20Par%20quel%20moyen%20je%20doit%20payer%20l'Abonnement%20VIP%20svp%3F`;
-            const tgLink = `https://t.me/mr_xpronos?text=Bonjour%20Mr%20XPRONOS%2C%20voici%20mon%20ID%20VIP%20...%20Je%20veut%20integrer%20votre%20LIVE%20VIP%20.%20Par%20quel%20moyen%20je%20doit%20payer%20l'Abonnement%20VIP%20svp%3F`;
+
+            const waLink = `https://wa.me/22899201444?text=Bonjour%20Mr%20XPRONOS%2C%20je%20veux%20int%C3%A9grer%20votre%20LIVE%20VIP.%20Par%20quel%20moyen%20puis-je%20payer%20l'abonnement%20VIP%20svp%20%3F`;
+            const tgLink = `https://t.me/mr_xpronos`;
+
             return (
                 <div className="vip-locked-overlay">
                     <div className="vip-locked-content">
@@ -373,14 +308,21 @@
                         <div className="social-proof mb-4">
                             <i className="fas fa-users"></i> +2 300 utilisateurs VIP actifs
                         </div>
-                        <a href={waLink} target="_blank" className="btn btn-wa block w-full py-3 rounded-full font-bold mb-3">
+
+                        <a href={waLink} target="_blank" rel="noopener noreferrer" className="btn btn-wa block w-full py-3 rounded-full font-bold mb-3">
                             💬 WhatsApp - Activer maintenant
                         </a>
-                        <a href={tgLink} target="_blank" className="btn btn-secondary block w-full py-2 rounded-full mb-4">
+                        <a href={tgLink} target="_blank" rel="noopener noreferrer" className="btn btn-secondary block w-full py-2 rounded-full mb-4">
                             📱 Telegram
                         </a>
+
                         <form onSubmit={handleSubmit}>
-                            <input type="text" placeholder="Ou entrez votre code VIP" value={code} onChange={(e) => setCode(e.target.value)} />
+                            <input
+                                type="text"
+                                placeholder="Ou entrez votre code VIP"
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                            />
                             {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
                             <button type="submit" className="btn btn-primary">Activer</button>
                             <button type="button" className="btn btn-secondary mt-2" onClick={() => window.location.href = 'index.html'}>
@@ -391,17 +333,16 @@
                 </div>
             );
         };
-        
-        // Carte de match en direct (avec badge HOT et score IA)
+
         const LiveMatchCard = ({ match, onClick, isSelected }) => {
             const momentum = match?.momentum_index || {};
             const predictions = match?.predictions || [];
             const highConfidence = predictions.filter(p => p?.confidence === 'high');
             const homeLogo = match.home_logo || 'assets/images/home.webp';
             const awayLogo = match.away_logo || 'assets/images/away.webp';
-            const isHot = (momentum.total || 0) > 25;
+            const isHot = !!match.hot_match || (momentum.total || 0) > 25;
             const aiScore = match.ai_score || 0;
-            
+
             return (
                 <Card onClick={() => onClick(match)} className={`${isSelected ? 'border-[#D4AF37]' : ''}`}>
                     <div className="flex justify-between items-start mb-3">
@@ -409,37 +350,37 @@
                             <span className="live-pulse w-2 h-2 bg-red-500 rounded-full" />
                             <span className="text-red-500 text-xs font-bold">LIVE {match?.current_minute || 0}'</span>
                             <span className="text-gray-500 text-xs">|</span>
-                            <span className="text-gray-400 text-xs">{match?.league?.name || ''}</span>
+                            <span className="text-gray-400 text-xs">{match?.league?.name || match?.league_name || ''}</span>
                         </div>
                         <div className="flex gap-2">
                             {isHot && <Badge color="red">🔥 HOT</Badge>}
                             {highConfidence.length > 0 && <Badge color="gold">{highConfidence.length} alerte{highConfidence.length > 1 ? 's' : ''}</Badge>}
                         </div>
                     </div>
-                    
+
                     <div className="flex justify-between items-center mb-4">
                         <div className="flex-1 text-right pr-4">
                             <img src={homeLogo} alt={match.home_team} className="inline-block w-8 h-8 mr-2" onError={(e) => e.target.src='assets/images/home.webp'} />
                             <span className="font-bold text-white">{match?.home_team || ''}</span>
                         </div>
-                        
+
                         <div className="px-4 py-2 bg-[#0a0a0a] rounded-lg border border-[#D4AF37]">
                             <span className="text-2xl font-bold gold-gradient">
                                 {match?.home_score || 0} - {match?.away_score || 0}
                             </span>
                         </div>
-                        
+
                         <div className="flex-1 pl-4">
                             <img src={awayLogo} alt={match.away_team} className="inline-block w-8 h-8 mr-2" onError={(e) => e.target.src='assets/images/away.webp'} />
                             <span className="font-bold text-white">{match?.away_team || ''}</span>
                         </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                         <MomentumGauge value={momentum.total || 0} max={100} label="Momentum Total" />
                         <MomentumGauge value={aiScore} max={100} label="Score IA" showValue={true} />
                     </div>
-                    
+
                     {highConfidence.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-[#2a2a2a]">
                             <div className="flex gap-2 flex-wrap">
@@ -458,33 +399,38 @@
                 </Card>
             );
         };
-        
-        // Carte de match programmé (inchangée)
+
         const ScheduledMatchCard = ({ match }) => {
-            const eventDate = new Date(match.event_date);
+            const eventDateRaw = match.event_date || match.start_time || match.date;
+            const eventDate = eventDateRaw ? new Date(eventDateRaw) : null;
+            const isValidDate = eventDate && !isNaN(eventDate.getTime());
             const now = new Date();
-            const diffMs = eventDate - now;
-            const diffMin = Math.floor(diffMs / 60000);
-            
-            let timeText;
-            if (diffMin < 0) {
-                timeText = "En cours...";
-            } else if (diffMin < 60) {
-                timeText = `Dans ${diffMin} min`;
-            } else {
-                const hours = Math.floor(diffMin / 60);
-                const mins = diffMin % 60;
-                timeText = `Dans ${hours}h${mins.toString().padStart(2, '0')}`;
+
+            let timeText = "Heure indisponible";
+            if (isValidDate) {
+                const diffMs = eventDate - now;
+                const diffMin = Math.floor(diffMs / 60000);
+
+                if (diffMin < 0) {
+                    timeText = "En cours...";
+                } else if (diffMin < 60) {
+                    timeText = `Dans ${diffMin} min`;
+                } else {
+                    const hours = Math.floor(diffMin / 60);
+                    const mins = diffMin % 60;
+                    timeText = `Dans ${hours}h${mins.toString().padStart(2, '0')}`;
+                }
             }
-            const isSoon = diffMin > 0 && diffMin <= 30;
-            
+
+            const isSoon = isValidDate ? ((eventDate - now) / 60000 > 0 && (eventDate - now) / 60000 <= 30) : false;
+
             return (
                 <Card className="opacity-80 hover:opacity-100">
                     <div className="flex justify-between items-start mb-2">
                         <Badge color={isSoon ? "orange" : "gray"}>{timeText}</Badge>
-                        <span className="text-xs text-gray-500">{match?.league?.name || ''}</span>
+                        <span className="text-xs text-gray-500">{match?.league?.name || match?.league_name || ''}</span>
                     </div>
-                    
+
                     <div className="flex justify-between items-center">
                         <div className="flex-1 text-right pr-3">
                             <span className="font-semibold text-white text-sm">{match?.home_team || ''}</span>
@@ -494,28 +440,23 @@
                             <span className="font-semibold text-white text-sm">{match?.away_team || ''}</span>
                         </div>
                     </div>
-                    
+
                     <div className="mt-2 text-xs text-gray-500 text-center">
-                        {eventDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                        {isValidDate ? eventDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '—'}
                     </div>
                 </Card>
             );
         };
-        
-        // Détail d'un match avec correction du bouton de fermeture
+
         const MatchDetail = ({ match, onClose }) => {
             const [activeTab, setActiveTab] = useState('overview');
             if (!match) return null;
+
             const momentum = match.momentum_index || {};
             const stats = match.live_stats || { home: {}, away: {} };
             const predictions = match.predictions || [];
             const highConfidence = predictions.filter(p => p.confidence === 'high');
-            
-            // Correction : fermer simplement sans recharger la page
-            const handleClose = () => {
-                onClose();
-            };
-            
+
             return (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
                     <div className="bg-[#121212] rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-[#2a2a2a]">
@@ -526,17 +467,17 @@
                                         <span className="live-pulse w-2 h-2 bg-red-500 rounded-full" />
                                         <span className="text-red-500 text-sm font-bold">LIVE {match.current_minute || 0}'</span>
                                         <span className="text-gray-500">|</span>
-                                        <span className="text-gray-400">{match.league?.name || ''}</span>
+                                        <span className="text-gray-400">{match.league?.name || match?.league_name || ''}</span>
                                     </div>
                                     <h2 className="text-2xl font-bold">
                                         {match.home_team || ''} <GoldText>vs</GoldText> {match.away_team || ''}
                                     </h2>
                                 </div>
-                                <button onClick={handleClose} className="p-2 hover:bg-[#2a2a2a] rounded-lg text-[#D4AF37] hover:text-[#f5e7a3] transition-colors">
+                                <button onClick={onClose} className="p-2 hover:bg-[#2a2a2a] rounded-lg text-[#D4AF37] hover:text-[#f5e7a3] transition-colors">
                                     <Icon name="x" size={24} />
                                 </button>
                             </div>
-                            
+
                             <div className="flex justify-center items-center gap-8 mt-6">
                                 <div className="text-center">
                                     <div className="text-4xl font-bold gold-gradient">{match.home_score || 0}</div>
@@ -547,15 +488,19 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div className="flex border-b border-[#2a2a2a]">
                             {['overview', 'stats', 'predictions'].map(tab => (
-                                <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-3 text-sm font-medium capitalize transition-colors ${activeTab === tab ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' : 'text-gray-400 hover:text-white'}`}>
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`flex-1 py-3 text-sm font-medium capitalize transition-colors ${activeTab === tab ? 'text-[#D4AF37] border-b-2 border-[#D4AF37]' : 'text-gray-400 hover:text-white'}`}
+                                >
                                     {tab === 'overview' ? 'Vue d\'ensemble' : tab === 'stats' ? 'Statistiques' : 'Prédictions'}
                                 </button>
                             ))}
                         </div>
-                        
+
                         <div className="p-6 overflow-y-auto max-h-[60vh]">
                             {activeTab === 'overview' && (
                                 <div className="space-y-6">
@@ -576,6 +521,7 @@
                                             </div>
                                         </div>
                                     </div>
+
                                     {highConfidence.length > 0 && (
                                         <div>
                                             <h4 className="text-sm font-bold text-gray-400 mb-3">Prédictions Haute Confiance</h4>
@@ -595,7 +541,7 @@
                                     )}
                                 </div>
                             )}
-                            
+
                             {activeTab === 'stats' && (
                                 <div className="space-y-4">
                                     {['Possession', 'Tirs', 'Tirs cadrés', 'Corners', 'Fautes'].map(stat => {
@@ -625,7 +571,7 @@
                                     })}
                                 </div>
                             )}
-                            
+
                             {activeTab === 'predictions' && (
                                 <div className="space-y-4">
                                     {highConfidence.length === 0 ? (
@@ -655,8 +601,7 @@
                 </div>
             );
         };
-        
-        // Header (inchangé)
+
         const Header = ({ stats, notifications, notificationCount, onClearNotifications, onBack }) => {
             const [showNotifications, setShowNotifications] = useState(false);
             return (
@@ -668,7 +613,15 @@
                                     <Icon name="arrow-left" size={20} />
                                 </button>
                                 <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-[#D4AF37]">
-                                    <img src="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/favicon.png" alt="MrXPRONOS" className="w-full h-full object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.parentNode.innerHTML = '<span class="text-black font-bold">M</span>'; }} />
+                                    <img
+                                        src="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/favicon.png"
+                                        alt="MrXPRONOS"
+                                        className="w-full h-full object-contain"
+                                        onError={(e) => {
+                                            e.target.style.display = 'none';
+                                            e.target.parentNode.innerHTML = '<span class="text-black font-bold">M</span>';
+                                        }}
+                                    />
                                 </div>
                                 <div>
                                     <h1 className="text-xl font-bold gold-gradient">MrXPRONOS LIVE</h1>
@@ -682,7 +635,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="flex items-center gap-4">
                                 <div className="relative">
                                     <button onClick={() => setShowNotifications(!showNotifications)} className="p-2 hover:bg-[#2a2a2a] rounded-lg transition-colors">
@@ -693,6 +646,7 @@
                                             </span>
                                         )}
                                     </button>
+
                                     {showNotifications && (
                                         <div className="absolute right-0 top-full mt-2 w-80 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-2xl z-50">
                                             <div className="p-3 border-b border-[#2a2a2a] flex justify-between items-center">
@@ -724,7 +678,7 @@
                 </header>
             );
         };
-        
+
         const TodayOverview = ({ data }) => {
             if (!data) return null;
             return (
@@ -750,7 +704,7 @@
                 </div>
             );
         };
-        
+
         const LiveMatchesSection = ({ matches, selectedMatch, onSelectMatch }) => (
             <div className="mb-8">
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -772,7 +726,7 @@
                 )}
             </div>
         );
-        
+
         const ScheduledSection = ({ matches }) => (
             <div className="mb-8">
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -788,10 +742,9 @@
                 )}
             </div>
         );
-        
+
         const ActivePredictions = ({ predictions }) => {
-            // Filtrer les prédictions > 0.85 et minute > 20
-            const filtered = predictions.filter(p => p.prediction.probability > 0.85 && (p.match.minute || 0) > 20);
+            const filtered = predictions.filter(p => (p.prediction?.probability || 0) > 0.85 && (p.match?.minute || 0) > 20);
             return (
                 <div className="mb-8">
                     <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -806,7 +759,7 @@
                                 <div key={idx} className="bg-[#121212] border border-[#D4AF37]/30 rounded-xl p-4 flex justify-between items-center">
                                     <div>
                                         <div className="font-bold text-sm">{item.match.teams}</div>
-                                        <div className="text-xs text-gray-400">{item.match.score} • {item.match.minute}'</div>
+                                        <div className="text-xs text-gray-400">{item.match.score || ''} {item.match.minute ? `• ${item.match.minute}'` : ''}</div>
                                         <div className="text-sm text-[#D4AF37] mt-1">{item.prediction.message}</div>
                                     </div>
                                     <div className="text-right">
@@ -820,7 +773,7 @@
                 </div>
             );
         };
-        
+
         const PredictionHistory = ({ history }) => (
             <div className="mt-8">
                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -846,8 +799,8 @@
                                     {history.map((item, idx) => (
                                         <tr key={idx} className="border-b border-[#2a2a2a] hover:bg-[#1a1a1a]">
                                             <td className="px-4 py-3">{item.match}</td>
-                                            <td className="px-4 py-3 capitalize">{item.type.replace('_', ' ')}</td>
-                                            <td className="px-4 py-3">{(item.probability * 100).toFixed(0)}%</td>
+                                            <td className="px-4 py-3 capitalize">{(item.type || '').replace('_', ' ')}</td>
+                                            <td className="px-4 py-3">{((item.probability || 0) * 100).toFixed(0)}%</td>
                                             <td className="px-4 py-3">
                                                 {item.validated ? (
                                                     <span className={item.outcome === 'success' ? 'text-green-500' : 'text-red-500'}>
@@ -867,14 +820,10 @@
                 )}
             </div>
         );
-        
-        // Application principale
+
         const App = () => {
             const [userId] = useState(() => localStorage.getItem('mrx_user_id') || `user_${Date.now()}`);
-            const [liveMatches, setLiveMatches] = useState(() => {
-                const cached = localStorage.getItem('live_matches');
-                return cached ? JSON.parse(cached) : [];
-            });
+            const [liveMatches, setLiveMatches] = useState(() => safeJsonParse(localStorage.getItem('live_matches'), []));
             const [scheduledMatches, setScheduledMatches] = useState([]);
             const [todayData, setTodayData] = useState(null);
             const [activePredictions, setActivePredictions] = useState([]);
@@ -886,17 +835,17 @@
             const [error, setError] = useState(null);
             const [selectedMatch, setSelectedMatch] = useState(null);
             const [selectedTab, setSelectedTab] = useState('live');
-            
+
             const [isVip, setIsVip] = useState(false);
             const [vipChecking, setVipChecking] = useState(true);
             const [vipCode, setVipCode] = useState(() => localStorage.getItem('mx_vip_code') || '');
-            
+
             const prevActivePredictionsRef = useRef([]);
-            
+
             useEffect(() => {
                 localStorage.setItem('mrx_user_id', userId);
             }, [userId]);
-            
+
             const checkVip = useCallback(async (code) => {
                 if (!code) {
                     setIsVip(false);
@@ -904,24 +853,27 @@
                     return;
                 }
                 try {
-                    const res = await fetch(`${EDGE_FUNCTION_URL}/check-vip?code=${code}`);
+                    const res = await fetch(`${EDGE_FUNCTION_URL}/check-vip?code=${encodeURIComponent(code)}`);
                     const data = await res.json();
                     setIsVip(data.valid === true);
                 } catch (e) {
                     console.error('Erreur vérification VIP:', e);
-                    // Fallback : en cas d'erreur réseau, on autorise l'accès pour ne pas bloquer les utilisateurs
-                    setIsVip(true);
+                    setIsVip(false);
                 } finally {
                     setVipChecking(false);
                 }
             }, []);
-            
+
             useEffect(() => {
                 checkVip(vipCode);
             }, [vipCode, checkVip]);
-            
-            const apiFetch = useCallback(async (endpoint) => {
-                const url = vipCode ? `${EDGE_FUNCTION_URL}${endpoint}?vip_code=${vipCode}` : `${EDGE_FUNCTION_URL}${endpoint}`;
+
+            const apiFetch = useCallback(async (endpoint, isPublic = false) => {
+                const separator = endpoint.includes('?') ? '&' : '?';
+                const url = (!isPublic && vipCode)
+                    ? `${EDGE_FUNCTION_URL}${endpoint}${separator}vip_code=${encodeURIComponent(vipCode)}`
+                    : `${EDGE_FUNCTION_URL}${endpoint}`;
+
                 const res = await fetch(url);
                 if (res.status === 403) {
                     setIsVip(false);
@@ -929,78 +881,61 @@
                     setVipCode('');
                     throw new Error('Accès VIP requis');
                 }
+                if (!res.ok) {
+                    throw new Error(`Erreur API ${res.status}`);
+                }
                 return res;
             }, [vipCode]);
-            
+
             const fetchLiveMatches = useCallback(async () => {
-                try {
-                    const res = await apiFetch('/matches');
-                    if (res.ok) {
-                        const data = await res.json();
-                        setLiveMatches(data.matches || []);
-                        setStats(prev => ({ ...prev, matches_live: data.matches.length }));
-                        localStorage.setItem('live_matches', JSON.stringify(data.matches || []));
-                    }
-                } catch (e) { console.error('Erreur live matches:', e); }
+                const res = await apiFetch('/matches');
+                const data = await res.json();
+                setLiveMatches(data.matches || []);
+                setStats(prev => ({ ...prev, matches_live: (data.matches || []).length }));
+                localStorage.setItem('live_matches', JSON.stringify(data.matches || []));
             }, [apiFetch]);
-            
+
             const fetchTodayData = useCallback(async () => {
-                try {
-                    const res = await apiFetch('/today');
-                    if (res.ok) {
-                        const data = await res.json();
-                        setTodayData(data.data);
-                        setScheduledMatches(data.data.scheduled.matches || []);
-                        setStats(prev => ({ ...prev, matches_scheduled: data.data.scheduled.count }));
-                    }
-                } catch (e) { console.error('Erreur today:', e); }
+                const res = await apiFetch('/today');
+                const data = await res.json();
+                setTodayData(data.data);
+                setScheduledMatches(data.data?.scheduled?.matches || []);
+                setStats(prev => ({ ...prev, matches_scheduled: data.data?.scheduled?.count || 0 }));
             }, [apiFetch]);
-            
+
             const fetchPredictions = useCallback(async () => {
-                try {
-                    const res = await apiFetch('/predictions/active');
-                    if (res.ok) {
-                        const data = await res.json();
-                        setActivePredictions(data.predictions || []);
-                    }
-                } catch (e) { console.error('Erreur prédictions:', e); }
+                const res = await apiFetch('/predictions/active');
+                const data = await res.json();
+                setActivePredictions(data.predictions || []);
             }, [apiFetch]);
-            
+
             const fetchHistory = useCallback(async () => {
-                try {
-                    const res = await fetch(`${EDGE_FUNCTION_URL}/predictions/history`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        setPredictionHistory(data.history || []);
-                    }
-                } catch (e) { console.error('Erreur historique:', e); }
-            }, []);
-            
+                const res = await apiFetch('/predictions/history', true);
+                const data = await res.json();
+                setPredictionHistory(data.history || []);
+            }, [apiFetch]);
+
             const fetchNotifications = useCallback(async () => {
-                try {
-                    const res = await fetch(`${EDGE_FUNCTION_URL}/notifications?user_id=${userId}`);
-                    if (res.ok) {
-                        const data = await res.json();
-                        setNotifications(data.notifications || []);
-                    }
-                } catch (e) { console.error('Erreur notifications:', e); }
-            }, [userId]);
-            
-            // Fusion des fetchs en un seul
+                const res = await apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`, true);
+                const data = await res.json();
+                setNotifications(data.notifications || []);
+            }, [apiFetch, userId]);
+
             const fetchAll = useCallback(async () => {
-                try {
-                    await Promise.allSettled([
-                        fetchLiveMatches(),
-                        fetchTodayData(),
-                        fetchPredictions(),
-                        fetchNotifications()
-                    ]);
-                } catch (e) {
-                    console.error('Erreur fetchAll:', e);
+                const results = await Promise.allSettled([
+                    fetchLiveMatches(),
+                    fetchTodayData(),
+                    fetchPredictions(),
+                    fetchNotifications(),
+                    fetchHistory()
+                ]);
+
+                const rejected = results.filter(r => r.status === 'rejected');
+                if (rejected.length > 0) {
+                    console.error('Certaines requêtes ont échoué:', rejected);
                 }
-            }, [fetchLiveMatches, fetchTodayData, fetchPredictions, fetchNotifications]);
-            
-            // Realtime notifications
+            }, [fetchLiveMatches, fetchTodayData, fetchPredictions, fetchNotifications, fetchHistory]);
+
             useEffect(() => {
                 if (!supabase) return;
                 const channel = supabase
@@ -1014,13 +949,15 @@
                         }
                     })
                     .subscribe();
+
                 return () => { supabase.removeChannel(channel); };
             }, [userId, fetchNotifications]);
-            
-            // Nouvelle prédiction toast
+
             useEffect(() => {
                 if (activePredictions.length > prevActivePredictionsRef.current.length) {
-                    const newOnes = activePredictions.filter(pred => !prevActivePredictionsRef.current.some(old => old.prediction.message === pred.prediction.message));
+                    const newOnes = activePredictions.filter(
+                        pred => !prevActivePredictionsRef.current.some(old => old.prediction?.message === pred.prediction?.message)
+                    );
                     if (newOnes.length > 0) {
                         setToast({ title: "Nouvelle alerte haute confiance", message: newOnes[0].prediction.message });
                         setTimeout(() => setToast(null), 5000);
@@ -1028,41 +965,59 @@
                 }
                 prevActivePredictionsRef.current = activePredictions;
             }, [activePredictions]);
-            
-            // Intervalle dynamique
+
             useEffect(() => {
                 if (!isVip || vipChecking) return;
                 const interval = setInterval(() => {
                     fetchAll();
                 }, liveMatches.length > 0 ? 15000 : 60000);
+
                 return () => clearInterval(interval);
             }, [isVip, vipChecking, fetchAll, liveMatches.length]);
-            
-            // Premier chargement
+
             useEffect(() => {
                 if (!isVip || vipChecking) return;
                 setLoading(true);
-                fetchAll().finally(() => setLoading(false));
+                setError(null);
+                fetchAll()
+                    .catch((e) => {
+                        console.error(e);
+                        setError("Impossible de charger les données live.");
+                    })
+                    .finally(() => setLoading(false));
             }, [isVip, vipChecking, fetchAll]);
-            
-            const handleMatchSelect = (match) => setSelectedMatch(match);
+
             const clearNotifications = async () => {
                 try {
-                    await fetch(`${EDGE_FUNCTION_URL}/notifications/mark-read`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: userId }) });
+                    await fetch(`${EDGE_FUNCTION_URL}/notifications/mark-read`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: userId })
+                    });
                     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-                } catch (e) { console.error('Erreur mark-read:', e); }
+                } catch (e) {
+                    console.error('Erreur mark-read:', e);
+                }
             };
-            const handleBack = () => window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/index.html';
+
+            const handleBack = () => {
+                window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/index.html';
+            };
+
             const handleVipCodeSubmit = (code) => {
                 localStorage.setItem('mx_vip_code', code);
                 setVipCode(code);
             };
-            
+
             const unreadCount = notifications.filter(n => !n.read).length;
-            // Meilleure opportunité
-            const bestOpportunity = activePredictions.length > 0 ?
-                activePredictions.sort((a,b) => b.prediction.probability - a.prediction.probability)[0] : null;
-            
+
+            const bestOpportunity = useMemo(() => {
+                if (!activePredictions.length) return null;
+                return [...activePredictions].sort(
+                    (a, b) => (b.prediction?.probability || 0) - (a.prediction?.probability || 0)
+                )[0];
+            }, [activePredictions]);
+
             if (vipChecking) {
                 return (
                     <div className="min-h-screen flex items-center justify-center">
@@ -1073,31 +1028,53 @@
                     </div>
                 );
             }
+
             if (!isVip) {
                 return <VipLockOverlay onSubmit={handleVipCodeSubmit} />;
             }
+
             if (error) {
                 return (
                     <div className="min-h-screen flex items-center justify-center">
                         <div className="text-center">
                             <Icon name="alert-circle" size={48} className="mx-auto mb-4 text-red-500" />
                             <p className="text-gray-400 mb-4">{error}</p>
-                            <button onClick={() => window.location.reload()} className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-semibold">Réessayer</button>
+                            <button onClick={() => window.location.reload()} className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-semibold">
+                                Réessayer
+                            </button>
                         </div>
                     </div>
                 );
             }
-            
+
             return (
                 <div className="min-h-screen bg-[#0a0a0a]">
-                    <Header stats={stats} notifications={notifications} notificationCount={unreadCount} onClearNotifications={clearNotifications} onBack={handleBack} />
+                    <Header
+                        stats={stats}
+                        notifications={notifications}
+                        notificationCount={unreadCount}
+                        onClearNotifications={clearNotifications}
+                        onBack={handleBack}
+                    />
+
                     <main className="max-w-7xl mx-auto px-4 py-6">
                         {!selectedMatch && (
                             <>
                                 <div className="flex gap-4 mb-6">
-                                    <button onClick={() => setSelectedTab('live')} className={`px-4 py-2 rounded-lg font-semibold transition-colors ${selectedTab === 'live' ? 'bg-[#D4AF37] text-black' : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]'}`}>Live</button>
-                                    <button onClick={() => setSelectedTab('history')} className={`px-4 py-2 rounded-lg font-semibold transition-colors ${selectedTab === 'history' ? 'bg-[#D4AF37] text-black' : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]'}`}>Historique</button>
+                                    <button
+                                        onClick={() => setSelectedTab('live')}
+                                        className={`px-4 py-2 rounded-lg font-semibold transition-colors ${selectedTab === 'live' ? 'bg-[#D4AF37] text-black' : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]'}`}
+                                    >
+                                        Live
+                                    </button>
+                                    <button
+                                        onClick={() => setSelectedTab('history')}
+                                        className={`px-4 py-2 rounded-lg font-semibold transition-colors ${selectedTab === 'history' ? 'bg-[#D4AF37] text-black' : 'bg-[#2a2a2a] text-gray-300 hover:bg-[#3a3a3a]'}`}
+                                    >
+                                        Historique
+                                    </button>
                                 </div>
+
                                 {selectedTab === 'live' ? (
                                     loading ? (
                                         <div className="flex flex-col items-center justify-center py-16">
@@ -1109,9 +1086,10 @@
                                             <TodayOverview data={todayData} />
                                             <div className="grid lg:grid-cols-3 gap-8">
                                                 <div className="lg:col-span-2">
-                                                    <LiveMatchesSection matches={liveMatches} selectedMatch={selectedMatch} onSelectMatch={handleMatchSelect} />
+                                                    <LiveMatchesSection matches={liveMatches} selectedMatch={selectedMatch} onSelectMatch={setSelectedMatch} />
                                                     <ScheduledSection matches={scheduledMatches} />
                                                 </div>
+
                                                 <div className="lg:col-span-1">
                                                     <ActivePredictions predictions={activePredictions} />
                                                     {bestOpportunity && (
@@ -1127,8 +1105,11 @@
                                                             </div>
                                                         </div>
                                                     )}
+
                                                     <div className="bg-[#121212] rounded-xl border border-[#2a2a2a] p-4 mt-6">
-                                                        <h3 className="font-bold mb-4 flex items-center gap-2"><Icon name="bar-chart-2" size={18} className="text-[#D4AF37]" /> Performance</h3>
+                                                        <h3 className="font-bold mb-4 flex items-center gap-2">
+                                                            <Icon name="bar-chart-2" size={18} className="text-[#D4AF37]" /> Performance
+                                                        </h3>
                                                         <div className="space-y-3">
                                                             <div className="flex justify-between text-sm"><span className="text-gray-400">Prédictions actives</span><span className="font-bold">{activePredictions.length}</span></div>
                                                             <div className="flex justify-between text-sm"><span className="text-gray-400">Matchs en direct</span><span className="font-bold text-green-500">{liveMatches.length}</span></div>
@@ -1144,8 +1125,10 @@
                                 )}
                             </>
                         )}
+
                         {selectedMatch && <MatchDetail match={selectedMatch} onClose={() => setSelectedMatch(null)} />}
                     </main>
+
                     {toast && (
                         <div className="fixed top-4 right-4 z-50 max-w-sm w-full bg-[#1a1a1a] border-l-4 border-[#D4AF37] rounded-lg shadow-2xl notification-slide p-4">
                             <div className="flex items-start gap-3">
@@ -1154,14 +1137,16 @@
                                     <h4 className="font-bold text-white text-sm">{toast.title}</h4>
                                     <p className="text-gray-400 text-xs mt-1">{toast.message}</p>
                                 </div>
-                                <button onClick={() => setToast(null)} className="text-gray-500 hover:text-white"><Icon name="x" size={16} /></button>
+                                <button onClick={() => setToast(null)} className="text-gray-500 hover:text-white">
+                                    <Icon name="x" size={16} />
+                                </button>
                             </div>
                         </div>
                     )}
                 </div>
             );
         };
-        
+
         const rootElement = document.getElementById('root');
         if (rootElement) {
             const root = ReactDOM.createRoot(rootElement);
@@ -1169,7 +1154,6 @@
         }
     </script>
 
-    <!-- Scripts globaux -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script src="assets/js/menu.js"></script>
     <script src="assets/js/assistant.js"></script>
