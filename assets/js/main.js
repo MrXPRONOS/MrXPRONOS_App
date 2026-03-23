@@ -1525,78 +1525,142 @@ window.closeNewsModal = function () {
 
 function initBonusPage() {
     const defaultBookmakers = [
-        { name: "1xBet", logo: "assets/images/1xbet.webp", url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599", desc: "Bonus de bienvenue jusqu'à 130€" },
-        { name: "1win", logo: "assets/images/1win.webp", url: "https://1wrbgb.com/?open=register&p=qqcw", desc: "Bonus exclusif avec XPVIP" },
-        { name: "Betwinner", logo: "assets/images/betwinner.webp", url: "https://bwredir.com/299Y", desc: "Offre spéciale nouveaux joueurs" }
+        {
+            name: "1xBet",
+            logo: "assets/images/1xbet.webp",
+            url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
+            desc: "Bonus de bienvenue jusqu'à 130€"
+        },
+        {
+            name: "1win",
+            logo: "assets/images/1win.webp",
+            url: "https://1wrbgb.com/?open=register&p=qqcw",
+            desc: "Bonus exclusif avec XPVIP"
+        },
+        {
+            name: "Betwinner",
+            logo: "assets/images/betwinner.webp",
+            url: "https://bwredir.com/299Y",
+            desc: "Offre spéciale nouveaux joueurs"
+        },
+        {
+            name: "Melbet",
+            logo: "assets/images/melbet.webp",
+            url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
+            desc: "Bonus premium Melbet avec inscription rapide"
+        },
+        {
+            name: "Linebet",
+            logo: "assets/images/linebet.webp",
+            url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
+            desc: "Bonus et promotions spéciales Linebet"
+        },
+        {
+            name: "Betclic",
+            logo: "assets/images/betclic.webp",
+            url: "https://betpari-click.com/2vY0?extid=USD",
+            desc: "Offre de bienvenue Betclic"
+        }
     ];
 
-    if (DOM.bonusSelect) {
-        DOM.bonusSelect.innerHTML = defaultBookmakers.map((b, i) =>
-            `<option value="${i}">${escapeHtml(b.name)}</option>`
-        ).join('');
+    // Si data.json contient déjà bookmakers, on les utilise
+    const sourceBookmakers = Array.isArray(allData?.bookmakers) && allData.bookmakers.length
+        ? allData.bookmakers.map(b => ({
+            name: b.name || "Bookmaker",
+            logo: b.logo || "assets/images/default-logo.webp",
+            url: b.url || "#",
+            desc: b.desc || `Bonus exclusif chez ${b.name || "ce bookmaker"}`
+        }))
+        : defaultBookmakers;
 
-        DOM.bonusSelect.addEventListener('change', () => {
-            renderBonusCards(defaultBookmakers);
+    window.currentBonusBookmakers = sourceBookmakers;
+
+    if (DOM.bonusSelect) {
+        DOM.bonusSelect.innerHTML = sourceBookmakers.map((b, i) =>
+            `<option value="${i}">${escapeHtml(b.name)}</option>`
+        ).join("");
+
+        DOM.bonusSelect.addEventListener("change", () => {
+            const index = parseInt(DOM.bonusSelect.value, 10);
+            highlightBonusCard(index);
         });
     }
 
-    renderBonusCards(defaultBookmakers);
+    renderBonusGrid(sourceBookmakers);
 }
 
-function renderBonusCards(bookmakers) {
-    if (DOM.bonusGrid) {
-        DOM.bonusGrid.innerHTML = bookmakers.map((b, i) => `
-            <div class="bookmaker-card" onclick="openBonusModal(${i})">
-                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy">
-                <h3>${escapeHtml(b.name)}</h3>
-                <p>${escapeHtml(b.desc)}</p>
+function renderBonusGrid(bookmakers) {
+    if (!DOM.bonusGrid) return;
+
+    DOM.bonusGrid.innerHTML = bookmakers.map((b, i) => `
+        <div class="bookmaker-card bonus-bookmaker-card" data-index="${i}">
+            <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+            <h3>${escapeHtml(b.name)}</h3>
+            <p>${escapeHtml(b.desc || "Bonus exclusif bookmaker")}</p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+                <button class="btn btn-secondary" onclick="openBonusModal(${i})">Détails</button>
                 <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter</a>
             </div>
-        `).join('');
-    }
+        </div>
+    `).join("");
+}
 
-    if (DOM.bonusThumbnails) {
-        DOM.bonusThumbnails.innerHTML = bookmakers.map((b, i) => `
-            <div class="bonus-thumb" onclick="openBonusModal(${i})">
-                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy">
-                <div class="bonus-thumb-title">${escapeHtml(b.name)}</div>
-            </div>
-        `).join('');
-    }
+function highlightBonusCard(index) {
+    qsa(".bonus-bookmaker-card").forEach(card => {
+        card.classList.remove("active-bonus-card");
+    });
 
-    window.currentBonusBookmakers = bookmakers;
+    const target = document.querySelector(`.bonus-bookmaker-card[data-index="${index}"]`);
+    if (target) {
+        target.classList.add("active-bonus-card");
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
 }
 
 window.openBonusModal = function (index) {
     const b = window.currentBonusBookmakers?.[index];
     if (!b || !DOM.bonusModal) return;
 
-    const titleEl = document.getElementById('bonus-modal-title');
-    const img = document.getElementById('bonus-modal-image');
-    const descEl = document.getElementById('bonus-modal-description');
-    const footerEl = document.getElementById('bonus-modal-footer');
-    const linkEl = document.getElementById('bonus-modal-link');
+    const titleEl = document.getElementById("bonus-modal-title");
+    const img = document.getElementById("bonus-modal-image");
+    const descEl = document.getElementById("bonus-modal-description");
+    const footerEl = document.getElementById("bonus-modal-footer");
+    const linkEl = document.getElementById("bonus-modal-link");
 
     if (titleEl) titleEl.textContent = b.name;
+
     if (img) {
-        img.src = b.logo;
-        img.alt = b.name;
-    }
-    if (descEl) descEl.innerHTML = `<p>${escapeHtml(b.desc)}</p>`;
-    if (footerEl) footerEl.textContent = 'Utilisez le code promo XPVIP si applicable.';
-    if (linkEl) {
-        linkEl.href = b.url;
-        linkEl.target = '_blank';
-        linkEl.rel = 'noopener noreferrer';
+        img.src = b.logo || "assets/images/default-logo.webp";
+        img.alt = b.name || "Bookmaker";
     }
 
-    DOM.bonusModal.style.display = 'flex';
+    if (descEl) {
+        descEl.innerHTML = `
+            <p>${escapeHtml(b.desc || "Bonus exclusif bookmaker")}</p>
+            <p style="margin-top:10px;">
+                Utilisez le code promo <strong>XPVIP</strong> si l'offre le permet.
+            </p>
+        `;
+    }
+
+    if (footerEl) {
+        footerEl.textContent = "Inscription via notre lien recommandé.";
+    }
+
+    if (linkEl) {
+        linkEl.href = b.url || "#";
+        linkEl.target = "_blank";
+        linkEl.rel = "noopener noreferrer";
+    }
+
+    DOM.bonusModal.style.display = "flex";
 };
 
 window.closeBonusModal = function () {
-    if (DOM.bonusModal) DOM.bonusModal.style.display = 'none';
+    if (DOM.bonusModal) {
+        DOM.bonusModal.style.display = "none";
+    }
 };
-
 function displayLatestVerified() {
     if (!DOM.todayPicks || !allData?.matches) return;
 
