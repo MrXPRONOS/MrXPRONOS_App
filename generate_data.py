@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-generate_data.py - Moteur de pronostics football (double chance)
+generate_data.py - Moteur de pronostics football (double chance 1X/X2)
 Intègre H2H, forme, Poisson, Elo simplifié, xG estimés, fatigue,
 piège bookmaker, value bet et score AI.
-Version corrigée et optimisée.
+Version corrigée, robuste et optimisée.
 """
 
 import os
@@ -15,14 +15,12 @@ from datetime import datetime, timedelta, timezone
 from math import exp, factorial
 from typing import Dict, List, Optional, Tuple, Any
 
-# Import conditionnel pour éviter les erreurs si le module n'existe pas
 try:
     from api_utils import make_request
 except ImportError:
     import requests
 
     def make_request(method: str, url: str, **kwargs):
-        """Fallback request function"""
         if method.upper() == "GET":
             return requests.get(url, **kwargs)
         elif method.upper() == "POST":
@@ -53,6 +51,12 @@ GOAL_DIFF_THRESHOLD = 0.1
 XPRONOS_THRESHOLD = 35
 DOMINANCE_THRESHOLD = 0.4
 
+DRAW_RATE_MAX = 0.45
+DOM_DIFF_MIN = 0.15
+MATCH_TOO_CLOSE_SECONDS = 1800
+
+DOWNLOAD_LOGOS = os.environ.get("DOWNLOAD_LOGOS", "true").lower() == "true"
+
 BAD_LEAGUES = [
     "friendly",
     "u21",
@@ -62,6 +66,9 @@ BAD_LEAGUES = [
     "youth",
     "amateur",
 ]
+
+FAILED_LOGO_IDS = set()
+FAILED_COMP_LOGO_IDS = set()
 
 try:
     os.makedirs(CACHE_DIR, exist_ok=True)
@@ -117,7 +124,6 @@ def is_bad_league(name: str) -> bool:
 
 
 def parse_datetime_safe(date_str: str) -> Optional[datetime]:
-    """Parse une date ISO et retourne toujours un datetime timezone-aware en UTC."""
     if not date_str:
         return None
     try:
@@ -148,9 +154,22 @@ def get_competitor_logo_url(competitor_id: str, image_version: Optional[str] = N
     return f"{base_url}/{competitor_id}"
 
 
+def get_competition_logo_url(competition_id: str, image_version: Optional[str] = None) -> str:
+    base_url = "https://v1.football.sportsapipro.com/images/competitions"
+    if image_version:
+        return f"{base_url}/{competition_id}?imageVersion={image_version}"
+    return f"{base_url}/{competition_id}"
+
+
 def download_logo(competitor_id: Optional[str], image_version: Optional[str] = None,
-                  max_retries: int = 3) -> Optional[str]:
+                  max_retries: int = 2) -> Optional[str]:
+    if not DOWNLOAD_LOGOS:
+        return None
+
     if not competitor_id:
+        return None
+
+    if competitor_id in FAILED_LOGO_IDS:
         return None
 
     filename = f"competitor_{competitor_id}.png"
@@ -165,29 +184,36 @@ def download_logo(competitor_id: Optional[str], image_version: Optional[str] = N
     for attempt in range(max_retries):
         try:
             resp = make_request("GET", url, timeout=10)
-            if resp.status_code == 200 and len(resp.content) > 0:
+
+            if resp is None:
+                print(f"⚠️ Aucune réponse pour logo {competitor_id}")
+            elif resp.status_code == 200 and len(resp.content) > 0:
                 with open(filepath, "wb") as f:
                     f.write(resp.content)
                 print(f"✅ Logo téléchargé : {competitor_id}")
                 return rel_path
-            print(f"⚠️ Échec téléchargement logo {competitor_id} (code {resp.status_code})")
+            else:
+                print(f"⚠️ Échec téléchargement logo {competitor_id} (code {resp.status_code})")
+
         except Exception as e:
             print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo {competitor_id}: {e}")
-            if attempt < max_retries - 1:
-                time.sleep(1)
+
+        if attempt < max_retries - 1:
+            time.sleep(0.5)
+
+    FAILED_LOGO_IDS.add(competitor_id)
     return None
 
 
-def get_competition_logo_url(competition_id: str, image_version: Optional[str] = None) -> str:
-    base_url = "https://v1.football.sportsapipro.com/images/competitions"
-    if image_version:
-        return f"{base_url}/{competition_id}?imageVersion={image_version}"
-    return f"{base_url}/{competition_id}"
-
-
 def download_competition_logo(competition_id: Optional[str], image_version: Optional[str] = None,
-                              max_retries: int = 3) -> Optional[str]:
+                              max_retries: int = 2) -> Optional[str]:
+    if not DOWNLOAD_LOGOS:
+        return None
+
     if not competition_id:
+        return None
+
+    if competition_id in FAILED_COMP_LOGO_IDS:
         return None
 
     filename = f"competition_{competition_id}.png"
@@ -202,16 +228,24 @@ def download_competition_logo(competition_id: Optional[str], image_version: Opti
     for attempt in range(max_retries):
         try:
             resp = make_request("GET", url, timeout=10)
-            if resp.status_code == 200 and len(resp.content) > 0:
+
+            if resp is None:
+                print(f"⚠️ Aucune réponse pour logo compétition {competition_id}")
+            elif resp.status_code == 200 and len(resp.content) > 0:
                 with open(filepath, "wb") as f:
                     f.write(resp.content)
                 print(f"✅ Logo compétition téléchargé : {competition_id}")
                 return rel_path
-            print(f"⚠️ Échec téléchargement logo compétition {competition_id} (code {resp.status_code})")
+            else:
+                print(f"⚠️ Échec téléchargement logo compétition {competition_id} (code {resp.status_code})")
+
         except Exception as e:
             print(f"⚠️ Tentative {attempt + 1}/{max_retries} échouée pour logo compétition {competition_id}: {e}")
-            if attempt < max_retries - 1:
-                time.sleep(1)
+
+        if attempt < max_retries - 1:
+            time.sleep(0.5)
+
+    FAILED_COMP_LOGO_IDS.add(competition_id)
     return None
 
 
@@ -231,6 +265,9 @@ def fetch_games_with_comps(date_from, date_to, max_retries: int = 3) -> Tuple[Li
     for attempt in range(max_retries):
         try:
             resp = make_request("GET", SPORTDATA_URL, params=params, timeout=30)
+            if resp is None:
+                raise RuntimeError("Aucune réponse API")
+
             resp.raise_for_status()
             data = resp.json()
 
@@ -255,7 +292,7 @@ def fetch_games_with_comps(date_from, date_to, max_retries: int = 3) -> Tuple[Li
     return [], []
 
 
-def fetch_predictions(game_id: str, max_retries: int = 3) -> Optional[dict]:
+def fetch_predictions(game_id: str, max_retries: int = 2) -> Optional[dict]:
     if not game_id:
         return None
 
@@ -264,6 +301,9 @@ def fetch_predictions(game_id: str, max_retries: int = 3) -> Optional[dict]:
     for attempt in range(max_retries):
         try:
             resp = make_request("GET", PREDICTIONS_URL, params=params, timeout=10)
+            if resp is None:
+                raise RuntimeError("Aucune réponse API")
+
             if resp.status_code == 200:
                 data = resp.json()
                 games = data.get("games", [])
@@ -276,6 +316,7 @@ def fetch_predictions(game_id: str, max_retries: int = 3) -> Optional[dict]:
                             if pred.get("type") == 1:
                                 return pred
             return None
+
         except Exception as e:
             print(f"⚠️ Erreur récupération votes match {game_id} (tentative {attempt + 1}): {e}")
             if attempt < max_retries - 1:
@@ -368,7 +409,7 @@ def build_team_history(historical: List[dict]) -> dict:
         if not home or not away:
             continue
 
-        date = parse_datetime_safe(m.get("start_time", ""))
+        date = parse_datetime_safe(m.get("start_time", "") or m.get("event_date", ""))
         if date is None:
             continue
 
@@ -566,11 +607,11 @@ def get_h2h(historical: List[dict], home_team: str, away_team: str, years: int =
         m_away = (m.get("away_team") or "").lower()
 
         if (m_home == home_lower and m_away == away_lower) or (m_home == away_lower and m_away == home_lower):
-            match_date = parse_datetime_safe(m.get("start_time", ""))
+            match_date = parse_datetime_safe(m.get("start_time", "") or m.get("event_date", ""))
             if match_date and match_date.date() >= cutoff_date:
                 h2h.append(m)
 
-    h2h.sort(key=lambda x: x.get("start_time", ""), reverse=True)
+    h2h.sort(key=lambda x: x.get("start_time", "") or x.get("event_date", ""), reverse=True)
     return h2h
 
 
@@ -601,8 +642,8 @@ def analyze_h2h(h2h_list: List[dict], current_home_team: str, current_away_team:
         if match.get("home_score") is None or match.get("away_score") is None:
             continue
 
-        date_weight = weight_by_date(match.get("start_time", ""))
-        comp_weight = competition_weight(match.get("competition", ""))
+        date_weight = weight_by_date(match.get("start_time", "") or match.get("event_date", ""))
+        comp_weight = competition_weight(match.get("competition", "") or match.get("league", ""))
         weight = date_weight * comp_weight
 
         matches_count += 1
@@ -1006,13 +1047,13 @@ def main():
                 total_skipped += 1
                 continue
 
-        if analysis.get("draw_rate", 0) > 0.45:
-            print(f"⚠️ Match {home_team} vs {away_team} ignoré (draw_rate > 0.45)")
+        if analysis.get("draw_rate", 0) > DRAW_RATE_MAX:
+            print(f"⚠️ Match {home_team} vs {away_team} ignoré (draw_rate > {DRAW_RATE_MAX})")
             total_skipped += 1
             continue
 
         dom_diff = abs(analysis.get("home_dominance", 0) - analysis.get("away_dominance", 0))
-        if dom_diff < 0.15:
+        if dom_diff < DOM_DIFF_MIN:
             print(f"⚠️ Match {home_team} vs {away_team} ignoré (trop équilibré)")
             total_skipped += 1
             continue
@@ -1043,7 +1084,7 @@ def main():
                 if match_time:
                     now = get_now_utc()
                     time_diff = (match_time - now).total_seconds()
-                    if 0 < time_diff < 1800:
+                    if 0 < time_diff < MATCH_TOO_CLOSE_SECONDS:
                         print(f"⚠️ Match {home_team} vs {away_team} ignoré (trop proche: {int(time_diff / 60)}min)")
                         total_skipped += 1
                         continue
@@ -1079,9 +1120,24 @@ def main():
             total_skipped += 1
             continue
 
-        home_logo = download_logo(base.get("home_competitor_id"), base.get("home_image_version"))
-        away_logo = download_logo(base.get("away_competitor_id"), base.get("away_image_version"))
-        league_logo = download_competition_logo(base.get("competition_id"), base.get("competition_image_version"))
+        home_logo = None
+        away_logo = None
+        league_logo = None
+
+        try:
+            home_logo = download_logo(base.get("home_competitor_id"), base.get("home_image_version"))
+        except Exception as e:
+            print(f"⚠️ Erreur logo équipe domicile {home_team}: {e}")
+
+        try:
+            away_logo = download_logo(base.get("away_competitor_id"), base.get("away_image_version"))
+        except Exception as e:
+            print(f"⚠️ Erreur logo équipe extérieure {away_team}: {e}")
+
+        try:
+            league_logo = download_competition_logo(base.get("competition_id"), base.get("competition_image_version"))
+        except Exception as e:
+            print(f"⚠️ Erreur logo compétition {base.get('competition', '')}: {e}")
 
         public_votes = None
         if category in ["pro", "vip"]:
@@ -1318,11 +1374,13 @@ def main():
             "id": gid,
             "date": base.get("date", ""),
             "event_date": base.get("start_time", ""),
+            "start_time": base.get("start_time", ""),
             "home_team": home_team,
             "away_team": away_team,
             "home_logo": home_logo,
             "away_logo": away_logo,
             "league": base.get("competition", ""),
+            "competition": base.get("competition", ""),
             "league_logo": league_logo,
             "venue": "",
             "status": status,
@@ -1468,8 +1526,11 @@ def main():
 
     print(f"📊 Matchs traités: {total_processed}, ignorés: {total_skipped}")
     print(f"📈 Catégories : Simple: {len(categories['simple'])}, Pro: {len(categories['pro'])}, VIP: {len(categories['vip'])}")
-    print(f"💰 ROI estimé : {stats['roi']}% sur {stats['total_bets']} matchs terminés")
-    print(f"🖼️ Logos dans {LOGOS_DIR}")
+    print(f"💰 ROI calculé : {stats['roi']}% sur {stats['total_bets']} matchs terminés")
+    if DOWNLOAD_LOGOS:
+        print(f"🖼️ Logos dans {LOGOS_DIR}")
+    else:
+        print("🖼️ Téléchargement des logos désactivé")
 
 
 if __name__ == "__main__":
