@@ -1,6 +1,6 @@
 /**
  * main.js - Mr XPRONOS
- * Version finale nettoyée, multi-pages, robuste
+ * Version corrigée complète, multi-pages, robuste
  */
 
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
@@ -31,6 +31,45 @@ const POPULAR_LEAGUES = [
     "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
     "MLS", "Brasileirão", "Liga Profesional", "Jupiler Pro League",
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
+];
+
+const DEFAULT_BOOKMAKERS = [
+    {
+        name: "1xBet",
+        logo: "assets/images/1xbet.webp",
+        url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
+        desc: "Bonus de bienvenue jusqu'à 130€"
+    },
+    {
+        name: "1win",
+        logo: "assets/images/1win.webp",
+        url: "https://1wrbgb.com/?open=register&p=qqcw",
+        desc: "Bonus exclusif avec XPVIP"
+    },
+    {
+        name: "Betwinner",
+        logo: "assets/images/betwinner.webp",
+        url: "https://bwredir.com/299Y",
+        desc: "Offre spéciale nouveaux joueurs"
+    },
+    {
+        name: "Melbet",
+        logo: "assets/images/melbet.webp",
+        url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
+        desc: "Bonus premium Melbet avec inscription rapide"
+    },
+    {
+        name: "Linebet",
+        logo: "assets/images/linebet.webp",
+        url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
+        desc: "Bonus et promotions spéciales Linebet"
+    },
+    {
+        name: "Betclic",
+        logo: "assets/images/betclic.webp",
+        url: "https://betpari-click.com/2vY0?extid=USD",
+        desc: "Offre de bienvenue Betclic"
+    }
 ];
 
 const DOM = {
@@ -837,6 +876,8 @@ function showVipLoginForm(container) {
         const uid = getUserId();
 
         try {
+            if (!supabase || !supabaseAvailable) throw new Error('Supabase indisponible');
+
             const { data, error } = await supabase.rpc('check_vip_code', {
                 p_user_id: uid,
                 p_code: code
@@ -896,23 +937,29 @@ async function fetchJsonWithCache(url, cacheKey, timeoutMs = 8000) {
         const data = await resp.json();
         localStorage.setItem(cacheKey, JSON.stringify(data));
         return { data, fromCache: false };
-    } catch {
+    } catch (e) {
         clearTimeout(timeoutId);
         const cached = localStorage.getItem(cacheKey);
         if (cached) return { data: safeJsonParse(cached, null), fromCache: true };
+        console.error('Erreur fetch/cache:', e);
         return { data: null, fromCache: false };
     }
 }
 
 async function loadData() {
+    if (DOM.matches) {
+        DOM.matches.innerHTML = `<div class="loading">Chargement des matchs...</div>`;
+    }
+
     const { data, fromCache } = await fetchJsonWithCache(`data.json?t=${Date.now()}`, 'cachedData', 8000);
     usingCachedData = fromCache;
     allData = data;
 
-    if (!allData) {
+    if (!allData || !Array.isArray(allData.matches)) {
         if (DOM.matches) {
             DOM.matches.innerHTML = `<div class="error">❌ Aucune donnée disponible.</div>`;
         }
+        renderBookmakers();
         return;
     }
 
@@ -930,30 +977,111 @@ async function loadDataGeneric() {
 }
 
 /* =======================================================
-   PRONOS PAGE
+   DATE HELPERS
    ======================================================= */
 function getLocalDateString(day) {
-    const now = new Date();
-    const target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-    if (day === 'tomorrow') target.setUTCDate(target.getUTCDate() + 1);
-    else if (day === 'yesterday') target.setUTCDate(target.getUTCDate() - 1);
+    const date = new Date();
 
-    const y = target.getUTCFullYear();
-    const m = String(target.getUTCMonth() + 1).padStart(2, '0');
-    const d = String(target.getUTCDate()).padStart(2, '0');
+    if (day === 'tomorrow') date.setDate(date.getDate() + 1);
+    else if (day === 'yesterday') date.setDate(date.getDate() - 1);
+
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
 }
 
 function getLocalDateFromEvent(isoString) {
     if (!isoString) return null;
+
     const date = new Date(isoString);
     if (isNaN(date)) return null;
-    const y = date.getUTCFullYear();
-    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const d = String(date.getUTCDate()).padStart(2, '0');
+
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
 }
 
+/* =======================================================
+   BOOKMAKERS
+   ======================================================= */
+function getBookmakersList(bookmakers) {
+    if (Array.isArray(bookmakers) && bookmakers.length) return bookmakers;
+    if (Array.isArray(allData?.bookmakers) && allData.bookmakers.length) return allData.bookmakers;
+    return DEFAULT_BOOKMAKERS;
+}
+
+function normalizeBookmaker(b) {
+    return {
+        name: b?.name || 'Bookmaker',
+        logo: b?.logo || 'assets/images/default-logo.webp',
+        url: b?.url || '#',
+        desc: b?.desc || `Bonus exclusif chez ${b?.name || 'ce bookmaker'}`
+    };
+}
+
+function renderBookmakers(bookmakers = null) {
+    const list = getBookmakersList(bookmakers).map(normalizeBookmaker);
+
+    if (DOM.bookmakersFooter) {
+        DOM.bookmakersFooter.innerHTML = list.map(b => `
+            <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="bookmaker-item">
+                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+                <span>${escapeHtml(b.name)}</span>
+            </a>
+        `).join('');
+    }
+
+    if (DOM.bookmakersBonus) {
+        DOM.bookmakersBonus.innerHTML = list.map(b => `
+            <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="bookmaker-item">
+                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+                <span>${escapeHtml(b.name)}</span>
+            </a>
+        `).join('');
+    }
+}
+
+/* =======================================================
+   SUCCESS RATE
+   ======================================================= */
+function calculateSuccessRate(matches) {
+    if (!Array.isArray(matches) || !matches.length) return 0;
+
+    const finished = matches.filter(m => isFinishedMatch(m));
+    if (!finished.length) return 0;
+
+    const won = finished.filter(m => m.verified_double).length;
+    return Math.round((won / finished.length) * 100);
+}
+
+function updatePronosticsSuccessRate() {
+    if (!DOM.successFill || !DOM.successPercent || !Array.isArray(allData?.matches)) return;
+
+    const targetCat = currentCategory === 'vip' ? 'vip' : currentCategory;
+    const matches = allData.matches.filter(m => String(m.category || '').toLowerCase() === targetCat);
+    const rate = calculateSuccessRate(matches);
+
+    DOM.successFill.style.width = `${rate}%`;
+    DOM.successPercent.textContent = `${rate}%`;
+}
+
+function updateHomeSuccessRate() {
+    if (!DOM.successFill || !DOM.successPercent || !Array.isArray(allData?.matches)) return;
+
+    const premiumMatches = allData.matches.filter(m =>
+        isFinishedMatch(m) && (m.category === 'pro' || m.category === 'vip')
+    );
+    const rate = calculateSuccessRate(premiumMatches);
+
+    DOM.successFill.style.width = `${rate}%`;
+    DOM.successPercent.textContent = `${rate}%`;
+}
+
+/* =======================================================
+   PRONOS PAGE
+   ======================================================= */
 function sortMatchesByLeague(matches) {
     return matches.sort((a, b) => {
         const leagueA = a.league || '';
@@ -974,9 +1102,9 @@ function translateStatus(status) {
     if (!status) return 'À venir';
     const s = String(status).toLowerCase();
 
-    if (s.includes('finished') || s.includes('terminé') || s.includes('ended')) return 'Terminé';
+    if (s.includes('finished') || s.includes('terminé') || s.includes('ended') || s === 'ft') return 'Terminé';
     if (s.includes('inprogress') || s.includes('live') || s.includes('en cours')) return 'En cours';
-    if (s.includes('notstarted') || s.includes('à venir')) return 'À venir';
+    if (s.includes('notstarted') || s.includes('à venir') || s.includes('scheduled')) return 'À venir';
     if (s.includes('postponed')) return 'Reporté';
     if (s.includes('cancelled')) return 'Annulé';
 
@@ -986,7 +1114,7 @@ function translateStatus(status) {
 function getStatusClass(status) {
     if (!status) return '';
     const s = String(status).toLowerCase();
-    if (s.includes('finished') || s.includes('terminé') || s.includes('ended')) return 'finished';
+    if (s.includes('finished') || s.includes('terminé') || s.includes('ended') || s === 'ft') return 'finished';
     if (s.includes('inprogress') || s.includes('live') || s.includes('en cours')) return 'live';
     return '';
 }
@@ -1010,7 +1138,8 @@ function hideEmptyTabs() {
 
     if (allData?.matches) {
         allData.matches.forEach(m => {
-            if (counts[m.category] !== undefined) counts[m.category]++;
+            const cat = String(m.category || '').toLowerCase().trim();
+            if (counts[cat] !== undefined) counts[cat]++;
         });
     }
 
@@ -1040,13 +1169,22 @@ function filterAndDisplay() {
     const targetDate = getLocalDateString(currentDay);
     const targetCat = (currentCategory === 'vip' && currentSubcat === 'pronostics') ? 'vip' : currentCategory;
 
-    const filtered = allData.matches.filter(m => {
+    let filtered = allData.matches.filter(m => {
         const eventLocalDate = getLocalDateFromEvent(m.event_date);
-        return m.category === targetCat && eventLocalDate === targetDate;
+        const category = String(m.category || '').toLowerCase().trim();
+        return category === targetCat && eventLocalDate === targetDate;
     });
+
+    if (!filtered.length) {
+        filtered = allData.matches.filter(m => {
+            const category = String(m.category || '').toLowerCase().trim();
+            return category === targetCat;
+        });
+    }
 
     filteredMatchesWithoutSearch = sortMatchesByLeague(filtered);
     applySearchFilter();
+    updatePronosticsSuccessRate();
 }
 
 function applySearchFilter() {
@@ -1108,7 +1246,7 @@ function renderMatches(matches) {
             const statusFr = translateStatus(m.status);
             const statusClass = getStatusClass(m.status);
 
-            const eventDate = m.event_date ? String(m.event_date).split('T')[0] : '';
+            const eventDate = getLocalDateFromEvent(m.event_date) || '';
             const yesterdayStr = getLocalDateString('yesterday');
             const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
 
@@ -1241,13 +1379,13 @@ async function displayHistory() {
                     <div class="match-info">
                         <div class="teams">
                             <div class="team">
-                                <img src="${escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true))}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy">
+                                <img src="${escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true))}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='assets/images/home.webp';">
                                 <span class="team-name">${escapeHtml(m.home_team)}</span>
                                 <span class="team-score">${m.home_score ?? '-'}</span>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                <img src="${escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false))}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
+                                <img src="${escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false))}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='assets/images/away.webp';">
                                 <span class="team-name">${escapeHtml(m.away_team)}</span>
                                 <span class="team-score">${m.away_score ?? '-'}</span>
                             </div>
@@ -1433,7 +1571,8 @@ window.showConseilDetail = function (index) {
     const conseil = window.conseilsData?.[index];
     if (!conseil || !DOM.conseilModal) return;
 
-    document.getElementById('conseil-modal-title').textContent = stripMarkdown(conseil.title || 'Conseil');
+    const titleEl = document.getElementById('conseil-modal-title');
+    if (titleEl) titleEl.textContent = stripMarkdown(conseil.title || 'Conseil');
 
     const img = document.getElementById('conseil-modal-image');
     if (img) {
@@ -1524,50 +1663,12 @@ window.closeNewsModal = function () {
 };
 
 function initBonusPage() {
-    const defaultBookmakers = [
-        {
-            name: "1xBet",
-            logo: "assets/images/1xbet.webp",
-            url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
-            desc: "Bonus de bienvenue jusqu'à 130€"
-        },
-        {
-            name: "1win",
-            logo: "assets/images/1win.webp",
-            url: "https://1wrbgb.com/?open=register&p=qqcw",
-            desc: "Bonus exclusif avec XPVIP"
-        },
-        {
-            name: "Betwinner",
-            logo: "assets/images/betwinner.webp",
-            url: "https://bwredir.com/299Y",
-            desc: "Offre spéciale nouveaux joueurs"
-        },
-        {
-            name: "Melbet",
-            logo: "assets/images/melbet.webp",
-            url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
-            desc: "Bonus premium Melbet avec inscription rapide"
-        },
-        {
-            name: "Linebet",
-            logo: "assets/images/linebet.webp",
-            url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
-            desc: "Bonus et promotions spéciales Linebet"
-        },
-        {
-            name: "Betclic",
-            logo: "assets/images/betclic.webp",
-            url: "https://betpari-click.com/2vY0?extid=USD",
-            desc: "Offre de bienvenue Betclic"
-        }
-    ];
+    const sourceBookmakers = getBookmakersList(allData?.bookmakers).map(normalizeBookmaker);
 
-    window.currentBonusBookmakers = defaultBookmakers;
+    window.currentBonusBookmakers = sourceBookmakers;
 
-    // Remplir le select
     if (DOM.bonusSelect) {
-        DOM.bonusSelect.innerHTML = defaultBookmakers.map((b, i) =>
+        DOM.bonusSelect.innerHTML = sourceBookmakers.map((b, i) =>
             `<option value="${i}">${escapeHtml(b.name)}</option>`
         ).join('');
 
@@ -1577,31 +1678,32 @@ function initBonusPage() {
         });
     }
 
-    // IMPORTANT :
-    // On n'affiche QUE la grille principale pour éviter le doublon
-    renderBonusGrid(defaultBookmakers);
-
-    // Si tu veux complètement supprimer les miniatures visuellement
-    if (DOM.bonusThumbnails) {
-        DOM.bonusThumbnails.innerHTML = '';
-        DOM.bonusThumbnails.style.display = 'none';
-    }
+    renderBonusGrid(sourceBookmakers);
 }
 
 function renderBonusGrid(bookmakers) {
-    if (!DOM.bonusGrid) return;
-
-    DOM.bonusGrid.innerHTML = bookmakers.map((b, i) => `
-        <div class="bookmaker-card bonus-bookmaker-card" data-index="${i}">
-            <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy">
-            <h3>${escapeHtml(b.name)}</h3>
-            <p>${escapeHtml(b.desc)}</p>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-                <button class="btn btn-secondary" onclick="openBonusModal(${i})">Détails</button>
-                <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter</a>
+    if (DOM.bonusGrid) {
+        DOM.bonusGrid.innerHTML = bookmakers.map((b, i) => `
+            <div class="bookmaker-card bonus-bookmaker-card" data-index="${i}">
+                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+                <h3>${escapeHtml(b.name)}</h3>
+                <p>${escapeHtml(b.desc || 'Bonus exclusif bookmaker')}</p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+                    <button class="btn btn-secondary" onclick="openBonusModal(${i})">Détails</button>
+                    <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter</a>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+    }
+
+    if (DOM.bonusThumbnails) {
+        DOM.bonusThumbnails.innerHTML = bookmakers.map((b, i) => `
+            <div class="bonus-thumb" onclick="openBonusModal(${i})">
+                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+                <div class="bonus-thumb-title">${escapeHtml(b.name)}</div>
+            </div>
+        `).join('');
+    }
 }
 
 function highlightBonusCard(index) {
@@ -1627,21 +1729,25 @@ window.openBonusModal = function (index) {
     const linkEl = document.getElementById('bonus-modal-link');
 
     if (titleEl) titleEl.textContent = b.name;
+
     if (img) {
-        img.src = b.logo;
-        img.alt = b.name;
+        img.src = b.logo || 'assets/images/default-logo.webp';
+        img.alt = b.name || 'Bookmaker';
     }
+
     if (descEl) {
         descEl.innerHTML = `
-            <p>${escapeHtml(b.desc)}</p>
+            <p>${escapeHtml(b.desc || 'Bonus exclusif bookmaker')}</p>
             <p style="margin-top:10px;">Utilisez le code promo <strong>XPVIP</strong> si l'offre le permet.</p>
         `;
     }
+
     if (footerEl) {
-        footerEl.textContent = "Inscription via notre lien recommandé.";
+        footerEl.textContent = 'Inscription via notre lien recommandé.';
     }
+
     if (linkEl) {
-        linkEl.href = b.url;
+        linkEl.href = b.url || '#';
         linkEl.target = '_blank';
         linkEl.rel = 'noopener noreferrer';
     }
@@ -1671,13 +1777,13 @@ function displayLatestVerified() {
             <div class="match-info">
                 <div class="teams">
                     <div class="team">
-                        <img src="${escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true))}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy">
+                        <img src="${escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true))}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='assets/images/home.webp';">
                         <span class="team-name">${escapeHtml(m.home_team)}</span>
                         <span class="team-score">${m.home_score ?? '-'}</span>
                     </div>
                     <div class="vs">VS</div>
                     <div class="team">
-                        <img src="${escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false))}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
+                        <img src="${escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false))}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy" onerror="this.onerror=null; this.src='assets/images/away.webp';">
                         <span class="team-name">${escapeHtml(m.away_team)}</span>
                         <span class="team-score">${m.away_score ?? '-'}</span>
                     </div>
@@ -1921,33 +2027,39 @@ document.addEventListener('DOMContentLoaded', async () => {
             break;
 
         case 'history':
+            allData = await loadDataGeneric();
             await displayHistory();
-            renderBookmakers();
+            renderBookmakers(allData?.bookmakers);
             break;
 
         case 'blog-list':
+            allData = await loadDataGeneric();
             await displayBlogList();
-            renderBookmakers();
+            renderBookmakers(allData?.bookmakers);
             break;
 
         case 'blog-post':
+            allData = await loadDataGeneric();
             await displayBlogPost();
-            renderBookmakers();
+            renderBookmakers(allData?.bookmakers);
             break;
 
         case 'conseils':
+            allData = await loadDataGeneric();
             await displayConseils();
-            renderBookmakers();
+            renderBookmakers(allData?.bookmakers);
             break;
 
         case 'bonus':
+            allData = await loadDataGeneric();
             initBonusPage();
-            renderBookmakers();
+            renderBookmakers(allData?.bookmakers);
             break;
 
         case 'infos':
+            allData = await loadDataGeneric();
             await displayFootNews();
-            renderBookmakers();
+            renderBookmakers(allData?.bookmakers);
             break;
 
         case 'home': {
@@ -1959,6 +2071,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 startWinsSlider();
                 animateWins();
                 updateHomeSuccessRate();
+            } else {
+                renderBookmakers();
             }
             await displayTestimonials();
             startWinNotifications();
@@ -1966,7 +2080,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         default:
-            renderBookmakers();
+            allData = await loadDataGeneric();
+            renderBookmakers(allData?.bookmakers);
             break;
     }
 
