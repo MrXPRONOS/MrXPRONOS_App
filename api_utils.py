@@ -37,11 +37,14 @@ def make_request_with_rotation(
     data: Optional[Dict[str, Any]] = None,
     headers: Optional[Dict[str, str]] = None,
     timeout: int = 30,
-    max_retries: int = 2
+    max_retries: int = 1
 ):
     """
     Effectue une requête HTTP avec rotation de clés API.
-    Retourne la réponse si succès, sinon None.
+    1 seul cycle logique par défaut :
+    - essaie chaque clé une seule fois
+    - retourne la réponse si succès
+    - sinon retourne None
     """
     method = method.upper()
 
@@ -78,7 +81,7 @@ def make_request_with_rotation(
             except Exception as e:
                 print(f"⚠️ Clé {i} échoue sur {url}: {e}")
 
-            time.sleep(0.3)
+            time.sleep(0.2)
 
         if attempt < max_retries - 1:
             time.sleep(1)
@@ -86,6 +89,5 @@ def make_request_with_rotation(
     return None
 
 
-# Pour rétrocompatibilité
 def make_request(method, url, **kwargs):
     return make_request_with_rotation(method, url, **kwargs)
