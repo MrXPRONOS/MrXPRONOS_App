@@ -1,6 +1,6 @@
 /**
  * main.js - Mr XPRONOS
- * Version refactorisée multi-pages, sécurisée et robuste
+ * Version finale nettoyée, multi-pages, robuste
  */
 
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
@@ -19,14 +19,11 @@ let currentDay = 'today';
 let filteredMatchesWithoutSearch = [];
 let searchTerm = '';
 let usingCachedData = false;
-
-let deferredPrompt = null;
+let generatedContentPromise = null;
 let onlineChannel = null;
 let pendingShare = null;
-let generatedContentPromise = null;
 
 const activeChannels = new Set();
-
 const shareLimits = { pro: 3, vip: 5 };
 
 const POPULAR_LEAGUES = [
@@ -189,6 +186,7 @@ function sanitizeHtml(unsafeHtml = '') {
             [...child.attributes].forEach(attr => {
                 const name = attr.name.toLowerCase();
                 const value = attr.value || '';
+
                 const isAllowed =
                     (allowedAttrs[tag] && allowedAttrs[tag].has(name)) ||
                     (allowedAttrs['*'] && allowedAttrs['*'].has(name));
@@ -277,6 +275,8 @@ function getUserId() {
     return userId;
 }
 
+window.getUserId = getUserId;
+
 function isFinishedMatch(match) {
     if (!match) return false;
     if (match.is_finished === true) return true;
@@ -332,12 +332,8 @@ async function initSupabase() {
         const initPromise = (async () => {
             const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
 
-            if (!supabaseUrl || !supabaseUrl.startsWith('https://')) {
-                throw new Error('URL Supabase invalide');
-            }
-            if (!supabaseAnonKey) {
-                throw new Error('Clé Supabase manquante');
-            }
+            if (!supabaseUrl || !supabaseUrl.startsWith('https://')) throw new Error('URL Supabase invalide');
+            if (!supabaseAnonKey) throw new Error('Clé Supabase manquante');
 
             supabaseConfig.url = supabaseUrl;
             supabaseConfig.anonKey = supabaseAnonKey;
@@ -345,7 +341,6 @@ async function initSupabase() {
             const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
             supabase = createClient(supabaseUrl, supabaseAnonKey);
             supabaseAvailable = true;
-            console.log('✅ Supabase connecté');
         })();
 
         await Promise.race([initPromise, timeout]);
@@ -354,65 +349,6 @@ async function initSupabase() {
         supabaseAvailable = false;
     }
 }
-
-/* =======================================================
-   PUSH
-   ======================================================= */
-function urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
-    return outputArray;
-}
-
-async function subscribeToPush(askPermission = false) {
-    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
-    if (!supabaseConfig.url) return;
-
-    try {
-        let permission = Notification.permission;
-        if (permission === 'default' && askPermission) {
-            permission = await Notification.requestPermission();
-        }
-        if (permission !== 'granted') return;
-
-        const swReady = await Promise.race([
-            navigator.serviceWorker.ready,
-            new Promise((_, reject) => setTimeout(() => reject(new Error('SW timeout')), 5000))
-        ]);
-
-        let subscription = await swReady.pushManager.getSubscription();
-
-        if (!subscription) {
-            const keyResp = await fetch(`${supabaseConfig.url}/functions/v1/vapid-public-key`);
-            if (!keyResp.ok) throw new Error('Clé VAPID non récupérée');
-
-            const publicKey = (await keyResp.text()).trim();
-            const convertedKey = urlBase64ToUint8Array(publicKey);
-
-            subscription = await swReady.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: convertedKey
-            });
-        }
-
-        const userId = getUserId();
-
-        await fetch(`${supabaseConfig.url}/functions/v1/push-subscribe`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: userId, subscription })
-        });
-    } catch (err) {
-        console.error('Erreur push:', err);
-    }
-}
-
-window.enablePushNotifications = async function () {
-    await subscribeToPush(true);
-};
 
 /* =======================================================
    COUNTERS / ANALYTICS
@@ -494,8 +430,7 @@ async function registerUniqueUser() {
     if (!supabaseAvailable || !supabase) return;
 
     const userId = getUserId();
-    const registered = localStorage.getItem('mx_registered');
-    if (registered) return;
+    if (localStorage.getItem('mx_registered')) return;
 
     try {
         const { error } = await supabase.from('users').insert({ user_id: userId });
@@ -541,7 +476,7 @@ async function initOnlineUsers() {
 }
 
 /* =======================================================
-   PWA
+   PWA UI HELPERS
    ======================================================= */
 function getOS() {
     const ua = window.navigator.userAgent;
@@ -575,33 +510,37 @@ function setupInstallButton() {
     if (!DOM.installButton) return;
 
     DOM.installButton.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            await deferredPrompt.userChoice;
-            deferredPrompt = null;
-            DOM.installButton.style.display = 'none';
-        } else {
+        try {
+            if (window.MrXPWA?.getState()?.deferredPrompt) {
+                const accepted = await window.MrXPWA.promptInstall();
+                if (accepted) {
+                    showToast('Application installée avec succès !', 'success');
+                    DOM.installButton.style.display = 'none';
+                }
+                return;
+            }
+
             if (getOS() === 'iOS') {
                 showIosGuideIfNeeded();
             } else {
                 alert("Utilisez le menu du navigateur pour ajouter l'application à l'écran d'accueil.");
             }
+        } catch (e) {
+            console.error('Erreur installation app:', e);
+        }
+    });
+
+    window.addEventListener('mrx-pwa-state-change', () => {
+        const state = window.MrXPWA?.getState();
+        if (!state || !DOM.installButton) return;
+
+        if (state.isInstalled) {
+            DOM.installButton.style.display = 'none';
+        } else if (state.installAvailable) {
+            DOM.installButton.style.display = 'inline-block';
         }
     });
 }
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (DOM.installButton && !isPwaInstalled()) {
-        DOM.installButton.style.display = 'inline-block';
-    }
-});
-
-window.addEventListener('appinstalled', () => {
-    if (DOM.installButton) DOM.installButton.style.display = 'none';
-    if (DOM.iosGuidePopup) DOM.iosGuidePopup.style.display = 'none';
-});
 
 /* =======================================================
    SHARE / VIP
@@ -861,6 +800,8 @@ async function checkVipStatus() {
     }
 }
 
+window.checkVipStatus = checkVipStatus;
+
 function showVipLoginForm(container) {
     const userId = getUserId();
     const encodedUserId = encodeURIComponent(userId);
@@ -919,6 +860,8 @@ function showVipLoginForm(container) {
     });
 }
 
+window.showVipLoginForm = showVipLoginForm;
+
 window.handleVipMenuClick = async function () {
     const isVip = await checkVipStatus();
     if (isVip) {
@@ -956,9 +899,7 @@ async function fetchJsonWithCache(url, cacheKey, timeoutMs = 8000) {
     } catch {
         clearTimeout(timeoutId);
         const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-            return { data: safeJsonParse(cached, null), fromCache: true };
-        }
+        if (cached) return { data: safeJsonParse(cached, null), fromCache: true };
         return { data: null, fromCache: false };
     }
 }
@@ -986,58 +927,6 @@ async function loadDataGeneric() {
     const { data, fromCache } = await fetchJsonWithCache(`data.json?t=${Date.now()}`, 'cachedData', 8000);
     usingCachedData = fromCache;
     return data;
-}
-
-/* =======================================================
-   SUCCESS / STATS
-   ======================================================= */
-function updateHomeSuccessRate() {
-    if (!DOM.successFill || !DOM.successPercent || !allData?.matches) return;
-
-    const finished = allData.matches.filter(isFinishedMatch);
-    if (finished.length === 0) {
-        DOM.successFill.style.width = '0%';
-        DOM.successPercent.textContent = '0%';
-        return;
-    }
-
-    const successful = finished.filter(m => m.verified_double).length;
-    const percent = Math.round((successful / finished.length) * 100);
-
-    DOM.successFill.style.width = percent + '%';
-    DOM.successPercent.textContent = percent + '%';
-}
-
-function updatePronosticsSuccessRate() {
-    if (!DOM.successRateContainer) return;
-    if (!allData?.matches) {
-        DOM.successRateContainer.style.display = 'none';
-        return;
-    }
-
-    const finished = allData.matches.filter(isFinishedMatch);
-    const successful = finished.filter(m => m.verified_double);
-
-    if (finished.length === 0) {
-        DOM.successRateContainer.style.display = 'none';
-        return;
-    }
-
-    const rate = ((successful.length / finished.length) * 100).toFixed(1);
-    const roi = Number(allData?.stats?.roi || 0);
-    const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
-
-    DOM.successRateContainer.innerHTML = `
-        <div class="success-rate-item">
-            <div class="success-rate-value">${escapeHtml(rate)}%</div>
-            <div class="success-rate-label">Réussite</div>
-        </div>
-        <div class="success-rate-item">
-            <div class="success-rate-value">${escapeHtml(roiDisplay)}</div>
-            <div class="success-rate-label">ROI</div>
-        </div>
-    `;
-    DOM.successRateContainer.style.display = 'flex';
 }
 
 /* =======================================================
@@ -1111,9 +1000,7 @@ function formatMatchTime(isoString) {
 
 function getTeamLogoPath(teamName, isHome = true) {
     if (!teamName) return isHome ? 'assets/images/home.webp' : 'assets/images/away.webp';
-    const normalized = String(teamName).toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9-]/g, '');
+    const normalized = String(teamName).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     return `assets/images/${normalized}.webp`;
 }
 
@@ -1134,15 +1021,12 @@ function hideEmptyTabs() {
         else btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
     });
 
-    if (DOM.vipSubtabs) {
-        DOM.vipSubtabs.style.display = vipEnabled ? 'flex' : 'none';
-    }
+    if (DOM.vipSubtabs) DOM.vipSubtabs.style.display = vipEnabled ? 'flex' : 'none';
 }
 
 function maybeHideTabBar() {
     const tabBar = qs('.category-tabs');
     if (!tabBar) return;
-
     const visibleTabs = qsa('.tab-btn', tabBar).filter(btn => btn.style.display !== 'none');
     tabBar.style.display = visibleTabs.length === 0 ? 'none' : 'grid';
 }
@@ -1166,8 +1050,7 @@ function filterAndDisplay() {
 }
 
 function applySearchFilter() {
-    if (!DOM.matches) return;
-    if (!filteredMatchesWithoutSearch) return;
+    if (!DOM.matches || !filteredMatchesWithoutSearch) return;
 
     if (!searchTerm.trim()) {
         renderMatches(filteredMatchesWithoutSearch);
@@ -1206,8 +1089,8 @@ function renderMatches(matches) {
     });
 
     let html = offlineBanner;
-
     const leagueOrder = [...POPULAR_LEAGUES, 'Autres ligues'];
+
     const sortedLeagues = Object.keys(grouped).sort((a, b) => {
         const ia = leagueOrder.findIndex(l => a.includes(l) || a === l);
         const ib = leagueOrder.findIndex(l => b.includes(l) || b === l);
@@ -1219,11 +1102,7 @@ function renderMatches(matches) {
 
         grouped[league].forEach(m => {
             const pred = m.prediction || {};
-            const doubleChance = escapeHtml(pred.double_chance || 'N/A');
-
-            let confidence = toFloatSafe(pred.confidence, 0);
-            if (confidence > 100) confidence = confidence / 100;
-            confidence = Math.min(100, Math.round(confidence * 10) / 10);
+            const confidence = Math.min(100, Math.round(toFloatSafe(pred.confidence, 0) * 10) / 10);
 
             const matchTime = formatMatchTime(m.event_date);
             const statusFr = translateStatus(m.status);
@@ -1240,8 +1119,7 @@ function renderMatches(matches) {
             const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
             const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
 
-            const isWinner = !!m.verified_double;
-            const winnerClass = isWinner ? 'winner' : '';
+            const winnerClass = m.verified_double ? 'winner' : '';
             const xpronosBadge = m.badge ? `<span class="xpronos-badge">${escapeHtml(m.badge)}</span>` : '';
 
             const matchDataForSharing = {
@@ -1255,27 +1133,11 @@ function renderMatches(matches) {
             const matchDataEncoded = encodeURIComponent(JSON.stringify(matchDataForSharing));
 
             let advancedHtml = '';
-
-            if (m.ai_score !== undefined && m.ai_score !== null) {
-                advancedHtml += `<div class="ai-score-badge">🤖 AI: ${escapeHtml(String(m.ai_score))}</div>`;
-            }
-            if (m.elo_home !== undefined && m.elo_away !== undefined) {
-                advancedHtml += `<div class="elo-info">📊 Elo: ${escapeHtml(String(m.elo_home))} - ${escapeHtml(String(m.elo_away))}</div>`;
-            }
-
-            const xgHome = toFloatSafe(m.xg_home, null);
-            const xgAway = toFloatSafe(m.xg_away, null);
-            if (xgHome !== null && xgAway !== null) {
-                advancedHtml += `<div class="xg-info">⚽ xG: ${xgHome.toFixed(2)} - ${xgAway.toFixed(2)}</div>`;
-            }
-
-            if (m.fatigue_home !== undefined || m.fatigue_away !== undefined) {
-                advancedHtml += `<div class="fatigue-info">😓 Fatigue: ${escapeHtml(String(m.fatigue_home ?? '?'))} - ${escapeHtml(String(m.fatigue_away ?? '?'))}</div>`;
-            }
-
-            if (m.trap_detected) {
-                advancedHtml += `<div class="trap-warning">⚠️ Piège bookmaker</div>`;
-            }
+            if (m.ai_score !== undefined && m.ai_score !== null) advancedHtml += `<div class="ai-score-badge">🤖 AI: ${escapeHtml(String(m.ai_score))}</div>`;
+            if (m.elo_home !== undefined && m.elo_away !== undefined) advancedHtml += `<div class="elo-info">📊 Elo: ${escapeHtml(String(m.elo_home))} - ${escapeHtml(String(m.elo_away))}</div>`;
+            if (m.xg_home !== undefined && m.xg_away !== undefined) advancedHtml += `<div class="xg-info">⚽ xG: ${escapeHtml(String(m.xg_home))} - ${escapeHtml(String(m.xg_away))}</div>`;
+            if (m.fatigue_home !== undefined || m.fatigue_away !== undefined) advancedHtml += `<div class="fatigue-info">😓 Fatigue: ${escapeHtml(String(m.fatigue_home ?? '?'))} - ${escapeHtml(String(m.fatigue_away ?? '?'))}</div>`;
+            if (m.trap_detected) advancedHtml += `<div class="trap-warning">⚠️ Piège bookmaker</div>`;
 
             html += `
                 <div class="match-card ${winnerClass}">
@@ -1303,7 +1165,7 @@ function renderMatches(matches) {
                     </div>
                     <div class="analysis-panel ticket ${winnerClass}">
                         <h4>Pronostic ${xpronosBadge}</h4>
-                        <p><strong>Double chance :</strong> ${doubleChance} ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}</p>
+                        <p><strong>Double chance :</strong> ${escapeHtml(pred.double_chance || 'N/A')} ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}</p>
                         <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
                         ${premiumBadge}
@@ -1323,67 +1185,6 @@ function renderMatches(matches) {
             bar.style.width = value + '%';
         });
     });
-}
-
-/* =======================================================
-   BOOKMAKERS
-   ======================================================= */
-function renderBookmakers(bookmakers) {
-    const defaultBookmakers = [
-        { name: "1xBet", logo: "assets/images/1xbet.webp", url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599" },
-        { name: "1win", logo: "assets/images/1win.webp", url: "https://1wrbgb.com/?open=register&p=qqcw" },
-        { name: "Betwinner", logo: "assets/images/betwinner.webp", url: "https://bwredir.com/299Y" },
-        { name: "Melbet", logo: "assets/images/melbet.webp", url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041" },
-        { name: "Linebet", logo: "assets/images/linebet.webp", url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611" },
-        { name: "BetClic", logo: "assets/images/betclic.webp", url: "https://betpari-click.com/2vY0?extid=USD" }
-    ];
-
-    const items = Array.isArray(bookmakers) && bookmakers.length ? bookmakers : defaultBookmakers;
-
-    if (DOM.bookmakersFooter) {
-        DOM.bookmakersFooter.innerHTML = '';
-        items.forEach(b => {
-            const a = document.createElement('a');
-            a.href = b.url;
-            a.target = '_blank';
-            a.rel = 'noopener noreferrer';
-
-            const img = document.createElement('img');
-            img.src = b.logo;
-            img.alt = b.name;
-            img.loading = 'lazy';
-            img.decoding = 'async';
-            img.style.maxHeight = '40px';
-
-            img.onerror = function () {
-                this.style.display = 'none';
-                const span = document.createElement('span');
-                span.textContent = b.name;
-                span.style.color = 'var(--or)';
-                span.style.fontWeight = '600';
-                span.style.fontSize = '0.8rem';
-                a.appendChild(span);
-            };
-
-            a.appendChild(img);
-            DOM.bookmakersFooter.appendChild(a);
-        });
-    }
-
-    if (DOM.bookmakersBonus) {
-        DOM.bookmakersBonus.innerHTML = '';
-        items.forEach(b => {
-            const div = document.createElement('div');
-            div.className = 'bookmaker-card';
-            div.innerHTML = `
-                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" decoding="async">
-                <h3>${escapeHtml(b.name)}</h3>
-                <p>Bonus de bienvenue jusqu'à 130€</p>
-                <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">S'inscrire avec XPVIP</a>
-            `;
-            DOM.bookmakersBonus.appendChild(div);
-        });
-    }
 }
 
 /* =======================================================
@@ -1435,21 +1236,18 @@ async function displayHistory() {
             const pred = m.prediction || {};
             const confidence = toFloatSafe(pred.confidence, 0);
 
-            const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
-            const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
-
             html += `
                 <div class="match-card ${m.verified_double ? 'winner' : ''}">
                     <div class="match-info">
                         <div class="teams">
                             <div class="team">
-                                <img src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy">
+                                <img src="${escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true))}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy">
                                 <span class="team-name">${escapeHtml(m.home_team)}</span>
                                 <span class="team-score">${m.home_score ?? '-'}</span>
                             </div>
                             <div class="vs">VS</div>
                             <div class="team">
-                                <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
+                                <img src="${escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false))}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
                                 <span class="team-name">${escapeHtml(m.away_team)}</span>
                                 <span class="team-score">${m.away_score ?? '-'}</span>
                             </div>
@@ -1469,7 +1267,7 @@ async function displayHistory() {
 }
 
 /* =======================================================
-   CONTENT GENERATION
+   CONTENT / BLOG / CONSEILS / INFOS / BONUS / HOME
    ======================================================= */
 async function loadGeneratedContent() {
     if (generatedContentPromise) return generatedContentPromise;
@@ -1493,9 +1291,6 @@ async function loadGeneratedContent() {
     return generatedContentPromise;
 }
 
-/* =======================================================
-   BLOG
-   ======================================================= */
 window.showArticleDetail = function (index) {
     const article = window.articlesData?.[index];
     if (!article) return;
@@ -1506,7 +1301,7 @@ window.showArticleDetail = function (index) {
     }
 
     const title = stripMarkdown(article.title || 'Article');
-    const image = article.image_url || 'assets/images/default-logo.png';
+    const image = article.image_url || 'assets/images/default-logo.webp';
     const contentHtml = renderSafeRichContent(article.content || '');
 
     const titleEl = document.getElementById('article-modal-title');
@@ -1546,7 +1341,7 @@ async function displayBlogList() {
     if (horizontalContainer) {
         horizontalContainer.innerHTML = allArticles.slice(0, 8).map((article, index) => `
             <div class="horizontal-item" onclick="showArticleDetail(${index})">
-                <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(article.title || 'Article'))}">
+                <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.webp')}" alt="${escapeAttribute(stripMarkdown(article.title || 'Article'))}">
                 <div class="item-title">${escapeHtml(stripMarkdown(article.title || 'Article'))}</div>
             </div>
         `).join('');
@@ -1554,7 +1349,7 @@ async function displayBlogList() {
 
     DOM.blogList.innerHTML = allArticles.map((article, index) => `
         <div class="news-card card" onclick="showArticleDetail(${index})">
-            <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(article.title || 'Article'))}" loading="lazy" class="news-image">
+            <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.webp')}" alt="${escapeAttribute(stripMarkdown(article.title || 'Article'))}" loading="lazy" class="news-image">
             <h3>${escapeHtml(stripMarkdown(article.title || 'Article'))}</h3>
             <p>${escapeHtml(stripMarkdown((article.excerpt || article.content || '').slice(0, 120)))}...</p>
             <button class="btn btn-secondary" style="margin-top:10px;">Lire la suite</button>
@@ -1592,7 +1387,7 @@ async function displayBlogPost() {
 
     DOM.blogPost.innerHTML = `
         <article class="card article-page-card">
-            <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(title)}" class="news-image" loading="lazy">
+            <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.webp')}" alt="${escapeAttribute(title)}" class="news-image" loading="lazy">
             <h1>${escapeHtml(title)}</h1>
             <div class="article-content">${contentHtml}</div>
         </article>
@@ -1602,9 +1397,6 @@ async function displayBlogPost() {
     if (titleMeta) titleMeta.textContent = `${title} - Mr XPRONOS`;
 }
 
-/* =======================================================
-   CONSEILS
-   ======================================================= */
 async function displayConseils() {
     if (!DOM.conseilsList) return;
 
@@ -1621,7 +1413,7 @@ async function displayConseils() {
     if (horizontalContainer) {
         horizontalContainer.innerHTML = window.conseilsData.slice(0, 8).map((conseil, index) => `
             <div class="horizontal-item" onclick="showConseilDetail(${index})">
-                <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}">
+                <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.webp')}" alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}">
                 <div class="item-title">${escapeHtml(stripMarkdown(conseil.title || 'Conseil'))}</div>
             </div>
         `).join('');
@@ -1629,7 +1421,7 @@ async function displayConseils() {
 
     DOM.conseilsList.innerHTML = window.conseilsData.map((conseil, index) => `
         <div class="news-card card" onclick="showConseilDetail(${index})">
-            <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}" loading="lazy" class="news-image">
+            <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.webp')}" alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}" loading="lazy" class="news-image">
             <h3>${escapeHtml(stripMarkdown(conseil.title || 'Conseil'))}</h3>
             <p>${escapeHtml(stripMarkdown((conseil.content || '').slice(0, 120)))}...</p>
             <button class="btn btn-secondary" style="margin-top:10px;">Lire le conseil</button>
@@ -1645,7 +1437,7 @@ window.showConseilDetail = function (index) {
 
     const img = document.getElementById('conseil-modal-image');
     if (img) {
-        img.src = conseil.image_url || 'assets/images/default-logo.png';
+        img.src = conseil.image_url || 'assets/images/default-logo.webp';
         img.alt = stripMarkdown(conseil.title || 'Conseil');
     }
 
@@ -1661,9 +1453,6 @@ window.closeConseilModal = function () {
     if (DOM.conseilModal) DOM.conseilModal.style.display = 'none';
 };
 
-/* =======================================================
-   INFOS / NEWS
-   ======================================================= */
 async function displayInfos() {
     if (!DOM.infosList) return;
 
@@ -1715,7 +1504,7 @@ window.showNewsDetail = function (index) {
 
     if (titleEl) titleEl.textContent = news.title || 'Actualité';
     if (img) {
-        img.src = news.image || 'assets/images/default-logo.png';
+        img.src = news.image || 'assets/images/default-logo.webp';
         img.alt = news.title || 'Actualité';
     }
     if (contentEl) {
@@ -1734,9 +1523,6 @@ window.closeNewsModal = function () {
     if (DOM.newsModal) DOM.newsModal.style.display = 'none';
 };
 
-/* =======================================================
-   BONUS
-   ======================================================= */
 function initBonusPage() {
     const defaultBookmakers = [
         { name: "1xBet", logo: "assets/images/1xbet.webp", url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599", desc: "Bonus de bienvenue jusqu'à 130€" },
@@ -1750,14 +1536,14 @@ function initBonusPage() {
         ).join('');
 
         DOM.bonusSelect.addEventListener('change', () => {
-            renderBonusCards(defaultBookmakers, parseInt(DOM.bonusSelect.value, 10));
+            renderBonusCards(defaultBookmakers);
         });
     }
 
-    renderBonusCards(defaultBookmakers, 0);
+    renderBonusCards(defaultBookmakers);
 }
 
-function renderBonusCards(bookmakers, selectedIndex = 0) {
+function renderBonusCards(bookmakers) {
     if (DOM.bonusGrid) {
         DOM.bonusGrid.innerHTML = bookmakers.map((b, i) => `
             <div class="bookmaker-card" onclick="openBonusModal(${i})">
@@ -1811,9 +1597,6 @@ window.closeBonusModal = function () {
     if (DOM.bonusModal) DOM.bonusModal.style.display = 'none';
 };
 
-/* =======================================================
-   HOME WIDGETS
-   ======================================================= */
 function displayLatestVerified() {
     if (!DOM.todayPicks || !allData?.matches) return;
 
@@ -1933,9 +1716,6 @@ function startWinNotifications() {
     setTimeout(showPopup, 5000);
 }
 
-/* =======================================================
-   SCROLL PROGRESS
-   ======================================================= */
 function initScrollProgress() {
     if (document.querySelector('.scroll-progress')) return;
     const progressBar = document.createElement('div');
@@ -2060,7 +1840,7 @@ async function handleCategoryChange() {
 }
 
 /* =======================================================
-   INIT APP
+   INIT
    ======================================================= */
 document.addEventListener('DOMContentLoaded', async () => {
     initDOM();
@@ -2076,10 +1856,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     countVisitOncePerDay();
     showIosGuideIfNeeded();
 
-    if (Notification.permission === 'granted') {
-        subscribeToPush(false);
-    }
-
     const page = detectPage();
 
     switch (page) {
@@ -2090,6 +1866,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         case 'history':
             await displayHistory();
+            renderBookmakers();
             break;
 
         case 'blog-list':
@@ -2117,27 +1894,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderBookmakers();
             break;
 
-        case 'home':
-            {
-                const data = await loadDataGeneric();
-                if (data) {
-                    allData = data;
-                    renderBookmakers(data.bookmakers);
-                    displayLatestVerified();
-                    startWinsSlider();
-                    animateWins();
-                    updateHomeSuccessRate();
-                }
-                await displayTestimonials();
-                startWinNotifications();
+        case 'home': {
+            const data = await loadDataGeneric();
+            if (data) {
+                allData = data;
+                renderBookmakers(data.bookmakers);
+                displayLatestVerified();
+                startWinsSlider();
+                animateWins();
+                updateHomeSuccessRate();
             }
+            await displayTestimonials();
+            startWinNotifications();
             break;
+        }
 
         default:
             renderBookmakers();
             break;
     }
 
-    await displayInfos(); // ne fait rien si le container n'existe pas
+    await displayInfos();
     initScrollProgress();
 });

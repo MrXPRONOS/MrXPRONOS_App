@@ -1,0 +1,167 @@
+name: Daily Update
+
+on:
+  schedule:
+    - cron: '5 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  daily-update:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Generate pronostics
+        id: generate_data
+        continue-on-error: true
+        env:
+          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+        run: |
+          echo "🚀 Génération des pronostics..."
+          python generate_data.py
+
+      - name: Update scores
+        id: update_scores
+        continue-on-error: true
+        env:
+          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+        run: |
+          echo "🔄 Mise à jour des scores..."
+          python update_scores.py
+
+      - name: Update historical cache
+        id: update_historical
+        continue-on-error: true
+        env:
+          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+        run: |
+          echo "📚 Mise à jour du cache historique..."
+          python update_historical.py
+
+      - name: Sync pronostics to Supabase
+        id: sync_supabase
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          echo "☁️ Synchronisation Supabase..."
+          python update_pronostics_supabase.py
+
+      - name: Generate AI content
+        id: generate_content
+        continue-on-error: true
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          PIXAZO_API_KEY: ${{ secrets.PIXAZO_API_KEY }}
+        run: |
+          echo "📝 Génération du contenu IA..."
+          python content_generator.py
+
+      - name: Generate testimonials
+        id: testimonials
+        continue-on-error: true
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+        run: |
+          echo "💬 Génération des témoignages..."
+          python generate_testimonials.py
+
+      - name: Fetch football news
+        id: footnews
+        continue-on-error: true
+        env:
+          FOOTBALL_RSS_FEED: ${{ secrets.FOOTBALL_RSS_FEED }}
+        run: |
+          echo "📰 Récupération des actus foot..."
+          python fetch_foot_news.py
+
+      - name: Generate sitemap
+        id: sitemap
+        continue-on-error: true
+        run: |
+          echo "🗺️ Génération du sitemap..."
+          python generate_sitemap.py
+
+      - name: Convert images
+        id: convert_images
+        continue-on-error: true
+        run: |
+          echo "🖼️ Conversion des images..."
+          python convert_images.py
+
+      - name: Auto-train ML
+        id: auto_train
+        continue-on-error: true
+        run: |
+          echo "🧠 Entraînement ML..."
+          python auto_train.py
+
+      - name: Validate JSON files
+        run: |
+          python -m json.tool data.json > /dev/null
+          [ -f articles.json ] && python -m json.tool articles.json > /dev/null || true
+          [ -f conseils.json ] && python -m json.tool conseils.json > /dev/null || true
+          [ -f footnews.json ] && python -m json.tool footnews.json > /dev/null || true
+          [ -f testimonials.json ] && python -m json.tool testimonials.json > /dev/null || true
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --staged --quiet; then
+            echo "ℹ️ Aucun changement à commiter"
+            exit 0
+          fi
+          git commit -m "Daily update $(date +'%Y-%m-%d %H:%M')"
+          git pull origin main --rebase || true
+          git push origin main
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "=== RÉSUMÉ ==="
+          echo "generate_data: ${{ steps.generate_data.outcome }}"
+          echo "update_scores: ${{ steps.update_scores.outcome }}"
+          echo "update_historical: ${{ steps.update_historical.outcome }}"
+          echo "sync_supabase: ${{ steps.sync_supabase.outcome }}"
+          echo "generate_content: ${{ steps.generate_content.outcome }}"
+          echo "testimonials: ${{ steps.testimonials.outcome }}"
+          echo "footnews: ${{ steps.footnews.outcome }}"
+          echo "sitemap: ${{ steps.sitemap.outcome }}"
+          echo "convert_images: ${{ steps.convert_images.outcome }}"
+          echo "auto_train: ${{ steps.auto_train.outcome }}"

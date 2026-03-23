@@ -1,46 +1,65 @@
 /**
- * pwa.js - Gestion PWA complète
- * Enregistrement du service worker et gestion de l'installation
+ * pwa.js - Gestion PWA simplifiée et compatible avec main.js
+ * Rôles :
+ * - enregistrer le Service Worker
+ * - gérer beforeinstallprompt
+ * - exposer l'état PWA global
+ * - gérer les mises à jour du SW
+ *
+ * Le reste (UI, bouton installer, popup iOS) est géré par main.js
  */
 
-(function() {
+(function () {
     'use strict';
 
-    // Configuration
     const CONFIG = {
-        swPath: '/service-worker.js',  // Chemin absolu depuis la racine
+        swPath: '/service-worker.js',
         scope: '/'
     };
 
-    // État global
-    let deferredPrompt = null;
-    let isInstalled = false;
+    const IS_DEV =
+        location.hostname === 'localhost' ||
+        location.hostname.includes('127.0.0.1');
 
-    // Utilitaires
-    const $ = (selector) => document.querySelector(selector);
-    const $$ = (selector) => document.querySelectorAll(selector);
+    const log = IS_DEV ? console.log.bind(console) : () => {};
+    const warn = IS_DEV ? console.warn.bind(console) : () => {};
 
-    // Détection de la plateforme
+    if (!window.__MRXPWA__) {
+        window.__MRXPWA__ = {
+            deferredPrompt: null,
+            registration: null,
+            isInstalled: false,
+            installAvailable: false,
+            updateAvailable: false
+        };
+    }
+
     function getPlatform() {
         const ua = navigator.userAgent.toLowerCase();
         const platform = navigator.platform.toLowerCase();
-        
+
         return {
             isIOS: /iphone|ipad|ipod/.test(ua) || (platform === 'macintel' && navigator.maxTouchPoints > 1),
             isAndroid: /android/.test(ua),
-            isStandalone: window.matchMedia('(display-mode: standalone)').matches || 
-                         window.navigator.standalone === true,
+            isStandalone: window.matchMedia('(display-mode: standalone)').matches ||
+                window.navigator.standalone === true,
             isSafari: /^((?!chrome|android).)*safari/i.test(ua),
             isChrome: /chrome/.test(ua) && !/edge|edg/.test(ua),
             isFirefox: /firefox/.test(ua)
         };
     }
 
-    // Enregistrement du Service Worker
+    function updateGlobalState(partial) {
+        Object.assign(window.__MRXPWA__, partial);
+        window.dispatchEvent(new CustomEvent('mrx-pwa-state-change', {
+            detail: window.__MRXPWA__
+        }));
+    }
+
     async function registerServiceWorker() {
         if (!('serviceWorker' in navigator)) {
-            console.log('⚠️ Service Workers non supportés');
-            return false;
+            warn('⚠️ Service Worker non supporté');
+            return null;
         }
 
         try {
@@ -49,263 +68,152 @@
                 updateViaCache: 'imports'
             });
 
-            console.log('✅ Service Worker enregistré:', registration.scope);
+            log('✅ Service Worker enregistré:', registration.scope);
+            updateGlobalState({ registration });
 
-            // Gestion des mises à jour
             registration.addEventListener('updatefound', () => {
                 const newWorker = registration.installing;
-                console.log('🔄 Nouvelle version du SW détectée');
-                
+                if (!newWorker) return;
+
+                log('🔄 Nouvelle version du SW détectée');
+
                 newWorker.addEventListener('statechange', () => {
                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        // Nouvelle version disponible
-                        showUpdateNotification(newWorker);
+                        updateGlobalState({ updateAvailable: true });
+                        window.dispatchEvent(new CustomEvent('mrx-pwa-update-available', {
+                            detail: { worker: newWorker }
+                        }));
                     }
                 });
             });
 
-            // Écouter les messages du SW
             navigator.serviceWorker.addEventListener('message', (event) => {
-                if (event.data.type === 'UPDATE_AVAILABLE') {
-                    showUpdateNotification();
+                if (event.data?.type === 'UPDATE_AVAILABLE') {
+                    updateGlobalState({ updateAvailable: true });
+                    window.dispatchEvent(new CustomEvent('mrx-pwa-update-available', {
+                        detail: { worker: null }
+                    }));
                 }
             });
 
             return registration;
-
         } catch (error) {
-            console.error('❌ Erreur enregistrement SW:', error);
+            console.error('❌ Erreur enregistrement Service Worker:', error);
+            return null;
+        }
+    }
+
+    function setupInstallPromptHandling() {
+        const platform = getPlatform();
+
+        updateGlobalState({
+            isInstalled: platform.isStandalone,
+            installAvailable: false
+        });
+
+        if (platform.isStandalone) {
+            log('✅ App déjà installée');
+            return;
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            log('📲 beforeinstallprompt capturé');
+            e.preventDefault();
+
+            updateGlobalState({
+                deferredPrompt: e,
+                installAvailable: !platform.isIOS
+            });
+
+            window.dispatchEvent(new CustomEvent('mrx-beforeinstallprompt', {
+                detail: window.__MRXPWA__
+            }));
+        });
+
+        window.addEventListener('appinstalled', () => {
+            log('🎉 App installée');
+            updateGlobalState({
+                deferredPrompt: null,
+                isInstalled: true,
+                installAvailable: false
+            });
+
+            try {
+                localStorage.setItem('mx_pwa_installed', 'true');
+            } catch (_) {}
+        });
+    }
+
+    async function promptInstall() {
+        const state = window.__MRXPWA__;
+        if (!state.deferredPrompt) return false;
+
+        try {
+            state.deferredPrompt.prompt();
+            const result = await state.deferredPrompt.userChoice;
+
+            log('📲 Résultat installation:', result?.outcome);
+
+            updateGlobalState({
+                deferredPrompt: null,
+                installAvailable: false
+            });
+
+            return result?.outcome === 'accepted';
+        } catch (error) {
+            console.error('❌ Erreur prompt install:', error);
             return false;
         }
     }
 
-    // Notification de mise à jour
-    function showUpdateNotification(worker) {
-        const toast = document.createElement('div');
-        toast.className = 'update-toast';
-        toast.innerHTML = `
-            <div class="update-toast-content">
-                <span>🎉 Nouvelle version disponible !</span>
-                <button id="update-app" class="btn btn-primary btn-sm">Mettre à jour</button>
-            </div>
-        `;
-        document.body.appendChild(toast);
+    async function checkForUpdates() {
+        const registration = window.__MRXPWA__?.registration;
+        if (!registration) return false;
 
-        $('#update-app')?.addEventListener('click', () => {
-            if (worker) {
-                worker.postMessage('skipWaiting');
-            }
-            window.location.reload();
-        });
-
-        setTimeout(() => toast.remove(), 10000);
+        try {
+            await registration.update();
+            return true;
+        } catch (error) {
+            warn('⚠️ Impossible de vérifier les mises à jour SW:', error);
+            return false;
+        }
     }
 
-    // Gestion de l'installation
-    function initInstallPrompt() {
-        const platform = getPlatform();
-        const installBtn = $('#install-app');
-
-        if (!installBtn) return;
-
-        // Cacher le bouton par défaut
-        installBtn.style.display = 'none';
-
-        // Déjà installé ?
-        if (platform.isStandalone) {
-            isInstalled = true;
-            console.log('✅ App déjà installée');
+    function skipWaitingAndReload() {
+        const registration = window.__MRXPWA__?.registration;
+        if (!registration?.waiting) {
+            window.location.reload();
             return;
         }
 
-        // Écouter l'événement beforeinstallprompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('📲 beforeinstallprompt capturé');
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            // Afficher le bouton sauf sur iOS (qui n'a pas ce support)
-            if (!platform.isIOS) {
-                installBtn.style.display = 'inline-flex';
-            }
-        });
+        registration.waiting.postMessage('skipWaiting');
 
-        // Clic sur le bouton installer
-        installBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) {
-                // Fallback pour iOS ou si l'événement n'a pas été déclenché
-                if (platform.isIOS) {
-                    showIOSInstallGuide();
-                } else {
-                    showManualInstallInstructions();
-                }
-                return;
-            }
-
-            deferredPrompt.prompt();
-            
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log('📲 Résultat installation:', outcome);
-            
-            if (outcome === 'accepted') {
-                isInstalled = true;
-                installBtn.style.display = 'none';
-                localStorage.setItem('mx_pwa_installed', 'true');
-            }
-            
-            deferredPrompt = null;
-        });
-
-        // App installée
-        window.addEventListener('appinstalled', () => {
-            console.log('🎉 App installée avec succès');
-            isInstalled = true;
-            installBtn.style.display = 'none';
-            deferredPrompt = null;
-            localStorage.setItem('mx_pwa_installed', 'true');
-            
-            // Notification de succès
-            showToast('Application installée avec succès !', 'success');
-        });
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            window.location.reload();
+        }, { once: true });
     }
 
-    // Guide d'installation iOS
-    function showIOSInstallGuide() {
-        const popup = $('#ios-guide-popup');
-        if (popup) {
-            popup.style.display = 'flex';
-            popup.setAttribute('aria-hidden', 'false');
-        }
+    async function init() {
+        log('🚀 Initialisation PWA...');
+        await registerServiceWorker();
+        setupInstallPromptHandling();
+        log('✅ PWA prêt');
     }
 
-    // Instructions manuelles d'installation
-    function showManualInstallInstructions() {
-        const platform = getPlatform();
-        let message = 'Pour installer cette application :\n\n';
-        
-        if (platform.isChrome) {
-            message += 'Chrome : Menu (⋮) → "Installer Mr XPRONOS" ou "Ajouter à l\'écran d\'accueil"';
-        } else if (platform.isFirefox) {
-            message += 'Firefox : Menu (☰) → "Ajouter à l\'écran d\'accueil"';
-        } else if (platform.isSafari) {
-            message += 'Safari : Partager (⬆) → "Sur l\'écran d\'accueil"';
-        } else {
-            message += 'Utilisez le menu de votre navigateur pour ajouter à l\'écran d\'accueil';
-        }
-        
-        alert(message);
-    }
+    // API publique légère
+    window.MrXPWA = {
+        getState() {
+            return window.__MRXPWA__;
+        },
+        getPlatform,
+        promptInstall,
+        checkForUpdates,
+        skipWaitingAndReload
+    };
 
-    // Toast notification
-    function showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-        toast.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: ${type === 'success' ? '#4CAF50' : '#2196F3'};
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 10000;
-            font-weight: 600;
-            animation: slideIn 0.3s ease;
-        `;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 4000);
-    }
-
-    // Gestion du menu mobile
-    function initMobileMenu() {
-        const toggle = $('.mobile-menu-toggle');
-        const nav = $('#main-nav');
-        
-        if (!toggle || !nav) return;
-
-        toggle.addEventListener('click', () => {
-            const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
-            toggle.setAttribute('aria-expanded', !isExpanded);
-            nav.classList.toggle('active');
-        });
-
-        // Fermer le menu au clic sur un lien
-        nav.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                nav.classList.remove('active');
-                toggle.setAttribute('aria-expanded', 'false');
-            });
-        });
-    }
-
-    // Gestion des modales iOS
-    function initIOSGuide() {
-        const closeBtn = $('#close-ios-guide');
-        const closeBtn2 = $('#close-ios-guide-btn');
-        const popup = $('#ios-guide-popup');
-
-        const closeGuide = () => {
-            if (popup) {
-                popup.style.display = 'none';
-                popup.setAttribute('aria-hidden', 'true');
-            }
-            localStorage.setItem('mx_ios_guide_closed', Date.now().toString());
-        };
-
-        closeBtn?.addEventListener('click', closeGuide);
-        closeBtn2?.addEventListener('click', closeGuide);
-
-        // Afficher automatiquement si jamais fermé ou +24h
-        const lastClosed = localStorage.getItem('mx_ios_guide_closed');
-        const platform = getPlatform();
-        
-        if (platform.isIOS && !platform.isStandalone) {
-            if (!lastClosed) {
-                setTimeout(showIOSInstallGuide, 3000);
-            } else {
-                const hoursSince = (Date.now() - parseInt(lastClosed)) / (1000 * 60 * 60);
-                if (hoursSince > 24) {
-                    setTimeout(showIOSInstallGuide, 3000);
-                }
-            }
-        }
-    }
-
-    // Vérifier les permissions de notification
-    async function initNotifications() {
-        if (!('Notification' in window)) return;
-        
-        const permission = await Notification.requestPermission();
-        console.log('🔔 Permission notifications:', permission);
-    }
-
-    // Initialisation
-    function init() {
-        console.log('🚀 Initialisation PWA...');
-        
-        // Enregistrer le SW
-        registerServiceWorker();
-        
-        // Initialiser les composants
-        initInstallPrompt();
-        initMobileMenu();
-        initIOSGuide();
-        
-        // Demander permission notifications (différé)
-        if ('Notification' in window && Notification.permission === 'default') {
-            setTimeout(initNotifications, 5000);
-        }
-
-        console.log('✅ PWA initialisé');
-    }
-
-    // Démarrer quand le DOM est prêt
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
     }
-
 })();
