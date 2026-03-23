@@ -1,0 +1,26 @@
+{
+  "trained_at": 1774250382.5677378,
+  "samples_total": 334,
+  "samples_train": 267,
+  "samples_valid": 67,
+  "accuracy": 0.6866,
+  "feature_order": [
+    "confidence",
+    "xpronos_score",
+    "final_score",
+    "value_bet",
+    "used_poisson_fallback",
+    "h2h_total_matches",
+    "home_dominance",
+    "away_dominance",
+    "draw_rate",
+    "home_form_score",
+    "away_form_score",
+    "home_goals_for",
+    "away_goals_for",
+    "home_goals_against",
+    "away_goals_against",
+    "quality_score"
+  ],
+  "model_type": "RandomForestClassifier"
+}

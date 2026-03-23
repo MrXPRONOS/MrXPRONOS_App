@@ -739,14 +739,14 @@
       "verified_btts": false,
       "verified_over": false,
       "odds": {
-        "home": 2.25,
+        "home": 2.3,
         "draw": 3.2,
-        "away": 2.8
+        "away": 2.75
       },
       "public_votes": null,
       "value_bet": true,
       "is_finished": false,
-      "final_score": 42.1,
+      "final_score": 41.9,
       "provider_signal": {
         "provider_alignment": 0,
         "provider_confidence": 0
@@ -755,7 +755,7 @@
         "pregame_quality": 0
       },
       "used_poisson_fallback": true,
-      "local_candidate_score": 48,
+      "local_candidate_score": 47,
       "data_quality_score": 100
     },
     {
@@ -1830,14 +1830,14 @@
         "verified_btts": false,
         "verified_over": false,
         "odds": {
-          "home": 2.25,
+          "home": 2.3,
           "draw": 3.2,
-          "away": 2.8
+          "away": 2.75
         },
         "public_votes": null,
         "value_bet": true,
         "is_finished": false,
-        "final_score": 42.1,
+        "final_score": 41.9,
         "provider_signal": {
           "provider_alignment": 0,
           "provider_confidence": 0
@@ -1846,7 +1846,7 @@
           "pregame_quality": 0
         },
         "used_poisson_fallback": true,
-        "local_candidate_score": 48,
+        "local_candidate_score": 47,
         "data_quality_score": 100
       },
       {
@@ -2191,5 +2191,5 @@
     "api_budget_remaining": 65
   },
   "bookmakers": [],
-  "generated_at": "2026-03-23T07:03:54.835351+00:00"
+  "generated_at": "2026-03-23T07:18:50.714480+00:00"
 }
