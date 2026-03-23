@@ -3,21 +3,20 @@
 
 """
 generate_data.py - Génération optimisée des pronostics football
-Version quota-aware et orientée fiabilité.
-
-Objectifs :
-- minimiser les requêtes API
-- enrichir seulement les meilleurs matchs
-- éviter les faux signaux si données manquantes
-- produire un data.json propre et stable
+Version finale alignée avec :
+- request_manager.py
+- ml_model.py
+- quota API limité
+- enrichissement ciblé
 """
 
 import os
 import json
-import time
 from datetime import datetime, timedelta, timezone
 from math import exp, factorial
 from typing import Dict, List, Optional, Tuple, Any
+
+from request_manager import RequestManager
 
 try:
     from api_utils import make_request
@@ -39,7 +38,6 @@ except ImportError:
 SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
 PREDICTIONS_URL = "https://v1.football.sportsapipro.com/games/predictions"
 PREGAME_STATS_URL = "https://v1.football.sportsapipro.com/stats/preGame"
-CURRENT_GAMES_URL = "https://v1.football.sportsapipro.com/games/current"
 
 UTC = timezone.utc
 today = datetime.now(UTC).date()
@@ -48,8 +46,6 @@ tomorrow = today + timedelta(days=1)
 DATA_FILE = "data.json"
 CACHE_DIR = "cache"
 GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
-REQUEST_STATE_FILE = os.path.join(CACHE_DIR, "request_state.json")
-ENRICH_CACHE_FILE = os.path.join(CACHE_DIR, "enrichment_cache.json")
 
 HOME_ADVANTAGE = 0.1
 CONFIDENCE_THRESHOLD = 50
@@ -59,16 +55,13 @@ DOMINANCE_THRESHOLD = 0.4
 
 DRAW_RATE_MAX = 0.45
 DOM_DIFF_MIN = 0.15
-MATCH_TOO_CLOSE_SECONDS = 1800
 
-DAILY_REQUEST_BUDGET = 80
 TOP_N_ENRICHED_MATCHES = 10
 MAX_PREDICTIONS_CALLS = 8
 MAX_PREGAME_CALLS = 5
 
 PREDICTIONS_CACHE_TTL_HOURS = 12
 PREGAME_CACHE_TTL_HOURS = 24
-CURRENT_CACHE_TTL_MINUTES = 10
 
 BAD_LEAGUES = [
     "friendly",
@@ -83,7 +76,7 @@ BAD_LEAGUES = [
 os.makedirs(CACHE_DIR, exist_ok=True)
 
 print("=" * 60)
-print(f"🚀 GÉNÉRATION DES PRONOSTICS OPTIMISÉE - {today}")
+print(f"🚀 GÉNÉRATION DES PRONOSTICS FINALE - {today}")
 print("=" * 60)
 
 
@@ -171,63 +164,19 @@ def is_cache_fresh(iso_time: Optional[str], ttl_hours: int) -> bool:
 
 
 # =======================================================
-# REQUEST BUDGET MANAGER
+# API LAYER
 # =======================================================
 
-def load_request_state() -> dict:
-    state = load_json_file(REQUEST_STATE_FILE, {})
-    if state.get("date") != str(today):
-        return {"date": str(today), "count": 0}
-    return state
-
-
-def save_request_state(state: dict):
-    save_json_file(REQUEST_STATE_FILE, state)
-
-
-def can_make_request(state: dict, count: int = 1) -> bool:
-    return state.get("count", 0) + count <= DAILY_REQUEST_BUDGET
-
-
-def register_request(state: dict, count: int = 1):
-    state["count"] = state.get("count", 0) + count
-    save_request_state(state)
-
-
-def budget_remaining(state: dict) -> int:
-    return max(0, DAILY_REQUEST_BUDGET - state.get("count", 0))
-
-
-# =======================================================
-# ENRICHMENT CACHE
-# =======================================================
-
-def load_enrich_cache() -> dict:
-    return load_json_file(ENRICH_CACHE_FILE, {
-        "predictions": {},
-        "pregame": {},
-        "current_games": {}
-    })
-
-
-def save_enrich_cache(cache: dict):
-    save_json_file(ENRICH_CACHE_FILE, cache)
-
-
-# =======================================================
-# API FETCH
-# =======================================================
-
-def quota_request(state: dict, method: str, url: str, **kwargs):
-    if not can_make_request(state, 1):
+def quota_request(req_manager: RequestManager, method: str, url: str, **kwargs):
+    if not req_manager.can_request():
         print(f"⛔ Budget API épuisé, requête ignorée: {url}")
         return None
     resp = make_request(method, url, **kwargs)
-    register_request(state, 1)
+    req_manager.consume()
     return resp
 
 
-def fetch_games_with_comps(date_from, date_to, state: dict) -> Tuple[List[dict], List[dict]]:
+def fetch_games_with_comps(date_from, date_to, req_manager: RequestManager) -> Tuple[List[dict], List[dict]]:
     params = {
         "startDate": date_from.strftime("%d/%m/%Y"),
         "endDate": date_to.strftime("%d/%m/%Y"),
@@ -237,7 +186,7 @@ def fetch_games_with_comps(date_from, date_to, state: dict) -> Tuple[List[dict],
     }
 
     try:
-        resp = quota_request(state, "GET", SPORTDATA_URL, params=params, timeout=30)
+        resp = quota_request(req_manager, "GET", SPORTDATA_URL, params=params, timeout=30)
         if resp is None:
             return [], []
         resp.raise_for_status()
@@ -252,31 +201,26 @@ def fetch_games_with_comps(date_from, date_to, state: dict) -> Tuple[List[dict],
         return [], []
 
 
-def fetch_game_predictions(game_id: str, state: dict, enrich_cache: dict) -> Optional[dict]:
-    cached = enrich_cache["predictions"].get(str(game_id))
+def fetch_game_predictions(game_id: str, req_manager: RequestManager) -> Optional[dict]:
+    cached = req_manager.get_cached("predictions", game_id)
     if cached and is_cache_fresh(cached.get("fetched_at"), PREDICTIONS_CACHE_TTL_HOURS):
         return cached.get("data")
 
     try:
-        resp = quota_request(state, "GET", PREDICTIONS_URL, params={"gameId": game_id}, timeout=15)
-        if resp is None:
-            return None
-        if resp.status_code != 200:
+        resp = quota_request(req_manager, "GET", PREDICTIONS_URL, params={"gameId": game_id}, timeout=15)
+        if resp is None or resp.status_code != 200:
             return None
 
         data = resp.json()
-        enrich_cache["predictions"][str(game_id)] = {
-            "fetched_at": get_now_utc().isoformat(),
-            "data": data
-        }
+        req_manager.set_cached("predictions", game_id, data)
         return data
     except Exception as e:
         print(f"⚠️ Erreur fetch predictions game {game_id}: {e}")
         return None
 
 
-def fetch_pregame_stats(game_id: str, state: dict, enrich_cache: dict) -> Optional[dict]:
-    cached = enrich_cache["pregame"].get(str(game_id))
+def fetch_pregame_stats(game_id: str, req_manager: RequestManager) -> Optional[dict]:
+    cached = req_manager.get_cached("pregame", game_id)
     if cached and is_cache_fresh(cached.get("fetched_at"), PREGAME_CACHE_TTL_HOURS):
         return cached.get("data")
 
@@ -286,17 +230,12 @@ def fetch_pregame_stats(game_id: str, state: dict, enrich_cache: dict) -> Option
             "onlyMajor": "true",
             "topBookmaker": 14
         }
-        resp = quota_request(state, "GET", PREGAME_STATS_URL, params=params, timeout=20)
-        if resp is None:
-            return None
-        if resp.status_code != 200:
+        resp = quota_request(req_manager, "GET", PREGAME_STATS_URL, params=params, timeout=20)
+        if resp is None or resp.status_code != 200:
             return None
 
         data = resp.json()
-        enrich_cache["pregame"][str(game_id)] = {
-            "fetched_at": get_now_utc().isoformat(),
-            "data": data
-        }
+        req_manager.set_cached("pregame", game_id, data)
         return data
     except Exception as e:
         print(f"⚠️ Erreur fetch pregame game {game_id}: {e}")
@@ -506,20 +445,18 @@ def analyze_h2h(h2h_list: List[dict], current_home_team: str) -> dict:
         away_s = match.get("away_score", 0)
         match_home_team = (match.get("home_team") or "").lower()
 
-        weight = 1.0
-
         if home_s > away_s:
             if match_home_team == current_home_lower:
-                home_score += weight
+                home_score += 1.0
             else:
-                away_score += weight
+                away_score += 1.0
         elif home_s < away_s:
             if match_home_team == current_home_lower:
-                away_score += weight
+                away_score += 1.0
             else:
-                home_score += weight
+                home_score += 1.0
         else:
-            draws_score += weight
+            draws_score += 1.0
 
     total = home_score + away_score + draws_score
 
@@ -532,7 +469,7 @@ def analyze_h2h(h2h_list: List[dict], current_home_team: str) -> dict:
 
 
 # =======================================================
-# MATH / MODEL
+# MODEL HELPERS
 # =======================================================
 
 def poisson_probability(lambda_home: float, lambda_away: float, max_goals: int = 6):
@@ -760,10 +697,9 @@ def extract_pregame_signal(pregame_data: Optional[dict]) -> dict:
 # =======================================================
 
 def main():
-    request_state = load_request_state()
-    enrich_cache = load_enrich_cache()
+    req_manager = RequestManager(daily_budget=80)
 
-    print(f"📦 Budget API restant avant run : {budget_remaining(request_state)} requêtes")
+    print(f"📦 Budget API restant avant run : {req_manager.remaining()} requêtes")
 
     existing_data = load_json_file(DATA_FILE, {
         "matches": [],
@@ -772,15 +708,9 @@ def main():
         "bookmakers": [],
     })
 
-    existing_matches = {
-        str(m.get("id", "")): m
-        for m in existing_data.get("matches", [])
-        if isinstance(m, dict)
-    }
-
     print("📅 Récupération minimale des matchs...")
-    games_today, comps_today = fetch_games_with_comps(today, today, request_state)
-    games_tomorrow, comps_tomorrow = fetch_games_with_comps(tomorrow, tomorrow, request_state)
+    games_today, _ = fetch_games_with_comps(today, today, req_manager)
+    games_tomorrow, _ = fetch_games_with_comps(tomorrow, tomorrow, req_manager)
 
     all_new_games = (games_today or []) + (games_tomorrow or [])
     print(f"✅ {len(all_new_games)} matchs récupérés")
@@ -897,8 +827,8 @@ def main():
     print(f"🎯 Matchs candidats locaux : {len(candidate_matches)}")
     print(f"⚠️ Matchs ignorés : {total_skipped}")
 
-    # Enrichissement ciblé uniquement sur top N
     candidate_matches.sort(key=lambda x: x["local_candidate_score"], reverse=True)
+
     enriched_ids_predictions = 0
     enriched_ids_pregame = 0
 
@@ -911,13 +841,13 @@ def main():
 
         gid = item["gid"]
 
-        if enriched_ids_predictions < MAX_PREDICTIONS_CALLS and budget_remaining(request_state) > 5:
-            pred_data = fetch_game_predictions(gid, request_state, enrich_cache)
+        if enriched_ids_predictions < MAX_PREDICTIONS_CALLS and req_manager.remaining() > 5:
+            pred_data = fetch_game_predictions(gid, req_manager)
             item["provider_signal"] = extract_provider_prediction_signal(pred_data)
             enriched_ids_predictions += 1
 
-        if enriched_ids_pregame < MAX_PREGAME_CALLS and budget_remaining(request_state) > 5:
-            pregame_data = fetch_pregame_stats(gid, request_state, enrich_cache)
+        if enriched_ids_pregame < MAX_PREGAME_CALLS and req_manager.remaining() > 5:
+            pregame_data = fetch_pregame_stats(gid, req_manager)
             item["pregame_signal"] = extract_pregame_signal(pregame_data)
             enriched_ids_pregame += 1
 
@@ -1064,19 +994,18 @@ def main():
             "total_bets": total_bets,
             "wins": total_wins,
             "roi": round(roi, 1),
-            "api_requests_used_today": request_state.get("count", 0),
-            "api_budget_remaining": budget_remaining(request_state),
+            "api_requests_used_today": req_manager.state.get("count", 0),
+            "api_budget_remaining": req_manager.remaining(),
         },
         "bookmakers": bookmakers,
         "generated_at": get_now_utc().isoformat()
     }
 
     save_json_file(DATA_FILE, data)
-    save_enrich_cache(enrich_cache)
 
     print(f"💾 {DATA_FILE} généré")
     print(f"📈 Simple: {len(categories['simple'])} | Pro: {len(categories['pro'])} | VIP: {len(categories['vip'])}")
-    print(f"📦 Budget API restant après run : {budget_remaining(request_state)}")
+    print(f"📦 Budget API restant après run : {req_manager.remaining()}")
     print(f"🔁 Enrichissements faits : predictions={enriched_ids_predictions}, pregame={enriched_ids_pregame}")
 
 
