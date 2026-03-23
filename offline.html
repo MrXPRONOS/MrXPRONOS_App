@@ -4,26 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mr XPRONOS - Hors ligne</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="icon" href="assets/images/favicon.webp">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <meta name="theme-color" content="#0D0D0D">
     <style>
-        body { background: #0f0f0f; color: #fff; font-family: 'Montserrat', sans-serif; text-align: center; padding: 60px 20px; margin: 0; }
-        .offline-box { max-width: 520px; margin: 40px auto; background: #1a1a1a; padding: 50px 30px; border-radius: 20px; border: 3px solid #ffcc00; box-shadow: 0 0 30px rgba(255,204,0,0.3); }
-        .icon { font-size: 90px; margin-bottom: 20px; }
-        h1 { color: #ffcc00; margin: 0 0 15px 0; font-size: 2.2rem; }
-        p { font-size: 1.1rem; line-height: 1.5; opacity: 0.9; }
-        button { background: #ffcc00; color: #000; border: none; padding: 16px 40px; font-size: 1.1rem; font-weight: 700; border-radius: 50px; margin-top: 25px; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #ffd633; transform: scale(1.05); }
-        small { display: block; margin-top: 20px; font-size: 0.9rem; opacity: 0.7; }
+        body {
+            background: #0f0f0f;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            text-align: center;
+            padding: 60px 20px;
+            margin: 0;
+        }
+        .offline-box {
+            max-width: 520px;
+            margin: 40px auto;
+            background: #1a1a1a;
+            padding: 50px 30px;
+            border-radius: 20px;
+            border: 3px solid #ffcc00;
+            box-shadow: 0 0 30px rgba(255,204,0,0.3);
+        }
+        .icon {
+            font-size: 90px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #ffcc00;
+            margin: 0 0 15px 0;
+            font-size: 2.2rem;
+        }
+        p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+        button {
+            background: #ffcc00;
+            color: #000;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 50px;
+            margin-top: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #ffd633;
+            transform: scale(1.05);
+        }
+        small {
+            display: block;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
     <div class="offline-box">
         <div class="icon">📴</div>
         <h1>Vous êtes hors ligne</h1>
-        <p>Mr XPRONOS fonctionne en mode cache.<br>Tes pronostics et analyses sont toujours disponibles !</p>
+        <p>Mr XPRONOS fonctionne en mode cache.<br>Vos pronostics et analyses sont toujours disponibles !</p>
         <button onclick="window.location.reload()">🔄 Réessayer la connexion</button>
         <small>Dernière mise à jour du cache : <span id="cache-date"></span></small>
     </div>
+
     <script>
         (function() {
             const cached = localStorage.getItem('cachedData');
@@ -35,17 +83,27 @@
                     if (data.matches && data.matches.length > 0) {
                         const latest = data.matches[0].event_date || data.matches[0].date;
                         const date = new Date(latest);
-                        lastDate = date.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                        lastDate = date.toLocaleDateString('fr-FR', {
+                            weekday: 'long',
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
                     }
                     span.textContent = lastDate;
-                } catch (e) { span.textContent = 'inconnue'; }
-            } else { span.textContent = 'jamais'; }
+                } catch {
+                    span.textContent = 'inconnue';
+                }
+            } else {
+                span.textContent = 'jamais';
+            }
         })();
     </script>
+
     <script type="module" src="assets/js/main.js"></script>
-    <script src="assets/js/pwa.js"></script>
-    <script src="assets/js/assistant.js"></script>
-    <script src="assets/js/menu.js"></script>   <!-- Nouveau menu -->
-    <script src="assets/js/back-to-top.js"></script>
+    <script defer src="assets/js/pwa.js"></script>
+    <script defer src="assets/js/assistant.js"></script>
+    <script defer src="assets/js/menu.js"></script>
+    <script defer src="assets/js/back-to-top.js"></script>
 </body>
 </html>
