@@ -7,29 +7,29 @@
     <meta name="description" id="article-description" content="Lisez nos analyses et conseils sur les paris sportifs.">
     <meta name="robots" content="index, follow">
 
-    <!-- Balises Open Graph dynamiques -->
     <meta property="og:title" id="og-title" content="Article - Mr XPRONOS">
     <meta property="og:description" id="og-description" content="Lisez nos analyses et conseils sur les paris sportifs.">
     <meta property="og:image" id="og-image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
     <meta property="og:url" id="og-url" content="https://mrxpronos.github.io/MrXPRONOS_App/article.html">
     <meta property="og:type" content="article">
 
-    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" id="twitter-title" content="Article - Mr XPRONOS">
     <meta name="twitter:description" id="twitter-description" content="Lisez nos analyses et conseils sur les paris sportifs.">
     <meta name="twitter:image" id="twitter-image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
 
-    <!-- Données structurées pour l'article (injectées par JavaScript) -->
     <script type="application/ld+json" id="article-jsonld"></script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="assets/images/favicon.webp">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <header>
@@ -37,17 +37,16 @@
             <div class="logo">
                 <a href="index.html">Mr <span>XPRONOS</span></a>
             </div>
-            <!-- Le <nav> a été supprimé -->
-            <div class="promo-code">Code Promo : XPVIP</div>
+            <div class="header-actions">
+                <div class="promo-code">Code Promo : XPVIP</div>
+            </div>
         </div>
     </header>
 
     <main class="container">
-        <!-- Conteneur pour l'article complet -->
         <div id="blog-post"></div>
     </main>
 
-    <!-- Popup guide iOS -->
     <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
         <div class="ios-guide-content">
             <h3>📱 Installer Mr XPRONOS sur iPhone</h3>
@@ -69,8 +68,8 @@
                 💡 Activez l'option <strong>"Ouvrir comme app web"</strong> pour une expérience optimale.
             </div>
             <div class="ios-guide-buttons">
-                <button id="close-ios-guide" class="btn btn-primary">Compris !</button>
-                <button id="close-ios-guide-btn" class="btn btn-secondary">Plus tard</button>
+                <button id="close-ios-guide" class="btn btn-primary" type="button">Compris !</button>
+                <button id="close-ios-guide-btn" class="btn btn-secondary" type="button">Plus tard</button>
             </div>
         </div>
     </div>
@@ -87,6 +86,7 @@
                 <a href="bonus.html">Bonus & Promo</a>
                 <a href="contact.html">Contact</a>
             </div>
+
             <div class="social-links">
                 <a href="https://wa.me/22899201444" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><img src="assets/images/whatsapp.webp" alt="WhatsApp" loading="lazy"></a>
                 <a href="https://t.me/mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><img src="assets/images/telegram.webp" alt="Telegram" loading="lazy"></a>
@@ -95,15 +95,17 @@
                 <a href="https://youtube.com/@mrxpronos?si=f6Z66923Lx9KF3ri" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="assets/images/youtube.webp" alt="YouTube" loading="lazy"></a>
                 <a href="https://www.threads.com/@mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Threads"><img src="assets/images/threads.webp" alt="Threads" loading="lazy"></a>
             </div>
+
             <div class="bookmakers" id="bookmakers-footer"></div>
+
             <p>&copy; 2025 Mr XPRONOS. Tous droits réservés. <span style="font-size:0.7rem; opacity:0.7;">18+ • Divertissement seulement</span></p>
         </div>
     </footer>
 
     <script type="module" src="assets/js/main.js"></script>
-    <script src="assets/js/pwa.js"></script>
-    <script src="assets/js/assistant.js"></script>
-    <script src="assets/js/menu.js"></script>   <!-- Nouveau menu -->
-    <script src="assets/js/back-to-top.js"></script>
+    <script defer src="assets/js/pwa.js"></script>
+    <script defer src="assets/js/assistant.js"></script>
+    <script defer src="assets/js/menu.js"></script>
+    <script defer src="assets/js/back-to-top.js"></script>
 </body>
 </html>
