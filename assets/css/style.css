@@ -2345,3 +2345,18 @@ body.assistant-open #back-to-top {
         left: 15px;
     }
 }
+
+
+/* =======================================================
+   BONUS PAGE IMPROVEMENTS
+   ======================================================= */
+
+.bonus-bookmaker-card {
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+.bonus-bookmaker-card.active-bonus-card {
+    border: 2px solid var(--or);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.35);
+    transform: translateY(-4px);
+}

@@ -121,14 +121,14 @@
       "verified_btts": false,
       "verified_over": false,
       "odds": {
-        "home": 3.3,
-        "draw": 3.2,
-        "away": 2.0
+        "home": 3.0,
+        "draw": 3.1,
+        "away": 2.15
       },
       "public_votes": null,
       "value_bet": true,
       "is_finished": false,
-      "final_score": 51.2,
+      "final_score": 50.0,
       "provider_signal": {
         "provider_alignment": 0,
         "provider_confidence": 0
@@ -137,7 +137,7 @@
         "pregame_quality": 30
       },
       "used_poisson_fallback": true,
-      "local_candidate_score": 66,
+      "local_candidate_score": 60,
       "data_quality_score": 100
     },
     {
@@ -191,8 +191,8 @@
       "verified_btts": false,
       "verified_over": false,
       "odds": {
-        "home": 4.5,
-        "draw": 3.5,
+        "home": 4.33,
+        "draw": 3.6,
         "away": 1.8
       },
       "public_votes": null,
@@ -281,76 +281,6 @@
       "data_quality_score": 100
     },
     {
-      "id": "4652541",
-      "date": "2026-03-23",
-      "event_date": "2026-03-23T18:30:00+00:00",
-      "start_time": "2026-03-23T18:30:00+00:00",
-      "home_team": "Vikingur Gota",
-      "away_team": "HB Torshavn",
-      "home_logo": null,
-      "away_logo": null,
-      "league": "Formuladeildin",
-      "competition": "Formuladeildin",
-      "league_logo": null,
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "draw_rate": 0.0
-      },
-      "home_form": {
-        "wins": 0.17,
-        "draws": 0.33,
-        "losses": 0.5,
-        "goals_for": 0.71,
-        "goals_against": 1.42,
-        "form_score": 0.281,
-        "matches_used": 5
-      },
-      "away_form": {
-        "wins": 0.45,
-        "draws": 0.0,
-        "losses": 0.55,
-        "goals_for": 1.63,
-        "goals_against": 0.74,
-        "form_score": 0.445,
-        "matches_used": 5
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "confidence": 60,
-        "odds": null
-      },
-      "xpronos_score": 44,
-      "badge": "",
-      "category": "simple",
-      "verified_double": false,
-      "verified_btts": false,
-      "verified_over": false,
-      "odds": {
-        "home": 2.4,
-        "draw": 3.5,
-        "away": 2.4
-      },
-      "public_votes": null,
-      "value_bet": true,
-      "is_finished": false,
-      "final_score": 47.8,
-      "provider_signal": {
-        "provider_alignment": 0,
-        "provider_confidence": 0
-      },
-      "pregame_signal": {
-        "pregame_quality": 0
-      },
-      "used_poisson_fallback": false,
-      "local_candidate_score": 57,
-      "data_quality_score": 100
-    },
-    {
       "id": "4626928",
       "date": "2026-03-23",
       "event_date": "2026-03-23T00:00:00+00:00",
@@ -423,8 +353,8 @@
     {
       "id": "4463189",
       "date": "2026-03-24",
-      "event_date": "2026-03-24T17:00:00+00:00",
-      "start_time": "2026-03-24T17:00:00+00:00",
+      "event_date": "2026-03-24T14:30:00+00:00",
+      "start_time": "2026-03-24T14:30:00+00:00",
       "home_team": "Hapoel Hadera",
       "away_team": "Kiryat Yam Sc",
       "home_logo": null,
@@ -689,76 +619,6 @@
       "data_quality_score": 80
     },
     {
-      "id": "4641171",
-      "date": "2026-03-23",
-      "event_date": "2026-03-23T13:00:00+00:00",
-      "start_time": "2026-03-23T13:00:00+00:00",
-      "home_team": "Internacional",
-      "away_team": "FK Podgorica",
-      "home_logo": null,
-      "away_logo": null,
-      "league": "Second League",
-      "competition": "Second League",
-      "league_logo": null,
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 0,
-        "home_dominance": 0.1291783480509145,
-        "away_dominance": 0.6672794222954064,
-        "draw_rate": 0.20354222965367916
-      },
-      "home_form": {
-        "wins": 0.43,
-        "draws": 0.08,
-        "losses": 0.5,
-        "goals_for": 1.01,
-        "goals_against": 1.82,
-        "form_score": 0.452,
-        "matches_used": 5
-      },
-      "away_form": {
-        "wins": 0.6,
-        "draws": 0.4,
-        "losses": 0.0,
-        "goals_for": 2.2,
-        "goals_against": 0.4,
-        "form_score": 0.733,
-        "matches_used": 2
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "confidence": 57,
-        "odds": null
-      },
-      "xpronos_score": 36,
-      "badge": "",
-      "category": "simple",
-      "verified_double": false,
-      "verified_btts": false,
-      "verified_over": false,
-      "odds": {
-        "home": 2.3,
-        "draw": 3.2,
-        "away": 2.75
-      },
-      "public_votes": null,
-      "value_bet": true,
-      "is_finished": false,
-      "final_score": 41.9,
-      "provider_signal": {
-        "provider_alignment": 0,
-        "provider_confidence": 0
-      },
-      "pregame_signal": {
-        "pregame_quality": 0
-      },
-      "used_poisson_fallback": true,
-      "local_candidate_score": 47,
-      "data_quality_score": 100
-    },
-    {
       "id": "4497435",
       "date": "2026-03-24",
       "event_date": "2026-03-24T14:00:00+00:00",
@@ -823,6 +683,76 @@
       "used_poisson_fallback": true,
       "local_candidate_score": 42,
       "data_quality_score": 80
+    },
+    {
+      "id": "4641171",
+      "date": "2026-03-23",
+      "event_date": "2026-03-23T13:00:00+00:00",
+      "start_time": "2026-03-23T13:00:00+00:00",
+      "home_team": "Internacional",
+      "away_team": "FK Podgorica",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Second League",
+      "competition": "Second League",
+      "league_logo": null,
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 0,
+        "home_dominance": 0.1291783480509145,
+        "away_dominance": 0.6672794222954064,
+        "draw_rate": 0.20354222965367916
+      },
+      "home_form": {
+        "wins": 0.43,
+        "draws": 0.08,
+        "losses": 0.5,
+        "goals_for": 1.01,
+        "goals_against": 1.82,
+        "form_score": 0.452,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.6,
+        "draws": 0.4,
+        "losses": 0.0,
+        "goals_for": 2.2,
+        "goals_against": 0.4,
+        "form_score": 0.733,
+        "matches_used": 2
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "confidence": 57,
+        "odds": null
+      },
+      "xpronos_score": 36,
+      "badge": "",
+      "category": "simple",
+      "verified_double": false,
+      "verified_btts": false,
+      "verified_over": false,
+      "odds": {
+        "home": 2.5,
+        "draw": 3.0,
+        "away": 2.7
+      },
+      "public_votes": null,
+      "value_bet": true,
+      "is_finished": false,
+      "final_score": 41.1,
+      "provider_signal": {
+        "provider_alignment": 0,
+        "provider_confidence": 0
+      },
+      "pregame_signal": {
+        "pregame_quality": 0
+      },
+      "used_poisson_fallback": true,
+      "local_candidate_score": 43,
+      "data_quality_score": 100
     },
     {
       "id": "4661882",
@@ -1212,14 +1142,14 @@
         "verified_btts": false,
         "verified_over": false,
         "odds": {
-          "home": 3.3,
-          "draw": 3.2,
-          "away": 2.0
+          "home": 3.0,
+          "draw": 3.1,
+          "away": 2.15
         },
         "public_votes": null,
         "value_bet": true,
         "is_finished": false,
-        "final_score": 51.2,
+        "final_score": 50.0,
         "provider_signal": {
           "provider_alignment": 0,
           "provider_confidence": 0
@@ -1228,7 +1158,7 @@
           "pregame_quality": 30
         },
         "used_poisson_fallback": true,
-        "local_candidate_score": 66,
+        "local_candidate_score": 60,
         "data_quality_score": 100
       },
       {
@@ -1282,8 +1212,8 @@
         "verified_btts": false,
         "verified_over": false,
         "odds": {
-          "home": 4.5,
-          "draw": 3.5,
+          "home": 4.33,
+          "draw": 3.6,
           "away": 1.8
         },
         "public_votes": null,
@@ -1372,76 +1302,6 @@
         "data_quality_score": 100
       },
       {
-        "id": "4652541",
-        "date": "2026-03-23",
-        "event_date": "2026-03-23T18:30:00+00:00",
-        "start_time": "2026-03-23T18:30:00+00:00",
-        "home_team": "Vikingur Gota",
-        "away_team": "HB Torshavn",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Formuladeildin",
-        "competition": "Formuladeildin",
-        "league_logo": null,
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "draw_rate": 0.0
-        },
-        "home_form": {
-          "wins": 0.17,
-          "draws": 0.33,
-          "losses": 0.5,
-          "goals_for": 0.71,
-          "goals_against": 1.42,
-          "form_score": 0.281,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.45,
-          "draws": 0.0,
-          "losses": 0.55,
-          "goals_for": 1.63,
-          "goals_against": 0.74,
-          "form_score": 0.445,
-          "matches_used": 5
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 60,
-          "odds": null
-        },
-        "xpronos_score": 44,
-        "badge": "",
-        "category": "simple",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 2.4,
-          "draw": 3.5,
-          "away": 2.4
-        },
-        "public_votes": null,
-        "value_bet": true,
-        "is_finished": false,
-        "final_score": 47.8,
-        "provider_signal": {
-          "provider_alignment": 0,
-          "provider_confidence": 0
-        },
-        "pregame_signal": {
-          "pregame_quality": 0
-        },
-        "used_poisson_fallback": false,
-        "local_candidate_score": 57,
-        "data_quality_score": 100
-      },
-      {
         "id": "4626928",
         "date": "2026-03-23",
         "event_date": "2026-03-23T00:00:00+00:00",
@@ -1514,8 +1374,8 @@
       {
         "id": "4463189",
         "date": "2026-03-24",
-        "event_date": "2026-03-24T17:00:00+00:00",
-        "start_time": "2026-03-24T17:00:00+00:00",
+        "event_date": "2026-03-24T14:30:00+00:00",
+        "start_time": "2026-03-24T14:30:00+00:00",
         "home_team": "Hapoel Hadera",
         "away_team": "Kiryat Yam Sc",
         "home_logo": null,
@@ -1780,76 +1640,6 @@
         "data_quality_score": 80
       },
       {
-        "id": "4641171",
-        "date": "2026-03-23",
-        "event_date": "2026-03-23T13:00:00+00:00",
-        "start_time": "2026-03-23T13:00:00+00:00",
-        "home_team": "Internacional",
-        "away_team": "FK Podgorica",
-        "home_logo": null,
-        "away_logo": null,
-        "league": "Second League",
-        "competition": "Second League",
-        "league_logo": null,
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 0,
-          "home_dominance": 0.1291783480509145,
-          "away_dominance": 0.6672794222954064,
-          "draw_rate": 0.20354222965367916
-        },
-        "home_form": {
-          "wins": 0.43,
-          "draws": 0.08,
-          "losses": 0.5,
-          "goals_for": 1.01,
-          "goals_against": 1.82,
-          "form_score": 0.452,
-          "matches_used": 5
-        },
-        "away_form": {
-          "wins": 0.6,
-          "draws": 0.4,
-          "losses": 0.0,
-          "goals_for": 2.2,
-          "goals_against": 0.4,
-          "form_score": 0.733,
-          "matches_used": 2
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "confidence": 57,
-          "odds": null
-        },
-        "xpronos_score": 36,
-        "badge": "",
-        "category": "simple",
-        "verified_double": false,
-        "verified_btts": false,
-        "verified_over": false,
-        "odds": {
-          "home": 2.3,
-          "draw": 3.2,
-          "away": 2.75
-        },
-        "public_votes": null,
-        "value_bet": true,
-        "is_finished": false,
-        "final_score": 41.9,
-        "provider_signal": {
-          "provider_alignment": 0,
-          "provider_confidence": 0
-        },
-        "pregame_signal": {
-          "pregame_quality": 0
-        },
-        "used_poisson_fallback": true,
-        "local_candidate_score": 47,
-        "data_quality_score": 100
-      },
-      {
         "id": "4497435",
         "date": "2026-03-24",
         "event_date": "2026-03-24T14:00:00+00:00",
@@ -1914,6 +1704,76 @@
         "used_poisson_fallback": true,
         "local_candidate_score": 42,
         "data_quality_score": 80
+      },
+      {
+        "id": "4641171",
+        "date": "2026-03-23",
+        "event_date": "2026-03-23T13:00:00+00:00",
+        "start_time": "2026-03-23T13:00:00+00:00",
+        "home_team": "Internacional",
+        "away_team": "FK Podgorica",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Second League",
+        "competition": "Second League",
+        "league_logo": null,
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 0,
+          "home_dominance": 0.1291783480509145,
+          "away_dominance": 0.6672794222954064,
+          "draw_rate": 0.20354222965367916
+        },
+        "home_form": {
+          "wins": 0.43,
+          "draws": 0.08,
+          "losses": 0.5,
+          "goals_for": 1.01,
+          "goals_against": 1.82,
+          "form_score": 0.452,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.6,
+          "draws": 0.4,
+          "losses": 0.0,
+          "goals_for": 2.2,
+          "goals_against": 0.4,
+          "form_score": 0.733,
+          "matches_used": 2
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "confidence": 57,
+          "odds": null
+        },
+        "xpronos_score": 36,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": {
+          "home": 2.5,
+          "draw": 3.0,
+          "away": 2.7
+        },
+        "public_votes": null,
+        "value_bet": true,
+        "is_finished": false,
+        "final_score": 41.1,
+        "provider_signal": {
+          "provider_alignment": 0,
+          "provider_confidence": 0
+        },
+        "pregame_signal": {
+          "pregame_quality": 0
+        },
+        "used_poisson_fallback": true,
+        "local_candidate_score": 43,
+        "data_quality_score": 100
       },
       {
         "id": "4661882",
@@ -2191,5 +2051,5 @@
     "api_budget_remaining": 65
   },
   "bookmakers": [],
-  "generated_at": "2026-03-23T07:18:50.714480+00:00"
+  "generated_at": "2026-03-23T11:00:47.375301+00:00"
 }
