@@ -2,16 +2,17 @@
 # -*- coding: utf-8 -*-
 
 """
-content_generator.py - Mr XPRONOS (Version finale robuste)
+content_generator.py - Mr XPRONOS (version finale corrigée)
 
 Fonctionnalités :
 - 1 article match du jour
 - 1 article evergreen
+- 3 conseils
 - Match du jour : data.json -> fallback allscores via api_utils
 - Texte : Mistral SDK -> fallback Mistral HTTP
 - Images : HF -> Mistral SDK image -> Pixazo
-- 1200x630 final
-- Anti doublons / anti similarité
+- Format final image 1200x630
+- Fallback local evergreen si JSON Mistral invalide
 """
 
 import os
@@ -23,7 +24,7 @@ import random
 import hashlib
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Optional, List, Dict, Tuple
 
 import requests
 from PIL import Image, ImageOps
@@ -45,11 +46,14 @@ CODE_PROMO = "XPVIP"
 
 DATA_FILE = "data.json"
 ARTICLES_FILE = "articles.json"
+CONSEILS_FILE = "conseils.json"
 TOPICS_FILE = "evergreen_topics.json"
 
 ASSET_IMG_DIR = "assets/images"
 ARTICLE_IMG_DIR = os.path.join(ASSET_IMG_DIR, "articles")
+CONSEIL_IMG_DIR = os.path.join(ASSET_IMG_DIR, "conseils")
 os.makedirs(ARTICLE_IMG_DIR, exist_ok=True)
+os.makedirs(CONSEIL_IMG_DIR, exist_ok=True)
 
 SPORTDATA_V1_ALLSCORES = "https://v1.football.sportsapipro.com/games/allscores"
 
@@ -65,12 +69,26 @@ SIMILARITY_JACCARD_THRESHOLD = 0.62
 SIMILARITY_SEQ_THRESHOLD = 0.86
 MAX_EVERGREEN_RETRIES = 2
 MAX_ARTICLES_KEEP = 80
+MAX_CONSEILS_KEEP = 120
 
 POPULAR_LEAGUES = [
     "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
     "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
     "MLS", "Brasileirão", "Liga Profesional", "Jupiler Pro League",
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
+]
+
+CONSEIL_TOPICS = [
+    "gestion de bankroll en FCFA",
+    "comment éviter le tilt",
+    "comment analyser un match rapidement",
+    "double chance : quand l’utiliser",
+    "comment choisir un bookmaker fiable",
+    "comment utiliser un bonus sans se piéger",
+    "les erreurs fréquentes sur les combinés",
+    "comment lire les cotes sans se tromper",
+    "les pièges des favoris à petite cote",
+    "comment parier en live avec discipline"
 ]
 
 # =======================================================
@@ -189,6 +207,13 @@ def load_existing_articles() -> list:
 def save_articles(articles: list):
     save_json(ARTICLES_FILE, articles[:MAX_ARTICLES_KEEP])
 
+def load_existing_conseils() -> list:
+    d = load_json(CONSEILS_FILE, [])
+    return d if isinstance(d, list) else []
+
+def save_conseils(conseils: list):
+    save_json(CONSEILS_FILE, conseils[:MAX_CONSEILS_KEEP])
+
 def is_duplicate_article(new_slug: str, new_title: str, new_body: str, existing: list) -> bool:
     new_slug = (new_slug or "").strip()
     new_title = (new_title or "").strip().lower()
@@ -204,6 +229,19 @@ def is_duplicate_article(new_slug: str, new_title: str, new_body: str, existing:
         if a.get("content_hash") == new_h:
             return True
         if a.get("title") and new_title and is_similar(new_title, (a.get("title") or "").lower()):
+            return True
+    return False
+
+def is_duplicate_conseil(new_title: str, new_body: str, existing: list) -> bool:
+    new_title = (new_title or "").strip().lower()
+    new_h = content_hash((new_body or "")[:2000])
+
+    for c in existing:
+        if not isinstance(c, dict):
+            continue
+        if new_title and (c.get("title") or "").strip().lower() == new_title:
+            return True
+        if c.get("content_hash") == new_h:
             return True
     return False
 
@@ -242,9 +280,6 @@ def pick_bookmaker() -> dict:
 # =======================================================
 
 def pick_match_from_data_json() -> Optional[dict]:
-    """
-    Utilise data.json en priorité (plus fiable, pas de 429)
-    """
     d = load_json(DATA_FILE, {})
     matches = d.get("matches", [])
     if not isinstance(matches, list) or not matches:
@@ -255,7 +290,6 @@ def pick_match_from_data_json() -> Optional[dict]:
     if not candidates:
         return None
 
-    # priorité par final_score, xpronos_score, catégorie
     def score(m):
         cat_bonus = 50 if m.get("category") == "vip" else 20 if m.get("category") == "pro" else 0
         return float(m.get("final_score", 0) or 0) + float(m.get("xpronos_score", 0) or 0) + cat_bonus
@@ -329,13 +363,11 @@ def score_game_by_popularity(game: dict, comp_pop: dict, team_pop: dict) -> floa
     return float(comp_rank * 2 + home_rank + away_rank + boost)
 
 def pick_best_match_today() -> Optional[dict]:
-    # priorité data.json
     by_data = pick_match_from_data_json()
     if by_data:
         print("✅ Match du jour sélectionné depuis data.json")
         return by_data
 
-    # fallback allscores
     payload = fetch_allscores_today()
     if not payload:
         return None
@@ -370,7 +402,7 @@ def pick_best_match_today() -> Optional[dict]:
 
 
 # =======================================================
-# MISTRAL TEXTE : SDK puis HTTP
+# MISTRAL TEXTE
 # =======================================================
 
 def call_mistral_text_sdk(prompt: str, temperature=0.6, max_tokens=2800) -> Optional[str]:
@@ -414,34 +446,61 @@ def call_mistral_text_http(prompt: str, temperature=0.6, max_tokens=2800, retrie
 def extract_json_from_text(txt: str) -> Optional[dict]:
     if not txt:
         return None
+
+    txt = txt.strip()
+
     try:
         return json.loads(txt)
     except Exception:
         pass
 
-    m = re.search(r"\{[\s\S]*\}\s*$", txt.strip())
-    if m:
+    md_match = re.search(r"```json\s*([\s\S]*?)\s*```", txt, re.IGNORECASE)
+    if md_match:
         try:
-            return json.loads(m.group(0))
+            return json.loads(md_match.group(1).strip())
         except Exception:
-            return None
+            pass
+
+    md_match2 = re.search(r"```\s*([\s\S]*?)\s*```", txt, re.IGNORECASE)
+    if md_match2:
+        try:
+            return json.loads(md_match2.group(1).strip())
+        except Exception:
+            pass
+
+    brace_match = re.search(r"\{[\s\S]*\}", txt)
+    if brace_match:
+        try:
+            return json.loads(brace_match.group(0).strip())
+        except Exception:
+            pass
+
     return None
 
-def call_mistral_json(prompt: str) -> Optional[dict]:
-    # 1) SDK
+def call_mistral_json(prompt: str, label: str = "mistral") -> Optional[dict]:
     txt = call_mistral_text_sdk(prompt)
     js = extract_json_from_text(txt) if txt else None
     if js:
         return js
 
-    # 2) HTTP
+    if txt:
+        print(f"⚠️ {label}: réponse SDK non JSON. Extrait brut:")
+        print(txt[:1200])
+
     txt = call_mistral_text_http(prompt)
     js = extract_json_from_text(txt) if txt else None
-    return js
+    if js:
+        return js
+
+    if txt:
+        print(f"⚠️ {label}: réponse HTTP non JSON. Extrait brut:")
+        print(txt[:1200])
+
+    return None
 
 
 # =======================================================
-# IMAGES: HF -> Mistral SDK -> Pixazo
+# IMAGES
 # =======================================================
 
 def ensure_1200x630(path: str) -> Optional[str]:
@@ -515,7 +574,7 @@ def generate_image_hf(prompt: str, negative_prompt: str = "", retries: int = 3) 
 
     return None
 
-def generate_image_mistral_sdk(prompt: str) -> Optional[str]:
+def generate_image_mistral_sdk(prompt: str, folder: str) -> Optional[str]:
     if not mistral_client or not image_agent_id:
         return None
     try:
@@ -528,7 +587,7 @@ def generate_image_mistral_sdk(prompt: str) -> Optional[str]:
                 for chunk in output.content:
                     if chunk.type == "tool_file" and chunk.tool == "image_generation":
                         file_bytes = mistral_client.files.download(file_id=chunk.file_id).read()
-                        path = os.path.join(ARTICLE_IMG_DIR, f"mistral-{uuid.uuid4().hex[:10]}.png")
+                        path = os.path.join(folder, f"mistral-{uuid.uuid4().hex[:10]}.png")
                         with open(path, "wb") as f:
                             f.write(file_bytes)
                         return ensure_1200x630(path)
@@ -536,7 +595,7 @@ def generate_image_mistral_sdk(prompt: str) -> Optional[str]:
         return None
     return None
 
-def generate_image_pixazo(prompt: str) -> Optional[str]:
+def generate_image_pixazo(prompt: str, folder: str) -> Optional[str]:
     if not PIXAZO_API_KEY:
         return None
 
@@ -572,31 +631,28 @@ def generate_image_pixazo(prompt: str) -> Optional[str]:
         img_resp = requests.get(image_url, timeout=30)
         img_resp.raise_for_status()
 
-        path = os.path.join(ARTICLE_IMG_DIR, f"pixazo-{uuid.uuid4().hex[:10]}.png")
+        path = os.path.join(folder, f"pixazo-{uuid.uuid4().hex[:10]}.png")
         with open(path, "wb") as f:
             f.write(img_resp.content)
         return ensure_1200x630(path)
     except Exception:
         return None
 
-def generate_image_with_fallback(prompt: str) -> Optional[str]:
+def generate_image_with_fallback(prompt: str, folder: str) -> Optional[str]:
     NEG = (
         "text, watermark, logo, signature, ugly, deformed, extra limbs, extra fingers, "
         "bad anatomy, lowres, blurry, cartoon, illustration, 3d render, CGI, oversaturated"
     )
 
-    # 1) HF
     p = generate_image_hf(prompt, negative_prompt=NEG, retries=3)
     if p:
         return p
 
-    # 2) Mistral SDK image
-    p = generate_image_mistral_sdk(prompt)
+    p = generate_image_mistral_sdk(prompt, folder)
     if p:
         return p
 
-    # 3) Pixazo
-    p = generate_image_pixazo(prompt)
+    p = generate_image_pixazo(prompt, folder)
     if p:
         return p
 
@@ -681,7 +737,11 @@ Contraintes :
 - Ajouter une section "Bonus & Bookmakers" mentionnant {CODE_PROMO}.
 - Ajouter à la fin : {links}
 
-Réponds UNIQUEMENT en JSON valide.
+IMPORTANT :
+- Réponds avec un OBJET JSON UNIQUE.
+- N’ajoute aucun texte avant ou après.
+- N’utilise pas de balises markdown autour du JSON.
+- Commence directement par {{ et termine par }}.
 """.strip()
 
 def prompt_evergreen(topic: dict, bookmaker: dict, constraints: str) -> str:
@@ -713,12 +773,120 @@ Contraintes :
 Anti-similarité :
 {constraints}
 
-Réponds UNIQUEMENT en JSON valide.
+IMPORTANT :
+- Réponds avec un OBJET JSON UNIQUE.
+- N’ajoute aucun texte avant ou après.
+- N’utilise pas de balises markdown autour du JSON.
+- Commence directement par {{ et termine par }}.
+""".strip()
+
+def prompt_conseil(topic: str) -> str:
+    return f"""
+Génère un JSON STRICT (sans texte autour) avec :
+- title (string)
+- content_markdown (string) : 250 à 450 mots
+- keywords (array 4 à 8 strings)
+
+Sujet : conseil pratique sur "{topic}"
+
+Contraintes :
+- Très concret, court, actionnable
+- Style clair, premium, orienté paris sportifs
+- Utiliser des exemples en FCFA si utile
+- Finir par un mini "Conseil Mr XPRONOS"
+
+IMPORTANT :
+- Réponds avec un OBJET JSON UNIQUE.
+- N’ajoute aucun texte avant ou après.
+- N’utilise pas de balises markdown autour du JSON.
+- Commence directement par {{ et termine par }}.
 """.strip()
 
 
 # =======================================================
-# BUILD ARTICLE
+# FALLBACKS LOCAUX
+# =======================================================
+
+def build_local_evergreen_fallback(topic: dict, bookmaker: dict) -> dict:
+    title = topic.get("title_template", "Guide paris sportifs FCFA")
+    slug = slugify(title)
+
+    content = f"""
+# {title}
+
+Les paris sportifs en **FCFA** exigent une approche disciplinée. Beaucoup de joueurs se précipitent, misent trop vite ou choisissent trop de matchs, ce qui finit par casser leur budget.
+
+## Pourquoi ce sujet compte vraiment
+Quand ta bankroll est limitée, chaque erreur pèse lourd. Une mauvaise habitude peut effacer plusieurs gains en une seule journée.
+
+## La méthode simple Mr XPRONOS
+| Étape | Action |
+|---|---|
+| 1 | Définir une bankroll claire en FCFA |
+| 2 | Choisir un marché compréhensible |
+| 3 | Vérifier contexte, forme et cotes |
+| 4 | Fixer une mise raisonnable |
+| 5 | Accepter qu’un bon pari peut perdre |
+
+## Exemple concret en FCFA
+Si ta bankroll est de **20 000 FCFA**, une mise prudente peut être de **500 à 1 000 FCFA**. Cela permet de tenir dans le temps et d’éviter les réactions impulsives.
+
+## Les erreurs à éviter
+- Jouer pour se refaire
+- Empiler trop de matchs dans un combiné
+- Miser gros après une série de gains
+- Suivre une cote sans comprendre le contexte
+
+## Bonus & bookmaker
+Tu peux regarder **{bookmaker.get("name","1xBet")}** avec le code promo **{CODE_PROMO}** :
+{bookmaker.get("url", BASE_SITE_URL)}
+
+## Conseil Mr XPRONOS
+Le plus important n’est pas de parier tous les jours, mais de sélectionner les meilleures opportunités avec discipline.
+""".strip()
+
+    return {
+        "title": title,
+        "slug": slug,
+        "meta_description": f"{title} : méthode simple, exemples en FCFA, erreurs à éviter et conseil bookmaker.",
+        "keywords": ["paris sportifs", "FCFA", "bankroll", "bonus bookmaker", "Mr XPRONOS"],
+        "faq": [
+            {"q": "Peut-on commencer avec une petite bankroll ?", "a": "Oui, si les mises restent modestes et régulières."},
+            {"q": "Faut-il jouer tous les jours ?", "a": "Non, il vaut mieux attendre les bons signaux."},
+            {"q": "Les bonus sont-ils toujours intéressants ?", "a": "Il faut lire les conditions avant d’accepter."}
+        ],
+        "content_markdown": content
+    }
+
+def build_local_conseil_fallback(topic: str) -> dict:
+    title = f"Conseil pratique : {topic.capitalize()}"
+    content = f"""
+# {title}
+
+Quand on parle de **{topic}**, beaucoup de parieurs vont trop vite. Pourtant, une bonne décision commence toujours par une méthode claire.
+
+## Ce qu’il faut retenir
+- Rester simple
+- Éviter les décisions impulsives
+- Adapter la mise à ta bankroll
+- Penser long terme
+
+## Exemple en FCFA
+Avec une bankroll de **10 000 FCFA**, une mise prudente reste modérée. L’idée n’est pas d’accélérer les gains, mais de protéger ton capital.
+
+## Conseil Mr XPRONOS
+Prends toujours 2 minutes pour vérifier si le pari est logique, lisible et adapté à ton budget.
+""".strip()
+
+    return {
+        "title": title,
+        "content_markdown": content,
+        "keywords": ["paris sportifs", "conseil", "FCFA", "Mr XPRONOS"]
+    }
+
+
+# =======================================================
+# BUILD OBJECTS
 # =======================================================
 
 def build_article_object(js: dict, image_path: str, extra: dict) -> dict:
@@ -750,6 +918,23 @@ def build_article_object(js: dict, image_path: str, extra: dict) -> dict:
         **extra
     }
 
+def build_conseil_object(js: dict, image_path: str) -> dict:
+    title = (js.get("title") or "Conseil").strip()
+    content = js.get("content_markdown") or ""
+    excerpt = excerpt_from_text(content, 140)
+
+    return {
+        "title": title,
+        "content": content,
+        "date": datetime.utcnow().isoformat() + "Z",
+        "reading_time": reading_time_minutes(content),
+        "excerpt": excerpt,
+        "image_url": image_path,
+        "active": True,
+        "content_hash": content_hash(content[:2000]),
+        "keywords": ", ".join(normalize_keywords(js.get("keywords")))
+    }
+
 
 # =======================================================
 # MAIN
@@ -757,7 +942,7 @@ def build_article_object(js: dict, image_path: str, extra: dict) -> dict:
 
 def main():
     print("=" * 60)
-    print("🚀 GÉNÉRATION CONTENU IA (Match du jour + Evergreen, HF→Mistral→Pixazo)")
+    print("🚀 GÉNÉRATION CONTENU IA (Match du jour + Evergreen + Conseils)")
     print("=" * 60)
 
     if not MISTRAL_API_KEY:
@@ -766,24 +951,28 @@ def main():
 
     init_mistral_sdk()
 
-    existing = load_existing_articles()
+    existing_articles = load_existing_articles()
+    existing_conseils = load_existing_conseils()
+
     bookmaker = pick_bookmaker()
     topics = load_topics()
 
-    # 1) MATCH DU JOUR
+    # ---------------------------------------------------
+    # 1) ARTICLE MATCH DU JOUR
+    # ---------------------------------------------------
     match = pick_best_match_today()
     if not match:
         print("⚠️ Impossible de récupérer un match. Pas d'article match aujourd'hui.")
     else:
         print(f"⚽ Match du jour: {match['home_team']} vs {match['away_team']} ({match.get('league','')})")
-        js = call_mistral_json(prompt_match_article(match, bookmaker))
+        js = call_mistral_json(prompt_match_article(match, bookmaker), label="match")
         if not js:
             print("❌ Échec génération JSON match.")
         else:
             js["slug"] = js.get("slug") or slugify(js.get("title", "pronostic"))
             body = js.get("content_markdown", "") or ""
 
-            if is_duplicate_article(js["slug"], js.get("title", ""), body, existing):
+            if is_duplicate_article(js["slug"], js.get("title", ""), body, existing_articles):
                 print("⚠️ Article match doublon -> ignoré.")
             else:
                 img_prompt = (
@@ -793,7 +982,7 @@ def main():
                     f"dramatic atmosphere, 16:9, no text, no watermark, no logos"
                 )
 
-                img_path = generate_image_with_fallback(img_prompt)
+                img_path = generate_image_with_fallback(img_prompt, ARTICLE_IMG_DIR)
                 if not img_path:
                     print("❌ Image match impossible -> article match ignoré.")
                 else:
@@ -802,23 +991,24 @@ def main():
                         "match": f"{match['home_team']} vs {match['away_team']}",
                         "league": match.get("league", ""),
                     })
-                    existing.insert(0, art)
-                    save_articles(existing)
+                    existing_articles.insert(0, art)
+                    save_articles(existing_articles)
                     print(f"✅ Article match sauvegardé: {art['title']} (slug={art['slug']})")
 
-    # 2) EVERGREEN
-    topic = pick_unused_topic(existing, topics)
-    constraints = build_antisim_constraints(existing)
-
-    recent_ev = [(a.get("content") or "")[:4500] for a in existing if isinstance(a, dict) and a.get("type") == "evergreen"][:10]
+    # ---------------------------------------------------
+    # 2) ARTICLE EVERGREEN
+    # ---------------------------------------------------
+    topic = pick_unused_topic(existing_articles, topics)
+    constraints = build_antisim_constraints(existing_articles)
+    recent_ev = [(a.get("content") or "")[:4500] for a in existing_articles if isinstance(a, dict) and a.get("type") == "evergreen"][:10]
 
     for attempt in range(MAX_EVERGREEN_RETRIES + 1):
         print(f"🧠 Evergreen: topic={topic.get('id')} tentative {attempt+1}/{MAX_EVERGREEN_RETRIES+1}")
 
-        js = call_mistral_json(prompt_evergreen(topic, bookmaker, constraints))
+        js = call_mistral_json(prompt_evergreen(topic, bookmaker, constraints), label="evergreen")
         if not js:
-            print("❌ Échec génération JSON evergreen.")
-            break
+            print("⚠️ Échec génération JSON evergreen via Mistral -> fallback local.")
+            js = build_local_evergreen_fallback(topic, bookmaker)
 
         js["slug"] = js.get("slug") or slugify(js.get("title", f"evergreen-{topic.get('id','topic')}"))
         body = js.get("content_markdown", "") or ""
@@ -829,7 +1019,7 @@ def main():
             constraints += "\n- Change complètement la structure, les sections et le tableau."
             continue
 
-        if is_duplicate_article(js["slug"], js.get("title", ""), body, existing):
+        if is_duplicate_article(js["slug"], js.get("title", ""), body, existing_articles):
             print("⚠️ Evergreen doublon -> régénération.")
             continue
 
@@ -837,7 +1027,7 @@ def main():
             "Photorealistic premium sports betting strategy poster, football themed, dark premium mood with subtle gold accents, "
             "cinematic lighting, high detail, 16:9, no text, no watermark, no logos"
         )
-        img_path = generate_image_with_fallback(img_prompt)
+        img_path = generate_image_with_fallback(img_prompt, ARTICLE_IMG_DIR)
         if not img_path:
             print("❌ Image evergreen impossible -> evergreen ignoré.")
             break
@@ -846,12 +1036,44 @@ def main():
             "type": "evergreen",
             "topic_id": topic.get("id"),
         })
-        existing.insert(0, art)
-        save_articles(existing)
+        existing_articles.insert(0, art)
+        save_articles(existing_articles)
         print(f"✅ Evergreen sauvegardé: {art['title']} (topic={topic.get('id')})")
         break
 
-    print("✅ Génération terminée.")
+    # ---------------------------------------------------
+    # 3) CONSEILS (x3)
+    # ---------------------------------------------------
+    print("\n💡 Génération de 3 conseils...")
+    for i in range(3):
+        topic_c = random.choice(CONSEIL_TOPICS)
+        print(f"   Conseil {i+1}: {topic_c}")
+
+        js = call_mistral_json(prompt_conseil(topic_c), label=f"conseil-{i+1}")
+        if not js:
+            print("   ⚠️ Fallback conseil local")
+            js = build_local_conseil_fallback(topic_c)
+
+        body = js.get("content_markdown", "") or ""
+        if is_duplicate_conseil(js.get("title", ""), body, existing_conseils):
+            print("   ⚠️ Conseil doublon, ignoré.")
+            continue
+
+        img_prompt = (
+            f"Photorealistic football coaching / betting advice poster, topic {topic_c}, "
+            f"premium dark and gold mood, realistic, no text, no watermark, 16:9"
+        )
+        img_path = generate_image_with_fallback(img_prompt, CONSEIL_IMG_DIR)
+        if not img_path:
+            print("   ❌ Image conseil impossible, ignoré.")
+            continue
+
+        conseil_obj = build_conseil_object(js, img_path)
+        existing_conseils.insert(0, conseil_obj)
+        save_conseils(existing_conseils)
+        print(f"   ✅ Conseil sauvegardé: {conseil_obj['title']}")
+
+    print("\n✅ Génération terminée.")
 
 
 if __name__ == "__main__":
