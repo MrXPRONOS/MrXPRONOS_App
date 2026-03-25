@@ -2,124 +2,152 @@
 # -*- coding: utf-8 -*-
 
 """
-convert_images.py - Convertit toutes les images sous assets/images/ (récursif)
-au format WebP et met à jour les chemins dans les fichiers JSON.
+convert_images.py - Convertit récursivement assets/images/** en WebP et met à jour les JSON.
 
-Améliorations:
-- scan récursif (assets/images/**)
-- conserve les sous-dossiers (teams/, leagues/, etc.)
-- skip si .webp déjà à jour
-- conversion robuste (EXIF transpose)
+Optimisations:
+- scan récursif
+- exclusions (icônes PWA .png à conserver)
+- conversion + mapping old->new
+- mise à jour JSON en BATCH (1 lecture/écriture par fichier)
+- limite conversions par run (MAX_CONVERSIONS_PER_RUN) pour éviter timeout CI
+- suppression optionnelle des originaux (DELETE_ORIGINALS=true) pour réduire le repo
 """
 
 import os
+import re
 import json
 import glob
 import logging
 from pathlib import Path
+from typing import Dict, List
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageFile
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True  # évite blocage sur images tronquées
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 IMAGE_DIR = "assets/images"
 OUTPUT_FORMAT = "webp"
-QUALITY = 85
+
+QUALITY = int(os.getenv("WEBP_QUALITY", "85"))
+METHOD = int(os.getenv("WEBP_METHOD", "4"))  # 0..6 (4 = bon compromis vitesse/qualité)
+DELETE_ORIGINALS = os.getenv("DELETE_ORIGINALS", "false").lower() in ("1", "true", "yes")
+MAX_CONVERSIONS_PER_RUN = int(os.getenv("MAX_CONVERSIONS_PER_RUN", "0"))  # 0 = illimité
 
 JSON_FILES = ["data.json", "articles.json", "conseils.json", "footnews.json", "testimonials.json"]
 
+# Icônes PWA / fichiers à ne PAS convertir (manifest + service worker + navigateur)
+EXCLUDE_PATTERNS = [
+    r"assets/images/icon-\d+x\d+\.png$",   # icon-192x192.png etc
+    r"assets/images/icon-\d+\.png$",       # icon-192.png si jamais
+    r"assets/images/favicon\.png$",        # si présent
+]
 
-def normalize_path(p: str) -> str:
+EXCLUDE_REGEX = re.compile("|".join(EXCLUDE_PATTERNS), re.IGNORECASE)
+
+
+def norm(p: str) -> str:
     return p.replace("\\", "/")
 
 
-def convert_image(filepath: str) -> str | None:
+def is_excluded(path: str) -> bool:
+    return EXCLUDE_REGEX.search(norm(path)) is not None
+
+
+def convert_image(src_path: str) -> str | None:
     """
-    Convertit une image (png/jpg/jpeg) en webp dans le même dossier.
-    Retourne le nouveau filepath (str) ou None.
+    Convertit un fichier png/jpg/jpeg en webp dans le même dossier.
+    Retourne le chemin du .webp ou None.
     """
+    src = Path(src_path)
+    if not src.exists():
+        return None
+
+    dst = src.with_suffix(f".{OUTPUT_FORMAT}")
+
+    # Si déjà converti, on skip (on ne se base pas uniquement sur mtime à cause des checkouts git)
+    if dst.exists() and dst.stat().st_size > 200:
+        return str(dst)
+
     try:
-        src = Path(filepath)
-        if not src.exists():
-            return None
-
-        # Destination = même dossier, même nom, extension .webp
-        dst = src.with_suffix(f".{OUTPUT_FORMAT}")
-
-        # Skip si dst existe et plus récent que src
-        if dst.exists() and dst.stat().st_mtime >= src.stat().st_mtime and dst.stat().st_size > 200:
-            return str(dst)
-
         img = Image.open(src)
         img = ImageOps.exif_transpose(img)
 
-        # WEBP: gérer transparence
+        # transparence
         if img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info):
             img = img.convert("RGBA")
         else:
             img = img.convert("RGB")
 
-        img.save(dst, "WEBP", quality=QUALITY, method=6)
-
+        img.save(dst, "WEBP", quality=QUALITY, method=METHOD)
         return str(dst)
 
     except Exception as e:
-        logger.error(f"Erreur conversion {filepath} : {e}")
+        logger.error(f"Erreur conversion {src_path}: {e}")
         return None
 
 
-def replace_in_dict(d, old: str, new: str) -> bool:
+def replace_in_obj(obj, mapping: Dict[str, str]) -> bool:
+    """
+    Remplace les chemins dans un objet JSON (dict/list/str) selon mapping.
+    Retourne True si modifié.
+    """
     modified = False
-    for key, value in d.items():
-        if isinstance(value, str) and old in value:
-            d[key] = value.replace(old, new)
-            modified = True
-        elif isinstance(value, dict):
-            modified = replace_in_dict(value, old, new) or modified
-        elif isinstance(value, list):
-            modified = replace_in_list(value, old, new) or modified
+
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if isinstance(v, (dict, list)):
+                modified = replace_in_obj(v, mapping) or modified
+            elif isinstance(v, str):
+                nv = v
+                for old, new in mapping.items():
+                    if old in nv:
+                        nv = nv.replace(old, new)
+                if nv != v:
+                    obj[k] = nv
+                    modified = True
+
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            if isinstance(v, (dict, list)):
+                modified = replace_in_obj(v, mapping) or modified
+            elif isinstance(v, str):
+                nv = v
+                for old, new in mapping.items():
+                    if old in nv:
+                        nv = nv.replace(old, new)
+                if nv != v:
+                    obj[i] = nv
+                    modified = True
+
     return modified
 
 
-def replace_in_list(lst, old: str, new: str) -> bool:
-    modified = False
-    for i, item in enumerate(lst):
-        if isinstance(item, str) and old in item:
-            lst[i] = item.replace(old, new)
-            modified = True
-        elif isinstance(item, dict):
-            modified = replace_in_dict(item, old, new) or modified
-        elif isinstance(item, list):
-            modified = replace_in_list(item, old, new) or modified
-    return modified
+def update_json_files(mapping: Dict[str, str]):
+    if not mapping:
+        return
 
-
-def update_json_files(old_path: str, new_path: str):
-    old = normalize_path(old_path)
-    new = normalize_path(new_path)
-
-    for json_file in JSON_FILES:
-        if not os.path.exists(json_file):
+    for jf in JSON_FILES:
+        if not os.path.exists(jf):
             continue
 
         try:
-            with open(json_file, "r", encoding="utf-8") as f:
+            with open(jf, "r", encoding="utf-8") as f:
                 data = json.load(f)
         except Exception:
-            logger.warning(f"Impossible de lire {json_file}, passage...")
+            logger.warning(f"Impossible de lire {jf}, ignoré.")
             continue
 
-        modified = False
-        if isinstance(data, dict):
-            modified = replace_in_dict(data, old, new) or modified
-        elif isinstance(data, list):
-            modified = replace_in_list(data, old, new) or modified
+        modified = replace_in_obj(data, mapping)
 
         if modified:
-            with open(json_file, "w", encoding="utf-8") as f:
+            with open(jf, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
-            logger.info(f"✅ {json_file} mis à jour (paths remplacés)")
+            logger.info(f"✅ {jf} mis à jour (batch)")
+
+    logger.info("✅ Mise à jour JSON terminée (batch).")
 
 
 def main():
@@ -127,11 +155,14 @@ def main():
         logger.error(f"Le dossier {IMAGE_DIR} n'existe pas.")
         return
 
-    # ✅ scan récursif
-    images = []
+    # scan récursif
+    images: List[str] = []
     images += glob.glob(os.path.join(IMAGE_DIR, "**", "*.png"), recursive=True)
     images += glob.glob(os.path.join(IMAGE_DIR, "**", "*.jpg"), recursive=True)
     images += glob.glob(os.path.join(IMAGE_DIR, "**", "*.jpeg"), recursive=True)
+
+    # exclusions
+    images = [p for p in images if not is_excluded(p)]
 
     if not images:
         logger.info("Aucune image à convertir.")
@@ -139,25 +170,45 @@ def main():
 
     logger.info(f"{len(images)} images trouvées sous {IMAGE_DIR} (récursif).")
 
+    mapping: Dict[str, str] = {}
     converted = 0
-    updated_refs = 0
+    skipped = 0
 
-    for img_path in images:
-        new_path = convert_image(img_path)
+    for idx, src in enumerate(images, 1):
+        if MAX_CONVERSIONS_PER_RUN and converted >= MAX_CONVERSIONS_PER_RUN:
+            logger.info(f"⏹️ Limite atteinte: {MAX_CONVERSIONS_PER_RUN} conversions (stop).")
+            break
+
+        dst = Path(src).with_suffix(".webp")
+        if dst.exists() and dst.stat().st_size > 200:
+            skipped += 1
+            continue
+
+        new_path = convert_image(src)
         if not new_path:
             continue
 
         converted += 1
+        old_norm = norm(src)
+        new_norm = norm(new_path)
 
-        # Mise à jour JSON si conversion a changé l'extension
-        old_norm = normalize_path(img_path)
-        new_norm = normalize_path(new_path)
+        # mapping pour JSON
+        mapping[old_norm] = new_norm
 
-        if old_norm != new_norm:
-            update_json_files(old_norm, new_norm)
-            updated_refs += 1
+        if converted % 100 == 0:
+            logger.info(f"…progress: {converted} converties (sur {idx}/{len(images)} analysées)")
 
-    logger.info(f"✅ Conversion terminée. Images traitées: {converted}, JSON maj: {updated_refs}")
+        # suppression optionnelle de l'original (réduit taille repo et accélère les runs suivants)
+        if DELETE_ORIGINALS:
+            try:
+                os.remove(src)
+            except Exception:
+                pass
+
+    logger.info(f"✅ Conversion terminée. converties={converted}, déjà_ok={skipped}")
+
+    # MAJ JSON une seule fois (batch)
+    update_json_files(mapping)
 
 
 if __name__ == "__main__":
