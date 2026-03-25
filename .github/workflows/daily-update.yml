@@ -103,6 +103,7 @@ jobs:
           PIXAZO_API_KEY: ${{ secrets.PIXAZO_API_KEY }}
           # ✅ nécessaire pour appeler allscores
           SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY_1 }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           echo "📝 Génération du contenu IA..."
           python content_generator.py
