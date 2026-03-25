@@ -2,47 +2,50 @@
 # -*- coding: utf-8 -*-
 
 """
-content_generator.py - Générateur de contenu IA Mr XPRONOS (SEO)
-- 1 article match du jour (allscores, scoring popularité)
-- 1 article evergreen (anti répétition + anti similarité)
-- Images 1200x630 : Pixazo (fallback) / (Mistral image via SDK non obligatoire)
-- Texte Mistral via HTTP (PAS de dépendance mistralai)
+content_generator.py - Mr XPRONOS (SEO Premium)
+- 1 article "match du jour" (SportData V1 allscores, scoring popularité)
+- 1 article "evergreen" (anti répétition + anti similarité)
+- Images 1200x630 (génération en 1024x576 puis crop/resize) :
+  HF -> Mistral (si SDK dispo) -> Pixazo
+- Texte via Mistral HTTP (pas besoin du SDK mistralai)
+- Pas d'image => pas d'article (règle appliquée)
 """
 
 import os
-import json
 import re
-import uuid
+import json
 import time
+import uuid
 import random
 import hashlib
-from datetime import datetime, timezone
-from difflib import SequenceMatcher
+from datetime import datetime, timezone, date
 from typing import Optional, List, Dict, Any, Tuple
+from difflib import SequenceMatcher
 
 import requests
 from PIL import Image, ImageOps
 
+# =======================================================
+# CONFIG
+# =======================================================
+
 UTC = timezone.utc
-today = datetime.now(UTC).date()
+TODAY = datetime.now(UTC).date()
 
 BASE_SITE_URL = "https://mrxpronos.github.io/MrXPRONOS_App/"
 CODE_PROMO = "XPVIP"
 
 DATA_FILE = "data.json"
 ARTICLES_FILE = "articles.json"
+TOPICS_FILE = "evergreen_topics.json"  # si présent, utilisé en priorité
 
 ASSET_IMG_DIR = "assets/images"
 ARTICLE_IMG_DIR = os.path.join(ASSET_IMG_DIR, "articles")
 os.makedirs(ARTICLE_IMG_DIR, exist_ok=True)
 
-# ====== KEYS ======
-MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
-PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY")
-SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")  # ✅ 1 seule clé ici
-
-# ====== SportData V1 allscores ======
+# ---- SportData (match du jour)
 SPORTDATA_V1_ALLSCORES = "https://v1.football.sportsapipro.com/games/allscores"
+SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")  # 1 seule clé ici
 
 POPULAR_LEAGUES = [
     "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
@@ -51,22 +54,29 @@ POPULAR_LEAGUES = [
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ]
 
-# ===== Evergreen topics =====
-TOPICS_FILE = "evergreen_topics.json"
+# ---- Mistral texte (HTTP)
+MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 
-def load_topics():
-    d = load_json(TOPICS_FILE, {})
-    return d.get("topics", []) if isinstance(d, dict) else []
+# ---- Images: HF -> Mistral -> Pixazo
+HF_TOKEN = os.environ.get("HF_TOKEN")
+HF_MODEL = os.environ.get("HF_MODEL", "SG161222/RealVisXL_V4.0")  # recommandé réaliste
+PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY")
 
+# Génération images : taille stable SDXL (16:9) puis resize/crop final
+GEN_W, GEN_H = 1024, 576
+OUT_W, OUT_H = 1200, 630
+
+# Evergreen anti répétition / similarité
 SIMILARITY_JACCARD_THRESHOLD = 0.62
 SIMILARITY_SEQ_THRESHOLD = 0.86
 MAX_EVERGREEN_RETRIES = 2
 
-TARGET_W, TARGET_H = 1200, 630
+# Limites
+MAX_ARTICLES_KEEP = 80
 
 
 # =======================================================
-# Utils
+# UTILITAIRES
 # =======================================================
 
 def load_json(path: str, default):
@@ -84,20 +94,20 @@ def save_json(path: str, data):
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 def slugify(s: str) -> str:
-    s = (s or "").lower()
+    s = (s or "").lower().strip()
     s = re.sub(r"[^a-z0-9]+", "-", s).strip("-")
     return s[:90] or f"post-{uuid.uuid4().hex[:6]}"
 
-def excerpt_from_text(text: str, length=160) -> str:
-    t = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", text or "")).strip()
-    return (t[:length] + "...") if len(t) > length else t
+def content_hash(text: str) -> str:
+    return hashlib.sha1((text or "").encode("utf-8")).hexdigest()
 
 def reading_time_minutes(text: str) -> int:
     words = len(re.findall(r"\w+", text or ""))
     return max(1, round(words / 200))
 
-def content_hash(text: str) -> str:
-    return hashlib.sha1((text or "").encode("utf-8")).hexdigest()
+def excerpt_from_text(text: str, length=170) -> str:
+    clean = re.sub(r"\s+", " ", (text or "")).strip()
+    return (clean[:length] + "...") if len(clean) > length else clean
 
 def tokenize(text: str) -> set:
     tokens = re.findall(r"[a-z0-9]+", (text or "").lower())
@@ -115,21 +125,79 @@ def is_similar(a: str, b: str) -> bool:
     tb = tokenize(b)
     if jaccard(ta, tb) >= SIMILARITY_JACCARD_THRESHOLD:
         return True
-    seq = SequenceMatcher(None, (a or "")[:1200], (b or "")[:1200]).ratio()
+    seq = SequenceMatcher(None, (a or "")[:1500], (b or "")[:1500]).ratio()
     return seq >= SIMILARITY_SEQ_THRESHOLD
+
+def normalize_keywords(kw) -> List[str]:
+    if isinstance(kw, list):
+        return [str(x).strip() for x in kw if str(x).strip()]
+    if isinstance(kw, str):
+        return [x.strip() for x in kw.split(",") if x.strip()]
+    return []
+
+def normalize_faq(faq) -> List[dict]:
+    if not isinstance(faq, list):
+        return []
+    out = []
+    for x in faq:
+        if not isinstance(x, dict):
+            continue
+        q = x.get("q") or x.get("question")
+        a = x.get("a") or x.get("answer")
+        if q and a:
+            out.append({"q": str(q).strip(), "a": str(a).strip()})
+    return out[:5]
 
 def load_existing_articles() -> list:
     d = load_json(ARTICLES_FILE, [])
     return d if isinstance(d, list) else []
 
 def save_articles(articles: list):
-    save_json(ARTICLES_FILE, articles[:80])
+    save_json(ARTICLES_FILE, articles[:MAX_ARTICLES_KEEP])
+
+def is_duplicate_article(new_slug: str, new_title: str, new_body: str, existing: list) -> bool:
+    new_slug = (new_slug or "").strip()
+    new_title = (new_title or "").strip().lower()
+    new_h = content_hash((new_body or "")[:2500])
+
+    for a in existing:
+        if not isinstance(a, dict):
+            continue
+        if new_slug and (a.get("slug") or "").strip() == new_slug:
+            return True
+        if new_title and (a.get("title") or "").strip().lower() == new_title:
+            return True
+        if a.get("content_hash") == new_h:
+            return True
+
+        # anti similarité titre
+        if a.get("title") and new_title:
+            if is_similar(new_title, (a.get("title") or "").lower()):
+                return True
+
+    return False
+
+
+# =======================================================
+# BOOKMAKERS (depuis data.json)
+# =======================================================
 
 def get_bookmakers_from_data() -> list:
     d = load_json(DATA_FILE, {})
     b = d.get("bookmakers", [])
     if isinstance(b, list) and b:
-        return b
+        # normaliser
+        out = []
+        for x in b:
+            if not isinstance(x, dict):
+                continue
+            out.append({
+                "name": x.get("name") or "Bookmaker",
+                "url": x.get("url") or BASE_SITE_URL,
+                "logo": x.get("logo")
+            })
+        return out
+    # fallback minimal
     return [
         {"name": "1xBet", "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"},
         {"name": "1win", "url": "https://1wrbgb.com/?open=register&p=qqcw"},
@@ -142,127 +210,7 @@ def pick_bookmaker() -> dict:
 
 
 # =======================================================
-# Mistral HTTP (texte) - sans SDK
-# =======================================================
-
-def call_mistral_text_http(prompt: str, temperature=0.7, max_tokens=2400, retries=2) -> Optional[str]:
-    if not MISTRAL_API_KEY:
-        return None
-
-    url = "https://api.mistral.ai/v1/chat/completions"
-    headers = {"Authorization": f"Bearer {MISTRAL_API_KEY}", "Content-Type": "application/json"}
-    payload = {
-        "model": "mistral-large-latest",
-        "messages": [{"role": "user", "content": prompt}],
-        "temperature": temperature,
-        "max_tokens": max_tokens
-    }
-
-    for attempt in range(retries + 1):
-        try:
-            r = requests.post(url, headers=headers, json=payload, timeout=45)
-            r.raise_for_status()
-            return r.json()["choices"][0]["message"]["content"].strip()
-        except Exception as e:
-            print(f"⚠️ Mistral HTTP tentative {attempt+1}/{retries+1} échouée: {e}")
-            if attempt == retries:
-                return None
-            time.sleep(1)
-
-    return None
-
-def call_mistral_json(prompt: str, retries=2) -> Optional[dict]:
-    txt = call_mistral_text_http(prompt, temperature=0.55, max_tokens=2600, retries=retries)
-    if not txt:
-        return None
-    try:
-        return json.loads(txt)
-    except Exception:
-        m = re.search(r"\{[\s\S]*\}\s*$", txt.strip())
-        if m:
-            try:
-                return json.loads(m.group(0))
-            except Exception:
-                return None
-    return None
-
-
-# =======================================================
-# Pixazo image 1200x630 (fallback)
-# =======================================================
-
-def generate_image_pixazo(prompt: str) -> Optional[str]:
-    if not PIXAZO_API_KEY:
-        return None
-
-    headers = {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache",
-        "Ocp-Apim-Subscription-Key": PIXAZO_API_KEY
-    }
-    payload = {
-        "prompt": prompt,
-        "negative_prompt": "Low-quality, blurry, distorted, ugly, watermark, text, logo, cartoon",
-        "height": TARGET_H,
-        "width": TARGET_W,
-        "num_steps": 22,
-        "guidance_scale": 7,
-        "seed": random.randint(1, 1000000)
-    }
-
-    try:
-        resp = requests.post(
-            "https://gateway.pixazo.ai/getImage/v1/getSDXLImage",
-            json=payload, headers=headers, timeout=80
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        image_url = data.get("imageUrl")
-        if not image_url:
-            return None
-
-        img_resp = requests.get(image_url, timeout=30)
-        img_resp.raise_for_status()
-
-        filename = os.path.join(ARTICLE_IMG_DIR, f"img-{uuid.uuid4().hex[:10]}.png")
-        with open(filename, "wb") as f:
-            f.write(img_resp.content)
-
-        return ensure_1200x630(filename)
-    except Exception as e:
-        print(f"❌ Pixazo image error: {e}")
-        return None
-
-def ensure_1200x630(path: str) -> Optional[str]:
-    try:
-        img = Image.open(path)
-        img = ImageOps.exif_transpose(img)
-
-        target_ratio = TARGET_W / TARGET_H
-        w, h = img.size
-        current_ratio = w / h
-
-        if current_ratio > target_ratio:
-            new_w = int(h * target_ratio)
-            left = (w - new_w) // 2
-            img = img.crop((left, 0, left + new_w, h))
-        elif current_ratio < target_ratio:
-            new_h = int(w / target_ratio)
-            top = (h - new_h) // 2
-            img = img.crop((0, top, w, top + new_h))
-
-        img = img.resize((TARGET_W, TARGET_H), Image.Resampling.LANCZOS)
-
-        out = os.path.splitext(path)[0] + "-1200x630.png"
-        img.save(out, "PNG", optimize=True)
-        return out
-    except Exception as e:
-        print(f"⚠️ Image resize error: {e}")
-        return path
-
-
-# =======================================================
-# SportData allscores : match du jour par popularité
+# SPORTDATA: match du jour par popularité (allscores)
 # =======================================================
 
 def fetch_allscores_today() -> Optional[dict]:
@@ -270,11 +218,11 @@ def fetch_allscores_today() -> Optional[dict]:
         return None
 
     params = {
-        "startDate": today.strftime("%d/%m/%Y"),
-        "endDate": today.strftime("%d/%m/%Y"),
+        "startDate": TODAY.strftime("%d/%m/%Y"),
+        "endDate": TODAY.strftime("%d/%m/%Y"),
         "sports": 1,
         "showOdds": "false",
-        "onlyMajorGames": "false"
+        "onlyMajorGames": "false",
     }
 
     try:
@@ -295,6 +243,7 @@ def fetch_allscores_today() -> Optional[dict]:
 def build_popularity_maps(payload: dict) -> Tuple[dict, dict]:
     comp_pop = {}
     team_pop = {}
+
     comps = payload.get("competitions", [])
     if isinstance(comps, list):
         for c in comps:
@@ -362,7 +311,7 @@ def pick_best_match_today() -> Optional[dict]:
     home = best.get("homeCompetitor") or {}
     away = best.get("awayCompetitor") or {}
     return {
-        "id": str(best.get("id")),
+        "id": str(best.get("id") or ""),
         "home_team": home.get("name", "Équipe A"),
         "away_team": away.get("name", "Équipe B"),
         "league": best.get("competitionDisplayName", "Championnat"),
@@ -371,13 +320,273 @@ def pick_best_match_today() -> Optional[dict]:
 
 
 # =======================================================
-# Prompts
+# MISTRAL TEXTE (HTTP) - JSON strict
+# =======================================================
+
+def call_mistral_text_http(prompt: str, temperature=0.6, max_tokens=2600, retries=2) -> Optional[str]:
+    if not MISTRAL_API_KEY:
+        return None
+
+    url = "https://api.mistral.ai/v1/chat/completions"
+    headers = {"Authorization": f"Bearer {MISTRAL_API_KEY}", "Content-Type": "application/json"}
+    payload = {
+        "model": "mistral-large-latest",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": temperature,
+        "max_tokens": max_tokens
+    }
+
+    for attempt in range(retries + 1):
+        try:
+            r = requests.post(url, headers=headers, json=payload, timeout=50)
+            r.raise_for_status()
+            return r.json()["choices"][0]["message"]["content"].strip()
+        except Exception as e:
+            print(f"⚠️ Mistral HTTP tentative {attempt+1}/{retries+1} échouée: {e}")
+            if attempt == retries:
+                return None
+            time.sleep(1)
+    return None
+
+def call_mistral_json(prompt: str, retries=2) -> Optional[dict]:
+    txt = call_mistral_text_http(prompt, temperature=0.55, max_tokens=2800, retries=retries)
+    if not txt:
+        return None
+    try:
+        return json.loads(txt)
+    except Exception:
+        m = re.search(r"\{[\s\S]*\}\s*$", txt.strip())
+        if m:
+            try:
+                return json.loads(m.group(0))
+            except Exception:
+                return None
+    return None
+
+
+# =======================================================
+# IMAGES: HF -> Mistral -> Pixazo
+# =======================================================
+
+def ensure_1200x630(path: str) -> Optional[str]:
+    try:
+        img = Image.open(path)
+        img = ImageOps.exif_transpose(img)
+
+        target_ratio = OUT_W / OUT_H
+        w, h = img.size
+        current_ratio = w / h
+
+        if current_ratio > target_ratio:
+            new_w = int(h * target_ratio)
+            left = (w - new_w) // 2
+            img = img.crop((left, 0, left + new_w, h))
+        elif current_ratio < target_ratio:
+            new_h = int(w / target_ratio)
+            top = (h - new_h) // 2
+            img = img.crop((0, top, w, top + new_h))
+
+        img = img.resize((OUT_W, OUT_H), Image.Resampling.LANCZOS)
+
+        out = os.path.splitext(path)[0] + "-1200x630.png"
+        img.save(out, "PNG", optimize=True)
+        return out
+    except Exception as e:
+        print(f"⚠️ ensure_1200x630 error: {e}")
+        return path
+
+def generate_image_hf(prompt: str, negative_prompt: str = "", retries: int = 3) -> Optional[bytes]:
+    if not HF_TOKEN:
+        return None
+
+    url = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
+    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    payload = {
+        "inputs": prompt,
+        "parameters": {
+            "negative_prompt": negative_prompt,
+            "width": GEN_W,
+            "height": GEN_H,
+            "num_inference_steps": 28,
+            "guidance_scale": 6.5
+        }
+    }
+
+    for attempt in range(retries):
+        try:
+            r = requests.post(url, headers=headers, json=payload, timeout=180)
+
+            if r.status_code == 503:
+                # modèle en loading
+                try:
+                    data = r.json()
+                    wait = int(data.get("estimated_time", 10))
+                except Exception:
+                    wait = 10
+                time.sleep(min(wait + 2, 25))
+                continue
+
+            if r.status_code != 200:
+                return None
+
+            if r.headers.get("content-type", "").startswith("application/json"):
+                return None
+
+            return r.content
+        except Exception:
+            time.sleep(2)
+
+    return None
+
+def generate_image_mistral_sdk(prompt: str) -> Optional[str]:
+    """
+    Fallback Mistral images via SDK si dispo.
+    Si SDK absent/incompatible => None.
+    """
+    try:
+        from mistralai import Mistral  # versions récentes
+        client = Mistral(api_key=os.environ.get("MISTRAL_API_KEY"))
+    except Exception:
+        return None
+
+    try:
+        # Agent + tool image_generation (si supporté)
+        agent = client.beta.agents.create(
+            model="mistral-medium-2505",
+            name="Image Agent",
+            description="Generate images",
+            instructions="Use image generation tool.",
+            tools=[{"type": "image_generation"}],
+            completion_args={"temperature": 0.3, "top_p": 0.95}
+        )
+        response = client.beta.conversations.start(agent_id=agent.id, inputs=prompt)
+
+        for output in response.outputs:
+            if output.type == "message.output":
+                for chunk in output.content:
+                    if chunk.type == "tool_file" and chunk.tool == "image_generation":
+                        file_bytes = client.files.download(file_id=chunk.file_id).read()
+                        filename = os.path.join(ARTICLE_IMG_DIR, f"mistral-{uuid.uuid4().hex[:10]}.png")
+                        with open(filename, "wb") as f:
+                            f.write(file_bytes)
+                        return filename
+    except Exception:
+        return None
+
+    return None
+
+def generate_image_pixazo(prompt: str) -> Optional[str]:
+    if not PIXAZO_API_KEY:
+        return None
+
+    headers = {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+        "Ocp-Apim-Subscription-Key": PIXAZO_API_KEY
+    }
+
+    payload = {
+        "prompt": prompt,
+        "negative_prompt": "Low-quality, blurry, distorted, ugly, watermark, text, logo, cartoon",
+        "height": GEN_H,
+        "width": GEN_W,
+        "num_steps": 22,
+        "guidance_scale": 7,
+        "seed": random.randint(1, 1000000)
+    }
+
+    try:
+        resp = requests.post(
+            "https://gateway.pixazo.ai/getImage/v1/getSDXLImage",
+            json=payload,
+            headers=headers,
+            timeout=80
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        image_url = data.get("imageUrl")
+        if not image_url:
+            return None
+
+        img_resp = requests.get(image_url, timeout=30)
+        img_resp.raise_for_status()
+
+        filename = os.path.join(ARTICLE_IMG_DIR, f"pixazo-{uuid.uuid4().hex[:10]}.png")
+        with open(filename, "wb") as f:
+            f.write(img_resp.content)
+
+        return filename
+    except Exception as e:
+        print(f"❌ Pixazo image error: {e}")
+        return None
+
+def generate_image_with_fallback(prompt: str) -> Optional[str]:
+    NEG = (
+        "text, watermark, logo, signature, ugly, deformed, extra limbs, extra fingers, "
+        "bad anatomy, lowres, blurry, cartoon, illustration, 3d render, CGI, oversaturated"
+    )
+
+    # 1) HF
+    img_bytes = generate_image_hf(prompt, negative_prompt=NEG, retries=3)
+    if img_bytes:
+        path = os.path.join(ARTICLE_IMG_DIR, f"hf-{uuid.uuid4().hex[:10]}.png")
+        with open(path, "wb") as f:
+            f.write(img_bytes)
+        return ensure_1200x630(path)
+
+    # 2) Mistral SDK (si dispo)
+    mpath = generate_image_mistral_sdk(prompt)
+    if mpath:
+        return ensure_1200x630(mpath)
+
+    # 3) Pixazo
+    ppath = generate_image_pixazo(prompt)
+    if ppath:
+        return ensure_1200x630(ppath)
+
+    return None
+
+
+# =======================================================
+# TOPICS EVERGREEN (500 topics via fichier)
+# =======================================================
+
+def load_topics() -> List[dict]:
+    payload = load_json(TOPICS_FILE, {})
+    if isinstance(payload, dict) and isinstance(payload.get("topics"), list) and payload["topics"]:
+        return payload["topics"]
+    # fallback minimal si pas de fichier
+    return [
+        {"id": "bankroll-fcfa", "family": "bankroll", "title_template": "Gestion de bankroll en FCFA : méthode simple + exemples", "angle": "discipline + plan"},
+        {"id": "bonus-xpvip", "family": "bonus", "title_template": "Bonus + XPVIP : comment utiliser un bonus sans se piéger", "angle": "wagering + prudence"},
+    ]
+
+def pick_unused_topic(existing_articles: list, topics: list) -> dict:
+    used = set()
+    for a in existing_articles:
+        if isinstance(a, dict) and a.get("type") == "evergreen" and a.get("topic_id"):
+            used.add(a["topic_id"])
+    candidates = [t for t in topics if t.get("id") and t["id"] not in used]
+    return random.choice(candidates) if candidates else random.choice(topics)
+
+def build_antisim_constraints(existing_articles: list, limit=6) -> str:
+    snippets = []
+    for a in existing_articles:
+        if isinstance(a, dict) and a.get("type") == "evergreen":
+            c = re.sub(r"\s+", " ", (a.get("content") or ""))
+            snippets.append(c[:220])
+    if not snippets:
+        return "- Aucun."
+    return "\n".join([f"- Ne pas reproduire la formulation: «{s}...»" for s in snippets[:limit]])
+
+
+# =======================================================
+# PROMPTS (JSON strict)
 # =======================================================
 
 def internal_links_section(bookmaker: dict) -> str:
     bm_name = bookmaker.get("name", "Bookmaker")
     bm_url = bookmaker.get("url", BASE_SITE_URL)
-
     return f"""
 ## Liens utiles
 - Pronostics du jour : {BASE_SITE_URL}pronos.html
@@ -387,56 +596,64 @@ def internal_links_section(bookmaker: dict) -> str:
 ## Bonus recommandé
 Teste **{bm_name}** avec le code promo **{CODE_PROMO}** :
 {bm_url}
+
+> Les paris comportent des risques. Joue responsablement.
 """.strip()
 
 def prompt_match_article(match: dict, bookmaker: dict) -> str:
-    ht, at = match["home_team"], match["away_team"]
+    ht = match.get("home_team", "Équipe A")
+    at = match.get("away_team", "Équipe B")
     league = match.get("league", "Championnat")
     dt = match.get("event_date", "")
     links = internal_links_section(bookmaker)
 
     return f"""
 Génère un JSON STRICT (sans texte autour) avec les clés :
-- title (string)
+- title (string) : inclure "Pronostic", équipes, compétition
 - slug (string)
-- meta_description (string <= 160)
+- meta_description (string <= 160 caractères)
 - keywords (array 6 à 10 strings)
-- faq (array 3 objets {{q,a}})
-- content_markdown (string) 800-1200 mots
+- faq (array de 3 objets {{q,a}})
+- content_markdown (string) 850-1250 mots en Markdown
 
 Sujet : Pronostic {ht} vs {at} ({league}) - {dt}
 
 Contraintes :
 - Style professionnel, moderne, sans promesse "garanti".
-- H2/H3, analyse, forme, H2H, joueurs à suivre.
-- Section "Conseil de pari Mr XPRONOS" (double chance prudente).
-- Gestion bankroll (exemples FCFA).
-- Section "Bonus & bookmakers" mentionnant {CODE_PROMO}.
-- Ajoute à la fin : {links}
+- H2/H3, analyse forces, stats utiles, H2H (limites), joueurs à suivre.
+- Section "Conseil de pari Mr XPRONOS" (prudente) + mise conseillée en FCFA.
+- Section "Cotes & value" (qualitative + prudence).
+- Ajouter une section "Bonus & Bookmakers" mentionnant {CODE_PROMO}.
+- Ajouter à la fin : {links}
 
 Réponds UNIQUEMENT en JSON valide.
 """.strip()
 
 def prompt_evergreen(topic: dict, bookmaker: dict, constraints: str) -> str:
     links = internal_links_section(bookmaker)
+    topic_id = topic.get("id", "topic")
+    title_hint = topic.get("title_template", "Conseils paris sportifs (FCFA)")
+
     return f"""
-Génère un JSON STRICT avec :
-- title (string) unique
+Génère un JSON STRICT (sans texte autour) avec :
+- title (string) : très cliquable, clair, orienté FCFA
 - slug (string)
 - meta_description (string <=160)
 - keywords (array 6-12)
 - faq (array 3 objets {{q,a}})
-- content_markdown (string) 900-1400 mots evergreen
+- content_markdown (string) 950-1400 mots evergreen
 
-Thème :
-- topic_id: {topic["id"]}
-- titre: {topic["title_template"]}
+Thème evergreen:
+- topic_id: {topic_id}
+- titre proposé: {title_hint}
+- angle (si fourni): {topic.get("angle","")}
 
 Contraintes :
-- Ajouter au moins 1 tableau Markdown.
-- Exemples en FCFA.
-- Mentionne bonus et choix bookmaker intelligemment (sans exagération).
-- Ajoute à la fin : {links}
+- Ajouter au moins 1 tableau Markdown (comparatif ou checklist).
+- Exemples concrets en FCFA (montants, gestion).
+- Mentionner bonus/bookmakers intelligemment (sans exagération).
+- Ajouter une mini-section "Comment utiliser {CODE_PROMO} sur {bookmaker.get("name","un bookmaker")}".
+- Ajouter à la fin : {links}
 
 Anti-similarité :
 {constraints}
@@ -446,16 +663,16 @@ Réponds UNIQUEMENT en JSON valide.
 
 
 # =======================================================
-# Build / Save
+# BUILD + SAVE
 # =======================================================
 
-def build_article_object(js: dict, image_url: str, extra: dict) -> dict:
+def build_article_object(js: dict, image_path: str, extra: dict) -> dict:
     title = (js.get("title") or "Article").strip()
     slug = js.get("slug") or slugify(title)
-    content = js.get("content_markdown") or ""
     meta_desc = (js.get("meta_description") or "")[:160].strip()
-    keywords = js.get("keywords") or []
-    faq = js.get("faq") or []
+    keywords = normalize_keywords(js.get("keywords"))
+    faq = normalize_faq(js.get("faq"))
+    content = js.get("content_markdown") or ""
 
     excerpt = excerpt_from_text(content, 170)
     rt = reading_time_minutes(content)
@@ -468,48 +685,15 @@ def build_article_object(js: dict, image_url: str, extra: dict) -> dict:
         "reading_time": rt,
         "excerpt": excerpt,
         "meta_description": meta_desc or excerpt[:160],
-        "keywords": ", ".join([str(k) for k in keywords]) if isinstance(keywords, list) else str(keywords),
-        "faq": faq if isinstance(faq, list) else [],
+        "keywords": ", ".join(keywords) if keywords else "pronostic, football, paris sportifs",
+        "faq": faq,
         "content": content,
-        "image_url": image_url,
-        "og_image": image_url,
+        "image_url": image_path,
+        "og_image": image_path,
         "active": True,
-        "content_hash": content_hash(content[:2000]),
+        "content_hash": content_hash(content[:2500]),
         **extra
     }
-
-def is_duplicate(new_slug: str, new_title: str, new_content: str, existing: list) -> bool:
-    new_slug = (new_slug or "").strip()
-    new_title = (new_title or "").strip().lower()
-    new_h = content_hash((new_content or "")[:2000])
-
-    for a in existing:
-        if not isinstance(a, dict):
-            continue
-        if new_slug and a.get("slug") == new_slug:
-            return True
-        if new_title and (a.get("title") or "").strip().lower() == new_title:
-            return True
-        if a.get("content_hash") == new_h:
-            return True
-        if a.get("title") and is_similar(new_title, (a["title"] or "").lower()):
-            return True
-    return False
-
-def pick_unused_topic(existing: list) -> dict:
-    used = {a.get("topic_id") for a in existing if isinstance(a, dict) and a.get("type") == "evergreen"}
-    candidates = [t for t in EVERGREEN_TOPICS if t["id"] not in used]
-    return random.choice(candidates) if candidates else random.choice(EVERGREEN_TOPICS)
-
-def build_constraints(existing: list) -> str:
-    snippets = []
-    for a in existing:
-        if isinstance(a, dict) and a.get("type") == "evergreen":
-            c = re.sub(r"\s+", " ", (a.get("content") or ""))
-            snippets.append(c[:220])
-    if not snippets:
-        return "- Aucun."
-    return "\n".join([f"- Ne pas reproduire ce style: «{s}...»" for s in snippets[:6]])
 
 
 # =======================================================
@@ -518,17 +702,18 @@ def build_constraints(existing: list) -> str:
 
 def main():
     print("=" * 60)
-    print("🚀 GÉNÉRATION CONTENU IA (Match du jour + Evergreen, SEO + images 1200x630)")
+    print("🚀 GÉNÉRATION CONTENU IA (Match du jour + Evergreen, 1200x630, HF→Mistral→Pixazo)")
     print("=" * 60)
 
     if not MISTRAL_API_KEY:
-        print("❌ MISTRAL_API_KEY manquante -> impossible de générer le texte.")
+        print("❌ MISTRAL_API_KEY manquante : impossible de générer le texte.")
         return
 
     existing = load_existing_articles()
     bookmaker = pick_bookmaker()
+    topics = load_topics()
 
-    # 1) Match du jour (allscores)
+    # 1) MATCH DU JOUR
     match = pick_best_match_today()
     if not match:
         print("⚠️ Impossible de récupérer un match via allscores. Pas d'article match aujourd'hui.")
@@ -540,64 +725,74 @@ def main():
         else:
             js["slug"] = js.get("slug") or slugify(js.get("title", "pronostic"))
             body = js.get("content_markdown", "") or ""
-            if is_duplicate(js["slug"], js.get("title",""), body, existing):
+
+            if is_duplicate_article(js["slug"], js.get("title", ""), body, existing):
                 print("⚠️ Article match doublon -> ignoré.")
             else:
-                img = generate_image_pixazo(
-                    f"Football match poster, realistic, dynamic stadium atmosphere, "
-                    f"{match['home_team']} vs {match['away_team']}, {match.get('league','League')}, "
-                    f"no text, no watermark, cinematic lighting, high quality, 1200x630"
+                img_prompt = (
+                    f"Ultra realistic football match poster, {match['home_team']} vs {match['away_team']}, "
+                    f"packed stadium at night, bright floodlights, cinematic lighting, shallow depth of field, "
+                    f"slight motion blur, high detail, HDR, 35mm photo, realistic faces, realistic kits, "
+                    f"dramatic atmosphere, 16:9, no text, no watermark, no logos"
                 )
-                if not img:
-                    print("❌ Image match impossible -> article match ignoré.")
+
+                img_path = generate_image_with_fallback(img_prompt)
+                if not img_path:
+                    print("❌ Image match impossible -> article match ignoré (règle).")
                 else:
-                    art = build_article_object(js, img, {
+                    art = build_article_object(js, img_path, {
                         "type": "match",
                         "match": f"{match['home_team']} vs {match['away_team']}",
-                        "league": match.get("league",""),
+                        "league": match.get("league", ""),
                     })
                     existing.insert(0, art)
                     save_articles(existing)
                     print(f"✅ Article match sauvegardé: {art['title']} (slug={art['slug']})")
 
-    # 2) Evergreen anti répétition / similarité
-    topic = pick_unused_topic(existing)
-    constraints = build_constraints(existing)
+    # 2) EVERGREEN (anti répétition / similarité)
+    topic = pick_unused_topic(existing, topics)
+    constraints = build_antisim_constraints(existing)
 
-    recent_ev = [(a.get("content") or "")[:4000] for a in existing if isinstance(a, dict) and a.get("type") == "evergreen"][:10]
+    recent_ev = [(a.get("content") or "")[:4500] for a in existing if isinstance(a, dict) and a.get("type") == "evergreen"][:10]
 
     for attempt in range(MAX_EVERGREEN_RETRIES + 1):
-        print(f"🧠 Evergreen: topic={topic['id']} tentative {attempt+1}/{MAX_EVERGREEN_RETRIES+1}")
+        print(f"🧠 Evergreen: topic={topic.get('id')} tentative {attempt+1}/{MAX_EVERGREEN_RETRIES+1}")
+
         js = call_mistral_json(prompt_evergreen(topic, bookmaker, constraints))
         if not js:
             print("❌ Échec génération JSON evergreen.")
             break
 
-        js["slug"] = js.get("slug") or slugify(js.get("title", f"evergreen-{topic['id']}"))
+        js["slug"] = js.get("slug") or slugify(js.get("title", f"evergreen-{topic.get('id','topic')}"))
         body = js.get("content_markdown", "") or ""
 
+        # anti similarité contenu
         too_similar = any(is_similar(body, t) for t in recent_ev)
         if too_similar:
             print("⚠️ Evergreen trop similaire -> régénération.")
-            constraints += "\n- Change complètement la structure et le tableau."
+            constraints += "\n- Change COMPLETEMENT la structure, sections et tableau."
             continue
 
-        if is_duplicate(js["slug"], js.get("title",""), body, existing):
+        if is_duplicate_article(js["slug"], js.get("title", ""), body, existing):
             print("⚠️ Evergreen doublon -> régénération.")
             continue
 
-        img = generate_image_pixazo(
-            "Sports betting strategy illustration, modern premium style, realistic, "
-            "football themed, dark and gold color palette, no text, no watermark, 1200x630"
+        img_prompt = (
+            "Photorealistic premium sports betting strategy poster, football themed, dark premium mood with subtle gold accents, "
+            "cinematic lighting, high detail, 16:9, no text, no watermark, no logos"
         )
-        if not img:
-            print("❌ Image evergreen impossible -> evergreen ignoré.")
+        img_path = generate_image_with_fallback(img_prompt)
+        if not img_path:
+            print("❌ Image evergreen impossible -> evergreen ignoré (règle).")
             break
 
-        art = build_article_object(js, img, {"type": "evergreen", "topic_id": topic["id"]})
+        art = build_article_object(js, img_path, {
+            "type": "evergreen",
+            "topic_id": topic.get("id"),
+        })
         existing.insert(0, art)
         save_articles(existing)
-        print(f"✅ Evergreen sauvegardé: {art['title']} (topic={topic['id']})")
+        print(f"✅ Evergreen sauvegardé: {art['title']} (topic={topic.get('id')})")
         break
 
     print("✅ Génération terminée.")

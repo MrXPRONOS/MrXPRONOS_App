@@ -1,5 +1,5 @@
 requests
-mistralai
+mistralai==1.5.1
 feedparser
 deep-translator
 Pillow
