@@ -4108,7 +4108,7 @@
         "league": "Copa de la Liga",
         "competition": "Copa de la Liga",
         "league_logo": null,
-        "status": "2nd Half",
+        "status": "Ended",
         "home_score": 1,
         "away_score": 3,
         "h2h_analysis": {
@@ -4149,7 +4149,7 @@
         "odds": null,
         "public_votes": null,
         "value_bet": false,
-        "is_finished": false,
+        "is_finished": true,
         "final_score": 41.9,
         "provider_signal": {
           "provider_alignment": 0,
@@ -4917,9 +4917,9 @@
     "vip": []
   },
   "stats": {
-    "total_bets": 11,
+    "total_bets": 12,
     "wins": 8,
-    "roi": -27.3,
+    "roi": -33.3,
     "api_requests_used_today": 13,
     "api_budget_remaining": 67,
     "retention_days": 14,
@@ -4927,5 +4927,5 @@
     "pregame_disabled": true
   },
   "bookmakers": [],
-  "generated_at": "2026-03-25T02:57:20.857117+00:00"
+  "generated_at": "2026-03-25T04:02:31.541425+00:00"
 }
