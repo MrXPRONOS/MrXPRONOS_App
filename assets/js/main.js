@@ -1,6 +1,6 @@
 /**
  * main.js - Mr XPRONOS
- * Version fusionnée : stable (chargement matchs) + améliorations PWA, bonus, modales
+ * Version stable + SEO amélioré (slug articles + metas dynamiques)
  */
 
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
@@ -28,6 +28,8 @@ let generatedContentPromise = null;
 const activeChannels = new Set();
 
 const shareLimits = { pro: 3, vip: 5 };
+
+const BASE_SITE_URL = 'https://mrxpronos.github.io/MrXPRONOS_App/';
 
 const POPULAR_LEAGUES = [
     "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
@@ -111,7 +113,13 @@ function initDOM() {
     DOM.iosGuidePopup = document.getElementById('ios-guide-popup');
     DOM.installButton = document.getElementById('install-app');
     DOM.blogList = document.getElementById('blog-list');
-    DOM.blogPost = document.getElementById('blog-post') || document.getElementById('blog-post-content') || document.getElementById('article-page-content');
+
+    // article.html utilise #blog-post
+    DOM.blogPost =
+        document.getElementById('blog-post') ||
+        document.getElementById('blog-post-content') ||
+        document.getElementById('article-page-content');
+
     DOM.conseilsList = document.getElementById('conseils-list');
     DOM.infosList = document.getElementById('infos-list');
     DOM.footNewsContainer = document.getElementById('foot-news-container');
@@ -178,9 +186,7 @@ function sanitizeHtml(unsafeHtml = '') {
 
             if (!allowedTags.has(tag)) {
                 const fragment = document.createDocumentFragment();
-                while (child.firstChild) {
-                    fragment.appendChild(child.firstChild);
-                }
+                while (child.firstChild) fragment.appendChild(child.firstChild);
                 child.replaceWith(fragment);
                 cleanNode(node);
                 return;
@@ -257,32 +263,23 @@ function toFloatSafe(value, defaultValue = null) {
 }
 
 function safeJsonParse(value, fallback = null) {
-    try {
-        return JSON.parse(value);
-    } catch {
-        return fallback;
-    }
+    try { return JSON.parse(value); } catch { return fallback; }
 }
 
 function getUserId() {
     let userId = localStorage.getItem('mx_user_id');
     if (!userId) {
-        try {
-            userId = 'MX-' + crypto.randomUUID();
-        } catch {
-            userId = 'MX-' + Date.now().toString(36) + Math.random().toString(36).slice(2);
-        }
+        try { userId = 'MX-' + crypto.randomUUID(); }
+        catch { userId = 'MX-' + Date.now().toString(36) + Math.random().toString(36).slice(2); }
         localStorage.setItem('mx_user_id', userId);
     }
     return userId;
 }
-
 window.getUserId = getUserId;
 
 function isFinishedMatch(match) {
     if (!match) return false;
     if (match.is_finished === true) return true;
-
     const status = (match.status || '').toLowerCase();
     return status.includes('finished') || status.includes('terminé') || status.includes('ended') || status.includes('ft');
 }
@@ -295,16 +292,11 @@ function cleanupChannels() {
     activeChannels.forEach(channel => {
         try {
             channel.unsubscribe?.();
-            if (supabaseAvailable && supabase?.removeChannel) {
-                supabase.removeChannel(channel);
-            }
-        } catch (e) {
-            console.warn('Erreur unsubscribe channel:', e);
-        }
+            if (supabaseAvailable && supabase?.removeChannel) supabase.removeChannel(channel);
+        } catch (e) {}
     });
     activeChannels.clear();
 }
-
 window.addEventListener('beforeunload', cleanupChannels);
 
 /* =======================================================
@@ -326,20 +318,14 @@ function detectPage() {
    SUPABASE
    ======================================================= */
 async function initSupabase() {
-    const timeout = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Timeout Supabase')), 5000)
-    );
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout Supabase')), 5000));
 
     try {
         const initPromise = (async () => {
             const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
 
-            if (!supabaseUrl || !supabaseUrl.startsWith('https://')) {
-                throw new Error('URL Supabase invalide');
-            }
-            if (!supabaseAnonKey) {
-                throw new Error('Clé Supabase manquante');
-            }
+            if (!supabaseUrl || !supabaseUrl.startsWith('https://')) throw new Error('URL Supabase invalide');
+            if (!supabaseAnonKey) throw new Error('Clé Supabase manquante');
 
             supabaseConfig.url = supabaseUrl;
             supabaseConfig.anonKey = supabaseAnonKey;
@@ -358,7 +344,7 @@ async function initSupabase() {
 }
 
 /* =======================================================
-   PUSH (optionnel, gardé de la version fonctionnelle)
+   PUSH
    ======================================================= */
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -375,9 +361,7 @@ async function subscribeToPush(askPermission = false) {
 
     try {
         let permission = Notification.permission;
-        if (permission === 'default' && askPermission) {
-            permission = await Notification.requestPermission();
-        }
+        if (permission === 'default' && askPermission) permission = await Notification.requestPermission();
         if (permission !== 'granted') return;
 
         const swReady = await Promise.race([
@@ -482,11 +466,11 @@ async function recordEvent(type, page = '') {
 }
 
 function countVisitOncePerDay() {
-    const today = getTodayString();
+    const todayKey = getTodayString();
     const lastVisit = localStorage.getItem('mx_last_visit');
 
-    if (lastVisit !== today) {
-        localStorage.setItem('mx_last_visit', today);
+    if (lastVisit !== todayKey) {
+        localStorage.setItem('mx_last_visit', todayKey);
         incrementCounter('total_visits');
         recordEvent('visit', window.location.pathname);
     }
@@ -501,9 +485,7 @@ async function registerUniqueUser() {
 
     try {
         const { error } = await supabase.from('users').insert({ user_id: userId });
-        if (!error) {
-            await supabase.rpc('increment_counter', { counter_name: 'unique_users' });
-        }
+        if (!error) await supabase.rpc('increment_counter', { counter_name: 'unique_users' });
         localStorage.setItem('mx_registered', 'true');
     } catch (e) {
         console.error('Erreur enregistrement user:', e);
@@ -535,9 +517,7 @@ async function initOnlineUsers() {
                 try {
                     await onlineChannel.track({ online_at: new Date().toISOString() });
                     activeChannels.add(onlineChannel);
-                } catch (e) {
-                    console.warn('Erreur track presence:', e);
-                }
+                } catch (e) {}
             }
         });
 }
@@ -583,11 +563,8 @@ function setupInstallButton() {
             deferredPrompt = null;
             DOM.installButton.style.display = 'none';
         } else {
-            if (getOS() === 'iOS') {
-                showIosGuideIfNeeded();
-            } else {
-                alert("Utilisez le menu du navigateur pour ajouter l'application à l'écran d'accueil.");
-            }
+            if (getOS() === 'iOS') showIosGuideIfNeeded();
+            else alert("Utilisez le menu du navigateur pour ajouter l'application à l'écran d'accueil.");
         }
     });
 }
@@ -595,9 +572,7 @@ function setupInstallButton() {
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    if (DOM.installButton && !isPwaInstalled()) {
-        DOM.installButton.style.display = 'inline-block';
-    }
+    if (DOM.installButton && !isPwaInstalled()) DOM.installButton.style.display = 'inline-block';
 });
 
 window.addEventListener('appinstalled', () => {
@@ -610,14 +585,13 @@ window.addEventListener('appinstalled', () => {
    ======================================================= */
 function getDailyShareCount() {
     const lastReset = localStorage.getItem('shareLastReset');
-    const today = getTodayString();
+    const todayKey = getTodayString();
 
-    if (lastReset !== today) {
-        localStorage.setItem('shareLastReset', today);
+    if (lastReset !== todayKey) {
+        localStorage.setItem('shareLastReset', todayKey);
         localStorage.setItem('shareCount', '0');
         return 0;
     }
-
     return parseInt(localStorage.getItem('shareCount') || '0', 10);
 }
 
@@ -641,7 +615,6 @@ function startShareTracking({ countForUnlock = true, category = currentCategory 
         category,
         finalized: false
     };
-
     setTimeout(() => finalizePendingShare(true), 5500);
 }
 
@@ -690,7 +663,6 @@ function openShareWindow(url) {
 }
 
 function share(platform) {
-    const baseUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     const message = `🔥 PRONOSTICS FOOTBALL GRATUITS😱
 
 Je viens de découvrir ce site ⚽
@@ -702,13 +674,13 @@ Ils donnent :
 🎯 pronostics fiables
 
 👇 Accède aux matchs du jour :
-${baseUrl}
+${BASE_SITE_URL}
 
 💰 Très utile pour les paris sportifs !`;
 
     const url = platform === 'whatsapp'
         ? `https://wa.me/?text=${encodeURIComponent(message)}`
-        : `https://t.me/share/url?url=${encodeURIComponent(baseUrl)}&text=${encodeURIComponent(message)}`;
+        : `https://t.me/share/url?url=${encodeURIComponent(BASE_SITE_URL)}&text=${encodeURIComponent(message)}`;
 
     openShareWindow(url);
     startShareTracking({ countForUnlock: true, category: currentCategory });
@@ -717,19 +689,18 @@ ${baseUrl}
 function sharePronostic(match) {
     if (!match || !match.prediction) return;
 
-    const siteUrl = 'https://mrxpronos.github.io/MrXPRONOS_App/';
     const msg = `🔥 PRONOSTICS FOOTBALL GRATUITS
 
 ⚽ ${match.home_team} vs ${match.away_team}
 📈 Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%
 
 👇 Analyse complète :
-${siteUrl}
+${BASE_SITE_URL}
 
 💰 Rejoins les gagnants !`;
 
     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(msg)}`;
+    const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(BASE_SITE_URL)}&text=${encodeURIComponent(msg)}`;
 
     const useWhatsapp = confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)");
     openShareWindow(useWhatsapp ? whatsappUrl : telegramUrl);
@@ -835,9 +806,7 @@ function createSharePopup() {
 
     document.getElementById('share-wa')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg')?.addEventListener('click', () => share('telegram'));
-    document.getElementById('close-popup')?.addEventListener('click', () => {
-        DOM.sharePopup?.classList.remove('active');
-    });
+    document.getElementById('close-popup')?.addEventListener('click', () => DOM.sharePopup?.classList.remove('active'));
 }
 
 async function checkVipStatus() {
@@ -890,10 +859,7 @@ function showVipLoginForm(container) {
         if (!codeInput) return;
 
         const code = codeInput.value.trim();
-        if (!code) {
-            alert('Veuillez entrer un code.');
-            return;
-        }
+        if (!code) return alert('Veuillez entrer un code.');
 
         const uid = getUserId();
 
@@ -924,7 +890,7 @@ function showVipLoginForm(container) {
 window.handleVipMenuClick = async function () {
     const isVip = await checkVipStatus();
     if (isVip) {
-        window.location.href = 'https://mrxpronos.github.io/MrXPRONOS_App/live.html';
+        window.location.href = `${BASE_SITE_URL}live.html`;
     } else {
         if (DOM.vipLockedOverlay) {
             ensureVipOverlayStructure();
@@ -936,7 +902,6 @@ window.handleVipMenuClick = async function () {
         }
     }
 };
-
 window.handleVipClick = window.handleVipMenuClick;
 
 /* =======================================================
@@ -958,9 +923,7 @@ async function fetchJsonWithCache(url, cacheKey, timeoutMs = 8000) {
     } catch {
         clearTimeout(timeoutId);
         const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-            return { data: safeJsonParse(cached, null), fromCache: true };
-        }
+        if (cached) return { data: safeJsonParse(cached, null), fromCache: true };
         return { data: null, fromCache: false };
     }
 }
@@ -971,9 +934,7 @@ async function loadData() {
     allData = data;
 
     if (!allData) {
-        if (DOM.matches) {
-            DOM.matches.innerHTML = `<div class="error">❌ Aucune donnée disponible.</div>`;
-        }
+        if (DOM.matches) DOM.matches.innerHTML = `<div class="error">❌ Aucune donnée disponible.</div>`;
         return;
     }
 
@@ -1145,9 +1106,7 @@ function hideEmptyTabs() {
         else btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
     });
 
-    if (DOM.vipSubtabs) {
-        DOM.vipSubtabs.style.display = vipEnabled ? 'flex' : 'none';
-    }
+    if (DOM.vipSubtabs) DOM.vipSubtabs.style.display = vipEnabled ? 'flex' : 'none';
 }
 
 function maybeHideTabBar() {
@@ -1232,8 +1191,10 @@ function renderMatches(matches) {
             const pred = m.prediction || {};
             const doubleChance = escapeHtml(pred.double_chance || 'N/A');
 
-            let confidence = toFloatSafe(pred.confidence, 0);
-            if (confidence > 100) confidence = confidence / 100;
+            // ✅ confidence fix (support 0..1 ou 0..100)
+            let confidence = toFloatSafe(pred.confidence, 0) || 0;
+            if (confidence <= 1) confidence = confidence * 100;
+            else if (confidence > 100) confidence = confidence / 100;
             confidence = Math.min(100, Math.round(confidence * 10) / 10);
 
             const matchTime = formatMatchTime(m.event_date);
@@ -1265,29 +1226,6 @@ function renderMatches(matches) {
             };
             const matchDataEncoded = encodeURIComponent(JSON.stringify(matchDataForSharing));
 
-            let advancedHtml = '';
-
-            if (m.ai_score !== undefined && m.ai_score !== null) {
-                advancedHtml += `<div class="ai-score-badge">🤖 AI: ${escapeHtml(String(m.ai_score))}</div>`;
-            }
-            if (m.elo_home !== undefined && m.elo_away !== undefined) {
-                advancedHtml += `<div class="elo-info">📊 Elo: ${escapeHtml(String(m.elo_home))} - ${escapeHtml(String(m.elo_away))}</div>`;
-            }
-
-            const xgHome = toFloatSafe(m.xg_home, null);
-            const xgAway = toFloatSafe(m.xg_away, null);
-            if (xgHome !== null && xgAway !== null) {
-                advancedHtml += `<div class="xg-info">⚽ xG: ${xgHome.toFixed(2)} - ${xgAway.toFixed(2)}</div>`;
-            }
-
-            if (m.fatigue_home !== undefined || m.fatigue_away !== undefined) {
-                advancedHtml += `<div class="fatigue-info">😓 Fatigue: ${escapeHtml(String(m.fatigue_home ?? '?'))} - ${escapeHtml(String(m.fatigue_away ?? '?'))}</div>`;
-            }
-
-            if (m.trap_detected) {
-                advancedHtml += `<div class="trap-warning">⚠️ Piège bookmaker</div>`;
-            }
-
             html += `
                 <div class="match-card ${winnerClass}">
                     <div class="win-effect"></div>
@@ -1318,7 +1256,6 @@ function renderMatches(matches) {
                         <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
                         <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
                         ${premiumBadge}
-                        ${advancedHtml}
                         <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}">📤 Partager ce prono</button>
                     </div>
                 </div>
@@ -1383,7 +1320,9 @@ async function displayHistory() {
 
         groupedByDay[day].forEach(m => {
             const pred = m.prediction || {};
-            const confidence = toFloatSafe(pred.confidence, 0);
+            let confidence = toFloatSafe(pred.confidence, 0) || 0;
+            if (confidence <= 1) confidence = confidence * 100;
+            else if (confidence > 100) confidence = confidence / 100;
 
             const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
             const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
@@ -1407,8 +1346,10 @@ async function displayHistory() {
                     </div>
                     <div class="analysis-panel">
                         <h4>Pronostic</h4>
-                        <p><strong>Double chance :</strong> ${escapeHtml(pred.double_chance || 'N/A')} <input type="checkbox" class="prediction-checkbox" ${m.verified_double ? 'checked' : ''} disabled></p>
-                        <p><strong>Fiabilité :</strong> ${escapeHtml(String(confidence))}%</p>
+                        <p><strong>Double chance :</strong> ${escapeHtml(pred.double_chance || 'N/A')}
+                           <input type="checkbox" class="prediction-checkbox" ${m.verified_double ? 'checked' : ''} disabled>
+                        </p>
+                        <p><strong>Fiabilité :</strong> ${escapeHtml(String(Math.round(confidence * 10) / 10))}%</p>
                     </div>
                 </div>
             `;
@@ -1444,14 +1385,18 @@ async function loadGeneratedContent() {
 }
 
 /* =======================================================
-   BLOG
+   BLOG (SEO slug)
    ======================================================= */
 window.showArticleDetail = function (index) {
     const article = window.articlesData?.[index];
     if (!article) return;
 
+    // fallback: si modal n'existe pas, on navigue directement
     if (!DOM.articleModal) {
-        window.location.href = `article.html?article=${encodeURIComponent(index)}`;
+        const slug = article.slug || '';
+        window.location.href = slug
+            ? `article.html?slug=${encodeURIComponent(slug)}`
+            : `article.html?article=${encodeURIComponent(index)}`;
         return;
     }
 
@@ -1470,7 +1415,13 @@ window.showArticleDetail = function (index) {
         imageEl.alt = title;
     }
     if (contentEl) contentEl.innerHTML = contentHtml;
-    if (linkEl) linkEl.href = `article.html?article=${encodeURIComponent(index)}`;
+
+    const slug = article.slug || '';
+    if (linkEl) {
+        linkEl.href = slug
+            ? `article.html?slug=${encodeURIComponent(slug)}`
+            : `article.html?article=${encodeURIComponent(index)}`;
+    }
 
     DOM.articleModal.style.display = 'flex';
 };
@@ -1512,6 +1463,83 @@ async function displayBlogList() {
     `).join('') || '<div class="no-events">Aucun article pour le moment.</div>';
 }
 
+function setMetaContent(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('content', value);
+}
+
+function ensureCanonical(href) {
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.rel = 'canonical';
+        document.head.appendChild(canonical);
+    }
+    canonical.href = href;
+}
+
+function updateArticleSeo(article, resolvedSlug) {
+    // Ne fait quelque chose que sur article.html (qui a ces ids)
+    const title = stripMarkdown(article.title || 'Article');
+    const metaDesc = (article.meta_description || article.excerpt || '').slice(0, 160) ||
+        `Analyse et pronostic : ${title}`;
+
+    const url = new URL(window.location.href);
+    const canonicalUrl = resolvedSlug
+        ? `${url.origin}${url.pathname}?slug=${encodeURIComponent(resolvedSlug)}`
+        : window.location.href;
+
+    document.title = `${title} - Mr XPRONOS`;
+
+    const descEl = document.getElementById('article-description');
+    if (descEl) descEl.setAttribute('content', metaDesc);
+
+    setMetaContent('og-title', title);
+    setMetaContent('og-description', metaDesc);
+    setMetaContent('og-url', canonicalUrl);
+    setMetaContent('og-image', article.og_image || article.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
+
+    setMetaContent('twitter-title', title);
+    setMetaContent('twitter-description', metaDesc);
+    setMetaContent('twitter-image', article.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
+
+    ensureCanonical(canonicalUrl);
+
+    const jsonLdEl = document.getElementById('article-jsonld');
+    if (jsonLdEl) {
+        const baseArticle = {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": title,
+            "author": { "@type": "Person", "name": article.author || "Mr XPRONOS" },
+            "datePublished": article.date || article.published_at || new Date().toISOString(),
+            "image": [article.image_url].filter(Boolean),
+            "mainEntityOfPage": canonicalUrl
+        };
+
+        // FAQ si présent
+        if (Array.isArray(article.faq) && article.faq.length) {
+            const graph = [
+                baseArticle,
+                {
+                    "@context": "https://schema.org",
+                    "@type": "FAQPage",
+                    "mainEntity": article.faq
+                        .filter(x => x && x.q && x.a)
+                        .map(x => ({
+                            "@type": "Question",
+                            "name": String(x.q),
+                            "acceptedAnswer": { "@type": "Answer", "text": String(x.a) }
+                        }))
+                }
+            ];
+            jsonLdEl.textContent = JSON.stringify({ "@graph": graph }, null, 2);
+        } else {
+            jsonLdEl.textContent = JSON.stringify(baseArticle, null, 2);
+        }
+    }
+}
+
 async function displayBlogPost() {
     if (!DOM.blogPost) return;
 
@@ -1524,10 +1552,18 @@ async function displayBlogPost() {
     ].filter(a => a?.active !== false);
 
     const params = new URLSearchParams(window.location.search);
+
+    // ✅ slug first (SEO)
+    const slug = params.get('slug');
     const articleIndex = params.get('article') ?? params.get('id');
 
     let article = null;
-    if (articleIndex !== null && articleIndex !== '') {
+
+    if (slug) {
+        article = allArticles.find(a => (a.slug || '') === slug) || null;
+    }
+
+    if (!article && articleIndex !== null && articleIndex !== '') {
         const idx = parseInt(articleIndex, 10);
         if (!isNaN(idx) && allArticles[idx]) article = allArticles[idx];
     }
@@ -1547,6 +1583,9 @@ async function displayBlogPost() {
             <div class="article-content">${contentHtml}</div>
         </article>
     `;
+
+    // ✅ SEO dynamic meta (article.html)
+    updateArticleSeo(article, article.slug || slug || '');
 
     const titleMeta = document.getElementById('article-title');
     if (titleMeta) titleMeta.textContent = `${title} - Mr XPRONOS`;
@@ -1600,9 +1639,7 @@ window.showConseilDetail = function (index) {
     }
 
     const contentEl = document.getElementById('conseil-modal-content');
-    if (contentEl) {
-        contentEl.innerHTML = renderSafeRichContent(conseil.content || '');
-    }
+    if (contentEl) contentEl.innerHTML = renderSafeRichContent(conseil.content || '');
 
     DOM.conseilModal.style.display = 'flex';
 };
@@ -1668,9 +1705,7 @@ window.showNewsDetail = function (index) {
         img.src = news.image || 'assets/images/default-logo.png';
         img.alt = news.title || 'Actualité';
     }
-    if (contentEl) {
-        contentEl.innerHTML = renderSafeRichContent(news.summary || '');
-    }
+    if (contentEl) contentEl.innerHTML = renderSafeRichContent(news.summary || '');
     if (linkEl) {
         linkEl.href = news.link || '#';
         linkEl.target = '_blank';
@@ -1689,45 +1724,14 @@ window.closeNewsModal = function () {
    ======================================================= */
 function initBonusPage() {
     const defaultBookmakers = [
-        {
-            name: "1xBet",
-            logo: "assets/images/1xbet.webp",
-            url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
-            desc: "Bonus de bienvenue jusqu'à 130€"
-        },
-        {
-            name: "1win",
-            logo: "assets/images/1win.webp",
-            url: "https://1wrbgb.com/?open=register&p=qqcw",
-            desc: "Bonus exclusif avec XPVIP"
-        },
-        {
-            name: "Betwinner",
-            logo: "assets/images/betwinner.webp",
-            url: "https://bwredir.com/299Y",
-            desc: "Offre spéciale nouveaux joueurs"
-        },
-        {
-            name: "Melbet",
-            logo: "assets/images/melbet.webp",
-            url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
-            desc: "Bonus premium Melbet avec inscription rapide"
-        },
-        {
-            name: "Linebet",
-            logo: "assets/images/linebet.webp",
-            url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
-            desc: "Bonus et promotions spéciales Linebet"
-        },
-        {
-            name: "Betclic",
-            logo: "assets/images/betclic.webp",
-            url: "https://betpari-click.com/2vY0?extid=USD",
-            desc: "Offre de bienvenue Betclic"
-        }
+        { name: "1xBet", logo: "assets/images/1xbet.webp", url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599", desc: "Bonus de bienvenue jusqu'à 130€" },
+        { name: "1win", logo: "assets/images/1win.webp", url: "https://1wrbgb.com/?open=register&p=qqcw", desc: "Bonus exclusif avec XPVIP" },
+        { name: "Betwinner", logo: "assets/images/betwinner.webp", url: "https://bwredir.com/299Y", desc: "Offre spéciale nouveaux joueurs" },
+        { name: "Melbet", logo: "assets/images/melbet.webp", url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041", desc: "Bonus premium Melbet avec inscription rapide" },
+        { name: "Linebet", logo: "assets/images/linebet.webp", url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611", desc: "Bonus et promotions spéciales Linebet" },
+        { name: "Betclic", logo: "assets/images/betclic.webp", url: "https://betpari-click.com/2vY0?extid=USD", desc: "Offre de bienvenue Betclic" }
     ];
 
-    // Si data.json contient déjà bookmakers, on les utilise
     const sourceBookmakers = Array.isArray(allData?.bookmakers) && allData.bookmakers.length
         ? allData.bookmakers.map(b => ({
             name: b.name || "Bookmaker",
@@ -1770,10 +1774,7 @@ function renderBonusGrid(bookmakers) {
 }
 
 function highlightBonusCard(index) {
-    qsa(".bonus-bookmaker-card").forEach(card => {
-        card.classList.remove("active-bonus-card");
-    });
-
+    qsa(".bonus-bookmaker-card").forEach(card => card.classList.remove("active-bonus-card"));
     const target = document.querySelector(`.bonus-bookmaker-card[data-index="${index}"]`);
     if (target) {
         target.classList.add("active-bonus-card");
@@ -1792,38 +1793,21 @@ window.openBonusModal = function (index) {
     const linkEl = document.getElementById("bonus-modal-link");
 
     if (titleEl) titleEl.textContent = b.name;
-
-    if (img) {
-        img.src = b.logo || "assets/images/default-logo.webp";
-        img.alt = b.name || "Bookmaker";
-    }
-
+    if (img) { img.src = b.logo || "assets/images/default-logo.webp"; img.alt = b.name || "Bookmaker"; }
     if (descEl) {
         descEl.innerHTML = `
             <p>${escapeHtml(b.desc || "Bonus exclusif bookmaker")}</p>
-            <p style="margin-top:10px;">
-                Utilisez le code promo <strong>XPVIP</strong> si l'offre le permet.
-            </p>
+            <p style="margin-top:10px;">Utilisez le code promo <strong>XPVIP</strong> si l'offre le permet.</p>
         `;
     }
-
-    if (footerEl) {
-        footerEl.textContent = "Inscription via notre lien recommandé.";
-    }
-
-    if (linkEl) {
-        linkEl.href = b.url || "#";
-        linkEl.target = "_blank";
-        linkEl.rel = "noopener noreferrer";
-    }
+    if (footerEl) footerEl.textContent = "Inscription via notre lien recommandé.";
+    if (linkEl) { linkEl.href = b.url || "#"; linkEl.target = "_blank"; linkEl.rel = "noopener noreferrer"; }
 
     DOM.bonusModal.style.display = "flex";
 };
 
 window.closeBonusModal = function () {
-    if (DOM.bonusModal) {
-        DOM.bonusModal.style.display = "none";
-    }
+    if (DOM.bonusModal) DOM.bonusModal.style.display = "none";
 };
 
 /* =======================================================
@@ -2056,18 +2040,9 @@ function setupPronosticPageListeners() {
         applySearchFilter();
     });
 
-    if (DOM.sharePopup) {
-        document.getElementById('share-wa')?.addEventListener('click', () => share('whatsapp'));
-        document.getElementById('share-tg')?.addEventListener('click', () => share('telegram'));
-        document.getElementById('close-popup')?.addEventListener('click', () => {
-            DOM.sharePopup?.classList.remove('active');
-        });
-    }
-
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.btn-share');
         if (!btn) return;
-
         try {
             const matchData = JSON.parse(decodeURIComponent(btn.dataset.match));
             sharePronostic(matchData);
@@ -2140,9 +2115,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     countVisitOncePerDay();
     showIosGuideIfNeeded();
 
-    if (Notification.permission === 'granted') {
-        subscribeToPush(false);
-    }
+    if (Notification.permission === 'granted') subscribeToPush(false);
 
     const page = detectPage();
 
@@ -2172,10 +2145,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderBookmakers();
             break;
 
-        case 'bonus':
+        case 'bonus': {
+            const data = await loadDataGeneric();
+            if (data) allData = data;
             initBonusPage();
-            renderBookmakers();
+            renderBookmakers(allData?.bookmakers);
             break;
+        }
 
         case 'infos':
             await displayFootNews();
@@ -2202,6 +2178,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             break;
     }
 
-    await displayInfos(); // ne fait rien si le container n'existe pas
+    await displayInfos(); // no-op si container absent
     initScrollProgress();
 });
