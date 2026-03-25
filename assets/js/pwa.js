@@ -12,27 +12,21 @@
 (function () {
     'use strict';
 
-    const CONFIG = {
-        swPath: '/service-worker.js',
-        scope: '/'
+    const CONFIG = (() => {
+    // Base path du site (ex: "/" en local, "/MrXPRONOS_App/" sur GitHub Pages)
+    const path = location.pathname;
+
+    // si on est sur /xxx.html => base = "/"
+    // si on est sur /MrXPRONOS_App/index.html => base = "/MrXPRONOS_App/"
+    const base = path.endsWith(".html")
+        ? path.slice(0, path.lastIndexOf("/") + 1)
+        : (path.endsWith("/") ? path : path + "/");
+
+    return {
+        swPath: `${base}service-worker.js`,
+        scope: base
     };
-
-    const IS_DEV =
-        location.hostname === 'localhost' ||
-        location.hostname.includes('127.0.0.1');
-
-    const log = IS_DEV ? console.log.bind(console) : () => {};
-    const warn = IS_DEV ? console.warn.bind(console) : () => {};
-
-    if (!window.__MRXPWA__) {
-        window.__MRXPWA__ = {
-            deferredPrompt: null,
-            registration: null,
-            isInstalled: false,
-            installAvailable: false,
-            updateAvailable: false
-        };
-    }
+    })();
 
     function getPlatform() {
         const ua = navigator.userAgent.toLowerCase();
