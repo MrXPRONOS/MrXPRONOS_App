@@ -3,17 +3,17 @@
 
 """
 generate_data.py - Génération optimisée des pronostics football
-Version améliorée :
+
+Améliorations:
 - rétention 14 jours dans data.json (merge intelligent)
-- téléchargement logos une seule fois (cache persistant) + stockage local
-- un seul API key pour les logos (pas de rotation) si URL SportData
-- enrichissement ciblé + budget API   - extraction robuste (scores, logos, cotes)
+- récupération imageVersion via /games/allscores (competitors + competitions)
+- téléchargement logos une seule fois (cache persistant + version)
+- un seul API key pour images (SPORTDATA_API_KEY sinon SPORTDATA_API_KEY_1)
+- circuit breaker sur preGame si API renvoie 5xx
 """
 
 import os
 import json
-import re
-import hashlib
 import requests
 from datetime import datetime, timedelta, timezone
 from math import exp, factorial
@@ -79,20 +79,28 @@ BAD_LEAGUES = [
 # ✅ rétention historique data.json
 RETENTION_DAYS = 14
 
-# ✅ Logos
+# ✅ Logos (download once)
 TEAM_LOGO_DIR = os.path.join("assets", "images", "teams")
 LEAGUE_LOGO_DIR = os.path.join("assets", "images", "leagues")
 LOGO_CACHE_FILE = os.path.join(CACHE_DIR, "logo_cache.json")
+ENDPOINT_CACHE_FILE = os.path.join(CACHE_DIR, "image_endpoints.json")
+MAX_LOGO_DOWNLOADS_PER_RUN = 80
 
-# ✅ un seul API key pour les logos (si requis)
-SINGLE_LOGO_API_KEY = (
-    os.environ.get("SPORTDATA_API_KEY")
-    or os.environ.get("SPORTDATA_API_KEY_1")
-    or os.environ.get("SPORTDATA_API_KEY_2")
-    or os.environ.get("SPORTDATA_API_KEY_3")
-    or os.environ.get("SPORTDATA_API_KEY_4")
-    or os.environ.get("SPORTDATA_API_KEY_5")
-)
+# ✅ Une seule clé API pour images
+SINGLE_IMAGE_API_KEY = os.environ.get("SPORTDATA_API_KEY") or os.environ.get("SPORTDATA_API_KEY_1")
+
+# Templates candidats (on détecte une seule fois ceux qui marchent)
+IMAGE_BASE_V1 = "https://v1.football.sportsapipro.com"
+TEAM_LOGO_TEMPLATES = [
+    f"{IMAGE_BASE_V1}/images/competitors/{{id}}",
+    f"{IMAGE_BASE_V1}/images/competitors/{{id}}.png",
+    f"{IMAGE_BASE_V1}/images/teams/{{id}}",
+    f"{IMAGE_BASE_V1}/images/teams/{{id}}.png",
+]
+LEAGUE_LOGO_TEMPLATES = [
+    f"{IMAGE_BASE_V1}/images/competitions/{{id}}",
+    f"{IMAGE_BASE_V1}/images/competitions/{{id}}.png",
+]
 
 os.makedirs(CACHE_DIR, exist_ok=True)
 os.makedirs(TEAM_LOGO_DIR, exist_ok=True)
@@ -101,6 +109,9 @@ os.makedirs(LEAGUE_LOGO_DIR, exist_ok=True)
 print("=" * 60)
 print(f"🚀 GÉNÉRATION DES PRONOSTICS - {today} (rétention {RETENTION_DAYS} jours)")
 print("=" * 60)
+
+# circuit breaker pregame
+PREGAME_DISABLED = False
 
 
 # =======================================================
@@ -186,121 +197,110 @@ def is_cache_fresh(iso_time: Optional[str], ttl_hours: int) -> bool:
     return (get_now_utc() - dt) <= timedelta(hours=ttl_hours)
 
 
-def slugify_filename(text: str) -> str:
-    t = (text or "").lower()
-    t = re.sub(r"\s+", "-", t)
-    t = re.sub(r"[^a-z0-9\-_]+", "", t)
-    t = re.sub(r"-{2,}", "-", t).strip("-")
-    return t[:80] or "unknown"
-
-
-def sha1_short(s: str) -> str:
-    return hashlib.sha1(s.encode("utf-8")).hexdigest()[:12]
-
-
 # =======================================================
-# ✅ LOGO CACHE + DOWNLOAD (1 seule fois)
+# LOGOS (download once + imageVersion)
 # =======================================================
 
-def load_logo_cache() -> dict:
-    cache = load_json_file(LOGO_CACHE_FILE, {})
-    return cache if isinstance(cache, dict) else {}
+def load_dict(path: str) -> dict:
+    d = load_json_file(path, {})
+    return d if isinstance(d, dict) else {}
 
 
-def save_logo_cache(cache: dict):
+def save_dict(path: str, d: dict):
+    save_json_file(path, d)
+
+
+LOGO_CACHE = load_dict(LOGO_CACHE_FILE)
+ENDPOINTS = load_dict(ENDPOINT_CACHE_FILE)
+
+
+def _img_headers():
+    return {"x-api-key": SINGLE_IMAGE_API_KEY} if SINGLE_IMAGE_API_KEY else {}
+
+
+def probe_url(url: str) -> bool:
     try:
-        save_json_file(LOGO_CACHE_FILE, cache)
-    except Exception as e:
-        print(f"⚠️ Impossible de sauvegarder {LOGO_CACHE_FILE}: {e}")
-
-
-LOGO_CACHE = load_logo_cache()
-
-
-def is_sportdata_domain(url: str) -> bool:
-    if not url:
-        return False
-    u = url.lower()
-    return "sportsapipro.com" in u or "sportsapi" in u
-
-
-def download_logo_once(logo_url: str, dest_path: str) -> bool:
-    """
-    Télécharge un logo en local UNE fois.
-    Si le logo vient de SportData et qu'il faut une clé, on utilise SINGLE_LOGO_API_KEY (sans rotation).
-    """
-    if not logo_url:
-        return False
-
-    headers = {}
-    if is_sportdata_domain(logo_url) and SINGLE_LOGO_API_KEY:
-        headers["x-api-key"] = SINGLE_LOGO_API_KEY
-
-    try:
-        r = requests.get(logo_url, headers=headers, timeout=25)
-        if r.status_code != 200:
-            return False
-        with open(dest_path, "wb") as f:
-            f.write(r.content)
-        return True
+        r = requests.get(url, headers=_img_headers(), timeout=12, stream=True)
+        return r.status_code == 200
     except Exception:
         return False
 
 
-def ensure_logo_cached(kind: str, unique_key: str, logo_url: Optional[str], name_for_file: str) -> Optional[str]:
+def detect_template(cache_key: str, templates: list, sample_id: str) -> Optional[str]:
+    cached = ENDPOINTS.get(cache_key)
+    if cached:
+        return cached
+
+    for t in templates:
+        test = t.format(id=sample_id)
+        if probe_url(test):
+            ENDPOINTS[cache_key] = t
+            save_dict(ENDPOINT_CACHE_FILE, ENDPOINTS)
+            print(f"✅ Endpoint {cache_key} détecté: {t}")
+            return t
+
+    print(f"⚠️ Endpoint {cache_key} non détecté (404)")
+    return None
+
+
+def build_img_url(template: Optional[str], _id: str, version: Optional[int]) -> Optional[str]:
+    if not template:
+        return None
+    url = template.format(id=_id)
+    if version is not None:
+        sep = "&" if "?" in url else "?"
+        url = f"{url}{sep}v={int(version)}"
+    return url
+
+
+def download_once(kind: str, _id: str, name: str, version: Optional[int]) -> Optional[str]:
     """
-    kind: 'team' ou 'league'
-    unique_key: ex competitor_id / competition_id, sinon hash
-    Retourne un chemin relatif (forward slash) ou None.
+    Télécharge une seule fois par (kind,id,version).
+    Si imageVersion change, on télécharge un nouveau fichier.
     """
-    if not logo_url:
+    key = f"{kind}:{_id}"
+    prev = LOGO_CACHE.get(key, {})
+    prev_v = prev.get("imageVersion")
+
+    folder = TEAM_LOGO_DIR if kind == "team" else LEAGUE_LOGO_DIR
+    filename = f"{kind}-{_id}-v{int(version) if version is not None else 1}.png"
+    local_path = os.path.join(folder, filename).replace("\\", "/")
+
+    # déjà ok
+    if prev_v == version and os.path.exists(local_path) and os.path.getsize(local_path) > 200:
+        return local_path
+
+    tpl_key = "team_tpl" if kind == "team" else "league_tpl"
+    tpl = ENDPOINTS.get(tpl_key)
+    if not tpl:
         return None
 
-    bucket = LOGO_CACHE.setdefault(kind, {})
-    entry = bucket.get(unique_key)
-
-    # Si déjà en cache et fichier existe => pas de re-download
-    if entry and isinstance(entry, dict):
-        rel = entry.get("path")
-        if rel and os.path.exists(rel):
-            return rel.replace("\\", "/")
-
-    # Déterminer dossier
-    base_dir = TEAM_LOGO_DIR if kind == "team" else LEAGUE_LOGO_DIR
-
-    # Extension simple (on garde l'original si possible)
-    ext = ".png"
-    lower = logo_url.lower()
-    if ".svg" in lower:
-        ext = ".svg"
-    elif ".webp" in lower:
-        ext = ".webp"
-    elif ".jpg" in lower or ".jpeg" in lower:
-        ext = ".jpg"
-
-    safe_name = slugify_filename(name_for_file)
-    filename = f"{safe_name}-{unique_key}{ext}"
-    abs_path = os.path.join(base_dir, filename)
-    rel_path = abs_path.replace("\\", "/")
-
-    # Si déjà présent sur disque => on écrit cache et on retourne
-    if os.path.exists(abs_path) and os.path.getsize(abs_path) > 200:
-        bucket[unique_key] = {"path": rel_path, "url": logo_url, "saved_at": get_now_utc().isoformat()}
-        save_logo_cache(LOGO_CACHE)
-        return rel_path
-
-    ok = download_logo_once(logo_url, abs_path)
-    if not ok:
+    url = build_img_url(tpl, _id, version)
+    if not url:
         return None
 
-    # Mettre en cache
-    bucket[unique_key] = {"path": rel_path, "url": logo_url, "saved_at": get_now_utc().isoformat()}
-    save_logo_cache(LOGO_CACHE)
-    return rel_path
+    try:
+        r = requests.get(url, headers=_img_headers(), timeout=20)
+        if r.status_code != 200 or not r.content or len(r.content) < 200:
+            return None
+
+        with open(local_path, "wb") as f:
+            f.write(r.content)
+
+        LOGO_CACHE[key] = {
+            "path": local_path,
+            "imageVersion": version,
+            "name": name,
+            "updated_at": get_now_utc().isoformat()
+        }
+        save_dict(LOGO_CACHE_FILE, LOGO_CACHE)
+        return local_path
+    except Exception:
+        return None
 
 
 # =======================================================
-# ✅ RETENTION / MERGE HELPERS
+# RETENTION / MERGE HELPERS
 # =======================================================
 
 def compute_verified_double_from_match(match: dict) -> bool:
@@ -321,24 +321,21 @@ def merge_matches_keep_fields(old: dict, new: dict) -> dict:
     """
     Fusion intelligente:
     - new écrase old
-    - mais si new n'a pas de score/status, on garde old
-    - conserve verified_double déjà true dans old
-    - conserve home_logo/away_logo/league_logo si new ne les a pas
+    - préserve score/status si new n'a rien
+    - préserve logos si new ne les a pas
+    - conserve verified_double déjà True
     """
     merged = dict(old or {})
     merged.update(new or {})
 
-    # préserver scores/status si new n'a rien
     for k in ["home_score", "away_score", "status", "is_finished"]:
         if merged.get(k) is None and (old or {}).get(k) is not None:
             merged[k] = old.get(k)
 
-    # préserver logos si new ne les fournit pas
     for k in ["home_logo", "away_logo", "league_logo"]:
         if not merged.get(k) and (old or {}).get(k):
             merged[k] = old.get(k)
 
-    # préserver verified_double
     if (old or {}).get("verified_double") is True and merged.get("verified_double") in (None, False):
         merged["verified_double"] = True
 
@@ -367,7 +364,7 @@ def quota_request(req_manager: RequestManager, method: str, url: str, **kwargs):
     return resp
 
 
-def fetch_games_with_comps(date_from, date_to, req_manager: RequestManager) -> Tuple[List[dict], List[dict]]:
+def fetch_games_with_comps(date_from, date_to, req_manager: RequestManager) -> Tuple[List[dict], List[dict], List[dict]]:
     params = {
         "startDate": date_from.strftime("%d/%m/%Y"),
         "endDate": date_to.strftime("%d/%m/%Y"),
@@ -379,17 +376,23 @@ def fetch_games_with_comps(date_from, date_to, req_manager: RequestManager) -> T
     try:
         resp = quota_request(req_manager, "GET", SPORTDATA_URL, params=params, timeout=30)
         if resp is None:
-            return [], []
+            return [], [], []
         resp.raise_for_status()
         data = resp.json()
 
         games = data.get("games", [])
         competitions = data.get("competitions", [])
-        return games if isinstance(games, list) else [], competitions if isinstance(competitions, list) else []
+        competitors = data.get("competitors", [])
+
+        return (
+            games if isinstance(games, list) else [],
+            competitions if isinstance(competitions, list) else [],
+            competitors if isinstance(competitors, list) else [],
+        )
 
     except Exception as e:
         print(f"❌ Erreur fetch games {date_from} -> {date_to}: {e}")
-        return [], []
+        return [], [], []
 
 
 def fetch_game_predictions(game_id: str, req_manager: RequestManager) -> Optional[dict]:
@@ -411,18 +414,27 @@ def fetch_game_predictions(game_id: str, req_manager: RequestManager) -> Optiona
 
 
 def fetch_pregame_stats(game_id: str, req_manager: RequestManager) -> Optional[dict]:
+    global PREGAME_DISABLED
+    if PREGAME_DISABLED:
+        return None
+
     cached = req_manager.get_cached("pregame", game_id)
     if cached and is_cache_fresh(cached.get("fetched_at"), PREGAME_CACHE_TTL_HOURS):
         return cached.get("data")
 
     try:
-        params = {
-            "game": game_id,
-            "onlyMajor": "true",
-            "topBookmaker": 14
-        }
+        params = {"game": game_id, "onlyMajor": "true", "topBookmaker": 14}
         resp = quota_request(req_manager, "GET", PREGAME_STATS_URL, params=params, timeout=20)
-        if resp is None or resp.status_code != 200:
+
+        # si api_utils a stoppé sur 5xx => resp None
+        if resp is None:
+            PREGAME_DISABLED = True
+            return None
+
+        if resp.status_code != 200:
+            # si 5xx, on désactive sur le run
+            if 500 <= resp.status_code <= 599:
+                PREGAME_DISABLED = True
             return None
 
         data = resp.json()
@@ -436,19 +448,6 @@ def fetch_pregame_stats(game_id: str, req_manager: RequestManager) -> Optional[d
 # =======================================================
 # EXTRACTION
 # =======================================================
-
-def pick_logo_url(obj: dict) -> Optional[str]:
-    """
-    Essaye plusieurs clés possibles selon le provider.
-    """
-    if not isinstance(obj, dict):
-        return None
-    for k in ["logo", "logoUrl", "logo_url", "image", "imageUrl", "icon", "iconUrl", "badge", "badgeUrl"]:
-        v = obj.get(k)
-        if isinstance(v, str) and v.startswith("http"):
-            return v
-    return None
-
 
 def extract_game_info(game: dict) -> Optional[dict]:
     if not isinstance(game, dict):
@@ -464,9 +463,6 @@ def extract_game_info(game: dict) -> Optional[dict]:
 
         home_score = normalize_score(home.get("score"))
         away_score = normalize_score(away.get("score"))
-
-        home_logo_url = pick_logo_url(home) or pick_logo_url(game.get("homeTeam", {}) or {})
-        away_logo_url = pick_logo_url(away) or pick_logo_url(game.get("awayTeam", {}) or {})
 
         odds_data = game.get("odds")
         odds = None
@@ -497,8 +493,6 @@ def extract_game_info(game: dict) -> Optional[dict]:
             "away_team": str(away.get("name", "")),
             "home_competitor_id": str(home.get("id")) if home.get("id") else None,
             "away_competitor_id": str(away.get("id")) if away.get("id") else None,
-            "home_logo_url": home_logo_url,
-            "away_logo_url": away_logo_url,
             "competition": str(competition),
             "competition_id": str(competition_id) if competition_id else None,
             "home_score": home_score,
@@ -907,7 +901,6 @@ def extract_pregame_signal(pregame_data: Optional[dict]) -> dict:
 
 def main():
     req_manager = RequestManager(daily_budget=80)
-
     print(f"📦 Budget API restant avant run : {req_manager.remaining()} requêtes")
 
     existing_data = load_json_file(DATA_FILE, {
@@ -918,25 +911,39 @@ def main():
     })
 
     print("📅 Récupération minimale des matchs...")
-    games_today, competitions_today = fetch_games_with_comps(today, today, req_manager)
-    games_tomorrow, competitions_tomorrow = fetch_games_with_comps(tomorrow, tomorrow, req_manager)
+    games_today, competitions_today, competitors_today = fetch_games_with_comps(today, today, req_manager)
+    games_tomorrow, competitions_tomorrow, competitors_tomorrow = fetch_games_with_comps(tomorrow, tomorrow, req_manager)
 
     all_new_games = (games_today or []) + (games_tomorrow or [])
     all_competitions = (competitions_today or []) + (competitions_tomorrow or [])
+    all_competitors = (competitors_today or []) + (competitors_tomorrow or [])
 
     print(f"✅ {len(all_new_games)} matchs récupérés")
 
-    # Map competitions id -> logo url si dispo
-    comp_logo_url_by_id = {}
-    for c in all_competitions:
-        if not isinstance(c, dict):
+    # Map imageVersion par ID (depuis allscores)
+    competitor_version: Dict[str, Optional[int]] = {}
+    for c in all_competitors:
+        cid = c.get("id")
+        if cid is None:
             continue
-        cid = c.get("id") or c.get("competitionId")
-        if not cid:
-            continue
-        comp_logo_url_by_id[str(cid)] = pick_logo_url(c)
+        competitor_version[str(cid)] = c.get("imageVersion")
 
-    new_infos = {}
+    competition_version: Dict[str, Optional[int]] = {}
+    for comp in all_competitions:
+        comp_id = comp.get("id")
+        if comp_id is None:
+            continue
+        competition_version[str(comp_id)] = comp.get("imageVersion")
+
+    # Détection endpoints images (images ne comptent pas dans rate-limit)
+    sample_team_id = next(iter(competitor_version.keys()), None)
+    sample_league_id = next(iter(competition_version.keys()), None)
+    if sample_team_id:
+        detect_template("team_tpl", TEAM_LOGO_TEMPLATES, sample_team_id)
+    if sample_league_id:
+        detect_template("league_tpl", LEAGUE_LOGO_TEMPLATES, sample_league_id)
+
+    new_infos: Dict[str, dict] = {}
     for g in all_new_games:
         info = extract_game_info(g)
         if info and info.get("id"):
@@ -1064,17 +1071,18 @@ def main():
 
         if enriched_ids_predictions < MAX_PREDICTIONS_CALLS and req_manager.remaining() > 5:
             pred_data = fetch_game_predictions(gid, req_manager)
-            item["provider_signal"] = extract_provider_prediction_signal(pred_data)
-            enriched_ids_predictions += 1
+            if pred_data:
+                item["provider_signal"] = extract_provider_prediction_signal(pred_data)
+                enriched_ids_predictions += 1
 
         if enriched_ids_pregame < MAX_PREGAME_CALLS and req_manager.remaining() > 5:
             pregame_data = fetch_pregame_stats(gid, req_manager)
-            item["pregame_signal"] = extract_pregame_signal(pregame_data)
-            enriched_ids_pregame += 1
+            if pregame_data:
+                item["pregame_signal"] = extract_pregame_signal(pregame_data)
+                enriched_ids_pregame += 1
 
     matches = []
 
-    # --- construire matches (today + tomorrow) ---
     for item in candidate_matches:
         base = item["base"]
         analysis = item["analysis"]
@@ -1135,9 +1143,9 @@ def main():
         )
         final_score = clamp(final_score, 0, 100)
 
-        # league logo url (si dispo)
-        comp_id = base.get("competition_id")
-        league_logo_url = comp_logo_url_by_id.get(str(comp_id)) if comp_id else None
+        home_id = str(base.get("home_competitor_id") or "")
+        away_id = str(base.get("away_competitor_id") or "")
+        comp_id = str(base.get("competition_id") or "")
 
         match = {
             "id": item["gid"],
@@ -1157,19 +1165,12 @@ def main():
             "h2h_analysis": analysis,
             "home_form": home_form,
             "away_form": away_form,
-            "prediction": {
-                "double_chance": dc,
-                "confidence": final_conf,
-                "odds": None
-            },
+            "prediction": {"double_chance": dc, "confidence": final_conf, "odds": None},
             "xpronos_score": score,
             "badge": badge,
             "category": category,
             "verified_double": False,
-            "verified_btts": False,
-            "verified_over": False,
             "odds": odds,
-            "public_votes": None,
             "value_bet": value_bet,
             "is_finished": base.get("is_finished", False),
             "final_score": round(final_score, 1),
@@ -1177,19 +1178,15 @@ def main():
             "pregame_signal": pregame_signal,
             "used_poisson_fallback": item["used_poisson_fallback"],
             "local_candidate_score": item["local_candidate_score"],
-            "data_quality_score": (
-                40 +
-                (20 if home_form else 0) +
-                (20 if away_form else 0) +
-                (20 if odds else 0)
-            ),
-            # pour logos
-            "_home_competitor_id": base.get("home_competitor_id"),
-            "_away_competitor_id": base.get("away_competitor_id"),
-            "_home_logo_url": base.get("home_logo_url"),
-            "_away_logo_url": base.get("away_logo_url"),
-            "_league_logo_url": league_logo_url,
-            "_competition_id": comp_id,
+            "data_quality_score": 40 + (20 if home_form else 0) + (20 if away_form else 0) + (20 if odds else 0),
+
+            # ✅ ids pour logos + versions
+            "home_competitor_id": home_id or None,
+            "away_competitor_id": away_id or None,
+            "competition_id": comp_id or None,
+            "_home_v": competitor_version.get(home_id),
+            "_away_v": competitor_version.get(away_id),
+            "_comp_v": competition_version.get(comp_id),
         }
 
         if match["is_finished"] and match["home_score"] is not None and match["away_score"] is not None:
@@ -1200,7 +1197,7 @@ def main():
     matches.sort(key=lambda x: x.get("final_score", 0), reverse=True)
 
     # =======================================================
-    # ✅ RETENTION 14 JOURS : merge avec l'existant
+    # RETENTION 14 JOURS : merge avec l'existant
     # =======================================================
     cutoff = (today - timedelta(days=RETENTION_DAYS)).isoformat()
 
@@ -1223,46 +1220,41 @@ def main():
     final_matches = list(final_by_id.values())
 
     # =======================================================
-    # ✅ LOGOS : téléchargement une seule fois + injection chemins
+    # LOGOS : download once (limité)
     # =======================================================
-    downloaded = 0
+    downloads = 0
     for m in final_matches:
-        # home
-        hid = str(m.get("_home_competitor_id") or "") or sha1_short(m.get("home_team", "home"))
-        hurl = m.get("_home_logo_url")
-        if not m.get("home_logo") and hurl:
-            rel = ensure_logo_cached("team", hid, hurl, m.get("home_team", "home"))
-            if rel:
-                m["home_logo"] = rel
-                downloaded += 1
+        if downloads >= MAX_LOGO_DOWNLOADS_PER_RUN:
+            break
 
-        # away
-        aid = str(m.get("_away_competitor_id") or "") or sha1_short(m.get("away_team", "away"))
-        aurl = m.get("_away_logo_url")
-        if not m.get("away_logo") and aurl:
-            rel = ensure_logo_cached("team", aid, aurl, m.get("away_team", "away"))
-            if rel:
-                m["away_logo"] = rel
-                downloaded += 1
+        hid = str(m.get("home_competitor_id") or "").strip()
+        aid = str(m.get("away_competitor_id") or "").strip()
+        cid = str(m.get("competition_id") or "").strip()
 
-        # league
-        cid = str(m.get("_competition_id") or "") or sha1_short(m.get("competition", "league"))
-        lurl = m.get("_league_logo_url")
-        if not m.get("league_logo") and lurl:
-            rel = ensure_logo_cached("league", cid, lurl, m.get("competition", "league"))
-            if rel:
-                m["league_logo"] = rel
-                downloaded += 1
+        if hid and not m.get("home_logo") and downloads < MAX_LOGO_DOWNLOADS_PER_RUN:
+            p = download_once("team", hid, m.get("home_team", ""), m.get("_home_v"))
+            if p:
+                m["home_logo"] = p
+                downloads += 1
 
-        # nettoyage champs internes
-        for k in ["_home_competitor_id","_away_competitor_id","_home_logo_url","_away_logo_url","_league_logo_url","_competition_id"]:
+        if aid and not m.get("away_logo") and downloads < MAX_LOGO_DOWNLOADS_PER_RUN:
+            p = download_once("team", aid, m.get("away_team", ""), m.get("_away_v"))
+            if p:
+                m["away_logo"] = p
+                downloads += 1
+
+        if cid and not m.get("league_logo") and downloads < MAX_LOGO_DOWNLOADS_PER_RUN:
+            p = download_once("league", cid, m.get("competition", ""), m.get("_comp_v"))
+            if p:
+                m["league_logo"] = p
+                downloads += 1
+
+    for m in final_matches:
+        for k in ["_home_v", "_away_v", "_comp_v"]:
             if k in m:
                 del m[k]
 
-    if downloaded:
-        print(f"🖼️ Logos ajoutés/actualisés (sans re-download si déjà en cache) : {downloaded}")
-    else:
-        print("🖼️ Aucun logo téléchargé (déjà en cache ou URL logo absente).")
+    print(f"🖼️ Logos téléchargés/maj ce run: {downloads}")
 
     # recalcul verified_double si terminé
     for m in final_matches:
@@ -1277,7 +1269,7 @@ def main():
     for m in final_matches:
         categories[m.get("category", "simple")].append(m)
 
-    # stats (sur fenêtre retenue)
+    # stats sur la fenêtre retenue
     total_bets = 0
     total_wins = 0
     for m in final_matches:
@@ -1303,6 +1295,7 @@ def main():
             "api_budget_remaining": req_manager.remaining(),
             "retention_days": RETENTION_DAYS,
             "cutoff_date": cutoff,
+            "pregame_disabled": bool(PREGAME_DISABLED),
         },
         "bookmakers": bookmakers,
         "generated_at": get_now_utc().isoformat()

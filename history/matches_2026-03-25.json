@@ -207,6 +207,72 @@
       "data_quality_score": 100
     },
     {
+      "id": "4685313",
+      "date": "2026-03-26",
+      "event_date": "2026-03-26T20:30:00+00:00",
+      "start_time": "2026-03-26T20:30:00+00:00",
+      "home_team": "Mount Pleasant",
+      "away_team": "Spanish Town Police",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Premier League",
+      "competition": "Premier League",
+      "league_logo": null,
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 0,
+        "home_dominance": 0.720226108068483,
+        "away_dominance": 0.07794568964624277,
+        "draw_rate": 0.2018282022852743
+      },
+      "home_form": {
+        "wins": 0.67,
+        "draws": 0.33,
+        "losses": 0.0,
+        "goals_for": 2.3,
+        "goals_against": 0.64,
+        "form_score": 0.779,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.17,
+        "draws": 0.38,
+        "losses": 0.45,
+        "goals_for": 0.17,
+        "goals_against": 1.3,
+        "form_score": 0.299,
+        "matches_used": 5
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "confidence": 60,
+        "odds": null
+      },
+      "xpronos_score": 35,
+      "badge": "",
+      "category": "simple",
+      "verified_double": false,
+      "verified_btts": false,
+      "verified_over": false,
+      "odds": null,
+      "public_votes": null,
+      "value_bet": false,
+      "is_finished": false,
+      "final_score": 43.9,
+      "provider_signal": {
+        "provider_alignment": 0,
+        "provider_confidence": 0
+      },
+      "pregame_signal": {
+        "pregame_quality": 0
+      },
+      "used_poisson_fallback": true,
+      "local_candidate_score": 53,
+      "data_quality_score": 80
+    },
+    {
       "id": "4694504",
       "date": "2026-03-26",
       "event_date": "2026-03-26T19:15:00+00:00",
@@ -1365,6 +1431,72 @@
       "data_quality_score": 100
     },
     {
+      "id": "4694584",
+      "date": "2026-03-25",
+      "event_date": "2026-03-25T15:00:00+00:00",
+      "start_time": "2026-03-25T15:00:00+00:00",
+      "home_team": "Viking",
+      "away_team": "FK Haugesund",
+      "home_logo": null,
+      "away_logo": null,
+      "league": "Club Friendlies",
+      "competition": "Club Friendlies",
+      "league_logo": null,
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 0,
+        "home_dominance": 0.7603256625543698,
+        "away_dominance": 0.10246741253879053,
+        "draw_rate": 0.1372069249068395
+      },
+      "home_form": {
+        "wins": 0.92,
+        "draws": 0.08,
+        "losses": 0.0,
+        "goals_for": 3.03,
+        "goals_against": 0.84,
+        "form_score": 0.949,
+        "matches_used": 5
+      },
+      "away_form": {
+        "wins": 0.0,
+        "draws": 0.28,
+        "losses": 0.72,
+        "goals_for": 1.31,
+        "goals_against": 3.02,
+        "form_score": 0.095,
+        "matches_used": 5
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "confidence": 60,
+        "odds": null
+      },
+      "xpronos_score": 35,
+      "badge": "",
+      "category": "simple",
+      "verified_double": false,
+      "verified_btts": false,
+      "verified_over": false,
+      "odds": null,
+      "public_votes": null,
+      "value_bet": false,
+      "is_finished": false,
+      "final_score": 44.0,
+      "provider_signal": {
+        "provider_alignment": 0,
+        "provider_confidence": 0
+      },
+      "pregame_signal": {
+        "pregame_quality": 0
+      },
+      "used_poisson_fallback": true,
+      "local_candidate_score": 54,
+      "data_quality_score": 80
+    },
+    {
       "id": "4539723",
       "date": "2026-03-25",
       "event_date": "2026-03-25T13:30:00+00:00",
@@ -1517,7 +1649,7 @@
       "competition": "Copa de la Liga",
       "league_logo": null,
       "status": "2nd Half",
-      "home_score": 0,
+      "home_score": 1,
       "away_score": 3,
       "h2h_analysis": {
         "total_matches": 0,
@@ -1582,9 +1714,9 @@
       "league": "Torneo de Reservas",
       "competition": "Torneo de Reservas",
       "league_logo": null,
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 7,
+      "away_score": 3,
       "h2h_analysis": {
         "total_matches": 0,
         "home_dominance": 0.7183270915694987,
@@ -1617,13 +1749,13 @@
       "xpronos_score": 35,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_btts": false,
       "verified_over": false,
       "odds": null,
       "public_votes": null,
       "value_bet": false,
-      "is_finished": false,
+      "is_finished": true,
       "final_score": 43.6,
       "provider_signal": {
         "provider_alignment": 0,
@@ -1648,9 +1780,9 @@
       "league": "Torneo de Reservas",
       "competition": "Torneo de Reservas",
       "league_logo": null,
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 3,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 0,
         "home_dominance": 0.694136027883405,
@@ -1683,13 +1815,13 @@
       "xpronos_score": 38,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_btts": false,
       "verified_over": false,
       "odds": null,
       "public_votes": null,
       "value_bet": false,
-      "is_finished": false,
+      "is_finished": true,
       "final_score": 41.9,
       "provider_signal": {
         "provider_alignment": 0,
@@ -1714,9 +1846,9 @@
       "league": "Non League Premier",
       "competition": "Non League Premier",
       "league_logo": null,
-      "status": "Scheduled",
+      "status": "Ended",
       "home_score": 0,
-      "away_score": 0,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 1,
         "home_dominance": 1.0,
@@ -1759,7 +1891,7 @@
       },
       "public_votes": null,
       "value_bet": true,
-      "is_finished": false,
+      "is_finished": true,
       "final_score": 48.2,
       "provider_signal": {
         "provider_alignment": 0,
@@ -1850,9 +1982,9 @@
       "league": "Regional League - West",
       "competition": "Regional League - West",
       "league_logo": null,
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 0,
+      "away_score": 4,
       "h2h_analysis": {
         "total_matches": 0,
         "home_dominance": 0.008654272665099048,
@@ -1885,7 +2017,7 @@
       "xpronos_score": 35,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_btts": false,
       "verified_over": false,
       "odds": {
@@ -1895,7 +2027,7 @@
       },
       "public_votes": null,
       "value_bet": true,
-      "is_finished": false,
+      "is_finished": true,
       "final_score": 46.9,
       "provider_signal": {
         "provider_alignment": 0,
@@ -1920,9 +2052,9 @@
       "league": "QSL Cup - Quarter Finals",
       "competition": "QSL Cup - Quarter Finals",
       "league_logo": null,
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 2,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 0,
         "home_dominance": 0.5404056347946821,
@@ -1955,7 +2087,7 @@
       "xpronos_score": 35,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_btts": false,
       "verified_over": false,
       "odds": {
@@ -1965,7 +2097,7 @@
       },
       "public_votes": null,
       "value_bet": false,
-      "is_finished": false,
+      "is_finished": true,
       "final_score": 47.3,
       "provider_signal": {
         "provider_alignment": 0,
@@ -1990,9 +2122,9 @@
       "league": "2. Lig",
       "competition": "2. Lig",
       "league_logo": null,
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 2,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 0,
         "home_dominance": 0.6935410964025746,
@@ -2025,7 +2157,7 @@
       "xpronos_score": 37,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_btts": false,
       "verified_over": false,
       "odds": {
@@ -2035,7 +2167,7 @@
       },
       "public_votes": null,
       "value_bet": true,
-      "is_finished": false,
+      "is_finished": true,
       "final_score": 42.4,
       "provider_signal": {
         "provider_alignment": 0,
@@ -2060,9 +2192,9 @@
       "league": "National League",
       "competition": "National League",
       "league_logo": null,
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 4,
       "h2h_analysis": {
         "total_matches": 1,
         "home_dominance": 0.0,
@@ -2095,7 +2227,7 @@
       "xpronos_score": 37,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_btts": false,
       "verified_over": false,
       "odds": {
@@ -2105,7 +2237,7 @@
       },
       "public_votes": null,
       "value_bet": true,
-      "is_finished": false,
+      "is_finished": true,
       "final_score": 50.7,
       "provider_signal": {
         "provider_alignment": 0,
@@ -2130,9 +2262,9 @@
       "league": "Regionalliga - West",
       "competition": "Regionalliga - West",
       "league_logo": null,
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 0,
         "home_dominance": 0.5906579318635958,
@@ -2165,13 +2297,13 @@
       "xpronos_score": 35,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_btts": false,
       "verified_over": false,
       "odds": null,
       "public_votes": null,
       "value_bet": false,
-      "is_finished": false,
+      "is_finished": true,
       "final_score": 41.6,
       "provider_signal": {
         "provider_alignment": 0,
@@ -2196,9 +2328,9 @@
       "league": "3. Lig",
       "competition": "3. Lig",
       "league_logo": null,
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 2,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 0,
         "home_dominance": 0.6825142244958327,
@@ -2231,13 +2363,13 @@
       "xpronos_score": 36,
       "badge": "",
       "category": "simple",
-      "verified_double": false,
+      "verified_double": true,
       "verified_btts": false,
       "verified_over": false,
       "odds": null,
       "public_votes": null,
       "value_bet": false,
-      "is_finished": false,
+      "is_finished": true,
       "final_score": 44.0,
       "provider_signal": {
         "provider_alignment": 0,
@@ -2392,6 +2524,72 @@
         "used_poisson_fallback": true,
         "local_candidate_score": 44,
         "data_quality_score": 100
+      },
+      {
+        "id": "4685313",
+        "date": "2026-03-26",
+        "event_date": "2026-03-26T20:30:00+00:00",
+        "start_time": "2026-03-26T20:30:00+00:00",
+        "home_team": "Mount Pleasant",
+        "away_team": "Spanish Town Police",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Premier League",
+        "competition": "Premier League",
+        "league_logo": null,
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 0,
+          "home_dominance": 0.720226108068483,
+          "away_dominance": 0.07794568964624277,
+          "draw_rate": 0.2018282022852743
+        },
+        "home_form": {
+          "wins": 0.67,
+          "draws": 0.33,
+          "losses": 0.0,
+          "goals_for": 2.3,
+          "goals_against": 0.64,
+          "form_score": 0.779,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.17,
+          "draws": 0.38,
+          "losses": 0.45,
+          "goals_for": 0.17,
+          "goals_against": 1.3,
+          "form_score": 0.299,
+          "matches_used": 5
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 60,
+          "odds": null
+        },
+        "xpronos_score": 35,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": null,
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": false,
+        "final_score": 43.9,
+        "provider_signal": {
+          "provider_alignment": 0,
+          "provider_confidence": 0
+        },
+        "pregame_signal": {
+          "pregame_quality": 0
+        },
+        "used_poisson_fallback": true,
+        "local_candidate_score": 53,
+        "data_quality_score": 80
       },
       {
         "id": "4694504",
@@ -3552,6 +3750,72 @@
         "data_quality_score": 100
       },
       {
+        "id": "4694584",
+        "date": "2026-03-25",
+        "event_date": "2026-03-25T15:00:00+00:00",
+        "start_time": "2026-03-25T15:00:00+00:00",
+        "home_team": "Viking",
+        "away_team": "FK Haugesund",
+        "home_logo": null,
+        "away_logo": null,
+        "league": "Club Friendlies",
+        "competition": "Club Friendlies",
+        "league_logo": null,
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 0,
+          "home_dominance": 0.7603256625543698,
+          "away_dominance": 0.10246741253879053,
+          "draw_rate": 0.1372069249068395
+        },
+        "home_form": {
+          "wins": 0.92,
+          "draws": 0.08,
+          "losses": 0.0,
+          "goals_for": 3.03,
+          "goals_against": 0.84,
+          "form_score": 0.949,
+          "matches_used": 5
+        },
+        "away_form": {
+          "wins": 0.0,
+          "draws": 0.28,
+          "losses": 0.72,
+          "goals_for": 1.31,
+          "goals_against": 3.02,
+          "form_score": 0.095,
+          "matches_used": 5
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "confidence": 60,
+          "odds": null
+        },
+        "xpronos_score": 35,
+        "badge": "",
+        "category": "simple",
+        "verified_double": false,
+        "verified_btts": false,
+        "verified_over": false,
+        "odds": null,
+        "public_votes": null,
+        "value_bet": false,
+        "is_finished": false,
+        "final_score": 44.0,
+        "provider_signal": {
+          "provider_alignment": 0,
+          "provider_confidence": 0
+        },
+        "pregame_signal": {
+          "pregame_quality": 0
+        },
+        "used_poisson_fallback": true,
+        "local_candidate_score": 54,
+        "data_quality_score": 80
+      },
+      {
         "id": "4539723",
         "date": "2026-03-25",
         "event_date": "2026-03-25T13:30:00+00:00",
@@ -3704,7 +3968,7 @@
         "competition": "Copa de la Liga",
         "league_logo": null,
         "status": "2nd Half",
-        "home_score": 0,
+        "home_score": 1,
         "away_score": 3,
         "h2h_analysis": {
           "total_matches": 0,
@@ -4518,5 +4782,5 @@
     "cutoff_date": "2026-03-11"
   },
   "bookmakers": [],
-  "generated_at": "2026-03-25T01:14:30.460607+00:00"
+  "generated_at": "2026-03-25T01:29:28.787585+00:00"
 }
