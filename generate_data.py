@@ -7,7 +7,7 @@ Version améliorée :
 - rétention 14 jours dans data.json (merge intelligent)
 - téléchargement logos une seule fois (cache persistant) + stockage local
 - un seul API key pour les logos (pas de rotation) si URL SportData
-- enrichissement ciblé + budget API 
+- enrichissement ciblé + budget API   - extraction robuste (scores, logos, cotes)
 """
 
 import os
