@@ -1471,14 +1471,14 @@
       "verified_btts": false,
       "verified_over": false,
       "odds": {
-        "home": 1.91,
+        "home": 1.8,
         "draw": 4.0,
-        "away": 2.9
+        "away": 3.2
       },
       "public_votes": null,
       "value_bet": true,
       "is_finished": false,
-      "final_score": 45.9,
+      "final_score": 46.9,
       "provider_signal": {
         "provider_alignment": 0,
         "provider_confidence": 0
@@ -1487,7 +1487,7 @@
         "pregame_quality": 0
       },
       "used_poisson_fallback": true,
-      "local_candidate_score": 65,
+      "local_candidate_score": 70,
       "data_quality_score": 100,
       "home_competitor_id": "66856",
       "away_competitor_id": "20759",
@@ -3859,14 +3859,14 @@
         "verified_btts": false,
         "verified_over": false,
         "odds": {
-          "home": 1.91,
+          "home": 1.8,
           "draw": 4.0,
-          "away": 2.9
+          "away": 3.2
         },
         "public_votes": null,
         "value_bet": true,
         "is_finished": false,
-        "final_score": 45.9,
+        "final_score": 46.9,
         "provider_signal": {
           "provider_alignment": 0,
           "provider_confidence": 0
@@ -3875,7 +3875,7 @@
           "pregame_quality": 0
         },
         "used_poisson_fallback": true,
-        "local_candidate_score": 65,
+        "local_candidate_score": 70,
         "data_quality_score": 100,
         "home_competitor_id": "66856",
         "away_competitor_id": "20759",
@@ -4927,5 +4927,5 @@
     "pregame_disabled": true
   },
   "bookmakers": [],
-  "generated_at": "2026-03-25T05:36:48.997519+00:00"
+  "generated_at": "2026-03-25T05:50:34.165083+00:00"
 }
