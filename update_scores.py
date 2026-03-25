@@ -3,11 +3,13 @@
 
 """
 update_scores.py - Met à jour les scores et statuts des matchs dans data.json
-Version fiabilisée :
-- gestion robuste des erreurs
+Version améliorée :
+- récupère uniquement les dates utiles (basées sur data.json)
+- mise à jour robuste (scores/status/is_finished)
+- recalcul automatique de verified_double quand match terminé
 - sauvegarde avec backup
-- mise à jour de is_finished
-- compatible avec api_utils
+- logs + debug (combien de matchs data.json retrouvés dans API)
+- compatible avec api_utils (rotation de clés)
 """
 
 import os
@@ -20,11 +22,11 @@ DATA_FILE = "data.json"
 BACKUP_FILE = "data_backup.json"
 
 UTC = timezone.utc
-today = datetime.now(UTC).date()
-days_to_fetch = [today, today - timedelta(days=1), today - timedelta(days=2)]
+now_utc = datetime.now(UTC)
+today = now_utc.date()
 
 print("=" * 60)
-print(f"🔄 MISE À JOUR DES SCORES - {today} {datetime.now(UTC).strftime('%H:%M')} UTC")
+print(f"🔄 MISE À JOUR DES SCORES - {today} {now_utc.strftime('%H:%M')} UTC")
 print("=" * 60)
 
 
@@ -36,37 +38,6 @@ def safe_load_json(path, default):
             return json.load(f)
     except Exception:
         return default
-
-
-def fetch_games(date):
-    """
-    Récupère les matchs pour une date donnée via l'API SportData.
-    """
-    params = {
-        "startDate": date.strftime("%d/%m/%Y"),
-        "endDate": date.strftime("%d/%m/%Y"),
-        "sports": 1,
-        "showOdds": "false",
-        "onlyMajorGames": "false"
-    }
-
-    try:
-        resp = make_request("GET", SPORTDATA_URL, params=params, timeout=30)
-        if resp is None:
-            print(f"⚠️ Aucune réponse API pour {date}")
-            return []
-
-        if resp.status_code != 200:
-            print(f"⚠️ HTTP {resp.status_code} pour {date}")
-            return []
-
-        data = resp.json()
-        games = data.get("games", [])
-        return games if isinstance(games, list) else []
-
-    except Exception as e:
-        print(f"❌ Erreur API pour {date} : {e}")
-        return []
 
 
 def load_data():
@@ -120,12 +91,12 @@ def is_finished_status(status_group, status_text):
     if str(status_group) == "4":
         return True
 
-    st = str(status_text or "").lower()
+    st = str(status_text or "").lower().strip()
     return (
         "ended" in st or
         "finished" in st or
         "terminé" in st or
-        "ft" == st.strip()
+        st == "ft"
     )
 
 
@@ -138,9 +109,118 @@ def is_live_status(status_text):
     )
 
 
-def main():
-    all_games = []
+def parse_date_yyyy_mm_dd(s):
+    if not s:
+        return None
+    try:
+        return datetime.strptime(str(s)[:10], "%Y-%m-%d").date()
+    except Exception:
+        return None
 
+
+def date_from_match(match):
+    # priorité au champ "date" (déjà au format yyyy-mm-dd)
+    d = parse_date_yyyy_mm_dd(match.get("date"))
+    if d:
+        return d
+    # fallback event_date iso
+    ev = match.get("event_date") or match.get("start_time")
+    return parse_date_yyyy_mm_dd(ev)
+
+
+def compute_verified_double(match):
+    pred = match.get("prediction") or {}
+    dc = pred.get("double_chance")
+
+    hs = match.get("home_score")
+    aas = match.get("away_score")
+    if hs is None or aas is None:
+        return False
+
+    if dc == "1X":
+        return hs >= aas
+    if dc == "X2":
+        return aas >= hs
+
+    return False
+
+
+def fetch_games(date):
+    """
+    Récupère les matchs pour une date donnée via l'API SportData.
+    """
+    params = {
+        "startDate": date.strftime("%d/%m/%Y"),
+        "endDate": date.strftime("%d/%m/%Y"),
+        "sports": 1,
+        "showOdds": "false",
+        "onlyMajorGames": "false"
+    }
+
+    try:
+        resp = make_request("GET", SPORTDATA_URL, params=params, timeout=30)
+        if resp is None:
+            print(f"⚠️ Aucune réponse API pour {date}")
+            return []
+
+        if resp.status_code != 200:
+            print(f"⚠️ HTTP {resp.status_code} pour {date}")
+            return []
+
+        data = resp.json()
+        games = data.get("games", [])
+        return games if isinstance(games, list) else []
+
+    except Exception as e:
+        print(f"❌ Erreur API pour {date} : {e}")
+        return []
+
+
+def choose_dates_to_fetch(matches, max_days=7):
+    """
+    Choisit les dates utiles à rafraîchir :
+    - matchs non terminés
+    - + matchs des 2 derniers jours (cas de score tardif)
+    - limite à max_days pour éviter d’exploser l’API
+    """
+    if not isinstance(matches, list) or not matches:
+        return [today, today - timedelta(days=1), today - timedelta(days=2)]
+
+    date_set = set()
+    for m in matches:
+        d = date_from_match(m)
+        if not d:
+            continue
+
+        finished = bool(m.get("is_finished", False))
+        days_diff = (today - d).days
+
+        if (not finished) or (0 <= days_diff <= 2):
+            date_set.add(d)
+
+    # fallback si rien
+    if not date_set:
+        return [today, today - timedelta(days=1), today - timedelta(days=2)]
+
+    # garde uniquement les dates les plus récentes
+    dates_sorted = sorted(date_set, reverse=True)
+    dates_sorted = dates_sorted[:max_days]
+    return sorted(dates_sorted, reverse=False)  # ordre chronologique pour les logs
+
+
+def main():
+    data = load_data()
+    matches = data.get("matches", [])
+    if not isinstance(matches, list):
+        matches = []
+        data["matches"] = matches
+
+    print(f"📦 Matchs dans data.json : {len(matches)}")
+
+    days_to_fetch = choose_dates_to_fetch(matches, max_days=7)
+    print(f"🗓️ Dates à rafraîchir (max 7) : {[str(d) for d in days_to_fetch]}")
+
+    all_games = []
     for day in days_to_fetch:
         print(f"📅 Récupération des matchs du {day}...")
         games = fetch_games(day)
@@ -152,7 +232,6 @@ def main():
         return
 
     scores_dict = {}
-
     for g in all_games:
         gid = str(g.get("id", "")).strip()
         if not gid:
@@ -174,15 +253,13 @@ def main():
             "is_finished": is_finished_status(status_group, status_text)
         }
 
-    data = load_data()
-    matches = data.get("matches", [])
-    if not isinstance(matches, list):
-        matches = []
-        data["matches"] = matches
+    matched_in_api = sum(1 for m in matches if str(m.get("id", "")).strip() in scores_dict)
+    print(f"🔗 Matchs de data.json retrouvés dans l’API : {matched_in_api}")
 
     updated = 0
-    finished = 0
-    live = 0
+    finished_count = 0
+    live_count = 0
+    validated_changed = 0
 
     for match in matches:
         gid = str(match.get("id", "")).strip()
@@ -194,8 +271,10 @@ def main():
         old_home = match.get("home_score")
         old_away = match.get("away_score")
         old_status = match.get("status")
-        old_finished = match.get("is_finished")
+        old_finished = bool(match.get("is_finished", False))
+        old_verified = bool(match.get("verified_double", False))
 
+        # Update scores/status/is_finished
         changed = (
             old_home != new["home_score"] or
             old_away != new["away_score"] or
@@ -208,12 +287,22 @@ def main():
             match["away_score"] = new["away_score"]
             match["status"] = new["status"]
             match["is_finished"] = new["is_finished"]
+
+        # ✅ Recalcul verified_double dès que match terminé et scores disponibles
+        if match.get("is_finished") and match.get("home_score") is not None and match.get("away_score") is not None:
+            new_verified = compute_verified_double(match)
+            if new_verified != old_verified:
+                match["verified_double"] = new_verified
+                validated_changed += 1
+                changed = True
+
+        if changed:
             updated += 1
 
         if new["is_finished"]:
-            finished += 1
+            finished_count += 1
         elif is_live_status(new["status"]):
-            live += 1
+            live_count += 1
 
     if updated > 0:
         save_data(data)
@@ -222,10 +311,12 @@ def main():
 
     print("\n📊 RÉSUMÉ")
     print("------------")
-    print(f"Matchs analysés : {len(all_games)}")
+    print(f"Matchs API analysés : {len(all_games)}")
+    print(f"Matchs data.json retrouvés dans l’API : {matched_in_api}")
     print(f"Matchs mis à jour : {updated}")
-    print(f"Matchs terminés : {finished}")
-    print(f"Matchs en direct : {live}")
+    print(f"Matchs terminés (parmi ceux retrouvés) : {finished_count}")
+    print(f"Matchs en direct : {live_count}")
+    print(f"Validations recalculées (verified_double) : {validated_changed}")
     print("✅ Mise à jour terminée.")
 
 
