@@ -101,6 +101,8 @@ jobs:
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
           PIXAZO_API_KEY: ${{ secrets.PIXAZO_API_KEY }}
+          # ✅ nécessaire pour appeler allscores
+          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY_1 }}
         run: |
           echo "📝 Génération du contenu IA..."
           python content_generator.py
