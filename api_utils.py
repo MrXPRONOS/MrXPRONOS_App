@@ -2,17 +2,21 @@
 # -*- coding: utf-8 -*-
 
 """
-api_utils.py - Module partagé pour les requêtes API avec rotation de clés
-Utilisé par tous les scripts qui appellent SportData API.
+api_utils.py - Module partagé pour les requêtes API avec rotation de clés.
+
+Améliorations:
+- Stop rotation sur erreurs serveur 5xx (inutile de tester d’autres clés)
+- Rotation utile sur 401/403/429 (clé refusée / rate limit)
+- Retourne la réponse uniquement si HTTP 200, sinon None (compatibilité scripts)
 """
 
 import os
 import time
 import requests
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 # Récupération des clés API depuis les variables d'environnement
-API_KEYS = []
+API_KEYS: List[str] = []
 for i in range(1, 6):
     key = os.environ.get(f"SPORTDATA_API_KEY_{i}")
     if key:
@@ -37,14 +41,22 @@ def make_request_with_rotation(
     data: Optional[Dict[str, Any]] = None,
     headers: Optional[Dict[str, str]] = None,
     timeout: int = 30,
-    max_retries: int = 1
+    max_retries: int = 1,
+    sleep_between_keys: float = 0.2,
+    sleep_between_cycles: float = 1.0,
 ):
     """
     Effectue une requête HTTP avec rotation de clés API.
-    1 seul cycle logique par défaut :
-    - essaie chaque clé une seule fois
-    - retourne la réponse si succès
-    - sinon retourne None
+
+    - Essaie chaque clé dans l’ordre
+    - Si HTTP 200 => renvoie resp
+    - Si HTTP 5xx => stop immédiat (panne serveur)
+    - Si HTTP 401/403/429 => rotation continue
+    - Autres codes => rotation continue (par défaut)
+
+    Retourne:
+      - requests.Response si succès (200)
+      - None sinon
     """
     method = method.upper()
 
@@ -60,7 +72,7 @@ def make_request_with_rotation(
                         url,
                         headers=request_headers,
                         params=params,
-                        timeout=timeout
+                        timeout=timeout,
                     )
                 elif method == "POST":
                     resp = requests.post(
@@ -68,7 +80,7 @@ def make_request_with_rotation(
                         headers=request_headers,
                         params=params,
                         data=data,
-                        timeout=timeout
+                        timeout=timeout,
                     )
                 else:
                     raise ValueError(f"Méthode non supportée: {method}")
@@ -76,18 +88,27 @@ def make_request_with_rotation(
                 if resp.status_code == 200:
                     return resp
 
-                print(f"⚠️ Clé {i} -> HTTP {resp.status_code} sur {url}")
+                # ✅ Stop rotation sur panne serveur
+                if 500 <= resp.status_code <= 599:
+                    print(f"⛔ Serveur HTTP {resp.status_code} sur {url} (rotation stoppée)")
+                    return None
+
+                # Rotation utile sur 401/403/429
+                if resp.status_code in (401, 403, 429):
+                    print(f"⚠️ Clé {i} refusée/limitée -> HTTP {resp.status_code} sur {url}")
+                else:
+                    print(f"⚠️ Clé {i} -> HTTP {resp.status_code} sur {url}")
 
             except Exception as e:
                 print(f"⚠️ Clé {i} échoue sur {url}: {e}")
 
-            time.sleep(0.2)
+            time.sleep(sleep_between_keys)
 
         if attempt < max_retries - 1:
-            time.sleep(1)
+            time.sleep(sleep_between_cycles)
 
     return None
 
 
-def make_request(method, url, **kwargs):
+def make_request(method: str, url: str, **kwargs):
     return make_request_with_rotation(method, url, **kwargs)
