@@ -2516,3 +2516,30 @@ body.menu-open {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+
+/* =======================================================
+   FIX BURGER BUTTON MOBILE (ne pas passer à la ligne)
+   ======================================================= */
+@media (max-width: 768px) {
+  header .container {
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+  }
+
+  .header-actions {
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+  }
+
+  .promo-code {
+    font-size: 0.85rem !important;
+    padding: 0.35rem 0.7rem !important;
+    margin-left: 0 !important;
+  }
+
+  .burger-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+}
