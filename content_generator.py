@@ -2,13 +2,16 @@
 # -*- coding: utf-8 -*-
 
 """
-content_generator.py - Mr XPRONOS (SEO Premium)
-- 1 article "match du jour" (SportData V1 allscores, scoring popularité)
-- 1 article "evergreen" (anti répétition + anti similarité)
-- Images 1200x630 (génération en 1024x576 puis crop/resize) :
-  HF -> Mistral (si SDK dispo) -> Pixazo
-- Texte via Mistral HTTP (pas besoin du SDK mistralai)
-- Pas d'image => pas d'article (règle appliquée)
+content_generator.py - Mr XPRONOS (Version finale robuste)
+
+Fonctionnalités :
+- 1 article match du jour
+- 1 article evergreen
+- Match du jour : data.json -> fallback allscores via api_utils
+- Texte : Mistral SDK -> fallback Mistral HTTP
+- Images : HF -> Mistral SDK image -> Pixazo
+- 1200x630 final
+- Anti doublons / anti similarité
 """
 
 import os
@@ -18,12 +21,17 @@ import time
 import uuid
 import random
 import hashlib
-from datetime import datetime, timezone, date
-from typing import Optional, List, Dict, Any, Tuple
+from datetime import datetime, timezone
 from difflib import SequenceMatcher
+from typing import Optional, List, Dict, Any, Tuple
 
 import requests
 from PIL import Image, ImageOps
+
+try:
+    from api_utils import make_request
+except Exception:
+    make_request = None
 
 # =======================================================
 # CONFIG
@@ -37,15 +45,26 @@ CODE_PROMO = "XPVIP"
 
 DATA_FILE = "data.json"
 ARTICLES_FILE = "articles.json"
-TOPICS_FILE = "evergreen_topics.json"  # si présent, utilisé en priorité
+TOPICS_FILE = "evergreen_topics.json"
 
 ASSET_IMG_DIR = "assets/images"
 ARTICLE_IMG_DIR = os.path.join(ASSET_IMG_DIR, "articles")
 os.makedirs(ARTICLE_IMG_DIR, exist_ok=True)
 
-# ---- SportData (match du jour)
 SPORTDATA_V1_ALLSCORES = "https://v1.football.sportsapipro.com/games/allscores"
-SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")  # 1 seule clé ici
+
+MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
+HF_TOKEN = os.environ.get("HF_TOKEN")
+HF_MODEL = os.environ.get("HF_MODEL", "SG161222/RealVisXL_V4.0")
+PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY")
+
+GEN_W, GEN_H = 1024, 576
+OUT_W, OUT_H = 1200, 630
+
+SIMILARITY_JACCARD_THRESHOLD = 0.62
+SIMILARITY_SEQ_THRESHOLD = 0.86
+MAX_EVERGREEN_RETRIES = 2
+MAX_ARTICLES_KEEP = 80
 
 POPULAR_LEAGUES = [
     "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
@@ -54,29 +73,45 @@ POPULAR_LEAGUES = [
     "Super League", "Championship", "Liga Portugal", "Trendyol Super Lig"
 ]
 
-# ---- Mistral texte (HTTP)
-MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
+# =======================================================
+# MISTRAL SDK INIT
+# =======================================================
 
-# ---- Images: HF -> Mistral -> Pixazo
-HF_TOKEN = os.environ.get("HF_TOKEN")
-HF_MODEL = os.environ.get("HF_MODEL", "SG161222/RealVisXL_V4.0")  # recommandé réaliste
-PIXAZO_API_KEY = os.environ.get("PIXAZO_API_KEY")
+mistral_client = None
+image_agent_id = None
 
-# Génération images : taille stable SDXL (16:9) puis resize/crop final
-GEN_W, GEN_H = 1024, 576
-OUT_W, OUT_H = 1200, 630
+def init_mistral_sdk():
+    global mistral_client, image_agent_id
+    if not MISTRAL_API_KEY:
+        return False
+    try:
+        from mistralai import Mistral
+        mistral_client = Mistral(api_key=MISTRAL_API_KEY)
 
-# Evergreen anti répétition / similarité
-SIMILARITY_JACCARD_THRESHOLD = 0.62
-SIMILARITY_SEQ_THRESHOLD = 0.86
-MAX_EVERGREEN_RETRIES = 2
+        try:
+            agent = mistral_client.beta.agents.create(
+                model="mistral-medium-2505",
+                name="Image Agent",
+                description="Generate images",
+                instructions="Use image generation tool when asked to create images.",
+                tools=[{"type": "image_generation"}],
+                completion_args={"temperature": 0.3, "top_p": 0.95}
+            )
+            image_agent_id = agent.id
+        except Exception:
+            image_agent_id = None
 
-# Limites
-MAX_ARTICLES_KEEP = 80
+        print("✅ Mistral SDK initialisé")
+        return True
+    except Exception as e:
+        print(f"⚠️ Mistral SDK indisponible : {e}")
+        mistral_client = None
+        image_agent_id = None
+        return False
 
 
 # =======================================================
-# UTILITAIRES
+# UTILS
 # =======================================================
 
 def load_json(path: str, default):
@@ -110,8 +145,7 @@ def excerpt_from_text(text: str, length=170) -> str:
     return (clean[:length] + "...") if len(clean) > length else clean
 
 def tokenize(text: str) -> set:
-    tokens = re.findall(r"[a-z0-9]+", (text or "").lower())
-    return set(tokens)
+    return set(re.findall(r"[a-z0-9]+", (text or "").lower()))
 
 def jaccard(a: set, b: set) -> float:
     if not a or not b:
@@ -169,24 +203,19 @@ def is_duplicate_article(new_slug: str, new_title: str, new_body: str, existing:
             return True
         if a.get("content_hash") == new_h:
             return True
-
-        # anti similarité titre
-        if a.get("title") and new_title:
-            if is_similar(new_title, (a.get("title") or "").lower()):
-                return True
-
+        if a.get("title") and new_title and is_similar(new_title, (a.get("title") or "").lower()):
+            return True
     return False
 
 
 # =======================================================
-# BOOKMAKERS (depuis data.json)
+# BOOKMAKERS
 # =======================================================
 
 def get_bookmakers_from_data() -> list:
     d = load_json(DATA_FILE, {})
     b = d.get("bookmakers", [])
     if isinstance(b, list) and b:
-        # normaliser
         out = []
         for x in b:
             if not isinstance(x, dict):
@@ -197,7 +226,6 @@ def get_bookmakers_from_data() -> list:
                 "logo": x.get("logo")
             })
         return out
-    # fallback minimal
     return [
         {"name": "1xBet", "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"},
         {"name": "1win", "url": "https://1wrbgb.com/?open=register&p=qqcw"},
@@ -210,11 +238,39 @@ def pick_bookmaker() -> dict:
 
 
 # =======================================================
-# SPORTDATA: match du jour par popularité (allscores)
+# MATCH DU JOUR
 # =======================================================
 
+def pick_match_from_data_json() -> Optional[dict]:
+    """
+    Utilise data.json en priorité (plus fiable, pas de 429)
+    """
+    d = load_json(DATA_FILE, {})
+    matches = d.get("matches", [])
+    if not isinstance(matches, list) or not matches:
+        return None
+
+    today_str = TODAY.isoformat()
+    candidates = [m for m in matches if str(m.get("date", "")) == today_str]
+    if not candidates:
+        return None
+
+    # priorité par final_score, xpronos_score, catégorie
+    def score(m):
+        cat_bonus = 50 if m.get("category") == "vip" else 20 if m.get("category") == "pro" else 0
+        return float(m.get("final_score", 0) or 0) + float(m.get("xpronos_score", 0) or 0) + cat_bonus
+
+    best = sorted(candidates, key=score, reverse=True)[0]
+    return {
+        "id": str(best.get("id") or ""),
+        "home_team": best.get("home_team", "Équipe A"),
+        "away_team": best.get("away_team", "Équipe B"),
+        "league": best.get("league", "Championnat"),
+        "event_date": best.get("event_date", ""),
+    }
+
 def fetch_allscores_today() -> Optional[dict]:
-    if not SPORTDATA_API_KEY:
+    if make_request is None:
         return None
 
     params = {
@@ -226,23 +282,15 @@ def fetch_allscores_today() -> Optional[dict]:
     }
 
     try:
-        r = requests.get(
-            SPORTDATA_V1_ALLSCORES,
-            params=params,
-            headers={"x-api-key": SPORTDATA_API_KEY},
-            timeout=30
-        )
-        if r.status_code != 200:
-            print(f"⚠️ allscores HTTP {r.status_code}")
+        resp = make_request("GET", SPORTDATA_V1_ALLSCORES, params=params, timeout=30)
+        if resp is None:
             return None
-        return r.json()
-    except Exception as e:
-        print(f"⚠️ allscores error: {e}")
+        return resp.json()
+    except Exception:
         return None
 
 def build_popularity_maps(payload: dict) -> Tuple[dict, dict]:
-    comp_pop = {}
-    team_pop = {}
+    comp_pop, team_pop = {}, {}
 
     comps = payload.get("competitions", [])
     if isinstance(comps, list):
@@ -250,10 +298,7 @@ def build_popularity_maps(payload: dict) -> Tuple[dict, dict]:
             cid = c.get("id")
             if cid is None:
                 continue
-            comp_pop[str(cid)] = {
-                "popularityRank": c.get("popularityRank", 0) or 0,
-                "name": c.get("name", "")
-            }
+            comp_pop[str(cid)] = c.get("popularityRank", 0) or 0
 
     teams = payload.get("competitors", [])
     if isinstance(teams, list):
@@ -261,25 +306,22 @@ def build_popularity_maps(payload: dict) -> Tuple[dict, dict]:
             tid = t.get("id")
             if tid is None:
                 continue
-            team_pop[str(tid)] = {
-                "popularityRank": t.get("popularityRank", 0) or 0,
-                "name": t.get("name", "")
-            }
+            team_pop[str(tid)] = t.get("popularityRank", 0) or 0
 
     return comp_pop, team_pop
 
-def score_game(game: dict, comp_pop: dict, team_pop: dict) -> float:
+def score_game_by_popularity(game: dict, comp_pop: dict, team_pop: dict) -> float:
     comp_id = str(game.get("competitionId") or "")
     home = game.get("homeCompetitor") or {}
     away = game.get("awayCompetitor") or {}
     hid = str(home.get("id") or "")
     aid = str(away.get("id") or "")
 
-    comp_rank = (comp_pop.get(comp_id, {}) or {}).get("popularityRank", 0) or 0
-    home_rank = (team_pop.get(hid, {}) or {}).get("popularityRank", 0) or 0
-    away_rank = (team_pop.get(aid, {}) or {}).get("popularityRank", 0) or 0
+    comp_rank = comp_pop.get(comp_id, 0) or 0
+    home_rank = team_pop.get(hid, 0) or 0
+    away_rank = team_pop.get(aid, 0) or 0
 
-    comp_name = (game.get("competitionDisplayName") or "")
+    comp_name = game.get("competitionDisplayName", "") or ""
     boost = 0
     if any(l.lower() in comp_name.lower() for l in POPULAR_LEAGUES):
         boost = 50_000_000
@@ -287,6 +329,13 @@ def score_game(game: dict, comp_pop: dict, team_pop: dict) -> float:
     return float(comp_rank * 2 + home_rank + away_rank + boost)
 
 def pick_best_match_today() -> Optional[dict]:
+    # priorité data.json
+    by_data = pick_match_from_data_json()
+    if by_data:
+        print("✅ Match du jour sélectionné depuis data.json")
+        return by_data
+
+    # fallback allscores
     payload = fetch_allscores_today()
     if not payload:
         return None
@@ -300,7 +349,7 @@ def pick_best_match_today() -> Optional[dict]:
     best = None
     best_score = -1.0
     for g in games:
-        s = score_game(g, comp_pop, team_pop)
+        s = score_game_by_popularity(g, comp_pop, team_pop)
         if s > best_score:
             best_score = s
             best = g
@@ -310,6 +359,7 @@ def pick_best_match_today() -> Optional[dict]:
 
     home = best.get("homeCompetitor") or {}
     away = best.get("awayCompetitor") or {}
+
     return {
         "id": str(best.get("id") or ""),
         "home_team": home.get("name", "Équipe A"),
@@ -320,10 +370,24 @@ def pick_best_match_today() -> Optional[dict]:
 
 
 # =======================================================
-# MISTRAL TEXTE (HTTP) - JSON strict
+# MISTRAL TEXTE : SDK puis HTTP
 # =======================================================
 
-def call_mistral_text_http(prompt: str, temperature=0.6, max_tokens=2600, retries=2) -> Optional[str]:
+def call_mistral_text_sdk(prompt: str, temperature=0.6, max_tokens=2800) -> Optional[str]:
+    if not mistral_client:
+        return None
+    try:
+        resp = mistral_client.chat.complete(
+            model="mistral-large-latest",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
+        return resp.choices[0].message.content
+    except Exception:
+        return None
+
+def call_mistral_text_http(prompt: str, temperature=0.6, max_tokens=2800, retries=2) -> Optional[str]:
     if not MISTRAL_API_KEY:
         return None
 
@@ -341,31 +405,43 @@ def call_mistral_text_http(prompt: str, temperature=0.6, max_tokens=2600, retrie
             r = requests.post(url, headers=headers, json=payload, timeout=50)
             r.raise_for_status()
             return r.json()["choices"][0]["message"]["content"].strip()
-        except Exception as e:
-            print(f"⚠️ Mistral HTTP tentative {attempt+1}/{retries+1} échouée: {e}")
+        except Exception:
             if attempt == retries:
                 return None
             time.sleep(1)
     return None
 
-def call_mistral_json(prompt: str, retries=2) -> Optional[dict]:
-    txt = call_mistral_text_http(prompt, temperature=0.55, max_tokens=2800, retries=retries)
+def extract_json_from_text(txt: str) -> Optional[dict]:
     if not txt:
         return None
     try:
         return json.loads(txt)
     except Exception:
-        m = re.search(r"\{[\s\S]*\}\s*$", txt.strip())
-        if m:
-            try:
-                return json.loads(m.group(0))
-            except Exception:
-                return None
+        pass
+
+    m = re.search(r"\{[\s\S]*\}\s*$", txt.strip())
+    if m:
+        try:
+            return json.loads(m.group(0))
+        except Exception:
+            return None
     return None
+
+def call_mistral_json(prompt: str) -> Optional[dict]:
+    # 1) SDK
+    txt = call_mistral_text_sdk(prompt)
+    js = extract_json_from_text(txt) if txt else None
+    if js:
+        return js
+
+    # 2) HTTP
+    txt = call_mistral_text_http(prompt)
+    js = extract_json_from_text(txt) if txt else None
+    return js
 
 
 # =======================================================
-# IMAGES: HF -> Mistral -> Pixazo
+# IMAGES: HF -> Mistral SDK -> Pixazo
 # =======================================================
 
 def ensure_1200x630(path: str) -> Optional[str]:
@@ -391,11 +467,10 @@ def ensure_1200x630(path: str) -> Optional[str]:
         out = os.path.splitext(path)[0] + "-1200x630.png"
         img.save(out, "PNG", optimize=True)
         return out
-    except Exception as e:
-        print(f"⚠️ ensure_1200x630 error: {e}")
+    except Exception:
         return path
 
-def generate_image_hf(prompt: str, negative_prompt: str = "", retries: int = 3) -> Optional[bytes]:
+def generate_image_hf(prompt: str, negative_prompt: str = "", retries: int = 3) -> Optional[str]:
     if not HF_TOKEN:
         return None
 
@@ -417,7 +492,6 @@ def generate_image_hf(prompt: str, negative_prompt: str = "", retries: int = 3) 
             r = requests.post(url, headers=headers, json=payload, timeout=180)
 
             if r.status_code == 503:
-                # modèle en loading
                 try:
                     data = r.json()
                     wait = int(data.get("estimated_time", 10))
@@ -432,47 +506,34 @@ def generate_image_hf(prompt: str, negative_prompt: str = "", retries: int = 3) 
             if r.headers.get("content-type", "").startswith("application/json"):
                 return None
 
-            return r.content
+            path = os.path.join(ARTICLE_IMG_DIR, f"hf-{uuid.uuid4().hex[:10]}.png")
+            with open(path, "wb") as f:
+                f.write(r.content)
+            return ensure_1200x630(path)
         except Exception:
             time.sleep(2)
 
     return None
 
 def generate_image_mistral_sdk(prompt: str) -> Optional[str]:
-    """
-    Fallback Mistral images via SDK si dispo.
-    Si SDK absent/incompatible => None.
-    """
-    try:
-        from mistralai import Mistral  # versions récentes
-        client = Mistral(api_key=os.environ.get("MISTRAL_API_KEY"))
-    except Exception:
+    if not mistral_client or not image_agent_id:
         return None
-
     try:
-        # Agent + tool image_generation (si supporté)
-        agent = client.beta.agents.create(
-            model="mistral-medium-2505",
-            name="Image Agent",
-            description="Generate images",
-            instructions="Use image generation tool.",
-            tools=[{"type": "image_generation"}],
-            completion_args={"temperature": 0.3, "top_p": 0.95}
+        response = mistral_client.beta.conversations.start(
+            agent_id=image_agent_id,
+            inputs=prompt
         )
-        response = client.beta.conversations.start(agent_id=agent.id, inputs=prompt)
-
         for output in response.outputs:
             if output.type == "message.output":
                 for chunk in output.content:
                     if chunk.type == "tool_file" and chunk.tool == "image_generation":
-                        file_bytes = client.files.download(file_id=chunk.file_id).read()
-                        filename = os.path.join(ARTICLE_IMG_DIR, f"mistral-{uuid.uuid4().hex[:10]}.png")
-                        with open(filename, "wb") as f:
+                        file_bytes = mistral_client.files.download(file_id=chunk.file_id).read()
+                        path = os.path.join(ARTICLE_IMG_DIR, f"mistral-{uuid.uuid4().hex[:10]}.png")
+                        with open(path, "wb") as f:
                             f.write(file_bytes)
-                        return filename
+                        return ensure_1200x630(path)
     except Exception:
         return None
-
     return None
 
 def generate_image_pixazo(prompt: str) -> Optional[str]:
@@ -487,7 +548,7 @@ def generate_image_pixazo(prompt: str) -> Optional[str]:
 
     payload = {
         "prompt": prompt,
-        "negative_prompt": "Low-quality, blurry, distorted, ugly, watermark, text, logo, cartoon",
+        "negative_prompt": "text, watermark, logo, ugly, blurry, bad anatomy, extra limbs, cartoon",
         "height": GEN_H,
         "width": GEN_W,
         "num_steps": 22,
@@ -511,13 +572,11 @@ def generate_image_pixazo(prompt: str) -> Optional[str]:
         img_resp = requests.get(image_url, timeout=30)
         img_resp.raise_for_status()
 
-        filename = os.path.join(ARTICLE_IMG_DIR, f"pixazo-{uuid.uuid4().hex[:10]}.png")
-        with open(filename, "wb") as f:
+        path = os.path.join(ARTICLE_IMG_DIR, f"pixazo-{uuid.uuid4().hex[:10]}.png")
+        with open(path, "wb") as f:
             f.write(img_resp.content)
-
-        return filename
-    except Exception as e:
-        print(f"❌ Pixazo image error: {e}")
+        return ensure_1200x630(path)
+    except Exception:
         return None
 
 def generate_image_with_fallback(prompt: str) -> Optional[str]:
@@ -527,35 +586,31 @@ def generate_image_with_fallback(prompt: str) -> Optional[str]:
     )
 
     # 1) HF
-    img_bytes = generate_image_hf(prompt, negative_prompt=NEG, retries=3)
-    if img_bytes:
-        path = os.path.join(ARTICLE_IMG_DIR, f"hf-{uuid.uuid4().hex[:10]}.png")
-        with open(path, "wb") as f:
-            f.write(img_bytes)
-        return ensure_1200x630(path)
+    p = generate_image_hf(prompt, negative_prompt=NEG, retries=3)
+    if p:
+        return p
 
-    # 2) Mistral SDK (si dispo)
-    mpath = generate_image_mistral_sdk(prompt)
-    if mpath:
-        return ensure_1200x630(mpath)
+    # 2) Mistral SDK image
+    p = generate_image_mistral_sdk(prompt)
+    if p:
+        return p
 
     # 3) Pixazo
-    ppath = generate_image_pixazo(prompt)
-    if ppath:
-        return ensure_1200x630(ppath)
+    p = generate_image_pixazo(prompt)
+    if p:
+        return p
 
     return None
 
 
 # =======================================================
-# TOPICS EVERGREEN (500 topics via fichier)
+# TOPICS EVERGREEN
 # =======================================================
 
 def load_topics() -> List[dict]:
     payload = load_json(TOPICS_FILE, {})
     if isinstance(payload, dict) and isinstance(payload.get("topics"), list) and payload["topics"]:
         return payload["topics"]
-    # fallback minimal si pas de fichier
     return [
         {"id": "bankroll-fcfa", "family": "bankroll", "title_template": "Gestion de bankroll en FCFA : méthode simple + exemples", "angle": "discipline + plan"},
         {"id": "bonus-xpvip", "family": "bonus", "title_template": "Bonus + XPVIP : comment utiliser un bonus sans se piéger", "angle": "wagering + prudence"},
@@ -581,7 +636,7 @@ def build_antisim_constraints(existing_articles: list, limit=6) -> str:
 
 
 # =======================================================
-# PROMPTS (JSON strict)
+# PROMPTS
 # =======================================================
 
 def internal_links_section(bookmaker: dict) -> str:
@@ -650,7 +705,7 @@ Thème evergreen:
 
 Contraintes :
 - Ajouter au moins 1 tableau Markdown (comparatif ou checklist).
-- Exemples concrets en FCFA (montants, gestion).
+- Exemples concrets en FCFA.
 - Mentionner bonus/bookmakers intelligemment (sans exagération).
 - Ajouter une mini-section "Comment utiliser {CODE_PROMO} sur {bookmaker.get("name","un bookmaker")}".
 - Ajouter à la fin : {links}
@@ -663,7 +718,7 @@ Réponds UNIQUEMENT en JSON valide.
 
 
 # =======================================================
-# BUILD + SAVE
+# BUILD ARTICLE
 # =======================================================
 
 def build_article_object(js: dict, image_path: str, extra: dict) -> dict:
@@ -702,12 +757,14 @@ def build_article_object(js: dict, image_path: str, extra: dict) -> dict:
 
 def main():
     print("=" * 60)
-    print("🚀 GÉNÉRATION CONTENU IA (Match du jour + Evergreen, 1200x630, HF→Mistral→Pixazo)")
+    print("🚀 GÉNÉRATION CONTENU IA (Match du jour + Evergreen, HF→Mistral→Pixazo)")
     print("=" * 60)
 
     if not MISTRAL_API_KEY:
         print("❌ MISTRAL_API_KEY manquante : impossible de générer le texte.")
         return
+
+    init_mistral_sdk()
 
     existing = load_existing_articles()
     bookmaker = pick_bookmaker()
@@ -716,7 +773,7 @@ def main():
     # 1) MATCH DU JOUR
     match = pick_best_match_today()
     if not match:
-        print("⚠️ Impossible de récupérer un match via allscores. Pas d'article match aujourd'hui.")
+        print("⚠️ Impossible de récupérer un match. Pas d'article match aujourd'hui.")
     else:
         print(f"⚽ Match du jour: {match['home_team']} vs {match['away_team']} ({match.get('league','')})")
         js = call_mistral_json(prompt_match_article(match, bookmaker))
@@ -738,7 +795,7 @@ def main():
 
                 img_path = generate_image_with_fallback(img_prompt)
                 if not img_path:
-                    print("❌ Image match impossible -> article match ignoré (règle).")
+                    print("❌ Image match impossible -> article match ignoré.")
                 else:
                     art = build_article_object(js, img_path, {
                         "type": "match",
@@ -749,7 +806,7 @@ def main():
                     save_articles(existing)
                     print(f"✅ Article match sauvegardé: {art['title']} (slug={art['slug']})")
 
-    # 2) EVERGREEN (anti répétition / similarité)
+    # 2) EVERGREEN
     topic = pick_unused_topic(existing, topics)
     constraints = build_antisim_constraints(existing)
 
@@ -766,11 +823,10 @@ def main():
         js["slug"] = js.get("slug") or slugify(js.get("title", f"evergreen-{topic.get('id','topic')}"))
         body = js.get("content_markdown", "") or ""
 
-        # anti similarité contenu
         too_similar = any(is_similar(body, t) for t in recent_ev)
         if too_similar:
             print("⚠️ Evergreen trop similaire -> régénération.")
-            constraints += "\n- Change COMPLETEMENT la structure, sections et tableau."
+            constraints += "\n- Change complètement la structure, les sections et le tableau."
             continue
 
         if is_duplicate_article(js["slug"], js.get("title", ""), body, existing):
@@ -783,7 +839,7 @@ def main():
         )
         img_path = generate_image_with_fallback(img_prompt)
         if not img_path:
-            print("❌ Image evergreen impossible -> evergreen ignoré (règle).")
+            print("❌ Image evergreen impossible -> evergreen ignoré.")
             break
 
         art = build_article_object(js, img_path, {
