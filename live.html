@@ -20,16 +20,10 @@
       --bg-soft: #0d0d0d;
       --card: #121212;
       --line: #242424;
-      --line-2: #2d2d2d;
       --gold: #D4AF37;
       --gold-soft: #f5e7a3;
       --text: #f3f4f6;
       --muted: #9ca3af;
-      --green: #22c55e;
-      --red: #ef4444;
-      --blue: #3b82f6;
-      --orange: #f59e0b;
-      --purple: #8b5cf6;
     }
 
     * {
@@ -38,11 +32,11 @@
     }
 
     body {
+      margin: 0;
+      color: var(--text);
       background:
         radial-gradient(circle at top, rgba(212,175,55,.08), transparent 30%),
         linear-gradient(180deg, #090909 0%, #050505 100%);
-      color: var(--text);
-      margin: 0;
     }
 
     .gold-gradient {
@@ -92,7 +86,7 @@
       border: 1px solid rgba(212,175,55,.35);
       border-radius: 28px;
       padding: 30px;
-      max-width: 460px;
+      max-width: 480px;
       width: 100%;
       text-align: center;
       box-shadow: 0 0 60px rgba(212,175,55,.12);
@@ -158,7 +152,7 @@
     const SUPABASE_ANON_KEY = "sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt";
     const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live`;
 
-    // nécessaire pour les logos BSD
+    // Pour les logos BSD
     const BSD_IMAGE_TOKEN = "YOUR_BSD_API_TOKEN";
     const BSD_IMAGE_BASE = "https://sports.bzzoiro.com";
 
@@ -202,6 +196,19 @@
       const apiId = match?.league?.api_id;
       if (!apiId || !BSD_IMAGE_TOKEN || BSD_IMAGE_TOKEN === "YOUR_BSD_API_TOKEN") return null;
       return `${BSD_IMAGE_BASE}/img/league/${apiId}/?token=${BSD_IMAGE_TOKEN}`;
+    }
+
+    function getUserId() {
+      let userId = localStorage.getItem("mx_user_id");
+      if (!userId) {
+        try {
+          userId = "MX-" + crypto.randomUUID();
+        } catch {
+          userId = "MX-" + Date.now().toString(36) + Math.random().toString(36).slice(2);
+        }
+        localStorage.setItem("mx_user_id", userId);
+      }
+      return userId;
     }
 
     const Icon = ({ name, size = 18, className = "" }) => {
@@ -339,54 +346,85 @@
       </div>
     );
 
-    const VipLockOverlay = ({ onSubmit }) => {
+    // Ancien popup VIP fusionné avec l’extrait moderne
+    const VipLockOverlay = ({ userId, onActivate }) => {
       const [code, setCode] = useState("");
       const [error, setError] = useState("");
+      const encodedUserId = encodeURIComponent(userId);
 
       const submit = (e) => {
         e.preventDefault();
         if (!code.trim()) {
-          setError("Veuillez entrer votre code VIP");
+          setError("Veuillez entrer un code VIP");
           return;
         }
         setError("");
-        onSubmit(code.trim());
+        onActivate(code.trim());
       };
 
       return (
         <div className="vip-locked-overlay">
           <div className="vip-locked-content">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#D4AF37]/12 border border-[#D4AF37]/30 flex items-center justify-center mb-5">
-              <Icon name="crown" size={28} className="text-[#D4AF37]" />
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#D4AF37]/12 border border-[#D4AF37]/30 flex items-center justify-center mb-5 text-2xl">
+              💎
             </div>
 
-            <h2 className="text-3xl font-bold gold-gradient mb-3">LIVE VIP</h2>
-            <p className="text-sm text-gray-300 mb-5 leading-relaxed">
-              Accès aux meilleurs signaux live football : plus simples, plus lisibles,
-              et centrés sur les statistiques réelles du match.
+            <h2 className="text-3xl font-bold gold-gradient mb-3">🔐 Accès LIVE VIP</h2>
+
+            <p className="text-sm text-gray-300 mb-2">
+              <strong>Votre ID :</strong> {userId}
+            </p>
+
+            <p className="text-sm text-gray-300 mb-5">
+              Pour obtenir un code VIP, contactez-nous sur WhatsApp ou Telegram avec votre ID.
             </p>
 
             <div className="space-y-2 mb-5 text-left text-sm">
-              <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#252525]">
+              <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#2a2a2a]">
                 <div className="text-yellow-400 font-bold">📐 Over 9.5 corners — 84%</div>
                 <div className="text-gray-400 text-xs">Actuel 7 • Projection 11 • Fiabilité élevée</div>
               </div>
-              <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#252525]">
+              <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#2a2a2a]">
                 <div className="text-green-400 font-bold">🎯 Over 21.5 tirs — 82%</div>
                 <div className="text-gray-400 text-xs">Rythme fort • volume déjà élevé</div>
               </div>
             </div>
 
+            <div className="flex gap-3 justify-center mb-5 flex-wrap">
+              <a
+                href={`https://wa.me/22899201444?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodedUserId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-3 rounded-full bg-green-600 text-white font-bold"
+              >
+                WhatsApp
+              </a>
+              <a
+                href={`https://t.me/mr_xpronos?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodedUserId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-3 rounded-full bg-sky-500 text-white font-bold"
+              >
+                Telegram
+              </a>
+            </div>
+
+            <hr className="border-[#2a2a2a] my-5" />
+
+            <p className="text-sm text-gray-300 mb-3">
+              Si vous avez déjà un code, saisissez-le ci-dessous :
+            </p>
+
             <form onSubmit={submit} className="space-y-3">
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
-                placeholder="Entrez votre code VIP"
-                className="w-full px-4 py-3 rounded-full bg-[#0a0a0a] border border-[#D4AF37]/60 text-white text-center outline-none"
+                placeholder="Code VIP"
+                className="w-full px-4 py-3 rounded-full bg-[#0a0a0a] border border-[#D4AF37] text-white text-center outline-none"
               />
               {error && <div className="text-red-500 text-sm">{error}</div>}
-              <button className="w-full py-3 rounded-full bg-[#D4AF37] text-black font-bold hover:opacity-95">
-                Activer l'accès
+              <button className="w-full py-3 rounded-full bg-[#D4AF37] text-black font-bold">
+                Activer
               </button>
             </form>
           </div>
@@ -818,7 +856,7 @@
     );
 
     const App = () => {
-      const [userId] = useState(() => localStorage.getItem("mrx_user_id") || `user_${Date.now()}`);
+      const [userId] = useState(() => getUserId());
       const [vipCode, setVipCode] = useState(() => localStorage.getItem("mx_vip_code") || "");
       const [isVip, setIsVip] = useState(false);
       const [vipChecking, setVipChecking] = useState(true);
@@ -838,7 +876,7 @@
       const prevNotifIds = useRef(new Set());
 
       useEffect(() => {
-        localStorage.setItem("mrx_user_id", userId);
+        localStorage.setItem("mx_user_id", userId);
       }, [userId]);
 
       const checkVip = useCallback(async (code) => {
@@ -849,7 +887,9 @@
         }
 
         try {
-          const res = await fetch(`${EDGE_FUNCTION_URL}/check-vip?code=${encodeURIComponent(code)}`);
+          const res = await fetch(
+            `${EDGE_FUNCTION_URL}/check-vip?code=${encodeURIComponent(code)}&user_id=${encodeURIComponent(userId)}`
+          );
           const data = await res.json();
           setIsVip(data.valid === true);
         } catch (e) {
@@ -858,7 +898,7 @@
         } finally {
           setVipChecking(false);
         }
-      }, []);
+      }, [userId]);
 
       useEffect(() => {
         checkVip(vipCode);
@@ -867,7 +907,7 @@
       const apiFetch = useCallback(async (endpoint, isPublic = false) => {
         const sep = endpoint.includes("?") ? "&" : "?";
         const url = !isPublic && vipCode
-          ? `${EDGE_FUNCTION_URL}${endpoint}${sep}vip_code=${encodeURIComponent(vipCode)}`
+          ? `${EDGE_FUNCTION_URL}${endpoint}${sep}vip_code=${encodeURIComponent(vipCode)}&user_id=${encodeURIComponent(userId)}`
           : `${EDGE_FUNCTION_URL}${endpoint}`;
 
         const res = await fetch(url);
@@ -884,7 +924,7 @@
         }
 
         return res;
-      }, [vipCode]);
+      }, [vipCode, userId]);
 
       const fetchNotifications = useCallback(async () => {
         const res = await apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`, true);
@@ -1018,9 +1058,11 @@
       if (!isVip) {
         return (
           <VipLockOverlay
-            onSubmit={(code) => {
+            userId={userId}
+            onActivate={(code) => {
               localStorage.setItem("mx_vip_code", code);
               setVipCode(code);
+              setVipChecking(true);
             }}
           />
         );
