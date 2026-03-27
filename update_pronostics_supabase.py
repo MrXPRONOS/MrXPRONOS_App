@@ -8,6 +8,7 @@ Version robuste :
 - ne casse pas le workflow si variables absentes
 - upsert propre
 - validation des matchs d'hier / aujourd'hui / demain
+- sécurise les valeurs NULL problématiques (ex: cote)
 """
 
 import os
@@ -50,27 +51,59 @@ def safe_load_data():
         print(f"⚠️ Impossible de lire data.json : {e}")
         return None
 
+def to_int_or_none(value):
+    try:
+        if value is None or value == "":
+            return None
+        return int(value)
+    except Exception:
+        return None
+
+def to_float_or_zero(value):
+    try:
+        if value is None or value == "":
+            return 0
+        return float(value)
+    except Exception:
+        return 0
+
+def to_float_or_none(value):
+    try:
+        if value is None or value == "":
+            return None
+        return float(value)
+    except Exception:
+        return None
+
+def safe_str(value):
+    if value is None:
+        return ""
+    return str(value).strip()
+
 def normalize_match_row(match):
     pred = match.get("prediction", {}) or {}
 
+    cote = pred.get("odds", None)
+    confidence = pred.get("confidence", None)
+
     return {
-        "match_id": str(match.get("id", "")),
-        "match": f"{match.get('home_team', '')} vs {match.get('away_team', '')}",
-        "home_team": match.get("home_team"),
-        "away_team": match.get("away_team"),
-        "prediction": pred.get("double_chance"),
-        "confidence": pred.get("confidence"),
-        "cote": pred.get("odds"),
-        "competition": match.get("league"),
-        "category": match.get("category"),
-        "badge": match.get("badge"),
-        "date": match.get("date"),
+        "match_id": safe_str(match.get("id")),
+        "match": f"{safe_str(match.get('home_team'))} vs {safe_str(match.get('away_team'))}",
+        "home_team": safe_str(match.get("home_team")),
+        "away_team": safe_str(match.get("away_team")),
+        "prediction": safe_str(pred.get("double_chance")),
+        "confidence": to_float_or_zero(confidence),
+        "cote": to_float_or_zero(cote),  # ✅ correction principale
+        "competition": safe_str(match.get("league")),
+        "category": safe_str(match.get("category")),
+        "badge": safe_str(match.get("badge")),
+        "date": safe_str(match.get("date")),
         "event_date": match.get("event_date"),
-        "status": match.get("status"),
-        "home_score": match.get("home_score"),
-        "away_score": match.get("away_score"),
-        "final_score": match.get("final_score"),
-        "xpronos_score": match.get("xpronos_score"),
+        "status": safe_str(match.get("status")),
+        "home_score": to_int_or_none(match.get("home_score")),
+        "away_score": to_int_or_none(match.get("away_score")),
+        "final_score": to_float_or_none(match.get("final_score")),
+        "xpronos_score": to_float_or_none(match.get("xpronos_score")),
         "value_bet": bool(match.get("value_bet", False)),
         "verified_double": bool(match.get("verified_double", False)),
         "is_finished": bool(match.get("is_finished", False)),
