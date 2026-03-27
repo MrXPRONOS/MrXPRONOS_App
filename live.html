@@ -56,7 +56,8 @@
         clock: "fa-clock",
         star: "fa-star",
         arrowLeft: "fa-arrow-left",
-        chart: "fa-chart-line"
+        chart: "fa-chart-line",
+        refresh: "fa-rotate-right"
       };
       return <i className={`fas ${map[name] || "fa-circle"} ${className}`} style={{ fontSize: size }} />;
     };
@@ -95,13 +96,6 @@
       </div>
     );
 
-    const FreshnessBadge = ({ seconds }) => {
-      if (seconds == null) return <Badge color="gray">maj inconnue</Badge>;
-      if (seconds <= 20) return <Badge color="green">maj {seconds}s</Badge>;
-      if (seconds <= 45) return <Badge color="yellow">maj {seconds}s</Badge>;
-      return <Badge color="red">maj {seconds}s</Badge>;
-    };
-
     const PredictionBadge = ({ pred }) => {
       const colorMap = {
         green: "green",
@@ -130,18 +124,18 @@
           <div className="vip-locked-content">
             <h2 className="text-3xl font-bold gold-gradient mb-3">🔒 LIVE VIP</h2>
             <p className="text-sm text-gray-300 mb-5">
-              Accès aux meilleurs signaux live sur les marchés statistiques :
+              Accès aux signaux live statistiques les plus simples :
               corners, fautes et tirs.
             </p>
 
             <div className="space-y-2 mb-5 text-left text-sm">
               <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#2a2a2a]">
-                <div className="text-yellow-400 font-bold">📐 Over 9.5 corners — 84%</div>
-                <div className="text-gray-400 text-xs">Actuel: 7 • Projection: 11 • Fiabilité: 76</div>
+                <div className="text-yellow-400 font-bold">📐 Over 11.5 corners — 84%</div>
+                <div className="text-gray-400 text-xs">Actuel: 8 • Projection: 13 • Fiabilité: 75</div>
               </div>
               <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#2a2a2a]">
-                <div className="text-green-400 font-bold">🎯 Over 21.5 tirs — 82%</div>
-                <div className="text-gray-400 text-xs">Actuel: 15 • Projection: 24 • Fiabilité: 74</div>
+                <div className="text-green-400 font-bold">🎯 Over 29.5 tirs — 82%</div>
+                <div className="text-gray-400 text-xs">Actuel: 20 • Projection: 31 • Fiabilité: 74</div>
               </div>
             </div>
 
@@ -160,12 +154,12 @@
       );
     };
 
-    const Header = ({ stats, notifications, unreadCount, onClear, onBack }) => {
+    const Header = ({ stats, notifications, unreadCount, onClear, onBack, onRefresh, refreshing }) => {
       const [open, setOpen] = useState(false);
 
       return (
         <header className="sticky top-0 z-40 bg-[#0a0a0a]/95 backdrop-blur border-b border-[#2a2a2a]">
-          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <button onClick={onBack} className="p-2 rounded-lg hover:bg-[#1a1a1a]">
                 <Icon name="arrowLeft" />
@@ -178,35 +172,43 @@
               </div>
             </div>
 
-            <div className="relative">
-              <button onClick={() => setOpen(!open)} className="p-2 rounded-lg hover:bg-[#1a1a1a] relative">
-                <Icon name="bell" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
-                    {unreadCount}
-                  </span>
-                )}
+            <div className="flex items-center gap-2">
+              <button onClick={onRefresh} className="p-2 rounded-lg hover:bg-[#1a1a1a]">
+                <Icon name="refresh" className={refreshing ? "animate-spin text-[#D4AF37]" : ""} />
               </button>
 
-              {open && (
-                <div className="absolute right-0 mt-2 w-80 bg-[#121212] border border-[#2a2a2a] rounded-xl shadow-2xl z-50">
-                  <div className="p-3 flex items-center justify-between border-b border-[#2a2a2a]">
-                    <div className="font-bold text-sm">Notifications</div>
-                    <button onClick={onClear} className="text-xs text-gray-400 hover:text-white">Tout lire</button>
+              <div className="relative">
+                <button onClick={() => setOpen(!open)} className="p-2 rounded-lg hover:bg-[#1a1a1a] relative">
+                  <Icon name="bell" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {open && (
+                  <div className="absolute right-0 mt-2 w-80 bg-[#121212] border border-[#2a2a2a] rounded-xl shadow-2xl z-50">
+                    <div className="p-3 flex items-center justify-between border-b border-[#2a2a2a]">
+                      <div className="font-bold text-sm">Notifications</div>
+                      <button onClick={onClear} className="text-xs text-gray-400 hover:text-white">Tout lire</button>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <div className="p-4 text-sm text-gray-500 text-center">Aucune notification</div>
+                      ) : notifications.map((n) => (
+                        <div key={n.id} className={`p-3 border-b border-[#2a2a2a] ${!n.read ? "bg-[#1a1a1a]" : ""}`}>
+                          <div className="text-sm font-semibold">{n.title}</div>
+                          <div className="text-xs text-gray-400 mt-1">{n.message}</div>
+                          <div className="text-[10px] text-gray-500 mt-1">
+                            {new Date(n.created_at).toLocaleString("fr-FR")}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className="max-h-96 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <div className="p-4 text-sm text-gray-500 text-center">Aucune notification</div>
-                    ) : notifications.map((n, i) => (
-                      <div key={i} className={`p-3 border-b border-[#2a2a2a] ${!n.read ? "bg-[#1a1a1a]" : ""}`}>
-                        <div className="text-sm font-semibold">{n.title}</div>
-                        <div className="text-xs text-gray-400 mt-1">{n.message}</div>
-                        <div className="text-[10px] text-gray-500 mt-1">{new Date(n.created_at).toLocaleTimeString()}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </header>
@@ -219,12 +221,9 @@
 
       return (
         <Card onClick={() => onOpen(item)} className="border-[#D4AF37]/30">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <PredictionBadge pred={best} />
-              <FreshnessBadge seconds={item.freshness_seconds} />
-            </div>
-            <Badge color="gold">TOP {item.value_score}</Badge>
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <PredictionBadge pred={best} />
+            <Badge color="gold">TOP {item.value_score || 0}</Badge>
           </div>
 
           <div className="flex items-center justify-between mb-3">
@@ -239,7 +238,7 @@
           <div className="text-sm text-[#D4AF37] mb-2">{best.message}</div>
 
           <div className="text-xs text-gray-300 mb-3">
-            Actuel: <strong>{best.current ?? "-"}</strong> • Projection: <strong>{best.projected ?? "-"}</strong> • Seuil: <strong>{best.threshold ?? "-"}</strong>
+            Actuel: <strong>{best.current ?? "-"}</strong> • Projection: <strong>{Math.round(best.projected ?? 0)}</strong> • Seuil: <strong>{best.threshold ?? "-"}</strong>
           </div>
 
           <div className="grid grid-cols-2 gap-3 mb-3">
@@ -247,7 +246,6 @@
             <ScoreBar value={best.reliability || 0} label="Fiabilité" color="#D4AF37" />
           </div>
 
-          <div className="text-xs text-gray-400 mb-2">Pourquoi ?</div>
           <div className="space-y-1">
             {(best.reasons || []).slice(0, 3).map((r, i) => (
               <div key={i} className="text-xs text-gray-300">• {r}</div>
@@ -259,6 +257,9 @@
 
     const LiveMatchCard = ({ match, onOpen }) => {
       const best = match.predictions?.[0] || null;
+      const totalCorners = (match.live_stats?.home?.corner_kicks || 0) + (match.live_stats?.away?.corner_kicks || 0);
+      const totalFouls = (match.live_stats?.home?.fouls || 0) + (match.live_stats?.away?.fouls || 0);
+      const totalShots = (match.live_stats?.home?.total_shots || 0) + (match.live_stats?.away?.total_shots || 0);
 
       return (
         <Card onClick={() => onOpen(match)}>
@@ -267,7 +268,7 @@
               <span className="w-2 h-2 bg-red-500 rounded-full live-pulse"></span>
               <span className="text-red-500 text-xs font-bold">LIVE {match.current_minute || 0}'</span>
             </div>
-            <FreshnessBadge seconds={match.freshness_seconds} />
+            <Badge color="gray">{match.league?.name || "Match live"}</Badge>
           </div>
 
           <div className="flex justify-between items-center mb-3">
@@ -285,21 +286,15 @@
           <div className="grid grid-cols-3 gap-2 mb-3 text-center">
             <div className="bg-[#0a0a0a] rounded-lg p-2 border border-[#2a2a2a]">
               <div className="text-xs text-gray-500">Corners</div>
-              <div className="font-bold">
-                {(match.live_stats?.home?.corner_kicks || 0) + (match.live_stats?.away?.corner_kicks || 0)}
-              </div>
+              <div className="font-bold">{totalCorners}</div>
             </div>
             <div className="bg-[#0a0a0a] rounded-lg p-2 border border-[#2a2a2a]">
               <div className="text-xs text-gray-500">Fautes</div>
-              <div className="font-bold">
-                {(match.live_stats?.home?.fouls || 0) + (match.live_stats?.away?.fouls || 0)}
-              </div>
+              <div className="font-bold">{totalFouls}</div>
             </div>
             <div className="bg-[#0a0a0a] rounded-lg p-2 border border-[#2a2a2a]">
               <div className="text-xs text-gray-500">Tirs</div>
-              <div className="font-bold">
-                {(match.live_stats?.home?.total_shots || 0) + (match.live_stats?.away?.total_shots || 0)}
-              </div>
+              <div className="font-bold">{totalShots}</div>
             </div>
           </div>
 
@@ -308,13 +303,12 @@
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <PredictionBadge pred={best} />
                 <Badge color="green">{Math.round((best.probability || 0) * 100)}%</Badge>
-                <Badge color="gold">Fiabilité {best.reliability || 0}</Badge>
               </div>
 
               <div className="text-sm text-white font-semibold">{best.title}</div>
               <div className="text-xs text-[#D4AF37] mt-1">{best.message}</div>
               <div className="text-xs text-gray-400 mt-2">
-                Actuel: {best.current ?? "-"} • Projection: {best.projected ?? "-"} • Seuil: {best.threshold ?? "-"}
+                Actuel: {best.current ?? "-"} • Projection: {Math.round(best.projected ?? 0)} • Seuil: {best.threshold ?? "-"}
               </div>
             </div>
           ) : (
@@ -396,7 +390,7 @@
                         <div className="text-sm text-[#D4AF37] mb-2">{p.message}</div>
 
                         <div className="text-xs text-gray-300 mb-3">
-                          Actuel: <strong>{p.current ?? "-"}</strong> • Projection: <strong>{p.projected ?? "-"}</strong> • Seuil: <strong>{p.threshold ?? "-"}</strong>
+                          Actuel: <strong>{p.current ?? "-"}</strong> • Projection: <strong>{Math.round(p.projected ?? 0)}</strong> • Seuil: <strong>{p.threshold ?? "-"}</strong>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 mb-3">
@@ -404,7 +398,6 @@
                           <ScoreBar value={p.reliability || 0} label="Fiabilité" color="#D4AF37" />
                         </div>
 
-                        <div className="text-xs text-gray-400 mb-1">Pourquoi ?</div>
                         <div className="space-y-1">
                           {(p.reasons || []).slice(0, 5).map((r, idx) => (
                             <div key={idx} className="text-sm text-gray-300">• {r}</div>
@@ -418,27 +411,24 @@
 
               {tab === "stats" && (
                 <div className="space-y-4">
-                  <ScoreBar value={match.ai_score || 0} label="Score IA" color="#D4AF37" />
                   <ScoreBar value={match.reliability_score || 0} label="Fiabilité" color="#3B82F6" />
                   <ScoreBar value={match.data_quality_score || 0} label="Qualité données" color="#8B5CF6" />
+                  <ScoreBar value={match.value_score || 0} label="Value Score" color="#D4AF37" />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <Card>
-                      <div className="text-xs text-gray-400 mb-2">Pression</div>
-                      <div className="text-sm">{match.home_team}: {match.pressure_index?.home_ratio || 0}%</div>
-                      <div className="text-sm">{match.away_team}: {match.pressure_index?.away_ratio || 0}%</div>
-                      <div className="text-xs text-gray-500 mt-2">
-                        Dominant: {match.pressure_index?.dominant_side || "balanced"}
-                      </div>
-                    </Card>
-
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Card>
                       <div className="text-xs text-gray-400 mb-2">Stats clés</div>
                       <div className="text-sm">Corners: {totalCorners}</div>
                       <div className="text-sm">Fautes: {totalFouls}</div>
                       <div className="text-sm">Tirs: {totalShots}</div>
+                    </Card>
+
+                    <Card>
+                      <div className="text-xs text-gray-400 mb-2">Momentum</div>
+                      <div className="text-sm">{match.home_team}: {match.momentum_index?.home_ratio || 0}%</div>
+                      <div className="text-sm">{match.away_team}: {match.momentum_index?.away_ratio || 0}%</div>
                       <div className="text-xs text-gray-500 mt-2">
-                        Mise à jour: {match.freshness_seconds ?? "-"} sec
+                        Intensité: {match.momentum_index?.total || 0}
                       </div>
                     </Card>
                   </div>
@@ -476,8 +466,8 @@
     const App = () => {
       const [userId] = useState(() => localStorage.getItem("mrx_user_id") || `user_${Date.now()}`);
       const [vipCode, setVipCode] = useState(() => localStorage.getItem("mx_vip_code") || "");
-      const [isVip, setIsVip] = useState(false);
-      const [vipChecking, setVipChecking] = useState(true);
+      const [isVip, setIsVip] = useState(true); // à adapter si tu remets /check-vip
+      const [vipChecking, setVipChecking] = useState(false);
 
       const [liveMatches, setLiveMatches] = useState([]);
       const [opportunities, setOpportunities] = useState([]);
@@ -486,6 +476,7 @@
       const [notifications, setNotifications] = useState([]);
       const [stats, setStats] = useState({ matches_live: 0, matches_scheduled: 0 });
       const [loading, setLoading] = useState(true);
+      const [refreshing, setRefreshing] = useState(false);
       const [error, setError] = useState(null);
       const [selectedTab, setSelectedTab] = useState("live");
       const [selectedMatch, setSelectedMatch] = useState(null);
@@ -495,98 +486,63 @@
         localStorage.setItem("mrx_user_id", userId);
       }, [userId]);
 
-      const checkVip = useCallback(async (code) => {
-        if (!code) {
-          setIsVip(false);
-          setVipChecking(false);
-          return;
-        }
-
-        try {
-          const res = await fetch(`${EDGE_FUNCTION_URL}/check-vip?code=${encodeURIComponent(code)}`);
-          const data = await res.json();
-          setIsVip(data.valid === true);
-        } catch (e) {
-          console.error(e);
-          setIsVip(false);
-        } finally {
-          setVipChecking(false);
-        }
-      }, []);
-
-      useEffect(() => {
-        checkVip(vipCode);
-      }, [vipCode, checkVip]);
-
-      const apiFetch = useCallback(async (endpoint, isPublic = false) => {
-        const sep = endpoint.includes("?") ? "&" : "?";
-        const url = !isPublic && vipCode
-          ? `${EDGE_FUNCTION_URL}${endpoint}${sep}vip_code=${encodeURIComponent(vipCode)}`
-          : `${EDGE_FUNCTION_URL}${endpoint}`;
-
-        const res = await fetch(url);
-
-        if (res.status === 403) {
-          setIsVip(false);
-          localStorage.removeItem("mx_vip_code");
-          setVipCode("");
-          throw new Error("Accès VIP requis");
-        }
-
+      const apiFetch = useCallback(async (endpoint) => {
+        const res = await fetch(`${EDGE_FUNCTION_URL}${endpoint}`);
         if (!res.ok) throw new Error(`Erreur API ${res.status}`);
         return res;
-      }, [vipCode]);
+      }, []);
 
-      const fetchAll = useCallback(async () => {
-        const [matchesRes, oppRes, todayRes, notifRes, historyRes] = await Promise.all([
-          apiFetch("/matches"),
-          apiFetch("/opportunities"),
-          apiFetch("/today"),
-          apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`, true),
-          apiFetch("/predictions/history", true)
-        ]);
+      const fetchAll = useCallback(async (silent = false) => {
+        if (!silent) setLoading(true);
+        setRefreshing(true);
 
-        const matchesData = await matchesRes.json();
-        const oppData = await oppRes.json();
-        const todayData = await todayRes.json();
-        const notifData = await notifRes.json();
-        const historyData = await historyRes.json();
+        try {
+          const [matchesRes, oppRes, todayRes, notifRes, historyRes] = await Promise.all([
+            apiFetch("/matches"),
+            apiFetch("/opportunities"),
+            apiFetch("/today"),
+            apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`),
+            apiFetch("/predictions/history")
+          ]);
 
-        setLiveMatches(matchesData.matches || []);
-        setOpportunities(oppData.opportunities || []);
-        setScheduledMatches(todayData?.data?.scheduled?.matches || []);
-        setNotifications(notifData.notifications || []);
-        setHistory(historyData.history || []);
+          const matchesData = await matchesRes.json();
+          const oppData = await oppRes.json();
+          const todayData = await todayRes.json();
+          const notifData = await notifRes.json();
+          const historyData = await historyRes.json();
 
-        setStats({
-          matches_live: (matchesData.matches || []).length,
-          matches_scheduled: todayData?.data?.scheduled?.count || 0
-        });
+          setLiveMatches(matchesData.matches || []);
+          setOpportunities(oppData.opportunities || []);
+          setScheduledMatches(todayData?.data?.scheduled?.matches || []);
+          setNotifications(notifData.notifications || []);
+          setHistory(historyData.history || []);
+
+          setStats({
+            matches_live: (matchesData.matches || []).length,
+            matches_scheduled: todayData?.data?.scheduled?.count || 0
+          });
+
+          setError(null);
+        } catch (e) {
+          console.error(e);
+          setError("Impossible de charger les données live.");
+        } finally {
+          setLoading(false);
+          setRefreshing(false);
+        }
       }, [apiFetch, userId]);
 
       useEffect(() => {
-        if (!isVip || vipChecking) return;
-
-        setLoading(true);
-        setError(null);
-
-        fetchAll()
-          .catch((e) => {
-            console.error(e);
-            setError("Impossible de charger les données live.");
-          })
-          .finally(() => setLoading(false));
-      }, [isVip, vipChecking, fetchAll]);
+        fetchAll(false);
+      }, [fetchAll]);
 
       useEffect(() => {
-        if (!isVip || vipChecking) return;
-
         const interval = setInterval(() => {
-          fetchAll().catch(console.error);
+          fetchAll(true);
         }, 20000);
 
         return () => clearInterval(interval);
-      }, [isVip, vipChecking, fetchAll]);
+      }, [fetchAll]);
 
       useEffect(() => {
         const channel = supabase
@@ -596,7 +552,7 @@
             if (notif.user_id === "all" || notif.user_id === userId) {
               setToast({ title: notif.title, message: notif.message });
               setTimeout(() => setToast(null), 5000);
-              fetchAll().catch(console.error);
+              fetchAll(true).catch(console.error);
             }
           })
           .subscribe();
@@ -609,11 +565,15 @@
 
       const clearNotifications = async () => {
         try {
+          const ids = notifications.filter(n => !n.read).map(n => n.id);
+          if (!ids.length) return;
+
           await fetch(`${EDGE_FUNCTION_URL}/notifications/mark-read`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id: userId })
+            body: JSON.stringify({ notification_ids: ids, user_id: userId })
           });
+
           setNotifications(prev => prev.map(n => ({ ...n, read: true })));
         } catch (e) {
           console.error(e);
@@ -636,17 +596,21 @@
           <VipLockOverlay onSubmit={(code) => {
             localStorage.setItem("mx_vip_code", code);
             setVipCode(code);
+            setIsVip(true);
           }} />
         );
       }
 
-      if (error) {
+      if (error && !loading) {
         return (
           <div className="min-h-screen flex items-center justify-center">
             <div className="text-center">
               <div className="text-red-500 text-xl mb-3">Erreur</div>
               <div className="text-gray-400 mb-4">{error}</div>
-              <button onClick={() => window.location.reload()} className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-bold">
+              <button
+                onClick={() => fetchAll(false)}
+                className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-bold"
+              >
                 Réessayer
               </button>
             </div>
@@ -662,6 +626,8 @@
             unreadCount={unreadCount}
             onClear={clearNotifications}
             onBack={() => window.location.href = "index.html"}
+            onRefresh={() => fetchAll(true)}
+            refreshing={refreshing}
           />
 
           <main className="max-w-7xl mx-auto px-4 py-6">
@@ -802,6 +768,7 @@
                                 <th className="px-4 py-3 text-left">Type</th>
                                 <th className="px-4 py-3 text-left">Seuil</th>
                                 <th className="px-4 py-3 text-left">Actuel</th>
+                                <th className="px-4 py-3 text-left">Projection</th>
                                 <th className="px-4 py-3 text-left">Proba</th>
                                 <th className="px-4 py-3 text-left">Résultat</th>
                                 <th className="px-4 py-3 text-left">Heure</th>
@@ -814,6 +781,7 @@
                                   <td className="px-4 py-3">{h.type}</td>
                                   <td className="px-4 py-3">{h.threshold ?? "-"}</td>
                                   <td className="px-4 py-3">{h.current ?? "-"}</td>
+                                  <td className="px-4 py-3">{h.projected ? Math.round(h.projected) : "-"}</td>
                                   <td className="px-4 py-3">{Math.round((h.probability || 0) * 100)}%</td>
                                   <td className="px-4 py-3">
                                     {h.validated
