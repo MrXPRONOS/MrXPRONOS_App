@@ -1,0 +1,27 @@
+name: Live Worker Trigger Every 10 Minutes
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: live-worker-job
+  cancel-in-progress: false
+
+jobs:
+  trigger-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Call live worker
+        run: |
+          curl --fail --show-error --silent \
+            -X POST "${{ secrets.LIVE_WORKER_URL }}" \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            -d '{}'
+
+      - name: Worker called successfully
+        run: echo "Live worker executed"
