@@ -341,7 +341,7 @@
       </div>
     );
 
-    const VipLockOverlay = ({ userId, onActivate, errorMessage }) => {
+    const VipLockOverlay = ({ userId, onActivate, errorMessage, checkingCode }) => {
       const [code, setCode] = useState("");
       const [error, setError] = useState("");
       const encodedUserId = encodeURIComponent(userId);
@@ -363,33 +363,33 @@
               💎
             </div>
 
-            <h2 className="text-3xl font-bold gold-gradient mb-3">🔐 Accès LIVE VIP</h2>
+            <h2 className="text-3xl font-bold gold-gradient mb-4">Accès LIVE VIP</h2>
 
-            <p className="text-sm text-gray-300 mb-2">
+            <p className="text-sm text-gray-300 mb-2 break-words">
               <strong>Votre ID :</strong> {userId}
             </p>
 
-            <p className="text-sm text-gray-300 mb-5">
+            <p className="text-sm text-gray-300 mb-5 leading-relaxed">
               Pour obtenir un code VIP, contactez-nous sur WhatsApp ou Telegram avec votre ID.
             </p>
 
-            <div className="space-y-2 mb-5 text-left text-sm">
+            <div className="space-y-3 mb-6 text-left text-sm">
               <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#2a2a2a]">
                 <div className="text-yellow-400 font-bold">📐 Over 9.5 corners — 84%</div>
-                <div className="text-gray-400 text-xs">Actuel 7 • Projection 11 • Fiabilité élevée</div>
+                <div className="text-gray-400 text-xs mt-1">Actuel 7 • Projection 11 • Fiabilité élevée</div>
               </div>
               <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#2a2a2a]">
                 <div className="text-green-400 font-bold">🎯 Over 21.5 tirs — 82%</div>
-                <div className="text-gray-400 text-xs">Rythme fort • volume déjà élevé</div>
+                <div className="text-gray-400 text-xs mt-1">Rythme fort • volume déjà élevé</div>
               </div>
             </div>
 
-            <div className="flex gap-3 justify-center mb-5 flex-wrap">
+            <div className="flex gap-3 justify-center mb-6 flex-wrap">
               <a
                 href={`https://wa.me/22899201444?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodedUserId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-3 rounded-full bg-green-600 text-white font-bold"
+                className="px-5 py-3 rounded-full bg-green-600 text-white font-bold min-w-[150px]"
               >
                 WhatsApp
               </a>
@@ -397,7 +397,7 @@
                 href={`https://t.me/mr_xpronos?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodedUserId}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-3 rounded-full bg-sky-500 text-white font-bold"
+                className="px-5 py-3 rounded-full bg-sky-500 text-white font-bold min-w-[150px]"
               >
                 Telegram
               </a>
@@ -405,7 +405,7 @@
 
             <hr className="border-[#2a2a2a] my-5" />
 
-            <p className="text-sm text-gray-300 mb-3">
+            <p className="text-sm text-gray-300 mb-4 leading-relaxed">
               Si vous avez déjà un code, saisissez-le ci-dessous :
             </p>
 
@@ -416,13 +416,19 @@
                 placeholder="Code VIP"
                 className="w-full px-4 py-3 rounded-full bg-[#0a0a0a] border border-[#D4AF37] text-white text-center outline-none"
               />
+
               {(error || errorMessage) && (
                 <div className="text-red-400 text-sm">
                   {error || errorMessage}
                 </div>
               )}
-              <button className="w-full py-3 rounded-full bg-[#D4AF37] text-black font-bold">
-                Activer
+
+              <button
+                type="submit"
+                disabled={checkingCode}
+                className="w-full py-3 rounded-full bg-[#D4AF37] text-black font-bold disabled:opacity-60"
+              >
+                {checkingCode ? "Vérification..." : "Activer"}
               </button>
             </form>
           </div>
@@ -858,6 +864,7 @@
       const [vipCode, setVipCode] = useState(() => localStorage.getItem("mx_vip_code") || "");
       const [isVip, setIsVip] = useState(false);
       const [vipChecking, setVipChecking] = useState(true);
+      const [checkingCode, setCheckingCode] = useState(false);
       const [vipError, setVipError] = useState("");
 
       const [liveMatches, setLiveMatches] = useState([]);
@@ -878,46 +885,44 @@
         localStorage.setItem("mx_user_id", userId);
       }, [userId]);
 
-      const checkVip = useCallback(async (code) => {
-        setVipChecking(true);
+      const checkVip = useCallback(async (code, initial = false) => {
+        if (initial) setVipChecking(true);
+        else setCheckingCode(true);
+
         setVipError("");
 
         if (!code || !code.trim()) {
           setIsVip(false);
-          setVipChecking(false);
+          if (initial) setVipChecking(false);
+          else setCheckingCode(false);
           return;
         }
 
         try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 8000);
+          const { data, error } = await supabase.rpc("check_vip_code", {
+            p_user_id: userId,
+            p_code: code
+          });
 
-          const res = await fetch(
-            `${EDGE_FUNCTION_URL}/check-vip?code=${encodeURIComponent(code)}&user_id=${encodeURIComponent(userId)}`,
-            { signal: controller.signal }
-          );
+          const valid = Array.isArray(data)
+            ? data[0]?.valid === true
+            : (data?.valid === true || data === true);
 
-          clearTimeout(timeoutId);
-
-          if (!res.ok) {
-            throw new Error(`Erreur check VIP ${res.status}`);
-          }
-
-          const data = await res.json();
-
-          if (data.valid === true) {
-            setIsVip(true);
-            setVipError("");
-          } else {
+          if (error || !valid) {
             setIsVip(false);
             setVipError("Code VIP invalide ou expiré.");
+            return;
           }
+
+          setIsVip(true);
+          setVipError("");
         } catch (e) {
           console.error("Erreur vérification VIP:", e);
           setIsVip(false);
           setVipError("Impossible de vérifier le code VIP.");
         } finally {
-          setVipChecking(false);
+          if (initial) setVipChecking(false);
+          else setCheckingCode(false);
         }
       }, [userId]);
 
@@ -925,8 +930,9 @@
         let mounted = true;
 
         const run = async () => {
+          const storedCode = localStorage.getItem("mx_vip_code") || "";
           if (!mounted) return;
-          await checkVip(vipCode);
+          await checkVip(storedCode, true);
         };
 
         run();
@@ -934,7 +940,7 @@
         return () => {
           mounted = false;
         };
-      }, [vipCode, checkVip]);
+      }, [checkVip]);
 
       const apiFetch = useCallback(async (endpoint, isPublic = false) => {
         const sep = endpoint.includes("?") ? "&" : "?";
@@ -1093,10 +1099,12 @@
           <VipLockOverlay
             userId={userId}
             errorMessage={vipError}
-            onActivate={(code) => {
+            checkingCode={checkingCode}
+            onActivate={async (code) => {
               setVipError("");
               localStorage.setItem("mx_vip_code", code);
               setVipCode(code);
+              await checkVip(code, false);
             }}
           />
         );
