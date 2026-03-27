@@ -743,9 +743,9 @@
       "league": "Club Friendlies",
       "competition": "Club Friendlies",
       "league_logo": "assets/images/leagues/league-321-v2.png",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "1st Half",
+      "home_score": 0,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -856,7 +856,7 @@
       "league_logo": null,
       "venue": "",
       "status": "Halftime",
-      "home_score": 0,
+      "home_score": 1,
       "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
@@ -2621,7 +2621,7 @@
       "league": "Club Friendlies",
       "competition": "Club Friendlies",
       "league_logo": "assets/images/leagues/league-321-v2.png",
-      "status": "Just Ended",
+      "status": "Ended",
       "home_score": 4,
       "away_score": 2,
       "h2h_analysis": {
@@ -6506,7 +6506,7 @@
         "league": "Club Friendlies",
         "competition": "Club Friendlies",
         "league_logo": "assets/images/leagues/league-321-v2.png",
-        "status": "Just Ended",
+        "status": "Ended",
         "home_score": 4,
         "away_score": 2,
         "h2h_analysis": {
@@ -9015,9 +9015,9 @@
         "league": "Club Friendlies",
         "competition": "Club Friendlies",
         "league_logo": "assets/images/leagues/league-321-v2.png",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "1st Half",
+        "home_score": 0,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -9128,7 +9128,7 @@
         "league_logo": null,
         "venue": "",
         "status": "Halftime",
-        "home_score": 0,
+        "home_score": 1,
         "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
@@ -9709,6 +9709,6 @@
     "roi": -30.0
   },
   "bookmakers": [],
-  "generated_at": "2026-03-27T14:07:09.169437Z",
+  "generated_at": "2026-03-27T14:19:46.085935Z",
   "retention_days": 14
 }
