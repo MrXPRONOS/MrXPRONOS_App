@@ -108,15 +108,23 @@
     const VipLockOverlay = ({ onSubmit }) => {
       const [code, setCode] = useState("");
       const [error, setError] = useState("");
+      const [loading, setLoading] = useState(false);
 
-      const submit = (e) => {
+      const submit = async (e) => {
         e.preventDefault();
         if (!code.trim()) {
           setError("Veuillez entrer votre code VIP");
           return;
         }
         setError("");
-        onSubmit(code.trim());
+        setLoading(true);
+        try {
+          await onSubmit(code.trim());
+        } catch (err) {
+          setError(err?.message || "Code invalide");
+        } finally {
+          setLoading(false);
+        }
       };
 
       return (
@@ -147,7 +155,12 @@
                 className="w-full px-4 py-3 rounded-full bg-[#0a0a0a] border border-[#D4AF37] text-white text-center outline-none"
               />
               {error && <div className="text-red-500 text-sm">{error}</div>}
-              <button className="w-full py-3 rounded-full bg-[#D4AF37] text-black font-bold">Activer</button>
+              <button
+                disabled={loading}
+                className="w-full py-3 rounded-full bg-[#D4AF37] text-black font-bold disabled:opacity-60"
+              >
+                {loading ? "Vérification..." : "Activer"}
+              </button>
             </form>
           </div>
         </div>
@@ -466,8 +479,8 @@
     const App = () => {
       const [userId] = useState(() => localStorage.getItem("mrx_user_id") || `user_${Date.now()}`);
       const [vipCode, setVipCode] = useState(() => localStorage.getItem("mx_vip_code") || "");
-      const [isVip, setIsVip] = useState(true); // à adapter si tu remets /check-vip
-      const [vipChecking, setVipChecking] = useState(false);
+      const [isVip, setIsVip] = useState(false);
+      const [vipChecking, setVipChecking] = useState(true);
 
       const [liveMatches, setLiveMatches] = useState([]);
       const [opportunities, setOpportunities] = useState([]);
@@ -486,11 +499,51 @@
         localStorage.setItem("mrx_user_id", userId);
       }, [userId]);
 
-      const apiFetch = useCallback(async (endpoint) => {
-        const res = await fetch(`${EDGE_FUNCTION_URL}${endpoint}`);
+      const checkVip = useCallback(async (code) => {
+        if (!code) {
+          setIsVip(false);
+          setVipChecking(false);
+          return false;
+        }
+
+        try {
+          const res = await fetch(`${EDGE_FUNCTION_URL}/check-vip?code=${encodeURIComponent(code)}`);
+          const data = await res.json();
+          const valid = data.valid === true;
+          setIsVip(valid);
+          return valid;
+        } catch (e) {
+          console.error(e);
+          setIsVip(false);
+          return false;
+        } finally {
+          setVipChecking(false);
+        }
+      }, []);
+
+      useEffect(() => {
+        checkVip(vipCode);
+      }, [vipCode, checkVip]);
+
+      const apiFetch = useCallback(async (endpoint, isPublic = false) => {
+        const sep = endpoint.includes("?") ? "&" : "?";
+
+        const url = !isPublic && vipCode
+          ? `${EDGE_FUNCTION_URL}${endpoint}${sep}vip_code=${encodeURIComponent(vipCode)}`
+          : `${EDGE_FUNCTION_URL}${endpoint}`;
+
+        const res = await fetch(url);
+
+        if (res.status === 403) {
+          setIsVip(false);
+          localStorage.removeItem("mx_vip_code");
+          setVipCode("");
+          throw new Error("Accès VIP requis");
+        }
+
         if (!res.ok) throw new Error(`Erreur API ${res.status}`);
         return res;
-      }, []);
+      }, [vipCode]);
 
       const fetchAll = useCallback(async (silent = false) => {
         if (!silent) setLoading(true);
@@ -501,8 +554,8 @@
             apiFetch("/matches"),
             apiFetch("/opportunities"),
             apiFetch("/today"),
-            apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`),
-            apiFetch("/predictions/history")
+            apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`, true),
+            apiFetch("/predictions/history", true)
           ]);
 
           const matchesData = await matchesRes.json();
@@ -533,16 +586,19 @@
       }, [apiFetch, userId]);
 
       useEffect(() => {
+        if (!isVip || vipChecking) return;
         fetchAll(false);
-      }, [fetchAll]);
+      }, [isVip, vipChecking, fetchAll]);
 
       useEffect(() => {
+        if (!isVip || vipChecking) return;
+
         const interval = setInterval(() => {
           fetchAll(true);
         }, 20000);
 
         return () => clearInterval(interval);
-      }, [fetchAll]);
+      }, [isVip, vipChecking, fetchAll]);
 
       useEffect(() => {
         const channel = supabase
@@ -552,13 +608,13 @@
             if (notif.user_id === "all" || notif.user_id === userId) {
               setToast({ title: notif.title, message: notif.message });
               setTimeout(() => setToast(null), 5000);
-              fetchAll(true).catch(console.error);
+              if (isVip) fetchAll(true).catch(console.error);
             }
           })
           .subscribe();
 
         return () => { supabase.removeChannel(channel); };
-      }, [userId, fetchAll]);
+      }, [userId, fetchAll, isVip]);
 
       const unreadCount = notifications.filter(n => !n.read).length;
       const bestOpportunity = useMemo(() => opportunities?.[0] || null, [opportunities]);
@@ -593,7 +649,9 @@
 
       if (!isVip) {
         return (
-          <VipLockOverlay onSubmit={(code) => {
+          <VipLockOverlay onSubmit={async (code) => {
+            const valid = await checkVip(code);
+            if (!valid) throw new Error("Code VIP invalide ou expiré");
             localStorage.setItem("mx_vip_code", code);
             setVipCode(code);
             setIsVip(true);
