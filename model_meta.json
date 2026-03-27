@@ -1,7 +1,7 @@
 {
-  "trained_at": 1774579621.7625518,
-  "samples_total": 381,
-  "samples_train": 304,
+  "trained_at": 1774612622.535307,
+  "samples_total": 383,
+  "samples_train": 306,
   "samples_valid": 77,
   "accuracy": 0.7143,
   "feature_order": [
