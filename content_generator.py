@@ -25,6 +25,7 @@ import time
 import uuid
 import random
 import hashlib
+import unicodedata
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from typing import Optional, List, Dict, Tuple
@@ -151,7 +152,9 @@ def save_json(path: str, data):
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 def slugify(s: str) -> str:
-    s = (s or "").lower().strip()
+    s = (s or "").strip().lower()
+    s = unicodedata.normalize("NFKD", s)
+    s = s.encode("ascii", "ignore").decode("ascii")
     s = re.sub(r"[^a-z0-9]+", "-", s).strip("-")
     return s[:90] or f"post-{uuid.uuid4().hex[:6]}"
 
@@ -895,6 +898,7 @@ Le plus important n’est pas de parier tous les jours, mais de sélectionner le
 
 def build_local_conseil_fallback(topic: str) -> dict:
     title = f"Conseil pratique : {topic.capitalize()}"
+    slug = slugify(title)
 
     content = f"""
 # {title}
@@ -918,6 +922,7 @@ MOTS_CLES: conseil, FCFA, paris sportifs, discipline
 
     return {
         "title": title,
+        "slug": slug,
         "content_markdown": content,
         "keywords": ["paris sportifs", "conseil", "FCFA", "Mr XPRONOS"]
     }
@@ -955,10 +960,12 @@ def build_article_object(parsed: dict, image_path: str, extra: dict) -> dict:
 
 def build_conseil_object(parsed: dict, image_path: str) -> dict:
     title = (parsed.get("title") or "Conseil").strip()
+    slug = parsed.get("slug") or slugify(title)
     content = parsed.get("content_markdown") or ""
     excerpt = excerpt_from_text(content, 140)
 
     return {
+        "slug": slug,
         "title": title,
         "content": content,
         "date": datetime.utcnow().isoformat() + "Z",
@@ -1124,7 +1131,7 @@ def main():
         conseil_obj = build_conseil_object(parsed, img_path)
         existing_conseils.insert(0, conseil_obj)
         save_conseils(existing_conseils)
-        print(f"   ✅ Conseil sauvegardé: {conseil_obj['title']}")
+        print(f"   ✅ Conseil sauvegardé: {conseil_obj['title']} (slug={conseil_obj['slug']})")
 
     print("\n✅ Génération terminée.")
 
