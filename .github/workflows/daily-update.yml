@@ -14,7 +14,6 @@ concurrency:
 
 jobs:
   daily-update:
-    # évite boucle infinie sur push du bot (si tu ajoutes un trigger push un jour)
     if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 35
@@ -37,7 +36,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 1) Historique d'abord (améliore formes/H2H)
+      # 1) Historique d'abord
       - name: Update historical cache
         id: update_historical
         continue-on-error: true
@@ -51,25 +50,22 @@ jobs:
           echo "📚 Mise à jour du cache historique..."
           python update_historical.py
 
-      # 2) Génération data.json (avec rétention 14 jours + logos en cache)
+      # 2) Génération data.json
       - name: Generate pronostics
         id: generate_data
         continue-on-error: true
         env:
-          # rotation pour les calls principaux
           SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
           SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
           SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
           SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
           SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
-
-          # ✅ clé unique explicite utilisée par generate_data.py pour logos
           SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY_1 }}
         run: |
           echo "🚀 Génération des pronostics..."
           python generate_data.py
 
-      # 3) Mise à jour scores + recalcul verified_double
+      # 3) Mise à jour scores
       - name: Update scores
         id: update_scores
         continue-on-error: true
@@ -83,13 +79,14 @@ jobs:
           echo "🔄 Mise à jour des scores..."
           python update_scores.py
 
-      # 4) Sync Supabase après scores (pour avoir verified_double à jour)
+      # 4) Sync Supabase
       - name: Sync pronostics to Supabase
         id: sync_supabase
         continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
           echo "☁️ Synchronisation Supabase..."
           python update_pronostics_supabase.py
@@ -129,7 +126,7 @@ jobs:
           echo "📰 Récupération des actus foot..."
           python fetch_foot_news.py
 
-      # 6) Convert images après génération contenu (articles + logos)
+      # 6) Convert images
       - name: Convert images
         id: convert_images
         continue-on-error: true
@@ -137,7 +134,7 @@ jobs:
           echo "🖼️ Conversion des images..."
           python convert_images.py
 
-      # 7) Sitemap après articles
+      # 7) Sitemap
       - name: Generate sitemap
         id: sitemap
         continue-on-error: true
@@ -175,9 +172,7 @@ jobs:
 
           git commit -m "Daily update $(date +'%Y-%m-%d %H:%M')"
 
-          # 🔥 IMPORTANT
           git pull --rebase origin main
-
           git push origin main
 
       - name: Summary
