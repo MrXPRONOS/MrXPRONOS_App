@@ -1,0 +1,16 @@
+name: Mise à jour live
+
+on:
+  schedule:
+    - cron: '* * * * *'
+  workflow_dispatch:
+
+jobs:
+  refresh-live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appel Edge Function refresh
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/live/refresh" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json"

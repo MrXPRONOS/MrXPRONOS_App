@@ -1,0 +1,16 @@
+name: Validation des prédictions
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appel Edge Function validate
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/live/validate" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json"
