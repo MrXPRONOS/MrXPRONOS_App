@@ -8,13 +8,14 @@ et des scores déjà en base (mis à jour par update_scores.py).
 Version finale basée STRICTEMENT sur ton système de calcul :
 - exclusion des pronostics "12"
 - seuils et H2H identiques
-- logos via TheSportsDB avec cache
+- logos via TheSportsDB avec cache + téléchargement local
 - rétention 14 jours dans data.json
 - stats réelles calculées
 - intégration ML (auto_train / ml_model) SANS casser la logique métier
 """
 
 import os
+import re
 import json
 import requests
 from datetime import datetime, timedelta
@@ -48,6 +49,8 @@ CACHE_DIR = "cache"
 GLOBAL_CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
 LOGO_CACHE_FILE = os.path.join(CACHE_DIR, "logos_cache.json")
 
+TEAM_LOGO_DIR = os.path.join("assets", "images", "teams")
+
 RETENTION_DAYS = 14
 
 print("=" * 60)
@@ -55,6 +58,7 @@ print(f"🚀 GÉNÉRATION DES PRONOSTICS - {today} (rétention {RETENTION_DAYS} 
 print("=" * 60)
 
 os.makedirs(CACHE_DIR, exist_ok=True)
+os.makedirs(TEAM_LOGO_DIR, exist_ok=True)
 
 
 # =======================================================
@@ -72,24 +76,57 @@ def save_logo_cache():
     with open(LOGO_CACHE_FILE, 'w', encoding='utf-8') as f:
         json.dump(logo_cache, f, indent=2, ensure_ascii=False)
 
+def safe_filename(name):
+    name = (name or "").lower().strip()
+    name = re.sub(r"[^a-z0-9]+", "-", name)
+    name = re.sub(r"-+", "-", name).strip("-")
+    return name or "team"
+
 def get_logo_thesportsdb(team_name):
-    """Interroge TheSportsDB pour obtenir le logo d'une équipe."""
+    """
+    Recherche le logo via TheSportsDB.
+    Télécharge UNE seule fois en local dans assets/images/teams/
+    et retourne le chemin local.
+    """
     if not team_name:
         return None
 
+    # Déjà en cache
     if team_name in logo_cache:
-        return logo_cache[team_name]
+        cached = logo_cache[team_name]
+        if cached and os.path.exists(cached):
+            return cached
+        if cached is None:
+            return None
 
     try:
-        url = f"https://www.thesportsdb.com/api/v1/json/{THESPORTSDB_API_KEY}/searchteams.php?t={requests.utils.quote(team_name)}"
-        resp = session.get(url, timeout=10)
+        search_url = f"https://www.thesportsdb.com/api/v1/json/{THESPORTSDB_API_KEY}/searchteams.php?t={requests.utils.quote(team_name)}"
+        resp = session.get(search_url, timeout=10)
+
         if resp.status_code == 200:
             data = resp.json()
             teams = data.get("teams", [])
             if teams:
-                logo = teams[0].get("strTeamBadge") or teams[0].get("strTeamLogo")
-                logo_cache[team_name] = logo
-                return logo
+                logo_url = teams[0].get("strTeamBadge") or teams[0].get("strTeamLogo")
+                if logo_url:
+                    filename = safe_filename(team_name) + ".png"
+                    local_path = os.path.join(TEAM_LOGO_DIR, filename).replace("\\", "/")
+
+                    # si déjà téléchargé
+                    if os.path.exists(local_path) and os.path.getsize(local_path) > 200:
+                        logo_cache[team_name] = local_path
+                        return local_path
+
+                    # téléchargement une seule fois
+                    try:
+                        img_resp = session.get(logo_url, timeout=15)
+                        if img_resp.status_code == 200 and img_resp.content:
+                            with open(local_path, "wb") as f:
+                                f.write(img_resp.content)
+                            logo_cache[team_name] = local_path
+                            return local_path
+                    except Exception:
+                        pass
     except Exception:
         pass
 
@@ -442,12 +479,9 @@ def compute_stats(matches):
 
 
 # =======================================================
-# ML SCORE (ajout sans casser la logique métier)
+# ML SCORE
 # =======================================================
 def compute_ml_score(match, analysis, prediction):
-    """
-    Calcule un score ML sans modifier le moteur métier.
-    """
     try:
         model = compute_ml_score.model
     except AttributeError:
@@ -490,7 +524,6 @@ def compute_ml_score(match, analysis, prediction):
 # FONCTION PRINCIPALE
 # =======================================================
 def main():
-    # Charger modèle ML
     model = load_model()
     compute_ml_score.model = model
     if model:
@@ -498,7 +531,6 @@ def main():
     else:
         print("⚠️ Aucun modèle ML disponible, ml_score par défaut")
 
-    # 1. Charger l'existant
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
             existing_data = json.load(f)
@@ -512,7 +544,6 @@ def main():
         }
         existing_matches = {}
 
-    # 2. Récupération SportData
     print("\n📅 Récupération des matchs via SportData...")
     games_today = fetch_games(today, today)
     games_tomorrow = fetch_games(tomorrow, tomorrow)
@@ -526,12 +557,10 @@ def main():
         if info.get("id") is not None:
             new_infos[str(info["id"])] = info
 
-    # 3. Historique H2H
     historical = load_historical_matches()
     print(f"📂 Historique chargé : {len(historical)} matchs")
     team_history = build_team_history(historical)
 
-    # 4. Construire les nouveaux matchs
     new_matches = []
 
     for gid, base in new_infos.items():
@@ -548,7 +577,6 @@ def main():
             status = base["status_text"]
             is_finished = base["is_finished"]
 
-        # H2H
         h2h_list = get_h2h(historical, base["home_team"], base["away_team"], years=2)
         if len(h2h_list) < 2:
             print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (H2H insuffisant)")
@@ -557,7 +585,6 @@ def main():
         analysis = analyze_h2h(h2h_list, base["home_team"], base["away_team"])
         prediction = generate_prediction(analysis)
 
-        # === RÈGLE MÉTIER INCHANGÉE ===
         if prediction["double_chance"] == "12":
             print(f"   ⚠️ Pronostic 12 (match équilibré) ignoré")
             continue
@@ -598,29 +625,23 @@ def main():
             "verified_over": False
         }
 
-        # Vérification si terminé
         if is_finished and home_score is not None and away_score is not None:
             match = compute_verified_fields(match)
 
-        # ✅ ML score
         ml_score = compute_ml_score(match, analysis, prediction)
         match["ml_score"] = ml_score
 
-        # ✅ Ajustement léger de confiance
         if ml_score < 45:
             match["prediction"]["confidence"] = max(35, match["prediction"]["confidence"] - 5)
         elif ml_score >= 70:
             match["prediction"]["confidence"] = min(95, match["prediction"]["confidence"] + 4)
 
-        # ✅ Score final combiné
         match["final_score"] = round((match["xpronos_score"] * 0.75) + (ml_score * 0.25), 1)
 
         new_matches.append(match)
 
-    # 5. Sauvegarder le cache des logos
     save_logo_cache()
 
-    # 6. Rétention 14 jours + merge avec l’existant
     cutoff = (today - timedelta(days=RETENTION_DAYS)).isoformat()
 
     old_retained = retention_filter(list(existing_matches.values()), cutoff)
@@ -637,15 +658,12 @@ def main():
 
     final_matches = list(final_by_id.values())
 
-    # recalcul verified si match fini
     for m in final_matches:
         if m.get("is_finished") and m.get("home_score") is not None and m.get("away_score") is not None:
             compute_verified_fields(m)
 
-    # tri final : score final puis date
     final_matches.sort(key=lambda x: (x.get("final_score", 0), x.get("event_date") or ""), reverse=True)
 
-    # catégories recalculées
     final_categories = {"simple": [], "pro": [], "vip": []}
     for m in final_matches:
         cat = m.get("category", "simple")
@@ -653,10 +671,8 @@ def main():
             cat = "simple"
         final_categories[cat].append(m)
 
-    # stats réelles
     stats = compute_stats(final_matches)
 
-    # bookmakers par défaut
     default_bookmakers = [
         {"name": "1xBet",     "logo": "assets/images/1xbet.webp",     "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"},
         {"name": "1win",      "logo": "assets/images/1win.webp",      "url": "https://1wrbgb.com/?open=register&p=qqcw"},
