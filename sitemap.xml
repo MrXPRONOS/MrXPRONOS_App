@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://mrxpronos.github.io/MrXPRONOS_App</loc>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/</loc>
     <lastmod>2026-03-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
@@ -21,19 +21,19 @@
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/blog.html</loc>
     <lastmod>2026-03-27</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseils.html</loc>
     <lastmod>2026-03-27</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/infos.html</loc>
     <lastmod>2026-03-27</lastmod>
-    <changefreq>monthly</changefreq>
+    <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
@@ -49,13 +49,13 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=academia-quintana-vs-mayag-ez-le-choc-du-clausura-qui-peut-tout-changer</loc>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=academia-quintana-vs-mayaguez-le-choc-du-clausura-qui-peut-tout-changer</loc>
     <lastmod>2026-03-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=sensunte-cabanas-fc-vs-cd-neo-pipil-le-choc-de-la-segunda-divisi-n-qui-peut-tout-changer</loc>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=sensunte-cabanas-fc-vs-cd-neo-pipil-le-choc-de-la-segunda-division-qui-peut-tout-changer</loc>
     <lastmod>2026-03-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -77,5 +77,41 @@
     <lastmod>2026-03-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=parier-sans-strategie-lerreur-qui-vous-coute-cher-et-comment-leviter</loc>
+    <lastmod>2026-03-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=decrypter-les-cotes-lart-de-reperer-les-vraies-opportunites</loc>
+    <lastmod>2026-03-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=la-regle-des-3-comment-miser-sans-se-ruiner</loc>
+    <lastmod>2026-03-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=parier-sans-strategie-lerreur-qui-vous-coute-cher-et-comment-leviter-2</loc>
+    <lastmod>2026-03-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=analyser-un-match-comme-un-pro-la-methode-xpronos-pour-miser-malin</loc>
+    <lastmod>2026-03-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=analyser-un-match-comme-un-pro-la-methode-xpronos-pour-miser-malin-2</loc>
+    <lastmod>2026-03-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
   </url>
 </urlset>
