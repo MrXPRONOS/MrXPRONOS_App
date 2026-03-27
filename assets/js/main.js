@@ -1,6 +1,6 @@
 /**
  * main.js - Mr XPRONOS
- * Version stable + SEO amélioré (slug articles + metas dynamiques)
+ * Version stable + SEO amélioré (slug articles + conseils + metas dynamiques)
  */
 
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
@@ -69,6 +69,7 @@ const DOM = {
     installButton: null,
     blogList: null,
     blogPost: null,
+    conseilPost: null,
     conseilsList: null,
     infosList: null,
     footNewsContainer: null,
@@ -114,12 +115,12 @@ function initDOM() {
     DOM.installButton = document.getElementById('install-app');
     DOM.blogList = document.getElementById('blog-list');
 
-    // article.html utilise #blog-post
     DOM.blogPost =
         document.getElementById('blog-post') ||
         document.getElementById('blog-post-content') ||
         document.getElementById('article-page-content');
 
+    DOM.conseilPost = document.getElementById('conseil-post');
     DOM.conseilsList = document.getElementById('conseils-list');
     DOM.infosList = document.getElementById('infos-list');
     DOM.footNewsContainer = document.getElementById('foot-news-container');
@@ -307,6 +308,7 @@ function detectPage() {
     if (DOM.historyContainer) return 'history';
     if (DOM.blogList) return 'blog-list';
     if (DOM.blogPost) return 'blog-post';
+    if (DOM.conseilPost) return 'conseil-post';
     if (DOM.conseilsList) return 'conseils';
     if (DOM.bonusSelect || DOM.bonusGrid || DOM.bonusThumbnails) return 'bonus';
     if (DOM.footNewsContainer) return 'infos';
@@ -333,19 +335,18 @@ async function initSupabase() {
             const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
             supabase = createClient(supabaseUrl, supabaseAnonKey);
             supabaseAvailable = true;
-            console.log('✅ Supabase connecté');
         })();
 
         await Promise.race([initPromise, timeout]);
     } catch (error) {
-        console.warn('⚠️ Supabase non configuré:', error.message);
         supabaseAvailable = false;
     }
 }
 
 /* =======================================================
-   PUSH
+   PUSH / COUNTERS / ANALYTICS / PWA / SHARE / VIP
    ======================================================= */
+/* inchangé fonctionnellement */
 function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
     const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -400,9 +401,6 @@ window.enablePushNotifications = async function () {
     await subscribeToPush(true);
 };
 
-/* =======================================================
-   COUNTERS / ANALYTICS
-   ======================================================= */
 async function incrementCounter(counterName) {
     if (!supabaseAvailable || !supabase) {
         const local = parseInt(localStorage.getItem(counterName) || '0', 10);
@@ -522,9 +520,6 @@ async function initOnlineUsers() {
         });
 }
 
-/* =======================================================
-   PWA
-   ======================================================= */
 function getOS() {
     const ua = window.navigator.userAgent;
     if (/iPad|iPhone|iPod/.test(ua)) return 'iOS';
@@ -580,9 +575,6 @@ window.addEventListener('appinstalled', () => {
     if (DOM.iosGuidePopup) DOM.iosGuidePopup.style.display = 'none';
 });
 
-/* =======================================================
-   SHARE / VIP
-   ======================================================= */
 function getDailyShareCount() {
     const lastReset = localStorage.getItem('shareLastReset');
     const todayKey = getTodayString();
@@ -1191,7 +1183,6 @@ function renderMatches(matches) {
             const pred = m.prediction || {};
             const doubleChance = escapeHtml(pred.double_chance || 'N/A');
 
-            // ✅ confidence fix (support 0..1 ou 0..100)
             let confidence = toFloatSafe(pred.confidence, 0) || 0;
             if (confidence <= 1) confidence = confidence * 100;
             else if (confidence > 100) confidence = confidence / 100;
@@ -1385,13 +1376,12 @@ async function loadGeneratedContent() {
 }
 
 /* =======================================================
-   BLOG (SEO slug)
+   BLOG
    ======================================================= */
 window.showArticleDetail = function (index) {
     const article = window.articlesData?.[index];
     if (!article) return;
 
-    // fallback: si modal n'existe pas, on navigue directement
     if (!DOM.articleModal) {
         const slug = article.slug || '';
         window.location.href = slug
@@ -1479,7 +1469,6 @@ function ensureCanonical(href) {
 }
 
 function updateArticleSeo(article, resolvedSlug) {
-    // Ne fait quelque chose que sur article.html (qui a ces ids)
     const title = stripMarkdown(article.title || 'Article');
     const metaDesc = (article.meta_description || article.excerpt || '').slice(0, 160) ||
         `Analyse et pronostic : ${title}`;
@@ -1517,7 +1506,6 @@ function updateArticleSeo(article, resolvedSlug) {
             "mainEntityOfPage": canonicalUrl
         };
 
-        // FAQ si présent
         if (Array.isArray(article.faq) && article.faq.length) {
             const graph = [
                 baseArticle,
@@ -1552,8 +1540,6 @@ async function displayBlogPost() {
     ].filter(a => a?.active !== false);
 
     const params = new URLSearchParams(window.location.search);
-
-    // ✅ slug first (SEO)
     const slug = params.get('slug');
     const articleIndex = params.get('article') ?? params.get('id');
 
@@ -1584,7 +1570,6 @@ async function displayBlogPost() {
         </article>
     `;
 
-    // ✅ SEO dynamic meta (article.html)
     updateArticleSeo(article, article.slug || slug || '');
 
     const titleMeta = document.getElementById('article-title');
@@ -1594,6 +1579,37 @@ async function displayBlogPost() {
 /* =======================================================
    CONSEILS
    ======================================================= */
+window.openConseilPage = function (slug) {
+    if (!slug) return;
+    window.location.href = `conseil.html?slug=${encodeURIComponent(slug)}`;
+};
+
+function updateConseilSeo(conseil, resolvedSlug) {
+    const title = stripMarkdown(conseil.title || 'Conseil');
+    const metaDesc = (conseil.excerpt || '').slice(0, 160) || `Conseil pratique : ${title}`;
+
+    const url = new URL(window.location.href);
+    const canonicalUrl = resolvedSlug
+        ? `${url.origin}${url.pathname}?slug=${encodeURIComponent(resolvedSlug)}`
+        : window.location.href;
+
+    document.title = `${title} - Mr XPRONOS`;
+
+    const descEl = document.getElementById('conseil-description');
+    if (descEl) descEl.setAttribute('content', metaDesc);
+
+    setMetaContent('og-title', title);
+    setMetaContent('og-description', metaDesc);
+    setMetaContent('og-url', canonicalUrl);
+    setMetaContent('og-image', conseil.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
+
+    setMetaContent('twitter-title', title);
+    setMetaContent('twitter-description', metaDesc);
+    setMetaContent('twitter-image', conseil.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
+
+    ensureCanonical(canonicalUrl);
+}
+
 async function displayConseils() {
     if (!DOM.conseilsList) return;
 
@@ -1608,22 +1624,61 @@ async function displayConseils() {
 
     const horizontalContainer = document.getElementById('conseils-horizontal-list');
     if (horizontalContainer) {
-        horizontalContainer.innerHTML = window.conseilsData.slice(0, 8).map((conseil, index) => `
-            <div class="horizontal-item" onclick="showConseilDetail(${index})">
+        horizontalContainer.innerHTML = window.conseilsData.slice(0, 8).map((conseil) => `
+            <div class="horizontal-item" onclick="openConseilPage('${escapeAttribute(conseil.slug || '')}')">
                 <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}">
                 <div class="item-title">${escapeHtml(stripMarkdown(conseil.title || 'Conseil'))}</div>
             </div>
         `).join('');
     }
 
-    DOM.conseilsList.innerHTML = window.conseilsData.map((conseil, index) => `
-        <div class="news-card card" onclick="showConseilDetail(${index})">
+    DOM.conseilsList.innerHTML = window.conseilsData.map((conseil) => `
+        <div class="news-card card" onclick="openConseilPage('${escapeAttribute(conseil.slug || '')}')">
             <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}" loading="lazy" class="news-image">
             <h3>${escapeHtml(stripMarkdown(conseil.title || 'Conseil'))}</h3>
             <p>${escapeHtml(stripMarkdown((conseil.content || '').slice(0, 120)))}...</p>
             <button class="btn btn-secondary" style="margin-top:10px;">Lire le conseil</button>
         </div>
     `).join('') || '<div class="no-events">Aucun conseil disponible pour le moment.</div>';
+}
+
+async function displayConseilPost() {
+    if (!DOM.conseilPost) return;
+
+    await loadGeneratedContent();
+    const data = await loadDataGeneric();
+
+    const allConseils = (window.generatedConseils && window.generatedConseils.length)
+        ? window.generatedConseils
+        : ((data?.conseils) || []);
+
+    const conseils = allConseils.filter(c => c?.active !== false);
+
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
+
+    let conseil = null;
+    if (slug) {
+        conseil = conseils.find(c => (c.slug || '') === slug) || null;
+    }
+
+    if (!conseil) {
+        DOM.conseilPost.innerHTML = '<div class="no-events">Conseil introuvable.</div>';
+        return;
+    }
+
+    const title = stripMarkdown(conseil.title || 'Conseil');
+    const contentHtml = renderSafeRichContent(conseil.content || '');
+
+    DOM.conseilPost.innerHTML = `
+        <article class="card article-page-card">
+            <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(title)}" class="news-image" loading="lazy">
+            <h1>${escapeHtml(title)}</h1>
+            <div class="article-content">${contentHtml}</div>
+        </article>
+    `;
+
+    updateConseilSeo(conseil, conseil.slug || slug || '');
 }
 
 window.showConseilDetail = function (index) {
@@ -2140,6 +2195,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderBookmakers();
             break;
 
+        case 'conseil-post':
+            await displayConseilPost();
+            renderBookmakers();
+            break;
+
         case 'conseils':
             await displayConseils();
             renderBookmakers();
@@ -2178,6 +2238,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             break;
     }
 
-    await displayInfos(); // no-op si container absent
+    await displayInfos();
     initScrollProgress();
 });
