@@ -13,72 +13,25 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    body {
-      background: #0a0a0a;
-      color: #e5e5e5;
-      margin: 0;
-      font-family: Inter, sans-serif;
-    }
-
+    body { background:#0a0a0a; color:#e5e5e5; margin:0; font-family:Inter,sans-serif; }
     .gold-gradient {
       background: linear-gradient(135deg, #D4AF37 0%, #f5e7a3 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-
-    .card-hover {
-      transition: all .25s ease;
-    }
-
-    .card-hover:hover {
-      transform: translateY(-2px);
-      border-color: #D4AF37;
-    }
-
-    .live-pulse {
-      animation: pulse-live 2s infinite;
-    }
-
-    @keyframes pulse-live {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .4; }
-    }
-
+    .card-hover { transition: all .25s ease; }
+    .card-hover:hover { transform: translateY(-2px); border-color:#D4AF37; }
+    .live-pulse { animation:pulse-live 2s infinite; }
+    @keyframes pulse-live { 0%,100%{opacity:1} 50%{opacity:.4} }
     .vip-locked-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.95);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      position:fixed; inset:0; background:rgba(0,0,0,.95); z-index:9999;
+      display:flex; align-items:center; justify-content:center; padding:20px;
     }
-
     .vip-locked-content {
-      background: #121212;
-      border: 2px solid #D4AF37;
-      border-radius: 24px;
-      padding: 28px;
-      max-width: 440px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 0 30px rgba(212,175,55,.25);
-    }
-
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #111;
-    }
-
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #333;
-      border-radius: 999px;
+      background:#121212; border:2px solid #D4AF37; border-radius:24px;
+      padding:28px; max-width:420px; width:100%; text-align:center;
+      box-shadow:0 0 30px rgba(212,175,55,.25);
     }
   </style>
 </head>
@@ -86,38 +39,12 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const SUPABASE_URL = "https://nhwafcpndlufzzxexikh.supabase.co";
-    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+    const SUPABASE_URL = 'https://nhwafcpndlufzzxexikh.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
     const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live`;
-
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const { useState, useEffect, useCallback, useMemo } = React;
-
-    function safeNumber(value, fallback = 0) {
-      const n = Number(value);
-      return Number.isFinite(n) ? n : fallback;
-    }
-
-    function formatPercent(value) {
-      return `${Math.round(safeNumber(value, 0) * 100)}%`;
-    }
-
-    function formatDateTime(ts) {
-      try {
-        return new Date(ts).toLocaleString("fr-FR");
-      } catch {
-        return "-";
-      }
-    }
-
-    function formatTime(ts) {
-      try {
-        return new Date(ts).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-      } catch {
-        return "-";
-      }
-    }
 
     const Icon = ({ name, size = 18, className = "" }) => {
       const map = {
@@ -126,25 +53,18 @@
         target: "fa-bullseye",
         radio: "fa-broadcast-tower",
         history: "fa-history",
-        shield: "fa-shield-alt",
-        bolt: "fa-bolt",
-        fire: "fa-fire",
-        chart: "fa-chart-line",
+        clock: "fa-clock",
         star: "fa-star",
-        eye: "fa-eye",
         arrowLeft: "fa-arrow-left",
-        filter: "fa-filter",
-        chartBar: "fa-chart-bar",
-        waves: "fa-wave-square"
+        chart: "fa-chart-line"
       };
-
       return <i className={`fas ${map[name] || "fa-circle"} ${className}`} style={{ fontSize: size }} />;
     };
 
     const Card = ({ children, className = "", onClick }) => (
       <div
         onClick={onClick}
-        className={`bg-[#121212] border border-[#2a2a2a] rounded-2xl p-4 card-hover ${onClick ? "cursor-pointer" : ""} ${className}`}
+        className={`bg-[#121212] border border-[#2a2a2a] rounded-xl p-4 card-hover ${onClick ? "cursor-pointer" : ""} ${className}`}
       >
         {children}
       </div>
@@ -158,28 +78,19 @@
         orange: "bg-orange-500/20 text-orange-400 border-orange-500/40",
         yellow: "bg-yellow-500/20 text-yellow-400 border-yellow-500/40",
         gold: "bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/40",
-        gray: "bg-gray-500/20 text-gray-300 border-gray-500/40",
-        purple: "bg-purple-500/20 text-purple-400 border-purple-500/40"
+        gray: "bg-gray-500/20 text-gray-300 border-gray-500/40"
       };
-
-      return (
-        <span className={`px-2 py-1 text-xs rounded-full border inline-flex items-center gap-1 ${colors[color] || colors.gray}`}>
-          {children}
-        </span>
-      );
+      return <span className={`px-2 py-1 text-xs rounded-full border ${colors[color] || colors.gray}`}>{children}</span>;
     };
 
     const ScoreBar = ({ value, label, color = "#D4AF37" }) => (
       <div>
         <div className="flex justify-between mb-1 text-xs">
           <span className="text-gray-400">{label}</span>
-          <span className="font-bold" style={{ color }}>{Math.min(100, safeNumber(value, 0))}</span>
+          <span className="font-bold" style={{ color }}>{value}</span>
         </div>
         <div className="h-2 rounded-full bg-[#2a2a2a] overflow-hidden">
-          <div
-            className="h-full rounded-full"
-            style={{ width: `${Math.min(100, safeNumber(value, 0))}%`, background: color }}
-          />
+          <div className="h-full rounded-full" style={{ width: `${Math.min(value,100)}%`, background: color }} />
         </div>
       </div>
     );
@@ -191,32 +102,14 @@
       return <Badge color="red">maj {seconds}s</Badge>;
     };
 
-    const HeatBadge = ({ level }) => {
-      if (level === "explosive") return <Badge color="red">🔥 Explosif</Badge>;
-      if (level === "hot") return <Badge color="orange">🔥 Chaud</Badge>;
-      if (level === "warming") return <Badge color="yellow">♨️ Actif</Badge>;
-      return <Badge color="gray">❄️ Calme</Badge>;
-    };
-
     const PredictionBadge = ({ pred }) => {
       const colorMap = {
         green: "green",
-        blue: "blue",
         orange: "orange",
-        red: "red",
-        yellow: "yellow",
-        purple: "purple"
+        yellow: "yellow"
       };
-
-      return <Badge color={colorMap[pred?.color] || "gold"}>{pred?.badge || pred?.title || "Signal"}</Badge>;
+      return <Badge color={colorMap[pred.color] || "gold"}>{pred.badge || pred.title}</Badge>;
     };
-
-    const StatChip = ({ label, value }) => (
-      <div className="bg-[#0a0a0a] border border-[#232323] rounded-xl px-3 py-2">
-        <div className="text-[11px] text-gray-500">{label}</div>
-        <div className="text-sm font-bold text-white">{value}</div>
-      </div>
-    );
 
     const VipLockOverlay = ({ onSubmit }) => {
       const [code, setCode] = useState("");
@@ -237,18 +130,18 @@
           <div className="vip-locked-content">
             <h2 className="text-3xl font-bold gold-gradient mb-3">🔒 LIVE VIP</h2>
             <p className="text-sm text-gray-300 mb-5">
-              Accès aux signaux live les plus simples et les moins risqués,
-              centrés sur les statistiques du match.
+              Accès aux meilleurs signaux live sur les marchés statistiques :
+              corners, fautes et tirs.
             </p>
 
             <div className="space-y-2 mb-5 text-left text-sm">
               <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#2a2a2a]">
                 <div className="text-yellow-400 font-bold">📐 Over 9.5 corners — 84%</div>
-                <div className="text-gray-400 text-xs">Actuel 7 • Projection 11 • Fiabilité élevée</div>
+                <div className="text-gray-400 text-xs">Actuel: 7 • Projection: 11 • Fiabilité: 76</div>
               </div>
               <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#2a2a2a]">
                 <div className="text-green-400 font-bold">🎯 Over 21.5 tirs — 82%</div>
-                <div className="text-gray-400 text-xs">Rythme fort • volume déjà élevé</div>
+                <div className="text-gray-400 text-xs">Actuel: 15 • Projection: 24 • Fiabilité: 74</div>
               </div>
             </div>
 
@@ -260,9 +153,7 @@
                 className="w-full px-4 py-3 rounded-full bg-[#0a0a0a] border border-[#D4AF37] text-white text-center outline-none"
               />
               {error && <div className="text-red-500 text-sm">{error}</div>}
-              <button className="w-full py-3 rounded-full bg-[#D4AF37] text-black font-bold">
-                Activer l'accès
-              </button>
+              <button className="w-full py-3 rounded-full bg-[#D4AF37] text-black font-bold">Activer</button>
             </form>
           </div>
         </div>
@@ -279,20 +170,16 @@
               <button onClick={onBack} className="p-2 rounded-lg hover:bg-[#1a1a1a]">
                 <Icon name="arrowLeft" />
               </button>
-
               <div>
                 <div className="text-xl font-bold gold-gradient">MrXPRONOS LIVE</div>
                 <div className="text-xs text-gray-400">
-                  {stats.matches_live || 0} matchs live • {stats.signals || 0} signaux actifs
+                  {stats.matches_live || 0} live • {stats.matches_scheduled || 0} à venir
                 </div>
               </div>
             </div>
 
             <div className="relative">
-              <button
-                onClick={() => setOpen(!open)}
-                className="p-2 rounded-lg hover:bg-[#1a1a1a] relative"
-              >
+              <button onClick={() => setOpen(!open)} className="p-2 rounded-lg hover:bg-[#1a1a1a] relative">
                 <Icon name="bell" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
@@ -302,22 +189,19 @@
               </button>
 
               {open && (
-                <div className="absolute right-0 mt-2 w-80 bg-[#121212] border border-[#2a2a2a] rounded-xl shadow-2xl z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-80 bg-[#121212] border border-[#2a2a2a] rounded-xl shadow-2xl z-50">
                   <div className="p-3 flex items-center justify-between border-b border-[#2a2a2a]">
                     <div className="font-bold text-sm">Notifications</div>
-                    <button onClick={onClear} className="text-xs text-gray-400 hover:text-white">
-                      Tout lire
-                    </button>
+                    <button onClick={onClear} className="text-xs text-gray-400 hover:text-white">Tout lire</button>
                   </div>
-
-                  <div className="max-h-96 overflow-y-auto custom-scrollbar">
+                  <div className="max-h-96 overflow-y-auto">
                     {notifications.length === 0 ? (
                       <div className="p-4 text-sm text-gray-500 text-center">Aucune notification</div>
                     ) : notifications.map((n, i) => (
                       <div key={i} className={`p-3 border-b border-[#2a2a2a] ${!n.read ? "bg-[#1a1a1a]" : ""}`}>
                         <div className="text-sm font-semibold">{n.title}</div>
                         <div className="text-xs text-gray-400 mt-1">{n.message}</div>
-                        <div className="text-[10px] text-gray-500 mt-1">{formatTime(n.created_at)}</div>
+                        <div className="text-[10px] text-gray-500 mt-1">{new Date(n.created_at).toLocaleTimeString()}</div>
                       </div>
                     ))}
                   </div>
@@ -330,42 +214,35 @@
     };
 
     const OpportunityCard = ({ item, onOpen }) => {
-      const best = item?.predictions?.[0];
+      const best = item.predictions?.[0];
       if (!best) return null;
 
       return (
         <Card onClick={() => onOpen(item)} className="border-[#D4AF37]/30">
-          <div className="flex items-center justify-between gap-3 mb-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <HeatBadge level={item.heat_level} />
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <PredictionBadge pred={best} />
               <FreshnessBadge seconds={item.freshness_seconds} />
             </div>
-
-            <Badge color="gold">TOP {item.value_score || 0}</Badge>
+            <Badge color="gold">TOP {item.value_score}</Badge>
           </div>
 
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="font-bold text-white text-sm md:text-base">{item.home_team}</div>
-            <div className="px-3 py-1 rounded-lg bg-[#0a0a0a] border border-[#D4AF37] text-[#D4AF37] font-bold text-sm whitespace-nowrap">
+            <div className="px-3 py-1 rounded-lg bg-[#0a0a0a] border border-[#D4AF37] text-[#D4AF37] font-bold text-sm">
               {item.home_score}-{item.away_score} • {item.current_minute}'
             </div>
-            <div className="font-bold text-white text-sm md:text-base text-right">{item.away_team}</div>
-          </div>
-
-          <div className="mb-3 flex items-center gap-2 flex-wrap">
-            <PredictionBadge pred={best} />
-            <Badge color="green">{formatPercent(best.probability)}</Badge>
-            <Badge color="blue">Fiabilité {best.reliability || 0}</Badge>
+            <div className="font-bold text-white text-sm md:text-base">{item.away_team}</div>
           </div>
 
           <div className="text-sm font-semibold text-white mb-1">{best.title}</div>
           <div className="text-sm text-[#D4AF37] mb-2">{best.message}</div>
 
-          <div className="text-xs text-gray-300 mb-4">
+          <div className="text-xs text-gray-300 mb-3">
             Actuel: <strong>{best.current ?? "-"}</strong> • Projection: <strong>{best.projected ?? "-"}</strong> • Seuil: <strong>{best.threshold ?? "-"}</strong>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-4">
+          <div className="grid grid-cols-2 gap-3 mb-3">
             <ScoreBar value={Math.round((best.probability || 0) * 100)} label="Probabilité" color="#22C55E" />
             <ScoreBar value={best.reliability || 0} label="Fiabilité" color="#D4AF37" />
           </div>
@@ -380,72 +257,69 @@
       );
     };
 
-    const MatchCard = ({ match, onOpen }) => {
-      const best = match?.predictions?.[0] || null;
-
-      const totalCorners =
-        safeNumber(match?.live_stats?.home?.corner_kicks, 0) +
-        safeNumber(match?.live_stats?.away?.corner_kicks, 0);
-
-      const totalFouls =
-        safeNumber(match?.live_stats?.home?.fouls, 0) +
-        safeNumber(match?.live_stats?.away?.fouls, 0);
-
-      const totalShots =
-        safeNumber(match?.live_stats?.home?.total_shots, 0) +
-        safeNumber(match?.live_stats?.away?.total_shots, 0);
+    const LiveMatchCard = ({ match, onOpen }) => {
+      const best = match.predictions?.[0] || null;
 
       return (
         <Card onClick={() => onOpen(match)}>
-          <div className="flex items-center justify-between mb-3 gap-3">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 bg-red-500 rounded-full live-pulse"></span>
               <span className="text-red-500 text-xs font-bold">LIVE {match.current_minute || 0}'</span>
             </div>
-
-            <div className="flex items-center gap-2 flex-wrap justify-end">
-              <HeatBadge level={match.heat_level} />
-              <FreshnessBadge seconds={match.freshness_seconds} />
-            </div>
+            <FreshnessBadge seconds={match.freshness_seconds} />
           </div>
 
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex justify-between items-center mb-3">
             <div className="flex-1 text-right pr-3">
-              <div className="font-semibold">{match.home_team}</div>
+              <div className="font-semibold text-sm">{match.home_team}</div>
             </div>
-
-            <div className="px-3 py-2 rounded-lg bg-[#0a0a0a] border border-[#2a2a2a] font-bold">
+            <div className="px-3 py-2 rounded-lg bg-[#0a0a0a] border border-[#2a2a2a] font-bold text-sm">
               {match.home_score}-{match.away_score}
             </div>
-
             <div className="flex-1 pl-3">
-              <div className="font-semibold">{match.away_team}</div>
+              <div className="font-semibold text-sm">{match.away_team}</div>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            <StatChip label="Corners" value={totalCorners} />
-            <StatChip label="Fautes" value={totalFouls} />
-            <StatChip label="Tirs" value={totalShots} />
+          <div className="grid grid-cols-3 gap-2 mb-3 text-center">
+            <div className="bg-[#0a0a0a] rounded-lg p-2 border border-[#2a2a2a]">
+              <div className="text-xs text-gray-500">Corners</div>
+              <div className="font-bold">
+                {(match.live_stats?.home?.corner_kicks || 0) + (match.live_stats?.away?.corner_kicks || 0)}
+              </div>
+            </div>
+            <div className="bg-[#0a0a0a] rounded-lg p-2 border border-[#2a2a2a]">
+              <div className="text-xs text-gray-500">Fautes</div>
+              <div className="font-bold">
+                {(match.live_stats?.home?.fouls || 0) + (match.live_stats?.away?.fouls || 0)}
+              </div>
+            </div>
+            <div className="bg-[#0a0a0a] rounded-lg p-2 border border-[#2a2a2a]">
+              <div className="text-xs text-gray-500">Tirs</div>
+              <div className="font-bold">
+                {(match.live_stats?.home?.total_shots || 0) + (match.live_stats?.away?.total_shots || 0)}
+              </div>
+            </div>
           </div>
 
           {best ? (
             <div className="pt-3 border-t border-[#2a2a2a]">
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <PredictionBadge pred={best} />
-                <Badge color="green">{formatPercent(best.probability)}</Badge>
-                <Badge color="blue">Fiabilité {best.reliability || 0}</Badge>
+                <Badge color="green">{Math.round((best.probability || 0) * 100)}%</Badge>
+                <Badge color="gold">Fiabilité {best.reliability || 0}</Badge>
               </div>
 
               <div className="text-sm text-white font-semibold">{best.title}</div>
               <div className="text-xs text-[#D4AF37] mt-1">{best.message}</div>
               <div className="text-xs text-gray-400 mt-2">
-                Actuel {best.current ?? "-"} • Projection {best.projected ?? "-"} • Seuil {best.threshold ?? "-"}
+                Actuel: {best.current ?? "-"} • Projection: {best.projected ?? "-"} • Seuil: {best.threshold ?? "-"}
               </div>
             </div>
           ) : (
             <div className="pt-3 border-t border-[#2a2a2a] text-xs text-gray-500">
-              Aucun signal fiable actuellement
+              Aucun signal fiable pour le moment
             </div>
           )}
         </Card>
@@ -454,44 +328,28 @@
 
     const MatchDetail = ({ match, onClose }) => {
       const [tab, setTab] = useState("signals");
-
       if (!match) return null;
 
-      const totalCorners =
-        safeNumber(match?.live_stats?.home?.corner_kicks, 0) +
-        safeNumber(match?.live_stats?.away?.corner_kicks, 0);
-
-      const totalFouls =
-        safeNumber(match?.live_stats?.home?.fouls, 0) +
-        safeNumber(match?.live_stats?.away?.fouls, 0);
-
-      const totalShots =
-        safeNumber(match?.live_stats?.home?.total_shots, 0) +
-        safeNumber(match?.live_stats?.away?.total_shots, 0);
+      const totalCorners = (match.live_stats?.home?.corner_kicks || 0) + (match.live_stats?.away?.corner_kicks || 0);
+      const totalFouls = (match.live_stats?.home?.fouls || 0) + (match.live_stats?.away?.fouls || 0);
+      const totalShots = (match.live_stats?.home?.total_shots || 0) + (match.live_stats?.away?.total_shots || 0);
 
       return (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#121212] border border-[#2a2a2a] rounded-2xl w-full max-w-5xl max-h-[92vh] overflow-hidden">
+          <div className="bg-[#121212] border border-[#2a2a2a] rounded-2xl w-full max-w-4xl max-h-[92vh] overflow-hidden">
             <div className="p-5 border-b border-[#2a2a2a]">
-              <div className="flex justify-between items-start gap-4">
+              <div className="flex justify-between items-start">
                 <div>
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <div className="flex items-center gap-2 mb-2">
                     <span className="w-2 h-2 bg-red-500 rounded-full live-pulse"></span>
                     <span className="text-red-500 text-sm font-bold">LIVE {match.current_minute || 0}'</span>
                     <span className="text-gray-500">|</span>
-                    <span className="text-gray-400">{match.league?.name || ""}</span>
-                    <FreshnessBadge seconds={match.freshness_seconds} />
+                    <span className="text-gray-400 text-sm">{match.league?.name || ""}</span>
                   </div>
-
-                  <div className="text-2xl font-bold">
+                  <div className="text-xl md:text-2xl font-bold">
                     {match.home_team} <span className="gold-gradient">vs</span> {match.away_team}
                   </div>
-
-                  <div className="text-gray-400 text-sm mt-1">
-                    {match.match_phase || "-"} • {match.heat_level || "-"}
-                  </div>
                 </div>
-
                 <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#1a1a1a]">
                   <Icon name="x" />
                 </button>
@@ -505,20 +363,18 @@
             </div>
 
             <div className="flex border-b border-[#2a2a2a]">
-              {["signals", "stats"].map((t) => (
+              {["signals", "stats"].map(t => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`flex-1 py-3 text-sm capitalize ${
-                    tab === t ? "text-[#D4AF37] border-b-2 border-[#D4AF37]" : "text-gray-400"
-                  }`}
+                  className={`flex-1 py-3 text-sm capitalize ${tab === t ? "text-[#D4AF37] border-b-2 border-[#D4AF37]" : "text-gray-400"}`}
                 >
-                  {t === "signals" ? "Signaux" : "Statistiques"}
+                  {t}
                 </button>
               ))}
             </div>
 
-            <div className="p-5 overflow-y-auto max-h-[60vh] custom-scrollbar">
+            <div className="p-5 overflow-y-auto max-h-[60vh]">
               {tab === "signals" && (
                 <div className="space-y-4">
                   {(match.predictions || []).length === 0 ? (
@@ -526,32 +382,31 @@
                   ) : (
                     (match.predictions || []).map((p, i) => (
                       <div key={i} className="bg-[#0a0a0a] rounded-xl p-4 border border-[#2a2a2a]">
-                        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                           <div className="flex gap-2 items-center flex-wrap">
                             <PredictionBadge pred={p} />
                             <div className="font-bold">{p.title}</div>
                           </div>
-
-                          <div className="flex items-center gap-2">
-                            <Badge color="green">{formatPercent(p.probability)}</Badge>
-                            <Badge color="blue">Fiabilité {p.reliability || 0}</Badge>
+                          <div className="flex gap-2">
+                            <Badge color="green">{Math.round((p.probability || 0) * 100)}%</Badge>
+                            <Badge color="gold">Fiabilité {p.reliability || 0}</Badge>
                           </div>
                         </div>
 
                         <div className="text-sm text-[#D4AF37] mb-2">{p.message}</div>
 
-                        <div className="text-xs text-gray-300 mb-4">
+                        <div className="text-xs text-gray-300 mb-3">
                           Actuel: <strong>{p.current ?? "-"}</strong> • Projection: <strong>{p.projected ?? "-"}</strong> • Seuil: <strong>{p.threshold ?? "-"}</strong>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div className="grid grid-cols-2 gap-3 mb-3">
                           <ScoreBar value={Math.round((p.probability || 0) * 100)} label="Probabilité" color="#22C55E" />
                           <ScoreBar value={p.reliability || 0} label="Fiabilité" color="#D4AF37" />
                         </div>
 
-                        <div className="text-xs text-gray-400 mb-2">Pourquoi ?</div>
+                        <div className="text-xs text-gray-400 mb-1">Pourquoi ?</div>
                         <div className="space-y-1">
-                          {(p.reasons || []).slice(0, 3).map((r, idx) => (
+                          {(p.reasons || []).slice(0, 5).map((r, idx) => (
                             <div key={idx} className="text-sm text-gray-300">• {r}</div>
                           ))}
                         </div>
@@ -567,13 +422,13 @@
                   <ScoreBar value={match.reliability_score || 0} label="Fiabilité" color="#3B82F6" />
                   <ScoreBar value={match.data_quality_score || 0} label="Qualité données" color="#8B5CF6" />
 
-                  <div className="grid md:grid-cols-2 gap-4 mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <Card>
                       <div className="text-xs text-gray-400 mb-2">Pression</div>
                       <div className="text-sm">{match.home_team}: {match.pressure_index?.home_ratio || 0}%</div>
                       <div className="text-sm">{match.away_team}: {match.pressure_index?.away_ratio || 0}%</div>
                       <div className="text-xs text-gray-500 mt-2">
-                        Dominant: {match.pressure_index?.dominant_side || "-"}
+                        Dominant: {match.pressure_index?.dominant_side || "balanced"}
                       </div>
                     </Card>
 
@@ -582,13 +437,33 @@
                       <div className="text-sm">Corners: {totalCorners}</div>
                       <div className="text-sm">Fautes: {totalFouls}</div>
                       <div className="text-sm">Tirs: {totalShots}</div>
+                      <div className="text-xs text-gray-500 mt-2">
+                        Mise à jour: {match.freshness_seconds ?? "-"} sec
+                      </div>
                     </Card>
                   </div>
 
-                  <div className="grid md:grid-cols-3 gap-3">
-                    <StatChip label="Score IA" value={match.ai_score || 0} />
-                    <StatChip label="Value Score" value={match.value_score || 0} />
-                    <StatChip label="Minute" value={`${match.current_minute || 0}'`} />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <Card>
+                      <div className="text-xs text-gray-500 mb-1">{match.home_team}</div>
+                      <div className="text-sm">Corners: {match.live_stats?.home?.corner_kicks || 0}</div>
+                      <div className="text-sm">Fautes: {match.live_stats?.home?.fouls || 0}</div>
+                      <div className="text-sm">Tirs: {match.live_stats?.home?.total_shots || 0}</div>
+                    </Card>
+
+                    <Card>
+                      <div className="text-xs text-gray-500 mb-1">Résumé</div>
+                      <div className="text-sm">Minute: {match.current_minute || 0}'</div>
+                      <div className="text-sm">Score: {match.home_score}-{match.away_score}</div>
+                      <div className="text-sm">Ligue: {match.league?.name || "-"}</div>
+                    </Card>
+
+                    <Card>
+                      <div className="text-xs text-gray-500 mb-1">{match.away_team}</div>
+                      <div className="text-sm">Corners: {match.live_stats?.away?.corner_kicks || 0}</div>
+                      <div className="text-sm">Fautes: {match.live_stats?.away?.fouls || 0}</div>
+                      <div className="text-sm">Tirs: {match.live_stats?.away?.total_shots || 0}</div>
+                    </Card>
                   </div>
                 </div>
               )}
@@ -598,13 +473,6 @@
       );
     };
 
-    const EmptyState = ({ title, subtitle }) => (
-      <Card className="text-center py-10">
-        <div className="text-lg font-semibold text-gray-300 mb-2">{title}</div>
-        <div className="text-sm text-gray-500">{subtitle}</div>
-      </Card>
-    );
-
     const App = () => {
       const [userId] = useState(() => localStorage.getItem("mrx_user_id") || `user_${Date.now()}`);
       const [vipCode, setVipCode] = useState(() => localStorage.getItem("mx_vip_code") || "");
@@ -613,10 +481,10 @@
 
       const [liveMatches, setLiveMatches] = useState([]);
       const [opportunities, setOpportunities] = useState([]);
+      const [scheduledMatches, setScheduledMatches] = useState([]);
       const [history, setHistory] = useState([]);
       const [notifications, setNotifications] = useState([]);
-      const [stats, setStats] = useState({ matches_live: 0, signals: 0 });
-
+      const [stats, setStats] = useState({ matches_live: 0, matches_scheduled: 0 });
       const [loading, setLoading] = useState(true);
       const [error, setError] = useState(null);
       const [selectedTab, setSelectedTab] = useState("live");
@@ -665,41 +533,34 @@
           throw new Error("Accès VIP requis");
         }
 
-        if (!res.ok) {
-          throw new Error(`Erreur API ${res.status}`);
-        }
-
+        if (!res.ok) throw new Error(`Erreur API ${res.status}`);
         return res;
       }, [vipCode]);
 
       const fetchAll = useCallback(async () => {
-        const [matchesRes, oppRes, notifRes, historyRes] = await Promise.all([
+        const [matchesRes, oppRes, todayRes, notifRes, historyRes] = await Promise.all([
           apiFetch("/matches"),
           apiFetch("/opportunities"),
+          apiFetch("/today"),
           apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`, true),
           apiFetch("/predictions/history", true)
         ]);
 
         const matchesData = await matchesRes.json();
         const oppData = await oppRes.json();
+        const todayData = await todayRes.json();
         const notifData = await notifRes.json();
         const historyData = await historyRes.json();
 
-        const matches = matchesData.matches || [];
-        const opps = oppData.opportunities || [];
-        const notifs = notifData.notifications || [];
-        const hist = historyData.history || [];
-
-        setLiveMatches(matches);
-        setOpportunities(opps);
-        setNotifications(notifs);
-        setHistory(hist);
-
-        const signalsCount = matches.reduce((acc, m) => acc + ((m.predictions || []).length > 0 ? 1 : 0), 0);
+        setLiveMatches(matchesData.matches || []);
+        setOpportunities(oppData.opportunities || []);
+        setScheduledMatches(todayData?.data?.scheduled?.matches || []);
+        setNotifications(notifData.notifications || []);
+        setHistory(historyData.history || []);
 
         setStats({
-          matches_live: matches.length,
-          signals: signalsCount
+          matches_live: (matchesData.matches || []).length,
+          matches_scheduled: todayData?.data?.scheduled?.count || 0
         });
       }, [apiFetch, userId]);
 
@@ -728,30 +589,22 @@
       }, [isVip, vipChecking, fetchAll]);
 
       useEffect(() => {
-        if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY") return;
-
         const channel = supabase
           .channel("notifications-channel")
-          .on(
-            "postgres_changes",
-            { event: "INSERT", schema: "public", table: "notifications" },
-            (payload) => {
-              const notif = payload.new;
-              if (notif.user_id === "all" || notif.user_id === userId) {
-                setNotifications((prev) => [notif, ...prev].slice(0, 50));
-                setToast({ title: notif.title, message: notif.message });
-                setTimeout(() => setToast(null), 5000);
-              }
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, (payload) => {
+            const notif = payload.new;
+            if (notif.user_id === "all" || notif.user_id === userId) {
+              setToast({ title: notif.title, message: notif.message });
+              setTimeout(() => setToast(null), 5000);
+              fetchAll().catch(console.error);
             }
-          )
+          })
           .subscribe();
 
-        return () => {
-          supabase.removeChannel(channel);
-        };
-      }, [userId]);
+        return () => { supabase.removeChannel(channel); };
+      }, [userId, fetchAll]);
 
-      const unreadCount = notifications.filter((n) => !n.read).length;
+      const unreadCount = notifications.filter(n => !n.read).length;
       const bestOpportunity = useMemo(() => opportunities?.[0] || null, [opportunities]);
 
       const clearNotifications = async () => {
@@ -761,8 +614,7 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ user_id: userId })
           });
-
-          setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+          setNotifications(prev => prev.map(n => ({ ...n, read: true })));
         } catch (e) {
           console.error(e);
         }
@@ -781,25 +633,20 @@
 
       if (!isVip) {
         return (
-          <VipLockOverlay
-            onSubmit={(code) => {
-              localStorage.setItem("mx_vip_code", code);
-              setVipCode(code);
-            }}
-          />
+          <VipLockOverlay onSubmit={(code) => {
+            localStorage.setItem("mx_vip_code", code);
+            setVipCode(code);
+          }} />
         );
       }
 
       if (error) {
         return (
-          <div className="min-h-screen flex items-center justify-center px-4">
+          <div className="min-h-screen flex items-center justify-center">
             <div className="text-center">
               <div className="text-red-500 text-xl mb-3">Erreur</div>
               <div className="text-gray-400 mb-4">{error}</div>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-bold"
-              >
+              <button onClick={() => window.location.reload()} className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-bold">
                 Réessayer
               </button>
             </div>
@@ -823,18 +670,13 @@
                 <div className="flex gap-3 mb-6">
                   <button
                     onClick={() => setSelectedTab("live")}
-                    className={`px-4 py-2 rounded-lg font-semibold ${
-                      selectedTab === "live" ? "bg-[#D4AF37] text-black" : "bg-[#1a1a1a] text-gray-300"
-                    }`}
+                    className={`px-4 py-2 rounded-lg font-semibold ${selectedTab === "live" ? "bg-[#D4AF37] text-black" : "bg-[#1a1a1a] text-gray-300"}`}
                   >
                     Live
                   </button>
-
                   <button
                     onClick={() => setSelectedTab("history")}
-                    className={`px-4 py-2 rounded-lg font-semibold ${
-                      selectedTab === "history" ? "bg-[#D4AF37] text-black" : "bg-[#1a1a1a] text-gray-300"
-                    }`}
+                    className={`px-4 py-2 rounded-lg font-semibold ${selectedTab === "history" ? "bg-[#D4AF37] text-black" : "bg-[#1a1a1a] text-gray-300"}`}
                   >
                     Historique
                   </button>
@@ -848,25 +690,18 @@
                     </div>
                   ) : (
                     <>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                      <div className="grid grid-cols-3 gap-4 mb-8">
                         <Card className="text-center">
                           <div className="text-3xl font-bold text-red-500">{stats.matches_live || 0}</div>
                           <div className="text-xs text-gray-400">Matchs live</div>
                         </Card>
-
                         <Card className="text-center">
                           <div className="text-3xl font-bold text-[#D4AF37]">{opportunities.length || 0}</div>
-                          <div className="text-xs text-gray-400">Top signaux</div>
+                          <div className="text-xs text-gray-400">Signaux forts</div>
                         </Card>
-
                         <Card className="text-center">
-                          <div className="text-3xl font-bold text-blue-400">{stats.signals || 0}</div>
-                          <div className="text-xs text-gray-400">Matchs avec signal</div>
-                        </Card>
-
-                        <Card className="text-center">
-                          <div className="text-3xl font-bold text-green-400">{unreadCount || 0}</div>
-                          <div className="text-xs text-gray-400">Notifications</div>
+                          <div className="text-3xl font-bold text-blue-400">{stats.matches_scheduled || 0}</div>
+                          <div className="text-xs text-gray-400">Programmés</div>
                         </Card>
                       </div>
 
@@ -887,10 +722,9 @@
                         </div>
 
                         {opportunities.length === 0 ? (
-                          <EmptyState
-                            title="Aucune opportunité premium"
-                            subtitle="Le moteur live attend un contexte suffisamment fiable."
-                          />
+                          <Card className="text-center text-gray-500 py-8">
+                            Aucun signal premium pour le moment
+                          </Card>
                         ) : (
                           <div className="grid gap-4 md:grid-cols-2">
                             {opportunities.map((item) => (
@@ -907,14 +741,40 @@
                         </div>
 
                         {liveMatches.length === 0 ? (
-                          <EmptyState
-                            title="Aucun match live"
-                            subtitle="Le cache live ne contient actuellement aucun match en cours."
-                          />
+                          <Card className="text-center text-gray-500 py-8">
+                            Aucun match live pour le moment
+                          </Card>
                         ) : (
                           <div className="grid gap-4 md:grid-cols-2">
                             {liveMatches.map((m) => (
-                              <MatchCard key={m.id} match={m} onOpen={setSelectedMatch} />
+                              <LiveMatchCard key={m.id} match={m} onOpen={setSelectedMatch} />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mb-8">
+                        <div className="text-lg font-bold mb-4 flex items-center gap-2">
+                          <Icon name="clock" className="text-[#D4AF37]" />
+                          Prochainement
+                        </div>
+
+                        {scheduledMatches.length === 0 ? (
+                          <Card className="text-center text-gray-500 py-8">
+                            Aucun match programmé
+                          </Card>
+                        ) : (
+                          <div className="grid gap-3 md:grid-cols-3">
+                            {scheduledMatches.slice(0, 6).map((m) => (
+                              <Card key={m.id}>
+                                <div className="text-xs text-gray-500 mb-2">{m.league?.name || ""}</div>
+                                <div className="font-semibold text-sm">{m.home_team} vs {m.away_team}</div>
+                                <div className="text-xs text-gray-400 mt-2">
+                                  {m.event_date
+                                    ? new Date(m.event_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+                                    : "Heure inconnue"}
+                                </div>
+                              </Card>
                             ))}
                           </div>
                         )}
@@ -931,22 +791,18 @@
                     </div>
 
                     {history.length === 0 ? (
-                      <EmptyState
-                        title="Aucun historique"
-                        subtitle="Les validations apparaîtront ici dès qu'un signal sera créé."
-                      />
+                      <Card className="text-center text-gray-500 py-8">Aucun historique</Card>
                     ) : (
                       <div className="bg-[#121212] rounded-xl border border-[#2a2a2a] overflow-hidden">
-                        <div className="overflow-x-auto custom-scrollbar">
-                          <table className="w-full text-sm min-w-[900px]">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
                             <thead className="bg-[#0a0a0a] border-b border-[#2a2a2a]">
                               <tr>
                                 <th className="px-4 py-3 text-left">Match</th>
                                 <th className="px-4 py-3 text-left">Type</th>
-                                <th className="px-4 py-3 text-left">Proba</th>
                                 <th className="px-4 py-3 text-left">Seuil</th>
                                 <th className="px-4 py-3 text-left">Actuel</th>
-                                <th className="px-4 py-3 text-left">Projection</th>
+                                <th className="px-4 py-3 text-left">Proba</th>
                                 <th className="px-4 py-3 text-left">Résultat</th>
                                 <th className="px-4 py-3 text-left">Heure</th>
                               </tr>
@@ -956,20 +812,17 @@
                                 <tr key={i} className="border-b border-[#2a2a2a]">
                                   <td className="px-4 py-3">{h.match}</td>
                                   <td className="px-4 py-3">{h.type}</td>
-                                  <td className="px-4 py-3">{formatPercent(h.probability)}</td>
                                   <td className="px-4 py-3">{h.threshold ?? "-"}</td>
                                   <td className="px-4 py-3">{h.current ?? "-"}</td>
-                                  <td className="px-4 py-3">{h.projected ?? "-"}</td>
+                                  <td className="px-4 py-3">{Math.round((h.probability || 0) * 100)}%</td>
                                   <td className="px-4 py-3">
-                                    {h.validated ? (
-                                      <span className={h.outcome === "success" ? "text-green-400" : "text-red-400"}>
-                                        {h.outcome === "success" ? "✓ Réussi" : "✗ Échoué"}
-                                      </span>
-                                    ) : (
-                                      <span className="text-yellow-400">En attente</span>
-                                    )}
+                                    {h.validated
+                                      ? <span className={h.outcome === "success" ? "text-green-400" : "text-red-400"}>
+                                          {h.outcome === "success" ? "✓ Réussi" : "✗ Échoué"}
+                                        </span>
+                                      : <span className="text-yellow-400">En attente</span>}
                                   </td>
-                                  <td className="px-4 py-3">{formatDateTime(h.timestamp)}</td>
+                                  <td className="px-4 py-3">{new Date(h.timestamp).toLocaleTimeString()}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -982,12 +835,7 @@
               </>
             )}
 
-            {selectedMatch && (
-              <MatchDetail
-                match={selectedMatch}
-                onClose={() => setSelectedMatch(null)}
-              />
-            )}
+            {selectedMatch && <MatchDetail match={selectedMatch} onClose={() => setSelectedMatch(null)} />}
           </main>
 
           {toast && (
