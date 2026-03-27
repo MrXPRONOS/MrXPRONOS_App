@@ -1,42 +1,54 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 """
 update_pronostics_supabase.py - Synchronise les pronostics depuis data.json vers Supabase
 
-Version refondue :
-- plus de champs utiles
+Version robuste :
+- accepte SUPABASE_SERVICE_ROLE_KEY ou SUPABASE_KEY
+- ne casse pas le workflow si variables absentes
 - upsert propre
-- validation des matchs d'hier
-- robustesse renforcée
+- validation des matchs d'hier / aujourd'hui / demain
 """
 
 import os
 import json
 from datetime import datetime, timedelta
-from supabase import create_client
+
+try:
+    from supabase import create_client
+except Exception as e:
+    print(f"⚠️ Module supabase introuvable : {e}")
+    raise SystemExit(0)
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_KEY")
+SUPABASE_SERVICE_KEY = (
+    os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+    or os.environ.get("SUPABASE_KEY")
+)
 
 if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
-    raise ValueError("Les variables SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY/SUPABASE_KEY sont requises")
+    print("⚠️ Variables Supabase manquantes.")
+    print("⚠️ Attendu : SUPABASE_URL + (SUPABASE_SERVICE_ROLE_KEY ou SUPABASE_KEY)")
+    print("⚠️ Synchronisation Supabase ignorée.")
+    raise SystemExit(0)
 
-supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-
+try:
+    supabase = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+except Exception as e:
+    print(f"⚠️ Impossible d'initialiser Supabase : {e}")
+    raise SystemExit(0)
 
 def safe_load_data():
     if not os.path.exists("data.json"):
-        print("❌ data.json introuvable")
+        print("⚠️ data.json introuvable")
         return None
 
     try:
         with open("data.json", "r", encoding="utf-8") as f:
             return json.load(f)
     except Exception as e:
-        print(f"❌ Impossible de lire data.json : {e}")
+        print(f"⚠️ Impossible de lire data.json : {e}")
         return None
-
 
 def normalize_match_row(match):
     pred = match.get("prediction", {}) or {}
@@ -66,10 +78,10 @@ def normalize_match_row(match):
         "updated_at": datetime.utcnow().isoformat()
     }
 
-
 def main():
     data = safe_load_data()
     if not data:
+        print("⚠️ Aucune donnée exploitable, synchronisation annulée.")
         return
 
     matches = data.get("matches", [])
@@ -89,11 +101,11 @@ def main():
 
     relevant_matches = [m for m in matches if m.get("date") in allowed_dates]
 
-    print("📅 Synchronisation des pronostics vers Supabase...")
-    print(f"   Total matchs ciblés : {len(relevant_matches)}")
+    print("☁️ Synchronisation des pronostics vers Supabase...")
+    print(f"📌 Total matchs ciblés : {len(relevant_matches)}")
 
     if not relevant_matches:
-        print("ℹ️ Aucun match à synchroniser.")
+        print("⚠️ Aucun match à synchroniser.")
         return
 
     rows = []
@@ -106,10 +118,9 @@ def main():
             print(f"⚠️ Match ignoré (erreur normalisation): {e}")
 
     if not rows:
-        print("ℹ️ Aucune ligne valide à envoyer.")
+        print("⚠️ Aucune ligne valide à envoyer.")
         return
 
-    # Upsert par match_id + date si possible
     success_count = 0
     error_count = 0
 
@@ -130,13 +141,12 @@ def main():
             print(f"⚠️ Exception Supabase pour {row['match']}: {e}")
             error_count += 1
 
-    print("\n📊 RÉSUMÉ SYNC SUPABASE")
+    print("\n☁️ RÉSUMÉ SYNC SUPABASE")
     print("-------------------------")
     print(f"Lignes envoyées : {len(rows)}")
     print(f"Succès : {success_count}")
     print(f"Erreurs : {error_count}")
     print("✅ Synchronisation terminée.")
-
 
 if __name__ == "__main__":
     main()

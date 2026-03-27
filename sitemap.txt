@@ -1,4 +1,4 @@
-https://mrxpronos.github.io/MrXPRONOS_App
+https://mrxpronos.github.io/MrXPRONOS_App/
 https://mrxpronos.github.io/MrXPRONOS_App/pronos.html
 https://mrxpronos.github.io/MrXPRONOS_App/historique.html
 https://mrxpronos.github.io/MrXPRONOS_App/blog.html
@@ -6,8 +6,14 @@ https://mrxpronos.github.io/MrXPRONOS_App/conseils.html
 https://mrxpronos.github.io/MrXPRONOS_App/infos.html
 https://mrxpronos.github.io/MrXPRONOS_App/bonus.html
 https://mrxpronos.github.io/MrXPRONOS_App/contact.html
-https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=academia-quintana-vs-mayag-ez-le-choc-du-clausura-qui-peut-tout-changer
-https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=sensunte-cabanas-fc-vs-cd-neo-pipil-le-choc-de-la-segunda-divisi-n-qui-peut-tout-changer
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=academia-quintana-vs-mayaguez-le-choc-du-clausura-qui-peut-tout-changer
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=sensunte-cabanas-fc-vs-cd-neo-pipil-le-choc-de-la-segunda-division-qui-peut-tout-changer
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=charlotte-fc-vs-new-york-red-bulls-le-choc-mls-qui-pourrait-tout-changer
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=wsg-tirol-vs-grazer-ak-le-choc-autrichien-qui-peut-tout-changer-en-bundesliga
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=andorra-cf-vs-eibar-le-choc-de-laliga-2-qui-peut-tout-changer
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=parier-sans-strategie-lerreur-qui-vous-coute-cher-et-comment-leviter
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=decrypter-les-cotes-lart-de-reperer-les-vraies-opportunites
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=la-regle-des-3-comment-miser-sans-se-ruiner
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=parier-sans-strategie-lerreur-qui-vous-coute-cher-et-comment-leviter-2
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=analyser-un-match-comme-un-pro-la-methode-xpronos-pour-miser-malin
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=analyser-un-match-comme-un-pro-la-methode-xpronos-pour-miser-malin-2
