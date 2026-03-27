@@ -17,13 +17,9 @@
 
     :root {
       --bg: #070707;
-      --bg-soft: #0d0d0d;
       --card: #121212;
-      --line: #242424;
       --gold: #D4AF37;
-      --gold-soft: #f5e7a3;
       --text: #f3f4f6;
-      --muted: #9ca3af;
     }
 
     * {
@@ -152,7 +148,6 @@
     const SUPABASE_ANON_KEY = "sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt";
     const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live`;
 
-    // Pour les logos BSD
     const BSD_IMAGE_TOKEN = "YOUR_BSD_API_TOKEN";
     const BSD_IMAGE_BASE = "https://sports.bzzoiro.com";
 
@@ -346,8 +341,7 @@
       </div>
     );
 
-    // Ancien popup VIP fusionné avec l’extrait moderne
-    const VipLockOverlay = ({ userId, onActivate }) => {
+    const VipLockOverlay = ({ userId, onActivate, errorMessage }) => {
       const [code, setCode] = useState("");
       const [error, setError] = useState("");
       const encodedUserId = encodeURIComponent(userId);
@@ -422,7 +416,11 @@
                 placeholder="Code VIP"
                 className="w-full px-4 py-3 rounded-full bg-[#0a0a0a] border border-[#D4AF37] text-white text-center outline-none"
               />
-              {error && <div className="text-red-500 text-sm">{error}</div>}
+              {(error || errorMessage) && (
+                <div className="text-red-400 text-sm">
+                  {error || errorMessage}
+                </div>
+              )}
               <button className="w-full py-3 rounded-full bg-[#D4AF37] text-black font-bold">
                 Activer
               </button>
@@ -860,6 +858,7 @@
       const [vipCode, setVipCode] = useState(() => localStorage.getItem("mx_vip_code") || "");
       const [isVip, setIsVip] = useState(false);
       const [vipChecking, setVipChecking] = useState(true);
+      const [vipError, setVipError] = useState("");
 
       const [liveMatches, setLiveMatches] = useState([]);
       const [opportunities, setOpportunities] = useState([]);
@@ -880,28 +879,61 @@
       }, [userId]);
 
       const checkVip = useCallback(async (code) => {
-        if (!code) {
+        setVipChecking(true);
+        setVipError("");
+
+        if (!code || !code.trim()) {
           setIsVip(false);
           setVipChecking(false);
           return;
         }
 
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
+
           const res = await fetch(
-            `${EDGE_FUNCTION_URL}/check-vip?code=${encodeURIComponent(code)}&user_id=${encodeURIComponent(userId)}`
+            `${EDGE_FUNCTION_URL}/check-vip?code=${encodeURIComponent(code)}&user_id=${encodeURIComponent(userId)}`,
+            { signal: controller.signal }
           );
+
+          clearTimeout(timeoutId);
+
+          if (!res.ok) {
+            throw new Error(`Erreur check VIP ${res.status}`);
+          }
+
           const data = await res.json();
-          setIsVip(data.valid === true);
+
+          if (data.valid === true) {
+            setIsVip(true);
+            setVipError("");
+          } else {
+            setIsVip(false);
+            setVipError("Code VIP invalide ou expiré.");
+          }
         } catch (e) {
-          console.error(e);
+          console.error("Erreur vérification VIP:", e);
           setIsVip(false);
+          setVipError("Impossible de vérifier le code VIP.");
         } finally {
           setVipChecking(false);
         }
       }, [userId]);
 
       useEffect(() => {
-        checkVip(vipCode);
+        let mounted = true;
+
+        const run = async () => {
+          if (!mounted) return;
+          await checkVip(vipCode);
+        };
+
+        run();
+
+        return () => {
+          mounted = false;
+        };
       }, [vipCode, checkVip]);
 
       const apiFetch = useCallback(async (endpoint, isPublic = false) => {
@@ -914,6 +946,7 @@
 
         if (res.status === 403) {
           setIsVip(false);
+          setVipError("Accès VIP requis ou code expiré.");
           localStorage.removeItem("mx_vip_code");
           setVipCode("");
           throw new Error("Accès VIP requis");
@@ -1059,10 +1092,11 @@
         return (
           <VipLockOverlay
             userId={userId}
+            errorMessage={vipError}
             onActivate={(code) => {
+              setVipError("");
               localStorage.setItem("mx_vip_code", code);
               setVipCode(code);
-              setVipChecking(true);
             }}
           />
         );
