@@ -13,25 +13,72 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
-    body { background:#0a0a0a; color:#e5e5e5; margin:0; font-family:Inter,sans-serif; }
+    body {
+      background: #0a0a0a;
+      color: #e5e5e5;
+      margin: 0;
+      font-family: Inter, sans-serif;
+    }
+
     .gold-gradient {
       background: linear-gradient(135deg, #D4AF37 0%, #f5e7a3 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    .card-hover { transition: all .25s ease; }
-    .card-hover:hover { transform: translateY(-2px); border-color:#D4AF37; }
-    .live-pulse { animation:pulse-live 2s infinite; }
-    @keyframes pulse-live { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .vip-locked-overlay {
-      position:fixed; inset:0; background:rgba(0,0,0,.95); z-index:9999;
-      display:flex; align-items:center; justify-content:center; padding:20px;
+
+    .card-hover {
+      transition: all .25s ease;
     }
+
+    .card-hover:hover {
+      transform: translateY(-2px);
+      border-color: #D4AF37;
+    }
+
+    .live-pulse {
+      animation: pulse-live 2s infinite;
+    }
+
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .4; }
+    }
+
+    .vip-locked-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.95);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
     .vip-locked-content {
-      background:#121212; border:2px solid #D4AF37; border-radius:24px;
-      padding:28px; max-width:420px; width:100%; text-align:center;
-      box-shadow:0 0 30px rgba(212,175,55,.25);
+      background: #121212;
+      border: 2px solid #D4AF37;
+      border-radius: 24px;
+      padding: 28px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 30px rgba(212,175,55,.25);
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #111;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 999px;
     }
   </style>
 </head>
@@ -39,15 +86,37 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const SUPABASE_URL = 'https://nhwafcpndlufzzxexikh.supabase.co';
-    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+    const SUPABASE_URL = "https://nhwafcpndlufzzxexikh.supabase.co";
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
     const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live`;
+
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const { useState, useEffect, useCallback, useMemo, useRef } = React;
+    const { useState, useEffect, useCallback, useMemo } = React;
 
-    function safeJsonParse(value, fallback) {
-      try { return value ? JSON.parse(value) : fallback; } catch { return fallback; }
+    function safeNumber(value, fallback = 0) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function formatPercent(value) {
+      return `${Math.round(safeNumber(value, 0) * 100)}%`;
+    }
+
+    function formatDateTime(ts) {
+      try {
+        return new Date(ts).toLocaleString("fr-FR");
+      } catch {
+        return "-";
+      }
+    }
+
+    function formatTime(ts) {
+      try {
+        return new Date(ts).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+      } catch {
+        return "-";
+      }
     }
 
     const Icon = ({ name, size = 18, className = "" }) => {
@@ -57,20 +126,26 @@
         target: "fa-bullseye",
         radio: "fa-broadcast-tower",
         history: "fa-history",
-        clock: "fa-clock",
         shield: "fa-shield-alt",
         bolt: "fa-bolt",
         fire: "fa-fire",
         chart: "fa-chart-line",
         star: "fa-star",
         eye: "fa-eye",
-        arrowLeft: "fa-arrow-left"
+        arrowLeft: "fa-arrow-left",
+        filter: "fa-filter",
+        chartBar: "fa-chart-bar",
+        waves: "fa-wave-square"
       };
+
       return <i className={`fas ${map[name] || "fa-circle"} ${className}`} style={{ fontSize: size }} />;
     };
 
     const Card = ({ children, className = "", onClick }) => (
-      <div onClick={onClick} className={`bg-[#121212] border border-[#2a2a2a] rounded-xl p-4 card-hover ${onClick ? "cursor-pointer" : ""} ${className}`}>
+      <div
+        onClick={onClick}
+        className={`bg-[#121212] border border-[#2a2a2a] rounded-2xl p-4 card-hover ${onClick ? "cursor-pointer" : ""} ${className}`}
+      >
         {children}
       </div>
     );
@@ -86,33 +161,41 @@
         gray: "bg-gray-500/20 text-gray-300 border-gray-500/40",
         purple: "bg-purple-500/20 text-purple-400 border-purple-500/40"
       };
-      return <span className={`px-2 py-1 text-xs rounded-full border ${colors[color] || colors.gray}`}>{children}</span>;
+
+      return (
+        <span className={`px-2 py-1 text-xs rounded-full border inline-flex items-center gap-1 ${colors[color] || colors.gray}`}>
+          {children}
+        </span>
+      );
     };
 
     const ScoreBar = ({ value, label, color = "#D4AF37" }) => (
       <div>
         <div className="flex justify-between mb-1 text-xs">
           <span className="text-gray-400">{label}</span>
-          <span className="font-bold" style={{ color }}>{value}</span>
+          <span className="font-bold" style={{ color }}>{Math.min(100, safeNumber(value, 0))}</span>
         </div>
         <div className="h-2 rounded-full bg-[#2a2a2a] overflow-hidden">
-          <div className="h-full rounded-full" style={{ width: `${Math.min(value,100)}%`, background: color }} />
+          <div
+            className="h-full rounded-full"
+            style={{ width: `${Math.min(100, safeNumber(value, 0))}%`, background: color }}
+          />
         </div>
       </div>
     );
 
     const FreshnessBadge = ({ seconds }) => {
       if (seconds == null) return <Badge color="gray">maj inconnue</Badge>;
-      if (seconds <= 12) return <Badge color="green">maj {seconds}s</Badge>;
-      if (seconds <= 24) return <Badge color="yellow">maj {seconds}s</Badge>;
+      if (seconds <= 20) return <Badge color="green">maj {seconds}s</Badge>;
+      if (seconds <= 45) return <Badge color="yellow">maj {seconds}s</Badge>;
       return <Badge color="red">maj {seconds}s</Badge>;
     };
 
     const HeatBadge = ({ level }) => {
-      if (level === "explosive") return <Badge color="red">🔥 Explosive</Badge>;
-      if (level === "hot") return <Badge color="orange">🔥 Hot</Badge>;
-      if (level === "warming") return <Badge color="yellow">♨️ Warming</Badge>;
-      return <Badge color="gray">❄️ Calm</Badge>;
+      if (level === "explosive") return <Badge color="red">🔥 Explosif</Badge>;
+      if (level === "hot") return <Badge color="orange">🔥 Chaud</Badge>;
+      if (level === "warming") return <Badge color="yellow">♨️ Actif</Badge>;
+      return <Badge color="gray">❄️ Calme</Badge>;
     };
 
     const PredictionBadge = ({ pred }) => {
@@ -121,10 +204,19 @@
         blue: "blue",
         orange: "orange",
         red: "red",
+        yellow: "yellow",
         purple: "purple"
       };
-      return <Badge color={colorMap[pred.color] || "gold"}>{pred.badge || pred.title}</Badge>;
+
+      return <Badge color={colorMap[pred?.color] || "gold"}>{pred?.badge || pred?.title || "Signal"}</Badge>;
     };
+
+    const StatChip = ({ label, value }) => (
+      <div className="bg-[#0a0a0a] border border-[#232323] rounded-xl px-3 py-2">
+        <div className="text-[11px] text-gray-500">{label}</div>
+        <div className="text-sm font-bold text-white">{value}</div>
+      </div>
+    );
 
     const VipLockOverlay = ({ onSubmit }) => {
       const [code, setCode] = useState("");
@@ -145,19 +237,18 @@
           <div className="vip-locked-content">
             <h2 className="text-3xl font-bold gold-gradient mb-3">🔒 LIVE VIP</h2>
             <p className="text-sm text-gray-300 mb-5">
-              Accès aux meilleures opportunités live,
-              signaux filtrés, explications détaillées,
-              probabilité + fiabilité en temps réel.
+              Accès aux signaux live les plus simples et les moins risqués,
+              centrés sur les statistiques du match.
             </p>
 
             <div className="space-y-2 mb-5 text-left text-sm">
               <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#2a2a2a]">
-                <div className="text-[#D4AF37] font-bold">🔥 Over 2.5 Live — 87%</div>
-                <div className="text-gray-400 text-xs">6 tirs cadrés • xG live élevé • forte pression</div>
+                <div className="text-yellow-400 font-bold">📐 Over 9.5 corners — 84%</div>
+                <div className="text-gray-400 text-xs">Actuel 7 • Projection 11 • Fiabilité élevée</div>
               </div>
               <div className="bg-[#0a0a0a] p-3 rounded-xl border border-[#2a2a2a]">
-                <div className="text-blue-400 font-bold">🔵 BTTS Live — 82%</div>
-                <div className="text-gray-400 text-xs">Les deux équipes créent du danger</div>
+                <div className="text-green-400 font-bold">🎯 Over 21.5 tirs — 82%</div>
+                <div className="text-gray-400 text-xs">Rythme fort • volume déjà élevé</div>
               </div>
             </div>
 
@@ -169,7 +260,9 @@
                 className="w-full px-4 py-3 rounded-full bg-[#0a0a0a] border border-[#D4AF37] text-white text-center outline-none"
               />
               {error && <div className="text-red-500 text-sm">{error}</div>}
-              <button className="w-full py-3 rounded-full bg-[#D4AF37] text-black font-bold">Activer</button>
+              <button className="w-full py-3 rounded-full bg-[#D4AF37] text-black font-bold">
+                Activer l'accès
+              </button>
             </form>
           </div>
         </div>
@@ -186,16 +279,20 @@
               <button onClick={onBack} className="p-2 rounded-lg hover:bg-[#1a1a1a]">
                 <Icon name="arrowLeft" />
               </button>
+
               <div>
                 <div className="text-xl font-bold gold-gradient">MrXPRONOS LIVE</div>
                 <div className="text-xs text-gray-400">
-                  {stats.matches_live || 0} live • {stats.matches_scheduled || 0} à venir
+                  {stats.matches_live || 0} matchs live • {stats.signals || 0} signaux actifs
                 </div>
               </div>
             </div>
 
             <div className="relative">
-              <button onClick={() => setOpen(!open)} className="p-2 rounded-lg hover:bg-[#1a1a1a] relative">
+              <button
+                onClick={() => setOpen(!open)}
+                className="p-2 rounded-lg hover:bg-[#1a1a1a] relative"
+              >
                 <Icon name="bell" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
@@ -205,19 +302,22 @@
               </button>
 
               {open && (
-                <div className="absolute right-0 mt-2 w-80 bg-[#121212] border border-[#2a2a2a] rounded-xl shadow-2xl z-50">
+                <div className="absolute right-0 mt-2 w-80 bg-[#121212] border border-[#2a2a2a] rounded-xl shadow-2xl z-50 overflow-hidden">
                   <div className="p-3 flex items-center justify-between border-b border-[#2a2a2a]">
                     <div className="font-bold text-sm">Notifications</div>
-                    <button onClick={onClear} className="text-xs text-gray-400 hover:text-white">Tout lire</button>
+                    <button onClick={onClear} className="text-xs text-gray-400 hover:text-white">
+                      Tout lire
+                    </button>
                   </div>
-                  <div className="max-h-96 overflow-y-auto">
+
+                  <div className="max-h-96 overflow-y-auto custom-scrollbar">
                     {notifications.length === 0 ? (
                       <div className="p-4 text-sm text-gray-500 text-center">Aucune notification</div>
                     ) : notifications.map((n, i) => (
                       <div key={i} className={`p-3 border-b border-[#2a2a2a] ${!n.read ? "bg-[#1a1a1a]" : ""}`}>
                         <div className="text-sm font-semibold">{n.title}</div>
                         <div className="text-xs text-gray-400 mt-1">{n.message}</div>
-                        <div className="text-[10px] text-gray-500 mt-1">{new Date(n.created_at).toLocaleTimeString()}</div>
+                        <div className="text-[10px] text-gray-500 mt-1">{formatTime(n.created_at)}</div>
                       </div>
                     ))}
                   </div>
@@ -230,42 +330,49 @@
     };
 
     const OpportunityCard = ({ item, onOpen }) => {
-      const best = item.predictions?.[0];
+      const best = item?.predictions?.[0];
       if (!best) return null;
 
       return (
         <Card onClick={() => onOpen(item)} className="border-[#D4AF37]/30">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-2 flex-wrap">
               <HeatBadge level={item.heat_level} />
               <FreshnessBadge seconds={item.freshness_seconds} />
             </div>
-            <Badge color="gold">TOP {item.value_score}</Badge>
+
+            <Badge color="gold">TOP {item.value_score || 0}</Badge>
           </div>
 
-          <div className="flex items-center justify-between mb-3">
-            <div className="font-bold text-white">{item.home_team}</div>
-            <div className="px-3 py-1 rounded-lg bg-[#0a0a0a] border border-[#D4AF37] text-[#D4AF37] font-bold">
+          <div className="flex items-center justify-between mb-4">
+            <div className="font-bold text-white text-sm md:text-base">{item.home_team}</div>
+            <div className="px-3 py-1 rounded-lg bg-[#0a0a0a] border border-[#D4AF37] text-[#D4AF37] font-bold text-sm whitespace-nowrap">
               {item.home_score}-{item.away_score} • {item.current_minute}'
             </div>
-            <div className="font-bold text-white">{item.away_team}</div>
+            <div className="font-bold text-white text-sm md:text-base text-right">{item.away_team}</div>
           </div>
 
-          <div className="mb-3">
+          <div className="mb-3 flex items-center gap-2 flex-wrap">
             <PredictionBadge pred={best} />
+            <Badge color="green">{formatPercent(best.probability)}</Badge>
+            <Badge color="blue">Fiabilité {best.reliability || 0}</Badge>
           </div>
 
           <div className="text-sm font-semibold text-white mb-1">{best.title}</div>
-          <div className="text-sm text-[#D4AF37] mb-3">{best.message}</div>
+          <div className="text-sm text-[#D4AF37] mb-2">{best.message}</div>
 
-          <div className="grid grid-cols-2 gap-3 mb-3">
+          <div className="text-xs text-gray-300 mb-4">
+            Actuel: <strong>{best.current ?? "-"}</strong> • Projection: <strong>{best.projected ?? "-"}</strong> • Seuil: <strong>{best.threshold ?? "-"}</strong>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mb-4">
             <ScoreBar value={Math.round((best.probability || 0) * 100)} label="Probabilité" color="#22C55E" />
             <ScoreBar value={best.reliability || 0} label="Fiabilité" color="#D4AF37" />
           </div>
 
           <div className="text-xs text-gray-400 mb-2">Pourquoi ?</div>
           <div className="space-y-1">
-            {(best.reasons || []).slice(0, 4).map((r, i) => (
+            {(best.reasons || []).slice(0, 3).map((r, i) => (
               <div key={i} className="text-xs text-gray-300">• {r}</div>
             ))}
           </div>
@@ -273,48 +380,72 @@
       );
     };
 
-    const LiveMatchCard = ({ match, onOpen }) => {
-      const best = match.predictions?.[0] || null;
+    const MatchCard = ({ match, onOpen }) => {
+      const best = match?.predictions?.[0] || null;
+
+      const totalCorners =
+        safeNumber(match?.live_stats?.home?.corner_kicks, 0) +
+        safeNumber(match?.live_stats?.away?.corner_kicks, 0);
+
+      const totalFouls =
+        safeNumber(match?.live_stats?.home?.fouls, 0) +
+        safeNumber(match?.live_stats?.away?.fouls, 0);
+
+      const totalShots =
+        safeNumber(match?.live_stats?.home?.total_shots, 0) +
+        safeNumber(match?.live_stats?.away?.total_shots, 0);
 
       return (
         <Card onClick={() => onOpen(match)}>
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-3 gap-3">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 bg-red-500 rounded-full live-pulse"></span>
               <span className="text-red-500 text-xs font-bold">LIVE {match.current_minute || 0}'</span>
             </div>
-            <div className="flex gap-2">
+
+            <div className="flex items-center gap-2 flex-wrap justify-end">
               <HeatBadge level={match.heat_level} />
               <FreshnessBadge seconds={match.freshness_seconds} />
             </div>
           </div>
 
-          <div className="flex justify-between items-center mb-3">
+          <div className="flex justify-between items-center mb-4">
             <div className="flex-1 text-right pr-3">
               <div className="font-semibold">{match.home_team}</div>
             </div>
+
             <div className="px-3 py-2 rounded-lg bg-[#0a0a0a] border border-[#2a2a2a] font-bold">
               {match.home_score}-{match.away_score}
             </div>
+
             <div className="flex-1 pl-3">
               <div className="font-semibold">{match.away_team}</div>
             </div>
           </div>
 
-          <div className="space-y-2 mb-3">
-            <ScoreBar value={match.ai_score || 0} label="Score IA" color="#D4AF37" />
-            <ScoreBar value={match.reliability_score || 0} label="Fiabilité" color="#3B82F6" />
-            <ScoreBar value={match.data_quality_score || 0} label="Qualité données" color="#8B5CF6" />
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            <StatChip label="Corners" value={totalCorners} />
+            <StatChip label="Fautes" value={totalFouls} />
+            <StatChip label="Tirs" value={totalShots} />
           </div>
 
-          {best && (
+          {best ? (
             <div className="pt-3 border-t border-[#2a2a2a]">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <PredictionBadge pred={best} />
-                <Badge color="green">{Math.round((best.probability || 0) * 100)}%</Badge>
+                <Badge color="green">{formatPercent(best.probability)}</Badge>
+                <Badge color="blue">Fiabilité {best.reliability || 0}</Badge>
               </div>
+
               <div className="text-sm text-white font-semibold">{best.title}</div>
-              <div className="text-xs text-gray-400 mt-1">{best.message}</div>
+              <div className="text-xs text-[#D4AF37] mt-1">{best.message}</div>
+              <div className="text-xs text-gray-400 mt-2">
+                Actuel {best.current ?? "-"} • Projection {best.projected ?? "-"} • Seuil {best.threshold ?? "-"}
+              </div>
+            </div>
+          ) : (
+            <div className="pt-3 border-t border-[#2a2a2a] text-xs text-gray-500">
+              Aucun signal fiable actuellement
             </div>
           )}
         </Card>
@@ -322,26 +453,45 @@
     };
 
     const MatchDetail = ({ match, onClose }) => {
-      if (!match) return null;
       const [tab, setTab] = useState("signals");
+
+      if (!match) return null;
+
+      const totalCorners =
+        safeNumber(match?.live_stats?.home?.corner_kicks, 0) +
+        safeNumber(match?.live_stats?.away?.corner_kicks, 0);
+
+      const totalFouls =
+        safeNumber(match?.live_stats?.home?.fouls, 0) +
+        safeNumber(match?.live_stats?.away?.fouls, 0);
+
+      const totalShots =
+        safeNumber(match?.live_stats?.home?.total_shots, 0) +
+        safeNumber(match?.live_stats?.away?.total_shots, 0);
 
       return (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#121212] border border-[#2a2a2a] rounded-2xl w-full max-w-5xl max-h-[92vh] overflow-hidden">
             <div className="p-5 border-b border-[#2a2a2a]">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start gap-4">
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <span className="w-2 h-2 bg-red-500 rounded-full live-pulse"></span>
                     <span className="text-red-500 text-sm font-bold">LIVE {match.current_minute || 0}'</span>
                     <span className="text-gray-500">|</span>
                     <span className="text-gray-400">{match.league?.name || ""}</span>
+                    <FreshnessBadge seconds={match.freshness_seconds} />
                   </div>
-                  <div className="text-2xl font-bold">{match.home_team} <span className="gold-gradient">vs</span> {match.away_team}</div>
+
+                  <div className="text-2xl font-bold">
+                    {match.home_team} <span className="gold-gradient">vs</span> {match.away_team}
+                  </div>
+
                   <div className="text-gray-400 text-sm mt-1">
-                    Phase: {match.match_phase} • Score state: {match.score_state}
+                    {match.match_phase || "-"} • {match.heat_level || "-"}
                   </div>
                 </div>
+
                 <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#1a1a1a]">
                   <Icon name="x" />
                 </button>
@@ -355,18 +505,20 @@
             </div>
 
             <div className="flex border-b border-[#2a2a2a]">
-              {["signals", "metrics", "context"].map(t => (
+              {["signals", "stats"].map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`flex-1 py-3 text-sm capitalize ${tab === t ? "text-[#D4AF37] border-b-2 border-[#D4AF37]" : "text-gray-400"}`}
+                  className={`flex-1 py-3 text-sm capitalize ${
+                    tab === t ? "text-[#D4AF37] border-b-2 border-[#D4AF37]" : "text-gray-400"
+                  }`}
                 >
-                  {t}
+                  {t === "signals" ? "Signaux" : "Statistiques"}
                 </button>
               ))}
             </div>
 
-            <div className="p-5 overflow-y-auto max-h-[60vh]">
+            <div className="p-5 overflow-y-auto max-h-[60vh] custom-scrollbar">
               {tab === "signals" && (
                 <div className="space-y-4">
                   {(match.predictions || []).length === 0 ? (
@@ -374,24 +526,32 @@
                   ) : (
                     (match.predictions || []).map((p, i) => (
                       <div key={i} className="bg-[#0a0a0a] rounded-xl p-4 border border-[#2a2a2a]">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex gap-2 items-center">
+                        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                          <div className="flex gap-2 items-center flex-wrap">
                             <PredictionBadge pred={p} />
                             <div className="font-bold">{p.title}</div>
                           </div>
-                          <Badge color="green">{Math.round((p.probability || 0) * 100)}%</Badge>
+
+                          <div className="flex items-center gap-2">
+                            <Badge color="green">{formatPercent(p.probability)}</Badge>
+                            <Badge color="blue">Fiabilité {p.reliability || 0}</Badge>
+                          </div>
                         </div>
 
-                        <div className="text-sm text-[#D4AF37] mb-3">{p.message}</div>
+                        <div className="text-sm text-[#D4AF37] mb-2">{p.message}</div>
 
-                        <div className="grid grid-cols-2 gap-3 mb-3">
+                        <div className="text-xs text-gray-300 mb-4">
+                          Actuel: <strong>{p.current ?? "-"}</strong> • Projection: <strong>{p.projected ?? "-"}</strong> • Seuil: <strong>{p.threshold ?? "-"}</strong>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 mb-4">
                           <ScoreBar value={Math.round((p.probability || 0) * 100)} label="Probabilité" color="#22C55E" />
                           <ScoreBar value={p.reliability || 0} label="Fiabilité" color="#D4AF37" />
                         </div>
 
-                        <div className="text-xs text-gray-400 mb-1">Pourquoi ?</div>
+                        <div className="text-xs text-gray-400 mb-2">Pourquoi ?</div>
                         <div className="space-y-1">
-                          {(p.reasons || []).map((r, idx) => (
+                          {(p.reasons || []).slice(0, 3).map((r, idx) => (
                             <div key={idx} className="text-sm text-gray-300">• {r}</div>
                           ))}
                         </div>
@@ -401,59 +561,35 @@
                 </div>
               )}
 
-              {tab === "metrics" && (
+              {tab === "stats" && (
                 <div className="space-y-4">
                   <ScoreBar value={match.ai_score || 0} label="Score IA" color="#D4AF37" />
                   <ScoreBar value={match.reliability_score || 0} label="Fiabilité" color="#3B82F6" />
                   <ScoreBar value={match.data_quality_score || 0} label="Qualité données" color="#8B5CF6" />
-                  <ScoreBar value={match.stability_score || 0} label="Stabilité signal" color="#22C55E" />
-                  <ScoreBar value={match.value_score || 0} label="Value Score" color="#F97316" />
 
-                  <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div className="grid md:grid-cols-2 gap-4 mt-4">
                     <Card>
-                      <div className="text-xs text-gray-400 mb-2">Pressure</div>
+                      <div className="text-xs text-gray-400 mb-2">Pression</div>
                       <div className="text-sm">{match.home_team}: {match.pressure_index?.home_ratio || 0}%</div>
                       <div className="text-sm">{match.away_team}: {match.pressure_index?.away_ratio || 0}%</div>
-                      <div className="text-xs text-gray-500 mt-2">Dominant: {match.pressure_index?.dominant_side}</div>
+                      <div className="text-xs text-gray-500 mt-2">
+                        Dominant: {match.pressure_index?.dominant_side || "-"}
+                      </div>
                     </Card>
 
                     <Card>
-                      <div className="text-xs text-gray-400 mb-2">xG live</div>
-                      <div className="text-sm">{match.home_team}: {match.live_xg?.home_xg_live || 0}</div>
-                      <div className="text-sm">{match.away_team}: {match.live_xg?.away_xg_live || 0}</div>
-                      <div className="text-xs text-gray-500 mt-2">Total: {match.live_xg?.total_xg_live || 0}</div>
+                      <div className="text-xs text-gray-400 mb-2">Stats clés</div>
+                      <div className="text-sm">Corners: {totalCorners}</div>
+                      <div className="text-sm">Fautes: {totalFouls}</div>
+                      <div className="text-sm">Tirs: {totalShots}</div>
                     </Card>
                   </div>
-                </div>
-              )}
 
-              {tab === "context" && (
-                <div className="space-y-4">
-                  <Card>
-                    <div className="text-sm font-bold mb-2">Contexte pré-match BSD</div>
-                    {match.mlPrediction ? (
-                      <div className="space-y-1 text-sm">
-                        <div>1X2 : H {match.mlPrediction.prob_home_win?.toFixed?.(1) || match.mlPrediction.prob_home_win}% • D {match.mlPrediction.prob_draw?.toFixed?.(1) || match.mlPrediction.prob_draw}% • A {match.mlPrediction.prob_away_win?.toFixed?.(1) || match.mlPrediction.prob_away_win}%</div>
-                        <div>xG attendus : {match.mlPrediction.expected_home_goals} - {match.mlPrediction.expected_away_goals}</div>
-                        <div>Over 2.5 : {match.mlPrediction.prob_over_25}%</div>
-                        <div>BTTS : {match.mlPrediction.prob_btts_yes}%</div>
-                        <div>Confiance modèle : {Math.round((match.mlPrediction.confidence || 0) * 100)}%</div>
-                      </div>
-                    ) : (
-                      <div className="text-gray-500 text-sm">Données pré-match indisponibles</div>
-                    )}
-                  </Card>
-
-                  <Card>
-                    <div className="text-sm font-bold mb-2">État du match</div>
-                    <div className="text-sm">Phase: {match.match_phase}</div>
-                    <div className="text-sm">Score state: {match.score_state}</div>
-                    <div className="text-sm">Heat: {match.heat_level}</div>
-                    <div className="text-sm">Freshness: {match.freshness_seconds ?? "-"} sec</div>
-                    {match.red_card_impact?.active && (
-                      <div className="text-red-400 text-sm mt-2">{match.red_card_impact.message}</div>
-                    )}
-                  </Card>
+                  <div className="grid md:grid-cols-3 gap-3">
+                    <StatChip label="Score IA" value={match.ai_score || 0} />
+                    <StatChip label="Value Score" value={match.value_score || 0} />
+                    <StatChip label="Minute" value={`${match.current_minute || 0}'`} />
+                  </div>
                 </div>
               )}
             </div>
@@ -461,6 +597,13 @@
         </div>
       );
     };
+
+    const EmptyState = ({ title, subtitle }) => (
+      <Card className="text-center py-10">
+        <div className="text-lg font-semibold text-gray-300 mb-2">{title}</div>
+        <div className="text-sm text-gray-500">{subtitle}</div>
+      </Card>
+    );
 
     const App = () => {
       const [userId] = useState(() => localStorage.getItem("mrx_user_id") || `user_${Date.now()}`);
@@ -470,10 +613,10 @@
 
       const [liveMatches, setLiveMatches] = useState([]);
       const [opportunities, setOpportunities] = useState([]);
-      const [scheduledMatches, setScheduledMatches] = useState([]);
       const [history, setHistory] = useState([]);
       const [notifications, setNotifications] = useState([]);
-      const [stats, setStats] = useState({ matches_live: 0, matches_scheduled: 0 });
+      const [stats, setStats] = useState({ matches_live: 0, signals: 0 });
+
       const [loading, setLoading] = useState(true);
       const [error, setError] = useState(null);
       const [selectedTab, setSelectedTab] = useState("live");
@@ -490,6 +633,7 @@
           setVipChecking(false);
           return;
         }
+
         try {
           const res = await fetch(`${EDGE_FUNCTION_URL}/check-vip?code=${encodeURIComponent(code)}`);
           const data = await res.json();
@@ -511,46 +655,57 @@
         const url = !isPublic && vipCode
           ? `${EDGE_FUNCTION_URL}${endpoint}${sep}vip_code=${encodeURIComponent(vipCode)}`
           : `${EDGE_FUNCTION_URL}${endpoint}`;
+
         const res = await fetch(url);
+
         if (res.status === 403) {
           setIsVip(false);
           localStorage.removeItem("mx_vip_code");
           setVipCode("");
           throw new Error("Accès VIP requis");
         }
-        if (!res.ok) throw new Error(`Erreur API ${res.status}`);
+
+        if (!res.ok) {
+          throw new Error(`Erreur API ${res.status}`);
+        }
+
         return res;
       }, [vipCode]);
 
       const fetchAll = useCallback(async () => {
-        const [matchesRes, oppRes, todayRes, notifRes, historyRes] = await Promise.all([
+        const [matchesRes, oppRes, notifRes, historyRes] = await Promise.all([
           apiFetch("/matches"),
           apiFetch("/opportunities"),
-          apiFetch("/today"),
           apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`, true),
           apiFetch("/predictions/history", true)
         ]);
 
         const matchesData = await matchesRes.json();
         const oppData = await oppRes.json();
-        const todayData = await todayRes.json();
         const notifData = await notifRes.json();
         const historyData = await historyRes.json();
 
-        setLiveMatches(matchesData.matches || []);
-        setOpportunities(oppData.opportunities || []);
-        setScheduledMatches(todayData?.data?.scheduled?.matches || []);
-        setNotifications(notifData.notifications || []);
-        setHistory(historyData.history || []);
+        const matches = matchesData.matches || [];
+        const opps = oppData.opportunities || [];
+        const notifs = notifData.notifications || [];
+        const hist = historyData.history || [];
+
+        setLiveMatches(matches);
+        setOpportunities(opps);
+        setNotifications(notifs);
+        setHistory(hist);
+
+        const signalsCount = matches.reduce((acc, m) => acc + ((m.predictions || []).length > 0 ? 1 : 0), 0);
 
         setStats({
-          matches_live: (matchesData.matches || []).length,
-          matches_scheduled: todayData?.data?.scheduled?.count || 0
+          matches_live: matches.length,
+          signals: signalsCount
         });
       }, [apiFetch, userId]);
 
       useEffect(() => {
         if (!isVip || vipChecking) return;
+
         setLoading(true);
         setError(null);
 
@@ -564,28 +719,40 @@
 
       useEffect(() => {
         if (!isVip || vipChecking) return;
+
         const interval = setInterval(() => {
           fetchAll().catch(console.error);
-        }, liveMatches.length > 0 ? 20000 : 45000);
+        }, 20000);
+
         return () => clearInterval(interval);
-      }, [isVip, vipChecking, fetchAll, liveMatches.length]);
+      }, [isVip, vipChecking, fetchAll]);
 
       useEffect(() => {
+        if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === "YOUR_SUPABASE_ANON_KEY") return;
+
         const channel = supabase
           .channel("notifications-channel")
-          .on("postgres_changes", { event: "INSERT", schema: "public", table: "notifications" }, (payload) => {
-            const notif = payload.new;
-            if (notif.user_id === "all" || notif.user_id === userId) {
-              setToast({ title: notif.title, message: notif.message });
-              setTimeout(() => setToast(null), 5000);
+          .on(
+            "postgres_changes",
+            { event: "INSERT", schema: "public", table: "notifications" },
+            (payload) => {
+              const notif = payload.new;
+              if (notif.user_id === "all" || notif.user_id === userId) {
+                setNotifications((prev) => [notif, ...prev].slice(0, 50));
+                setToast({ title: notif.title, message: notif.message });
+                setTimeout(() => setToast(null), 5000);
+              }
             }
-          })
+          )
           .subscribe();
 
-        return () => { supabase.removeChannel(channel); };
+        return () => {
+          supabase.removeChannel(channel);
+        };
       }, [userId]);
 
-      const unreadCount = notifications.filter(n => !n.read).length;
+      const unreadCount = notifications.filter((n) => !n.read).length;
+      const bestOpportunity = useMemo(() => opportunities?.[0] || null, [opportunities]);
 
       const clearNotifications = async () => {
         try {
@@ -594,13 +761,12 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ user_id: userId })
           });
-          setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+
+          setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
         } catch (e) {
           console.error(e);
         }
       };
-
-      const bestOpportunity = useMemo(() => opportunities?.[0] || null, [opportunities]);
 
       if (vipChecking) {
         return (
@@ -614,19 +780,26 @@
       }
 
       if (!isVip) {
-        return <VipLockOverlay onSubmit={(code) => {
-          localStorage.setItem("mx_vip_code", code);
-          setVipCode(code);
-        }} />;
+        return (
+          <VipLockOverlay
+            onSubmit={(code) => {
+              localStorage.setItem("mx_vip_code", code);
+              setVipCode(code);
+            }}
+          />
+        );
       }
 
       if (error) {
         return (
-          <div className="min-h-screen flex items-center justify-center">
+          <div className="min-h-screen flex items-center justify-center px-4">
             <div className="text-center">
               <div className="text-red-500 text-xl mb-3">Erreur</div>
               <div className="text-gray-400 mb-4">{error}</div>
-              <button onClick={() => window.location.reload()} className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-bold">
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-bold"
+              >
                 Réessayer
               </button>
             </div>
@@ -648,8 +821,23 @@
             {!selectedMatch && (
               <>
                 <div className="flex gap-3 mb-6">
-                  <button onClick={() => setSelectedTab("live")} className={`px-4 py-2 rounded-lg font-semibold ${selectedTab === "live" ? "bg-[#D4AF37] text-black" : "bg-[#1a1a1a] text-gray-300"}`}>Live</button>
-                  <button onClick={() => setSelectedTab("history")} className={`px-4 py-2 rounded-lg font-semibold ${selectedTab === "history" ? "bg-[#D4AF37] text-black" : "bg-[#1a1a1a] text-gray-300"}`}>Historique</button>
+                  <button
+                    onClick={() => setSelectedTab("live")}
+                    className={`px-4 py-2 rounded-lg font-semibold ${
+                      selectedTab === "live" ? "bg-[#D4AF37] text-black" : "bg-[#1a1a1a] text-gray-300"
+                    }`}
+                  >
+                    Live
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedTab("history")}
+                    className={`px-4 py-2 rounded-lg font-semibold ${
+                      selectedTab === "history" ? "bg-[#D4AF37] text-black" : "bg-[#1a1a1a] text-gray-300"
+                    }`}
+                  >
+                    Historique
+                  </button>
                 </div>
 
                 {selectedTab === "live" && (
@@ -660,18 +848,25 @@
                     </div>
                   ) : (
                     <>
-                      <div className="grid grid-cols-3 gap-4 mb-8">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                         <Card className="text-center">
                           <div className="text-3xl font-bold text-red-500">{stats.matches_live || 0}</div>
                           <div className="text-xs text-gray-400">Matchs live</div>
                         </Card>
+
                         <Card className="text-center">
                           <div className="text-3xl font-bold text-[#D4AF37]">{opportunities.length || 0}</div>
-                          <div className="text-xs text-gray-400">Opportunités</div>
+                          <div className="text-xs text-gray-400">Top signaux</div>
                         </Card>
+
                         <Card className="text-center">
-                          <div className="text-3xl font-bold text-blue-400">{stats.matches_scheduled || 0}</div>
-                          <div className="text-xs text-gray-400">Programmés</div>
+                          <div className="text-3xl font-bold text-blue-400">{stats.signals || 0}</div>
+                          <div className="text-xs text-gray-400">Matchs avec signal</div>
+                        </Card>
+
+                        <Card className="text-center">
+                          <div className="text-3xl font-bold text-green-400">{unreadCount || 0}</div>
+                          <div className="text-xs text-gray-400">Notifications</div>
                         </Card>
                       </div>
 
@@ -688,11 +883,14 @@
                       <div className="mb-8">
                         <div className="text-lg font-bold mb-4 flex items-center gap-2">
                           <Icon name="target" className="text-[#D4AF37]" />
-                          Top 5 opportunités live
+                          Opportunités live
                         </div>
 
                         {opportunities.length === 0 ? (
-                          <Card className="text-center text-gray-500 py-8">Aucune opportunité premium pour le moment</Card>
+                          <EmptyState
+                            title="Aucune opportunité premium"
+                            subtitle="Le moteur live attend un contexte suffisamment fiable."
+                          />
                         ) : (
                           <div className="grid gap-4 md:grid-cols-2">
                             {opportunities.map((item) => (
@@ -709,34 +907,14 @@
                         </div>
 
                         {liveMatches.length === 0 ? (
-                          <Card className="text-center text-gray-500 py-8">Aucun match live pour le moment</Card>
+                          <EmptyState
+                            title="Aucun match live"
+                            subtitle="Le cache live ne contient actuellement aucun match en cours."
+                          />
                         ) : (
                           <div className="grid gap-4 md:grid-cols-2">
                             {liveMatches.map((m) => (
-                              <LiveMatchCard key={m.id} match={m} onOpen={setSelectedMatch} />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="mb-8">
-                        <div className="text-lg font-bold mb-4 flex items-center gap-2">
-                          <Icon name="clock" className="text-[#D4AF37]" />
-                          Prochainement
-                        </div>
-
-                        {scheduledMatches.length === 0 ? (
-                          <Card className="text-center text-gray-500 py-8">Aucun match programmé</Card>
-                        ) : (
-                          <div className="grid gap-3 md:grid-cols-3">
-                            {scheduledMatches.slice(0, 6).map((m) => (
-                              <Card key={m.id}>
-                                <div className="text-xs text-gray-500 mb-2">{m.league?.name || ""}</div>
-                                <div className="font-semibold text-sm">{m.home_team} vs {m.away_team}</div>
-                                <div className="text-xs text-gray-400 mt-2">
-                                  {m.event_date ? new Date(m.event_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : "Heure inconnue"}
-                                </div>
-                              </Card>
+                              <MatchCard key={m.id} match={m} onOpen={setSelectedMatch} />
                             ))}
                           </div>
                         )}
@@ -753,16 +931,22 @@
                     </div>
 
                     {history.length === 0 ? (
-                      <Card className="text-center text-gray-500 py-8">Aucun historique</Card>
+                      <EmptyState
+                        title="Aucun historique"
+                        subtitle="Les validations apparaîtront ici dès qu'un signal sera créé."
+                      />
                     ) : (
                       <div className="bg-[#121212] rounded-xl border border-[#2a2a2a] overflow-hidden">
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-sm">
+                        <div className="overflow-x-auto custom-scrollbar">
+                          <table className="w-full text-sm min-w-[900px]">
                             <thead className="bg-[#0a0a0a] border-b border-[#2a2a2a]">
                               <tr>
                                 <th className="px-4 py-3 text-left">Match</th>
                                 <th className="px-4 py-3 text-left">Type</th>
                                 <th className="px-4 py-3 text-left">Proba</th>
+                                <th className="px-4 py-3 text-left">Seuil</th>
+                                <th className="px-4 py-3 text-left">Actuel</th>
+                                <th className="px-4 py-3 text-left">Projection</th>
                                 <th className="px-4 py-3 text-left">Résultat</th>
                                 <th className="px-4 py-3 text-left">Heure</th>
                               </tr>
@@ -772,13 +956,20 @@
                                 <tr key={i} className="border-b border-[#2a2a2a]">
                                   <td className="px-4 py-3">{h.match}</td>
                                   <td className="px-4 py-3">{h.type}</td>
-                                  <td className="px-4 py-3">{Math.round((h.probability || 0) * 100)}%</td>
+                                  <td className="px-4 py-3">{formatPercent(h.probability)}</td>
+                                  <td className="px-4 py-3">{h.threshold ?? "-"}</td>
+                                  <td className="px-4 py-3">{h.current ?? "-"}</td>
+                                  <td className="px-4 py-3">{h.projected ?? "-"}</td>
                                   <td className="px-4 py-3">
-                                    {h.validated
-                                      ? <span className={h.outcome === "success" ? "text-green-400" : "text-red-400"}>{h.outcome === "success" ? "✓ Réussi" : "✗ Échoué"}</span>
-                                      : <span className="text-yellow-400">En attente</span>}
+                                    {h.validated ? (
+                                      <span className={h.outcome === "success" ? "text-green-400" : "text-red-400"}>
+                                        {h.outcome === "success" ? "✓ Réussi" : "✗ Échoué"}
+                                      </span>
+                                    ) : (
+                                      <span className="text-yellow-400">En attente</span>
+                                    )}
                                   </td>
-                                  <td className="px-4 py-3">{new Date(h.timestamp).toLocaleTimeString()}</td>
+                                  <td className="px-4 py-3">{formatDateTime(h.timestamp)}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -791,7 +982,12 @@
               </>
             )}
 
-            {selectedMatch && <MatchDetail match={selectedMatch} onClose={() => setSelectedMatch(null)} />}
+            {selectedMatch && (
+              <MatchDetail
+                match={selectedMatch}
+                onClose={() => setSelectedMatch(null)}
+              />
+            )}
           </main>
 
           {toast && (
