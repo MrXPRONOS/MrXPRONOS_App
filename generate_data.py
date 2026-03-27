@@ -3,7 +3,7 @@
 
 """
 generate_data.py - Génère les pronostics à partir des données SportData
-et des scores déjà en base (mis à jour par update_scores.py). 
+et des scores déjà en base (mis à jour par update_scores.py).
 
 Version finale basée STRICTEMENT sur ton système de calcul :
 - exclusion des pronostics "12"
@@ -11,6 +11,7 @@ Version finale basée STRICTEMENT sur ton système de calcul :
 - logos via TheSportsDB avec cache
 - rétention 14 jours dans data.json
 - stats réelles calculées
+- intégration ML (auto_train / ml_model) SANS casser la logique métier
 """
 
 import os
@@ -19,6 +20,8 @@ import requests
 from datetime import datetime, timedelta
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+
+from ml_model import load_model, predict_proba, build_feature_vector_from_row
 
 # =======================================================
 # CONFIGURATION
@@ -297,6 +300,73 @@ def get_badge(score):
 
 
 # =======================================================
+# TEAM FORM (pour ML uniquement)
+# =======================================================
+def build_team_history(historical):
+    team_matches = {}
+    for m in historical:
+        if not isinstance(m, dict):
+            continue
+        home = m.get("home_team")
+        away = m.get("away_team")
+        if not home or not away:
+            continue
+        team_matches.setdefault(home, []).append(m)
+        team_matches.setdefault(away, []).append(m)
+    return team_matches
+
+def get_team_form(team, team_history, last_games=5):
+    matches = team_history.get(team, [])
+    recent = []
+
+    for m in sorted(matches, key=lambda x: x.get("start_time", ""), reverse=True):
+        if not m.get("is_finished"):
+            continue
+        hs = m.get("home_score")
+        aas = m.get("away_score")
+        if hs is None or aas is None:
+            continue
+        recent.append(m)
+        if len(recent) >= last_games:
+            break
+
+    if not recent:
+        return {
+            "form_score": 0,
+            "goals_for": 0,
+            "goals_against": 0
+        }
+
+    points = 0
+    gf = 0
+    ga = 0
+
+    for m in recent:
+        if m["home_team"].lower() == team.lower():
+            team_goals = m["home_score"]
+            opp_goals = m["away_score"]
+        else:
+            team_goals = m["away_score"]
+            opp_goals = m["home_score"]
+
+        gf += team_goals
+        ga += opp_goals
+
+        if team_goals > opp_goals:
+            points += 3
+        elif team_goals == opp_goals:
+            points += 1
+
+    form_score = points / (len(recent) * 3)
+
+    return {
+        "form_score": round(form_score, 3),
+        "goals_for": round(gf / len(recent), 2),
+        "goals_against": round(ga / len(recent), 2)
+    }
+
+
+# =======================================================
 # HELPERS RETENTION / STATS
 # =======================================================
 def compute_verified_fields(match):
@@ -334,12 +404,6 @@ def retention_filter(matches, cutoff_date):
     return kept
 
 def merge_match(old_match, new_match):
-    """
-    Merge intelligent :
-    - garde les scores/statuts déjà plus frais si présents
-    - garde les logos si new n'en a pas
-    - garde verified_* si déjà calculés
-    """
     merged = dict(old_match or {})
     merged.update(new_match or {})
 
@@ -378,9 +442,62 @@ def compute_stats(matches):
 
 
 # =======================================================
+# ML SCORE (ajout sans casser la logique métier)
+# =======================================================
+def compute_ml_score(match, analysis, prediction):
+    """
+    Calcule un score ML sans modifier le moteur métier.
+    """
+    try:
+        model = compute_ml_score.model
+    except AttributeError:
+        model = None
+
+    if model is None:
+        return 50.0
+
+    home_form = match.get("home_form", {}) or {}
+    away_form = match.get("away_form", {}) or {}
+
+    row = {
+        "confidence": prediction.get("confidence", 0),
+        "xpronos_score": match.get("xpronos_score", 0),
+        "final_score": match.get("xpronos_score", 0),
+        "value_bet": 0,
+        "used_poisson_fallback": 0,
+        "h2h_total_matches": analysis.get("total_matches", 0),
+        "home_dominance": analysis.get("home_dominance", 0),
+        "away_dominance": analysis.get("away_dominance", 0),
+        "draw_rate": max(0, 1 - analysis.get("home_dominance", 0) - analysis.get("away_dominance", 0)),
+        "home_form_score": home_form.get("form_score", 0),
+        "away_form_score": away_form.get("form_score", 0),
+        "home_goals_for": home_form.get("goals_for", 0),
+        "away_goals_for": away_form.get("goals_for", 0),
+        "home_goals_against": home_form.get("goals_against", 0),
+        "away_goals_against": away_form.get("goals_against", 0),
+        "quality_score": min(100, 50 + analysis.get("total_matches", 0) * 5)
+    }
+
+    try:
+        features = build_feature_vector_from_row(row)
+        proba = predict_proba(model, features)
+        return round(proba * 100, 1)
+    except Exception:
+        return 50.0
+
+
+# =======================================================
 # FONCTION PRINCIPALE
 # =======================================================
 def main():
+    # Charger modèle ML
+    model = load_model()
+    compute_ml_score.model = model
+    if model:
+        print("🤖 Modèle ML chargé")
+    else:
+        print("⚠️ Aucun modèle ML disponible, ml_score par défaut")
+
     # 1. Charger l'existant
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
@@ -412,10 +529,10 @@ def main():
     # 3. Historique H2H
     historical = load_historical_matches()
     print(f"📂 Historique chargé : {len(historical)} matchs")
+    team_history = build_team_history(historical)
 
     # 4. Construire les nouveaux matchs
     new_matches = []
-    new_categories = {"simple": [], "pro": [], "vip": []}
 
     for gid, base in new_infos.items():
         existing = existing_matches.get(gid)
@@ -440,7 +557,7 @@ def main():
         analysis = analyze_h2h(h2h_list, base["home_team"], base["away_team"])
         prediction = generate_prediction(analysis)
 
-        # === RÈGLE MÉTIER INCHANGÉE : ignorer "12" ===
+        # === RÈGLE MÉTIER INCHANGÉE ===
         if prediction["double_chance"] == "12":
             print(f"   ⚠️ Pronostic 12 (match équilibré) ignoré")
             continue
@@ -451,6 +568,9 @@ def main():
 
         home_logo = get_team_logo(base["home_team"])
         away_logo = get_team_logo(base["away_team"])
+
+        home_form = get_team_form(base["home_team"], team_history)
+        away_form = get_team_form(base["away_team"], team_history)
 
         match = {
             "id": base["id"],
@@ -467,6 +587,8 @@ def main():
             "home_score": home_score,
             "away_score": away_score,
             "h2h_analysis": analysis,
+            "home_form": home_form,
+            "away_form": away_form,
             "prediction": prediction,
             "xpronos_score": score,
             "badge": badge,
@@ -476,11 +598,24 @@ def main():
             "verified_over": False
         }
 
+        # Vérification si terminé
         if is_finished and home_score is not None and away_score is not None:
             match = compute_verified_fields(match)
 
+        # ✅ ML score
+        ml_score = compute_ml_score(match, analysis, prediction)
+        match["ml_score"] = ml_score
+
+        # ✅ Ajustement léger de confiance
+        if ml_score < 45:
+            match["prediction"]["confidence"] = max(35, match["prediction"]["confidence"] - 5)
+        elif ml_score >= 70:
+            match["prediction"]["confidence"] = min(95, match["prediction"]["confidence"] + 4)
+
+        # ✅ Score final combiné
+        match["final_score"] = round((match["xpronos_score"] * 0.75) + (ml_score * 0.25), 1)
+
         new_matches.append(match)
-        new_categories[category].append(match)
 
     # 5. Sauvegarder le cache des logos
     save_logo_cache()
@@ -507,10 +642,10 @@ def main():
         if m.get("is_finished") and m.get("home_score") is not None and m.get("away_score") is not None:
             compute_verified_fields(m)
 
-    # tri par date décroissante
-    final_matches.sort(key=lambda x: x.get("event_date") or "", reverse=True)
+    # tri final : score final puis date
+    final_matches.sort(key=lambda x: (x.get("final_score", 0), x.get("event_date") or ""), reverse=True)
 
-    # catégories recalculées sur fenêtre retenue
+    # catégories recalculées
     final_categories = {"simple": [], "pro": [], "vip": []}
     for m in final_matches:
         cat = m.get("category", "simple")
@@ -547,7 +682,6 @@ def main():
     print(f"📅 Fenêtre conservée : {cutoff} → {today.isoformat()}")
     print(f"📊 Catégories : Simple={len(final_categories['simple'])}, Pro={len(final_categories['pro'])}, VIP={len(final_categories['vip'])}")
     print(f"📈 Stats : total_bets={stats['total_bets']}, wins={stats['wins']}, roi={stats['roi']}%")
-
 
 if __name__ == "__main__":
     main()
