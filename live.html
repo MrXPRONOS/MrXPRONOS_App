@@ -77,12 +77,12 @@
   <div id="root"></div>
 
   <script type="text/babel">
+    // =======================================================
+    // CONFIG
+    // =======================================================
     const SUPABASE_URL = "https://nhwafcpndlufzzxexikh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt";
     const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live`;
-
-    const BSD_IMAGE_TOKEN = "YOUR_BSD_API_TOKEN";
-    const BSD_IMAGE_BASE = "https://sports.bzzoiro.com";
 
     const supabase =
       SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY"
@@ -91,6 +91,9 @@
 
     const { useState, useEffect, useCallback, useMemo } = React;
 
+    // =======================================================
+    // UTILS
+    // =======================================================
     function safeNumber(value, fallback = 0) {
       const n = Number(value);
       return Number.isFinite(n) ? n : fallback;
@@ -106,7 +109,6 @@
         return new Date(ts).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
       } catch { return "-"; }
     }
-
     function getUserId() {
       let userId = localStorage.getItem("mx_user_id");
       if (!userId) {
@@ -120,18 +122,25 @@
       return userId;
     }
 
+    // =======================================================
+    // LOGOS (FIX) : on ne met PAS le token BSD dans le front
+    // -> les images passent par l’Edge Function (proxy)
+    // =======================================================
     function getTeamLogo(match, side = "home") {
       const obj = side === "home" ? match?.home_team_obj : match?.away_team_obj;
       const apiId = obj?.api_id;
-      if (!apiId || !BSD_IMAGE_TOKEN || BSD_IMAGE_TOKEN === "YOUR_BSD_API_TOKEN") return null;
-      return `${BSD_IMAGE_BASE}/img/team/${apiId}/?token=${BSD_IMAGE_TOKEN}`;
+      if (!apiId) return null;
+      return `${EDGE_FUNCTION_URL}/img/team/${apiId}`;
     }
     function getLeagueLogo(match) {
       const apiId = match?.league?.api_id;
-      if (!apiId || !BSD_IMAGE_TOKEN || BSD_IMAGE_TOKEN === "YOUR_BSD_API_TOKEN") return null;
-      return `${BSD_IMAGE_BASE}/img/league/${apiId}/?token=${BSD_IMAGE_TOKEN}`;
+      if (!apiId) return null;
+      return `${EDGE_FUNCTION_URL}/img/league/${apiId}`;
     }
 
+    // =======================================================
+    // UI COMPONENTS
+    // =======================================================
     const Icon = ({ name, size = 18, className = "" }) => {
       const map = {
         bell: "fa-bell",
@@ -165,7 +174,7 @@
         blue: "bg-blue-500/15 text-blue-400 border-blue-500/30",
         red: "bg-red-500/15 text-red-400 border-red-500/30",
         orange: "bg-orange-500/15 text-orange-400 border-orange-500/30",
-        yellow: "bg-orange-500/15 text-yellow-300 border-yellow-500/30",
+        yellow: "bg-yellow-500/15 text-yellow-300 border-yellow-500/30",
         gold: "bg-[#D4AF37]/15 text-[#D4AF37] border-[#D4AF37]/30",
         gray: "bg-gray-500/10 text-gray-300 border-gray-500/20"
       };
@@ -180,9 +189,7 @@
       <div>
         <div className="flex justify-between mb-1 text-[11px]">
           <span className="text-gray-400">{label}</span>
-          <span className="font-bold" style={{ color }}>
-            {Math.min(100, safeNumber(value, 0))}
-          </span>
+          <span className="font-bold" style={{ color }}>{Math.min(100, safeNumber(value, 0))}</span>
         </div>
         <div className="h-2 rounded-full bg-[#222] overflow-hidden">
           <div
@@ -201,10 +208,10 @@
     };
 
     const HeatBadge = ({ level }) => {
-      if (level === "explosive") return <Badge color="red">🔥 Explosif</Badge>;
-      if (level === "hot") return <Badge color="orange">🔥 Chaud</Badge>;
-      if (level === "warming") return <Badge color="yellow">⚡ Actif</Badge>;
-      return <Badge color="gray">❄️ Calme</Badge>;
+      if (level === "explosive") return <Badge color="red">■ Explosif</Badge>;
+      if (level === "hot") return <Badge color="orange">■ Chaud</Badge>;
+      if (level === "warming") return <Badge color="yellow">■■ Actif</Badge>;
+      return <Badge color="gray">❄■ Calme</Badge>;
     };
 
     const PredictionBadge = ({ pred }) => {
@@ -250,11 +257,11 @@
       </div>
     );
 
-    /* =========================
-       HEADER (MODIFIÉ)
-       - bouton notifications retiré du haut
-       - carrés identiques : retour / icône titre / refresh (w-11 h-11)
-    ========================== */
+    // =======================================================
+    // HEADER (MODIFIÉ)
+    // - bouton notifications retiré du haut
+    // - tailles carrées identiques : retour / icône titre / refresh
+    // =======================================================
     const Header = ({ stats, onBack, onRefresh, refreshing }) => {
       return (
         <header className="sticky top-0 z-40 glass border-b border-[#1e1e1e]">
@@ -637,10 +644,9 @@
       </Card>
     );
 
-    /* =========================
-       PANEL NOTIFICATIONS (NOUVEAU)
-       - même comportement qu'un onglet (comme Historique)
-    ========================== */
+    // =======================================================
+    // NOTIFICATIONS PANEL (onglet comme Historique)
+    // =======================================================
     const NotificationsPanel = ({ notifications, unreadCount, onClear }) => (
       <div>
         <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
@@ -692,6 +698,9 @@
       </div>
     );
 
+    // =======================================================
+    // APP
+    // =======================================================
     const App = () => {
       const [userId] = useState(() => getUserId());
 
@@ -866,10 +875,7 @@
                   upcomingCount={scheduledMatches.length || 0}
                 />
 
-                {/* =========================
-                    TABS (MODIFIÉ)
-                    - Notifications à droite de Live + Historique
-                ========================== */}
+                {/* Tabs : Live / Historique / Notifications */}
                 <div className="flex gap-3 mb-6 flex-wrap">
                   <button
                     onClick={() => setSelectedTab("live")}
@@ -1061,9 +1067,6 @@
                   </div>
                 )}
 
-                {/* =========================
-                    NOTIFICATIONS TAB (NOUVEAU)
-                ========================== */}
                 {selectedTab === "notifications" && (
                   <NotificationsPanel
                     notifications={notifications}
