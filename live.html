@@ -79,6 +79,12 @@
       border-radius: 999px;
       display: inline-block;
     }
+
+    .hero-card {
+      background:
+        radial-gradient(circle at top right, rgba(212,175,55,.08), transparent 30%),
+        #101010;
+    }
   </style>
 </head>
 <body>
@@ -224,10 +230,10 @@
       return <Badge color={colorMap[pred?.color] || "gold"}>{pred?.badge || pred?.title || "Prédiction"}</Badge>;
     };
 
-    const StatChip = ({ label, value }) => (
+    const StatChip = ({ label, value, valueColor = "text-white" }) => (
       <div className="bg-[#0b0b0b] border border-[#202020] rounded-xl px-3 py-3 text-center">
         <div className="text-[11px] text-gray-500">{label}</div>
-        <div className="text-2xl font-extrabold text-white mt-1">{value}</div>
+        <div className={`text-2xl font-extrabold mt-1 ${valueColor}`}>{value}</div>
       </div>
     );
 
@@ -270,10 +276,22 @@
       return (
         <header className="sticky top-0 z-40 glass border-b border-[#1e1e1e]">
           <div className="max-w-7xl mx-auto px-4 py-4">
-            <div className="text-center mb-4">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Icon name="activity" className="text-[#D4AF37]" />
               <div className="text-3xl md:text-4xl font-extrabold gold-gradient leading-none">
                 MrXPRONOS LIVE
               </div>
+            </div>
+
+            <div className="text-center text-sm text-gray-400 mb-4 flex items-center justify-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-1">
+                <span className="mini-dot bg-red-500 live-pulse"></span>
+                {stats.matches_live || 0} matchs live
+              </span>
+              <span className="text-gray-600">•</span>
+              <span>{stats.predictions || 0} matchs avec prédiction</span>
+              <span className="text-gray-600">•</span>
+              <span>{stats.upcoming || 0} matchs à venir</span>
             </div>
 
             <div className="flex items-center justify-center gap-3 flex-wrap">
@@ -299,7 +317,7 @@
                 </button>
 
                 {open && (
-                  <div className="absolute right-0 mt-2 w-96 max-w-[90vw] bg-[#121212] border border-[#2a2a2a] rounded-2xl shadow-2xl z-50 overflow-hidden">
+                  <div className="absolute right-0 mt-2 w-96 max-w-[92vw] bg-[#121212] border border-[#2a2a2a] rounded-2xl shadow-2xl z-50 overflow-hidden">
                     <div className="p-3 flex items-center justify-between border-b border-[#232323]">
                       <div className="font-bold text-sm">Notifications</div>
                       <button onClick={onClear} className="text-xs text-gray-400 hover:text-white">
@@ -329,9 +347,9 @@
 
     const CompactHero = ({ stats, topPredictionCount, upcomingCount }) => (
       <div className="mb-8">
-        <Card className="bg-[#101010]">
+        <Card className="hero-card">
           <div className="flex items-center gap-2 mb-4 flex-wrap">
-            <Badge color="gold">LIVE STATS</Badge>
+            <Badge color="gold"><Icon name="activity" size={11} /> LIVE STATS</Badge>
             <Badge color="red"><span className="mini-dot bg-red-500 live-pulse"></span> En direct</Badge>
           </div>
 
@@ -340,10 +358,10 @@
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <StatChip label="Matchs live" value={stats.matches_live || 0} />
-            <StatChip label="Top prédictions" value={topPredictionCount || 0} />
-            <StatChip label="Matchs avec prédiction" value={stats.predictions || 0} />
-            <StatChip label="Matchs à venir" value={upcomingCount || 0} />
+            <StatChip label="Matchs live" value={stats.matches_live || 0} valueColor="text-red-500" />
+            <StatChip label="Top prédictions" value={topPredictionCount || 0} valueColor="text-[#D4AF37]" />
+            <StatChip label="Matchs avec prédiction" value={stats.predictions || 0} valueColor="text-blue-400" />
+            <StatChip label="Matchs à venir" value={upcomingCount || 0} valueColor="text-green-400" />
           </div>
         </Card>
       </div>
@@ -670,7 +688,7 @@
       const [scheduledMatches, setScheduledMatches] = useState([]);
       const [history, setHistory] = useState([]);
       const [notifications, setNotifications] = useState([]);
-      const [stats, setStats] = useState({ matches_live: 0, predictions: 0 });
+      const [stats, setStats] = useState({ matches_live: 0, predictions: 0, upcoming: 0 });
 
       const [loading, setLoading] = useState(true);
       const [refreshing, setRefreshing] = useState(false);
@@ -730,7 +748,8 @@
 
           setStats({
             matches_live: matches.length,
-            predictions: predictionsCount
+            predictions: predictionsCount,
+            upcoming: scheduled.length
           });
 
           setError(null);
@@ -872,7 +891,7 @@
                         <div className="mb-8">
                           <div className="text-lg font-bold mb-4 flex items-center gap-2">
                             <Icon name="star" className="text-[#D4AF37]" />
-                            Top prédiction
+                            Top opportunity
                           </div>
                           <OpportunityCard item={bestOpportunity} onOpen={setSelectedMatch} />
                         </div>
@@ -960,11 +979,12 @@
                     ) : (
                       <div className="bg-[#121212] rounded-2xl border border-[#232323] overflow-hidden">
                         <div className="overflow-x-auto custom-scrollbar">
-                          <table className="w-full text-sm min-w-[1050px]">
+                          <table className="w-full text-sm min-w-[1150px]">
                             <thead className="bg-[#0b0b0b] border-b border-[#232323]">
                               <tr>
                                 <th className="px-4 py-3 text-left">Match</th>
                                 <th className="px-4 py-3 text-left">Prédiction</th>
+                                <th className="px-4 py-3 text-left">Score</th>
                                 <th className="px-4 py-3 text-left">Minute</th>
                                 <th className="px-4 py-3 text-left">Seuil</th>
                                 <th className="px-4 py-3 text-left">Actuel</th>
@@ -979,6 +999,7 @@
                                 <tr key={i} className="border-b border-[#1f1f1f] hover:bg-[#151515]">
                                   <td className="px-4 py-3">{h.match}</td>
                                   <td className="px-4 py-3">{h.type}</td>
+                                  <td className="px-4 py-3">{h.score ?? "-"}</td>
                                   <td className="px-4 py-3">{h.minute ?? "-"}</td>
                                   <td className="px-4 py-3">{h.threshold ?? "-"}</td>
                                   <td className="px-4 py-3">{h.current ?? "-"}</td>
