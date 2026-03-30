@@ -948,27 +948,31 @@ async function loadDataGeneric() {
    ======================================================= */
 function renderBookmakers(bookmakers) {
     const defaultBookmakers = [
-        { name: "1xBet", logo: "assets/images/1xbet.webp", url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599" },
-        { name: "1win", logo: "assets/images/1win.webp", url: "https://1wrbgb.com/?open=register&p=qqcw" },
-        { name: "Betwinner", logo: "assets/images/betwinner.webp", url: "https://bwredir.com/299Y" },
-        { name: "Melbet", logo: "assets/images/melbet.webp", url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041" },
-        { name: "Linebet", logo: "assets/images/linebet.webp", url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611" },
-        { name: "BetClic", logo: "assets/images/betclic.webp", url: "https://betpari-click.com/2vY0?extid=USD" }
+        { name: "1xBet", logo: "assets/images/1xbet.webp", url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599", desc: "Bonus de bienvenue jusqu'à 130€" },
+        { name: "1win", logo: "assets/images/1win.webp", url: "https://1wrbgb.com/?open=register&p=qqcw", desc: "Bonus exclusif avec XPVIP" },
+        { name: "Betwinner", logo: "assets/images/betwinner.webp", url: "https://bwredir.com/299Y", desc: "Offre spéciale nouveaux joueurs" },
+        { name: "Melbet", logo: "assets/images/melbet.webp", url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041", desc: "Bonus premium Melbet avec inscription rapide" },
+        { name: "Linebet", logo: "assets/images/linebet.webp", url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611", desc: "Bonus et promotions spéciales Linebet" },
+        { name: "BetClic", logo: "assets/images/betclic.webp", url: "https://betpari-click.com/2vY0?extid=USD", desc: "Offre de bienvenue Betclic" }
     ];
 
-    const items = Array.isArray(bookmakers) && bookmakers.length ? bookmakers : defaultBookmakers;
+    const published = Array.isArray(window.publishedBookmakers) && window.publishedBookmakers.length
+        ? window.publishedBookmakers
+        : null;
+
+    const items = published || (Array.isArray(bookmakers) && bookmakers.length ? bookmakers : defaultBookmakers);
 
     if (DOM.bookmakersFooter) {
         DOM.bookmakersFooter.innerHTML = '';
         items.forEach(b => {
             const a = document.createElement('a');
-            a.href = b.url;
+            a.href = b.url || '#';
             a.target = '_blank';
             a.rel = 'noopener noreferrer';
 
             const img = document.createElement('img');
-            img.src = b.logo;
-            img.alt = b.name;
+            img.src = b.logo || 'assets/images/default-logo.webp';
+            img.alt = b.name || 'Bookmaker';
             img.loading = 'lazy';
             img.decoding = 'async';
             img.style.maxHeight = '40px';
@@ -976,7 +980,7 @@ function renderBookmakers(bookmakers) {
             img.onerror = function () {
                 this.style.display = 'none';
                 const span = document.createElement('span');
-                span.textContent = b.name;
+                span.textContent = b.name || 'Bookmaker';
                 span.style.color = 'var(--or)';
                 span.style.fontWeight = '600';
                 span.style.fontSize = '0.8rem';
@@ -994,10 +998,10 @@ function renderBookmakers(bookmakers) {
             const div = document.createElement('div');
             div.className = 'bookmaker-card';
             div.innerHTML = `
-                <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" decoding="async">
-                <h3>${escapeHtml(b.name)}</h3>
-                <p>Bonus de bienvenue jusqu'à 130€</p>
-                <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">S'inscrire avec XPVIP</a>
+                <img src="${escapeAttribute(b.logo || 'assets/images/default-logo.webp')}" alt="${escapeAttribute(b.name || 'Bookmaker')}" loading="lazy" decoding="async">
+                <h3>${escapeHtml(b.name || 'Bookmaker')}</h3>
+                <p>${escapeHtml(b.desc || b.description || 'Bonus exclusif bookmaker')}</p>
+                <a href="${escapeAttribute(b.url || '#')}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">S'inscrire avec XPVIP</a>
             `;
             DOM.bookmakersBonus.appendChild(div);
         });
@@ -1376,6 +1380,39 @@ async function loadGeneratedContent() {
 }
 
 /* =======================================================
+   PUBLISHED JSON EXTRAS
+   ======================================================= */
+async function fetchOptionalJson(file) {
+    try {
+        const r = await fetch(`${file}?t=${Date.now()}`, { cache: 'no-cache' });
+        if (!r.ok) return null;
+        return await r.json();
+    } catch {
+        return null;
+    }
+}
+
+async function loadPublishedExtras() {
+    const [bookmakers, bonus, infos] = await Promise.all([
+        fetchOptionalJson('bookmakers.json'),
+        fetchOptionalJson('bonus.json'),
+        fetchOptionalJson('infos.json')
+    ]);
+
+    window.publishedBookmakers = Array.isArray(bookmakers)
+        ? bookmakers.filter(b => b && b.active !== false)
+        : [];
+
+    window.publishedBonus = Array.isArray(bonus)
+        ? bonus.filter(b => b && b.active !== false)
+        : [];
+
+    window.publishedInfos = Array.isArray(infos)
+        ? infos.filter(i => i && i.active !== false)
+        : [];
+}
+
+/* =======================================================
    BLOG
    ======================================================= */
 window.showArticleDetail = function (index) {
@@ -1710,10 +1747,18 @@ async function displayInfos() {
     if (!DOM.infosList) return;
 
     const data = await loadDataGeneric();
-    const infos = data?.infos || [];
+
+    const infos = (Array.isArray(window.publishedInfos) && window.publishedInfos.length)
+        ? window.publishedInfos
+        : (data?.infos || []);
 
     DOM.infosList.innerHTML = infos.length
-        ? infos.map(i => `<div class="news-card card"><h3>${escapeHtml(i.title)}</h3><p>${escapeHtml(i.content)}</p></div>`).join('')
+        ? infos.map(i => `
+            <div class="news-card card">
+              <h3>${escapeHtml(i.title || '')}</h3>
+              <p>${escapeHtml(i.content || '')}</p>
+            </div>
+          `).join('')
         : '<div class="no-events">Aucune info disponible.</div>';
 }
 
@@ -1722,22 +1767,40 @@ async function displayFootNews() {
 
     try {
         const resp = await fetch(`footnews.json?t=${Date.now()}`, { cache: 'no-cache' });
-        if (!resp.ok) throw new Error('Erreur chargement');
+        const rssNews = resp.ok ? await resp.json() : [];
 
-        const news = await resp.json();
-        if (!Array.isArray(news) || news.length === 0) {
+        const manualInfos = Array.isArray(window.publishedInfos) ? window.publishedInfos : [];
+
+        const merged = [
+            ...manualInfos.map(i => ({
+                title: i.title,
+                summary: i.content,
+                image: i.image_url || null,
+                link: null,
+                published: i.date || i.published_at || new Date().toISOString(),
+                manual: true
+            })),
+            ...(Array.isArray(rssNews) ? rssNews : []).map(n => ({
+                ...n,
+                manual: false
+            }))
+        ];
+
+        if (!merged.length) {
             DOM.footNewsContainer.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>';
             return;
         }
 
-        window.newsData = news;
+        window.newsData = merged;
 
-        DOM.footNewsContainer.innerHTML = news.map((item, index) => `
+        DOM.footNewsContainer.innerHTML = merged.map((item, index) => `
             <div class="news-card card" onclick="showNewsDetail(${index})">
-                ${item.image ? `<img src="${escapeAttribute(item.image)}" alt="${escapeAttribute(item.title)}" class="news-image" loading="lazy">` : ''}
-                <h3>${escapeHtml(item.title)}</h3>
-                <p>${escapeHtml(item.summary || '')}</p>
-                <button class="btn btn-secondary" style="margin-top:10px;">Lire la suite</button>
+                ${item.image ? `<img src="${escapeAttribute(item.image)}" alt="${escapeAttribute(item.title || 'Actualité')}" class="news-image" loading="lazy">` : ''}
+                <h3>${escapeHtml(item.title || 'Actualité')}</h3>
+                <p>${escapeHtml((item.summary || '').slice(0, 180))}${(item.summary || '').length > 180 ? '...' : ''}</p>
+                <button class="btn btn-secondary" style="margin-top:10px;">
+                    ${item.manual ? 'Voir le contenu' : 'Lire la suite'}
+                </button>
             </div>
         `).join('');
     } catch (error) {
@@ -1756,15 +1819,24 @@ window.showNewsDetail = function (index) {
     const linkEl = document.getElementById('news-modal-link');
 
     if (titleEl) titleEl.textContent = news.title || 'Actualité';
+
     if (img) {
         img.src = news.image || 'assets/images/default-logo.png';
         img.alt = news.title || 'Actualité';
+        img.style.display = news.image ? 'block' : 'none';
     }
+
     if (contentEl) contentEl.innerHTML = renderSafeRichContent(news.summary || '');
+
     if (linkEl) {
-        linkEl.href = news.link || '#';
-        linkEl.target = '_blank';
-        linkEl.rel = 'noopener noreferrer';
+        if (news.manual || !news.link) {
+            linkEl.style.display = 'none';
+        } else {
+            linkEl.style.display = 'inline-block';
+            linkEl.href = news.link || '#';
+            linkEl.target = '_blank';
+            linkEl.rel = 'noopener noreferrer';
+        }
     }
 
     DOM.newsModal.style.display = 'flex';
@@ -1778,6 +1850,51 @@ window.closeNewsModal = function () {
    BONUS
    ======================================================= */
 function initBonusPage() {
+    const publishedBonus = Array.isArray(window.publishedBonus) ? window.publishedBonus : [];
+    const publishedBookmakers = Array.isArray(window.publishedBookmakers) ? window.publishedBookmakers : [];
+
+    if (publishedBonus.length && DOM.bonusGrid) {
+        const grouped = {};
+        publishedBonus.forEach(b => {
+            const key = (b.bookmaker || 'Autres').trim();
+            grouped[key] = grouped[key] || [];
+            grouped[key].push(b);
+        });
+
+        const bookmakerNames = Object.keys(grouped).sort();
+
+        if (DOM.bonusSelect) {
+            DOM.bonusSelect.innerHTML = bookmakerNames.map((name) =>
+                `<option value="${escapeAttribute(name)}">${escapeHtml(name)}</option>`
+            ).join('');
+
+            DOM.bonusSelect.addEventListener('change', () => {
+                renderBonusOffers(DOM.bonusSelect.value);
+            });
+        }
+
+        function renderBonusOffers(bookmakerName) {
+            const list = grouped[bookmakerName] || [];
+            DOM.bonusGrid.innerHTML = list.map((b) => `
+                <div class="bookmaker-card bonus-bookmaker-card">
+                    <img src="${escapeAttribute(b.image || 'assets/images/default-logo.webp')}"
+                         alt="${escapeAttribute(b.title || 'Bonus')}"
+                         loading="lazy"
+                         onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+                    <h3>${escapeHtml(b.title || 'Bonus')}</h3>
+                    <p>${escapeHtml(b.description || '')}</p>
+                    ${b.footer ? `<div class="muted" style="margin:8px 0;">${escapeHtml(b.footer)}</div>` : ''}
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+                        ${b.link ? `<a href="${escapeAttribute(b.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter</a>` : ''}
+                    </div>
+                </div>
+            `).join('') || '<div class="no-events">Aucune offre active.</div>';
+        }
+
+        renderBonusOffers(bookmakerNames[0]);
+        return;
+    }
+
     const defaultBookmakers = [
         { name: "1xBet", logo: "assets/images/1xbet.webp", url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599", desc: "Bonus de bienvenue jusqu'à 130€" },
         { name: "1win", logo: "assets/images/1win.webp", url: "https://1wrbgb.com/?open=register&p=qqcw", desc: "Bonus exclusif avec XPVIP" },
@@ -1787,12 +1904,12 @@ function initBonusPage() {
         { name: "Betclic", logo: "assets/images/betclic.webp", url: "https://betpari-click.com/2vY0?extid=USD", desc: "Offre de bienvenue Betclic" }
     ];
 
-    const sourceBookmakers = Array.isArray(allData?.bookmakers) && allData.bookmakers.length
-        ? allData.bookmakers.map(b => ({
+    const sourceBookmakers = publishedBookmakers.length
+        ? publishedBookmakers.map(b => ({
             name: b.name || "Bookmaker",
             logo: b.logo || "assets/images/default-logo.webp",
             url: b.url || "#",
-            desc: b.desc || `Bonus exclusif chez ${b.name || "ce bookmaker"}`
+            desc: b.description || b.desc || `Bonus exclusif chez ${b.name || "ce bookmaker"}`
         }))
         : defaultBookmakers;
 
@@ -1817,12 +1934,15 @@ function renderBonusGrid(bookmakers) {
 
     DOM.bonusGrid.innerHTML = bookmakers.map((b, i) => `
         <div class="bookmaker-card bonus-bookmaker-card" data-index="${i}">
-            <img src="${escapeAttribute(b.logo)}" alt="${escapeAttribute(b.name)}" loading="lazy" onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
-            <h3>${escapeHtml(b.name)}</h3>
-            <p>${escapeHtml(b.desc || "Bonus exclusif bookmaker")}</p>
+            <img src="${escapeAttribute(b.logo || 'assets/images/default-logo.webp')}"
+                 alt="${escapeAttribute(b.name || 'Bookmaker')}"
+                 loading="lazy"
+                 onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+            <h3>${escapeHtml(b.name || 'Bookmaker')}</h3>
+            <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
             <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
                 <button class="btn btn-secondary" onclick="openBonusModal(${i})">Détails</button>
-                <a href="${escapeAttribute(b.url)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter</a>
+                <a href="${escapeAttribute(b.url || '#')}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter</a>
             </div>
         </div>
     `).join("");
@@ -1851,7 +1971,7 @@ window.openBonusModal = function (index) {
     if (img) { img.src = b.logo || "assets/images/default-logo.webp"; img.alt = b.name || "Bookmaker"; }
     if (descEl) {
         descEl.innerHTML = `
-            <p>${escapeHtml(b.desc || "Bonus exclusif bookmaker")}</p>
+            <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
             <p style="margin-top:10px;">Utilisez le code promo <strong>XPVIP</strong> si l'offre le permet.</p>
         `;
     }
@@ -2163,6 +2283,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateShareCounter();
 
     await initSupabase();
+    await loadPublishedExtras();
+
     await updateDisplayedCounters();
     subscribeToCounters();
     await registerUniqueUser();
