@@ -7,79 +7,194 @@
   <link rel="stylesheet" href="assets/css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body{background:#0D0D0D;color:#fff;font-family:Montserrat,system-ui;margin:0;padding:16px}
-    .wrap{max-width:1200px;margin:0 auto}
-    .card{background:#1A1A1A;border:1px solid #D4AF37;border-radius:16px;padding:16px;margin:12px 0}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
-    .tab{padding:10px 14px;border-radius:999px;border:1px solid #D4AF37;background:#222;color:#fff;cursor:pointer;font-weight:700}
-    .tab.active{background:#D4AF37;color:#000}
-    input,select,textarea{width:100%;padding:10px;border-radius:12px;border:1px solid #444;background:#0D0D0D;color:#fff}
-    label{display:block;margin:10px 0 6px;color:#ccc}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    @media(max-width:800px){.row{grid-template-columns:1fr}}
-    .btn{padding:10px 14px;border-radius:999px;border:none;cursor:pointer;font-weight:800}
-    .btn-primary{background:#D4AF37;color:#000}
-    .btn-secondary{background:#333;color:#fff;border:1px solid #D4AF37}
-    .muted{color:#aaa;font-size:13px}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px;border-bottom:1px solid #2a2a2a;text-align:left;font-size:14px}
-    th{color:#D4AF37}
+    body {
+      background: #0D0D0D;
+      color: #fff;
+      font-family: Montserrat, system-ui, sans-serif;
+      margin: 0;
+      padding: 16px;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #1A1A1A;
+      border: 1px solid #D4AF37;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+
+    .tab {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid #D4AF37;
+      background: #222;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .tab.active {
+      background: #D4AF37;
+      color: #000;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid #444;
+      background: #0D0D0D;
+      color: #fff;
+      box-sizing: border-box;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 6px;
+      color: #ccc;
+      font-weight: 600;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 800px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .btn {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .btn-primary {
+      background: #D4AF37;
+      color: #000;
+    }
+
+    .btn-secondary {
+      background: #333;
+      color: #fff;
+      border: 1px solid #D4AF37;
+    }
+
+    .muted {
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #2a2a2a;
+      text-align: left;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    th {
+      color: #D4AF37;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
   </style>
 </head>
 <body>
-<div class="wrap">
-  <h1 style="color:#D4AF37;margin:8px 0 16px">Admin Mr XPRONOS (réel)</h1>
+  <div class="wrap">
+    <h1 style="color:#D4AF37; margin:8px 0 16px;">Admin Mr XPRONOS (réel)</h1>
 
-  <div id="loginCard" class="card">
-    <h2 style="margin:0 0 10px;color:#D4AF37">Connexion</h2>
-    <div class="row">
-      <div>
-        <label>Email</label>
-        <input id="email" type="email" placeholder="admin@tonmail.com">
+    <!-- LOGIN -->
+    <div id="loginCard" class="card">
+      <h2 style="margin:0 0 10px; color:#D4AF37;">Connexion</h2>
+
+      <div class="row">
+        <div>
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="admin@tonmail.com">
+        </div>
+        <div>
+          <label for="password">Mot de passe</label>
+          <input id="password" type="password" placeholder="••••••••">
+        </div>
       </div>
-      <div>
-        <label>Mot de passe</label>
-        <input id="password" type="password" placeholder="••••••••">
+
+      <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <button id="btnLogin" class="btn btn-primary">Se connecter</button>
+        <span id="loginMsg" class="muted"></span>
       </div>
     </div>
-    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-      <button id="btnLogin" class="btn btn-primary">Se connecter</button>
-      <span id="loginMsg" class="muted"></span>
+
+    <!-- APP -->
+    <div id="app" class="card" style="display:none;">
+      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
+        <div>
+          <div style="font-weight:900;">Connecté</div>
+          <div id="who" class="muted"></div>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button id="btnPublish" class="btn btn-primary">
+            Publier (articles + conseils + bonus + infos + bookmakers)
+          </button>
+          <button id="btnLogout" class="btn btn-secondary">Déconnexion</button>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tabs" style="margin-top:14px;">
+        <button class="tab active" data-tab="stats">Stats</button>
+        <button class="tab" data-tab="pronostics">Pronostics (lecture)</button>
+        <button class="tab" data-tab="articles">Articles</button>
+        <button class="tab" data-tab="conseils">Conseils</button>
+        <button class="tab" data-tab="bonus">Bonus</button>
+        <button class="tab" data-tab="infos">Infos</button>
+        <button class="tab" data-tab="vip">VIP</button>
+        <button class="tab" data-tab="health">Santé (cron)</button>
+        <button class="tab" data-tab="audit">Audit</button>
+      </div>
+
+      <!-- PANES -->
+      <div id="tab-stats"></div>
+      <div id="tab-pronostics" style="display:none;"></div>
+      <div id="tab-articles" style="display:none;"></div>
+      <div id="tab-conseils" style="display:none;"></div>
+      <div id="tab-bonus" style="display:none;"></div>
+      <div id="tab-infos" style="display:none;"></div>
+      <div id="tab-vip" style="display:none;"></div>
+      <div id="tab-health" style="display:none;"></div>
+      <div id="tab-audit" style="display:none;"></div>
     </div>
   </div>
 
-  <div id="app" class="card" style="display:none">
-    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
-      <div>
-        <div style="font-weight:900">Connecté</div>
-        <div id="who" class="muted"></div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="btnPublish" class="btn btn-primary">Publier (articles + conseils)</button>
-        <button id="btnLogout" class="btn btn-secondary">Déconnexion</button>
-      </div>
-    </div>
-
-    <div class="tabs" style="margin-top:14px">
-      <button class="tab active" data-tab="stats">Stats</button>
-      <button class="tab" data-tab="pronostics">Pronostics (lecture)</button>
-      <button class="tab" data-tab="articles">Articles</button>
-      <button class="tab" data-tab="conseils">Conseils</button>
-      <button class="tab" data-tab="vip">VIP</button>
-      <button class="tab" data-tab="health">Santé (cron)</button>
-      <button class="tab" data-tab="audit">Audit</button>
-    </div>
-
-    <div id="tab-stats"></div>
-    <div id="tab-pronostics" style="display:none"></div>
-    <div id="tab-articles" style="display:none"></div>
-    <div id="tab-conseils" style="display:none"></div>
-    <div id="tab-vip" style="display:none"></div>
-    <div id="tab-health" style="display:none"></div>
-    <div id="tab-audit" style="display:none"></div>
-  </div>
-</div>
-
-<script type="module" src="assets/js/admin-real.js"></script>
+  <script type="module" src="assets/js/admin-real.js"></script>
 </body>
 </html>
