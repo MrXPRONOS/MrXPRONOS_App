@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v10';
+const VERSION = 'v11';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -52,6 +52,9 @@ const DYNAMIC_JSON = [
     './data.json',
     './articles.json',
     './conseils.json',
+    './bonus.json',
+    './infos.json',
+    './bookmakers.json',
     './footnews.json',
     './testimonials.json'
 ];
@@ -151,9 +154,7 @@ const strategies = {
                     stats: { total_bets: 0, wins: 0, roi: 0 },
                     bookmakers: []
                 }),
-                {
-                    headers: { 'Content-Type': 'application/json' }
-                }
+                { headers: { 'Content-Type': 'application/json' } }
             );
         }
 
@@ -261,9 +262,7 @@ self.addEventListener('push', (event) => {
         badge: './assets/images/icon-72x72.png',
         tag: data.tag || 'pronostic',
         requireInteraction: true,
-        data: {
-            url: data.url || './pronos.html'
-        },
+        data: { url: data.url || './pronos.html' },
         actions: [
             { action: 'open', title: 'Voir' },
             { action: 'close', title: 'Fermer' }
