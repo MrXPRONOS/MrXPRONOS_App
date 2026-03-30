@@ -1,200 +1,1150 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Mr XPRONOS (Réel)</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+  <title>MrXPRONOS LIVE</title>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
     body {
-      background: #0D0D0D;
-      color: #fff;
-      font-family: Montserrat, system-ui, sans-serif;
       margin: 0;
-      padding: 16px;
+      color: #f3f4f6;
+      background:
+        radial-gradient(circle at top, rgba(212,175,55,.08), transparent 30%),
+        linear-gradient(180deg, #090909 0%, #050505 100%);
     }
 
-    .wrap {
-      max-width: 1200px;
-      margin: 0 auto;
+    .gold-gradient {
+      background: linear-gradient(135deg, #D4AF37 0%, #f5e7a3 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    .card {
-      background: #1A1A1A;
-      border: 1px solid #D4AF37;
-      border-radius: 16px;
-      padding: 16px;
-      margin: 12px 0;
+    .glass { background: rgba(18,18,18,.9); backdrop-filter: blur(12px); }
+
+    .card-hover { transition: all .25s ease; }
+    .card-hover:hover {
+      transform: translateY(-2px);
+      border-color: rgba(212,175,55,.45);
+      box-shadow: 0 10px 30px rgba(212,175,55,.08);
     }
 
-    .tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin: 12px 0;
+    .live-pulse { animation: pulse-live 1.8s infinite; }
+    @keyframes pulse-live {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .4; transform: scale(.9); }
     }
 
-    .tab {
-      padding: 10px 14px;
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0f0f0f; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 999px; }
+
+    .logo-ring {
+      border: 1px solid rgba(255,255,255,.08);
+      background: #0b0b0b;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+
+    .soft-border { border: 1px solid rgba(255,255,255,.06); }
+
+    .mini-dot {
+      width: 7px;
+      height: 7px;
       border-radius: 999px;
-      border: 1px solid #D4AF37;
-      background: #222;
-      color: #fff;
-      cursor: pointer;
-      font-weight: 700;
+      display: inline-block;
     }
 
-    .tab.active {
-      background: #D4AF37;
-      color: #000;
+    .hero-card {
+      background:
+        radial-gradient(circle at top right, rgba(212,175,55,.08), transparent 30%),
+        #101010;
     }
 
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      border-radius: 12px;
-      border: 1px solid #444;
-      background: #0D0D0D;
-      color: #fff;
-      box-sizing: border-box;
-    }
-
-    label {
-      display: block;
-      margin: 10px 0 6px;
-      color: #ccc;
-      font-weight: 600;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    @media (max-width: 800px) {
-      .row {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .btn {
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      font-weight: 800;
-    }
-
-    .btn-primary {
-      background: #D4AF37;
-      color: #000;
-    }
-
-    .btn-secondary {
-      background: #333;
-      color: #fff;
-      border: 1px solid #D4AF37;
-    }
-
-    .muted {
-      color: #aaa;
-      font-size: 13px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #2a2a2a;
-      text-align: left;
-      font-size: 14px;
-      vertical-align: top;
-    }
-
-    th {
-      color: #D4AF37;
-    }
-
-    pre {
-      margin: 0;
-      white-space: pre-wrap;
+    .safe-wrap {
       word-break: break-word;
       overflow-wrap: anywhere;
     }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <h1 style="color:#D4AF37; margin:8px 0 16px;">Admin Mr XPRONOS (réel)</h1>
+  <div id="root"></div>
 
-    <!-- LOGIN -->
-    <div id="loginCard" class="card">
-      <h2 style="margin:0 0 10px; color:#D4AF37;">Connexion</h2>
+  <script type="text/babel">
+    // =======================================================
+    // CONFIG
+    // =======================================================
+    const SUPABASE_URL = "https://nhwafcpndlufzzxexikh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt";
+    const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live`;
 
-      <div class="row">
-        <div>
-          <label for="email">Email</label>
-          <input id="email" type="email" placeholder="admin@tonmail.com">
+    const supabase =
+      SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY"
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        : null;
+
+    const { useState, useEffect, useCallback, useMemo } = React;
+
+    // =======================================================
+    // UTILS
+    // =======================================================
+    function safeNumber(value, fallback = 0) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function formatPercent(value) {
+      return `${Math.round(safeNumber(value, 0) * 100)}%`;
+    }
+
+    function formatDateTime(ts) {
+      try { return new Date(ts).toLocaleString("fr-FR"); } catch { return "-"; }
+    }
+
+    function formatTime(ts) {
+      try {
+        return new Date(ts).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+      } catch { return "-"; }
+    }
+
+    function getUserId() {
+      let userId = localStorage.getItem("mx_user_id");
+      if (!userId) {
+        try { userId = "MX-" + crypto.randomUUID(); }
+        catch { userId = "MX-" + Date.now().toString(36) + Math.random().toString(36).slice(2); }
+        localStorage.setItem("mx_user_id", userId);
+      }
+      return userId;
+    }
+
+    // =======================================================
+    // LOGOS via Edge Function Proxy (pas de token dans le front)
+    // =======================================================
+    function getTeamLogo(match, side = "home") {
+      const obj = side === "home" ? match?.home_team_obj : match?.away_team_obj;
+      const apiId = obj?.api_id;
+      if (!apiId) return null;
+      return `${EDGE_FUNCTION_URL}/img/team/${apiId}`;
+    }
+
+    function getLeagueLogo(match) {
+      const apiId = match?.league?.api_id;
+      if (!apiId) return null;
+      return `${EDGE_FUNCTION_URL}/img/league/${apiId}`;
+    }
+
+    // =======================================================
+    // UI COMPONENTS
+    // =======================================================
+    const Icon = ({ name, size = 18, className = "" }) => {
+      const map = {
+        bell: "fa-bell",
+        x: "fa-times",
+        target: "fa-bullseye",
+        radio: "fa-broadcast-tower",
+        history: "fa-history",
+        star: "fa-star",
+        arrowLeft: "fa-arrow-left",
+        chartBar: "fa-chart-bar",
+        clock: "fa-clock",
+        activity: "fa-bolt",
+        refresh: "fa-rotate-right",
+        calendar: "fa-calendar-alt"
+      };
+      return <i className={`fas ${map[name] || "fa-circle"} ${className}`} style={{ fontSize: size }} />;
+    };
+
+    const Card = ({ children, className = "", onClick }) => (
+      <div
+        onClick={onClick}
+        className={`bg-[#121212] border border-[#232323] rounded-2xl p-4 md:p-5 card-hover ${onClick ? "cursor-pointer" : ""} ${className}`}
+      >
+        {children}
+      </div>
+    );
+
+    const Badge = ({ children, color = "gray" }) => {
+      const colors = {
+        green: "bg-green-500/15 text-green-400 border-green-500/30",
+        blue: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+        red: "bg-red-500/15 text-red-400 border-red-500/30",
+        orange: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+        yellow: "bg-yellow-500/15 text-yellow-300 border-yellow-500/30",
+        gold: "bg-[#D4AF37]/15 text-[#D4AF37] border-[#D4AF37]/30",
+        gray: "bg-gray-500/10 text-gray-300 border-gray-500/20"
+      };
+      return (
+        <span className={`px-2 py-1 text-[10px] md:text-[11px] rounded-full border inline-flex items-center gap-1 font-medium ${colors[color] || colors.gray}`}>
+          {children}
+        </span>
+      );
+    };
+
+    const ScoreBar = ({ value, label, color = "#D4AF37" }) => (
+      <div>
+        <div className="flex justify-between mb-1 text-[11px]">
+          <span className="text-gray-400">{label}</span>
+          <span className="font-bold" style={{ color }}>
+            {Math.min(100, safeNumber(value, 0))}
+          </span>
         </div>
-        <div>
-          <label for="password">Mot de passe</label>
-          <input id="password" type="password" placeholder="••••••••">
+        <div className="h-2 rounded-full bg-[#222] overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${Math.min(100, safeNumber(value, 0))}%`, background: color }}
+          />
         </div>
       </div>
+    );
 
-      <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-        <button id="btnLogin" class="btn btn-primary">Se connecter</button>
-        <span id="loginMsg" class="muted"></span>
+    const FreshnessBadge = ({ seconds }) => {
+      if (seconds == null) return <Badge color="gray">maj inconnue</Badge>;
+      if (seconds <= 20) return <Badge color="green">maj {seconds}s</Badge>;
+      if (seconds <= 45) return <Badge color="yellow">maj {seconds}s</Badge>;
+      return <Badge color="red">maj {seconds}s</Badge>;
+    };
+
+    const HeatBadge = ({ level }) => {
+      if (level === "explosive") return <Badge color="red">■ Explosif</Badge>;
+      if (level === "hot") return <Badge color="orange">■ Chaud</Badge>;
+      if (level === "warming") return <Badge color="yellow">■■ Actif</Badge>;
+      return <Badge color="gray">❄■ Calme</Badge>;
+    };
+
+    const PredictionBadge = ({ pred }) => {
+      const colorMap = { green: "green", orange: "orange", yellow: "yellow" };
+      return <Badge color={colorMap[pred?.color] || "gold"}>{pred?.badge || pred?.title || "Prédiction"}</Badge>;
+    };
+
+    const StatChip = ({ label, value, valueColor = "text-white" }) => (
+      <div className="bg-[#0b0b0b] border border-[#202020] rounded-xl px-3 py-3 text-center">
+        <div className="text-[11px] text-gray-500">{label}</div>
+        <div className={`text-2xl font-extrabold mt-1 ${valueColor}`}>{value}</div>
       </div>
-    </div>
+    );
 
-    <!-- APP -->
-    <div id="app" class="card" style="display:none;">
-      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center;">
-        <div>
-          <div style="font-weight:900;">Connecté</div>
-          <div id="who" class="muted"></div>
+    const LogoImg = ({ src, alt, size = 34, className = "" }) => {
+      const [failed, setFailed] = useState(false);
+      if (!src || failed) {
+        return (
+          <div
+            className={`logo-ring rounded-full flex items-center justify-center text-gray-500 ${className}`}
+            style={{ width: size, height: size }}
+          >
+            <i className="fas fa-shield-alt text-xs"></i>
+          </div>
+        );
+      }
+      return (
+        <img
+          src={src}
+          alt={alt}
+          onError={() => setFailed(true)}
+          className={`logo-ring rounded-full object-contain p-1 ${className}`}
+          style={{ width: size, height: size }}
+        />
+      );
+    };
+
+    const TeamRow = ({ name, logo, align = "left" }) => (
+      <div className={`flex items-center gap-2 ${align === "right" ? "justify-end" : ""} min-w-0`}>
+        {align !== "right" && <LogoImg src={logo} alt={name} size={28} />}
+        <span className="font-semibold text-white text-sm md:text-base truncate">{name}</span>
+        {align === "right" && <LogoImg src={logo} alt={name} size={28} />}
+      </div>
+    );
+
+    // =======================================================
+    // HEADER (modifié)
+    // - pas de bouton cloche en haut
+    // - tailles carrées identiques (retour / icône titre / refresh)
+    // =======================================================
+    const Header = ({ stats, onBack, onRefresh, refreshing }) => {
+      return (
+        <header className="sticky top-0 z-40 glass border-b border-[#1e1e1e]">
+          <div className="max-w-7xl mx-auto px-3 py-3">
+            <div className="grid grid-cols-[44px_minmax(0,1fr)_44px] gap-2 items-start">
+              <div className="flex items-start">
+                <button
+                  onClick={onBack}
+                  className="w-11 h-11 rounded-2xl hover:bg-[#1a1a1a] soft-border flex items-center justify-center shrink-0"
+                >
+                  <Icon name="arrowLeft" size={17} />
+                </button>
+              </div>
+
+              <div className="min-w-0 flex items-start justify-center gap-2">
+                <div className="w-11 h-11 rounded-2xl bg-[#D4AF37]/12 border border-[#D4AF37]/25 flex items-center justify-center shrink-0 mt-0.5">
+                  <Icon name="activity" size={16} className="text-[#D4AF37]" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="text-[20px] sm:text-[22px] md:text-[26px] leading-none font-extrabold gold-gradient truncate">
+                    MrXPRONOS LIVE
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] text-gray-400 mt-1 leading-tight truncate">
+                    {stats.matches_live || 0} live • {stats.predictions || 0} prédiction • {stats.upcoming || 0} avenir
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start justify-end">
+                <button
+                  onClick={onRefresh}
+                  className="w-11 h-11 rounded-2xl hover:bg-[#1a1a1a] soft-border flex items-center justify-center shrink-0"
+                >
+                  <Icon name="refresh" size={16} className={refreshing ? "animate-spin text-[#D4AF37]" : ""} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+      );
+    };
+
+    const CompactHero = ({ stats, topPredictionCount, upcomingCount }) => (
+      <div className="mb-8">
+        <Card className="hero-card">
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <Badge color="gold"><Icon name="activity" size={11} /> LIVE STATS</Badge>
+            <Badge color="red"><span className="mini-dot bg-red-500 live-pulse"></span> En direct</Badge>
+          </div>
+
+          <div className="text-sm md:text-base text-gray-300 mb-5">
+            Prédictions live sur corners, tirs et fautes.
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <StatChip label="Live" value={stats.matches_live || 0} valueColor="text-red-500" />
+            <StatChip label="Top prédictions" value={topPredictionCount || 0} valueColor="text-[#D4AF37]" />
+            <StatChip label="Prédictions" value={stats.predictions || 0} valueColor="text-blue-400" />
+            <StatChip label="Avenir" value={upcomingCount || 0} valueColor="text-green-400" />
+          </div>
+        </Card>
+      </div>
+    );
+
+    const OpportunityCard = ({ item, onOpen }) => {
+      const best = item?.predictions?.[0];
+      if (!best) return null;
+
+      const homeLogo = getTeamLogo(item, "home");
+      const awayLogo = getTeamLogo(item, "away");
+      const leagueLogo = getLeagueLogo(item);
+
+      return (
+        <Card onClick={() => onOpen(item)} className="border-[#D4AF37]/20">
+          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
+              <HeatBadge level={item.heat_level} />
+              <FreshnessBadge seconds={item.freshness_seconds} />
+              <Badge color="gold">TOP {item.value_score || 0}</Badge>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <LogoImg src={leagueLogo} alt={item?.league?.name} size={22} />
+              <span className="truncate max-w-[160px]">{item?.league?.name || "Ligue"}</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 mb-4">
+            <TeamRow name={item.home_team} logo={homeLogo} align="right" />
+            <div className="px-2 py-2 rounded-xl bg-[#0a0a0a] border border-[#D4AF37]/30 text-center min-w-[82px]">
+              <div className="text-base font-extrabold text-[#D4AF37]">{item.home_score}-{item.away_score}</div>
+              <div className="text-[11px] text-gray-400">{item.current_minute}'</div>
+            </div>
+            <TeamRow name={item.away_team} logo={awayLogo} align="left" />
+          </div>
+
+          <div className="mb-3 flex items-center gap-2 flex-wrap">
+            <PredictionBadge pred={best} />
+            <Badge color="green">{formatPercent(best.probability)}</Badge>
+            <Badge color="blue">Fiabilité {best.reliability || 0}</Badge>
+          </div>
+
+          <div className="text-base font-bold text-white mb-1 safe-wrap">{best.title}</div>
+          <div className="text-sm text-[#D4AF37] mb-2 safe-wrap">{best.message}</div>
+
+          <div className="text-xs text-gray-300 mb-4 safe-wrap">
+            Actuel: <strong>{best.current ?? "-"}</strong> • Projection: <strong>{best.projected ?? "-"}</strong> • Seuil: <strong>{best.threshold ?? "-"}</strong>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <ScoreBar value={Math.round((best.probability || 0) * 100)} label="Probabilité" color="#22C55E" />
+            <ScoreBar value={best.reliability || 0} label="Fiabilité" color="#D4AF37" />
+          </div>
+
+          {(best.reasons || []).length > 0 && (
+            <div className="space-y-1">
+              {(best.reasons || []).slice(0, 3).map((r, i) => (
+                <div key={i} className="text-xs text-gray-300 safe-wrap">• {r}</div>
+              ))}
+            </div>
+          )}
+        </Card>
+      );
+    };
+
+    const MatchCard = ({ match, onOpen }) => {
+      const best = match?.predictions?.[0] || null;
+
+      const totalCorners =
+        safeNumber(match?.live_stats?.home?.corner_kicks, 0) +
+        safeNumber(match?.live_stats?.away?.corner_kicks, 0);
+
+      const totalFouls =
+        safeNumber(match?.live_stats?.home?.fouls, 0) +
+        safeNumber(match?.live_stats?.away?.fouls, 0);
+
+      const totalShots =
+        safeNumber(match?.live_stats?.home?.total_shots, 0) +
+        safeNumber(match?.live_stats?.away?.total_shots, 0);
+
+      const homeLogo = getTeamLogo(match, "home");
+      const awayLogo = getTeamLogo(match, "away");
+      const leagueLogo = getLeagueLogo(match);
+
+      return (
+        <Card onClick={() => onOpen(match)}>
+          <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="w-2 h-2 bg-red-500 rounded-full live-pulse"></span>
+              <span className="text-red-500 text-xs font-bold whitespace-nowrap">LIVE {match.current_minute || 0}'</span>
+              <span className="text-gray-600">•</span>
+
+              <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
+                <LogoImg src={leagueLogo} alt={match?.league?.name} size={20} />
+                <span className="truncate">{match?.league?.name || "Ligue"}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              <HeatBadge level={match.heat_level} />
+              <FreshnessBadge seconds={match.freshness_seconds} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 mb-4">
+            <TeamRow name={match.home_team} logo={homeLogo} align="right" />
+            <div className="px-2 py-2 rounded-xl bg-[#0a0a0a] border border-[#252525] font-bold text-center min-w-[78px]">
+              <div className="text-base">{match.home_score}-{match.away_score}</div>
+            </div>
+            <TeamRow name={match.away_team} logo={awayLogo} align="left" />
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            <StatChip label="Corners" value={totalCorners} />
+            <StatChip label="Fautes" value={totalFouls} />
+            <StatChip label="Tirs" value={totalShots} />
+          </div>
+
+          {best ? (
+            <div className="pt-4 border-t border-[#222]">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <PredictionBadge pred={best} />
+                <Badge color="green">{formatPercent(best.probability)}</Badge>
+                <Badge color="blue">Fiabilité {best.reliability || 0}</Badge>
+              </div>
+              <div className="text-sm text-white font-bold safe-wrap">{best.title}</div>
+              <div className="text-xs text-[#D4AF37] mt-1 safe-wrap">{best.message}</div>
+              <div className="text-xs text-gray-400 mt-2 safe-wrap">
+                Actuel {best.current ?? "-"} • Projection {best.projected ?? "-"} • Seuil {best.threshold ?? "-"}
+              </div>
+            </div>
+          ) : (
+            <div className="pt-4 border-t border-[#222] text-xs text-gray-500">
+              Aucune prédiction fiable actuellement
+            </div>
+          )}
+        </Card>
+      );
+    };
+
+    const UpcomingMatchCard = ({ match }) => {
+      const leagueLogo = getLeagueLogo(match);
+      const homeLogo = getTeamLogo(match, "home");
+      const awayLogo = getTeamLogo(match, "away");
+
+      return (
+        <Card className="bg-[#101010]">
+          <div className="flex items-center justify-between mb-3 gap-2">
+            <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
+              <LogoImg src={leagueLogo} alt={match?.league?.name} size={20} />
+              <span className="truncate">{match?.league?.name || "Ligue"}</span>
+            </div>
+            <Badge color="gray">
+              <Icon name="clock" size={11} /> {match.event_date ? formatTime(match.event_date) : "Heure inconnue"}
+            </Badge>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <LogoImg src={homeLogo} alt={match.home_team} size={28} />
+              <span className="font-semibold text-sm truncate">{match.home_team}</span>
+            </div>
+            <div className="text-xs text-gray-500 text-center">vs</div>
+            <div className="flex items-center gap-2 min-w-0">
+              <LogoImg src={awayLogo} alt={match.away_team} size={28} />
+              <span className="font-semibold text-sm truncate">{match.away_team}</span>
+            </div>
+          </div>
+        </Card>
+      );
+    };
+
+    const MatchDetail = ({ match, onClose }) => {
+      const [tab, setTab] = useState("signals");
+      if (!match) return null;
+
+      const totalCorners =
+        safeNumber(match?.live_stats?.home?.corner_kicks, 0) +
+        safeNumber(match?.live_stats?.away?.corner_kicks, 0);
+
+      const totalFouls =
+        safeNumber(match?.live_stats?.home?.fouls, 0) +
+        safeNumber(match?.live_stats?.away?.fouls, 0);
+
+      const totalShots =
+        safeNumber(match?.live_stats?.home?.total_shots, 0) +
+        safeNumber(match?.live_stats?.away?.total_shots, 0);
+
+      const homeLogo = getTeamLogo(match, "home");
+      const awayLogo = getTeamLogo(match, "away");
+      const leagueLogo = getLeagueLogo(match);
+
+      return (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3">
+          <div className="bg-[#121212] border border-[#262626] rounded-3xl w-full max-w-5xl max-h-[92vh] overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-[#2a2a2a]">
+              <div className="flex justify-between items-start gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <span className="w-2 h-2 bg-red-500 rounded-full live-pulse"></span>
+                    <span className="text-red-500 text-sm font-bold">LIVE {match.current_minute || 0}'</span>
+                    <span className="text-gray-500">|</span>
+
+                    <div className="flex items-center gap-2 text-gray-400 text-sm min-w-0">
+                      <LogoImg src={leagueLogo} alt={match?.league?.name} size={22} />
+                      <span className="truncate">{match.league?.name || ""}</span>
+                    </div>
+
+                    <FreshnessBadge seconds={match.freshness_seconds} />
+                  </div>
+
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                    <TeamRow name={match.home_team} logo={homeLogo} align="right" />
+                    <div className="text-2xl md:text-4xl font-extrabold gold-gradient whitespace-nowrap">
+                      {match.home_score}-{match.away_score}
+                    </div>
+                    <TeamRow name={match.away_team} logo={awayLogo} align="left" />
+                  </div>
+                </div>
+
+                <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#1a1a1a] shrink-0">
+                  <Icon name="x" />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex border-b border-[#2a2a2a]">
+              {["signals", "stats"].map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`flex-1 py-3 text-sm capitalize ${
+                    tab === t ? "text-[#D4AF37] border-b-2 border-[#D4AF37]" : "text-gray-400"
+                  }`}
+                >
+                  {t === "signals" ? "Prédictions" : "Statistiques"}
+                </button>
+              ))}
+            </div>
+
+            <div className="p-4 overflow-y-auto max-h-[60vh] custom-scrollbar">
+              {tab === "signals" && (
+                <div className="space-y-4">
+                  {(match.predictions || []).length === 0 ? (
+                    <div className="text-center text-gray-500 py-8">Aucune prédiction fiable actuellement</div>
+                  ) : (
+                    (match.predictions || []).map((p, i) => (
+                      <div key={i} className="bg-[#0a0a0a] rounded-2xl p-4 border border-[#222]">
+                        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                          <div className="flex gap-2 items-center flex-wrap">
+                            <PredictionBadge pred={p} />
+                            <div className="font-bold safe-wrap">{p.title}</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge color="green">{formatPercent(p.probability)}</Badge>
+                            <Badge color="blue">Fiabilité {p.reliability || 0}</Badge>
+                          </div>
+                        </div>
+
+                        <div className="text-sm text-[#D4AF37] mb-2 safe-wrap">{p.message}</div>
+                        <div className="text-xs text-gray-300 mb-4 safe-wrap">
+                          Actuel: <strong>{p.current ?? "-"}</strong> • Projection: <strong>{p.projected ?? "-"}</strong> • Seuil: <strong>{p.threshold ?? "-"}</strong>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                          <ScoreBar value={Math.round((p.probability || 0) * 100)} label="Probabilité" color="#22C55E" />
+                          <ScoreBar value={p.reliability || 0} label="Fiabilité" color="#D4AF37" />
+                        </div>
+
+                        {(p.reasons || []).length > 0 && (
+                          <div className="space-y-1">
+                            {(p.reasons || []).slice(0, 3).map((r, idx) => (
+                              <div key={idx} className="text-sm text-gray-300 safe-wrap">• {r}</div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+
+              {tab === "stats" && (
+                <div className="space-y-4">
+                  <ScoreBar value={match.ai_score || 0} label="Score IA" color="#D4AF37" />
+                  <ScoreBar value={match.reliability_score || 0} label="Fiabilité" color="#3B82F6" />
+                  <ScoreBar value={match.data_quality_score || 0} label="Qualité données" color="#8B5CF6" />
+
+                  <div className="grid gap-4 mt-4">
+                    <Card className="bg-[#0d0d0d]">
+                      <div className="text-xs text-gray-400 mb-2">Pression</div>
+                      <div className="text-sm">{match.home_team}: {match.pressure_index?.home_ratio || 0}%</div>
+                      <div className="text-sm">{match.away_team}: {match.pressure_index?.away_ratio || 0}%</div>
+                      <div className="text-xs text-gray-500 mt-2">
+                        Dominant: {match.pressure_index?.dominant_side || "-"}
+                      </div>
+                    </Card>
+
+                    <Card className="bg-[#0d0d0d]">
+                      <div className="text-xs text-gray-400 mb-2">Stats clés</div>
+                      <div className="text-sm">Corners: {totalCorners}</div>
+                      <div className="text-sm">Fautes: {totalFouls}</div>
+                      <div className="text-sm">Tirs: {totalShots}</div>
+                    </Card>
+                  </div>
+                </div>
+              )}
+            </div>
+
+          </div>
         </div>
+      );
+    };
 
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button id="btnPublish" class="btn btn-primary">
-            Publier (articles + conseils + bonus + infos + bookmakers)
+    const EmptyState = ({ title, subtitle }) => (
+      <Card className="text-center py-12 bg-[#101010]">
+        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#161616] border border-[#232323] flex items-center justify-center">
+          <Icon name="chartBar" className="text-[#D4AF37]" />
+        </div>
+        <div className="text-lg font-semibold text-gray-300 mb-2">{title}</div>
+        <div className="text-sm text-gray-500 safe-wrap">{subtitle}</div>
+      </Card>
+    );
+
+    const NotificationsPanel = ({ notifications, unreadCount, onClear }) => (
+      <div>
+        <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+          <div className="text-lg font-bold flex items-center gap-2">
+            <Icon name="bell" className="text-[#D4AF37]" />
+            Notifications
+            {unreadCount > 0 && <Badge color="red">{unreadCount} non lues</Badge>}
+          </div>
+
+          <button
+            onClick={onClear}
+            className="px-3 py-2 rounded-xl bg-[#151515] text-gray-300 border border-[#252525] hover:bg-[#1a1a1a] text-sm font-semibold"
+          >
+            Tout lire
           </button>
-          <button id="btnLogout" class="btn btn-secondary">Déconnexion</button>
         </div>
+
+        {notifications.length === 0 ? (
+          <EmptyState
+            title="Aucune notification"
+            subtitle="Les notifications (validations, alertes…) apparaîtront ici."
+          />
+        ) : (
+          <div className="space-y-3">
+            {notifications.map((n, i) => (
+              <Card
+                key={n.id || i}
+                className={`${!n.read ? "border-[#D4AF37]/35 bg-[#141414]" : ""}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-sm font-bold text-white safe-wrap">
+                      {n.title || "Notification"}
+                    </div>
+                    <div className="text-xs text-gray-300 mt-2 whitespace-pre-line safe-wrap">
+                      {n.message || ""}
+                    </div>
+                    <div className="text-[11px] text-gray-500 mt-3">
+                      {formatDateTime(n.timestamp || n.created_at)}
+                    </div>
+                  </div>
+
+                  {!n.read && <Badge color="gold">Nouveau</Badge>}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
+    );
 
-      <!-- TABS -->
-      <div class="tabs" style="margin-top:14px;">
-        <button class="tab active" data-tab="stats">Stats</button>
-        <button class="tab" data-tab="pronostics">Pronostics (lecture)</button>
-        <button class="tab" data-tab="articles">Articles</button>
-        <button class="tab" data-tab="conseils">Conseils</button>
-        <button class="tab" data-tab="bonus">Bonus</button>
-        <button class="tab" data-tab="infos">Infos</button>
-        <button class="tab" data-tab="vip">VIP</button>
-        <button class="tab" data-tab="health">Santé (cron)</button>
-        <button class="tab" data-tab="audit">Audit</button>
-      </div>
+    // =======================================================
+    // APP
+    // =======================================================
+    const App = () => {
+      const [userId] = useState(() => getUserId());
 
-      <!-- PANES -->
-      <div id="tab-stats"></div>
-      <div id="tab-pronostics" style="display:none;"></div>
-      <div id="tab-articles" style="display:none;"></div>
-      <div id="tab-conseils" style="display:none;"></div>
-      <div id="tab-bonus" style="display:none;"></div>
-      <div id="tab-infos" style="display:none;"></div>
-      <div id="tab-vip" style="display:none;"></div>
-      <div id="tab-health" style="display:none;"></div>
-      <div id="tab-audit" style="display:none;"></div>
-    </div>
-  </div>
+      const [liveMatches, setLiveMatches] = useState([]);
+      const [opportunities, setOpportunities] = useState([]);
+      const [scheduledMatches, setScheduledMatches] = useState([]);
+      const [history, setHistory] = useState([]);
 
-  <script type="module" src="assets/js/admin-real.js"></script>
+      const [notifications, setNotifications] = useState([]);
+      const [stats, setStats] = useState({ matches_live: 0, predictions: 0, upcoming: 0 });
+
+      const [loading, setLoading] = useState(true);
+      const [refreshing, setRefreshing] = useState(false);
+      const [error, setError] = useState(null);
+
+      const [selectedTab, setSelectedTab] = useState("live"); // live | history | notifications
+      const [selectedMatch, setSelectedMatch] = useState(null);
+
+      const [toast, setToast] = useState(null);
+
+      const apiFetch = useCallback(async (endpoint) => {
+        const url = `${EDGE_FUNCTION_URL}${endpoint}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+          let message = `Erreur API ${res.status}`;
+          try {
+            const err = await res.json();
+            if (err?.error) message = err.error;
+          } catch (_) {}
+          throw new Error(message);
+        }
+        return res;
+      }, []);
+
+      const fetchAll = useCallback(async (silent = false) => {
+        if (!silent) setLoading(true);
+        setRefreshing(true);
+
+        try {
+          const [matchesRes, oppRes, notifRes, historyRes, todayRes] = await Promise.all([
+            apiFetch("/matches"),
+            apiFetch("/opportunities"),
+            apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`),
+            apiFetch("/predictions/history"),
+            apiFetch("/today")
+          ]);
+
+          const matchesData = await matchesRes.json();
+          const oppData = await oppRes.json();
+          const notifData = await notifRes.json();
+          const historyData = await historyRes.json();
+          const todayData = await todayRes.json();
+
+          const matches = matchesData.matches || [];
+          const opps = oppData.opportunities || [];
+          const notifs = notifData.notifications || [];
+          const hist = historyData.history || [];
+          const scheduled = todayData?.data?.scheduled?.matches || [];
+
+          setLiveMatches(matches);
+          setOpportunities(opps);
+          setNotifications(notifs);
+          setHistory(hist);
+          setScheduledMatches(scheduled);
+
+          const predictionsCount = matches.reduce(
+            (acc, m) => acc + ((m.predictions || []).length > 0 ? 1 : 0),
+            0
+          );
+
+          setStats({
+            matches_live: matches.length,
+            predictions: predictionsCount,
+            upcoming: scheduled.length
+          });
+
+          setError(null);
+        } catch (e) {
+          console.error(e);
+          setError(e?.message || "Impossible de charger les données live.");
+        } finally {
+          setLoading(false);
+          setRefreshing(false);
+        }
+      }, [apiFetch, userId]);
+
+      useEffect(() => {
+        fetchAll(false);
+      }, [fetchAll]);
+
+      useEffect(() => {
+        const interval = setInterval(() => {
+          fetchAll(true).catch(console.error);
+        }, 20000);
+        return () => clearInterval(interval);
+      }, [fetchAll]);
+
+      // realtime notifications (toast)
+      useEffect(() => {
+        if (!supabase) return;
+
+        const channel = supabase
+          .channel("notifications-channel")
+          .on(
+            "postgres_changes",
+            { event: "INSERT", schema: "public", table: "notifications" },
+            (payload) => {
+              const notif = payload.new;
+              if (notif.user_id === "all" || notif.user_id === userId) {
+                const normalized = { ...notif, timestamp: new Date(notif.created_at).getTime() };
+                setNotifications((prev) => [normalized, ...prev].slice(0, 50));
+                setToast({ title: notif.title, message: notif.message });
+                setTimeout(() => setToast(null), 6000);
+              }
+            }
+          )
+          .subscribe();
+
+        return () => {
+          supabase.removeChannel(channel);
+        };
+      }, [userId]);
+
+      const unreadCount = notifications.filter((n) => !n.read).length;
+
+      // =======================================================
+      // ✅ DÉDUPLICATION AFFICHAGE
+      // - Un match opportunité ne doit pas apparaitre 3 fois
+      // =======================================================
+      const bestOpportunity = useMemo(() => opportunities?.[0] || null, [opportunities]);
+
+      const otherOpportunities = useMemo(() => {
+        if (!bestOpportunity) return opportunities || [];
+        const bestId = String(bestOpportunity.id);
+        return (opportunities || []).filter((o) => String(o.id) !== bestId);
+      }, [opportunities, bestOpportunity]);
+
+      const liveMatchesWithoutOpportunities = useMemo(() => {
+        const oppIds = new Set((opportunities || []).map((o) => String(o.id)));
+        return (liveMatches || []).filter((m) => !oppIds.has(String(m.id)));
+      }, [liveMatches, opportunities]);
+
+      const clearNotifications = async () => {
+        try {
+          const ids = notifications.filter(n => !n.read).map(n => n.id);
+          if (!ids.length) return;
+
+          await fetch(`${EDGE_FUNCTION_URL}/notifications/mark-read`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ notification_ids: ids, user_id: userId })
+          });
+
+          setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      if (error && !loading) {
+        return (
+          <div className="min-h-screen flex items-center justify-center px-4">
+            <div className="text-center">
+              <div className="text-red-500 text-xl mb-3">Erreur</div>
+              <div className="text-gray-400 mb-4 safe-wrap">{error}</div>
+              <button
+                onClick={() => fetchAll(false)}
+                className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-bold"
+              >
+                Réessayer
+              </button>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="min-h-screen bg-[#0a0a0a]">
+          <Header
+            stats={stats}
+            onBack={() => window.location.href = "index.html"}
+            onRefresh={() => fetchAll(true)}
+            refreshing={refreshing}
+          />
+
+          <main className="max-w-7xl mx-auto px-4 py-6">
+            {!selectedMatch && (
+              <>
+                <CompactHero
+                  stats={stats}
+                  topPredictionCount={opportunities.length || 0}
+                  upcomingCount={scheduledMatches.length || 0}
+                />
+
+                {/* Tabs: Live / Historique / Notifications */}
+                <div className="flex gap-3 mb-6 flex-wrap">
+                  <button
+                    onClick={() => setSelectedTab("live")}
+                    className={`px-4 py-2 rounded-xl font-semibold transition-colors ${
+                      selectedTab === "live"
+                        ? "bg-[#D4AF37] text-black"
+                        : "bg-[#151515] text-gray-300 border border-[#252525]"
+                    }`}
+                  >
+                    Live
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedTab("history")}
+                    className={`px-4 py-2 rounded-xl font-semibold transition-colors ${
+                      selectedTab === "history"
+                        ? "bg-[#D4AF37] text-black"
+                        : "bg-[#151515] text-gray-300 border border-[#252525]"
+                    }`}
+                  >
+                    Historique
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedTab("notifications")}
+                    className={`px-4 py-2 rounded-xl font-semibold transition-colors relative ${
+                      selectedTab === "notifications"
+                        ? "bg-[#D4AF37] text-black"
+                        : "bg-[#151515] text-gray-300 border border-[#252525]"
+                    }`}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Icon name="bell" size={14} />
+                      Notifications
+                    </span>
+
+                    {unreadCount > 0 && (
+                      <span className="ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold align-middle">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                {selectedTab === "live" && (
+                  loading ? (
+                    <div className="py-20 text-center">
+                      <div className="w-12 h-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                      <div className="text-gray-400">Chargement des prédictions live...</div>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Top opportunity (affiché 1 seule fois) */}
+                      {bestOpportunity && (
+                        <div className="mb-8">
+                          <div className="text-lg font-bold mb-4 flex items-center gap-2">
+                            <Icon name="star" className="text-[#D4AF37]" />
+                            Top opportunity
+                          </div>
+                          <OpportunityCard item={bestOpportunity} onOpen={setSelectedMatch} />
+                        </div>
+                      )}
+
+                      {/* Opportunités restantes (sans le top) */}
+                      <div className="mb-8">
+                        <div className="text-lg font-bold mb-4 flex items-center gap-2">
+                          <Icon name="target" className="text-[#D4AF37]" />
+                          Prédictions live
+                        </div>
+
+                        {(otherOpportunities || []).length === 0 ? (
+                          <EmptyState
+                            title={bestOpportunity ? "Aucune autre opportunité" : "Aucune prédiction premium"}
+                            subtitle={bestOpportunity
+                              ? "L'opportunité principale est affichée en haut."
+                              : "Le moteur live attend un contexte suffisamment fiable."
+                            }
+                          />
+                        ) : (
+                          <div className="grid gap-4 md:grid-cols-2">
+                            {otherOpportunities.map((item) => (
+                              <OpportunityCard
+                                key={item.id || `${item.home_team}-${item.away_team}-${item.current_minute}`}
+                                item={item}
+                                onOpen={setSelectedMatch}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Tous les matchs live (sans ceux qui ont une opportunité) */}
+                      <div className="mb-8">
+                        <div className="text-lg font-bold mb-4 flex items-center gap-2">
+                          <Icon name="radio" className="text-red-500" />
+                          Tous les matchs live
+                        </div>
+
+                        {(liveMatchesWithoutOpportunities || []).length === 0 ? (
+                          <EmptyState
+                            title="Aucun autre match live"
+                            subtitle="Tous les matchs live ont déjà une opportunité affichée plus haut."
+                          />
+                        ) : (
+                          <div className="grid gap-4 md:grid-cols-2">
+                            {liveMatchesWithoutOpportunities.map((m) => (
+                              <MatchCard key={m.id} match={m} onOpen={setSelectedMatch} />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Matchs à venir */}
+                      <div className="mb-8">
+                        <div className="text-lg font-bold mb-4 flex items-center gap-2">
+                          <Icon name="calendar" className="text-blue-400" />
+                          Matchs à venir
+                        </div>
+
+                        {scheduledMatches.length === 0 ? (
+                          <EmptyState
+                            title="Aucun match à venir"
+                            subtitle="Aucun match programmé sur la période actuelle."
+                          />
+                        ) : (
+                          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                            {scheduledMatches.slice(0, 12).map((m) => (
+                              <UpcomingMatchCard key={m.id} match={m} />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )
+                )}
+
+                {selectedTab === "history" && (
+                  <div>
+                    <div className="text-lg font-bold mb-4 flex items-center gap-2">
+                      <Icon name="history" className="text-[#D4AF37]" />
+                      Historique des prédictions
+                    </div>
+
+                    {history.length === 0 ? (
+                      <EmptyState
+                        title="Aucun historique"
+                        subtitle="Les validations apparaîtront ici dès qu'une prédiction sera créée."
+                      />
+                    ) : (
+                      <div className="bg-[#121212] rounded-2xl border border-[#232323] overflow-hidden">
+                        <div className="overflow-x-auto custom-scrollbar">
+                          <table className="w-full text-sm min-w-[1150px]">
+                            <thead className="bg-[#0b0b0b] border-b border-[#232323]">
+                              <tr>
+                                <th className="px-4 py-3 text-left">Match</th>
+                                <th className="px-4 py-3 text-left">Prédiction</th>
+                                <th className="px-4 py-3 text-left">Score</th>
+                                <th className="px-4 py-3 text-left">Minute</th>
+                                <th className="px-4 py-3 text-left">Seuil</th>
+                                <th className="px-4 py-3 text-left">Actuel</th>
+                                <th className="px-4 py-3 text-left">Projection</th>
+                                <th className="px-4 py-3 text-left">Proba</th>
+                                <th className="px-4 py-3 text-left">Résultat</th>
+                                <th className="px-4 py-3 text-left">Heure</th>
+                              </tr>
+                            </thead>
+
+                            <tbody>
+                              {history.map((h, i) => (
+                                <tr key={i} className="border-b border-[#1f1f1f] hover:bg-[#151515]">
+                                  <td className="px-4 py-3">{h.match}</td>
+                                  <td className="px-4 py-3">{h.type}</td>
+                                  <td className="px-4 py-3">{h.score ?? "-"}</td>
+                                  <td className="px-4 py-3">{h.minute ?? "-"}</td>
+                                  <td className="px-4 py-3">{h.threshold ?? "-"}</td>
+                                  <td className="px-4 py-3">{h.current ?? "-"}</td>
+                                  <td className="px-4 py-3">{h.projected ?? "-"}</td>
+                                  <td className="px-4 py-3">{formatPercent(h.probability)}</td>
+                                  <td className="px-4 py-3">
+                                    {h.validated ? (
+                                      <span className={h.outcome === "success" ? "text-green-400" : "text-red-400"}>
+                                        {h.outcome === "success" ? "✓ Réussie" : "✗ Échouée"}
+                                      </span>
+                                    ) : (
+                                      <span className="text-yellow-400">En attente</span>
+                                    )}
+                                  </td>
+                                  <td className="px-4 py-3">{formatDateTime(h.timestamp)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {selectedTab === "notifications" && (
+                  <NotificationsPanel
+                    notifications={notifications}
+                    unreadCount={unreadCount}
+                    onClear={clearNotifications}
+                  />
+                )}
+              </>
+            )}
+
+            {selectedMatch && (
+              <MatchDetail
+                match={selectedMatch}
+                onClose={() => setSelectedMatch(null)}
+              />
+            )}
+          </main>
+
+          {toast && (
+            <div className="fixed top-4 right-3 left-3 md:left-auto md:right-4 z-50 md:w-full md:max-w-sm bg-[#121212] border border-[#2b2b2b] border-l-4 border-[#D4AF37] rounded-2xl shadow-2xl p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#D4AF37]/12 border border-[#D4AF37]/25 flex items-center justify-center shrink-0">
+                  <Icon name="bell" className="text-[#D4AF37]" />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-sm">{toast.title}</div>
+                  <div className="text-xs text-gray-300 mt-1 whitespace-pre-line safe-wrap">{toast.message}</div>
+                </div>
+
+                <button onClick={() => setToast(null)} className="text-gray-500 hover:text-white shrink-0">
+                  <Icon name="x" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
 </body>
 </html>
