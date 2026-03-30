@@ -7,8 +7,9 @@ const tabs = () => Array.from(document.querySelectorAll(".tab"));
 
 function showTab(name) {
   tabs().forEach(t => t.classList.toggle("active", t.dataset.tab === name));
-  ["stats","pronostics","articles","conseils","vip","health","audit"].forEach(n => {
-    $(`tab-${n}`).style.display = (n === name) ? "block" : "none";
+  ["stats","pronostics","articles","conseils","bonus","infos","vip","health","audit"].forEach(n => {
+    const el = $(`tab-${n}`);
+    if (el) el.style.display = (n === name) ? "block" : "none";
   });
 }
 
@@ -24,10 +25,10 @@ async function renderStats() {
   const root = $("tab-stats");
   root.innerHTML = `<div class="muted">Chargement stats...</div>`;
 
-  const start = new Date(); start.setHours(0,0,0,0);
+  const start = new Date();
+  start.setHours(0,0,0,0);
   const startISO = start.toISOString();
 
-  // VRAI : analytics
   const { count: views } = await sb.from("analytics").select("*", { count: "exact", head: true })
     .eq("event_type","visit").gte("created_at", startISO);
 
@@ -138,14 +139,13 @@ async function renderCmsArticles() {
 
   root.innerHTML = `
     <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">Articles (DB → Publish → articles.json)</h3>
-
+      <h3 style="margin:0 0 10px;color:#D4AF37">Articles</h3>
       <div class="row">
-        <div><label>Slug</label><input id="a_slug" placeholder="ex: psg-om"></div>
-        <div><label>Titre</label><input id="a_title" placeholder="Titre..."></div>
+        <div><label>Slug</label><input id="a_slug"></div>
+        <div><label>Titre</label><input id="a_title"></div>
       </div>
-      <label>Image URL</label><input id="a_image" placeholder="https://...">
-      <label>Meta description</label><input id="a_meta" placeholder="160 chars...">
+      <label>Image URL</label><input id="a_image">
+      <label>Meta description</label><input id="a_meta">
       <label>Contenu</label><textarea id="a_content" rows="8"></textarea>
       <div class="row">
         <div><label>Status</label>
@@ -158,7 +158,6 @@ async function renderCmsArticles() {
       <button id="a_save" class="btn btn-primary" style="margin-top:10px">Enregistrer</button>
 
       <h4 style="margin:18px 0 8px;color:#D4AF37">Liste</h4>
-      <div class="muted">Clique un item pour le charger dans le formulaire.</div>
       <div style="margin-top:10px">
         ${data.map(a => `
           <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${a.id}">
@@ -223,7 +222,7 @@ async function renderCmsConseils() {
 
   root.innerHTML = `
     <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">Conseils (DB → Publish → conseils.json)</h3>
+      <h3 style="margin:0 0 10px;color:#D4AF37">Conseils</h3>
 
       <div class="row">
         <div><label>Slug</label><input id="c_slug"></div>
@@ -294,6 +293,245 @@ async function renderCmsConseils() {
   });
 }
 
+async function renderBonus() {
+  const root = $("tab-bonus");
+  root.innerHTML = `<div class="muted">Chargement...</div>`;
+
+  const [{ data: bonus, error: e1 }, { data: books, error: e2 }] = await Promise.all([
+    sb.from("cms_bonus").select("*").order("updated_at",{ascending:false}).limit(50),
+    sb.from("cms_bookmakers").select("*").order("updated_at",{ascending:false}).limit(50)
+  ]);
+
+  if (e1 || e2) {
+    root.innerHTML = `<div class="muted">Erreur: ${(e1||e2).message}</div>`;
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:#D4AF37">Bonus</h3>
+      <div class="row">
+        <div><label>Bookmaker</label><input id="b_bookmaker"></div>
+        <div><label>Titre</label><input id="b_title"></div>
+      </div>
+      <label>Description</label><textarea id="b_description" rows="5"></textarea>
+      <div class="row">
+        <div><label>Image URL</label><input id="b_image"></div>
+        <div><label>Lien</label><input id="b_link"></div>
+      </div>
+      <div class="row">
+        <div><label>Footer</label><input id="b_footer"></div>
+        <div><label>Status</label>
+          <select id="b_status"><option value="draft">draft</option><option value="published">published</option></select>
+        </div>
+      </div>
+      <div class="row">
+        <div><label>Date début</label><input id="b_start" type="date"></div>
+        <div><label>Date fin</label><input id="b_end" type="date"></div>
+      </div>
+      <label>Actif</label>
+      <select id="b_active"><option value="true">true</option><option value="false">false</option></select>
+      <button id="b_save" class="btn btn-primary" style="margin-top:10px">Enregistrer bonus</button>
+
+      <h4 style="margin:18px 0 8px;color:#D4AF37">Liste bonus</h4>
+      <div>
+        ${(bonus||[]).map(b => `
+          <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-bonus-id="${b.id}">
+            <div style="font-weight:900">${b.title}</div>
+            <div class="muted">${b.bookmaker} • ${b.status} • active=${b.active}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:#D4AF37">Bookmakers</h3>
+      <div class="row">
+        <div><label>Nom</label><input id="bk_name"></div>
+        <div><label>Logo URL</label><input id="bk_logo"></div>
+      </div>
+      <label>Lien</label><input id="bk_url">
+      <label>Description</label><input id="bk_description">
+      <div class="row">
+        <div><label>Status</label>
+          <select id="bk_status"><option value="published">published</option><option value="draft">draft</option></select>
+        </div>
+        <div><label>Actif</label>
+          <select id="bk_active"><option value="true">true</option><option value="false">false</option></select>
+        </div>
+      </div>
+      <button id="bk_save" class="btn btn-primary" style="margin-top:10px">Enregistrer bookmaker</button>
+
+      <h4 style="margin:18px 0 8px;color:#D4AF37">Liste bookmakers</h4>
+      <div>
+        ${(books||[]).map(b => `
+          <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-book-id="${b.id}">
+            <div style="font-weight:900">${b.name}</div>
+            <div class="muted">${b.status} • active=${b.active}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+
+  const setBonus = (b) => {
+    $("b_bookmaker").value = b.bookmaker || "";
+    $("b_title").value = b.title || "";
+    $("b_description").value = b.description || "";
+    $("b_image").value = b.image_url || "";
+    $("b_link").value = b.link || "";
+    $("b_footer").value = b.footer || "";
+    $("b_status").value = b.status || "draft";
+    $("b_start").value = b.start_date || "";
+    $("b_end").value = b.end_date || "";
+    $("b_active").value = (b.active !== false) ? "true" : "false";
+    $("b_save").dataset.id = b.id;
+  };
+
+  const setBook = (b) => {
+    $("bk_name").value = b.name || "";
+    $("bk_logo").value = b.logo || "";
+    $("bk_url").value = b.url || "";
+    $("bk_description").value = b.description || "";
+    $("bk_status").value = b.status || "published";
+    $("bk_active").value = (b.active !== false) ? "true" : "false";
+    $("bk_save").dataset.id = b.id;
+  };
+
+  root.querySelectorAll("[data-bonus-id]").forEach(el => {
+    el.addEventListener("click", () => {
+      const id = el.getAttribute("data-bonus-id");
+      const b = (bonus||[]).find(x => x.id === id);
+      if (b) setBonus(b);
+    });
+  });
+
+  root.querySelectorAll("[data-book-id]").forEach(el => {
+    el.addEventListener("click", () => {
+      const id = el.getAttribute("data-book-id");
+      const b = (books||[]).find(x => x.id === id);
+      if (b) setBook(b);
+    });
+  });
+
+  $("b_save").addEventListener("click", async () => {
+    const row = {
+      bookmaker: $("b_bookmaker").value.trim(),
+      title: $("b_title").value.trim(),
+      description: $("b_description").value.trim(),
+      image_url: $("b_image").value.trim(),
+      link: $("b_link").value.trim(),
+      footer: $("b_footer").value.trim(),
+      start_date: $("b_start").value || null,
+      end_date: $("b_end").value || null,
+      status: $("b_status").value,
+      active: $("b_active").value === "true",
+      updated_at: new Date().toISOString(),
+      published_at: $("b_status").value === "published" ? new Date().toISOString() : null
+    };
+    if (!row.bookmaker || !row.title || !row.description) return alert("Bookmaker/Titre/Description requis.");
+
+    const id = $("b_save").dataset.id;
+    const payload = id ? { ...row, id } : row;
+
+    const { error } = await sb.from("cms_bonus").upsert(payload);
+    if (error) return alert(error.message);
+    alert("Bonus sauvegardé.");
+    await renderBonus();
+  });
+
+  $("bk_save").addEventListener("click", async () => {
+    const row = {
+      name: $("bk_name").value.trim(),
+      logo: $("bk_logo").value.trim(),
+      url: $("bk_url").value.trim(),
+      description: $("bk_description").value.trim(),
+      status: $("bk_status").value,
+      active: $("bk_active").value === "true",
+      updated_at: new Date().toISOString(),
+      published_at: $("bk_status").value === "published" ? new Date().toISOString() : null
+    };
+    if (!row.name) return alert("Nom requis.");
+
+    const id = $("bk_save").dataset.id;
+    const payload = id ? { ...row, id } : row;
+
+    const { error } = await sb.from("cms_bookmakers").upsert(payload);
+    if (error) return alert(error.message);
+    alert("Bookmaker sauvegardé.");
+    await renderBonus();
+  });
+}
+
+async function renderInfos() {
+  const root = $("tab-infos");
+  root.innerHTML = `<div class="muted">Chargement...</div>`;
+
+  const { data, error } = await sb.from("cms_infos").select("*").order("updated_at",{ascending:false}).limit(50);
+  if (error) { root.innerHTML = `<div class="muted">Erreur: ${error.message}</div>`; return; }
+
+  root.innerHTML = `
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:#D4AF37">Infos</h3>
+      <label>Titre</label><input id="i_title">
+      <label>Contenu</label><textarea id="i_content" rows="6"></textarea>
+      <div class="row">
+        <div><label>Status</label>
+          <select id="i_status"><option value="draft">draft</option><option value="published">published</option></select>
+        </div>
+        <div><label>Actif</label>
+          <select id="i_active"><option value="true">true</option><option value="false">false</option></select>
+        </div>
+      </div>
+      <button id="i_save" class="btn btn-primary" style="margin-top:10px">Enregistrer</button>
+
+      <h4 style="margin:18px 0 8px;color:#D4AF37">Liste</h4>
+      ${(data||[]).map(i => `
+        <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${i.id}">
+          <div style="font-weight:900">${i.title}</div>
+          <div class="muted">${i.status} • active=${i.active}</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  const setForm = (i) => {
+    $("i_title").value = i.title || "";
+    $("i_content").value = i.content || "";
+    $("i_status").value = i.status || "draft";
+    $("i_active").value = (i.active !== false) ? "true" : "false";
+    $("i_save").dataset.id = i.id;
+  };
+
+  root.querySelectorAll("[data-id]").forEach(el => {
+    el.addEventListener("click", () => {
+      const id = el.getAttribute("data-id");
+      const i = data.find(x => x.id === id);
+      if (i) setForm(i);
+    });
+  });
+
+  $("i_save").addEventListener("click", async () => {
+    const row = {
+      title: $("i_title").value.trim(),
+      content: $("i_content").value,
+      status: $("i_status").value,
+      active: $("i_active").value === "true",
+      updated_at: new Date().toISOString(),
+      published_at: $("i_status").value === "published" ? new Date().toISOString() : null
+    };
+    if (!row.title || !row.content) return alert("Titre/Contenu requis.");
+
+    const id = $("i_save").dataset.id;
+    const payload = id ? { ...row, id } : row;
+
+    const { error } = await sb.from("cms_infos").upsert(payload);
+    if (error) return alert(error.message);
+    alert("Info sauvegardée.");
+    await renderInfos();
+  });
+}
+
 async function renderVip() {
   const root = $("tab-vip");
   root.innerHTML = `<div class="muted">Chargement...</div>`;
@@ -322,9 +560,7 @@ async function renderVip() {
               <td>${v.code}</td>
               <td>${new Date(v.expires_at).toLocaleString("fr-FR")}</td>
               <td>${v.active ? "oui" : "non"}</td>
-              <td>
-                <button class="btn btn-secondary" data-revoke="${v.user_id}">Désactiver</button>
-              </td>
+              <td><button class="btn btn-secondary" data-revoke="${v.user_id}">Désactiver</button></td>
             </tr>
           `).join("")}
         </tbody>
@@ -361,25 +597,57 @@ async function renderHealth() {
   const { data, error } = await sb.from("cron_runs").select("*").order("last_run_at",{ascending:false});
   if (error) { root.innerHTML = `<div class="muted">${error.message}</div>`; return; }
 
+  const rows = (data || []).map(r => {
+    const meta = r.meta || {};
+    const summary =
+      r.name === "live_refresh"
+        ? `matches=${meta.matches_live ?? 0}, created=${meta.predictions_created ?? 0}, updated=${meta.predictions_updated ?? 0}`
+        : `validated=${meta.validated ?? 0}, skipped=${meta.skipped ?? 0}`;
+
+    return `
+      <tr>
+        <td>${r.name}</td>
+        <td>${r.last_run_at ? new Date(r.last_run_at).toLocaleString("fr-FR") : "-"}</td>
+        <td>${r.last_ok ? "oui" : "non"}</td>
+        <td>
+          <div class="muted">${summary}</div>
+          <button class="btn btn-secondary" data-meta='${encodeURIComponent(JSON.stringify(meta))}'>Voir</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
   root.innerHTML = `
     <div class="card">
       <h3 style="margin:0 0 10px;color:#D4AF37">Santé CRON</h3>
       <table>
         <thead><tr><th>Nom</th><th>Dernière exécution</th><th>OK</th><th>Meta</th></tr></thead>
-        <tbody>
-          ${(data||[]).map(r => `
-            <tr>
-              <td>${r.name}</td>
-              <td>${r.last_run_at ? new Date(r.last_run_at).toLocaleString("fr-FR") : "-"}</td>
-              <td>${r.last_ok ? "oui" : "non"}</td>
-              <td><pre style="white-space:pre-wrap" class="muted">${JSON.stringify(r.meta||{}, null, 2)}</pre></td>
-            </tr>
-          `).join("")}
-        </tbody>
+        <tbody>${rows}</tbody>
       </table>
-      <div class="muted">Si live_refresh ne bouge pas chaque minute → cron-job.org n’appelle pas /live/refresh.</div>
+
+      <div id="metaModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); padding:20px; z-index:9999;">
+        <div style="max-width:900px; margin:0 auto; background:#1A1A1A; border:1px solid #D4AF37; border-radius:16px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+            <div style="font-weight:900; color:#D4AF37">Meta</div>
+            <button id="closeMeta" class="btn btn-secondary">Fermer</button>
+          </div>
+          <pre id="metaContent" style="margin-top:12px; max-height:70vh; overflow:auto; white-space:pre-wrap; color:#ddd;"></pre>
+        </div>
+      </div>
     </div>
   `;
+
+  const modal = document.getElementById("metaModal");
+  const pre = document.getElementById("metaContent");
+  document.getElementById("closeMeta").onclick = () => (modal.style.display = "none");
+
+  root.querySelectorAll("[data-meta]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const meta = JSON.parse(decodeURIComponent(btn.getAttribute("data-meta")));
+      pre.textContent = JSON.stringify(meta, null, 2);
+      modal.style.display = "block";
+    });
+  });
 }
 
 async function renderAudit() {
@@ -421,7 +689,7 @@ async function publishNow() {
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) return alert(data?.error || "Erreur publish");
-  alert(`Publié. Articles=${data.counts.articles} / Conseils=${data.counts.conseils}`);
+  alert(`Publié. Articles=${data.counts.articles} / Conseils=${data.counts.conseils} / Bonus=${data.counts.bonus} / Infos=${data.counts.infos} / Bookmakers=${data.counts.bookmakers}`);
 }
 
 async function afterLogin() {
@@ -441,6 +709,8 @@ async function afterLogin() {
   await renderPronosticsReadOnly();
   await renderCmsArticles();
   await renderCmsConseils();
+  await renderBonus();
+  await renderInfos();
   await renderVip();
   await renderHealth();
   await renderAudit();
@@ -463,7 +733,6 @@ $("btnLogout").addEventListener("click", async () => {
 
 $("btnPublish").addEventListener("click", publishNow);
 
-// auto session
 (async () => {
   const session = (await sb.auth.getSession()).data.session;
   if (session) await afterLogin();
