@@ -1,19 +1,23 @@
 import { supabaseUrl, supabaseAnonKey } from "./config.js";
 
 const sb = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
-
 const $ = (id) => document.getElementById(id);
-const tabs = () => Array.from(document.querySelectorAll(".tab"));
 
-function showTab(name) {
+const TAB_NAMES = ["stats","pronostics","articles","conseils","bonus","infos","vip","health","audit"];
+const loadedTabs = new Set();
+let publishBusy = false;
+
+function tabs() {
+  return Array.from(document.querySelectorAll(".tab"));
+}
+
+function showOnlyTab(name) {
   tabs().forEach(t => t.classList.toggle("active", t.dataset.tab === name));
-  ["stats","pronostics","articles","conseils","bonus","infos","vip","health","audit"].forEach(n => {
+  TAB_NAMES.forEach(n => {
     const el = $(`tab-${n}`);
     if (el) el.style.display = (n === name) ? "block" : "none";
   });
 }
-
-tabs().forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
 
 async function isAdmin() {
   const { data, error } = await sb.rpc("is_admin");
@@ -21,38 +25,117 @@ async function isAdmin() {
   return data === true;
 }
 
+function escapeHtml(s) {
+  const div = document.createElement("div");
+  div.textContent = String(s ?? "");
+  return div.innerHTML;
+}
+
+function safeIdEq(a, b) {
+  return String(a) === String(b);
+}
+
+// -----------------------------
+// LAZY LOAD : charge la tab 1 fois
+// -----------------------------
+const TAB_LOADERS = {
+  stats: renderStats,
+  pronostics: renderPronosticsReadOnly,
+  articles: renderCmsArticles,
+  conseils: renderCmsConseils,
+  bonus: renderBonus,
+  infos: renderInfos,
+  vip: renderVip,
+  health: renderHealth,
+  audit: renderAudit,
+};
+
+async function loadTabIfNeeded(name) {
+  if (loadedTabs.has(name)) return;
+  const loader = TAB_LOADERS[name];
+  if (typeof loader === "function") {
+    await loader();
+    loadedTabs.add(name);
+  }
+}
+
+async function showTab(name) {
+  showOnlyTab(name);
+  await loadTabIfNeeded(name);
+}
+
+// -----------------------------
+// UI helpers
+// -----------------------------
+function setLoginMsg(msg) {
+  const el = $("loginMsg");
+  if (el) el.textContent = msg || "";
+}
+
+function setBtnDisabled(id, disabled) {
+  const btn = $(id);
+  if (btn) btn.disabled = !!disabled;
+}
+
+// -----------------------------
+// STATS (corrigé : partages multi event_type)
+// -----------------------------
 async function renderStats() {
   const root = $("tab-stats");
+  if (!root) return;
   root.innerHTML = `<div class="muted">Chargement stats...</div>`;
 
   const start = new Date();
   start.setHours(0,0,0,0);
   const startISO = start.toISOString();
 
-  const { count: views } = await sb.from("analytics").select("*", { count: "exact", head: true })
-    .eq("event_type","visit").gte("created_at", startISO);
+  try {
+    const { count: views } = await sb
+      .from("analytics")
+      .select("*", { count: "exact", head: true })
+      .eq("event_type","visit")
+      .gte("created_at", startISO);
 
-  const { count: shares } = await sb.from("analytics").select("*", { count: "exact", head: true })
-    .eq("event_type","share").gte("created_at", startISO);
+    // ✅ Compatibilité : share / share_whatsapp / share_telegram
+    const { count: shares } = await sb
+      .from("analytics")
+      .select("*", { count: "exact", head: true })
+      .in("event_type", ["share", "share_whatsapp", "share_telegram"])
+      .gte("created_at", startISO);
 
-  const { count: clicks } = await sb.from("analytics").select("*", { count: "exact", head: true })
-    .eq("event_type","click_pronostic").gte("created_at", startISO);
+    const { count: clicks } = await sb
+      .from("analytics")
+      .select("*", { count: "exact", head: true })
+      .eq("event_type","click_pronostic")
+      .gte("created_at", startISO);
 
-  const { count: vip } = await sb.from("analytics").select("*", { count: "exact", head: true })
-    .eq("event_type","vip_conversion").gte("created_at", startISO);
+    const { count: vip } = await sb
+      .from("analytics")
+      .select("*", { count: "exact", head: true })
+      .eq("event_type","vip_conversion")
+      .gte("created_at", startISO);
 
-  root.innerHTML = `
-    <div class="row">
-      <div class="card"><div class="muted">Visites (aujourd’hui)</div><div style="font-size:28px;font-weight:900;color:#D4AF37">${views||0}</div></div>
-      <div class="card"><div class="muted">Partages (aujourd’hui)</div><div style="font-size:28px;font-weight:900;color:#D4AF37">${shares||0}</div></div>
-      <div class="card"><div class="muted">Clics pronos (aujourd’hui)</div><div style="font-size:28px;font-weight:900;color:#D4AF37">${clicks||0}</div></div>
-      <div class="card"><div class="muted">Conversions VIP (aujourd’hui)</div><div style="font-size:28px;font-weight:900;color:#D4AF37">${vip||0}</div></div>
-    </div>
-  `;
+    root.innerHTML = `
+      <div class="row">
+        <div class="card"><div class="muted">Visites (aujourd’hui)</div><div style="font-size:28px;font-weight:900;color:#D4AF37">${views||0}</div></div>
+        <div class="card"><div class="muted">Partages (aujourd’hui)</div><div style="font-size:28px;font-weight:900;color:#D4AF37">${shares||0}</div></div>
+        <div class="card"><div class="muted">Clics pronos (aujourd’hui)</div><div style="font-size:28px;font-weight:900;color:#D4AF37">${clicks||0}</div></div>
+        <div class="card"><div class="muted">Conversions VIP (aujourd’hui)</div><div style="font-size:28px;font-weight:900;color:#D4AF37">${vip||0}</div></div>
+      </div>
+      <div class="muted" style="margin-top:10px">Astuce: harmonise les event_type dans main.js si tu veux des stats parfaites.</div>
+    `;
+  } catch (e) {
+    root.innerHTML = `<div class="muted">Erreur stats: ${escapeHtml(e?.message || e)}</div>`;
+  }
 }
 
+// -----------------------------
+// PRONOSTICS (lecture seule)
+// -----------------------------
 async function renderPronosticsReadOnly() {
   const root = $("tab-pronostics");
+  if (!root) return;
+
   root.innerHTML = `
     <div class="card">
       <h3 style="margin:0 0 10px;color:#D4AF37">Pronostics (lecture seule)</h3>
@@ -80,7 +163,10 @@ async function renderPronosticsReadOnly() {
     </div>
   `;
 
-  const data = await fetch(`data.json?t=${Date.now()}`, { cache:"no-cache" }).then(r => r.json()).catch(() => null);
+  const data = await fetch(`data.json?t=${Date.now()}`, { cache:"no-cache" })
+    .then(r => r.json())
+    .catch(() => null);
+
   const matches = Array.isArray(data?.matches) ? data.matches : [];
 
   const getDateStr = (day) => {
@@ -95,9 +181,9 @@ async function renderPronosticsReadOnly() {
   };
 
   function render() {
-    const day = document.getElementById("pDay").value;
-    const cat = document.getElementById("pCat").value;
-    const q = (document.getElementById("pSearch").value||"").toLowerCase().trim();
+    const day = $("pDay").value;
+    const cat = $("pCat").value;
+    const q = ($("pSearch").value||"").toLowerCase().trim();
     const targetDate = getDateStr(day);
 
     const list = matches.filter(m => {
@@ -109,44 +195,53 @@ async function renderPronosticsReadOnly() {
       return s.includes(q);
     });
 
-    document.getElementById("pList").innerHTML = list.length ? `
+    $("pList").innerHTML = list.length ? `
       <table>
         <thead><tr><th>Match</th><th>DC</th><th>Conf</th><th>Status</th></tr></thead>
         <tbody>
-        ${list.map(m => `
-          <tr>
-            <td>${m.home_team} vs ${m.away_team}<div class="muted">${m.league||""}</div></td>
-            <td>${m.prediction?.double_chance||"-"}</td>
-            <td>${m.prediction?.confidence||0}%</td>
-            <td>${m.status||""}</td>
-          </tr>
-        `).join("")}
+          ${list.map(m => `
+            <tr>
+              <td>${escapeHtml(m.home_team)} vs ${escapeHtml(m.away_team)}<div class="muted">${escapeHtml(m.league||"")}</div></td>
+              <td>${escapeHtml(m.prediction?.double_chance||"-")}</td>
+              <td>${escapeHtml(m.prediction?.confidence||0)}%</td>
+              <td>${escapeHtml(m.status||"")}</td>
+            </tr>
+          `).join("")}
         </tbody>
       </table>
     ` : `<div class="muted">Aucun résultat.</div>`;
   }
 
-  ["pDay","pCat","pSearch"].forEach(id => document.getElementById(id).addEventListener("input", render));
+  ["pDay","pCat","pSearch"].forEach(id => $(id).addEventListener("input", render));
   render();
 }
 
+// -----------------------------
+// CMS ARTICLES (fix id compare + robust)
+// -----------------------------
 async function renderCmsArticles() {
   const root = $("tab-articles");
+  if (!root) return;
   root.innerHTML = `<div class="muted">Chargement...</div>`;
 
   const { data, error } = await sb.from("cms_articles").select("*").order("updated_at",{ascending:false}).limit(50);
-  if (error) { root.innerHTML = `<div class="muted">Erreur: ${error.message}</div>`; return; }
+  if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
+
+  const rows = data || [];
 
   root.innerHTML = `
     <div class="card">
       <h3 style="margin:0 0 10px;color:#D4AF37">Articles</h3>
+
       <div class="row">
         <div><label>Slug</label><input id="a_slug"></div>
         <div><label>Titre</label><input id="a_title"></div>
       </div>
+
       <label>Image URL</label><input id="a_image">
       <label>Meta description</label><input id="a_meta">
       <label>Contenu</label><textarea id="a_content" rows="8"></textarea>
+
       <div class="row">
         <div><label>Status</label>
           <select id="a_status"><option value="draft">draft</option><option value="published">published</option></select>
@@ -155,14 +250,15 @@ async function renderCmsArticles() {
           <select id="a_active"><option value="true">true</option><option value="false">false</option></select>
         </div>
       </div>
+
       <button id="a_save" class="btn btn-primary" style="margin-top:10px">Enregistrer</button>
 
       <h4 style="margin:18px 0 8px;color:#D4AF37">Liste</h4>
       <div style="margin-top:10px">
-        ${data.map(a => `
-          <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${a.id}">
-            <div style="font-weight:900">${a.title}</div>
-            <div class="muted">${a.slug} • ${a.status} • active=${a.active}</div>
+        ${rows.map(a => `
+          <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${escapeHtml(a.id)}">
+            <div style="font-weight:900">${escapeHtml(a.title)}</div>
+            <div class="muted">${escapeHtml(a.slug)} • ${escapeHtml(a.status)} • active=${a.active !== false}</div>
           </div>
         `).join("")}
       </div>
@@ -183,7 +279,7 @@ async function renderCmsArticles() {
   root.querySelectorAll("[data-id]").forEach(el => {
     el.addEventListener("click", () => {
       const id = el.getAttribute("data-id");
-      const a = data.find(x => x.id === id);
+      const a = rows.find(x => safeIdEq(x.id, id));
       if (a) setForm(a);
     });
   });
@@ -208,28 +304,37 @@ async function renderCmsArticles() {
 
     const { error } = await sb.from("cms_articles").upsert(payload);
     if (error) return alert(error.message);
+
     alert("Sauvegardé.");
+    loadedTabs.delete("articles");
     await renderCmsArticles();
+    loadedTabs.add("articles");
   });
 }
 
+// -----------------------------
+// CMS CONSEILS (fix id compare)
+// -----------------------------
 async function renderCmsConseils() {
   const root = $("tab-conseils");
+  if (!root) return;
   root.innerHTML = `<div class="muted">Chargement...</div>`;
 
   const { data, error } = await sb.from("cms_conseils").select("*").order("updated_at",{ascending:false}).limit(50);
-  if (error) { root.innerHTML = `<div class="muted">Erreur: ${error.message}</div>`; return; }
+  if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
+
+  const rows = data || [];
 
   root.innerHTML = `
     <div class="card">
       <h3 style="margin:0 0 10px;color:#D4AF37">Conseils</h3>
-
       <div class="row">
         <div><label>Slug</label><input id="c_slug"></div>
         <div><label>Titre</label><input id="c_title"></div>
       </div>
       <label>Image URL</label><input id="c_image">
       <label>Contenu</label><textarea id="c_content" rows="6"></textarea>
+
       <div class="row">
         <div><label>Status</label>
           <select id="c_status"><option value="draft">draft</option><option value="published">published</option></select>
@@ -238,14 +343,15 @@ async function renderCmsConseils() {
           <select id="c_active"><option value="true">true</option><option value="false">false</option></select>
         </div>
       </div>
+
       <button id="c_save" class="btn btn-primary" style="margin-top:10px">Enregistrer</button>
 
       <h4 style="margin:18px 0 8px;color:#D4AF37">Liste</h4>
       <div style="margin-top:10px">
-        ${data.map(c => `
-          <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${c.id}">
-            <div style="font-weight:900">${c.title}</div>
-            <div class="muted">${c.slug} • ${c.status} • active=${c.active}</div>
+        ${rows.map(c => `
+          <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${escapeHtml(c.id)}">
+            <div style="font-weight:900">${escapeHtml(c.title)}</div>
+            <div class="muted">${escapeHtml(c.slug)} • ${escapeHtml(c.status)} • active=${c.active !== false}</div>
           </div>
         `).join("")}
       </div>
@@ -265,7 +371,7 @@ async function renderCmsConseils() {
   root.querySelectorAll("[data-id]").forEach(el => {
     el.addEventListener("click", () => {
       const id = el.getAttribute("data-id");
-      const c = data.find(x => x.id === id);
+      const c = rows.find(x => safeIdEq(x.id, id));
       if (c) setForm(c);
     });
   });
@@ -288,24 +394,33 @@ async function renderCmsConseils() {
 
     const { error } = await sb.from("cms_conseils").upsert(payload);
     if (error) return alert(error.message);
+
     alert("Sauvegardé.");
+    loadedTabs.delete("conseils");
     await renderCmsConseils();
+    loadedTabs.add("conseils");
   });
 }
 
+// -----------------------------
+// BONUS + BOOKMAKERS (fix id compare)
+// -----------------------------
 async function renderBonus() {
   const root = $("tab-bonus");
+  if (!root) return;
   root.innerHTML = `<div class="muted">Chargement...</div>`;
 
   const [{ data: bonus, error: e1 }, { data: books, error: e2 }] = await Promise.all([
     sb.from("cms_bonus").select("*").order("updated_at",{ascending:false}).limit(50),
     sb.from("cms_bookmakers").select("*").order("updated_at",{ascending:false}).limit(50)
   ]);
-
   if (e1 || e2) {
-    root.innerHTML = `<div class="muted">Erreur: ${(e1||e2).message}</div>`;
+    root.innerHTML = `<div class="muted">Erreur: ${escapeHtml((e1||e2).message)}</div>`;
     return;
   }
+
+  const bonusRows = bonus || [];
+  const bookRows = books || [];
 
   root.innerHTML = `
     <div class="card">
@@ -335,10 +450,10 @@ async function renderBonus() {
 
       <h4 style="margin:18px 0 8px;color:#D4AF37">Liste bonus</h4>
       <div>
-        ${(bonus||[]).map(b => `
-          <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-bonus-id="${b.id}">
-            <div style="font-weight:900">${b.title}</div>
-            <div class="muted">${b.bookmaker} • ${b.status} • active=${b.active}</div>
+        ${bonusRows.map(b => `
+          <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-bonus-id="${escapeHtml(b.id)}">
+            <div style="font-weight:900">${escapeHtml(b.title)}</div>
+            <div class="muted">${escapeHtml(b.bookmaker)} • ${escapeHtml(b.status)} • active=${b.active !== false}</div>
           </div>
         `).join("")}
       </div>
@@ -352,6 +467,7 @@ async function renderBonus() {
       </div>
       <label>Lien</label><input id="bk_url">
       <label>Description</label><input id="bk_description">
+
       <div class="row">
         <div><label>Status</label>
           <select id="bk_status"><option value="published">published</option><option value="draft">draft</option></select>
@@ -360,14 +476,15 @@ async function renderBonus() {
           <select id="bk_active"><option value="true">true</option><option value="false">false</option></select>
         </div>
       </div>
+
       <button id="bk_save" class="btn btn-primary" style="margin-top:10px">Enregistrer bookmaker</button>
 
       <h4 style="margin:18px 0 8px;color:#D4AF37">Liste bookmakers</h4>
       <div>
-        ${(books||[]).map(b => `
-          <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-book-id="${b.id}">
-            <div style="font-weight:900">${b.name}</div>
-            <div class="muted">${b.status} • active=${b.active}</div>
+        ${bookRows.map(b => `
+          <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-book-id="${escapeHtml(b.id)}">
+            <div style="font-weight:900">${escapeHtml(b.name)}</div>
+            <div class="muted">${escapeHtml(b.status)} • active=${b.active !== false}</div>
           </div>
         `).join("")}
       </div>
@@ -401,7 +518,7 @@ async function renderBonus() {
   root.querySelectorAll("[data-bonus-id]").forEach(el => {
     el.addEventListener("click", () => {
       const id = el.getAttribute("data-bonus-id");
-      const b = (bonus||[]).find(x => x.id === id);
+      const b = bonusRows.find(x => safeIdEq(x.id, id));
       if (b) setBonus(b);
     });
   });
@@ -409,7 +526,7 @@ async function renderBonus() {
   root.querySelectorAll("[data-book-id]").forEach(el => {
     el.addEventListener("click", () => {
       const id = el.getAttribute("data-book-id");
-      const b = (books||[]).find(x => x.id === id);
+      const b = bookRows.find(x => safeIdEq(x.id, id));
       if (b) setBook(b);
     });
   });
@@ -436,8 +553,11 @@ async function renderBonus() {
 
     const { error } = await sb.from("cms_bonus").upsert(payload);
     if (error) return alert(error.message);
+
     alert("Bonus sauvegardé.");
+    loadedTabs.delete("bonus");
     await renderBonus();
+    loadedTabs.add("bonus");
   });
 
   $("bk_save").addEventListener("click", async () => {
@@ -458,17 +578,26 @@ async function renderBonus() {
 
     const { error } = await sb.from("cms_bookmakers").upsert(payload);
     if (error) return alert(error.message);
+
     alert("Bookmaker sauvegardé.");
+    loadedTabs.delete("bonus");
     await renderBonus();
+    loadedTabs.add("bonus");
   });
 }
 
+// -----------------------------
+// INFOS
+// -----------------------------
 async function renderInfos() {
   const root = $("tab-infos");
-  root.innerHTML = `<div class="muted">Chargement...</div>`;
+  if (!root) return;
 
+  root.innerHTML = `<div class="muted">Chargement...</div>`;
   const { data, error } = await sb.from("cms_infos").select("*").order("updated_at",{ascending:false}).limit(50);
-  if (error) { root.innerHTML = `<div class="muted">Erreur: ${error.message}</div>`; return; }
+  if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
+
+  const rows = data || [];
 
   root.innerHTML = `
     <div class="card">
@@ -486,10 +615,10 @@ async function renderInfos() {
       <button id="i_save" class="btn btn-primary" style="margin-top:10px">Enregistrer</button>
 
       <h4 style="margin:18px 0 8px;color:#D4AF37">Liste</h4>
-      ${(data||[]).map(i => `
-        <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${i.id}">
-          <div style="font-weight:900">${i.title}</div>
-          <div class="muted">${i.status} • active=${i.active}</div>
+      ${rows.map(i => `
+        <div class="card" style="border-color:#2a2a2a;cursor:pointer" data-id="${escapeHtml(i.id)}">
+          <div style="font-weight:900">${escapeHtml(i.title)}</div>
+          <div class="muted">${escapeHtml(i.status)} • active=${i.active !== false}</div>
         </div>
       `).join("")}
     </div>
@@ -506,7 +635,7 @@ async function renderInfos() {
   root.querySelectorAll("[data-id]").forEach(el => {
     el.addEventListener("click", () => {
       const id = el.getAttribute("data-id");
-      const i = data.find(x => x.id === id);
+      const i = rows.find(x => safeIdEq(x.id, id));
       if (i) setForm(i);
     });
   });
@@ -527,17 +656,26 @@ async function renderInfos() {
 
     const { error } = await sb.from("cms_infos").upsert(payload);
     if (error) return alert(error.message);
+
     alert("Info sauvegardée.");
+    loadedTabs.delete("infos");
     await renderInfos();
+    loadedTabs.add("infos");
   });
 }
 
+// -----------------------------
+// VIP
+// -----------------------------
 async function renderVip() {
   const root = $("tab-vip");
-  root.innerHTML = `<div class="muted">Chargement...</div>`;
+  if (!root) return;
 
+  root.innerHTML = `<div class="muted">Chargement...</div>`;
   const { data, error } = await sb.from("vip_access").select("*").order("expires_at",{ascending:false}).limit(50);
-  if (error) { root.innerHTML = `<div class="muted">Erreur: ${error.message}</div>`; return; }
+  if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
+
+  const rows = data || [];
 
   root.innerHTML = `
     <div class="card">
@@ -547,20 +685,23 @@ async function renderVip() {
         <div><label>User ID (MX-xxxx)</label><input id="v_user" placeholder="MX-..."></div>
         <div><label>IP (optionnel)</label><input id="v_ip" placeholder="1.2.3.4"></div>
       </div>
+
       <label>Durée (jours)</label><input id="v_days" type="number" min="1" value="30">
+
       <button id="v_reset" class="btn btn-primary" style="margin-top:10px">Créer / Réinitialiser VIP</button>
 
       <h4 style="margin:18px 0 8px;color:#D4AF37">Actifs / Historique</h4>
+
       <table>
         <thead><tr><th>User</th><th>Code</th><th>Expire</th><th>Actif</th><th>Action</th></tr></thead>
         <tbody>
-          ${(data||[]).map(v => `
+          ${rows.map(v => `
             <tr>
-              <td>${v.user_id}</td>
-              <td>${v.code}</td>
-              <td>${new Date(v.expires_at).toLocaleString("fr-FR")}</td>
+              <td>${escapeHtml(v.user_id)}</td>
+              <td>${escapeHtml(v.code)}</td>
+              <td>${v.expires_at ? new Date(v.expires_at).toLocaleString("fr-FR") : "-"}</td>
               <td>${v.active ? "oui" : "non"}</td>
-              <td><button class="btn btn-secondary" data-revoke="${v.user_id}">Désactiver</button></td>
+              <td><button class="btn btn-secondary" data-revoke="${escapeHtml(v.user_id)}">Désactiver</button></td>
             </tr>
           `).join("")}
         </tbody>
@@ -574,28 +715,45 @@ async function renderVip() {
     const days = parseInt($("v_days").value, 10) || 30;
     if (!uid) return alert("User ID requis");
 
-    const { data, error } = await sb.rpc("admin_reset_vip", { p_user_id: uid, p_ip: ip, p_duration_days: days });
+    const { data, error } = await sb.rpc("admin_reset_vip", {
+      p_user_id: uid,
+      p_ip: ip,
+      p_duration_days: days
+    });
+
     if (error) return alert(error.message);
 
-    alert(`VIP OK. Code: ${data?.[0]?.code} / Expire: ${data?.[0]?.expires_at}`);
+    const row = Array.isArray(data) ? data[0] : data;
+    alert(`VIP OK. Code: ${row?.code} / Expire: ${row?.expires_at}`);
+    loadedTabs.delete("vip");
     await renderVip();
+    loadedTabs.add("vip");
   });
 
   root.querySelectorAll("[data-revoke]").forEach(btn => {
     btn.addEventListener("click", async () => {
       const uid = btn.getAttribute("data-revoke");
       if (!confirm("Désactiver VIP ?")) return;
+
       const { error } = await sb.rpc("admin_revoke_vip", { p_user_id: uid });
       if (error) return alert(error.message);
+
+      loadedTabs.delete("vip");
       await renderVip();
+      loadedTabs.add("vip");
     });
   });
 }
 
+// -----------------------------
+// HEALTH
+// -----------------------------
 async function renderHealth() {
   const root = $("tab-health");
+  if (!root) return;
+
   const { data, error } = await sb.from("cron_runs").select("*").order("last_run_at",{ascending:false});
-  if (error) { root.innerHTML = `<div class="muted">${error.message}</div>`; return; }
+  if (error) { root.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`; return; }
 
   const rows = (data || []).map(r => {
     const meta = r.meta || {};
@@ -606,11 +764,11 @@ async function renderHealth() {
 
     return `
       <tr>
-        <td>${r.name}</td>
+        <td>${escapeHtml(r.name)}</td>
         <td>${r.last_run_at ? new Date(r.last_run_at).toLocaleString("fr-FR") : "-"}</td>
         <td>${r.last_ok ? "oui" : "non"}</td>
         <td>
-          <div class="muted">${summary}</div>
+          <div class="muted">${escapeHtml(summary)}</div>
           <button class="btn btn-secondary" data-meta='${encodeURIComponent(JSON.stringify(meta))}'>Voir</button>
         </td>
       </tr>
@@ -637,9 +795,9 @@ async function renderHealth() {
     </div>
   `;
 
-  const modal = document.getElementById("metaModal");
-  const pre = document.getElementById("metaContent");
-  document.getElementById("closeMeta").onclick = () => (modal.style.display = "none");
+  const modal = $("metaModal");
+  const pre = $("metaContent");
+  $("closeMeta").onclick = () => (modal.style.display = "none");
 
   root.querySelectorAll("[data-meta]").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -650,10 +808,15 @@ async function renderHealth() {
   });
 }
 
+// -----------------------------
+// AUDIT
+// -----------------------------
 async function renderAudit() {
   const root = $("tab-audit");
+  if (!root) return;
+
   const { data, error } = await sb.from("audit_log").select("*").order("created_at",{ascending:false}).limit(50);
-  if (error) { root.innerHTML = `<div class="muted">${error.message}</div>`; return; }
+  if (error) { root.innerHTML = `<div class="muted">${escapeHtml(error.message)}</div>`; return; }
 
   root.innerHTML = `
     <div class="card">
@@ -664,8 +827,8 @@ async function renderAudit() {
           ${(data||[]).map(a => `
             <tr>
               <td>${new Date(a.created_at).toLocaleString("fr-FR")}</td>
-              <td>${a.action}</td>
-              <td><pre style="white-space:pre-wrap" class="muted">${JSON.stringify(a.details||{}, null, 2)}</pre></td>
+              <td>${escapeHtml(a.action)}</td>
+              <td><pre style="white-space:pre-wrap" class="muted">${escapeHtml(JSON.stringify(a.details||{}, null, 2))}</pre></td>
             </tr>
           `).join("")}
         </tbody>
@@ -674,28 +837,53 @@ async function renderAudit() {
   `;
 }
 
+// -----------------------------
+// PUBLISH (corrigé headers)
+// -----------------------------
 async function publishNow() {
-  const session = (await sb.auth.getSession()).data.session;
-  if (!session) return alert("Session expirée.");
+  if (publishBusy) return;
+  publishBusy = true;
+  setBtnDisabled("btnPublish", true);
 
-  const res = await fetch(`${supabaseUrl}/functions/v1/publish`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify({}),
-  });
+  try {
+    const session = (await sb.auth.getSession()).data.session;
+    if (!session) return alert("Session expirée.");
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) return alert(data?.error || "Erreur publish");
-  alert(`Publié. Articles=${data.counts.articles} / Conseils=${data.counts.conseils} / Bonus=${data.counts.bonus} / Infos=${data.counts.infos} / Bookmakers=${data.counts.bookmakers}`);
+    const res = await fetch(`${supabaseUrl}/functions/v1/publish`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`,
+        "apikey": supabaseAnonKey,
+      },
+      body: JSON.stringify({}),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return alert(data?.error || "Erreur publish");
+    }
+
+    alert(`Publié.
+Articles=${data?.counts?.articles ?? 0}
+Conseils=${data?.counts?.conseils ?? 0}
+Bonus=${data?.counts?.bonus ?? 0}
+Infos=${data?.counts?.infos ?? 0}
+Bookmakers=${data?.counts?.bookmakers ?? 0}`);
+
+  } finally {
+    publishBusy = false;
+    setBtnDisabled("btnPublish", false);
+  }
 }
 
+// -----------------------------
+// LOGIN FLOW
+// -----------------------------
 async function afterLogin() {
   if (!(await isAdmin())) {
     await sb.auth.signOut();
-    $("loginMsg").textContent = "Compte non admin.";
+    setLoginMsg("Compte non admin.");
     return;
   }
 
@@ -705,24 +893,25 @@ async function afterLogin() {
   const user = (await sb.auth.getUser()).data.user;
   $("who").textContent = user?.email || user?.id || "";
 
-  await renderStats();
-  await renderPronosticsReadOnly();
-  await renderCmsArticles();
-  await renderCmsConseils();
-  await renderBonus();
-  await renderInfos();
-  await renderVip();
-  await renderHealth();
-  await renderAudit();
+  // ✅ On ne charge QUE stats + pronostics au départ (rapidité)
+  await showTab("stats");
+  await loadTabIfNeeded("pronostics"); // optionnel: ou charge au clic
 }
 
+// -----------------------------
+// EVENTS
+// -----------------------------
+tabs().forEach(btn => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
+
 $("btnLogin").addEventListener("click", async () => {
-  $("loginMsg").textContent = "Connexion...";
+  setLoginMsg("Connexion...");
   const email = $("email").value.trim();
   const password = $("password").value;
+
   const { error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) { $("loginMsg").textContent = error.message; return; }
-  $("loginMsg").textContent = "";
+  if (error) { setLoginMsg(error.message); return; }
+
+  setLoginMsg("");
   await afterLogin();
 });
 
