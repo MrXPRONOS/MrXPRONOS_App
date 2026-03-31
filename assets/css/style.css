@@ -2567,3 +2567,44 @@ body.menu-open {
   align-items: center;
   justify-content: center;
 }
+
+/* ====== PUSH PERMISSION POPUP ====== */
+.push-permission {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 14px;
+  z-index: 10060;
+  display: none;
+}
+
+.push-permission.show { display: block; }
+
+.push-permission .box{
+  background: #1A1A1A;
+  border: 1px solid rgba(212,175,55,.55);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 18px 60px rgba(0,0,0,.6);
+}
+
+.push-permission .title{
+  font-weight: 900;
+  color: #D4AF37;
+  margin-bottom: 6px;
+}
+
+.push-permission .txt{
+  color: #ddd;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.push-permission .actions{
+  display: flex;
+  gap: 10px;
+}
+
+.push-permission .actions .btn{
+  flex: 1;
+}
