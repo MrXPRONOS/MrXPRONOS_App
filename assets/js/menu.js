@@ -1,28 +1,25 @@
 // assets/js/menu.js
-// Menu burger premium + icônes au-dessus du texte (comme l'ancien menu)
-
+// Menu burger premium + icônes au-dessus du texte
 (function () {
   'use strict';
 
   const menuItems = [
     { name: 'Accueil', icon: 'fa-home', url: 'index.html' },
-    { name: 'Coupons', icon: 'fa-chart-line', url: 'pronos.html' },
+    { name: 'Pronostics', icon: 'fa-chart-line', url: 'pronos.html' },
     { name: 'LIVE VIP', icon: 'fa-bolt', url: 'live.html', vip: true },
-    { name: 'Histo', icon: 'fa-clock-rotate-left', url: 'historique.html' },
+    { name: 'Historique', icon: 'fa-clock-rotate-left', url: 'historique.html' },
     { name: 'Bonus', icon: 'fa-gift', url: 'bonus.html' },
     { name: 'Blog', icon: 'fa-newspaper', url: 'blog.html' },
     { name: 'Conseils', icon: 'fa-lightbulb', url: 'conseils.html' },
-    { name: 'Infos', icon: 'fa-circle-info', url: 'infos.html' },
+    { name: 'Actus Foot', icon: 'fa-circle-info', url: 'infos.html' },
     { name: 'Contact', icon: 'fa-envelope', url: 'contact.html' }
   ];
 
   function ensureFontAwesome() {
-    // Certaines pages n'importent pas FA, donc on le charge ici pour garantir les icônes
     const already =
       document.querySelector('link[href*="font-awesome"]') ||
       document.querySelector('link[href*="fontawesome"]') ||
       document.querySelector('link[data-fa-global="true"]');
-
     if (already) return;
 
     const link = document.createElement('link');
@@ -67,16 +64,21 @@
           <div class="burger-menu-title">Menu</div>
           <button type="button" class="burger-close" aria-label="Fermer le menu">&times;</button>
         </div>
+
         <div class="burger-menu-content">
           <div class="burger-menu-grid">
-            ${menuItems.map(item => `
+            ${menuItems
+              .map(
+                (item) => `
               <a class="burger-menu-item ${isCurrentPage(item.url) ? 'active' : ''}"
                  href="${item.url}"
                  data-vip="${item.vip ? 'true' : 'false'}">
                 <span class="menu-icon"><i class="fas ${item.icon}"></i></span>
                 <span class="menu-label">${item.name}</span>
               </a>
-            `).join('')}
+            `
+              )
+              .join('')}
           </div>
         </div>
       </div>
@@ -102,19 +104,16 @@
     const header = document.querySelector('header');
     if (!header) return;
 
-    // Supprime l'ancien menu horizontal si présent
     header.querySelector('.icon-nav')?.remove();
 
     const btn = createBurgerButton();
     const overlay = createBurgerOverlay();
     if (!btn || !overlay) return;
 
-    // Placement : dans la zone header-actions (à droite), pour garder la beauté du header
     const actions = header.querySelector('.header-actions');
     if (actions) {
       actions.appendChild(btn);
     } else {
-      // fallback si une page n'a pas .header-actions
       const container = header.querySelector('.container') || header;
       container.appendChild(btn);
     }
@@ -132,13 +131,11 @@
 
     closeBtn.addEventListener('click', () => closeMenu(btn, overlay));
 
-    // clic sur le backdrop ferme (mais pas clic dans le drawer)
     overlay.addEventListener('click', (e) => {
       if (drawer && drawer.contains(e.target)) return;
       closeMenu(btn, overlay);
     });
 
-    // ESC ferme
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && overlay.classList.contains('open')) {
         closeMenu(btn, overlay);
@@ -146,7 +143,7 @@
     });
 
     // VIP item : conserve la logique existante (handleVipClick)
-    overlay.querySelectorAll('.burger-menu-item').forEach(a => {
+    overlay.querySelectorAll('.burger-menu-item').forEach((a) => {
       const isVip = a.getAttribute('data-vip') === 'true';
       if (!isVip) return;
 
