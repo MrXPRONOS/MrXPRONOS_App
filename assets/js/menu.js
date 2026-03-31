@@ -1,5 +1,5 @@
 // assets/js/menu.js
-// Menu burger premium + mise en valeur LIVE VIP + COUPONS
+// Menu burger premium + mise en valeur LIVE VIP (couleur) + COUPONS
 (function () {
   'use strict';
 
@@ -9,8 +9,8 @@
     // ⭐ Mis en valeur
     { name: 'COUPONS', icon: 'fa-ticket', url: 'pronos.html', featured: 'coupons', badge: 'TOP' },
 
-    // ⭐ Mis en valeur + VIP gating
-    { name: 'LIVE VIP', icon: 'fa-bolt', url: 'live.html', vip: true, featured: 'vip', badge: 'VIP' },
+    // ⭐⭐ Très mis en valeur (couleur LIVE)
+    { name: 'LIVE VIP', icon: 'fa-bolt', url: 'live.html', vip: true, featured: 'vip', badge: 'LIVE' },
 
     { name: 'Historique', icon: 'fa-clock-rotate-left', url: 'historique.html' },
     { name: 'Bonus', icon: 'fa-gift', url: 'bonus.html' },
@@ -43,30 +43,72 @@
     style.id = 'mx-menu-featured-style';
     style.textContent = `
       @keyframes mxFeaturedPulse {
-        0%, 100% { box-shadow: 0 0 0 rgba(212,175,55,0.0); transform: translateY(0); }
-        50% { box-shadow: 0 0 22px rgba(212,175,55,0.22); transform: translateY(-1px); }
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-1px); }
+      }
+      @keyframes mxLiveDot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: .35; transform: scale(.78); }
       }
 
+      /* Base featured (tous) */
       .burger-menu-item.featured {
         position: relative;
-        border: 1px solid rgba(212,175,55,0.55) !important;
-        background: linear-gradient(180deg, rgba(212,175,55,0.12), rgba(255,255,255,0.03)) !important;
-        box-shadow: 0 14px 35px rgba(0,0,0,0.45), 0 0 0 3px rgba(212,175,55,0.08);
+        overflow: hidden;
         animation: mxFeaturedPulse 2.2s ease-in-out infinite;
       }
-      .burger-menu-item.featured:hover {
-        border-color: rgba(212,175,55,0.85) !important;
-        box-shadow: 0 18px 45px rgba(0,0,0,0.55), 0 0 28px rgba(212,175,55,0.18);
-      }
 
-      .burger-menu-item.featured .menu-label {
-        font-weight: 900 !important;
-        letter-spacing: 0.3px;
+      /* ✅ COUPONS : vert premium */
+      .burger-menu-item.featured-coupons {
+        border: 1px solid rgba(34,197,94,0.55) !important;
+        background: linear-gradient(180deg, rgba(34,197,94,0.10), rgba(255,255,255,0.03)) !important;
+        box-shadow: 0 14px 35px rgba(0,0,0,0.45), 0 0 0 3px rgba(34,197,94,0.07);
       }
-
-      .burger-menu-item.featured-vip .menu-icon { color: #D4AF37 !important; }
+      .burger-menu-item.featured-coupons:hover {
+        border-color: rgba(34,197,94,0.85) !important;
+        box-shadow: 0 18px 45px rgba(0,0,0,0.55), 0 0 28px rgba(34,197,94,0.18);
+      }
       .burger-menu-item.featured-coupons .menu-icon { color: #22C55E !important; }
 
+      /* ✅✅ LIVE VIP : rouge LIVE + glow + accent */
+      .burger-menu-item.featured-vip {
+        border: 1px solid rgba(255,70,70,0.60) !important;
+        background:
+          radial-gradient(circle at top left, rgba(255,70,70,0.18), transparent 55%),
+          radial-gradient(circle at bottom right, rgba(212,175,55,0.10), transparent 60%),
+          linear-gradient(180deg, rgba(255,70,70,0.12), rgba(255,255,255,0.03)) !important;
+        box-shadow:
+          0 18px 55px rgba(0,0,0,0.60),
+          0 0 0 3px rgba(255,70,70,0.10),
+          0 0 30px rgba(255,70,70,0.18);
+      }
+      .burger-menu-item.featured-vip:hover {
+        border-color: rgba(255,70,70,0.95) !important;
+        box-shadow:
+          0 22px 65px rgba(0,0,0,0.70),
+          0 0 0 3px rgba(255,70,70,0.14),
+          0 0 45px rgba(255,70,70,0.25);
+      }
+      .burger-menu-item.featured-vip .menu-icon { color: #FF4D4D !important; }
+      .burger-menu-item.featured-vip .menu-label {
+        font-weight: 950 !important;
+        letter-spacing: .4px;
+      }
+
+      /* petit point LIVE qui pulse */
+      .burger-menu-item.featured-vip .menu-live-dot {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: #FF4D4D;
+        box-shadow: 0 0 14px rgba(255,70,70,0.65);
+        animation: mxLiveDot 1.3s infinite;
+      }
+
+      /* badge (coin haut droit) */
       .burger-menu-item .menu-badge {
         position: absolute;
         top: 8px;
@@ -75,14 +117,20 @@
         font-size: 10px;
         font-weight: 900;
         border-radius: 999px;
-        border: 1px solid rgba(212,175,55,0.5);
         background: rgba(0,0,0,0.55);
-        color: #D4AF37;
         text-transform: uppercase;
+        border: 1px solid rgba(212,175,55,0.5);
+        color: #D4AF37;
       }
+
       .burger-menu-item.featured-coupons .menu-badge {
         border-color: rgba(34,197,94,0.55);
         color: #22C55E;
+      }
+
+      .burger-menu-item.featured-vip .menu-badge {
+        border-color: rgba(255,70,70,0.65);
+        color: #FF4D4D;
       }
     `;
     document.head.appendChild(style);
@@ -129,11 +177,13 @@
               const featuredClass = item.featured ? `featured featured-${item.featured}` : '';
               const activeClass = isCurrentPage(item.url) ? 'active' : '';
               const badge = item.badge ? `<span class="menu-badge">${item.badge}</span>` : '';
+              const liveDot = item.featured === 'vip' ? `<span class="menu-live-dot"></span>` : '';
 
               return `
                 <a class="burger-menu-item ${activeClass} ${featuredClass}"
                    href="${item.url}"
                    data-vip="${item.vip ? 'true' : 'false'}">
+                  ${liveDot}
                   ${badge}
                   <span class="menu-icon"><i class="fas ${item.icon}"></i></span>
                   <span class="menu-label">${item.name}</span>
@@ -166,14 +216,12 @@
     const header = document.querySelector('header');
     if (!header) return;
 
-    // Supprime l'ancien menu horizontal si présent
     header.querySelector('.icon-nav')?.remove();
 
     const btn = createBurgerButton();
     const overlay = createBurgerOverlay();
     if (!btn || !overlay) return;
 
-    // Placement dans header-actions (à droite)
     const actions = header.querySelector('.header-actions');
     if (actions) {
       actions.appendChild(btn);
@@ -195,13 +243,11 @@
 
     closeBtn.addEventListener('click', () => closeMenu(btn, overlay));
 
-    // clic sur backdrop ferme
     overlay.addEventListener('click', (e) => {
       if (drawer && drawer.contains(e.target)) return;
       closeMenu(btn, overlay);
     });
 
-    // ESC ferme
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && overlay.classList.contains('open')) {
         closeMenu(btn, overlay);
@@ -212,7 +258,6 @@
     overlay.querySelectorAll('.burger-menu-item').forEach((a) => {
       const isVip = a.getAttribute('data-vip') === 'true';
 
-      // Ferme le menu quand on clique n'importe quel lien (plus propre)
       a.addEventListener('click', () => closeMenu(btn, overlay), { passive: true });
 
       if (!isVip) return;
