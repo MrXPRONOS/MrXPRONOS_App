@@ -2543,3 +2543,25 @@ body.menu-open {
     border-radius: 12px;
   }
 }
+
+/* ===========================
+   INSTALL BUTTON AT HEADER BOTTOM
+   =========================== */
+.header-install-row {
+  width: 100%;
+  border-top: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 8px 0 10px;
+}
+
+.header-install-row .container {
+  display: flex;
+  justify-content: center;
+}
+
+.header-install-row #install-app {
+  width: min(360px, 100%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
