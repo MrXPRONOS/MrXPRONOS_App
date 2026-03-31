@@ -1,15 +1,15 @@
 // assets/js/menu.js
-// Menu burger premium + mise en valeur LIVE VIP (couleur) + COUPONS
+// Menu burger premium + mise en valeur LIVE VIP (vert) + COUPONS (vert)
 (function () {
   'use strict';
 
   const menuItems = [
     { name: 'Accueil', icon: 'fa-home', url: 'index.html' },
 
-    // ⭐ Mis en valeur
+    // ⭐ Mis en valeur (vert)
     { name: 'COUPONS', icon: 'fa-ticket', url: 'pronos.html', featured: 'coupons', badge: 'TOP' },
 
-    // ⭐⭐ Très mis en valeur (couleur LIVE)
+    // ⭐⭐ Très mis en valeur (vert aussi, mais plus premium)
     { name: 'LIVE VIP', icon: 'fa-bolt', url: 'live.html', vip: true, featured: 'vip', badge: 'LIVE' },
 
     { name: 'Historique', icon: 'fa-clock-rotate-left', url: 'historique.html' },
@@ -42,6 +42,11 @@
     const style = document.createElement('style');
     style.id = 'mx-menu-featured-style';
     style.textContent = `
+      :root{
+        --mx-green:#22C55E;
+        --mx-green-strong:#16A34A;
+      }
+
       @keyframes mxFeaturedPulse {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-1px); }
@@ -51,65 +56,66 @@
         50% { opacity: .35; transform: scale(.78); }
       }
 
-      /* Base featured (tous) */
-      .burger-menu-item.featured {
+      /* Base featured */
+      .burger-menu-item.featured{
         position: relative;
         overflow: hidden;
         animation: mxFeaturedPulse 2.2s ease-in-out infinite;
       }
 
-      /* ✅ COUPONS : vert premium */
-      .burger-menu-item.featured-coupons {
+      /* ✅ COUPONS : vert */
+      .burger-menu-item.featured-coupons{
         border: 1px solid rgba(34,197,94,0.55) !important;
         background: linear-gradient(180deg, rgba(34,197,94,0.10), rgba(255,255,255,0.03)) !important;
         box-shadow: 0 14px 35px rgba(0,0,0,0.45), 0 0 0 3px rgba(34,197,94,0.07);
       }
-      .burger-menu-item.featured-coupons:hover {
+      .burger-menu-item.featured-coupons:hover{
         border-color: rgba(34,197,94,0.85) !important;
         box-shadow: 0 18px 45px rgba(0,0,0,0.55), 0 0 28px rgba(34,197,94,0.18);
       }
-      .burger-menu-item.featured-coupons .menu-icon { color: #22C55E !important; }
+      .burger-menu-item.featured-coupons .menu-icon{ color: var(--mx-green) !important; }
+      .burger-menu-item.featured-coupons .menu-label{ font-weight: 900 !important; letter-spacing: .3px; }
 
-      /* ✅✅ LIVE VIP : rouge LIVE + glow + accent */
-      .burger-menu-item.featured-vip {
-        border: 1px solid rgba(255,70,70,0.60) !important;
+      /* ✅✅ LIVE VIP : vert aussi, mais plus premium (glow + dot + gradient) */
+      .burger-menu-item.featured-vip{
+        border: 1px solid rgba(34,197,94,0.75) !important;
         background:
-          radial-gradient(circle at top left, rgba(255,70,70,0.18), transparent 55%),
-          radial-gradient(circle at bottom right, rgba(212,175,55,0.10), transparent 60%),
-          linear-gradient(180deg, rgba(255,70,70,0.12), rgba(255,255,255,0.03)) !important;
+          radial-gradient(circle at top left, rgba(34,197,94,0.20), transparent 55%),
+          radial-gradient(circle at bottom right, rgba(34,197,94,0.12), transparent 60%),
+          linear-gradient(180deg, rgba(34,197,94,0.14), rgba(255,255,255,0.03)) !important;
         box-shadow:
-          0 18px 55px rgba(0,0,0,0.60),
-          0 0 0 3px rgba(255,70,70,0.10),
-          0 0 30px rgba(255,70,70,0.18);
+          0 18px 60px rgba(0,0,0,0.62),
+          0 0 0 3px rgba(34,197,94,0.10),
+          0 0 40px rgba(34,197,94,0.22);
       }
-      .burger-menu-item.featured-vip:hover {
-        border-color: rgba(255,70,70,0.95) !important;
+      .burger-menu-item.featured-vip:hover{
+        border-color: rgba(34,197,94,0.95) !important;
         box-shadow:
-          0 22px 65px rgba(0,0,0,0.70),
-          0 0 0 3px rgba(255,70,70,0.14),
-          0 0 45px rgba(255,70,70,0.25);
+          0 22px 70px rgba(0,0,0,0.72),
+          0 0 0 3px rgba(34,197,94,0.14),
+          0 0 55px rgba(34,197,94,0.28);
       }
-      .burger-menu-item.featured-vip .menu-icon { color: #FF4D4D !important; }
-      .burger-menu-item.featured-vip .menu-label {
+      .burger-menu-item.featured-vip .menu-icon{ color: var(--mx-green) !important; }
+      .burger-menu-item.featured-vip .menu-label{
         font-weight: 950 !important;
-        letter-spacing: .4px;
+        letter-spacing: .45px;
       }
 
-      /* petit point LIVE qui pulse */
-      .burger-menu-item.featured-vip .menu-live-dot {
+      /* point LIVE qui pulse (vert) */
+      .burger-menu-item.featured-vip .menu-live-dot{
         position: absolute;
         top: 10px;
         left: 10px;
         width: 8px;
         height: 8px;
         border-radius: 999px;
-        background: #FF4D4D;
-        box-shadow: 0 0 14px rgba(255,70,70,0.65);
+        background: var(--mx-green);
+        box-shadow: 0 0 16px rgba(34,197,94,0.75);
         animation: mxLiveDot 1.3s infinite;
       }
 
-      /* badge (coin haut droit) */
-      .burger-menu-item .menu-badge {
+      /* badge */
+      .burger-menu-item .menu-badge{
         position: absolute;
         top: 8px;
         right: 8px;
@@ -119,18 +125,15 @@
         border-radius: 999px;
         background: rgba(0,0,0,0.55);
         text-transform: uppercase;
-        border: 1px solid rgba(212,175,55,0.5);
-        color: #D4AF37;
       }
 
-      .burger-menu-item.featured-coupons .menu-badge {
-        border-color: rgba(34,197,94,0.55);
-        color: #22C55E;
+      .burger-menu-item.featured-coupons .menu-badge{
+        border: 1px solid rgba(34,197,94,0.55);
+        color: var(--mx-green);
       }
-
-      .burger-menu-item.featured-vip .menu-badge {
-        border-color: rgba(255,70,70,0.65);
-        color: #FF4D4D;
+      .burger-menu-item.featured-vip .menu-badge{
+        border: 1px solid rgba(34,197,94,0.75);
+        color: var(--mx-green);
       }
     `;
     document.head.appendChild(style);
@@ -216,12 +219,14 @@
     const header = document.querySelector('header');
     if (!header) return;
 
+    // Supprime l'ancien menu horizontal si présent
     header.querySelector('.icon-nav')?.remove();
 
     const btn = createBurgerButton();
     const overlay = createBurgerOverlay();
     if (!btn || !overlay) return;
 
+    // Placement dans header-actions
     const actions = header.querySelector('.header-actions');
     if (actions) {
       actions.appendChild(btn);
@@ -254,10 +259,11 @@
       }
     });
 
-    // VIP item : garde la logique existante (handleVipClick)
+    // VIP item : conserve la logique existante (handleVipClick)
     overlay.querySelectorAll('.burger-menu-item').forEach((a) => {
       const isVip = a.getAttribute('data-vip') === 'true';
 
+      // ferme le menu sur tous les clics
       a.addEventListener('click', () => closeMenu(btn, overlay), { passive: true });
 
       if (!isVip) return;
@@ -265,6 +271,7 @@
       a.addEventListener('click', (e) => {
         e.preventDefault();
         closeMenu(btn, overlay);
+
         if (typeof window.handleVipClick === 'function') {
           window.handleVipClick();
         } else {
