@@ -12,6 +12,7 @@
     { name: 'Bonus', icon: 'fa-gift', url: 'bonus.html' },
     { name: 'Blog', icon: 'fa-newspaper', url: 'blog.html' },
     { name: 'Conseils', icon: 'fa-lightbulb', url: 'conseils.html' },
+    { name: 'Infos', icon: 'fa-circle-info', url: 'infos.html' },
     { name: 'Contact', icon: 'fa-envelope', url: 'contact.html' }
   ];
 
