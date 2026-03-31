@@ -542,17 +542,153 @@ function closeIosGuide() {
 
 function setupInstallButton() {
   if (!DOM.installButton) return;
+
+  // ✅ Sur iOS, il n’y a pas beforeinstallprompt.
+  // Donc on affiche quand même le bouton "Installer l'App" (guide iOS).
+  if (getOS() === 'iOS' && !isPwaInstalled()) {
+    DOM.installButton.style.display = 'inline-block';
+  }
+
+  // ✅ Si déjà installé en PWA, on cache
+  if (isPwaInstalled()) {
+    DOM.installButton.style.display = 'none';
+    return;
+  }
+
   DOM.installButton.addEventListener('click', async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      DOM.installButton.style.display = 'none';
-    } else {
-      if (getOS() === 'iOS') showIosGuideIfNeeded();
-      else alert("Utilisez le menu du navigateur pour ajouter l'application à l'écran d'accueil.");
+    try {
+      // ✅ Android/Chrome: prompt natif si disponible
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+
+        if (choice?.outcome === 'accepted') {
+          DOM.installButton.style.display = 'none';
+        } else {
+          // l’utilisateur a annulé
+          // on laisse le bouton visible pour retenter plus tard
+        }
+        return;
+      }
+
+      // ✅ iOS: guide manuel
+      if (getOS() === 'iOS') {
+        showIosGuideIfNeeded();
+        return;
+      }
+
+      // ✅ Autres navigateurs: message fallback
+      alert("Installation: utilisez le menu du navigateur > Ajouter à l’écran d’accueil.");
+    } catch (e) {
+      console.error("Erreur installation PWA:", e);
+      alert("Impossible de lancer l’installation. Réessayez plus tard.");
     }
   });
+}
+
+function isHomePage() {
+  // On considère "home" si tes widgets home existent (comme ton detectPage)
+  return !!(DOM.todayPicks || DOM.testimonials);
+}
+
+function setHomeStatus(msg) {
+  const el = document.getElementById("push-install-status");
+  if (el) el.textContent = msg || "";
+}
+
+async function ensureSwReady() {
+  if (!("serviceWorker" in navigator)) throw new Error("Service Worker non supporté");
+  // wait ready
+  await navigator.serviceWorker.ready;
+  return true;
+}
+
+async function handleHomeEnablePush() {
+  const btn = document.getElementById("enable-push");
+  if (!btn) return;
+
+  // Si déjà autorisé
+  if ("Notification" in window && Notification.permission === "granted") {
+    btn.textContent = "Notifications activées";
+    btn.disabled = true;
+    return;
+  }
+
+  btn.addEventListener("click", async () => {
+    try {
+      setHomeStatus("Demande d'autorisation...");
+      btn.disabled = true;
+
+      // On s'assure que SW est prêt
+      await ensureSwReady();
+
+      // Utilise ton helper existant
+      await window.enablePushNotifications?.();
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        btn.textContent = "Notifications activées";
+        setHomeStatus("OK. Vous recevrez les notifications.");
+      } else {
+        btn.disabled = false;
+        setHomeStatus("Notifications refusées. Vous pouvez les activer dans les réglages du navigateur.");
+      }
+    } catch (e) {
+      btn.disabled = false;
+      setHomeStatus("Impossible d'activer les notifications. Réessayez.");
+      console.error(e);
+    }
+  });
+}
+
+function handleHomeInstallButton() {
+  const btn = document.getElementById("install-app-home");
+  if (!btn) return;
+
+  // Si déjà installé, on cache
+  if (isPwaInstalled()) {
+    btn.style.display = "none";
+    return;
+  }
+
+  btn.addEventListener("click", async () => {
+    try {
+      // Android/Chrome: prompt natif si disponible
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if (choice?.outcome === "accepted") {
+          setHomeStatus("Installation lancée.");
+          btn.style.display = "none";
+        } else {
+          setHomeStatus("Installation annulée.");
+        }
+        return;
+      }
+
+      // iOS: guide
+      if (getOS() === "iOS") {
+        showIosGuideIfNeeded();
+        setHomeStatus("Sur iPhone: Safari > Partager > Sur l’écran d’accueil.");
+        return;
+      }
+
+      // Autres navigateurs
+      setHomeStatus("Installation: utilisez le menu du navigateur > Ajouter à l’écran d’accueil.");
+    } catch (e) {
+      console.error(e);
+      setHomeStatus("Impossible de lancer l’installation.");
+    }
+  });
+}
+
+function setupHomePushInstallCard() {
+  // uniquement accueil
+  if (!isHomePage()) return;
+
+  handleHomeInstallButton();
+  handleHomeEnablePush();
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -2283,18 +2419,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderBookmakers();
       break;
     case 'home': {
-      const data = await loadDataGeneric();
-      if (data) {
+    const data = await loadDataGeneric();
+    if (data) {
         allData = data;
         renderBookmakers(data.bookmakers);
         displayLatestVerified();
         startWinsSlider();
         animateWins();
         updateHomeSuccessRate();
-      }
-      await displayTestimonials();
-      startWinNotifications();
-      break;
+    }
+    await displayTestimonials();
+    startWinNotifications();
+
+    // ✅ ICI: ton code accueil seulement (ex: setupHomePushInstallCard())
+    setupHomePushInstallCard();
+
+    break;
     }
     default:
       renderBookmakers();
@@ -2304,3 +2444,4 @@ document.addEventListener('DOMContentLoaded', async () => {
   await displayInfos();
   initScrollProgress();
 });
+
