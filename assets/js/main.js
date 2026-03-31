@@ -371,23 +371,39 @@ async function subscribeToPush(askPermission = false) {
         if (permission === 'default' && askPermission) permission = await Notification.requestPermission();
         if (permission !== 'granted') return;
 
-        // Ajouter un timeout pour éviter l'erreur
-        const swReady = await Promise.race([
-            navigator.serviceWorker.ready,
-            new Promise((_, reject) => setTimeout(() => reject(new Error('SW timeout')), 3000))
-        ]).catch(() => null);
-        
-        if (!swReady) {
+        // Timeout de 3 secondes
+        let swReady = null;
+        try {
+            swReady = await Promise.race([
+                navigator.serviceWorker.ready,
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000))
+            ]);
+        } catch (e) {
             console.warn('Service Worker non prêt, push désactivé');
             return;
         }
+        
+        if (!swReady) return;
 
         let subscription = await swReady.pushManager.getSubscription();
         if (!subscription) {
             try {
-                const keyResp = await fetch(`${supabaseConfig.url}/functions/v1/vapid-public-key`);
-                if (!keyResp.ok) throw new Error('Clé VAPID non récupérée');
+                // Récupérer la clé VAPID avec gestion CORS
+                const keyResp = await fetch(`${supabaseConfig.url}/functions/v1/vapid-public-key`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }).catch(() => null);
+                
+                if (!keyResp || !keyResp.ok) {
+                    console.warn('Impossible de récupérer la clé VAPID');
+                    return;
+                }
+                
                 const publicKey = (await keyResp.text()).trim();
+                if (!publicKey) return;
+                
                 const convertedKey = urlBase64ToUint8Array(publicKey);
                 subscription = await swReady.pushManager.subscribe({
                     userVisibleOnly: true,
@@ -400,13 +416,22 @@ async function subscribeToPush(askPermission = false) {
         }
 
         const userId = getUserId();
+        
+        // Envoyer l'abonnement avec gestion d'erreur silencieuse
         await fetch(`${supabaseConfig.url}/functions/v1/push-subscribe`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify({ user_id: userId, subscription })
+        }).catch(e => {
+            // Ignorer silencieusement les erreurs CORS pour ne pas bloquer l'app
+            console.debug('Push subscription non enregistrée (CORS)', e.message);
         });
+        
     } catch (err) {
-        console.error('Erreur push:', err);
+        // Ignorer silencieusement
+        console.debug('Push non disponible:', err.message);
     }
 }
 
