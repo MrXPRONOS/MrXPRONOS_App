@@ -1,7 +1,7 @@
 /**
  * pwa.js - Gestion PWA complète (version unifiée)
- * - Bouton "Installer l'app" déplacé en bas du header
- * - Gestion installation uniquement ici (évite doublon avec main.js)
+ * - Bouton "Installer l'app" en bas du header
+ * - La ligne disparaît quand le bouton est caché
  */
 (function () {
   "use strict";
@@ -93,14 +93,12 @@
   }
 
   // ========================================================
-  // UI : déplacer le bouton en bas du header
+  // UI : ligne install en bas du header
   // ========================================================
-  function moveInstallButtonToHeaderBottom() {
-    const btn = document.getElementById("install-app");
+  function getOrCreateInstallRow() {
     const header = document.querySelector("header");
-    if (!btn || !header) return;
+    if (!header) return null;
 
-    // Crée la ligne sous le header si elle n'existe pas
     let row = header.querySelector(".header-install-row");
     if (!row) {
       row = document.createElement("div");
@@ -110,13 +108,33 @@
       inner.className = "container";
       row.appendChild(inner);
 
-      header.appendChild(row); // ✅ en bas du header
+      header.appendChild(row);
     }
+    return row;
+  }
+
+  function moveInstallButtonToHeaderBottom() {
+    const btn = document.getElementById("install-app");
+    const row = getOrCreateInstallRow();
+    if (!btn || !row) return;
 
     const innerContainer = row.querySelector(".container");
     if (innerContainer && btn.parentElement !== innerContainer) {
       innerContainer.appendChild(btn);
     }
+  }
+
+  function showInstallRow() {
+    const row = getOrCreateInstallRow();
+    if (!row) return;
+    row.classList.add("show");
+  }
+
+  function hideInstallRow() {
+    const header = document.querySelector("header");
+    const row = header?.querySelector(".header-install-row");
+    if (!row) return;
+    row.classList.remove("show");
   }
 
   function bindInstallButton() {
@@ -145,16 +163,20 @@
       !platform.isStandalone &&
       (window.__MRXPWA__.installAvailable || platform.isIOS);
 
-    installBtn.style.display = shouldShow ? "inline-flex" : "none";
-
     if (shouldShow) {
+      moveInstallButtonToHeaderBottom();
+      showInstallRow();
+
+      installBtn.style.display = "inline-flex";
       installBtn.classList.add("btn-primary");
       installBtn.classList.remove("btn-secondary");
-
-      // Texte selon plateforme
       installBtn.textContent = platform.isIOS
         ? "Ajouter à l’écran d’accueil"
         : "Installer l'app";
+    } else {
+      // ✅ cache bouton + cache la ligne (plus d'espace vide)
+      installBtn.style.display = "none";
+      hideInstallRow();
     }
   }
 
@@ -263,7 +285,6 @@
     }
 
     if (platform.isIOS) {
-      // iOS n'a pas beforeinstallprompt
       pwaLog("iOS - installation via menu partage");
       updateGlobalState({ installAvailable: false });
       return;
@@ -281,16 +302,19 @@
 
     window.addEventListener("appinstalled", () => {
       pwaLog("App installée avec succès");
+      localStorage.setItem("mx_pwa_installed", "true");
+
       updateGlobalState({
         deferredPrompt: null,
         isInstalled: true,
         installAvailable: false,
       });
-      localStorage.setItem("mx_pwa_installed", "true");
+
       showInstallSuccessToast();
+      // updateInstallButton() est rappelé via updateGlobalState -> donc la ligne disparaît
     });
 
-    // sécurité : si après un moment rien n'est dispo, on garde hidden
+    // sécurité
     setTimeout(() => {
       const p = getPlatform();
       if (!window.__MRXPWA__.installAvailable && !p.isStandalone && !p.isIOS) {
@@ -304,7 +328,6 @@
     const state = window.__MRXPWA__;
     const platform = getPlatform();
 
-    // iOS -> afficher le guide
     if (platform.isIOS) {
       const guidePopup = document.getElementById("ios-guide-popup");
       if (guidePopup) {
@@ -341,7 +364,7 @@
   }
 
   // ========================================================
-  // STYLES (petite animation sur le bouton)
+  // STYLES
   // ========================================================
   function addStyles() {
     if (document.getElementById("pwa-styles")) return;
@@ -350,7 +373,7 @@
     style.id = "pwa-styles";
     style.textContent = `
       #install-app { transition: all 0.25s ease; }
-      #install-app:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212, 175, 55, 0.35); }
+      #install-app:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(212,175,55,0.35); }
     `;
     document.head.appendChild(style);
   }
@@ -364,8 +387,7 @@
 
     addStyles();
 
-    // ✅ place le bouton en bas du header + bind click
-    moveInstallButtonToHeaderBottom();
+    // On prépare le bouton
     bindInstallButton();
 
     updateGlobalState({ platform: getPlatform() });
@@ -380,7 +402,7 @@
       }
     }, 3600000);
 
-    // init button state
+    // init état bouton + ligne
     updateInstallButton();
 
     pwaLog("PWA initialisé");
@@ -399,7 +421,6 @@
 
   window.promptPWAInstall = promptInstall;
 
-  // Démarrer
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {

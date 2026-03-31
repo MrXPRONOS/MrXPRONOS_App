@@ -2544,13 +2544,16 @@ body.menu-open {
   }
 }
 
-/* ===========================
-   INSTALL BUTTON AT HEADER BOTTOM
-   =========================== */
+/* INSTALL BUTTON AT HEADER BOTTOM */
 .header-install-row {
+  display: none; /* ✅ caché quand inutile */
   width: 100%;
   border-top: 1px solid rgba(212, 175, 55, 0.35);
   padding: 8px 0 10px;
+}
+
+.header-install-row.show {
+  display: block; /* ✅ visible seulement si bouton visible */
 }
 
 .header-install-row .container {
@@ -2563,5 +2566,4 @@ body.menu-open {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
 }
