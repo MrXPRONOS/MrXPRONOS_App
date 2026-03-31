@@ -20,7 +20,6 @@ let currentDay = 'today';
 let filteredMatchesWithoutSearch = [];
 let searchTerm = '';
 let usingCachedData = false;
-let deferredPrompt = null;
 let onlineChannel = null;
 let pendingShare = null;
 let generatedContentPromise = null;
@@ -439,6 +438,94 @@ window.enablePushNotifications = async function () {
   await subscribeToPush(true);
 };
 
+/* =======================================================
+   PUSH PERMISSION PROMPT (popup interne)
+   - Affiche un bandeau "Activer les notifications"
+   - Au clic => Notification.requestPermission() via enablePushNotifications()
+======================================================= */
+function canShowPushPrompt() {
+  try {
+    if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) return false;
+
+    // déjà accordé ou refusé => inutile
+    if (Notification.permission !== "default") return false;
+
+    // iOS : on propose seulement si PWA installée (meilleure UX)
+    if (getOS() === "iOS" && !isPwaInstalled()) return false;
+
+    // anti-spam : snooze 24h
+    const snoozeUntil = Number(localStorage.getItem("mx_push_snooze_until") || "0");
+    if (Date.now() < snoozeUntil) return false;
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function buildPushPromptEl() {
+  let el = document.getElementById("push-permission");
+  if (el) return el;
+
+  el = document.createElement("div");
+  el.id = "push-permission";
+  el.style.cssText = `
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 14px;
+    z-index: 10060;
+    display: none;
+  `;
+
+  el.innerHTML = `
+    <div style="
+      background:#1A1A1A;
+      border:1px solid rgba(212,175,55,.55);
+      border-radius:16px;
+      padding:12px;
+      box-shadow:0 18px 60px rgba(0,0,0,.6);
+    ">
+      <div style="font-weight:900;color:#D4AF37;margin-bottom:6px;">
+        Activer les notifications ?
+      </div>
+      <div style="color:#ddd;font-size:.92rem;margin-bottom:10px;">
+        Recevez une alerte quand de nouveaux coupons sont disponibles.
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button type="button" id="push-allow" class="btn btn-primary" style="flex:1;">Activer</button>
+        <button type="button" id="push-later" class="btn btn-secondary" style="flex:1;">Plus tard</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(el);
+
+  el.querySelector("#push-later")?.addEventListener("click", () => {
+    localStorage.setItem("mx_push_snooze_until", String(Date.now() + 24 * 60 * 60 * 1000)); // 24h
+    el.style.display = "none";
+  });
+
+  el.querySelector("#push-allow")?.addEventListener("click", async () => {
+    try {
+      // doit être déclenché par un clic utilisateur
+      await window.enablePushNotifications?.();
+    } catch (e) {
+      console.error("enablePushNotifications error:", e);
+    } finally {
+      el.style.display = "none";
+    }
+  });
+
+  return el;
+}
+
+function showPushPrompt() {
+  if (!canShowPushPrompt()) return;
+  const el = buildPushPromptEl();
+  el.style.display = "block";
+}
+
 async function incrementCounter(counterName) {
   if (!supabaseAvailable || !supabase) {
     const local = parseInt(localStorage.getItem(counterName) || '0', 10);
@@ -575,32 +662,6 @@ function closeIosGuide() {
   if (DOM.iosGuidePopup) DOM.iosGuidePopup.style.display = 'none';
   localStorage.setItem('iosGuideLastClosed', String(Date.now()));
 }
-
-function setupInstallButton() {
-  if (!DOM.installButton) return;
-  DOM.installButton.addEventListener('click', async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      DOM.installButton.style.display = 'none';
-    } else {
-      if (getOS() === 'iOS') showIosGuideIfNeeded();
-      else alert("Utilisez le menu du navigateur pour ajouter l'application à l'écran d'accueil.");
-    }
-  });
-}
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  if (DOM.installButton && !isPwaInstalled()) DOM.installButton.style.display = 'inline-block';
-});
-
-window.addEventListener('appinstalled', () => {
-  if (DOM.installButton) DOM.installButton.style.display = 'none';
-  if (DOM.iosGuidePopup) DOM.iosGuidePopup.style.display = 'none';
-});
 
 /* =======================================================
  PARTAGES (compteur journalier)
@@ -2267,7 +2328,6 @@ async function handleCategoryChange() {
 document.addEventListener('DOMContentLoaded', async () => {
   initDOM();
   setupGlobalButtons();
-  setupInstallButton();
   updateShareCounter();
 
   await initSupabase();
@@ -2339,4 +2399,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await displayInfos();
   initScrollProgress();
+
+  // Popup interne pour demander l'autorisation des notifications
+  setTimeout(showPushPrompt, 6500);
 });
