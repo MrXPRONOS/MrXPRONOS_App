@@ -442,25 +442,30 @@ window.enablePushNotifications = async function () {
    PUSH PERMISSION PROMPT (popup interne)
    - Affiche un bandeau "Activer les notifications"
    - Au clic => Notification.requestPermission() via enablePushNotifications()
+   - Affiche un message explicatif si les notifications sont déjà bloquées
 ======================================================= */
-function canShowPushPrompt() {
-  try {
-    if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) return false;
-
-    // déjà accordé ou refusé => inutile
-    if (Notification.permission !== "default") return false;
-
-    // iOS : on propose seulement si PWA installée (meilleure UX)
-    if (getOS() === "iOS" && !isPwaInstalled()) return false;
-
-    // anti-spam : snooze 24h
-    const snoozeUntil = Number(localStorage.getItem("mx_push_snooze_until") || "0");
-    if (Date.now() < snoozeUntil) return false;
-
-    return true;
-  } catch {
-    return false;
+function getPushPromptMode() {
+  // support de base
+  if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+    return "unsupported";
   }
+
+  // iOS (tu es Android/PC donc pas bloquant, mais on garde)
+  if (getOS() === "iOS" && !isPwaInstalled()) return "ios_need_install";
+
+  const perm = Notification.permission;
+
+  // déjà ok => pas besoin d'afficher
+  if (perm === "granted") return "granted";
+
+  // si bloqué => on affiche un message “débloquer”
+  if (perm === "denied") return "denied";
+
+  // perm === "default"
+  const snoozeUntil = Number(localStorage.getItem("mx_push_snooze_until") || "0");
+  if (Date.now() < snoozeUntil) return "snoozed";
+
+  return "ask";
 }
 
 function buildPushPromptEl() {
@@ -477,7 +482,57 @@ function buildPushPromptEl() {
     z-index: 10060;
     display: none;
   `;
+  document.body.appendChild(el);
+  return el;
+}
 
+function showPushPrompt() {
+  const mode = getPushPromptMode();
+  if (mode === "granted" || mode === "unsupported" || mode === "ios_need_install" || mode === "snoozed") return;
+
+  const el = buildPushPromptEl();
+
+  // contenu selon mode
+  if (mode === "denied") {
+    el.innerHTML = `
+      <div style="
+        background:#1A1A1A;
+        border:1px solid rgba(212,175,55,.55);
+        border-radius:16px;
+        padding:12px;
+        box-shadow:0 18px 60px rgba(0,0,0,.6);
+      ">
+        <div style="font-weight:900;color:#D4AF37;margin-bottom:6px;">
+          Notifications bloquées
+        </div>
+        <div style="color:#ddd;font-size:.92rem;margin-bottom:10px;">
+          Vous avez bloqué les notifications pour ce site.
+          <br><br>
+          <strong>Pour réactiver :</strong><br>
+          Chrome → (i) / cadenas → Paramètres du site → Notifications → Autoriser
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button type="button" id="push-close" class="btn btn-secondary" style="flex:1;">Fermer</button>
+          <button type="button" id="push-remind" class="btn btn-primary" style="flex:1;">Me le rappeler</button>
+        </div>
+      </div>
+    `;
+
+    el.querySelector("#push-close")?.addEventListener("click", () => {
+      el.style.display = "none";
+    });
+
+    // “Me le rappeler” : on snooze seulement 2h (au lieu de 24h)
+    el.querySelector("#push-remind")?.addEventListener("click", () => {
+      localStorage.setItem("mx_push_snooze_until", String(Date.now() + 2 * 60 * 60 * 1000));
+      el.style.display = "none";
+    });
+
+    el.style.display = "block";
+    return;
+  }
+
+  // mode === "ask"
   el.innerHTML = `
     <div style="
       background:#1A1A1A;
@@ -499,30 +554,27 @@ function buildPushPromptEl() {
     </div>
   `;
 
-  document.body.appendChild(el);
-
   el.querySelector("#push-later")?.addEventListener("click", () => {
-    localStorage.setItem("mx_push_snooze_until", String(Date.now() + 24 * 60 * 60 * 1000)); // 24h
+    // snooze 24h
+    localStorage.setItem("mx_push_snooze_until", String(Date.now() + 24 * 60 * 60 * 1000));
     el.style.display = "none";
   });
 
   el.querySelector("#push-allow")?.addEventListener("click", async () => {
     try {
-      // doit être déclenché par un clic utilisateur
+      // Doit être déclenché par un clic utilisateur ✅
       await window.enablePushNotifications?.();
     } catch (e) {
       console.error("enablePushNotifications error:", e);
     } finally {
       el.style.display = "none";
+      // si l'utilisateur accepte, on nettoie le snooze
+      if (Notification.permission === "granted") {
+        localStorage.removeItem("mx_push_snooze_until");
+      }
     }
   });
 
-  return el;
-}
-
-function showPushPrompt() {
-  if (!canShowPushPrompt()) return;
-  const el = buildPushPromptEl();
   el.style.display = "block";
 }
 
