@@ -1,17 +1,22 @@
 // assets/js/menu.js
-// Menu burger premium + icônes au-dessus du texte
+// Menu burger premium + mise en valeur LIVE VIP + COUPONS
 (function () {
   'use strict';
 
   const menuItems = [
     { name: 'Accueil', icon: 'fa-home', url: 'index.html' },
-    { name: 'Pronostics', icon: 'fa-chart-line', url: 'pronos.html' },
-    { name: 'LIVE VIP', icon: 'fa-bolt', url: 'live.html', vip: true },
+
+    // ⭐ Mis en valeur
+    { name: 'COUPONS', icon: 'fa-ticket', url: 'pronos.html', featured: 'coupons', badge: 'TOP' },
+
+    // ⭐ Mis en valeur + VIP gating
+    { name: 'LIVE VIP', icon: 'fa-bolt', url: 'live.html', vip: true, featured: 'vip', badge: 'VIP' },
+
     { name: 'Historique', icon: 'fa-clock-rotate-left', url: 'historique.html' },
     { name: 'Bonus', icon: 'fa-gift', url: 'bonus.html' },
     { name: 'Blog', icon: 'fa-newspaper', url: 'blog.html' },
     { name: 'Conseils', icon: 'fa-lightbulb', url: 'conseils.html' },
-    { name: 'Actus Foot', icon: 'fa-circle-info', url: 'infos.html' },
+    { name: 'Actus Foot', icon: 'fa-futbol', url: 'infos.html' },
     { name: 'Contact', icon: 'fa-envelope', url: 'contact.html' }
   ];
 
@@ -29,6 +34,58 @@
     link.referrerPolicy = 'no-referrer';
     link.dataset.faGlobal = 'true';
     document.head.appendChild(link);
+  }
+
+  function injectMenuHighlightStyles() {
+    if (document.getElementById('mx-menu-featured-style')) return;
+
+    const style = document.createElement('style');
+    style.id = 'mx-menu-featured-style';
+    style.textContent = `
+      @keyframes mxFeaturedPulse {
+        0%, 100% { box-shadow: 0 0 0 rgba(212,175,55,0.0); transform: translateY(0); }
+        50% { box-shadow: 0 0 22px rgba(212,175,55,0.22); transform: translateY(-1px); }
+      }
+
+      .burger-menu-item.featured {
+        position: relative;
+        border: 1px solid rgba(212,175,55,0.55) !important;
+        background: linear-gradient(180deg, rgba(212,175,55,0.12), rgba(255,255,255,0.03)) !important;
+        box-shadow: 0 14px 35px rgba(0,0,0,0.45), 0 0 0 3px rgba(212,175,55,0.08);
+        animation: mxFeaturedPulse 2.2s ease-in-out infinite;
+      }
+      .burger-menu-item.featured:hover {
+        border-color: rgba(212,175,55,0.85) !important;
+        box-shadow: 0 18px 45px rgba(0,0,0,0.55), 0 0 28px rgba(212,175,55,0.18);
+      }
+
+      .burger-menu-item.featured .menu-label {
+        font-weight: 900 !important;
+        letter-spacing: 0.3px;
+      }
+
+      .burger-menu-item.featured-vip .menu-icon { color: #D4AF37 !important; }
+      .burger-menu-item.featured-coupons .menu-icon { color: #22C55E !important; }
+
+      .burger-menu-item .menu-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 2px 8px;
+        font-size: 10px;
+        font-weight: 900;
+        border-radius: 999px;
+        border: 1px solid rgba(212,175,55,0.5);
+        background: rgba(0,0,0,0.55);
+        color: #D4AF37;
+        text-transform: uppercase;
+      }
+      .burger-menu-item.featured-coupons .menu-badge {
+        border-color: rgba(34,197,94,0.55);
+        color: #22C55E;
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   function isCurrentPage(url) {
@@ -58,6 +115,7 @@
     const overlay = document.createElement('div');
     overlay.id = 'burger-overlay';
     overlay.className = 'burger-overlay';
+
     overlay.innerHTML = `
       <div class="burger-drawer" role="dialog" aria-modal="true" aria-label="Menu">
         <div class="burger-menu-header">
@@ -67,18 +125,21 @@
 
         <div class="burger-menu-content">
           <div class="burger-menu-grid">
-            ${menuItems
-              .map(
-                (item) => `
-              <a class="burger-menu-item ${isCurrentPage(item.url) ? 'active' : ''}"
-                 href="${item.url}"
-                 data-vip="${item.vip ? 'true' : 'false'}">
-                <span class="menu-icon"><i class="fas ${item.icon}"></i></span>
-                <span class="menu-label">${item.name}</span>
-              </a>
-            `
-              )
-              .join('')}
+            ${menuItems.map(item => {
+              const featuredClass = item.featured ? `featured featured-${item.featured}` : '';
+              const activeClass = isCurrentPage(item.url) ? 'active' : '';
+              const badge = item.badge ? `<span class="menu-badge">${item.badge}</span>` : '';
+
+              return `
+                <a class="burger-menu-item ${activeClass} ${featuredClass}"
+                   href="${item.url}"
+                   data-vip="${item.vip ? 'true' : 'false'}">
+                  ${badge}
+                  <span class="menu-icon"><i class="fas ${item.icon}"></i></span>
+                  <span class="menu-label">${item.name}</span>
+                </a>
+              `;
+            }).join('')}
           </div>
         </div>
       </div>
@@ -100,16 +161,19 @@
 
   function createMenu() {
     ensureFontAwesome();
+    injectMenuHighlightStyles();
 
     const header = document.querySelector('header');
     if (!header) return;
 
+    // Supprime l'ancien menu horizontal si présent
     header.querySelector('.icon-nav')?.remove();
 
     const btn = createBurgerButton();
     const overlay = createBurgerOverlay();
     if (!btn || !overlay) return;
 
+    // Placement dans header-actions (à droite)
     const actions = header.querySelector('.header-actions');
     if (actions) {
       actions.appendChild(btn);
@@ -131,26 +195,31 @@
 
     closeBtn.addEventListener('click', () => closeMenu(btn, overlay));
 
+    // clic sur backdrop ferme
     overlay.addEventListener('click', (e) => {
       if (drawer && drawer.contains(e.target)) return;
       closeMenu(btn, overlay);
     });
 
+    // ESC ferme
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && overlay.classList.contains('open')) {
         closeMenu(btn, overlay);
       }
     });
 
-    // VIP item : conserve la logique existante (handleVipClick)
+    // VIP item : garde la logique existante (handleVipClick)
     overlay.querySelectorAll('.burger-menu-item').forEach((a) => {
       const isVip = a.getAttribute('data-vip') === 'true';
+
+      // Ferme le menu quand on clique n'importe quel lien (plus propre)
+      a.addEventListener('click', () => closeMenu(btn, overlay), { passive: true });
+
       if (!isVip) return;
 
       a.addEventListener('click', (e) => {
         e.preventDefault();
         closeMenu(btn, overlay);
-
         if (typeof window.handleVipClick === 'function') {
           window.handleVipClick();
         } else {
