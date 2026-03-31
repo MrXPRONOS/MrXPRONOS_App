@@ -363,40 +363,51 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 async function subscribeToPush(askPermission = false) {
-  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
-  if (!supabaseConfig.url) return;
+    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    if (!supabaseConfig.url) return;
 
-  try {
-    let permission = Notification.permission;
-    if (permission === 'default' && askPermission) permission = await Notification.requestPermission();
-    if (permission !== 'granted') return;
+    try {
+        let permission = Notification.permission;
+        if (permission === 'default' && askPermission) permission = await Notification.requestPermission();
+        if (permission !== 'granted') return;
 
-    const swReady = await Promise.race([
-      navigator.serviceWorker.ready,
-      new Promise((_, reject) => setTimeout(() => reject(new Error('SW timeout')), 5000))
-    ]);
+        // Ajouter un timeout pour éviter l'erreur
+        const swReady = await Promise.race([
+            navigator.serviceWorker.ready,
+            new Promise((_, reject) => setTimeout(() => reject(new Error('SW timeout')), 3000))
+        ]).catch(() => null);
+        
+        if (!swReady) {
+            console.warn('Service Worker non prêt, push désactivé');
+            return;
+        }
 
-    let subscription = await swReady.pushManager.getSubscription();
-    if (!subscription) {
-      const keyResp = await fetch(`${supabaseConfig.url}/functions/v1/vapid-public-key`);
-      if (!keyResp.ok) throw new Error('Clé VAPID non récupérée');
-      const publicKey = (await keyResp.text()).trim();
-      const convertedKey = urlBase64ToUint8Array(publicKey);
-      subscription = await swReady.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: convertedKey
-      });
+        let subscription = await swReady.pushManager.getSubscription();
+        if (!subscription) {
+            try {
+                const keyResp = await fetch(`${supabaseConfig.url}/functions/v1/vapid-public-key`);
+                if (!keyResp.ok) throw new Error('Clé VAPID non récupérée');
+                const publicKey = (await keyResp.text()).trim();
+                const convertedKey = urlBase64ToUint8Array(publicKey);
+                subscription = await swReady.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: convertedKey
+                });
+            } catch (pushError) {
+                console.warn('Push non supporté:', pushError);
+                return;
+            }
+        }
+
+        const userId = getUserId();
+        await fetch(`${supabaseConfig.url}/functions/v1/push-subscribe`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId, subscription })
+        });
+    } catch (err) {
+        console.error('Erreur push:', err);
     }
-
-    const userId = getUserId();
-    await fetch(`${supabaseConfig.url}/functions/v1/push-subscribe`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, subscription })
-    });
-  } catch (err) {
-    console.error('Erreur push:', err);
-  }
 }
 
 window.enablePushNotifications = async function () {
