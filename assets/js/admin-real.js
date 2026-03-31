@@ -3,7 +3,7 @@ import { supabaseUrl, supabaseAnonKey } from "./config.js";
 const sb = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
 const $ = (id) => document.getElementById(id);
 
-const TAB_NAMES = ["stats","pronostics","articles","conseils","bonus","infos","vip","health","audit"];
+const TAB_NAMES = ["stats","pronostics","push","articles","conseils","bonus","infos","vip","health","audit"];
 const loadedTabs = new Set();
 let publishBusy = false;
 
@@ -41,6 +41,7 @@ function safeIdEq(a, b) {
 const TAB_LOADERS = {
   stats: renderStats,
   pronostics: renderPronosticsReadOnly,
+  push: renderPushAdmin,
   articles: renderCmsArticles,
   conseils: renderCmsConseils,
   bonus: renderBonus,
@@ -75,6 +76,101 @@ function setLoginMsg(msg) {
 function setBtnDisabled(id, disabled) {
   const btn = $(id);
   if (btn) btn.disabled = !!disabled;
+}
+
+// -----------------------------
+// PUSH (admin -> Edge Function admin-push -> push-notifications)
+// -----------------------------
+async function renderPushAdmin() {
+  const root = $("tab-push");
+  if (!root) return;
+
+  root.innerHTML = `
+    <div class="card">
+      <h3 style="margin:0 0 10px;color:#D4AF37">Envoyer une notification PUSH (à tous)</h3>
+      <div class="muted">
+        Cette action envoie une notification aux utilisateurs qui ont activé les notifications (abonnés dans <code>push_subscriptions</code>).
+      </div>
+
+      <label>Titre</label>
+      <input id="push_title" placeholder="Ex: Nouveaux coupons !" />
+
+      <label>Message</label>
+      <textarea id="push_body" rows="4" placeholder="Ex: Les pronostics du jour sont disponibles."></textarea>
+
+      <label>URL au clic (optionnel)</label>
+      <input id="push_url" placeholder="https://..." value="https://mrxpronos.github.io/MrXPRONOS_App/pronos.html" />
+
+      <button id="push_send" class="btn btn-primary" style="margin-top:10px">Envoyer à tous</button>
+
+      <div id="push_status" class="muted" style="margin-top:10px"></div>
+      <div id="push_results" style="margin-top:10px"></div>
+    </div>
+  `;
+
+  const setStatus = (msg) => {
+    const el = $("push_status");
+    if (el) el.textContent = msg || "";
+  };
+
+  const renderResults = (data) => {
+    const el = $("push_results");
+    if (!el) return;
+
+    const results = Array.isArray(data?.results) ? data.results : [];
+    const sent = results.filter(r => r.status === "sent").length;
+    const failed = results.filter(r => r.status !== "sent").length;
+
+    el.innerHTML = `
+      <div class="card" style="border-color:#2a2a2a;">
+        <div style="font-weight:900;color:#D4AF37;margin-bottom:6px;">Résultat</div>
+        <div class="muted">Envoyés: ${sent} • Échecs: ${failed} • Total: ${results.length}</div>
+        <details style="margin-top:10px;">
+          <summary class="muted" style="cursor:pointer;">Détails (JSON)</summary>
+          <pre class="muted" style="margin-top:10px;">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
+        </details>
+      </div>
+    `;
+  };
+
+  async function callAdminPush(payload) {
+    const session = (await sb.auth.getSession()).data.session;
+    if (!session) throw new Error("Session expirée.");
+
+    const res = await fetch(`${supabaseUrl}/functions/v1/admin-push`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`,
+        "apikey": supabaseAnonKey,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error || `Erreur HTTP ${res.status}`);
+    return data;
+  }
+
+  $("push_send").addEventListener("click", async () => {
+    const title = $("push_title").value.trim();
+    const body = $("push_body").value.trim();
+    const url = $("push_url").value.trim();
+
+    if (!title || !body) return alert("Titre et message requis.");
+
+    if (!confirm("Envoyer cette notification PUSH à TOUS les abonnés ?")) return;
+
+    try {
+      setStatus("Envoi en cours...");
+      const data = await callAdminPush({ title, body, url });
+      setStatus("Envoyé.");
+      renderResults(data);
+    } catch (e) {
+      setStatus("");
+      alert(e?.message || String(e));
+    }
+  });
 }
 
 // -----------------------------
@@ -217,7 +313,7 @@ async function renderPronosticsReadOnly() {
 }
 
 // -----------------------------
-// CMS ARTICLES (fix id compare + robust)
+// CMS ARTICLES
 // -----------------------------
 async function renderCmsArticles() {
   const root = $("tab-articles");
@@ -313,7 +409,7 @@ async function renderCmsArticles() {
 }
 
 // -----------------------------
-// CMS CONSEILS (fix id compare)
+// CMS CONSEILS
 // -----------------------------
 async function renderCmsConseils() {
   const root = $("tab-conseils");
@@ -403,7 +499,7 @@ async function renderCmsConseils() {
 }
 
 // -----------------------------
-// BONUS + BOOKMAKERS (fix id compare)
+// BONUS + BOOKMAKERS
 // -----------------------------
 async function renderBonus() {
   const root = $("tab-bonus");
