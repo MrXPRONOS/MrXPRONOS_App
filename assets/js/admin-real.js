@@ -78,8 +78,12 @@ function setBtnDisabled(id, disabled) {
   if (btn) btn.disabled = !!disabled;
 }
 
+
 // -----------------------------
 // PUSH (admin -> Edge Function admin-push -> push-notifications)
+// + Ciblage: tous OU un user_id
+// + Champs: title/body/url/tag
+// + Bonus: bouton "Lister les abonnés" (Edge Function admin-list-subscribers)
 // -----------------------------
 async function renderPushAdmin() {
   const root = $("tab-push");
@@ -87,12 +91,30 @@ async function renderPushAdmin() {
 
   root.innerHTML = `
     <div class="card">
-      <h3 style="margin:0 0 10px;color:#D4AF37">Envoyer une notification PUSH (à tous)</h3>
-      <div class="muted">
-        Cette action envoie une notification aux utilisateurs qui ont activé les notifications (abonnés dans <code>push_subscriptions</code>).
+      <h3 style="margin:0 0 10px;color:#D4AF37">Envoyer une notification PUSH</h3>
+      <div class="muted" style="margin-bottom:12px;">
+        Notifications reçues uniquement par les utilisateurs <b>abonnés</b> (permission activée).
       </div>
 
-      <label>Titre</label>
+      <div class="row">
+        <div>
+          <label>Audience</label>
+          <select id="push_audience">
+            <option value="all">Tous les abonnés</option>
+            <option value="user">Un utilisateur (user_id)</option>
+          </select>
+        </div>
+
+        <div id="push_user_wrap" style="display:none;">
+          <label>User ID (ex: MX-xxxx...)</label>
+          <input id="push_user_id" placeholder="MX-..." />
+          <div class="muted" style="margin-top:6px;">
+            Cliquez sur un abonné dans la liste (en bas) pour remplir automatiquement.
+          </div>
+        </div>
+      </div>
+
+      <label style="margin-top:10px;">Titre</label>
       <input id="push_title" placeholder="Ex: Nouveaux coupons !" />
 
       <label>Message</label>
@@ -101,10 +123,31 @@ async function renderPushAdmin() {
       <label>URL au clic (optionnel)</label>
       <input id="push_url" placeholder="https://..." value="https://mrxpronos.github.io/MrXPRONOS_App/pronos.html" />
 
-      <button id="push_send" class="btn btn-primary" style="margin-top:10px">Envoyer à tous</button>
+      <div class="row">
+        <div>
+          <label>Tag (optionnel)</label>
+          <input id="push_tag" placeholder="Ex: coupons-matin" />
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button id="push_send" class="btn btn-primary" style="width:100%;">Envoyer</button>
+        </div>
+      </div>
 
       <div id="push_status" class="muted" style="margin-top:10px"></div>
       <div id="push_results" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card" style="border-color:#2a2a2a;">
+      <div style="display:flex; gap:10px; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+        <h3 style="margin:0;color:#D4AF37">Abonnés PUSH</h3>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <input id="subs_search" placeholder="Rechercher un user_id (MX-...)" style="max-width:320px;">
+          <button id="subs_refresh" class="btn btn-secondary">Lister les abonnés</button>
+        </div>
+      </div>
+      <div id="subs_status" class="muted" style="margin-top:10px"></div>
+      <div id="subs_list" class="muted" style="margin-top:10px">Clique sur “Lister les abonnés”.</div>
     </div>
   `;
 
@@ -119,12 +162,16 @@ async function renderPushAdmin() {
 
     const results = Array.isArray(data?.results) ? data.results : [];
     const sent = results.filter(r => r.status === "sent").length;
-    const failed = results.filter(r => r.status !== "sent").length;
+    const deleted = results.filter(r => r.status === "deleted_410").length;
+    const failed = results.filter(r => r.status === "failed").length;
+    const skipped = results.filter(r => String(r.status || "").startsWith("skipped")).length;
 
     el.innerHTML = `
       <div class="card" style="border-color:#2a2a2a;">
         <div style="font-weight:900;color:#D4AF37;margin-bottom:6px;">Résultat</div>
-        <div class="muted">Envoyés: ${sent} • Échecs: ${failed} • Total: ${results.length}</div>
+        <div class="muted">
+          Envoyés: ${sent} • Supprimés (410): ${deleted} • Échecs: ${failed} • Ignorés: ${skipped} • Total: ${results.length}
+        </div>
         <details style="margin-top:10px;">
           <summary class="muted" style="cursor:pointer;">Détails (JSON)</summary>
           <pre class="muted" style="margin-top:10px;">${escapeHtml(JSON.stringify(data, null, 2))}</pre>
@@ -152,22 +199,138 @@ async function renderPushAdmin() {
     return data;
   }
 
+  async function callListSubscribers() {
+    const session = (await sb.auth.getSession()).data.session;
+    if (!session) throw new Error("Session expirée.");
+
+    const res = await fetch(`${supabaseUrl}/functions/v1/admin-list-subscribers`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${session.access_token}`,
+        "apikey": supabaseAnonKey,
+      },
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error || `Erreur HTTP ${res.status}`);
+    return data;
+  }
+
+  // Audience toggle
+  const audienceSel = $("push_audience");
+  const userWrap = $("push_user_wrap");
+  const userInput = $("push_user_id");
+
+  function refreshAudience() {
+    const mode = audienceSel.value;
+    userWrap.style.display = mode === "user" ? "block" : "none";
+  }
+  audienceSel.addEventListener("change", refreshAudience);
+  refreshAudience();
+
+  // Envoi push
   $("push_send").addEventListener("click", async () => {
+    const mode = audienceSel.value;
     const title = $("push_title").value.trim();
     const body = $("push_body").value.trim();
     const url = $("push_url").value.trim();
+    const tag = $("push_tag").value.trim();
+    const user_id = mode === "user" ? userInput.value.trim() : "";
 
     if (!title || !body) return alert("Titre et message requis.");
+    if (mode === "user" && !user_id) return alert("User ID requis pour l'envoi ciblé.");
 
-    if (!confirm("Envoyer cette notification PUSH à TOUS les abonnés ?")) return;
+    const confirmMsg =
+      mode === "all"
+        ? `Envoyer cette notification à TOUS les abonnés ?\n\nTitre: ${title}\nMessage: ${body}`
+        : `Envoyer à l'utilisateur:\n${user_id}\n\nTitre: ${title}\nMessage: ${body}`;
+
+    if (!confirm(confirmMsg)) return;
 
     try {
       setStatus("Envoi en cours...");
-      const data = await callAdminPush({ title, body, url });
+      const payload = {
+        title,
+        body,
+        url: url || null,
+        tag: tag || null,
+        user_id: mode === "user" ? user_id : null,
+      };
+      const data = await callAdminPush(payload);
       setStatus("Envoyé.");
       renderResults(data);
     } catch (e) {
       setStatus("");
+      alert(e?.message || String(e));
+    }
+  });
+
+  // Liste abonnés
+  let lastSubscribers = [];
+
+  function renderSubscribers(list) {
+    const q = ($("subs_search").value || "").trim().toLowerCase();
+    const filtered = !q
+      ? list
+      : list.filter(x => String(x.user_id || "").toLowerCase().includes(q));
+
+    const el = $("subs_list");
+    if (!el) return;
+
+    if (!filtered.length) {
+      el.innerHTML = `<div class="muted">Aucun abonné trouvé.</div>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>User ID</th>
+            <th>Appareils</th>
+            <th>Dernier abonnement</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(s => `
+            <tr>
+              <td><code>${escapeHtml(s.user_id)}</code></td>
+              <td>${escapeHtml(s.endpoints)}</td>
+              <td>${s.last_subscribed_at ? new Date(s.last_subscribed_at).toLocaleString("fr-FR") : "-"}</td>
+              <td>
+                <button class="btn btn-secondary" data-pick="${escapeHtml(s.user_id)}">Cibler</button>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `;
+
+    // Bouton "Cibler" => remplit user_id + switch audience
+    el.querySelectorAll("[data-pick]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const uid = btn.getAttribute("data-pick") || "";
+        $("push_audience").value = "user";
+        refreshAudience();
+        $("push_user_id").value = uid;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+  }
+
+  $("subs_search").addEventListener("input", () => renderSubscribers(lastSubscribers));
+
+  $("subs_refresh").addEventListener("click", async () => {
+    const st = $("subs_status");
+    if (st) st.textContent = "Chargement...";
+    try {
+      const data = await callListSubscribers();
+      lastSubscribers = Array.isArray(data?.subscribers) ? data.subscribers : [];
+      if (st) st.textContent = `Abonnés: ${data?.count ?? lastSubscribers.length}`;
+      renderSubscribers(lastSubscribers);
+    } catch (e) {
+      if (st) st.textContent = "";
       alert(e?.message || String(e));
     }
   });
