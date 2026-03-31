@@ -1,26 +1,20 @@
 /**
  * pwa.js - Gestion PWA complète et corrigée
- * Rôles :
- * - enregistrer le Service Worker
- * - gérer beforeinstallprompt
- * - exposer l'état PWA global
- * - gérer les mises à jour du SW
- * - afficher/cacher le bouton d'installation
  */
 
 (function () {
     'use strict';
 
-    // Configuration des chemins
+    // ========================================================
+    // CONFIGURATION
+    // ========================================================
     const CONFIG = (() => {
         const isGitHubPages = location.hostname.includes('github.io');
         const path = location.pathname;
         
-        // Détection automatique du chemin de base
         let base = '/';
         
         if (isGitHubPages) {
-            // Pour GitHub Pages, on extrait le nom du repo
             const match = path.match(/^\/([^/]+)\//);
             if (match) {
                 base = `/${match[1]}/`;
@@ -37,20 +31,21 @@
     })();
 
     // ========================================================
-    // FONCTIONS DE LOG - DÉFINIES AVANT TOUTE UTILISATION
+    // SIMPLE LOGGER (sans dépendance)
     // ========================================================
     const isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     
-    function log(...args) {
-        if (isDev) console.log('[PWA]', ...args);
+    // Pas de fonction log complexe, on utilise console directement
+    function pwaLog(msg) {
+        if (isDev) console.log('[PWA]', msg);
     }
     
-    function warn(...args) {
-        if (isDev) console.warn('[PWA]', ...args);
+    function pwaWarn(msg) {
+        if (isDev) console.warn('[PWA]', msg);
     }
     
-    function error(...args) {
-        console.error('[PWA]', ...args);
+    function pwaError(msg) {
+        console.error('[PWA]', msg);
     }
 
     // ========================================================
@@ -90,8 +85,6 @@
         window.dispatchEvent(new CustomEvent('mrx-pwa-state-change', {
             detail: window.__MRXPWA__
         }));
-        
-        // Mise à jour du bouton d'installation
         updateInstallButton();
     }
 
@@ -112,7 +105,6 @@
     }
 
     function showUpdateToast() {
-        // Ne pas afficher si déjà affiché récemment
         const lastToast = localStorage.getItem('mx_update_toast');
         if (lastToast && Date.now() - parseInt(lastToast) < 3600000) return;
         
@@ -134,13 +126,9 @@
             z-index: 10001;
             cursor: pointer;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s ease;
         `;
         
-        toast.onclick = () => {
-            window.location.reload();
-        };
-        
+        toast.onclick = () => window.location.reload();
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 8000);
     }
@@ -160,7 +148,6 @@
             font-weight: 600;
             text-align: center;
             z-index: 10001;
-            animation: slideUp 0.3s ease;
         `;
         
         document.body.appendChild(toast);
@@ -172,63 +159,38 @@
     // ========================================================
     async function registerServiceWorker() {
         if (!('serviceWorker' in navigator)) {
-            warn('⚠️ Service Worker non supporté');
+            pwaWarn('Service Worker non supporté');
             return null;
         }
 
         try {
-            log('📦 Enregistrement SW avec chemin:', CONFIG.swPath);
-            log('📦 Scope:', CONFIG.scope);
+            pwaLog('Enregistrement SW: ' + CONFIG.swPath);
             
             const registration = await navigator.serviceWorker.register(CONFIG.swPath, {
                 scope: CONFIG.scope,
                 updateViaCache: 'imports'
             });
 
-            log('✅ Service Worker enregistré:', registration.scope);
+            pwaLog('SW enregistré: ' + registration.scope);
             updateGlobalState({ registration });
 
-            // Vérifier si le SW est actif
-            if (registration.active) {
-                log('✅ SW actif');
-            } else if (registration.installing) {
-                log('⏳ SW en cours d\'installation');
-            } else if (registration.waiting) {
-                log('⏳ SW en attente');
-                updateGlobalState({ updateAvailable: true });
-            }
-
-            // Détection de mise à jour
             registration.addEventListener('updatefound', () => {
                 const newWorker = registration.installing;
                 if (!newWorker) return;
-
-                log('🔄 Nouvelle version du SW détectée');
+                pwaLog('Nouvelle version SW détectée');
 
                 newWorker.addEventListener('statechange', () => {
-                    log('🔄 État du nouveau SW:', newWorker.state);
-                    
                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                        log('✅ Nouvelle version installée, mise à jour disponible');
+                        pwaLog('Mise à jour disponible');
                         updateGlobalState({ updateAvailable: true });
                         showUpdateToast();
                     }
                 });
             });
 
-            // Gestion des messages du SW
-            navigator.serviceWorker.addEventListener('message', (event) => {
-                log('📨 Message du SW:', event.data);
-                
-                if (event.data?.type === 'UPDATE_AVAILABLE') {
-                    updateGlobalState({ updateAvailable: true });
-                    showUpdateToast();
-                }
-            });
-
             return registration;
         } catch (err) {
-            error('❌ Erreur enregistrement Service Worker:', err);
+            pwaError('Erreur SW: ' + err.message);
             return null;
         }
     }
@@ -240,55 +202,42 @@
         const platform = getPlatform();
         updateGlobalState({ platform });
 
-        // Vérifier si déjà installée
         if (platform.isStandalone) {
-            log('✅ App déjà installée');
+            pwaLog('App déjà installée');
             updateGlobalState({ isInstalled: true, installAvailable: false });
             return;
         }
 
-        // Pour iOS, pas de beforeinstallprompt
         if (platform.isIOS) {
-            log('📱 iOS détecté - installation via menu partage');
+            pwaLog('iOS - installation via menu partage');
             updateGlobalState({ installAvailable: false });
             return;
         }
 
-        // Écouter beforeinstallprompt (Android/Chrome)
         window.addEventListener('beforeinstallprompt', (e) => {
-            log('📲 beforeinstallprompt capturé');
+            pwaLog('beforeinstallprompt capturé');
             e.preventDefault();
             
             updateGlobalState({
                 deferredPrompt: e,
                 installAvailable: true
             });
-
-            window.dispatchEvent(new CustomEvent('mrx-beforeinstallprompt', {
-                detail: window.__MRXPWA__
-            }));
         });
 
-        // Écouter l'installation réussie
         window.addEventListener('appinstalled', () => {
-            log('🎉 App installée avec succès');
+            pwaLog('App installée avec succès');
             updateGlobalState({
                 deferredPrompt: null,
                 isInstalled: true,
                 installAvailable: false
             });
-
-            try {
-                localStorage.setItem('mx_pwa_installed', 'true');
-            } catch (_) {}
-
+            localStorage.setItem('mx_pwa_installed', 'true');
             showInstallSuccessToast();
         });
 
-        // Fallback : si pas de beforeinstallprompt après 5s, désactiver le bouton
         setTimeout(() => {
             if (!window.__MRXPWA__.installAvailable && !platform.isStandalone && !platform.isIOS) {
-                log('⏰ Aucun beforeinstallprompt reçu, installation non disponible');
+                pwaLog('Aucune installation disponible');
                 updateGlobalState({ installAvailable: false });
             }
         }, 5000);
@@ -298,30 +247,25 @@
         const state = window.__MRXPWA__;
         const platform = getPlatform();
         
-        // iOS : ouvrir le guide
         if (platform.isIOS) {
-            log('📱 iOS - affichage du guide d\'installation');
             const guidePopup = document.getElementById('ios-guide-popup');
             if (guidePopup) {
                 guidePopup.style.display = 'flex';
             } else {
-                alert('Pour installer l\'application sur iPhone :\n1. Touchez "Partager"\n2. "Sur l\'écran d\'accueil"\n3. "Ajouter"');
+                alert('Pour installer sur iPhone :\n1. Touchez "Partager"\n2. "Sur l\'écran d\'accueil"\n3. "Ajouter"');
             }
             return false;
         }
         
-        // Android/Chrome
         if (!state.deferredPrompt) {
-            warn('⚠️ Aucune installation disponible');
+            pwaWarn('Aucune installation disponible');
             return false;
         }
 
         try {
-            log('📲 Déclenchement de l\'installation...');
             state.deferredPrompt.prompt();
             const result = await state.deferredPrompt.userChoice;
-
-            log('📲 Résultat installation:', result?.outcome);
+            pwaLog('Résultat installation: ' + result?.outcome);
 
             updateGlobalState({
                 deferredPrompt: null,
@@ -330,41 +274,8 @@
 
             return result?.outcome === 'accepted';
         } catch (err) {
-            error('❌ Erreur prompt install:', err);
+            pwaError('Erreur install: ' + err.message);
             return false;
-        }
-    }
-
-    // ========================================================
-    // GESTION DES MISES À JOUR
-    // ========================================================
-    async function checkForUpdates() {
-        const registration = window.__MRXPWA__?.registration;
-        if (!registration) return false;
-
-        try {
-            log('🔍 Recherche de mises à jour...');
-            await registration.update();
-            return true;
-        } catch (err) {
-            warn('⚠️ Impossible de vérifier les mises à jour:', err);
-            return false;
-        }
-    }
-
-    function skipWaitingAndReload() {
-        const registration = window.__MRXPWA__?.registration;
-        
-        if (registration?.waiting) {
-            log('🔄 Activation de la nouvelle version...');
-            registration.waiting.postMessage('skipWaiting');
-            
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                log('🔄 SW changé, rechargement...');
-                window.location.reload();
-            }, { once: true });
-        } else {
-            window.location.reload();
         }
     }
 
@@ -377,21 +288,9 @@
         const style = document.createElement('style');
         style.id = 'pwa-styles';
         style.textContent = `
-            @keyframes slideUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            
             #install-app {
                 transition: all 0.3s ease;
             }
-            
             #install-app:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
@@ -403,29 +302,23 @@
     // ========================================================
     // INITIALISATION
     // ========================================================
-    async function init() {
-        log('🚀 Initialisation PWA...');
-        log('📦 Configuration:', CONFIG);
+    function init() {
+        pwaLog('Initialisation PWA...');
+        pwaLog('Config: ' + JSON.stringify(CONFIG));
         
         addStyles();
-        
-        // Mettre à jour le platform dans l'état global
         updateGlobalState({ platform: getPlatform() });
         
-        // Enregistrer le Service Worker
-        await registerServiceWorker();
-        
-        // Configurer la gestion de l'installation
+        registerServiceWorker();
         setupInstallPromptHandling();
         
-        // Vérifier périodiquement les mises à jour (toutes les heures)
         setInterval(() => {
             if (document.visibilityState === 'visible') {
-                checkForUpdates();
+                window.__MRXPWA__?.registration?.update().catch(() => {});
             }
         }, 3600000);
         
-        log('✅ PWA initialisé');
+        pwaLog('PWA initialisé');
     }
 
     // ========================================================
@@ -435,16 +328,13 @@
         getState: () => window.__MRXPWA__,
         getPlatform: getPlatform,
         promptInstall: promptInstall,
-        checkForUpdates: checkForUpdates,
-        skipWaitingAndReload: skipWaitingAndReload,
         isInstallable: () => window.__MRXPWA__.installAvailable,
         isInstalled: () => getPlatform().isStandalone
     };
     
-    // Exporter la fonction promptInstall globalement pour main.js
     window.promptPWAInstall = promptInstall;
 
-    // Démarrer au chargement
+    // Démarrer
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
