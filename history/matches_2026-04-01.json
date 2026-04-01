@@ -251,9 +251,9 @@
       "league": "División Reserva - Apertura",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 3,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -282,8 +282,8 @@
       "xpronos_score": 84,
       "badge": "💎 VIP ELITE",
       "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
+      "is_finished": true,
+      "verified_double": true,
       "verified_over": false,
       "ml_score": 99.1,
       "final_score": 87.8
@@ -4209,6 +4209,54 @@
       "final_score": 71.1
     },
     {
+      "id": 4697943,
+      "date": "2026-04-01",
+      "event_date": "2026-04-01T20:30:00+00:00",
+      "home_team": "Harbour View",
+      "away_team": "Chapelton",
+      "home_logo": "assets/images/teams/sd-16944-v1.webp",
+      "away_logo": "assets/images/teams/sd-72528-v2.webp",
+      "league": "Premier League",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.2,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 1.7,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.333,
+        "goals_for": 1.4,
+        "goals_against": 1.6
+      },
+      "away_form": {
+        "form_score": 0.267,
+        "goals_for": 0.6,
+        "goals_against": 1.6
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 75
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 92.0,
+      "final_score": 71.0
+    },
+    {
       "id": 4299802,
       "date": "2026-03-31",
       "event_date": "2026-03-31T16:00:00+00:00",
@@ -5649,6 +5697,54 @@
       "final_score": 64.5
     },
     {
+      "id": 4672491,
+      "date": "2026-04-01",
+      "event_date": "2026-04-01T23:00:00+00:00",
+      "home_team": "Alianza Fc Panama II",
+      "away_team": "San Martín Fc",
+      "home_logo": "assets/images/teams/sd-81778-v2.png",
+      "away_logo": "assets/images/teams/sd-81770-v2.png",
+      "league": "Liga Prom - Clausura - Eastern Conference",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 1.0,
+        "home_dominance": 0.6,
+        "away_dominance": 0.0,
+        "goals_avg": 1.75,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.333,
+        "goals_for": 1.0,
+        "goals_against": 1.6
+      },
+      "away_form": {
+        "form_score": 0.267,
+        "goals_for": 1.2,
+        "goals_against": 1.8
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 65
+      },
+      "xpronos_score": 56,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 88.0,
+      "final_score": 64.0
+    },
+    {
       "id": 4694703,
       "date": "2026-03-28",
       "event_date": "2026-03-28T21:00:00+00:00",
@@ -5935,54 +6031,6 @@
       "verified_over": false,
       "ml_score": 83.0,
       "final_score": 62.8
-    },
-    {
-      "id": 4672491,
-      "date": "2026-04-01",
-      "event_date": "2026-04-01T23:00:00+00:00",
-      "home_team": "Alianza Fc Panama II",
-      "away_team": "San Martín Fc",
-      "home_logo": "assets/images/teams/sd-81778-v2.png",
-      "away_logo": "assets/images/teams/sd-81770-v2.png",
-      "league": "Liga Prom - Clausura - Eastern Conference",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 1.5,
-        "away_wins": 0.0,
-        "draws": 1.0,
-        "home_dominance": 0.6,
-        "away_dominance": 0.0,
-        "goals_avg": 1.75,
-        "over_25_prob": 0.0
-      },
-      "home_form": {
-        "form_score": 0.333,
-        "goals_for": 1.0,
-        "goals_against": 1.6
-      },
-      "away_form": {
-        "form_score": 0.267,
-        "goals_for": 1.2,
-        "goals_against": 1.8
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 65
-      },
-      "xpronos_score": 56,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 82.7,
-      "final_score": 62.7
     },
     {
       "id": 4650010,
@@ -6715,7 +6763,7 @@
       "xpronos_score": 57,
       "badge": "",
       "category": "simple",
-      "is_finished": true,
+      "is_finished": false,
       "verified_double": false,
       "verified_over": false,
       "ml_score": 65.3,
@@ -13888,6 +13936,54 @@
         "final_score": 64.5
       },
       {
+        "id": 4672491,
+        "date": "2026-04-01",
+        "event_date": "2026-04-01T23:00:00+00:00",
+        "home_team": "Alianza Fc Panama II",
+        "away_team": "San Martín Fc",
+        "home_logo": "assets/images/teams/sd-81778-v2.png",
+        "away_logo": "assets/images/teams/sd-81770-v2.png",
+        "league": "Liga Prom - Clausura - Eastern Conference",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 1.0,
+          "home_dominance": 0.6,
+          "away_dominance": 0.0,
+          "goals_avg": 1.75,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.333,
+          "goals_for": 1.0,
+          "goals_against": 1.6
+        },
+        "away_form": {
+          "form_score": 0.267,
+          "goals_for": 1.2,
+          "goals_against": 1.8
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 65
+        },
+        "xpronos_score": 56,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 88.0,
+        "final_score": 64.0
+      },
+      {
         "id": 4640936,
         "date": "2026-03-30",
         "event_date": "2026-03-30T01:00:00+00:00",
@@ -14078,54 +14174,6 @@
         "verified_over": false,
         "ml_score": 83.0,
         "final_score": 62.8
-      },
-      {
-        "id": 4672491,
-        "date": "2026-04-01",
-        "event_date": "2026-04-01T23:00:00+00:00",
-        "home_team": "Alianza Fc Panama II",
-        "away_team": "San Martín Fc",
-        "home_logo": "assets/images/teams/sd-81778-v2.png",
-        "away_logo": "assets/images/teams/sd-81770-v2.png",
-        "league": "Liga Prom - Clausura - Eastern Conference",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 1.5,
-          "away_wins": 0.0,
-          "draws": 1.0,
-          "home_dominance": 0.6,
-          "away_dominance": 0.0,
-          "goals_avg": 1.75,
-          "over_25_prob": 0.0
-        },
-        "home_form": {
-          "form_score": 0.333,
-          "goals_for": 1.0,
-          "goals_against": 1.6
-        },
-        "away_form": {
-          "form_score": 0.267,
-          "goals_for": 1.2,
-          "goals_against": 1.8
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
-          "confidence": 65
-        },
-        "xpronos_score": 56,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 82.7,
-        "final_score": 62.7
       },
       {
         "id": 4507016,
@@ -23092,6 +23140,54 @@
         "final_score": 71.1
       },
       {
+        "id": 4697943,
+        "date": "2026-04-01",
+        "event_date": "2026-04-01T20:30:00+00:00",
+        "home_team": "Harbour View",
+        "away_team": "Chapelton",
+        "home_logo": "assets/images/teams/sd-16944-v1.webp",
+        "away_logo": "assets/images/teams/sd-72528-v2.webp",
+        "league": "Premier League",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.2,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 1.7,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.333,
+          "goals_for": 1.4,
+          "goals_against": 1.6
+        },
+        "away_form": {
+          "form_score": 0.267,
+          "goals_for": 0.6,
+          "goals_against": 1.6
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 75
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 92.0,
+        "final_score": 71.0
+      },
+      {
         "id": 4299802,
         "date": "2026-03-31",
         "event_date": "2026-03-31T16:00:00+00:00",
@@ -27591,6 +27687,6 @@
     "roi": -13.4
   },
   "bookmakers": [],
-  "generated_at": "2026-04-01T09:52:18.021262Z",
+  "generated_at": "2026-04-01T17:57:49.353168Z",
   "retention_days": 14
 }
