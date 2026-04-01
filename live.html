@@ -177,26 +177,38 @@
     function formatPredSubtitle(pred) {
       const projected = pred?.projected ?? "-";
       const current = pred?.current ?? "-";
+      
+      // Affichage de la fourchette si dispo (Enhanced)
+      if (pred.expected_range && Array.isArray(pred.expected_range)) {
+        const [low, high] = pred.expected_range;
+        return `Fourchette: ${formatNumberFR(low)} - ${formatNumberFR(high)} • Actuel: ${current}`;
+      }
+      
       return `Projection: ${projected} • Actuel: ${current}`;
     }
 
     // =======================================================
-    // LOGOS via Edge Function Proxy (pas de token dans le front)
+    // LOGOS via Edge Function Proxy (Robuste)
     // =======================================================
     function getTeamLogo(match, side = "home") {
+      // Essayer plusieurs chemins possibles pour l'ID
       const obj = side === "home" ? match?.home_team_obj : match?.away_team_obj;
-      const apiId = obj?.api_id;
+      const directId = side === "home" ? match?.home_team_id : match?.away_team_id;
+      
+      const apiId = obj?.api_id || obj?.id || directId || match?.[`${side}_id`];
+      
       if (!apiId) return null;
       return `${EDGE_FUNCTION_URL}/img/team/${apiId}`;
     }
+    
     function getLeagueLogo(match) {
-      const apiId = match?.league?.api_id;
+      const apiId = match?.league?.api_id || match?.league?.id || match?.league_id;
       if (!apiId) return null;
       return `${EDGE_FUNCTION_URL}/img/league/${apiId}`;
     }
 
     // =======================================================
-    // VIP GATE (affiche l'écran VIP si pas d'accès)
+    // VIP GATE
     // =======================================================
     function openExternal(url) {
       window.open(url, "_blank", "noopener,noreferrer");
@@ -325,7 +337,7 @@
 
     const VipGate = ({ children }) => {
       const userId = useMemo(() => getUserId(), []);
-      const [status, setStatus] = useState("checking"); // checking | allowed | denied
+      const [status, setStatus] = useState("checking");
 
       useEffect(() => {
         let mounted = true;
@@ -395,7 +407,8 @@
         clock: "fa-clock",
         activity: "fa-bolt",
         refresh: "fa-rotate-right",
-        calendar: "fa-calendar-alt"
+        calendar: "fa-calendar-alt",
+        bolt: "fa-bolt"
       };
       return <i className={`fas ${map[name] || "fa-circle"} ${className}`} style={{ fontSize: size }} />;
     };
@@ -566,7 +579,7 @@
     );
 
     // =======================================================
-    // CARDS (simplifiées : prediction + projection, détails au clic)
+    // CARDS
     // =======================================================
     const OpportunityCard = ({ item, onOpen }) => {
       const best = item?.predictions?.[0];
@@ -666,7 +679,6 @@
             <TeamRow name={match.away_team} logo={awayLogo} align="left" />
           </div>
 
-          {/* Mini stats (optionnel). Supprime ce bloc si tu veux encore plus simple */}
           <div className="grid grid-cols-3 gap-2 mb-4">
             <StatChip label="Corners" value={totalCorners} />
             <StatChip label="Fautes" value={totalFouls} />
@@ -735,7 +747,7 @@
     };
 
     // =======================================================
-    // DETAIL (détails uniquement au clic)
+    // DETAIL (AVEC NOUVEAUX CHAMPS)
     // =======================================================
     const MatchDetail = ({ match, onClose }) => {
       const [tab, setTab] = useState("signals");
@@ -826,10 +838,27 @@
                           {p.message}
                         </div>
 
-                        {/* ✅ Projection d'abord */}
                         <div className="text-xs text-gray-300 mb-4 safe-wrap">
                           Projection: <strong>{p.projected ?? "-"}</strong> • Actuel: <strong>{p.current ?? "-"}</strong> • Seuil: <strong>{p.threshold ?? "-"}</strong>
                         </div>
+                        
+                        {/* Nouvelles métriques avancées si dispo */}
+                        {p.expected_range && (
+                          <div className="mb-4 p-3 rounded-lg bg-[#0f0f0f] border border-[#1a1a1a] text-xs text-gray-400 space-y-1">
+                            <div className="flex justify-between">
+                              <span>Fourchette attendue:</span>
+                              <span className="text-white font-medium">{formatNumberFR(p.expected_range[0])} - {formatNumberFR(p.expected_range[1])}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Volatilité:</span>
+                              <span className="text-white font-medium">{Math.round(safeNumber(p.volatility_score, 0) * 100)}%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Sensibilité temps:</span>
+                              <span className="text-white font-medium">{Math.round(safeNumber(p.time_sensitivity, 0) * 100)}%</span>
+                            </div>
+                          </div>
+                        )}
 
                         <div className="grid grid-cols-2 gap-3 mb-4">
                           <ScoreBar value={Math.round((p.probability || 0) * 100)} label="Probabilité" color="#22C55E" />
@@ -1311,6 +1340,7 @@
                                     {h.validated ? (
                                       <span className={h.outcome === "success" ? "text-green-400" : "text-red-400"}>
                                         {h.outcome === "success" ? "✓ Réussie" : "✗ Échouée"}
+                                        {h.validation_type === "instant" && <span className="ml-1 text-[10px] text-[#D4AF37]">(Instant)</span>}
                                       </span>
                                     ) : (
                                       <span className="text-yellow-400">En attente</span>
