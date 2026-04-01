@@ -5,24 +5,29 @@
 generate_data.py - Génère les pronostics à partir des données SportData
 et des scores déjà en base (mis à jour par update_scores.py).
 
-⚠️ Système de calcul INCHANGÉ :
+Système de calcul INCHANGÉ :
 - exclusion des pronostics "12"
 - seuils et H2H identiques
 - rétention 14 jours dans data.json
 - stats réelles calculées
 - intégration ML (auto_train / ml_model) SANS casser la logique métier
 
-✅ Amélioration UNIQUEMENT logos :
+Amélioration logos :
 1) SportData Images (public) -> v1.football.sportsapipro.com/images/competitors/{id}?imageVersion={v}
 2) TheSportsDB fallback
 3) fallback home.webp / away.webp
+
+Règle anti-trucage :
+- une fois qu’un jour est passé, on n’ajoute plus de nouveaux matchs
+- pour les matchs déjà publiés sur un jour passé, on met seulement à jour :
+  score / status / is_finished / verified_*
 """
 
 import os
 import re
 import json
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -47,7 +52,8 @@ session = requests.Session()
 retries = Retry(total=3, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
 session.mount("https://", HTTPAdapter(max_retries=retries))
 
-today = datetime.now().date()
+UTC = timezone.utc
+today = datetime.now(UTC).date()
 tomorrow = today + timedelta(days=1)
 yesterday = today - timedelta(days=1)
 
@@ -61,7 +67,7 @@ TEAM_LOGO_DIR = os.path.join("assets", "images", "teams")
 RETENTION_DAYS = 14
 
 print("=" * 60)
-print(f"🚀 GÉNÉRATION DES PRONOSTICS - {today} (rétention {RETENTION_DAYS} jours)")
+print(f"🚀 GÉNÉRATION DES PRONOSTICS - {today} UTC (rétention {RETENTION_DAYS} jours)")
 print("=" * 60)
 
 os.makedirs(CACHE_DIR, exist_ok=True)
@@ -115,7 +121,6 @@ def download_image(url: str, local_path: str) -> str | None:
         if resp.status_code != 200 or not resp.content:
             return None
 
-        # évite d'écrire du HTML d'erreur
         ctype = (resp.headers.get("content-type") or "").lower()
         if "text/html" in ctype or "application/json" in ctype:
             return None
@@ -138,10 +143,6 @@ def cache_key_thesportsdb(team_name: str):
     return f"tsdb:{(team_name or '').strip().lower()}"
 
 def get_logo_sportdata(competitor_id, image_version) -> str | None:
-    """
-    1) SPORTDATA (public) : /images/competitors/{id}?imageVersion={version}
-    On enregistre localement dans assets/images/teams/
-    """
     if not competitor_id:
         return None
 
@@ -154,7 +155,6 @@ def get_logo_sportdata(competitor_id, image_version) -> str | None:
         if logo_cache.get(key) is None:
             return None
 
-    # URL avec imageVersion (recommandé) sinon sans
     if image_version:
         url = f"{SPORTDATA_V1_IMAGES_BASE}/competitors/{competitor_id}?imageVersion={image_version}"
         filename = f"sd-{competitor_id}-v{image_version}.png"
@@ -165,14 +165,10 @@ def get_logo_sportdata(competitor_id, image_version) -> str | None:
     local_path = norm_path(os.path.join(TEAM_LOGO_DIR, filename))
     p = download_image(url, local_path)
 
-    logo_cache[key] = p  # p peut être None
+    logo_cache[key] = p
     return p
 
 def get_logo_thesportsdb(team_name: str) -> str | None:
-    """
-    2) Fallback TheSportsDB :
-    Télécharge UNE seule fois en local dans assets/images/teams/
-    """
     if not team_name:
         return None
 
@@ -201,12 +197,10 @@ def get_logo_thesportsdb(team_name: str) -> str | None:
                     filename = safe_filename(team_name) + ".png"
                     local_path = norm_path(os.path.join(TEAM_LOGO_DIR, filename))
 
-                    # déjà téléchargé ?
                     if os.path.exists(local_path) and os.path.getsize(local_path) > 200:
                         logo_cache[key] = local_path
                         return local_path
 
-                    # téléchargement
                     img_resp = session.get(logo_url, timeout=15)
                     if img_resp.status_code == 200 and img_resp.content:
                         with open(local_path, "wb") as f:
@@ -221,26 +215,15 @@ def get_logo_thesportsdb(team_name: str) -> str | None:
     return None
 
 def get_team_logo(team_name: str, competitor_id=None, image_version=None, side: str = "home") -> str | None:
-    """
-    PRIORITÉ demandée :
-    1) SportData images (public)
-    2) TheSportsDB
-    3) fallback home.webp / away.webp
-    """
-    # 1) SportData
     p = get_logo_sportdata(competitor_id, image_version)
     if p:
         return p
 
-    # 2) TheSportsDB
     p = get_logo_thesportsdb(team_name)
     if p:
         return p
 
-    # 3) fallback final
-    if side == "away":
-        return "assets/images/away.webp"
-    return "assets/images/home.webp"
+    return "assets/images/away.webp" if side == "away" else "assets/images/home.webp"
 
 # =======================================================
 # FONCTIONS SPORTDATA
@@ -278,6 +261,17 @@ def extract_game_info(game):
     if away_score == -1:
         away_score = None
 
+    status_text = game.get("statusText", "") or ""
+    status_group = game.get("statusGroup")
+
+    lowered = status_text.lower().strip()
+    is_finished = (
+        status_group == 4
+        and lowered not in ("postponed", "suspended", "cancelled")
+        and home_score is not None
+        and away_score is not None
+    )
+
     return {
         "id": game.get("id"),
         "start_time": start_time,
@@ -287,11 +281,10 @@ def extract_game_info(game):
         "competition": competition,
         "home_score": home_score,
         "away_score": away_score,
-        "status_group": game.get("statusGroup"),
-        "status_text": game.get("statusText"),
-        "is_finished": (game.get("statusGroup") == 4),
+        "status_group": status_group,
+        "status_text": status_text,
+        "is_finished": is_finished,
 
-        # ✅ IDs + imageVersion (pour logos SportData)
         "home_competitor_id": home.get("id"),
         "away_competitor_id": away.get("id"),
         "home_image_version": home.get("imageVersion"),
@@ -677,6 +670,49 @@ def main():
     for gid, base in new_infos.items():
         existing = existing_matches.get(gid)
 
+        match_date = (base.get("date") or "")[:10]
+        today_str = today.isoformat()
+        is_past_day = bool(match_date) and (match_date < today_str)
+
+        # Anti-trucage : aucun nouveau match sur un jour déjà passé
+        if is_past_day and not existing:
+            continue
+
+        # Jour passé déjà publié : uniquement scores / statut / validation
+        if is_past_day and existing:
+            updated = dict(existing)
+
+            if base.get("home_score") is not None:
+                updated["home_score"] = base["home_score"]
+            if base.get("away_score") is not None:
+                updated["away_score"] = base["away_score"]
+            if base.get("status_text"):
+                updated["status"] = base["status_text"]
+
+            updated["is_finished"] = bool(base.get("is_finished", updated.get("is_finished", False)))
+
+            if not updated.get("home_logo"):
+                updated["home_logo"] = get_team_logo(
+                    base["home_team"],
+                    competitor_id=base.get("home_competitor_id"),
+                    image_version=base.get("home_image_version"),
+                    side="home",
+                )
+            if not updated.get("away_logo"):
+                updated["away_logo"] = get_team_logo(
+                    base["away_team"],
+                    competitor_id=base.get("away_competitor_id"),
+                    image_version=base.get("away_image_version"),
+                    side="away",
+                )
+
+            if updated.get("is_finished") and updated.get("home_score") is not None and updated.get("away_score") is not None:
+                updated = compute_verified_fields(updated)
+
+            new_matches.append(updated)
+            continue
+
+        # Jour courant / futur : logique normale
         if existing:
             home_score = existing.get("home_score")
             away_score = existing.get("away_score")
@@ -704,7 +740,6 @@ def main():
         category = get_category(score)
         badge = get_badge(score)
 
-        # ✅ LOGOS (priorité SportData -> TheSportsDB -> fallback home/away.webp)
         home_logo = get_team_logo(
             base["home_team"],
             competitor_id=base.get("home_competitor_id"),
@@ -767,7 +802,6 @@ def main():
 
         new_matches.append(match)
 
-    # save cache logos
     save_logo_cache()
 
     cutoff = (today - timedelta(days=RETENTION_DAYS)).isoformat()
@@ -801,12 +835,12 @@ def main():
     stats = compute_stats(final_matches)
 
     default_bookmakers = [
-        {"name": "1xBet",     "logo": "assets/images/1xbet.webp",     "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"},
-        {"name": "1win",      "logo": "assets/images/1win.webp",      "url": "https://1wrbgb.com/?open=register&p=qqcw"},
+        {"name": "1xBet", "logo": "assets/images/1xbet.webp", "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"},
+        {"name": "1win", "logo": "assets/images/1win.webp", "url": "https://1wrbgb.com/?open=register&p=qqcw"},
         {"name": "Betwinner", "logo": "assets/images/betwinner.webp", "url": "https://bwredir.com/299Y"},
-        {"name": "Melbet",    "logo": "assets/images/melbet.webp",    "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041"},
-        {"name": "Linebet",   "logo": "assets/images/linebet.webp",   "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611"},
-        {"name": "BetClic",   "logo": "assets/images/betclic.webp",   "url": "https://betpari-click.com/2vY0?extid=USD"}
+        {"name": "Melbet", "logo": "assets/images/melbet.webp", "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041"},
+        {"name": "Linebet", "logo": "assets/images/linebet.webp", "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611"},
+        {"name": "BetClic", "logo": "assets/images/betclic.webp", "url": "https://betpari-click.com/2vY0?extid=USD"}
     ]
 
     data = {
@@ -814,7 +848,7 @@ def main():
         "categories": final_categories,
         "stats": stats,
         "bookmakers": existing_data.get("bookmakers", default_bookmakers),
-        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "retention_days": RETENTION_DAYS
     }
 
