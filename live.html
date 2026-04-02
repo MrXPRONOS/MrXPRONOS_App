@@ -17,6 +17,7 @@
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    html, body { overflow-x: hidden; }
     * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
     body {
       margin: 0;
@@ -413,7 +414,9 @@
     const Card = ({ children, className = "", onClick }) => (
       <div
         onClick={onClick}
-        className={`bg-[#121212] border border-[#232323] rounded-2xl p-4 md:p-5 card-hover ${onClick ? "cursor-pointer" : ""} ${className}`}
+        className={`w-full max-w-full min-w-0 overflow-hidden bg-[#121212] border border-[#232323] rounded-2xl p-4 md:p-5 card-hover ${
+          onClick ? "cursor-pointer" : ""
+        } ${className}`}
       >
         {children}
       </div>
@@ -558,9 +561,15 @@
     };
 
     const TeamRow = ({ name, logo, align = "left" }) => (
-      <div className={`flex items-center gap-2 ${align === "right" ? "justify-end" : ""} min-w-0`}>
+      <div
+        className={`flex items-center gap-2 min-w-0 ${
+          align === "right" ? "justify-end text-right" : ""
+        }`}
+      >
         {align !== "right" && <LogoImg src={logo} alt={name} size={28} shape="circle" />}
-        <span className="font-semibold text-white text-sm md:text-base truncate">{name}</span>
+        <span className="min-w-0 flex-1 font-semibold text-white text-sm md:text-base truncate">
+          {name}
+        </span>
         {align === "right" && <LogoImg src={logo} alt={name} size={28} shape="circle" />}
       </div>
     );
@@ -739,18 +748,21 @@
 
       return (
         <Card onClick={() => onOpen(match)}>
-          <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="w-2 h-2 bg-red-500 rounded-full live-pulse"></span>
-              <span className="text-red-500 text-xs font-bold whitespace-nowrap">LIVE {match.current_minute || 0}'</span>
-              <span className="text-gray-600">•</span>
-              <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="w-2 h-2 bg-red-500 rounded-full live-pulse shrink-0"></span>
+              <span className="text-red-500 text-xs font-bold whitespace-nowrap shrink-0">
+                LIVE {match.current_minute || 0}'
+              </span>
+              <span className="text-gray-600 shrink-0">•</span>
+
+              <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0 flex-1">
                 <LogoImg src={leagueLogo} alt={match?.league?.name} size={20} shape="rounded" />
                 <span className="truncate">{match?.league?.name || "Ligue"}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap justify-end">
+            <div className="flex items-center gap-2 flex-wrap justify-start sm:justify-end shrink-0">
               <HeatBadge level={match.heat_level} />
               <FreshnessBadge seconds={match.freshness_seconds} />
             </div>
