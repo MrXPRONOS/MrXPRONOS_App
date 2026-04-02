@@ -5,9 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>MrXPRONOS LIVE</title>
 
+  <!-- React UMD + Babel (dev) -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Supabase + Tailwind + FA -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -43,11 +46,7 @@
     .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #0f0f0f; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 999px; }
-    .logo-ring {
-      border: 1px solid rgba(255,255,255,.08);
-      background: #0b0b0b;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
-    }
+
     .soft-border { border: 1px solid rgba(255,255,255,.06); }
     .mini-dot {
       width: 7px;
@@ -72,10 +71,12 @@
 
   <script type="text/babel">
     // =======================================================
-    // CONFIG
+    // CONFIG (mets tes valeurs)
     // =======================================================
     const SUPABASE_URL = "https://nhwafcpndlufzzxexikh.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt";
+
+    // Edge Function "live" (DB-only pour /matches /opportunities /today /status)
     const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live`;
 
     const supabase =
@@ -130,19 +131,21 @@
       const n = Number(value);
       return Number.isFinite(n) ? n : fallback;
     }
+
     function formatPercent(value) {
       return `${Math.round(safeNumber(value, 0) * 100)}%`;
     }
+
     function formatDateTime(ts) {
       try { return new Date(ts).toLocaleString("fr-FR"); } catch { return "-"; }
     }
+
     function formatTime(ts) {
       try {
         return new Date(ts).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
       } catch { return "-"; }
     }
 
-    // ✅ Format FR pour 7.5 -> 7,5
     function formatNumberFR(v) {
       if (v === null || v === undefined || v === "") return "";
       const n = Number(v);
@@ -158,7 +161,6 @@
       return "";
     }
 
-    // ✅ Titre simple et explicite : "Plus de 7,5 corners"
     function formatPredTitleSimple(pred) {
       const unit = guessUnitFromPred(pred);
       const thr = formatNumberFR(pred?.threshold);
@@ -173,38 +175,33 @@
       return pred?.title || "Prédiction";
     }
 
-    // ✅ Projection mise en avant (avant le seuil)
     function formatPredSubtitle(pred) {
       const projected = pred?.projected ?? "-";
       const current = pred?.current ?? "-";
-      
-      // Affichage de la fourchette si dispo (Enhanced)
       if (pred.expected_range && Array.isArray(pred.expected_range)) {
         const [low, high] = pred.expected_range;
         return `Fourchette: ${formatNumberFR(low)} - ${formatNumberFR(high)} • Actuel: ${current}`;
       }
-      
       return `Projection: ${projected} • Actuel: ${current}`;
     }
 
     // =======================================================
-    // LOGOS via Edge Function Proxy (Robuste)
+    // LOGOS (Edge Function proxy)
     // =======================================================
     function getTeamLogo(match, side = "home") {
-      // Essayer plusieurs chemins possibles pour l'ID
-      const obj = side === "home" ? match?.home_team_obj : match?.away_team_obj;
-      const directId = side === "home" ? match?.home_team_id : match?.away_team_id;
-      
-      const apiId = obj?.api_id || obj?.id || directId || match?.[`${side}_id`];
-      
-      if (!apiId) return null;
-      return `${EDGE_FUNCTION_URL}/img/team/${apiId}`;
+      const id =
+        side === "home"
+          ? (match?.home_team_id ?? match?.homeTeam?.id ?? match?.home?.id)
+          : (match?.away_team_id ?? match?.awayTeam?.id ?? match?.away?.id);
+
+      if (!id) return null;
+      return `${EDGE_FUNCTION_URL}/img/team/${id}`;
     }
-    
+
     function getLeagueLogo(match) {
-      const apiId = match?.league?.api_id || match?.league?.id || match?.league_id;
-      if (!apiId) return null;
-      return `${EDGE_FUNCTION_URL}/img/league/${apiId}`;
+      const id = match?.league?.api_id ?? match?.league_api_id ?? match?.tournament?.id;
+      if (!id) return null;
+      return `${EDGE_FUNCTION_URL}/img/league/${id}`;
     }
 
     // =======================================================
@@ -458,8 +455,8 @@
 
     const FreshnessBadge = ({ seconds }) => {
       if (seconds == null) return <Badge color="gray">maj inconnue</Badge>;
-      if (seconds <= 20) return <Badge color="green">maj {seconds}s</Badge>;
-      if (seconds <= 45) return <Badge color="yellow">maj {seconds}s</Badge>;
+      if (seconds <= 60) return <Badge color="green">maj {seconds}s</Badge>;
+      if (seconds <= 120) return <Badge color="yellow">maj {seconds}s</Badge>;
       return <Badge color="red">maj {seconds}s</Badge>;
     };
 
@@ -482,41 +479,125 @@
       </div>
     );
 
-    const LogoImg = ({ src, alt, size = 34, className = "" }) => {
+    // Logo amélioré (fallback initiales + skeleton)
+    const LogoImg = ({ src, alt, size = 34, className = "", shape = "circle" }) => {
       const [failed, setFailed] = useState(false);
+      const [loaded, setLoaded] = useState(false);
+
+      const initials = (alt || "?")
+        .split(" ")
+        .slice(0, 2)
+        .map(s => s?.[0]?.toUpperCase())
+        .join("") || "?";
+
+      const radius = shape === "rounded" ? "14px" : "999px";
+
       if (!src || failed) {
         return (
           <div
-            className={`logo-ring rounded-full flex items-center justify-center text-gray-500 ${className}`}
-            style={{ width: size, height: size }}
+            className={`flex items-center justify-center font-extrabold text-[11px] text-[#D4AF37] ${className}`}
+            style={{
+              width: size,
+              height: size,
+              borderRadius: radius,
+              background: "radial-gradient(circle at top, rgba(212,175,55,.18), rgba(0,0,0,.35))",
+              border: "1px solid rgba(212,175,55,.28)",
+              boxShadow: "0 6px 16px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.05)",
+            }}
+            title={alt}
           >
-            <i className="fas fa-shield-alt text-xs"></i>
+            {initials}
           </div>
         );
       }
+
       return (
-        <img
-          src={src}
-          alt={alt}
-          onError={() => setFailed(true)}
-          className={`logo-ring rounded-full object-contain p-1 ${className}`}
-          style={{ width: size, height: size }}
-        />
+        <div
+          className={className}
+          style={{
+            width: size,
+            height: size,
+            borderRadius: radius,
+            background: "rgba(0,0,0,.25)",
+            border: "1px solid rgba(212,175,55,.22)",
+            boxShadow: "0 6px 16px rgba(0,0,0,.45)",
+            overflow: "hidden",
+            position: "relative",
+          }}
+          title={alt}
+        >
+          {!loaded && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.10), rgba(255,255,255,.05))",
+                animation: "pulse-live 1.3s infinite",
+              }}
+            />
+          )}
+
+          <img
+            src={src}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+            onLoad={() => setLoaded(true)}
+            onError={() => setFailed(true)}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
+              padding: 4,
+              position: "relative",
+              zIndex: 2,
+            }}
+          />
+        </div>
       );
     };
 
     const TeamRow = ({ name, logo, align = "left" }) => (
       <div className={`flex items-center gap-2 ${align === "right" ? "justify-end" : ""} min-w-0`}>
-        {align !== "right" && <LogoImg src={logo} alt={name} size={28} />}
+        {align !== "right" && <LogoImg src={logo} alt={name} size={28} shape="circle" />}
         <span className="font-semibold text-white text-sm md:text-base truncate">{name}</span>
-        {align === "right" && <LogoImg src={logo} alt={name} size={28} />}
+        {align === "right" && <LogoImg src={logo} alt={name} size={28} shape="circle" />}
       </div>
     );
+
+    const CacheStatusPill = ({ statusInfo }) => {
+      const age = statusInfo?.cache?.live?.age_seconds;
+      const cronRefreshAge = statusInfo?.cron_runs?.find(r => r.name === "live_refresh")?.age_seconds;
+
+      let color = "gray";
+      if (age != null) {
+        if (age <= 60) color = "green";
+        else if (age <= 120) color = "yellow";
+        else color = "red";
+      }
+
+      return (
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge color={color}>
+            <Icon name="clock" size={11} />
+            Cache live: {age == null ? "?" : `${age}s`}
+          </Badge>
+          <Badge color="gray">
+            Cron refresh: {cronRefreshAge == null ? "?" : `${cronRefreshAge}s`}
+          </Badge>
+          {(statusInfo?.upstream?.blocked_for_seconds ?? 0) > 0 && (
+            <Badge color="orange">
+              Upstream bloqué {statusInfo.upstream.blocked_for_seconds}s
+            </Badge>
+          )}
+        </div>
+      );
+    };
 
     // =======================================================
     // HEADER
     // =======================================================
-    const Header = ({ stats, onBack, onRefresh, refreshing }) => {
+    const Header = ({ stats, statusInfo, onBack, onRefresh, refreshing }) => {
       return (
         <header className="sticky top-0 z-40 glass border-b border-[#1e1e1e]">
           <div className="max-w-7xl mx-auto px-3 py-3">
@@ -539,7 +620,10 @@
                     MrXPRONOS LIVE
                   </div>
                   <div className="text-[10px] sm:text-[11px] text-gray-400 mt-1 leading-tight truncate">
-                    {stats.matches_live || 0} live • {stats.predictions || 0} prédiction • {stats.upcoming || 0} avenir
+                    {stats.matches_live || 0} live • {stats.predictions || 0} opportunité • {stats.upcoming || 0} à venir
+                  </div>
+                  <div className="mt-2">
+                    <CacheStatusPill statusInfo={statusInfo} />
                   </div>
                 </div>
               </div>
@@ -548,6 +632,7 @@
                 <button
                   onClick={onRefresh}
                   className="w-11 h-11 rounded-2xl hover:bg-[#1a1a1a] soft-border flex items-center justify-center shrink-0"
+                  title="Rafraîchir"
                 >
                   <Icon name="refresh" size={16} className={refreshing ? "animate-spin text-[#D4AF37]" : ""} />
                 </button>
@@ -566,13 +651,13 @@
             <Badge color="red"><span className="mini-dot bg-red-500 live-pulse"></span> En direct</Badge>
           </div>
           <div className="text-sm md:text-base text-gray-300 mb-5">
-            Prédictions live (corners • tirs • fautes). Cliquez sur un match pour les détails.
+            Données depuis le cache Supabase (maj via cron). Cliquez sur un match pour les détails.
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <StatChip label="Live" value={stats.matches_live || 0} valueColor="text-red-500" />
-            <StatChip label="Top prédictions" value={topPredictionCount || 0} valueColor="text-[#D4AF37]" />
-            <StatChip label="Prédictions" value={stats.predictions || 0} valueColor="text-blue-400" />
-            <StatChip label="Avenir" value={upcomingCount || 0} valueColor="text-green-400" />
+            <StatChip label="Top opportunités" value={topPredictionCount || 0} valueColor="text-[#D4AF37]" />
+            <StatChip label="Opportunités" value={stats.predictions || 0} valueColor="text-blue-400" />
+            <StatChip label="À venir" value={upcomingCount || 0} valueColor="text-green-400" />
           </div>
         </Card>
       </div>
@@ -598,8 +683,8 @@
               <Badge color="gold">TOP {item.value_score || 0}</Badge>
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-400">
-              <LogoImg src={leagueLogo} alt={item?.league?.name} size={22} />
-              <span className="truncate max-w-[160px]">{item?.league?.name || "Ligue"}</span>
+              <LogoImg src={leagueLogo} alt={item?.league?.name} size={22} shape="rounded" />
+              <span className="truncate max-w-[180px]">{item?.league?.name || "Ligue"}</span>
             </div>
           </div>
 
@@ -607,7 +692,7 @@
             <TeamRow name={item.home_team} logo={homeLogo} align="right" />
             <div className="px-2 py-2 rounded-xl bg-[#0a0a0a] border border-[#D4AF37]/30 text-center min-w-[82px]">
               <div className="text-base font-extrabold text-[#D4AF37]">{item.home_score}-{item.away_score}</div>
-              <div className="text-[11px] text-gray-400">{item.current_minute}'</div>
+              <div className="text-[11px] text-gray-400">{item.current_minute || 0}'</div>
             </div>
             <TeamRow name={item.away_team} logo={awayLogo} align="left" />
           </div>
@@ -660,7 +745,7 @@
               <span className="text-red-500 text-xs font-bold whitespace-nowrap">LIVE {match.current_minute || 0}'</span>
               <span className="text-gray-600">•</span>
               <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
-                <LogoImg src={leagueLogo} alt={match?.league?.name} size={20} />
+                <LogoImg src={leagueLogo} alt={match?.league?.name} size={20} shape="rounded" />
                 <span className="truncate">{match?.league?.name || "Ligue"}</span>
               </div>
             </div>
@@ -707,7 +792,7 @@
             </div>
           ) : (
             <div className="pt-4 border-t border-[#222] text-xs text-gray-500">
-              Aucune prédiction fiable actuellement — cliquez pour voir les détails
+              Aucune opportunité fiable actuellement — cliquez pour voir les détails
             </div>
           )}
         </Card>
@@ -723,7 +808,7 @@
         <Card className="bg-[#101010]">
           <div className="flex items-center justify-between mb-3 gap-2">
             <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
-              <LogoImg src={leagueLogo} alt={match?.league?.name} size={20} />
+              <LogoImg src={leagueLogo} alt={match?.league?.name} size={20} shape="rounded" />
               <span className="truncate">{match?.league?.name || "Ligue"}</span>
             </div>
             <Badge color="gray">
@@ -733,12 +818,12 @@
 
           <div className="space-y-3">
             <div className="flex items-center gap-2 min-w-0">
-              <LogoImg src={homeLogo} alt={match.home_team} size={28} />
+              <LogoImg src={homeLogo} alt={match.home_team} size={28} shape="circle" />
               <span className="font-semibold text-sm truncate">{match.home_team}</span>
             </div>
             <div className="text-xs text-gray-500 text-center">vs</div>
             <div className="flex items-center gap-2 min-w-0">
-              <LogoImg src={awayLogo} alt={match.away_team} size={28} />
+              <LogoImg src={awayLogo} alt={match.away_team} size={28} shape="circle" />
               <span className="font-semibold text-sm truncate">{match.away_team}</span>
             </div>
           </div>
@@ -747,7 +832,7 @@
     };
 
     // =======================================================
-    // DETAIL (AVEC NOUVEAUX CHAMPS)
+    // DETAIL
     // =======================================================
     const MatchDetail = ({ match, onClose }) => {
       const [tab, setTab] = useState("signals");
@@ -780,7 +865,7 @@
                     <span className="text-red-500 text-sm font-bold">LIVE {match.current_minute || 0}'</span>
                     <span className="text-gray-500">|</span>
                     <div className="flex items-center gap-2 text-gray-400 text-sm min-w-0">
-                      <LogoImg src={leagueLogo} alt={match?.league?.name} size={22} />
+                      <LogoImg src={leagueLogo} alt={match?.league?.name} size={22} shape="rounded" />
                       <span className="truncate">{match.league?.name || ""}</span>
                     </div>
                     <FreshnessBadge seconds={match.freshness_seconds} />
@@ -810,7 +895,7 @@
                     tab === t ? "text-[#D4AF37] border-b-2 border-[#D4AF37]" : "text-gray-400"
                   }`}
                 >
-                  {t === "signals" ? "Prédictions" : "Statistiques"}
+                  {t === "signals" ? "Opportunités" : "Statistiques"}
                 </button>
               ))}
             </div>
@@ -819,7 +904,7 @@
               {tab === "signals" && (
                 <div className="space-y-4">
                   {(match.predictions || []).length === 0 ? (
-                    <div className="text-center text-gray-500 py-8">Aucune prédiction fiable actuellement</div>
+                    <div className="text-center text-gray-500 py-8">Aucune opportunité fiable actuellement</div>
                   ) : (
                     (match.predictions || []).map((p, i) => (
                       <div key={i} className="bg-[#0a0a0a] rounded-2xl p-4 border border-[#222]">
@@ -841,24 +926,6 @@
                         <div className="text-xs text-gray-300 mb-4 safe-wrap">
                           Projection: <strong>{p.projected ?? "-"}</strong> • Actuel: <strong>{p.current ?? "-"}</strong> • Seuil: <strong>{p.threshold ?? "-"}</strong>
                         </div>
-                        
-                        {/* Nouvelles métriques avancées si dispo */}
-                        {p.expected_range && (
-                          <div className="mb-4 p-3 rounded-lg bg-[#0f0f0f] border border-[#1a1a1a] text-xs text-gray-400 space-y-1">
-                            <div className="flex justify-between">
-                              <span>Fourchette attendue:</span>
-                              <span className="text-white font-medium">{formatNumberFR(p.expected_range[0])} - {formatNumberFR(p.expected_range[1])}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Volatilité:</span>
-                              <span className="text-white font-medium">{Math.round(safeNumber(p.volatility_score, 0) * 100)}%</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span>Sensibilité temps:</span>
-                              <span className="text-white font-medium">{Math.round(safeNumber(p.time_sensitivity, 0) * 100)}%</span>
-                            </div>
-                          </div>
-                        )}
 
                         <div className="grid grid-cols-2 gap-3 mb-4">
                           <ScoreBar value={Math.round((p.probability || 0) * 100)} label="Probabilité" color="#22C55E" />
@@ -969,7 +1036,7 @@
     );
 
     // =======================================================
-    // APP
+    // APP (optimisé pour backend cache DB + /status)
     // =======================================================
     const App = () => {
       const [userId] = useState(() => getUserId());
@@ -981,6 +1048,8 @@
       const [notifications, setNotifications] = useState([]);
       const [stats, setStats] = useState({ matches_live: 0, predictions: 0, upcoming: 0 });
 
+      const [statusInfo, setStatusInfo] = useState(null);
+
       const [loading, setLoading] = useState(true);
       const [refreshing, setRefreshing] = useState(false);
       const [error, setError] = useState(null);
@@ -990,9 +1059,10 @@
 
       const [toast, setToast] = useState(null);
 
-      const apiFetch = useCallback(async (endpoint) => {
+      // API JSON helper
+      const apiGetJson = useCallback(async (endpoint) => {
         const url = `${EDGE_FUNCTION_URL}${endpoint}`;
-        const res = await fetch(url);
+        const res = await fetch(url, { cache: "no-store" });
         if (!res.ok) {
           let message = `Erreur API ${res.status}`;
           try {
@@ -1001,7 +1071,7 @@
           } catch (_) {}
           throw new Error(message);
         }
-        return res;
+        return res.json();
       }, []);
 
       const fetchAll = useCallback(async (silent = false) => {
@@ -1009,19 +1079,30 @@
         setRefreshing(true);
 
         try {
-          const [matchesRes, oppRes, notifRes, historyRes, todayRes] = await Promise.all([
-            apiFetch("/matches"),
-            apiFetch("/opportunities"),
-            apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`),
-            apiFetch("/predictions/history"),
-            apiFetch("/today")
+          // allSettled: on évite qu’un endpoint casse tout l’écran
+          const results = await Promise.allSettled([
+            apiGetJson("/matches"),
+            apiGetJson("/opportunities"),
+            apiGetJson(`/notifications?user_id=${encodeURIComponent(userId)}`),
+            apiGetJson("/predictions/history"),
+            apiGetJson("/today"),
+            apiGetJson("/status"),
           ]);
 
-          const matchesData = await matchesRes.json();
-          const oppData = await oppRes.json();
-          const notifData = await notifRes.json();
-          const historyData = await historyRes.json();
-          const todayData = await todayRes.json();
+          const [matchesR, oppR, notifR, histR, todayR, statusR] = results;
+
+          const matchesData = matchesR.status === "fulfilled" ? matchesR.value : null;
+          const oppData = oppR.status === "fulfilled" ? oppR.value : { opportunities: [] };
+          const notifData = notifR.status === "fulfilled" ? notifR.value : { notifications: [] };
+          const historyData = histR.status === "fulfilled" ? histR.value : { history: [] };
+          const todayData = todayR.status === "fulfilled" ? todayR.value : { data: { scheduled: { matches: [] } } };
+          const statusData = statusR.status === "fulfilled" ? statusR.value : null;
+
+          // Si /matches échoue, on considère l’écran en erreur (données live indisponibles)
+          if (!matchesData?.matches) {
+            const reason = matchesR.status === "rejected" ? matchesR.reason : new Error("Données live indisponibles");
+            throw reason;
+          }
 
           const matches = matchesData.matches || [];
           const opps = oppData.opportunities || [];
@@ -1034,6 +1115,7 @@
           setNotifications(notifs);
           setHistory(hist);
           setScheduledMatches(scheduled);
+          if (statusData) setStatusInfo(statusData);
 
           const predictionsCount = matches.reduce(
             (acc, m) => acc + ((m.predictions || []).length > 0 ? 1 : 0),
@@ -1054,20 +1136,21 @@
           setLoading(false);
           setRefreshing(false);
         }
-      }, [apiFetch, userId]);
+      }, [apiGetJson, userId]);
 
       useEffect(() => {
         fetchAll(false);
       }, [fetchAll]);
 
+      // Polling live toutes les 1 minute (backend: cache DB)
       useEffect(() => {
         const interval = setInterval(() => {
           fetchAll(true).catch(console.error);
-        }, 20000);
+        }, 60000);
         return () => clearInterval(interval);
       }, [fetchAll]);
 
-      // realtime notifications (toast)
+      // Realtime notifications (toast)
       useEffect(() => {
         if (!supabase) return;
 
@@ -1095,9 +1178,7 @@
 
       const unreadCount = notifications.filter((n) => !n.read).length;
 
-      // =======================================================
-      // DÉDUPLICATION AFFICHAGE
-      // =======================================================
+      // Déduplication affichage
       const bestOpportunity = useMemo(() => opportunities?.[0] || null, [opportunities]);
 
       const otherOpportunities = useMemo(() => {
@@ -1149,6 +1230,7 @@
         <div className="min-h-screen bg-[#0a0a0a]">
           <Header
             stats={stats}
+            statusInfo={statusInfo}
             onBack={() => window.location.href = "index.html"}
             onRefresh={() => fetchAll(true)}
             refreshing={refreshing}
@@ -1210,7 +1292,7 @@
                   loading ? (
                     <div className="py-20 text-center">
                       <div className="w-12 h-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                      <div className="text-gray-400">Chargement des prédictions live...</div>
+                      <div className="text-gray-400">Chargement des données live...</div>
                     </div>
                   ) : (
                     <>
@@ -1227,12 +1309,12 @@
                       <div className="mb-8">
                         <div className="text-lg font-bold mb-4 flex items-center gap-2">
                           <Icon name="target" className="text-[#D4AF37]" />
-                          Prédictions live
+                          Opportunités live
                         </div>
 
                         {(otherOpportunities || []).length === 0 ? (
                           <EmptyState
-                            title={bestOpportunity ? "Aucune autre opportunité" : "Aucune prédiction premium"}
+                            title={bestOpportunity ? "Aucune autre opportunité" : "Aucune opportunité premium"}
                             subtitle={bestOpportunity
                               ? "L'opportunité principale est affichée en haut."
                               : "Le moteur live attend un contexte suffisamment fiable."
@@ -1274,13 +1356,13 @@
                       <div className="mb-8">
                         <div className="text-lg font-bold mb-4 flex items-center gap-2">
                           <Icon name="calendar" className="text-blue-400" />
-                          Matchs à venir
+                          Matchs à venir (aujourd’hui)
                         </div>
 
                         {scheduledMatches.length === 0 ? (
                           <EmptyState
                             title="Aucun match à venir"
-                            subtitle="Aucun match programmé sur la période actuelle."
+                            subtitle="Aucun match programmé (cache DB)."
                           />
                         ) : (
                           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -1298,13 +1380,13 @@
                   <div>
                     <div className="text-lg font-bold mb-4 flex items-center gap-2">
                       <Icon name="history" className="text-[#D4AF37]" />
-                      Historique des prédictions
+                      Historique des opportunités
                     </div>
 
                     {history.length === 0 ? (
                       <EmptyState
                         title="Aucun historique"
-                        subtitle="Les validations apparaîtront ici dès qu'une prédiction sera créée."
+                        subtitle="Les validations apparaîtront ici dès qu'une opportunité sera créée."
                       />
                     ) : (
                       <div className="bg-[#121212] rounded-2xl border border-[#232323] overflow-hidden">
@@ -1313,7 +1395,7 @@
                             <thead className="bg-[#0b0b0b] border-b border-[#232323]">
                               <tr>
                                 <th className="px-4 py-3 text-left">Match</th>
-                                <th className="px-4 py-3 text-left">Prédiction</th>
+                                <th className="px-4 py-3 text-left">Type</th>
                                 <th className="px-4 py-3 text-left">Score</th>
                                 <th className="px-4 py-3 text-left">Minute</th>
                                 <th className="px-4 py-3 text-left">Seuil</th>
@@ -1340,7 +1422,6 @@
                                     {h.validated ? (
                                       <span className={h.outcome === "success" ? "text-green-400" : "text-red-400"}>
                                         {h.outcome === "success" ? "✓ Réussie" : "✗ Échouée"}
-                                        {h.validation_type === "instant" && <span className="ml-1 text-[10px] text-[#D4AF37]">(Instant)</span>}
                                       </span>
                                     ) : (
                                       <span className="text-yellow-400">En attente</span>
