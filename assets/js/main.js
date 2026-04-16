@@ -1,9 +1,11 @@
 /**
  * main.js - Mr XPRONOS
  * Version stable + SEO amélioré (slug articles + conseils + metas dynamiques)
- * + Cookies 30 jours (mx_user_id + mx_vip_code)
+ * + Cookies (mx_user_id)
  * + PRO = 1 partage / jour
- * + VIP = code uniquement
+ * + VIP = 1 partage / jour
+ *
+ * (VIP PAYANT SUPPRIMÉ)
  */
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
   console.log = () => {};
@@ -13,6 +15,7 @@ if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1'
 let supabase = null;
 let supabaseAvailable = false;
 let supabaseConfig = { url: '', anonKey: '' };
+
 let allData = null;
 let currentCategory = 'simple';
 let currentSubcat = 'pronostics';
@@ -20,13 +23,15 @@ let currentDay = 'today';
 let filteredMatchesWithoutSearch = [];
 let searchTerm = '';
 let usingCachedData = false;
+
 let onlineChannel = null;
 let pendingShare = null;
 let generatedContentPromise = null;
+
 const activeChannels = new Set();
 
-// ✅ PRO = 1 partage/jour, VIP = code uniquement
-const shareLimits = { pro: 1 };
+// ■ PRO = 1 partage/jour, VIP = 1 partage/jour
+const shareLimits = { pro: 1, vip: 1 };
 
 const BASE_SITE_URL = 'https://mrxpronos.github.io/MrXPRONOS_App/';
 const POPULAR_LEAGUES = [
@@ -85,52 +90,66 @@ function initDOM() {
   DOM.matches = document.getElementById('matches-container');
   DOM.sharePopup = document.getElementById('share-popup');
   DOM.vipLockedOverlay = document.getElementById('vip-locked-overlay');
+
   DOM.bookmakersFooter = document.getElementById('bookmakers-footer');
   DOM.bookmakersBonus = document.getElementById('bookmakers-bonus');
   DOM.vipSubtabs = document.getElementById('vip-subtabs');
+
   DOM.usersCount = document.getElementById('total-users-count');
   DOM.onlineCount = document.getElementById('online-users-count');
   DOM.sharesCount = document.getElementById('total-shares-count');
+
   DOM.winsCount = document.getElementById('wins-count');
   DOM.successFill = document.getElementById('success-fill');
   DOM.successPercent = document.getElementById('success-percent');
+
   DOM.shareCounter = document.getElementById('share-counter');
   DOM.winsTrack = document.getElementById('wins-track');
+
   DOM.testimonials = document.getElementById('testimonials-container');
   DOM.todayPicks = document.getElementById('today-picks');
+
   DOM.searchInput = document.getElementById('search-input');
   DOM.historyContainer = document.getElementById('history-container');
+
   DOM.bonusSelect = document.getElementById('bonus-bookmaker-select');
   DOM.bonusGrid = document.getElementById('bonus-grid');
   DOM.bonusThumbnails = document.getElementById('bonus-thumbnails');
+
   DOM.bonusModal = document.getElementById('bonus-modal');
   DOM.articleModal = document.getElementById('article-modal');
   DOM.conseilModal = document.getElementById('conseil-modal');
   DOM.newsModal = document.getElementById('news-modal');
+
   DOM.winPopup = document.getElementById('win-popup');
   DOM.iosGuidePopup = document.getElementById('ios-guide-popup');
   DOM.installButton = document.getElementById('install-app');
+
   DOM.blogList = document.getElementById('blog-list');
   DOM.blogPost =
     document.getElementById('blog-post') ||
     document.getElementById('blog-post-content') ||
     document.getElementById('article-page-content');
+
   DOM.conseilPost = document.getElementById('conseil-post');
   DOM.conseilsList = document.getElementById('conseils-list');
+
   DOM.infosList = document.getElementById('infos-list');
   DOM.footNewsContainer = document.getElementById('foot-news-container');
+
   DOM.successRateContainer = document.getElementById('success-rate-container');
 }
 
 /* =======================================================
- SECURITY
- ======================================================= */
+   SECURITY
+======================================================= */
 function escapeHtml(text) {
   if (text === null || text === undefined) return '';
   const div = document.createElement('div');
   div.textContent = String(text);
   return div.innerHTML;
 }
+
 function escapeAttribute(text) {
   if (text === null || text === undefined) return '';
   return String(text)
@@ -140,6 +159,7 @@ function escapeAttribute(text) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 }
+
 function stripMarkdown(text = '') {
   return String(text)
     .replace(/#+\s*/g, '')
@@ -149,6 +169,7 @@ function stripMarkdown(text = '') {
     .replace(/\[|\]/g, '')
     .trim();
 }
+
 function sanitizeHtml(unsafeHtml = '') {
   const template = document.createElement('template');
   template.innerHTML = unsafeHtml;
@@ -224,8 +245,8 @@ function renderSafeRichContent(content = '') {
 }
 
 /* =======================================================
- UTILS
- ======================================================= */
+   UTILS
+======================================================= */
 function showToast(message, type = 'info', duration = 4000) {
   const toast = document.createElement('div');
   toast.textContent = message;
@@ -250,17 +271,20 @@ function toFloatSafe(value, defaultValue = null) {
   const n = Number(value);
   return Number.isFinite(n) ? n : defaultValue;
 }
+
 function safeJsonParse(value, fallback = null) {
   try { return JSON.parse(value); } catch { return fallback; }
 }
 
 /* =======================================================
- COOKIES (30 jours)
- ======================================================= */
+   COOKIES (long)
+======================================================= */
 const COOKIE_DAYS = 1000000;
 
 function getCookie(name) {
-  const m = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + '=([^;]*)'));
+  const m = document.cookie.match(
+    new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()[\]\\/+^])/g, '\\$1') + '=([^;]*)')
+  );
   return m ? decodeURIComponent(m[1]) : null;
 }
 
@@ -276,8 +300,8 @@ function deleteCookie(name) {
 }
 
 /* =======================================================
- USER ID (cookie + localStorage)
- ======================================================= */
+   USER ID (cookie + localStorage)
+======================================================= */
 function getUserId() {
   let userId = localStorage.getItem('mx_user_id') || getCookie('mx_user_id');
   if (!userId) {
@@ -296,6 +320,7 @@ function isFinishedMatch(match) {
   const status = (match.status || '').toLowerCase();
   return status.includes('finished') || status.includes('terminé') || status.includes('ended') || status.includes('ft');
 }
+
 function getTodayString() {
   return new Date().toDateString();
 }
@@ -312,8 +337,8 @@ function cleanupChannels() {
 window.addEventListener('beforeunload', cleanupChannels);
 
 /* =======================================================
- PAGE DETECTION
- ======================================================= */
+   PAGE DETECTION
+======================================================= */
 function detectPage() {
   if (DOM.matches) return 'pronos';
   if (DOM.historyContainer) return 'history';
@@ -328,8 +353,8 @@ function detectPage() {
 }
 
 /* =======================================================
- SUPABASE
- ======================================================= */
+   SUPABASE
+======================================================= */
 async function initSupabase() {
   const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout Supabase')), 5000));
   try {
@@ -350,8 +375,8 @@ async function initSupabase() {
 }
 
 /* =======================================================
- PUSH / COUNTERS / ANALYTICS / PWA / SHARE / VIP
- ======================================================= */
+   PUSH / COUNTERS / ANALYTICS
+======================================================= */
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -362,116 +387,104 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 async function subscribeToPush(askPermission = false) {
-    if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
-    if (!supabaseConfig.url) return;
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  if (!supabaseConfig.url) return;
+  try {
+    let permission = Notification.permission;
+    if (permission === 'default' && askPermission) permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
 
+    let swReady = null;
     try {
-        let permission = Notification.permission;
-        if (permission === 'default' && askPermission) permission = await Notification.requestPermission();
-        if (permission !== 'granted') return;
-
-        // Timeout de 3 secondes
-        let swReady = null;
-        try {
-            swReady = await Promise.race([
-                navigator.serviceWorker.ready,
-                new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000))
-            ]);
-        } catch (e) {
-            console.warn('Service Worker non prêt, push désactivé');
-            return;
-        }
-        
-        if (!swReady) return;
-
-        let subscription = await swReady.pushManager.getSubscription();
-        if (!subscription) {
-            try {
-                // Récupérer la clé VAPID avec gestion CORS
-                const keyResp = await fetch(`${supabaseConfig.url}/functions/v1/vapid-public-key`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                }).catch(() => null);
-                
-                if (!keyResp || !keyResp.ok) {
-                    console.warn('Impossible de récupérer la clé VAPID');
-                    return;
-                }
-                
-                const publicKey = (await keyResp.text()).trim();
-                if (!publicKey) return;
-                
-                const convertedKey = urlBase64ToUint8Array(publicKey);
-                subscription = await swReady.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: convertedKey
-                });
-            } catch (pushError) {
-                console.warn('Push non supporté:', pushError);
-                return;
-            }
-        }
-
-        const userId = getUserId();
-        
-        // Envoyer l'abonnement avec gestion d'erreur silencieuse
-        await fetch(`${supabaseConfig.url}/functions/v1/push-subscribe`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ user_id: userId, subscription })
-        }).catch(e => {
-            // Ignorer silencieusement les erreurs CORS pour ne pas bloquer l'app
-            console.debug('Push subscription non enregistrée (CORS)', e.message);
-        });
-        
-    } catch (err) {
-        // Ignorer silencieusement
-        console.debug('Push non disponible:', err.message);
+      swReady = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000))
+      ]);
+    } catch (e) {
+      console.warn('Service Worker non prêt, push désactivé');
+      return;
     }
+
+    if (!swReady) return;
+    let subscription = await swReady.pushManager.getSubscription();
+
+    if (!subscription) {
+      try {
+        const keyResp = await fetch(`${supabaseConfig.url}/functions/v1/vapid-public-key`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        }).catch(() => null);
+
+        if (!keyResp || !keyResp.ok) {
+          console.warn('Impossible de récupérer la clé VAPID');
+          return;
+        }
+
+        const publicKey = (await keyResp.text()).trim();
+        if (!publicKey) return;
+
+        const convertedKey = urlBase64ToUint8Array(publicKey);
+        subscription = await swReady.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedKey
+        });
+      } catch (pushError) {
+        console.warn('Push non supporté:', pushError);
+        return;
+      }
+    }
+
+    const userId = getUserId();
+    await fetch(`${supabaseConfig.url}/functions/v1/push-subscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, subscription })
+    }).catch(e => {
+      console.debug('Push subscription non enregistrée (CORS)', e.message);
+    });
+
+  } catch (err) {
+    console.debug('Push non disponible:', err.message);
+  }
 }
 
 window.enablePushNotifications = async function () {
   await subscribeToPush(true);
 };
 
+function getOS() {
+  const ua = window.navigator.userAgent;
+  if (/iPad|iPhone|iPod/.test(ua)) return 'iOS';
+  if (/Android/.test(ua)) return 'Android';
+  return 'Other';
+}
+
+function isPwaInstalled() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+}
+
 /* =======================================================
    PUSH PERMISSION PROMPT (popup interne)
-   - Affiche un bandeau "Activer les notifications"
-   - Au clic => Notification.requestPermission() via enablePushNotifications()
-   - Affiche un message explicatif si les notifications sont déjà bloquées
 ======================================================= */
 function getPushPromptMode() {
-  // support de base
   if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) {
     return "unsupported";
   }
-
-  // iOS (tu es Android/PC donc pas bloquant, mais on garde)
   if (getOS() === "iOS" && !isPwaInstalled()) return "ios_need_install";
 
   const perm = Notification.permission;
-
-  // déjà ok => pas besoin d'afficher
   if (perm === "granted") return "granted";
-
-  // si bloqué => on affiche un message “débloquer”
   if (perm === "denied") return "denied";
 
-  // perm === "default"
   const snoozeUntil = Number(localStorage.getItem("mx_push_snooze_until") || "0");
   if (Date.now() < snoozeUntil) return "snoozed";
-
   return "ask";
 }
 
 function buildPushPromptEl() {
   let el = document.getElementById("push-permission");
   if (el) return el;
-
   el = document.createElement("div");
   el.id = "push-permission";
   el.style.cssText = `
@@ -492,7 +505,6 @@ function showPushPrompt() {
 
   const el = buildPushPromptEl();
 
-  // contenu selon mode
   if (mode === "denied") {
     el.innerHTML = `
       <div style="
@@ -502,9 +514,7 @@ function showPushPrompt() {
         padding:12px;
         box-shadow:0 18px 60px rgba(0,0,0,.6);
       ">
-        <div style="font-weight:900;color:#D4AF37;margin-bottom:6px;">
-          Notifications bloquées
-        </div>
+        <div style="font-weight:900;color:#D4AF37;margin-bottom:6px;">Notifications bloquées</div>
         <div style="color:#ddd;font-size:.92rem;margin-bottom:10px;">
           Vous avez bloqué les notifications pour ce site.
           <br><br>
@@ -517,22 +527,15 @@ function showPushPrompt() {
         </div>
       </div>
     `;
-
-    el.querySelector("#push-close")?.addEventListener("click", () => {
-      el.style.display = "none";
-    });
-
-    // “Me le rappeler” : on snooze seulement 2h (au lieu de 24h)
+    el.querySelector("#push-close")?.addEventListener("click", () => { el.style.display = "none"; });
     el.querySelector("#push-remind")?.addEventListener("click", () => {
       localStorage.setItem("mx_push_snooze_until", String(Date.now() + 2 * 60 * 60 * 1000));
       el.style.display = "none";
     });
-
     el.style.display = "block";
     return;
   }
 
-  // mode === "ask"
   el.innerHTML = `
     <div style="
       background:#1A1A1A;
@@ -541,9 +544,7 @@ function showPushPrompt() {
       padding:12px;
       box-shadow:0 18px 60px rgba(0,0,0,.6);
     ">
-      <div style="font-weight:900;color:#D4AF37;margin-bottom:6px;">
-        Activer les notifications ?
-      </div>
+      <div style="font-weight:900;color:#D4AF37;margin-bottom:6px;">Activer les notifications ?</div>
       <div style="color:#ddd;font-size:.92rem;margin-bottom:10px;">
         Recevez une alerte quand de nouveaux coupons sont disponibles.
       </div>
@@ -553,28 +554,22 @@ function showPushPrompt() {
       </div>
     </div>
   `;
-
   el.querySelector("#push-later")?.addEventListener("click", () => {
-    // snooze 24h
     localStorage.setItem("mx_push_snooze_until", String(Date.now() + 24 * 60 * 60 * 1000));
     el.style.display = "none";
   });
-
   el.querySelector("#push-allow")?.addEventListener("click", async () => {
     try {
-      // Doit être déclenché par un clic utilisateur ✅
       await window.enablePushNotifications?.();
     } catch (e) {
       console.error("enablePushNotifications error:", e);
     } finally {
       el.style.display = "none";
-      // si l'utilisateur accepte, on nettoie le snooze
       if (Notification.permission === "granted") {
         localStorage.removeItem("mx_push_snooze_until");
       }
     }
   });
-
   el.style.display = "block";
 }
 
@@ -688,17 +683,9 @@ async function initOnlineUsers() {
     });
 }
 
-function getOS() {
-  const ua = window.navigator.userAgent;
-  if (/iPad|iPhone|iPod/.test(ua)) return 'iOS';
-  if (/Android/.test(ua)) return 'Android';
-  return 'Other';
-}
-function isPwaInstalled() {
-  return window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true;
-}
-
+/* =======================================================
+   IOS GUIDE
+======================================================= */
 function showIosGuideIfNeeded() {
   if (getOS() === 'iOS' && !isPwaInstalled()) {
     const lastClosed = localStorage.getItem('iosGuideLastClosed');
@@ -716,8 +703,8 @@ function closeIosGuide() {
 }
 
 /* =======================================================
- PARTAGES (compteur journalier)
- ======================================================= */
+   PARTAGES (compteur journalier)
+======================================================= */
 function getDailyShareCount() {
   const lastReset = localStorage.getItem('shareLastReset');
   const todayKey = getTodayString();
@@ -795,16 +782,13 @@ function openShareWindow(url) {
 }
 
 function share(platform) {
-  const message = `■ PRONOSTICS FOOTBALL GRATUITS■
-Je viens de découvrir ce site ■
-Ils donnent :
-■ 80% de précision
-■ 80% des coupons gagnant chaque jour
-■ statistiques + analyse
-■ pronostics fiables
-■ Accède aux matchs du jour :
-${BASE_SITE_URL}
-■ Très utile pour les paris sportifs !`;
+  const message = `Salut frère 👋😄,
+
+Avec ce site, on ne va plus perdre les coupons  : il propose des coupons plutôt fiables, même pour les matchs en live ⚽🔥🤑
+
+Je viens de le découvrir 🔍 et, pour l’instant, c’est totalement gratuit 🎁… autant en profiter maintenant avant que ça devienne payant ⏳💸
+
+Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
 
   const url = platform === 'whatsapp'
     ? `https://wa.me/?text=${encodeURIComponent(message)}`
@@ -816,10 +800,11 @@ ${BASE_SITE_URL}
 
 function sharePronostic(match) {
   if (!match || !match.prediction) return;
-  const msg = `■ PRONOSTICS FOOTBALL GRATUITS
+
+  const msg = `■ COUPONS GRATUITS
 ■ ${match.home_team} vs ${match.away_team}
 ■ Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%
-■ Analyse complète :
+■ Plus de Coupons :
 ${BASE_SITE_URL}
 ■ Rejoins les gagnants !`;
 
@@ -834,8 +819,8 @@ ${BASE_SITE_URL}
 }
 
 /* =======================================================
- OVERLAY (verrouillage PRO par partage)
- ======================================================= */
+   OVERLAY (verrouillage PRO/VIP par partage)
+======================================================= */
 function ensureVipOverlayStructure() {
   if (!DOM.vipLockedOverlay) return;
   if (DOM.vipLockedOverlay.children.length === 0) {
@@ -844,16 +829,20 @@ function ensureVipOverlayStructure() {
         <div class="lock-icon">🔒</div>
         <h3></h3>
         <p></p>
+
         <div class="share-buttons vip-contact-buttons" style="display:flex; gap:10px; justify-content:center; margin:20px 0;">
           <button id="share-wa-locked" class="btn btn-primary">WhatsApp</button>
           <button id="share-tg-locked" class="btn btn-primary">Telegram</button>
         </div>
+
         <p>Partages actuels : <span id="share-count-locked">0</span>/<span id="share-target-locked">1</span></p>
         <button id="close-locked" class="btn btn-secondary">Fermer</button>
       </div>
     `;
+
     document.getElementById('share-wa-locked')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg-locked')?.addEventListener('click', () => share('telegram'));
+
     document.getElementById('close-locked')?.addEventListener('click', () => {
       DOM.vipLockedOverlay.style.display = 'none';
       if (DOM.matches) DOM.matches.style.display = 'grid';
@@ -863,20 +852,24 @@ function ensureVipOverlayStructure() {
 
 function showVipLocked(category) {
   const target = shareLimits[category];
-  if (!target) return; // ✅ pas de partage pour VIP
+  if (!target) return;
 
   const shareCount = getDailyShareCount();
   const remaining = Math.max(0, target - shareCount);
 
+  const label = category === 'pro' ? 'Pro' : category === 'vip' ? 'VIP' : 'Premium';
+
   if (DOM.vipLockedOverlay) {
     ensureVipOverlayStructure();
+
     const titleEl = DOM.vipLockedOverlay.querySelector('h3');
     const textEl = DOM.vipLockedOverlay.querySelector('p');
     const shareCountEl = document.getElementById('share-count-locked');
     const shareTargetEl = document.getElementById('share-target-locked');
 
-    if (titleEl) titleEl.textContent = `🔒 Pronostics ${category === 'pro' ? 'Pro' : 'Premium'} verrouillés`;
+    if (titleEl) titleEl.textContent = `■ Pronostics ${label} verrouillés`;
     if (textEl) textEl.innerHTML = `Partagez ce lien à <strong>${remaining}</strong> ami(s) pour débloquer.`;
+
     if (shareCountEl) shareCountEl.textContent = String(shareCount);
     if (shareTargetEl) shareTargetEl.textContent = String(target);
 
@@ -896,18 +889,22 @@ function hideVipLocked() {
 
 function showSharePopup(category, remaining) {
   if (!DOM.sharePopup) createSharePopup();
+
   const shareCount = getDailyShareCount();
+  const target = shareLimits[category] || 0;
+  const label = category === 'pro' ? 'Pro' : category === 'vip' ? 'VIP' : 'Premium';
 
   const currentEl = document.getElementById('share-current');
   const targetEl = document.getElementById('share-target');
   const messageEl = document.getElementById('share-message');
 
   if (currentEl) currentEl.textContent = String(shareCount);
-  if (targetEl) targetEl.textContent = String(shareLimits[category] || 0);
+  if (targetEl) targetEl.textContent = String(target);
 
   if (messageEl) {
-    messageEl.innerHTML = `Pour accéder aux pronostics ${category === 'pro' ? 'Pro' : 'VIP'}, partagez ce lien à <span id="share-remaining">${remaining}</span> amis sur WhatsApp ou Telegram.`;
+    messageEl.innerHTML = `Pour accéder aux pronostics <strong>${label}</strong>, partagez ce lien à <span id="share-remaining">${remaining}</span> ami(s) sur WhatsApp ou Telegram.`;
   }
+
   DOM.sharePopup.classList.add('active');
 }
 
@@ -918,7 +915,9 @@ function createSharePopup() {
   popup.innerHTML = `
     <div class="popup-content">
       <h3>🔒 Contenu premium</h3>
-      <p id="share-message">Pour accéder aux pronostics Pro, partagez ce lien à <span id="share-remaining">1</span> ami sur WhatsApp ou Telegram.</p>
+      <p id="share-message">
+        Pour débloquer, partagez ce lien à <span id="share-remaining">1</span> ami sur WhatsApp ou Telegram.
+      </p>
       <div class="share-buttons">
         <button id="share-wa" class="btn btn-primary">WhatsApp</button>
         <button id="share-tg" class="btn btn-primary">Telegram</button>
@@ -936,124 +935,21 @@ function createSharePopup() {
 }
 
 /* =======================================================
- VIP (code) - cookie + localStorage
- ======================================================= */
-async function checkVipStatus() {
-  if (!supabaseAvailable || !supabase) return false;
-
-  const userId = getUserId();
-  const storedCode = localStorage.getItem('mx_vip_code') || getCookie('mx_vip_code');
-  if (!storedCode) return false;
-
-  try {
-    const { data, error } = await supabase.rpc('check_vip_code', {
-      p_user_id: userId,
-      p_code: storedCode
-    });
-    if (error) throw error;
-
-    if (Array.isArray(data)) return data[0]?.valid === true;
-    if (typeof data === 'boolean') return data;
-    return data?.valid === true;
-  } catch (e) {
-    console.error('Erreur vérification VIP:', e);
-    // ✅ si invalide, on nettoie
-    localStorage.removeItem('mx_vip_code');
-    deleteCookie('mx_vip_code');
-    return false;
-  }
-}
-
-function showVipLoginForm(container) {
-  const userId = getUserId();
-  const encodedUserId = encodeURIComponent(userId);
-
-  container.innerHTML = `
-    <div class="vip-locked-content" style="display:block;">
-      <div class="lock-icon">💎</div>
-      <h3>🔐 Accès VIP Payant</h3>
-
-      <p><strong>Votre ID :</strong> ${escapeHtml(userId)}</p>
-      <p>Pour obtenir un code VIP (5000 FCFA/mois), contactez-nous sur WhatsApp ou Telegram avec votre ID.</p>
-
-      <div class="vip-contact-buttons" style="display:flex; gap:10px; justify-content:center; margin:20px 0;">
-        <a href="https://wa.me/22899201444?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodedUserId}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">WhatsApp</a>
-        <a href="https://t.me/mr_xpronos?text=Bonjour%2C%20voici%20mon%20ID%20VIP%20${encodedUserId}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Telegram</a>
-      </div>
-
-      <hr style="border-color:#444; margin:20px 0;">
-
-      <p>Si vous avez déjà un code, saisissez-le ci-dessous :</p>
-      <input type="text" id="vip-code-input" placeholder="Code VIP"
-        style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #D4AF37; background:#0D0D0D; color:#fff;">
-
-      <button id="vip-activate-btn" class="btn btn-primary" style="width:100%;">Activer</button>
-      <button id="vip-close-btn" class="btn btn-secondary" style="width:100%; margin-top:10px;">Fermer</button>
-    </div>
-  `;
-
-  document.getElementById('vip-activate-btn')?.addEventListener('click', async () => {
-    const codeInput = document.getElementById('vip-code-input');
-    if (!codeInput) return;
-
-    const code = codeInput.value.trim();
-    if (!code) return alert('Veuillez entrer un code.');
-
-    const uid = getUserId();
-    try {
-      const { data, error } = await supabase.rpc('check_vip_code', {
-        p_user_id: uid,
-        p_code: code
-      });
-
-      const valid = Array.isArray(data)
-        ? data[0]?.valid === true
-        : (data?.valid === true || data === true);
-
-      if (error || !valid) throw new Error('Code invalide');
-
-      // ✅ stocker dans localStorage + cookie 30 jours
-      localStorage.setItem('mx_vip_code', code);
-      setCookie('mx_vip_code', code, COOKIE_DAYS);
-
-      recordEvent('vip_conversion', window.location.pathname);
-      showToast('Code VIP activé avec succès !', 'success');
-
-      window.location.reload();
-    } catch {
-      alert('Code invalide ou expiré.');
-    }
-  });
-
-  document.getElementById('vip-close-btn')?.addEventListener('click', () => {
-    container.style.display = 'none';
-    if (DOM.matches) DOM.matches.style.display = 'grid';
-  });
-}
-
-// Utilisé par le menu burger si tu cliques LIVE VIP
-window.handleVipMenuClick = async function () {
-  const isVip = await checkVipStatus();
-  if (isVip) {
-    window.location.href = `${BASE_SITE_URL}live.html`;
-  } else {
-    if (DOM.vipLockedOverlay) {
-      showVipLoginForm(DOM.vipLockedOverlay);
-      DOM.vipLockedOverlay.style.display = 'flex';
-      if (DOM.matches) DOM.matches.style.display = 'none';
-    } else {
-      alert('Accès VIP payant. Contactez-nous sur WhatsApp ou Telegram.');
-    }
-  }
+   LIVE VIP MENU CLICK (PAYANT SUPPRIMÉ)
+======================================================= */
+window.handleVipMenuClick = function () {
+  // Le verrouillage LIVE VIP doit être géré dans live.html (ShareGate)
+  window.location.href = `${BASE_SITE_URL}live.html`;
 };
 window.handleVipClick = window.handleVipMenuClick;
 
 /* =======================================================
- DATA LOADING
- ======================================================= */
+   DATA LOADING
+======================================================= */
 async function fetchJsonWithCache(url, cacheKey, timeoutMs = 8000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const resp = await fetch(url, { signal: controller.signal, cache: 'no-cache' });
     clearTimeout(timeoutId);
@@ -1075,7 +971,7 @@ async function loadData() {
   allData = data;
 
   if (!allData) {
-    if (DOM.matches) DOM.matches.innerHTML = `<div class="error">❌ Aucune donnée disponible.</div>`;
+    if (DOM.matches) DOM.matches.innerHTML = `<div class="error">■ Aucune donnée disponible.</div>`;
     return;
   }
 
@@ -1093,8 +989,8 @@ async function loadDataGeneric() {
 }
 
 /* =======================================================
- BOOKMAKERS
- ======================================================= */
+   BOOKMAKERS
+======================================================= */
 function renderBookmakers(bookmakers) {
   const defaultBookmakers = [
     { name: "1xBet", logo: "assets/images/1xbet.webp", url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599", desc: "Bonus de bienvenue jusqu'à 130€" },
@@ -1125,6 +1021,7 @@ function renderBookmakers(bookmakers) {
       img.loading = 'lazy';
       img.decoding = 'async';
       img.style.maxHeight = '40px';
+
       img.onerror = function () {
         this.style.display = 'none';
         const span = document.createElement('span');
@@ -1157,8 +1054,8 @@ function renderBookmakers(bookmakers) {
 }
 
 /* =======================================================
- PRONOS PAGE
- ======================================================= */
+   PRONOS PAGE
+======================================================= */
 function getLocalDateString(day) {
   const now = new Date();
   const target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
@@ -1185,10 +1082,13 @@ function sortMatchesByLeague(matches) {
   return matches.sort((a, b) => {
     const leagueA = a.league || '';
     const leagueB = b.league || '';
+
     const indexA = POPULAR_LEAGUES.findIndex(l => leagueA.includes(l) || leagueA === l);
     const indexB = POPULAR_LEAGUES.findIndex(l => leagueB.includes(l) || leagueB === l);
+
     const rankA = indexA === -1 ? 999 : indexA;
     const rankB = indexB === -1 ? 999 : indexB;
+
     if (rankA !== rankB) return rankA - rankB;
     return new Date(a.event_date || 0) - new Date(b.event_date || 0);
   });
@@ -1230,18 +1130,21 @@ function getTeamLogoPath(teamName, isHome = true) {
 
 function hideEmptyTabs() {
   const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
+
   const counts = { simple: 0, pro: 0, vip: 0 };
   if (allData?.matches) {
     allData.matches.forEach(m => {
       if (counts[m.category] !== undefined) counts[m.category]++;
     });
   }
+
   qsa('.tab-btn').forEach(btn => {
     const cat = btn.dataset.cat;
     if (cat === 'vip' && !vipEnabled) btn.style.display = 'none';
     else if (cat === 'pro' || cat === 'vip') btn.style.display = 'inline-block';
     else btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
   });
+
   if (DOM.vipSubtabs) DOM.vipSubtabs.style.display = vipEnabled ? 'flex' : 'none';
 }
 
@@ -1294,7 +1197,7 @@ function renderMatches(matches) {
 
   const offlineBanner = (usingCachedData && !navigator.onLine)
     ? `<div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem; margin-bottom:12px;">
-        ⚠️ MODE HORS LIGNE — Pronostics chargés depuis le cache
+        ■■ MODE HORS LIGNE — Pronostics chargés depuis le cache
       </div>`
     : '';
 
@@ -1321,6 +1224,7 @@ function renderMatches(matches) {
 
   sortedLeagues.forEach(league => {
     html += `<h2 class="league-header" style="color: var(--or); margin-top: 2rem;">${escapeHtml(league)}</h2>`;
+
     grouped[league].forEach(m => {
       const pred = m.prediction || {};
       const doubleChance = escapeHtml(pred.double_chance || 'N/A');
@@ -1333,10 +1237,12 @@ function renderMatches(matches) {
       const matchTime = formatMatchTime(m.event_date);
       const statusFr = translateStatus(m.status);
       const statusClass = getStatusClass(m.status);
+
       const eventDate = m.event_date ? String(m.event_date).split('T')[0] : '';
       const yesterdayStr = getLocalDateString('yesterday');
       const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
-      const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">⭐ Premium</span>' : '';
+
+      const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">■ Premium</span>' : '';
 
       const homeDefault = 'assets/images/home.webp';
       const awayDefault = 'assets/images/away.webp';
@@ -1345,6 +1251,7 @@ function renderMatches(matches) {
 
       const isWinner = !!m.verified_double;
       const winnerClass = isWinner ? 'winner' : '';
+
       const xpronosBadge = m.badge ? `<span class="xpronos-badge">${escapeHtml(m.badge)}</span>` : '';
 
       const matchDataForSharing = {
@@ -1360,6 +1267,7 @@ function renderMatches(matches) {
       html += `
         <div class="match-card ${winnerClass}">
           <div class="win-effect"></div>
+
           <div class="match-info">
             <div class="teams">
               <div class="team">
@@ -1367,7 +1275,9 @@ function renderMatches(matches) {
                 <span class="team-name">${escapeHtml(m.home_team)}</span>
                 <span class="team-score">${m.home_score ?? '-'}</span>
               </div>
+
               <div class="vs">VS</div>
+
               <div class="team">
                 <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';">
                 <span class="team-name">${escapeHtml(m.away_team)}</span>
@@ -1378,7 +1288,7 @@ function renderMatches(matches) {
             <div class="match-meta">
               <span class="league-badge">${escapeHtml(m.league || 'Ligue')}</span>
               <span class="status ${statusClass}">${statusFr}</span>
-              <span class="match-time"><i>🕒</i> ${matchTime}</span>
+              <span class="match-time"><i>⏰</i> ${matchTime}</span>
               ${m.venue ? `<span class="match-venue"><i>📍</i> ${escapeHtml(m.venue)}</span>` : ''}
             </div>
           </div>
@@ -1386,10 +1296,12 @@ function renderMatches(matches) {
           <div class="analysis-panel ticket ${winnerClass}">
             <h4>Pronostic ${xpronosBadge}</h4>
             <p><strong>Double chance :</strong> ${doubleChance} ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}</p>
+
             <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
             <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
+
             ${premiumBadge}
-            <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}">📤 Partager ce prono</button>
+            <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}">■ Partager ce prono</button>
           </div>
         </div>
       `;
@@ -1407,12 +1319,12 @@ function renderMatches(matches) {
 }
 
 /* =======================================================
- HISTORY PAGE
- ======================================================= */
+   HISTORY PAGE
+======================================================= */
 async function displayHistory() {
   if (!DOM.historyContainer) return;
-  allData = await loadDataGeneric();
 
+  allData = await loadDataGeneric();
   if (!allData || !Array.isArray(allData.matches)) {
     DOM.historyContainer.innerHTML = '<div class="no-events">Aucun historique disponible.</div>';
     return;
@@ -1452,7 +1364,6 @@ async function displayHistory() {
 
     groupedByDay[day].forEach(m => {
       const pred = m.prediction || {};
-
       let confidence = toFloatSafe(pred.confidence, 0) || 0;
       if (confidence <= 1) confidence = confidence * 100;
       else if (confidence > 100) confidence = confidence / 100;
@@ -1469,7 +1380,9 @@ async function displayHistory() {
                 <span class="team-name">${escapeHtml(m.home_team)}</span>
                 <span class="team-score">${m.home_score ?? '-'}</span>
               </div>
+
               <div class="vs">VS</div>
+
               <div class="team">
                 <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
                 <span class="team-name">${escapeHtml(m.away_team)}</span>
@@ -1494,16 +1407,18 @@ async function displayHistory() {
 }
 
 /* =======================================================
- CONTENT GENERATION
- ======================================================= */
+   CONTENT GENERATION
+======================================================= */
 async function loadGeneratedContent() {
   if (generatedContentPromise) return generatedContentPromise;
+
   generatedContentPromise = (async () => {
     try {
       const [articlesResp, conseilsResp] = await Promise.all([
         fetch(`articles.json?t=${Date.now()}`, { cache: 'no-cache' }).catch(() => null),
         fetch(`conseils.json?t=${Date.now()}`, { cache: 'no-cache' }).catch(() => null)
       ]);
+
       window.generatedArticles = articlesResp && articlesResp.ok ? await articlesResp.json() : [];
       window.generatedConseils = conseilsResp && conseilsResp.ok ? await conseilsResp.json() : [];
     } catch (error) {
@@ -1512,12 +1427,13 @@ async function loadGeneratedContent() {
       window.generatedConseils = [];
     }
   })();
+
   return generatedContentPromise;
 }
 
 /* =======================================================
- PUBLISHED JSON EXTRAS
- ======================================================= */
+   PUBLISHED JSON EXTRAS
+======================================================= */
 async function fetchOptionalJson(file) {
   try {
     const r = await fetch(`${file}?t=${Date.now()}`, { cache: 'no-cache' });
@@ -1549,8 +1465,8 @@ async function loadPublishedExtras() {
 }
 
 /* =======================================================
- BLOG
- ======================================================= */
+   BLOG
+======================================================= */
 window.showArticleDetail = function (index) {
   const article = window.articlesData?.[index];
   if (!article) return;
@@ -1573,10 +1489,7 @@ window.showArticleDetail = function (index) {
   const linkEl = document.getElementById('article-modal-link');
 
   if (titleEl) titleEl.textContent = title;
-  if (imageEl) {
-    imageEl.src = image;
-    imageEl.alt = title;
-  }
+  if (imageEl) { imageEl.src = image; imageEl.alt = title; }
   if (contentEl) contentEl.innerHTML = contentHtml;
 
   const slug = article.slug || '';
@@ -1595,9 +1508,10 @@ window.closeArticleModal = function () {
 
 async function displayBlogList() {
   if (!DOM.blogList) return;
-  await loadGeneratedContent();
 
+  await loadGeneratedContent();
   const data = await loadDataGeneric();
+
   const allArticles = [
     ...(window.generatedArticles || []),
     ...((data?.blog) || [])
@@ -1642,8 +1556,7 @@ function ensureCanonical(href) {
 
 function updateArticleSeo(article, resolvedSlug) {
   const title = stripMarkdown(article.title || 'Article');
-  const metaDesc = (article.meta_description || article.excerpt || '').slice(0, 160) ||
-    `Analyse et pronostic : ${title}`;
+  const metaDesc = (article.meta_description || article.excerpt || '').slice(0, 160) || `Analyse et pronostic : ${title}`;
 
   const url = new URL(window.location.href);
   const canonicalUrl = resolvedSlug
@@ -1702,9 +1615,10 @@ function updateArticleSeo(article, resolvedSlug) {
 
 async function displayBlogPost() {
   if (!DOM.blogPost) return;
-  await loadGeneratedContent();
 
+  await loadGeneratedContent();
   const data = await loadDataGeneric();
+
   const allArticles = [
     ...(window.generatedArticles || []),
     ...((data?.blog) || [])
@@ -1716,6 +1630,7 @@ async function displayBlogPost() {
 
   let article = null;
   if (slug) article = allArticles.find(a => (a.slug || '') === slug) || null;
+
   if (!article && articleIndex !== null && articleIndex !== '') {
     const idx = parseInt(articleIndex, 10);
     if (!isNaN(idx) && allArticles[idx]) article = allArticles[idx];
@@ -1738,14 +1653,13 @@ async function displayBlogPost() {
   `;
 
   updateArticleSeo(article, article.slug || slug || '');
-
   const titleMeta = document.getElementById('article-title');
   if (titleMeta) titleMeta.textContent = `${title} - Mr XPRONOS`;
 }
 
 /* =======================================================
- CONSEILS
- ======================================================= */
+   CONSEILS
+======================================================= */
 window.openConseilPage = function (slug) {
   if (!slug) return;
   window.location.href = `conseil.html?slug=${encodeURIComponent(slug)}`;
@@ -1779,9 +1693,10 @@ function updateConseilSeo(conseil, resolvedSlug) {
 
 async function displayConseils() {
   if (!DOM.conseilsList) return;
-  await loadGeneratedContent();
 
+  await loadGeneratedContent();
   const data = await loadDataGeneric();
+
   const allConseils = (window.generatedConseils && window.generatedConseils.length)
     ? window.generatedConseils
     : ((data?.conseils) || []);
@@ -1810,9 +1725,10 @@ async function displayConseils() {
 
 async function displayConseilPost() {
   if (!DOM.conseilPost) return;
-  await loadGeneratedContent();
 
+  await loadGeneratedContent();
   const data = await loadDataGeneric();
+
   const allConseils = (window.generatedConseils && window.generatedConseils.length)
     ? window.generatedConseils
     : ((data?.conseils) || []);
@@ -1849,11 +1765,13 @@ window.showConseilDetail = function (index) {
   if (!conseil || !DOM.conseilModal) return;
 
   document.getElementById('conseil-modal-title').textContent = stripMarkdown(conseil.title || 'Conseil');
+
   const img = document.getElementById('conseil-modal-image');
   if (img) {
     img.src = conseil.image_url || 'assets/images/default-logo.png';
     img.alt = stripMarkdown(conseil.title || 'Conseil');
   }
+
   const contentEl = document.getElementById('conseil-modal-content');
   if (contentEl) contentEl.innerHTML = renderSafeRichContent(conseil.content || '');
 
@@ -1865,28 +1783,29 @@ window.closeConseilModal = function () {
 };
 
 /* =======================================================
- INFOS / NEWS
- ======================================================= */
+   INFOS / NEWS
+======================================================= */
 async function displayInfos() {
   if (!DOM.infosList) return;
-  const data = await loadDataGeneric();
 
+  const data = await loadDataGeneric();
   const infos = (Array.isArray(window.publishedInfos) && window.publishedInfos.length)
     ? window.publishedInfos
     : (data?.infos || []);
 
   DOM.infosList.innerHTML = infos.length
     ? infos.map(i => `
-      <div class="news-card card">
-        <h3>${escapeHtml(i.title || '')}</h3>
-        <p>${escapeHtml(i.content || '')}</p>
-      </div>
-    `).join('')
+        <div class="news-card card">
+          <h3>${escapeHtml(i.title || '')}</h3>
+          <p>${escapeHtml(i.content || '')}</p>
+        </div>
+      `).join('')
     : '<div class="no-events">Aucune info disponible.</div>';
 }
 
 async function displayFootNews() {
   if (!DOM.footNewsContainer) return;
+
   try {
     const resp = await fetch(`footnews.json?t=${Date.now()}`, { cache: 'no-cache' });
     const rssNews = resp.ok ? await resp.json() : [];
@@ -1963,8 +1882,8 @@ window.closeNewsModal = function () {
 };
 
 /* =======================================================
- BONUS
- ======================================================= */
+   BONUS
+======================================================= */
 function initBonusPage() {
   const publishedBonus = Array.isArray(window.publishedBonus) ? window.publishedBonus : [];
   const publishedBookmakers = Array.isArray(window.publishedBookmakers) ? window.publishedBookmakers : [];
@@ -1994,9 +1913,9 @@ function initBonusPage() {
       DOM.bonusGrid.innerHTML = list.map((b) => `
         <div class="bookmaker-card bonus-bookmaker-card">
           <img src="${escapeAttribute(b.image || 'assets/images/default-logo.webp')}"
-            alt="${escapeAttribute(b.title || 'Bonus')}"
-            loading="lazy"
-            onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+               alt="${escapeAttribute(b.title || 'Bonus')}"
+               loading="lazy"
+               onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
           <h3>${escapeHtml(b.title || 'Bonus')}</h3>
           <p>${escapeHtml(b.description || '')}</p>
           ${b.footer ? `<div class="muted" style="margin:8px 0;">${escapeHtml(b.footer)}</div>` : ''}
@@ -2047,12 +1966,13 @@ function initBonusPage() {
 
 function renderBonusGrid(bookmakers) {
   if (!DOM.bonusGrid) return;
+
   DOM.bonusGrid.innerHTML = bookmakers.map((b, i) => `
     <div class="bookmaker-card bonus-bookmaker-card" data-index="${i}">
       <img src="${escapeAttribute(b.logo || 'assets/images/default-logo.webp')}"
-        alt="${escapeAttribute(b.name || 'Bookmaker')}"
-        loading="lazy"
-        onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+           alt="${escapeAttribute(b.name || 'Bookmaker')}"
+           loading="lazy"
+           onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
       <h3>${escapeHtml(b.name || 'Bookmaker')}</h3>
       <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
       <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
@@ -2084,14 +2004,20 @@ window.openBonusModal = function (index) {
 
   if (titleEl) titleEl.textContent = b.name;
   if (img) { img.src = b.logo || "assets/images/default-logo.webp"; img.alt = b.name || "Bookmaker"; }
+
   if (descEl) {
     descEl.innerHTML = `
       <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
       <p style="margin-top:10px;">Utilisez le code promo <strong>XPVIP</strong> si l'offre le permet.</p>
     `;
   }
+
   if (footerEl) footerEl.textContent = "Inscription via notre lien recommandé.";
-  if (linkEl) { linkEl.href = b.url || "#"; linkEl.target = "_blank"; linkEl.rel = "noopener noreferrer"; }
+  if (linkEl) {
+    linkEl.href = b.url || "#";
+    linkEl.target = "_blank";
+    linkEl.rel = "noopener noreferrer";
+  }
 
   DOM.bonusModal.style.display = "flex";
 };
@@ -2101,8 +2027,8 @@ window.closeBonusModal = function () {
 };
 
 /* =======================================================
- HOME WIDGETS
- ======================================================= */
+   HOME WIDGETS
+======================================================= */
 function displayLatestVerified() {
   if (!DOM.todayPicks || !allData?.matches) return;
 
@@ -2112,7 +2038,7 @@ function displayLatestVerified() {
     .slice(0, 4);
 
   if (!verified.length) {
-    DOM.todayPicks.innerHTML = '<div class="no-events">✅ Aucun pronostic validé récent.</div>';
+    DOM.todayPicks.innerHTML = '<div class="no-events">■ Aucun pronostic validé récent.</div>';
     return;
   }
 
@@ -2133,9 +2059,12 @@ function displayLatestVerified() {
           </div>
         </div>
       </div>
+
       <div class="analysis-panel">
         <h4>Pronostic</h4>
-        <p><strong>Double chance :</strong> ${escapeHtml(m.prediction?.double_chance || 'N/A')} <input type="checkbox" class="prediction-checkbox" checked disabled></p>
+        <p><strong>Double chance :</strong> ${escapeHtml(m.prediction?.double_chance || 'N/A')}
+          <input type="checkbox" class="prediction-checkbox" checked disabled>
+        </p>
         <p><strong>Fiabilité :</strong> ${escapeHtml(String(m.prediction?.confidence || 0))}%</p>
       </div>
     </div>
@@ -2152,7 +2081,7 @@ function startWinsSlider() {
 
   const html = wins.map(m => {
     const score = `${m.home_score ?? '-'} - ${m.away_score ?? '-'}`;
-    return `<div class="win-item">✅ <span>${escapeHtml(m.home_team)} ${escapeHtml(score)} ${escapeHtml(m.away_team)}</span> • ${escapeHtml(m.prediction?.double_chance || '')}</div>`;
+    return `<div class="win-item">■ <span>${escapeHtml(m.home_team)} ${escapeHtml(score)} ${escapeHtml(m.away_team)}</span> • ${escapeHtml(m.prediction?.double_chance || '')}</div>`;
   }).join('');
 
   DOM.winsTrack.innerHTML = html + html;
@@ -2177,6 +2106,7 @@ function animateWins() {
 
 async function displayTestimonials() {
   if (!DOM.testimonials) return;
+
   try {
     const resp = await fetch(`testimonials.json?t=${Date.now()}`, { cache: 'no-cache' });
     if (!resp.ok) throw new Error('Erreur');
@@ -2190,57 +2120,71 @@ async function displayTestimonials() {
     `).join('');
   } catch {
     DOM.testimonials.innerHTML = `
-      <div class="card"><p>"Grâce à Mr XPRONOS, j'ai multiplié mes gains !"</p><p style="margin-top:1rem;color:var(--or);">— Client</p></div>
+      <div class="card">
+        <p>"Grâce à Mr XPRONOS, j'ai multiplié mes gains !"</p>
+        <p style="margin-top:1rem;color:var(--or);">— Client</p>
+      </div>
     `;
   }
 }
 
 function startWinNotifications() {
   if (!DOM.winPopup) return;
+
   const firstNames = ["Jean", "Michel", "David", "Lucas", "Thomas", "Patrick", "Samuel", "Kevin"];
   const lastNames = ["Martin", "Bernard", "Dubois", "Thomas", "Robert", "Richard", "Petit", "Durand"];
+
   const notifications = Array.from({ length: 5 }).map(() => ({
     name: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
     gain: Math.floor(Math.random() * (200 - 45 + 1)) + 45
   }));
 
   let index = 0;
+
   function showPopup() {
     const { name, gain } = notifications[index];
-    DOM.winPopup.innerHTML = `🎉 <b>${escapeHtml(name)}</b> a gagné <b>${escapeHtml(gain)}€</b> aujourd'hui grâce au VIP !`;
+    DOM.winPopup.innerHTML = `■ <b>${escapeHtml(name)}</b> a gagné <b>${escapeHtml(gain)}€</b> aujourd'hui grâce au VIP !`;
     DOM.winPopup.classList.add('show');
     setTimeout(() => DOM.winPopup.classList.remove('show'), 4000);
     index = (index + 1) % notifications.length;
   }
+
   setTimeout(showPopup, 5000);
 }
 
 function updateHomeSuccessRate() {
   if (!DOM.successFill || !DOM.successPercent || !allData?.matches) return;
+
   const finished = allData.matches.filter(isFinishedMatch);
   if (finished.length === 0) {
     DOM.successFill.style.width = '0%';
     DOM.successPercent.textContent = '0%';
     return;
   }
+
   const successful = finished.filter(m => m.verified_double).length;
   const percent = Math.round((successful / finished.length) * 100);
+
   DOM.successFill.style.width = percent + '%';
   DOM.successPercent.textContent = percent + '%';
 }
 
 function updatePronosticsSuccessRate() {
   if (!DOM.successRateContainer) return;
+
   if (!allData?.matches) {
     DOM.successRateContainer.style.display = 'none';
     return;
   }
+
   const finished = allData.matches.filter(isFinishedMatch);
   const successful = finished.filter(m => m.verified_double);
+
   if (finished.length === 0) {
     DOM.successRateContainer.style.display = 'none';
     return;
   }
+
   const rate = ((successful.length / finished.length) * 100).toFixed(1);
   const roi = Number(allData?.stats?.roi || 0);
   const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
@@ -2259,8 +2203,8 @@ function updatePronosticsSuccessRate() {
 }
 
 /* =======================================================
- SCROLL PROGRESS
- ======================================================= */
+   SCROLL PROGRESS
+======================================================= */
 function initScrollProgress() {
   if (document.querySelector('.scroll-progress')) return;
   const progressBar = document.createElement('div');
@@ -2276,8 +2220,8 @@ function initScrollProgress() {
 }
 
 /* =======================================================
- EVENT LISTENERS
- ======================================================= */
+   EVENT LISTENERS
+======================================================= */
 function setupGlobalButtons() {
   document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
   document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
@@ -2332,6 +2276,7 @@ function setupPronosticPageListeners() {
 async function handleCategoryChange() {
   const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
 
+  // VIP = partage/jour (plus de code)
   if (currentCategory === 'vip') {
     if (!vipEnabled) {
       alert('Les pronostics VIP sont temporairement désactivés.');
@@ -2342,18 +2287,15 @@ async function handleCategoryChange() {
       return;
     }
 
-    const isVip = await checkVipStatus();
-    if (!isVip) {
-      if (DOM.vipLockedOverlay) {
-        showVipLoginForm(DOM.vipLockedOverlay);
-        DOM.vipLockedOverlay.style.display = 'flex';
-        if (DOM.matches) DOM.matches.style.display = 'none';
-      }
-      return;
-    }
+    const target = shareLimits.vip;
+    const shareCount = getDailyShareCount();
 
-    hideVipLocked();
-    filterAndDisplay();
+    if (shareCount >= target) {
+      hideVipLocked();
+      filterAndDisplay();
+    } else {
+      showVipLocked('vip');
+    }
     return;
   }
 
@@ -2366,6 +2308,7 @@ async function handleCategoryChange() {
   // PRO par partage (1/jour)
   const target = shareLimits[currentCategory];
   const shareCount = getDailyShareCount();
+
   if (shareCount >= target) {
     hideVipLocked();
     filterAndDisplay();
@@ -2375,8 +2318,8 @@ async function handleCategoryChange() {
 }
 
 /* =======================================================
- INIT APP
- ======================================================= */
+   INIT APP
+======================================================= */
 document.addEventListener('DOMContentLoaded', async () => {
   initDOM();
   setupGlobalButtons();
@@ -2385,40 +2328,49 @@ document.addEventListener('DOMContentLoaded', async () => {
   await initSupabase();
   await loadPublishedExtras();
   await updateDisplayedCounters();
+
   subscribeToCounters();
   await registerUniqueUser();
   await initOnlineUsers();
+
   countVisitOncePerDay();
   showIosGuideIfNeeded();
 
   if (Notification.permission === 'granted') subscribeToPush(false);
 
   const page = detectPage();
+
   switch (page) {
     case 'pronos':
       setupPronosticPageListeners();
       await loadData();
       break;
+
     case 'history':
       await displayHistory();
       renderBookmakers();
       break;
+
     case 'blog-list':
       await displayBlogList();
       renderBookmakers();
       break;
+
     case 'blog-post':
       await displayBlogPost();
       renderBookmakers();
       break;
+
     case 'conseil-post':
       await displayConseilPost();
       renderBookmakers();
       break;
+
     case 'conseils':
       await displayConseils();
       renderBookmakers();
       break;
+
     case 'bonus': {
       const data = await loadDataGeneric();
       if (data) allData = data;
@@ -2426,10 +2378,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderBookmakers(allData?.bookmakers);
       break;
     }
+
     case 'infos':
       await displayFootNews();
       renderBookmakers();
       break;
+
     case 'home': {
       const data = await loadDataGeneric();
       if (data) {
@@ -2444,6 +2398,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       startWinNotifications();
       break;
     }
+
     default:
       renderBookmakers();
       break;

@@ -10,6 +10,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
   <style>
@@ -103,11 +104,6 @@
       document.cookie = `${name}=${encodeURIComponent(value)}; Expires=${expires}; Path=/; SameSite=Lax${secure}`;
     }
 
-    function deleteCookie(name) {
-      const secure = location.protocol === 'https:' ? '; Secure' : '';
-      document.cookie = `${name}=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=Lax${secure}`;
-    }
-
     function getUserId() {
       let userId = localStorage.getItem("mx_user_id") || getCookie("mx_user_id");
       if (!userId) {
@@ -119,9 +115,84 @@
       return userId;
     }
 
-    function getVipCode() {
-      return localStorage.getItem("mx_vip_code") || getCookie("mx_vip_code");
+    // =======================================================
+    // PARTAGE / JOUR (mêmes clés que main.js)
+    // =======================================================
+    function getTodayString() {
+      return new Date().toDateString();
     }
+
+    function getDailyShareCount() {
+      const lastReset = localStorage.getItem("shareLastReset");
+      const todayKey = getTodayString();
+      if (lastReset !== todayKey) {
+        localStorage.setItem("shareLastReset", todayKey);
+        localStorage.setItem("shareCount", "0");
+        return 0;
+      }
+      return parseInt(localStorage.getItem("shareCount") || "0", 10);
+    }
+
+    function incrementShareCount() {
+      const current = getDailyShareCount();
+      const next = current + 1;
+      localStorage.setItem("shareCount", String(next));
+      return next;
+    }
+
+    function openExternal(url) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    // Validation partage après ~5s (comme main.js)
+    let pendingShare = null;
+
+    function startShareTracking(platform, onUnlocked) {
+      pendingShare = {
+        startedAt: Date.now(),
+        finalized: false,
+        platform,
+        onUnlocked
+      };
+      setTimeout(() => finalizePendingShare(true), 5500);
+    }
+
+    async function recordShareEvent(platform) {
+      if (!supabase) return;
+      const userId = getUserId();
+      const eventType = platform === "whatsapp" ? "share_whatsapp" : "share_telegram";
+      try {
+        await supabase.from("analytics").insert({
+          event_type: eventType,
+          user_id: userId,
+          page: "live.html",
+        });
+      } catch (_) {}
+      try {
+        // optionnel: si ta fonction RPC existe
+        await supabase.rpc("increment_counter", { counter_name: "total_shares" });
+      } catch (_) {}
+    }
+
+    function finalizePendingShare(force = false) {
+      if (!pendingShare || pendingShare.finalized) return;
+
+      const elapsed = Date.now() - pendingShare.startedAt;
+      if (!force && elapsed < 5000) return;
+
+      pendingShare.finalized = true;
+      const ctx = pendingShare;
+      pendingShare = null;
+
+      const newCount = incrementShareCount();
+      recordShareEvent(ctx.platform);
+
+      if (newCount >= 1) ctx.onUnlocked?.();
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) finalizePendingShare(false);
+    });
 
     // =======================================================
     // UTILS
@@ -141,8 +212,6 @@
         return new Date(ts).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
       } catch { return "-"; }
     }
-
-    // ✅ Format FR pour 7.5 -> 7,5
     function formatNumberFR(v) {
       if (v === null || v === undefined || v === "") return "";
       const n = Number(v);
@@ -157,33 +226,24 @@
       if (s.includes("foul") || s.includes("faute")) return "fautes";
       return "";
     }
-
-    // ✅ Titre simple et explicite : "Plus de 7,5 corners"
     function formatPredTitleSimple(pred) {
       const unit = guessUnitFromPred(pred);
       const thr = formatNumberFR(pred?.threshold);
       const title = String(pred?.title || "").toLowerCase();
-
       const isOver = title.includes("over") || title.includes("plus de");
       const isUnder = title.includes("under") || title.includes("moins de");
-
       if (thr && (isOver || isUnder)) {
         return `${isOver ? "Plus de" : "Moins de"} ${thr}${unit ? " " + unit : ""}`.trim();
       }
       return pred?.title || "Prédiction";
     }
-
-    // ✅ Projection mise en avant (avant le seuil)
     function formatPredSubtitle(pred) {
       const projected = pred?.projected ?? "-";
       const current = pred?.current ?? "-";
-      
-      // Affichage de la fourchette si dispo (Enhanced)
       if (pred.expected_range && Array.isArray(pred.expected_range)) {
         const [low, high] = pred.expected_range;
         return `Fourchette: ${formatNumberFR(low)} - ${formatNumberFR(high)} • Actuel: ${current}`;
       }
-      
       return `Projection: ${projected} • Actuel: ${current}`;
     }
 
@@ -191,16 +251,12 @@
     // LOGOS via Edge Function Proxy (Robuste)
     // =======================================================
     function getTeamLogo(match, side = "home") {
-      // Essayer plusieurs chemins possibles pour l'ID
       const obj = side === "home" ? match?.home_team_obj : match?.away_team_obj;
       const directId = side === "home" ? match?.home_team_id : match?.away_team_id;
-      
       const apiId = obj?.api_id || obj?.id || directId || match?.[`${side}_id`];
-      
       if (!apiId) return null;
       return `${EDGE_FUNCTION_URL}/img/team/${apiId}`;
     }
-    
     function getLeagueLogo(match) {
       const apiId = match?.league?.api_id || match?.league?.id || match?.league_id;
       if (!apiId) return null;
@@ -208,53 +264,37 @@
     }
 
     // =======================================================
-    // VIP GATE
+    // SHARE GATE (LIVE) : 1 partage / jour
     // =======================================================
-    function openExternal(url) {
-      window.open(url, "_blank", "noopener,noreferrer");
-    }
+    const ShareAccessScreen = ({ onActivated }) => {
+      const [count, setCount] = useState(() => getDailyShareCount());
 
-    const VipAccessScreen = ({ userId, onActivated }) => {
-      const [code, setCodeState] = useState("");
-      const [busy, setBusy] = useState(false);
-      const [err, setErr] = useState("");
+      const shareMessage = useMemo(() => {
+        return `Salut frère 👋😄,
 
-      const waText = encodeURIComponent(`Bonjour, voici mon ID VIP ${userId}`);
-      const tgText = encodeURIComponent(`Bonjour, voici mon ID VIP ${userId}`);
+      Avec ce site, on ne va plus perdre les coupons  : il propose des coupons plutôt fiables, même pour les matchs en live ⚽🔥🤑
 
-      const activate = async () => {
-        setErr("");
-        const c = (code || "").trim();
-        if (!c) return setErr("Veuillez entrer un code VIP.");
-        if (!supabase) return setErr("Connexion indisponible. Réessayez plus tard.");
+      Je viens de le découvrir 🔍 et, pour l’instant, c’est totalement gratuit 🎁… autant en profiter maintenant avant que ça devienne payant ⏳💸
 
-        setBusy(true);
-        try {
-          const { data, error } = await supabase.rpc("check_vip_code", {
-            p_user_id: userId,
-            p_code: c,
-          });
+      Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
+      }, []);
 
-          const valid = Array.isArray(data) ? data?.[0]?.valid === true : (data?.valid === true || data === true);
-          if (error || !valid) throw new Error("Code invalide ou expiré.");
+      useEffect(() => {
+        const t = setInterval(() => setCount(getDailyShareCount()), 900);
+        return () => clearInterval(t);
+      }, []);
 
-          localStorage.setItem("mx_vip_code", c);
-          setCookie("mx_vip_code", c, COOKIE_DAYS);
+      const doShare = (platform) => {
+        const url = platform === "whatsapp"
+          ? `https://wa.me/?text=${encodeURIComponent(shareMessage)}`
+          : `https://t.me/share/url?url=${encodeURIComponent("https://mrxpronos.github.io/MrXPRONOS_App/")}&text=${encodeURIComponent(shareMessage)}`;
 
-          try {
-            await supabase.from("analytics").insert({
-              event_type: "vip_conversion",
-              user_id: userId,
-              page: "live.html",
-            });
-          } catch (_) {}
+        openExternal(url);
 
+        startShareTracking(platform, () => {
+          setCount(getDailyShareCount());
           onActivated?.();
-        } catch (e) {
-          setErr(e?.message || "Code invalide ou expiré.");
-        } finally {
-          setBusy(false);
-        }
+        });
       };
 
       return (
@@ -268,7 +308,7 @@
           >
             <div className="flex justify-center mb-5">
               <div className="w-16 h-16 rounded-2xl border border-[#D4AF37]/30 bg-[#0b0b0b] flex items-center justify-center">
-                <i className="fas fa-gem text-[#D4AF37] text-2xl"></i>
+                <i className="fas fa-bolt text-[#22C55E] text-2xl"></i>
               </div>
             </div>
 
@@ -277,51 +317,37 @@
             </h1>
 
             <div className="text-center text-gray-300 text-sm mb-5">
-              <div className="opacity-80">Votre ID :</div>
-              <div className="mt-1 font-semibold break-words">{userId}</div>
+              Partagez 1 fois par jour pour accéder au LIVE.
             </div>
 
-            <p className="text-center text-gray-400 text-sm mb-5">
-              Pour obtenir un code VIP, contactez-nous sur WhatsApp ou Telegram avec votre ID.
-            </p>
+            <div className="text-center text-gray-400 text-sm mb-5">
+              Partages aujourd’hui : <b className="text-white">{count}/1</b>
+            </div>
 
-            <div className="flex gap-3 justify-center mb-6">
+            <div className="flex gap-3 justify-center mb-5">
               <button
                 className="px-6 py-3 rounded-full font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white w-1/2"
-                onClick={() => openExternal(`https://wa.me/22899201444?text=${waText}`)}
+                onClick={() => doShare("whatsapp")}
               >
                 WhatsApp
               </button>
               <button
                 className="px-6 py-3 rounded-full font-extrabold bg-sky-600 hover:bg-sky-500 text-white w-1/2"
-                onClick={() => openExternal(`https://t.me/mr_xpronos?text=${tgText}`)}
+                onClick={() => doShare("telegram")}
               >
                 Telegram
               </button>
             </div>
 
-            <div className="h-px bg-white/10 my-6"></div>
-
-            <p className="text-center text-gray-300 text-sm mb-3">
-              Si vous avez déjà un code, saisissez-le ci-dessous :
-            </p>
-
-            <input
-              value={code}
-              onChange={(e) => setCodeState(e.target.value)}
-              placeholder="Code VIP"
-              className="w-full bg-black/40 border border-[#D4AF37]/35 rounded-full px-5 py-4 text-gray-100 outline-none focus:border-[#D4AF37]"
-            />
-
-            {err && <div className="text-red-400 text-sm mt-3 text-center">{err}</div>}
-
             <button
-              onClick={activate}
-              disabled={busy}
-              className="mt-4 w-full py-4 rounded-full font-extrabold text-black disabled:opacity-60"
+              onClick={() => {
+                if (getDailyShareCount() >= 1) onActivated?.();
+                else alert("Partage requis (1 par jour).");
+              }}
+              className="mt-2 w-full py-4 rounded-full font-extrabold text-black"
               style={{ background: "linear-gradient(135deg, #D4AF37 0%, #f5e7a3 100%)" }}
             >
-              {busy ? "Activation..." : "Activer"}
+              Continuer
             </button>
 
             <button
@@ -335,57 +361,27 @@
       );
     };
 
-    const VipGate = ({ children }) => {
-      const userId = useMemo(() => getUserId(), []);
+    const ShareGate = ({ children }) => {
       const [status, setStatus] = useState("checking");
 
       useEffect(() => {
-        let mounted = true;
-
-        (async () => {
-          const code = getVipCode();
-          if (!supabase || !code) {
-            if (mounted) setStatus("denied");
-            return;
-          }
-
-          try {
-            const { data, error } = await supabase.rpc("check_vip_code", {
-              p_user_id: userId,
-              p_code: code,
-            });
-
-            const valid = Array.isArray(data) ? data?.[0]?.valid === true : (data?.valid === true || data === true);
-            if (error || !valid) {
-              localStorage.removeItem("mx_vip_code");
-              deleteCookie("mx_vip_code");
-              if (mounted) setStatus("denied");
-              return;
-            }
-
-            setCookie("mx_vip_code", code, COOKIE_DAYS);
-            if (mounted) setStatus("allowed");
-          } catch {
-            if (mounted) setStatus("denied");
-          }
-        })();
-
-        return () => { mounted = false; };
-      }, [userId]);
+        const c = getDailyShareCount();
+        setStatus(c >= 1 ? "allowed" : "denied");
+      }, []);
 
       if (status === "checking") {
         return (
           <div className="min-h-screen flex items-center justify-center px-4">
             <div className="text-center text-gray-400">
               <div className="w-12 h-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              Vérification VIP...
+              Vérification accès...
             </div>
           </div>
         );
       }
 
       if (status === "denied") {
-        return <VipAccessScreen userId={userId} onActivated={() => setStatus("allowed")} />;
+        return <ShareAccessScreen onActivated={() => setStatus("allowed")} />;
       }
 
       return children;
@@ -552,6 +548,7 @@
                   <Icon name="refresh" size={16} className={refreshing ? "animate-spin text-[#D4AF37]" : ""} />
                 </button>
               </div>
+
             </div>
           </div>
         </header>
@@ -565,9 +562,11 @@
             <Badge color="gold"><Icon name="activity" size={11} /> LIVE STATS</Badge>
             <Badge color="red"><span className="mini-dot bg-red-500 live-pulse"></span> En direct</Badge>
           </div>
+
           <div className="text-sm md:text-base text-gray-300 mb-5">
             Prédictions live (corners • tirs • fautes). Cliquez sur un match pour les détails.
           </div>
+
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <StatChip label="Live" value={stats.matches_live || 0} valueColor="text-red-500" />
             <StatChip label="Top prédictions" value={topPredictionCount || 0} valueColor="text-[#D4AF37]" />
@@ -597,6 +596,7 @@
               <FreshnessBadge seconds={item.freshness_seconds} />
               <Badge color="gold">TOP {item.value_score || 0}</Badge>
             </div>
+
             <div className="flex items-center gap-2 text-xs text-gray-400">
               <LogoImg src={leagueLogo} alt={item?.league?.name} size={22} />
               <span className="truncate max-w-[160px]">{item?.league?.name || "Ligue"}</span>
@@ -621,7 +621,6 @@
           <div className="text-[16px] md:text-[17px] font-extrabold text-white safe-wrap">
             {formatPredTitleSimple(best)}
           </div>
-
           <div className="text-xs text-gray-300 mt-1 safe-wrap">
             {formatPredSubtitle(best)}
           </div>
@@ -696,11 +695,9 @@
               <div className="text-[16px] font-extrabold text-white safe-wrap">
                 {formatPredTitleSimple(best)}
               </div>
-
               <div className="text-xs text-gray-300 mt-1 safe-wrap">
                 {formatPredSubtitle(best)}
               </div>
-
               <div className="text-[11px] text-gray-500 mt-3">
                 Cliquez pour plus de détails
               </div>
@@ -747,7 +744,7 @@
     };
 
     // =======================================================
-    // DETAIL (AVEC NOUVEAUX CHAMPS)
+    // DETAIL
     // =======================================================
     const MatchDetail = ({ match, onClose }) => {
       const [tab, setTab] = useState("signals");
@@ -841,8 +838,7 @@
                         <div className="text-xs text-gray-300 mb-4 safe-wrap">
                           Projection: <strong>{p.projected ?? "-"}</strong> • Actuel: <strong>{p.current ?? "-"}</strong> • Seuil: <strong>{p.threshold ?? "-"}</strong>
                         </div>
-                        
-                        {/* Nouvelles métriques avancées si dispo */}
+
                         {p.expected_range && (
                           <div className="mb-4 p-3 rounded-lg bg-[#0f0f0f] border border-[#1a1a1a] text-xs text-gray-400 space-y-1">
                             <div className="flex justify-between">
@@ -904,6 +900,7 @@
                 </div>
               )}
             </div>
+
           </div>
         </div>
       );
@@ -979,6 +976,7 @@
       const [scheduledMatches, setScheduledMatches] = useState([]);
       const [history, setHistory] = useState([]);
       const [notifications, setNotifications] = useState([]);
+
       const [stats, setStats] = useState({ matches_live: 0, predictions: 0, upcoming: 0 });
 
       const [loading, setLoading] = useState(true);
@@ -987,7 +985,6 @@
 
       const [selectedTab, setSelectedTab] = useState("live"); // live | history | notifications
       const [selectedMatch, setSelectedMatch] = useState(null);
-
       const [toast, setToast] = useState(null);
 
       const apiFetch = useCallback(async (endpoint) => {
@@ -1007,7 +1004,6 @@
       const fetchAll = useCallback(async (silent = false) => {
         if (!silent) setLoading(true);
         setRefreshing(true);
-
         try {
           const [matchesRes, oppRes, notifRes, historyRes, todayRes] = await Promise.all([
             apiFetch("/matches"),
@@ -1070,7 +1066,6 @@
       // realtime notifications (toast)
       useEffect(() => {
         if (!supabase) return;
-
         const channel = supabase
           .channel("notifications-channel")
           .on(
@@ -1095,9 +1090,7 @@
 
       const unreadCount = notifications.filter((n) => !n.read).length;
 
-      // =======================================================
-      // DÉDUPLICATION AFFICHAGE
-      // =======================================================
+      // Déduplication affichage
       const bestOpportunity = useMemo(() => opportunities?.[0] || null, [opportunities]);
 
       const otherOpportunities = useMemo(() => {
@@ -1115,13 +1108,11 @@
         try {
           const ids = notifications.filter(n => !n.read).map(n => n.id);
           if (!ids.length) return;
-
           await fetch(`${EDGE_FUNCTION_URL}/notifications/mark-read`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ notification_ids: ids, user_id: userId })
           });
-
           setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
         } catch (e) {
           console.error(e);
@@ -1324,7 +1315,6 @@
                                 <th className="px-4 py-3 text-left">Heure</th>
                               </tr>
                             </thead>
-
                             <tbody>
                               {history.map((h, i) => (
                                 <tr key={i} className="border-b border-[#1f1f1f] hover:bg-[#151515]">
@@ -1396,12 +1386,12 @@
     };
 
     // =======================================================
-    // RENDER (VIP Gate)
+    // RENDER (Share Gate)
     // =======================================================
     ReactDOM.createRoot(document.getElementById("root")).render(
-      <VipGate>
+      <ShareGate>
         <App />
-      </VipGate>
+      </ShareGate>
     );
   </script>
 </body>
