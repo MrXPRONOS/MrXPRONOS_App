@@ -2186,17 +2186,12 @@ function updatePronosticsSuccessRate() {
   }
 
   const rate = ((successful.length / finished.length) * 100).toFixed(1);
-  const roi = Number(allData?.stats?.roi || 0);
-  const roiDisplay = roi !== 0 ? (roi > 0 ? '+' : '') + roi + '%' : 'N/A';
 
+  // ✅ ROI supprimé
   DOM.successRateContainer.innerHTML = `
-    <div class="success-rate-item">
+    <div class="success-rate-item" style="margin:0 auto;">
       <div class="success-rate-value">${escapeHtml(rate)}%</div>
       <div class="success-rate-label">Réussite</div>
-    </div>
-    <div class="success-rate-item">
-      <div class="success-rate-value">${escapeHtml(roiDisplay)}</div>
-      <div class="success-rate-label">ROI</div>
     </div>
   `;
   DOM.successRateContainer.style.display = 'flex';
