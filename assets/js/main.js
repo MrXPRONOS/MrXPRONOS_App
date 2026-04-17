@@ -6,9 +6,13 @@
  * + VIP = 1 partage / jour
  *
  * (VIP PAYANT SUPPRIMÉ)
- * Corrigé : Twemoji, nouvelles cartes accueil, ruban gagnant HTML
+ *
+ * Corrections ajoutées :
+ * - overflow horizontal (global) géré côté CSS (html,body overflow-x hidden)
+ * - Twemoji auto (emojis visibles même si police incomplète)
+ * - Ruban gagnant en HTML (plus de ::before avec emoji)
+ * - Cartes Accueil Top/Validés : .home-pick-card (alignement propre)
  */
-
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
   console.log = () => {};
   console.warn = () => {};
@@ -29,14 +33,12 @@ let usingCachedData = false;
 let onlineChannel = null;
 let pendingShare = null;
 let generatedContentPromise = null;
-
 const activeChannels = new Set();
 
 // ■ PRO = 1 partage/jour, VIP = 1 partage/jour
 const shareLimits = { pro: 1, vip: 1 };
 
 const BASE_SITE_URL = 'https://mrxpronos.github.io/MrXPRONOS_App/';
-
 const POPULAR_LEAGUES = [
   "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
   "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
@@ -71,22 +73,27 @@ const DOM = {
 
   searchInput: null,
   historyContainer: null,
+
   bonusSelect: null,
   bonusGrid: null,
   bonusThumbnails: null,
   bonusModal: null,
+
   articleModal: null,
   conseilModal: null,
   newsModal: null,
+
   winPopup: null,
   iosGuidePopup: null,
   installButton: null,
+
   blogList: null,
   blogPost: null,
   conseilPost: null,
   conseilsList: null,
   infosList: null,
   footNewsContainer: null,
+
   successRateContainer: null
 };
 
@@ -124,25 +131,31 @@ function initDOM() {
 
   DOM.searchInput = document.getElementById('search-input');
   DOM.historyContainer = document.getElementById('history-container');
+
   DOM.bonusSelect = document.getElementById('bonus-bookmaker-select');
   DOM.bonusGrid = document.getElementById('bonus-grid');
   DOM.bonusThumbnails = document.getElementById('bonus-thumbnails');
   DOM.bonusModal = document.getElementById('bonus-modal');
+
   DOM.articleModal = document.getElementById('article-modal');
   DOM.conseilModal = document.getElementById('conseil-modal');
   DOM.newsModal = document.getElementById('news-modal');
+
   DOM.winPopup = document.getElementById('win-popup');
   DOM.iosGuidePopup = document.getElementById('ios-guide-popup');
   DOM.installButton = document.getElementById('install-app');
+
   DOM.blogList = document.getElementById('blog-list');
   DOM.blogPost =
     document.getElementById('blog-post') ||
     document.getElementById('blog-post-content') ||
     document.getElementById('article-page-content');
+
   DOM.conseilPost = document.getElementById('conseil-post');
   DOM.conseilsList = document.getElementById('conseils-list');
   DOM.infosList = document.getElementById('infos-list');
   DOM.footNewsContainer = document.getElementById('foot-news-container');
+
   DOM.successRateContainer = document.getElementById('success-rate-container');
 }
 
@@ -173,20 +186,24 @@ function stripMarkdown(text = '') {
     .replace(/\[|\]/g, '')
     .trim();
 }
+
 function sanitizeHtml(unsafeHtml = '') {
   const template = document.createElement('template');
   template.innerHTML = unsafeHtml;
+
   const allowedTags = new Set([
     'div', 'p', 'br', 'strong', 'em', 'b', 'i', 'u',
     'ul', 'ol', 'li', 'blockquote', 'code', 'pre',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'a', 'img', 'span', 'hr'
   ]);
+
   const allowedAttrs = {
     '*': new Set(['class']),
     a: new Set(['href', 'target', 'rel']),
     img: new Set(['src', 'alt', 'loading', 'decoding'])
   };
+
   const cleanNode = (node) => {
     [...node.childNodes].forEach(child => {
       if (child.nodeType === Node.COMMENT_NODE) {
@@ -194,6 +211,7 @@ function sanitizeHtml(unsafeHtml = '') {
         return;
       }
       if (child.nodeType !== Node.ELEMENT_NODE) return;
+
       const tag = child.tagName.toLowerCase();
       if (!allowedTags.has(tag)) {
         const fragment = document.createDocumentFragment();
@@ -202,12 +220,14 @@ function sanitizeHtml(unsafeHtml = '') {
         cleanNode(node);
         return;
       }
+
       [...child.attributes].forEach(attr => {
         const name = attr.name.toLowerCase();
         const value = attr.value || '';
         const isAllowed =
           (allowedAttrs[tag] && allowedAttrs[tag].has(name)) ||
           (allowedAttrs['*'] && allowedAttrs['*'].has(name));
+
         if (name.startsWith('on') || !isAllowed) {
           child.removeAttribute(attr.name);
           return;
@@ -221,12 +241,15 @@ function sanitizeHtml(unsafeHtml = '') {
           child.setAttribute('rel', 'noopener noreferrer');
         }
       });
+
       cleanNode(child);
     });
   };
+
   cleanNode(template.content);
   return template.innerHTML;
 }
+
 function renderSafeRichContent(content = '') {
   try {
     if (window.marked) {
@@ -241,38 +264,8 @@ function renderSafeRichContent(content = '') {
 /* =======================================================
  UTILS
 ======================================================= */
-function showToast(message, type = 'info', duration = 4000) {
-  const toast = document.createElement('div');
-  toast.textContent = message;
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 10000;
-    font-weight: 600;
-    max-width: 90vw;
-  `;
-  document.body.appendChild(toast);
-  parseEmojis(toast); // Twemoji
-  setTimeout(() => toast.remove(), duration);
-}
 
-function toFloatSafe(value, defaultValue = null) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : defaultValue;
-}
-function safeJsonParse(value, fallback = null) {
-  try { return JSON.parse(value); } catch { return fallback; }
-}
-
-/* =======================================================
- TWEMOJI (gestion des emojis)
-======================================================= */
+/* ✅ Twemoji (auto) */
 let __twemojiPromise = null;
 
 function ensureTwemoji() {
@@ -300,6 +293,38 @@ async function parseEmojis(root = document.body) {
     ext: '.svg',
     className: 'emoji'
   });
+}
+
+function showToast(message, type = 'info', duration = 4000) {
+  const toast = document.createElement('div');
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 10000;
+    font-weight: 600;
+    max-width: 90vw;
+  `;
+  document.body.appendChild(toast);
+
+  // ✅ si un jour tu mets des emojis dans un toast
+  parseEmojis(toast);
+
+  setTimeout(() => toast.remove(), duration);
+}
+
+function toFloatSafe(value, defaultValue = null) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : defaultValue;
+}
+function safeJsonParse(value, fallback = null) {
+  try { return JSON.parse(value); } catch { return fallback; }
 }
 
 /* =======================================================
@@ -356,11 +381,13 @@ function getCookie(name) {
   );
   return m ? decodeURIComponent(m[1]) : null;
 }
+
 function setCookie(name, value, days = COOKIE_DAYS) {
   const expires = new Date(Date.now() + days * 864e5).toUTCString();
   const secure = location.protocol === 'https:' ? '; Secure' : '';
   document.cookie = `${name}=${encodeURIComponent(value)}; Expires=${expires}; Path=/; SameSite=Lax${secure}`;
 }
+
 function deleteCookie(name) {
   const secure = location.protocol === 'https:' ? '; Secure' : '';
   document.cookie = `${name}=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=Lax${secure}`;
@@ -415,10 +442,8 @@ function detectPage() {
   if (DOM.conseilsList) return 'conseils';
   if (DOM.bonusSelect || DOM.bonusGrid || DOM.bonusThumbnails) return 'bonus';
   if (DOM.footNewsContainer) return 'infos';
-
   // HOME : nouveaux containers ou témoignages
   if (DOM.topTodayPicks || DOM.verifiedPicks || DOM.testimonials || DOM.todayPicks) return 'home';
-
   return 'generic';
 }
 
@@ -440,6 +465,7 @@ async function initSupabase() {
       supabase = createClient(supabaseUrl, supabaseAnonKey);
       supabaseAvailable = true;
     })();
+
     await Promise.race([initPromise, timeout]);
   } catch (error) {
     supabaseAvailable = false;
@@ -494,8 +520,8 @@ async function subscribeToPush(askPermission = false) {
 
         const publicKey = (await keyResp.text()).trim();
         if (!publicKey) return;
-
         const convertedKey = urlBase64ToUint8Array(publicKey);
+
         subscription = await swReady.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: convertedKey
@@ -543,9 +569,11 @@ function getPushPromptMode() {
     return "unsupported";
   }
   if (getOS() === "iOS" && !isPwaInstalled()) return "ios_need_install";
+
   const perm = Notification.permission;
   if (perm === "granted") return "granted";
   if (perm === "denied") return "denied";
+
   const snoozeUntil = Number(localStorage.getItem("mx_push_snooze_until") || "0");
   if (Date.now() < snoozeUntil) return "snoozed";
   return "ask";
@@ -554,6 +582,7 @@ function getPushPromptMode() {
 function buildPushPromptEl() {
   let el = document.getElementById("push-permission");
   if (el) return el;
+
   el = document.createElement("div");
   el.id = "push-permission";
   el.style.cssText = `
@@ -573,6 +602,7 @@ function showPushPrompt() {
   if (mode === "granted" || mode === "unsupported" || mode === "ios_need_install" || mode === "snoozed") return;
 
   const el = buildPushPromptEl();
+
   if (mode === "denied") {
     el.innerHTML = `
       <div style="
@@ -622,10 +652,12 @@ function showPushPrompt() {
       </div>
     </div>
   `;
+
   el.querySelector("#push-later")?.addEventListener("click", () => {
     localStorage.setItem("mx_push_snooze_until", String(Date.now() + 24 * 60 * 60 * 1000));
     el.style.display = "none";
   });
+
   el.querySelector("#push-allow")?.addEventListener("click", async () => {
     try {
       await window.enablePushNotifications?.();
@@ -638,6 +670,7 @@ function showPushPrompt() {
       }
     }
   });
+
   el.style.display = "block";
 }
 
@@ -712,6 +745,7 @@ async function registerUniqueUser() {
   const userId = getUserId();
   const registered = localStorage.getItem('mx_registered');
   if (registered) return;
+
   try {
     const { error } = await supabase.from('users').insert({ user_id: userId });
     if (!error) await supabase.rpc('increment_counter', { counter_name: 'unique_users' });
@@ -811,8 +845,8 @@ function finalizePendingShare(force = false) {
   if (!pendingShare || pendingShare.finalized) return;
   const elapsed = Date.now() - pendingShare.startedAt;
   if (!force && elapsed < 5000) return;
-  pendingShare.finalized = true;
 
+  pendingShare.finalized = true;
   const ctx = pendingShare;
   pendingShare = null;
 
@@ -833,7 +867,6 @@ document.addEventListener('visibilitychange', () => {
 function updateLockedStateForCategory(category, newCount) {
   const target = shareLimits[category];
   if (!target) return;
-
   if (newCount >= target) {
     hideVipLocked();
     filterAndDisplay();
@@ -866,6 +899,7 @@ Voici le lien ■ : https://mrxpronos.github.io/MrXPRONOS_App/`;
 
 function sharePronostic(match) {
   if (!match || !match.prediction) return;
+
   const msg = `■ COUPONS GRATUITS
 ■ ${match.home_team} vs ${match.away_team}
 ■ Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%
@@ -875,6 +909,7 @@ ${BASE_SITE_URL}
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
   const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(BASE_SITE_URL)}&text=${encodeURIComponent(msg)}`;
+
   const useWhatsapp = confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)");
   openShareWindow(useWhatsapp ? whatsappUrl : telegramUrl);
 
@@ -887,6 +922,7 @@ ${BASE_SITE_URL}
 ======================================================= */
 function ensureVipOverlayStructure() {
   if (!DOM.vipLockedOverlay) return;
+
   if (DOM.vipLockedOverlay.children.length === 0) {
     DOM.vipLockedOverlay.innerHTML = `
       <div class="vip-locked-content">
@@ -901,12 +937,14 @@ function ensureVipOverlayStructure() {
         <button id="close-locked" class="btn btn-secondary">Fermer</button>
       </div>
     `;
+
     document.getElementById('share-wa-locked')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg-locked')?.addEventListener('click', () => share('telegram'));
     document.getElementById('close-locked')?.addEventListener('click', () => {
       DOM.vipLockedOverlay.style.display = 'none';
       if (DOM.matches) DOM.matches.style.display = 'grid';
     });
+
     parseEmojis(DOM.vipLockedOverlay);
   }
 }
@@ -914,12 +952,14 @@ function ensureVipOverlayStructure() {
 function showVipLocked(category) {
   const target = shareLimits[category];
   if (!target) return;
+
   const shareCount = getDailyShareCount();
   const remaining = Math.max(0, target - shareCount);
   const label = category === 'pro' ? 'Pro' : category === 'vip' ? 'VIP' : 'Premium';
 
   if (DOM.vipLockedOverlay) {
     ensureVipOverlayStructure();
+
     const titleEl = DOM.vipLockedOverlay.querySelector('h3');
     const textEl = DOM.vipLockedOverlay.querySelector('p');
     const shareCountEl = document.getElementById('share-count-locked');
@@ -932,6 +972,7 @@ function showVipLocked(category) {
 
     DOM.vipLockedOverlay.style.display = 'flex';
     if (DOM.matches) DOM.matches.style.display = 'none';
+
     parseEmojis(DOM.vipLockedOverlay);
   } else {
     showSharePopup(category, remaining);
@@ -970,6 +1011,7 @@ function createSharePopup() {
   const popup = document.createElement('div');
   popup.id = 'share-popup';
   popup.className = 'popup';
+
   popup.innerHTML = `
     <div class="popup-content">
       <h3>🔒 Contenu premium</h3>
@@ -984,6 +1026,7 @@ function createSharePopup() {
       <button id="close-popup" class="btn btn-secondary">Fermer</button>
     </div>
   `;
+
   document.body.appendChild(popup);
   DOM.sharePopup = popup;
 
@@ -1030,9 +1073,10 @@ async function loadData() {
   allData = data;
 
   if (!allData) {
-    if (DOM.matches) DOM.matches.innerHTML = `<div class="error">⚠️ Aucune donnée disponible.</div>`;
+    if (DOM.matches) DOM.matches.innerHTML = `<div class="error">❌ Aucune donnée disponible.</div>`;
     return;
   }
+
   renderBookmakers(allData.bookmakers);
   hideEmptyTabs();
   maybeHideTabBar();
@@ -1079,7 +1123,6 @@ function renderBookmakers(bookmakers) {
       img.loading = 'lazy';
       img.decoding = 'async';
       img.style.maxHeight = '40px';
-
       img.onerror = function () {
         this.style.display = 'none';
         const span = document.createElement('span');
@@ -1185,20 +1228,17 @@ function getTeamLogoPath(teamName, isHome = true) {
 function hideEmptyTabs() {
   const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
   const counts = { simple: 0, pro: 0, vip: 0 };
-
   if (allData?.matches) {
     allData.matches.forEach(m => {
       if (counts[m.category] !== undefined) counts[m.category]++;
     });
   }
-
   qsa('.tab-btn').forEach(btn => {
     const cat = btn.dataset.cat;
     if (cat === 'vip' && !vipEnabled) btn.style.display = 'none';
     else if (cat === 'pro' || cat === 'vip') btn.style.display = 'inline-block';
     else btn.style.display = counts[cat] > 0 ? 'inline-block' : 'none';
   });
-
   if (DOM.vipSubtabs) DOM.vipSubtabs.style.display = vipEnabled ? 'flex' : 'none';
 }
 
@@ -1214,7 +1254,6 @@ function filterAndDisplay() {
     if (DOM.matches) DOM.matches.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
     return;
   }
-
   const targetDate = getLocalDateString(currentDay);
   const targetCat = (currentCategory === 'vip' && currentSubcat === 'pronostics') ? 'vip' : currentCategory;
 
@@ -1242,7 +1281,6 @@ function applySearchFilter() {
     String(m.away_team || '').toLowerCase().includes(term) ||
     String(m.league || '').toLowerCase().includes(term)
   );
-
   renderMatches(filtered);
 }
 
@@ -1257,7 +1295,6 @@ function renderMatches(matches) {
 
   if (!matches || matches.length === 0) {
     DOM.matches.innerHTML = `${offlineBanner}<div class="no-events">Aucun match.</div>`;
-    parseEmojis(DOM.matches);
     return;
   }
 
@@ -1269,7 +1306,6 @@ function renderMatches(matches) {
   });
 
   let html = offlineBanner;
-
   const leagueOrder = [...POPULAR_LEAGUES, 'Autres ligues'];
   const sortedLeagues = Object.keys(grouped).sort((a, b) => {
     const ia = leagueOrder.findIndex(l => a.includes(l) || a === l);
@@ -1279,6 +1315,7 @@ function renderMatches(matches) {
 
   sortedLeagues.forEach(league => {
     html += `<h2 class="league-header" style="color: var(--or); margin-top: 2rem;">${escapeHtml(league)}</h2>`;
+
     grouped[league].forEach(m => {
       const pred = m.prediction || {};
       const doubleChance = escapeHtml(pred.double_chance || 'N/A');
@@ -1291,11 +1328,12 @@ function renderMatches(matches) {
       const matchTime = formatMatchTime(m.event_date);
       const statusFr = translateStatus(m.status);
       const statusClass = getStatusClass(m.status);
+
       const eventDate = m.event_date ? String(m.event_date).split('T')[0] : '';
       const yesterdayStr = getLocalDateString('yesterday');
-
       const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
-      const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">👑 Premium</span>' : '';
+
+      const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">⭐ Premium</span>' : '';
 
       const homeDefault = 'assets/images/home.webp';
       const awayDefault = 'assets/images/away.webp';
@@ -1304,6 +1342,8 @@ function renderMatches(matches) {
 
       const isWinner = !!m.verified_double;
       const winnerClass = isWinner ? 'winner' : '';
+
+      // ✅ ruban gagnant en HTML (Twemoji OK)
       const winRibbon = isWinner ? `<div class="win-ribbon">✅ PRONO GAGNÉ</div>` : '';
 
       const xpronosBadge = m.badge ? `<span class="xpronos-badge">${escapeHtml(m.badge)}</span>` : '';
@@ -1322,16 +1362,21 @@ function renderMatches(matches) {
         <div class="match-card ${winnerClass}">
           ${winRibbon}
           <div class="win-effect"></div>
+
           <div class="match-info">
             <div class="teams">
               <div class="team">
-                <img src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${homeDefault}';">
+                <img src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy" decoding="async"
+                  onerror="this.onerror=null; this.src='${homeDefault}';">
                 <span class="team-name">${escapeHtml(m.home_team)}</span>
                 <span class="team-score">${m.home_score ?? '-'}</span>
               </div>
+
               <div class="vs">VS</div>
+
               <div class="team">
-                <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';">
+                <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy" decoding="async"
+                  onerror="this.onerror=null; this.src='${awayDefault}';">
                 <span class="team-name">${escapeHtml(m.away_team)}</span>
                 <span class="team-score">${m.away_score ?? '-'}</span>
               </div>
@@ -1340,19 +1385,23 @@ function renderMatches(matches) {
             <div class="match-meta">
               <span class="league-badge">${escapeHtml(m.league || 'Ligue')}</span>
               <span class="status ${statusClass}">${statusFr}</span>
-              <span class="match-time"><i>⏱</i> ${matchTime}</span>
+              <span class="match-time"><i>⏱️</i> ${matchTime}</span>
               ${m.venue ? `<span class="match-venue"><i>📍</i> ${escapeHtml(m.venue)}</span>` : ''}
             </div>
           </div>
 
           <div class="analysis-panel ticket ${winnerClass}">
             <h4>Pronostic ${xpronosBadge}</h4>
-            <p><strong>Double chance :</strong> ${doubleChance} ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}</p>
+            <p><strong>Double chance :</strong> ${doubleChance}
+              ${eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ''}
+            </p>
 
             <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
             <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
+
             ${premiumBadge}
-            <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}">📲 Partager ce prono</button>
+
+            <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}">📤 Partager ce prono</button>
           </div>
         </div>
       `;
@@ -1360,6 +1409,8 @@ function renderMatches(matches) {
   });
 
   DOM.matches.innerHTML = html;
+
+  // ✅ Twemoji après injection
   parseEmojis(DOM.matches);
 
   requestAnimationFrame(() => {
@@ -1425,6 +1476,7 @@ async function displayHistory() {
 
       html += `
         <div class="match-card ${m.verified_double ? 'winner' : ''}">
+          ${m.verified_double ? `<div class="win-ribbon">✅ PRONO GAGNÉ</div>` : ''}
           <div class="match-info">
             <div class="teams">
               <div class="team">
@@ -1432,7 +1484,9 @@ async function displayHistory() {
                 <span class="team-name">${escapeHtml(m.home_team)}</span>
                 <span class="team-score">${m.home_score ?? '-'}</span>
               </div>
+
               <div class="vs">VS</div>
+
               <div class="team">
                 <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
                 <span class="team-name">${escapeHtml(m.away_team)}</span>
@@ -1462,7 +1516,6 @@ async function displayHistory() {
 ======================================================= */
 async function loadGeneratedContent() {
   if (generatedContentPromise) return generatedContentPromise;
-
   generatedContentPromise = (async () => {
     try {
       const [articlesResp, conseilsResp] = await Promise.all([
@@ -1477,7 +1530,6 @@ async function loadGeneratedContent() {
       window.generatedConseils = [];
     }
   })();
-
   return generatedContentPromise;
 }
 
@@ -1550,6 +1602,7 @@ window.showArticleDetail = function (index) {
   }
 
   DOM.articleModal.style.display = 'flex';
+
   parseEmojis(DOM.articleModal);
 };
 
@@ -1559,6 +1612,7 @@ window.closeArticleModal = function () {
 
 async function displayBlogList() {
   if (!DOM.blogList) return;
+
   await loadGeneratedContent();
   const data = await loadDataGeneric();
 
@@ -1577,16 +1631,20 @@ async function displayBlogList() {
         <div class="item-title">${escapeHtml(stripMarkdown(article.title || 'Article'))}</div>
       </div>
     `).join('');
+    parseEmojis(horizontalContainer);
   }
 
   DOM.blogList.innerHTML = allArticles.map((article, index) => `
     <div class="news-card card" onclick="showArticleDetail(${index})">
-      <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(article.title || 'Article'))}" loading="lazy" class="news-image">
+      <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}"
+           alt="${escapeAttribute(stripMarkdown(article.title || 'Article'))}"
+           loading="lazy" class="news-image">
       <h3>${escapeHtml(stripMarkdown(article.title || 'Article'))}</h3>
       <p>${escapeHtml(stripMarkdown((article.excerpt || article.content || '').slice(0, 120)))}...</p>
       <button class="btn btn-secondary" style="margin-top:10px;">Lire la suite</button>
     </div>
   `).join('') || '<div class="no-events">Aucun article pour le moment.</div>';
+
   parseEmojis(DOM.blogList);
 }
 
@@ -1609,7 +1667,6 @@ function updateArticleSeo(article, resolvedSlug) {
   const title = stripMarkdown(article.title || 'Article');
   const metaDesc = (article.meta_description || article.excerpt || '').slice(0, 160) || `Analyse et pronostic : ${title}`;
   const url = new URL(window.location.href);
-
   const canonicalUrl = resolvedSlug
     ? `${url.origin}${url.pathname}?slug=${encodeURIComponent(resolvedSlug)}`
     : window.location.href;
@@ -1623,9 +1680,11 @@ function updateArticleSeo(article, resolvedSlug) {
   setMetaContent('og-description', metaDesc);
   setMetaContent('og-url', canonicalUrl);
   setMetaContent('og-image', article.og_image || article.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
+
   setMetaContent('twitter-title', title);
   setMetaContent('twitter-description', metaDesc);
   setMetaContent('twitter-image', article.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
+
   ensureCanonical(canonicalUrl);
 
   const jsonLdEl = document.getElementById('article-jsonld');
@@ -1664,6 +1723,7 @@ function updateArticleSeo(article, resolvedSlug) {
 
 async function displayBlogPost() {
   if (!DOM.blogPost) return;
+
   await loadGeneratedContent();
   const data = await loadDataGeneric();
 
@@ -1678,7 +1738,6 @@ async function displayBlogPost() {
 
   let article = null;
   if (slug) article = allArticles.find(a => (a.slug || '') === slug) || null;
-
   if (!article && articleIndex !== null && articleIndex !== '') {
     const idx = parseInt(articleIndex, 10);
     if (!isNaN(idx) && allArticles[idx]) article = allArticles[idx];
@@ -1694,11 +1753,14 @@ async function displayBlogPost() {
 
   DOM.blogPost.innerHTML = `
     <article class="card article-page-card">
-      <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(title)}" class="news-image" loading="lazy">
+      <img src="${escapeAttribute(article.image_url || 'assets/images/default-logo.png')}"
+           alt="${escapeAttribute(title)}"
+           class="news-image" loading="lazy">
       <h1>${escapeHtml(title)}</h1>
       <div class="article-content">${contentHtml}</div>
     </article>
   `;
+
   parseEmojis(DOM.blogPost);
 
   updateArticleSeo(article, article.slug || slug || '');
@@ -1719,7 +1781,6 @@ function updateConseilSeo(conseil, resolvedSlug) {
   const title = stripMarkdown(conseil.title || 'Conseil');
   const metaDesc = (conseil.excerpt || '').slice(0, 160) || `Conseil pratique : ${title}`;
   const url = new URL(window.location.href);
-
   const canonicalUrl = resolvedSlug
     ? `${url.origin}${url.pathname}?slug=${encodeURIComponent(resolvedSlug)}`
     : window.location.href;
@@ -1733,9 +1794,11 @@ function updateConseilSeo(conseil, resolvedSlug) {
   setMetaContent('og-description', metaDesc);
   setMetaContent('og-url', canonicalUrl);
   setMetaContent('og-image', conseil.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
+
   setMetaContent('twitter-title', title);
   setMetaContent('twitter-description', metaDesc);
   setMetaContent('twitter-image', conseil.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
+
   ensureCanonical(canonicalUrl);
 }
 
@@ -1759,16 +1822,20 @@ async function displayConseils() {
         <div class="item-title">${escapeHtml(stripMarkdown(conseil.title || 'Conseil'))}</div>
       </div>
     `).join('');
+    parseEmojis(horizontalContainer);
   }
 
   DOM.conseilsList.innerHTML = window.conseilsData.map((conseil) => `
     <div class="news-card card" onclick="openConseilPage('${escapeAttribute(conseil.slug || '')}')">
-      <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}" loading="lazy" class="news-image">
+      <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}"
+           alt="${escapeAttribute(stripMarkdown(conseil.title || 'Conseil'))}"
+           loading="lazy" class="news-image">
       <h3>${escapeHtml(stripMarkdown(conseil.title || 'Conseil'))}</h3>
       <p>${escapeHtml(stripMarkdown((conseil.content || '').slice(0, 120)))}...</p>
       <button class="btn btn-secondary" style="margin-top:10px;">Lire le conseil</button>
     </div>
   `).join('') || '<div class="no-events">Aucun conseil disponible pour le moment.</div>';
+
   parseEmojis(DOM.conseilsList);
 }
 
@@ -1800,11 +1867,14 @@ async function displayConseilPost() {
 
   DOM.conseilPost.innerHTML = `
     <article class="card article-page-card">
-      <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}" alt="${escapeAttribute(title)}" class="news-image" loading="lazy">
+      <img src="${escapeAttribute(conseil.image_url || 'assets/images/default-logo.png')}"
+           alt="${escapeAttribute(title)}"
+           class="news-image" loading="lazy">
       <h1>${escapeHtml(title)}</h1>
       <div class="article-content">${contentHtml}</div>
     </article>
   `;
+
   parseEmojis(DOM.conseilPost);
 
   updateConseilSeo(conseil, conseil.slug || slug || '');
@@ -1815,7 +1885,6 @@ window.showConseilDetail = function (index) {
   if (!conseil || !DOM.conseilModal) return;
 
   document.getElementById('conseil-modal-title').textContent = stripMarkdown(conseil.title || 'Conseil');
-
   const img = document.getElementById('conseil-modal-image');
   if (img) {
     img.src = conseil.image_url || 'assets/images/default-logo.png';
@@ -1824,8 +1893,8 @@ window.showConseilDetail = function (index) {
 
   const contentEl = document.getElementById('conseil-modal-content');
   if (contentEl) contentEl.innerHTML = renderSafeRichContent(conseil.content || '');
-
   DOM.conseilModal.style.display = 'flex';
+
   parseEmojis(DOM.conseilModal);
 };
 
@@ -1839,18 +1908,20 @@ window.closeConseilModal = function () {
 async function displayInfos() {
   if (!DOM.infosList) return;
   const data = await loadDataGeneric();
+
   const infos = (Array.isArray(window.publishedInfos) && window.publishedInfos.length)
     ? window.publishedInfos
     : (data?.infos || []);
 
   DOM.infosList.innerHTML = infos.length
     ? infos.map(i => `
-      <div class="news-card card">
-        <h3>${escapeHtml(i.title || '')}</h3>
-        <p>${escapeHtml(i.content || '')}</p>
-      </div>
-    `).join('')
+        <div class="news-card card">
+          <h3>${escapeHtml(i.title || '')}</h3>
+          <p>${escapeHtml(i.content || '')}</p>
+        </div>
+      `).join('')
     : '<div class="no-events">Aucune info disponible.</div>';
+
   parseEmojis(DOM.infosList);
 }
 
@@ -1890,6 +1961,7 @@ async function displayFootNews() {
         </button>
       </div>
     `).join('');
+
     parseEmojis(DOM.footNewsContainer);
   } catch (error) {
     console.error('Erreur actualités:', error);
@@ -1907,15 +1979,12 @@ window.showNewsDetail = function (index) {
   const linkEl = document.getElementById('news-modal-link');
 
   if (titleEl) titleEl.textContent = news.title || 'Actualité';
-
   if (img) {
     img.src = news.image || 'assets/images/default-logo.png';
     img.alt = news.title || 'Actualité';
     img.style.display = news.image ? 'block' : 'none';
   }
-
   if (contentEl) contentEl.innerHTML = renderSafeRichContent(news.summary || '');
-
   if (linkEl) {
     if (news.manual || !news.link) {
       linkEl.style.display = 'none';
@@ -1977,6 +2046,7 @@ function initBonusPage() {
           </div>
         </div>
       `).join('') || '<div class="no-events">Aucune offre active.</div>';
+
       parseEmojis(DOM.bonusGrid);
     }
 
@@ -1995,11 +2065,11 @@ function initBonusPage() {
 
   const sourceBookmakers = publishedBookmakers.length
     ? publishedBookmakers.map(b => ({
-      name: b.name || "Bookmaker",
-      logo: b.logo || "assets/images/default-logo.webp",
-      url: b.url || "#",
-      desc: b.description || b.desc || `Bonus exclusif chez ${b.name || "ce bookmaker"}`
-    }))
+        name: b.name || "Bookmaker",
+        logo: b.logo || "assets/images/default-logo.webp",
+        url: b.url || "#",
+        desc: b.description || b.desc || `Bonus exclusif chez ${b.name || "ce bookmaker"}`
+      }))
     : defaultBookmakers;
 
   window.currentBonusBookmakers = sourceBookmakers;
@@ -2033,6 +2103,7 @@ function renderBonusGrid(bookmakers) {
       </div>
     </div>
   `).join("");
+
   parseEmojis(DOM.bonusGrid);
 }
 
@@ -2057,7 +2128,6 @@ window.openBonusModal = function (index) {
 
   if (titleEl) titleEl.textContent = b.name;
   if (img) { img.src = b.logo || "assets/images/default-logo.webp"; img.alt = b.name || "Bookmaker"; }
-
   if (descEl) {
     descEl.innerHTML = `
       <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
@@ -2065,12 +2135,12 @@ window.openBonusModal = function (index) {
     `;
   }
   if (footerEl) footerEl.textContent = "Inscription via notre lien recommandé.";
-
   if (linkEl) {
     linkEl.href = b.url || "#";
     linkEl.target = "_blank";
     linkEl.rel = "noopener noreferrer";
   }
+
   DOM.bonusModal.style.display = "flex";
   parseEmojis(DOM.bonusModal);
 };
@@ -2089,6 +2159,7 @@ function normalizeConfidence(conf) {
   return Math.min(100, Math.round(c));
 }
 
+/* ✅ Nouvelle carte compacte (Top coupons / Validés) */
 function renderHomePickCard(m, { winner = false } = {}) {
   const pred = m.prediction || {};
   const conf = normalizeConfidence(pred.confidence);
@@ -2104,7 +2175,11 @@ function renderHomePickCard(m, { winner = false } = {}) {
   const winBadge = winner ? `<span class="hp-badge">✅ GAGNÉ</span>` : '';
 
   return `
-    <article class="home-pick-card ${winner ? 'is-winner' : ''}" onclick="window.location.href='pronos.html'" role="link" tabindex="0">
+    <article class="home-pick-card ${winner ? 'is-winner' : ''}"
+             onclick="window.location.href='pronos.html'"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); window.location.href='pronos.html';}"
+             role="link"
+             tabindex="0">
       ${winBadge}
 
       <div class="hp-teams">
@@ -2137,6 +2212,7 @@ function displayTopTodayCoupons() {
 
   const todayStr = getLocalDateString('today');
 
+  // UX : afficher les "simple" uniquement (accessible sans déblocage)
   const picks = allData.matches
     .filter(m => m.category === 'simple')
     .filter(m => getLocalDateFromEvent(m.event_date) === todayStr)
@@ -2165,11 +2241,14 @@ function displayLatestVerifiedHome() {
   parseEmojis(DOM.verifiedPicks);
 }
 
+// Backward compatibility (si un ancien index existe encore)
 function displayLatestVerified() {
   if (DOM.verifiedPicks) {
     displayLatestVerifiedHome();
     return;
   }
+
+  // fallback sur l’ancien container todayPicks si présent
   if (!DOM.todayPicks || !allData?.matches) return;
 
   const verified = allData.matches
@@ -2180,6 +2259,7 @@ function displayLatestVerified() {
   DOM.todayPicks.innerHTML = verified.length
     ? verified.map(m => `
         <div class="match-card winner">
+          <div class="win-ribbon">✅ PRONO GAGNÉ</div>
           <div class="match-info">
             <div class="teams">
               <div class="team">
@@ -2211,6 +2291,7 @@ function displayLatestVerified() {
 
 function startWinsSlider() {
   if (!DOM.winsTrack || !allData?.matches) return;
+
   const wins = allData.matches
     .filter(m => isFinishedMatch(m) && m.verified_double)
     .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0))
@@ -2269,17 +2350,21 @@ function startWinNotifications() {
   const firstNames = ["Jean", "Michel", "David", "Lucas", "Thomas", "Patrick", "Samuel", "Kevin"];
   const lastNames = ["Martin", "Bernard", "Dubois", "Thomas", "Robert", "Richard", "Petit", "Durand"];
 
+  // gains FCFA (ex : 10 000 à 150 000)
   const notifications = Array.from({ length: 5 }).map(() => ({
     name: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
     gain: (Math.floor(Math.random() * (150000 - 10000 + 1)) + 10000)
   }));
 
   let index = 0;
+
   function showPopup() {
     const { name, gain } = notifications[index];
     DOM.winPopup.innerHTML = `💸 <b>${escapeHtml(name)}</b> a gagné <b>${escapeHtml(gain.toLocaleString('fr-FR'))} FCFA</b> aujourd'hui.`;
     DOM.winPopup.classList.add('show');
+
     parseEmojis(DOM.winPopup);
+
     setTimeout(() => DOM.winPopup.classList.remove('show'), 4000);
     index = (index + 1) % notifications.length;
   }
@@ -2306,7 +2391,6 @@ function updateHomeSuccessRate() {
 
 function updatePronosticsSuccessRate() {
   if (!DOM.successRateContainer) return;
-
   if (!allData?.matches) {
     DOM.successRateContainer.style.display = 'none';
     return;
@@ -2321,7 +2405,6 @@ function updatePronosticsSuccessRate() {
   }
 
   const rate = ((successful.length / finished.length) * 100).toFixed(1);
-
   DOM.successRateContainer.innerHTML = `
     <div class="success-rate-item" style="margin:0 auto;">
       <div class="success-rate-value">${escapeHtml(rate)}%</div>
@@ -2331,6 +2414,9 @@ function updatePronosticsSuccessRate() {
   DOM.successRateContainer.style.display = 'flex';
 }
 
+/* =======================================================
+ HOME - LAST UPDATE
+======================================================= */
 function updateHomeLastUpdate() {
   if (!DOM.dataUpdated) return;
   const ts = allData?.generated_at;
@@ -2351,6 +2437,7 @@ function initScrollProgress() {
   const progressBar = document.createElement('div');
   progressBar.className = 'scroll-progress';
   document.body.appendChild(progressBar);
+
   window.addEventListener('scroll', () => {
     const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
     const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -2366,9 +2453,10 @@ function setupGlobalButtons() {
   document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
   document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
 
+  // Bouton accueil : Débloquer maintenant
   document.getElementById('unlock-now')?.addEventListener('click', () => {
     const shareCount = getDailyShareCount();
-    const target = shareLimits.vip;
+    const target = shareLimits.vip; // 1/jour
     if (shareCount >= target) {
       showToast("Déjà débloqué aujourd'hui.", "success");
       return;
@@ -2427,6 +2515,7 @@ function setupPronosticPageListeners() {
 async function handleCategoryChange() {
   const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
 
+  // VIP = partage/jour (plus de code)
   if (currentCategory === 'vip') {
     if (!vipEnabled) {
       alert('Les pronostics VIP sont temporairement désactivés.');
@@ -2454,6 +2543,7 @@ async function handleCategoryChange() {
     return;
   }
 
+  // PRO par partage (1/jour)
   const target = shareLimits[currentCategory];
   const shareCount = getDailyShareCount();
   if (shareCount >= target) {
@@ -2485,6 +2575,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (Notification.permission === 'granted') subscribeToPush(false);
 
   const page = detectPage();
+
   switch (page) {
     case 'pronos':
       setupPronosticPageListeners();
@@ -2534,16 +2625,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (data) {
         allData = data;
         renderBookmakers(data.bookmakers);
-
         updateHomeLastUpdate();
 
+        // NOUVEAU : Top coupons / Validés
         displayTopTodayCoupons();
         displayLatestVerifiedHome();
 
+        // Conserve le reste
         startWinsSlider();
         animateWins();
         updateHomeSuccessRate();
       }
+
       await displayTestimonials();
       startWinNotifications();
       break;
@@ -2557,8 +2650,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   await displayInfos();
   initScrollProgress();
 
+  // Popup interne pour demander l'autorisation des notifications
   setTimeout(showPushPrompt, 6500);
 
-  // Appliquer Twemoji globalement après le rendu initial
+  // ✅ Parse emojis global après rendu initial
   setTimeout(() => parseEmojis(document.body), 0);
 });
