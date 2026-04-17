@@ -1,6 +1,7 @@
 /* =======================================================
    STYLE.CSS - Mr XPRONOS (CLEAN - SANS DOUBLONS)
    Design noir & or, moderne, optimisé
+   Corrigé : overflow horizontal, emojis, cartes accueil
 ======================================================= */
 
 /* =======================================================
@@ -25,10 +26,14 @@
 }
 
 /* =======================================================
-   RESET
+   RESET & ANTI-OVERFLOW GLOBAL
 ======================================================= */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  width: 100%;
+  overflow-x: hidden; /* Évite les débordements horizontaux */
+}
 body {
   font-family: 'Montserrat', sans-serif;
   background-color: var(--noir);
@@ -36,6 +41,8 @@ body {
   line-height: 1.5;
   font-size: 14px;
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 img { max-width: 100%; display: block; }
 button, input, select, textarea { font: inherit; }
@@ -104,7 +111,7 @@ header .container {
   padding: 0.8rem 15px;
   width: 100%;
   box-sizing: border-box;
-  flex-wrap: nowrap;          /* important pour burger + promo */
+  flex-wrap: nowrap;
   flex-direction: row;
 }
 
@@ -129,7 +136,6 @@ header .container {
   justify-content: flex-end;
 }
 
-/* Badge code promo (div OU button) */
 .promo-code {
   flex-shrink: 0;
   white-space: nowrap;
@@ -143,8 +149,8 @@ header .container {
   animation: gentle-pulse 2s infinite;
   box-shadow: 0 0 0 rgba(212, 175, 55, 0.4);
   transition: transform 0.3s, box-shadow 0.3s;
-  border: none;          /* utile si c'est un bouton */
-  cursor: pointer;       /* utile si c'est un bouton */
+  border: none;
+  cursor: pointer;
 }
 .promo-code:hover {
   animation: none;
@@ -152,7 +158,6 @@ header .container {
   box-shadow: 0 0 15px rgba(212, 175, 55, 0.8);
 }
 
-/* Bouton install */
 #install-app { animation: gentle-pulse 2s infinite; }
 
 /* =======================================================
@@ -265,7 +270,6 @@ footer {
   font-weight: 700;
   display: inline-block;
 }
-
 .badge-category {
   display: inline-flex;
   align-items: center;
@@ -1414,7 +1418,7 @@ footer {
 }
 
 /* =======================================================
-   EFFET TICKET + GAGNANTS
+   EFFET TICKET + GAGNANTS (avec ruban HTML)
 ======================================================= */
 .ticket {
   background-color: #111;
@@ -1442,6 +1446,21 @@ footer {
   background-color: rgba(76,175,80,0.1);
 }
 
+/* Ruban gagnant HTML (remplace les pseudo-éléments) */
+.win-ribbon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(34, 197, 94, 0.16);
+  border: 1px solid rgba(34, 197, 94, 0.55);
+  color: #22C55E;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 950;
+  font-size: 0.75rem;
+  z-index: 20;
+}
+
 .win-effect {
   position: absolute;
   inset: 0;
@@ -1452,20 +1471,6 @@ footer {
   border: 2px solid #4CAF50 !important;
   box-shadow: 0 0 25px rgba(76,175,80,0.5) !important;
   position: relative;
-}
-.match-card.winner::before {
-  content: "✅ PRONO GAGNÉ";
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #4CAF50;
-  color: black;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  animation: pulseWin 1s infinite;
-  z-index: 10;
 }
 .spark {
   position: absolute;
@@ -1479,84 +1484,120 @@ footer {
 }
 
 /* =======================================================
-   CARTES VALIDÉES (accueil)
+   NOUVELLES CARTES ACCUEIL (home-pick-card)
 ======================================================= */
-.verified-card {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  background: #111;
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: 0.3s;
-  border: 1px solid rgba(255, 215, 0, 0.3);
-  width: 280px;
-  flex-shrink: 0;
-  margin-right: 1rem;
+.home-pick-card {
   position: relative;
+  flex: 0 0 auto;
+  width: 280px;
+  background: #111;
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.55);
+  transition: transform .2s ease, border-color .2s ease;
+  cursor: pointer;
+  scroll-snap-align: start;
 }
-.verified-card:hover {
-  transform: scale(1.02);
-  border-color: var(--or);
+.home-pick-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.6);
 }
-.verified-card.winner {
-  border: 2px solid #4CAF50 !important;
-  box-shadow: 0 0 25px rgba(76, 175, 80, 0.5) !important;
+.home-pick-card.is-winner {
+  border: 2px solid rgba(34, 197, 94, 0.7);
+  box-shadow: 0 0 28px rgba(34, 197, 94, 0.18);
 }
-.verified-card.winner::before {
-  content: "✅ GAGNÉ";
+
+.hp-badge {
   position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: #4CAF50;
-  color: black;
-  padding: 4px 8px;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  z-index: 10;
+  top: 10px;
+  right: 10px;
+  background: rgba(34, 197, 94, 0.16);
+  color: #22C55E;
+  border: 1px solid rgba(34, 197, 94, 0.55);
+  font-weight: 950;
+  font-size: 0.70rem;
+  padding: 4px 10px;
+  border-radius: 999px;
 }
-.verified-card .teams {
-  display: flex;
+
+.hp-teams {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 5px;
-  min-width: 100px;
-  margin-bottom: 0;
+  gap: 10px;
 }
-.verified-card .teams img {
-  width: 32px;
-  height: 32px;
+.hp-team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  min-width: 0;
+}
+.hp-logo {
+  width: 50px;
+  height: 50px;
   object-fit: contain;
-  background: var(--gris);
-  border-radius: 6px;
-  padding: 3px;
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  padding: 6px;
 }
-.verified-card .vs {
-  font-size: 12px;
+.hp-name {
+  font-size: 0.82rem;
+  font-weight: 750;
+  color: #f1f1f1;
+  line-height: 1.15;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hp-vs {
+  font-weight: 950;
+  font-size: 0.78rem;
   color: var(--or);
-  font-weight: bold;
-  padding: 2px 8px;
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  background: rgba(212, 175, 55, 0.08);
+  padding: 6px 10px;
+  border-radius: 999px;
 }
-.verified-card .match-info { flex: 1; padding: 0; }
-.verified-card .teams-name {
-  font-weight: 600;
-  font-size: 0.9rem;
-  margin-bottom: 4px;
-}
-.verified-card .score {
-  color: #00ff9c;
-  font-weight: bold;
-  font-size: 0.85rem;
-}
-.verified-card .prediction { font-size: 0.8rem; color: #ccc; }
-.verified-card .badges {
+.hp-meta {
+  margin-top: 12px;
   display: flex;
-  gap: 5px;
-  align-items: center;
-  margin-top: 5px;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
+.hp-pill {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #ddd;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+.hp-pill-gold {
+  color: #fff;
+  border-color: rgba(212, 175, 55, 0.35);
+  background: rgba(212, 175, 55, 0.10);
+}
+.hp-pill-green {
+  color: #00ff9c;
+  border-color: rgba(0, 255, 156, 0.25);
+  background: rgba(0, 255, 156, 0.08);
+}
+
+/* =======================================================
+   CARTES VALIDÉES (ancien style .verified-card désactivé)
+======================================================= */
+/* L'ancien style .verified-card est remplacé par .home-pick-card.
+   On garde le bloc commenté pour référence, mais il n'est plus utilisé. */
+/*
+.verified-card { ... }
+*/
 
 /* =======================================================
    SLIDER DES GAINS
@@ -1655,7 +1696,7 @@ footer {
 .share-buttons .btn { flex: 1; }
 
 /* =======================================================
-   TODAY PICKS HORIZONTAL (legacy)
+   TODAY PICKS HORIZONTAL (legacy - peut être supprimé)
 ======================================================= */
 #today-picks.horizontal-scroll {
   display: flex;
@@ -1855,11 +1896,12 @@ body.menu-open { overflow: hidden; }
 }
 
 /* =======================================================
-   BOTTOM NAV (mobile)
+   BOTTOM NAV (mobile) – corrigée pour éviter débordement
 ======================================================= */
-.bottom-nav{
+.bottom-nav {
   position: fixed;
-  left: 0; right: 0;
+  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 10040;
   background: rgba(18,18,18,0.92);
@@ -1868,21 +1910,23 @@ body.menu-open { overflow: hidden; }
   padding-bottom: env(safe-area-inset-bottom);
   display: none;
 }
-.bottom-nav .inner{
-  max-width: 1200px;
+.bottom-nav .inner {
+  width: min(560px, 100%);
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
-  padding: 10px 10px;
+  gap: 10px;
+  padding: 10px 12px;
+  box-sizing: border-box;
 }
-.bottom-nav a{
-  text-decoration:none;
-  color:#ddd;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+.bottom-nav a {
+  min-width: 0;
+  text-decoration: none;
+  color: #ddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 4px;
   padding: 8px 6px;
   border-radius: 14px;
@@ -1891,26 +1935,36 @@ body.menu-open { overflow: hidden; }
   font-weight: 750;
   font-size: 0.72rem;
 }
-.bottom-nav a i{ font-size: 1.05rem; }
-.bottom-nav a.active{
+.bottom-nav a i { font-size: 1.05rem; }
+.bottom-nav a.active {
   border-color: rgba(212,175,55,0.65);
   background: rgba(212,175,55,0.12);
   color: #fff;
 }
-.bottom-nav a.live{
+.bottom-nav a.live {
   border-color: rgba(34,197,94,0.55);
   color: #22C55E;
 }
-.bottom-nav a.live.active{
+.bottom-nav a.live.active {
   background: rgba(34,197,94,0.12);
   border-color: rgba(34,197,94,0.85);
 }
-@media (max-width: 900px){
-  body.has-bottom-nav{ padding-bottom: 78px; }
-  .bottom-nav{ display:block; }
-  body.has-bottom-nav #back-to-top{ bottom: 95px; }
-  body.has-bottom-nav .win-popup{ bottom: 90px; }
-  body.has-bottom-nav .assistant-button{ bottom: 88px !important; }
+
+@media (max-width: 900px) {
+  body.has-bottom-nav { padding-bottom: 78px; }
+  .bottom-nav { display: block; }
+  body.has-bottom-nav #back-to-top { bottom: 95px; }
+  body.has-bottom-nav .win-popup { bottom: 90px; }
+  body.has-bottom-nav .assistant-button { bottom: 88px !important; }
+}
+
+/* =======================================================
+   EMOJIS (Twemoji) – style pour les images SVG
+======================================================= */
+img.emoji {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
 }
 
 /* =======================================================
@@ -1963,5 +2017,5 @@ body.menu-open { overflow: hidden; }
     min-width: 100% !important;
     margin: 0 !important;
   }
-  .verified-card { width: 240px; }
+  /* Les anciennes cartes .verified-card ne sont plus utilisées */
 }

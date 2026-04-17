@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>Mr XPRONOS - Coupons de pari VIP et gratuits</title>
   <meta name="description" content="Coupons de pari gratuits et premium, analyses H2H, conseils de paris. Code promo XPVIP chez 1xBet, 1win, Betwinner, Melbet, Linebet, BetClic.">
   <meta name="robots" content="index, follow">
@@ -48,9 +48,62 @@
   <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 
-<body>
+<body class="has-bottom-nav">
+  <!-- Menu burger (overlay) -->
+  <div class="burger-overlay" id="burger-overlay">
+    <div class="burger-drawer">
+      <div class="burger-menu-header">
+        <span class="burger-menu-title">Menu</span>
+        <button class="burger-close" id="burger-close" aria-label="Fermer le menu">&times;</button>
+      </div>
+      <div class="burger-menu-content">
+        <div class="burger-menu-grid">
+          <a href="index.html" class="burger-menu-item active">
+            <span class="menu-icon">🏠</span>
+            <span class="menu-label">Accueil</span>
+          </a>
+          <a href="pronos.html" class="burger-menu-item">
+            <span class="menu-icon">📋</span>
+            <span class="menu-label">Pronostics</span>
+          </a>
+          <a href="live.html" class="burger-menu-item">
+            <span class="menu-icon">🔴</span>
+            <span class="menu-label">LIVE VIP</span>
+          </a>
+          <a href="historique.html" class="burger-menu-item">
+            <span class="menu-icon">📅</span>
+            <span class="menu-label">Historique</span>
+          </a>
+          <a href="blog.html" class="burger-menu-item">
+            <span class="menu-icon">📰</span>
+            <span class="menu-label">Blog</span>
+          </a>
+          <a href="conseils.html" class="burger-menu-item">
+            <span class="menu-icon">💡</span>
+            <span class="menu-label">Conseils</span>
+          </a>
+          <a href="infos.html" class="burger-menu-item">
+            <span class="menu-icon">⚽</span>
+            <span class="menu-label">Actus Foot</span>
+          </a>
+          <a href="bonus.html" class="burger-menu-item">
+            <span class="menu-icon">🎁</span>
+            <span class="menu-label">Bonus</span>
+          </a>
+          <a href="contact.html" class="burger-menu-item">
+            <span class="menu-icon">📞</span>
+            <span class="menu-label">Contact</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <header>
     <div class="container">
+      <!-- Bouton burger (mobile) -->
+      <button class="burger-btn" id="burger-btn" aria-label="Menu" style="display: none;">☰</button>
+
       <div class="logo">
         <a href="index.html">Mr <span>XPRONOS</span></a>
       </div>
@@ -183,7 +236,7 @@
       </div>
     </section>
 
-    <!-- Le reste de ton accueil reste en place -->
+    <!-- Slider des gains -->
     <div class="wins-slider">
       <div class="wins-track" id="wins-track"></div>
     </div>
@@ -281,7 +334,33 @@
     </div>
   </footer>
 
-  <!-- Modals existants -->
+  <!-- Bottom navigation (mobile) -->
+  <nav class="bottom-nav">
+    <div class="inner">
+      <a href="index.html" class="active">
+        <i>🏠</i>
+        <span>Accueil</span>
+      </a>
+      <a href="pronos.html">
+        <i>📋</i>
+        <span>Pronos</span>
+      </a>
+      <a href="live.html" class="live">
+        <i>🔴</i>
+        <span>LIVE</span>
+      </a>
+      <a href="blog.html">
+        <i>📰</i>
+        <span>Blog</span>
+      </a>
+      <a href="bonus.html">
+        <i>🎁</i>
+        <span>Bonus</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Modals -->
   <div id="article-modal" class="modal" onclick="closeArticleModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
       <span class="close" onclick="closeArticleModal()">&times;</span>
@@ -312,12 +391,54 @@
     </div>
   </div>
 
+  <!-- Popup de gains -->
   <div id="win-popup" class="win-popup"></div>
 
+  <!-- Bouton back-to-top -->
+  <button id="back-to-top" aria-label="Retour en haut" style="display: none;">↑</button>
+
+  <!-- Scripts -->
   <script type="module" src="assets/js/main.js"></script>
   <script defer src="assets/js/pwa.js"></script>
   <script defer src="assets/js/assistant.js"></script>
   <script defer src="assets/js/menu.js"></script>
   <script defer src="assets/js/back-to-top.js"></script>
+
+  <!-- Activation du menu burger (mobile) -->
+  <script>
+    (function() {
+      const burgerBtn = document.getElementById('burger-btn');
+      const overlay = document.getElementById('burger-overlay');
+      const closeBtn = document.getElementById('burger-close');
+
+      if (!burgerBtn || !overlay) return;
+
+      // Afficher le bouton burger sur mobile
+      const style = window.getComputedStyle(burgerBtn);
+      if (style.display === 'none') burgerBtn.style.display = 'inline-flex';
+
+      burgerBtn.addEventListener('click', () => {
+        overlay.classList.add('open');
+        document.body.classList.add('menu-open');
+      });
+
+      const closeMenu = () => {
+        overlay.classList.remove('open');
+        document.body.classList.remove('menu-open');
+      };
+
+      closeBtn?.addEventListener('click', closeMenu);
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeMenu();
+      });
+
+      // Fermer avec Echap
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('open')) {
+          closeMenu();
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
