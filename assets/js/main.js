@@ -7,6 +7,7 @@
  *
  * (VIP PAYANT SUPPRIMÉ)
  */
+
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
   console.log = () => {};
   console.warn = () => {};
@@ -34,6 +35,7 @@ const activeChannels = new Set();
 const shareLimits = { pro: 1, vip: 1 };
 
 const BASE_SITE_URL = 'https://mrxpronos.github.io/MrXPRONOS_App/';
+
 const POPULAR_LEAGUES = [
   "Premier League", "LaLiga", "Serie A", "Bundesliga", "Ligue 1",
   "Eredivisie", "Primeira Liga", "Super Lig", "Russian Premier League",
@@ -57,7 +59,15 @@ const DOM = {
   shareCounter: null,
   winsTrack: null,
   testimonials: null,
+
+  // (ancien) container accueil
   todayPicks: null,
+
+  // NOUVEAU (accueil)
+  topTodayPicks: null,
+  verifiedPicks: null,
+  dataUpdated: null,
+
   searchInput: null,
   historyContainer: null,
   bonusSelect: null,
@@ -90,58 +100,53 @@ function initDOM() {
   DOM.matches = document.getElementById('matches-container');
   DOM.sharePopup = document.getElementById('share-popup');
   DOM.vipLockedOverlay = document.getElementById('vip-locked-overlay');
-
   DOM.bookmakersFooter = document.getElementById('bookmakers-footer');
   DOM.bookmakersBonus = document.getElementById('bookmakers-bonus');
   DOM.vipSubtabs = document.getElementById('vip-subtabs');
-
   DOM.usersCount = document.getElementById('total-users-count');
   DOM.onlineCount = document.getElementById('online-users-count');
   DOM.sharesCount = document.getElementById('total-shares-count');
-
   DOM.winsCount = document.getElementById('wins-count');
   DOM.successFill = document.getElementById('success-fill');
   DOM.successPercent = document.getElementById('success-percent');
-
   DOM.shareCounter = document.getElementById('share-counter');
   DOM.winsTrack = document.getElementById('wins-track');
-
   DOM.testimonials = document.getElementById('testimonials-container');
+
+  // (ancien id - peut ne plus exister)
   DOM.todayPicks = document.getElementById('today-picks');
+
+  // NOUVEAU (accueil)
+  DOM.topTodayPicks = document.getElementById('top-today-picks');
+  DOM.verifiedPicks = document.getElementById('verified-picks');
+  DOM.dataUpdated = document.getElementById('data-updated');
 
   DOM.searchInput = document.getElementById('search-input');
   DOM.historyContainer = document.getElementById('history-container');
-
   DOM.bonusSelect = document.getElementById('bonus-bookmaker-select');
   DOM.bonusGrid = document.getElementById('bonus-grid');
   DOM.bonusThumbnails = document.getElementById('bonus-thumbnails');
-
   DOM.bonusModal = document.getElementById('bonus-modal');
   DOM.articleModal = document.getElementById('article-modal');
   DOM.conseilModal = document.getElementById('conseil-modal');
   DOM.newsModal = document.getElementById('news-modal');
-
   DOM.winPopup = document.getElementById('win-popup');
   DOM.iosGuidePopup = document.getElementById('ios-guide-popup');
   DOM.installButton = document.getElementById('install-app');
-
   DOM.blogList = document.getElementById('blog-list');
   DOM.blogPost =
     document.getElementById('blog-post') ||
     document.getElementById('blog-post-content') ||
     document.getElementById('article-page-content');
-
   DOM.conseilPost = document.getElementById('conseil-post');
   DOM.conseilsList = document.getElementById('conseils-list');
-
   DOM.infosList = document.getElementById('infos-list');
   DOM.footNewsContainer = document.getElementById('foot-news-container');
-
   DOM.successRateContainer = document.getElementById('success-rate-container');
 }
 
 /* =======================================================
-   SECURITY
+ SECURITY
 ======================================================= */
 function escapeHtml(text) {
   if (text === null || text === undefined) return '';
@@ -149,7 +154,6 @@ function escapeHtml(text) {
   div.textContent = String(text);
   return div.innerHTML;
 }
-
 function escapeAttribute(text) {
   if (text === null || text === undefined) return '';
   return String(text)
@@ -159,7 +163,6 @@ function escapeAttribute(text) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 }
-
 function stripMarkdown(text = '') {
   return String(text)
     .replace(/#+\s*/g, '')
@@ -169,24 +172,20 @@ function stripMarkdown(text = '') {
     .replace(/\[|\]/g, '')
     .trim();
 }
-
 function sanitizeHtml(unsafeHtml = '') {
   const template = document.createElement('template');
   template.innerHTML = unsafeHtml;
-
   const allowedTags = new Set([
     'div', 'p', 'br', 'strong', 'em', 'b', 'i', 'u',
     'ul', 'ol', 'li', 'blockquote', 'code', 'pre',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'a', 'img', 'span', 'hr'
   ]);
-
   const allowedAttrs = {
     '*': new Set(['class']),
     a: new Set(['href', 'target', 'rel']),
     img: new Set(['src', 'alt', 'loading', 'decoding'])
   };
-
   const cleanNode = (node) => {
     [...node.childNodes].forEach(child => {
       if (child.nodeType === Node.COMMENT_NODE) {
@@ -194,7 +193,6 @@ function sanitizeHtml(unsafeHtml = '') {
         return;
       }
       if (child.nodeType !== Node.ELEMENT_NODE) return;
-
       const tag = child.tagName.toLowerCase();
       if (!allowedTags.has(tag)) {
         const fragment = document.createDocumentFragment();
@@ -203,14 +201,12 @@ function sanitizeHtml(unsafeHtml = '') {
         cleanNode(node);
         return;
       }
-
       [...child.attributes].forEach(attr => {
         const name = attr.name.toLowerCase();
         const value = attr.value || '';
         const isAllowed =
           (allowedAttrs[tag] && allowedAttrs[tag].has(name)) ||
           (allowedAttrs['*'] && allowedAttrs['*'].has(name));
-
         if (name.startsWith('on') || !isAllowed) {
           child.removeAttribute(attr.name);
           return;
@@ -224,15 +220,12 @@ function sanitizeHtml(unsafeHtml = '') {
           child.setAttribute('rel', 'noopener noreferrer');
         }
       });
-
       cleanNode(child);
     });
   };
-
   cleanNode(template.content);
   return template.innerHTML;
 }
-
 function renderSafeRichContent(content = '') {
   try {
     if (window.marked) {
@@ -245,7 +238,7 @@ function renderSafeRichContent(content = '') {
 }
 
 /* =======================================================
-   UTILS
+ UTILS
 ======================================================= */
 function showToast(message, type = 'info', duration = 4000) {
   const toast = document.createElement('div');
@@ -271,13 +264,55 @@ function toFloatSafe(value, defaultValue = null) {
   const n = Number(value);
   return Number.isFinite(n) ? n : defaultValue;
 }
-
 function safeJsonParse(value, fallback = null) {
   try { return JSON.parse(value); } catch { return fallback; }
 }
 
 /* =======================================================
-   COOKIES (long)
+ COPY (XPVIP)
+======================================================= */
+async function copyText(text) {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {}
+  // fallback
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function initPromoCopy() {
+  // Support : bouton .promo-copy avec data-copy
+  qsa('.promo-copy[data-copy]').forEach(el => {
+    el.addEventListener('click', async () => {
+      const code = el.getAttribute('data-copy') || 'XPVIP';
+      const ok = await copyText(code);
+      showToast(ok ? `Code copié : ${code}` : 'Impossible de copier (essayez manuellement).', ok ? 'success' : 'error');
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        el.click();
+      }
+    });
+  });
+}
+
+/* =======================================================
+ COOKIES (long)
 ======================================================= */
 const COOKIE_DAYS = 1000000;
 
@@ -287,20 +322,18 @@ function getCookie(name) {
   );
   return m ? decodeURIComponent(m[1]) : null;
 }
-
 function setCookie(name, value, days = COOKIE_DAYS) {
   const expires = new Date(Date.now() + days * 864e5).toUTCString();
   const secure = location.protocol === 'https:' ? '; Secure' : '';
   document.cookie = `${name}=${encodeURIComponent(value)}; Expires=${expires}; Path=/; SameSite=Lax${secure}`;
 }
-
 function deleteCookie(name) {
   const secure = location.protocol === 'https:' ? '; Secure' : '';
   document.cookie = `${name}=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Path=/; SameSite=Lax${secure}`;
 }
 
 /* =======================================================
-   USER ID (cookie + localStorage)
+ USER ID (cookie + localStorage)
 ======================================================= */
 function getUserId() {
   let userId = localStorage.getItem('mx_user_id') || getCookie('mx_user_id');
@@ -337,7 +370,7 @@ function cleanupChannels() {
 window.addEventListener('beforeunload', cleanupChannels);
 
 /* =======================================================
-   PAGE DETECTION
+ PAGE DETECTION
 ======================================================= */
 function detectPage() {
   if (DOM.matches) return 'pronos';
@@ -348,12 +381,15 @@ function detectPage() {
   if (DOM.conseilsList) return 'conseils';
   if (DOM.bonusSelect || DOM.bonusGrid || DOM.bonusThumbnails) return 'bonus';
   if (DOM.footNewsContainer) return 'infos';
-  if (DOM.todayPicks || DOM.testimonials) return 'home';
+
+  // HOME : nouveaux containers ou témoignages
+  if (DOM.topTodayPicks || DOM.verifiedPicks || DOM.testimonials || DOM.todayPicks) return 'home';
+
   return 'generic';
 }
 
 /* =======================================================
-   SUPABASE
+ SUPABASE
 ======================================================= */
 async function initSupabase() {
   const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout Supabase')), 5000));
@@ -362,8 +398,10 @@ async function initSupabase() {
       const { supabaseUrl, supabaseAnonKey } = await import('./config.js');
       if (!supabaseUrl || !supabaseUrl.startsWith('https://')) throw new Error('URL Supabase invalide');
       if (!supabaseAnonKey) throw new Error('Clé Supabase manquante');
+
       supabaseConfig.url = supabaseUrl;
       supabaseConfig.anonKey = supabaseAnonKey;
+
       const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
       supabase = createClient(supabaseUrl, supabaseAnonKey);
       supabaseAvailable = true;
@@ -375,7 +413,7 @@ async function initSupabase() {
 }
 
 /* =======================================================
-   PUSH / COUNTERS / ANALYTICS
+ PUSH / COUNTERS / ANALYTICS
 ======================================================= */
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -389,6 +427,7 @@ function urlBase64ToUint8Array(base64String) {
 async function subscribeToPush(askPermission = false) {
   if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
   if (!supabaseConfig.url) return;
+
   try {
     let permission = Notification.permission;
     if (permission === 'default' && askPermission) permission = await Notification.requestPermission();
@@ -404,10 +443,9 @@ async function subscribeToPush(askPermission = false) {
       console.warn('Service Worker non prêt, push désactivé');
       return;
     }
-
     if (!swReady) return;
-    let subscription = await swReady.pushManager.getSubscription();
 
+    let subscription = await swReady.pushManager.getSubscription();
     if (!subscription) {
       try {
         const keyResp = await fetch(`${supabaseConfig.url}/functions/v1/vapid-public-key`, {
@@ -442,7 +480,6 @@ async function subscribeToPush(askPermission = false) {
     }).catch(e => {
       console.debug('Push subscription non enregistrée (CORS)', e.message);
     });
-
   } catch (err) {
     console.debug('Push non disponible:', err.message);
   }
@@ -465,18 +502,16 @@ function isPwaInstalled() {
 }
 
 /* =======================================================
-   PUSH PERMISSION PROMPT (popup interne)
+ PUSH PERMISSION PROMPT (popup interne)
 ======================================================= */
 function getPushPromptMode() {
   if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) {
     return "unsupported";
   }
   if (getOS() === "iOS" && !isPwaInstalled()) return "ios_need_install";
-
   const perm = Notification.permission;
   if (perm === "granted") return "granted";
   if (perm === "denied") return "denied";
-
   const snoozeUntil = Number(localStorage.getItem("mx_push_snooze_until") || "0");
   if (Date.now() < snoozeUntil) return "snoozed";
   return "ask";
@@ -504,7 +539,6 @@ function showPushPrompt() {
   if (mode === "granted" || mode === "unsupported" || mode === "ios_need_install" || mode === "snoozed") return;
 
   const el = buildPushPromptEl();
-
   if (mode === "denied") {
     el.innerHTML = `
       <div style="
@@ -684,7 +718,7 @@ async function initOnlineUsers() {
 }
 
 /* =======================================================
-   IOS GUIDE
+ IOS GUIDE
 ======================================================= */
 function showIosGuideIfNeeded() {
   if (getOS() === 'iOS' && !isPwaInstalled()) {
@@ -703,7 +737,7 @@ function closeIosGuide() {
 }
 
 /* =======================================================
-   PARTAGES (compteur journalier)
+ PARTAGES (compteur journalier)
 ======================================================= */
 function getDailyShareCount() {
   const lastReset = localStorage.getItem('shareLastReset');
@@ -743,8 +777,8 @@ function finalizePendingShare(force = false) {
   if (!pendingShare || pendingShare.finalized) return;
   const elapsed = Date.now() - pendingShare.startedAt;
   if (!force && elapsed < 5000) return;
-
   pendingShare.finalized = true;
+
   const ctx = pendingShare;
   pendingShare = null;
 
@@ -765,6 +799,7 @@ document.addEventListener('visibilitychange', () => {
 function updateLockedStateForCategory(category, newCount) {
   const target = shareLimits[category];
   if (!target) return;
+
   if (newCount >= target) {
     hideVipLocked();
     filterAndDisplay();
@@ -782,13 +817,10 @@ function openShareWindow(url) {
 }
 
 function share(platform) {
-  const message = `Salut frère 👋😄,
-
-Avec ce site, on ne va plus perdre les coupons  : il propose des coupons plutôt fiables, même pour les matchs en live ⚽🔥🤑
-
-Je viens de le découvrir 🔍 et, pour l’instant, c’est totalement gratuit 🎁… autant en profiter maintenant avant que ça devienne payant ⏳💸
-
-Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
+  const message = `Salut frère ■■,
+Avec ce site, on ne va plus perdre les coupons : il propose des coupons plutôt fiables, même pour les matchs en live ■■■
+Je viens de le découvrir ■ et, pour l’instant, c’est totalement gratuit ■… autant en profiter maintenant avant que ça devienne payant ■■
+Voici le lien ■ : https://mrxpronos.github.io/MrXPRONOS_App/`;
 
   const url = platform === 'whatsapp'
     ? `https://wa.me/?text=${encodeURIComponent(message)}`
@@ -800,7 +832,6 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
 
 function sharePronostic(match) {
   if (!match || !match.prediction) return;
-
   const msg = `■ COUPONS GRATUITS
 ■ ${match.home_team} vs ${match.away_team}
 ■ Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%
@@ -810,7 +841,6 @@ ${BASE_SITE_URL}
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
   const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(BASE_SITE_URL)}&text=${encodeURIComponent(msg)}`;
-
   const useWhatsapp = confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)");
   openShareWindow(useWhatsapp ? whatsappUrl : telegramUrl);
 
@@ -819,7 +849,7 @@ ${BASE_SITE_URL}
 }
 
 /* =======================================================
-   OVERLAY (verrouillage PRO/VIP par partage)
+ OVERLAY (verrouillage PRO/VIP par partage)
 ======================================================= */
 function ensureVipOverlayStructure() {
   if (!DOM.vipLockedOverlay) return;
@@ -829,20 +859,16 @@ function ensureVipOverlayStructure() {
         <div class="lock-icon">🔒</div>
         <h3></h3>
         <p></p>
-
         <div class="share-buttons vip-contact-buttons" style="display:flex; gap:10px; justify-content:center; margin:20px 0;">
           <button id="share-wa-locked" class="btn btn-primary">WhatsApp</button>
           <button id="share-tg-locked" class="btn btn-primary">Telegram</button>
         </div>
-
         <p>Partages actuels : <span id="share-count-locked">0</span>/<span id="share-target-locked">1</span></p>
         <button id="close-locked" class="btn btn-secondary">Fermer</button>
       </div>
     `;
-
     document.getElementById('share-wa-locked')?.addEventListener('click', () => share('whatsapp'));
     document.getElementById('share-tg-locked')?.addEventListener('click', () => share('telegram'));
-
     document.getElementById('close-locked')?.addEventListener('click', () => {
       DOM.vipLockedOverlay.style.display = 'none';
       if (DOM.matches) DOM.matches.style.display = 'grid';
@@ -853,23 +879,19 @@ function ensureVipOverlayStructure() {
 function showVipLocked(category) {
   const target = shareLimits[category];
   if (!target) return;
-
   const shareCount = getDailyShareCount();
   const remaining = Math.max(0, target - shareCount);
-
   const label = category === 'pro' ? 'Pro' : category === 'vip' ? 'VIP' : 'Premium';
 
   if (DOM.vipLockedOverlay) {
     ensureVipOverlayStructure();
-
     const titleEl = DOM.vipLockedOverlay.querySelector('h3');
     const textEl = DOM.vipLockedOverlay.querySelector('p');
     const shareCountEl = document.getElementById('share-count-locked');
     const shareTargetEl = document.getElementById('share-target-locked');
 
-    if (titleEl) titleEl.textContent = `■ Pronostics ${label} verrouillés`;
+    if (titleEl) titleEl.textContent = `🔒 Pronostics ${label} verrouillés`;
     if (textEl) textEl.innerHTML = `Partagez ce lien à <strong>${remaining}</strong> ami(s) pour débloquer.`;
-
     if (shareCountEl) shareCountEl.textContent = String(shareCount);
     if (shareTargetEl) shareTargetEl.textContent = String(target);
 
@@ -900,7 +922,6 @@ function showSharePopup(category, remaining) {
 
   if (currentEl) currentEl.textContent = String(shareCount);
   if (targetEl) targetEl.textContent = String(target);
-
   if (messageEl) {
     messageEl.innerHTML = `Pour accéder aux pronostics <strong>${label}</strong>, partagez ce lien à <span id="share-remaining">${remaining}</span> ami(s) sur WhatsApp ou Telegram.`;
   }
@@ -935,7 +956,7 @@ function createSharePopup() {
 }
 
 /* =======================================================
-   LIVE VIP MENU CLICK (PAYANT SUPPRIMÉ)
+ LIVE VIP MENU CLICK (PAYANT SUPPRIMÉ)
 ======================================================= */
 window.handleVipMenuClick = function () {
   // Le verrouillage LIVE VIP doit être géré dans live.html (ShareGate)
@@ -944,12 +965,11 @@ window.handleVipMenuClick = function () {
 window.handleVipClick = window.handleVipMenuClick;
 
 /* =======================================================
-   DATA LOADING
+ DATA LOADING
 ======================================================= */
 async function fetchJsonWithCache(url, cacheKey, timeoutMs = 8000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
   try {
     const resp = await fetch(url, { signal: controller.signal, cache: 'no-cache' });
     clearTimeout(timeoutId);
@@ -971,10 +991,9 @@ async function loadData() {
   allData = data;
 
   if (!allData) {
-    if (DOM.matches) DOM.matches.innerHTML = `<div class="error">■ Aucune donnée disponible.</div>`;
+    if (DOM.matches) DOM.matches.innerHTML = `<div class="error">⚠️ Aucune donnée disponible.</div>`;
     return;
   }
-
   renderBookmakers(allData.bookmakers);
   hideEmptyTabs();
   maybeHideTabBar();
@@ -989,7 +1008,7 @@ async function loadDataGeneric() {
 }
 
 /* =======================================================
-   BOOKMAKERS
+ BOOKMAKERS
 ======================================================= */
 function renderBookmakers(bookmakers) {
   const defaultBookmakers = [
@@ -1054,14 +1073,13 @@ function renderBookmakers(bookmakers) {
 }
 
 /* =======================================================
-   PRONOS PAGE
+ PRONOS PAGE
 ======================================================= */
 function getLocalDateString(day) {
   const now = new Date();
   const target = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   if (day === 'tomorrow') target.setUTCDate(target.getUTCDate() + 1);
   else if (day === 'yesterday') target.setUTCDate(target.getUTCDate() - 1);
-
   const y = target.getUTCFullYear();
   const m = String(target.getUTCMonth() + 1).padStart(2, '0');
   const d = String(target.getUTCDate()).padStart(2, '0');
@@ -1082,13 +1100,10 @@ function sortMatchesByLeague(matches) {
   return matches.sort((a, b) => {
     const leagueA = a.league || '';
     const leagueB = b.league || '';
-
     const indexA = POPULAR_LEAGUES.findIndex(l => leagueA.includes(l) || leagueA === l);
     const indexB = POPULAR_LEAGUES.findIndex(l => leagueB.includes(l) || leagueB === l);
-
     const rankA = indexA === -1 ? 999 : indexA;
     const rankB = indexB === -1 ? 999 : indexB;
-
     if (rankA !== rankB) return rankA - rankB;
     return new Date(a.event_date || 0) - new Date(b.event_date || 0);
   });
@@ -1130,8 +1145,8 @@ function getTeamLogoPath(teamName, isHome = true) {
 
 function hideEmptyTabs() {
   const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
-
   const counts = { simple: 0, pro: 0, vip: 0 };
+
   if (allData?.matches) {
     allData.matches.forEach(m => {
       if (counts[m.category] !== undefined) counts[m.category]++;
@@ -1197,7 +1212,7 @@ function renderMatches(matches) {
 
   const offlineBanner = (usingCachedData && !navigator.onLine)
     ? `<div style="background:#ffcc00; color:#000; text-align:center; padding:8px; font-weight:700; font-size:0.95rem; margin-bottom:12px;">
-        ■■ MODE HORS LIGNE — Pronostics chargés depuis le cache
+        ⚠️ MODE HORS LIGNE — Pronostics chargés depuis le cache
       </div>`
     : '';
 
@@ -1224,7 +1239,6 @@ function renderMatches(matches) {
 
   sortedLeagues.forEach(league => {
     html += `<h2 class="league-header" style="color: var(--or); margin-top: 2rem;">${escapeHtml(league)}</h2>`;
-
     grouped[league].forEach(m => {
       const pred = m.prediction || {};
       const doubleChance = escapeHtml(pred.double_chance || 'N/A');
@@ -1237,12 +1251,11 @@ function renderMatches(matches) {
       const matchTime = formatMatchTime(m.event_date);
       const statusFr = translateStatus(m.status);
       const statusClass = getStatusClass(m.status);
-
       const eventDate = m.event_date ? String(m.event_date).split('T')[0] : '';
       const yesterdayStr = getLocalDateString('yesterday');
-      const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
 
-      const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">■ Premium</span>' : '';
+      const verifiedDouble = (eventDate === yesterdayStr && m.verified_double) ? 'checked' : '';
+      const premiumBadge = (m.category !== 'simple') ? '<span class="badge-premium">👑 Premium</span>' : '';
 
       const homeDefault = 'assets/images/home.webp';
       const awayDefault = 'assets/images/away.webp';
@@ -1267,7 +1280,6 @@ function renderMatches(matches) {
       html += `
         <div class="match-card ${winnerClass}">
           <div class="win-effect"></div>
-
           <div class="match-info">
             <div class="teams">
               <div class="team">
@@ -1275,9 +1287,7 @@ function renderMatches(matches) {
                 <span class="team-name">${escapeHtml(m.home_team)}</span>
                 <span class="team-score">${m.home_score ?? '-'}</span>
               </div>
-
               <div class="vs">VS</div>
-
               <div class="team">
                 <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='${awayDefault}';">
                 <span class="team-name">${escapeHtml(m.away_team)}</span>
@@ -1288,7 +1298,7 @@ function renderMatches(matches) {
             <div class="match-meta">
               <span class="league-badge">${escapeHtml(m.league || 'Ligue')}</span>
               <span class="status ${statusClass}">${statusFr}</span>
-              <span class="match-time"><i>⏰</i> ${matchTime}</span>
+              <span class="match-time"><i>⏱</i> ${matchTime}</span>
               ${m.venue ? `<span class="match-venue"><i>📍</i> ${escapeHtml(m.venue)}</span>` : ''}
             </div>
           </div>
@@ -1299,9 +1309,8 @@ function renderMatches(matches) {
 
             <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
             <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
-
             ${premiumBadge}
-            <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}">■ Partager ce prono</button>
+            <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}">📲 Partager ce prono</button>
           </div>
         </div>
       `;
@@ -1319,7 +1328,7 @@ function renderMatches(matches) {
 }
 
 /* =======================================================
-   HISTORY PAGE
+ HISTORY PAGE
 ======================================================= */
 async function displayHistory() {
   if (!DOM.historyContainer) return;
@@ -1380,9 +1389,7 @@ async function displayHistory() {
                 <span class="team-name">${escapeHtml(m.home_team)}</span>
                 <span class="team-score">${m.home_score ?? '-'}</span>
               </div>
-
               <div class="vs">VS</div>
-
               <div class="team">
                 <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
                 <span class="team-name">${escapeHtml(m.away_team)}</span>
@@ -1407,7 +1414,7 @@ async function displayHistory() {
 }
 
 /* =======================================================
-   CONTENT GENERATION
+ CONTENT GENERATION
 ======================================================= */
 async function loadGeneratedContent() {
   if (generatedContentPromise) return generatedContentPromise;
@@ -1418,7 +1425,6 @@ async function loadGeneratedContent() {
         fetch(`articles.json?t=${Date.now()}`, { cache: 'no-cache' }).catch(() => null),
         fetch(`conseils.json?t=${Date.now()}`, { cache: 'no-cache' }).catch(() => null)
       ]);
-
       window.generatedArticles = articlesResp && articlesResp.ok ? await articlesResp.json() : [];
       window.generatedConseils = conseilsResp && conseilsResp.ok ? await conseilsResp.json() : [];
     } catch (error) {
@@ -1432,7 +1438,7 @@ async function loadGeneratedContent() {
 }
 
 /* =======================================================
-   PUBLISHED JSON EXTRAS
+ PUBLISHED JSON EXTRAS
 ======================================================= */
 async function fetchOptionalJson(file) {
   try {
@@ -1465,7 +1471,7 @@ async function loadPublishedExtras() {
 }
 
 /* =======================================================
-   BLOG
+ BLOG
 ======================================================= */
 window.showArticleDetail = function (index) {
   const article = window.articlesData?.[index];
@@ -1508,7 +1514,6 @@ window.closeArticleModal = function () {
 
 async function displayBlogList() {
   if (!DOM.blogList) return;
-
   await loadGeneratedContent();
   const data = await loadDataGeneric();
 
@@ -1557,8 +1562,8 @@ function ensureCanonical(href) {
 function updateArticleSeo(article, resolvedSlug) {
   const title = stripMarkdown(article.title || 'Article');
   const metaDesc = (article.meta_description || article.excerpt || '').slice(0, 160) || `Analyse et pronostic : ${title}`;
-
   const url = new URL(window.location.href);
+
   const canonicalUrl = resolvedSlug
     ? `${url.origin}${url.pathname}?slug=${encodeURIComponent(resolvedSlug)}`
     : window.location.href;
@@ -1572,11 +1577,9 @@ function updateArticleSeo(article, resolvedSlug) {
   setMetaContent('og-description', metaDesc);
   setMetaContent('og-url', canonicalUrl);
   setMetaContent('og-image', article.og_image || article.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
-
   setMetaContent('twitter-title', title);
   setMetaContent('twitter-description', metaDesc);
   setMetaContent('twitter-image', article.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
-
   ensureCanonical(canonicalUrl);
 
   const jsonLdEl = document.getElementById('article-jsonld');
@@ -1615,7 +1618,6 @@ function updateArticleSeo(article, resolvedSlug) {
 
 async function displayBlogPost() {
   if (!DOM.blogPost) return;
-
   await loadGeneratedContent();
   const data = await loadDataGeneric();
 
@@ -1653,12 +1655,13 @@ async function displayBlogPost() {
   `;
 
   updateArticleSeo(article, article.slug || slug || '');
+
   const titleMeta = document.getElementById('article-title');
   if (titleMeta) titleMeta.textContent = `${title} - Mr XPRONOS`;
 }
 
 /* =======================================================
-   CONSEILS
+ CONSEILS
 ======================================================= */
 window.openConseilPage = function (slug) {
   if (!slug) return;
@@ -1668,8 +1671,8 @@ window.openConseilPage = function (slug) {
 function updateConseilSeo(conseil, resolvedSlug) {
   const title = stripMarkdown(conseil.title || 'Conseil');
   const metaDesc = (conseil.excerpt || '').slice(0, 160) || `Conseil pratique : ${title}`;
-
   const url = new URL(window.location.href);
+
   const canonicalUrl = resolvedSlug
     ? `${url.origin}${url.pathname}?slug=${encodeURIComponent(resolvedSlug)}`
     : window.location.href;
@@ -1683,11 +1686,9 @@ function updateConseilSeo(conseil, resolvedSlug) {
   setMetaContent('og-description', metaDesc);
   setMetaContent('og-url', canonicalUrl);
   setMetaContent('og-image', conseil.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
-
   setMetaContent('twitter-title', title);
   setMetaContent('twitter-description', metaDesc);
   setMetaContent('twitter-image', conseil.image_url || `${BASE_SITE_URL}assets/images/preview.jpg`);
-
   ensureCanonical(canonicalUrl);
 }
 
@@ -1783,11 +1784,10 @@ window.closeConseilModal = function () {
 };
 
 /* =======================================================
-   INFOS / NEWS
+ INFOS / NEWS
 ======================================================= */
 async function displayInfos() {
   if (!DOM.infosList) return;
-
   const data = await loadDataGeneric();
   const infos = (Array.isArray(window.publishedInfos) && window.publishedInfos.length)
     ? window.publishedInfos
@@ -1795,17 +1795,16 @@ async function displayInfos() {
 
   DOM.infosList.innerHTML = infos.length
     ? infos.map(i => `
-        <div class="news-card card">
-          <h3>${escapeHtml(i.title || '')}</h3>
-          <p>${escapeHtml(i.content || '')}</p>
-        </div>
-      `).join('')
+      <div class="news-card card">
+        <h3>${escapeHtml(i.title || '')}</h3>
+        <p>${escapeHtml(i.content || '')}</p>
+      </div>
+    `).join('')
     : '<div class="no-events">Aucune info disponible.</div>';
 }
 
 async function displayFootNews() {
   if (!DOM.footNewsContainer) return;
-
   try {
     const resp = await fetch(`footnews.json?t=${Date.now()}`, { cache: 'no-cache' });
     const rssNews = resp.ok ? await resp.json() : [];
@@ -1856,11 +1855,13 @@ window.showNewsDetail = function (index) {
   const linkEl = document.getElementById('news-modal-link');
 
   if (titleEl) titleEl.textContent = news.title || 'Actualité';
+
   if (img) {
     img.src = news.image || 'assets/images/default-logo.png';
     img.alt = news.title || 'Actualité';
     img.style.display = news.image ? 'block' : 'none';
   }
+
   if (contentEl) contentEl.innerHTML = renderSafeRichContent(news.summary || '');
 
   if (linkEl) {
@@ -1882,7 +1883,7 @@ window.closeNewsModal = function () {
 };
 
 /* =======================================================
-   BONUS
+ BONUS
 ======================================================= */
 function initBonusPage() {
   const publishedBonus = Array.isArray(window.publishedBonus) ? window.publishedBonus : [];
@@ -1902,7 +1903,6 @@ function initBonusPage() {
       DOM.bonusSelect.innerHTML = bookmakerNames.map((name) =>
         `<option value="${escapeAttribute(name)}">${escapeHtml(name)}</option>`
       ).join('');
-
       DOM.bonusSelect.addEventListener('change', () => {
         renderBonusOffers(DOM.bonusSelect.value);
       });
@@ -1954,7 +1954,6 @@ function initBonusPage() {
     DOM.bonusSelect.innerHTML = sourceBookmakers.map((b, i) =>
       `<option value="${i}">${escapeHtml(b.name)}</option>`
     ).join("");
-
     DOM.bonusSelect.addEventListener("change", () => {
       const index = parseInt(DOM.bonusSelect.value, 10);
       highlightBonusCard(index);
@@ -1966,7 +1965,6 @@ function initBonusPage() {
 
 function renderBonusGrid(bookmakers) {
   if (!DOM.bonusGrid) return;
-
   DOM.bonusGrid.innerHTML = bookmakers.map((b, i) => `
     <div class="bookmaker-card bonus-bookmaker-card" data-index="${i}">
       <img src="${escapeAttribute(b.logo || 'assets/images/default-logo.webp')}"
@@ -2011,14 +2009,13 @@ window.openBonusModal = function (index) {
       <p style="margin-top:10px;">Utilisez le code promo <strong>XPVIP</strong> si l'offre le permet.</p>
     `;
   }
-
   if (footerEl) footerEl.textContent = "Inscription via notre lien recommandé.";
+
   if (linkEl) {
     linkEl.href = b.url || "#";
     linkEl.target = "_blank";
     linkEl.rel = "noopener noreferrer";
   }
-
   DOM.bonusModal.style.display = "flex";
 };
 
@@ -2027,9 +2024,77 @@ window.closeBonusModal = function () {
 };
 
 /* =======================================================
-   HOME WIDGETS
+ HOME WIDGETS (nouvelle structure)
 ======================================================= */
+function normalizeConfidence(conf) {
+  let c = toFloatSafe(conf, 0) || 0;
+  if (c <= 1) c = c * 100;
+  else if (c > 100) c = c / 100;
+  return Math.min(100, Math.round(c));
+}
+
+function renderHomePickCard(m, { winner = false } = {}) {
+  const pred = m.prediction || {};
+  const conf = normalizeConfidence(pred.confidence);
+  const dc = pred.double_chance || "N/A";
+
+  const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
+  const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
+
+  // On redirige vers pronos (simple et intuitif)
+  return `
+    <div class="verified-card ${winner ? 'winner' : ''}" onclick="window.location.href='pronos.html'">
+      <div class="teams">
+        <img src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" loading="lazy">
+        <span class="vs">VS</span>
+        <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" loading="lazy">
+      </div>
+      <div class="match-info">
+        <div class="teams-name">${escapeHtml(m.home_team)} vs ${escapeHtml(m.away_team)}</div>
+        <div class="prediction">Double chance : <b>${escapeHtml(dc)}</b> • Fiabilité <b>${conf}%</b></div>
+        ${winner ? `<div class="score">Score : ${escapeHtml(String(m.home_score ?? '-'))}-${escapeHtml(String(m.away_score ?? '-'))}</div>` : ``}
+      </div>
+    </div>
+  `;
+}
+
+function displayTopTodayCoupons() {
+  if (!DOM.topTodayPicks || !allData?.matches) return;
+
+  const todayStr = getLocalDateString('today');
+
+  // Choix UX : afficher les "simple" uniquement (accessible sans déblocage)
+  const picks = allData.matches
+    .filter(m => m.category === 'simple')
+    .filter(m => getLocalDateFromEvent(m.event_date) === todayStr)
+    .sort((a, b) => (b.final_score || 0) - (a.final_score || 0))
+    .slice(0, 6);
+
+  DOM.topTodayPicks.innerHTML = picks.length
+    ? picks.map(m => renderHomePickCard(m, { winner: false })).join('')
+    : `<div class="no-events">Aucun coupon simple aujourd’hui.</div>`;
+}
+
+function displayLatestVerifiedHome() {
+  if (!DOM.verifiedPicks || !allData?.matches) return;
+
+  const verified = allData.matches
+    .filter(m => isFinishedMatch(m) && m.verified_double && (m.category === 'pro' || m.category === 'vip'))
+    .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0))
+    .slice(0, 6);
+
+  DOM.verifiedPicks.innerHTML = verified.length
+    ? verified.map(m => renderHomePickCard(m, { winner: true })).join('')
+    : `<div class="no-events">✅ Aucun pronostic validé récent.</div>`;
+}
+
+// Backward compatibility (si un ancien index existe encore)
 function displayLatestVerified() {
+  if (DOM.verifiedPicks) {
+    displayLatestVerifiedHome();
+    return;
+  }
+  // fallback sur l’ancien container todayPicks si présent
   if (!DOM.todayPicks || !allData?.matches) return;
 
   const verified = allData.matches
@@ -2037,43 +2102,38 @@ function displayLatestVerified() {
     .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0))
     .slice(0, 4);
 
-  if (!verified.length) {
-    DOM.todayPicks.innerHTML = '<div class="no-events">■ Aucun pronostic validé récent.</div>';
-    return;
-  }
-
-  DOM.todayPicks.innerHTML = verified.map(m => `
-    <div class="match-card winner">
-      <div class="match-info">
-        <div class="teams">
-          <div class="team">
-            <img src="${escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true))}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy">
-            <span class="team-name">${escapeHtml(m.home_team)}</span>
-            <span class="team-score">${m.home_score ?? '-'}</span>
+  DOM.todayPicks.innerHTML = verified.length
+    ? verified.map(m => `
+        <div class="match-card winner">
+          <div class="match-info">
+            <div class="teams">
+              <div class="team">
+                <img src="${escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true))}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy">
+                <span class="team-name">${escapeHtml(m.home_team)}</span>
+                <span class="team-score">${m.home_score ?? '-'}</span>
+              </div>
+              <div class="vs">VS</div>
+              <div class="team">
+                <img src="${escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false))}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
+                <span class="team-name">${escapeHtml(m.away_team)}</span>
+                <span class="team-score">${m.away_score ?? '-'}</span>
+              </div>
+            </div>
           </div>
-          <div class="vs">VS</div>
-          <div class="team">
-            <img src="${escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false))}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
-            <span class="team-name">${escapeHtml(m.away_team)}</span>
-            <span class="team-score">${m.away_score ?? '-'}</span>
+          <div class="analysis-panel">
+            <h4>Pronostic</h4>
+            <p><strong>Double chance :</strong> ${escapeHtml(m.prediction?.double_chance || 'N/A')}
+              <input type="checkbox" class="prediction-checkbox" checked disabled>
+            </p>
+            <p><strong>Fiabilité :</strong> ${escapeHtml(String(m.prediction?.confidence || 0))}%</p>
           </div>
         </div>
-      </div>
-
-      <div class="analysis-panel">
-        <h4>Pronostic</h4>
-        <p><strong>Double chance :</strong> ${escapeHtml(m.prediction?.double_chance || 'N/A')}
-          <input type="checkbox" class="prediction-checkbox" checked disabled>
-        </p>
-        <p><strong>Fiabilité :</strong> ${escapeHtml(String(m.prediction?.confidence || 0))}%</p>
-      </div>
-    </div>
-  `).join('');
+      `).join('')
+    : '<div class="no-events">✅ Aucun pronostic validé récent.</div>';
 }
 
 function startWinsSlider() {
   if (!DOM.winsTrack || !allData?.matches) return;
-
   const wins = allData.matches
     .filter(m => isFinishedMatch(m) && m.verified_double)
     .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0))
@@ -2081,7 +2141,7 @@ function startWinsSlider() {
 
   const html = wins.map(m => {
     const score = `${m.home_score ?? '-'} - ${m.away_score ?? '-'}`;
-    return `<div class="win-item">■ <span>${escapeHtml(m.home_team)} ${escapeHtml(score)} ${escapeHtml(m.away_team)}</span> • ${escapeHtml(m.prediction?.double_chance || '')}</div>`;
+    return `<div class="win-item">✅ <span>${escapeHtml(m.home_team)} ${escapeHtml(score)} ${escapeHtml(m.away_team)}</span> • ${escapeHtml(m.prediction?.double_chance || '')}</div>`;
   }).join('');
 
   DOM.winsTrack.innerHTML = html + html;
@@ -2089,13 +2149,11 @@ function startWinsSlider() {
 
 function animateWins() {
   if (!DOM.winsCount || !allData?.matches) return;
-
   const target = allData.matches.filter(m => isFinishedMatch(m) && m.verified_double).length;
   if (target <= 0) {
     DOM.winsCount.textContent = '0';
     return;
   }
-
   let count = 0;
   const interval = setInterval(() => {
     count++;
@@ -2106,12 +2164,10 @@ function animateWins() {
 
 async function displayTestimonials() {
   if (!DOM.testimonials) return;
-
   try {
     const resp = await fetch(`testimonials.json?t=${Date.now()}`, { cache: 'no-cache' });
     if (!resp.ok) throw new Error('Erreur');
     const testimonials = await resp.json();
-
     DOM.testimonials.innerHTML = testimonials.map(t => `
       <div class="card">
         <p>"${escapeHtml(t.text)}"</p>
@@ -2121,7 +2177,7 @@ async function displayTestimonials() {
   } catch {
     DOM.testimonials.innerHTML = `
       <div class="card">
-        <p>"Grâce à Mr XPRONOS, j'ai multiplié mes gains !"</p>
+        <p>"Grâce à Mr XPRONOS, j'ai mieux structuré mes paris."</p>
         <p style="margin-top:1rem;color:var(--or);">— Client</p>
       </div>
     `;
@@ -2134,16 +2190,16 @@ function startWinNotifications() {
   const firstNames = ["Jean", "Michel", "David", "Lucas", "Thomas", "Patrick", "Samuel", "Kevin"];
   const lastNames = ["Martin", "Bernard", "Dubois", "Thomas", "Robert", "Richard", "Petit", "Durand"];
 
+  // gains FCFA (ex : 10 000 à 150 000)
   const notifications = Array.from({ length: 5 }).map(() => ({
     name: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
-    gain: Math.floor(Math.random() * (200 - 45 + 1)) + 45
+    gain: (Math.floor(Math.random() * (150000 - 10000 + 1)) + 10000)
   }));
 
   let index = 0;
-
   function showPopup() {
     const { name, gain } = notifications[index];
-    DOM.winPopup.innerHTML = `■ <b>${escapeHtml(name)}</b> a gagné <b>${escapeHtml(gain)}€</b> aujourd'hui grâce au VIP !`;
+    DOM.winPopup.innerHTML = `💸 <b>${escapeHtml(name)}</b> a gagné <b>${escapeHtml(gain.toLocaleString('fr-FR'))} FCFA</b> aujourd'hui.`;
     DOM.winPopup.classList.add('show');
     setTimeout(() => DOM.winPopup.classList.remove('show'), 4000);
     index = (index + 1) % notifications.length;
@@ -2187,7 +2243,7 @@ function updatePronosticsSuccessRate() {
 
   const rate = ((successful.length / finished.length) * 100).toFixed(1);
 
-  // ✅ ROI supprimé
+  // ■ ROI supprimé
   DOM.successRateContainer.innerHTML = `
     <div class="success-rate-item" style="margin:0 auto;">
       <div class="success-rate-value">${escapeHtml(rate)}%</div>
@@ -2198,14 +2254,28 @@ function updatePronosticsSuccessRate() {
 }
 
 /* =======================================================
-   SCROLL PROGRESS
+ HOME - LAST UPDATE
+======================================================= */
+function updateHomeLastUpdate() {
+  if (!DOM.dataUpdated) return;
+  const ts = allData?.generated_at;
+  if (!ts) {
+    DOM.dataUpdated.textContent = '';
+    return;
+  }
+  const d = new Date(ts);
+  const label = isNaN(d) ? String(ts) : d.toLocaleString('fr-FR');
+  DOM.dataUpdated.textContent = `Mis à jour : ${label}`;
+}
+
+/* =======================================================
+ SCROLL PROGRESS
 ======================================================= */
 function initScrollProgress() {
   if (document.querySelector('.scroll-progress')) return;
   const progressBar = document.createElement('div');
   progressBar.className = 'scroll-progress';
   document.body.appendChild(progressBar);
-
   window.addEventListener('scroll', () => {
     const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
     const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -2215,11 +2285,23 @@ function initScrollProgress() {
 }
 
 /* =======================================================
-   EVENT LISTENERS
+ EVENT LISTENERS
 ======================================================= */
 function setupGlobalButtons() {
   document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
   document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
+
+  // Bouton accueil : Débloquer maintenant
+  document.getElementById('unlock-now')?.addEventListener('click', () => {
+    const shareCount = getDailyShareCount();
+    const target = shareLimits.vip; // 1/jour
+    if (shareCount >= target) {
+      showToast("Déjà débloqué aujourd'hui.", "success");
+      return;
+    }
+    const remaining = Math.max(0, target - shareCount);
+    showSharePopup('vip', remaining);
+  });
 }
 
 function setupPronosticPageListeners() {
@@ -2284,7 +2366,6 @@ async function handleCategoryChange() {
 
     const target = shareLimits.vip;
     const shareCount = getDailyShareCount();
-
     if (shareCount >= target) {
       hideVipLocked();
       filterAndDisplay();
@@ -2303,7 +2384,6 @@ async function handleCategoryChange() {
   // PRO par partage (1/jour)
   const target = shareLimits[currentCategory];
   const shareCount = getDailyShareCount();
-
   if (shareCount >= target) {
     hideVipLocked();
     filterAndDisplay();
@@ -2313,28 +2393,26 @@ async function handleCategoryChange() {
 }
 
 /* =======================================================
-   INIT APP
+ INIT APP
 ======================================================= */
 document.addEventListener('DOMContentLoaded', async () => {
   initDOM();
   setupGlobalButtons();
+  initPromoCopy();
   updateShareCounter();
 
   await initSupabase();
   await loadPublishedExtras();
   await updateDisplayedCounters();
-
   subscribeToCounters();
   await registerUniqueUser();
   await initOnlineUsers();
-
   countVisitOncePerDay();
   showIosGuideIfNeeded();
 
   if (Notification.permission === 'granted') subscribeToPush(false);
 
   const page = detectPage();
-
   switch (page) {
     case 'pronos':
       setupPronosticPageListeners();
@@ -2384,7 +2462,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (data) {
         allData = data;
         renderBookmakers(data.bookmakers);
-        displayLatestVerified();
+
+        updateHomeLastUpdate();
+
+        // NOUVEAU : Top coupons / Validés
+        displayTopTodayCoupons();
+        displayLatestVerifiedHome();
+
+        // Conserve le reste
         startWinsSlider();
         animateWins();
         updateHomeSuccessRate();
