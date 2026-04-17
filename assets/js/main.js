@@ -6,6 +6,7 @@
  * + VIP = 1 partage / jour
  *
  * (VIP PAYANT SUPPRIMÉ)
+ * Corrigé : Twemoji, nouvelles cartes accueil, ruban gagnant HTML
  */
 
 if (location.hostname !== 'localhost' && !location.hostname.includes('127.0.0.1')) {
@@ -257,6 +258,7 @@ function showToast(message, type = 'info', duration = 4000) {
     max-width: 90vw;
   `;
   document.body.appendChild(toast);
+  parseEmojis(toast); // Twemoji
   setTimeout(() => toast.remove(), duration);
 }
 
@@ -266,6 +268,38 @@ function toFloatSafe(value, defaultValue = null) {
 }
 function safeJsonParse(value, fallback = null) {
   try { return JSON.parse(value); } catch { return fallback; }
+}
+
+/* =======================================================
+ TWEMOJI (gestion des emojis)
+======================================================= */
+let __twemojiPromise = null;
+
+function ensureTwemoji() {
+  if (window.twemoji) return Promise.resolve(true);
+  if (__twemojiPromise) return __twemojiPromise;
+
+  __twemojiPromise = new Promise((resolve) => {
+    const s = document.createElement('script');
+    s.src = "https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js";
+    s.defer = true;
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.head.appendChild(s);
+  });
+
+  return __twemojiPromise;
+}
+
+async function parseEmojis(root = document.body) {
+  const ok = await ensureTwemoji();
+  if (!ok || !window.twemoji) return;
+
+  window.twemoji.parse(root, {
+    folder: 'svg',
+    ext: '.svg',
+    className: 'emoji'
+  });
 }
 
 /* =======================================================
@@ -873,6 +907,7 @@ function ensureVipOverlayStructure() {
       DOM.vipLockedOverlay.style.display = 'none';
       if (DOM.matches) DOM.matches.style.display = 'grid';
     });
+    parseEmojis(DOM.vipLockedOverlay);
   }
 }
 
@@ -897,6 +932,7 @@ function showVipLocked(category) {
 
     DOM.vipLockedOverlay.style.display = 'flex';
     if (DOM.matches) DOM.matches.style.display = 'none';
+    parseEmojis(DOM.vipLockedOverlay);
   } else {
     showSharePopup(category, remaining);
   }
@@ -927,6 +963,7 @@ function showSharePopup(category, remaining) {
   }
 
   DOM.sharePopup.classList.add('active');
+  parseEmojis(DOM.sharePopup);
 }
 
 function createSharePopup() {
@@ -953,6 +990,8 @@ function createSharePopup() {
   document.getElementById('share-wa')?.addEventListener('click', () => share('whatsapp'));
   document.getElementById('share-tg')?.addEventListener('click', () => share('telegram'));
   document.getElementById('close-popup')?.addEventListener('click', () => DOM.sharePopup?.classList.remove('active'));
+
+  parseEmojis(popup);
 }
 
 /* =======================================================
@@ -1218,6 +1257,7 @@ function renderMatches(matches) {
 
   if (!matches || matches.length === 0) {
     DOM.matches.innerHTML = `${offlineBanner}<div class="no-events">Aucun match.</div>`;
+    parseEmojis(DOM.matches);
     return;
   }
 
@@ -1264,6 +1304,7 @@ function renderMatches(matches) {
 
       const isWinner = !!m.verified_double;
       const winnerClass = isWinner ? 'winner' : '';
+      const winRibbon = isWinner ? `<div class="win-ribbon">✅ PRONO GAGNÉ</div>` : '';
 
       const xpronosBadge = m.badge ? `<span class="xpronos-badge">${escapeHtml(m.badge)}</span>` : '';
 
@@ -1279,6 +1320,7 @@ function renderMatches(matches) {
 
       html += `
         <div class="match-card ${winnerClass}">
+          ${winRibbon}
           <div class="win-effect"></div>
           <div class="match-info">
             <div class="teams">
@@ -1318,6 +1360,7 @@ function renderMatches(matches) {
   });
 
   DOM.matches.innerHTML = html;
+  parseEmojis(DOM.matches);
 
   requestAnimationFrame(() => {
     qsa('.confidence-fill').forEach(bar => {
@@ -1411,6 +1454,7 @@ async function displayHistory() {
   });
 
   DOM.historyContainer.innerHTML = html;
+  parseEmojis(DOM.historyContainer);
 }
 
 /* =======================================================
@@ -1506,6 +1550,7 @@ window.showArticleDetail = function (index) {
   }
 
   DOM.articleModal.style.display = 'flex';
+  parseEmojis(DOM.articleModal);
 };
 
 window.closeArticleModal = function () {
@@ -1542,6 +1587,7 @@ async function displayBlogList() {
       <button class="btn btn-secondary" style="margin-top:10px;">Lire la suite</button>
     </div>
   `).join('') || '<div class="no-events">Aucun article pour le moment.</div>';
+  parseEmojis(DOM.blogList);
 }
 
 function setMetaContent(id, value) {
@@ -1653,6 +1699,7 @@ async function displayBlogPost() {
       <div class="article-content">${contentHtml}</div>
     </article>
   `;
+  parseEmojis(DOM.blogPost);
 
   updateArticleSeo(article, article.slug || slug || '');
 
@@ -1722,6 +1769,7 @@ async function displayConseils() {
       <button class="btn btn-secondary" style="margin-top:10px;">Lire le conseil</button>
     </div>
   `).join('') || '<div class="no-events">Aucun conseil disponible pour le moment.</div>';
+  parseEmojis(DOM.conseilsList);
 }
 
 async function displayConseilPost() {
@@ -1757,6 +1805,7 @@ async function displayConseilPost() {
       <div class="article-content">${contentHtml}</div>
     </article>
   `;
+  parseEmojis(DOM.conseilPost);
 
   updateConseilSeo(conseil, conseil.slug || slug || '');
 }
@@ -1777,6 +1826,7 @@ window.showConseilDetail = function (index) {
   if (contentEl) contentEl.innerHTML = renderSafeRichContent(conseil.content || '');
 
   DOM.conseilModal.style.display = 'flex';
+  parseEmojis(DOM.conseilModal);
 };
 
 window.closeConseilModal = function () {
@@ -1801,6 +1851,7 @@ async function displayInfos() {
       </div>
     `).join('')
     : '<div class="no-events">Aucune info disponible.</div>';
+  parseEmojis(DOM.infosList);
 }
 
 async function displayFootNews() {
@@ -1839,6 +1890,7 @@ async function displayFootNews() {
         </button>
       </div>
     `).join('');
+    parseEmojis(DOM.footNewsContainer);
   } catch (error) {
     console.error('Erreur actualités:', error);
     DOM.footNewsContainer.innerHTML = '<div class="error">Impossible de charger les actualités.</div>';
@@ -1876,6 +1928,7 @@ window.showNewsDetail = function (index) {
   }
 
   DOM.newsModal.style.display = 'flex';
+  parseEmojis(DOM.newsModal);
 };
 
 window.closeNewsModal = function () {
@@ -1924,6 +1977,7 @@ function initBonusPage() {
           </div>
         </div>
       `).join('') || '<div class="no-events">Aucune offre active.</div>';
+      parseEmojis(DOM.bonusGrid);
     }
 
     renderBonusOffers(bookmakerNames[0]);
@@ -1979,6 +2033,7 @@ function renderBonusGrid(bookmakers) {
       </div>
     </div>
   `).join("");
+  parseEmojis(DOM.bonusGrid);
 }
 
 function highlightBonusCard(index) {
@@ -2017,6 +2072,7 @@ window.openBonusModal = function (index) {
     linkEl.rel = "noopener noreferrer";
   }
   DOM.bonusModal.style.display = "flex";
+  parseEmojis(DOM.bonusModal);
 };
 
 window.closeBonusModal = function () {
@@ -2041,20 +2097,38 @@ function renderHomePickCard(m, { winner = false } = {}) {
   const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
   const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
 
-  // On redirige vers pronos (simple et intuitif)
+  const scoreLine = winner
+    ? `<span class="hp-pill hp-pill-green">Score ${escapeHtml(String(m.home_score ?? '-'))}-${escapeHtml(String(m.away_score ?? '-'))}</span>`
+    : '';
+
+  const winBadge = winner ? `<span class="hp-badge">✅ GAGNÉ</span>` : '';
+
   return `
-    <div class="verified-card ${winner ? 'winner' : ''}" onclick="window.location.href='pronos.html'">
-      <div class="teams">
-        <img src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" loading="lazy">
-        <span class="vs">VS</span>
-        <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" loading="lazy">
+    <article class="home-pick-card ${winner ? 'is-winner' : ''}" onclick="window.location.href='pronos.html'" role="link" tabindex="0">
+      ${winBadge}
+
+      <div class="hp-teams">
+        <div class="hp-team">
+          <img class="hp-logo" src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" loading="lazy"
+               onerror="this.onerror=null; this.src='assets/images/home.webp';">
+          <div class="hp-name">${escapeHtml(m.home_team || '')}</div>
+        </div>
+
+        <div class="hp-vs">VS</div>
+
+        <div class="hp-team">
+          <img class="hp-logo" src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" loading="lazy"
+               onerror="this.onerror=null; this.src='assets/images/away.webp';">
+          <div class="hp-name">${escapeHtml(m.away_team || '')}</div>
+        </div>
       </div>
-      <div class="match-info">
-        <div class="teams-name">${escapeHtml(m.home_team)} vs ${escapeHtml(m.away_team)}</div>
-        <div class="prediction">Double chance : <b>${escapeHtml(dc)}</b> • Fiabilité <b>${conf}%</b></div>
-        ${winner ? `<div class="score">Score : ${escapeHtml(String(m.home_score ?? '-'))}-${escapeHtml(String(m.away_score ?? '-'))}</div>` : ``}
+
+      <div class="hp-meta">
+        <span class="hp-pill hp-pill-gold">DC ${escapeHtml(dc)}</span>
+        <span class="hp-pill">Fiabilité ${escapeHtml(String(conf))}%</span>
+        ${scoreLine}
       </div>
-    </div>
+    </article>
   `;
 }
 
@@ -2063,7 +2137,6 @@ function displayTopTodayCoupons() {
 
   const todayStr = getLocalDateString('today');
 
-  // Choix UX : afficher les "simple" uniquement (accessible sans déblocage)
   const picks = allData.matches
     .filter(m => m.category === 'simple')
     .filter(m => getLocalDateFromEvent(m.event_date) === todayStr)
@@ -2073,6 +2146,8 @@ function displayTopTodayCoupons() {
   DOM.topTodayPicks.innerHTML = picks.length
     ? picks.map(m => renderHomePickCard(m, { winner: false })).join('')
     : `<div class="no-events">Aucun coupon simple aujourd’hui.</div>`;
+
+  parseEmojis(DOM.topTodayPicks);
 }
 
 function displayLatestVerifiedHome() {
@@ -2086,15 +2161,15 @@ function displayLatestVerifiedHome() {
   DOM.verifiedPicks.innerHTML = verified.length
     ? verified.map(m => renderHomePickCard(m, { winner: true })).join('')
     : `<div class="no-events">✅ Aucun pronostic validé récent.</div>`;
+
+  parseEmojis(DOM.verifiedPicks);
 }
 
-// Backward compatibility (si un ancien index existe encore)
 function displayLatestVerified() {
   if (DOM.verifiedPicks) {
     displayLatestVerifiedHome();
     return;
   }
-  // fallback sur l’ancien container todayPicks si présent
   if (!DOM.todayPicks || !allData?.matches) return;
 
   const verified = allData.matches
@@ -2130,6 +2205,8 @@ function displayLatestVerified() {
         </div>
       `).join('')
     : '<div class="no-events">✅ Aucun pronostic validé récent.</div>';
+
+  parseEmojis(DOM.todayPicks);
 }
 
 function startWinsSlider() {
@@ -2145,6 +2222,7 @@ function startWinsSlider() {
   }).join('');
 
   DOM.winsTrack.innerHTML = html + html;
+  parseEmojis(DOM.winsTrack);
 }
 
 function animateWins() {
@@ -2182,6 +2260,7 @@ async function displayTestimonials() {
       </div>
     `;
   }
+  parseEmojis(DOM.testimonials);
 }
 
 function startWinNotifications() {
@@ -2190,7 +2269,6 @@ function startWinNotifications() {
   const firstNames = ["Jean", "Michel", "David", "Lucas", "Thomas", "Patrick", "Samuel", "Kevin"];
   const lastNames = ["Martin", "Bernard", "Dubois", "Thomas", "Robert", "Richard", "Petit", "Durand"];
 
-  // gains FCFA (ex : 10 000 à 150 000)
   const notifications = Array.from({ length: 5 }).map(() => ({
     name: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
     gain: (Math.floor(Math.random() * (150000 - 10000 + 1)) + 10000)
@@ -2201,6 +2279,7 @@ function startWinNotifications() {
     const { name, gain } = notifications[index];
     DOM.winPopup.innerHTML = `💸 <b>${escapeHtml(name)}</b> a gagné <b>${escapeHtml(gain.toLocaleString('fr-FR'))} FCFA</b> aujourd'hui.`;
     DOM.winPopup.classList.add('show');
+    parseEmojis(DOM.winPopup);
     setTimeout(() => DOM.winPopup.classList.remove('show'), 4000);
     index = (index + 1) % notifications.length;
   }
@@ -2243,7 +2322,6 @@ function updatePronosticsSuccessRate() {
 
   const rate = ((successful.length / finished.length) * 100).toFixed(1);
 
-  // ■ ROI supprimé
   DOM.successRateContainer.innerHTML = `
     <div class="success-rate-item" style="margin:0 auto;">
       <div class="success-rate-value">${escapeHtml(rate)}%</div>
@@ -2253,9 +2331,6 @@ function updatePronosticsSuccessRate() {
   DOM.successRateContainer.style.display = 'flex';
 }
 
-/* =======================================================
- HOME - LAST UPDATE
-======================================================= */
 function updateHomeLastUpdate() {
   if (!DOM.dataUpdated) return;
   const ts = allData?.generated_at;
@@ -2291,10 +2366,9 @@ function setupGlobalButtons() {
   document.getElementById('close-ios-guide')?.addEventListener('click', closeIosGuide);
   document.getElementById('close-ios-guide-btn')?.addEventListener('click', closeIosGuide);
 
-  // Bouton accueil : Débloquer maintenant
   document.getElementById('unlock-now')?.addEventListener('click', () => {
     const shareCount = getDailyShareCount();
-    const target = shareLimits.vip; // 1/jour
+    const target = shareLimits.vip;
     if (shareCount >= target) {
       showToast("Déjà débloqué aujourd'hui.", "success");
       return;
@@ -2353,7 +2427,6 @@ function setupPronosticPageListeners() {
 async function handleCategoryChange() {
   const vipEnabled = localStorage.getItem('vipEnabled') !== 'false';
 
-  // VIP = partage/jour (plus de code)
   if (currentCategory === 'vip') {
     if (!vipEnabled) {
       alert('Les pronostics VIP sont temporairement désactivés.');
@@ -2381,7 +2454,6 @@ async function handleCategoryChange() {
     return;
   }
 
-  // PRO par partage (1/jour)
   const target = shareLimits[currentCategory];
   const shareCount = getDailyShareCount();
   if (shareCount >= target) {
@@ -2465,11 +2537,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         updateHomeLastUpdate();
 
-        // NOUVEAU : Top coupons / Validés
         displayTopTodayCoupons();
         displayLatestVerifiedHome();
 
-        // Conserve le reste
         startWinsSlider();
         animateWins();
         updateHomeSuccessRate();
@@ -2487,6 +2557,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   await displayInfos();
   initScrollProgress();
 
-  // Popup interne pour demander l'autorisation des notifications
   setTimeout(showPushPrompt, 6500);
+
+  // Appliquer Twemoji globalement après le rendu initial
+  setTimeout(() => parseEmojis(document.body), 0);
 });
