@@ -2115,3 +2115,22 @@ body.menu-open { overflow: hidden; }
 
   .verified-card { width: 240px; }
 }
+
+/* FIX : header qui déborde sur mobile */
+@media (max-width: 520px){
+  header .container{
+    flex-wrap: wrap;          /* au lieu de nowrap */
+    row-gap: 10px;
+  }
+
+  .header-actions{
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  /* évite que le badge force une largeur */
+  .promo-code{
+    max-width: 100%;
+  }
+}
