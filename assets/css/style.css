@@ -2071,9 +2071,26 @@ body.menu-open { overflow: hidden; }
   padding: 0.5rem 8px;
  }
  .logo a { font-size: 1.4rem; }
- .promo-code {
-  font-size: 0.85rem;
-  padding: 0.35rem 0.7rem;
+/* Badge code promo (div OU button) */
+ .promo-code{
+  flex-shrink: 0;
+  white-space: nowrap;
+
+  /* ↓ plus petit */
+  font-size: 0.92rem;
+  padding: 0.38rem 0.85rem;
+
+  background: var(--or);
+  color: #000;
+  border-radius: 999px;
+  font-weight: 800;
+
+  margin-left: 0;
+  border: none;
+  cursor: pointer;
+
+  /* animation plus soft (optionnel) */
+  animation: gentle-pulse 2.2s infinite;
  }
  .hero h1 { font-size: 1.8rem; }
  .hero p { font-size: 0.9rem; }
@@ -2114,4 +2131,55 @@ body.menu-open { overflow: hidden; }
   margin: 0 !important;
  }
  .verified-card { width: 240px; }
+}
+
+
+/* =======================================================
+ HEADER: fixé + compact
+======================================================= */
+header{
+  position: fixed;          /* au lieu de sticky */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10080;           /* au-dessus du contenu */
+}
+
+/* Laisse une place en haut pour ne pas cacher le contenu */
+body{
+  padding-top: var(--header-offset, 72px);
+}
+
+/* Barre de scroll progress au-dessus aussi */
+.scroll-progress{
+  z-index: 10090;
+}
+
+/* Header plus fin */
+header .container{
+  padding: 0.55rem 12px;    /* ↓ réduit la hauteur */
+}
+
+/* Réduire "Mr XPRONOS" */
+.logo a{
+  font-size: 1.35rem;       /* ↓ desktop */
+}
+
+/* Bouton menu (burger) plus petit */
+.burger-btn{
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border-width: 2px;
+}
+.burger-btn i{
+  font-size: 1.05rem;
+}
+
+/* Mobile: encore plus compact */
+@media (max-width: 768px){
+  .logo a{ font-size: 1.15rem; }
+  header .container{ padding: 0.45rem 10px; }
+  .burger-btn{ width: 34px; height: 34px; border-radius: 11px; }
+  .burger-btn i{ font-size: 1rem; }
 }

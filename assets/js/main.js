@@ -172,6 +172,15 @@ function initDOM() {
   DOM.successRateContainer = document.getElementById("success-rate-container");
 }
 
+function syncHeaderOffset() {
+  const header = document.querySelector("header");
+  if (!header) return;
+  document.documentElement.style.setProperty("--header-offset", header.offsetHeight + "px");
+}
+
+syncHeaderOffset();
+window.addEventListener("resize", syncHeaderOffset);
+setTimeout(syncHeaderOffset, 150); // au cas où pwa.js modifie le header après
 /* =======================================================
  SECURITY
 ======================================================= */
