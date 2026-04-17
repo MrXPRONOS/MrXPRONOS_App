@@ -1,17 +1,15 @@
 // assets/js/menu.js
 // Menu burger premium + mise en valeur LIVE VIP (vert) + COUPONS (vert)
+// + Bottom nav sticky (mobile-first)
 (function () {
   'use strict';
 
   const menuItems = [
     { name: 'Accueil', icon: 'fa-home', url: 'index.html' },
-
-    // ⭐ Mis en valeur (vert)
+    // Mis en valeur (vert)
     { name: 'COUPONS', icon: 'fa-ticket', url: 'pronos.html', featured: 'coupons', badge: 'TOP' },
-
-    // ⭐⭐ Très mis en valeur (vert aussi, mais plus premium)
+    // Très mis en valeur (vert premium)
     { name: 'LIVE VIP', icon: 'fa-bolt', url: 'live.html', vip: true, featured: 'vip', badge: 'LIVE' },
-
     { name: 'Historique', icon: 'fa-clock-rotate-left', url: 'historique.html' },
     { name: 'Bonus', icon: 'fa-gift', url: 'bonus.html' },
     { name: 'Blog', icon: 'fa-newspaper', url: 'blog.html' },
@@ -46,7 +44,6 @@
         --mx-green:#22C55E;
         --mx-green-strong:#16A34A;
       }
-
       @keyframes mxFeaturedPulse {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-1px); }
@@ -55,15 +52,13 @@
         0%, 100% { opacity: 1; transform: scale(1); }
         50% { opacity: .35; transform: scale(.78); }
       }
-
       /* Base featured */
       .burger-menu-item.featured{
         position: relative;
         overflow: hidden;
         animation: mxFeaturedPulse 2.2s ease-in-out infinite;
       }
-
-      /* ✅ COUPONS : vert */
+      /* COUPONS : vert */
       .burger-menu-item.featured-coupons{
         border: 1px solid rgba(34,197,94,0.55) !important;
         background: linear-gradient(180deg, rgba(34,197,94,0.10), rgba(255,255,255,0.03)) !important;
@@ -76,7 +71,7 @@
       .burger-menu-item.featured-coupons .menu-icon{ color: var(--mx-green) !important; }
       .burger-menu-item.featured-coupons .menu-label{ font-weight: 900 !important; letter-spacing: .3px; }
 
-      /* ✅✅ LIVE VIP : vert aussi, mais plus premium (glow + dot + gradient) */
+      /* LIVE VIP : vert premium */
       .burger-menu-item.featured-vip{
         border: 1px solid rgba(34,197,94,0.75) !important;
         background:
@@ -101,7 +96,7 @@
         letter-spacing: .45px;
       }
 
-      /* point LIVE qui pulse (vert) */
+      /* point LIVE */
       .burger-menu-item.featured-vip .menu-live-dot{
         position: absolute;
         top: 10px;
@@ -126,7 +121,6 @@
         background: rgba(0,0,0,0.55);
         text-transform: uppercase;
       }
-
       .burger-menu-item.featured-coupons .menu-badge{
         border: 1px solid rgba(34,197,94,0.55);
         color: var(--mx-green);
@@ -149,7 +143,6 @@
 
   function createBurgerButton() {
     if (document.getElementById('burger-btn')) return null;
-
     const btn = document.createElement('button');
     btn.id = 'burger-btn';
     btn.className = 'burger-btn';
@@ -212,9 +205,66 @@
     btn.setAttribute('aria-expanded', 'false');
   }
 
+  // =======================================================
+  // Bottom nav (mobile)
+  // =======================================================
+  function createBottomNav() {
+    // évite sur admin
+    const p = (location.pathname || '').toLowerCase();
+    if (p.includes('admin')) return;
+
+    if (document.getElementById('bottom-nav')) return;
+
+    const nav = document.createElement('nav');
+    nav.id = 'bottom-nav';
+    nav.className = 'bottom-nav';
+    nav.setAttribute('aria-label', 'Navigation rapide');
+
+    const items = [
+      { name: 'Accueil', icon: 'fa-house', url: 'index.html' },
+      { name: 'Coupons', icon: 'fa-ticket', url: 'pronos.html' },
+      { name: 'LIVE', icon: 'fa-bolt', url: 'live.html', live: true },
+      { name: 'Bonus', icon: 'fa-gift', url: 'bonus.html' },
+      { name: 'Blog', icon: 'fa-newspaper', url: 'blog.html' },
+    ];
+
+    const inner = document.createElement('div');
+    inner.className = 'inner';
+
+    const currentPath = window.location.pathname.replace(/\/+$/, '');
+    const currentFile = currentPath.split('/').pop() || '';
+
+    inner.innerHTML = items.map(it => {
+      const targetPath = new URL(it.url, window.location.href).pathname.replace(/\/+$/, '');
+      const targetFile = targetPath.split('/').pop() || '';
+
+      const isHome = it.url === 'index.html';
+      const isActive =
+        (!isHome && currentFile === targetFile) ||
+        (isHome && (currentFile === '' || currentFile === 'index.html'));
+
+      return `
+        <a href="${it.url}"
+           class="${isActive ? 'active' : ''} ${it.live ? 'live' : ''}"
+           ${isActive ? 'aria-current="page"' : ''}>
+          <i class="fas ${it.icon}" aria-hidden="true"></i>
+          <span>${it.name}</span>
+        </a>
+      `;
+    }).join('');
+
+    nav.appendChild(inner);
+    document.body.appendChild(nav);
+
+    document.body.classList.add('has-bottom-nav');
+  }
+
   function createMenu() {
     ensureFontAwesome();
     injectMenuHighlightStyles();
+
+    // Bottom nav (mobile)
+    createBottomNav();
 
     const header = document.querySelector('header');
     if (!header) return;
@@ -226,7 +276,7 @@
     const overlay = createBurgerOverlay();
     if (!btn || !overlay) return;
 
-    // Placement dans header-actions
+    // Placement du bouton dans header-actions
     const actions = header.querySelector('.header-actions');
     if (actions) {
       actions.appendChild(btn);
@@ -259,7 +309,7 @@
       }
     });
 
-    // VIP item : conserve la logique existante (handleVipClick)
+    // LIVE VIP item : conserve la logique existante (handleVipClick)
     overlay.querySelectorAll('.burger-menu-item').forEach((a) => {
       const isVip = a.getAttribute('data-vip') === 'true';
 
