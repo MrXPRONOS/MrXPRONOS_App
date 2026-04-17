@@ -2116,21 +2116,8 @@ body.menu-open { overflow: hidden; }
   .verified-card { width: 240px; }
 }
 
-/* FIX : header qui déborde sur mobile */
-@media (max-width: 520px){
-  header .container{
-    flex-wrap: wrap;          /* au lieu de nowrap */
-    row-gap: 10px;
-  }
-
-  .header-actions{
-    width: 100%;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-  }
-
-  /* évite que le badge force une largeur */
-  .promo-code{
-    max-width: 100%;
-  }
+@media (max-width: 380px) {
+  .logo a { font-size: 1.15rem; }
+  .promo-code { font-size: 0.75rem; padding: 0.32rem 0.55rem; }
+  .burger-btn { width: 40px; height: 40px; border-radius: 12px; }
 }
