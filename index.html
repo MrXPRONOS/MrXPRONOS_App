@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Mr XPRONOS - Coupons de pari VIP et gratuits</title>
   <meta name="description" content="Coupons de pari gratuits et premium, analyses H2H, conseils de paris. Code promo XPVIP chez 1xBet, 1win, Betwinner, Melbet, Linebet, BetClic.">
   <meta name="robots" content="index, follow">
@@ -37,7 +38,6 @@
   </script>
 
   <link rel="icon" href="assets/images/favicon.webp">
-  <link rel="stylesheet" href="assets/css/style.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0D0D0D">
 
@@ -45,71 +45,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <!-- Marked (modal contenu articles/conseils/news) -->
   <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 
-<body class="has-bottom-nav">
-  <!-- Menu burger (overlay) -->
-  <div class="burger-overlay" id="burger-overlay">
-    <div class="burger-drawer">
-      <div class="burger-menu-header">
-        <span class="burger-menu-title">Menu</span>
-        <button class="burger-close" id="burger-close" aria-label="Fermer le menu">&times;</button>
-      </div>
-      <div class="burger-menu-content">
-        <div class="burger-menu-grid">
-          <a href="index.html" class="burger-menu-item active">
-            <span class="menu-icon">🏠</span>
-            <span class="menu-label">Accueil</span>
-          </a>
-          <a href="pronos.html" class="burger-menu-item">
-            <span class="menu-icon">📋</span>
-            <span class="menu-label">Pronostics</span>
-          </a>
-          <a href="live.html" class="burger-menu-item">
-            <span class="menu-icon">🔴</span>
-            <span class="menu-label">LIVE VIP</span>
-          </a>
-          <a href="historique.html" class="burger-menu-item">
-            <span class="menu-icon">📅</span>
-            <span class="menu-label">Historique</span>
-          </a>
-          <a href="blog.html" class="burger-menu-item">
-            <span class="menu-icon">📰</span>
-            <span class="menu-label">Blog</span>
-          </a>
-          <a href="conseils.html" class="burger-menu-item">
-            <span class="menu-icon">💡</span>
-            <span class="menu-label">Conseils</span>
-          </a>
-          <a href="infos.html" class="burger-menu-item">
-            <span class="menu-icon">⚽</span>
-            <span class="menu-label">Actus Foot</span>
-          </a>
-          <a href="bonus.html" class="burger-menu-item">
-            <span class="menu-icon">🎁</span>
-            <span class="menu-label">Bonus</span>
-          </a>
-          <a href="contact.html" class="burger-menu-item">
-            <span class="menu-icon">📞</span>
-            <span class="menu-label">Contact</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-
+<body>
   <header>
     <div class="container">
-      <!-- Bouton burger (mobile) -->
-      <button class="burger-btn" id="burger-btn" aria-label="Menu" style="display: none;">☰</button>
-
       <div class="logo">
         <a href="index.html">Mr <span>XPRONOS</span></a>
       </div>
 
       <div class="header-actions">
-        <button type="button" id="install-app" class="btn btn-secondary" style="display: none;">
+        <!-- Bouton PWA (géré/placé par pwa.js) -->
+        <button type="button" id="install-app" class="btn btn-secondary" style="display:none;">
           Installer l'App
         </button>
 
@@ -164,7 +115,7 @@
 
   <!-- COMMENT ÇA MARCHE -->
   <section class="container how-works">
-    <h2 style="color: var(--or); margin: 1.6rem 0 0.8rem;">■ Comment ça marche ? (30 secondes)</h2>
+    <h2 style="color: var(--or); margin: 1.6rem 0 0.8rem;">📌 Comment ça marche ? (30 secondes)</h2>
 
     <div class="how-steps">
       <div class="how-step">
@@ -191,6 +142,7 @@
   <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;" role="dialog" aria-modal="true">
     <div class="ios-guide-content">
       <h3>Installer Mr XPRONOS sur iPhone</h3>
+
       <div class="ios-guide-steps">
         <div class="ios-guide-step">
           <span class="step-number">1</span>
@@ -205,7 +157,9 @@
           <span class="step-text">Touchez <strong>“Ajouter”</strong> en haut à droite</span>
         </div>
       </div>
+
       <div class="ios-guide-note">L'application fonctionnera ensuite hors ligne et plus rapidement.</div>
+
       <div class="ios-guide-buttons">
         <button id="close-ios-guide" class="btn btn-primary" type="button">Compris !</button>
         <button id="close-ios-guide-btn" class="btn btn-secondary" type="button">Plus tard</button>
@@ -213,16 +167,16 @@
     </div>
   </div>
 
+  <!-- Overlay VIP (utilisé sur d'autres pages aussi, mais safe ici) -->
   <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;"></div>
 
   <main class="container">
     <!-- 1) Top coupons d’aujourd’hui -->
     <section style="margin: 2.2rem 0;">
       <div class="section-head">
-        <h2 style="color: var(--or); margin: 0;">■ Top coupons d’aujourd’hui</h2>
+        <h2 style="color: var(--or); margin: 0;">🔥 Top coupons d’aujourd’hui</h2>
         <a href="pronos.html" class="btn btn-secondary">Voir tout</a>
       </div>
-
       <div id="top-today-picks" class="horizontal-scroll" aria-live="polite">
         <div class="loading">Chargement...</div>
       </div>
@@ -230,13 +184,13 @@
 
     <!-- 2) Derniers coupons validés -->
     <section style="margin: 2.2rem 0;">
-      <h2 style="color: var(--or); margin-bottom: 1rem;">■ Derniers coupons validés</h2>
+      <h2 style="color: var(--or); margin-bottom: 1rem;">✅ Derniers coupons validés</h2>
       <div id="verified-picks" class="horizontal-scroll" aria-live="polite">
         <div class="loading">Chargement...</div>
       </div>
     </section>
 
-    <!-- Slider des gains -->
+    <!-- Slider gains -->
     <div class="wins-slider">
       <div class="wins-track" id="wins-track"></div>
     </div>
@@ -246,15 +200,16 @@
     </div>
 
     <div class="success-box">
-      <div class="success-title">■ Taux de réussite ce mois</div>
+      <div class="success-title">📊 Taux de réussite ce mois</div>
       <div class="success-bar">
         <div class="success-fill" id="success-fill"></div>
       </div>
       <div class="success-percent" id="success-percent">0%</div>
     </div>
 
+    <!-- Pourquoi nous choisir -->
     <section style="margin: 3rem 0;">
-      <h2 style="color: var(--or); margin-bottom: 2rem;">■ Pourquoi nous choisir ?</h2>
+      <h2 style="color: var(--or); margin-bottom: 2rem;">⭐ Pourquoi nous choisir ?</h2>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
         <div class="card">
           <h3>Analyses H2H</h3>
@@ -271,21 +226,24 @@
       </div>
     </section>
 
+    <!-- Bonus -->
     <section style="margin: 3rem 0; background: var(--noir-secondaire); padding: 2rem; border-radius: 20px;">
-      <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">■ Profitez des bonus exclusifs</h2>
+      <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">🎁 Profitez des bonus exclusifs</h2>
       <div id="bookmakers-bonus" class="bookmakers-grid"></div>
     </section>
 
+    <!-- Témoignages -->
     <section style="margin: 3rem 0;">
-      <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">■ Ils nous font confiance</h2>
+      <h2 style="color: var(--or); text-align: center; margin-bottom: 2rem;">🤝 Ils nous font confiance</h2>
       <div id="testimonials-container"
            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
       </div>
     </section>
 
+    <!-- CTA partage -->
     <section style="margin: 3rem 0; text-align: center;">
       <div style="background: var(--or); color: var(--noir); padding: 2rem; border-radius: 20px;">
-        <h3 style="font-size: 2rem">■ Partage pour nous soutenir</h3>
+        <h3 style="font-size: 2rem">📣 Partage pour nous soutenir</h3>
         <p>Invite tes amis à rejoindre la communauté et débloquez des coupons exclusifs.</p>
       </div>
     </section>
@@ -334,33 +292,7 @@
     </div>
   </footer>
 
-  <!-- Bottom navigation (mobile) -->
-  <nav class="bottom-nav">
-    <div class="inner">
-      <a href="index.html" class="active">
-        <i>🏠</i>
-        <span>Accueil</span>
-      </a>
-      <a href="pronos.html">
-        <i>📋</i>
-        <span>Pronos</span>
-      </a>
-      <a href="live.html" class="live">
-        <i>🔴</i>
-        <span>LIVE</span>
-      </a>
-      <a href="blog.html">
-        <i>📰</i>
-        <span>Blog</span>
-      </a>
-      <a href="bonus.html">
-        <i>🎁</i>
-        <span>Bonus</span>
-      </a>
-    </div>
-  </nav>
-
-  <!-- Modals -->
+  <!-- Modals (compat: peuvent servir ailleurs, safe ici) -->
   <div id="article-modal" class="modal" onclick="closeArticleModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
       <span class="close" onclick="closeArticleModal()">&times;</span>
@@ -368,7 +300,9 @@
       <h3 id="article-modal-title"></h3>
       <p id="article-modal-meta" class="meta"></p>
       <div id="article-modal-content"></div>
-      <a id="article-modal-link" href="#" class="btn btn-primary" style="margin-top:1rem;" target="_blank" rel="noopener noreferrer">Lire l'article complet</a>
+      <a id="article-modal-link" href="#" class="btn btn-primary" style="margin-top:1rem;" target="_blank" rel="noopener noreferrer">
+        Lire l'article complet
+      </a>
     </div>
   </div>
 
@@ -387,15 +321,14 @@
       <img id="news-modal-image" src="" alt="" class="modal-image" loading="lazy">
       <h3 id="news-modal-title"></h3>
       <div id="news-modal-content"></div>
-      <a id="news-modal-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-top:1rem;">Lire sur le site source</a>
+      <a id="news-modal-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-top:1rem;">
+        Lire sur le site source
+      </a>
     </div>
   </div>
 
-  <!-- Popup de gains -->
+  <!-- Popup gains -->
   <div id="win-popup" class="win-popup"></div>
-
-  <!-- Bouton back-to-top -->
-  <button id="back-to-top" aria-label="Retour en haut" style="display: none;">↑</button>
 
   <!-- Scripts -->
   <script type="module" src="assets/js/main.js"></script>
@@ -403,42 +336,5 @@
   <script defer src="assets/js/assistant.js"></script>
   <script defer src="assets/js/menu.js"></script>
   <script defer src="assets/js/back-to-top.js"></script>
-
-  <!-- Activation du menu burger (mobile) -->
-  <script>
-    (function() {
-      const burgerBtn = document.getElementById('burger-btn');
-      const overlay = document.getElementById('burger-overlay');
-      const closeBtn = document.getElementById('burger-close');
-
-      if (!burgerBtn || !overlay) return;
-
-      // Afficher le bouton burger sur mobile
-      const style = window.getComputedStyle(burgerBtn);
-      if (style.display === 'none') burgerBtn.style.display = 'inline-flex';
-
-      burgerBtn.addEventListener('click', () => {
-        overlay.classList.add('open');
-        document.body.classList.add('menu-open');
-      });
-
-      const closeMenu = () => {
-        overlay.classList.remove('open');
-        document.body.classList.remove('menu-open');
-      };
-
-      closeBtn?.addEventListener('click', closeMenu);
-      overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) closeMenu();
-      });
-
-      // Fermer avec Echap
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && overlay.classList.contains('open')) {
-          closeMenu();
-        }
-      });
-    })();
-  </script>
 </body>
 </html>
