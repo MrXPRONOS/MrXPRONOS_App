@@ -1,10 +1,10 @@
 /* =======================================================
- STYLE.CSS - Mr XPRONOS (CLEAN - SANS DOUBLONS)
- Design noir & or, moderne, optimisé
+   STYLE.CSS - Mr XPRONOS (CLEAN - SANS DOUBLONS)
+   Design noir & or, moderne, optimisé
 ======================================================= */
 
 /* =======================================================
- VARIABLES
+   VARIABLES
 ======================================================= */
 :root {
   --noir: #0D0D0D;
@@ -18,24 +18,17 @@
   --gris-clair: #444;
   --rouge: #FF6B6B;
   --orange: #FFA500;
+
   --shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   --shadow-hover: 0 12px 24px rgba(212, 175, 55, 0.2);
   --vip-glow: 0 0 20px rgba(212, 175, 55, 0.6);
 }
 
 /* =======================================================
- RESET
+   RESET
 ======================================================= */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 html { scroll-behavior: smooth; }
-
-/* ✅ Stop scroll horizontal global (corrige le "petit espace à droite") */
-html, body {
-  width: 100%;
-  overflow-x: hidden;
-}
-
 body {
   font-family: 'Montserrat', sans-serif;
   background-color: var(--noir);
@@ -44,16 +37,8 @@ body {
   font-size: 14px;
   min-height: 100vh;
 }
-
 img { max-width: 100%; display: block; }
 button, input, select, textarea { font: inherit; }
-
-/* ✅ Twemoji (SVG) */
-img.emoji{
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.15em;
-}
 
 /* Layout */
 .container {
@@ -64,7 +49,7 @@ img.emoji{
 }
 
 /* =======================================================
- ANIMATIONS
+   ANIMATIONS
 ======================================================= */
 @keyframes gentle-pulse {
   0% { transform: scale(1); }
@@ -96,7 +81,7 @@ img.emoji{
 }
 
 /* =======================================================
- HEADER (UNIFIÉ)
+   HEADER (UNIFIÉ)
 ======================================================= */
 header {
   background-color: var(--noir-secondaire);
@@ -110,6 +95,7 @@ header {
   display: flex;
   flex-direction: column;
 }
+
 header .container {
   display: flex;
   justify-content: space-between;
@@ -118,7 +104,7 @@ header .container {
   padding: 0.8rem 15px;
   width: 100%;
   box-sizing: border-box;
-  flex-wrap: nowrap; /* important pour burger + promo */
+  flex-wrap: nowrap;          /* important pour burger + promo */
   flex-direction: row;
 }
 
@@ -157,8 +143,8 @@ header .container {
   animation: gentle-pulse 2s infinite;
   box-shadow: 0 0 0 rgba(212, 175, 55, 0.4);
   transition: transform 0.3s, box-shadow 0.3s;
-  border: none; /* utile si c'est un bouton */
-  cursor: pointer; /* utile si c'est un bouton */
+  border: none;          /* utile si c'est un bouton */
+  cursor: pointer;       /* utile si c'est un bouton */
 }
 .promo-code:hover {
   animation: none;
@@ -170,7 +156,7 @@ header .container {
 #install-app { animation: gentle-pulse 2s infinite; }
 
 /* =======================================================
- FOOTER
+   FOOTER
 ======================================================= */
 footer {
   background-color: var(--noir-secondaire);
@@ -224,7 +210,7 @@ footer {
 .bookmakers a:hover img { transform: scale(1.08); }
 
 /* =======================================================
- BOUTONS
+   BOUTONS
 ======================================================= */
 .btn {
   display: inline-block;
@@ -259,7 +245,7 @@ footer {
 }
 
 /* =======================================================
- BADGES / STATS
+   BADGES / STATS
 ======================================================= */
 .stats-badge {
   background: var(--noir-secondaire);
@@ -270,7 +256,6 @@ footer {
   display: inline-block;
   margin-top: 1rem;
 }
-
 .badge-premium {
   background-color: var(--or);
   color: #000;
@@ -292,24 +277,20 @@ footer {
   line-height: 1;
   text-transform: uppercase;
 }
-
 .badge-simple {
   background-color: #2b2b2b;
   color: #fff;
   border: 1px solid #666;
 }
-
 .badge-pro {
   background-color: var(--gris-clair);
   color: var(--blanc);
   border: 1px solid var(--or);
 }
-
 .badge-vip {
   background-color: var(--or);
   color: #000;
 }
-
 .badge-win {
   background: #00c853;
   color: #fff;
@@ -324,7 +305,7 @@ footer {
 }
 
 /* =======================================================
- CARD GÉNÉRIQUE
+   CARD GÉNÉRIQUE
 ======================================================= */
 .card {
   background-color: var(--noir-secondaire);
@@ -351,7 +332,7 @@ footer {
 }
 
 /* =======================================================
- GRILLES
+   GRILLES
 ======================================================= */
 .blog-grid,
 .conseils-grid,
@@ -362,7 +343,6 @@ footer {
   gap: 1.5rem;
   margin-top: 2rem;
 }
-
 @media (max-width: 992px) {
   .blog-grid, .conseils-grid, .infos-grid, .news-grid { grid-template-columns: repeat(3, 1fr); }
 }
@@ -374,7 +354,7 @@ footer {
 }
 
 /* =======================================================
- SCROLL HORIZONTAL
+   SCROLL HORIZONTAL
 ======================================================= */
 .horizontal-scroll {
   display: flex;
@@ -400,7 +380,6 @@ footer {
   cursor: pointer;
 }
 .horizontal-item:hover { transform: scale(1.05); }
-
 .horizontal-item img {
   width: 60px;
   height: 60px;
@@ -410,7 +389,6 @@ footer {
   background-color: var(--gris);
   padding: 5px;
 }
-
 .horizontal-item .item-title {
   font-weight: 600;
   font-size: 0.9rem;
@@ -418,14 +396,13 @@ footer {
   white-space: normal;
   word-break: break-word;
 }
-
 @media (max-width: 480px) {
   .horizontal-item { width: 150px; }
   .horizontal-item .item-title { font-size: 0.8rem; }
 }
 
 /* =======================================================
- NEWS / ARTICLES / CONSEILS (cards)
+   NEWS / ARTICLES / CONSEILS (cards)
 ======================================================= */
 .news-card {
   background-color: var(--noir-secondaire);
@@ -478,7 +455,6 @@ footer {
   line-height: 1.7;
   color: #ddd;
 }
-
 .article-content h1,
 .article-content h2,
 .article-content h3,
@@ -490,25 +466,21 @@ footer {
   color: var(--or);
   margin: 1rem 0 0.6rem;
 }
-
 .article-content p, .modal-content p { margin-bottom: 1em; }
-
 .article-content ul, .article-content ol, .modal-content ul, .modal-content ol {
   margin: 0.8rem 0 1rem 1.4rem;
 }
-
 .article-content a, .modal-content a {
   color: var(--or-clair);
   text-decoration: underline;
 }
-
 .article-content img, .modal-content img {
   max-width: 100%;
   border-radius: 10px;
 }
 
 /* =======================================================
- HERO (base)
+   HERO (base)
 ======================================================= */
 .hero {
   background-color: var(--noir-secondaire);
@@ -530,7 +502,7 @@ footer {
 }
 
 /* =======================================================
- HOME - HERO CHOICES + HOW IT WORKS (NOUVEAU)
+   HOME - HERO CHOICES + HOW IT WORKS (NOUVEAU)
 ======================================================= */
 .hero-choices{
   display: grid;
@@ -600,7 +572,6 @@ footer {
   animation: pulse 1.2s infinite;
   vertical-align: middle;
 }
-
 .data-updated{
   margin: 14px auto 0;
   max-width: 820px;
@@ -653,7 +624,7 @@ footer {
 }
 
 /* =======================================================
- PRONOSTICS - ONGLETS / FILTRES
+   PRONOSTICS - ONGLETS / FILTRES
 ======================================================= */
 .category-tabs,
 .day-filters {
@@ -672,6 +643,7 @@ footer {
   font-size: 0.9rem;
   min-width: 0;
 }
+
 .tab-btn,
 .day-btn {
   background-color: var(--noir-secondaire);
@@ -693,6 +665,7 @@ footer {
   transform: scale(1.03);
 }
 .tab-btn[style*="display: none"] { display: none !important; }
+
 .day-filters .day-btn { white-space: nowrap; }
 
 .vip-subtabs {
@@ -719,7 +692,7 @@ footer {
 }
 
 /* =======================================================
- RECHERCHE
+   RECHERCHE
 ======================================================= */
 .search-container { margin: 1rem 0; }
 .search-input {
@@ -739,7 +712,7 @@ footer {
 }
 
 /* =======================================================
- MATCHS
+   MATCHS
 ======================================================= */
 .matches-grid {
   display: grid;
@@ -766,7 +739,6 @@ footer {
   transform: translateY(-5px);
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.25);
 }
-
 .match-card-vip {
   border: 2px solid var(--or);
   box-shadow: 0 0 25px rgba(212, 175, 55, 0.35);
@@ -814,6 +786,7 @@ footer {
   transition: border-color 0.3s;
 }
 .match-card:hover .team-logo { border-color: var(--or); }
+
 .team-name {
   font-weight: 600;
   font-size: 0.9rem;
@@ -825,6 +798,7 @@ footer {
   font-weight: 700;
   color: var(--or);
 }
+
 .vs {
   font-weight: 700;
   color: var(--or);
@@ -912,7 +886,7 @@ footer {
 }
 
 /* =======================================================
- INFOS AVANCÉES MATCH
+   INFOS AVANCÉES MATCH
 ======================================================= */
 .ai-score-badge,
 .elo-info,
@@ -934,7 +908,7 @@ footer {
 }
 
 /* =======================================================
- COMBO VIP
+   COMBO VIP
 ======================================================= */
 .combo-badge {
   display: inline-block;
@@ -967,7 +941,6 @@ footer {
   font-size: 0.9rem;
   text-shadow: 0 0 5px rgba(212, 175, 55, 0.35);
 }
-
 .match-card-vip .btn-share {
   background-color: var(--or);
   color: #000;
@@ -980,7 +953,7 @@ footer {
 }
 
 /* =======================================================
- CONTACT
+   CONTACT
 ======================================================= */
 .contact-grid {
   display: grid;
@@ -1020,7 +993,7 @@ footer {
 .contact-card a:hover { color: var(--or); }
 
 /* =======================================================
- BOOKMAKERS GRID
+   BOOKMAKERS GRID
 ======================================================= */
 .bookmakers-grid {
   display: grid;
@@ -1057,7 +1030,7 @@ footer {
 }
 
 /* =======================================================
- BONUS
+   BONUS
 ======================================================= */
 .bonus-selector {
   margin: 1.5rem 0;
@@ -1095,7 +1068,6 @@ footer {
 }
 .bonus-thumb:hover { transform: scale(1.05); }
 .bonus-thumb img { width: 100%; height: 120px; object-fit: cover; }
-
 .bonus-thumb-title {
   padding: 0.5rem;
   text-align: center;
@@ -1114,7 +1086,7 @@ footer {
 }
 
 /* =======================================================
- MODALS
+   MODALS
 ======================================================= */
 .modal {
   display: none;
@@ -1183,7 +1155,7 @@ footer {
 .modal-content tr:nth-child(even) { background-color: #1a1a1a; }
 
 /* =======================================================
- OVERLAY VIP (Pro/VIP lock)
+   OVERLAY VIP (Pro/VIP lock)
 ======================================================= */
 .vip-locked-overlay {
   position: relative;
@@ -1222,7 +1194,7 @@ footer {
 }
 
 /* =======================================================
- LOADING / ERROR / EMPTY
+   LOADING / ERROR / EMPTY
 ======================================================= */
 .loading,
 .error,
@@ -1254,7 +1226,7 @@ footer {
 .no-events { color: #aaaaaa; }
 
 /* =======================================================
- BADGE XPRONOS
+   BADGE XPRONOS
 ======================================================= */
 .xpronos-badge {
   display: inline-block;
@@ -1270,7 +1242,7 @@ footer {
 }
 
 /* =======================================================
- TAUX DE RÉUSSITE / SUCCESS BOX
+   TAUX DE RÉUSSITE / SUCCESS BOX
 ======================================================= */
 .success-rate {
   background-color: var(--noir-secondaire);
@@ -1330,7 +1302,7 @@ footer {
 }
 
 /* =======================================================
- SCROLL PROGRESS
+   SCROLL PROGRESS
 ======================================================= */
 .scroll-progress {
   position: fixed;
@@ -1344,7 +1316,7 @@ footer {
 }
 
 /* =======================================================
- HISTORIQUE
+   HISTORIQUE
 ======================================================= */
 .day-header {
   font-size: 1.5rem;
@@ -1355,7 +1327,7 @@ footer {
 }
 
 /* =======================================================
- GUIDE IOS
+   GUIDE IOS
 ======================================================= */
 .ios-guide-popup {
   position: fixed;
@@ -1390,7 +1362,6 @@ footer {
 }
 .ios-guide-steps { text-align: left; margin: 1.5rem 0; }
 .ios-guide-step { display: flex; align-items: center; margin-bottom: 1.2rem; gap: 1rem; }
-
 .step-number {
   background-color: var(--or);
   color: var(--noir);
@@ -1406,7 +1377,6 @@ footer {
 }
 .step-text { color: var(--blanc); font-size: 0.95rem; line-height: 1.4; }
 .step-text strong { color: var(--or); }
-
 .ios-guide-note {
   background: rgba(212, 175, 55, 0.1);
   border-left: 4px solid var(--or);
@@ -1425,7 +1395,7 @@ footer {
 }
 
 /* =======================================================
- BARRE DE CONFIANCE
+   BARRE DE CONFIANCE
 ======================================================= */
 .confidence-bar {
   width: 100%;
@@ -1444,7 +1414,7 @@ footer {
 }
 
 /* =======================================================
- EFFET TICKET + GAGNANTS
+   EFFET TICKET + GAGNANTS
 ======================================================= */
 .ticket {
   background-color: #111;
@@ -1478,35 +1448,25 @@ footer {
   pointer-events: none;
   overflow: hidden;
 }
-
 .match-card.winner {
   border: 2px solid #4CAF50 !important;
   box-shadow: 0 0 25px rgba(76,175,80,0.5) !important;
   position: relative;
 }
-
-/* ❌ Désactive les anciens rubans en pseudo-élément (on passe au ruban HTML .win-ribbon) */
-.match-card.winner::before,
-.verified-card.winner::before{
-  content: none !important;
-  display: none !important;
-}
-
-/* ✅ Ruban HTML (utilisé dans renderMatches si tu injectes <div class="win-ribbon">✅ PRONO GAGNÉ</div>) */
-.win-ribbon{
+.match-card.winner::before {
+  content: "✅ PRONO GAGNÉ";
   position: absolute;
   top: 10px;
   right: 10px;
-  background: rgba(34,197,94,0.16);
-  border: 1px solid rgba(34,197,94,0.55);
-  color: #22C55E;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-weight: 950;
-  font-size: 0.75rem;
-  z-index: 20;
+  background-color: #4CAF50;
+  color: black;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  animation: pulseWin 1s infinite;
+  z-index: 10;
 }
-
 .spark {
   position: absolute;
   width: 4px;
@@ -1519,7 +1479,7 @@ footer {
 }
 
 /* =======================================================
- CARTES VALIDÉES (accueil) - legacy (garde compat)
+   CARTES VALIDÉES (accueil)
 ======================================================= */
 .verified-card {
   display: flex;
@@ -1534,7 +1494,7 @@ footer {
   border: 1px solid rgba(255, 215, 0, 0.3);
   width: 280px;
   flex-shrink: 0;
-  /* ✅ SUPPRIMÉ : margin-right: 1rem; (source fréquente d’overflow) */
+  margin-right: 1rem;
   position: relative;
 }
 .verified-card:hover {
@@ -1544,6 +1504,19 @@ footer {
 .verified-card.winner {
   border: 2px solid #4CAF50 !important;
   box-shadow: 0 0 25px rgba(76, 175, 80, 0.5) !important;
+}
+.verified-card.winner::before {
+  content: "✅ GAGNÉ";
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #4CAF50;
+  color: black;
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  z-index: 10;
 }
 .verified-card .teams {
   display: flex;
@@ -1586,116 +1559,7 @@ footer {
 }
 
 /* =======================================================
- HOME PICK CARD (NOUVEAU - Top coupons / Validés)
-======================================================= */
-.home-pick-card{
-  position: relative;
-  flex: 0 0 auto;
-  width: 280px;
-  background: #111;
-  border: 1px solid rgba(212,175,55,0.28);
-  border-radius: 16px;
-  padding: 12px;
-  box-shadow: 0 16px 45px rgba(0,0,0,0.55);
-  transition: transform .2s ease, border-color .2s ease;
-  cursor: pointer;
-  scroll-snap-align: start;
-}
-.home-pick-card:hover{
-  transform: translateY(-2px);
-  border-color: rgba(212,175,55,0.6);
-}
-.home-pick-card.is-winner{
-  border: 2px solid rgba(34,197,94,0.7);
-  box-shadow: 0 0 28px rgba(34,197,94,0.18);
-}
-
-.hp-badge{
-  position:absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(34,197,94,0.16);
-  color: #22C55E;
-  border: 1px solid rgba(34,197,94,0.55);
-  font-weight: 950;
-  font-size: 0.70rem;
-  padding: 4px 10px;
-  border-radius: 999px;
-}
-
-.hp-teams{
-  display:grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 10px;
-}
-.hp-team{
-  display:flex;
-  flex-direction: column;
-  align-items:center;
-  text-align:center;
-  gap: 8px;
-  min-width: 0;
-}
-.hp-logo{
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-  background: #1a1a1a;
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 12px;
-  padding: 6px;
-}
-.hp-name{
-  font-size: 0.82rem;
-  font-weight: 750;
-  color:#f1f1f1;
-  line-height: 1.15;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.hp-vs{
-  font-weight: 950;
-  font-size: 0.78rem;
-  color: var(--or);
-  border: 1px solid rgba(212,175,55,0.45);
-  background: rgba(212,175,55,0.08);
-  padding: 6px 10px;
-  border-radius: 999px;
-}
-.hp-meta{
-  margin-top: 12px;
-  display:flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.hp-pill{
-  font-size: 0.75rem;
-  font-weight: 800;
-  color:#ddd;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.10);
-  padding: 6px 10px;
-  border-radius: 999px;
-}
-.hp-pill-gold{
-  color: #fff;
-  border-color: rgba(212,175,55,0.35);
-  background: rgba(212,175,55,0.10);
-}
-.hp-pill-green{
-  color:#00ff9c;
-  border-color: rgba(0,255,156,0.25);
-  background: rgba(0,255,156,0.08);
-}
-
-/* =======================================================
- SLIDER DES GAINS
+   SLIDER DES GAINS
 ======================================================= */
 .wins-slider {
   width: 100%;
@@ -1723,7 +1587,7 @@ footer {
 .win-item span { color: #fff; font-weight: 400; }
 
 /* =======================================================
- POPUP GAINS
+   POPUP GAINS
 ======================================================= */
 .win-popup {
   position: fixed;
@@ -1753,7 +1617,7 @@ footer {
 }
 
 /* =======================================================
- POPUP PARTAGE
+   POPUP PARTAGE
 ======================================================= */
 .popup {
   display: none;
@@ -1769,7 +1633,6 @@ footer {
   padding: 1rem;
 }
 .popup.active { display: flex; }
-
 .popup-content {
   background-color: var(--noir-secondaire);
   border: 2px solid var(--or);
@@ -1782,7 +1645,6 @@ footer {
 }
 .popup-content h3 { color: var(--or); margin-bottom: 1rem; }
 .popup-content p { margin-bottom: 1rem; color: #ccc; }
-
 .share-buttons {
   display: flex;
   gap: 1rem;
@@ -1793,7 +1655,7 @@ footer {
 .share-buttons .btn { flex: 1; }
 
 /* =======================================================
- TODAY PICKS HORIZONTAL (legacy)
+   TODAY PICKS HORIZONTAL (legacy)
 ======================================================= */
 #today-picks.horizontal-scroll {
   display: flex;
@@ -1815,7 +1677,7 @@ footer {
 }
 
 /* =======================================================
- BACK TO TOP
+   BACK TO TOP
 ======================================================= */
 #back-to-top {
   position: fixed;
@@ -1849,7 +1711,7 @@ footer {
 body.assistant-open #back-to-top { display: none !important; }
 
 /* =======================================================
- BURGER MENU
+   BURGER MENU
 ======================================================= */
 .burger-btn {
   width: 44px;
@@ -1975,7 +1837,7 @@ body.menu-open { overflow: hidden; }
 }
 
 /* =======================================================
- PWA INSTALL ROW
+   PWA INSTALL ROW
 ======================================================= */
 .header-install-row {
   display: none;
@@ -1993,7 +1855,7 @@ body.menu-open { overflow: hidden; }
 }
 
 /* =======================================================
- BOTTOM NAV (mobile)
+   BOTTOM NAV (mobile)
 ======================================================= */
 .bottom-nav{
   position: fixed;
@@ -2006,18 +1868,14 @@ body.menu-open { overflow: hidden; }
   padding-bottom: env(safe-area-inset-bottom);
   display: none;
 }
-
-/* ✅ Bloc corrigé : safe-width + minmax(0,1fr) + box-sizing */
 .bottom-nav .inner{
-  width: min(560px, 100%);
+  max-width: 1200px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
-  padding: 10px 12px;
-  box-sizing: border-box;
+  gap: 6px;
+  padding: 10px 10px;
 }
-
 .bottom-nav a{
   text-decoration:none;
   color:#ddd;
@@ -2032,17 +1890,13 @@ body.menu-open { overflow: hidden; }
   background: rgba(255,255,255,0.02);
   font-weight: 750;
   font-size: 0.72rem;
-  min-width: 0; /* ✅ évite que le contenu force un dépassement */
 }
-
 .bottom-nav a i{ font-size: 1.05rem; }
-
 .bottom-nav a.active{
   border-color: rgba(212,175,55,0.65);
   background: rgba(212,175,55,0.12);
   color: #fff;
 }
-
 .bottom-nav a.live{
   border-color: rgba(34,197,94,0.55);
   color: #22C55E;
@@ -2051,7 +1905,6 @@ body.menu-open { overflow: hidden; }
   background: rgba(34,197,94,0.12);
   border-color: rgba(34,197,94,0.85);
 }
-
 @media (max-width: 900px){
   body.has-bottom-nav{ padding-bottom: 78px; }
   .bottom-nav{ display:block; }
@@ -2061,7 +1914,7 @@ body.menu-open { overflow: hidden; }
 }
 
 /* =======================================================
- RESPONSIVE (global)
+   RESPONSIVE (global)
 ======================================================= */
 @media (max-width: 768px) {
   header .container {
@@ -2091,7 +1944,6 @@ body.menu-open { overflow: hidden; }
   .footer-links a { font-size: 0.75rem; }
   .win-popup { left: 10px; right: 10px; bottom: 10px; font-size: 12px; }
 }
-
 @media (max-width: 480px) {
   .category-tabs { grid-template-columns: 1fr; }
   .day-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -2103,7 +1955,6 @@ body.menu-open { overflow: hidden; }
     flex-direction: column !important;
     gap: 10px !important;
   }
-
   .popup-content .share-buttons .btn,
   .vip-contact-buttons .btn,
   .ios-guide-buttons .btn,
@@ -2112,12 +1963,5 @@ body.menu-open { overflow: hidden; }
     min-width: 100% !important;
     margin: 0 !important;
   }
-
   .verified-card { width: 240px; }
-}
-
-@media (max-width: 380px) {
-  .logo a { font-size: 1.15rem; }
-  .promo-code { font-size: 0.75rem; padding: 0.32rem 0.55rem; }
-  .burger-btn { width: 40px; height: 40px; border-radius: 12px; }
 }
