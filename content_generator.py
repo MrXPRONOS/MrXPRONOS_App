@@ -10,7 +10,7 @@ Fonctionnalités :
 - 3 conseils
 - Match du jour : data.json en priorité, fallback allscores via api_utils
 - Texte : Mistral SDK -> fallback HTTP
-- Images : HF -> Mistral SDK image -> Pixazo
+- Images : HF -> Mistral SDK image -> Pixazo -> fallback local OG (PIL)
 - Format final 1200x630
 - Parsing robuste des métadonnées :
  SLUG:
@@ -31,7 +31,7 @@ from difflib import SequenceMatcher
 from typing import Optional, List, Dict, Tuple
 
 import requests
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw, ImageFont
 
 try:
     from api_utils import make_request
@@ -122,7 +122,8 @@ def init_mistral_sdk():
                 completion_args={"temperature": 0.3, "top_p": 0.95}
             )
             image_agent_id = agent.id
-        except Exception:
+        except Exception as e:
+            print(f"⚠️ Mistral image agent indisponible: {e}")
             image_agent_id = None
 
         print("✅ Mistral SDK initialisé")
@@ -540,7 +541,7 @@ def ensure_1200x630(path: str) -> Optional[str]:
 
         target_ratio = OUT_W / OUT_H
         w, h = img.size
-        current_ratio = w / h
+        current_ratio = w / h if h else target_ratio
 
         if current_ratio > target_ratio:
             new_w = int(h * target_ratio)
@@ -555,15 +556,20 @@ def ensure_1200x630(path: str) -> Optional[str]:
         out = os.path.splitext(path)[0] + "-1200x630.png"
         img.save(out, "PNG", optimize=True)
         return out
-    except Exception:
+    except Exception as e:
+        print(f"⚠️ ensure_1200x630 failed ({path}): {e}")
         return path
 
 def generate_image_hf(prompt: str, negative_prompt: str = "", retries: int = 3, folder: str = ARTICLE_IMG_DIR) -> Optional[str]:
     if not HF_TOKEN:
+        print("⚠️ HF_TOKEN manquant -> HF désactivé")
         return None
 
     url = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
-    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    headers = {
+        "Authorization": f"Bearer {HF_TOKEN}",
+        "Accept": "image/png"
+    }
     payload = {
         "inputs": prompt,
         "parameters": {
@@ -572,35 +578,59 @@ def generate_image_hf(prompt: str, negative_prompt: str = "", retries: int = 3, 
             "height": GEN_H,
             "num_inference_steps": 28,
             "guidance_scale": 6.5
+        },
+        "options": {
+            "wait_for_model": True
         }
     }
 
     for attempt in range(retries):
         try:
             r = requests.post(url, headers=headers, json=payload, timeout=180)
-
-            if r.status_code == 503:
-                try:
-                    data = r.json()
-                    wait = int(data.get("estimated_time", 10))
-                except Exception:
-                    wait = 10
-                time.sleep(min(wait + 2, 25))
-                continue
+            ct = (r.headers.get("content-type") or "").lower()
 
             if r.status_code != 200:
-                return None
+                msg = (r.text or "")[:400]
+                print(f"❌ HF error {r.status_code} ct={ct} model={HF_MODEL} body={msg}")
+                time.sleep(2 + attempt)
+                continue
 
-            if r.headers.get("content-type", "").startswith("application/json"):
-                return None
+            # parfois JSON même avec 200 (warmup / erreur)
+            if "application/json" in ct:
+                try:
+                    data = r.json()
+                except Exception:
+                    print("❌ HF: réponse JSON non lisible")
+                    time.sleep(2 + attempt)
+                    continue
 
-            path = os.path.join(folder, f"hf-{uuid.uuid4().hex[:10]}.png")
+                err = data.get("error") or ""
+                est = data.get("estimated_time")
+                print(f"⚠️ HF JSON response: error={err} estimated_time={est}")
+                if est:
+                    time.sleep(min(int(est) + 2, 25))
+                else:
+                    time.sleep(2 + attempt)
+                continue
+
+            # binaire image
+            ext = ".png"
+            if "jpeg" in ct or "jpg" in ct:
+                ext = ".jpg"
+            elif "webp" in ct:
+                ext = ".webp"
+
+            path = os.path.join(folder, f"hf-{uuid.uuid4().hex[:10]}{ext}")
             with open(path, "wb") as f:
                 f.write(r.content)
-            return ensure_1200x630(path)
 
-        except Exception:
-            time.sleep(2)
+            out = ensure_1200x630(path)
+            print(f"✅ HF image OK -> {out}")
+            return out
+
+        except Exception as e:
+            print(f"❌ HF exception: {e}")
+            time.sleep(2 + attempt)
 
     return None
 
@@ -614,23 +644,33 @@ def generate_image_mistral_sdk(prompt: str, folder: str) -> Optional[str]:
             inputs=prompt
         )
 
-        for output in response.outputs:
-            if output.type == "message.output":
-                for chunk in output.content:
-                    if chunk.type == "tool_file" and chunk.tool == "image_generation":
-                        file_bytes = mistral_client.files.download(file_id=chunk.file_id).read()
+        outputs = getattr(response, "outputs", None)
+        if not outputs:
+            print("⚠️ Mistral image: aucune sortie (outputs vide)")
+            return None
+
+        for output in outputs:
+            if getattr(output, "type", None) == "message.output":
+                for chunk in getattr(output, "content", []) or []:
+                    if getattr(chunk, "type", None) == "tool_file" and getattr(chunk, "tool", None) == "image_generation":
+                        file_id = getattr(chunk, "file_id", None)
+                        if not file_id:
+                            continue
+                        file_bytes = mistral_client.files.download(file_id=file_id).read()
                         path = os.path.join(folder, f"mistral-{uuid.uuid4().hex[:10]}.png")
                         with open(path, "wb") as f:
                             f.write(file_bytes)
                         return ensure_1200x630(path)
 
-    except Exception:
+    except Exception as e:
+        print(f"❌ Mistral image exception: {e}")
         return None
 
     return None
 
 def generate_image_pixazo(prompt: str, folder: str) -> Optional[str]:
     if not PIXAZO_API_KEY:
+        print("⚠️ PIXAZO_API_KEY manquante -> Pixazo désactivé")
         return None
 
     headers = {
@@ -655,10 +695,15 @@ def generate_image_pixazo(prompt: str, folder: str) -> Optional[str]:
             headers=headers,
             timeout=80
         )
-        resp.raise_for_status()
+
+        if resp.status_code != 200:
+            print(f"❌ Pixazo error {resp.status_code}: {(resp.text or '')[:350]}")
+            return None
+
         data = resp.json()
-        image_url = data.get("imageUrl")
+        image_url = data.get("imageUrl") or data.get("image_url") or data.get("url")
         if not image_url:
+            print(f"❌ Pixazo: imageUrl manquant. keys={list(data.keys())[:20]}")
             return None
 
         img_resp = requests.get(image_url, timeout=30)
@@ -669,10 +714,75 @@ def generate_image_pixazo(prompt: str, folder: str) -> Optional[str]:
             f.write(img_resp.content)
 
         return ensure_1200x630(path)
-    except Exception:
+    except Exception as e:
+        print(f"❌ Pixazo exception: {e}")
         return None
 
-def generate_image_with_fallback(prompt: str, folder: str) -> Optional[str]:
+def generate_local_og_image(title: str, folder: str, tag: str = "Mr XPRONOS") -> str:
+    """
+    Fallback local (PIL) pour ne jamais bloquer la génération si toutes les APIs images échouent.
+    """
+    os.makedirs(folder, exist_ok=True)
+    path = os.path.join(folder, f"local-{uuid.uuid4().hex[:10]}-1200x630.png")
+
+    img = Image.new("RGB", (OUT_W, OUT_H), (10, 12, 18))
+    draw = ImageDraw.Draw(img)
+
+    # Gradient simple
+    for y in range(OUT_H):
+        c = 10 + int(35 * (y / OUT_H))
+        draw.line([(0, y), (OUT_W, y)], fill=(c, c + 5, c + 12))
+
+    # Bandeau haut
+    draw.rectangle([0, 0, OUT_W, 92], fill=(0, 0, 0))
+
+    # Fonts (Ubuntu runner a DejaVu)
+    font_title = None
+    font_small = None
+    for fp in (
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    ):
+        if os.path.exists(fp):
+            font_title = ImageFont.truetype(fp, 54)
+            font_small = ImageFont.truetype(fp, 26)
+            break
+    if font_title is None:
+        font_title = ImageFont.load_default()
+        font_small = ImageFont.load_default()
+
+    clean = re.sub(r"\s+", " ", (title or "").strip())
+    if not clean:
+        clean = "Nouveau contenu"
+
+    def wrap(text, max_chars=34):
+        words = text.split()
+        lines, cur = [], []
+        for w in words:
+            test = (" ".join(cur + [w])).strip()
+            if len(test) > max_chars and cur:
+                lines.append(" ".join(cur))
+                cur = [w]
+            else:
+                cur.append(w)
+        if cur:
+            lines.append(" ".join(cur))
+        return lines[:3]
+
+    lines = wrap(clean, 34)
+
+    # Tag
+    draw.text((24, 26), tag, fill=(230, 200, 90), font=font_small)
+
+    # Titre
+    y0 = 160
+    for i, line in enumerate(lines):
+        draw.text((60, y0 + i * 72), line, fill=(245, 245, 245), font=font_title)
+
+    img.save(path, "PNG", optimize=True)
+    return path
+
+def generate_image_with_fallback(prompt: str, folder: str, fallback_title: str = "") -> Optional[str]:
     NEG = (
         "text, watermark, logo, signature, ugly, deformed, extra limbs, extra fingers, "
         "bad anatomy, lowres, blurry, cartoon, illustration, 3d render, CGI, oversaturated"
@@ -684,13 +794,18 @@ def generate_image_with_fallback(prompt: str, folder: str) -> Optional[str]:
 
     p = generate_image_mistral_sdk(prompt, folder)
     if p:
+        print(f"✅ Mistral image OK -> {p}")
         return p
 
     p = generate_image_pixazo(prompt, folder)
     if p:
+        print(f"✅ Pixazo image OK -> {p}")
         return p
 
-    return None
+    # Fallback local: on retourne TOUJOURS une image
+    local = generate_local_og_image(fallback_title or "Mr XPRONOS", folder)
+    print(f"⚠️ Fallback local image -> {local}")
+    return local
 
 # =======================================================
 # TOPICS EVERGREEN
@@ -1024,19 +1139,20 @@ def main():
                     f"dramatic atmosphere, 16:9, no text, no watermark, no logos"
                 )
 
-                img_path = generate_image_with_fallback(img_prompt, ARTICLE_IMG_DIR)
+                img_path = generate_image_with_fallback(
+                    img_prompt,
+                    ARTICLE_IMG_DIR,
+                    fallback_title=parsed.get("title", f"{match['home_team']} vs {match['away_team']}")
+                )
 
-                if not img_path:
-                    print("❌ Image match impossible -> article match ignoré.")
-                else:
-                    art = build_article_object(parsed, img_path, {
-                        "type": "match",
-                        "match": f"{match['home_team']} vs {match['away_team']}",
-                        "league": match.get("league", ""),
-                    })
-                    existing_articles.insert(0, art)
-                    save_articles(existing_articles)
-                    print(f"✅ Article match sauvegardé: {art['title']} (slug={art['slug']})")
+                art = build_article_object(parsed, img_path, {
+                    "type": "match",
+                    "match": f"{match['home_team']} vs {match['away_team']}",
+                    "league": match.get("league", ""),
+                })
+                existing_articles.insert(0, art)
+                save_articles(existing_articles)
+                print(f"✅ Article match sauvegardé: {art['title']} (slug={art['slug']})")
 
     # ---------------------------------------------------
     # 2) ARTICLE EVERGREEN
@@ -1077,11 +1193,11 @@ def main():
             "cinematic lighting, high detail, 16:9, no text, no watermark, no logos"
         )
 
-        img_path = generate_image_with_fallback(img_prompt, ARTICLE_IMG_DIR)
-
-        if not img_path:
-            print("❌ Image evergreen impossible -> evergreen ignoré.")
-            break
+        img_path = generate_image_with_fallback(
+            img_prompt,
+            ARTICLE_IMG_DIR,
+            fallback_title=parsed.get("title", "Guide Mr XPRONOS")
+        )
 
         art = build_article_object(parsed, img_path, {
             "type": "evergreen",
@@ -1122,11 +1238,11 @@ def main():
             f"premium dark and gold mood, realistic, no text, no watermark, 16:9"
         )
 
-        img_path = generate_image_with_fallback(img_prompt, CONSEIL_IMG_DIR)
-
-        if not img_path:
-            print("   ❌ Image conseil impossible, ignoré.")
-            continue
+        img_path = generate_image_with_fallback(
+            img_prompt,
+            CONSEIL_IMG_DIR,
+            fallback_title=parsed.get("title", "Conseil Mr XPRONOS")
+        )
 
         conseil_obj = build_conseil_object(parsed, img_path)
         existing_conseils.insert(0, conseil_obj)
