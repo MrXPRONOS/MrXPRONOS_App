@@ -673,6 +673,54 @@
       "final_score": 86.7
     },
     {
+      "id": 4659353,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T23:00:00+00:00",
+      "home_team": "Inter Miami II",
+      "away_team": "Huntsville",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "MLS Next Pro",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.4,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 5.4,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.067,
+        "goals_for": 0.4,
+        "goals_against": 2.8
+      },
+      "away_form": {
+        "form_score": 0.667,
+        "goals_for": 2.2,
+        "goals_against": 0.8
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 75
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 93.5,
+      "final_score": 86.4
+    },
+    {
       "id": 4683912,
       "date": "2026-04-07",
       "event_date": "2026-04-07T17:00:00+00:00",
@@ -719,54 +767,6 @@
       "verified_over": true,
       "ml_score": 75.6,
       "final_score": 86.4
-    },
-    {
-      "id": 4636710,
-      "date": "2026-04-18",
-      "event_date": "2026-04-18T16:00:00+00:00",
-      "home_team": "IFK Mariehamn",
-      "away_team": "Ilves",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Veikkausliiga",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 3,
-        "home_wins": 1.2,
-        "away_wins": 2.2,
-        "draws": 0.0,
-        "home_dominance": 0.353,
-        "away_dominance": 0.647,
-        "goals_avg": 3.53,
-        "over_25_prob": 0.667
-      },
-      "home_form": {
-        "form_score": 0.267,
-        "goals_for": 1.2,
-        "goals_against": 2.4
-      },
-      "away_form": {
-        "form_score": 0.667,
-        "goals_for": 2.4,
-        "goals_against": 1.4
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": true,
-        "confidence": 63
-      },
-      "xpronos_score": 86,
-      "badge": "💎 VIP ELITE",
-      "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 86.8,
-      "final_score": 86.2
     },
     {
       "id": 4626916,
@@ -1103,6 +1103,54 @@
       "verified_over": false,
       "ml_score": 91.0,
       "final_score": 85.8
+    },
+    {
+      "id": 4636710,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T16:00:00+00:00",
+      "home_team": "IFK Mariehamn",
+      "away_team": "Ilves",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Veikkausliiga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 2,
+      "away_score": 2,
+      "h2h_analysis": {
+        "total_matches": 3,
+        "home_wins": 1.2,
+        "away_wins": 2.2,
+        "draws": 0.0,
+        "home_dominance": 0.353,
+        "away_dominance": 0.647,
+        "goals_avg": 3.53,
+        "over_25_prob": 0.667
+      },
+      "home_form": {
+        "form_score": 0.267,
+        "goals_for": 1.2,
+        "goals_against": 2.4
+      },
+      "away_form": {
+        "form_score": 0.667,
+        "goals_for": 2.4,
+        "goals_against": 1.4
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 63
+      },
+      "xpronos_score": 86,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": false,
+      "ml_score": 84.3,
+      "final_score": 85.6
     },
     {
       "id": 4633003,
@@ -1537,6 +1585,54 @@
       "final_score": 84.4
     },
     {
+      "id": 4701835,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T16:30:00+00:00",
+      "home_team": "Al Garaf",
+      "away_team": "Al Talaba Baghdad",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Iraqi League",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 3,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.5,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 4.5,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.467,
+        "goals_for": 1.4,
+        "goals_against": 0.8
+      },
+      "away_form": {
+        "form_score": 0.867,
+        "goals_for": 1.4,
+        "goals_against": 0.6
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 75
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": false,
+      "ml_score": 85.3,
+      "final_score": 84.3
+    },
+    {
       "id": 4473053,
       "date": "2026-04-10",
       "event_date": "2026-04-10T15:00:00+00:00",
@@ -1633,6 +1729,102 @@
       "final_score": 84.2
     },
     {
+      "id": 4694822,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T15:00:00+00:00",
+      "home_team": "AEK Athens",
+      "away_team": "PAOK",
+      "home_logo": "assets/images/teams/sd-1024-v5.png",
+      "away_logo": "assets/images/away.webp",
+      "league": "Super League - Championship Group",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.0,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 5.0,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.667,
+        "goals_for": 1.8,
+        "goals_against": 1.6
+      },
+      "away_form": {
+        "form_score": 0.733,
+        "goals_for": 2.4,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 75
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 82.7,
+      "final_score": 83.7
+    },
+    {
+      "id": 4533006,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T15:00:00+00:00",
+      "home_team": "Enugu Rangers",
+      "away_team": "Enyimba Aba",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "NPFL - Regular Season",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.7,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 4.05,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.333,
+        "goals_for": 0.6,
+        "goals_against": 0.8
+      },
+      "away_form": {
+        "form_score": 0.867,
+        "goals_for": 2.2,
+        "goals_against": 0.6
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 75
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 82.4,
+      "final_score": 83.6
+    },
+    {
       "id": 4702375,
       "date": "2026-04-17",
       "event_date": "2026-04-17T20:00:00+00:00",
@@ -1679,6 +1871,102 @@
       "verified_over": false,
       "ml_score": 80.8,
       "final_score": 83.2
+    },
+    {
+      "id": 4702690,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T19:30:00+00:00",
+      "home_team": "Ureña SC",
+      "away_team": "Real Frontera",
+      "home_logo": "assets/images/teams/sd-13835-v1.png",
+      "away_logo": "assets/images/away.webp",
+      "league": "Liga FUTVE 2",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.2,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 3.3,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.4,
+        "goals_for": 1.4,
+        "goals_against": 1.2
+      },
+      "away_form": {
+        "form_score": 0.2,
+        "goals_for": 0.6,
+        "goals_against": 1.8
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 75
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 80.4,
+      "final_score": 83.1
+    },
+    {
+      "id": 4636161,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T14:30:00+00:00",
+      "home_team": "BK Häcken",
+      "away_team": "Gais",
+      "home_logo": "assets/images/teams/sd-1903-v3.png",
+      "away_logo": "assets/images/away.webp",
+      "league": "Allsvenskan",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.4,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 4.2,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.533,
+        "goals_for": 2.2,
+        "goals_against": 1.4
+      },
+      "away_form": {
+        "form_score": 0.467,
+        "goals_for": 1.4,
+        "goals_against": 1.4
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 75
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 79.9,
+      "final_score": 83.0
     },
     {
       "id": 4690276,
@@ -1825,54 +2113,6 @@
       "final_score": 83.0
     },
     {
-      "id": 4702690,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T19:30:00+00:00",
-      "home_team": "Ureña SC",
-      "away_team": "Real Frontera",
-      "home_logo": "assets/images/teams/sd-13835-v1.png",
-      "away_logo": "assets/images/away.webp",
-      "league": "Liga FUTVE 2",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 2.2,
-        "draws": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 3.3,
-        "over_25_prob": 1.0
-      },
-      "home_form": {
-        "form_score": 0.4,
-        "goals_for": 1.4,
-        "goals_against": 1.2
-      },
-      "away_form": {
-        "form_score": 0.2,
-        "goals_for": 0.6,
-        "goals_against": 1.8
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": true,
-        "confidence": 75
-      },
-      "xpronos_score": 84,
-      "badge": "💎 VIP ELITE",
-      "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 79.6,
-      "final_score": 82.9
-    },
-    {
       "id": 4461900,
       "date": "2026-04-11",
       "event_date": "2026-04-11T14:00:00+00:00",
@@ -1919,102 +2159,6 @@
       "verified_over": false,
       "ml_score": 78.3,
       "final_score": 82.6
-    },
-    {
-      "id": 4701835,
-      "date": "2026-04-18",
-      "event_date": "2026-04-18T16:30:00+00:00",
-      "home_team": "Al Garaf",
-      "away_team": "Al Talaba Baghdad",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Iraqi League",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 2.5,
-        "draws": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 4.5,
-        "over_25_prob": 1.0
-      },
-      "home_form": {
-        "form_score": 0.467,
-        "goals_for": 1.4,
-        "goals_against": 0.8
-      },
-      "away_form": {
-        "form_score": 0.867,
-        "goals_for": 1.4,
-        "goals_against": 0.6
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": true,
-        "confidence": 75
-      },
-      "xpronos_score": 84,
-      "badge": "💎 VIP ELITE",
-      "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 76.6,
-      "final_score": 82.2
-    },
-    {
-      "id": 4636161,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T14:30:00+00:00",
-      "home_team": "BK Häcken",
-      "away_team": "Gais",
-      "home_logo": "assets/images/teams/sd-1903-v3.png",
-      "away_logo": "assets/images/away.webp",
-      "league": "Allsvenskan",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 2.4,
-        "draws": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 4.2,
-        "over_25_prob": 1.0
-      },
-      "home_form": {
-        "form_score": 0.533,
-        "goals_for": 2.2,
-        "goals_against": 1.4
-      },
-      "away_form": {
-        "form_score": 0.467,
-        "goals_for": 1.4,
-        "goals_against": 1.4
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": true,
-        "confidence": 75
-      },
-      "xpronos_score": 84,
-      "badge": "💎 VIP ELITE",
-      "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 75.5,
-      "final_score": 81.9
     },
     {
       "id": 4700337,
@@ -2209,14 +2353,14 @@
       "final_score": 81.5
     },
     {
-      "id": 4694822,
+      "id": 4691909,
       "date": "2026-04-19",
-      "event_date": "2026-04-19T15:00:00+00:00",
-      "home_team": "AEK Athens",
-      "away_team": "PAOK",
-      "home_logo": "assets/images/teams/sd-1024-v5.png",
+      "event_date": "2026-04-19T11:30:00+00:00",
+      "home_team": "KAA Gent",
+      "away_team": "STVV",
+      "home_logo": "assets/images/home.webp",
       "away_logo": "assets/images/away.webp",
-      "league": "Super League - Championship Group",
+      "league": "Jupiler Pro League - Playoffs - Championship Group",
       "league_logo": null,
       "venue": "",
       "status": "Scheduled",
@@ -2225,22 +2369,22 @@
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
-        "away_wins": 2.0,
+        "away_wins": 2.7,
         "draws": 0.0,
         "home_dominance": 0.0,
         "away_dominance": 1.0,
-        "goals_avg": 5.0,
+        "goals_avg": 4.65,
         "over_25_prob": 1.0
       },
       "home_form": {
-        "form_score": 0.667,
-        "goals_for": 1.8,
-        "goals_against": 1.6
+        "form_score": 0.333,
+        "goals_for": 0.8,
+        "goals_against": 1.4
       },
       "away_form": {
-        "form_score": 0.733,
-        "goals_for": 2.4,
-        "goals_against": 1.2
+        "form_score": 0.4,
+        "goals_for": 1.0,
+        "goals_against": 1.4
       },
       "prediction": {
         "double_chance": "X2",
@@ -2253,7 +2397,7 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 73.0,
+      "ml_score": 72.9,
       "final_score": 81.2
     },
     {
@@ -2303,54 +2447,6 @@
       "verified_over": false,
       "ml_score": 72.9,
       "final_score": 81.2
-    },
-    {
-      "id": 4691909,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T11:30:00+00:00",
-      "home_team": "KAA Gent",
-      "away_team": "STVV",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Jupiler Pro League - Playoffs - Championship Group",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 2.7,
-        "draws": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 4.65,
-        "over_25_prob": 1.0
-      },
-      "home_form": {
-        "form_score": 0.333,
-        "goals_for": 0.8,
-        "goals_against": 1.4
-      },
-      "away_form": {
-        "form_score": 0.4,
-        "goals_for": 1.0,
-        "goals_against": 1.4
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": true,
-        "confidence": 75
-      },
-      "xpronos_score": 84,
-      "badge": "💎 VIP ELITE",
-      "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 72.2,
-      "final_score": 81.0
     },
     {
       "id": 4673077,
@@ -2449,54 +2545,6 @@
       "final_score": 80.2
     },
     {
-      "id": 4533006,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T15:00:00+00:00",
-      "home_team": "Enugu Rangers",
-      "away_team": "Enyimba Aba",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "NPFL - Regular Season",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 2.7,
-        "draws": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 4.05,
-        "over_25_prob": 1.0
-      },
-      "home_form": {
-        "form_score": 0.333,
-        "goals_for": 0.6,
-        "goals_against": 0.8
-      },
-      "away_form": {
-        "form_score": 0.867,
-        "goals_for": 2.2,
-        "goals_against": 0.6
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": true,
-        "confidence": 71
-      },
-      "xpronos_score": 84,
-      "badge": "💎 VIP ELITE",
-      "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 65.8,
-      "final_score": 79.5
-    },
-    {
       "id": 4702578,
       "date": "2026-04-19",
       "event_date": "2026-04-19T14:30:00+00:00",
@@ -2541,8 +2589,8 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 85.4,
-      "final_score": 79.1
+      "ml_score": 86.9,
+      "final_score": 79.5
     },
     {
       "id": 4628951,
@@ -2591,54 +2639,6 @@
       "verified_over": false,
       "ml_score": 63.2,
       "final_score": 78.8
-    },
-    {
-      "id": 4701750,
-      "date": "2026-04-18",
-      "event_date": "2026-04-18T16:50:00+00:00",
-      "home_team": "Maccabi Netanya",
-      "away_team": "SC Ashdod",
-      "home_logo": "assets/images/teams/sd-560-v7.png",
-      "away_logo": "assets/images/teams/sd-569-v1.png",
-      "league": "Premier League - Relegation Playoffs",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_wins": 1.0,
-        "away_wins": 0.0,
-        "draws": 0.0,
-        "home_dominance": 1.0,
-        "away_dominance": 0.0,
-        "goals_avg": 5.0,
-        "over_25_prob": 1.0
-      },
-      "home_form": {
-        "form_score": 0.267,
-        "goals_for": 1.6,
-        "goals_against": 1.6
-      },
-      "away_form": {
-        "form_score": 0.133,
-        "goals_for": 0.6,
-        "goals_against": 2.2
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": true,
-        "confidence": 72
-      },
-      "xpronos_score": 77,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 83.8,
-      "final_score": 78.7
     },
     {
       "id": 4682885,
@@ -2785,19 +2785,19 @@
       "final_score": 77.9
     },
     {
-      "id": 4701978,
+      "id": 4701750,
       "date": "2026-04-18",
-      "event_date": "2026-04-18T14:40:00+00:00",
-      "home_team": "Maccabi Haifa U19",
-      "away_team": "Hapoel Beer Sheva U19",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Youth League - Championship Round",
+      "event_date": "2026-04-18T16:50:00+00:00",
+      "home_team": "Maccabi Netanya",
+      "away_team": "SC Ashdod",
+      "home_logo": "assets/images/teams/sd-560-v7.png",
+      "away_logo": "assets/images/teams/sd-569-v1.png",
+      "league": "Premier League - Relegation Playoffs",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 2,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 1,
         "home_wins": 1.0,
@@ -2805,18 +2805,18 @@
         "draws": 0.0,
         "home_dominance": 1.0,
         "away_dominance": 0.0,
-        "goals_avg": 9.0,
+        "goals_avg": 5.0,
         "over_25_prob": 1.0
       },
       "home_form": {
-        "form_score": 0.867,
-        "goals_for": 2.8,
-        "goals_against": 0.4
+        "form_score": 0.267,
+        "goals_for": 1.6,
+        "goals_against": 1.6
       },
       "away_form": {
-        "form_score": 0.4,
-        "goals_for": 2.0,
-        "goals_against": 2.8
+        "form_score": 0.133,
+        "goals_for": 0.6,
+        "goals_against": 2.2
       },
       "prediction": {
         "double_chance": "1X",
@@ -2826,11 +2826,11 @@
       "xpronos_score": 77,
       "badge": "🔥 ULTRA SAFE",
       "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
+      "is_finished": true,
+      "verified_double": true,
       "verified_over": false,
-      "ml_score": 78.3,
-      "final_score": 77.3
+      "ml_score": 79.9,
+      "final_score": 77.7
     },
     {
       "id": 4667822,
@@ -2877,8 +2877,56 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 77.8,
-      "final_score": 77.2
+      "ml_score": 77.3,
+      "final_score": 77.1
+    },
+    {
+      "id": 4701978,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T14:40:00+00:00",
+      "home_team": "Maccabi Haifa U19",
+      "away_team": "Hapoel Beer Sheva U19",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Youth League - Championship Round",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 2,
+      "away_score": 3,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_wins": 1.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 9.0,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.867,
+        "goals_for": 2.8,
+        "goals_against": 0.4
+      },
+      "away_form": {
+        "form_score": 0.4,
+        "goals_for": 2.0,
+        "goals_against": 2.8
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 72
+      },
+      "xpronos_score": 77,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "vip",
+      "is_finished": true,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 77.5,
+      "final_score": 77.1
     },
     {
       "id": 4630801,
@@ -3021,8 +3069,8 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 71.6,
-      "final_score": 75.7
+      "ml_score": 73.3,
+      "final_score": 76.1
     },
     {
       "id": 4683907,
@@ -3073,6 +3121,54 @@
       "final_score": 75.4
     },
     {
+      "id": 4649987,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T21:15:00+00:00",
+      "home_team": "Club Guarani",
+      "away_team": "Sportivo Luqueño",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/teams/sd-8778-v3.png",
+      "league": "Copa de Primera - Apertura",
+      "league_logo": null,
+      "venue": "",
+      "status": "1st Half",
+      "home_score": 0,
+      "away_score": 0,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 1.0,
+        "home_dominance": 0.6,
+        "away_dominance": 0.0,
+        "goals_avg": 4.25,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.533,
+        "goals_for": 0.8,
+        "goals_against": 0.4
+      },
+      "away_form": {
+        "form_score": 0.267,
+        "goals_for": 1.6,
+        "goals_against": 2.0
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 65
+      },
+      "xpronos_score": 76,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 71.8,
+      "final_score": 75.0
+    },
+    {
       "id": 4656157,
       "date": "2026-04-18",
       "event_date": "2026-04-18T09:00:00+00:00",
@@ -3083,9 +3179,9 @@
       "league": "Youth League - Relegation Round",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 2,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 1,
         "home_wins": 0.0,
@@ -3114,10 +3210,10 @@
       "xpronos_score": 77,
       "badge": "🔥 ULTRA SAFE",
       "category": "vip",
-      "is_finished": false,
+      "is_finished": true,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 68.1,
+      "ml_score": 68.0,
       "final_score": 74.8
     },
     {
@@ -4561,52 +4657,52 @@
       "final_score": 63.9
     },
     {
-      "id": 4659346,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T20:00:00+00:00",
-      "home_team": "Los Angeles FC II",
-      "away_team": "The Town FC",
+      "id": 4697337,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T10:30:00+00:00",
+      "home_team": "Deportivo Recoleta Reserve",
+      "away_team": "2 De Mayo Reserves",
       "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "MLS Next Pro",
+      "away_logo": "assets/images/teams/sd-82232-v2.png",
+      "league": "División Reserva - Apertura",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 2.2,
+        "home_wins": 2.2,
+        "away_wins": 0.0,
         "draws": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 4.6,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 2.1,
         "over_25_prob": 0.5
       },
       "home_form": {
-        "form_score": 0.333,
-        "goals_for": 1.4,
-        "goals_against": 1.8
+        "form_score": 0.467,
+        "goals_for": 1.8,
+        "goals_against": 1.2
       },
       "away_form": {
-        "form_score": 0.467,
-        "goals_for": 1.6,
-        "goals_against": 1.0
+        "form_score": 0.333,
+        "goals_for": 0.6,
+        "goals_against": 2.0
       },
       "prediction": {
-        "double_chance": "X2",
+        "double_chance": "1X",
         "over_25": false,
         "confidence": 66
       },
       "xpronos_score": 64,
       "badge": "",
       "category": "pro",
-      "is_finished": false,
-      "verified_double": false,
+      "is_finished": true,
+      "verified_double": true,
       "verified_over": false,
-      "ml_score": 62.3,
-      "final_score": 63.6
+      "ml_score": 62.9,
+      "final_score": 63.7
     },
     {
       "id": 4486045,
@@ -4801,54 +4897,6 @@
       "final_score": 63.1
     },
     {
-      "id": 4686989,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T15:00:00+00:00",
-      "home_team": "Defence Force SC",
-      "away_team": "Awassa Kenema",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Premier League",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 2.2,
-        "draws": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 2.9,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.667,
-        "goals_for": 1.6,
-        "goals_against": 0.8
-      },
-      "away_form": {
-        "form_score": 0.267,
-        "goals_for": 1.0,
-        "goals_against": 1.4
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "confidence": 66
-      },
-      "xpronos_score": 64,
-      "badge": "",
-      "category": "pro",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 58.7,
-      "final_score": 62.7
-    },
-    {
       "id": 4689257,
       "date": "2026-04-04",
       "event_date": "2026-04-04T10:15:00+00:00",
@@ -4897,54 +4945,6 @@
       "final_score": 62.7
     },
     {
-      "id": 4649639,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T23:00:00+00:00",
-      "home_team": "CD FAS",
-      "away_team": "Cacahuatique",
-      "home_logo": "assets/images/teams/sd-7626-v1.png",
-      "away_logo": "assets/images/teams/sd-82035-v2.png",
-      "league": "Primera Division - Clausura",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 2.7,
-        "draws": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 2.55,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.667,
-        "goals_for": 2.2,
-        "goals_against": 1.2
-      },
-      "away_form": {
-        "form_score": 0.333,
-        "goals_for": 1.0,
-        "goals_against": 1.0
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "confidence": 66
-      },
-      "xpronos_score": 64,
-      "badge": "",
-      "category": "pro",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 57.7,
-      "final_score": 62.4
-    },
-    {
       "id": 4637387,
       "date": "2026-04-11",
       "event_date": "2026-04-11T14:00:00+00:00",
@@ -4991,6 +4991,54 @@
       "verified_over": true,
       "ml_score": 81.5,
       "final_score": 62.4
+    },
+    {
+      "id": 4450933,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T17:30:00+00:00",
+      "home_team": "Gyori Eto FC",
+      "away_team": "Ferencvaros",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "OTP Bank Liga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.2,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 4.7,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.867,
+        "goals_for": 2.4,
+        "goals_against": 1.0
+      },
+      "away_form": {
+        "form_score": 1.0,
+        "goals_for": 2.2,
+        "goals_against": 0.8
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 56.8,
+      "final_score": 62.2
     },
     {
       "id": 4628959,
@@ -5089,14 +5137,14 @@
       "final_score": 62.2
     },
     {
-      "id": 4450933,
+      "id": 4686989,
       "date": "2026-04-19",
-      "event_date": "2026-04-19T17:30:00+00:00",
-      "home_team": "Gyori Eto FC",
-      "away_team": "Ferencvaros",
+      "event_date": "2026-04-19T15:00:00+00:00",
+      "home_team": "Defence Force SC",
+      "away_team": "Awassa Kenema",
       "home_logo": "assets/images/home.webp",
       "away_logo": "assets/images/away.webp",
-      "league": "OTP Bank Liga",
+      "league": "Premier League",
       "league_logo": null,
       "venue": "",
       "status": "Scheduled",
@@ -5109,18 +5157,18 @@
         "draws": 0.0,
         "home_dominance": 0.0,
         "away_dominance": 1.0,
-        "goals_avg": 4.7,
+        "goals_avg": 2.9,
         "over_25_prob": 0.5
       },
       "home_form": {
-        "form_score": 0.867,
-        "goals_for": 2.4,
-        "goals_against": 1.0
+        "form_score": 0.667,
+        "goals_for": 1.6,
+        "goals_against": 0.8
       },
       "away_form": {
-        "form_score": 1.0,
-        "goals_for": 2.2,
-        "goals_against": 0.8
+        "form_score": 0.267,
+        "goals_for": 1.0,
+        "goals_against": 1.4
       },
       "prediction": {
         "double_chance": "X2",
@@ -5133,7 +5181,7 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 56.1,
+      "ml_score": 55.9,
       "final_score": 62.0
     },
     {
@@ -5183,54 +5231,6 @@
       "verified_over": false,
       "ml_score": 55.1,
       "final_score": 61.8
-    },
-    {
-      "id": 4697337,
-      "date": "2026-04-18",
-      "event_date": "2026-04-18T10:30:00+00:00",
-      "home_team": "Deportivo Recoleta Reserve",
-      "away_team": "2 De Mayo Reserves",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/teams/sd-82232-v2.png",
-      "league": "División Reserva - Apertura",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 2.2,
-        "away_wins": 0.0,
-        "draws": 0.0,
-        "home_dominance": 1.0,
-        "away_dominance": 0.0,
-        "goals_avg": 2.1,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.467,
-        "goals_for": 1.8,
-        "goals_against": 1.2
-      },
-      "away_form": {
-        "form_score": 0.333,
-        "goals_for": 0.6,
-        "goals_against": 2.0
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 66
-      },
-      "xpronos_score": 64,
-      "badge": "",
-      "category": "pro",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 54.8,
-      "final_score": 61.7
     },
     {
       "id": 4665715,
@@ -5329,6 +5329,54 @@
       "final_score": 61.2
     },
     {
+      "id": 4659346,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T20:00:00+00:00",
+      "home_team": "Los Angeles FC II",
+      "away_team": "The Town FC",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "MLS Next Pro",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.2,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 4.6,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.333,
+        "goals_for": 1.4,
+        "goals_against": 1.8
+      },
+      "away_form": {
+        "form_score": 0.467,
+        "goals_for": 1.6,
+        "goals_against": 1.0
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 52.1,
+      "final_score": 61.0
+    },
+    {
       "id": 4659359,
       "date": "2026-04-17",
       "event_date": "2026-04-17T23:00:00+00:00",
@@ -5377,54 +5425,6 @@
       "final_score": 61.0
     },
     {
-      "id": 4700810,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T16:00:00+00:00",
-      "home_team": "Radnicki 1923",
-      "away_team": "Radnicki NIS",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Super Liga - Relegation",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 2.2,
-        "away_wins": 0.0,
-        "draws": 0.0,
-        "home_dominance": 1.0,
-        "away_dominance": 0.0,
-        "goals_avg": 2.1,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.267,
-        "goals_for": 1.0,
-        "goals_against": 1.4
-      },
-      "away_form": {
-        "form_score": 0.267,
-        "goals_for": 1.0,
-        "goals_against": 1.4
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 66
-      },
-      "xpronos_score": 64,
-      "badge": "",
-      "category": "pro",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 51.7,
-      "final_score": 60.9
-    },
-    {
       "id": 4656911,
       "date": "2026-04-12",
       "event_date": "2026-04-12T01:30:00+00:00",
@@ -5471,6 +5471,54 @@
       "verified_over": true,
       "ml_score": 75.7,
       "final_score": 60.9
+    },
+    {
+      "id": 4649639,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T23:00:00+00:00",
+      "home_team": "CD FAS",
+      "away_team": "Cacahuatique",
+      "home_logo": "assets/images/teams/sd-7626-v1.png",
+      "away_logo": "assets/images/teams/sd-82035-v2.png",
+      "league": "Primera Division - Clausura",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.7,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 2.55,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.667,
+        "goals_for": 2.2,
+        "goals_against": 1.2
+      },
+      "away_form": {
+        "form_score": 0.333,
+        "goals_for": 1.0,
+        "goals_against": 1.0
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 50.7,
+      "final_score": 60.7
     },
     {
       "id": 4698189,
@@ -5569,6 +5617,54 @@
       "final_score": 60.6
     },
     {
+      "id": 4700810,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T16:00:00+00:00",
+      "home_team": "Radnicki 1923",
+      "away_team": "Radnicki NIS",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Super Liga - Relegation",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 2.2,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 2.1,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.267,
+        "goals_for": 1.0,
+        "goals_against": 1.4
+      },
+      "away_form": {
+        "form_score": 0.267,
+        "goals_for": 1.0,
+        "goals_against": 1.4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 47.9,
+      "final_score": 60.0
+    },
+    {
       "id": 4665587,
       "date": "2026-04-18",
       "event_date": "2026-04-18T12:00:00+00:00",
@@ -5579,9 +5675,9 @@
       "league": "Super League 2 - Relegation/Promotion",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 4,
+      "away_score": 3,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 2.5,
@@ -5610,11 +5706,11 @@
       "xpronos_score": 64,
       "badge": "",
       "category": "pro",
-      "is_finished": false,
-      "verified_double": false,
+      "is_finished": true,
+      "verified_double": true,
       "verified_over": false,
-      "ml_score": 49.8,
-      "final_score": 60.5
+      "ml_score": 47.8,
+      "final_score": 60.0
     },
     {
       "id": 4668515,
@@ -6001,6 +6097,54 @@
       "final_score": 59.3
     },
     {
+      "id": 4686784,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T12:00:00+00:00",
+      "home_team": "Nebitci",
+      "away_team": "FC Asgabat",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Yokary Liga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 0,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 1.5,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.667,
+        "goals_for": 0.5,
+        "goals_against": 0.0
+      },
+      "away_form": {
+        "form_score": 0.467,
+        "goals_for": 1.0,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 68
+      },
+      "xpronos_score": 57,
+      "badge": "",
+      "category": "simple",
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": false,
+      "ml_score": 65.1,
+      "final_score": 59.0
+    },
+    {
       "id": 4539668,
       "date": "2026-04-04",
       "event_date": "2026-04-04T14:00:00+00:00",
@@ -6095,54 +6239,6 @@
       "verified_over": false,
       "ml_score": 67.5,
       "final_score": 58.9
-    },
-    {
-      "id": 4686784,
-      "date": "2026-04-18",
-      "event_date": "2026-04-18T12:00:00+00:00",
-      "home_team": "Nebitci",
-      "away_team": "FC Asgabat",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Yokary Liga",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_wins": 1.5,
-        "away_wins": 0.0,
-        "draws": 0.0,
-        "home_dominance": 1.0,
-        "away_dominance": 0.0,
-        "goals_avg": 1.5,
-        "over_25_prob": 0.0
-      },
-      "home_form": {
-        "form_score": 0.667,
-        "goals_for": 0.5,
-        "goals_against": 0.0
-      },
-      "away_form": {
-        "form_score": 0.467,
-        "goals_for": 1.0,
-        "goals_against": 1.2
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 68
-      },
-      "xpronos_score": 57,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 64.2,
-      "final_score": 58.8
     },
     {
       "id": 4694994,
@@ -6577,6 +6673,54 @@
       "final_score": 57.5
     },
     {
+      "id": 4700807,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T15:00:00+00:00",
+      "home_team": "FK Crvena zvezda",
+      "away_team": "Vojvodina",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/teams/sd-5447-v1.png",
+      "league": "Super Liga - Championship Round",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 4,
+      "away_score": 1,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.6,
+        "goals_avg": 3.75,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.8,
+        "goals_for": 2.6,
+        "goals_against": 1.8
+      },
+      "away_form": {
+        "form_score": 0.667,
+        "goals_for": 1.8,
+        "goals_against": 1.4
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 56,
+      "badge": "",
+      "category": "simple",
+      "is_finished": true,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 61.4,
+      "final_score": 57.4
+    },
+    {
       "id": 4455480,
       "date": "2026-04-07",
       "event_date": "2026-04-07T18:45:00+00:00",
@@ -6669,56 +6813,8 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 57.2,
-      "final_score": 56.3
-    },
-    {
-      "id": 4700807,
-      "date": "2026-04-18",
-      "event_date": "2026-04-18T15:00:00+00:00",
-      "home_team": "FK Crvena zvezda",
-      "away_team": "Vojvodina",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/teams/sd-5447-v1.png",
-      "league": "Super Liga - Championship Round",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 1.5,
-        "draws": 1.0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.6,
-        "goals_avg": 3.75,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.8,
-        "goals_for": 2.6,
-        "goals_against": 1.8
-      },
-      "away_form": {
-        "form_score": 0.667,
-        "goals_for": 1.8,
-        "goals_against": 1.4
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "confidence": 56
-      },
-      "xpronos_score": 56,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 57.2,
-      "final_score": 56.3
+      "ml_score": 58.8,
+      "final_score": 56.7
     },
     {
       "id": 4682887,
@@ -6913,6 +7009,54 @@
       "final_score": 56.0
     },
     {
+      "id": 4691911,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T16:15:00+00:00",
+      "home_team": "Charleroi",
+      "away_team": "Standard de Liège",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/teams/sd-1170-v1.png",
+      "league": "Jupiler Pro League - Playoffs - Conference League Group",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 2,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.6,
+        "goals_avg": 4.0,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 1.6,
+        "goals_against": 1.4
+      },
+      "away_form": {
+        "form_score": 0.4,
+        "goals_for": 1.6,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 56,
+      "badge": "",
+      "category": "simple",
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": false,
+      "ml_score": 54.9,
+      "final_score": 55.7
+    },
+    {
       "id": 4455816,
       "date": "2026-04-11",
       "event_date": "2026-04-11T14:00:00+00:00",
@@ -6961,6 +7105,102 @@
       "final_score": 55.6
     },
     {
+      "id": 4656722,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T21:30:00+00:00",
+      "home_team": "San Marcos",
+      "away_team": "Cobreloa",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "First Division B",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.6,
+        "goals_avg": 3.0,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.533,
+        "goals_for": 1.4,
+        "goals_against": 1.6
+      },
+      "away_form": {
+        "form_score": 0.6,
+        "goals_for": 1.6,
+        "goals_against": 0.8
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 56,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 53.5,
+      "final_score": 55.4
+    },
+    {
+      "id": 4666094,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T19:00:00+00:00",
+      "home_team": "Mushuc Runa",
+      "away_team": "Tecnico Universitario",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Liga Pro",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 0,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.2,
+        "draws": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.545,
+        "goals_avg": 2.6,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 1.0,
+        "goals_against": 0.4
+      },
+      "away_form": {
+        "form_score": 0.267,
+        "goals_for": 1.2,
+        "goals_against": 1.8
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 52,
+      "badge": "",
+      "category": "simple",
+      "is_finished": true,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 65.7,
+      "final_score": 55.4
+    },
+    {
       "id": 4632843,
       "date": "2026-04-12",
       "event_date": "2026-04-12T21:30:00+00:00",
@@ -7007,150 +7247,6 @@
       "verified_over": true,
       "ml_score": 73.9,
       "final_score": 55.2
-    },
-    {
-      "id": 4666094,
-      "date": "2026-04-18",
-      "event_date": "2026-04-18T19:00:00+00:00",
-      "home_team": "Mushuc Runa",
-      "away_team": "Tecnico Universitario",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Liga Pro",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 1.2,
-        "draws": 1.0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.545,
-        "goals_avg": 2.6,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.6,
-        "goals_for": 1.0,
-        "goals_against": 0.4
-      },
-      "away_form": {
-        "form_score": 0.267,
-        "goals_for": 1.2,
-        "goals_against": 1.8
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "confidence": 56
-      },
-      "xpronos_score": 52,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 64.4,
-      "final_score": 55.1
-    },
-    {
-      "id": 4691911,
-      "date": "2026-04-18",
-      "event_date": "2026-04-18T16:15:00+00:00",
-      "home_team": "Charleroi",
-      "away_team": "Standard de Liège",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/teams/sd-1170-v1.png",
-      "league": "Jupiler Pro League - Playoffs - Conference League Group",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 1.5,
-        "draws": 1.0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.6,
-        "goals_avg": 4.0,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.6,
-        "goals_for": 1.6,
-        "goals_against": 1.4
-      },
-      "away_form": {
-        "form_score": 0.4,
-        "goals_for": 1.6,
-        "goals_against": 1.2
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "confidence": 56
-      },
-      "xpronos_score": 56,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 52.4,
-      "final_score": 55.1
-    },
-    {
-      "id": 4702930,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T21:00:00+00:00",
-      "home_team": "Atlético Balboa",
-      "away_team": "CD Cruzeiro",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/teams/sd-85594-v2.png",
-      "league": "Segunda División - Quarter Finals",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 1.5,
-        "away_wins": 0.0,
-        "draws": 1.2,
-        "home_dominance": 0.556,
-        "away_dominance": 0.0,
-        "goals_avg": 1.5,
-        "over_25_prob": 0.0
-      },
-      "home_form": {
-        "form_score": 0.6,
-        "goals_for": 1.2,
-        "goals_against": 1.4
-      },
-      "away_form": {
-        "form_score": 0.333,
-        "goals_for": 0.8,
-        "goals_against": 1.2
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 61
-      },
-      "xpronos_score": 52,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 64.0,
-      "final_score": 55.0
     },
     {
       "id": 4690331,
@@ -7247,6 +7343,54 @@
       "verified_over": true,
       "ml_score": 84.2,
       "final_score": 54.8
+    },
+    {
+      "id": 4702930,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T21:00:00+00:00",
+      "home_team": "Atlético Balboa",
+      "away_team": "CD Cruzeiro",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/teams/sd-85594-v2.png",
+      "league": "Segunda División - Quarter Finals",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 1.2,
+        "home_dominance": 0.556,
+        "away_dominance": 0.0,
+        "goals_avg": 1.5,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 1.2,
+        "goals_against": 1.4
+      },
+      "away_form": {
+        "form_score": 0.333,
+        "goals_for": 0.8,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 61
+      },
+      "xpronos_score": 52,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 62.0,
+      "final_score": 54.5
     },
     {
       "id": 4689890,
@@ -7391,54 +7535,6 @@
       "verified_over": true,
       "ml_score": 60.9,
       "final_score": 54.2
-    },
-    {
-      "id": 4691166,
-      "date": "2026-04-18",
-      "event_date": "2026-04-18T14:00:00+00:00",
-      "home_team": "Bangor Fc",
-      "away_team": "Carrick Rangers",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Premiership - Championship / Relegation Round - Relegation",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 1.5,
-        "draws": 1.5,
-        "home_dominance": 0.0,
-        "away_dominance": 0.5,
-        "goals_avg": 2.25,
-        "over_25_prob": 0.0
-      },
-      "home_form": {
-        "form_score": 0.267,
-        "goals_for": 0.4,
-        "goals_against": 0.8
-      },
-      "away_form": {
-        "form_score": 0.333,
-        "goals_for": 2.0,
-        "goals_against": 1.4
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "confidence": 61
-      },
-      "xpronos_score": 49,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 69.0,
-      "final_score": 54.0
     },
     {
       "id": 4698624,
@@ -7729,6 +7825,54 @@
       "final_score": 53.5
     },
     {
+      "id": 4691166,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T14:00:00+00:00",
+      "home_team": "Bangor Fc",
+      "away_team": "Carrick Rangers",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Premiership - Championship / Relegation Round - Relegation",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 0,
+      "away_score": 3,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.5,
+        "goals_avg": 2.25,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.267,
+        "goals_for": 0.4,
+        "goals_against": 0.8
+      },
+      "away_form": {
+        "form_score": 0.333,
+        "goals_for": 2.0,
+        "goals_against": 1.4
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 61
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": false,
+      "ml_score": 66.3,
+      "final_score": 53.3
+    },
+    {
       "id": 4685364,
       "date": "2026-04-19",
       "event_date": "2026-04-19T18:00:00+00:00",
@@ -7773,56 +7917,8 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 66.4,
-      "final_score": 53.4
-    },
-    {
-      "id": 4506957,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T12:30:00+00:00",
-      "home_team": "Trento",
-      "away_team": "Renate",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Serie C",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 1.0,
-        "away_wins": 0.0,
-        "draws": 1.0,
-        "home_dominance": 0.5,
-        "away_dominance": 0.0,
-        "goals_avg": 1.5,
-        "over_25_prob": 0.0
-      },
-      "home_form": {
-        "form_score": 0.533,
-        "goals_for": 1.8,
-        "goals_against": 1.4
-      },
-      "away_form": {
-        "form_score": 0.867,
-        "goals_for": 2.2,
-        "goals_against": 0.4
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 61
-      },
-      "xpronos_score": 49,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 63.3,
-      "final_score": 52.6
+      "ml_score": 63.9,
+      "final_score": 52.7
     },
     {
       "id": 4672479,
@@ -8017,6 +8113,54 @@
       "final_score": 52.1
     },
     {
+      "id": 4680509,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T13:30:00+00:00",
+      "home_team": "ZP Sport Podbrezova",
+      "away_team": "Dunajska Streda",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Niké liga - Playoffs - Championship Round",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 2,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.0,
+        "draws": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.5,
+        "goals_avg": 1.5,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.467,
+        "goals_for": 2.2,
+        "goals_against": 2.4
+      },
+      "away_form": {
+        "form_score": 0.733,
+        "goals_for": 1.4,
+        "goals_against": 0.0
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": false,
+      "ml_score": 60.3,
+      "final_score": 51.8
+    },
+    {
       "id": 4629615,
       "date": "2026-04-07",
       "event_date": "2026-04-07T17:30:00+00:00",
@@ -8063,6 +8207,54 @@
       "verified_over": false,
       "ml_score": 81.1,
       "final_score": 51.8
+    },
+    {
+      "id": 4701774,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T17:00:00+00:00",
+      "home_team": "Beitar Jerusalem",
+      "away_team": "Maccabi Haifa",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Premier League - Championship Round",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.2,
+        "draws": 1.2,
+        "home_dominance": 0.0,
+        "away_dominance": 0.5,
+        "goals_avg": 1.8,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.733,
+        "goals_for": 2.0,
+        "goals_against": 1.0
+      },
+      "away_form": {
+        "form_score": 0.8,
+        "goals_for": 4.2,
+        "goals_against": 1.4
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 59.6,
+      "final_score": 51.6
     },
     {
       "id": 4689285,
@@ -8113,38 +8305,38 @@
       "final_score": 51.4
     },
     {
-      "id": 4680509,
+      "id": 4664901,
       "date": "2026-04-18",
-      "event_date": "2026-04-18T13:30:00+00:00",
-      "home_team": "ZP Sport Podbrezova",
-      "away_team": "Dunajska Streda",
+      "event_date": "2026-04-18T20:00:00+00:00",
+      "home_team": "Forge FC",
+      "away_team": "Cavalry",
       "home_logo": "assets/images/home.webp",
       "away_logo": "assets/images/away.webp",
-      "league": "Niké liga - Playoffs - Championship Round",
+      "league": "Canadian Premier League",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "2nd Half",
+      "home_score": 0,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
-        "away_wins": 1.0,
-        "draws": 1.0,
+        "away_wins": 1.2,
+        "draws": 1.2,
         "home_dominance": 0.0,
         "away_dominance": 0.5,
-        "goals_avg": 1.5,
+        "goals_avg": 4.2,
         "over_25_prob": 0.5
       },
       "home_form": {
-        "form_score": 0.467,
-        "goals_for": 2.2,
-        "goals_against": 2.4
+        "form_score": 0.4,
+        "goals_for": 1.4,
+        "goals_against": 1.8
       },
       "away_form": {
-        "form_score": 0.733,
-        "goals_for": 1.4,
-        "goals_against": 0.0
+        "form_score": 0.6,
+        "goals_for": 2.0,
+        "goals_against": 1.4
       },
       "prediction": {
         "double_chance": "X2",
@@ -8157,8 +8349,56 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 58.3,
-      "final_score": 51.3
+      "ml_score": 57.5,
+      "final_score": 51.1
+    },
+    {
+      "id": 4506957,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T12:30:00+00:00",
+      "home_team": "Trento",
+      "away_team": "Renate",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Serie C",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.0,
+        "away_wins": 0.0,
+        "draws": 1.0,
+        "home_dominance": 0.5,
+        "away_dominance": 0.0,
+        "goals_avg": 1.5,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.533,
+        "goals_for": 1.8,
+        "goals_against": 1.4
+      },
+      "away_form": {
+        "form_score": 0.867,
+        "goals_for": 2.2,
+        "goals_against": 0.4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 61
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 57.0,
+      "final_score": 51.0
     },
     {
       "id": 4686879,
@@ -8497,54 +8737,6 @@
       "final_score": 50.0
     },
     {
-      "id": 4701774,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T17:00:00+00:00",
-      "home_team": "Beitar Jerusalem",
-      "away_team": "Maccabi Haifa",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Premier League - Championship Round",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 1.2,
-        "draws": 1.2,
-        "home_dominance": 0.0,
-        "away_dominance": 0.5,
-        "goals_avg": 1.8,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.733,
-        "goals_for": 2.0,
-        "goals_against": 1.0
-      },
-      "away_form": {
-        "form_score": 0.8,
-        "goals_for": 4.2,
-        "goals_against": 1.4
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "confidence": 56
-      },
-      "xpronos_score": 49,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 52.6,
-      "final_score": 49.9
-    },
-    {
       "id": 4633942,
       "date": "2026-04-10",
       "event_date": "2026-04-10T18:45:00+00:00",
@@ -8593,52 +8785,52 @@
       "final_score": 49.9
     },
     {
-      "id": 4685155,
-      "date": "2026-04-04",
-      "event_date": "2026-04-04T15:00:00+00:00",
-      "home_team": "WSG Tirol",
-      "away_team": "Wolfsberger AC",
-      "home_logo": "assets/images/teams/sd-10763-v1.png",
-      "away_logo": "assets/images/teams/sd-9376-v1.png",
-      "league": "Bundesliga - Relegation Playoffs",
+      "id": 4640904,
+      "date": "2026-04-19",
+      "event_date": "2026-04-19T19:00:00+00:00",
+      "home_team": "Mixco",
+      "away_team": "Aurora FC",
+      "home_logo": "assets/images/teams/sd-11307-v2.png",
+      "away_logo": "assets/images/away.webp",
+      "league": "Liga Nacional - Clausura",
       "league_logo": null,
       "venue": "",
-      "status": "Ended",
-      "home_score": 3,
-      "away_score": 1,
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
       "h2h_analysis": {
         "total_matches": 2,
-        "home_wins": 1.0,
-        "away_wins": 0.0,
-        "draws": 1.2,
-        "home_dominance": 0.455,
-        "away_dominance": 0.0,
-        "goals_avg": 3.2,
-        "over_25_prob": 0.5
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.5,
+        "goals_avg": 2.25,
+        "over_25_prob": 0.0
       },
       "home_form": {
         "form_score": 0.667,
-        "goals_for": 2.6,
+        "goals_for": 1.8,
         "goals_against": 1.2
       },
       "away_form": {
-        "form_score": 0.6,
-        "goals_for": 2.4,
-        "goals_against": 1.2
+        "form_score": 0.333,
+        "goals_for": 0.4,
+        "goals_against": 0.6
       },
       "prediction": {
-        "double_chance": "1X",
+        "double_chance": "X2",
         "over_25": false,
-        "confidence": 56
+        "confidence": 61
       },
-      "xpronos_score": 45,
+      "xpronos_score": 49,
       "badge": "",
       "category": "simple",
-      "is_finished": true,
-      "verified_double": true,
+      "is_finished": false,
+      "verified_double": false,
       "verified_over": false,
-      "ml_score": 60.2,
-      "final_score": 48.8
+      "ml_score": 48.5,
+      "final_score": 48.9
     },
     {
       "id": 4621612,
@@ -8685,56 +8877,56 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 58.8,
-      "final_score": 48.5
+      "ml_score": 60.4,
+      "final_score": 48.9
     },
     {
-      "id": 4640904,
-      "date": "2026-04-19",
-      "event_date": "2026-04-19T19:00:00+00:00",
-      "home_team": "Mixco",
-      "away_team": "Aurora FC",
-      "home_logo": "assets/images/teams/sd-11307-v2.png",
-      "away_logo": "assets/images/away.webp",
-      "league": "Liga Nacional - Clausura",
+      "id": 4685155,
+      "date": "2026-04-04",
+      "event_date": "2026-04-04T15:00:00+00:00",
+      "home_team": "WSG Tirol",
+      "away_team": "Wolfsberger AC",
+      "home_logo": "assets/images/teams/sd-10763-v1.png",
+      "away_logo": "assets/images/teams/sd-9376-v1.png",
+      "league": "Bundesliga - Relegation Playoffs",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 3,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 1.5,
-        "draws": 1.5,
-        "home_dominance": 0.0,
-        "away_dominance": 0.5,
-        "goals_avg": 2.25,
-        "over_25_prob": 0.0
+        "home_wins": 1.0,
+        "away_wins": 0.0,
+        "draws": 1.2,
+        "home_dominance": 0.455,
+        "away_dominance": 0.0,
+        "goals_avg": 3.2,
+        "over_25_prob": 0.5
       },
       "home_form": {
         "form_score": 0.667,
-        "goals_for": 1.8,
+        "goals_for": 2.6,
         "goals_against": 1.2
       },
       "away_form": {
-        "form_score": 0.333,
-        "goals_for": 0.4,
-        "goals_against": 0.6
+        "form_score": 0.6,
+        "goals_for": 2.4,
+        "goals_against": 1.2
       },
       "prediction": {
-        "double_chance": "X2",
+        "double_chance": "1X",
         "over_25": false,
-        "confidence": 61
+        "confidence": 56
       },
-      "xpronos_score": 49,
+      "xpronos_score": 45,
       "badge": "",
       "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
+      "is_finished": true,
+      "verified_double": true,
       "verified_over": false,
-      "ml_score": 46.2,
-      "final_score": 48.3
+      "ml_score": 60.2,
+      "final_score": 48.8
     },
     {
       "id": 4691932,
@@ -8877,8 +9069,56 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 65.4,
-      "final_score": 47.9
+      "ml_score": 64.0,
+      "final_score": 47.5
+    },
+    {
+      "id": 4673088,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T12:15:00+00:00",
+      "home_team": "Kuching City FC",
+      "away_team": "Selangor",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Malaysia Cup",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 0,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.0,
+        "away_wins": 0.0,
+        "draws": 1.5,
+        "home_dominance": 0.4,
+        "away_dominance": 0.0,
+        "goals_avg": 3.0,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.733,
+        "goals_for": 1.8,
+        "goals_against": 0.6
+      },
+      "away_form": {
+        "form_score": 0.6,
+        "goals_for": 1.6,
+        "goals_against": 0.6
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 42,
+      "badge": "",
+      "category": "simple",
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": false,
+      "ml_score": 64.2,
+      "final_score": 47.5
     },
     {
       "id": 4700097,
@@ -8927,54 +9167,6 @@
       "verified_over": false,
       "ml_score": 62.0,
       "final_score": 47.0
-    },
-    {
-      "id": 4673088,
-      "date": "2026-04-18",
-      "event_date": "2026-04-18T12:15:00+00:00",
-      "home_team": "Kuching City FC",
-      "away_team": "Selangor",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Malaysia Cup",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 1.0,
-        "away_wins": 0.0,
-        "draws": 1.5,
-        "home_dominance": 0.4,
-        "away_dominance": 0.0,
-        "goals_avg": 3.0,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.733,
-        "goals_for": 1.8,
-        "goals_against": 0.6
-      },
-      "away_form": {
-        "form_score": 0.6,
-        "goals_for": 1.6,
-        "goals_against": 0.6
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 56
-      },
-      "xpronos_score": 42,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 61.2,
-      "final_score": 46.8
     },
     {
       "id": 4672466,
@@ -9035,9 +9227,9 @@
       "league": "Eliteserien",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 0,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -9066,11 +9258,59 @@
       "xpronos_score": 42,
       "badge": "",
       "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
+      "is_finished": true,
+      "verified_double": true,
       "verified_over": false,
-      "ml_score": 59.7,
-      "final_score": 46.4
+      "ml_score": 59.1,
+      "final_score": 46.3
+    },
+    {
+      "id": 4699101,
+      "date": "2026-04-18",
+      "event_date": "2026-04-18T18:00:00+00:00",
+      "home_team": "Sao Caetano",
+      "away_team": "Jacareí",
+      "home_logo": "assets/images/home.webp",
+      "away_logo": "assets/images/away.webp",
+      "league": "Paulista A4 - Quarter Finals",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 0,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.0,
+        "away_wins": 0.0,
+        "draws": 1.5,
+        "home_dominance": 0.4,
+        "away_dominance": 0.0,
+        "goals_avg": 1.5,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.467,
+        "goals_for": 1.6,
+        "goals_against": 1.4
+      },
+      "away_form": {
+        "form_score": 0.467,
+        "goals_for": 0.4,
+        "goals_against": 0.6
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 42,
+      "badge": "",
+      "category": "simple",
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": false,
+      "ml_score": 57.2,
+      "final_score": 45.8
     },
     {
       "id": 4445164,
@@ -9217,11 +9457,11 @@
       "final_score": 44.6
     },
     {
-      "id": 4699101,
+      "id": 4699099,
       "date": "2026-04-18",
-      "event_date": "2026-04-18T18:00:00+00:00",
-      "home_team": "Sao Caetano",
-      "away_team": "Jacareí",
+      "event_date": "2026-04-18T22:00:00+00:00",
+      "home_team": "Penapolense",
+      "away_team": "Taquaritinga",
       "home_logo": "assets/images/home.webp",
       "away_logo": "assets/images/away.webp",
       "league": "Paulista A4 - Quarter Finals",
@@ -9232,26 +9472,26 @@
       "away_score": null,
       "h2h_analysis": {
         "total_matches": 2,
-        "home_wins": 1.0,
-        "away_wins": 0.0,
+        "home_wins": 0.0,
+        "away_wins": 1.0,
         "draws": 1.5,
-        "home_dominance": 0.4,
-        "away_dominance": 0.0,
-        "goals_avg": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.4,
+        "goals_avg": 3.0,
         "over_25_prob": 0.5
       },
       "home_form": {
-        "form_score": 0.467,
-        "goals_for": 1.6,
-        "goals_against": 1.4
+        "form_score": 0.6,
+        "goals_for": 2.0,
+        "goals_against": 0.4
       },
       "away_form": {
-        "form_score": 0.467,
-        "goals_for": 0.4,
-        "goals_against": 0.6
+        "form_score": 0.333,
+        "goals_for": 0.8,
+        "goals_against": 1.0
       },
       "prediction": {
-        "double_chance": "1X",
+        "double_chance": "X2",
         "over_25": false,
         "confidence": 56
       },
@@ -9261,7 +9501,7 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 52.2,
+      "ml_score": 51.9,
       "final_score": 44.5
     }
   ],
@@ -9988,6 +10228,54 @@
         "final_score": 59.4
       },
       {
+        "id": 4686784,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T12:00:00+00:00",
+        "home_team": "Nebitci",
+        "away_team": "FC Asgabat",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "Yokary Liga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 1.5,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.667,
+          "goals_for": 0.5,
+          "goals_against": 0.0
+        },
+        "away_form": {
+          "form_score": 0.467,
+          "goals_for": 1.0,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 68
+        },
+        "xpronos_score": 57,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 65.1,
+        "final_score": 59.0
+      },
+      {
         "id": 4539668,
         "date": "2026-04-04",
         "event_date": "2026-04-04T14:00:00+00:00",
@@ -10082,54 +10370,6 @@
         "verified_over": false,
         "ml_score": 67.5,
         "final_score": 58.9
-      },
-      {
-        "id": 4686784,
-        "date": "2026-04-18",
-        "event_date": "2026-04-18T12:00:00+00:00",
-        "home_team": "Nebitci",
-        "away_team": "FC Asgabat",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "Yokary Liga",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_wins": 1.5,
-          "away_wins": 0.0,
-          "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 1.5,
-          "over_25_prob": 0.0
-        },
-        "home_form": {
-          "form_score": 0.667,
-          "goals_for": 0.5,
-          "goals_against": 0.0
-        },
-        "away_form": {
-          "form_score": 0.467,
-          "goals_for": 1.0,
-          "goals_against": 1.2
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
-          "confidence": 68
-        },
-        "xpronos_score": 57,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 64.2,
-        "final_score": 58.8
       },
       {
         "id": 4694994,
@@ -10564,6 +10804,54 @@
         "final_score": 57.5
       },
       {
+        "id": 4700807,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T15:00:00+00:00",
+        "home_team": "FK Crvena zvezda",
+        "away_team": "Vojvodina",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/teams/sd-5447-v1.png",
+        "league": "Super Liga - Championship Round",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.6,
+          "goals_avg": 3.75,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.8,
+          "goals_for": 2.6,
+          "goals_against": 1.8
+        },
+        "away_form": {
+          "form_score": 0.667,
+          "goals_for": 1.8,
+          "goals_against": 1.4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 56,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 61.4,
+        "final_score": 57.4
+      },
+      {
         "id": 4455480,
         "date": "2026-04-07",
         "event_date": "2026-04-07T18:45:00+00:00",
@@ -10656,56 +10944,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 57.2,
-        "final_score": 56.3
-      },
-      {
-        "id": 4700807,
-        "date": "2026-04-18",
-        "event_date": "2026-04-18T15:00:00+00:00",
-        "home_team": "FK Crvena zvezda",
-        "away_team": "Vojvodina",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/teams/sd-5447-v1.png",
-        "league": "Super Liga - Championship Round",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 1.5,
-          "draws": 1.0,
-          "home_dominance": 0.0,
-          "away_dominance": 0.6,
-          "goals_avg": 3.75,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.8,
-          "goals_for": 2.6,
-          "goals_against": 1.8
-        },
-        "away_form": {
-          "form_score": 0.667,
-          "goals_for": 1.8,
-          "goals_against": 1.4
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "confidence": 56
-        },
-        "xpronos_score": 56,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 57.2,
-        "final_score": 56.3
+        "ml_score": 58.8,
+        "final_score": 56.7
       },
       {
         "id": 4682887,
@@ -10900,6 +11140,54 @@
         "final_score": 56.0
       },
       {
+        "id": 4691911,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T16:15:00+00:00",
+        "home_team": "Charleroi",
+        "away_team": "Standard de Liège",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/teams/sd-1170-v1.png",
+        "league": "Jupiler Pro League - Playoffs - Conference League Group",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.6,
+          "goals_avg": 4.0,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 1.6,
+          "goals_against": 1.4
+        },
+        "away_form": {
+          "form_score": 0.4,
+          "goals_for": 1.6,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 56,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 54.9,
+        "final_score": 55.7
+      },
+      {
         "id": 4455816,
         "date": "2026-04-11",
         "event_date": "2026-04-11T14:00:00+00:00",
@@ -10948,52 +11236,52 @@
         "final_score": 55.6
       },
       {
-        "id": 4632843,
-        "date": "2026-04-12",
-        "event_date": "2026-04-12T21:30:00+00:00",
-        "home_team": "Corinthians",
-        "away_team": "Palmeiras",
+        "id": 4656722,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T21:30:00+00:00",
+        "home_team": "San Marcos",
+        "away_team": "Cobreloa",
         "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/teams/sd-1222-v5.png",
-        "league": "Brasileirão Série A",
+        "away_logo": "assets/images/away.webp",
+        "league": "First Division B",
         "league_logo": null,
         "venue": "",
-        "status": "Ended",
-        "home_score": 0,
-        "away_score": 0,
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
         "h2h_analysis": {
           "total_matches": 2,
-          "home_wins": 1.2,
-          "away_wins": 0.0,
-          "draws": 1.2,
-          "home_dominance": 0.5,
-          "away_dominance": 0.0,
-          "goals_avg": 1.8,
-          "over_25_prob": 0.0
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.6,
+          "goals_avg": 3.0,
+          "over_25_prob": 0.5
         },
         "home_form": {
-          "form_score": 0.267,
-          "goals_for": 1.0,
-          "goals_against": 1.4
+          "form_score": 0.533,
+          "goals_for": 1.4,
+          "goals_against": 1.6
         },
         "away_form": {
-          "form_score": 0.667,
-          "goals_for": 1.4,
-          "goals_against": 1.0
+          "form_score": 0.6,
+          "goals_for": 1.6,
+          "goals_against": 0.8
         },
         "prediction": {
-          "double_chance": "1X",
+          "double_chance": "X2",
           "over_25": false,
-          "confidence": 65
+          "confidence": 56
         },
-        "xpronos_score": 49,
+        "xpronos_score": 56,
         "badge": "",
         "category": "simple",
-        "is_finished": true,
-        "verified_double": true,
-        "verified_over": true,
-        "ml_score": 73.9,
-        "final_score": 55.2
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 53.5,
+        "final_score": 55.4
       },
       {
         "id": 4666094,
@@ -11040,104 +11328,56 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 64.4,
-        "final_score": 55.1
+        "ml_score": 65.7,
+        "final_score": 55.4
       },
       {
-        "id": 4691911,
-        "date": "2026-04-18",
-        "event_date": "2026-04-18T16:15:00+00:00",
-        "home_team": "Charleroi",
-        "away_team": "Standard de Liège",
+        "id": 4632843,
+        "date": "2026-04-12",
+        "event_date": "2026-04-12T21:30:00+00:00",
+        "home_team": "Corinthians",
+        "away_team": "Palmeiras",
         "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/teams/sd-1170-v1.png",
-        "league": "Jupiler Pro League - Playoffs - Conference League Group",
+        "away_logo": "assets/images/teams/sd-1222-v5.png",
+        "league": "Brasileirão Série A",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 0,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 1.5,
-          "draws": 1.0,
-          "home_dominance": 0.0,
-          "away_dominance": 0.6,
-          "goals_avg": 4.0,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.6,
-          "goals_for": 1.6,
-          "goals_against": 1.4
-        },
-        "away_form": {
-          "form_score": 0.4,
-          "goals_for": 1.6,
-          "goals_against": 1.2
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "confidence": 56
-        },
-        "xpronos_score": 56,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 52.4,
-        "final_score": 55.1
-      },
-      {
-        "id": 4702930,
-        "date": "2026-04-19",
-        "event_date": "2026-04-19T21:00:00+00:00",
-        "home_team": "Atlético Balboa",
-        "away_team": "CD Cruzeiro",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/teams/sd-85594-v2.png",
-        "league": "Segunda División - Quarter Finals",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 1.5,
+          "home_wins": 1.2,
           "away_wins": 0.0,
           "draws": 1.2,
-          "home_dominance": 0.556,
+          "home_dominance": 0.5,
           "away_dominance": 0.0,
-          "goals_avg": 1.5,
+          "goals_avg": 1.8,
           "over_25_prob": 0.0
         },
         "home_form": {
-          "form_score": 0.6,
-          "goals_for": 1.2,
+          "form_score": 0.267,
+          "goals_for": 1.0,
           "goals_against": 1.4
         },
         "away_form": {
-          "form_score": 0.333,
-          "goals_for": 0.8,
-          "goals_against": 1.2
+          "form_score": 0.667,
+          "goals_for": 1.4,
+          "goals_against": 1.0
         },
         "prediction": {
           "double_chance": "1X",
           "over_25": false,
-          "confidence": 61
+          "confidence": 65
         },
-        "xpronos_score": 52,
+        "xpronos_score": 49,
         "badge": "",
         "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 64.0,
-        "final_score": 55.0
+        "is_finished": true,
+        "verified_double": true,
+        "verified_over": true,
+        "ml_score": 73.9,
+        "final_score": 55.2
       },
       {
         "id": 4690331,
@@ -11234,6 +11474,54 @@
         "verified_over": true,
         "ml_score": 84.2,
         "final_score": 54.8
+      },
+      {
+        "id": 4702930,
+        "date": "2026-04-19",
+        "event_date": "2026-04-19T21:00:00+00:00",
+        "home_team": "Atlético Balboa",
+        "away_team": "CD Cruzeiro",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/teams/sd-85594-v2.png",
+        "league": "Segunda División - Quarter Finals",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 1.2,
+          "home_dominance": 0.556,
+          "away_dominance": 0.0,
+          "goals_avg": 1.5,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 1.2,
+          "goals_against": 1.4
+        },
+        "away_form": {
+          "form_score": 0.333,
+          "goals_for": 0.8,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 61
+        },
+        "xpronos_score": 52,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 62.0,
+        "final_score": 54.5
       },
       {
         "id": 4689890,
@@ -11378,54 +11666,6 @@
         "verified_over": true,
         "ml_score": 60.9,
         "final_score": 54.2
-      },
-      {
-        "id": 4691166,
-        "date": "2026-04-18",
-        "event_date": "2026-04-18T14:00:00+00:00",
-        "home_team": "Bangor Fc",
-        "away_team": "Carrick Rangers",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "Premiership - Championship / Relegation Round - Relegation",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 1.5,
-          "draws": 1.5,
-          "home_dominance": 0.0,
-          "away_dominance": 0.5,
-          "goals_avg": 2.25,
-          "over_25_prob": 0.0
-        },
-        "home_form": {
-          "form_score": 0.267,
-          "goals_for": 0.4,
-          "goals_against": 0.8
-        },
-        "away_form": {
-          "form_score": 0.333,
-          "goals_for": 2.0,
-          "goals_against": 1.4
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "confidence": 61
-        },
-        "xpronos_score": 49,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 69.0,
-        "final_score": 54.0
       },
       {
         "id": 4698624,
@@ -11716,6 +11956,54 @@
         "final_score": 53.5
       },
       {
+        "id": 4691166,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T14:00:00+00:00",
+        "home_team": "Bangor Fc",
+        "away_team": "Carrick Rangers",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "Premiership - Championship / Relegation Round - Relegation",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.5,
+          "goals_avg": 2.25,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.267,
+          "goals_for": 0.4,
+          "goals_against": 0.8
+        },
+        "away_form": {
+          "form_score": 0.333,
+          "goals_for": 2.0,
+          "goals_against": 1.4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 61
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 66.3,
+        "final_score": 53.3
+      },
+      {
         "id": 4685364,
         "date": "2026-04-19",
         "event_date": "2026-04-19T18:00:00+00:00",
@@ -11760,56 +12048,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 66.4,
-        "final_score": 53.4
-      },
-      {
-        "id": 4506957,
-        "date": "2026-04-19",
-        "event_date": "2026-04-19T12:30:00+00:00",
-        "home_team": "Trento",
-        "away_team": "Renate",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "Serie C",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 1.0,
-          "away_wins": 0.0,
-          "draws": 1.0,
-          "home_dominance": 0.5,
-          "away_dominance": 0.0,
-          "goals_avg": 1.5,
-          "over_25_prob": 0.0
-        },
-        "home_form": {
-          "form_score": 0.533,
-          "goals_for": 1.8,
-          "goals_against": 1.4
-        },
-        "away_form": {
-          "form_score": 0.867,
-          "goals_for": 2.2,
-          "goals_against": 0.4
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
-          "confidence": 61
-        },
-        "xpronos_score": 49,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 63.3,
-        "final_score": 52.6
+        "ml_score": 63.9,
+        "final_score": 52.7
       },
       {
         "id": 4672479,
@@ -12004,6 +12244,54 @@
         "final_score": 52.1
       },
       {
+        "id": 4680509,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T13:30:00+00:00",
+        "home_team": "ZP Sport Podbrezova",
+        "away_team": "Dunajska Streda",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "Niké liga - Playoffs - Championship Round",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.0,
+          "draws": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.5,
+          "goals_avg": 1.5,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.467,
+          "goals_for": 2.2,
+          "goals_against": 2.4
+        },
+        "away_form": {
+          "form_score": 0.733,
+          "goals_for": 1.4,
+          "goals_against": 0.0
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 60.3,
+        "final_score": 51.8
+      },
+      {
         "id": 4629615,
         "date": "2026-04-07",
         "event_date": "2026-04-07T17:30:00+00:00",
@@ -12050,6 +12338,54 @@
         "verified_over": false,
         "ml_score": 81.1,
         "final_score": 51.8
+      },
+      {
+        "id": 4701774,
+        "date": "2026-04-19",
+        "event_date": "2026-04-19T17:00:00+00:00",
+        "home_team": "Beitar Jerusalem",
+        "away_team": "Maccabi Haifa",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "Premier League - Championship Round",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.2,
+          "draws": 1.2,
+          "home_dominance": 0.0,
+          "away_dominance": 0.5,
+          "goals_avg": 1.8,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.733,
+          "goals_for": 2.0,
+          "goals_against": 1.0
+        },
+        "away_form": {
+          "form_score": 0.8,
+          "goals_for": 4.2,
+          "goals_against": 1.4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 59.6,
+        "final_score": 51.6
       },
       {
         "id": 4689285,
@@ -12100,38 +12436,38 @@
         "final_score": 51.4
       },
       {
-        "id": 4680509,
+        "id": 4664901,
         "date": "2026-04-18",
-        "event_date": "2026-04-18T13:30:00+00:00",
-        "home_team": "ZP Sport Podbrezova",
-        "away_team": "Dunajska Streda",
+        "event_date": "2026-04-18T20:00:00+00:00",
+        "home_team": "Forge FC",
+        "away_team": "Cavalry",
         "home_logo": "assets/images/home.webp",
         "away_logo": "assets/images/away.webp",
-        "league": "Niké liga - Playoffs - Championship Round",
+        "league": "Canadian Premier League",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "2nd Half",
+        "home_score": 0,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
-          "away_wins": 1.0,
-          "draws": 1.0,
+          "away_wins": 1.2,
+          "draws": 1.2,
           "home_dominance": 0.0,
           "away_dominance": 0.5,
-          "goals_avg": 1.5,
+          "goals_avg": 4.2,
           "over_25_prob": 0.5
         },
         "home_form": {
-          "form_score": 0.467,
-          "goals_for": 2.2,
-          "goals_against": 2.4
+          "form_score": 0.4,
+          "goals_for": 1.4,
+          "goals_against": 1.8
         },
         "away_form": {
-          "form_score": 0.733,
-          "goals_for": 1.4,
-          "goals_against": 0.0
+          "form_score": 0.6,
+          "goals_for": 2.0,
+          "goals_against": 1.4
         },
         "prediction": {
           "double_chance": "X2",
@@ -12144,8 +12480,56 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 58.3,
-        "final_score": 51.3
+        "ml_score": 57.5,
+        "final_score": 51.1
+      },
+      {
+        "id": 4506957,
+        "date": "2026-04-19",
+        "event_date": "2026-04-19T12:30:00+00:00",
+        "home_team": "Trento",
+        "away_team": "Renate",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "Serie C",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.0,
+          "away_wins": 0.0,
+          "draws": 1.0,
+          "home_dominance": 0.5,
+          "away_dominance": 0.0,
+          "goals_avg": 1.5,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.533,
+          "goals_for": 1.8,
+          "goals_against": 1.4
+        },
+        "away_form": {
+          "form_score": 0.867,
+          "goals_for": 2.2,
+          "goals_against": 0.4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 61
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 57.0,
+        "final_score": 51.0
       },
       {
         "id": 4686879,
@@ -12484,54 +12868,6 @@
         "final_score": 50.0
       },
       {
-        "id": 4701774,
-        "date": "2026-04-19",
-        "event_date": "2026-04-19T17:00:00+00:00",
-        "home_team": "Beitar Jerusalem",
-        "away_team": "Maccabi Haifa",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "Premier League - Championship Round",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 1.2,
-          "draws": 1.2,
-          "home_dominance": 0.0,
-          "away_dominance": 0.5,
-          "goals_avg": 1.8,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.733,
-          "goals_for": 2.0,
-          "goals_against": 1.0
-        },
-        "away_form": {
-          "form_score": 0.8,
-          "goals_for": 4.2,
-          "goals_against": 1.4
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "confidence": 56
-        },
-        "xpronos_score": 49,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 52.6,
-        "final_score": 49.9
-      },
-      {
         "id": 4633942,
         "date": "2026-04-10",
         "event_date": "2026-04-10T18:45:00+00:00",
@@ -12580,52 +12916,52 @@
         "final_score": 49.9
       },
       {
-        "id": 4685155,
-        "date": "2026-04-04",
-        "event_date": "2026-04-04T15:00:00+00:00",
-        "home_team": "WSG Tirol",
-        "away_team": "Wolfsberger AC",
-        "home_logo": "assets/images/teams/sd-10763-v1.png",
-        "away_logo": "assets/images/teams/sd-9376-v1.png",
-        "league": "Bundesliga - Relegation Playoffs",
+        "id": 4640904,
+        "date": "2026-04-19",
+        "event_date": "2026-04-19T19:00:00+00:00",
+        "home_team": "Mixco",
+        "away_team": "Aurora FC",
+        "home_logo": "assets/images/teams/sd-11307-v2.png",
+        "away_logo": "assets/images/away.webp",
+        "league": "Liga Nacional - Clausura",
         "league_logo": null,
         "venue": "",
-        "status": "Ended",
-        "home_score": 3,
-        "away_score": 1,
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
         "h2h_analysis": {
           "total_matches": 2,
-          "home_wins": 1.0,
-          "away_wins": 0.0,
-          "draws": 1.2,
-          "home_dominance": 0.455,
-          "away_dominance": 0.0,
-          "goals_avg": 3.2,
-          "over_25_prob": 0.5
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.5,
+          "goals_avg": 2.25,
+          "over_25_prob": 0.0
         },
         "home_form": {
           "form_score": 0.667,
-          "goals_for": 2.6,
+          "goals_for": 1.8,
           "goals_against": 1.2
         },
         "away_form": {
-          "form_score": 0.6,
-          "goals_for": 2.4,
-          "goals_against": 1.2
+          "form_score": 0.333,
+          "goals_for": 0.4,
+          "goals_against": 0.6
         },
         "prediction": {
-          "double_chance": "1X",
+          "double_chance": "X2",
           "over_25": false,
-          "confidence": 56
+          "confidence": 61
         },
-        "xpronos_score": 45,
+        "xpronos_score": 49,
         "badge": "",
         "category": "simple",
-        "is_finished": true,
-        "verified_double": true,
+        "is_finished": false,
+        "verified_double": false,
         "verified_over": false,
-        "ml_score": 60.2,
-        "final_score": 48.8
+        "ml_score": 48.5,
+        "final_score": 48.9
       },
       {
         "id": 4621612,
@@ -12672,56 +13008,56 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 58.8,
-        "final_score": 48.5
+        "ml_score": 60.4,
+        "final_score": 48.9
       },
       {
-        "id": 4640904,
-        "date": "2026-04-19",
-        "event_date": "2026-04-19T19:00:00+00:00",
-        "home_team": "Mixco",
-        "away_team": "Aurora FC",
-        "home_logo": "assets/images/teams/sd-11307-v2.png",
-        "away_logo": "assets/images/away.webp",
-        "league": "Liga Nacional - Clausura",
+        "id": 4685155,
+        "date": "2026-04-04",
+        "event_date": "2026-04-04T15:00:00+00:00",
+        "home_team": "WSG Tirol",
+        "away_team": "Wolfsberger AC",
+        "home_logo": "assets/images/teams/sd-10763-v1.png",
+        "away_logo": "assets/images/teams/sd-9376-v1.png",
+        "league": "Bundesliga - Relegation Playoffs",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 3,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 1.5,
-          "draws": 1.5,
-          "home_dominance": 0.0,
-          "away_dominance": 0.5,
-          "goals_avg": 2.25,
-          "over_25_prob": 0.0
+          "home_wins": 1.0,
+          "away_wins": 0.0,
+          "draws": 1.2,
+          "home_dominance": 0.455,
+          "away_dominance": 0.0,
+          "goals_avg": 3.2,
+          "over_25_prob": 0.5
         },
         "home_form": {
           "form_score": 0.667,
-          "goals_for": 1.8,
+          "goals_for": 2.6,
           "goals_against": 1.2
         },
         "away_form": {
-          "form_score": 0.333,
-          "goals_for": 0.4,
-          "goals_against": 0.6
+          "form_score": 0.6,
+          "goals_for": 2.4,
+          "goals_against": 1.2
         },
         "prediction": {
-          "double_chance": "X2",
+          "double_chance": "1X",
           "over_25": false,
-          "confidence": 61
+          "confidence": 56
         },
-        "xpronos_score": 49,
+        "xpronos_score": 45,
         "badge": "",
         "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
+        "is_finished": true,
+        "verified_double": true,
         "verified_over": false,
-        "ml_score": 46.2,
-        "final_score": 48.3
+        "ml_score": 60.2,
+        "final_score": 48.8
       },
       {
         "id": 4691932,
@@ -12864,8 +13200,56 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 65.4,
-        "final_score": 47.9
+        "ml_score": 64.0,
+        "final_score": 47.5
+      },
+      {
+        "id": 4673088,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T12:15:00+00:00",
+        "home_team": "Kuching City FC",
+        "away_team": "Selangor",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "Malaysia Cup",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.0,
+          "away_wins": 0.0,
+          "draws": 1.5,
+          "home_dominance": 0.4,
+          "away_dominance": 0.0,
+          "goals_avg": 3.0,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.733,
+          "goals_for": 1.8,
+          "goals_against": 0.6
+        },
+        "away_form": {
+          "form_score": 0.6,
+          "goals_for": 1.6,
+          "goals_against": 0.6
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 42,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 64.2,
+        "final_score": 47.5
       },
       {
         "id": 4700097,
@@ -12914,54 +13298,6 @@
         "verified_over": false,
         "ml_score": 62.0,
         "final_score": 47.0
-      },
-      {
-        "id": 4673088,
-        "date": "2026-04-18",
-        "event_date": "2026-04-18T12:15:00+00:00",
-        "home_team": "Kuching City FC",
-        "away_team": "Selangor",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "Malaysia Cup",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 1.0,
-          "away_wins": 0.0,
-          "draws": 1.5,
-          "home_dominance": 0.4,
-          "away_dominance": 0.0,
-          "goals_avg": 3.0,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.733,
-          "goals_for": 1.8,
-          "goals_against": 0.6
-        },
-        "away_form": {
-          "form_score": 0.6,
-          "goals_for": 1.6,
-          "goals_against": 0.6
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
-          "confidence": 56
-        },
-        "xpronos_score": 42,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 61.2,
-        "final_score": 46.8
       },
       {
         "id": 4672466,
@@ -13056,8 +13392,56 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 59.7,
-        "final_score": 46.4
+        "ml_score": 59.1,
+        "final_score": 46.3
+      },
+      {
+        "id": 4699101,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T18:00:00+00:00",
+        "home_team": "Sao Caetano",
+        "away_team": "Jacareí",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "Paulista A4 - Quarter Finals",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.0,
+          "away_wins": 0.0,
+          "draws": 1.5,
+          "home_dominance": 0.4,
+          "away_dominance": 0.0,
+          "goals_avg": 1.5,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.467,
+          "goals_for": 1.6,
+          "goals_against": 1.4
+        },
+        "away_form": {
+          "form_score": 0.467,
+          "goals_for": 0.4,
+          "goals_against": 0.6
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 42,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 57.2,
+        "final_score": 45.8
       },
       {
         "id": 4445164,
@@ -13204,11 +13588,11 @@
         "final_score": 44.6
       },
       {
-        "id": 4699101,
+        "id": 4699099,
         "date": "2026-04-18",
-        "event_date": "2026-04-18T18:00:00+00:00",
-        "home_team": "Sao Caetano",
-        "away_team": "Jacareí",
+        "event_date": "2026-04-18T22:00:00+00:00",
+        "home_team": "Penapolense",
+        "away_team": "Taquaritinga",
         "home_logo": "assets/images/home.webp",
         "away_logo": "assets/images/away.webp",
         "league": "Paulista A4 - Quarter Finals",
@@ -13219,26 +13603,26 @@
         "away_score": null,
         "h2h_analysis": {
           "total_matches": 2,
-          "home_wins": 1.0,
-          "away_wins": 0.0,
+          "home_wins": 0.0,
+          "away_wins": 1.0,
           "draws": 1.5,
-          "home_dominance": 0.4,
-          "away_dominance": 0.0,
-          "goals_avg": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.4,
+          "goals_avg": 3.0,
           "over_25_prob": 0.5
         },
         "home_form": {
-          "form_score": 0.467,
-          "goals_for": 1.6,
-          "goals_against": 1.4
+          "form_score": 0.6,
+          "goals_for": 2.0,
+          "goals_against": 0.4
         },
         "away_form": {
-          "form_score": 0.467,
-          "goals_for": 0.4,
-          "goals_against": 0.6
+          "form_score": 0.333,
+          "goals_for": 0.8,
+          "goals_against": 1.0
         },
         "prediction": {
-          "double_chance": "1X",
+          "double_chance": "X2",
           "over_25": false,
           "confidence": 56
         },
@@ -13248,7 +13632,7 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 52.2,
+        "ml_score": 51.9,
         "final_score": 44.5
       }
     ],
@@ -14646,14 +15030,14 @@
         "final_score": 63.9
       },
       {
-        "id": 4659346,
-        "date": "2026-04-19",
-        "event_date": "2026-04-19T20:00:00+00:00",
-        "home_team": "Los Angeles FC II",
-        "away_team": "The Town FC",
+        "id": 4697337,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T10:30:00+00:00",
+        "home_team": "Deportivo Recoleta Reserve",
+        "away_team": "2 De Mayo Reserves",
         "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "MLS Next Pro",
+        "away_logo": "assets/images/teams/sd-82232-v2.png",
+        "league": "División Reserva - Apertura",
         "league_logo": null,
         "venue": "",
         "status": "Scheduled",
@@ -14661,26 +15045,26 @@
         "away_score": null,
         "h2h_analysis": {
           "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.2,
+          "home_wins": 2.2,
+          "away_wins": 0.0,
           "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 4.6,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 2.1,
           "over_25_prob": 0.5
         },
         "home_form": {
-          "form_score": 0.333,
-          "goals_for": 1.4,
-          "goals_against": 1.8
+          "form_score": 0.467,
+          "goals_for": 1.8,
+          "goals_against": 1.2
         },
         "away_form": {
-          "form_score": 0.467,
-          "goals_for": 1.6,
-          "goals_against": 1.0
+          "form_score": 0.333,
+          "goals_for": 0.6,
+          "goals_against": 2.0
         },
         "prediction": {
-          "double_chance": "X2",
+          "double_chance": "1X",
           "over_25": false,
           "confidence": 66
         },
@@ -14690,8 +15074,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 62.3,
-        "final_score": 63.6
+        "ml_score": 62.9,
+        "final_score": 63.7
       },
       {
         "id": 4486045,
@@ -14790,14 +15174,14 @@
         "final_score": 63.4
       },
       {
-        "id": 4686989,
+        "id": 4450933,
         "date": "2026-04-19",
-        "event_date": "2026-04-19T15:00:00+00:00",
-        "home_team": "Defence Force SC",
-        "away_team": "Awassa Kenema",
+        "event_date": "2026-04-19T17:30:00+00:00",
+        "home_team": "Gyori Eto FC",
+        "away_team": "Ferencvaros",
         "home_logo": "assets/images/home.webp",
         "away_logo": "assets/images/away.webp",
-        "league": "Premier League",
+        "league": "OTP Bank Liga",
         "league_logo": null,
         "venue": "",
         "status": "Scheduled",
@@ -14810,67 +15194,19 @@
           "draws": 0.0,
           "home_dominance": 0.0,
           "away_dominance": 1.0,
-          "goals_avg": 2.9,
+          "goals_avg": 4.7,
           "over_25_prob": 0.5
         },
         "home_form": {
-          "form_score": 0.667,
-          "goals_for": 1.6,
-          "goals_against": 0.8
-        },
-        "away_form": {
-          "form_score": 0.267,
-          "goals_for": 1.0,
-          "goals_against": 1.4
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "confidence": 66
-        },
-        "xpronos_score": 64,
-        "badge": "",
-        "category": "pro",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 58.7,
-        "final_score": 62.7
-      },
-      {
-        "id": 4649639,
-        "date": "2026-04-19",
-        "event_date": "2026-04-19T23:00:00+00:00",
-        "home_team": "CD FAS",
-        "away_team": "Cacahuatique",
-        "home_logo": "assets/images/teams/sd-7626-v1.png",
-        "away_logo": "assets/images/teams/sd-82035-v2.png",
-        "league": "Primera Division - Clausura",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.7,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 2.55,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.667,
-          "goals_for": 2.2,
-          "goals_against": 1.2
-        },
-        "away_form": {
-          "form_score": 0.333,
-          "goals_for": 1.0,
+          "form_score": 0.867,
+          "goals_for": 2.4,
           "goals_against": 1.0
         },
+        "away_form": {
+          "form_score": 1.0,
+          "goals_for": 2.2,
+          "goals_against": 0.8
+        },
         "prediction": {
           "double_chance": "X2",
           "over_25": false,
@@ -14882,8 +15218,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 57.7,
-        "final_score": 62.4
+        "ml_score": 56.8,
+        "final_score": 62.2
       },
       {
         "id": 4628959,
@@ -14934,14 +15270,14 @@
         "final_score": 62.2
       },
       {
-        "id": 4450933,
+        "id": 4686989,
         "date": "2026-04-19",
-        "event_date": "2026-04-19T17:30:00+00:00",
-        "home_team": "Gyori Eto FC",
-        "away_team": "Ferencvaros",
+        "event_date": "2026-04-19T15:00:00+00:00",
+        "home_team": "Defence Force SC",
+        "away_team": "Awassa Kenema",
         "home_logo": "assets/images/home.webp",
         "away_logo": "assets/images/away.webp",
-        "league": "OTP Bank Liga",
+        "league": "Premier League",
         "league_logo": null,
         "venue": "",
         "status": "Scheduled",
@@ -14954,18 +15290,18 @@
           "draws": 0.0,
           "home_dominance": 0.0,
           "away_dominance": 1.0,
-          "goals_avg": 4.7,
+          "goals_avg": 2.9,
           "over_25_prob": 0.5
         },
         "home_form": {
-          "form_score": 0.867,
-          "goals_for": 2.4,
-          "goals_against": 1.0
+          "form_score": 0.667,
+          "goals_for": 1.6,
+          "goals_against": 0.8
         },
         "away_form": {
-          "form_score": 1.0,
-          "goals_for": 2.2,
-          "goals_against": 0.8
+          "form_score": 0.267,
+          "goals_for": 1.0,
+          "goals_against": 1.4
         },
         "prediction": {
           "double_chance": "X2",
@@ -14978,7 +15314,7 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 56.1,
+        "ml_score": 55.9,
         "final_score": 62.0
       },
       {
@@ -15030,54 +15366,6 @@
         "final_score": 61.8
       },
       {
-        "id": 4697337,
-        "date": "2026-04-18",
-        "event_date": "2026-04-18T10:30:00+00:00",
-        "home_team": "Deportivo Recoleta Reserve",
-        "away_team": "2 De Mayo Reserves",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/teams/sd-82232-v2.png",
-        "league": "División Reserva - Apertura",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 2.2,
-          "away_wins": 0.0,
-          "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 2.1,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.467,
-          "goals_for": 1.8,
-          "goals_against": 1.2
-        },
-        "away_form": {
-          "form_score": 0.333,
-          "goals_for": 0.6,
-          "goals_against": 2.0
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
-          "confidence": 66
-        },
-        "xpronos_score": 64,
-        "badge": "",
-        "category": "pro",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 54.8,
-        "final_score": 61.7
-      },
-      {
         "id": 4665715,
         "date": "2026-04-11",
         "event_date": "2026-04-11T14:00:00+00:00",
@@ -15124,6 +15412,54 @@
         "verified_over": false,
         "ml_score": 54.9,
         "final_score": 61.7
+      },
+      {
+        "id": 4659346,
+        "date": "2026-04-19",
+        "event_date": "2026-04-19T20:00:00+00:00",
+        "home_team": "Los Angeles FC II",
+        "away_team": "The Town FC",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "MLS Next Pro",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.2,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 4.6,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.333,
+          "goals_for": 1.4,
+          "goals_against": 1.8
+        },
+        "away_form": {
+          "form_score": 0.467,
+          "goals_for": 1.6,
+          "goals_against": 1.0
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 66
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 52.1,
+        "final_score": 61.0
       },
       {
         "id": 4659359,
@@ -15174,14 +15510,14 @@
         "final_score": 61.0
       },
       {
-        "id": 4700810,
+        "id": 4649639,
         "date": "2026-04-19",
-        "event_date": "2026-04-19T16:00:00+00:00",
-        "home_team": "Radnicki 1923",
-        "away_team": "Radnicki NIS",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "Super Liga - Relegation",
+        "event_date": "2026-04-19T23:00:00+00:00",
+        "home_team": "CD FAS",
+        "away_team": "Cacahuatique",
+        "home_logo": "assets/images/teams/sd-7626-v1.png",
+        "away_logo": "assets/images/teams/sd-82035-v2.png",
+        "league": "Primera Division - Clausura",
         "league_logo": null,
         "venue": "",
         "status": "Scheduled",
@@ -15189,26 +15525,26 @@
         "away_score": null,
         "h2h_analysis": {
           "total_matches": 2,
-          "home_wins": 2.2,
-          "away_wins": 0.0,
+          "home_wins": 0.0,
+          "away_wins": 2.7,
           "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 2.1,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 2.55,
           "over_25_prob": 0.5
         },
         "home_form": {
-          "form_score": 0.267,
-          "goals_for": 1.0,
-          "goals_against": 1.4
+          "form_score": 0.667,
+          "goals_for": 2.2,
+          "goals_against": 1.2
         },
         "away_form": {
-          "form_score": 0.267,
+          "form_score": 0.333,
           "goals_for": 1.0,
-          "goals_against": 1.4
+          "goals_against": 1.0
         },
         "prediction": {
-          "double_chance": "1X",
+          "double_chance": "X2",
           "over_25": false,
           "confidence": 66
         },
@@ -15218,8 +15554,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 51.7,
-        "final_score": 60.9
+        "ml_score": 50.7,
+        "final_score": 60.7
       },
       {
         "id": 4698189,
@@ -15318,6 +15654,54 @@
         "final_score": 60.6
       },
       {
+        "id": 4700810,
+        "date": "2026-04-19",
+        "event_date": "2026-04-19T16:00:00+00:00",
+        "home_team": "Radnicki 1923",
+        "away_team": "Radnicki NIS",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "Super Liga - Relegation",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.2,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 2.1,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.267,
+          "goals_for": 1.0,
+          "goals_against": 1.4
+        },
+        "away_form": {
+          "form_score": 0.267,
+          "goals_for": 1.0,
+          "goals_against": 1.4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 66
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 47.9,
+        "final_score": 60.0
+      },
+      {
         "id": 4665587,
         "date": "2026-04-18",
         "event_date": "2026-04-18T12:00:00+00:00",
@@ -15362,8 +15746,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 49.8,
-        "final_score": 60.5
+        "ml_score": 47.8,
+        "final_score": 60.0
       },
       {
         "id": 4661130,
@@ -16088,6 +16472,54 @@
         "final_score": 86.7
       },
       {
+        "id": 4659353,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T23:00:00+00:00",
+        "home_team": "Inter Miami II",
+        "away_team": "Huntsville",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "MLS Next Pro",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.4,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 5.4,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.067,
+          "goals_for": 0.4,
+          "goals_against": 2.8
+        },
+        "away_form": {
+          "form_score": 0.667,
+          "goals_for": 2.2,
+          "goals_against": 0.8
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 75
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 93.5,
+        "final_score": 86.4
+      },
+      {
         "id": 4683912,
         "date": "2026-04-07",
         "event_date": "2026-04-07T17:00:00+00:00",
@@ -16134,54 +16566,6 @@
         "verified_over": true,
         "ml_score": 75.6,
         "final_score": 86.4
-      },
-      {
-        "id": 4636710,
-        "date": "2026-04-18",
-        "event_date": "2026-04-18T16:00:00+00:00",
-        "home_team": "IFK Mariehamn",
-        "away_team": "Ilves",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "Veikkausliiga",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_wins": 1.2,
-          "away_wins": 2.2,
-          "draws": 0.0,
-          "home_dominance": 0.353,
-          "away_dominance": 0.647,
-          "goals_avg": 3.53,
-          "over_25_prob": 0.667
-        },
-        "home_form": {
-          "form_score": 0.267,
-          "goals_for": 1.2,
-          "goals_against": 2.4
-        },
-        "away_form": {
-          "form_score": 0.667,
-          "goals_for": 2.4,
-          "goals_against": 1.4
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "confidence": 63
-        },
-        "xpronos_score": 86,
-        "badge": "💎 VIP ELITE",
-        "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 86.8,
-        "final_score": 86.2
       },
       {
         "id": 4626916,
@@ -16518,6 +16902,54 @@
         "verified_over": false,
         "ml_score": 91.0,
         "final_score": 85.8
+      },
+      {
+        "id": 4636710,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T16:00:00+00:00",
+        "home_team": "IFK Mariehamn",
+        "away_team": "Ilves",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "Veikkausliiga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 1.2,
+          "away_wins": 2.2,
+          "draws": 0.0,
+          "home_dominance": 0.353,
+          "away_dominance": 0.647,
+          "goals_avg": 3.53,
+          "over_25_prob": 0.667
+        },
+        "home_form": {
+          "form_score": 0.267,
+          "goals_for": 1.2,
+          "goals_against": 2.4
+        },
+        "away_form": {
+          "form_score": 0.667,
+          "goals_for": 2.4,
+          "goals_against": 1.4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 63
+        },
+        "xpronos_score": 86,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 84.3,
+        "final_score": 85.6
       },
       {
         "id": 4633003,
@@ -16952,6 +17384,54 @@
         "final_score": 84.4
       },
       {
+        "id": 4701835,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T16:30:00+00:00",
+        "home_team": "Al Garaf",
+        "away_team": "Al Talaba Baghdad",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "Iraqi League",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.5,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 4.5,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.467,
+          "goals_for": 1.4,
+          "goals_against": 0.8
+        },
+        "away_form": {
+          "form_score": 0.867,
+          "goals_for": 1.4,
+          "goals_against": 0.6
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 75
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 85.3,
+        "final_score": 84.3
+      },
+      {
         "id": 4473053,
         "date": "2026-04-10",
         "event_date": "2026-04-10T15:00:00+00:00",
@@ -17048,6 +17528,102 @@
         "final_score": 84.2
       },
       {
+        "id": 4694822,
+        "date": "2026-04-19",
+        "event_date": "2026-04-19T15:00:00+00:00",
+        "home_team": "AEK Athens",
+        "away_team": "PAOK",
+        "home_logo": "assets/images/teams/sd-1024-v5.png",
+        "away_logo": "assets/images/away.webp",
+        "league": "Super League - Championship Group",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 5.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.667,
+          "goals_for": 1.8,
+          "goals_against": 1.6
+        },
+        "away_form": {
+          "form_score": 0.733,
+          "goals_for": 2.4,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 75
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 82.7,
+        "final_score": 83.7
+      },
+      {
+        "id": 4533006,
+        "date": "2026-04-19",
+        "event_date": "2026-04-19T15:00:00+00:00",
+        "home_team": "Enugu Rangers",
+        "away_team": "Enyimba Aba",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "NPFL - Regular Season",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.7,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 4.05,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.333,
+          "goals_for": 0.6,
+          "goals_against": 0.8
+        },
+        "away_form": {
+          "form_score": 0.867,
+          "goals_for": 2.2,
+          "goals_against": 0.6
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 75
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 82.4,
+        "final_score": 83.6
+      },
+      {
         "id": 4702375,
         "date": "2026-04-17",
         "event_date": "2026-04-17T20:00:00+00:00",
@@ -17094,6 +17670,102 @@
         "verified_over": false,
         "ml_score": 80.8,
         "final_score": 83.2
+      },
+      {
+        "id": 4702690,
+        "date": "2026-04-19",
+        "event_date": "2026-04-19T19:30:00+00:00",
+        "home_team": "Ureña SC",
+        "away_team": "Real Frontera",
+        "home_logo": "assets/images/teams/sd-13835-v1.png",
+        "away_logo": "assets/images/away.webp",
+        "league": "Liga FUTVE 2",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.2,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 3.3,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.4,
+          "goals_for": 1.4,
+          "goals_against": 1.2
+        },
+        "away_form": {
+          "form_score": 0.2,
+          "goals_for": 0.6,
+          "goals_against": 1.8
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 75
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 80.4,
+        "final_score": 83.1
+      },
+      {
+        "id": 4636161,
+        "date": "2026-04-19",
+        "event_date": "2026-04-19T14:30:00+00:00",
+        "home_team": "BK Häcken",
+        "away_team": "Gais",
+        "home_logo": "assets/images/teams/sd-1903-v3.png",
+        "away_logo": "assets/images/away.webp",
+        "league": "Allsvenskan",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.4,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 4.2,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.533,
+          "goals_for": 2.2,
+          "goals_against": 1.4
+        },
+        "away_form": {
+          "form_score": 0.467,
+          "goals_for": 1.4,
+          "goals_against": 1.4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 75
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 79.9,
+        "final_score": 83.0
       },
       {
         "id": 4690276,
@@ -17240,54 +17912,6 @@
         "final_score": 83.0
       },
       {
-        "id": 4702690,
-        "date": "2026-04-19",
-        "event_date": "2026-04-19T19:30:00+00:00",
-        "home_team": "Ureña SC",
-        "away_team": "Real Frontera",
-        "home_logo": "assets/images/teams/sd-13835-v1.png",
-        "away_logo": "assets/images/away.webp",
-        "league": "Liga FUTVE 2",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.2,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 3.3,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "form_score": 0.4,
-          "goals_for": 1.4,
-          "goals_against": 1.2
-        },
-        "away_form": {
-          "form_score": 0.2,
-          "goals_for": 0.6,
-          "goals_against": 1.8
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "confidence": 75
-        },
-        "xpronos_score": 84,
-        "badge": "💎 VIP ELITE",
-        "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 79.6,
-        "final_score": 82.9
-      },
-      {
         "id": 4461900,
         "date": "2026-04-11",
         "event_date": "2026-04-11T14:00:00+00:00",
@@ -17334,102 +17958,6 @@
         "verified_over": false,
         "ml_score": 78.3,
         "final_score": 82.6
-      },
-      {
-        "id": 4701835,
-        "date": "2026-04-18",
-        "event_date": "2026-04-18T16:30:00+00:00",
-        "home_team": "Al Garaf",
-        "away_team": "Al Talaba Baghdad",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "Iraqi League",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.5,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 4.5,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "form_score": 0.467,
-          "goals_for": 1.4,
-          "goals_against": 0.8
-        },
-        "away_form": {
-          "form_score": 0.867,
-          "goals_for": 1.4,
-          "goals_against": 0.6
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "confidence": 75
-        },
-        "xpronos_score": 84,
-        "badge": "💎 VIP ELITE",
-        "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 76.6,
-        "final_score": 82.2
-      },
-      {
-        "id": 4636161,
-        "date": "2026-04-19",
-        "event_date": "2026-04-19T14:30:00+00:00",
-        "home_team": "BK Häcken",
-        "away_team": "Gais",
-        "home_logo": "assets/images/teams/sd-1903-v3.png",
-        "away_logo": "assets/images/away.webp",
-        "league": "Allsvenskan",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.4,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 4.2,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "form_score": 0.533,
-          "goals_for": 2.2,
-          "goals_against": 1.4
-        },
-        "away_form": {
-          "form_score": 0.467,
-          "goals_for": 1.4,
-          "goals_against": 1.4
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "confidence": 75
-        },
-        "xpronos_score": 84,
-        "badge": "💎 VIP ELITE",
-        "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 75.5,
-        "final_score": 81.9
       },
       {
         "id": 4700337,
@@ -17624,14 +18152,14 @@
         "final_score": 81.5
       },
       {
-        "id": 4694822,
+        "id": 4691909,
         "date": "2026-04-19",
-        "event_date": "2026-04-19T15:00:00+00:00",
-        "home_team": "AEK Athens",
-        "away_team": "PAOK",
-        "home_logo": "assets/images/teams/sd-1024-v5.png",
+        "event_date": "2026-04-19T11:30:00+00:00",
+        "home_team": "KAA Gent",
+        "away_team": "STVV",
+        "home_logo": "assets/images/home.webp",
         "away_logo": "assets/images/away.webp",
-        "league": "Super League - Championship Group",
+        "league": "Jupiler Pro League - Playoffs - Championship Group",
         "league_logo": null,
         "venue": "",
         "status": "Scheduled",
@@ -17640,22 +18168,22 @@
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
-          "away_wins": 2.0,
+          "away_wins": 2.7,
           "draws": 0.0,
           "home_dominance": 0.0,
           "away_dominance": 1.0,
-          "goals_avg": 5.0,
+          "goals_avg": 4.65,
           "over_25_prob": 1.0
         },
         "home_form": {
-          "form_score": 0.667,
-          "goals_for": 1.8,
-          "goals_against": 1.6
+          "form_score": 0.333,
+          "goals_for": 0.8,
+          "goals_against": 1.4
         },
         "away_form": {
-          "form_score": 0.733,
-          "goals_for": 2.4,
-          "goals_against": 1.2
+          "form_score": 0.4,
+          "goals_for": 1.0,
+          "goals_against": 1.4
         },
         "prediction": {
           "double_chance": "X2",
@@ -17668,7 +18196,7 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 73.0,
+        "ml_score": 72.9,
         "final_score": 81.2
       },
       {
@@ -17718,54 +18246,6 @@
         "verified_over": false,
         "ml_score": 72.9,
         "final_score": 81.2
-      },
-      {
-        "id": 4691909,
-        "date": "2026-04-19",
-        "event_date": "2026-04-19T11:30:00+00:00",
-        "home_team": "KAA Gent",
-        "away_team": "STVV",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "Jupiler Pro League - Playoffs - Championship Group",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.7,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 4.65,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "form_score": 0.333,
-          "goals_for": 0.8,
-          "goals_against": 1.4
-        },
-        "away_form": {
-          "form_score": 0.4,
-          "goals_for": 1.0,
-          "goals_against": 1.4
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "confidence": 75
-        },
-        "xpronos_score": 84,
-        "badge": "💎 VIP ELITE",
-        "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 72.2,
-        "final_score": 81.0
       },
       {
         "id": 4673077,
@@ -17864,54 +18344,6 @@
         "final_score": 80.2
       },
       {
-        "id": 4533006,
-        "date": "2026-04-19",
-        "event_date": "2026-04-19T15:00:00+00:00",
-        "home_team": "Enugu Rangers",
-        "away_team": "Enyimba Aba",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "NPFL - Regular Season",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 2.7,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 4.05,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "form_score": 0.333,
-          "goals_for": 0.6,
-          "goals_against": 0.8
-        },
-        "away_form": {
-          "form_score": 0.867,
-          "goals_for": 2.2,
-          "goals_against": 0.6
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "confidence": 71
-        },
-        "xpronos_score": 84,
-        "badge": "💎 VIP ELITE",
-        "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 65.8,
-        "final_score": 79.5
-      },
-      {
         "id": 4702578,
         "date": "2026-04-19",
         "event_date": "2026-04-19T14:30:00+00:00",
@@ -17956,8 +18388,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 85.4,
-        "final_score": 79.1
+        "ml_score": 86.9,
+        "final_score": 79.5
       },
       {
         "id": 4628951,
@@ -18006,54 +18438,6 @@
         "verified_over": false,
         "ml_score": 63.2,
         "final_score": 78.8
-      },
-      {
-        "id": 4701750,
-        "date": "2026-04-18",
-        "event_date": "2026-04-18T16:50:00+00:00",
-        "home_team": "Maccabi Netanya",
-        "away_team": "SC Ashdod",
-        "home_logo": "assets/images/teams/sd-560-v7.png",
-        "away_logo": "assets/images/teams/sd-569-v1.png",
-        "league": "Premier League - Relegation Playoffs",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_wins": 1.0,
-          "away_wins": 0.0,
-          "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 5.0,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "form_score": 0.267,
-          "goals_for": 1.6,
-          "goals_against": 1.6
-        },
-        "away_form": {
-          "form_score": 0.133,
-          "goals_for": 0.6,
-          "goals_against": 2.2
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": true,
-          "confidence": 72
-        },
-        "xpronos_score": 77,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 83.8,
-        "final_score": 78.7
       },
       {
         "id": 4682885,
@@ -18200,14 +18584,14 @@
         "final_score": 77.9
       },
       {
-        "id": 4701978,
+        "id": 4701750,
         "date": "2026-04-18",
-        "event_date": "2026-04-18T14:40:00+00:00",
-        "home_team": "Maccabi Haifa U19",
-        "away_team": "Hapoel Beer Sheva U19",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "Youth League - Championship Round",
+        "event_date": "2026-04-18T16:50:00+00:00",
+        "home_team": "Maccabi Netanya",
+        "away_team": "SC Ashdod",
+        "home_logo": "assets/images/teams/sd-560-v7.png",
+        "away_logo": "assets/images/teams/sd-569-v1.png",
+        "league": "Premier League - Relegation Playoffs",
         "league_logo": null,
         "venue": "",
         "status": "Scheduled",
@@ -18220,18 +18604,18 @@
           "draws": 0.0,
           "home_dominance": 1.0,
           "away_dominance": 0.0,
-          "goals_avg": 9.0,
+          "goals_avg": 5.0,
           "over_25_prob": 1.0
         },
         "home_form": {
-          "form_score": 0.867,
-          "goals_for": 2.8,
-          "goals_against": 0.4
+          "form_score": 0.267,
+          "goals_for": 1.6,
+          "goals_against": 1.6
         },
         "away_form": {
-          "form_score": 0.4,
-          "goals_for": 2.0,
-          "goals_against": 2.8
+          "form_score": 0.133,
+          "goals_for": 0.6,
+          "goals_against": 2.2
         },
         "prediction": {
           "double_chance": "1X",
@@ -18244,8 +18628,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 78.3,
-        "final_score": 77.3
+        "ml_score": 79.9,
+        "final_score": 77.7
       },
       {
         "id": 4667822,
@@ -18292,8 +18676,56 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 77.8,
-        "final_score": 77.2
+        "ml_score": 77.3,
+        "final_score": 77.1
+      },
+      {
+        "id": 4701978,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T14:40:00+00:00",
+        "home_team": "Maccabi Haifa U19",
+        "away_team": "Hapoel Beer Sheva U19",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/away.webp",
+        "league": "Youth League - Championship Round",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 1.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 9.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.867,
+          "goals_for": 2.8,
+          "goals_against": 0.4
+        },
+        "away_form": {
+          "form_score": 0.4,
+          "goals_for": 2.0,
+          "goals_against": 2.8
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 72
+        },
+        "xpronos_score": 77,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 77.5,
+        "final_score": 77.1
       },
       {
         "id": 4630801,
@@ -18436,8 +18868,56 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 71.6,
-        "final_score": 75.7
+        "ml_score": 73.3,
+        "final_score": 76.1
+      },
+      {
+        "id": 4649987,
+        "date": "2026-04-18",
+        "event_date": "2026-04-18T21:15:00+00:00",
+        "home_team": "Club Guarani",
+        "away_team": "Sportivo Luqueño",
+        "home_logo": "assets/images/home.webp",
+        "away_logo": "assets/images/teams/sd-8778-v3.png",
+        "league": "Copa de Primera - Apertura",
+        "league_logo": null,
+        "venue": "",
+        "status": "1st Half",
+        "home_score": 0,
+        "away_score": 0,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 1.0,
+          "home_dominance": 0.6,
+          "away_dominance": 0.0,
+          "goals_avg": 4.25,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.533,
+          "goals_for": 0.8,
+          "goals_against": 0.4
+        },
+        "away_form": {
+          "form_score": 0.267,
+          "goals_for": 1.6,
+          "goals_against": 2.0
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 65
+        },
+        "xpronos_score": 76,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 71.8,
+        "final_score": 75.0
       },
       {
         "id": 4656157,
@@ -18484,7 +18964,7 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 68.1,
+        "ml_score": 68.0,
         "final_score": 74.8
       },
       {
@@ -18543,6 +19023,6 @@
     "roi": -28.4
   },
   "bookmakers": [],
-  "generated_at": "2026-04-18T02:43:58.075651Z",
+  "generated_at": "2026-04-18T21:28:16.623507Z",
   "retention_days": 14
 }
