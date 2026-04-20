@@ -1,32 +1,32 @@
 [
   {
-    "name": "Yoro Nkosi",
+    "name": "Coumba Diaby",
+    "rating": 5,
+    "city": "Accra",
+    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois le jeu différemment. Ils expliquent pourquoi tel joueur ou telle tactique peut faire la différence, et ça marche souvent."
+  },
+  {
+    "name": "Doussou Sall",
     "rating": 5,
     "city": "Cotonou",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mes mises et ma bankroll ne fait que grandir petit à petit. C’est pas la folie, mais au moins je perds plus comme…"
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, c’est ça la vraie différence. À Cotonou, on sait ce que ça vaut."
   },
   {
-    "name": "Diarra Kiprop",
-    "rating": 5,
-    "city": "Abidjan",
-    "text": "Depuis que je suis les lives VIP de Mr XPRONOS, je place mes mises au bon moment, surtout sur les corners et les fautes. Ça change tout, franchement."
-  },
-  {
-    "name": "Hélène Mbeki",
+    "name": "Nagnouma Mensah",
     "rating": 4,
     "city": "Accra",
-    "text": "Depuis que j’utilise Mr XPRONOS pour mes coupons, je me trompe moins et je vois la différence sur mes gains petit à petit."
+    "text": "Franchement, les explications font la différence. Maintenant je choisis mieux mes matchs. Ça change ma façon de jouer."
   },
   {
-    "name": "Gora Zongo",
-    "rating": 5,
-    "city": "Antananarivo",
-    "text": "Franchement, les analyses font la différence. Maintenant je joue moins mais plus propre. Ça change ma façon de jouer."
+    "name": "Kani Mutombo",
+    "rating": 4,
+    "city": "Luanda",
+    "text": "Depuis que je suis les conseils, je mise moins mais je gagne plus souvent, ça change la donne pour mes paris."
   },
   {
-    "name": "Ousmane Sow",
+    "name": "Umu Cissé",
     "rating": 5,
-    "city": "Antananarivo",
-    "text": "Les pronos sont clairs et je joue moins mais plus propre. Je préfère cette méthode aux paris au hasard."
+    "city": "Kampala",
+    "text": "Depuis 10 jours je suis le live, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
   }
 ]
