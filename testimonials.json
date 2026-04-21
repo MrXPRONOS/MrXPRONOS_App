@@ -1,32 +1,32 @@
 [
   {
-    "name": "Coumba Diaby",
-    "rating": 5,
-    "city": "Accra",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois le jeu différemment. Ils expliquent pourquoi tel joueur ou telle tactique peut faire la différence, et ça marche souvent."
-  },
-  {
-    "name": "Doussou Sall",
-    "rating": 5,
-    "city": "Cotonou",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, c’est ça la vraie différence. À Cotonou, on sait ce que ça vaut."
-  },
-  {
-    "name": "Nagnouma Mensah",
+    "name": "Lamine Fall",
     "rating": 4,
-    "city": "Accra",
-    "text": "Franchement, les explications font la différence. Maintenant je choisis mieux mes matchs. Ça change ma façon de jouer."
+    "city": "Conakry",
+    "text": "Depuis que je suis les analyses H2H sur Mr XPRONOS, je mise plus malin et ça paie sans stress. À Conakry, on a besoin de ça pour éviter les paris perdus."
   },
   {
-    "name": "Kani Mutombo",
-    "rating": 4,
-    "city": "Luanda",
-    "text": "Depuis que je suis les conseils, je mise moins mais je gagne plus souvent, ça change la donne pour mes paris."
-  },
-  {
-    "name": "Umu Cissé",
+    "name": "Oumy Traoré",
     "rating": 5,
-    "city": "Kampala",
-    "text": "Depuis 10 jours je suis le live, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
+    "city": "Lomé",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mes mises et mon argent ne part plus en fumée. Le foot est devenu plus rentable sans prendre de risques fous."
+  },
+  {
+    "name": "Salimata Chanda",
+    "rating": 5,
+    "city": "Le Caire",
+    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
+  },
+  {
+    "name": "Nana Kante",
+    "rating": 5,
+    "city": "Lomé",
+    "text": "Franchement, les explications font la différence. Maintenant je joue moins mais plus propre."
+  },
+  {
+    "name": "Ramatoulaye Kipchoge",
+    "rating": 5,
+    "city": "Dakar",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, ça change tout."
   }
 ]
