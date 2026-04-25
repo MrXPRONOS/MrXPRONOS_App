@@ -12,10 +12,11 @@ Système de calcul INCHANGÉ :
 - stats réelles calculées
 - intégration ML (auto_train / ml_model) SANS casser la logique métier
 
-Amélioration logos :
-1) SportData Images (public) -> v1.football.sportsapipro.com/images/competitors/{id}?imageVersion={v}
-2) TheSportsDB fallback
-3) fallback home.webp / away.webp
+Amélioration logos (MODIFIÉE) :
+1) SportData v2 (clé requise) -> https://v2.football.sportsapipro.com/api/teams/{teamId}/image
+2) SportData Images v1 (public) -> v1.football.sportsapipro.com/images/competitors/{id}?imageVersion={v}
+3) TheSportsDB fallback
+4) fallback home.webp / away.webp
 
 Règle anti-trucage :
 - une fois qu’un jour est passé, on n’ajoute plus de nouveaux matchs
@@ -42,10 +43,14 @@ if not SPORTDATA_API_KEY:
 
 THESPORTSDB_API_KEY = "3"  # clé publique TheSportsDB
 
+# SportData (matches)
 SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
 HEADERS = {"x-api-key": SPORTDATA_API_KEY}
 
-# Images SportData / SportsAPI Pro (public, pas de clé)
+# SportData v2 (logos) - clé requise
+SPORTDATA_V2_BASE = "https://v2.football.sportsapipro.com/api"
+
+# SportData v1 images (public)
 SPORTDATA_V1_IMAGES_BASE = "https://v1.football.sportsapipro.com/images"
 
 session = requests.Session()
@@ -111,18 +116,43 @@ def resolve_existing_path(path: str) -> str | None:
             return norm_path(cand)
     return None
 
-def download_image(url: str, local_path: str) -> str | None:
+def download_image(url: str, local_path: str, headers: dict | None = None) -> str | None:
+    """
+    Télécharge une image.
+    - Refuse HTML/JSON
+    - Supporte un cas où l'API renvoie du JSON contenant une URL d'image
+    """
     try:
         local_path = norm_path(local_path)
         if os.path.exists(local_path) and os.path.getsize(local_path) > 200:
             return local_path
 
-        resp = session.get(url, timeout=20)
+        resp = session.get(url, headers=headers, timeout=20)
         if resp.status_code != 200 or not resp.content:
             return None
 
         ctype = (resp.headers.get("content-type") or "").lower()
-        if "text/html" in ctype or "application/json" in ctype:
+
+        # Si JSON, essayer d'extraire une URL d'image
+        if "application/json" in ctype:
+            try:
+                j = resp.json()
+                img_url = j.get("url")
+                # éviter boucle si l'API renvoie "url" identique
+                if not img_url or img_url == url:
+                    return None
+                resp2 = session.get(img_url, headers=headers, timeout=20)
+                if resp2.status_code != 200 or not resp2.content:
+                    return None
+                ctype2 = (resp2.headers.get("content-type") or "").lower()
+                if "application/json" in ctype2 or "text/html" in ctype2:
+                    return None
+                resp = resp2
+                ctype = ctype2
+            except Exception:
+                return None
+
+        if "text/html" in ctype:
             return None
 
         with open(local_path, "wb") as f:
@@ -134,19 +164,54 @@ def download_image(url: str, local_path: str) -> str | None:
     except Exception:
         return None
 
-def cache_key_sportdata(competitor_id, image_version):
+# ---------- cache keys ----------
+def cache_key_sportdata_v2(team_id):
+    tid = str(team_id) if team_id is not None else ""
+    return f"sdv2img:{tid}"
+
+def cache_key_sportdata_v1(competitor_id, image_version):
     cid = str(competitor_id) if competitor_id is not None else ""
     ver = str(image_version) if image_version is not None else "0"
-    return f"sdimg:{cid}:v{ver}"
+    return f"sdv1img:{cid}:v{ver}"
 
 def cache_key_thesportsdb(team_name: str):
     return f"tsdb:{(team_name or '').strip().lower()}"
 
-def get_logo_sportdata(competitor_id, image_version) -> str | None:
+# ---------- SportData v2 logo ----------
+def get_logo_sportdata_v2(team_id) -> str | None:
+    """
+    Endpoint: GET https://v2.football.sportsapipro.com/api/teams/{teamId}/image
+    Header: x-api-key
+    """
+    if not team_id:
+        return None
+
+    key = cache_key_sportdata_v2(team_id)
+    if key in logo_cache:
+        cached = resolve_existing_path(logo_cache.get(key))
+        if cached:
+            logo_cache[key] = cached
+            return cached
+        if logo_cache.get(key) is None:
+            return None
+
+    url = f"{SPORTDATA_V2_BASE}/teams/{team_id}/image"
+    filename = f"sdv2-team-{team_id}.png"
+    local_path = norm_path(os.path.join(TEAM_LOGO_DIR, filename))
+
+    img_headers = dict(HEADERS)
+    img_headers["Accept"] = "image/*"
+
+    p = download_image(url, local_path, headers=img_headers)
+    logo_cache[key] = p
+    return p
+
+# ---------- SportData v1 logo (public fallback) ----------
+def get_logo_sportdata_v1(competitor_id, image_version) -> str | None:
     if not competitor_id:
         return None
 
-    key = cache_key_sportdata(competitor_id, image_version)
+    key = cache_key_sportdata_v1(competitor_id, image_version)
     if key in logo_cache:
         cached = resolve_existing_path(logo_cache.get(key))
         if cached:
@@ -157,13 +222,13 @@ def get_logo_sportdata(competitor_id, image_version) -> str | None:
 
     if image_version:
         url = f"{SPORTDATA_V1_IMAGES_BASE}/competitors/{competitor_id}?imageVersion={image_version}"
-        filename = f"sd-{competitor_id}-v{image_version}.png"
+        filename = f"sdv1-{competitor_id}-v{image_version}.png"
     else:
         url = f"{SPORTDATA_V1_IMAGES_BASE}/competitors/{competitor_id}"
-        filename = f"sd-{competitor_id}.png"
+        filename = f"sdv1-{competitor_id}.png"
 
     local_path = norm_path(os.path.join(TEAM_LOGO_DIR, filename))
-    p = download_image(url, local_path)
+    p = download_image(url, local_path, headers=None)
 
     logo_cache[key] = p
     return p
@@ -215,18 +280,26 @@ def get_logo_thesportsdb(team_name: str) -> str | None:
     return None
 
 def get_team_logo(team_name: str, competitor_id=None, image_version=None, side: str = "home") -> str | None:
-    p = get_logo_sportdata(competitor_id, image_version)
+    # 1) SportData v2 (clé)
+    p = get_logo_sportdata_v2(competitor_id)
     if p:
         return p
 
+    # 2) SportData v1 (public)
+    p = get_logo_sportdata_v1(competitor_id, image_version)
+    if p:
+        return p
+
+    # 3) TheSportsDB fallback
     p = get_logo_thesportsdb(team_name)
     if p:
         return p
 
+    # 4) fallback local
     return "assets/images/away.webp" if side == "away" else "assets/images/home.webp"
 
 # =======================================================
-# FONCTIONS SPORTDATA
+# FONCTIONS SPORTDATA (MATCHS)
 # =======================================================
 def fetch_games(date_from, date_to):
     params = {
@@ -234,7 +307,7 @@ def fetch_games(date_from, date_to):
         "endDate": date_to.strftime("%d/%m/%Y"),
         "sports": 1,
         "showOdds": "false",
-        "onlyMajorGames": "false"
+        "onlyMajorGames": "false",
     }
     try:
         resp = session.get(SPORTDATA_URL, headers=HEADERS, params=params, timeout=30)
@@ -285,6 +358,8 @@ def extract_game_info(game):
         "status_text": status_text,
         "is_finished": is_finished,
 
+        # NB: on réutilise ces IDs comme teamId pour v2 logos.
+        # Si ce n'est pas le bon mapping chez toi, il faudra adapter.
         "home_competitor_id": home.get("id"),
         "away_competitor_id": away.get("id"),
         "home_image_version": home.get("imageVersion"),
@@ -385,7 +460,7 @@ def analyze_h2h(h2h_list, current_home_team, current_away_team):
         "home_dominance": round(home_dominance, 3),
         "away_dominance": round(away_dominance, 3),
         "goals_avg": round(goals_avg, 2),
-        "over_25_prob": round(over_25_prob, 3)
+        "over_25_prob": round(over_25_prob, 3),
     }
 
 def generate_prediction(analysis):
@@ -410,7 +485,7 @@ def generate_prediction(analysis):
     return {
         "double_chance": double_chance,
         "over_25": over_25,
-        "confidence": confidence
+        "confidence": confidence,
     }
 
 def calculate_xpronos_score(analysis, prediction):
@@ -471,11 +546,7 @@ def get_team_form(team, team_history, last_games=5):
             break
 
     if not recent:
-        return {
-            "form_score": 0,
-            "goals_for": 0,
-            "goals_against": 0
-        }
+        return {"form_score": 0, "goals_for": 0, "goals_against": 0}
 
     points = 0
     gf = 0
@@ -502,7 +573,7 @@ def get_team_form(team, team_history, last_games=5):
     return {
         "form_score": round(form_score, 3),
         "goals_for": round(gf / len(recent), 2),
-        "goals_against": round(ga / len(recent), 2)
+        "goals_against": round(ga / len(recent), 2),
     }
 
 # =======================================================
@@ -573,11 +644,7 @@ def compute_stats(matches):
 
     roi = ((wins - total_bets) / total_bets * 100) if total_bets > 0 else 0
 
-    return {
-        "total_bets": total_bets,
-        "wins": wins,
-        "roi": round(roi, 1)
-    }
+    return {"total_bets": total_bets, "wins": wins, "roi": round(roi, 1)}
 
 # =======================================================
 # ML SCORE - INCHANGÉ
@@ -610,7 +677,7 @@ def compute_ml_score(match, analysis, prediction):
         "away_goals_for": away_form.get("goals_for", 0),
         "home_goals_against": home_form.get("goals_against", 0),
         "away_goals_against": away_form.get("goals_against", 0),
-        "quality_score": min(100, 50 + analysis.get("total_matches", 0) * 5)
+        "quality_score": min(100, 50 + analysis.get("total_matches", 0) * 5),
     }
 
     try:
@@ -644,7 +711,7 @@ def main():
             "matches": [],
             "categories": {"simple": [], "pro": [], "vip": []},
             "stats": {},
-            "bookmakers": []
+            "bookmakers": [],
         }
         existing_matches = {}
 
@@ -706,7 +773,11 @@ def main():
                     side="away",
                 )
 
-            if updated.get("is_finished") and updated.get("home_score") is not None and updated.get("away_score") is not None:
+            if (
+                updated.get("is_finished")
+                and updated.get("home_score") is not None
+                and updated.get("away_score") is not None
+            ):
                 updated = compute_verified_fields(updated)
 
             new_matches.append(updated)
@@ -733,7 +804,7 @@ def main():
         prediction = generate_prediction(analysis)
 
         if prediction["double_chance"] == "12":
-            print(f"   ⚠️ Pronostic 12 (match équilibré) ignoré")
+            print("   ⚠️ Pronostic 12 (match équilibré) ignoré")
             continue
 
         score = calculate_xpronos_score(analysis, prediction)
@@ -840,7 +911,7 @@ def main():
         {"name": "Betwinner", "logo": "assets/images/betwinner.webp", "url": "https://bwredir.com/299Y"},
         {"name": "Melbet", "logo": "assets/images/melbet.webp", "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041"},
         {"name": "Linebet", "logo": "assets/images/linebet.webp", "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611"},
-        {"name": "BetClic", "logo": "assets/images/betclic.webp", "url": "https://betpari-click.com/2vY0?extid=USD"}
+        {"name": "BetClic", "logo": "assets/images/betclic.webp", "url": "https://betpari-click.com/2vY0?extid=USD"},
     ]
 
     data = {
@@ -849,7 +920,7 @@ def main():
         "stats": stats,
         "bookmakers": existing_data.get("bookmakers", default_bookmakers),
         "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
-        "retention_days": RETENTION_DAYS
+        "retention_days": RETENTION_DAYS,
     }
 
     with open(DATA_FILE, "w", encoding="utf-8") as f:
