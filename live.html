@@ -226,17 +226,24 @@
       if (s.includes("foul") || s.includes("faute")) return "fautes";
       return "";
     }
+
+    // ✅ demandé: "Pronostic : Total plus de ... corners"
     function formatPredTitleSimple(pred) {
       const unit = guessUnitFromPred(pred);
       const thr = formatNumberFR(pred?.threshold);
       const title = String(pred?.title || "").toLowerCase();
+
       const isOver = title.includes("over") || title.includes("plus de");
       const isUnder = title.includes("under") || title.includes("moins de");
+
       if (thr && (isOver || isUnder)) {
-        return `${isOver ? "Plus de" : "Moins de"} ${thr}${unit ? " " + unit : ""}`.trim();
+        return `Pronostic : Total ${isOver ? "plus de" : "moins de"} ${thr}${unit ? " " + unit : ""}`.trim();
       }
-      return pred?.title || "Prédiction";
+
+      if (pred?.title) return `Pronostic : ${pred.title}`;
+      return "Pronostic";
     }
+
     function formatPredSubtitle(pred) {
       const projected = pred?.projected ?? "-";
       const current = pred?.current ?? "-";
@@ -272,11 +279,11 @@
       const shareMessage = useMemo(() => {
         return `Salut frère 👋😄,
 
-      Avec ce site, on ne va plus perdre les coupons  : il propose des coupons plutôt fiables, même pour les matchs en live ⚽🔥🤑
+Avec ce site, on ne va plus perdre les coupons  : il propose des coupons plutôt fiables, même pour les matchs en live ⚽🔥🤑
 
-      Je viens de le découvrir 🔍 et, pour l’instant, c’est totalement gratuit 🎁… autant en profiter maintenant avant que ça devienne payant ⏳💸
+Je viens de le découvrir 🔍 et, pour l’instant, c’est totalement gratuit 🎁… autant en profiter maintenant avant que ça devienne payant ⏳💸
 
-      Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
+Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
       }, []);
 
       useEffect(() => {
@@ -471,10 +478,11 @@
       return <Badge color={colorMap[pred?.color] || "gold"}>{pred?.badge || pred?.title || "Prédiction"}</Badge>;
     };
 
-    const StatChip = ({ label, value, valueColor = "text-white" }) => (
-      <div className="bg-[#0b0b0b] border border-[#202020] rounded-xl px-3 py-3 text-center">
-        <div className="text-[11px] text-gray-500">{label}</div>
-        <div className={`text-2xl font-extrabold mt-1 ${valueColor}`}>{value}</div>
+    // ✅ compact possible (une seule ligne)
+    const StatChip = ({ label, value, valueColor = "text-white", compact = false }) => (
+      <div className={`bg-[#0b0b0b] border border-[#202020] rounded-xl text-center ${compact ? "px-2 py-2" : "px-3 py-3"}`}>
+        <div className={`${compact ? "text-[10px]" : "text-[11px]"} text-gray-500`}>{label}</div>
+        <div className={`${compact ? "text-lg" : "text-2xl"} font-extrabold mt-1 ${valueColor}`}>{value}</div>
       </div>
     );
 
@@ -535,7 +543,7 @@
                     MrXPRONOS LIVE
                   </div>
                   <div className="text-[10px] sm:text-[11px] text-gray-400 mt-1 leading-tight truncate">
-                    {stats.matches_live || 0} live • {stats.predictions || 0} prédiction • {stats.upcoming || 0} avenir
+                    {stats.matches_live || 0} live • {stats.predictions || 0} prédiction • {stats.upcoming || 0} à venir
                   </div>
                 </div>
               </div>
@@ -567,11 +575,12 @@
             Prédictions live (corners • tirs • fautes). Cliquez sur un match pour les détails.
           </div>
 
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <StatChip label="Live" value={stats.matches_live || 0} valueColor="text-red-500" />
-            <StatChip label="Top prédictions" value={topPredictionCount || 0} valueColor="text-[#D4AF37]" />
-            <StatChip label="Prédictions" value={stats.predictions || 0} valueColor="text-blue-400" />
-            <StatChip label="Avenir" value={upcomingCount || 0} valueColor="text-green-400" />
+          {/* ✅ une seule ligne + plus petit */}
+          <div className="grid grid-cols-4 gap-2">
+            <StatChip compact label="Live" value={stats.matches_live || 0} valueColor="text-red-500" />
+            <StatChip compact label="Top" value={topPredictionCount || 0} valueColor="text-[#D4AF37]" />
+            <StatChip compact label="Pronos" value={stats.predictions || 0} valueColor="text-blue-400" />
+            <StatChip compact label="À venir" value={upcomingCount || 0} valueColor="text-green-400" />
           </div>
         </Card>
       </div>
@@ -679,9 +688,9 @@
           </div>
 
           <div className="grid grid-cols-3 gap-2 mb-4">
-            <StatChip label="Corners" value={totalCorners} />
-            <StatChip label="Fautes" value={totalFouls} />
-            <StatChip label="Tirs" value={totalShots} />
+            <StatChip compact label="Corners" value={totalCorners} />
+            <StatChip compact label="Fautes" value={totalFouls} />
+            <StatChip compact label="Tirs" value={totalShots} />
           </div>
 
           {best ? (
@@ -966,6 +975,57 @@
     );
 
     // =======================================================
+    // MOBILE BOTTOM TABS (Live / À venir / Historique / Notifs)
+    // =======================================================
+    const MobileBottomTabs = ({ selectedTab, setSelectedTab, unreadCount, upcomingCount }) => {
+      const items = [
+        { key: "live", label: "Live", icon: "bolt" },
+        { key: "upcoming", label: "À venir", icon: "calendar", count: upcomingCount },
+        { key: "history", label: "Historique", icon: "history" },
+        { key: "notifications", label: "Notifs", icon: "bell", count: unreadCount, danger: true },
+      ];
+
+      return (
+        <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-[#1e1e1e]">
+          <div className="max-w-7xl mx-auto px-2 py-2" style={{ paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom))" }}>
+            <div className="grid grid-cols-4 gap-2">
+              {items.map((it) => {
+                const active = selectedTab === it.key;
+                return (
+                  <button
+                    key={it.key}
+                    onClick={() => setSelectedTab(it.key)}
+                    className={`relative flex flex-col items-center justify-center gap-1 py-2 rounded-2xl transition-colors ${
+                      active ? "bg-[#D4AF37] text-black" : "text-gray-300 hover:bg-white/5"
+                    }`}
+                    type="button"
+                  >
+                    <Icon
+                      name={it.icon}
+                      size={16}
+                      className={active ? "" : "text-[#D4AF37]"}
+                    />
+                    <span className="text-[10px] font-extrabold">{it.label}</span>
+
+                    {safeNumber(it.count, 0) > 0 && (
+                      <span
+                        className={`absolute top-1 right-2 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-extrabold text-white ${
+                          it.danger ? "bg-red-500" : "bg-[#D4AF37]"
+                        }`}
+                      >
+                        {it.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </nav>
+      );
+    };
+
+    // =======================================================
     // APP
     // =======================================================
     const App = () => {
@@ -983,9 +1043,14 @@
       const [refreshing, setRefreshing] = useState(false);
       const [error, setError] = useState(null);
 
-      const [selectedTab, setSelectedTab] = useState("live"); // live | history | notifications
+      const [selectedTab, setSelectedTab] = useState("live"); // live | upcoming | history | notifications
       const [selectedMatch, setSelectedMatch] = useState(null);
       const [toast, setToast] = useState(null);
+
+      // si on change d'onglet pendant un détail ouvert, on ferme le détail
+      useEffect(() => {
+        setSelectedMatch(null);
+      }, [selectedTab]);
 
       const apiFetch = useCallback(async (endpoint) => {
         const url = `${EDGE_FUNCTION_URL}${endpoint}`;
@@ -1119,6 +1184,67 @@
         }
       };
 
+      // Desktop tabs (en haut) — cachés sur mobile (car bottom nav)
+      const DesktopTabs = () => (
+        <div className="hidden md:flex gap-3 mb-6 flex-wrap">
+          <button
+            onClick={() => setSelectedTab("live")}
+            className={`px-4 py-2 rounded-xl font-semibold transition-colors ${
+              selectedTab === "live"
+                ? "bg-[#D4AF37] text-black"
+                : "bg-[#151515] text-gray-300 border border-[#252525]"
+            }`}
+            type="button"
+          >
+            Live
+          </button>
+
+          <button
+            onClick={() => setSelectedTab("upcoming")}
+            className={`px-4 py-2 rounded-xl font-semibold transition-colors ${
+              selectedTab === "upcoming"
+                ? "bg-[#D4AF37] text-black"
+                : "bg-[#151515] text-gray-300 border border-[#252525]"
+            }`}
+            type="button"
+          >
+            À venir
+          </button>
+
+          <button
+            onClick={() => setSelectedTab("history")}
+            className={`px-4 py-2 rounded-xl font-semibold transition-colors ${
+              selectedTab === "history"
+                ? "bg-[#D4AF37] text-black"
+                : "bg-[#151515] text-gray-300 border border-[#252525]"
+            }`}
+            type="button"
+          >
+            Historique
+          </button>
+
+          <button
+            onClick={() => setSelectedTab("notifications")}
+            className={`px-4 py-2 rounded-xl font-semibold transition-colors relative ${
+              selectedTab === "notifications"
+                ? "bg-[#D4AF37] text-black"
+                : "bg-[#151515] text-gray-300 border border-[#252525]"
+            }`}
+            type="button"
+          >
+            <span className="inline-flex items-center gap-2">
+              <Icon name="bell" size={14} />
+              Notifications
+            </span>
+            {unreadCount > 0 && (
+              <span className="ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold align-middle">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+        </div>
+      );
+
       if (error && !loading) {
         return (
           <div className="min-h-screen flex items-center justify-center px-4">
@@ -1128,6 +1254,7 @@
               <button
                 onClick={() => fetchAll(false)}
                 className="px-4 py-2 bg-[#D4AF37] text-black rounded-lg font-bold"
+                type="button"
               >
                 Réessayer
               </button>
@@ -1145,7 +1272,8 @@
             refreshing={refreshing}
           />
 
-          <main className="max-w-7xl mx-auto px-4 py-6">
+          {/* ✅ pb-28 pour ne pas être caché par les boutons du bas */}
+          <main className="max-w-7xl mx-auto px-4 py-6 pb-28 md:pb-6">
             {!selectedMatch && (
               <>
                 <CompactHero
@@ -1154,114 +1282,83 @@
                   upcomingCount={scheduledMatches.length || 0}
                 />
 
-                <div className="flex gap-3 mb-6 flex-wrap">
-                  <button
-                    onClick={() => setSelectedTab("live")}
-                    className={`px-4 py-2 rounded-xl font-semibold transition-colors ${
-                      selectedTab === "live"
-                        ? "bg-[#D4AF37] text-black"
-                        : "bg-[#151515] text-gray-300 border border-[#252525]"
-                    }`}
-                  >
-                    Live
-                  </button>
+                <DesktopTabs />
 
-                  <button
-                    onClick={() => setSelectedTab("history")}
-                    className={`px-4 py-2 rounded-xl font-semibold transition-colors ${
-                      selectedTab === "history"
-                        ? "bg-[#D4AF37] text-black"
-                        : "bg-[#151515] text-gray-300 border border-[#252525]"
-                    }`}
-                  >
-                    Historique
-                  </button>
+                {loading ? (
+                  <div className="py-20 text-center">
+                    <div className="w-12 h-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <div className="text-gray-400">Chargement...</div>
+                  </div>
+                ) : (
+                  <>
+                    {/* ===========================
+                        ONGLET LIVE
+                       =========================== */}
+                    {selectedTab === "live" && (
+                      <>
+                        {bestOpportunity && (
+                          <div className="mb-8">
+                            <div className="text-lg font-bold mb-4 flex items-center gap-2">
+                              <Icon name="star" className="text-[#D4AF37]" />
+                              Top opportunity
+                            </div>
+                            <OpportunityCard item={bestOpportunity} onOpen={setSelectedMatch} />
+                          </div>
+                        )}
 
-                  <button
-                    onClick={() => setSelectedTab("notifications")}
-                    className={`px-4 py-2 rounded-xl font-semibold transition-colors relative ${
-                      selectedTab === "notifications"
-                        ? "bg-[#D4AF37] text-black"
-                        : "bg-[#151515] text-gray-300 border border-[#252525]"
-                    }`}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <Icon name="bell" size={14} />
-                      Notifications
-                    </span>
-                    {unreadCount > 0 && (
-                      <span className="ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold align-middle">
-                        {unreadCount}
-                      </span>
-                    )}
-                  </button>
-                </div>
-
-                {selectedTab === "live" && (
-                  loading ? (
-                    <div className="py-20 text-center">
-                      <div className="w-12 h-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                      <div className="text-gray-400">Chargement des prédictions live...</div>
-                    </div>
-                  ) : (
-                    <>
-                      {bestOpportunity && (
                         <div className="mb-8">
                           <div className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <Icon name="star" className="text-[#D4AF37]" />
-                            Top opportunity
+                            <Icon name="target" className="text-[#D4AF37]" />
+                            Prédictions live
                           </div>
-                          <OpportunityCard item={bestOpportunity} onOpen={setSelectedMatch} />
-                        </div>
-                      )}
 
-                      <div className="mb-8">
-                        <div className="text-lg font-bold mb-4 flex items-center gap-2">
-                          <Icon name="target" className="text-[#D4AF37]" />
-                          Prédictions live
-                        </div>
-
-                        {(otherOpportunities || []).length === 0 ? (
-                          <EmptyState
-                            title={bestOpportunity ? "Aucune autre opportunité" : "Aucune prédiction premium"}
-                            subtitle={bestOpportunity
-                              ? "L'opportunité principale est affichée en haut."
-                              : "Le moteur live attend un contexte suffisamment fiable."
-                            }
-                          />
-                        ) : (
-                          <div className="grid gap-4 md:grid-cols-2">
-                            {otherOpportunities.map((item) => (
-                              <OpportunityCard
-                                key={item.id || `${item.home_team}-${item.away_team}-${item.current_minute}`}
-                                item={item}
-                                onOpen={setSelectedMatch}
-                              />
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="mb-8">
-                        <div className="text-lg font-bold mb-4 flex items-center gap-2">
-                          <Icon name="radio" className="text-red-500" />
-                          Tous les matchs live
+                          {(otherOpportunities || []).length === 0 ? (
+                            <EmptyState
+                              title={bestOpportunity ? "Aucune autre opportunité" : "Aucune prédiction premium"}
+                              subtitle={bestOpportunity
+                                ? "L'opportunité principale est affichée en haut."
+                                : "Le moteur live attend un contexte suffisamment fiable."
+                              }
+                            />
+                          ) : (
+                            <div className="grid gap-4 md:grid-cols-2">
+                              {otherOpportunities.map((item) => (
+                                <OpportunityCard
+                                  key={item.id || `${item.home_team}-${item.away_team}-${item.current_minute}`}
+                                  item={item}
+                                  onOpen={setSelectedMatch}
+                                />
+                              ))}
+                            </div>
+                          )}
                         </div>
 
-                        {(liveMatchesWithoutOpportunities || []).length === 0 ? (
-                          <EmptyState
-                            title="Aucun autre match live"
-                            subtitle="Tous les matchs live ont déjà une opportunité affichée plus haut."
-                          />
-                        ) : (
-                          <div className="grid gap-4 md:grid-cols-2">
-                            {liveMatchesWithoutOpportunities.map((m) => (
-                              <MatchCard key={m.id} match={m} onOpen={setSelectedMatch} />
-                            ))}
+                        <div className="mb-8">
+                          <div className="text-lg font-bold mb-4 flex items-center gap-2">
+                            <Icon name="radio" className="text-red-500" />
+                            Tous les matchs live
                           </div>
-                        )}
-                      </div>
 
+                          {(liveMatchesWithoutOpportunities || []).length === 0 ? (
+                            <EmptyState
+                              title="Aucun autre match live"
+                              subtitle="Tous les matchs live ont déjà une opportunité affichée plus haut."
+                            />
+                          ) : (
+                            <div className="grid gap-4 md:grid-cols-2">
+                              {liveMatchesWithoutOpportunities.map((m) => (
+                                <MatchCard key={m.id} match={m} onOpen={setSelectedMatch} />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+
+                    {/* ===========================
+                        ONGLET À VENIR
+                       =========================== */}
+                    {selectedTab === "upcoming" && (
                       <div className="mb-8">
                         <div className="text-lg font-bold mb-4 flex items-center gap-2">
                           <Icon name="calendar" className="text-blue-400" />
@@ -1275,84 +1372,90 @@
                           />
                         ) : (
                           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                            {scheduledMatches.slice(0, 12).map((m) => (
+                            {scheduledMatches.slice(0, 24).map((m) => (
                               <UpcomingMatchCard key={m.id} match={m} />
                             ))}
                           </div>
                         )}
                       </div>
-                    </>
-                  )
-                )}
+                    )}
 
-                {selectedTab === "history" && (
-                  <div>
-                    <div className="text-lg font-bold mb-4 flex items-center gap-2">
-                      <Icon name="history" className="text-[#D4AF37]" />
-                      Historique des prédictions
-                    </div>
-
-                    {history.length === 0 ? (
-                      <EmptyState
-                        title="Aucun historique"
-                        subtitle="Les validations apparaîtront ici dès qu'une prédiction sera créée."
-                      />
-                    ) : (
-                      <div className="bg-[#121212] rounded-2xl border border-[#232323] overflow-hidden">
-                        <div className="overflow-x-auto custom-scrollbar">
-                          <table className="w-full text-sm min-w-[1150px]">
-                            <thead className="bg-[#0b0b0b] border-b border-[#232323]">
-                              <tr>
-                                <th className="px-4 py-3 text-left">Match</th>
-                                <th className="px-4 py-3 text-left">Prédiction</th>
-                                <th className="px-4 py-3 text-left">Score</th>
-                                <th className="px-4 py-3 text-left">Minute</th>
-                                <th className="px-4 py-3 text-left">Seuil</th>
-                                <th className="px-4 py-3 text-left">Actuel</th>
-                                <th className="px-4 py-3 text-left">Projection</th>
-                                <th className="px-4 py-3 text-left">Proba</th>
-                                <th className="px-4 py-3 text-left">Résultat</th>
-                                <th className="px-4 py-3 text-left">Heure</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {history.map((h, i) => (
-                                <tr key={i} className="border-b border-[#1f1f1f] hover:bg-[#151515]">
-                                  <td className="px-4 py-3">{h.match}</td>
-                                  <td className="px-4 py-3">{h.type}</td>
-                                  <td className="px-4 py-3">{h.score ?? "-"}</td>
-                                  <td className="px-4 py-3">{h.minute ?? "-"}</td>
-                                  <td className="px-4 py-3">{h.threshold ?? "-"}</td>
-                                  <td className="px-4 py-3">{h.current ?? "-"}</td>
-                                  <td className="px-4 py-3">{h.projected ?? "-"}</td>
-                                  <td className="px-4 py-3">{formatPercent(h.probability)}</td>
-                                  <td className="px-4 py-3">
-                                    {h.validated ? (
-                                      <span className={h.outcome === "success" ? "text-green-400" : "text-red-400"}>
-                                        {h.outcome === "success" ? "✓ Réussie" : "✗ Échouée"}
-                                        {h.validation_type === "instant" && <span className="ml-1 text-[10px] text-[#D4AF37]">(Instant)</span>}
-                                      </span>
-                                    ) : (
-                                      <span className="text-yellow-400">En attente</span>
-                                    )}
-                                  </td>
-                                  <td className="px-4 py-3">{formatDateTime(h.timestamp)}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                    {/* ===========================
+                        ONGLET HISTORIQUE
+                       =========================== */}
+                    {selectedTab === "history" && (
+                      <div>
+                        <div className="text-lg font-bold mb-4 flex items-center gap-2">
+                          <Icon name="history" className="text-[#D4AF37]" />
+                          Historique des prédictions
                         </div>
+
+                        {history.length === 0 ? (
+                          <EmptyState
+                            title="Aucun historique"
+                            subtitle="Les validations apparaîtront ici dès qu'une prédiction sera créée."
+                          />
+                        ) : (
+                          <div className="bg-[#121212] rounded-2xl border border-[#232323] overflow-hidden">
+                            <div className="overflow-x-auto custom-scrollbar">
+                              <table className="w-full text-sm min-w-[1150px]">
+                                <thead className="bg-[#0b0b0b] border-b border-[#232323]">
+                                  <tr>
+                                    <th className="px-4 py-3 text-left">Match</th>
+                                    <th className="px-4 py-3 text-left">Prédiction</th>
+                                    <th className="px-4 py-3 text-left">Score</th>
+                                    <th className="px-4 py-3 text-left">Minute</th>
+                                    <th className="px-4 py-3 text-left">Seuil</th>
+                                    <th className="px-4 py-3 text-left">Actuel</th>
+                                    <th className="px-4 py-3 text-left">Projection</th>
+                                    <th className="px-4 py-3 text-left">Proba</th>
+                                    <th className="px-4 py-3 text-left">Résultat</th>
+                                    <th className="px-4 py-3 text-left">Heure</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {history.map((h, i) => (
+                                    <tr key={i} className="border-b border-[#1f1f1f] hover:bg-[#151515]">
+                                      <td className="px-4 py-3">{h.match}</td>
+                                      <td className="px-4 py-3">{h.type}</td>
+                                      <td className="px-4 py-3">{h.score ?? "-"}</td>
+                                      <td className="px-4 py-3">{h.minute ?? "-"}</td>
+                                      <td className="px-4 py-3">{h.threshold ?? "-"}</td>
+                                      <td className="px-4 py-3">{h.current ?? "-"}</td>
+                                      <td className="px-4 py-3">{h.projected ?? "-"}</td>
+                                      <td className="px-4 py-3">{formatPercent(h.probability)}</td>
+                                      <td className="px-4 py-3">
+                                        {h.validated ? (
+                                          <span className={h.outcome === "success" ? "text-green-400" : "text-red-400"}>
+                                            {h.outcome === "success" ? "✓ Réussie" : "✗ Échouée"}
+                                            {h.validation_type === "instant" && <span className="ml-1 text-[10px] text-[#D4AF37]">(Instant)</span>}
+                                          </span>
+                                        ) : (
+                                          <span className="text-yellow-400">En attente</span>
+                                        )}
+                                      </td>
+                                      <td className="px-4 py-3">{formatDateTime(h.timestamp)}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
-                )}
 
-                {selectedTab === "notifications" && (
-                  <NotificationsPanel
-                    notifications={notifications}
-                    unreadCount={unreadCount}
-                    onClear={clearNotifications}
-                  />
+                    {/* ===========================
+                        ONGLET NOTIFICATIONS
+                       =========================== */}
+                    {selectedTab === "notifications" && (
+                      <NotificationsPanel
+                        notifications={notifications}
+                        unreadCount={unreadCount}
+                        onClear={clearNotifications}
+                      />
+                    )}
+                  </>
                 )}
               </>
             )}
@@ -1365,6 +1468,14 @@
             )}
           </main>
 
+          {/* ✅ bottom nav mobile */}
+          <MobileBottomTabs
+            selectedTab={selectedTab}
+            setSelectedTab={setSelectedTab}
+            unreadCount={unreadCount}
+            upcomingCount={scheduledMatches.length}
+          />
+
           {toast && (
             <div className="fixed top-4 right-3 left-3 md:left-auto md:right-4 z-50 md:w-full md:max-w-sm bg-[#121212] border border-[#2b2b2b] border-l-4 border-[#D4AF37] rounded-2xl shadow-2xl p-4">
               <div className="flex items-start gap-3">
@@ -1375,7 +1486,7 @@
                   <div className="font-bold text-sm">{toast.title}</div>
                   <div className="text-xs text-gray-300 mt-1 whitespace-pre-line safe-wrap">{toast.message}</div>
                 </div>
-                <button onClick={() => setToast(null)} className="text-gray-500 hover:text-white shrink-0">
+                <button onClick={() => setToast(null)} className="text-gray-500 hover:text-white shrink-0" type="button">
                   <Icon name="x" />
                 </button>
               </div>
