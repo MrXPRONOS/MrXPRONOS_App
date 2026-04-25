@@ -49,6 +49,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=tickets-prudents-guide-anti-erreurs-debutants</loc>
+    <lastmod>2026-04-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=markdown</loc>
     <lastmod>2026-04-18</lastmod>
     <changefreq>monthly</changefreq>
@@ -83,6 +89,24 @@
     <lastmod>2026-03-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=erreurs-frequentes-combines-paris-sportifs</loc>
+    <lastmod>2026-04-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=parier-live-discipline-conseils-concrets</loc>
+    <lastmod>2026-04-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=gestion-bankroll-fcfa-paris-sportifs</loc>
+    <lastmod>2026-04-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=les-pieges-des-favoris-a-petite-cote-comment-eviter-les-deceptions</loc>
