@@ -65,92 +65,6 @@
       word-break: break-word;
       overflow-wrap: anywhere;
     }
-
-    /* =======================================================
-       PC Burger menu (inspiré menu.js)
-    ======================================================= */
-    :root{
-      --mx-green:#22C55E;
-      --mx-green-strong:#16A34A;
-    }
-    @keyframes mxFeaturedPulse {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-1px); }
-    }
-    @keyframes mxLiveDot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .35; transform: scale(.78); }
-    }
-    @keyframes mxDrawerIn {
-      from { transform: translateX(-18px); opacity: .6; }
-      to   { transform: translateX(0); opacity: 1; }
-    }
-    .mx-drawer-anim { animation: mxDrawerIn .18s ease-out; }
-
-    .mx-menu-item.featured{
-      position: relative;
-      overflow: hidden;
-      animation: mxFeaturedPulse 2.2s ease-in-out infinite;
-    }
-
-    /* COUPONS : vert */
-    .mx-menu-item.featured-coupons{
-      border: 1px solid rgba(34,197,94,0.55) !important;
-      background: linear-gradient(180deg, rgba(34,197,94,0.10), rgba(255,255,255,0.03)) !important;
-      box-shadow: 0 14px 35px rgba(0,0,0,0.45), 0 0 0 3px rgba(34,197,94,0.07);
-    }
-    .mx-menu-item.featured-coupons:hover{
-      border-color: rgba(34,197,94,0.85) !important;
-      box-shadow: 0 18px 45px rgba(0,0,0,0.55), 0 0 28px rgba(34,197,94,0.18);
-    }
-
-    /* LIVE VIP : vert premium */
-    .mx-menu-item.featured-vip{
-      border: 1px solid rgba(34,197,94,0.75) !important;
-      background:
-        radial-gradient(circle at top left, rgba(34,197,94,0.20), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(34,197,94,0.12), transparent 60%),
-        linear-gradient(180deg, rgba(34,197,94,0.14), rgba(255,255,255,0.03)) !important;
-      box-shadow:
-        0 18px 60px rgba(0,0,0,0.62),
-        0 0 0 3px rgba(34,197,94,0.10),
-        0 0 40px rgba(34,197,94,0.22);
-    }
-    .mx-menu-item.featured-vip:hover{
-      border-color: rgba(34,197,94,0.95) !important;
-      box-shadow:
-        0 22px 70px rgba(0,0,0,0.72),
-        0 0 0 3px rgba(34,197,94,0.14),
-        0 0 55px rgba(34,197,94,0.28);
-    }
-
-    /* point LIVE */
-    .mx-menu-live-dot{
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--mx-green);
-      box-shadow: 0 0 16px rgba(34,197,94,0.75);
-      animation: mxLiveDot 1.3s infinite;
-    }
-
-    /* badge */
-    .mx-menu-badge{
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      padding: 2px 8px;
-      font-size: 10px;
-      font-weight: 900;
-      border-radius: 999px;
-      background: rgba(0,0,0,0.55);
-      text-transform: uppercase;
-      border: 1px solid rgba(34,197,94,0.65);
-      color: var(--mx-green);
-    }
   </style>
 </head>
 
@@ -171,30 +85,6 @@
         : null;
 
     const { useState, useEffect, useCallback, useMemo } = React;
-
-    // =======================================================
-    // MENU (PC Burger) - inspiré menu.js
-    // =======================================================
-    const MENU_ITEMS = [
-      { name: "Accueil", icon: "fa-home", url: "index.html" },
-      { name: "COUPONS", icon: "fa-ticket", url: "pronos.html", featured: "coupons", badge: "TOP" },
-      { name: "LIVE VIP", icon: "fa-bolt", url: "live.html", vip: true, featured: "vip", badge: "LIVE" },
-      { name: "Historique", icon: "fa-clock-rotate-left", url: "historique.html" },
-      { name: "Bonus", icon: "fa-gift", url: "bonus.html" },
-      { name: "Blog", icon: "fa-newspaper", url: "blog.html" },
-      { name: "Conseils", icon: "fa-lightbulb", url: "conseils.html" },
-      { name: "Actus Foot", icon: "fa-futbol", url: "infos.html" },
-      { name: "Contact", icon: "fa-envelope", url: "contact.html" },
-    ];
-
-    function isCurrentPage(url) {
-      const currentPath = window.location.pathname.replace(/\/+$/, "");
-      const currentFile = currentPath.split("/").pop() || "";
-      const targetPath = new URL(url, window.location.href).pathname.replace(/\/+$/, "");
-      const targetFile = targetPath.split("/").pop() || "";
-      const isHome = url === "index.html";
-      return (!isHome && currentFile === targetFile) || (isHome && (currentFile === "" || currentFile === "index.html"));
-    }
 
     // =======================================================
     // COOKIES (365 jours) + ID stable
@@ -226,7 +116,7 @@
     }
 
     // =======================================================
-    // PARTAGE / JOUR
+    // PARTAGE / JOUR (mêmes clés que main.js)
     // =======================================================
     function getTodayString() {
       return new Date().toDateString();
@@ -254,7 +144,7 @@
       window.open(url, "_blank", "noopener,noreferrer");
     }
 
-    // Validation partage après ~5s
+    // Validation partage après ~5s (comme main.js)
     let pendingShare = null;
 
     function startShareTracking(platform, onUnlocked) {
@@ -278,7 +168,9 @@
           page: "live.html",
         });
       } catch (_) {}
-      try { await supabase.rpc("increment_counter", { counter_name: "total_shares" }); } catch (_) {}
+      try {
+        await supabase.rpc("increment_counter", { counter_name: "total_shares" });
+      } catch (_) {}
     }
 
     function finalizePendingShare(force = false) {
@@ -334,7 +226,9 @@
       return "";
     }
 
-    // ✅ "Pronostic : Total plus de" en OR
+    // ✅ demandé :
+    // - seulement "Pronostic :" en OR
+    // - "Total plus de ..." en BLANC
     function formatPredTitleSimple(pred) {
       const unit = guessUnitFromPred(pred);
       const thr = formatNumberFR(pred?.threshold);
@@ -347,8 +241,8 @@
         const verb = isOver ? "plus de" : "moins de";
         return (
           <>
-            <span className="text-[#D4AF37]">{`Pronostic : Total ${verb}`}</span>
-            <span>{` ${thr}${unit ? " " + unit : ""}`}</span>
+            <span className="text-[#D4AF37]">Pronostic :</span>
+            <span>{` Total ${verb} ${thr}${unit ? " " + unit : ""}`}</span>
           </>
         );
       }
@@ -356,13 +250,13 @@
       if (pred?.title) {
         return (
           <>
-            <span className="text-[#D4AF37]">Pronostic : </span>
-            <span>{pred.title}</span>
+            <span className="text-[#D4AF37]">Pronostic :</span>
+            <span>{` ${pred.title}`}</span>
           </>
         );
       }
 
-      return <span className="text-[#D4AF37]">Pronostic</span>;
+      return <span className="text-[#D4AF37]">Pronostic :</span>;
     }
 
     function formatPredSubtitle(pred) {
@@ -376,7 +270,7 @@
     }
 
     // =======================================================
-    // LOGOS via Edge Function Proxy
+    // LOGOS via Edge Function Proxy (Robuste)
     // =======================================================
     function getTeamLogo(match, side = "home") {
       const obj = side === "home" ? match?.home_team_obj : match?.away_team_obj;
@@ -541,135 +435,6 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
       return <i className={`fas ${map[name] || "fa-circle"} ${className}`} style={{ fontSize: size }} />;
     };
 
-    // =======================================================
-    // PC Burger Menu (PC uniquement, drawer gauche, grille 2 colonnes)
-    // =======================================================
-    const PcBurgerMenu = () => {
-      const [open, setOpen] = useState(false);
-
-      useEffect(() => {
-        if (!open) return;
-
-        const prevOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-
-        const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
-        document.addEventListener("keydown", onKey);
-
-        return () => {
-          document.body.style.overflow = prevOverflow;
-          document.removeEventListener("keydown", onKey);
-        };
-      }, [open]);
-
-      const go = (item) => {
-        setOpen(false);
-
-        // même logique que menu.js : LIVE VIP -> handleVipClick si présent
-        if (item.vip && typeof window.handleVipClick === "function") {
-          window.handleVipClick();
-          return;
-        }
-        window.location.href = item.url;
-      };
-
-      return (
-        <>
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="hidden md:flex w-11 h-11 rounded-2xl hover:bg-[#1a1a1a] soft-border items-center justify-center shrink-0"
-            aria-label="Ouvrir le menu"
-            aria-expanded={open ? "true" : "false"}
-          >
-            <i className="fas fa-bars"></i>
-          </button>
-
-          {open && (
-            <div
-              className="hidden md:block fixed inset-0 z-[90] bg-black/70 backdrop-blur-sm"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Menu"
-              onClick={() => setOpen(false)}
-            >
-              <aside
-                className="mx-drawer-anim absolute left-0 top-0 h-full w-[420px] max-w-[92vw] bg-[#121212] border-r border-[#262626] shadow-2xl overflow-hidden"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="p-4 border-b border-[#2a2a2a] flex items-center justify-between">
-                  <div className="font-extrabold text-lg gold-gradient">Menu</div>
-                  <button
-                    type="button"
-                    onClick={() => setOpen(false)}
-                    className="w-10 h-10 rounded-2xl hover:bg-[#1a1a1a] soft-border flex items-center justify-center"
-                    aria-label="Fermer"
-                  >
-                    <i className="fas fa-times"></i>
-                  </button>
-                </div>
-
-                <div className="p-4 overflow-y-auto custom-scrollbar" style={{ height: "calc(100% - 72px)" }}>
-                  <div className="grid grid-cols-2 gap-3">
-                    {MENU_ITEMS.map((item) => {
-                      const featuredClass = item.featured ? `featured featured-${item.featured}` : "";
-                      const active = isCurrentPage(item.url);
-
-                      return (
-                        <button
-                          key={item.name}
-                          type="button"
-                          onClick={() => go(item)}
-                          className={[
-                            "mx-menu-item",
-                            featuredClass,
-                            "relative text-left rounded-2xl px-4 py-4 border transition-all",
-                            active
-                              ? "border-[#D4AF37]/50 bg-[#141414]"
-                              : "border-[#232323] bg-[#0f0f0f] hover:border-[#3a3a3a] hover:bg-[#131313]",
-                          ].join(" ")}
-                        >
-                          {item.featured === "vip" && <span className="mx-menu-live-dot"></span>}
-                          {item.badge && <span className="mx-menu-badge">{item.badge}</span>}
-
-                          <div className="flex items-center gap-3">
-                            <span
-                              className={[
-                                "w-11 h-11 rounded-2xl flex items-center justify-center border",
-                                item.featured ? "border-emerald-500/30 bg-emerald-500/10" : "border-white/10 bg-white/5",
-                              ].join(" ")}
-                            >
-                              <i
-                                className={`fas ${item.icon}`}
-                                style={{ color: item.featured ? "var(--mx-green)" : "#d1d5db" }}
-                              ></i>
-                            </span>
-
-                            <div className="min-w-0">
-                              <div className="font-extrabold text-[13px] text-gray-100 truncate">
-                                {item.name}
-                              </div>
-                              <div className="text-[11px] text-gray-500 truncate">
-                                {item.featured === "vip" ? "LIVE en direct" : "Ouvrir"}
-                              </div>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="mt-4 text-[11px] text-gray-500">
-                    Astuce : touche <b>ESC</b> pour fermer.
-                  </div>
-                </div>
-              </aside>
-            </div>
-          )}
-        </>
-      );
-    };
-
     const Card = ({ children, className = "", onClick }) => (
       <div
         onClick={onClick}
@@ -777,7 +542,7 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
       return (
         <header className="sticky top-0 z-40 glass border-b border-[#1e1e1e]">
           <div className="max-w-7xl mx-auto px-3 py-3">
-            <div className="grid grid-cols-[44px_minmax(0,1fr)_auto] gap-2 items-start">
+            <div className="grid grid-cols-[44px_minmax(0,1fr)_44px] gap-2 items-start">
               <div className="flex items-start">
                 <button
                   onClick={onBack}
@@ -802,8 +567,7 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
                 </div>
               </div>
 
-              <div className="flex items-start justify-end gap-2">
-                <PcBurgerMenu />
+              <div className="flex items-start justify-end">
                 <button
                   onClick={onRefresh}
                   className="w-11 h-11 rounded-2xl hover:bg-[#1a1a1a] soft-border flex items-center justify-center shrink-0"
@@ -812,7 +576,6 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
                   <Icon name="refresh" size={16} className={refreshing ? "animate-spin text-[#D4AF37]" : ""} />
                 </button>
               </div>
-
             </div>
           </div>
         </header>
@@ -1210,7 +973,7 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
     // =======================================================
     const MobileBottomTabs = ({ selectedTab, setSelectedTab, unreadCount, upcomingCount, liveCount }) => {
       const items = [
-        { key: "live", label: "Live", icon: "bolt", count: liveCount },
+        { key: "live", label: "Live", icon: "bolt", count: liveCount },       // ✅ badge live
         { key: "upcoming", label: "À venir", icon: "calendar", count: upcomingCount },
         { key: "history", label: "Historique", icon: "history" },
         { key: "notifications", label: "Notifs", icon: "bell", count: unreadCount, danger: true },
@@ -1302,7 +1065,7 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
           const [matchesRes, oppRes, notifRes, historyRes, todayRes] = await Promise.all([
             apiFetch("/matches"),
             apiFetch("/opportunities"),
-            apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`),
+            apiFetch(`/notifications?user_id=all`),
             apiFetch("/predictions/history"),
             apiFetch("/today")
           ]);
@@ -1378,6 +1141,7 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
 
       const unreadCount = notifications.filter((n) => !n.read).length;
 
+      // Déduplication affichage
       const bestOpportunity = useMemo(() => opportunities?.[0] || null, [opportunities]);
 
       const otherOpportunities = useMemo(() => {
@@ -1401,38 +1165,48 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
             body: JSON.stringify({ notification_ids: ids, user_id: userId })
           });
           setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-        } catch (e) { console.error(e); }
+        } catch (e) {
+          console.error(e);
+        }
       };
 
-      // ✅ Tabs sur PC (les contenus sont séparés)
-      const DesktopTabs = () => (
-        <div className="hidden md:flex gap-3 mb-6 flex-wrap">
-          {[
-            { key: "live", label: "Live" },
-            { key: "upcoming", label: "À venir" },
-            { key: "history", label: "Historique" },
-            { key: "notifications", label: "Notifications" },
-          ].map(t => (
-            <button
-              key={t.key}
-              onClick={() => setSelectedTab(t.key)}
-              className={`px-4 py-2 rounded-xl font-semibold transition-colors ${
-                selectedTab === t.key
-                  ? "bg-[#D4AF37] text-black"
-                  : "bg-[#151515] text-gray-300 border border-[#252525]"
-              }`}
-              type="button"
-            >
-              {t.label}
-              {t.key === "notifications" && unreadCount > 0 && (
-                <span className="ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold align-middle">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      );
+      // ✅ boutons (PC) + badges
+      const DesktopTabs = () => {
+        const tabs = [
+          { key: "live", label: "Live", count: stats.matches_live || liveMatches.length },
+          { key: "upcoming", label: "À venir", count: stats.upcoming || scheduledMatches.length },
+          { key: "history", label: "Historique" },
+          { key: "notifications", label: "Notifications", count: unreadCount, danger: true },
+        ];
+
+        return (
+          <div className="hidden md:flex gap-3 mb-6 flex-wrap">
+            {tabs.map(t => (
+              <button
+                key={t.key}
+                onClick={() => setSelectedTab(t.key)}
+                className={`relative px-4 py-2 rounded-xl font-semibold transition-colors ${
+                  selectedTab === t.key
+                    ? "bg-[#D4AF37] text-black"
+                    : "bg-[#151515] text-gray-300 border border-[#252525]"
+                }`}
+                type="button"
+              >
+                {t.label}
+                {safeNumber(t.count, 0) > 0 && (
+                  <span
+                    className={`ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-white text-[10px] font-bold align-middle ${
+                      t.danger ? "bg-red-500" : "bg-[#D4AF37]"
+                    }`}
+                  >
+                    {t.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        );
+      };
 
       if (error && !loading) {
         return (
