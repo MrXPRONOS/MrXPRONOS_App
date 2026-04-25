@@ -12,9 +12,9 @@ Système de calcul INCHANGÉ :
 - stats réelles calculées
 - intégration ML (auto_train / ml_model) SANS casser la logique métier
 
-Amélioration logos (MODIFIÉE) :
+Logos (priorité) :
 1) SportData v2 (clé requise) -> https://v2.football.sportsapipro.com/api/teams/{teamId}/image
-2) SportData Images v1 (public) -> v1.football.sportsapipro.com/images/competitors/{id}?imageVersion={v}
+2) SportData v1 images (public) -> https://v1.football.sportsapipro.com/images/competitors/{id}?imageVersion={v}
 3) TheSportsDB fallback
 4) fallback home.webp / away.webp
 
@@ -22,17 +22,33 @@ Règle anti-trucage :
 - une fois qu’un jour est passé, on n’ajoute plus de nouveaux matchs
 - pour les matchs déjà publiés sur un jour passé, on met seulement à jour :
   score / status / is_finished / verified_*
+
+LOGS (GitHub Actions friendly):
+- logs détaillés sur: création pronostic, skip, téléchargements logos, cache hit, fallback, etc.
+- niveau réglable via env LOG_LEVEL=DEBUG/INFO/WARNING (défaut INFO)
+- optionnel: MAX_LOGO_DOWNLOADS_PER_RUN (0 = illimité)
 """
 
 import os
 import re
 import json
+import logging
 import requests
 from datetime import datetime, timedelta, timezone
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from ml_model import load_model, predict_proba, build_feature_vector_from_row
+
+# =======================================================
+# LOGGING
+# =======================================================
+LOG_LEVEL = (os.environ.get("LOG_LEVEL") or "INFO").upper().strip()
+logging.basicConfig(
+    level=getattr(logging, LOG_LEVEL, logging.INFO),
+    format="%(asctime)s | %(levelname)s | %(message)s",
+)
+logger = logging.getLogger("generate_data")
 
 # =======================================================
 # CONFIGURATION
@@ -71,12 +87,31 @@ TEAM_LOGO_DIR = os.path.join("assets", "images", "teams")
 
 RETENTION_DAYS = 14
 
-print("=" * 60)
-print(f"🚀 GÉNÉRATION DES PRONOSTICS - {today} UTC (rétention {RETENTION_DAYS} jours)")
-print("=" * 60)
+# Optionnel: limiter les downloads de logos/run (0 = illimité)
+try:
+    MAX_LOGO_DOWNLOADS_PER_RUN = int(os.environ.get("MAX_LOGO_DOWNLOADS_PER_RUN", "0"))
+except Exception:
+    MAX_LOGO_DOWNLOADS_PER_RUN = 0
+
+logger.info("=" * 70)
+logger.info("GÉNÉRATION DES PRONOSTICS - %s UTC (rétention %s jours)", today, RETENTION_DAYS)
+logger.info("LOG_LEVEL=%s | MAX_LOGO_DOWNLOADS_PER_RUN=%s", LOG_LEVEL, MAX_LOGO_DOWNLOADS_PER_RUN)
+logger.info("=" * 70)
 
 os.makedirs(CACHE_DIR, exist_ok=True)
 os.makedirs(TEAM_LOGO_DIR, exist_ok=True)
+
+# =======================================================
+# STATS LOGOS (pour logs)
+# =======================================================
+logo_run_stats = {
+    "cache_hit": 0,
+    "download_ok": 0,
+    "download_fail": 0,
+    "fallback_used": 0,
+    "skipped_by_limit": 0,
+}
+logo_download_count = 0
 
 # =======================================================
 # GESTION DU CACHE DES LOGOS
@@ -86,12 +121,15 @@ if os.path.exists(LOGO_CACHE_FILE):
     try:
         with open(LOGO_CACHE_FILE, "r", encoding="utf-8") as f:
             logo_cache = json.load(f)
+        logger.info("Logo cache chargé: %s entrées (%s)", len(logo_cache), LOGO_CACHE_FILE)
     except Exception:
         logo_cache = {}
+        logger.warning("Logo cache illisible, reset.")
 
 def save_logo_cache():
     with open(LOGO_CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(logo_cache, f, indent=2, ensure_ascii=False)
+    logger.info("Logo cache sauvegardé: %s entrées (%s)", len(logo_cache), LOGO_CACHE_FILE)
 
 def norm_path(p: str) -> str:
     return (p or "").replace("\\", "/")
@@ -116,52 +154,101 @@ def resolve_existing_path(path: str) -> str | None:
             return norm_path(cand)
     return None
 
-def download_image(url: str, local_path: str, headers: dict | None = None) -> str | None:
+def _can_download_more_logos() -> bool:
+    global logo_download_count
+    if MAX_LOGO_DOWNLOADS_PER_RUN and logo_download_count >= MAX_LOGO_DOWNLOADS_PER_RUN:
+        return False
+    return True
+
+def _mark_logo_download():
+    global logo_download_count
+    logo_download_count += 1
+
+def download_image(url: str, local_path: str, headers: dict | None = None, label: str = "") -> str | None:
     """
     Télécharge une image.
-    - Refuse HTML/JSON
-    - Supporte un cas où l'API renvoie du JSON contenant une URL d'image
+    - Cache local: si existe déjà > 200 bytes => pas de download
+    - Refuse HTML
+    - Supporte JSON contenant {"url": "..."} (au cas où)
     """
     try:
         local_path = norm_path(local_path)
+
         if os.path.exists(local_path) and os.path.getsize(local_path) > 200:
+            logger.debug("[logo] cache-file hit (%s) -> %s", label, local_path)
+            logo_run_stats["cache_hit"] += 1
             return local_path
+
+        if not _can_download_more_logos():
+            logo_run_stats["skipped_by_limit"] += 1
+            logger.warning("[logo] limite atteinte, skip download (%s) url=%s", label, url)
+            return None
+
+        logger.info("[logo] téléchargement (%s) url=%s -> %s", label, url, local_path)
+        _mark_logo_download()
 
         resp = session.get(url, headers=headers, timeout=20)
         if resp.status_code != 200 or not resp.content:
+            logo_run_stats["download_fail"] += 1
+            logger.warning("[logo] échec HTTP %s (%s) url=%s", resp.status_code, label, url)
             return None
 
         ctype = (resp.headers.get("content-type") or "").lower()
 
-        # Si JSON, essayer d'extraire une URL d'image
+        # si JSON, tenter extraction d'une URL d'image
         if "application/json" in ctype:
             try:
                 j = resp.json()
                 img_url = j.get("url")
-                # éviter boucle si l'API renvoie "url" identique
                 if not img_url or img_url == url:
+                    logo_run_stats["download_fail"] += 1
+                    logger.warning("[logo] JSON sans url exploitable (%s) url=%s", label, url)
                     return None
+
+                logger.info("[logo] JSON -> téléchargement binaire (%s) img_url=%s", label, img_url)
+                if not _can_download_more_logos():
+                    logo_run_stats["skipped_by_limit"] += 1
+                    logger.warning("[logo] limite atteinte, skip download (%s) img_url=%s", label, img_url)
+                    return None
+
+                _mark_logo_download()
                 resp2 = session.get(img_url, headers=headers, timeout=20)
                 if resp2.status_code != 200 or not resp2.content:
+                    logo_run_stats["download_fail"] += 1
+                    logger.warning("[logo] échec HTTP %s (%s) img_url=%s", resp2.status_code, label, img_url)
                     return None
                 ctype2 = (resp2.headers.get("content-type") or "").lower()
                 if "application/json" in ctype2 or "text/html" in ctype2:
+                    logo_run_stats["download_fail"] += 1
+                    logger.warning("[logo] type invalide (%s): %s", label, ctype2)
                     return None
                 resp = resp2
                 ctype = ctype2
-            except Exception:
+            except Exception as e:
+                logo_run_stats["download_fail"] += 1
+                logger.warning("[logo] JSON parse error (%s): %s", label, e)
                 return None
 
         if "text/html" in ctype:
+            logo_run_stats["download_fail"] += 1
+            logger.warning("[logo] HTML reçu (%s), abandon url=%s", label, url)
             return None
 
         with open(local_path, "wb") as f:
             f.write(resp.content)
 
         if os.path.getsize(local_path) > 200:
+            logo_run_stats["download_ok"] += 1
+            logger.info("[logo] OK (%s) size=%s content-type=%s path=%s",
+                        label, os.path.getsize(local_path), ctype, local_path)
             return local_path
+
+        logo_run_stats["download_fail"] += 1
+        logger.warning("[logo] fichier trop petit (%s) path=%s", label, local_path)
         return None
-    except Exception:
+    except Exception as e:
+        logo_run_stats["download_fail"] += 1
+        logger.warning("[logo] exception (%s): %s", label, e)
         return None
 
 # ---------- cache keys ----------
@@ -179,10 +266,6 @@ def cache_key_thesportsdb(team_name: str):
 
 # ---------- SportData v2 logo ----------
 def get_logo_sportdata_v2(team_id) -> str | None:
-    """
-    Endpoint: GET https://v2.football.sportsapipro.com/api/teams/{teamId}/image
-    Header: x-api-key
-    """
     if not team_id:
         return None
 
@@ -191,8 +274,12 @@ def get_logo_sportdata_v2(team_id) -> str | None:
         cached = resolve_existing_path(logo_cache.get(key))
         if cached:
             logo_cache[key] = cached
+            logo_run_stats["cache_hit"] += 1
+            logger.debug("[logo] cache-hit sdv2 team_id=%s -> %s", team_id, cached)
             return cached
         if logo_cache.get(key) is None:
+            logger.debug("[logo] cache-hit(sd v2) négatif team_id=%s", team_id)
+            logo_run_stats["cache_hit"] += 1
             return None
 
     url = f"{SPORTDATA_V2_BASE}/teams/{team_id}/image"
@@ -202,7 +289,7 @@ def get_logo_sportdata_v2(team_id) -> str | None:
     img_headers = dict(HEADERS)
     img_headers["Accept"] = "image/*"
 
-    p = download_image(url, local_path, headers=img_headers)
+    p = download_image(url, local_path, headers=img_headers, label=f"sdv2 team:{team_id}")
     logo_cache[key] = p
     return p
 
@@ -216,8 +303,12 @@ def get_logo_sportdata_v1(competitor_id, image_version) -> str | None:
         cached = resolve_existing_path(logo_cache.get(key))
         if cached:
             logo_cache[key] = cached
+            logo_run_stats["cache_hit"] += 1
+            logger.debug("[logo] cache-hit sdv1 competitor=%s v=%s -> %s", competitor_id, image_version, cached)
             return cached
         if logo_cache.get(key) is None:
+            logger.debug("[logo] cache-hit(sd v1) négatif competitor=%s v=%s", competitor_id, image_version)
+            logo_run_stats["cache_hit"] += 1
             return None
 
     if image_version:
@@ -228,8 +319,7 @@ def get_logo_sportdata_v1(competitor_id, image_version) -> str | None:
         filename = f"sdv1-{competitor_id}.png"
 
     local_path = norm_path(os.path.join(TEAM_LOGO_DIR, filename))
-    p = download_image(url, local_path, headers=None)
-
+    p = download_image(url, local_path, headers=None, label=f"sdv1 competitor:{competitor_id}")
     logo_cache[key] = p
     return p
 
@@ -242,15 +332,21 @@ def get_logo_thesportsdb(team_name: str) -> str | None:
         cached = resolve_existing_path(logo_cache.get(key))
         if cached:
             logo_cache[key] = cached
+            logo_run_stats["cache_hit"] += 1
+            logger.debug("[logo] cache-hit tsdb team=%s -> %s", team_name, cached)
             return cached
         if logo_cache.get(key) is None:
+            logo_run_stats["cache_hit"] += 1
+            logger.debug("[logo] cache-hit(tsdb) négatif team=%s", team_name)
             return None
 
+    # TSDB = 2 requêtes (search puis image)
     try:
         search_url = (
             f"https://www.thesportsdb.com/api/v1/json/{THESPORTSDB_API_KEY}/searchteams.php"
             f"?t={requests.utils.quote(team_name)}"
         )
+        logger.info("[logo] TSDB search team=%s url=%s", team_name, search_url)
         resp = session.get(search_url, timeout=10)
 
         if resp.status_code == 200:
@@ -264,17 +360,16 @@ def get_logo_thesportsdb(team_name: str) -> str | None:
 
                     if os.path.exists(local_path) and os.path.getsize(local_path) > 200:
                         logo_cache[key] = local_path
+                        logo_run_stats["cache_hit"] += 1
+                        logger.debug("[logo] cache-file hit tsdb team=%s -> %s", team_name, local_path)
                         return local_path
 
-                    img_resp = session.get(logo_url, timeout=15)
-                    if img_resp.status_code == 200 and img_resp.content:
-                        with open(local_path, "wb") as f:
-                            f.write(img_resp.content)
-                        if os.path.getsize(local_path) > 200:
-                            logo_cache[key] = local_path
-                            return local_path
-    except Exception:
-        pass
+                    # download image
+                    p = download_image(logo_url, local_path, headers=None, label=f"tsdb team:{team_name}")
+                    logo_cache[key] = p
+                    return p
+    except Exception as e:
+        logger.warning("[logo] TSDB exception team=%s: %s", team_name, e)
 
     logo_cache[key] = None
     return None
@@ -296,7 +391,10 @@ def get_team_logo(team_name: str, competitor_id=None, image_version=None, side: 
         return p
 
     # 4) fallback local
-    return "assets/images/away.webp" if side == "away" else "assets/images/home.webp"
+    logo_run_stats["fallback_used"] += 1
+    fallback = "assets/images/away.webp" if side == "away" else "assets/images/home.webp"
+    logger.debug("[logo] fallback local team=%s side=%s -> %s", team_name, side, fallback)
+    return fallback
 
 # =======================================================
 # FONCTIONS SPORTDATA (MATCHS)
@@ -310,12 +408,16 @@ def fetch_games(date_from, date_to):
         "onlyMajorGames": "false",
     }
     try:
+        logger.info("SportData fetch: %s -> %s", params["startDate"], params["endDate"])
         resp = session.get(SPORTDATA_URL, headers=HEADERS, params=params, timeout=30)
         resp.raise_for_status()
         data = resp.json()
-        return data.get("games", [])
+        games = data.get("games", [])
+        logger.info("SportData fetch OK: %s matchs (%s -> %s)", len(games), params["startDate"], params["endDate"])
+        return games
     except Exception as e:
-        print(f"❌ Erreur SportData: {e}")
+        logger.error("Erreur SportData fetch (%s -> %s): %s",
+                     params.get("startDate"), params.get("endDate"), e)
         return []
 
 def extract_game_info(game):
@@ -358,8 +460,7 @@ def extract_game_info(game):
         "status_text": status_text,
         "is_finished": is_finished,
 
-        # NB: on réutilise ces IDs comme teamId pour v2 logos.
-        # Si ce n'est pas le bon mapping chez toi, il faudra adapter.
+        # on réutilise ces IDs comme teamId pour v2 logos
         "home_competitor_id": home.get("id"),
         "away_competitor_id": away.get("id"),
         "home_image_version": home.get("imageVersion"),
@@ -371,10 +472,11 @@ def extract_game_info(game):
 # =======================================================
 def load_historical_matches():
     if not os.path.exists(GLOBAL_CACHE_FILE):
-        print("⚠️ Fichier historique introuvable. Exécutez d'abord allmatches.py.")
+        logger.warning("Historique introuvable (%s). Exécutez d'abord allmatches.py.", GLOBAL_CACHE_FILE)
         return []
     with open(GLOBAL_CACHE_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    return data
 
 def weight_by_date(date_str):
     try:
@@ -482,11 +584,7 @@ def generate_prediction(analysis):
     if analysis["over_25_prob"] > 0.7 or analysis["over_25_prob"] < 0.3:
         confidence = min(confidence + 5, 95)
 
-    return {
-        "double_chance": double_chance,
-        "over_25": over_25,
-        "confidence": confidence,
-    }
+    return {"double_chance": double_chance, "over_25": over_25, "confidence": confidence}
 
 def calculate_xpronos_score(analysis, prediction):
     score = 0
@@ -643,7 +741,6 @@ def compute_stats(matches):
                 wins += 1
 
     roi = ((wins - total_bets) / total_bets * 100) if total_bets > 0 else 0
-
     return {"total_bets": total_bets, "wins": wins, "roi": round(roi, 1)}
 
 # =======================================================
@@ -691,13 +788,15 @@ def compute_ml_score(match, analysis, prediction):
 # FONCTION PRINCIPALE
 # =======================================================
 def main():
+    # --- ML ---
     model = load_model()
     compute_ml_score.model = model
     if model:
-        print("🤖 Modèle ML chargé")
+        logger.info("Modèle ML chargé")
     else:
-        print("⚠️ Aucun modèle ML disponible, ml_score par défaut")
+        logger.warning("Aucun modèle ML disponible, ml_score par défaut")
 
+    # --- Load existing data.json ---
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             existing_data = json.load(f)
@@ -706,6 +805,7 @@ def main():
                 for m in existing_data.get("matches", [])
                 if m.get("id") is not None
             }
+        logger.info("data.json chargé: %s matchs existants", len(existing_matches))
     else:
         existing_data = {
             "matches": [],
@@ -714,25 +814,37 @@ def main():
             "bookmakers": [],
         }
         existing_matches = {}
+        logger.info("data.json absent: initialisation d'une base vide")
 
-    print("\n📅 Récupération des matchs via SportData...")
+    # --- Fetch games ---
+    logger.info("Récupération des matchs via SportData (hier/aujourd'hui/demain)...")
     games_today = fetch_games(today, today)
     games_tomorrow = fetch_games(tomorrow, tomorrow)
     games_yesterday = fetch_games(yesterday, yesterday)
     all_new_games = games_today + games_tomorrow + games_yesterday
-    print(f"✅ {len(all_new_games)} matchs récupérés")
+    logger.info("Total matchs récupérés (brut): %s", len(all_new_games))
 
     new_infos = {}
     for g in all_new_games:
         info = extract_game_info(g)
         if info.get("id") is not None:
             new_infos[str(info["id"])] = info
+    logger.info("Matchs uniques après dédoublonnage: %s", len(new_infos))
 
+    # --- Load historical ---
     historical = load_historical_matches()
-    print(f"📂 Historique chargé : {len(historical)} matchs")
+    logger.info("Historique chargé: %s matchs", len(historical))
     team_history = build_team_history(historical)
 
+    # --- Generation loop ---
     new_matches = []
+    counters = {
+        "past_new_skipped": 0,
+        "past_updated": 0,
+        "h2h_insufficient_skipped": 0,
+        "balanced_12_skipped": 0,
+        "predictions_created": 0,
+    }
 
     for gid, base in new_infos.items():
         existing = existing_matches.get(gid)
@@ -741,20 +853,28 @@ def main():
         today_str = today.isoformat()
         is_past_day = bool(match_date) and (match_date < today_str)
 
+        label = f"{base.get('home_team','?')} vs {base.get('away_team','?')} ({match_date}) id={gid}"
+
         # Anti-trucage : aucun nouveau match sur un jour déjà passé
         if is_past_day and not existing:
+            counters["past_new_skipped"] += 1
+            logger.info("[SKIP anti-trucage] match passé non publié: %s", label)
             continue
 
         # Jour passé déjà publié : uniquement scores / statut / validation
         if is_past_day and existing:
             updated = dict(existing)
 
-            if base.get("home_score") is not None:
+            changed = False
+            if base.get("home_score") is not None and base.get("home_score") != updated.get("home_score"):
                 updated["home_score"] = base["home_score"]
-            if base.get("away_score") is not None:
+                changed = True
+            if base.get("away_score") is not None and base.get("away_score") != updated.get("away_score"):
                 updated["away_score"] = base["away_score"]
-            if base.get("status_text"):
+                changed = True
+            if base.get("status_text") and base.get("status_text") != updated.get("status"):
                 updated["status"] = base["status_text"]
+                changed = True
 
             updated["is_finished"] = bool(base.get("is_finished", updated.get("is_finished", False)))
 
@@ -773,13 +893,12 @@ def main():
                     side="away",
                 )
 
-            if (
-                updated.get("is_finished")
-                and updated.get("home_score") is not None
-                and updated.get("away_score") is not None
-            ):
+            if updated.get("is_finished") and updated.get("home_score") is not None and updated.get("away_score") is not None:
                 updated = compute_verified_fields(updated)
 
+            counters["past_updated"] += 1
+            logger.info("[UPDATE passé] %s | changed=%s | score=%s-%s | finished=%s",
+                        label, changed, updated.get("home_score"), updated.get("away_score"), updated.get("is_finished"))
             new_matches.append(updated)
             continue
 
@@ -797,19 +916,30 @@ def main():
 
         h2h_list = get_h2h(historical, base["home_team"], base["away_team"], years=2)
         if len(h2h_list) < 2:
-            print(f"⚠️ Match {base['home_team']} vs {base['away_team']} ignoré (H2H insuffisant)")
+            counters["h2h_insufficient_skipped"] += 1
+            logger.info("[SKIP H2H] insuffisant (%s) : %s", len(h2h_list), label)
             continue
 
         analysis = analyze_h2h(h2h_list, base["home_team"], base["away_team"])
         prediction = generate_prediction(analysis)
 
         if prediction["double_chance"] == "12":
-            print("   ⚠️ Pronostic 12 (match équilibré) ignoré")
+            counters["balanced_12_skipped"] += 1
+            logger.info("[SKIP pronostic=12] match équilibré: %s | h2h=%s home_dom=%.3f away_dom=%.3f",
+                        label, analysis.get("total_matches"), analysis.get("home_dominance"), analysis.get("away_dominance"))
             continue
 
         score = calculate_xpronos_score(analysis, prediction)
         category = get_category(score)
         badge = get_badge(score)
+
+        logger.info("[PRONO] %s | DC=%s | over25=%s | conf=%s | xpronos=%s | cat=%s",
+                    label,
+                    prediction.get("double_chance"),
+                    prediction.get("over_25"),
+                    prediction.get("confidence"),
+                    score,
+                    category)
 
         home_logo = get_team_logo(
             base["home_team"],
@@ -864,6 +994,7 @@ def main():
         ml_score = compute_ml_score(match, analysis, prediction)
         match["ml_score"] = ml_score
 
+        # Ajustement (inchangé)
         if ml_score < 45:
             match["prediction"]["confidence"] = max(35, match["prediction"]["confidence"] - 5)
         elif ml_score >= 70:
@@ -871,12 +1002,16 @@ def main():
 
         match["final_score"] = round((match["xpronos_score"] * 0.75) + (ml_score * 0.25), 1)
 
+        logger.info("[SCORE] %s | ml_score=%.1f | final_score=%.1f | badge=%s",
+                    label, ml_score, match["final_score"], badge)
+
+        counters["predictions_created"] += 1
         new_matches.append(match)
 
     save_logo_cache()
 
+    # --- Retention + merge ---
     cutoff = (today - timedelta(days=RETENTION_DAYS)).isoformat()
-
     old_retained = retention_filter(list(existing_matches.values()), cutoff)
     old_by_id = {str(m["id"]): m for m in old_retained if m.get("id") is not None}
     new_by_id = {str(m["id"]): m for m in new_matches if m.get("id") is not None}
@@ -890,6 +1025,7 @@ def main():
 
     final_matches = list(final_by_id.values())
 
+    # Recompute verification if finished
     for m in final_matches:
         if m.get("is_finished") and m.get("home_score") is not None and m.get("away_score") is not None:
             compute_verified_fields(m)
@@ -910,7 +1046,7 @@ def main():
         {"name": "1win", "logo": "assets/images/1win.webp", "url": "https://1wrbgb.com/?open=register&p=qqcw"},
         {"name": "Betwinner", "logo": "assets/images/betwinner.webp", "url": "https://bwredir.com/299Y"},
         {"name": "Melbet", "logo": "assets/images/melbet.webp", "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041"},
-        {"name": "Linebet", "logo": "assets/images/linebet.webp", "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611"},
+        {"name": "Linebet", "logo": "assets/images/linebet.webp", "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3034561&ad=22611"},
         {"name": "BetClic", "logo": "assets/images/betclic.webp", "url": "https://betpari-click.com/2vY0?extid=USD"},
     ]
 
@@ -926,10 +1062,23 @@ def main():
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-    print(f"\n💾 {DATA_FILE} généré avec {len(final_matches)} matchs")
-    print(f"📅 Fenêtre conservée : {cutoff} → {today.isoformat()}")
-    print(f"📊 Catégories : Simple={len(final_categories['simple'])}, Pro={len(final_categories['pro'])}, VIP={len(final_categories['vip'])}")
-    print(f"📈 Stats : total_bets={stats['total_bets']}, wins={stats['wins']}, roi={stats['roi']}%")
+    # --- Summary logs ---
+    logger.info("=" * 70)
+    logger.info("FIN génération")
+    logger.info("data.json écrit: %s matchs", len(final_matches))
+    logger.info("Fenêtre conservée: %s → %s", cutoff, today.isoformat())
+    logger.info("Catégories: Simple=%s, Pro=%s, VIP=%s",
+                len(final_categories["simple"]), len(final_categories["pro"]), len(final_categories["vip"]))
+    logger.info("Stats: total_bets=%s, wins=%s, roi=%s%%", stats["total_bets"], stats["wins"], stats["roi"])
+    logger.info("Compteurs: %s", counters)
+    logger.info("Logos: downloads=%s | cache_hit=%s | download_ok=%s | download_fail=%s | fallback_used=%s | skipped_by_limit=%s",
+                logo_download_count,
+                logo_run_stats["cache_hit"],
+                logo_run_stats["download_ok"],
+                logo_run_stats["download_fail"],
+                logo_run_stats["fallback_used"],
+                logo_run_stats["skipped_by_limit"])
+    logger.info("=" * 70)
 
 if __name__ == "__main__":
     main()
