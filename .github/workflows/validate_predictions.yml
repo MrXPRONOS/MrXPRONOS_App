@@ -1,44 +1,16 @@
 name: Validation des prédictions
+
 on:
   schedule:
-    - cron: '*/5 * * * *'   # live validate (existant)
-    - cron: '0 9 * * *'     # validation coupons Telegram (J-1)
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      # LIVE (edge function) -> uniquement pour le cron */5
-      - name: Appel Edge Function validate (LIVE)
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '*/5 * * * *'
+      - name: Appel Edge Function validate
         run: |
           curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/live/validate" \
-          -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
-          -H "Content-Type: application/json"
-
-      # Coupons Telegram (J-1) -> uniquement pour le cron 09:00
-      - name: Checkout
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 9 * * *'
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 9 * * *'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Validate Telegram coupons (yesterday)
-        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 9 * * *'
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
-          python validate_predictions.py --coupons
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_KEY }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          SITE_URL: https://mrxpronos.github.io/MrXPRONOS_App/
-          HIST_URL: https://mrxpronos.github.io/MrXPRONOS_App/historique.html
-          PRONOS_URL: https://mrxpronos.github.io/MrXPRONOS_App/pronos.html
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Content-Type: application/json"

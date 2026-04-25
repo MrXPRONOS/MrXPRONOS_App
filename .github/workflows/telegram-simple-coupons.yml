@@ -2,32 +2,82 @@ name: Telegram - Coupons simple du jour
 
 on:
   workflow_run:
-    workflows: ["Daily Update"]   # doit correspondre au name: dans daily-update.yml
+    workflows: ["Daily Update"]
     types: [completed]
+
+  # (optionnel mais recommandé) rattrapage validations si matchs finissent tard
+  schedule:
+    - cron: "0 9 * * *"
+    - cron: "0 12 * * *"
+    - cron: "0 18 * * *"
+
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "send-today or validate-yesterday"
+        required: true
+        default: "send-today"
 
 permissions:
   contents: read
 
-jobs:
-  export-and-send:
-    # - Autorise exécution manuelle (workflow_dispatch)
-    # - Et exécution auto uniquement si Daily Update a réussi sur main
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+concurrency:
+  group: telegram-simple-coupons
+  cancel-in-progress: false
 
+jobs:
+  validate_yesterday:
+    # On valide:
+    # - sur schedule (rattrapage)
+    # - sur workflow_run (avant envoi today)
+    # - sur workflow_dispatch (dans tous les cas, ça ne fera rien si rien à valider)
+    if: >
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_run' ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Validate yesterday coupons (Telegram)
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+          python scripts/send_to_telegram.py --mode validate-yesterday
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SITE_URL: https://mrxpronos.github.io/MrXPRONOS_App/
+          MORE_URL: https://mrxpronos.github.io/MrXPRONOS_App/pronos.html
+          HIST_URL: https://mrxpronos.github.io/MrXPRONOS_App/historique.html
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+  send_today:
+    needs: [validate_yesterday]
+    # Envoi today UNIQUEMENT:
+    # - après Daily Update success
+    # - ou si workflow_dispatch mode=send-today
+    if: >
+      (github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.head_branch == 'main')
+      || (github.event_name == 'workflow_dispatch' && inputs.mode == 'send-today')
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     steps:
-      - name: Checkout (main = dernière version publiée par daily-update)
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
-      # Optionnel mais utile: attendre que le commit push soit bien dispo
       - name: Ensure latest main
         run: |
           git fetch origin main
@@ -61,14 +111,17 @@ jobs:
           EXPORT_URL: http://127.0.0.1:8000/pronos.html
           LIMIT: "5"
 
-      - name: Send to Telegram (each photo has real buttons)
+      - name: Send today to Telegram + log Supabase
         run: |
           python -m pip install --upgrade pip
           pip install requests
-          python scripts/send_to_telegram.py
+          python scripts/send_to_telegram.py --mode send-today
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           OUT_DIR: telegram_out
           SITE_URL: https://mrxpronos.github.io/MrXPRONOS_App/
           MORE_URL: https://mrxpronos.github.io/MrXPRONOS_App/pronos.html
+          HIST_URL: https://mrxpronos.github.io/MrXPRONOS_App/historique.html
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_KEY }}
