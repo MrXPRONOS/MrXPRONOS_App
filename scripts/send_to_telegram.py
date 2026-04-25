@@ -49,7 +49,7 @@ def main():
         return
 
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    intro = f"Coupons SIMPLE du {today} (UTC)\nPlus de coupons fiables ici : {MORE_URL}"
+    intro = f" les Coupons du {today}\nPlus de coupons fiables ici : {MORE_URL}"
     send_message(intro)
 
     # Envoi photo par photo (pour avoir des vrais boutons sous CHAQUE image)
@@ -58,7 +58,7 @@ def main():
         send_photo(fpath, caption=caption)
         time.sleep(0.7)  # anti rate-limit
 
-    send_message(f"Fin des 5 coupons SIMPLE.\nVoir plus : {MORE_URL}")
+    send_message(f"Voici quelques Coupons.\nVoir plus : {MORE_URL}")
 
     print(f"Envoyé sur Telegram: {len(files)} photos (avec boutons)")
 
