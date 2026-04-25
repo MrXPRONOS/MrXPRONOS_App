@@ -1,0 +1,74 @@
+name: Telegram - Coupons simple du jour
+
+on:
+  workflow_run:
+    workflows: ["Daily Update"]   # doit correspondre au name: dans daily-update.yml
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export-and-send:
+    # - Autorise exécution manuelle (workflow_dispatch)
+    # - Et exécution auto uniquement si Daily Update a réussi sur main
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout (main = dernière version publiée par daily-update)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      # Optionnel mais utile: attendre que le commit push soit bien dispo
+      - name: Ensure latest main
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull --rebase origin main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Playwright
+        run: |
+          npm i -D playwright
+          npx playwright install --with-deps chromium
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Start local server
+        run: |
+          python -m http.server 8000 >/dev/null 2>&1 &
+          sleep 2
+
+      - name: Export cards (simple/today) - limit 5
+        run: node scripts/export_simple_coupons.mjs
+        env:
+          OUT_DIR: telegram_out
+          EXPORT_URL: http://127.0.0.1:8000/pronos.html
+          LIMIT: "5"
+
+      - name: Send to Telegram (each photo has real buttons)
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+          python scripts/send_to_telegram.py
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          OUT_DIR: telegram_out
+          SITE_URL: https://mrxpronos.github.io/MrXPRONOS_App/
+          MORE_URL: https://mrxpronos.github.io/MrXPRONOS_App/pronos.html
