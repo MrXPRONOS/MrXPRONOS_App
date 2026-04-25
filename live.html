@@ -50,12 +50,7 @@
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
     }
     .soft-border { border: 1px solid rgba(255,255,255,.06); }
-    .mini-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      display: inline-block;
-    }
+    .mini-dot { width: 7px; height: 7px; border-radius: 999px; display: inline-block; }
     .hero-card {
       background:
         radial-gradient(circle at top right, rgba(212,175,55,.08), transparent 30%),
@@ -108,6 +103,24 @@
         0 18px 38px rgba(0,0,0,.60),
         0 14px 30px rgba(212,175,55,.18),
         inset 0 1px 0 rgba(255,255,255,.08);
+    }
+
+    /* ✅ Border pronostic box success/failure (historique validé uniquement) */
+    .pronostic-pop--success{
+      border-color: rgba(34,197,94,.55) !important;
+      box-shadow:
+        0 26px 70px rgba(0,0,0,.80),
+        0 14px 30px rgba(34,197,94,.14),
+        0 10px 26px rgba(34,197,94,.10),
+        inset 0 1px 0 rgba(255,255,255,.06);
+    }
+    .pronostic-pop--failure{
+      border-color: rgba(239,68,68,.55) !important;
+      box-shadow:
+        0 26px 70px rgba(0,0,0,.80),
+        0 14px 30px rgba(239,68,68,.14),
+        0 10px 26px rgba(239,68,68,.10),
+        inset 0 1px 0 rgba(255,255,255,.06);
     }
 
     @keyframes mx-heartbeat {
@@ -182,18 +195,59 @@
       pointer-events: none;
     }
     .notif-success{
-      border-color: rgba(34,197,94,.35) !important;
+      border-color: rgba(34,197,94,.45) !important;
       box-shadow:
         0 22px 70px rgba(0,0,0,.80),
         0 12px 30px rgba(34,197,94,.12),
         inset 0 1px 0 rgba(255,255,255,.06);
     }
     .notif-failure{
-      border-color: rgba(239,68,68,.35) !important;
+      border-color: rgba(239,68,68,.45) !important;
       box-shadow:
         0 22px 70px rgba(0,0,0,.80),
         0 12px 30px rgba(239,68,68,.10),
         inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    /* =======================================================
+       ✅ Contours succès/échec (Historique validé uniquement)
+       ======================================================= */
+    .mx-outline-success{
+      border-color: rgba(34,197,94,.45) !important;
+      box-shadow: 0 18px 55px rgba(34,197,94,.10), 0 22px 70px rgba(0,0,0,.75);
+    }
+    .mx-outline-failure{
+      border-color: rgba(239,68,68,.45) !important;
+      box-shadow: 0 18px 55px rgba(239,68,68,.10), 0 22px 70px rgba(0,0,0,.75);
+    }
+
+    /* =======================================================
+       ✅ Label bas droite (VALIDÉ/ÉCHOUÉ) - très visible
+       ======================================================= */
+    .mx-status-stamp{
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-weight: 900;
+      letter-spacing: .9px;
+      font-size: 16px; /* plus grand */
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.40);
+      backdrop-filter: blur(10px);
+      text-transform: uppercase;
+      text-shadow: 0 10px 25px rgba(0,0,0,.55);
+    }
+    .mx-status-stamp--success{
+      color: #22C55E;
+      border-color: rgba(34,197,94,.38);
+      box-shadow: 0 12px 35px rgba(34,197,94,.14);
+    }
+    .mx-status-stamp--failure{
+      color: #EF4444;
+      border-color: rgba(239,68,68,.38);
+      box-shadow: 0 12px 35px rgba(239,68,68,.14);
     }
   </style>
 </head>
@@ -354,7 +408,6 @@
       return "";
     }
 
-    // ✅ demandé :
     // - "Pronostic :" en OR uniquement
     // - "Total plus de ..." en BLANC
     // - "seuil" devient "pronostic"
@@ -389,14 +442,14 @@
       return <span className="text-[#D4AF37]">Pronostic :</span>;
     }
 
-    // ✅ "projection" remplacée par "Au signal" (= actuel au moment du signal)
+    // "projection" remplacée par "Au signal"
     function formatPredSubtitle(pred) {
       const auSignal = pred?.signal_value ?? pred?.projected ?? "-";
       const current = pred?.current ?? pred?.current_value ?? "-";
       return `Au signal: ${formatNumberFR(auSignal)} • Actuel: ${formatNumberFR(current)}`;
     }
 
-    // ✅ meta historique => un "pred" compatible UI
+    // meta historique => un "pred" compatible UI
     function metaFromHistoryType(type, threshold) {
       const t = safeNumber(threshold, 0);
       if (type === "total_corners") return { badge: "Corners", color: "yellow", title: `Over ${t} corners` };
@@ -672,13 +725,21 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
     );
 
     // ✅ Pronostic box (pop-out + heartbeat + texte centré)
-    const PronosticBox = ({ pred, className = "" }) => (
-      <div className={`pronostic-pop pronostic-pop--heartbeat ${className}`}>
-        <div className="flex items-center justify-center text-center gap-2 flex-wrap font-extrabold text-[16px] md:text-[17px] leading-snug safe-wrap text-white">
-          {formatPredTitleSimple(pred)}
+    // tone: neutral | success | failure
+    const PronosticBox = ({ pred, tone = "neutral", className = "" }) => {
+      const toneClass =
+        tone === "success" ? "pronostic-pop--success"
+        : tone === "failure" ? "pronostic-pop--failure"
+        : "";
+
+      return (
+        <div className={`pronostic-pop pronostic-pop--heartbeat ${toneClass} ${className}`}>
+          <div className="flex items-center justify-center text-center gap-2 flex-wrap font-extrabold text-[16px] md:text-[17px] leading-snug safe-wrap text-white">
+            {formatPredTitleSimple(pred)}
+          </div>
         </div>
-      </div>
-    );
+      );
+    };
 
     // =======================================================
     // HEADER
@@ -915,7 +976,7 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
     };
 
     // =======================================================
-    // HISTORIQUE: carte style MatchCard
+    // HISTORIQUE: carte style MatchCard + bordure & label UNIQUEMENT si validated
     // =======================================================
     const HistoryMatchCard = ({ h, onOpen }) => {
       const homeLogo = getTeamLogo(h, "home");
@@ -936,14 +997,18 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
         message: h?.message || "",
       };
 
-      const outcomeBadge = !h?.validated
-        ? <Badge color="yellow">En attente</Badge>
-        : (h?.outcome === "success"
-            ? <Badge color="green">✓ Réussie</Badge>
-            : <Badge color="red">✗ Échouée</Badge>);
+      const isValidated = !!h?.validated;
+      const isSuccess = h?.outcome === "success";
+
+      const cardOutcomeClass = isValidated
+        ? (isSuccess ? "mx-outline-success" : "mx-outline-failure")
+        : "";
 
       return (
-        <Card onClick={() => onOpen?.(h)} className="border-[#D4AF37]/15">
+        <Card
+          onClick={() => onOpen?.(h)}
+          className={`relative border-[#D4AF37]/15 pb-16 ${cardOutcomeClass}`}
+        >
           <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
             <div className="flex items-center gap-2 min-w-0">
               <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
@@ -957,7 +1022,11 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
             </div>
 
             <div className="flex items-center gap-2 flex-wrap justify-end">
-              {outcomeBadge}
+              {isValidated ? (
+                <Badge color={isSuccess ? "green" : "red"}>{isSuccess ? "✓ Réussie" : "✗ Échouée"}</Badge>
+              ) : (
+                <Badge color="yellow">En attente</Badge>
+              )}
               {h?.validation_type === "instant" && <Badge color="gold">Instant</Badge>}
               <Badge color="green">{formatPercent(h?.probability)}</Badge>
             </div>
@@ -977,7 +1046,10 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
               <Badge color="blue">Fiabilité {predUi.reliability || 0}</Badge>
             </div>
 
-            <PronosticBox pred={predUi} />
+            <PronosticBox
+              pred={predUi}
+              tone={isValidated ? (isSuccess ? "success" : "failure") : "neutral"}
+            />
 
             <div className="text-xs text-gray-300 mt-2 safe-wrap">
               {formatPredSubtitle(predUi)}
@@ -987,6 +1059,13 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
               Cliquez pour voir le détail
             </div>
           </div>
+
+          {/* ✅ Label bas droite UNIQUEMENT si validated */}
+          {isValidated && (
+            <div className={`mx-status-stamp ${isSuccess ? "mx-status-stamp--success" : "mx-status-stamp--failure"}`}>
+              {isSuccess ? "VALIDÉ" : "ÉCHOUÉ"}
+            </div>
+          )}
         </Card>
       );
     };
@@ -1160,11 +1239,8 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
         message: item?.message || "",
       };
 
-      const statusBadge = !item?.validated
-        ? <Badge color="yellow">En attente</Badge>
-        : (item?.outcome === "success"
-            ? <Badge color="green">✓ Réussie</Badge>
-            : <Badge color="red">✗ Échouée</Badge>);
+      const isValidated = !!item?.validated;
+      const isSuccess = item?.outcome === "success";
 
       return (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3">
@@ -1181,7 +1257,13 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
                     <Badge color="gray">
                       <Icon name="clock" size={11} /> signal {item?.current_minute ?? item?.minute ?? "-"}'
                     </Badge>
-                    {statusBadge}
+
+                    {isValidated ? (
+                      <Badge color={isSuccess ? "green" : "red"}>{isSuccess ? "✓ Réussie" : "✗ Échouée"}</Badge>
+                    ) : (
+                      <Badge color="yellow">En attente</Badge>
+                    )}
+
                     {item?.validation_type === "instant" && <Badge color="gold">Instant</Badge>}
                   </div>
 
@@ -1208,7 +1290,10 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
                 <Badge color="gray">{formatDateTime(item.timestamp)}</Badge>
               </div>
 
-              <PronosticBox pred={predUi} />
+              <PronosticBox
+                pred={predUi}
+                tone={isValidated ? (isSuccess ? "success" : "failure") : "neutral"}
+              />
 
               <div className="text-sm text-[#D4AF37] mt-3 safe-wrap">
                 {predUi.message}
@@ -1241,7 +1326,8 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
     );
 
     // =======================================================
-    // NOTIFICATIONS (en cartes + click => detail prediction)
+    // NOTIFICATIONS (cards + click => detail prediction)
+    // ✅ label VALIDÉ/ÉCHOUÉ uniquement pour notifs de prédiction validée/atteinte
     // =======================================================
     const NotificationsPanel = ({ notifications, unreadCount, onClear, onOpenPrediction }) => (
       <div>
@@ -1268,36 +1354,59 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {notifications.map((n, i) => {
-              const isPred = ["prediction_validated", "prediction_reached"].includes(n.type);
-              const isSuccess = (n.message || "").includes("✅") || String(n.outcome || "").toLowerCase() === "success";
+              // ✅ seulement les validations (atteint en live = succès instant)
+              const isPredValidatedNotif = ["prediction_validated", "prediction_reached"].includes(n.type);
+
+              // détection succès/échec (basé sur message)
+              const msg = String(n.message || "");
+              const isSuccess =
+                msg.includes("✅") ||
+                String(n.title || "").toLowerCase().includes("atteint");
+
               const canOpen = !!n.related_prediction_id;
 
-              const extraClass = isPred
+              // effets attractifs UNIQUEMENT sur ces notifs
+              const attractiveClass = isPredValidatedNotif
                 ? `notif-attractive ${isSuccess ? "notif-success" : "notif-failure"}`
                 : "";
 
               return (
                 <Card
                   key={n.id || i}
-                  hover={!isPred} /* évite conflit hover transform avec animation */
+                  hover={!isPredValidatedNotif} /* évite conflit transform avec animation */
                   onClick={() => canOpen && onOpenPrediction?.(n.related_prediction_id)}
-                  className={`${!n.read ? "border-[#D4AF37]/35 bg-[#141414]" : ""} ${extraClass} ${canOpen ? "cursor-pointer" : ""}`}
+                  className={`
+                    ${isPredValidatedNotif ? "relative pb-16" : ""}
+                    ${!n.read ? "border-[#D4AF37]/35 bg-[#141414]" : ""}
+                    ${attractiveClass}
+                    ${canOpen ? "cursor-pointer" : ""}
+                  `}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="text-sm font-bold text-white safe-wrap">
                         {n.title || "Notification"}
                       </div>
+
                       <div className="text-xs text-gray-300 mt-2 whitespace-pre-line safe-wrap">
                         {n.message || ""}
                       </div>
+
                       <div className="text-[11px] text-gray-500 mt-3 flex items-center gap-2 flex-wrap">
                         <span>{formatDateTime(n.timestamp || n.created_at)}</span>
                         {canOpen && <Badge color="gold">Voir détails</Badge>}
                       </div>
                     </div>
+
                     {!n.read && <Badge color="gold">Nouveau</Badge>}
                   </div>
+
+                  {/* ✅ Label bas droite UNIQUEMENT pour notifs de validation */}
+                  {isPredValidatedNotif && (
+                    <div className={`mx-status-stamp ${isSuccess ? "mx-status-stamp--success" : "mx-status-stamp--failure"}`}>
+                      {isSuccess ? "VALIDÉ" : "ÉCHOUÉ"}
+                    </div>
+                  )}
                 </Card>
               );
             })}
@@ -1522,7 +1631,6 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
           return;
         }
 
-        // Si tu ajoutes la route /predictions/by-id côté Edge Function, ça marche même hors des 48h
         try {
           const res = await apiFetch(`/predictions/by-id?id=${encodeURIComponent(predictionId)}`);
           const data = await res.json();
@@ -1762,7 +1870,6 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
             )}
           </main>
 
-          {/* ✅ bottom nav mobile */}
           <MobileBottomTabs
             selectedTab={selectedTab}
             setSelectedTab={setSelectedTab}
