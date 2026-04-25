@@ -116,7 +116,7 @@
     }
 
     // =======================================================
-    // PARTAGE / JOUR (mêmes clés que main.js)
+    // PARTAGE / JOUR
     // =======================================================
     function getTodayString() {
       return new Date().toDateString();
@@ -144,7 +144,7 @@
       window.open(url, "_blank", "noopener,noreferrer");
     }
 
-    // Validation partage après ~5s (comme main.js)
+    // Validation partage après ~5s
     let pendingShare = null;
 
     function startShareTracking(platform, onUnlocked) {
@@ -168,9 +168,7 @@
           page: "live.html",
         });
       } catch (_) {}
-      try {
-        await supabase.rpc("increment_counter", { counter_name: "total_shares" });
-      } catch (_) {}
+      try { await supabase.rpc("increment_counter", { counter_name: "total_shares" }); } catch (_) {}
     }
 
     function finalizePendingShare(force = false) {
@@ -227,11 +225,13 @@
     }
 
     // ✅ demandé :
-    // - seulement "Pronostic :" en OR
+    // - "Pronostic :" en OR uniquement
     // - "Total plus de ..." en BLANC
+    // - "seuil" devient "pronostic"
     function formatPredTitleSimple(pred) {
       const unit = guessUnitFromPred(pred);
-      const thr = formatNumberFR(pred?.threshold);
+      const thrVal = pred?.pronostic ?? pred?.threshold;
+      const thr = formatNumberFR(thrVal);
       const title = String(pred?.title || "").toLowerCase();
 
       const isOver = title.includes("over") || title.includes("plus de");
@@ -259,18 +259,15 @@
       return <span className="text-[#D4AF37]">Pronostic :</span>;
     }
 
+    // ✅ "projection" remplacée par "Au signal" (= actuel au moment du signal)
     function formatPredSubtitle(pred) {
-      const projected = pred?.projected ?? "-";
-      const current = pred?.current ?? "-";
-      if (pred.expected_range && Array.isArray(pred.expected_range)) {
-        const [low, high] = pred.expected_range;
-        return `Fourchette: ${formatNumberFR(low)} - ${formatNumberFR(high)} • Actuel: ${current}`;
-      }
-      return `Projection: ${projected} • Actuel: ${current}`;
+      const auSignal = pred?.signal_value ?? pred?.projected ?? "-";
+      const current = pred?.current ?? pred?.current_value ?? "-";
+      return `Au signal: ${formatNumberFR(auSignal)} • Actuel: ${formatNumberFR(current)}`;
     }
 
     // =======================================================
-    // LOGOS via Edge Function Proxy (Robuste)
+    // LOGOS via Edge Function Proxy
     // =======================================================
     function getTeamLogo(match, side = "home") {
       const obj = side === "home" ? match?.home_team_obj : match?.away_team_obj;
@@ -292,13 +289,13 @@
       const [count, setCount] = useState(() => getDailyShareCount());
 
       const shareMessage = useMemo(() => {
-        return `Salut frère 👋😄,
+        return `Salut frère,
 
-Avec ce site, on ne va plus perdre les coupons  : il propose des coupons plutôt fiables, même pour les matchs en live ⚽🔥🤑
+Avec ce site, on ne va plus perdre les coupons : il propose des coupons plutôt fiables, même pour les matchs en live.
 
-Je viens de le découvrir 🔍 et, pour l’instant, c’est totalement gratuit 🎁… autant en profiter maintenant avant que ça devienne payant ⏳💸
+Je viens de le découvrir et, pour l’instant, c’est totalement gratuit… autant en profiter maintenant.
 
-Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
+Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
       }, []);
 
       useEffect(() => {
@@ -591,7 +588,7 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
           </div>
 
           <div className="text-sm md:text-base text-gray-300 mb-5">
-            Prédictions live (corners • tirs • fautes). Cliquez sur un match pour les détails.
+            Pronostics live (corners • tirs • fautes). Cliquez sur un match pour les détails.
           </div>
 
           <div className="grid grid-cols-4 gap-2">
@@ -731,7 +728,7 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
             </div>
           ) : (
             <div className="pt-4 border-t border-[#222] text-xs text-gray-500">
-              Aucune prédiction fiable actuellement — cliquez pour voir les détails
+              Aucun pronostic fiable actuellement — cliquez pour voir les détails
             </div>
           )}
         </Card>
@@ -835,7 +832,7 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
                   }`}
                   type="button"
                 >
-                  {t === "signals" ? "Prédictions" : "Statistiques"}
+                  {t === "signals" ? "Pronostics" : "Statistiques"}
                 </button>
               ))}
             </div>
@@ -844,43 +841,49 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
               {tab === "signals" && (
                 <div className="space-y-4">
                   {(match.predictions || []).length === 0 ? (
-                    <div className="text-center text-gray-500 py-8">Aucune prédiction fiable actuellement</div>
+                    <div className="text-center text-gray-500 py-8">Aucun pronostic actuellement</div>
                   ) : (
-                    (match.predictions || []).map((p, i) => (
-                      <div key={i} className="bg-[#0a0a0a] rounded-2xl p-4 border border-[#222]">
-                        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
-                          <div className="flex gap-2 items-center flex-wrap">
-                            <PredictionBadge pred={p} />
-                            <div className="font-extrabold safe-wrap">{formatPredTitleSimple(p)}</div>
+                    (match.predictions || []).map((p, i) => {
+                      const pronostic = p?.pronostic ?? p?.threshold ?? "-";
+                      const auSignal = p?.signal_value ?? p?.projected ?? "-";
+                      const actuel = p?.current ?? "-";
+
+                      return (
+                        <div key={p.id || i} className="bg-[#0a0a0a] rounded-2xl p-4 border border-[#222]">
+                          <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                            <div className="flex gap-2 items-center flex-wrap">
+                              <PredictionBadge pred={p} />
+                              <div className="font-extrabold safe-wrap">{formatPredTitleSimple(p)}</div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge color="green">{formatPercent(p.probability)}</Badge>
+                              <Badge color="blue">Fiabilité {p.reliability || 0}</Badge>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Badge color="green">{formatPercent(p.probability)}</Badge>
-                            <Badge color="blue">Fiabilité {p.reliability || 0}</Badge>
+
+                          <div className="text-sm text-[#D4AF37] mb-2 safe-wrap">
+                            {p.message}
                           </div>
-                        </div>
 
-                        <div className="text-sm text-[#D4AF37] mb-2 safe-wrap">
-                          {p.message}
-                        </div>
-
-                        <div className="text-xs text-gray-300 mb-4 safe-wrap">
-                          Projection: <strong>{p.projected ?? "-"}</strong> • Actuel: <strong>{p.current ?? "-"}</strong> • Seuil: <strong>{p.threshold ?? "-"}</strong>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3 mb-4">
-                          <ScoreBar value={Math.round((p.probability || 0) * 100)} label="Probabilité" color="#22C55E" />
-                          <ScoreBar value={p.reliability || 0} label="Fiabilité" color="#D4AF37" />
-                        </div>
-
-                        {(p.reasons || []).length > 0 && (
-                          <div className="space-y-1">
-                            {(p.reasons || []).slice(0, 5).map((r, idx) => (
-                              <div key={idx} className="text-sm text-gray-300 safe-wrap">• {r}</div>
-                            ))}
+                          <div className="text-xs text-gray-300 mb-4 safe-wrap">
+                            Au signal: <strong>{formatNumberFR(auSignal)}</strong> • Actuel: <strong>{formatNumberFR(actuel)}</strong> • Pronostic: <strong>{formatNumberFR(pronostic)}</strong>
                           </div>
-                        )}
-                      </div>
-                    ))
+
+                          <div className="grid grid-cols-2 gap-3 mb-4">
+                            <ScoreBar value={Math.round((p.probability || 0) * 100)} label="Probabilité" color="#22C55E" />
+                            <ScoreBar value={p.reliability || 0} label="Fiabilité" color="#D4AF37" />
+                          </div>
+
+                          {(p.reasons || []).length > 0 && (
+                            <div className="space-y-1">
+                              {(p.reasons || []).slice(0, 5).map((r, idx) => (
+                                <div key={idx} className="text-sm text-gray-300 safe-wrap">• {r}</div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
                   )}
                 </div>
               )}
@@ -973,7 +976,7 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
     // =======================================================
     const MobileBottomTabs = ({ selectedTab, setSelectedTab, unreadCount, upcomingCount, liveCount }) => {
       const items = [
-        { key: "live", label: "Live", icon: "bolt", count: liveCount },       // ✅ badge live
+        { key: "live", label: "Live", icon: "bolt", count: liveCount },
         { key: "upcoming", label: "À venir", icon: "calendar", count: upcomingCount },
         { key: "history", label: "Historique", icon: "history" },
         { key: "notifications", label: "Notifs", icon: "bell", count: unreadCount, danger: true },
@@ -1041,7 +1044,6 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
       const [selectedMatch, setSelectedMatch] = useState(null);
       const [toast, setToast] = useState(null);
 
-      // si on change d'onglet pendant un détail ouvert, on ferme le détail
       useEffect(() => { setSelectedMatch(null); }, [selectedTab]);
 
       const apiFetch = useCallback(async (endpoint) => {
@@ -1063,9 +1065,9 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
         setRefreshing(true);
         try {
           const [matchesRes, oppRes, notifRes, historyRes, todayRes] = await Promise.all([
-            apiFetch("/matches"),
-            apiFetch("/opportunities"),
-            apiFetch(`/notifications?user_id=all`),
+            apiFetch("/matches"), // ✅ DB
+            apiFetch("/opportunities"), // ✅ DB
+            apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`),
             apiFetch("/predictions/history"),
             apiFetch("/today")
           ]);
@@ -1112,7 +1114,9 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
       useEffect(() => { fetchAll(false); }, [fetchAll]);
 
       useEffect(() => {
-        const interval = setInterval(() => { fetchAll(true).catch(console.error); }, 20000);
+        const interval = setInterval(() => {
+          fetchAll(true).catch(console.error);
+        }, 20000);
         return () => clearInterval(interval);
       }, [fetchAll]);
 
@@ -1141,7 +1145,6 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
 
       const unreadCount = notifications.filter((n) => !n.read).length;
 
-      // Déduplication affichage
       const bestOpportunity = useMemo(() => opportunities?.[0] || null, [opportunities]);
 
       const otherOpportunities = useMemo(() => {
@@ -1170,7 +1173,7 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
         }
       };
 
-      // ✅ boutons (PC) + badges
+      // ✅ Tabs sur PC
       const DesktopTabs = () => {
         const tabs = [
           { key: "live", label: "Live", count: stats.matches_live || liveMatches.length },
@@ -1271,12 +1274,12 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
                         <div className="mb-8">
                           <div className="text-lg font-bold mb-4 flex items-center gap-2">
                             <Icon name="target" className="text-[#D4AF37]" />
-                            Prédictions live
+                            Pronostics live
                           </div>
 
                           {(otherOpportunities || []).length === 0 ? (
                             <EmptyState
-                              title={bestOpportunity ? "Aucune autre opportunité" : "Aucune prédiction premium"}
+                              title={bestOpportunity ? "Aucune autre opportunité" : "Aucun pronostic premium"}
                               subtitle={bestOpportunity
                                 ? "L'opportunité principale est affichée en haut."
                                 : "Le moteur live attend un contexte suffisamment fiable."
@@ -1344,18 +1347,20 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
 
                     {/* ===========================
                         ONGLET HISTORIQUE
+                        - "Seuil" => "Pronostic"
+                        - "Projection" => "Au signal"
                        =========================== */}
                     {selectedTab === "history" && (
                       <div>
                         <div className="text-lg font-bold mb-4 flex items-center gap-2">
                           <Icon name="history" className="text-[#D4AF37]" />
-                          Historique des prédictions
+                          Historique des pronostics
                         </div>
 
                         {history.length === 0 ? (
                           <EmptyState
                             title="Aucun historique"
-                            subtitle="Les validations apparaîtront ici dès qu'une prédiction sera créée."
+                            subtitle="Les validations apparaîtront ici dès qu'un pronostic sera créé."
                           />
                         ) : (
                           <div className="bg-[#121212] rounded-2xl border border-[#232323] overflow-hidden">
@@ -1364,40 +1369,47 @@ Voici le lien 🔗 : https://mrxpronos.github.io/MrXPRONOS_App/`;
                                 <thead className="bg-[#0b0b0b] border-b border-[#232323]">
                                   <tr>
                                     <th className="px-4 py-3 text-left">Match</th>
-                                    <th className="px-4 py-3 text-left">Prédiction</th>
+                                    <th className="px-4 py-3 text-left">Type</th>
                                     <th className="px-4 py-3 text-left">Score</th>
                                     <th className="px-4 py-3 text-left">Minute</th>
-                                    <th className="px-4 py-3 text-left">Seuil</th>
+                                    <th className="px-4 py-3 text-left">Pronostic</th>
+                                    <th className="px-4 py-3 text-left">Au signal</th>
                                     <th className="px-4 py-3 text-left">Actuel</th>
-                                    <th className="px-4 py-3 text-left">Projection</th>
                                     <th className="px-4 py-3 text-left">Proba</th>
                                     <th className="px-4 py-3 text-left">Résultat</th>
                                     <th className="px-4 py-3 text-left">Heure</th>
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {history.map((h, i) => (
-                                    <tr key={i} className="border-b border-[#1f1f1f] hover:bg-[#151515]">
-                                      <td className="px-4 py-3">{h.match}</td>
-                                      <td className="px-4 py-3">{h.type}</td>
-                                      <td className="px-4 py-3">{h.score ?? "-"}</td>
-                                      <td className="px-4 py-3">{h.minute ?? "-"}</td>
-                                      <td className="px-4 py-3">{h.threshold ?? "-"}</td>
-                                      <td className="px-4 py-3">{h.current ?? "-"}</td>
-                                      <td className="px-4 py-3">{h.projected ?? "-"}</td>
-                                      <td className="px-4 py-3">{formatPercent(h.probability)}</td>
-                                      <td className="px-4 py-3">
-                                        {h.validated ? (
-                                          <span className={h.outcome === "success" ? "text-green-400" : "text-red-400"}>
-                                            {h.outcome === "success" ? "✓ Réussie" : "✗ Échouée"}
-                                          </span>
-                                        ) : (
-                                          <span className="text-yellow-400">En attente</span>
-                                        )}
-                                      </td>
-                                      <td className="px-4 py-3">{formatDateTime(h.timestamp)}</td>
-                                    </tr>
-                                  ))}
+                                  {history.map((h, i) => {
+                                    const pronostic = h.pronostic ?? h.threshold;
+                                    const auSignal = h.signal_value ?? h.projected;
+                                    return (
+                                      <tr key={i} className="border-b border-[#1f1f1f] hover:bg-[#151515]">
+                                        <td className="px-4 py-3">{h.match}</td>
+                                        <td className="px-4 py-3">{h.type}</td>
+                                        <td className="px-4 py-3">{h.score ?? "-"}</td>
+                                        <td className="px-4 py-3">{h.minute ?? "-"}</td>
+                                        <td className="px-4 py-3">{formatNumberFR(pronostic) ?? "-"}</td>
+                                        <td className="px-4 py-3">{formatNumberFR(auSignal) ?? "-"}</td>
+                                        <td className="px-4 py-3">{formatNumberFR(h.current) ?? "-"}</td>
+                                        <td className="px-4 py-3">{formatPercent(h.probability)}</td>
+                                        <td className="px-4 py-3">
+                                          {h.validated ? (
+                                            <span className={h.outcome === "success" ? "text-green-400" : "text-red-400"}>
+                                              {h.outcome === "success" ? "✓ Réussie" : "✗ Échouée"}
+                                              {h.validation_type === "instant" && (
+                                                <span className="ml-1 text-[10px] text-[#D4AF37]">(Instant)</span>
+                                              )}
+                                            </span>
+                                          ) : (
+                                            <span className="text-yellow-400">En attente</span>
+                                          )}
+                                        </td>
+                                        <td className="px-4 py-3">{formatDateTime(h.timestamp)}</td>
+                                      </tr>
+                                    );
+                                  })}
                                 </tbody>
                               </table>
                             </div>
