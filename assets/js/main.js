@@ -1416,7 +1416,7 @@ function renderMatches(matches) {
       const matchDataEncoded = encodeURIComponent(JSON.stringify(matchDataForSharing));
 
       html += `
-        <div class="match-card ${winnerClass}">
+        <div class="match-card ${winnerClass}" data-matchid="${escapeAttribute(m.id)}">
           <div class="win-effect"></div>
 
           <div class="match-info">
