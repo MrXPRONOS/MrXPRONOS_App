@@ -166,9 +166,13 @@ def send_today():
 # ============================================================
 # MODE 2 : Validate yesterday coupons and send results
 # ============================================================
+import subprocess
+
 def validate_yesterday():
     require_telegram()
     require_supabase()
+
+    export_url = os.environ.get("EXPORT_URL", "http://127.0.0.1:8000/pronos.html")
 
     yday = (datetime.now(UTC).date() - timedelta(days=1)).isoformat()
     rows = sb_fetch_to_validate(yday)
@@ -176,55 +180,84 @@ def validate_yesterday():
         print("■ Rien à valider pour hier.")
         return
 
-    validated_lines = []
-    ids_to_mark = []
-    finished = 0
+    items = []
+    pending_lines = []
+    finished_count = 0
     wins = 0
 
+    # Construire la liste des matchs terminés à valider + ceux en attente
     for x in rows:
         match_id = str(x["ref_id"])
         pr = sb_get_pronostic(match_id, yday)
         if not pr:
             continue
 
+        match_name = pr.get("match") or match_id
+        dc = pr.get("prediction") or "-"
+
         if not pr.get("is_finished"):
+            pending_lines.append(f"• {match_name} — {dc} — ⏳ en attente")
             continue
 
-        finished += 1
+        finished_count += 1
         ok = bool(pr.get("verified_double"))
         if ok:
             wins += 1
 
-        score = "-"
-        if pr.get("home_score") is not None and pr.get("away_score") is not None:
-            score = f'{pr["home_score"]}-{pr["away_score"]}'
+        hs, aas = pr.get("home_score"), pr.get("away_score")
+        score = f"{hs}-{aas}" if hs is not None and aas is not None else "-"
 
-        validated_lines.append(
-            f'• {pr.get("match","")} — {pr.get("prediction","-")} — {score} — {"✅ Validé" if ok else "❌ Échoué"}'
-        )
-        ids_to_mark.append(x["id"])
+        items.append({
+            "telegram_sent_id": x["id"],
+            "match_id": match_id,
+            "outcome": "win" if ok else "lose",
+            "file": f"val_{len(items)+1:02d}.png",
+            "caption": f'{"✅" if ok else "❌"} {match_name} — {dc} — {score}'
+        })
 
-    if not validated_lines:
-        print("■ Aucun match terminé parmi ceux à valider (on réessaiera au prochain cron).")
+    # S'il n'y a aucun terminé, on ne spam pas
+    if not items:
+        print("■ Aucun match terminé à valider (on réessaiera au prochain cron).")
         return
 
-    text = (
-        f"📌 Validation des coupons SIMPLE du {yday}\n\n"
-        + "\n".join(validated_lines)
-        + f"\n\nBilan : {wins}/{finished} ✅"
-    )
+    # Écrire validate_list.json pour Playwright
+    list_path = os.path.join(OUT_DIR, "validate_list.json")
+    with open(list_path, "w", encoding="utf-8") as f:
+        json.dump({"date": yday, "items": items}, f, ensure_ascii=False, indent=2)
 
+    # Exporter les images des cartes "Hier" correspondant aux match_id
+    env = os.environ.copy()
+    env["OUT_DIR"] = OUT_DIR
+    env["EXPORT_URL"] = export_url
+    env["LIST_FILE"] = list_path
+
+    subprocess.run(["node", "scripts/export_validate_cards.mjs"], check=True, env=env)
+
+    # Envoyer intro
     send_message(
-        text,
-        buttons=[
-            [{"text": "Voir l’historique", "url": HIST_URL}],
-            [{"text": "Voir plus de coupons", "url": MORE_URL}],
-        ],
+        f"📌 Validation des coupons SIMPLE du {yday}\nBilan provisoire (terminés): {wins}/{finished_count} ✅",
+        buttons=[[{"text": "Voir l’historique", "url": HIST_URL}]]
     )
 
-    sb_mark_validated(ids_to_mark)
-    print(f"■ Validation envoyée. Lignes marquées: {len(ids_to_mark)}")
+    # Envoyer chaque image + caption
+    ids_to_mark = []
+    for it in items:
+        img_path = os.path.join(OUT_DIR, it["file"])
+        if not os.path.exists(img_path):
+            print("Image manquante, skip:", img_path)
+            continue
 
+        send_photo(img_path, caption=it["caption"])
+        ids_to_mark.append(it["telegram_sent_id"])
+        time.sleep(0.7)
+
+    # Message pending (optionnel)
+    if pending_lines:
+        send_message("⏳ Matchs encore en attente :\n" + "\n".join(pending_lines))
+
+    # Marquer validés (uniquement ceux envoyés)
+    sb_mark_validated(ids_to_mark)
+    print(f"■ Validation images envoyée. Marqués: {len(ids_to_mark)}")
 # ============================================================
 def main():
     parser = argparse.ArgumentParser()
