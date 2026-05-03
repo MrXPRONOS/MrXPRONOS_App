@@ -1,32 +1,32 @@
 [
   {
-    "name": "Yoro Cissé",
+    "name": "Fodé Ouedraogo",
+    "rating": 4,
+    "city": "Luanda",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mon argent et mes mises sont plus réfléchies. Les gains viennent doucement, mais c’est plus régulier."
+  },
+  {
+    "name": "Zara Ndiaye",
+    "rating": 5,
+    "city": "Le Caire",
+    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi tel match peut basculer. Même quand je perds, je comprends la logique, c’est plus malin."
+  },
+  {
+    "name": "Zara Mohamed",
+    "rating": 5,
+    "city": "Ouagadougou",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, ça change la vie ici à Ouaga."
+  },
+  {
+    "name": "Abdoulaye Ndiaye",
     "rating": 5,
     "city": "Kinshasa",
-    "text": "Depuis que je prends les coupons simples de Mr XPRONOS, je me trompe moins et ça me soulage bien le portefeuille."
+    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
   },
   {
-    "name": "Salimata Dlamini",
+    "name": "Lamine Dlamini",
     "rating": 4,
-    "city": "Nairobi",
-    "text": "Depuis que j’ai commencé avec Mr XPRONOS, je gère mieux mes mises et ma bankroll tient plus longtemps, même quand ça ne passe pas. Petit à petit, je mise plus propre et ça paie."
-  },
-  {
-    "name": "Mariam Diarra",
-    "rating": 5,
-    "city": "Kigali",
-    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je mise plus malin et ça paie petit à petit. Les sélections sont solides, ça aide bien ici à Kigali."
-  },
-  {
-    "name": "Amadou Camara",
-    "rating": 5,
-    "city": "Cotonou",
-    "text": "Franchement, les coupons font la différence. Maintenant je joue moins mais plus propre. Ça change ma façon de jouer."
-  },
-  {
-    "name": "Boubacar Omar",
-    "rating": 5,
-    "city": "Niamey",
-    "text": "Franchement, les explications font la différence. Maintenant je joue moins mais plus propre."
+    "city": "Lagos",
+    "text": "Depuis que je regarde leurs analyses H2H, je mise plus malin et ça paie petit à petit. Lagos, c’est pas toujours facile, mais avec ça, je respire mieux."
   }
 ]
