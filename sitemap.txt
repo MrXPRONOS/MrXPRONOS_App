@@ -6,6 +6,7 @@ https://mrxpronos.github.io/MrXPRONOS_App/conseils.html
 https://mrxpronos.github.io/MrXPRONOS_App/infos.html
 https://mrxpronos.github.io/MrXPRONOS_App/bonus.html
 https://mrxpronos.github.io/MrXPRONOS_App/contact.html
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=probabilite-implicite-comment-eviter-la-ruine-en-21-jours
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=gestion-emotion-comment-choisir-vite-sans-feeling
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=double-chance-1x-x2-le-guide-2026-pour-eviter-les-pieges-special-afrique-francophone
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=csca-buiucani-vs-sheriff-tiraspol-le-choc-moldave-qui-pourrait-sceller-le-titre
@@ -25,6 +26,8 @@ https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=sensunte-cabanas-fc-
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=charlotte-fc-vs-new-york-red-bulls-le-choc-mls-qui-pourrait-tout-changer
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=wsg-tirol-vs-grazer-ak-le-choc-autrichien-qui-peut-tout-changer-en-bundesliga
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=andorra-cf-vs-eibar-le-choc-de-laliga-2-qui-peut-tout-changer
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=gestion-bankroll-fcfa-paris-sportifs
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=pieges-favoris-petite-cote-paris-sportifs
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=analyser-match-rapidement-paris-sportifs
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=gestion-bankroll-fcfa-paris-sportifs
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=erreurs-frequentes-combines-paris-sportifs
