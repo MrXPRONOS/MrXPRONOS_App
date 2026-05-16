@@ -182,7 +182,6 @@ def validate_yesterday():
     rows = sb_fetch_to_validate(yesterday)
     if not rows:
         print("Rien à valider pour hier.")
-        # On envoie quand même un récapitulatif ? Optionnel
         send_message(f"📅 Hier ({yesterday}) : aucun coupon à valider.")
         return
 
@@ -221,7 +220,6 @@ def validate_yesterday():
 
     if not items:
         print("Aucun match terminé à valider (on réessayera au prochain cron).")
-        # Envoi d'un message récapitulatif quand même
         recap = f"📅 Résultats d'hier ({yesterday}) :\nTerminés: 0\nEn attente: {len(pending_lines)}"
         if pending_lines:
             recap += "\n\n⏳ En attente:\n" + "\n".join(pending_lines[:5])
@@ -229,6 +227,9 @@ def validate_yesterday():
                 recap += f"\n... et {len(pending_lines)-5} autres"
         send_message(recap)
         return
+
+    # Créer le dossier s'il n'existe pas (correction du bug)
+    os.makedirs(OUT_DIR, exist_ok=True)
 
     # Écrire validate_list.json pour Playwright
     list_path = os.path.join(OUT_DIR, "validate_list.json")
