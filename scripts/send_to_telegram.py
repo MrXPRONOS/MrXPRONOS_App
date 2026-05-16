@@ -1,9 +1,13 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import os
 import glob
 import json
 import time
 import argparse
 import requests
+import subprocess
 from datetime import datetime, timedelta, timezone
 
 UTC = timezone.utc
@@ -11,12 +15,11 @@ UTC = timezone.utc
 # Telegram
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
-
 SITE_URL = os.environ.get("SITE_URL", "https://mrxpronos.github.io/MrXPRONOS_App/")
 MORE_URL = os.environ.get("MORE_URL", SITE_URL + "pronos.html")
 HIST_URL = os.environ.get("HIST_URL", SITE_URL + "historique.html")
 
-# Files
+# Fichiers
 OUT_DIR = os.environ.get("OUT_DIR", "telegram_out")
 
 # Supabase (service role recommandé)
@@ -39,7 +42,7 @@ def sb_headers():
         "Prefer": "resolution=merge-duplicates,return=minimal",
     }
 
-# --------------------- Telegram helpers ---------------------
+# --- Helpers Telegram ---
 def send_message(text: str, buttons=None):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     payload = {
@@ -52,7 +55,7 @@ def send_message(text: str, buttons=None):
     r = requests.post(url, data=payload, timeout=60)
     if not r.ok:
         print("Telegram message error:", r.status_code, r.text)
-    r.raise_for_status()
+        r.raise_for_status()
 
 def send_photo(photo_path: str, caption: str = ""):
     url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
@@ -75,27 +78,35 @@ def send_photo(photo_path: str, caption: str = ""):
         )
     if not r.ok:
         print("Telegram photo error:", r.status_code, r.text)
-    r.raise_for_status()
+        r.raise_for_status()
 
-# --------------------- Supabase helpers ---------------------
+# --- Helpers Supabase ---
 def sb_log_sent(match_id: str, date_str: str):
-    url = f"{SUPABASE_URL}/rest/v1/telegram_sent?on_conflict=kind,ref_id,ref_date"
+    url = f"{SUPABASE_URL}/rest/v1/telegram_sent"
     payload = {
         "kind": "daily_simple",
         "ref_id": str(match_id),
         "ref_date": date_str,
         "validation_sent": False
     }
-    r = requests.post(url, headers=sb_headers(), json=payload, timeout=30)
+    # Upsert: on_conflict = kind,ref_id,ref_date
+    r = requests.post(
+        url,
+        headers=sb_headers(),
+        json=payload,
+        params={"on_conflict": "kind,ref_id,ref_date"},
+        timeout=30
+    )
     if not r.ok:
         print("Supabase log error:", r.status_code, r.text)
-    r.raise_for_status()
+        r.raise_for_status()
 
 def sb_fetch_to_validate(date_str: str):
+    """Récupère les IDs des coupons envoyés pour une date donnée, non encore validés."""
     url = f"{SUPABASE_URL}/rest/v1/telegram_sent"
     params = {
         "select": "id,ref_id",
-        "kind": f"eq.daily_simple",
+        "kind": "eq.daily_simple",
         "ref_date": f"eq.{date_str}",
         "validation_sent": "eq.false",
         "order": "sent_at.asc",
@@ -106,9 +117,10 @@ def sb_fetch_to_validate(date_str: str):
     return r.json() or []
 
 def sb_get_pronostic(match_id: str, date_str: str):
+    """Récupère un pronostic depuis Supabase."""
     url = f"{SUPABASE_URL}/rest/v1/pronostics"
     params = {
-        "select": "match,prediction,home_score,away_score,verified_double,is_finished",
+        "select": "match, prediction, home_score, away_score, verified_double, is_finished",
         "match_id": f"eq.{match_id}",
         "date": f"eq.{date_str}",
         "limit": "1",
@@ -119,12 +131,13 @@ def sb_get_pronostic(match_id: str, date_str: str):
     return rows[0] if rows else None
 
 def sb_mark_validated(ids):
+    """Marque les enregistrements comme validés."""
     for _id in ids:
         url = f"{SUPABASE_URL}/rest/v1/telegram_sent?id=eq.{_id}"
         r = requests.patch(url, headers=sb_headers(), json={"validation_sent": True}, timeout=30)
         r.raise_for_status()
 
-# --------------------- Manifest ---------------------
+# --- Manifest ---
 def load_manifest():
     p = os.path.join(OUT_DIR, "manifest.json")
     if not os.path.exists(p):
@@ -132,13 +145,10 @@ def load_manifest():
     with open(p, "r", encoding="utf-8") as f:
         return json.load(f)
 
-# ============================================================
-# MODE 1 : Send today coupons + log in Supabase
-# ============================================================
+# ========== MODE 1 : Envoi des coupons du jour ==========
 def send_today():
     require_telegram()
     require_supabase()
-
     files = sorted(glob.glob(os.path.join(OUT_DIR, "*.png")))
     if not files:
         send_message("Coupons SIMPLE du jour : aucun match trouvé.")
@@ -150,8 +160,7 @@ def send_today():
 
     date_str = manifest.get("date") or datetime.now(UTC).strftime("%Y-%m-%d")
     matches = manifest["matches"]
-
-    intro = f"Coupons SIMPLE du {date_str} (UTC)\nPlus de coupons fiables : {MORE_URL}"
+    intro = f"📊 Coupons SIMPLE du {date_str} (UTC)\n🔗 Plus de coupons fiables : {MORE_URL}"
     send_message(intro, buttons=[[{"text": "Voir plus de coupons", "url": MORE_URL}]])
 
     n = min(len(files), len(matches))
@@ -161,23 +170,19 @@ def send_today():
         sb_log_sent(match_id, date_str)
         time.sleep(0.7)
 
-    send_message(f"Fin des coupons SIMPLE du {date_str}.\nVoir plus : {MORE_URL}")
+    send_message(f"✅ Fin des coupons SIMPLE du {date_str}.\n🔗 Voir plus : {MORE_URL}")
 
-# ============================================================
-# MODE 2 : Validate yesterday coupons and send results
-# ============================================================
-import subprocess
-
+# ========== MODE 2 : Validation des coupons d'hier ==========
 def validate_yesterday():
     require_telegram()
     require_supabase()
-
     export_url = os.environ.get("EXPORT_URL", "http://127.0.0.1:8000/pronos.html")
 
-    yday = (datetime.now(UTC).date() - timedelta(days=1)).isoformat()
-    rows = sb_fetch_to_validate(yday)
+    yesterday = (datetime.now(UTC).date() - timedelta(days=1)).isoformat()
+    rows = sb_fetch_to_validate(yesterday)
     if not rows:
-        print("■ Rien à valider pour hier.")
+        print("Rien à valider pour hier.")
+        send_message(f"📅 Hier ({yesterday}) : aucun coupon à valider.")
         return
 
     items = []
@@ -185,80 +190,83 @@ def validate_yesterday():
     finished_count = 0
     wins = 0
 
-    # Construire la liste des matchs terminés à valider + ceux en attente
     for x in rows:
         match_id = str(x["ref_id"])
-        pr = sb_get_pronostic(match_id, yday)
+        pr = sb_get_pronostic(match_id, yesterday)
         if not pr:
             continue
-
         match_name = pr.get("match") or match_id
         dc = pr.get("prediction") or "-"
 
         if not pr.get("is_finished"):
-            pending_lines.append(f"• {match_name} — {dc} — ⏳ en attente")
+            pending_lines.append(f"⏳ {match_name} - {dc} - en attente")
             continue
 
         finished_count += 1
         ok = bool(pr.get("verified_double"))
         if ok:
             wins += 1
-
-        hs, aas = pr.get("home_score"), pr.get("away_score")
-        score = f"{hs}-{aas}" if hs is not None and aas is not None else "-"
+        hs = pr.get("home_score")
+        as_ = pr.get("away_score")
+        score = f"{hs}-{as_}" if hs is not None and as_ is not None else "-"
 
         items.append({
             "telegram_sent_id": x["id"],
             "match_id": match_id,
             "outcome": "win" if ok else "lose",
             "file": f"val_{len(items)+1:02d}.png",
-            "caption": f'{"✅" if ok else "❌"} {match_name} — {dc} — {score}'
+            "caption": f"{'✅' if ok else '❌'} {match_name} - {dc} - {score}"
         })
 
-    # S'il n'y a aucun terminé, on ne spam pas
     if not items:
-        print("■ Aucun match terminé à valider (on réessaiera au prochain cron).")
+        print("Aucun match terminé à valider (on réessayera au prochain cron).")
+        recap = f"📅 Résultats d'hier ({yesterday}) :\nTerminés: 0\nEn attente: {len(pending_lines)}"
+        if pending_lines:
+            recap += "\n\n⏳ En attente:\n" + "\n".join(pending_lines[:5])
+            if len(pending_lines) > 5:
+                recap += f"\n... et {len(pending_lines)-5} autres"
+        send_message(recap)
         return
+
+    # Créer le dossier s'il n'existe pas (correction du bug)
+    os.makedirs(OUT_DIR, exist_ok=True)
 
     # Écrire validate_list.json pour Playwright
     list_path = os.path.join(OUT_DIR, "validate_list.json")
     with open(list_path, "w", encoding="utf-8") as f:
-        json.dump({"date": yday, "items": items}, f, ensure_ascii=False, indent=2)
+        json.dump({"date": yesterday, "items": items}, f, ensure_ascii=False, indent=2)
 
     # Exporter les images des cartes "Hier" correspondant aux match_id
     env = os.environ.copy()
     env["OUT_DIR"] = OUT_DIR
     env["EXPORT_URL"] = export_url
     env["LIST_FILE"] = list_path
-
     subprocess.run(["node", "scripts/export_validate_cards.mjs"], check=True, env=env)
 
-    # Envoyer intro
-    send_message(
-        f"📌 Validation des coupons SIMPLE du {yday}\nBilan provisoire (terminés): {wins}/{finished_count} ✅",
-        buttons=[[{"text": "Voir l’historique", "url": HIST_URL}]]
-    )
+    # Envoyer les photos une par une avec la légende
+    validated_ids = []
+    for item in items:
+        photo_path = os.path.join(OUT_DIR, item["file"])
+        if os.path.exists(photo_path):
+            send_photo(photo_path, caption=item["caption"])
+            validated_ids.append(item["telegram_sent_id"])
+            time.sleep(0.7)
+        else:
+            print(f"Image manquante : {photo_path}")
 
-    # Envoyer chaque image + caption
-    ids_to_mark = []
-    for it in items:
-        img_path = os.path.join(OUT_DIR, it["file"])
-        if not os.path.exists(img_path):
-            print("Image manquante, skip:", img_path)
-            continue
+    # Marquer comme validé dans Supabase
+    if validated_ids:
+        sb_mark_validated(validated_ids)
 
-        send_photo(img_path, caption=it["caption"])
-        ids_to_mark.append(it["telegram_sent_id"])
-        time.sleep(0.7)
-
-    # Message pending (optionnel)
+    # Envoyer un récapitulatif final
+    total = finished_count
+    success_rate = (wins / total * 100) if total > 0 else 0
+    recap = f"📊 Bilan d'hier ({yesterday}) :\n✅ {wins} gains / {total} terminés ({success_rate:.1f}%)\n"
     if pending_lines:
-        send_message("⏳ Matchs encore en attente :\n" + "\n".join(pending_lines))
+        recap += f"\n⏳ Encore {len(pending_lines)} match(s) en attente de résultat."
+    send_message(recap)
 
-    # Marquer validés (uniquement ceux envoyés)
-    sb_mark_validated(ids_to_mark)
-    print(f"■ Validation images envoyée. Marqués: {len(ids_to_mark)}")
-# ============================================================
+# ========== MAIN ==========
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["send-today", "validate-yesterday"], required=True)
