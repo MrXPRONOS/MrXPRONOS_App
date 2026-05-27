@@ -1,19 +1,24 @@
-name: Create YouTube Shorts Video
+name: Create Shorts Video
 
 on:
-  workflow_dispatch:                    # déclenchement manuel
+  # Déclenchement manuel depuis l'interface GitHub
+  workflow_dispatch:
+
+  # Optionnel : déclenchement automatique après le succès du daily-update
   workflow_run:
-    workflows: ["Daily Update"]         # se lance après le daily-update
-    types: [completed]
-    branches: [main]
+    workflows: ["Daily Update"]
+    types:
+      - completed
 
 jobs:
   build-video:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -22,29 +27,18 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install moviepy numpy
 
-      - name: Verify images exist
-        run: |
-          ls -la telegram_out/ || echo "No images yet"
-          # On attend que les images soient présentes (si workflow_run, elles existent déjà)
-
-      - name: Create Shorts video
-        run: python scripts/create_shorts_video.py
+      - name: Run video creation script
         env:
-          MORE_URL: "https://mrxpronos.github.io/MrXPRONOS_App/pronos.html"
+          MORE_URL: ${{ vars.SITE_URL || 'https://mrxpronos.github.io/MrXPRONOS_App/pronos.html' }}
+        run: |
+          python scripts/create_shorts_video.py
 
       - name: Upload video as artifact (optionnel)
         uses: actions/upload-artifact@v4
         with:
-          name: daily-pronos-shorts
+          name: daily-shorts-video
           path: daily_pronos_shorts.mp4
           retention-days: 7
-
-      - name: Commit video to repository (optionnel)
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add daily_pronos_shorts.mp4 || true
-          git commit -m "Add daily video $(date +'%Y-%m-%d')" || echo "No changes to commit"
-          git push origin main || echo "Push failed (maybe no changes)"
