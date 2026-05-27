@@ -1,0 +1,50 @@
+name: Create YouTube Shorts Video
+
+on:
+  workflow_dispatch:                    # déclenchement manuel
+  workflow_run:
+    workflows: ["Daily Update"]         # se lance après le daily-update
+    types: [completed]
+    branches: [main]
+
+jobs:
+  build-video:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install moviepy numpy
+
+      - name: Verify images exist
+        run: |
+          ls -la telegram_out/ || echo "No images yet"
+          # On attend que les images soient présentes (si workflow_run, elles existent déjà)
+
+      - name: Create Shorts video
+        run: python scripts/create_shorts_video.py
+        env:
+          MORE_URL: "https://mrxpronos.github.io/MrXPRONOS_App/pronos.html"
+
+      - name: Upload video as artifact (optionnel)
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-pronos-shorts
+          path: daily_pronos_shorts.mp4
+          retention-days: 7
+
+      - name: Commit video to repository (optionnel)
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add daily_pronos_shorts.mp4 || true
+          git commit -m "Add daily video $(date +'%Y-%m-%d')" || echo "No changes to commit"
+          git push origin main || echo "Push failed (maybe no changes)"
