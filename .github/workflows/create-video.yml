@@ -1,10 +1,7 @@
 name: Create Shorts Video
 
 on:
-  # Déclenchement manuel depuis l'interface GitHub
-  workflow_dispatch:
-
-  # Optionnel : déclenchement automatique après le succès du daily-update
+  workflow_dispatch:  # déclenchement manuel
   workflow_run:
     workflows: ["Daily Update"]
     types:
@@ -25,18 +22,39 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install moviepy numpy
 
-      - name: Run video creation script
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        run: |
+          npm install -D playwright
+          npx playwright install --with-deps chromium
+
+      - name: Start local HTTP server
+        run: |
+          python -m http.server 8000 &
+          sleep 3
+
+      - name: Export cards (up to 5 matches, simple/pro/vip)
+        run: node scripts/export_simple_coupons.mjs
+        env:
+          LIMIT: "5"
+          EXPORT_URL: http://127.0.0.1:8000/pronos.html
+          OUT_DIR: telegram_out
+
+      - name: Create Shorts video
+        run: python scripts/create_shorts_video.py
         env:
           MORE_URL: ${{ vars.SITE_URL || 'https://mrxpronos.github.io/MrXPRONOS_App/pronos.html' }}
-        run: |
-          python scripts/create_shorts_video.py
 
-      - name: Upload video as artifact (optionnel)
+      - name: Upload video artifact
         uses: actions/upload-artifact@v4
         with:
           name: daily-shorts-video
