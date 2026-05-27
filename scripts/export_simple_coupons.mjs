@@ -61,16 +61,39 @@ function pickTopSimpleToday(limit){
     localStorage.setItem("iosGuideLastClosed", String(Date.now()));
   });
 
-  await page.goto(URL, { waitUntil: "domcontentloaded" });
-  await page.waitForSelector("#matches-container .match-card", { timeout: 30000 });
+  // 1. Aller sur la page et attendre le chargement initial
+  await page.goto(URL, { waitUntil: "networkidle", timeout: 30000 });
 
+  // 2. Attendre que le container des matchs existe au moins (même vide)
+  await page.waitForSelector("#matches-container", { timeout: 30000 });
+
+  // 3. Attendre que le script JavaScript ait fini de charger les données
+  //    On attend que le texte "Chargement" disparaisse OU que les cartes apparaissent
+  await page.waitForFunction(
+    () => {
+      const container = document.querySelector("#matches-container");
+      if (!container) return false;
+      // Si le texte "Chargement" est présent, on attend qu'il disparaisse
+      const loading = container.innerText.includes("Chargement");
+      if (loading) return false;
+      // Sinon, on considère que c'est prêt (même s'il n'y a pas de cartes)
+      return true;
+    },
+    { timeout: 30000 }
+  );
+
+  // 4. Sélectionner l'onglet "simple" et le jour "today"
   await page.evaluate(() => {
-    document.querySelector('.tab-btn[data-cat="simple"]')?.click();
-    document.querySelector('.day-btn[data-day="today"]')?.click();
+    const simpleBtn = document.querySelector('.tab-btn[data-cat="simple"]');
+    if (simpleBtn) simpleBtn.click();
+    const todayBtn = document.querySelector('.day-btn[data-day="today"]');
+    if (todayBtn) todayBtn.click();
   });
 
-  await page.waitForTimeout(1200);
+  // 5. Attendre que le contenu se mette à jour (les cartes apparaissent)
+  await page.waitForSelector("#matches-container .match-card", { timeout: 30000 });
 
+  // 6. Masquer les éléments inutiles
   await page.addStyleTag({
     content: `
       header, footer, #share-popup, #push-permission, .ios-guide-popup { display:none !important; }

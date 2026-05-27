@@ -1,32 +1,32 @@
 [
   {
-    "name": "Rokia Sawadogo",
-    "rating": 5,
-    "city": "Tunis",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi un match peut basculer. Ça m’aide à parier plus malin, sans me prendre la tête."
-  },
-  {
-    "name": "Drissa Kipchoge",
-    "rating": 4,
-    "city": "Lomé",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi tel match est favori, ça m’aide à placer mes paris sans me tromper."
-  },
-  {
-    "name": "Hélène Coulibaly",
+    "name": "Ténin Traoré",
     "rating": 5,
     "city": "Cotonou",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, ça change vraiment la donne ici à Cotonou."
+    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi tel joueur ou telle équipe a plus de chances. Ça m’aide à parier plus léger et à éviter les erreurs bêtes."
   },
   {
-    "name": "Thierno Bamba",
+    "name": "Seydou Phiri",
+    "rating": 4,
+    "city": "Ouagadougou",
+    "text": "Depuis 7 jours je suis les analyses, et je choisis mieux mes matchs. C’est simple et ça m’aide vraiment."
+  },
+  {
+    "name": "Salif Onyeka",
     "rating": 5,
-    "city": "Abidjan",
-    "text": "Franchement, les coupons font la différence. Maintenant je choisis mieux mes matchs. Ça change ma façon de jouer."
+    "city": "Casablanca",
+    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je mise plus malin et ça paie sans me prendre la tête. À Casablanca, c’est devenu mon réflexe avant chaque pari."
   },
   {
-    "name": "Léa Ouattara",
+    "name": "Maimouna Okonkwo",
+    "rating": 5,
+    "city": "Nairobi",
+    "text": "Franchement, la fiabilité font la différence. Maintenant je fais moins de combinés inutiles."
+  },
+  {
+    "name": "El hadji Owusu",
     "rating": 5,
     "city": "Antananarivo",
-    "text": "Franchement, les explications font la différence. Maintenant je comprends enfin pourquoi je joue."
+    "text": "Depuis 14 jours je suis les explications, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
   }
 ]
