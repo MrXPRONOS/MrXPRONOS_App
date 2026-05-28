@@ -1,32 +1,32 @@
 [
   {
-    "name": "Maimouna Nkosi",
+    "name": "Boubacar Kouyate",
+    "rating": 5,
+    "city": "Accra",
+    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je mise plus malin et ça paie bien mieux que avant. À Accra, on sait que c’est pas magique, mais ça aide grave."
+  },
+  {
+    "name": "Fousseni Kazadi",
+    "rating": 5,
+    "city": "Libreville",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent. C’est plus intelligent comme ça, et ça fait du bien au portefeuille."
+  },
+  {
+    "name": "Cheick Keita",
     "rating": 4,
-    "city": "Tunis",
-    "text": "Depuis que j’ai pris le LIVE VIP, je touche plus souvent sur les corners et les fautes, c’est le bon timing. À Tunis, ça change tout pour les paris."
+    "city": "Nairobi",
+    "text": "Depuis que j’ai commencé à suivre les conseils de Mr XPRONOS, je gère mieux mon argent et je mise sans stress. Les résultats suivent petit à petit, c’est plus propre comme ça."
   },
   {
-    "name": "Thierno Camara",
+    "name": "Adama Nkosi",
     "rating": 5,
-    "city": "Le Caire",
-    "text": "Depuis que j’ai pris le LIVE VIP, je capte les corners et les tirs au bon moment, ça change tout au Caire."
+    "city": "Ouagadougou",
+    "text": "Depuis que je suis les lives VIP de Mr XPRONOS, je place mes paris au bon moment, surtout sur les corners et les fautes. Ça change tout, même si c’est pas toujours gagné."
   },
   {
-    "name": "Mody Phiri",
-    "rating": 5,
-    "city": "Douala",
-    "text": "Franchement, les analyses font la différence. Maintenant je mise plus discipliné. Ça change ma façon de jouer."
-  },
-  {
-    "name": "Mansour Diaby",
-    "rating": 5,
-    "city": "Luanda",
-    "text": "Depuis 30 jours je suis les analyses, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
-  },
-  {
-    "name": "Rokia Okafor",
+    "name": "Pascal Keita",
     "rating": 4,
-    "city": "Luanda",
-    "text": "Depuis 21 jours je suis les coupons, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
+    "city": "Bamako",
+    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
   }
 ]
