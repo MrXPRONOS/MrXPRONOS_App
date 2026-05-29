@@ -1,32 +1,32 @@
 [
   {
-    "name": "Boubacar Kouyate",
+    "name": "Baba Phiri",
+    "rating": 4,
+    "city": "Tunis",
+    "text": "Depuis que je suis les coupons simples de Mr XPRONOS, je me trompe moins et ça se voit sur mes gains, même à Tunis."
+  },
+  {
+    "name": "Rokia Hassan",
+    "rating": 4,
+    "city": "Cotonou",
+    "text": "Depuis que j’ai suivi les analyses de Mr XPRONOS, je vois mieux pourquoi tel match est favori ou non. Ça m’aide à parier plus malin, même si c’est jamais gagné d’avance."
+  },
+  {
+    "name": "Fanta Boateng",
     "rating": 5,
     "city": "Accra",
-    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je mise plus malin et ça paie bien mieux que avant. À Accra, on sait que c’est pas magique, mais ça aide grave."
+    "text": "Depuis que j’utilise les lives VIP de Mr XPRONOS, je vois les corners et les tirs avant tout le monde, ça change tout. Même à Accra, je gagne plus souvent sans me presser."
   },
   {
-    "name": "Fousseni Kazadi",
-    "rating": 5,
-    "city": "Libreville",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent. C’est plus intelligent comme ça, et ça fait du bien au portefeuille."
-  },
-  {
-    "name": "Cheick Keita",
+    "name": "Salif Banda",
     "rating": 4,
-    "city": "Nairobi",
-    "text": "Depuis que j’ai commencé à suivre les conseils de Mr XPRONOS, je gère mieux mon argent et je mise sans stress. Les résultats suivent petit à petit, c’est plus propre comme ça."
+    "city": "Abidjan",
+    "text": "Franchement, la fiabilité font la différence. Maintenant je fais moins de combinés inutiles."
   },
   {
-    "name": "Adama Nkosi",
-    "rating": 5,
-    "city": "Ouagadougou",
-    "text": "Depuis que je suis les lives VIP de Mr XPRONOS, je place mes paris au bon moment, surtout sur les corners et les fautes. Ça change tout, même si c’est pas toujours gagné."
-  },
-  {
-    "name": "Pascal Keita",
+    "name": "Sékou Boateng",
     "rating": 4,
-    "city": "Bamako",
-    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
+    "city": "Casablanca",
+    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
   }
 ]
