@@ -1310,13 +1310,19 @@ function filterAndDisplay() {
     return;
   }
 
-  const targetDate = getLocalDateString(currentDay);
+  // On cache toujours le bloc de verrouillage, car Simple + Pro + VIP doivent être visibles directement
+  hideVipLocked();
 
-  const targetCat = currentCategory === "vip" && currentSubcat === "pronostics" ? "vip" : currentCategory;
+  const targetDate = getLocalDateString(currentDay);
 
   const filtered = allData.matches.filter((m) => {
     const eventLocalDate = getLocalDateFromEvent(m.event_date);
-    return m.category === targetCat && eventLocalDate === targetDate;
+
+    // Affiche tous les pronos du jour sélectionné : simple, pro et vip
+    return (
+      eventLocalDate === targetDate &&
+      ["simple", "pro", "vip"].includes(String(m.category || "").toLowerCase())
+    );
   });
 
   filteredMatchesWithoutSearch = sortMatchesByLeague(filtered);
