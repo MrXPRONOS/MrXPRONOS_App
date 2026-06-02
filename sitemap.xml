@@ -2,51 +2,129 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/</loc>
-    <lastmod>2026-05-27</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/pronos.html</loc>
-    <lastmod>2026-05-27</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/historique.html</loc>
-    <lastmod>2026-05-27</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/blog.html</loc>
-    <lastmod>2026-05-27</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseils.html</loc>
-    <lastmod>2026-05-27</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/infos.html</loc>
-    <lastmod>2026-05-27</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/bonus.html</loc>
-    <lastmod>2026-05-27</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/contact.html</loc>
-    <lastmod>2026-05-27</lastmod>
+    <lastmod>2026-06-02</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=wagering-rollover-guide-2026-eviter-pieges-fcfa</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=mes-shahr-e-babak-vs-sanat-naft-abadan-un-choc-decisif-en-division-1-iranienne</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=parier-en-fcfa-compte-limite-checklist</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=derby-explosif-au-cameroun-fortuna-yaounde-vs-canon-yaounde-qui-dominera-la-premier-divisi</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=les-7-erreurs-qui-te-coutent-cher-match-piege-exemples-en-fcfa</loc>
+    <lastmod>2026-05-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=ventura-county-fc-vs-vancouver-whitecaps-ii-le-choc-mls-next-pro-qui-pourrait-tout-changer</loc>
+    <lastmod>2026-05-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=bonus-betwinner-xpvip-methodologie-wagering-fcfa</loc>
+    <lastmod>2026-05-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=hb-torshavn-vs-vikingur-gta-le-choc-des-titans-feroiens-qui-peut-tout-changer</loc>
+    <lastmod>2026-05-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=tickets-prudents-comment-choisir-vite-sans-feeling</loc>
+    <lastmod>2026-05-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=riga-vs-grobina-le-choc-virsliga-qui-peut-tout-changer</loc>
+    <lastmod>2026-05-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=stop-loss-take-profit-le-guide-anti-erreurs-special-debutants</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=jjk-vs-ols-oulu-ykkonen-2026-analyse-pronostic</loc>
+    <lastmod>2026-05-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=cote-trop-belle-verifier-7-minutes</loc>
+    <lastmod>2026-05-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=bonus-de-bienvenue-comment-l-utiliser-sans-se-piéger</loc>
@@ -359,6 +437,24 @@
     <lastmod>2026-03-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=comment-lire-les-cotes-paris-sportifs</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=comment-lire-les-cotes-paris-sportifs</loc>
+    <lastmod>2026-05-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
+  </url>
+  <url>
+    <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=gestion-bankroll-fcfa-paris-sportifs</loc>
+    <lastmod>2026-05-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.55</priority>
   </url>
   <url>
     <loc>https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=double-chance-quand-et-comment-lutiliser-pour-maximiser-vos-gains</loc>

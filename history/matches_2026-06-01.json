@@ -2075,9 +2075,9 @@
       "league": "Copa Espirito Santo",
       "league_logo": null,
       "venue": "",
-      "status": "Final Result Only",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 1,
         "home_wins": 1.5,
@@ -2106,8 +2106,8 @@
       "xpronos_score": 77,
       "badge": "🔥 ULTRA SAFE",
       "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
+      "is_finished": true,
+      "verified_double": true,
       "verified_over": false,
       "ml_score": 52.1,
       "final_score": 70.8
