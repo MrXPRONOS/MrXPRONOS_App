@@ -5,12 +5,6 @@ on:
     workflows: ["Daily Update"]   # doit correspondre au name: dans daily-update.yml
     types: [completed]
 
-  # Rattrapage validations (au cas où certains matchs finissent tard)
-  schedule:
-    - cron: "0 9 * * *"    # 09:00 UTC
-    - cron: "0 12 * * *"   # 12:00 UTC
-    - cron: "0 18 * * *"   # 18:00 UTC
-
   workflow_dispatch:
     inputs:
       mode:
@@ -28,14 +22,13 @@ concurrency:
 jobs:
   validate_yesterday:
     name: Validate yesterday (images)
-    # On exécute la validation:
-    # - sur schedule (rattrapage)
-    # - sur workflow_run (avant l’envoi today)
-    # - sur workflow_dispatch (quel que soit le mode, ça ne fera rien si rien à valider)
+    # Plus de rattrapage automatique.
+    # La validation tourne seulement après Daily Update réussi sur main.
     if: >
-      github.event_name == 'schedule' ||
-      github.event_name == 'workflow_run' ||
-      github.event_name == 'workflow_dispatch'
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -86,18 +79,15 @@ jobs:
           MORE_URL: https://mrxpronos.github.io/MrXPRONOS_App/pronos.html
           HIST_URL: https://mrxpronos.github.io/MrXPRONOS_App/historique.html
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          # Idéalement: secrets.SUPABASE_SERVICE_ROLE_KEY
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_KEY }}
 
   send_today:
     name: Send today (images) after validation
     needs: [validate_yesterday]
 
-    # IMPORTANT:
-    # - always() => même si validate_yesterday échoue, on continue (mais après lui)
-    # - Envoi today seulement:
-    #   - workflow_run success de Daily Update sur main
-    #   - OU workflow_dispatch mode=send-today
+    # Envoi today seulement :
+    # - après Daily Update réussi sur main
+    # - OU lancement manuel avec mode=send-today
     if: >
       always() && (
         (github.event_name == 'workflow_run' &&
@@ -162,5 +152,4 @@ jobs:
           MORE_URL: https://mrxpronos.github.io/MrXPRONOS_App/pronos.html
           HIST_URL: https://mrxpronos.github.io/MrXPRONOS_App/historique.html
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          # Idéalement: secrets.SUPABASE_SERVICE_ROLE_KEY
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_KEY }}
