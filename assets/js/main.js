@@ -1098,8 +1098,7 @@ async function loadData() {
   }
 
   renderBookmakers(allData.bookmakers);
-  hideEmptyTabs();
-  maybeHideTabBar();
+  hideVipLocked();
   filterAndDisplay();
   updatePronosticsSuccessRate();
 }
