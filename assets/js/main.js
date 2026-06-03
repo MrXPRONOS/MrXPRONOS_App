@@ -1309,22 +1309,42 @@ function filterAndDisplay() {
     return;
   }
 
-  // On cache toujours le bloc de verrouillage, car Simple + Pro + VIP doivent être visibles directement
+  // On cache le verrouillage : les pronos simple, pro et vip s’affichent directement
   hideVipLocked();
 
   const targetDate = getLocalDateString(currentDay);
 
   const filtered = allData.matches.filter((m) => {
     const eventLocalDate = getLocalDateFromEvent(m.event_date);
+    const category = String(m.category || "").toLowerCase();
 
-    // Affiche tous les pronos du jour sélectionné : simple, pro et vip
     return (
       eventLocalDate === targetDate &&
-      ["simple", "pro", "vip"].includes(String(m.category || "").toLowerCase())
+      ["simple", "pro", "vip"].includes(category)
     );
   });
 
-  filteredMatchesWithoutSearch = sortMatchesByLeague(filtered);
+  // Ordre voulu : Simple d’abord, ensuite Pro, ensuite VIP
+  const categoryOrder = {
+    simple: 1,
+    pro: 2,
+    vip: 3
+  };
+
+  filtered.sort((a, b) => {
+    const catA = categoryOrder[String(a.category || "").toLowerCase()] || 99;
+    const catB = categoryOrder[String(b.category || "").toLowerCase()] || 99;
+
+    if (catA !== catB) return catA - catB;
+
+    // À l’intérieur de chaque catégorie, on garde les meilleurs scores en haut
+    const scoreA = Number(a.final_score || a.xpronos_score || 0);
+    const scoreB = Number(b.final_score || b.xpronos_score || 0);
+
+    return scoreB - scoreA;
+  });
+
+  filteredMatchesWithoutSearch = filtered;
   applySearchFilter();
 }
 
