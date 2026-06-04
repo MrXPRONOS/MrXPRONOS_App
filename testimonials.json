@@ -1,32 +1,32 @@
 [
   {
-    "name": "Léa Kouyate",
+    "name": "Nabou Diaby",
+    "rating": 4,
+    "city": "Yaoundé",
+    "text": "Depuis que j’ai commencé à suivre les conseils de Mr XPRONOS, je gère mieux mes mises et je perds moins bêtement. Ma bankroll tient plus longtemps, c’est déjà ça de gagné."
+  },
+  {
+    "name": "Tidiane Adebayor",
+    "rating": 4,
+    "city": "Cotonou",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mes mises et je perds moins d’argent. Ça change la donne pour moi ici à Cotonou."
+  },
+  {
+    "name": "Baba Phiri",
+    "rating": 5,
+    "city": "Johannesburg",
+    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
+  },
+  {
+    "name": "Yaya Sangaré",
+    "rating": 5,
+    "city": "Le Caire",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, c’est plus malin comme ça."
+  },
+  {
+    "name": "Aisha Touré",
     "rating": 5,
     "city": "Douala",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mon argent et je mise sans stress. Les gains arrivent petit à petit, c’est plus propre comme ça."
-  },
-  {
-    "name": "Ibrahim Ndiaye",
-    "rating": 5,
-    "city": "Kampala",
-    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je mise plus malin et ça paie mieux, surtout sur les matchs serrés. À Kampala, ça change la donne."
-  },
-  {
-    "name": "Oumou Kabasele",
-    "rating": 5,
-    "city": "Tunis",
-    "text": "Depuis que j’ai pris le LIVE VIP chez eux, je capte les corners et les tirs au bon moment, ça change tout sur mes paris."
-  },
-  {
-    "name": "Fanta Kiprop",
-    "rating": 5,
-    "city": "Antananarivo",
-    "text": "Depuis 10 jours je suis la méthode, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
-  },
-  {
-    "name": "Baba Obi",
-    "rating": 4,
-    "city": "Abidjan",
-    "text": "Franchement, la méthode font la différence. Maintenant je comprends enfin pourquoi je joue."
+    "text": "Les pronos sont clairs et je joue moins mais plus propre. Je préfère cette méthode aux paris au hasard."
   }
 ]
