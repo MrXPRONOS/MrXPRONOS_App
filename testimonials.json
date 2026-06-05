@@ -1,32 +1,32 @@
 [
   {
-    "name": "Nabou Diaby",
+    "name": "Awa Fofana",
+    "rating": 5,
+    "city": "Lagos",
+    "text": "Depuis que j’ai pris le LIVE VIP de Mr XPRONOS, je place mes paris au bon moment, surtout sur les corners et les tirs. Ça change tout, même si faut toujours rester prudent."
+  },
+  {
+    "name": "Boubacar Chanda",
+    "rating": 5,
+    "city": "Accra",
+    "text": "Depuis que je suis les conseils ici, mes coupons sont plus simples et je me plante moins souvent. Ça change la donne."
+  },
+  {
+    "name": "Boubacar Koné",
     "rating": 4,
-    "city": "Yaoundé",
-    "text": "Depuis que j’ai commencé à suivre les conseils de Mr XPRONOS, je gère mieux mes mises et je perds moins bêtement. Ma bankroll tient plus longtemps, c’est déjà ça de gagné."
+    "city": "Kampala",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, ça change tout ici à Kampala."
   },
   {
-    "name": "Tidiane Adebayor",
-    "rating": 4,
-    "city": "Cotonou",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mes mises et je perds moins d’argent. Ça change la donne pour moi ici à Cotonou."
-  },
-  {
-    "name": "Baba Phiri",
+    "name": "Lassina Aboubakar",
     "rating": 5,
-    "city": "Johannesburg",
-    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
+    "city": "Libreville",
+    "text": "Franchement, la fiabilité font la différence. Maintenant je joue moins mais plus propre. Ça change ma façon de jouer."
   },
   {
-    "name": "Yaya Sangaré",
+    "name": "Fatou Camara",
     "rating": 5,
-    "city": "Le Caire",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, c’est plus malin comme ça."
-  },
-  {
-    "name": "Aisha Touré",
-    "rating": 5,
-    "city": "Douala",
-    "text": "Les pronos sont clairs et je joue moins mais plus propre. Je préfère cette méthode aux paris au hasard."
+    "city": "Accra",
+    "text": "Depuis 21 jours je suis les coupons, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
   }
 ]
