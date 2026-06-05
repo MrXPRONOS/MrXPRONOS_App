@@ -596,9 +596,9 @@ def calculate_xpronos_score(analysis, prediction):
     return min(score, 100)
 
 def get_category(score):
-    if score >= 75:
+    if score >= 110:
         return "vip"
-    elif score >= 60:
+    elif score >= 100:
         return "pro"
     else:
         return "simple"
