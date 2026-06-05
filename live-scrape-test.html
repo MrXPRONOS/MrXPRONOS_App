@@ -59,8 +59,15 @@
     }
 
     @keyframes pulse-live {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .35; transform: scale(.86); }
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: .35;
+        transform: scale(.86);
+      }
     }
 
     .safe-wrap {
@@ -95,35 +102,11 @@
   <script type="text/babel">
     const SUPABASE_URL = "https://nhwafcpndlufzzxexikh.supabase.co";
 
-    /*
-      Ce fichier est un clone de test.
-      Il appelle uniquement la fonction :
-      /functions/v1/live-scrape-test
+    const SUPABASE_ANON_KEY = "sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt";
 
-      Il ne touche pas :
-      - /functions/v1/live
-      - historique
-      - notifications
-      - système de partage
-    */
     const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live-scrape-test`;
 
     const { useState, useEffect, useCallback, useMemo } = React;
-
-    let cachedAnonKey = null;
-
-    async function getSupabaseAnonKey() {
-      if (cachedAnonKey) return cachedAnonKey;
-
-      try {
-        const config = await import("./assets/js/config.js");
-        cachedAnonKey = config.supabaseAnonKey;
-        return cachedAnonKey;
-      } catch (error) {
-        console.error("Impossible de charger assets/js/config.js", error);
-        throw new Error("Clé Supabase introuvable. Vérifie assets/js/config.js");
-      }
-    }
 
     function safeNumber(value, fallback = 0) {
       const n = Number(value);
@@ -181,7 +164,6 @@
 
     const Icon = ({ name, size = 16, className = "" }) => {
       const map = {
-        bolt: "fa-bolt",
         radio: "fa-satellite-dish",
         target: "fa-bullseye",
         calendar: "fa-calendar-days",
@@ -189,11 +171,7 @@
         arrowLeft: "fa-arrow-left",
         clock: "fa-clock",
         chart: "fa-chart-line",
-        star: "fa-star",
-        fire: "fa-fire",
-        futbol: "fa-futbol",
-        info: "fa-circle-info",
-        x: "fa-xmark"
+        star: "fa-star"
       };
 
       return (
@@ -621,16 +599,14 @@
       const [source, setSource] = useState("live-scrape-test");
 
       const apiFetch = useCallback(async (endpoint) => {
-        const supabaseAnonKey = await getSupabaseAnonKey();
-
         const separator = endpoint.includes("?") ? "&" : "?";
         const url = `${EDGE_FUNCTION_URL}${endpoint}${separator}t=${Date.now()}`;
 
         const res = await fetch(url, {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${supabaseAnonKey}`,
-            "apikey": supabaseAnonKey,
+            "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+            "apikey": SUPABASE_ANON_KEY,
             "Content-Type": "application/json"
           }
         });
