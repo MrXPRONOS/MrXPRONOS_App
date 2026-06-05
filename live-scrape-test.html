@@ -253,7 +253,7 @@
 </head>
 
 <body>
-  <div id="root" style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#9ca3af;font-family:Inter,system-ui,sans-serif;">Chargement…</div>
+  <div id="root"></div>
 
   <script type="text/babel">
     // =======================================================
@@ -263,57 +263,14 @@
     const SUPABASE_ANON_KEY = "sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt";
     const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live-scrape-test`;
 
-    const supabase = (SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY" && window.supabase && typeof window.supabase.createClient === "function")
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      : null;
+    const supabase =
+      SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY"
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        : null;
 
     const { useState, useEffect, useCallback, useMemo } = React;
 
-    
     // =======================================================
-    // DEBUG OVERLAY (affiche les erreurs JS à l'écran)
-    // =======================================================
-    (function attachDebugOverlay(){
-      const show = (title, err) => {
-        try {
-          const root = document.getElementById("root");
-          const box = document.createElement("div");
-          box.style.position = "fixed";
-          box.style.left = "12px";
-          box.style.right = "12px";
-          box.style.top = "12px";
-          box.style.zIndex = "99999";
-          box.style.background = "rgba(10,10,10,.95)";
-          box.style.border = "1px solid rgba(239,68,68,.35)";
-          box.style.borderLeft = "6px solid #EF4444";
-          box.style.borderRadius = "16px";
-          box.style.padding = "12px 14px";
-          box.style.color = "#fff";
-          box.style.fontFamily = "Inter, system-ui, sans-serif";
-          box.style.boxShadow = "0 20px 60px rgba(0,0,0,.7)";
-          box.innerHTML = `
-            <div style="font-weight:900;color:#EF4444;margin-bottom:6px;">${title}</div>
-            <div style="font-size:12px;white-space:pre-wrap;word-break:break-word;color:#E5E7EB;">${String(err || "")}</div>
-            <div style="margin-top:10px;font-size:12px;color:#9CA3AF;">
-              Ouvre DevTools Console pour plus de détails.
-            </div>
-            <button id="mxdbgclose" style="margin-top:10px;background:#111827;border:1px solid rgba(255,255,255,.12);color:#fff;padding:8px 10px;border-radius:12px;font-weight:800;cursor:pointer;">Fermer</button>
-          `;
-          document.body.appendChild(box);
-          box.querySelector("#mxdbgclose")?.addEventListener("click", () => box.remove());
-        } catch (_) {}
-      };
-
-      window.addEventListener("error", (e) => {
-        show("Erreur JavaScript", e?.error?.stack || e?.message || e);
-      });
-
-      window.addEventListener("unhandledrejection", (e) => {
-        show("Promise rejetée", e?.reason?.stack || e?.reason || e);
-      });
-    })();
-
-// =======================================================
     // COOKIES (365 jours) + ID stable
     // =======================================================
     const COOKIE_DAYS = 365;
@@ -340,6 +297,105 @@
       localStorage.setItem("mx_user_id", userId);
       setCookie("mx_user_id", userId, COOKIE_DAYS);
       return userId;
+    }
+
+    // =======================================================
+    // UTILS
+    // =======================================================
+    function safeNumber(value, fallback = 0) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+    function formatPercent(value) {
+      return `${Math.round(safeNumber(value, 0) * 100)}%`;
+    }
+    function formatDateTime(ts) {
+      try { return new Date(ts).toLocaleString("fr-FR"); } catch { return "-"; }
+    }
+    function formatTime(ts) {
+      try {
+        return new Date(ts).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+      } catch { return "-"; }
+    }
+    function formatNumberFR(v) {
+      if (v === null || v === undefined || v === "") return "";
+      const n = Number(v);
+      if (!Number.isFinite(n)) return String(v);
+      return String(n).replace(".", ",");
+    }
+
+    function guessUnitFromPred(pred) {
+      const s = `${pred?.badge || ""} ${pred?.title || ""}`.toLowerCase();
+      if (s.includes("corner")) return "corners";
+      if (s.includes("shot") || s.includes("tir")) return "tirs";
+      if (s.includes("foul") || s.includes("faute")) return "fautes";
+      return "";
+    }
+
+    // - "Pronostic :" en OR uniquement
+    // - "Total plus de ..." en BLANC
+    // - "seuil" devient "pronostic"
+    function formatPredTitleSimple(pred) {
+      const unit = guessUnitFromPred(pred);
+      const thrVal = pred?.pronostic ?? pred?.threshold;
+      const thr = formatNumberFR(thrVal);
+      const title = String(pred?.title || "").toLowerCase();
+
+      const isOver = title.includes("over") || title.includes("plus de");
+      const isUnder = title.includes("under") || title.includes("moins de");
+
+      if (thr && (isOver || isUnder)) {
+        const verb = isOver ? "plus de" : "moins de";
+        return (
+          <>
+            <span className="text-[#D4AF37]">Pronostic :</span>
+            <span>{`Total ${verb} ${thr}${unit ? " " + unit : ""}`}</span>
+          </>
+        );
+      }
+
+      if (pred?.title) {
+        return (
+          <>
+            <span className="text-[#D4AF37]">Pronostic :</span>
+            <span>{pred.title}</span>
+          </>
+        );
+      }
+
+      return <span className="text-[#D4AF37]">Pronostic :</span>;
+    }
+
+    // "projection" remplacée par "Au signal"
+    function formatPredSubtitle(pred) {
+      const auSignal = pred?.signal_value ?? pred?.projected ?? "-";
+      const current = pred?.current ?? pred?.current_value ?? "-";
+      return `Au signal: ${formatNumberFR(auSignal)} • Actuel: ${formatNumberFR(current)}`;
+    }
+
+    // meta historique => un "pred" compatible UI
+    function metaFromHistoryType(type, threshold) {
+      const t = safeNumber(threshold, 0);
+      if (type === "total_corners") return { badge: "Corners", color: "yellow", title: `Over ${t} corners` };
+      if (type === "total_shots") return { badge: "Tirs", color: "green", title: `Over ${t} tirs` };
+      if (type === "total_fouls") return { badge: "Fautes", color: "orange", title: `Over ${t} fautes` };
+      return { badge: "Signal", color: "gold", title: `Over ${t}` };
+    }
+
+    // =======================================================
+    // LOGOS via Edge Function Proxy
+    // =======================================================
+    function getTeamLogo(match, side = "home") {
+      const obj = side === "home" ? match?.home_team_obj : match?.away_team_obj;
+      const directId = side === "home" ? match?.home_team_id : match?.away_team_id;
+      const apiId = obj?.api_id || obj?.id || directId || match?.[`${side}_id`];
+      if (!apiId) return null;
+      return `${EDGE_FUNCTION_URL}/img/team/${apiId}`;
+    }
+    function getLeagueLogo(match) {
+      const apiId = match?.league?.api_id || match?.league?.id || match?.league_id;
+      if (!apiId) return null;
+      return `${EDGE_FUNCTION_URL}/img/league/${apiId}`;
     }
 
     // =======================================================
@@ -1641,9 +1697,20 @@
     // =======================================================
     // RENDER
     // =======================================================
-    ReactDOM.createRoot(document.getElementById("root")).render(
-      <App />
-    );
-  </script>
+    try {
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    } catch (e) {
+      console.error(e);
+      const root = document.getElementById("root");
+      if (root) {
+        root.innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;color:#fff;font-family:Inter,system-ui,sans-serif;">
+          <div style="max-width:760px;width:100%;background:rgba(10,10,10,.92);border:1px solid rgba(239,68,68,.35);border-left:6px solid #EF4444;border-radius:16px;padding:14px;box-shadow:0 20px 60px rgba(0,0,0,.7);">
+            <div style="font-weight:900;color:#EF4444;margin-bottom:8px;">Erreur JavaScript</div>
+            <pre style="white-space:pre-wrap;word-break:break-word;color:#E5E7EB;font-size:12px;margin:0;">${(e && (e.stack || e.message)) ? (e.stack || e.message) : String(e)}</pre>
+          </div>
+        </div>`;
+      }
+    }
+</script>
 </body>
 </html>
