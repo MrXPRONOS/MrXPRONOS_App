@@ -1,9 +1,9 @@
 {
-  "trained_at": 1780632354.3812683,
-  "samples_total": 1442,
-  "samples_train": 1153,
+  "trained_at": 1780717654.660457,
+  "samples_total": 1444,
+  "samples_train": 1155,
   "samples_valid": 289,
-  "accuracy": 0.6817,
+  "accuracy": 0.6713,
   "feature_order": [
     "confidence",
     "xpronos_score",

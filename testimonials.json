@@ -1,32 +1,32 @@
 [
   {
-    "name": "Awa Fofana",
+    "name": "Massa Mutombo",
+    "rating": 5,
+    "city": "Abidjan",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mon argent et je mise plus intelligemment, ça change tout."
+  },
+  {
+    "name": "Amadou Fofana",
     "rating": 5,
     "city": "Lagos",
-    "text": "Depuis que j’ai pris le LIVE VIP de Mr XPRONOS, je place mes paris au bon moment, surtout sur les corners et les tirs. Ça change tout, même si faut toujours rester prudent."
+    "text": "Depuis que j’utilise les lives VIP de Mr XPRONOS, je capte les bons moments sur les corners et les tirs, ça change tout pour mes gains."
   },
   {
-    "name": "Boubacar Chanda",
-    "rating": 5,
-    "city": "Accra",
-    "text": "Depuis que je suis les conseils ici, mes coupons sont plus simples et je me plante moins souvent. Ça change la donne."
-  },
-  {
-    "name": "Boubacar Koné",
-    "rating": 4,
-    "city": "Kampala",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, ça change tout ici à Kampala."
-  },
-  {
-    "name": "Lassina Aboubakar",
+    "name": "Nana Camara",
     "rating": 5,
     "city": "Libreville",
-    "text": "Franchement, la fiabilité font la différence. Maintenant je joue moins mais plus propre. Ça change ma façon de jouer."
+    "text": "Franchement, les coupons font la différence. Maintenant je fais moins de combinés inutiles."
   },
   {
-    "name": "Fatou Camara",
+    "name": "Karim Obi",
     "rating": 5,
+    "city": "Bamako",
+    "text": "Les pronos sont clairs et je choisis mieux mes matchs. Je préfère cette méthode aux paris au hasard."
+  },
+  {
+    "name": "Ibrahima Diop",
+    "rating": 4,
     "city": "Accra",
-    "text": "Depuis 21 jours je suis les coupons, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
+    "text": "Depuis que j’ai pris le LIVE VIP de Mr XPRONOS, je place mes mises au bon moment sur les corners et les tirs, ça change tout."
   }
 ]
