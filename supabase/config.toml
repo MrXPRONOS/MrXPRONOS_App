@@ -1,0 +1,7 @@
+[functions.live-scrape-test]
+verify_jwt = false
+static_files = [
+  "./functions/live-scrape-test/_fonts/NotoSans-Regular.ttf",
+  "./functions/live-scrape-test/_fonts/NotoSans-Bold.ttf",
+  "./functions/live-scrape-test/_fonts/NotoSans-ExtraBold.ttf"
+]
