@@ -493,6 +493,41 @@ async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array
     pred?.value_at_signal ??
     0;
 
+  const telegramMode = String(pred?.telegram_mode ?? "new");
+  const isValidation = telegramMode === "validation_success" || telegramMode === "validation_failure";
+  const validationSuccess = telegramMode === "validation_success";
+
+  const mainBorder = isValidation
+    ? validationSuccess ? "#22C55E" : "#EF4444"
+    : "#D4AF37";
+
+  const resultBoxBg = isValidation
+    ? validationSuccess ? "#0f2a18" : "#2a1111"
+    : "#2a230b";
+
+  const headerText = isValidation
+    ? validationSuccess ? "COUPON VALIDÉ" : "COUPON PERDU"
+    : "NOUVEAU COUPON LIVE";
+
+  const pillText = isValidation
+    ? validationSuccess ? "RÉUSSI" : "ÉCHOUÉ"
+    : `LIVE ${minute}'`;
+
+  const pillBg = isValidation
+    ? validationSuccess ? "#22C55E" : "#EF4444"
+    : "#2563EB";
+
+  const pillColor = isValidation ? "#050505" : "#ffffff";
+
+  const matchStatusText = isValidation
+    ? String(pred?.validation_type ?? "") === "instant"
+      ? "Validé en live"
+      : "Fin de match"
+    : "En direct";
+
+  const sectionLabel = isValidation ? "Résultat du coupon" : "Pronostic live";
+  const sectionColor = isValidation ? mainBorder : "#D4AF37";
+
   const homeLogoData = await imageUrlToDataUri(match?.home_logo || match?.raw_data?.home_logo);
   const awayLogoData = await imageUrlToDataUri(match?.away_logo || match?.raw_data?.away_logo);
   const leagueLogoData = await imageUrlToDataUri(match?.league_logo || match?.raw_data?.league_logo);
@@ -512,25 +547,33 @@ async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array
       : `Total plus de ${threshold}`;
 
   const reason = fitText(
-    pred?.message ??
-      pred?.reason ??
-      `${currentValue} ${typeLabel.toLowerCase()} à la ${minute}e minute`,
+    isValidation
+      ? validationSuccess
+        ? "Le seuil a été dépassé. Coupon validé."
+        : "Le seuil n'a pas été dépassé. Coupon perdu."
+      : pred?.message ??
+        pred?.reason ??
+        `${currentValue} ${typeLabel.toLowerCase()} à la ${minute}e minute`,
     78,
   );
+
+  const valueLine = isValidation
+    ? `Résultat : ${currentValue} • Seuil : ${threshold}`
+    : `Au signal : ${currentValue} • Pronostic : ${threshold}`;
 
   const homeInitials = escapeHtml(getTeamInitials(match?.home_team ?? "Home"));
   const awayInitials = escapeHtml(getTeamInitials(match?.away_team ?? "Away"));
 
   const markup = html(`
     <div style="width:1080px;height:1080px;display:flex;flex-direction:column;background:#050505;color:#ffffff;font-family:'Noto Sans';padding:52px;box-sizing:border-box;">
-      <div style="width:976px;height:976px;display:flex;flex-direction:column;border:3px solid #D4AF37;border-radius:46px;padding:38px;box-sizing:border-box;background:#0d0d0d;">
+      <div style="width:976px;height:976px;display:flex;flex-direction:column;border:3px solid ${mainBorder};border-radius:46px;padding:38px;box-sizing:border-box;background:#0d0d0d;">
 
         <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;margin-bottom:26px;">
           <div style="display:flex;flex-direction:column;">
             <div style="display:flex;font-size:25px;color:#D4AF37;font-weight:900;letter-spacing:2px;">MR XPRONOS</div>
-            <div style="display:flex;margin-top:10px;font-size:50px;font-weight:900;color:#ffffff;line-height:1;">NOUVEAU COUPON LIVE</div>
+            <div style="display:flex;margin-top:10px;font-size:50px;font-weight:900;color:#ffffff;line-height:1;">${escapeHtml(headerText)}</div>
           </div>
-          <div style="display:flex;background:#2563EB;color:#ffffff;padding:15px 28px;border-radius:999px;font-size:27px;font-weight:900;">LIVE ${minute}'</div>
+          <div style="display:flex;background:${pillBg};color:${pillColor};padding:15px 28px;border-radius:999px;font-size:27px;font-weight:900;">${escapeHtml(pillText)}</div>
         </div>
 
         <div style="display:flex;flex-direction:column;background:#171717;border:1px solid #2b2b2b;border-radius:34px;padding:30px;margin-bottom:26px;box-sizing:border-box;">
@@ -548,29 +591,29 @@ async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array
               ${
                 homeLogoData
                   ? `<img src="${homeLogoData}" width="92" height="92" style="object-fit:contain;border-radius:18px;" />`
-                  : `<div style="width:92px;height:92px;border-radius:999px;border:3px solid #D4AF37;color:#D4AF37;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;">${homeInitials}</div>`
+                  : `<div style="width:92px;height:92px;border-radius:999px;border:3px solid ${mainBorder};color:#D4AF37;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;">${homeInitials}</div>`
               }
               <div style="display:flex;margin-top:16px;font-size:29px;font-weight:900;text-align:center;color:#ffffff;line-height:1.12;">${escapeHtml(homeName)}</div>
             </div>
 
             <div style="width:310px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
               <div style="display:flex;font-size:76px;font-weight:900;color:#ffffff;line-height:1;">${score}</div>
-              <div style="display:flex;margin-top:12px;font-size:22px;color:#A3A3A3;font-weight:800;">En direct</div>
+              <div style="display:flex;margin-top:12px;font-size:22px;color:#A3A3A3;font-weight:800;">${escapeHtml(matchStatusText)}</div>
             </div>
 
             <div style="width:255px;display:flex;flex-direction:column;align-items:center;">
               ${
                 awayLogoData
                   ? `<img src="${awayLogoData}" width="92" height="92" style="object-fit:contain;border-radius:18px;" />`
-                  : `<div style="width:92px;height:92px;border-radius:999px;border:3px solid #D4AF37;color:#D4AF37;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;">${awayInitials}</div>`
+                  : `<div style="width:92px;height:92px;border-radius:999px;border:3px solid ${mainBorder};color:#D4AF37;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;">${awayInitials}</div>`
               }
               <div style="display:flex;margin-top:16px;font-size:29px;font-weight:900;text-align:center;color:#ffffff;line-height:1.12;">${escapeHtml(awayName)}</div>
             </div>
           </div>
         </div>
 
-        <div style="display:flex;flex-direction:column;background:#2a230b;border:2px solid #D4AF37;border-radius:34px;padding:36px;box-sizing:border-box;">
-          <div style="display:flex;font-size:24px;font-weight:900;color:#D4AF37;text-transform:uppercase;letter-spacing:1px;">Pronostic live</div>
+        <div style="display:flex;flex-direction:column;background:${resultBoxBg};border:2px solid ${mainBorder};border-radius:34px;padding:36px;box-sizing:border-box;">
+          <div style="display:flex;font-size:24px;font-weight:900;color:${sectionColor};text-transform:uppercase;letter-spacing:1px;">${escapeHtml(sectionLabel)}</div>
 
           <div style="margin-top:18px;width:820px;font-size:50px;font-weight:900;color:#ffffff;line-height:1.12;display:flex;flex-direction:column;">
             ${escapeHtml(couponText)}
@@ -581,7 +624,7 @@ async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array
             <div style="display:flex;background:#050505;border:1px solid #3a3a3a;border-radius:18px;padding:16px 20px;font-size:25px;font-weight:900;color:#ffffff;">Fiabilité : ${confidence}%</div>
           </div>
 
-          <div style="display:flex;margin-top:26px;font-size:28px;font-weight:800;color:#ffffff;">Au signal : ${escapeHtml(currentValue)} • Pronostic : ${escapeHtml(threshold)}</div>
+          <div style="display:flex;margin-top:26px;font-size:28px;font-weight:800;color:#ffffff;">${escapeHtml(valueLine)}</div>
           <div style="display:flex;margin-top:22px;font-size:25px;line-height:1.35;font-weight:700;color:#E5E7EB;">${escapeHtml(reason)}</div>
         </div>
 
@@ -709,6 +752,64 @@ async function sendTelegramScrapeCoupon(match: any, pred: any, predictionId?: st
   } catch (e) {
     console.error("Génération image Telegram scraping impossible, fallback texte:", e);
     return await sendTelegramMessage(buildTelegramText(match, normalizedPred), buttonUrl);
+  }
+}
+
+
+function buildTelegramValidationText(pred: any, outcome: "success" | "failure", currentValue: number) {
+  const type = String(pred?.prediction_type ?? pred?.type ?? "");
+  const threshold = formatThreshold(
+    pred?.threshold ?? pred?.pronostic ?? pred?.line ?? pred?.target_value ?? "",
+  );
+
+  const label =
+    type === "total_corners"
+      ? "corners"
+      : type === "total_fouls"
+      ? "fautes"
+      : "";
+
+  const status = outcome === "success" ? "✅ COUPON VALIDÉ" : "❌ COUPON PERDU";
+
+  return `${status}
+
+⚽️ Total plus de ${threshold}${label ? ` ${label}` : ""}
+📊 Résultat : ${currentValue}`;
+}
+
+async function sendTelegramValidationResult(
+  match: any,
+  pred: any,
+  outcome: "success" | "failure",
+  currentValue: number,
+  validationType: "instant" | "final",
+  predictionId?: string | number | null,
+) {
+  const buttonUrl = TELEGRAM_SCRAPE_BUTTON_URL;
+
+  const normalizedPred = {
+    ...pred,
+    type: pred.type ?? pred.prediction_type,
+    current_value: currentValue,
+    current: currentValue,
+    value_at_signal: currentValue,
+    telegram_mode: outcome === "success" ? "validation_success" : "validation_failure",
+    validation_type: validationType,
+  };
+
+  try {
+    const pngBytes = await buildTelegramCouponPng(match, normalizedPred);
+    return await sendTelegramPhoto(
+      pngBytes,
+      buildTelegramValidationText(normalizedPred, outcome, currentValue),
+      buttonUrl,
+    );
+  } catch (e) {
+    console.error("Génération image validation Telegram scraping impossible, fallback texte:", e);
+    return await sendTelegramMessage(
+      buildTelegramValidationText(normalizedPred, outcome, currentValue),
+      buttonUrl,
+    );
   }
 }
 
@@ -1485,6 +1586,9 @@ async function validatePredictions() {
         priority: "high",
       });
 
+      // ✅ Envoi Telegram résultat : coupon validé en live.
+      await sendTelegramValidationResult(m, p, "success", currentTotal, "instant", p.id);
+
       // After success corners -> propose next rung immediately
       if (p.prediction_type === "total_corners") {
         await tryCreateNextCornersAfterSuccess(m);
@@ -1517,6 +1621,9 @@ async function validatePredictions() {
         related_prediction_id: p.id,
         priority: "normal",
       });
+
+      // ✅ Envoi Telegram résultat final : coupon perdu.
+      await sendTelegramValidationResult(m, p, "failure", currentTotal, "final", p.id);
     }
   }
 
