@@ -834,6 +834,265 @@ async function sendTelegramLiveCoupon(match: any, pred: any, predictionId?: stri
   }
 }
 
+
+function validationStatusMeta(outcome: "success" | "failure") {
+  if (outcome === "success") {
+    return {
+      emoji: "✅",
+      header: "COUPON VALIDÉ",
+      status: "RÉUSSI",
+      color: "#22C55E",
+      bg: "#0f2a18",
+      border: "#22C55E",
+    };
+  }
+
+  return {
+    emoji: "❌",
+    header: "COUPON PERDU",
+    status: "ÉCHOUÉ",
+    color: "#EF4444",
+    bg: "#2a1111",
+    border: "#EF4444",
+  };
+}
+
+function buildValidationCouponText(pred: any) {
+  const type = String(pred?.prediction_type ?? pred?.type ?? "");
+  const threshold = formatThreshold(
+    pred?.threshold ?? pred?.pronostic ?? pred?.line ?? pred?.target_value ?? "",
+  );
+
+  const label = predictionLabelForCaption(type);
+  return `Total plus de ${threshold}${label ? ` ${label}` : ""}`;
+}
+
+function splitMatchName(matchName?: string | null) {
+  const text = String(matchName ?? "").trim();
+  if (!text) return { home: "Équipe A", away: "Équipe B" };
+
+  const parts = text.split(/\s+vs\s+/i);
+  if (parts.length >= 2) {
+    return {
+      home: parts[0].trim() || "Équipe A",
+      away: parts.slice(1).join(" vs ").trim() || "Équipe B",
+    };
+  }
+
+  return { home: text, away: "Équipe B" };
+}
+
+async function getTelegramMatchFromCache(pred: any, ev?: any | null) {
+  const { data } = await supabase
+    .from("matches_live")
+    .select("*")
+    .eq("id", String(pred.match_id))
+    .limit(1)
+    .maybeSingle();
+
+  if (data) {
+    return {
+      id: data.id,
+      home_team: data.home_team,
+      away_team: data.away_team,
+      home_score: data.home_score ?? 0,
+      away_score: data.away_score ?? 0,
+      current_minute: data.current_minute ?? 90,
+      league_name: data.league_name ?? pred.league_name ?? null,
+      league: { name: data.league_name ?? pred.league_name ?? "Football" },
+      raw_data: data.raw_data || {},
+      home_logo: data.raw_data?.home_logo ?? null,
+      away_logo: data.raw_data?.away_logo ?? null,
+      league_logo: data.raw_data?.league_logo ?? null,
+    };
+  }
+
+  const names = splitMatchName(pred?.match_name);
+
+  return {
+    id: pred.match_id,
+    home_team: names.home,
+    away_team: names.away,
+    home_score: ev?.home_score ?? ev?.home?.score ?? 0,
+    away_score: ev?.away_score ?? ev?.away?.score ?? 0,
+    current_minute: 90,
+    league_name: pred?.league_name ?? ev?.league?.name ?? ev?.competition?.name ?? "Football",
+    league: { name: pred?.league_name ?? ev?.league?.name ?? ev?.competition?.name ?? "Football" },
+    raw_data: ev || {},
+  };
+}
+
+async function buildTelegramValidationPng(
+  match: any,
+  pred: any,
+  outcome: "success" | "failure",
+  currentValue: number,
+  validationType: "instant" | "final",
+): Promise<Uint8Array> {
+  await ensureResvgReady();
+  const fonts = await loadFontData();
+
+  const meta = validationStatusMeta(outcome);
+  const minute = safeNumber(match?.current_minute ?? match?.minute, validationType === "final" ? 90 : 0);
+  const score = `${safeNumber(match?.home_score, 0)}-${safeNumber(match?.away_score, 0)}`;
+
+  const rawType = String(pred?.prediction_type ?? pred?.type ?? "");
+  const typeLabel = formatLivePredictionType(rawType);
+  const threshold = formatThreshold(
+    pred?.threshold ?? pred?.pronostic ?? pred?.line ?? pred?.target_value ?? "",
+  );
+
+  const [homeLogoData, awayLogoData, leagueLogoData] = await Promise.all([
+    getTelegramLogoData(match, "home"),
+    getTelegramLogoData(match, "away"),
+    getTelegramLogoData(match, "league"),
+  ]);
+
+  const homeName = fitText(match?.home_team ?? "Équipe A", 22);
+  const awayName = fitText(match?.away_team ?? "Équipe B", 22);
+  const leagueName = fitText(
+    match?.league?.name ?? match?.league_name ?? match?.competition ?? "Football",
+    30,
+  );
+
+  const couponText = buildValidationCouponText(pred);
+  const homeInitials = escapeHtml(getTeamInitials(match?.home_team ?? "Home"));
+  const awayInitials = escapeHtml(getTeamInitials(match?.away_team ?? "Away"));
+  const resultLabel = validationType === "instant" ? "Validé en live" : "Validé fin de match";
+  const resultSentence =
+    outcome === "success"
+      ? "Le seuil a été dépassé. Coupon validé."
+      : "Le seuil n'a pas été dépassé. Coupon perdu.";
+
+  const markup = html(`
+    <div style="width:1080px;height:1080px;display:flex;flex-direction:column;background:#050505;color:#ffffff;font-family:'Noto Sans';padding:52px;box-sizing:border-box;">
+      <div style="width:976px;height:976px;display:flex;flex-direction:column;border:3px solid ${meta.border};border-radius:46px;padding:38px;box-sizing:border-box;background:#0d0d0d;">
+
+        <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;margin-bottom:26px;">
+          <div style="display:flex;flex-direction:column;">
+            <div style="display:flex;font-size:25px;color:#D4AF37;font-weight:900;letter-spacing:2px;">MR XPRONOS</div>
+            <div style="display:flex;margin-top:10px;font-size:50px;font-weight:900;color:#ffffff;line-height:1;">${escapeHtml(meta.header)}</div>
+          </div>
+          <div style="display:flex;background:${meta.color};color:#050505;padding:15px 28px;border-radius:999px;font-size:27px;font-weight:900;">${escapeHtml(meta.status)}</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;background:#171717;border:1px solid #2b2b2b;border-radius:34px;padding:30px;margin-bottom:26px;box-sizing:border-box;">
+          <div style="display:flex;flex-direction:row;align-items:center;margin-bottom:26px;">
+            ${
+              leagueLogoData
+                ? `<img src="${leagueLogoData}" width="44" height="44" style="border-radius:999px;margin-right:16px;" />`
+                : `<div style="display:flex;width:44px;height:44px;border-radius:999px;border:2px solid #D4AF37;margin-right:16px;"></div>`
+            }
+            <div style="display:flex;font-size:27px;font-weight:800;color:#D4AF37;">${escapeHtml(leagueName)}</div>
+          </div>
+
+          <div style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
+            <div style="width:255px;display:flex;flex-direction:column;align-items:center;">
+              ${
+                homeLogoData
+                  ? `<img src="${homeLogoData}" width="92" height="92" style="object-fit:contain;border-radius:18px;" />`
+                  : `<div style="width:92px;height:92px;border-radius:999px;border:3px solid #D4AF37;color:#D4AF37;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;">${homeInitials}</div>`
+              }
+              <div style="display:flex;margin-top:16px;font-size:29px;font-weight:900;text-align:center;color:#ffffff;line-height:1.12;">${escapeHtml(homeName)}</div>
+            </div>
+
+            <div style="width:310px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="display:flex;font-size:76px;font-weight:900;color:#ffffff;line-height:1;">${score}</div>
+              <div style="display:flex;margin-top:12px;font-size:22px;color:#A3A3A3;font-weight:800;">${escapeHtml(resultLabel)}</div>
+            </div>
+
+            <div style="width:255px;display:flex;flex-direction:column;align-items:center;">
+              ${
+                awayLogoData
+                  ? `<img src="${awayLogoData}" width="92" height="92" style="object-fit:contain;border-radius:18px;" />`
+                  : `<div style="width:92px;height:92px;border-radius:999px;border:3px solid #D4AF37;color:#D4AF37;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;">${awayInitials}</div>`
+              }
+              <div style="display:flex;margin-top:16px;font-size:29px;font-weight:900;text-align:center;color:#ffffff;line-height:1.12;">${escapeHtml(awayName)}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;background:${meta.bg};border:2px solid ${meta.border};border-radius:34px;padding:36px;box-sizing:border-box;">
+          <div style="display:flex;font-size:24px;font-weight:900;color:${meta.color};text-transform:uppercase;letter-spacing:1px;">Résultat du coupon</div>
+
+          <div style="margin-top:18px;width:820px;font-size:50px;font-weight:900;color:#ffffff;line-height:1.12;display:flex;flex-direction:column;">
+            ${escapeHtml(couponText)}
+          </div>
+
+          <div style="margin-top:26px;display:flex;flex-direction:row;">
+            <div style="display:flex;background:#050505;border:1px solid #3a3a3a;border-radius:18px;padding:16px 20px;font-size:25px;font-weight:900;color:#ffffff;margin-right:16px;">Type : ${escapeHtml(typeLabel)}</div>
+            <div style="display:flex;background:#050505;border:1px solid #3a3a3a;border-radius:18px;padding:16px 20px;font-size:25px;font-weight:900;color:#ffffff;">Statut : ${escapeHtml(meta.status)}</div>
+          </div>
+
+          <div style="display:flex;margin-top:26px;font-size:28px;font-weight:800;color:#ffffff;">Final : ${escapeHtml(currentValue)} • Seuil : ${escapeHtml(threshold)}</div>
+          <div style="display:flex;margin-top:22px;font-size:25px;line-height:1.35;font-weight:700;color:#E5E7EB;">${escapeHtml(resultSentence)}</div>
+        </div>
+
+        <div style="margin-top:auto;text-align:center;font-size:21px;color:#A3A3A3;font-weight:700;display:flex;align-items:center;justify-content:center;">
+          18+ • Joue responsablement
+        </div>
+      </div>
+    </div>
+  `);
+
+  const svg = await satori(markup, {
+    width: 1080,
+    height: 1080,
+    fonts: [
+      { name: "Noto Sans", data: fonts.regular, weight: 400, style: "normal" },
+      { name: "Noto Sans", data: fonts.bold, weight: 700, style: "normal" },
+      { name: "Noto Sans", data: fonts.extraBold, weight: 900, style: "normal" },
+    ],
+    embedFont: true,
+  });
+
+  const resvg = new Resvg(svg, {
+    fitTo: { mode: "original" },
+    font: {
+      loadSystemFonts: false,
+    },
+  });
+
+  return resvg.render().asPng();
+}
+
+function buildTelegramValidationText(pred: any, outcome: "success" | "failure", currentValue: number) {
+  const meta = validationStatusMeta(outcome);
+  const couponText = buildValidationCouponText(pred);
+
+  return `${meta.emoji} ${outcome === "success" ? "COUPON VALIDÉ" : "COUPON PERDU"}
+
+⚽️ ${couponText}
+📊 Résultat : ${currentValue}`;
+}
+
+async function sendTelegramValidationResult(
+  match: any,
+  pred: any,
+  outcome: "success" | "failure",
+  currentValue: number,
+  validationType: "instant" | "final",
+  predictionId?: string | number | null,
+) {
+  const liveUrl = `${SITE_URL.replace(/\/$/, "")}/live.html`;
+
+  try {
+    const pngBytes = await buildTelegramValidationPng(match, pred, outcome, currentValue, validationType);
+    return await sendTelegramPhoto(
+      pngBytes,
+      buildTelegramValidationText(pred, outcome, currentValue),
+      liveUrl,
+    );
+  } catch (e) {
+    console.error("❌ Génération image VALIDATION impossible, fallback texte:", e);
+    return await sendTelegramMessage(
+      buildTelegramValidationText(pred, outcome, currentValue),
+      liveUrl,
+    );
+  }
+}
+
+
 // =======================================================
 // ✅ CRON HEALTH (cron_runs)
 // =======================================================
@@ -1521,6 +1780,9 @@ Minute: ${match.current_minute ?? "-"}'`,
         related_prediction_id: keptId,
       });
 
+      // ✅ Envoi Telegram résultat : coupon validé en live.
+      await sendTelegramValidationResult(match, pred, "success", currentValue, "instant", keptId);
+
       instantValidated++;
     }
   }
@@ -1754,6 +2016,17 @@ Résultat: ${ok ? "✅ réussi" : "❌ échoué"}`,
         read: false,
         related_prediction_id: keptId,
       });
+
+      // ✅ Envoi Telegram résultat final : coupon validé ou perdu.
+      const telegramMatch = await getTelegramMatchFromCache(pred, ev);
+      await sendTelegramValidationResult(
+        telegramMatch,
+        pred,
+        ok ? "success" : "failure",
+        finalValue,
+        "final",
+        keptId,
+      );
 
       validated++;
     } catch (e) {
