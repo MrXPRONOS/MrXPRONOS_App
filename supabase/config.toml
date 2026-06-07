@@ -5,3 +5,11 @@ static_files = [
   "./functions/live-scrape-test/_fonts/NotoSans-Bold.ttf",
   "./functions/live-scrape-test/_fonts/NotoSans-ExtraBold.ttf"
 ]
+
+[functions.live]
+verify_jwt = false
+static_files = [
+  "./functions/live/_fonts/NotoSans-Regular.ttf",
+  "./functions/live/_fonts/NotoSans-Bold.ttf",
+  "./functions/live/_fonts/NotoSans-ExtraBold.ttf"
+]
