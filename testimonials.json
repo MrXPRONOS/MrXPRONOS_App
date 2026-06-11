@@ -1,32 +1,32 @@
 [
   {
-    "name": "Aisha Okonkwo",
+    "name": "Ibrahim Fall",
+    "rating": 5,
+    "city": "Douala",
+    "text": "Depuis que je me concentre sur les coupons simples avec Mr XPRONOS, je me trompe moins et ça paie mieux. À Douala, c’est ce qui marche pour moi."
+  },
+  {
+    "name": "Néné Obi",
     "rating": 5,
     "city": "Lomé",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, mes coupons sont plus simples et je me trompe moins souvent, ça change la donne."
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je vois mieux les matchs. Ils expliquent pourquoi tel pari peut marcher, c’est plus simple pour moi."
   },
   {
-    "name": "Salif Onyeka",
+    "name": "Chaka Diarra",
     "rating": 5,
-    "city": "Yaoundé",
-    "text": "Depuis que j’utilise leurs lives VIP, je capte les corners et les tirs au bon moment. Ça change tout pour les paris ici à Yaoundé."
+    "city": "Alger",
+    "text": "Depuis que j’utilise Mr XPRONOS pour mes coupons simples, je me trompe moins et ça se voit sur mes gains petit à petit."
   },
   {
-    "name": "Pascal Camara",
-    "rating": 4,
-    "city": "Le Caire",
-    "text": "Depuis que j’utilise Mr XPRONOS, leurs analyses m’expliquent clairement pourquoi tel match peut rapporter, c’est plus simple pour suivre. Au Caire, ça m’a évité des erreurs bêtes."
-  },
-  {
-    "name": "Léa Diallo",
+    "name": "Ibrahima Traoré",
     "rating": 5,
-    "city": "Luanda",
-    "text": "Les pronos sont clairs et je joue moins mais plus propre. Je préfère cette méthode aux paris au hasard."
+    "city": "Antananarivo",
+    "text": "Franchement, les analyses font la différence. Maintenant je comprends enfin pourquoi je joue."
   },
   {
-    "name": "Karim Kante",
+    "name": "Awa Koné",
     "rating": 5,
-    "city": "Casablanca",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je mise moins mais je gagne plus souvent, c’est ça la vraie régularité."
+    "city": "Dakar",
+    "text": "Les pronos sont clairs et je comprends enfin pourquoi je joue. Je préfère cette méthode aux paris au hasard."
   }
 ]
