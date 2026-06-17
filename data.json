@@ -251,9 +251,9 @@
       "league": "Premier Division - Championship Group",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 4,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 3.0,
@@ -282,9 +282,9 @@
       "xpronos_score": 84,
       "badge": "💎 VIP ELITE",
       "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": true,
       "ml_score": 82.9,
       "final_score": 83.7
     },
@@ -721,13 +721,61 @@
       "final_score": 73.3
     },
     {
+      "id": 4668702,
+      "date": "2026-06-18",
+      "event_date": "2026-06-18T15:00:00+00:00",
+      "home_team": "Levadia Tallinn II",
+      "away_team": "Tartu JK Welko Electer",
+      "home_logo": "assets/images/teams/sdv1-13690-v1.webp",
+      "away_logo": "assets/images/teams/sdv1-14530-v1.webp",
+      "league": "Esiliiga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.6,
+        "goals_avg": 6.75,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.4,
+        "goals_for": 1.8,
+        "goals_against": 2.0
+      },
+      "away_form": {
+        "form_score": 0.867,
+        "goals_for": 2.8,
+        "goals_against": 1.0
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 61
+      },
+      "xpronos_score": 76,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 62.7,
+      "final_score": 72.7
+    },
+    {
       "id": 4655568,
       "date": "2026-06-17",
       "event_date": "2026-06-17T17:00:00+00:00",
       "home_team": "Torpedo Kutaisi",
       "away_team": "Dinamo Batumi",
-      "home_logo": "assets/images/teams/sdv1-9320-v2.webp",
-      "away_logo": "assets/images/teams/sdv1-14218-v1.webp",
+      "home_logo": "assets/images/teams/sdv1-9320-v2.png",
+      "away_logo": "assets/images/teams/sdv1-14218-v1.png",
       "league": "Erovnuli Liga",
       "league_logo": null,
       "venue": "",
@@ -765,8 +813,56 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 60.7,
-      "final_score": 72.2
+      "ml_score": 57.5,
+      "final_score": 71.4
+    },
+    {
+      "id": 4737139,
+      "date": "2026-06-18",
+      "event_date": "2026-06-18T14:00:00+00:00",
+      "home_team": "Olympique Dcheira",
+      "away_team": "AS Far Rabat",
+      "home_logo": "assets/images/teams/sdv1-21191-v6.webp",
+      "away_logo": "assets/images/teams/sdv1-5455-v6.webp",
+      "league": "Botola Pro",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 7.5,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.067,
+        "goals_for": 0.6,
+        "goals_against": 1.8
+      },
+      "away_form": {
+        "form_score": 0.4,
+        "goals_for": 1.0,
+        "goals_against": 1.0
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 68
+      },
+      "xpronos_score": 77,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 53.7,
+      "final_score": 71.2
     },
     {
       "id": 4661087,
@@ -1062,8 +1158,8 @@
       "event_date": "2026-06-17T18:00:00+00:00",
       "home_team": "Rosario Central Res.",
       "away_team": "Velez Sársfield Res.",
-      "home_logo": "assets/images/teams/sdv1-67916-v2.webp",
-      "away_logo": "assets/images/teams/sdv1-67945-v3.webp",
+      "home_logo": "assets/images/teams/sdv1-67916-v2.png",
+      "away_logo": "assets/images/teams/sdv1-67945-v3.png",
       "league": "Liga Profesional - Reserva - Apertura",
       "league_logo": null,
       "venue": "",
@@ -1101,8 +1197,56 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 54.4,
-      "final_score": 67.6
+      "ml_score": 56.0,
+      "final_score": 68.0
+    },
+    {
+      "id": 4654203,
+      "date": "2026-06-17",
+      "event_date": "2026-06-17T13:00:00+00:00",
+      "home_team": "Merani Martvili",
+      "away_team": "Samtredia",
+      "home_logo": "assets/images/teams/sdv1-14184-v1.png",
+      "away_logo": "assets/images/teams/sdv1-14196-v2.png",
+      "league": "Erovnuli Liga 2",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 2.5,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 4.25,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.533,
+        "goals_for": 0.8,
+        "goals_against": 0.8
+      },
+      "away_form": {
+        "form_score": 0.133,
+        "goals_for": 1.2,
+        "goals_against": 2.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 70
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 80.1,
+      "final_score": 68.0
     },
     {
       "id": 4682645,
@@ -1295,54 +1439,6 @@
       "verified_over": true,
       "ml_score": 53.7,
       "final_score": 66.7
-    },
-    {
-      "id": 4654203,
-      "date": "2026-06-17",
-      "event_date": "2026-06-17T13:00:00+00:00",
-      "home_team": "Merani Martvili",
-      "away_team": "Samtredia",
-      "home_logo": "assets/images/teams/sdv1-14184-v1.webp",
-      "away_logo": "assets/images/teams/sdv1-14196-v2.webp",
-      "league": "Erovnuli Liga 2",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 2.5,
-        "away_wins": 0.0,
-        "draws": 0.0,
-        "home_dominance": 1.0,
-        "away_dominance": 0.0,
-        "goals_avg": 4.25,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.533,
-        "goals_for": 0.8,
-        "goals_against": 0.8
-      },
-      "away_form": {
-        "form_score": 0.133,
-        "goals_for": 1.2,
-        "goals_against": 2.2
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 70
-      },
-      "xpronos_score": 64,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 72.3,
-      "final_score": 66.1
     },
     {
       "id": 4728885,
@@ -1681,54 +1777,6 @@
       "final_score": 63.1
     },
     {
-      "id": 4671866,
-      "date": "2026-06-02",
-      "event_date": "2026-06-02T13:30:00+00:00",
-      "home_team": "Mes Shahr-E Babak",
-      "away_team": "Sanat Naft Abadan",
-      "home_logo": "assets/images/home.webp",
-      "away_logo": "assets/images/away.webp",
-      "league": "Division 1",
-      "league_logo": null,
-      "venue": "",
-      "status": "Ended",
-      "home_score": 2,
-      "away_score": 0,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_wins": 0.0,
-        "away_wins": 1.0,
-        "draws": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 1.0,
-        "over_25_prob": 0.0
-      },
-      "home_form": {
-        "form_score": 0.267,
-        "goals_for": 0.2,
-        "goals_against": 0.4
-      },
-      "away_form": {
-        "form_score": 0.467,
-        "goals_for": 0.6,
-        "goals_against": 0.4
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "confidence": 72
-      },
-      "xpronos_score": 57,
-      "badge": "",
-      "category": "simple",
-      "is_finished": true,
-      "verified_double": false,
-      "verified_over": true,
-      "ml_score": 81.0,
-      "final_score": 63.0
-    },
-    {
       "id": 4661083,
       "date": "2026-06-16",
       "event_date": "2026-06-16T16:00:00+00:00",
@@ -1739,9 +1787,9 @@
       "league": "Meistriliiga",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 2,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -1770,8 +1818,8 @@
       "xpronos_score": 64,
       "badge": "",
       "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
+      "is_finished": true,
+      "verified_double": true,
       "verified_over": false,
       "ml_score": 58.7,
       "final_score": 62.7
@@ -2111,6 +2159,54 @@
       "verified_over": true,
       "ml_score": 45.7,
       "final_score": 59.4
+    },
+    {
+      "id": 4655569,
+      "date": "2026-06-18",
+      "event_date": "2026-06-18T16:00:00+00:00",
+      "home_team": "Dinamo Tbilisi",
+      "away_team": "FC Samgurali Tskhaltubo",
+      "home_logo": "assets/images/teams/sdv2-team-5428.png",
+      "away_logo": "assets/images/teams/sdv1-14197-v2.webp",
+      "league": "Erovnuli Liga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 1.0,
+        "home_dominance": 0.6,
+        "away_dominance": 0.0,
+        "goals_avg": 2.25,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.667,
+        "goals_for": 2.4,
+        "goals_against": 1.0
+      },
+      "away_form": {
+        "form_score": 0.667,
+        "goals_for": 1.6,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 56,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 68.8,
+      "final_score": 59.2
     },
     {
       "id": 4664884,
@@ -2497,6 +2593,54 @@
       "final_score": 54.6
     },
     {
+      "id": 4737137,
+      "date": "2026-06-18",
+      "event_date": "2026-06-18T14:00:00+00:00",
+      "home_team": "Wydad AC",
+      "away_team": "FUS Rabat",
+      "home_logo": "assets/images/teams/sdv1-8326-v3.webp",
+      "away_logo": "assets/images/teams/sdv1-8206-v1.webp",
+      "league": "Botola Pro",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 1.5,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.8,
+        "goals_for": 1.6,
+        "goals_against": 0.8
+      },
+      "away_form": {
+        "form_score": 0.467,
+        "goals_for": 1.4,
+        "goals_against": 0.6
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 68
+      },
+      "xpronos_score": 57,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 45.9,
+      "final_score": 54.2
+    },
+    {
       "id": 4639206,
       "date": "2026-06-13",
       "event_date": "2026-06-13T17:30:00+00:00",
@@ -2545,6 +2689,54 @@
       "final_score": 52.1
     },
     {
+      "id": 4661080,
+      "date": "2026-06-17",
+      "event_date": "2026-06-17T16:00:00+00:00",
+      "home_team": "Kalju Nomme",
+      "away_team": "JK Tammeka Tartu",
+      "home_logo": "assets/images/teams/sdv2-team-5930.png",
+      "away_logo": "assets/images/teams/sdv1-12743-v1.png",
+      "league": "Meistriliiga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.0,
+        "away_wins": 0.0,
+        "draws": 1.0,
+        "home_dominance": 0.5,
+        "away_dominance": 0.0,
+        "goals_avg": 3.5,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.4,
+        "goals_for": 1.4,
+        "goals_against": 1.2
+      },
+      "away_form": {
+        "form_score": 0.667,
+        "goals_for": 1.0,
+        "goals_against": 0.4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 60.2,
+      "final_score": 51.8
+    },
+    {
       "id": 4640801,
       "date": "2026-06-10",
       "event_date": "2026-06-10T17:00:00+00:00",
@@ -2591,54 +2783,6 @@
       "verified_over": true,
       "ml_score": 59.9,
       "final_score": 51.7
-    },
-    {
-      "id": 4661080,
-      "date": "2026-06-17",
-      "event_date": "2026-06-17T16:00:00+00:00",
-      "home_team": "Kalju Nomme",
-      "away_team": "JK Tammeka Tartu",
-      "home_logo": "assets/images/teams/sdv2-team-5930.png",
-      "away_logo": "assets/images/teams/sdv1-12743-v1.webp",
-      "league": "Meistriliiga",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 1.0,
-        "away_wins": 0.0,
-        "draws": 1.0,
-        "home_dominance": 0.5,
-        "away_dominance": 0.0,
-        "goals_avg": 3.5,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.4,
-        "goals_for": 1.4,
-        "goals_against": 1.2
-      },
-      "away_form": {
-        "form_score": 0.667,
-        "goals_for": 1.0,
-        "goals_against": 0.4
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 56
-      },
-      "xpronos_score": 49,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 59.1,
-      "final_score": 51.5
     },
     {
       "id": 4636755,
@@ -2987,9 +3131,9 @@
       "league": "Virsliga",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -3018,9 +3162,9 @@
       "xpronos_score": 45,
       "badge": "",
       "category": "simple",
-      "is_finished": false,
+      "is_finished": true,
       "verified_double": false,
-      "verified_over": false,
+      "verified_over": true,
       "ml_score": 51.7,
       "final_score": 46.7
     },
@@ -3806,9 +3950,9 @@
         "league": "Premier Division - Championship Group",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 4,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 3.0,
@@ -3837,9 +3981,9 @@
         "xpronos_score": 84,
         "badge": "💎 VIP ELITE",
         "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
+        "is_finished": true,
+        "verified_double": true,
+        "verified_over": true,
         "ml_score": 82.9,
         "final_score": 83.7
       },
@@ -4228,13 +4372,61 @@
         "final_score": 77.8
       },
       {
+        "id": 4668702,
+        "date": "2026-06-18",
+        "event_date": "2026-06-18T15:00:00+00:00",
+        "home_team": "Levadia Tallinn II",
+        "away_team": "Tartu JK Welko Electer",
+        "home_logo": "assets/images/teams/sdv1-13690-v1.webp",
+        "away_logo": "assets/images/teams/sdv1-14530-v1.webp",
+        "league": "Esiliiga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.6,
+          "goals_avg": 6.75,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.4,
+          "goals_for": 1.8,
+          "goals_against": 2.0
+        },
+        "away_form": {
+          "form_score": 0.867,
+          "goals_for": 2.8,
+          "goals_against": 1.0
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 61
+        },
+        "xpronos_score": 76,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 62.7,
+        "final_score": 72.7
+      },
+      {
         "id": 4655568,
         "date": "2026-06-17",
         "event_date": "2026-06-17T17:00:00+00:00",
         "home_team": "Torpedo Kutaisi",
         "away_team": "Dinamo Batumi",
-        "home_logo": "assets/images/teams/sdv1-9320-v2.webp",
-        "away_logo": "assets/images/teams/sdv1-14218-v1.webp",
+        "home_logo": "assets/images/teams/sdv1-9320-v2.png",
+        "away_logo": "assets/images/teams/sdv1-14218-v1.png",
         "league": "Erovnuli Liga",
         "league_logo": null,
         "venue": "",
@@ -4272,8 +4464,56 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 60.7,
-        "final_score": 72.2
+        "ml_score": 57.5,
+        "final_score": 71.4
+      },
+      {
+        "id": 4737139,
+        "date": "2026-06-18",
+        "event_date": "2026-06-18T14:00:00+00:00",
+        "home_team": "Olympique Dcheira",
+        "away_team": "AS Far Rabat",
+        "home_logo": "assets/images/teams/sdv1-21191-v6.webp",
+        "away_logo": "assets/images/teams/sdv1-5455-v6.webp",
+        "league": "Botola Pro",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 7.5,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.067,
+          "goals_for": 0.6,
+          "goals_against": 1.8
+        },
+        "away_form": {
+          "form_score": 0.4,
+          "goals_for": 1.0,
+          "goals_against": 1.0
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 68
+        },
+        "xpronos_score": 77,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 53.7,
+        "final_score": 71.2
       },
       {
         "id": 4661087,
@@ -4569,8 +4809,8 @@
         "event_date": "2026-06-17T18:00:00+00:00",
         "home_team": "Rosario Central Res.",
         "away_team": "Velez Sársfield Res.",
-        "home_logo": "assets/images/teams/sdv1-67916-v2.webp",
-        "away_logo": "assets/images/teams/sdv1-67945-v3.webp",
+        "home_logo": "assets/images/teams/sdv1-67916-v2.png",
+        "away_logo": "assets/images/teams/sdv1-67945-v3.png",
         "league": "Liga Profesional - Reserva - Apertura",
         "league_logo": null,
         "venue": "",
@@ -4608,8 +4848,56 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 54.4,
-        "final_score": 67.6
+        "ml_score": 56.0,
+        "final_score": 68.0
+      },
+      {
+        "id": 4654203,
+        "date": "2026-06-17",
+        "event_date": "2026-06-17T13:00:00+00:00",
+        "home_team": "Merani Martvili",
+        "away_team": "Samtredia",
+        "home_logo": "assets/images/teams/sdv1-14184-v1.png",
+        "away_logo": "assets/images/teams/sdv1-14196-v2.png",
+        "league": "Erovnuli Liga 2",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.5,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 4.25,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.533,
+          "goals_for": 0.8,
+          "goals_against": 0.8
+        },
+        "away_form": {
+          "form_score": 0.133,
+          "goals_for": 1.2,
+          "goals_against": 2.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 70
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 80.1,
+        "final_score": 68.0
       },
       {
         "id": 4682645,
@@ -4802,54 +5090,6 @@
         "verified_over": true,
         "ml_score": 53.7,
         "final_score": 66.7
-      },
-      {
-        "id": 4654203,
-        "date": "2026-06-17",
-        "event_date": "2026-06-17T13:00:00+00:00",
-        "home_team": "Merani Martvili",
-        "away_team": "Samtredia",
-        "home_logo": "assets/images/teams/sdv1-14184-v1.webp",
-        "away_logo": "assets/images/teams/sdv1-14196-v2.webp",
-        "league": "Erovnuli Liga 2",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 2.5,
-          "away_wins": 0.0,
-          "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 4.25,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.533,
-          "goals_for": 0.8,
-          "goals_against": 0.8
-        },
-        "away_form": {
-          "form_score": 0.133,
-          "goals_for": 1.2,
-          "goals_against": 2.2
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
-          "confidence": 70
-        },
-        "xpronos_score": 64,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 72.3,
-        "final_score": 66.1
       },
       {
         "id": 4728885,
@@ -5092,54 +5332,6 @@
         "final_score": 63.1
       },
       {
-        "id": 4671866,
-        "date": "2026-06-02",
-        "event_date": "2026-06-02T13:30:00+00:00",
-        "home_team": "Mes Shahr-E Babak",
-        "away_team": "Sanat Naft Abadan",
-        "home_logo": "assets/images/home.webp",
-        "away_logo": "assets/images/away.webp",
-        "league": "Division 1",
-        "league_logo": null,
-        "venue": "",
-        "status": "Ended",
-        "home_score": 2,
-        "away_score": 0,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_wins": 0.0,
-          "away_wins": 1.0,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 1.0,
-          "over_25_prob": 0.0
-        },
-        "home_form": {
-          "form_score": 0.267,
-          "goals_for": 0.2,
-          "goals_against": 0.4
-        },
-        "away_form": {
-          "form_score": 0.467,
-          "goals_for": 0.6,
-          "goals_against": 0.4
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "confidence": 72
-        },
-        "xpronos_score": 57,
-        "badge": "",
-        "category": "simple",
-        "is_finished": true,
-        "verified_double": false,
-        "verified_over": true,
-        "ml_score": 81.0,
-        "final_score": 63.0
-      },
-      {
         "id": 4661083,
         "date": "2026-06-16",
         "event_date": "2026-06-16T16:00:00+00:00",
@@ -5150,9 +5342,9 @@
         "league": "Meistriliiga",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 1,
+        "away_score": 2,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -5181,8 +5373,8 @@
         "xpronos_score": 64,
         "badge": "",
         "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
+        "is_finished": true,
+        "verified_double": true,
         "verified_over": false,
         "ml_score": 58.7,
         "final_score": 62.7
@@ -5522,6 +5714,54 @@
         "verified_over": true,
         "ml_score": 45.7,
         "final_score": 59.4
+      },
+      {
+        "id": 4655569,
+        "date": "2026-06-18",
+        "event_date": "2026-06-18T16:00:00+00:00",
+        "home_team": "Dinamo Tbilisi",
+        "away_team": "FC Samgurali Tskhaltubo",
+        "home_logo": "assets/images/teams/sdv2-team-5428.png",
+        "away_logo": "assets/images/teams/sdv1-14197-v2.webp",
+        "league": "Erovnuli Liga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 1.0,
+          "home_dominance": 0.6,
+          "away_dominance": 0.0,
+          "goals_avg": 2.25,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.667,
+          "goals_for": 2.4,
+          "goals_against": 1.0
+        },
+        "away_form": {
+          "form_score": 0.667,
+          "goals_for": 1.6,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 56,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 68.8,
+        "final_score": 59.2
       },
       {
         "id": 4664884,
@@ -5908,6 +6148,54 @@
         "final_score": 54.6
       },
       {
+        "id": 4737137,
+        "date": "2026-06-18",
+        "event_date": "2026-06-18T14:00:00+00:00",
+        "home_team": "Wydad AC",
+        "away_team": "FUS Rabat",
+        "home_logo": "assets/images/teams/sdv1-8326-v3.webp",
+        "away_logo": "assets/images/teams/sdv1-8206-v1.webp",
+        "league": "Botola Pro",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 1.5,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.8,
+          "goals_for": 1.6,
+          "goals_against": 0.8
+        },
+        "away_form": {
+          "form_score": 0.467,
+          "goals_for": 1.4,
+          "goals_against": 0.6
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 68
+        },
+        "xpronos_score": 57,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 45.9,
+        "final_score": 54.2
+      },
+      {
         "id": 4639206,
         "date": "2026-06-13",
         "event_date": "2026-06-13T17:30:00+00:00",
@@ -5956,6 +6244,54 @@
         "final_score": 52.1
       },
       {
+        "id": 4661080,
+        "date": "2026-06-17",
+        "event_date": "2026-06-17T16:00:00+00:00",
+        "home_team": "Kalju Nomme",
+        "away_team": "JK Tammeka Tartu",
+        "home_logo": "assets/images/teams/sdv2-team-5930.png",
+        "away_logo": "assets/images/teams/sdv1-12743-v1.png",
+        "league": "Meistriliiga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.0,
+          "away_wins": 0.0,
+          "draws": 1.0,
+          "home_dominance": 0.5,
+          "away_dominance": 0.0,
+          "goals_avg": 3.5,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.4,
+          "goals_for": 1.4,
+          "goals_against": 1.2
+        },
+        "away_form": {
+          "form_score": 0.667,
+          "goals_for": 1.0,
+          "goals_against": 0.4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 60.2,
+        "final_score": 51.8
+      },
+      {
         "id": 4640801,
         "date": "2026-06-10",
         "event_date": "2026-06-10T17:00:00+00:00",
@@ -6002,54 +6338,6 @@
         "verified_over": true,
         "ml_score": 59.9,
         "final_score": 51.7
-      },
-      {
-        "id": 4661080,
-        "date": "2026-06-17",
-        "event_date": "2026-06-17T16:00:00+00:00",
-        "home_team": "Kalju Nomme",
-        "away_team": "JK Tammeka Tartu",
-        "home_logo": "assets/images/teams/sdv2-team-5930.png",
-        "away_logo": "assets/images/teams/sdv1-12743-v1.webp",
-        "league": "Meistriliiga",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 1.0,
-          "away_wins": 0.0,
-          "draws": 1.0,
-          "home_dominance": 0.5,
-          "away_dominance": 0.0,
-          "goals_avg": 3.5,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.4,
-          "goals_for": 1.4,
-          "goals_against": 1.2
-        },
-        "away_form": {
-          "form_score": 0.667,
-          "goals_for": 1.0,
-          "goals_against": 0.4
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
-          "confidence": 56
-        },
-        "xpronos_score": 49,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 59.1,
-        "final_score": 51.5
       },
       {
         "id": 4636755,
@@ -6398,9 +6686,9 @@
         "league": "Virsliga",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 1,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -6429,9 +6717,9 @@
         "xpronos_score": 45,
         "badge": "",
         "category": "simple",
-        "is_finished": false,
+        "is_finished": true,
         "verified_double": false,
-        "verified_over": false,
+        "verified_over": true,
         "ml_score": 51.7,
         "final_score": 46.7
       },
@@ -7210,11 +7498,11 @@
     ]
   },
   "stats": {
-    "total_bets": 64,
-    "wins": 41,
-    "roi": -35.9
+    "total_bets": 66,
+    "wins": 43,
+    "roi": -34.8
   },
   "bookmakers": [],
-  "generated_at": "2026-06-16T04:26:18.407881Z",
+  "generated_at": "2026-06-17T04:21:12.454523Z",
   "retention_days": 14
 }
