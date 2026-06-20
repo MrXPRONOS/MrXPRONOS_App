@@ -1,7 +1,7 @@
 name: Create Shorts Video
 
 on:
-  workflow_dispatch:  # déclenchement manuel
+  workflow_dispatch:
   workflow_run:
     workflows: ["Daily Update"]
     types:
@@ -20,39 +20,20 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install moviepy numpy
+          pip install edge-tts moviepy pillow numpy requests
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Playwright
-        run: |
-          npm install -D playwright
-          npx playwright install --with-deps chromium
-
-      - name: Start local HTTP server
-        run: |
-          python -m http.server 8000 &
-          sleep 3
-
-      - name: Export cards (up to 5 matches, simple/pro/vip)
-        run: node scripts/export_simple_coupons.mjs
+      - name: Create Shorts video from data.json
+        run: python scripts/create_shorts_video.py --data data.json --max 5 --out daily_pronos_shorts.mp4
         env:
-          LIMIT: "5"
-          EXPORT_URL: http://127.0.0.1:8000/pronos.html
-          OUT_DIR: telegram_out
-
-      - name: Create Shorts video
-        run: python scripts/create_shorts_video.py
-        env:
-          MORE_URL: ${{ vars.SITE_URL || 'https://mrxpronos.github.io/MrXPRONOS_App/pronos.html' }}
+          VOICE_ENGINE: edge
+          TTS_VOICE: fr-FR-RemyMultilingualNeural
+          TTS_RATE: "-7%"
+          TTS_PITCH: "-1Hz"
 
       - name: Upload video artifact
         uses: actions/upload-artifact@v4
