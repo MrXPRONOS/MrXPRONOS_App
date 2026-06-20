@@ -1,32 +1,32 @@
 [
   {
-    "name": "Awa Sangaré",
+    "name": "Adama Bamba",
     "rating": 5,
+    "city": "Ouagadougou",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mes mises et ma bankroll a pris du sérieux sans forcer. Ici à Ouaga, c’est pas la loterie, faut rester discipliné."
+  },
+  {
+    "name": "Abdoulaye Onyeka",
+    "rating": 4,
+    "city": "Le Caire",
+    "text": "Depuis que je suis les coupons simples de Mr XPRONOS, je me plante moins et ça fait du bien au portefeuille. Au Caire, c’est déjà ça de gagné."
+  },
+  {
+    "name": "Karim Okonkwo",
+    "rating": 5,
+    "city": "Lomé",
+    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
+  },
+  {
+    "name": "Ibrahima Mbeki",
+    "rating": 4,
     "city": "Lagos",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux les matchs. Ils expliquent pourquoi tel joueur ou telle équipe a plus de chances, ça m’aide à parier plus malin."
+    "text": "Les pronos sont clairs et je choisis mieux mes matchs. Je préfère cette méthode aux paris au hasard."
   },
   {
-    "name": "Aminata Ahmed",
-    "rating": 5,
-    "city": "Antananarivo",
-    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je choisis mieux mes matchs et ça paie petit à petit. Franchement, ça m’aide bien ici à Tana."
-  },
-  {
-    "name": "Lamine Ouedraogo",
+    "name": "Fodé Owusu",
     "rating": 5,
     "city": "Le Caire",
-    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je mise plus malin au Caire, les résultats parlent d’eux-mêmes."
-  },
-  {
-    "name": "Fatou Diarra",
-    "rating": 5,
-    "city": "Luanda",
-    "text": "Depuis que je me concentre sur les coupons simples avec Mr XPRONOS, je me plante moins et ça me soulage le portefeuille."
-  },
-  {
-    "name": "Idrissa Kabore",
-    "rating": 5,
-    "city": "Casablanca",
-    "text": "Depuis 10 jours je suis les coupons, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
+    "text": "Franchement, les explications font la différence. Maintenant je joue moins mais plus propre."
   }
 ]
