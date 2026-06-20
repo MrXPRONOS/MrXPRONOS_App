@@ -41,6 +41,9 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 ROOT_DIR = Path.cwd()
+# Racine du projet : utile quand le workflow lance `python scripts/create_shorts_video.py`
+# depuis la racine du dépôt GitHub Actions.
+BASE_DIR = SCRIPT_DIR.parent if SCRIPT_DIR.name == "scripts" else ROOT_DIR
 
 # Compatible avec GitHub Actions actuel :
 # - le workflow lance : python scripts/create_shorts_video.py
@@ -209,7 +212,7 @@ def make_gradient_bg(w: int, h: int, bg_rgb, gold_rgb) -> Image.Image:
         warm = np.array((22, 18, 9), dtype=float)
         color = base * (1 - factor * 0.55) + warm * (factor * 0.55)
         arr[y, :, :] = np.clip(color, 0, 255)
-    img = Image.fromarray(arr, "RGB")
+    img = Image.fromarray(arr)
 
     overlay = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     od = ImageDraw.Draw(overlay)
