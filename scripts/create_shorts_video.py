@@ -343,7 +343,8 @@ def select_daily_pronos(data_path: Path, target_date: Optional[str], max_pronos:
 def build_scene_payloads(pronos: List[Prono], cfg: Dict, target_date: str) -> List[Dict]:
     """
     Mode direct : aucune intro, aucune outro.
-    La vidéo commence immédiatement par le premier prono et enchaîne les matchs.
+    La vidéo commence par une phrase courte, puis enchaîne directement :
+    "Voici les pronos du jour. Prono 1... Prono 2..."
     """
     if not pronos:
         return [{
@@ -353,15 +354,17 @@ def build_scene_payloads(pronos: List[Prono], cfg: Dict, target_date: str) -> Li
             "narration": "Aucun prono du jour disponible pour le moment.",
         }]
 
-    total = len(pronos)
     scenes = []
-    for p in pronos:
+    for idx, p in enumerate(pronos, start=1):
+        opening = "Voici les pronos du jour. " if idx == 1 else ""
         scenes.append({
             "kind": "prono",
-            "title": f"PRONO {p.index}/{total}",
+            "title": f"PRONO {idx}",
             "subtitle": p.league,
             "prono": p,
             "narration": (
+                f"{opening}"
+                f"Prono {idx}. "
                 f"{p.home_team} contre {p.away_team}. "
                 f"{p.winner_phrase[:1].upper() + p.winner_phrase[1:]}. "
                 f"Pronostic : {p.prediction_text}. "
