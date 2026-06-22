@@ -16,10 +16,8 @@ env:
   PYTHON_VERSION: "3.12"
   VIDEO_FILE: daily_pronos_shorts.mp4
 
-  # Facebook désactivé pour l’instant à cause de publish_video.
-  # Quand Facebook est réglé, mets :
-  # POST_PLATFORMS: facebook,youtube,instagram,threads,tiktok
-  POST_PLATFORMS: youtube,instagram,threads,tiktok
+  # Toutes les plateformes
+  POST_PLATFORMS: facebook,youtube,instagram,threads,tiktok
 
 jobs:
   create-and-publish:
@@ -46,14 +44,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
 
-          # Dépendances vidéo
+          # Dépendances génération vidéo
           pip install edge-tts moviepy pillow numpy requests
 
-          # Dépendances publication sociale
+          # Dépendances publication réseaux sociaux
           if [ -f requirements_social.txt ]; then
             pip install -r requirements_social.txt
           else
-            pip install google-auth google-auth-oauthlib google-api-python-client requests supabase
+            pip install requests google-auth google-auth-oauthlib google-api-python-client supabase
           fi
 
       - name: Check required files
@@ -107,6 +105,42 @@ jobs:
           name: daily_pronos_shorts
           path: ${{ env.VIDEO_FILE }}
 
+      - name: Check Supabase config for Instagram and Threads
+        run: |
+          python - <<'PY'
+          import os
+
+          checks = [
+              "SUPABASE_URL",
+              "SUPABASE_SERVICE_ROLE_KEY",
+              "SUPABASE_BUCKET",
+          ]
+
+          print("🔎 Vérification Supabase Storage")
+
+          missing = []
+
+          for name in checks:
+              value = os.getenv(name)
+              if value:
+                  print(f"✅ {name} configuré")
+              else:
+                  print(f"❌ {name} manquant")
+                  missing.append(name)
+
+          if missing:
+              print("")
+              print("⚠️ Instagram et Threads risquent d'échouer car ils ont besoin d'une URL publique.")
+              print("Variables manquantes:", ", ".join(missing))
+          else:
+              print("")
+              print("✅ Supabase est prêt pour générer une URL publique de la vidéo.")
+          PY
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_BUCKET: videos
+
       - name: Publish Shorts video to social platforms
         continue-on-error: true
         run: |
@@ -125,7 +159,6 @@ jobs:
             #football #pronostic #pronosdujour #mrxpronos
 
           # Facebook Page
-          # À réactiver quand publish_video est réglé
           META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
           META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
 
