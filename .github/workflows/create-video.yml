@@ -1,62 +1,123 @@
-name: Create Shorts Video
+name: Create and Publish Shorts Video
 
 on:
   workflow_dispatch:
+
   workflow_run:
-    workflows: ["Daily Update"]
+    workflows:
+      - Daily Update
     types:
       - completed
 
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: "3.12"
+  VIDEO_FILE: daily_pronos_shorts.mp4
+
+  # Facebook désactivé pour l’instant à cause de publish_video.
+  # Quand Facebook est réglé, mets :
+  # POST_PLATFORMS: facebook,youtube,instagram,threads,tiktok
+  POST_PLATFORMS: youtube,instagram,threads,tiktok
+
 jobs:
-  build-video:
+  create-and-publish:
+    name: Generate and publish shorts
     runs-on: ubuntu-latest
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
 
       - name: Install Python dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m pip install --upgrade pip setuptools wheel
+
+          # Dépendances vidéo
           pip install edge-tts moviepy pillow numpy requests
 
+          # Dépendances publication sociale
+          if [ -f requirements_social.txt ]; then
+            pip install -r requirements_social.txt
+          else
+            pip install google-auth google-auth-oauthlib google-api-python-client requests supabase
+          fi
+
+      - name: Check required files
+        run: |
+          echo "📂 Contenu racine :"
+          ls -la
+
+          echo "📂 Contenu scripts :"
+          ls -la scripts || true
+
+          if [ ! -f "data.json" ]; then
+            echo "❌ data.json introuvable"
+            exit 1
+          fi
+
+          if [ ! -f "scripts/create_shorts_video.py" ]; then
+            echo "❌ scripts/create_shorts_video.py introuvable"
+            exit 1
+          fi
+
+          if [ ! -f "scripts/post_shorts_video.py" ]; then
+            echo "❌ scripts/post_shorts_video.py introuvable"
+            exit 1
+          fi
+
       - name: Create Shorts video from data.json
-        run: python scripts/create_shorts_video.py --data data.json --max 5 --out daily_pronos_shorts.mp4
+        run: |
+          python scripts/create_shorts_video.py \
+            --data data.json \
+            --max 5 \
+            --out "${VIDEO_FILE}"
         env:
           VOICE_ENGINE: edge
           TTS_VOICE: fr-FR-RemyMultilingualNeural
           TTS_RATE: "-7%"
           TTS_PITCH: "-1Hz"
 
-      - name: Upload video artifact
+      - name: Verify generated video
+        run: |
+          if [ ! -f "${VIDEO_FILE}" ]; then
+            echo "❌ Vidéo non générée : ${VIDEO_FILE}"
+            exit 1
+          fi
+
+          echo "✅ Vidéo générée : ${VIDEO_FILE}"
+          ls -lh "${VIDEO_FILE}"
+
+      - name: Upload generated video artifact
         uses: actions/upload-artifact@v4
         with:
-          name: daily-shorts-video
-          path: daily_pronos_shorts.mp4
-          retention-days: 7
-
-      # À ajouter après la génération de daily_pronos_shorts.mp4
-      - name: Install social publishing dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements_social.txt
+          name: daily_pronos_shorts
+          path: ${{ env.VIDEO_FILE }}
 
       - name: Publish Shorts video to social platforms
+        continue-on-error: true
         run: |
           python scripts/post_shorts_video.py \
-            --video daily_pronos_shorts.mp4 \
-            --platforms "$POST_PLATFORMS" \
+            --video "${VIDEO_FILE}" \
+            --platforms "${POST_PLATFORMS}" \
             --title "Pronos du jour - Mr XPRONOS" \
             --description "Voici les pronos du jour Mr XPRONOS. Analyse rapide, 18+ et joue responsablement."
         env:
-          POST_PLATFORMS: facebook,youtube
+          POST_PLATFORMS: ${{ env.POST_PLATFORMS }}
+
           POST_CAPTION: |
             Voici les pronos du jour ⚽
             Analyse rapide • 18+ • Joue responsablement.
@@ -64,6 +125,7 @@ jobs:
             #football #pronostic #pronosdujour #mrxpronos
 
           # Facebook Page
+          # À réactiver quand publish_video est réglé
           META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
           META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
 
@@ -79,19 +141,21 @@ jobs:
           TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
           TIKTOK_PRIVACY_LEVEL: PUBLIC_TO_EVERYONE
 
-          # YouTube
+          # YouTube Shorts
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
           YOUTUBE_PRIVACY_STATUS: public
 
-          # Option pour Instagram/Threads : créer une URL publique Supabase automatiquement
+          # Supabase Storage pour URL publique Instagram / Threads
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUPABASE_BUCKET: videos
 
       - name: Upload social publish report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: social_post_results
           path: social_post_results.json
+          if-no-files-found: ignore
