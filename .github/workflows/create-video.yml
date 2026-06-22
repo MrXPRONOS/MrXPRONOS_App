@@ -15,9 +15,8 @@ permissions:
 env:
   PYTHON_VERSION: "3.12"
   VIDEO_FILE: daily_pronos_shorts.mp4
-
-  # Toutes les plateformes
   POST_PLATFORMS: facebook,youtube,instagram,threads,tiktok
+  GRAPH_API_VERSION: v25.0
 
 jobs:
   create-and-publish:
@@ -25,6 +24,43 @@ jobs:
     runs-on: ubuntu-latest
 
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+
+    env:
+      # GitHub token pour mettre à jour les secrets automatiquement
+      GH_PAT_SECRETS: ${{ secrets.GH_PAT_SECRETS }}
+
+      # Meta Facebook + Instagram
+      META_APP_ID: ${{ secrets.META_APP_ID }}
+      META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+      META_LONG_LIVED_USER_TOKEN: ${{ secrets.META_LONG_LIVED_USER_TOKEN }}
+      META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+      META_PAGE_NAME: ${{ secrets.META_PAGE_NAME }}
+      META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+      META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+      IG_USER_ID: ${{ secrets.IG_USER_ID }}
+
+      # Threads
+      THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+      THREADS_APP_SECRET: ${{ secrets.THREADS_APP_SECRET }}
+      THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+
+      # TikTok
+      TIKTOK_CLIENT_KEY: ${{ secrets.TIKTOK_CLIENT_KEY }}
+      TIKTOK_CLIENT_SECRET: ${{ secrets.TIKTOK_CLIENT_SECRET }}
+      TIKTOK_REFRESH_TOKEN: ${{ secrets.TIKTOK_REFRESH_TOKEN }}
+      TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+      TIKTOK_PRIVACY_LEVEL: PUBLIC_TO_EVERYONE
+
+      # YouTube Shorts
+      YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+      YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+      YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+      YOUTUBE_PRIVACY_STATUS: public
+
+      # Supabase Storage pour Instagram / Threads
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SUPABASE_BUCKET: videos
 
     steps:
       - name: Checkout repository
@@ -47,7 +83,7 @@ jobs:
           # Dépendances génération vidéo
           pip install edge-tts moviepy pillow numpy requests
 
-          # Dépendances publication réseaux sociaux
+          # Dépendances publication / refresh tokens
           if [ -f requirements_social.txt ]; then
             pip install -r requirements_social.txt
           else
@@ -74,6 +110,12 @@ jobs:
 
           if [ ! -f "scripts/post_shorts_video.py" ]; then
             echo "❌ scripts/post_shorts_video.py introuvable"
+            exit 1
+          fi
+
+          if [ ! -f "scripts/refresh_social_tokens.py" ]; then
+            echo "❌ scripts/refresh_social_tokens.py introuvable"
+            echo "Ajoute le fichier du pack durable tokens dans scripts/"
             exit 1
           fi
 
@@ -136,10 +178,62 @@ jobs:
               print("")
               print("✅ Supabase est prêt pour générer une URL publique de la vidéo.")
           PY
+
+      - name: Refresh social tokens before publishing
+        continue-on-error: true
+        run: |
+          echo "🔐 Refresh des tokens sociaux avant publication"
+          python scripts/refresh_social_tokens.py \
+            --out refreshed_tokens.json \
+            --github-env "$GITHUB_ENV"
+
+      - name: Persist refreshed tokens into GitHub Secrets
+        continue-on-error: true
+        run: |
+          if [ -z "${GH_PAT_SECRETS:-}" ]; then
+            echo "⚠️ GH_PAT_SECRETS manquant. Les tokens seront utilisés seulement pendant ce run."
+            echo "Pour rendre le refresh durable, ajoute GH_PAT_SECRETS dans GitHub Secrets."
+            exit 0
+          fi
+
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          from pathlib import Path
+
+          path = Path("refreshed_tokens.json")
+          if not path.exists():
+              print("Aucun fichier refreshed_tokens.json")
+              raise SystemExit(0)
+
+          tokens = json.loads(path.read_text(encoding="utf-8"))
+          if not tokens:
+              print("Aucun token à mettre à jour.")
+              raise SystemExit(0)
+
+          repo = os.environ["GITHUB_REPOSITORY"]
+
+          for name, value in tokens.items():
+              if not value:
+                  continue
+
+              print(f"Mise à jour du secret: {name}")
+              subprocess.run(
+                  ["gh", "secret", "set", name, "--repo", repo, "--body", value],
+                  check=True,
+              )
+
+          print("✅ Secrets GitHub mis à jour.")
+          PY
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPABASE_BUCKET: videos
+          GH_TOKEN: ${{ secrets.GH_PAT_SECRETS }}
+
+      - name: Delete refreshed tokens file
+        if: always()
+        run: |
+          rm -f refreshed_tokens.json
+          echo "🧹 Fichier refreshed_tokens.json supprimé"
 
       - name: Publish Shorts video to social platforms
         continue-on-error: true
@@ -150,40 +244,11 @@ jobs:
             --title "Pronos du jour - Mr XPRONOS" \
             --description "Voici les pronos du jour Mr XPRONOS. Analyse rapide, 18+ et joue responsablement."
         env:
-          POST_PLATFORMS: ${{ env.POST_PLATFORMS }}
-
           POST_CAPTION: |
             Voici les pronos du jour ⚽
             Analyse rapide • 18+ • Joue responsablement.
 
             #football #pronostic #pronosdujour #mrxpronos
-
-          # Facebook Page
-          META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
-          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
-
-          # Instagram Reels
-          IG_USER_ID: ${{ secrets.IG_USER_ID }}
-          META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
-
-          # Threads
-          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
-          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
-
-          # TikTok
-          TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
-          TIKTOK_PRIVACY_LEVEL: PUBLIC_TO_EVERYONE
-
-          # YouTube Shorts
-          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
-          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
-          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
-          YOUTUBE_PRIVACY_STATUS: public
-
-          # Supabase Storage pour URL publique Instagram / Threads
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          SUPABASE_BUCKET: videos
 
       - name: Upload social publish report
         if: always()
