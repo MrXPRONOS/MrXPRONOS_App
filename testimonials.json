@@ -1,32 +1,32 @@
 [
   {
-    "name": "Zalika Zongo",
+    "name": "Kankou Owusu",
+    "rating": 5,
+    "city": "Nairobi",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS pour mes coupons simples, je me trompe beaucoup moins et ça paie bien."
+  },
+  {
+    "name": "Xavier Coulibaly",
     "rating": 5,
     "city": "Lomé",
-    "text": "Depuis que j’ai pris le LIVE VIP, je place mes paris au bon moment, surtout sur les corners et les fautes. Ça change vraiment la donne."
+    "text": "Depuis 7 jours je suis les analyses, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
   },
   {
-    "name": "El hadji Diop",
+    "name": "Rama Onyeka",
     "rating": 5,
-    "city": "Bamako",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, mes coupons sont plus simples et je me trompe moins souvent. Ça change la donne ici à Bamako."
+    "city": "Lomé",
+    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi tel match peut basculer, ça m’aide à parier plus malin."
   },
   {
-    "name": "Zara Kouyate",
+    "name": "Boubacar Mutombo",
     "rating": 4,
-    "city": "Le Caire",
-    "text": "Depuis que j’ai pris l’option LIVE VIP, je vois les corners et les fautes avant qu’ils rapportent, ça change tout au Caire."
+    "city": "Yaoundé",
+    "text": "Depuis que je suis les lives VIP de Mr XPRONOS, je place mes paris au bon moment, surtout sur les corners et les fautes. Ça change tout pour les gains."
   },
   {
-    "name": "Gora Onyeka",
+    "name": "Yacouba Aboubakar",
     "rating": 5,
-    "city": "Kampala",
-    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
-  },
-  {
-    "name": "Waly Mutombo",
-    "rating": 4,
-    "city": "Abidjan",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mon argent et je mise sans stress. Les gains arrivent petit à petit, c’est plus propre comme ça."
+    "city": "Alger",
+    "text": "Les pronos sont clairs et je choisis mieux mes matchs. Je préfère cette méthode aux paris au hasard."
   }
 ]
