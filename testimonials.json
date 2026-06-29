@@ -1,32 +1,32 @@
 [
   {
-    "name": "Koumba Ahmed",
-    "rating": 5,
-    "city": "Dakar",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux les matchs. Les explications sont claires, ça m’aide à parier plus malin."
-  },
-  {
-    "name": "Léa Mbeki",
-    "rating": 5,
-    "city": "Nairobi",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent. Ça change la vie ici à Nairobi."
-  },
-  {
-    "name": "Salif Zongo",
-    "rating": 5,
-    "city": "Alger",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, c’est ça la vraie différence. Alger a enfin un pronostic qui tient la route."
-  },
-  {
-    "name": "Ousmane Okonkwo",
+    "name": "Awa Ouattara",
     "rating": 4,
-    "city": "Johannesburg",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi tel match peut basculer, ça m’aide à parier plus malin."
+    "city": "Libreville",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent. Ça change tout pour mon budget à Libreville."
   },
   {
-    "name": "Nagnouma Nkosi",
-    "rating": 4,
-    "city": "Nairobi",
-    "text": "Les pronos sont clairs et je comprends enfin pourquoi je joue. Je préfère cette méthode aux paris au hasard."
+    "name": "Sidy Ba",
+    "rating": 5,
+    "city": "Tunis",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, mes coupons sont plus simples et je me plante moins souvent. Ça change la vie ici à Tunis."
+  },
+  {
+    "name": "Néné Mohamed",
+    "rating": 5,
+    "city": "Kigali",
+    "text": "Depuis 14 jours je suis le live, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
+  },
+  {
+    "name": "Waly Sall",
+    "rating": 5,
+    "city": "Abidjan",
+    "text": "Depuis 10 jours je suis les explications, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
+  },
+  {
+    "name": "Baba Diaby",
+    "rating": 5,
+    "city": "Cotonou",
+    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
   }
 ]
