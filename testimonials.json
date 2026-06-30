@@ -1,32 +1,32 @@
 [
   {
-    "name": "Awa Ouattara",
+    "name": "Pape Diallo",
     "rating": 4,
-    "city": "Libreville",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent. Ça change tout pour mon budget à Libreville."
+    "city": "Cotonou",
+    "text": "Depuis que j’ai pris le LIVE VIP, je touche plus souvent sur les corners et les fautes, ça change tout en direct."
   },
   {
-    "name": "Sidy Ba",
+    "name": "Fodé Nkosi",
+    "rating": 5,
+    "city": "Libreville",
+    "text": "Depuis que j’utilise Mr XPRONOS, je mise moins mais je gagne plus souvent, c’est ça qui compte à Libreville."
+  },
+  {
+    "name": "Xavier Ba",
     "rating": 5,
     "city": "Tunis",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, mes coupons sont plus simples et je me plante moins souvent. Ça change la vie ici à Tunis."
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, c’est plus malin comme ça."
   },
   {
-    "name": "Néné Mohamed",
-    "rating": 5,
-    "city": "Kigali",
-    "text": "Depuis 14 jours je suis le live, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
+    "name": "Mansour Kazadi",
+    "rating": 4,
+    "city": "Kinshasa",
+    "text": "Les pronos sont clairs et je comprends enfin pourquoi je joue. Je préfère cette méthode aux paris au hasard."
   },
   {
-    "name": "Waly Sall",
+    "name": "Gaoussou Boateng",
     "rating": 5,
-    "city": "Abidjan",
-    "text": "Depuis 10 jours je suis les explications, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
-  },
-  {
-    "name": "Baba Diaby",
-    "rating": 5,
-    "city": "Cotonou",
-    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
+    "city": "Antananarivo",
+    "text": "Depuis 21 jours je suis le live, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
   }
 ]
