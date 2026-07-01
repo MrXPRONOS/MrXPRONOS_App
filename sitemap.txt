@@ -6,6 +6,7 @@ https://mrxpronos.github.io/MrXPRONOS_App/conseils.html
 https://mrxpronos.github.io/MrXPRONOS_App/infos.html
 https://mrxpronos.github.io/MrXPRONOS_App/bonus.html
 https://mrxpronos.github.io/MrXPRONOS_App/contact.html
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=mi-temps-fin-de-match-le-guide-anti-pieges-niveau-intermediaire
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=parier-en-fcfa-cote-trop-belle-le-framework-mr-xpronos-ultra-pratique
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=rigas-fs-vs-bfc-daugavpils-le-choc-letton-qui-pourrait-tout-changer-en-virsliga
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=tickets-prudents-plan-clair-15-minutes-afrique-francophone
@@ -56,6 +57,7 @@ https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=gestion-emotionnelle
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=kawasaki-frontale-vs-hiroshima-sanfrecce-le-choc-des-playoffs-de-j1-league-qui-peut-tout-c
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=paris-live-comment-eviter-la-ruine-en-14-jours
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=espagne-vs-angleterre-f-le-choc-des-titans-qui-va-decider-du-leader-des-qualifications-pou
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=gestion-bankroll-fcfa-paris-sportifs
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=gestion-bankroll-fcfa-paris-sportifs
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=comment-analyser-un-match-rapidement-pour-vos-paris-sportifs
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=comment-choisir-bookmaker-fiable
