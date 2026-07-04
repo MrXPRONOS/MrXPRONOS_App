@@ -1,32 +1,32 @@
 [
   {
-    "name": "Adama Koné",
+    "name": "Nabou Kabore",
+    "rating": 4,
+    "city": "Alger",
+    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi un match peut basculer, c’est plus simple de parier sans se tromper. À Alger, ça change tout."
+  },
+  {
+    "name": "Souleymane Ndiaye",
+    "rating": 5,
+    "city": "Johannesburg",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins souvent mais je gagne plus souvent, ça change la vie ici à Jozi."
+  },
+  {
+    "name": "Gaoussou Kabore",
+    "rating": 5,
+    "city": "Luanda",
+    "text": "Franchement, les coupons font la différence. Maintenant je choisis mieux mes matchs. Ça change ma façon de jouer."
+  },
+  {
+    "name": "Tidiane Diarra",
     "rating": 5,
     "city": "Tunis",
-    "text": "Depuis que j’ai commencé à suivre les conseils ici, je gère mieux mon argent et je mise sans stress. Les résultats suivent tranquillement, c’est nickel."
+    "text": "Franchement, la fiabilité font la différence. Maintenant je comprends enfin pourquoi je joue."
   },
   {
-    "name": "Rama Mukendi",
-    "rating": 4,
+    "name": "Nana Eze",
+    "rating": 5,
     "city": "Lomé",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux les matchs. Ils expliquent clairement pourquoi tel pari peut marcher, c’est plus simple à suivre."
-  },
-  {
-    "name": "Ténin Ouedraogo",
-    "rating": 5,
-    "city": "Kigali",
-    "text": "Depuis que je me concentre sur les coupons simples avec Mr XPRONOS, je rate moins et je gagne plus souvent, c’est clair. À Kigali, ça change la donne."
-  },
-  {
-    "name": "Hawa Fall",
-    "rating": 5,
-    "city": "Antananarivo",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, ça change la donne pour moi ici à Antananarivo."
-  },
-  {
-    "name": "Ibrahim Aboubakar",
-    "rating": 5,
-    "city": "Abidjan",
-    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je mise plus malin et ça paie bien à Abidjan."
+    "text": "Depuis 30 jours je suis la fiabilité, et je choisis mieux mes matchs. C’est simple et ça m’aide vraiment."
   }
 ]
