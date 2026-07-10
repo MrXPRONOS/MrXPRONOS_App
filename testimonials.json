@@ -1,32 +1,32 @@
 [
   {
-    "name": "Fatou Okafor",
-    "rating": 5,
-    "city": "Abidjan",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi tel match peut basculer, c’est plus clair que les pronos que je suivais avant."
-  },
-  {
-    "name": "Nafi Sall",
-    "rating": 5,
-    "city": "Abidjan",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux les matchs. Ils expliquent pourquoi tel joueur ou tel tactique va faire la différence, ça aide vraiment."
-  },
-  {
-    "name": "Jacques Mohamed",
+    "name": "Khadija Kabore",
     "rating": 5,
     "city": "Douala",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi tel match peut basculer, ça m’aide à parier plus malin."
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, ça change tout à Douala."
   },
   {
-    "name": "Massa Dlamini",
-    "rating": 4,
-    "city": "Kinshasa",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je pige mieux les matchs, ils m’expliquent clairement pourquoi tel pari peut marcher. Ça change tout."
+    "name": "Mamadou Onyeka",
+    "rating": 5,
+    "city": "Nairobi",
+    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je mise plus malin et ça paie bien mieux qu’avant."
   },
   {
-    "name": "Zeynab Camara",
+    "name": "Oumar Phiri",
     "rating": 4,
-    "city": "Luanda",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi tel joueur ou telle équipe a plus de chances, c’est plus clair pour moi avant de parier."
+    "city": "Kigali",
+    "text": "Franchement, les explications font la différence. Maintenant je joue moins mais plus propre."
+  },
+  {
+    "name": "Pascal Diallo",
+    "rating": 5,
+    "city": "Cotonou",
+    "text": "Depuis 21 jours je suis les coupons, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
+  },
+  {
+    "name": "Kadidia Phiri",
+    "rating": 4,
+    "city": "Yaoundé",
+    "text": "Depuis 7 jours je suis la méthode, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
   }
 ]
