@@ -1,32 +1,32 @@
 [
   {
-    "name": "Lassina Cissé",
+    "name": "Zalika Fofana",
+    "rating": 5,
+    "city": "Luanda",
+    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je choisis mieux mes matchs et ça paie petit à petit. Ici à Luanda, c’est devenu mon réflexe avant de parier."
+  },
+  {
+    "name": "Fama Banda",
+    "rating": 5,
+    "city": "Yaoundé",
+    "text": "Depuis que j’utilise leurs analyses H2H, je mise plus malin et ça paie petit à petit, surtout sur les matchs serrés. À Yaoundé, c’est devenu mon atout discret."
+  },
+  {
+    "name": "Lalla Kiprop",
     "rating": 4,
-    "city": "Lagos",
-    "text": "Depuis que je regarde leurs analyses tête-à-tête, je mise plus malin et ça paie petit à petit. Lagos me donne raison."
-  },
-  {
-    "name": "Amadou Kazadi",
-    "rating": 5,
     "city": "Alger",
-    "text": "Depuis que j’utilise les lives VIP de Mr XPRONOS, je capte les corners et les fautes au bon moment, ça change tout pour mes paris."
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, ça change tout pour moi à Alger."
   },
   {
-    "name": "Kankou Hassan",
+    "name": "Mansour Kiprop",
     "rating": 5,
-    "city": "Casablanca",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je pige mieux les matchs. Leurs explications m’aident à voir pourquoi un pari peut marcher, c’est plus clair qu’avant."
+    "city": "Lomé",
+    "text": "Franchement, la fiabilité font la différence. Maintenant je choisis mieux mes matchs. Ça change ma façon de jouer."
   },
   {
-    "name": "Oumar Sall",
+    "name": "Drissa Phiri",
     "rating": 5,
-    "city": "Abidjan",
-    "text": "Depuis que je suis les lives VIP de Mr XPRONOS, je place mes paris au bon moment, surtout sur les corners et fautes. Ça change tout, je gagne plus souvent sans forcer."
-  },
-  {
-    "name": "Lalla Mohamed",
-    "rating": 5,
-    "city": "Douala",
-    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
+    "city": "Ouagadougou",
+    "text": "Les pronos sont clairs et je choisis mieux mes matchs. Je préfère cette méthode aux paris au hasard."
   }
 ]
