@@ -6,6 +6,7 @@ https://mrxpronos.github.io/MrXPRONOS_App/conseils.html
 https://mrxpronos.github.io/MrXPRONOS_App/infos.html
 https://mrxpronos.github.io/MrXPRONOS_App/bonus.html
 https://mrxpronos.github.io/MrXPRONOS_App/contact.html
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=depot-retrait-comment-eviter-la-ruine-en-21-jours
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=plan-de-mise-methodologie-realiste-fcfa
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=value-bet-stop-ne-fais-plus-cette-erreur-special-afrique-francophone
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=dnb-draw-no-bet-comment-eviter-la-ruine-en-30-jours
@@ -85,6 +86,7 @@ https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=gestion-emotionnelle
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=kawasaki-frontale-vs-hiroshima-sanfrecce-le-choc-des-playoffs-de-j1-league-qui-peut-tout-c
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=paris-live-comment-eviter-la-ruine-en-14-jours
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=espagne-vs-angleterre-f-le-choc-des-titans-qui-va-decider-du-leader-des-qualifications-pou
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=gestion-bankroll-fcfa-paris-sportifs
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=gestion-bankroll-fcfa-conseils-pratiques
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=lire-cotes-paris-sportifs-guide-pratique
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=eviter-tilt-paris-sportifs
