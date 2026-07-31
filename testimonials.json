@@ -1,32 +1,32 @@
 [
   {
-    "name": "Zalika Ouedraogo",
+    "name": "Hawa Tembo",
     "rating": 5,
-    "city": "Johannesburg",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, c’est ça qui compte à la fin du mois."
+    "city": "Yaoundé",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins souvent mais je gagne plus souvent, c’est devenu plus malin."
   },
   {
-    "name": "Aïssatou Sow",
-    "rating": 5,
-    "city": "Kigali",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, mes coupons sont plus simples et je me trompe moins, ça change la donne ici à Kigali."
+    "name": "Drissa Mbeki",
+    "rating": 4,
+    "city": "Lagos",
+    "text": "Depuis que j’ai pris l’option LIVE VIP, je catch les corners et les tirs au bon moment, ça change tout à Lagos."
   },
   {
-    "name": "Mamadou Zulu",
-    "rating": 5,
-    "city": "Casablanca",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux les matchs. Ils expliquent simple, même quand c’est compliqué, et ça m’aide à parier plus malin."
-  },
-  {
-    "name": "Nabou Chanda",
-    "rating": 5,
-    "city": "Casablanca",
-    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je choisis mes matchs avec plus de précision, ça change vraiment la donne ici à Casa."
-  },
-  {
-    "name": "Kadidia Camara",
+    "name": "Mamadou Eze",
     "rating": 5,
     "city": "Douala",
-    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
+    "text": "Depuis que j’utilise les lives VIP de Mr XPRONOS, je place mes paris au bon moment sur les corners et les fautes, ça change tout."
+  },
+  {
+    "name": "Gora Diaby",
+    "rating": 5,
+    "city": "Casablanca",
+    "text": "Depuis 7 jours je suis les explications, et je choisis mieux mes matchs. C’est simple et ça m’aide vraiment."
+  },
+  {
+    "name": "Sékou Diaby",
+    "rating": 5,
+    "city": "Niamey",
+    "text": "Depuis 10 jours je suis les explications, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
   }
 ]
