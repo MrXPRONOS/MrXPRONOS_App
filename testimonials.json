@@ -1,32 +1,32 @@
 [
   {
-    "name": "Hawa Tembo",
-    "rating": 5,
-    "city": "Yaoundé",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins souvent mais je gagne plus souvent, c’est devenu plus malin."
-  },
-  {
-    "name": "Drissa Mbeki",
-    "rating": 4,
-    "city": "Lagos",
-    "text": "Depuis que j’ai pris l’option LIVE VIP, je catch les corners et les tirs au bon moment, ça change tout à Lagos."
-  },
-  {
-    "name": "Mamadou Eze",
+    "name": "Xavier Diop",
     "rating": 5,
     "city": "Douala",
-    "text": "Depuis que j’utilise les lives VIP de Mr XPRONOS, je place mes paris au bon moment sur les corners et les fautes, ça change tout."
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent. Ça change tout à Douala."
   },
   {
-    "name": "Gora Diaby",
+    "name": "Diarra Ouattara",
     "rating": 5,
-    "city": "Casablanca",
-    "text": "Depuis 7 jours je suis les explications, et je choisis mieux mes matchs. C’est simple et ça m’aide vraiment."
+    "city": "Le Caire",
+    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je choisis mes matchs avec plus de précision, ça m’aide à éviter les pièges ici au Caire."
   },
   {
-    "name": "Sékou Diaby",
+    "name": "Awa Ouedraogo",
     "rating": 5,
-    "city": "Niamey",
-    "text": "Depuis 10 jours je suis les explications, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
+    "city": "Tunis",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mon argent et je mise sans stress. À Tunis, ça change tout."
+  },
+  {
+    "name": "Koumba Ndlovu",
+    "rating": 5,
+    "city": "Antananarivo",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mon argent et je mise sans stress. Les gains arrivent petit à petit, sans forcer."
+  },
+  {
+    "name": "Seydou Bamba",
+    "rating": 5,
+    "city": "Yaoundé",
+    "text": "Franchement, les coupons font la différence. Maintenant je mise plus discipliné. Ça change ma façon de jouer."
   }
 ]
