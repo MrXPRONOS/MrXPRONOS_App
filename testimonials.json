@@ -1,32 +1,32 @@
 [
   {
-    "name": "Xavier Diop",
+    "name": "Pape Zulu",
     "rating": 5,
-    "city": "Douala",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent. Ça change tout à Douala."
+    "city": "Cotonou",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, mes coupons tiennent mieux, je perds moins souvent. Ça change la donne ici à Cotonou."
   },
   {
-    "name": "Diarra Ouattara",
+    "name": "Issa Diop",
     "rating": 5,
-    "city": "Le Caire",
-    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je choisis mes matchs avec plus de précision, ça m’aide à éviter les pièges ici au Caire."
+    "city": "Conakry",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, c’est ça qui compte à la fin du mois."
   },
   {
-    "name": "Awa Ouedraogo",
-    "rating": 5,
-    "city": "Tunis",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mon argent et je mise sans stress. À Tunis, ça change tout."
-  },
-  {
-    "name": "Koumba Ndlovu",
+    "name": "Ibrahim Boateng",
     "rating": 5,
     "city": "Antananarivo",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mon argent et je mise sans stress. Les gains arrivent petit à petit, sans forcer."
+    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
   },
   {
-    "name": "Seydou Bamba",
+    "name": "Salimata Sacko",
     "rating": 5,
     "city": "Yaoundé",
-    "text": "Franchement, les coupons font la différence. Maintenant je mise plus discipliné. Ça change ma façon de jouer."
+    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
+  },
+  {
+    "name": "Idrissa Touré",
+    "rating": 5,
+    "city": "Niamey",
+    "text": "Franchement, les analyses font la différence. Maintenant je joue moins mais plus propre. Ça change ma façon de jouer."
   }
 ]
