@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -68,7 +69,7 @@ CONSEIL_IMG_DIR = os.path.join(ASSET_IMG_DIR, "conseils")
 os.makedirs(ARTICLE_IMG_DIR, exist_ok=True)
 os.makedirs(CONSEIL_IMG_DIR, exist_ok=True)
 
-SPORTDATA_V1_ALLSCORES = "https://v1.football.sportsapipro.com/games/allscores"
+SPORTDATA_V1_ALLSCORES = "https://api.sportsapipro.com/v1/football/games/allscores"
 
 MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
 HF_TOKEN = os.environ.get("HF_TOKEN")

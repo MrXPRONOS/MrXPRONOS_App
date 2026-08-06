@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -18,7 +19,7 @@ Version améliorée :
 import os
 import json
 from datetime import datetime, timedelta, timezone
-from api_utils import make_request
+from sportdata_api import fetch_games as fetch_sportdata_games
 
 SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
 DATA_FILE = "data.json"
@@ -141,31 +142,21 @@ def compute_verified_double(match):
     return False
 
 def fetch_games(date):
-    """
-    Récupère les matchs pour une date donnée via l'API SportData.
-    """
-    params = {
-        "startDate": date.strftime("%d/%m/%Y"),
-        "endDate": date.strftime("%d/%m/%Y"),
-        "sports": 1,
-        "showOdds": "false",
-        "onlyMajorGames": "false"
-    }
-    try:
-        resp = make_request("GET", SPORTDATA_URL, params=params, timeout=30)
-        if resp is None:
-            print(f"⚠️ Aucune réponse API pour {date}")
-            return []
-        if resp.status_code != 200:
-            print(f"⚠️ HTTP {resp.status_code} pour {date}")
-            return []
+    """Récupère les matchs d'une journée via le client SportData robuste."""
+    result = fetch_sportdata_games(date, date, timeout=30)
 
-        data = resp.json()
-        games = data.get("games", [])
-        return games if isinstance(games, list) else []
-    except Exception as e:
-        print(f"❌ Erreur API pour {date} : {e}")
-        return []
+    if not result.ok:
+        print(
+            f"❌ Réponse SportData invalide pour {date}: {result.reason} "
+            f"| endpoint={result.endpoint} | clés={result.payload_keys}"
+        )
+        return None
+
+    print(
+        f"   ℹ️ SportData valide via clé #{result.key_index} "
+        f"et endpoint {result.endpoint}"
+    )
+    return result.games
 
 def choose_dates_to_fetch(matches, max_days=7):
     """
@@ -209,15 +200,31 @@ def main():
     print(f"📅 Dates à rafraîchir (max 7) : {[str(d) for d in days_to_fetch]}")
 
     all_games = []
+    valid_api_days = 0
+    invalid_api_days = 0
+
     for day in days_to_fetch:
         print(f"➡️ Récupération des matchs du {day}...")
         games = fetch_games(day)
+
+        if games is None:
+            invalid_api_days += 1
+            continue
+
+        valid_api_days += 1
         print(f"   → {len(games)} matchs")
         all_games.extend(games)
 
+    if valid_api_days == 0:
+        print("❌ Aucune réponse SportData valide. data.json n'est pas modifié.")
+        return 1
+
     if not all_games:
-        print("⚠️ Aucun match récupéré, arrêt du script.")
-        return
+        print(
+            "⚠️ Réponses valides mais aucun match récupéré. "
+            "data.json n'est pas modifié."
+        )
+        return 0
 
     scores_dict = {}
     for g in all_games:
@@ -306,4 +313,4 @@ def main():
     print("✅ Mise à jour terminée.")
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main() or 0)

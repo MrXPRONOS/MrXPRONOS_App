@@ -1,0 +1,306 @@
+{
+  "matches": [
+    {
+      "id": 4663504,
+      "date": "2026-06-30",
+      "event_date": "2026-06-30T15:00:00+00:00",
+      "home_team": "Rigas FS",
+      "away_team": "BFC Daugavpils",
+      "home_logo": "assets/images/teams/sdv2-team-24801.png",
+      "away_logo": "assets/images/teams/sdv1-15541-v1.png",
+      "league": "Virsliga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 3,
+        "home_wins": 4.2,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 4.2,
+        "over_25_prob": 0.333
+      },
+      "home_form": {
+        "form_score": 0.8,
+        "goals_for": 2.8,
+        "goals_against": 0.8
+      },
+      "away_form": {
+        "form_score": 0.467,
+        "goals_for": 0.6,
+        "goals_against": 0.4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 69
+      },
+      "xpronos_score": 71,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 52.6,
+      "final_score": 66.4
+    },
+    {
+      "id": 4659215,
+      "date": "2026-06-29",
+      "event_date": "2026-06-29T00:00:00+00:00",
+      "home_team": "St. Louis City II",
+      "away_team": "Austin Fc II",
+      "home_logo": "assets/images/teams/sdv2-team-71174.png",
+      "away_logo": "assets/images/teams/sdv1-74123-v3.png",
+      "league": "MLS Next Pro",
+      "league_logo": null,
+      "venue": "",
+      "status": "Ended",
+      "home_score": 0,
+      "away_score": 2,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.6,
+        "goals_avg": 3.75,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.333,
+        "goals_for": 1.4,
+        "goals_against": 2.2
+      },
+      "away_form": {
+        "form_score": 1.0,
+        "goals_for": 2.6,
+        "goals_against": 0.4
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 56,
+      "badge": "",
+      "category": "simple",
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": true,
+      "ml_score": 57.6,
+      "final_score": 56.4
+    },
+    {
+      "id": 4711950,
+      "date": "2026-06-30",
+      "event_date": "2026-06-30T22:00:00+00:00",
+      "home_team": "Audax Italiano",
+      "away_team": "Palestino",
+      "home_logo": "assets/images/teams/sdv1-1229-v2.webp",
+      "away_logo": "assets/images/teams/sdv1-1238-v1.webp",
+      "league": "Chilean Cup",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 1.5,
+        "home_dominance": 0.5,
+        "away_dominance": 0.0,
+        "goals_avg": 2.25,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.533,
+        "goals_for": 1.4,
+        "goals_against": 1.2
+      },
+      "away_form": {
+        "form_score": 0.467,
+        "goals_for": 1.6,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 61.8,
+      "final_score": 52.2
+    }
+  ],
+  "categories": {
+    "simple": [
+      {
+        "id": 4663504,
+        "date": "2026-06-30",
+        "event_date": "2026-06-30T15:00:00+00:00",
+        "home_team": "Rigas FS",
+        "away_team": "BFC Daugavpils",
+        "home_logo": "assets/images/teams/sdv2-team-24801.png",
+        "away_logo": "assets/images/teams/sdv1-15541-v1.png",
+        "league": "Virsliga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 4.2,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 4.2,
+          "over_25_prob": 0.333
+        },
+        "home_form": {
+          "form_score": 0.8,
+          "goals_for": 2.8,
+          "goals_against": 0.8
+        },
+        "away_form": {
+          "form_score": 0.467,
+          "goals_for": 0.6,
+          "goals_against": 0.4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 69
+        },
+        "xpronos_score": 71,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 52.6,
+        "final_score": 66.4
+      },
+      {
+        "id": 4659215,
+        "date": "2026-06-29",
+        "event_date": "2026-06-29T00:00:00+00:00",
+        "home_team": "St. Louis City II",
+        "away_team": "Austin Fc II",
+        "home_logo": "assets/images/teams/sdv2-team-71174.png",
+        "away_logo": "assets/images/teams/sdv1-74123-v3.png",
+        "league": "MLS Next Pro",
+        "league_logo": null,
+        "venue": "",
+        "status": "Ended",
+        "home_score": 0,
+        "away_score": 2,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.6,
+          "goals_avg": 3.75,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.333,
+          "goals_for": 1.4,
+          "goals_against": 2.2
+        },
+        "away_form": {
+          "form_score": 1.0,
+          "goals_for": 2.6,
+          "goals_against": 0.4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 56,
+        "badge": "",
+        "category": "simple",
+        "is_finished": true,
+        "verified_double": true,
+        "verified_over": true,
+        "ml_score": 57.6,
+        "final_score": 56.4
+      },
+      {
+        "id": 4711950,
+        "date": "2026-06-30",
+        "event_date": "2026-06-30T22:00:00+00:00",
+        "home_team": "Audax Italiano",
+        "away_team": "Palestino",
+        "home_logo": "assets/images/teams/sdv1-1229-v2.webp",
+        "away_logo": "assets/images/teams/sdv1-1238-v1.webp",
+        "league": "Chilean Cup",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 1.5,
+          "home_dominance": 0.5,
+          "away_dominance": 0.0,
+          "goals_avg": 2.25,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.533,
+          "goals_for": 1.4,
+          "goals_against": 1.2
+        },
+        "away_form": {
+          "form_score": 0.467,
+          "goals_for": 1.6,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 61.8,
+        "final_score": 52.2
+      }
+    ],
+    "pro": [],
+    "vip": []
+  },
+  "stats": {
+    "total_bets": 1,
+    "wins": 1,
+    "roi": 0.0
+  },
+  "bookmakers": [],
+  "generated_at": "2026-07-13T02:58:10.162000Z",
+  "retention_days": 14
+}

@@ -1,0 +1,1189 @@
+--- a/generate_data.py
++++ b/generate_data.py
+@@ -40,6 +40,7 @@
+ from urllib3.util.retry import Retry
+ 
+ from ml_model import load_model, predict_proba, build_feature_vector_from_row
++from sportdata_api import fetch_games as fetch_sportdata_games
+ 
+ # =======================================================
+ # LOGGING
+@@ -400,26 +401,40 @@
+ # =======================================================
+ # FONCTIONS SPORTDATA (MATCHS)
+ # =======================================================
++SPORTDATA_FETCH_RESULTS = []
++
+ def fetch_games(date_from, date_to):
+-    params = {
+-        "startDate": date_from.strftime("%d/%m/%Y"),
+-        "endDate": date_to.strftime("%d/%m/%Y"),
+-        "sports": 1,
+-        "showOdds": "false",
+-        "onlyMajorGames": "false",
+-    }
+-    try:
+-        logger.info("SportData fetch: %s -> %s", params["startDate"], params["endDate"])
+-        resp = session.get(SPORTDATA_URL, headers=HEADERS, params=params, timeout=30)
+-        resp.raise_for_status()
+-        data = resp.json()
+-        games = data.get("games", [])
+-        logger.info("SportData fetch OK: %s matchs (%s -> %s)", len(games), params["startDate"], params["endDate"])
+-        return games
+-    except Exception as e:
+-        logger.error("Erreur SportData fetch (%s -> %s): %s",
+-                     params.get("startDate"), params.get("endDate"), e)
++    """Récupère une plage courte via le client SportData robuste."""
++    result = fetch_sportdata_games(
++        date_from,
++        date_to,
++        logger=logger,
++        timeout=30,
++        show_odds=False,
++        only_major_games=False,
++    )
++    SPORTDATA_FETCH_RESULTS.append(result)
++
++    if not result.ok:
++        logger.error(
++            "SportData fetch invalide (%s -> %s): %s | endpoint=%s | clés_payload=%s",
++            date_from,
++            date_to,
++            result.reason,
++            result.endpoint,
++            result.payload_keys,
++        )
+         return []
++
++    logger.info(
++        "SportData fetch OK: %s matchs (%s -> %s) | endpoint=%s | clé=#%s",
++        len(result.games),
++        date_from,
++        date_to,
++        result.endpoint,
++        result.key_index,
++    )
++    return result.games
+ 
+ def extract_game_info(game):
+     """Extrait les infos de base d'un match SportData."""
+@@ -825,6 +840,25 @@
+     all_new_games = games_today + games_tomorrow + games_yesterday
+     logger.info("Total matchs récupérés (brut): %s", len(all_new_games))
+ 
++    # Protection anti-écrasement : trois réponses invalides ou trois jours à zéro
++    # ne doivent jamais remplacer les données publiées par un data.json vide.
++    if SPORTDATA_FETCH_RESULTS and not any(r.ok for r in SPORTDATA_FETCH_RESULTS):
++        logger.critical(
++            "Aucune réponse SportData valide. data.json reste inchangé."
++        )
++        return 2
++
++    if (
++        len(SPORTDATA_FETCH_RESULTS) >= 3
++        and all(r.ok for r in SPORTDATA_FETCH_RESULTS)
++        and len(all_new_games) == 0
++    ):
++        logger.critical(
++            "SportData a renvoyé 0 match sur hier/aujourd'hui/demain. "
++            "Arrêt de sécurité: data.json reste inchangé."
++        )
++        return 3
++
+     new_infos = {}
+     for g in all_new_games:
+         info = extract_game_info(g)
+@@ -1080,6 +1114,7 @@
+                 logo_run_stats["fallback_used"],
+                 logo_run_stats["skipped_by_limit"])
+     logger.info("=" * 70)
++    return 0
+ 
+ if __name__ == "__main__":
+-    main()
++    raise SystemExit(main())
+--- a/update_historical.py
++++ b/update_historical.py
+@@ -1,106 +1,121 @@
+-
+ #!/usr/bin/env python3
+ # -*- coding: utf-8 -*-
+ 
+ """
+-update_historical.py - Ajoute les matchs d'hier au cache global all_matches.json
+-pour maintenir l'historique à jour.
+-Utilise la rotation de clés API via api_utils.
+-Exécution quotidienne.
++Ajoute les matchs d'hier au cache global sans confondre erreur API et journée vide.
+ """
+ 
++import json
+ import os
+-import json
+-from datetime import datetime, timedelta
+-from api_utils import make_request
++from datetime import datetime, timedelta, timezone
+ 
+-SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
++from sportdata_api import fetch_games
++
+ CACHE_DIR = "cache"
+ CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
+-yesterday = datetime.now().date() - timedelta(days=1)
++UTC = timezone.utc
++YESTERDAY = datetime.now(UTC).date() - timedelta(days=1)
+ 
+-def fetch_games(date):
+-    """Récupère les matchs pour une date donnée via l'API SportData."""
+-    params = {
+-        "startDate": date.strftime("%d/%m/%Y"),
+-        "endDate": date.strftime("%d/%m/%Y"),
+-        "sports": 1,
+-        "showOdds": "false",
+-        "onlyMajorGames": "false"
+-    }
+-    try:
+-        resp = make_request('GET', SPORTDATA_URL, params=params, timeout=30)
+-        return resp.json().get("games", [])
+-    except Exception as e:
+-        print(f"❌ Erreur lors de la récupération des matchs pour {date}: {e}")
+-        return []
+ 
+ def extract_match_info(game):
+-    """Extrait les informations au même format que allmatches.py."""
+     start_time = game.get("startTime")
+-    competition = game.get("competitionDisplayName", "")
+-    home = game.get("homeCompetitor", {})
+-    away = game.get("awayCompetitor", {})
+-    home_name = home.get("name", "")
+-    away_name = away.get("name", "")
++    home = game.get("homeCompetitor", {}) or {}
++    away = game.get("awayCompetitor", {}) or {}
++
+     home_score = home.get("score")
+     away_score = away.get("score")
+     if home_score == -1:
+         home_score = None
+     if away_score == -1:
+         away_score = None
++
+     status_group = game.get("statusGroup")
++    status_text = game.get("statusText")
++
+     return {
+         "id": game.get("id"),
+         "start_time": start_time,
+-        "home_team": home_name,
+-        "away_team": away_name,
++        "home_team": home.get("name", ""),
++        "away_team": away.get("name", ""),
+         "home_score": home_score,
+         "away_score": away_score,
+         "status_group": status_group,
+-        "status_text": game.get("statusText"),
+-        "is_finished": (status_group == 4),
+-        "competition": competition
++        "status_text": status_text,
++        "is_finished": (
++            str(status_group) == "4"
++            and home_score is not None
++            and away_score is not None
++        ),
++        "competition": game.get("competitionDisplayName", ""),
+     }
+ 
++
+ def load_existing():
+-    """Charge le fichier de cache existant."""
+-    if os.path.exists(CACHE_FILE):
+-        with open(CACHE_FILE, 'r', encoding='utf-8') as f:
+-            return json.load(f)
+-    return []
++    if not os.path.exists(CACHE_FILE):
++        return []
++    try:
++        with open(CACHE_FILE, "r", encoding="utf-8") as f:
++            data = json.load(f)
++        return data if isinstance(data, list) else []
++    except Exception as exc:
++        print(f"ERREUR lecture {CACHE_FILE}: {exc}")
++        raise
++
+ 
+ def save(matches):
+-    """Sauvegarde la liste des matchs dans le cache."""
+-    with open(CACHE_FILE, 'w', encoding='utf-8') as f:
++    os.makedirs(CACHE_DIR, exist_ok=True)
++    temp_file = CACHE_FILE + ".tmp"
++    with open(temp_file, "w", encoding="utf-8") as f:
+         json.dump(matches, f, indent=2, ensure_ascii=False)
++    os.replace(temp_file, CACHE_FILE)
+ 
+-def main():
+-    print(f"📅 Mise à jour du cache avec les matchs du {yesterday}")
+-    games = fetch_games(yesterday)
+-    print(f"   → {len(games)} matchs trouvés")
++
++def main() -> int:
++    print(f"📅 Mise à jour du cache avec les matchs du {YESTERDAY}")
++
++    result = fetch_games(YESTERDAY, YESTERDAY)
++    if not result.ok:
++        print(
++            "❌ SportData invalide. Le cache n'est pas modifié.\n"
++            f"   Raison: {result.reason}\n"
++            f"   Endpoint: {result.endpoint}\n"
++            f"   Clés JSON: {result.payload_keys}"
++        )
++        return 1
++
++    games = result.games
++    print(
++        f"   → {len(games)} matchs trouvés "
++        f"(endpoint={result.endpoint}, clé=#{result.key_index})"
++    )
+ 
+     if not games:
+-        print("✅ Aucun nouveau match.")
+-        return
++        print("⚠️ Réponse valide mais aucun match pour cette journée.")
++        return 0
+ 
+-    # Extraire les infos
+     new_matches = [extract_match_info(g) for g in games]
++    all_matches = load_existing()
++    existing_ids = {
++        str(m.get("id"))
++        for m in all_matches
++        if isinstance(m, dict) and m.get("id") is not None
++    }
+ 
+-    # Charger l'existant
+-    all_matches = load_existing()
+-    existing_ids = {m['id'] for m in all_matches if m.get('id')}
+-
+-    # Filtrer ceux qui ne sont pas déjà dans le cache
+-    to_add = [m for m in new_matches if m['id'] not in existing_ids]
++    to_add = [
++        m for m in new_matches
++        if m.get("id") is not None and str(m["id"]) not in existing_ids
++    ]
+     print(f"   → {len(to_add)} nouveaux matchs à ajouter")
+ 
+-    if to_add:
+-        all_matches.extend(to_add)
+-        save(all_matches)
+-        print(f"✅ Cache mis à jour : maintenant {len(all_matches)} matchs")
+-    else:
++    if not to_add:
+         print("✅ Cache déjà à jour.")
++        return 0
++
++    all_matches.extend(to_add)
++    save(all_matches)
++    print(f"✅ Cache mis à jour : maintenant {len(all_matches)} matchs")
++    return 0
++
+ 
+ if __name__ == "__main__":
+-    main()
++    raise SystemExit(main())
+--- a/update_scores.py
++++ b/update_scores.py
+@@ -19,7 +19,7 @@
+ import os
+ import json
+ from datetime import datetime, timedelta, timezone
+-from api_utils import make_request
++from sportdata_api import fetch_games as fetch_sportdata_games
+ 
+ SPORTDATA_URL = "https://v1.football.sportsapipro.com/games/allscores"
+ DATA_FILE = "data.json"
+@@ -142,31 +142,21 @@
+     return False
+ 
+ def fetch_games(date):
+-    """
+-    Récupère les matchs pour une date donnée via l'API SportData.
+-    """
+-    params = {
+-        "startDate": date.strftime("%d/%m/%Y"),
+-        "endDate": date.strftime("%d/%m/%Y"),
+-        "sports": 1,
+-        "showOdds": "false",
+-        "onlyMajorGames": "false"
+-    }
+-    try:
+-        resp = make_request("GET", SPORTDATA_URL, params=params, timeout=30)
+-        if resp is None:
+-            print(f"⚠️ Aucune réponse API pour {date}")
+-            return []
+-        if resp.status_code != 200:
+-            print(f"⚠️ HTTP {resp.status_code} pour {date}")
+-            return []
+-
+-        data = resp.json()
+-        games = data.get("games", [])
+-        return games if isinstance(games, list) else []
+-    except Exception as e:
+-        print(f"❌ Erreur API pour {date} : {e}")
+-        return []
++    """Récupère les matchs d'une journée via le client SportData robuste."""
++    result = fetch_sportdata_games(date, date, timeout=30)
++
++    if not result.ok:
++        print(
++            f"❌ Réponse SportData invalide pour {date}: {result.reason} "
++            f"| endpoint={result.endpoint} | clés={result.payload_keys}"
++        )
++        return None
++
++    print(
++        f"   ℹ️ SportData valide via clé #{result.key_index} "
++        f"et endpoint {result.endpoint}"
++    )
++    return result.games
+ 
+ def choose_dates_to_fetch(matches, max_days=7):
+     """
+@@ -210,15 +200,31 @@
+     print(f"📅 Dates à rafraîchir (max 7) : {[str(d) for d in days_to_fetch]}")
+ 
+     all_games = []
++    valid_api_days = 0
++    invalid_api_days = 0
++
+     for day in days_to_fetch:
+         print(f"➡️ Récupération des matchs du {day}...")
+         games = fetch_games(day)
++
++        if games is None:
++            invalid_api_days += 1
++            continue
++
++        valid_api_days += 1
+         print(f"   → {len(games)} matchs")
+         all_games.extend(games)
+ 
++    if valid_api_days == 0:
++        print("❌ Aucune réponse SportData valide. data.json n'est pas modifié.")
++        return 1
++
+     if not all_games:
+-        print("⚠️ Aucun match récupéré, arrêt du script.")
+-        return
++        print(
++            "⚠️ Réponses valides mais aucun match récupéré. "
++            "data.json n'est pas modifié."
++        )
++        return 0
+ 
+     scores_dict = {}
+     for g in all_games:
+@@ -307,4 +313,4 @@
+     print("✅ Mise à jour terminée.")
+ 
+ if __name__ == "__main__":
+-    main()
++    raise SystemExit(main() or 0)
+--- a/allmatches.py
++++ b/allmatches.py
+@@ -1,103 +1,121 @@
+-
+ #!/usr/bin/env python3
+ # -*- coding: utf-8 -*-
+ 
+ """
+-allmatches.py - Télécharge tous les matchs depuis 2024 jusqu'à hier
+-via SportData, mois par mois, et sauvegarde dans cache/all_matches.json.
+-À exécuter localement une fois.  
++Télécharge l'historique SportData depuis 2024 par petites plages de 3 jours.
++
++L'endpoint /games/allscores peut renvoyer un tableau vide sur les grandes plages.
++Ce script respecte donc la recommandation 1 à 3 jours et n'écrase jamais un cache
++existant si l'API échoue.
+ """
+ 
++import json
+ import os
+-import json
+-import requests
+ import time
+-from datetime import datetime, timedelta
+-from requests.adapters import HTTPAdapter
+-from urllib3.util.retry import Retry
++from datetime import datetime, timedelta, timezone
+ 
+-SPORTDATA_API_KEY = os.environ.get("SPORTDATA_API_KEY")
+-if not SPORTDATA_API_KEY:
+-    raise ValueError("SPORTDATA_API_KEY non définie")
++from sportdata_api import fetch_games
+ 
+-BASE_URL = "https://v1.football.sportsapipro.com/games/allscores"
+-HEADERS = {"x-api-key": SPORTDATA_API_KEY}
+-
+-session = requests.Session()
+-retries = Retry(total=3, backoff_factor=1, status_forcelist=[429,500,502,503,504])
+-session.mount('https://', HTTPAdapter(max_retries=retries))
+-
+-START_DATE = datetime(2024,1,1).date()
+-END_DATE = datetime.now().date() - timedelta(days=1)
++UTC = timezone.utc
++START_DATE = datetime(2024, 1, 1, tzinfo=UTC).date()
++END_DATE = datetime.now(UTC).date() - timedelta(days=1)
++CHUNK_DAYS = 3
+ 
+ CACHE_DIR = "cache"
+ CACHE_FILE = os.path.join(CACHE_DIR, "all_matches.json")
+ 
+-def fetch_games(date_from, date_to):
+-    params = {
+-        "startDate": date_from.strftime("%d/%m/%Y"),
+-        "endDate": date_to.strftime("%d/%m/%Y"),
+-        "sports": 1,
+-        "showOdds": "false",
+-        "onlyMajorGames": "false"
+-    }
+-    try:
+-        resp = session.get(BASE_URL, headers=HEADERS, params=params, timeout=30)
+-        resp.raise_for_status()
+-        return resp.json().get("games", [])
+-    except Exception as e:
+-        print(f"❌ Erreur: {e}")
+-        return []
+ 
+ def extract_game_info(game):
+     start_time = game.get("startTime")
+-    competition = game.get("competitionDisplayName", "")
+-    home = game.get("homeCompetitor", {})
+-    away = game.get("awayCompetitor", {})
++    home = game.get("homeCompetitor", {}) or {}
++    away = game.get("awayCompetitor", {}) or {}
++
+     home_score = home.get("score")
+     away_score = away.get("score")
+-    if home_score == -1: home_score = None
+-    if away_score == -1: away_score = None
++    if home_score == -1:
++        home_score = None
++    if away_score == -1:
++        away_score = None
++
++    status_group = game.get("statusGroup")
+     return {
+         "id": game.get("id"),
+         "start_time": start_time,
+-        "home_team": home.get("name",""),
+-        "away_team": away.get("name",""),
+-        "competition": competition,
++        "home_team": home.get("name", ""),
++        "away_team": away.get("name", ""),
++        "competition": game.get("competitionDisplayName", ""),
+         "home_score": home_score,
+         "away_score": away_score,
+-        "status_group": game.get("statusGroup"),
++        "status_group": status_group,
+         "status_text": game.get("statusText"),
+-        "is_finished": (game.get("statusGroup") == 4)
++        "is_finished": (
++            str(status_group) == "4"
++            and home_score is not None
++            and away_score is not None
++        ),
+     }
+ 
+-def main():
+-    print("="*60)
+-    print("🚀 TÉLÉCHARGEMENT HISTORIQUE DES MATCHS DEPUIS 2024")
+-    print(f"Période : {START_DATE.strftime('%d/%m/%Y')} → {END_DATE.strftime('%d/%m/%Y')}")
+-    print("="*60)
+-    all_matches = []
++
++def main() -> int:
++    print("=" * 70)
++    print("TÉLÉCHARGEMENT HISTORIQUE SPORTDATA")
++    print(f"Période : {START_DATE} -> {END_DATE}")
++    print(f"Taille des plages : {CHUNK_DAYS} jours")
++    print("=" * 70)
++
++    by_id = {}
+     current = START_DATE
++    failed_chunks = 0
++    valid_chunks = 0
++
+     while current <= END_DATE:
+-        if current.month == 12:
+-            next_month = current.replace(year=current.year+1, month=1, day=1)
+-        else:
+-            next_month = current.replace(month=current.month+1, day=1)
+-        month_end = min(next_month - timedelta(days=1), END_DATE)
+-        print(f"\n📅 Mois : {current.strftime('%Y-%m')}")
+-        games = fetch_games(current, month_end)
+-        if games:
+-            extracted = [extract_game_info(g) for g in games]
+-            all_matches.extend(extracted)
+-            print(f"   ✅ {len(extracted)} matchs ajoutés (total {len(all_matches)})")
+-        else:
+-            print(f"   ⚠️ Aucune donnée pour ce mois")
+-        current = next_month
+-        time.sleep(1)
++        chunk_end = min(current + timedelta(days=CHUNK_DAYS - 1), END_DATE)
++        print(f"\n📅 {current} -> {chunk_end}")
++
++        result = fetch_games(current, chunk_end, timeout=40)
++        if not result.ok:
++            failed_chunks += 1
++            print(
++                f"   ❌ Échec: {result.reason} "
++                f"(endpoint={result.endpoint}, clés={result.payload_keys})"
++            )
++            current = chunk_end + timedelta(days=1)
++            time.sleep(0.5)
++            continue
++
++        valid_chunks += 1
++        print(f"   ✅ {len(result.games)} matchs reçus")
++
++        for game in result.games:
++            row = extract_game_info(game)
++            if row.get("id") is not None:
++                by_id[str(row["id"])] = row
++
++        current = chunk_end + timedelta(days=1)
++        time.sleep(0.25)
++
++    if valid_chunks == 0:
++        print("❌ Aucune plage valide. Le cache existant reste intact.")
++        return 1
++
++    if failed_chunks:
++        print(
++            f"❌ {failed_chunks} plage(s) ont échoué. "
++            "Le cache existant reste intact pour éviter un historique incomplet."
++        )
++        return 2
++
+     os.makedirs(CACHE_DIR, exist_ok=True)
+-    with open(CACHE_FILE, 'w', encoding='utf-8') as f:
+-        json.dump(all_matches, f, indent=2, ensure_ascii=False)
+-    print(f"\n💾 {len(all_matches)} matchs sauvegardés dans {CACHE_FILE}")
++    temp_file = CACHE_FILE + ".tmp"
++    rows = list(by_id.values())
++
++    with open(temp_file, "w", encoding="utf-8") as f:
++        json.dump(rows, f, indent=2, ensure_ascii=False)
++
++    os.replace(temp_file, CACHE_FILE)
++    print(f"\n💾 {len(rows)} matchs sauvegardés dans {CACHE_FILE}")
++    return 0
++
+ 
+ if __name__ == "__main__":
+-    main()
++    raise SystemExit(main())
+--- a/content_generator.py
++++ b/content_generator.py
+@@ -69,7 +69,7 @@
+ os.makedirs(ARTICLE_IMG_DIR, exist_ok=True)
+ os.makedirs(CONSEIL_IMG_DIR, exist_ok=True)
+ 
+-SPORTDATA_V1_ALLSCORES = "https://v1.football.sportsapipro.com/games/allscores"
++SPORTDATA_V1_ALLSCORES = "https://api.sportsapipro.com/v1/football/games/allscores"
+ 
+ MISTRAL_API_KEY = os.environ.get("MISTRAL_API_KEY")
+ HF_TOKEN = os.environ.get("HF_TOKEN")
+--- a/.github/workflows/daily-update.yml
++++ b/.github/workflows/daily-update.yml
+@@ -37,10 +37,21 @@
+           python -m pip install --upgrade pip
+           pip install -r requirements.txt
+ 
++      - name: Diagnose SportData
++        env:
++          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
++          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
++          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
++          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
++          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
++          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY_1 }}
++        run: |
++          echo "🩺 Diagnostic SportData..."
++          python sportdata_diagnostic.py
++
+       # 1) Historique d'abord
+       - name: Update historical cache
+         id: update_historical
+-        continue-on-error: true
+         env:
+           SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+           SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+@@ -54,7 +65,6 @@
+       # 2) Génération data.json
+       - name: Generate pronostics
+         id: generate_data
+-        continue-on-error: true
+         env:
+           SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+           SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+@@ -69,7 +79,6 @@
+       # 3) Mise à jour scores
+       - name: Update scores
+         id: update_scores
+-        continue-on-error: true
+         env:
+           SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+           SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+--- /dev/null
++++ b/sportdata_api.py
+@@ -0,0 +1,417 @@
++#!/usr/bin/env python3
++# -*- coding: utf-8 -*-
++
++"""
++Client SportData robuste pour Mr XPRONOS.
++
++Objectifs :
++- utiliser l'URL canonique SportsAPI Pro V1 ;
++- conserver le sous-domaine historique en secours ;
++- effectuer une rotation réelle des clés, y compris quand HTTP 200 contient
++  une erreur métier ;
++- distinguer une réponse valide vide d'une réponse invalide ;
++- ne jamais afficher les clés API dans les logs.
++"""
++
++from __future__ import annotations
++
++import json
++import os
++import time
++from dataclasses import dataclass, field
++from datetime import date
++from typing import Any, Callable, Dict, List, Optional
++
++import requests
++
++CANONICAL_ALLSCORES_URL = (
++    "https://api.sportsapipro.com/v1/football/games/allscores"
++)
++LEGACY_ALLSCORES_URL = (
++    "https://v1.football.sportsapipro.com/games/allscores"
++)
++CANONICAL_STATUS_URL = (
++    "https://api.sportsapipro.com/v1/football/status"
++)
++ALTERNATE_STATUS_URL = (
++    "https://api.sportsapipro.com/v1/football/account/status"
++)
++
++ERROR_WORDS = (
++    "api key",
++    "invalid key",
++    "unauthorized",
++    "forbidden",
++    "quota",
++    "rate limit",
++    "daily limit",
++    "subscription",
++    "expired",
++    "access denied",
++)
++
++
++@dataclass
++class FetchResult:
++    games: List[Dict[str, Any]] = field(default_factory=list)
++    ok: bool = False
++    endpoint: str = ""
++    status_code: Optional[int] = None
++    reason: str = ""
++    payload_keys: List[str] = field(default_factory=list)
++    key_index: Optional[int] = None
++
++
++def get_api_keys() -> List[str]:
++    keys: List[str] = []
++    seen = set()
++
++    for i in range(1, 6):
++        key = (os.getenv(f"SPORTDATA_API_KEY_{i}") or "").strip()
++        if key and key not in seen:
++            keys.append(key)
++            seen.add(key)
++
++    fallback = (os.getenv("SPORTDATA_API_KEY") or "").strip()
++    if fallback and fallback not in seen:
++        keys.append(fallback)
++
++    return keys
++
++
++def _log(logger, level: str, message: str, *args) -> None:
++    if logger is not None:
++        fn = getattr(logger, level, None)
++        if callable(fn):
++            fn(message, *args)
++            return
++
++    rendered = message % args if args else message
++    print(rendered)
++
++
++def _body_preview(response: requests.Response, max_len: int = 350) -> str:
++    try:
++        text = response.text or ""
++    except Exception:
++        return "<corps illisible>"
++    return " ".join(text.split())[:max_len]
++
++
++def _extract_error(payload: Any) -> Optional[str]:
++    if not isinstance(payload, dict):
++        return "La réponse JSON n'est pas un objet."
++
++    if payload.get("success") is False:
++        return str(
++            payload.get("error")
++            or payload.get("message")
++            or payload.get("detail")
++            or "success=false"
++        )
++
++    error_value = payload.get("error") or payload.get("errors")
++    if error_value:
++        return str(error_value)
++
++    message = str(payload.get("message") or payload.get("detail") or "")
++    lowered = message.lower()
++    if message and any(word in lowered for word in ERROR_WORDS):
++        return message
++
++    return None
++
++
++def _looks_like_valid_allscores(payload: Dict[str, Any]) -> bool:
++    """
++    Une vraie réponse allscores contient `games` et généralement au moins un
++    champ de métadonnées. On accepte games=[] seulement si le schéma ressemble
++    bien à celui de l'endpoint.
++    """
++    if not isinstance(payload.get("games"), list):
++        return False
++
++    metadata_fields = {
++        "lastUpdateId",
++        "requestedUpdateId",
++        "ttl",
++        "summary",
++        "sports",
++        "countries",
++        "competitions",
++        "bookmakers",
++    }
++    return bool(metadata_fields.intersection(payload.keys()))
++
++
++def fetch_games(
++    date_from: date,
++    date_to: date,
++    *,
++    logger=None,
++    timeout: int = 30,
++    show_odds: bool = False,
++    only_major_games: bool = False,
++    sleep_between_attempts: float = 0.25,
++) -> FetchResult:
++    """
++    Récupère les matchs sur une plage courte.
++
++    Retour :
++    - ok=True et games peut être vide : réponse API valide ;
++    - ok=False : aucune clé/URL n'a fourni une réponse allscores valide.
++    """
++    keys = get_api_keys()
++    if not keys:
++        return FetchResult(ok=False, reason="Aucune clé SportData configurée.")
++
++    params = {
++        "startDate": date_from.strftime("%d/%m/%Y"),
++        "endDate": date_to.strftime("%d/%m/%Y"),
++        "sports": 1,
++        "showOdds": str(bool(show_odds)).lower(),
++        "onlyMajorGames": str(bool(only_major_games)).lower(),
++    }
++
++    endpoints = [CANONICAL_ALLSCORES_URL, LEGACY_ALLSCORES_URL]
++    last_result = FetchResult(ok=False, reason="Aucune tentative effectuée.")
++    first_valid_empty: Optional[FetchResult] = None
++
++    for endpoint in endpoints:
++        for key_index, api_key in enumerate(keys, start=1):
++            headers = {
++                "x-api-key": api_key,
++                "Accept": "application/json",
++                "User-Agent": "MrXPRONOS/2026",
++            }
++
++            try:
++                response = requests.get(
++                    endpoint,
++                    headers=headers,
++                    params=params,
++                    timeout=timeout,
++                )
++            except requests.RequestException as exc:
++                last_result = FetchResult(
++                    ok=False,
++                    endpoint=endpoint,
++                    reason=f"Erreur réseau: {exc}",
++                    key_index=key_index,
++                )
++                _log(
++                    logger,
++                    "warning",
++                    "[SportData] clé #%s, erreur réseau sur %s: %s",
++                    key_index,
++                    endpoint,
++                    exc,
++                )
++                time.sleep(sleep_between_attempts)
++                continue
++
++            status = response.status_code
++            _log(
++                logger,
++                "info",
++                "[SportData] clé #%s | HTTP %s | %s | %s -> %s",
++                key_index,
++                status,
++                endpoint,
++                params["startDate"],
++                params["endDate"],
++            )
++
++            if status != 200:
++                preview = _body_preview(response)
++                last_result = FetchResult(
++                    ok=False,
++                    endpoint=endpoint,
++                    status_code=status,
++                    reason=f"HTTP {status}: {preview}",
++                    key_index=key_index,
++                )
++                _log(
++                    logger,
++                    "warning",
++                    "[SportData] réponse refusée clé #%s: %s",
++                    key_index,
++                    preview,
++                )
++                time.sleep(sleep_between_attempts)
++                continue
++
++            try:
++                payload = response.json()
++            except ValueError:
++                preview = _body_preview(response)
++                last_result = FetchResult(
++                    ok=False,
++                    endpoint=endpoint,
++                    status_code=status,
++                    reason=f"JSON invalide: {preview}",
++                    key_index=key_index,
++                )
++                _log(
++                    logger,
++                    "warning",
++                    "[SportData] HTTP 200 mais JSON invalide, clé #%s: %s",
++                    key_index,
++                    preview,
++                )
++                time.sleep(sleep_between_attempts)
++                continue
++
++            payload_keys = sorted(payload.keys()) if isinstance(payload, dict) else []
++            api_error = _extract_error(payload)
++            if api_error:
++                last_result = FetchResult(
++                    ok=False,
++                    endpoint=endpoint,
++                    status_code=status,
++                    reason=f"Erreur API: {api_error}",
++                    payload_keys=payload_keys,
++                    key_index=key_index,
++                )
++                _log(
++                    logger,
++                    "warning",
++                    "[SportData] HTTP 200 mais erreur API, clé #%s: %s",
++                    key_index,
++                    api_error,
++                )
++                time.sleep(sleep_between_attempts)
++                continue
++
++            if not isinstance(payload, dict) or not _looks_like_valid_allscores(payload):
++                preview = json.dumps(payload, ensure_ascii=False)[:350]
++                last_result = FetchResult(
++                    ok=False,
++                    endpoint=endpoint,
++                    status_code=status,
++                    reason="Schéma allscores invalide ou clé `games` absente.",
++                    payload_keys=payload_keys,
++                    key_index=key_index,
++                )
++                _log(
++                    logger,
++                    "warning",
++                    "[SportData] schéma inattendu, clé #%s, clés=%s, aperçu=%s",
++                    key_index,
++                    payload_keys,
++                    preview,
++                )
++                time.sleep(sleep_between_attempts)
++                continue
++
++            games = payload.get("games", [])
++            current_result = FetchResult(
++                games=games,
++                ok=True,
++                endpoint=endpoint,
++                status_code=status,
++                reason="Réponse allscores valide.",
++                payload_keys=payload_keys,
++                key_index=key_index,
++            )
++
++            _log(
++                logger,
++                "info",
++                "[SportData] réponse valide: %s match(s), clé #%s, hôte=%s",
++                len(games),
++                key_index,
++                endpoint,
++            )
++
++            if games:
++                return current_result
++
++            # Une clé peut être valide mais avoir une couverture/autorisation
++            # différente. On continue la rotation pour chercher une réponse
++            # non vide, tout en conservant cette réponse vide comme fallback.
++            if first_valid_empty is None:
++                first_valid_empty = current_result
++
++            time.sleep(sleep_between_attempts)
++
++    return first_valid_empty or last_result
++
++
++def check_account_status(
++    *,
++    logger=None,
++    timeout: int = 20,
++) -> List[Dict[str, Any]]:
++    """
++    Vérifie chaque clé sans jamais l'afficher.
++    """
++    results: List[Dict[str, Any]] = []
++    keys = get_api_keys()
++
++    for key_index, api_key in enumerate(keys, start=1):
++        row = None
++        last_error = None
++
++        for status_url in (CANONICAL_STATUS_URL, ALTERNATE_STATUS_URL):
++            try:
++                response = requests.get(
++                    status_url,
++                    headers={
++                        "x-api-key": api_key,
++                        "Accept": "application/json",
++                        "User-Agent": "MrXPRONOS/2026",
++                    },
++                    timeout=timeout,
++                )
++                try:
++                    payload = response.json()
++                except ValueError:
++                    payload = {}
++
++                error = _extract_error(payload)
++                usage = payload.get("usage", {}) if isinstance(payload, dict) else {}
++                account = payload.get("account", {}) if isinstance(payload, dict) else {}
++                plan = payload.get("plan", {}) if isinstance(payload, dict) else {}
++
++                candidate = {
++                    "key_index": key_index,
++                    "http_status": response.status_code,
++                    "ok": response.status_code == 200 and not error,
++                    "error": error,
++                    "account_type": account.get("account_type"),
++                    "plan": plan.get("name"),
++                    "daily_limit": usage.get("daily_limit"),
++                    "remaining_today": usage.get("remaining_today"),
++                    "quota_reset_at": usage.get("quota_reset_at"),
++                    "endpoint": status_url,
++                }
++
++                row = candidate
++                if candidate["ok"]:
++                    break
++            except requests.RequestException as exc:
++                last_error = str(exc)
++
++        if row is None:
++            row = {
++                "key_index": key_index,
++                "http_status": None,
++                "ok": False,
++                "error": last_error or "Endpoint status inaccessible.",
++            }
++
++        results.append(row)
++        _log(
++            logger,
++            "info",
++            "[SportData status] clé #%s | ok=%s | HTTP=%s | plan=%s | restant=%s | erreur=%s",
++            row.get("key_index"),
++            row.get("ok"),
++            row.get("http_status"),
++            row.get("plan") or row.get("account_type"),
++            row.get("remaining_today"),
++            row.get("error"),
++        )
++
++    return results
+--- /dev/null
++++ b/sportdata_diagnostic.py
+@@ -0,0 +1,62 @@
++#!/usr/bin/env python3
++# -*- coding: utf-8 -*-
++
++"""Diagnostic SportData pour GitHub Actions, sans exposer les clés."""
++
++from datetime import datetime, timedelta, timezone
++
++from sportdata_api import check_account_status, fetch_games
++
++UTC = timezone.utc
++
++
++def main() -> int:
++    now = datetime.now(UTC)
++    today = now.date()
++
++    print("=" * 70)
++    print("DIAGNOSTIC SPORTDATA - Mr XPRONOS")
++    print(f"UTC : {now.isoformat()}")
++    print("=" * 70)
++
++    status_rows = check_account_status()
++    valid_keys = [row for row in status_rows if row.get("ok")]
++
++    print(f"\nClés configurées : {len(status_rows)}")
++    print(f"Clés valides selon /status : {len(valid_keys)}")
++
++    dates = [today - timedelta(days=1), today, today + timedelta(days=1)]
++    valid_responses = 0
++    total_games = 0
++
++    for day in dates:
++        result = fetch_games(day, day)
++        print(
++            f"{day}: ok={result.ok}, matchs={len(result.games)}, "
++            f"clé=#{result.key_index}, endpoint={result.endpoint}, raison={result.reason}"
++        )
++        if result.ok:
++            valid_responses += 1
++            total_games += len(result.games)
++
++    if not valid_keys:
++        print("\nERREUR: aucune clé n'est valide ou le endpoint /status est inaccessible.")
++        return 1
++
++    if valid_responses == 0:
++        print("\nERREUR: aucune réponse allscores valide.")
++        return 2
++
++    if total_games == 0:
++        print(
++            "\nERREUR: les trois journées retournent zéro match. "
++            "Le système refuse de publier un data.json vide."
++        )
++        return 3
++
++    print(f"\nOK: {total_games} matchs reçus sur les trois journées.")
++    return 0
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+--- /dev/null
++++ b/README_CORRECTIF.md
+@@ -0,0 +1,66 @@
++# Correctif SportData — Mr XPRONOS
++
++## Diagnostic
++
++Les logs ne montrent pas une erreur Python. Ils montrent un faux succès :
++
++- HTTP 200 est accepté immédiatement ;
++- le code lit seulement `response.json().get("games", [])` ;
++- une réponse d'erreur métier ou un JSON au schéma inattendu devient donc `0 match` ;
++- `continue-on-error: true` permet ensuite au workflow de publier malgré l'échec ;
++- `generate_data.py` peut finir par maintenir ou produire un `data.json` vide.
++
++Le format de date `DD/MM/YYYY` était déjà correct.
++
++## Fichiers à remplacer/ajouter
++
++Ajoute :
++
++- `sportdata_api.py`
++- `sportdata_diagnostic.py`
++
++Remplace :
++
++- `generate_data.py`
++- `update_historical.py`
++- `update_scores.py`
++- `allmatches.py`
++- `content_generator.py`
++- `.github/workflows/daily-update.yml`
++
++Le fichier `api_utils.py` peut rester en place pour les autres scripts.
++
++## Ce que fait le correctif
++
++1. Utilise d'abord l'URL canonique :
++   `https://api.sportsapipro.com/v1/football/games/allscores`
++2. Garde l'ancien sous-domaine en secours.
++3. Vérifie chaque clé sans l'afficher.
++4. Continue la rotation si HTTP 200 contient une erreur métier.
++5. Vérifie que le JSON possède réellement le schéma `allscores`.
++6. Refuse de réécrire `data.json` lorsque les trois journées renvoient zéro match.
++7. Arrête le workflow si la source critique est invalide.
++8. Télécharge l'historique par plages de trois jours au lieu de mois entiers.
++
++## Installation
++
++Copie les fichiers à la racine du dépôt, en conservant le chemin du workflow, puis :
++
++```bash
++git add .
++git commit -m "Fix SportData empty responses"
++git push
++```
++
++Lance ensuite manuellement **Daily Update** dans GitHub Actions.
++
++## Résultat attendu dans les logs
++
++```text
++[SportData status] clé #1 | ok=True | HTTP=200 | ...
++[SportData] réponse valide: 123 match(s), clé #1, hôte=https://api...
++OK: ... matchs reçus sur les trois journées.
++```
++
++Si le diagnostic affiche `remaining_today=0`, la clé a atteint son quota.
++Si toutes les clés affichent `ok=False`, il faut renouveler/corriger les secrets.

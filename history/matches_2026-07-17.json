@@ -1,0 +1,16 @@
+{
+  "matches": [],
+  "categories": {
+    "simple": [],
+    "pro": [],
+    "vip": []
+  },
+  "stats": {
+    "total_bets": 0,
+    "wins": 0,
+    "roi": 0
+  },
+  "bookmakers": [],
+  "generated_at": "2026-07-17T02:48:20.741387Z",
+  "retention_days": 14
+}
