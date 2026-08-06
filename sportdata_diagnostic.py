@@ -33,7 +33,8 @@ def main() -> int:
         result = fetch_games(day, day)
         print(
             f"{day}: ok={result.ok}, matchs={len(result.games)}, "
-            f"clé=#{result.key_index}, endpoint={result.endpoint}, raison={result.reason}"
+            f"clé=#{result.key_index}, endpoint={result.endpoint}, "
+            f"schéma={result.schema_path or '-'}, raison={result.reason}"
         )
         if result.ok:
             valid_responses += 1

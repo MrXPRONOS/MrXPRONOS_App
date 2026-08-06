@@ -10,7 +10,7 @@ Génère quotidiennement :
 - 3 conseils
 
 Robustesse :
-- Match du jour : data.json en priorité, fallback allscores via api_utils
+- Match du jour : data.json en priorité, fallback allscores via sportdata_api
 - Texte : Mistral SDK -> fallback HTTP
 - Images : HF -> (optionnel) Mistral image agent si disponible -> Pixazo -> fallback OG local (PIL)
 - Images finalisées en 1200x630
@@ -43,9 +43,9 @@ import requests
 from PIL import Image, ImageOps, ImageDraw, ImageFont
 
 try:
-    from api_utils import make_request
+    from sportdata_api import fetch_games as fetch_sportdata_games
 except Exception:
-    make_request = None
+    fetch_sportdata_games = None
 
 
 # =======================================================
@@ -342,23 +342,24 @@ def pick_match_from_data_json() -> Optional[dict]:
     }
 
 def fetch_allscores_today() -> Optional[dict]:
-    if make_request is None:
+    """Retourne le corps allscores normalisé, ancien ou nouveau schéma API."""
+    if fetch_sportdata_games is None:
         return None
 
-    params = {
-        "startDate": TODAY.strftime("%d/%m/%Y"),
-        "endDate": TODAY.strftime("%d/%m/%Y"),
-        "sports": 1,
-        "showOdds": "false",
-        "onlyMajorGames": "false",
-    }
-
     try:
-        resp = make_request("GET", SPORTDATA_V1_ALLSCORES, params=params, timeout=30)
-        if resp is None:
+        result = fetch_sportdata_games(
+            TODAY,
+            TODAY,
+            timeout=30,
+            show_odds=False,
+            only_major_games=False,
+        )
+        if not result.ok:
+            print(f"SportData contenu: réponse invalide ({result.reason})")
             return None
-        return resp.json()
-    except Exception:
+        return result.payload or {"games": result.games}
+    except Exception as exc:
+        print(f"SportData contenu: exception {exc}")
         return None
 
 def build_popularity_maps(payload: dict) -> Tuple[dict, dict]:
