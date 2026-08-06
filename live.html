@@ -5,11 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>MrXPRONOS LIVE</title>
 
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    function showBootError(message) {
+      const root = document.getElementById("root");
+      if (!root) return;
+      root.innerHTML = `
+        <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#090909;color:#f3f4f6;font-family:Arial,sans-serif">
+          <div style="max-width:620px;width:100%;padding:24px;border:1px solid rgba(239,68,68,.45);border-radius:20px;background:#121212;box-shadow:0 24px 70px rgba(0,0,0,.7)">
+            <div style="font-size:22px;font-weight:800;color:#ef4444;margin-bottom:10px">Erreur de chargement LIVE</div>
+            <div style="line-height:1.6;color:#d1d5db;word-break:break-word">${String(message || "Erreur inconnue")}</div>
+            <button onclick="location.reload()" style="margin-top:18px;padding:11px 18px;border:0;border-radius:999px;background:#D4AF37;color:#000;font-weight:800;cursor:pointer">Réessayer</button>
+          </div>
+        </div>`;
+    }
+
+    window.addEventListener("error", function (event) {
+      const message = event && event.message ? event.message : "Une ressource ou un script n’a pas pu être chargé.";
+      showBootError(message);
+    });
+
+    window.addEventListener("unhandledrejection", function (event) {
+      const reason = event && event.reason;
+      showBootError(reason && reason.message ? reason.message : String(reason || "Promesse rejetée"));
+    });
+  </script>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js" onerror="showBootError('React ne peut pas être chargé depuis unpkg.com')"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" onerror="showBootError('ReactDOM ne peut pas être chargé depuis unpkg.com')"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js" onerror="showBootError('Babel ne peut pas être chargé depuis unpkg.com')"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="showBootError('Supabase JS ne peut pas être chargé depuis jsDelivr')"></script>
+  <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -253,7 +278,15 @@
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <div id="boot-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#090909;color:#f3f4f6;font-family:Arial,sans-serif">
+      <div style="text-align:center">
+        <div style="width:48px;height:48px;border:4px solid #D4AF37;border-top-color:transparent;border-radius:50%;margin:0 auto 16px;animation:bootSpin 1s linear infinite"></div>
+        <div style="color:#d1d5db">Chargement de MrXPRONOS LIVE…</div>
+      </div>
+    </div>
+  </div>
+  <style>@keyframes bootSpin{to{transform:rotate(360deg)}}</style>
 
   <script type="text/babel">
     // =======================================================
@@ -263,8 +296,11 @@
     const SUPABASE_ANON_KEY = "sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt";
     const EDGE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/live`;
 
-    const supabase =
-      SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY"
+    const supabaseClient =
+      SUPABASE_ANON_KEY &&
+      SUPABASE_ANON_KEY !== "YOUR_SUPABASE_ANON_KEY" &&
+      window.supabase &&
+      typeof window.supabase.createClient === "function"
         ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
         : null;
 
@@ -342,17 +378,17 @@
     }
 
     async function recordShareEvent(platform) {
-      if (!supabase) return;
+      if (!supabaseClient) return;
       const userId = getUserId();
       const eventType = platform === "whatsapp" ? "share_whatsapp" : "share_telegram";
       try {
-        await supabase.from("analytics").insert({
+        await supabaseClient.from("analytics").insert({
           event_type: eventType,
           user_id: userId,
           page: "live.html",
         });
       } catch (_) {}
-      try { await supabase.rpc("increment_counter", { counter_name: "total_shares" }); } catch (_) {}
+      try { await supabaseClient.rpc("increment_counter", { counter_name: "total_shares" }); } catch (_) {}
     }
 
     function finalizePendingShare(force = false) {
@@ -1570,8 +1606,8 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
 
       // realtime notifications (toast)
       useEffect(() => {
-        if (!supabase) return;
-        const channel = supabase
+        if (!supabaseClient) return;
+        const channel = supabaseClient
           .channel("notifications-channel")
           .on(
             "postgres_changes",
@@ -1588,7 +1624,7 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
           )
           .subscribe();
 
-        return () => { supabase.removeChannel(channel); };
+        return () => { supabaseClient.removeChannel(channel); };
       }, [userId]);
 
       const unreadCount = notifications.filter((n) => !n.read).length;
@@ -1901,11 +1937,64 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
     // =======================================================
     // RENDER (Share Gate)
     // =======================================================
-    ReactDOM.createRoot(document.getElementById("root")).render(
-      <ShareGate>
-        <App />
-      </ShareGate>
-    );
+    class LiveErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { error: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { error };
+      }
+
+      componentDidCatch(error, info) {
+        console.error("Erreur React LIVE:", error, info);
+      }
+
+      render() {
+        if (this.state.error) {
+          return (
+            <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-[#090909]">
+              <div className="w-full max-w-xl rounded-3xl border border-red-500/40 bg-[#121212] p-6 shadow-2xl">
+                <div className="text-red-500 text-2xl font-extrabold mb-3">Erreur d’affichage LIVE</div>
+                <div className="text-gray-300 safe-wrap mb-5">
+                  {this.state.error?.message || "Une erreur React empêche l’affichage de la page."}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="px-5 py-3 rounded-full bg-[#D4AF37] text-black font-extrabold"
+                >
+                  Recharger la page
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    try {
+      if (!window.React) throw new Error("React n’est pas chargé.");
+      if (!window.ReactDOM || typeof window.ReactDOM.createRoot !== "function") {
+        throw new Error("ReactDOM n’est pas chargé correctement.");
+      }
+
+      const rootElement = document.getElementById("root");
+      if (!rootElement) throw new Error("Élément #root introuvable.");
+
+      ReactDOM.createRoot(rootElement).render(
+        <LiveErrorBoundary>
+          <ShareGate>
+            <App />
+          </ShareGate>
+        </LiveErrorBoundary>
+      );
+    } catch (error) {
+      console.error("Erreur de démarrage LIVE:", error);
+      showBootError(error?.message || String(error));
+    }
   </script>
 </body>
 </html>
