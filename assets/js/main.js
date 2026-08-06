@@ -693,7 +693,7 @@ function showPushPrompt() {
       console.error("enablePushNotifications error:", e);
     } finally {
       el.style.display = "none";
-      if (Notification.permission === "granted") {
+      if ("Notification" in window && Notification.permission === "granted") {
         localStorage.removeItem("mx_push_snooze_until");
       }
     }
@@ -1069,21 +1069,60 @@ window.handleVipClick = window.handleVipMenuClick;
 /* =======================================================
  DATA LOADING
 ======================================================= */
+function isPronosticsPayload(value) {
+  return !!value && typeof value === "object" && Array.isArray(value.matches);
+}
+
+function getPayloadTimestamp(value) {
+  const ts = Date.parse(String(value?.generated_at || ""));
+  return Number.isFinite(ts) ? ts : 0;
+}
+
 async function fetchJsonWithCache(url, cacheKey, timeoutMs = 8000) {
+  const cachedData = safeJsonParse(localStorage.getItem(cacheKey), null);
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
-    const resp = await fetch(url, { signal: controller.signal, cache: "no-cache" });
+    const resp = await fetch(url, {
+      signal: controller.signal,
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" },
+    });
     clearTimeout(timeoutId);
+
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
     const data = await resp.json();
+
+    // data.json doit toujours contenir un tableau matches.
+    if (cacheKey === "cachedData" && !isPronosticsPayload(data)) {
+      throw new Error("data.json invalide : tableau matches absent");
+    }
+
+    // Ne jamais écraser un bon cache par un faux JSON vide plus ancien ou sans date.
+    if (
+      cacheKey === "cachedData" &&
+      isPronosticsPayload(cachedData) &&
+      cachedData.matches.length > 0 &&
+      data.matches.length === 0 &&
+      getPayloadTimestamp(data) <= getPayloadTimestamp(cachedData)
+    ) {
+      console.warn("data.json vide/ancien ignoré : conservation du cache non vide");
+      return { data: cachedData, fromCache: true, reason: "empty-network-payload" };
+    }
+
     localStorage.setItem(cacheKey, JSON.stringify(data));
-    return { data, fromCache: false };
-  } catch {
+    return { data, fromCache: false, reason: "network" };
+  } catch (error) {
     clearTimeout(timeoutId);
-    const cached = localStorage.getItem(cacheKey);
-    if (cached) return { data: safeJsonParse(cached, null), fromCache: true };
-    return { data: null, fromCache: false };
+    console.warn(`Chargement ${url} échoué :`, error?.message || error);
+
+    if (cachedData) {
+      return { data: cachedData, fromCache: true, reason: "network-error" };
+    }
+
+    return { data: null, fromCache: false, reason: "no-data" };
   }
 }
 
@@ -1228,6 +1267,12 @@ function getLocalDateFromEvent(isoString) {
   return `${y}-${m}-${d}`;
 }
 
+function getMatchDate(match) {
+  const explicitDate = String(match?.date || "").slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(explicitDate)) return explicitDate;
+  return getLocalDateFromEvent(match?.event_date);
+}
+
 function sortMatchesByLeague(matches) {
   return matches.sort((a, b) => {
     const leagueA = a.league || "";
@@ -1315,7 +1360,7 @@ function filterAndDisplay() {
   const targetDate = getLocalDateString(currentDay);
 
   const filtered = allData.matches.filter((m) => {
-    const eventLocalDate = getLocalDateFromEvent(m.event_date);
+    const eventLocalDate = getMatchDate(m);
     const category = String(m.category || "").toLowerCase();
 
     return (
@@ -1345,6 +1390,28 @@ function filterAndDisplay() {
   });
 
   filteredMatchesWithoutSearch = filtered;
+
+  if (filtered.length === 0) {
+    const totalLoaded = allData.matches.length;
+    const availableByDate = allData.matches.reduce((acc, match) => {
+      const date = getMatchDate(match) || "date-inconnue";
+      acc[date] = (acc[date] || 0) + 1;
+      return acc;
+    }, {});
+    const availableSummary = Object.entries(availableByDate)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, count]) => `${date}: ${count}`)
+      .join(" • ");
+
+    DOM.matches.innerHTML = `
+      <div class="no-events">
+        Aucun match pour le ${escapeHtml(targetDate)}.<br>
+        <small>${totalLoaded} match(s) chargé(s) au total${availableSummary ? ` — ${escapeHtml(availableSummary)}` : ""}.</small>
+      </div>
+    `;
+    return;
+  }
+
   applySearchFilter();
 }
 
@@ -2655,93 +2722,119 @@ document.addEventListener("DOMContentLoaded", async () => {
   initPromoCopy();
   updateShareCounter();
 
-  await initSupabase();
-  await loadPublishedExtras();
-  await updateDisplayedCounters();
-  subscribeToCounters();
-  await registerUniqueUser();
-  await initOnlineUsers();
-
-  countVisitOncePerDay();
-  showIosGuideIfNeeded();
-
-  if (Notification.permission === "granted") subscribeToPush(false);
-
   const page = detectPage();
 
-  switch (page) {
-    case "pronos":
+  try {
+    // Priorité absolue : afficher les pronostics avant toute dépendance Supabase.
+    if (page === "pronos") {
       setupPronosticPageListeners();
       await loadData();
-      break;
-
-    case "history":
-      await displayHistory();
-      renderBookmakers();
-      break;
-
-    case "blog-list":
-      await displayBlogList();
-      renderBookmakers();
-      break;
-
-    case "blog-post":
-      await displayBlogPost();
-      renderBookmakers();
-      break;
-
-    case "conseil-post":
-      await displayConseilPost();
-      renderBookmakers();
-      break;
-
-    case "conseils":
-      await displayConseils();
-      renderBookmakers();
-      break;
-
-    case "bonus": {
-      const data = await loadDataGeneric();
-      if (data) allData = data;
-      initBonusPage();
-      renderBookmakers(allData?.bookmakers);
-      break;
     }
 
-    case "infos":
-      await displayFootNews();
-      renderBookmakers();
-      break;
+    // Les fonctions ci-dessous sont secondaires pour l’affichage de data.json.
+    // Une panne analytics/Supabase ne doit plus bloquer l’onglet Pronostics.
+    await initSupabase();
+    await loadPublishedExtras();
+    await updateDisplayedCounters();
+    subscribeToCounters();
+    await registerUniqueUser();
+    await initOnlineUsers();
 
-    case "home": {
-      const data = await loadDataGeneric();
-      if (data) {
-        allData = data;
-        renderBookmakers(data.bookmakers);
-        updateHomeLastUpdate();
+    countVisitOncePerDay();
+    showIosGuideIfNeeded();
 
-        // NOUVEAU : Top coupons / Validés
-        displayTopTodayCoupons();
-        displayLatestVerifiedHome();
+    if ("Notification" in window && Notification.permission === "granted") {
+      subscribeToPush(false);
+    }
 
-        // Conserve le reste
-        startWinsSlider();
-        animateWins();
-        updateHomeSuccessRate();
+    switch (page) {
+      case "pronos":
+        // Déjà chargé en priorité plus haut.
+        renderBookmakers(allData?.bookmakers);
+        break;
+
+      case "history":
+        await displayHistory();
+        renderBookmakers();
+        break;
+
+      case "blog-list":
+        await displayBlogList();
+        renderBookmakers();
+        break;
+
+      case "blog-post":
+        await displayBlogPost();
+        renderBookmakers();
+        break;
+
+      case "conseil-post":
+        await displayConseilPost();
+        renderBookmakers();
+        break;
+
+      case "conseils":
+        await displayConseils();
+        renderBookmakers();
+        break;
+
+      case "bonus": {
+        const data = await loadDataGeneric();
+        if (data) allData = data;
+        initBonusPage();
+        renderBookmakers(allData?.bookmakers);
+        break;
       }
-      await displayTestimonials();
-      startWinNotifications();
-      break;
+
+      case "infos":
+        await displayFootNews();
+        renderBookmakers();
+        break;
+
+      case "home": {
+        const data = await loadDataGeneric();
+        if (data) {
+          allData = data;
+          renderBookmakers(data.bookmakers);
+          updateHomeLastUpdate();
+          displayTopTodayCoupons();
+          displayLatestVerifiedHome();
+          startWinsSlider();
+          animateWins();
+          updateHomeSuccessRate();
+        }
+        await displayTestimonials();
+        startWinNotifications();
+        break;
+      }
+
+      default:
+        renderBookmakers();
+        break;
     }
 
-    default:
-      renderBookmakers();
-      break;
+    await displayInfos();
+    initScrollProgress();
+    setTimeout(showPushPrompt, 6500);
+  } catch (error) {
+    console.error("Erreur initialisation application :", error);
+
+    // Même en cas d’erreur secondaire, on retente l’affichage des pronostics.
+    if (page === "pronos") {
+      try {
+        if (!allData) await loadData();
+        else filterAndDisplay();
+      } catch (dataError) {
+        console.error("Erreur chargement pronostics :", dataError);
+        if (DOM.matches) {
+          DOM.matches.innerHTML = `
+            <div class="error">
+              Impossible d’afficher les pronostics.<br>
+              <small>${escapeHtml(dataError?.message || error?.message || "Erreur inconnue")}</small>
+            </div>
+          `;
+        }
+      }
+    }
   }
-
-  await displayInfos();
-  initScrollProgress();
-
-  // Popup interne pour demander l'autorisation des notifications
-  setTimeout(showPushPrompt, 6500);
 });
