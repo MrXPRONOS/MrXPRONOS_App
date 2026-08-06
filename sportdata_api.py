@@ -20,7 +20,7 @@ import os
 import time
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 
@@ -54,11 +54,14 @@ ERROR_WORDS = (
 @dataclass
 class FetchResult:
     games: List[Dict[str, Any]] = field(default_factory=list)
+    payload: Dict[str, Any] = field(default_factory=dict)
     ok: bool = False
     endpoint: str = ""
     status_code: Optional[int] = None
     reason: str = ""
     payload_keys: List[str] = field(default_factory=list)
+    normalized_keys: List[str] = field(default_factory=list)
+    schema_path: str = ""
     key_index: Optional[int] = None
 
 
@@ -99,6 +102,7 @@ def _body_preview(response: requests.Response, max_len: int = 350) -> str:
 
 
 def _extract_error(payload: Any) -> Optional[str]:
+    """Détecte une erreur métier, y compris dans une enveloppe ``data``."""
     if not isinstance(payload, dict):
         return "La réponse JSON n'est pas un objet."
 
@@ -119,30 +123,76 @@ def _extract_error(payload: Any) -> Optional[str]:
     if message and any(word in lowered for word in ERROR_WORDS):
         return message
 
+    for wrapper_key in ("data", "result", "response", "payload"):
+        child = payload.get(wrapper_key)
+        if isinstance(child, dict):
+            nested_error = _extract_error(child)
+            if nested_error:
+                return nested_error
+
     return None
 
 
+def _unwrap_data_envelope(payload: Any) -> Tuple[Optional[Dict[str, Any]], str]:
+    """
+    Normalise les réponses SportsAPI Pro.
+
+    Schémas pris en charge :
+    - ancien : ``{"games": [...], ...}`` ;
+    - actuel : ``{"success": true, "data": {"games": [...], ...}}`` ;
+    - enveloppes équivalentes ``result``, ``response`` ou ``payload``.
+    """
+    if not isinstance(payload, dict):
+        return None, ""
+
+    queue: List[Tuple[Dict[str, Any], str, int]] = [(payload, "root", 0)]
+    visited = set()
+
+    while queue:
+        node, path, depth = queue.pop(0)
+        node_id = id(node)
+        if node_id in visited:
+            continue
+        visited.add(node_id)
+
+        if isinstance(node.get("games"), list):
+            return node, path
+
+        if depth >= 4:
+            continue
+
+        # Les clés d'enveloppe connues sont prioritaires.
+        for key in ("data", "result", "response", "payload"):
+            child = node.get(key)
+            if isinstance(child, dict):
+                queue.append((child, f"{path}.{key}", depth + 1))
+
+    return None, ""
+
+
 def _looks_like_valid_allscores(payload: Dict[str, Any]) -> bool:
-    """
-    Une vraie réponse allscores contient `games` et généralement au moins un
-    champ de métadonnées. On accepte games=[] seulement si le schéma ressemble
-    bien à celui de l'endpoint.
-    """
-    if not isinstance(payload.get("games"), list):
+    """Valide le corps normalisé de ``/games/allscores``."""
+    if not isinstance(payload, dict) or not isinstance(payload.get("games"), list):
         return False
 
     metadata_fields = {
         "lastUpdateId",
         "requestedUpdateId",
         "ttl",
+        "liveGamesCount",
         "summary",
         "sports",
         "countries",
         "competitions",
+        "competitors",
         "bookmakers",
     }
-    return bool(metadata_fields.intersection(payload.keys()))
 
+    # Une liste non vide suffit. Pour games=[], on exige au moins une métadonnée
+    # afin de ne pas prendre une erreur déguisée pour une réponse valide.
+    if payload["games"]:
+        return True
+    return bool(metadata_fields.intersection(payload.keys()))
 
 def fetch_games(
     date_from: date,
@@ -283,13 +333,17 @@ def fetch_games(
                 time.sleep(sleep_between_attempts)
                 continue
 
-            if not isinstance(payload, dict) or not _looks_like_valid_allscores(payload):
+            normalized_payload, schema_path = _unwrap_data_envelope(payload)
+            if normalized_payload is None or not _looks_like_valid_allscores(normalized_payload):
                 preview = json.dumps(payload, ensure_ascii=False)[:350]
                 last_result = FetchResult(
                     ok=False,
                     endpoint=endpoint,
                     status_code=status,
-                    reason="Schéma allscores invalide ou clé `games` absente.",
+                    reason=(
+                        "Schéma allscores invalide : aucune liste `games` trouvée "
+                        "à la racine ou dans une enveloppe `data`."
+                    ),
                     payload_keys=payload_keys,
                     key_index=key_index,
                 )
@@ -304,24 +358,29 @@ def fetch_games(
                 time.sleep(sleep_between_attempts)
                 continue
 
-            games = payload.get("games", [])
+            games = normalized_payload.get("games", [])
+            normalized_keys = sorted(normalized_payload.keys())
             current_result = FetchResult(
                 games=games,
+                payload=normalized_payload,
                 ok=True,
                 endpoint=endpoint,
                 status_code=status,
-                reason="Réponse allscores valide.",
+                reason=f"Réponse allscores valide ({schema_path}).",
                 payload_keys=payload_keys,
+                normalized_keys=normalized_keys,
+                schema_path=schema_path,
                 key_index=key_index,
             )
 
             _log(
                 logger,
                 "info",
-                "[SportData] réponse valide: %s match(s), clé #%s, hôte=%s",
+                "[SportData] réponse valide: %s match(s), clé #%s, hôte=%s, schéma=%s",
                 len(games),
                 key_index,
                 endpoint,
+                schema_path,
             )
 
             if games:
@@ -370,9 +429,15 @@ def check_account_status(
                     payload = {}
 
                 error = _extract_error(payload)
-                usage = payload.get("usage", {}) if isinstance(payload, dict) else {}
-                account = payload.get("account", {}) if isinstance(payload, dict) else {}
-                plan = payload.get("plan", {}) if isinstance(payload, dict) else {}
+                status_payload = payload
+                if isinstance(payload, dict) and isinstance(payload.get("data"), dict):
+                    status_payload = payload["data"]
+                if not isinstance(status_payload, dict):
+                    status_payload = {}
+
+                usage = status_payload.get("usage", {}) or {}
+                account = status_payload.get("account", {}) or {}
+                plan = status_payload.get("plan", {}) or {}
 
                 candidate = {
                     "key_index": key_index,
