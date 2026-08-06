@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -39,6 +40,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from ml_model import load_model, predict_proba, build_feature_vector_from_row
+from sportdata_api import fetch_games as fetch_sportdata_games
 
 # =======================================================
 # LOGGING
@@ -399,26 +401,40 @@ def get_team_logo(team_name: str, competitor_id=None, image_version=None, side: 
 # =======================================================
 # FONCTIONS SPORTDATA (MATCHS)
 # =======================================================
+SPORTDATA_FETCH_RESULTS = []
+
 def fetch_games(date_from, date_to):
-    params = {
-        "startDate": date_from.strftime("%d/%m/%Y"),
-        "endDate": date_to.strftime("%d/%m/%Y"),
-        "sports": 1,
-        "showOdds": "false",
-        "onlyMajorGames": "false",
-    }
-    try:
-        logger.info("SportData fetch: %s -> %s", params["startDate"], params["endDate"])
-        resp = session.get(SPORTDATA_URL, headers=HEADERS, params=params, timeout=30)
-        resp.raise_for_status()
-        data = resp.json()
-        games = data.get("games", [])
-        logger.info("SportData fetch OK: %s matchs (%s -> %s)", len(games), params["startDate"], params["endDate"])
-        return games
-    except Exception as e:
-        logger.error("Erreur SportData fetch (%s -> %s): %s",
-                     params.get("startDate"), params.get("endDate"), e)
+    """Récupère une plage courte via le client SportData robuste."""
+    result = fetch_sportdata_games(
+        date_from,
+        date_to,
+        logger=logger,
+        timeout=30,
+        show_odds=False,
+        only_major_games=False,
+    )
+    SPORTDATA_FETCH_RESULTS.append(result)
+
+    if not result.ok:
+        logger.error(
+            "SportData fetch invalide (%s -> %s): %s | endpoint=%s | clés_payload=%s",
+            date_from,
+            date_to,
+            result.reason,
+            result.endpoint,
+            result.payload_keys,
+        )
         return []
+
+    logger.info(
+        "SportData fetch OK: %s matchs (%s -> %s) | endpoint=%s | clé=#%s",
+        len(result.games),
+        date_from,
+        date_to,
+        result.endpoint,
+        result.key_index,
+    )
+    return result.games
 
 def extract_game_info(game):
     """Extrait les infos de base d'un match SportData."""
@@ -596,9 +612,9 @@ def calculate_xpronos_score(analysis, prediction):
     return min(score, 100)
 
 def get_category(score):
-    if score >= 110:
+    if score >= 75:
         return "vip"
-    elif score >= 100:
+    elif score >= 60:
         return "pro"
     else:
         return "simple"
@@ -823,6 +839,25 @@ def main():
     games_yesterday = fetch_games(yesterday, yesterday)
     all_new_games = games_today + games_tomorrow + games_yesterday
     logger.info("Total matchs récupérés (brut): %s", len(all_new_games))
+
+    # Protection anti-écrasement : trois réponses invalides ou trois jours à zéro
+    # ne doivent jamais remplacer les données publiées par un data.json vide.
+    if SPORTDATA_FETCH_RESULTS and not any(r.ok for r in SPORTDATA_FETCH_RESULTS):
+        logger.critical(
+            "Aucune réponse SportData valide. data.json reste inchangé."
+        )
+        return 2
+
+    if (
+        len(SPORTDATA_FETCH_RESULTS) >= 3
+        and all(r.ok for r in SPORTDATA_FETCH_RESULTS)
+        and len(all_new_games) == 0
+    ):
+        logger.critical(
+            "SportData a renvoyé 0 match sur hier/aujourd'hui/demain. "
+            "Arrêt de sécurité: data.json reste inchangé."
+        )
+        return 3
 
     new_infos = {}
     for g in all_new_games:
@@ -1079,6 +1114,7 @@ def main():
                 logo_run_stats["fallback_used"],
                 logo_run_stats["skipped_by_limit"])
     logger.info("=" * 70)
+    return 0
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

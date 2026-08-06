@@ -1,3 +1,4 @@
+
 name: Daily Update
 
 on:
@@ -36,10 +37,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Diagnose SportData
+        env:
+          SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
+          SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
+          SPORTDATA_API_KEY_3: ${{ secrets.SPORTDATA_API_KEY_3 }}
+          SPORTDATA_API_KEY_4: ${{ secrets.SPORTDATA_API_KEY_4 }}
+          SPORTDATA_API_KEY_5: ${{ secrets.SPORTDATA_API_KEY_5 }}
+          SPORTDATA_API_KEY: ${{ secrets.SPORTDATA_API_KEY_1 }}
+        run: |
+          echo "🩺 Diagnostic SportData..."
+          python sportdata_diagnostic.py
+
       # 1) Historique d'abord
       - name: Update historical cache
         id: update_historical
-        continue-on-error: true
         env:
           SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
           SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
@@ -53,7 +65,6 @@ jobs:
       # 2) Génération data.json
       - name: Generate pronostics
         id: generate_data
-        continue-on-error: true
         env:
           SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
           SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
@@ -68,7 +79,6 @@ jobs:
       # 3) Mise à jour scores
       - name: Update scores
         id: update_scores
-        continue-on-error: true
         env:
           SPORTDATA_API_KEY_1: ${{ secrets.SPORTDATA_API_KEY_1 }}
           SPORTDATA_API_KEY_2: ${{ secrets.SPORTDATA_API_KEY_2 }}
