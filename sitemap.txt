@@ -6,6 +6,7 @@ https://mrxpronos.github.io/MrXPRONOS_App/conseils.html
 https://mrxpronos.github.io/MrXPRONOS_App/infos.html
 https://mrxpronos.github.io/MrXPRONOS_App/bonus.html
 https://mrxpronos.github.io/MrXPRONOS_App/contact.html
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=cashout-la-methode-simple-et-realiste-pour-eviter-les-matchs-pieges
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=compte-limite-plan-7-jours-fcfa-discipline
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=sheriff-tiraspol-vs-csca-buiucani-le-choc-de-la-super-liga-qui-peut-reserver-des-surprises
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=bankroll-en-fcfa-la-version-petites-mises-pour-parier-malin-avec-tableau-exemples-fcfa
@@ -85,7 +86,6 @@ https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=baisse-de-cote-frame
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=vancouver-fc-vs-pacific-le-choc-de-la-cpl-qui-pourrait-tout-changer-en-2026
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=parier-en-fcfa-choisir-bookmaker-erreurs-a-eviter
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=auda-vs-fk-jelgava-le-choc-letton-qui-pourrait-tout-changer-en-virsliga
-https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=stop-loss-take-profit-le-framework-mr-xpronos-ultra-pratique
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=pieges-favoris-petite-cote-paris-sportifs
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=gestion-bankroll-fcfa-paris-sportifs
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=gestion-bankroll-fcfa-conseils-pratiques
