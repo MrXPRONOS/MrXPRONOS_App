@@ -1,32 +1,32 @@
 [
   {
-    "name": "Oumar Sall",
-    "rating": 5,
-    "city": "Luanda",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi un match peut basculer, c’est plus simple de parier après. À Luanda, ça change la donne."
-  },
-  {
-    "name": "Modibo Nkosi",
+    "name": "Awa Omar",
     "rating": 4,
-    "city": "Yaoundé",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mon argent et je mise plus malin. Les résultats suivent petit à petit, c’est plus propre comme ça."
+    "city": "Johannesburg",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, ça change tout pour mon budget."
   },
   {
-    "name": "Hélène Kante",
+    "name": "Tata Kipchoge",
+    "rating": 4,
+    "city": "Kampala",
+    "text": "Depuis que j’ai appris à bien gérer mes mises avec Mr XPRONOS, je joue moins mais je gagne mieux, ma bankroll respire enfin."
+  },
+  {
+    "name": "Salimata Sacko",
     "rating": 5,
     "city": "Antananarivo",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi tel match peut basculer, c’est plus clair pour placer mes paris."
+    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux les matchs. Ils expliquent pourquoi tel joueur ou telle équipe a plus de chances, ça aide vraiment."
   },
   {
-    "name": "Lamine Mbeki",
-    "rating": 5,
-    "city": "Lomé",
-    "text": "Depuis que j’ai commencé avec Mr XPRONOS, je mise avec plus de discipline. Ma bankroll tient mieux et je gagne petit à petit sans tout risquer."
+    "name": "Salimata Tembo",
+    "rating": 4,
+    "city": "Alger",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mes mises et je vois la différence sur mon compte. À Alger, ça change la donne quand tu veux jouer sérieux sans te…"
   },
   {
-    "name": "Balla Zongo",
-    "rating": 5,
-    "city": "Dakar",
-    "text": "Les pronos sont clairs et je choisis mieux mes matchs. Je préfère cette méthode aux paris au hasard."
+    "name": "Pape Hassan",
+    "rating": 4,
+    "city": "Casablanca",
+    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
   }
 ]
