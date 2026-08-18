@@ -1,32 +1,32 @@
 [
   {
-    "name": "Maimouna Sacko",
+    "name": "Gaoussou Kante",
+    "rating": 4,
+    "city": "Luanda",
+    "text": "Depuis que je mise sur des coupons simples avec Mr XPRONOS, je me trompe moins et je vois la différence sur mon compte. À Luanda, ça change la donne."
+  },
+  {
+    "name": "Lassina Adebayor",
+    "rating": 4,
+    "city": "Libreville",
+    "text": "Depuis que je suis les analyses tête à tête de Mr XPRONOS, je mise plus malin et ça paie petit à petit. À Libreville, on sait que c’est pas la loterie, mais leurs conseils aident…"
+  },
+  {
+    "name": "Issa Ba",
     "rating": 4,
     "city": "Lomé",
-    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je choisis mieux mes matchs et ça paie petit à petit. C’est devenu mon réflexe avant de parier ici à Lomé."
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, mes coupons sont plus simples et je me plante moins souvent. Ça change la vie ici à Lomé."
   },
   {
-    "name": "Chaka Ouattara",
+    "name": "Fodé Zulu",
     "rating": 5,
+    "city": "Kigali",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, ça change la vie ici à Kigali."
+  },
+  {
+    "name": "Fanta Ouattara",
+    "rating": 4,
     "city": "Lomé",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mon bankroll et je mise plus sereinement. Les gains suivent petit à petit, c’est plus propre comme ça."
-  },
-  {
-    "name": "Cheick Hassan",
-    "rating": 5,
-    "city": "Niamey",
-    "text": "Depuis que j’utilise les lives VIP de Mr XPRONOS, je capte les corners et les tirs au bon moment, ça change tout pour mes paris."
-  },
-  {
-    "name": "Bassirou Koné",
-    "rating": 5,
-    "city": "Lomé",
-    "text": "Depuis que je suis les analyses de Mr XPRONOS, je vois mieux pourquoi tel match peut basculer, ça m’aide à parier plus malin."
-  },
-  {
-    "name": "Djeneba Zulu",
-    "rating": 5,
-    "city": "Douala",
-    "text": "Franchement, la fiabilité font la différence. Maintenant je mise plus discipliné. Ça change ma façon de jouer."
+    "text": "Franchement, la fiabilité font la différence. Maintenant je comprends enfin pourquoi je joue."
   }
 ]
