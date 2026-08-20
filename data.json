@@ -145,6 +145,54 @@
       "final_score": 93.3
     },
     {
+      "id": 4633677,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T18:45:00+00:00",
+      "home_team": "Wexford Youths",
+      "away_team": "Athlone Town",
+      "home_logo": "assets/images/teams/sdv2-team-853.png",
+      "away_logo": "assets/images/teams/sdv2-team-855.png",
+      "league": "Division 1",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 4,
+        "home_wins": 3.5,
+        "away_wins": 0.0,
+        "draws": 1.5,
+        "home_dominance": 0.7,
+        "away_dominance": 0.0,
+        "goals_avg": 3.38,
+        "over_25_prob": 0.75
+      },
+      "home_form": {
+        "form_score": 0.133,
+        "goals_for": 0.6,
+        "goals_against": 2.4
+      },
+      "away_form": {
+        "form_score": 0.333,
+        "goals_for": 1.2,
+        "goals_against": 1.4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 71
+      },
+      "xpronos_score": 97,
+      "badge": "🏆 PREMIUM LOCK",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 72.9,
+      "final_score": 91.0
+    },
+    {
       "id": 4814958,
       "date": "2026-08-15",
       "event_date": "2026-08-15T01:30:00+00:00",
@@ -573,8 +621,8 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 75.4,
-      "final_score": 87.1
+      "ml_score": 76.0,
+      "final_score": 87.2
     },
     {
       "id": 4650612,
@@ -2449,6 +2497,54 @@
       "final_score": 82.6
     },
     {
+      "id": 4806267,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T22:30:00+00:00",
+      "home_team": "The Strongest",
+      "away_team": "Universitario de Vinto",
+      "home_logo": "assets/images/teams/sdv1-8543-v8.webp",
+      "away_logo": "assets/images/teams/sdv2-team-49843.png",
+      "league": "División Profesional",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 2.5,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 4.75,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 1.6,
+        "goals_against": 1.6
+      },
+      "away_form": {
+        "form_score": 0.0,
+        "goals_for": 0.4,
+        "goals_against": 2.4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 75
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 77.8,
+      "final_score": 82.5
+    },
+    {
       "id": 4758236,
       "date": "2026-08-15",
       "event_date": "2026-08-15T16:15:00+00:00",
@@ -2639,6 +2735,54 @@
       "verified_over": true,
       "ml_score": 76.5,
       "final_score": 82.1
+    },
+    {
+      "id": 4740904,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T16:00:00+00:00",
+      "home_team": "Hegelmann Litauen Ii",
+      "away_team": "Ekranas",
+      "home_logo": "assets/images/teams/sdv1-71505-v2.webp",
+      "away_logo": "assets/images/teams/sdv1-2309-v1.webp",
+      "league": "I Lyga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 2.5,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 4.5,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 1.4,
+        "goals_against": 1.0
+      },
+      "away_form": {
+        "form_score": 0.2,
+        "goals_for": 1.0,
+        "goals_against": 2.4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 75
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 75.9,
+      "final_score": 82.0
     },
     {
       "id": 4663485,
@@ -3131,9 +3275,9 @@
       "league": "NPB",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Final (Ex)",
+      "home_score": 8,
+      "away_score": 7,
       "h2h_analysis": {
         "total_matches": 3,
         "home_wins": 1.5,
@@ -3162,9 +3306,9 @@
       "xpronos_score": 87,
       "badge": "💎 VIP ELITE",
       "category": "vip",
-      "is_finished": false,
+      "is_finished": true,
       "verified_double": false,
-      "verified_over": false,
+      "verified_over": true,
       "ml_score": 64.3,
       "final_score": 81.3
     },
@@ -3551,6 +3695,54 @@
       "verified_over": false,
       "ml_score": 69.6,
       "final_score": 80.4
+    },
+    {
+      "id": 4819505,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T10:00:00+00:00",
+      "home_team": "Hanwha Eagles",
+      "away_team": "KIA Tigers",
+      "home_logo": "assets/images/teams/sdv1-19525-v1.png",
+      "away_logo": "assets/images/teams/sdv1-19521-v1.png",
+      "league": "KBO",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 3.0,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 12.0,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.0,
+        "goals_for": 4.6,
+        "goals_against": 7.6
+      },
+      "away_form": {
+        "form_score": 0.8,
+        "goals_for": 4.4,
+        "goals_against": 3.6
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 71
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 69.1,
+      "final_score": 80.3
     },
     {
       "id": 4747987,
@@ -4321,54 +4513,6 @@
       "final_score": 79.0
     },
     {
-      "id": 4805038,
-      "date": "2026-08-20",
-      "event_date": "2026-08-20T00:00:00+00:00",
-      "home_team": "Santeros de Aguada",
-      "away_team": "Vaqueros De Bayamon",
-      "home_logo": "assets/images/teams/sdv1-47990-v1.png",
-      "away_logo": "assets/images/teams/sdv2-team-47985.png",
-      "league": "BSN",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 3,
-        "home_wins": 1.5,
-        "away_wins": 3.0,
-        "draws": 0.0,
-        "home_dominance": 0.333,
-        "away_dominance": 0.667,
-        "goals_avg": 235.0,
-        "over_25_prob": 1.0
-      },
-      "home_form": {
-        "form_score": 0.5,
-        "goals_for": 80.75,
-        "goals_against": 82.75
-      },
-      "away_form": {
-        "form_score": 0.667,
-        "goals_for": 80.67,
-        "goals_against": 76.0
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": true,
-        "confidence": 64
-      },
-      "xpronos_score": 87,
-      "badge": "💎 VIP ELITE",
-      "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 53.1,
-      "final_score": 78.5
-    },
-    {
       "id": 4764152,
       "date": "2026-08-16",
       "event_date": "2026-08-16T19:00:00+00:00",
@@ -4511,6 +4655,102 @@
       "verified_over": true,
       "ml_score": 61.2,
       "final_score": 78.3
+    },
+    {
+      "id": 4626835,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T09:00:00+00:00",
+      "home_team": "Chunichi Dragons",
+      "away_team": "Yakult Swallows",
+      "home_logo": "assets/images/teams/sdv2-team-7459.webp",
+      "away_logo": "assets/images/teams/sdv1-7454-v2.png",
+      "league": "NPB",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 7.5,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.2,
+        "goals_for": 3.2,
+        "goals_against": 5.8
+      },
+      "away_form": {
+        "form_score": 0.6,
+        "goals_for": 3.2,
+        "goals_against": 2.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 71
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 60.0,
+      "final_score": 78.0
+    },
+    {
+      "id": 4626858,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T09:00:00+00:00",
+      "home_team": "Yomiuri Giants",
+      "away_team": "Hiroshima Toyo Carp",
+      "home_logo": "assets/images/teams/sdv2-team-6668.png",
+      "away_logo": "assets/images/teams/sdv1-7460-v2.png",
+      "league": "NPB",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 16.5,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.4,
+        "goals_for": 3.4,
+        "goals_against": 3.2
+      },
+      "away_form": {
+        "form_score": 0.8,
+        "goals_for": 5.4,
+        "goals_against": 3.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 71
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 59.9,
+      "final_score": 78.0
     },
     {
       "id": 4764131,
@@ -4705,6 +4945,54 @@
       "final_score": 77.7
     },
     {
+      "id": 4627133,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T09:00:00+00:00",
+      "home_team": "Hanshin Tigers",
+      "away_team": "Yakult Swallows",
+      "home_logo": "assets/images/teams/sdv1-7453-v1.png",
+      "away_logo": "assets/images/teams/sdv1-7454-v2.png",
+      "league": "NPB",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 6.0,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 3.2,
+        "goals_against": 3.0
+      },
+      "away_form": {
+        "form_score": 0.6,
+        "goals_for": 3.2,
+        "goals_against": 2.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 71
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 57.8,
+      "final_score": 77.5
+    },
+    {
       "id": 4777651,
       "date": "2026-08-09",
       "event_date": "2026-08-09T17:00:00+00:00",
@@ -4763,9 +5051,9 @@
       "league": "NWSL",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "2nd Half",
+      "home_score": 2,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -4945,6 +5233,54 @@
       "final_score": 76.6
     },
     {
+      "id": 4805038,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T00:00:00+00:00",
+      "home_team": "Santeros de Aguada",
+      "away_team": "Vaqueros De Bayamon",
+      "home_logo": "assets/images/teams/sdv1-47990-v1.png",
+      "away_logo": "assets/images/teams/sdv2-team-47985.png",
+      "league": "BSN",
+      "league_logo": null,
+      "venue": "",
+      "status": "Q3",
+      "home_score": 44,
+      "away_score": 59,
+      "h2h_analysis": {
+        "total_matches": 3,
+        "home_wins": 1.5,
+        "away_wins": 3.0,
+        "draws": 0.0,
+        "home_dominance": 0.333,
+        "away_dominance": 0.667,
+        "goals_avg": 235.0,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.5,
+        "goals_for": 80.75,
+        "goals_against": 82.75
+      },
+      "away_form": {
+        "form_score": 0.667,
+        "goals_for": 80.67,
+        "goals_against": 76.0
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 64
+      },
+      "xpronos_score": 87,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 45.1,
+      "final_score": 76.5
+    },
+    {
       "id": 4659127,
       "date": "2026-08-16",
       "event_date": "2026-08-16T00:00:00+00:00",
@@ -4991,6 +5327,54 @@
       "verified_over": true,
       "ml_score": 53.5,
       "final_score": 76.4
+    },
+    {
+      "id": 4633678,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T18:45:00+00:00",
+      "home_team": "Treaty United",
+      "away_team": "Cork City",
+      "home_logo": "assets/images/teams/sdv1-68024-v2.png",
+      "away_logo": "assets/images/teams/sdv2-team-837.png",
+      "league": "Division 1",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 6.0,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.133,
+        "goals_for": 0.6,
+        "goals_against": 2.2
+      },
+      "away_form": {
+        "form_score": 1.0,
+        "goals_for": 3.0,
+        "goals_against": 0.2
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 72
+      },
+      "xpronos_score": 77,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 73.1,
+      "final_score": 76.0
     },
     {
       "id": 4807495,
@@ -5137,6 +5521,54 @@
       "final_score": 75.5
     },
     {
+      "id": 4819503,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T10:00:00+00:00",
+      "home_team": "NC Dinos",
+      "away_team": "Doosan Bears",
+      "home_logo": "assets/images/teams/sdv2-team-19526.png",
+      "away_logo": "assets/images/teams/sdv2-team-19527.png",
+      "league": "KBO",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 3.0,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 15.0,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.4,
+        "goals_for": 5.2,
+        "goals_against": 7.0
+      },
+      "away_form": {
+        "form_score": 0.6,
+        "goals_for": 5.2,
+        "goals_against": 3.6
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 71
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 49.6,
+      "final_score": 75.4
+    },
+    {
       "id": 4815411,
       "date": "2026-08-16",
       "event_date": "2026-08-16T10:00:00+00:00",
@@ -5279,6 +5711,102 @@
       "verified_over": false,
       "ml_score": 65.8,
       "final_score": 75.0
+    },
+    {
+      "id": 4626823,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T09:00:00+00:00",
+      "home_team": "Rakuten Gold Eagles",
+      "away_team": "Chiba Lotte Marines",
+      "home_logo": "assets/images/teams/sdv2-team-7455.png",
+      "away_logo": "assets/images/teams/sdv1-7458-v2.png",
+      "league": "NPB",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 11.25,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.8,
+        "goals_for": 4.6,
+        "goals_against": 3.2
+      },
+      "away_form": {
+        "form_score": 0.2,
+        "goals_for": 2.0,
+        "goals_against": 5.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 71
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 47.1,
+      "final_score": 74.8
+    },
+    {
+      "id": 4627275,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T09:00:00+00:00",
+      "home_team": "Seibu Lions",
+      "away_team": "Orix Buffaloes",
+      "home_logo": "assets/images/teams/sdv1-7457-v2.png",
+      "away_logo": "assets/images/teams/sdv2-team-7456.png",
+      "league": "NPB",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 12.0,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.8,
+        "goals_for": 5.0,
+        "goals_against": 2.4
+      },
+      "away_form": {
+        "form_score": 0.2,
+        "goals_for": 4.6,
+        "goals_against": 7.4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 71
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 47.1,
+      "final_score": 74.8
     },
     {
       "id": 4808115,
@@ -5473,6 +6001,54 @@
       "final_score": 74.6
     },
     {
+      "id": 4816959,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T02:00:00+00:00",
+      "home_team": "Alajuelense (W)",
+      "away_team": "Deportivo Saprissa (W)",
+      "home_logo": "assets/images/teams/sdv1-66838-v2.png",
+      "away_logo": "assets/images/teams/sdv1-66841-v2.png",
+      "league": "Primera Division Women",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 4,
+        "home_wins": 4.0,
+        "away_wins": 0.0,
+        "draws": 1.5,
+        "home_dominance": 0.727,
+        "away_dominance": 0.0,
+        "goals_avg": 2.75,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.467,
+        "goals_for": 1.2,
+        "goals_against": 0.4
+      },
+      "away_form": {
+        "form_score": 0.667,
+        "goals_for": 2.2,
+        "goals_against": 1.0
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 72
+      },
+      "xpronos_score": 78,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 63.8,
+      "final_score": 74.5
+    },
+    {
       "id": 4602951,
       "date": "2026-08-13",
       "event_date": "2026-08-13T18:10:00+00:00",
@@ -5567,6 +6143,54 @@
       "verified_over": true,
       "ml_score": 66.0,
       "final_score": 74.2
+    },
+    {
+      "id": 4627274,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T09:00:00+00:00",
+      "home_team": "Hiroshima Toyo Carp",
+      "away_team": "Chunichi Dragons",
+      "home_logo": "assets/images/teams/sdv1-7460-v2.png",
+      "away_logo": "assets/images/teams/sdv2-team-7459.webp",
+      "league": "NPB",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 15.0,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.8,
+        "goals_for": 5.4,
+        "goals_against": 3.2
+      },
+      "away_form": {
+        "form_score": 0.2,
+        "goals_for": 3.2,
+        "goals_against": 5.8
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 66
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 44.1,
+      "final_score": 74.0
     },
     {
       "id": 4602923,
@@ -5857,6 +6481,54 @@
       "final_score": 73.5
     },
     {
+      "id": 4819506,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T10:00:00+00:00",
+      "home_team": "Lotte Giants",
+      "away_team": "Kiwoom Heroes",
+      "home_logo": "assets/images/teams/sdv1-19523-v1.png",
+      "away_logo": "assets/images/teams/sdv1-62791-v2.png",
+      "league": "KBO",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 25.5,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.8,
+        "goals_for": 9.4,
+        "goals_against": 5.6
+      },
+      "away_form": {
+        "form_score": 0.2,
+        "goals_for": 5.8,
+        "goals_against": 7.8
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 66
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 41.7,
+      "final_score": 73.4
+    },
+    {
       "id": 4804947,
       "date": "2026-08-15",
       "event_date": "2026-08-15T00:00:00+00:00",
@@ -6097,54 +6769,6 @@
       "final_score": 72.9
     },
     {
-      "id": 4816959,
-      "date": "2026-08-20",
-      "event_date": "2026-08-20T02:00:00+00:00",
-      "home_team": "Alajuelense (W)",
-      "away_team": "Deportivo Saprissa (W)",
-      "home_logo": "assets/images/teams/sdv1-66838-v2.png",
-      "away_logo": "assets/images/teams/sdv1-66841-v2.png",
-      "league": "Primera Division Women",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 4,
-        "home_wins": 4.0,
-        "away_wins": 0.0,
-        "draws": 1.5,
-        "home_dominance": 0.727,
-        "away_dominance": 0.0,
-        "goals_avg": 2.75,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.467,
-        "goals_for": 1.2,
-        "goals_against": 0.4
-      },
-      "away_form": {
-        "form_score": 0.667,
-        "goals_for": 2.2,
-        "goals_against": 1.0
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 72
-      },
-      "xpronos_score": 78,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 57.4,
-      "final_score": 72.8
-    },
-    {
       "id": 4726111,
       "date": "2026-08-11",
       "event_date": "2026-08-11T23:00:00+00:00",
@@ -6299,7 +6923,7 @@
       "league": "MLB",
       "league_logo": null,
       "venue": "",
-      "status": "8th Inning",
+      "status": "Final",
       "home_score": 0,
       "away_score": 3,
       "h2h_analysis": {
@@ -6330,11 +6954,59 @@
       "xpronos_score": 77,
       "badge": "🔥 ULTRA SAFE",
       "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
+      "is_finished": true,
+      "verified_double": true,
       "verified_over": false,
       "ml_score": 59.5,
       "final_score": 72.6
+    },
+    {
+      "id": 4614665,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T00:40:00+00:00",
+      "home_team": "Colorado Rockies",
+      "away_team": "Los Angeles Dodgers",
+      "home_logo": "assets/images/teams/sdv2-team-7419.webp",
+      "away_logo": "assets/images/teams/sdv2-team-7410.png",
+      "league": "MLB",
+      "league_logo": null,
+      "venue": "",
+      "status": "3rd Inning",
+      "home_score": 0,
+      "away_score": 1,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 3.0,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 21.75,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.4,
+        "goals_for": 6.0,
+        "goals_against": 6.8
+      },
+      "away_form": {
+        "form_score": 0.6,
+        "goals_for": 5.4,
+        "goals_against": 4.6
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 66
+      },
+      "xpronos_score": 84,
+      "badge": "💎 VIP ELITE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 37.9,
+      "final_score": 72.5
     },
     {
       "id": 4653773,
@@ -6577,54 +7249,6 @@
       "final_score": 72.2
     },
     {
-      "id": 4812170,
-      "date": "2026-08-20",
-      "event_date": "2026-08-20T19:00:00+00:00",
-      "home_team": "Always Ready",
-      "away_team": "Real Oruro",
-      "home_logo": "assets/images/teams/sdv2-team-45832.webp",
-      "away_logo": "assets/images/teams/sdv2-team-72056.webp",
-      "league": "Copa Paceña",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_wins": 1.2,
-        "away_wins": 0.0,
-        "draws": 0.0,
-        "home_dominance": 1.0,
-        "away_dominance": 0.0,
-        "goals_avg": 4.8,
-        "over_25_prob": 1.0
-      },
-      "home_form": {
-        "form_score": 0.533,
-        "goals_for": 1.8,
-        "goals_against": 1.4
-      },
-      "away_form": {
-        "form_score": 0.467,
-        "goals_for": 1.8,
-        "goals_against": 1.8
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": true,
-        "confidence": 68
-      },
-      "xpronos_score": 77,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 57.2,
-      "final_score": 72.0
-    },
-    {
       "id": 4614807,
       "date": "2026-08-16",
       "event_date": "2026-08-16T17:40:00+00:00",
@@ -6719,6 +7343,54 @@
       "verified_over": true,
       "ml_score": 56.8,
       "final_score": 72.0
+    },
+    {
+      "id": 4812170,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T19:00:00+00:00",
+      "home_team": "Always Ready",
+      "away_team": "Real Oruro",
+      "home_logo": "assets/images/teams/sdv2-team-45832.png",
+      "away_logo": "assets/images/teams/sdv2-team-72056.png",
+      "league": "Copa Paceña",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_wins": 1.2,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 4.8,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.533,
+        "goals_for": 1.8,
+        "goals_against": 1.4
+      },
+      "away_form": {
+        "form_score": 0.467,
+        "goals_for": 1.8,
+        "goals_against": 1.8
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 68
+      },
+      "xpronos_score": 77,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 56.0,
+      "final_score": 71.8
     },
     {
       "id": 4809606,
@@ -6817,54 +7489,6 @@
       "final_score": 71.6
     },
     {
-      "id": 4614738,
-      "date": "2026-08-20",
-      "event_date": "2026-08-20T16:40:00+00:00",
-      "home_team": "Cincinnati Reds",
-      "away_team": "St. Louis Cardinals",
-      "home_logo": "assets/images/teams/sdv1-7429-v3.png",
-      "away_logo": "assets/images/teams/sdv2-team-7428.png",
-      "league": "MLB",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 1,
-        "home_wins": 0.0,
-        "away_wins": 1.5,
-        "draws": 0.0,
-        "home_dominance": 0.0,
-        "away_dominance": 1.0,
-        "goals_avg": 4.5,
-        "over_25_prob": 1.0
-      },
-      "home_form": {
-        "form_score": 0.2,
-        "goals_for": 2.4,
-        "goals_against": 5.8
-      },
-      "away_form": {
-        "form_score": 0.8,
-        "goals_for": 5.6,
-        "goals_against": 2.6
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": true,
-        "confidence": 68
-      },
-      "xpronos_score": 77,
-      "badge": "🔥 ULTRA SAFE",
-      "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 54.0,
-      "final_score": 71.2
-    },
-    {
       "id": 4614858,
       "date": "2026-08-19",
       "event_date": "2026-08-19T22:40:00+00:00",
@@ -6875,9 +7499,9 @@
       "league": "MLB",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "8th Inning",
+      "home_score": 5,
+      "away_score": 2,
       "h2h_analysis": {
         "total_matches": 1,
         "home_wins": 0.0,
@@ -7007,6 +7631,54 @@
       "verified_over": true,
       "ml_score": 68.6,
       "final_score": 71.2
+    },
+    {
+      "id": 4633680,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T18:45:00+00:00",
+      "home_team": "Finn Harps",
+      "away_team": "Cobh Ramblers",
+      "home_logo": "assets/images/teams/sdv1-844-v1.webp",
+      "away_logo": "assets/images/teams/sdv2-team-845.png",
+      "league": "Division 1",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 3,
+        "home_wins": 1.0,
+        "away_wins": 3.0,
+        "draws": 0.0,
+        "home_dominance": 0.25,
+        "away_dominance": 0.75,
+        "goals_avg": 3.67,
+        "over_25_prob": 0.333
+      },
+      "home_form": {
+        "form_score": 0.067,
+        "goals_for": 0.4,
+        "goals_against": 3.6
+      },
+      "away_form": {
+        "form_score": 0.6,
+        "goals_for": 1.6,
+        "goals_against": 1.0
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 73
+      },
+      "xpronos_score": 71,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 71.5,
+      "final_score": 71.1
     },
     {
       "id": 4738741,
@@ -7249,14 +7921,14 @@
       "final_score": 70.5
     },
     {
-      "id": 4732177,
+      "id": 4614738,
       "date": "2026-08-20",
-      "event_date": "2026-08-20T22:00:00+00:00",
-      "home_team": "Leones",
-      "away_team": "Real Cundinamarca",
-      "home_logo": "assets/images/teams/sdv1-9829-v1.webp",
-      "away_logo": "assets/images/teams/sdv1-9835-v4.webp",
-      "league": "Primera B - Finalizacion",
+      "event_date": "2026-08-20T16:40:00+00:00",
+      "home_team": "Cincinnati Reds",
+      "away_team": "St. Louis Cardinals",
+      "home_logo": "assets/images/teams/sdv1-7429-v3.png",
+      "away_logo": "assets/images/teams/sdv2-team-7428.png",
+      "league": "MLB",
       "league_logo": null,
       "venue": "",
       "status": "Scheduled",
@@ -7265,22 +7937,22 @@
       "h2h_analysis": {
         "total_matches": 1,
         "home_wins": 0.0,
-        "away_wins": 1.2,
+        "away_wins": 1.5,
         "draws": 0.0,
         "home_dominance": 0.0,
         "away_dominance": 1.0,
-        "goals_avg": 3.6,
+        "goals_avg": 4.5,
         "over_25_prob": 1.0
       },
       "home_form": {
-        "form_score": 0.533,
-        "goals_for": 1.0,
-        "goals_against": 1.0
+        "form_score": 0.2,
+        "goals_for": 2.4,
+        "goals_against": 5.8
       },
       "away_form": {
-        "form_score": 0.667,
-        "goals_for": 1.8,
-        "goals_against": 1.0
+        "form_score": 0.8,
+        "goals_for": 5.6,
+        "goals_against": 2.6
       },
       "prediction": {
         "double_chance": "X2",
@@ -7293,8 +7965,8 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 48.9,
-      "final_score": 70.0
+      "ml_score": 48.2,
+      "final_score": 69.8
     },
     {
       "id": 4614655,
@@ -7340,7 +8012,7 @@
       "category": "vip",
       "is_finished": true,
       "verified_double": false,
-      "verified_over": false,
+      "verified_over": true,
       "ml_score": 48.4,
       "final_score": 69.8
     },
@@ -7441,6 +8113,102 @@
       "final_score": 69.3
     },
     {
+      "id": 4732177,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T22:00:00+00:00",
+      "home_team": "Leones",
+      "away_team": "Real Cundinamarca",
+      "home_logo": "assets/images/teams/sdv1-9829-v1.png",
+      "away_logo": "assets/images/teams/sdv1-9835-v4.png",
+      "league": "Primera B - Finalizacion",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_wins": 0.0,
+        "away_wins": 1.2,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 3.6,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.533,
+        "goals_for": 1.0,
+        "goals_against": 1.0
+      },
+      "away_form": {
+        "form_score": 0.667,
+        "goals_for": 1.8,
+        "goals_against": 1.0
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 68
+      },
+      "xpronos_score": 77,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 45.7,
+      "final_score": 69.2
+    },
+    {
+      "id": 4614766,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T23:15:00+00:00",
+      "home_team": "Baltimore Orioles",
+      "away_team": "Tampa Bay Rays",
+      "home_logo": "assets/images/teams/sdv2-team-7417.png",
+      "away_logo": "assets/images/teams/sdv1-7434-v3.png",
+      "league": "MLB",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 18.0,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 6.2,
+        "goals_against": 4.0
+      },
+      "away_form": {
+        "form_score": 0.8,
+        "goals_for": 7.2,
+        "goals_against": 5.0
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": true,
+        "confidence": 68
+      },
+      "xpronos_score": 77,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 45.1,
+      "final_score": 69.0
+    },
+    {
       "id": 4818558,
       "date": "2026-08-19",
       "event_date": "2026-08-19T10:00:00+00:00",
@@ -7451,9 +8219,9 @@
       "league": "KBO",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Final",
+      "home_score": 5,
+      "away_score": 4,
       "h2h_analysis": {
         "total_matches": 1,
         "home_wins": 1.5,
@@ -7482,11 +8250,59 @@
       "xpronos_score": 77,
       "badge": "🔥 ULTRA SAFE",
       "category": "vip",
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": true,
+      "ml_score": 43.9,
+      "final_score": 68.7
+    },
+    {
+      "id": 4778498,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T14:00:00+00:00",
+      "home_team": "Academía Costa Del Este",
+      "away_team": "Sporting Sm Ii",
+      "home_logo": "assets/images/teams/sdv1-86077-v2.webp",
+      "away_logo": "assets/images/teams/sdv1-81772-v3.webp",
+      "league": "Liga Prom - Apertura - Eastern Conference - North Zone",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 3,
+        "home_wins": 2.5,
+        "away_wins": 0.0,
+        "draws": 1.2,
+        "home_dominance": 0.676,
+        "away_dominance": 0.0,
+        "goals_avg": 3.47,
+        "over_25_prob": 0.333
+      },
+      "home_form": {
+        "form_score": 0.4,
+        "goals_for": 1.6,
+        "goals_against": 1.6
+      },
+      "away_form": {
+        "form_score": 0.067,
+        "goals_for": 1.0,
+        "goals_against": 2.6
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 63
+      },
+      "xpronos_score": 68,
+      "badge": "",
+      "category": "pro",
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 43.9,
-      "final_score": 68.7
+      "ml_score": 70.0,
+      "final_score": 68.5
     },
     {
       "id": 4761984,
@@ -7595,9 +8411,9 @@
       "league": "KBO",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Final",
+      "home_score": 2,
+      "away_score": 8,
       "h2h_analysis": {
         "total_matches": 1,
         "home_wins": 0.0,
@@ -7626,9 +8442,9 @@
       "xpronos_score": 77,
       "badge": "🔥 ULTRA SAFE",
       "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": true,
       "ml_score": 42.7,
       "final_score": 68.4
     },
@@ -7691,9 +8507,9 @@
       "league": "MLB",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Final",
+      "home_score": 4,
+      "away_score": 3,
       "h2h_analysis": {
         "total_matches": 1,
         "home_wins": 1.5,
@@ -7722,9 +8538,9 @@
       "xpronos_score": 77,
       "badge": "🔥 ULTRA SAFE",
       "category": "vip",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": true,
       "ml_score": 41.4,
       "final_score": 68.1
     },
@@ -8017,6 +8833,54 @@
       "final_score": 67.1
     },
     {
+      "id": 4614729,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T22:40:00+00:00",
+      "home_team": "Philadelphia Phillies",
+      "away_team": "St. Louis Cardinals",
+      "home_logo": "assets/images/teams/sdv2-team-7413.webp",
+      "away_logo": "assets/images/teams/sdv2-team-7428.png",
+      "league": "MLB",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 1,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 12.0,
+        "over_25_prob": 1.0
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 5.2,
+        "goals_against": 6.2
+      },
+      "away_form": {
+        "form_score": 0.8,
+        "goals_for": 5.6,
+        "goals_against": 2.6
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": true,
+        "confidence": 63
+      },
+      "xpronos_score": 77,
+      "badge": "🔥 ULTRA SAFE",
+      "category": "vip",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 37.1,
+      "final_score": 67.0
+    },
+    {
       "id": 4652461,
       "date": "2026-08-16",
       "event_date": "2026-08-16T16:15:00+00:00",
@@ -8123,9 +8987,9 @@
       "league": "ASEAN Championship - Semi Finals",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 2,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 3.0,
@@ -8154,9 +9018,9 @@
       "xpronos_score": 64,
       "badge": "",
       "category": "pro",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": true,
       "ml_score": 74.4,
       "final_score": 66.6
     },
@@ -8689,54 +9553,6 @@
       "final_score": 65.1
     },
     {
-      "id": 4778930,
-      "date": "2026-08-20",
-      "event_date": "2026-08-20T14:15:00+00:00",
-      "home_team": "Al Wakrah",
-      "away_team": "Qatar SC",
-      "home_logo": "assets/images/teams/sdv2-team-5996.webp",
-      "away_logo": "assets/images/teams/sdv1-7086-v5.webp",
-      "league": "Doha Bank Stars League",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 2.7,
-        "away_wins": 0.0,
-        "draws": 0.0,
-        "home_dominance": 1.0,
-        "away_dominance": 0.0,
-        "goals_avg": 4.35,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.733,
-        "goals_for": 2.6,
-        "goals_against": 1.0
-      },
-      "away_form": {
-        "form_score": 0.267,
-        "goals_for": 1.2,
-        "goals_against": 1.8
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 66
-      },
-      "xpronos_score": 64,
-      "badge": "",
-      "category": "pro",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 66.6,
-      "final_score": 64.7
-    },
-    {
       "id": 4639548,
       "date": "2026-08-08",
       "event_date": "2026-08-08T17:00:00+00:00",
@@ -8783,6 +9599,54 @@
       "verified_over": true,
       "ml_score": 66.8,
       "final_score": 64.7
+    },
+    {
+      "id": 4651926,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T15:30:00+00:00",
+      "home_team": "Haka",
+      "away_team": "SJK Akatemia",
+      "home_logo": "assets/images/teams/sdv2-team-1927.png",
+      "away_logo": "assets/images/teams/sdv1-13378-v2.png",
+      "league": "Ykkosliiga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 2.25,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 1.6,
+        "goals_against": 1.0
+      },
+      "away_form": {
+        "form_score": 0.267,
+        "goals_for": 0.2,
+        "goals_against": 1.4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 71
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 66.4,
+      "final_score": 64.6
     },
     {
       "id": 4747670,
@@ -8927,6 +9791,54 @@
       "verified_over": true,
       "ml_score": 65.5,
       "final_score": 64.4
+    },
+    {
+      "id": 4732182,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T22:45:00+00:00",
+      "home_team": "Real Cartagena",
+      "away_team": "Bogotá FC",
+      "home_logo": "assets/images/teams/sdv1-8635-v1.png",
+      "away_logo": "assets/images/teams/sdv1-10226-v1.png",
+      "league": "Primera B - Finalizacion",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 3.75,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.467,
+        "goals_for": 1.4,
+        "goals_against": 1.6
+      },
+      "away_form": {
+        "form_score": 0.133,
+        "goals_for": 0.4,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 65.4,
+      "final_score": 64.3
     },
     {
       "id": 4734840,
@@ -9121,14 +10033,14 @@
       "final_score": 64.2
     },
     {
-      "id": 4732182,
+      "id": 4778930,
       "date": "2026-08-20",
-      "event_date": "2026-08-20T22:45:00+00:00",
-      "home_team": "Real Cartagena",
-      "away_team": "Bogotá FC",
-      "home_logo": "assets/images/teams/sdv1-8635-v1.png",
-      "away_logo": "assets/images/teams/sdv1-10226-v1.png",
-      "league": "Primera B - Finalizacion",
+      "event_date": "2026-08-20T14:15:00+00:00",
+      "home_team": "Al Wakrah",
+      "away_team": "Qatar SC",
+      "home_logo": "assets/images/teams/sdv2-team-5996.png",
+      "away_logo": "assets/images/teams/sdv1-7086-v5.png",
+      "league": "Doha Bank Stars League",
       "league_logo": null,
       "venue": "",
       "status": "Scheduled",
@@ -9136,23 +10048,23 @@
       "away_score": null,
       "h2h_analysis": {
         "total_matches": 2,
-        "home_wins": 3.0,
+        "home_wins": 2.7,
         "away_wins": 0.0,
         "draws": 0.0,
         "home_dominance": 1.0,
         "away_dominance": 0.0,
-        "goals_avg": 3.75,
+        "goals_avg": 4.35,
         "over_25_prob": 0.5
       },
       "home_form": {
-        "form_score": 0.467,
-        "goals_for": 1.4,
-        "goals_against": 1.6
+        "form_score": 0.733,
+        "goals_for": 2.6,
+        "goals_against": 1.0
       },
       "away_form": {
-        "form_score": 0.133,
-        "goals_for": 0.4,
-        "goals_against": 1.2
+        "form_score": 0.267,
+        "goals_for": 1.2,
+        "goals_against": 1.8
       },
       "prediction": {
         "double_chance": "1X",
@@ -9165,7 +10077,7 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 64.5,
+      "ml_score": 64.4,
       "final_score": 64.1
     },
     {
@@ -9313,6 +10225,54 @@
       "final_score": 63.3
     },
     {
+      "id": 4633858,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T18:45:00+00:00",
+      "home_team": "Dundalk",
+      "away_team": "Galway United",
+      "home_logo": "assets/images/teams/sdv2-team-846.png",
+      "away_logo": "assets/images/teams/sdv2-team-841.png",
+      "league": "Premier Division",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 3.0,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 3.0,
+        "goals_against": 1.4
+      },
+      "away_form": {
+        "form_score": 0.333,
+        "goals_for": 0.8,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 60.9,
+      "final_score": 63.2
+    },
+    {
       "id": 4621436,
       "date": "2026-08-19",
       "event_date": "2026-08-19T23:30:00+00:00",
@@ -9323,9 +10283,9 @@
       "league": "MLS",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "2nd Half",
+      "home_score": 2,
+      "away_score": 3,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -9563,9 +10523,9 @@
       "league": "Primera B - Finalizacion",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 2,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -9594,7 +10554,7 @@
       "xpronos_score": 64,
       "badge": "",
       "category": "pro",
-      "is_finished": false,
+      "is_finished": true,
       "verified_double": false,
       "verified_over": false,
       "ml_score": 58.5,
@@ -10033,6 +10993,54 @@
       "final_score": 61.7
     },
     {
+      "id": 4819210,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T15:45:00+00:00",
+      "home_team": "Kuwait SC",
+      "away_team": "Kazma SC",
+      "home_logo": "assets/images/teams/sdv1-10290-v2.png",
+      "away_logo": "assets/images/teams/sdv1-10293-v1.png",
+      "league": "Club Friendlies",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 4,
+        "home_wins": 2.5,
+        "away_wins": 0.0,
+        "draws": 2.5,
+        "home_dominance": 0.5,
+        "away_dominance": 0.0,
+        "goals_avg": 2.75,
+        "over_25_prob": 0.25
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 1.8,
+        "goals_against": 1.4
+      },
+      "away_form": {
+        "form_score": 0.733,
+        "goals_for": 1.8,
+        "goals_against": 0.8
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 67
+      },
+      "xpronos_score": 63,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 56.8,
+      "final_score": 61.5
+    },
+    {
       "id": 4805988,
       "date": "2026-08-09",
       "event_date": "2026-08-09T11:00:00+00:00",
@@ -10417,6 +11425,54 @@
       "final_score": 60.8
     },
     {
+      "id": 4784528,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T13:00:00+00:00",
+      "home_team": "Johor Darul Ta’zim",
+      "away_team": "Kuching City FC",
+      "home_logo": "assets/images/teams/sdv1-10080-v1.webp",
+      "away_logo": "assets/images/teams/sdv2-team-51307.webp",
+      "league": "Liga Super - Regular Season",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 2.7,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 2.7,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 4.0,
+        "goals_against": 1.4
+      },
+      "away_form": {
+        "form_score": 0.667,
+        "goals_for": 1.6,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 71
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 50.9,
+      "final_score": 60.7
+    },
+    {
       "id": 4806047,
       "date": "2026-08-16",
       "event_date": "2026-08-16T18:00:00+00:00",
@@ -10607,6 +11663,54 @@
       "verified_over": false,
       "ml_score": 50.7,
       "final_score": 60.7
+    },
+    {
+      "id": 4745289,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T18:45:00+00:00",
+      "home_team": "Linfield",
+      "away_team": "Cliftonville",
+      "home_logo": "assets/images/teams/sdv2-team-5594.png",
+      "away_logo": "assets/images/teams/sdv2-team-5442.png",
+      "league": "Premiership",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 3.0,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 3.75,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.4,
+        "goals_for": 1.2,
+        "goals_against": 2.0
+      },
+      "away_form": {
+        "form_score": 0.8,
+        "goals_for": 1.8,
+        "goals_against": 0.8
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 50.4,
+      "final_score": 60.6
     },
     {
       "id": 4734623,
@@ -10895,6 +11999,54 @@
       "verified_over": true,
       "ml_score": 74.1,
       "final_score": 60.5
+    },
+    {
+      "id": 4627090,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T08:45:00+00:00",
+      "home_team": "Yokohama Baystars",
+      "away_team": "Yomiuri Giants",
+      "home_logo": "assets/images/teams/sdv1-7461-v2.png",
+      "away_logo": "assets/images/teams/sdv2-team-6668.png",
+      "league": "NPB",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 6.0,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.4,
+        "goals_for": 2.2,
+        "goals_against": 3.2
+      },
+      "away_form": {
+        "form_score": 0.4,
+        "goals_for": 3.4,
+        "goals_against": 3.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 49.6,
+      "final_score": 60.4
     },
     {
       "id": 4761063,
@@ -11377,6 +12529,54 @@
       "final_score": 59.7
     },
     {
+      "id": 4819504,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T10:00:00+00:00",
+      "home_team": "LG Twins",
+      "away_team": "Kt Wiz Suwon",
+      "home_logo": "assets/images/teams/sdv1-19529-v1.png",
+      "away_logo": "assets/images/teams/sdv2-team-23721.webp",
+      "league": "KBO",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 3.0,
+        "away_wins": 0.0,
+        "draws": 0.0,
+        "home_dominance": 1.0,
+        "away_dominance": 0.0,
+        "goals_avg": 8.25,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 3.4,
+        "goals_against": 2.6
+      },
+      "away_form": {
+        "form_score": 0.4,
+        "goals_for": 4.0,
+        "goals_against": 5.0
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 46.3,
+      "final_score": 59.6
+    },
+    {
       "id": 4742841,
       "date": "2026-08-08",
       "event_date": "2026-08-08T18:15:00+00:00",
@@ -11615,6 +12815,102 @@
       "verified_over": false,
       "ml_score": 57.8,
       "final_score": 59.5
+    },
+    {
+      "id": 4633859,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T18:45:00+00:00",
+      "home_team": "Drogheda Utd",
+      "away_team": "St. Patricks",
+      "home_logo": "assets/images/teams/sdv1-10381-v1.png",
+      "away_logo": "assets/images/teams/sdv2-team-835.png",
+      "league": "Premier Division",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 3.0,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 4.5,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.333,
+        "goals_for": 1.0,
+        "goals_against": 1.2
+      },
+      "away_form": {
+        "form_score": 0.8,
+        "goals_for": 1.8,
+        "goals_against": 1.0
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 45.5,
+      "final_score": 59.4
+    },
+    {
+      "id": 4818464,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T18:00:00+00:00",
+      "home_team": "Capitan Figari FBC",
+      "away_team": "Pilcomayo",
+      "home_logo": "assets/images/teams/sdv1-80012-v2.webp",
+      "away_logo": "assets/images/teams/sdv2-team-54409.webp",
+      "league": "APF Primera C",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 2.5,
+        "draws": 0.0,
+        "home_dominance": 0.0,
+        "away_dominance": 1.0,
+        "goals_avg": 2.75,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 2.4,
+        "goals_against": 1.0
+      },
+      "away_form": {
+        "form_score": 0.733,
+        "goals_for": 2.2,
+        "goals_against": 0.6
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 66
+      },
+      "xpronos_score": 64,
+      "badge": "",
+      "category": "pro",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 45.7,
+      "final_score": 59.4
     },
     {
       "id": 4808453,
@@ -11915,9 +13211,9 @@
       "league": "Copa Venezuela",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 4,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -11946,7 +13242,7 @@
       "xpronos_score": 64,
       "badge": "",
       "category": "pro",
-      "is_finished": false,
+      "is_finished": true,
       "verified_double": false,
       "verified_over": false,
       "ml_score": 44.4,
@@ -12337,6 +13633,54 @@
       "final_score": 58.4
     },
     {
+      "id": 4778496,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T23:00:00+00:00",
+      "home_team": "San Martín Fc",
+      "away_team": "Cd Plaza Amador Ii",
+      "home_logo": "assets/images/teams/sdv1-81770-v2.png",
+      "away_logo": "assets/images/teams/sdv2-team-81783.webp",
+      "league": "Liga Prom - Apertura - Eastern Conference - South Zone",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.6,
+        "goals_avg": 3.5,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.067,
+        "goals_for": 0.4,
+        "goals_against": 1.8
+      },
+      "away_form": {
+        "form_score": 0.2,
+        "goals_for": 1.4,
+        "goals_against": 2.2
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 56,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 65.2,
+      "final_score": 58.3
+    },
+    {
       "id": 4802081,
       "date": "2026-08-08",
       "event_date": "2026-08-08T07:30:00+00:00",
@@ -12395,9 +13739,9 @@
       "league": "Copa Venezuela",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "2nd Half",
+      "home_score": 0,
+      "away_score": 0,
       "h2h_analysis": {
         "total_matches": 1,
         "home_wins": 0.0,
@@ -12625,6 +13969,54 @@
       "final_score": 57.3
     },
     {
+      "id": 4675492,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T15:45:00+00:00",
+      "home_team": "Dinamo Minsk",
+      "away_team": "Torpedo-BelAZ Zhodino",
+      "home_logo": "assets/images/teams/sdv2-team-5426.png",
+      "away_logo": "assets/images/teams/sdv2-team-7518.png",
+      "league": "Vysshaya Liga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 1.0,
+        "home_dominance": 0.6,
+        "away_dominance": 0.0,
+        "goals_avg": 0.75,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.533,
+        "goals_for": 1.2,
+        "goals_against": 0.6
+      },
+      "away_form": {
+        "form_score": 0.8,
+        "goals_for": 2.4,
+        "goals_against": 0.2
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 61
+      },
+      "xpronos_score": 56,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 60.8,
+      "final_score": 57.2
+    },
+    {
       "id": 4783880,
       "date": "2026-08-09",
       "event_date": "2026-08-09T21:00:00+00:00",
@@ -12678,8 +14070,8 @@
       "event_date": "2026-08-20T20:30:00+00:00",
       "home_team": "Real Santander",
       "away_team": "Barranquilla FC",
-      "home_logo": "assets/images/teams/sdv1-9834-v2.webp",
-      "away_logo": "assets/images/teams/sdv1-13912-v1.webp",
+      "home_logo": "assets/images/teams/sdv1-9834-v2.png",
+      "away_logo": "assets/images/teams/sdv1-13912-v1.png",
       "league": "Primera B - Finalizacion",
       "league_logo": null,
       "venue": "",
@@ -12717,8 +14109,8 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 57.2,
-      "final_score": 57.0
+      "ml_score": 56.6,
+      "final_score": 56.9
     },
     {
       "id": 4664862,
@@ -12913,14 +14305,14 @@
       "final_score": 56.5
     },
     {
-      "id": 4675492,
-      "date": "2026-08-20",
-      "event_date": "2026-08-20T15:45:00+00:00",
-      "home_team": "Dinamo Minsk",
-      "away_team": "Torpedo-BelAZ Zhodino",
-      "home_logo": "assets/images/teams/sdv2-team-5426.png",
-      "away_logo": "assets/images/teams/sdv2-team-7518.png",
-      "league": "Vysshaya Liga",
+      "id": 4781144,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T14:00:00+00:00",
+      "home_team": "Kalba",
+      "away_team": "Al Wasl",
+      "home_logo": "assets/images/teams/sdv1-8355-v4.webp",
+      "away_logo": "assets/images/teams/sdv1-8346-v1.webp",
+      "league": "UAE Pro League",
       "league_logo": null,
       "venue": "",
       "status": "Scheduled",
@@ -12928,28 +14320,28 @@
       "away_score": null,
       "h2h_analysis": {
         "total_matches": 2,
-        "home_wins": 1.5,
-        "away_wins": 0.0,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
         "draws": 1.0,
-        "home_dominance": 0.6,
-        "away_dominance": 0.0,
-        "goals_avg": 0.75,
-        "over_25_prob": 0.0
+        "home_dominance": 0.0,
+        "away_dominance": 0.6,
+        "goals_avg": 3.25,
+        "over_25_prob": 0.5
       },
       "home_form": {
-        "form_score": 0.533,
+        "form_score": 0.2,
         "goals_for": 1.2,
-        "goals_against": 0.6
+        "goals_against": 1.6
       },
       "away_form": {
-        "form_score": 0.8,
-        "goals_for": 2.4,
-        "goals_against": 0.2
+        "form_score": 1.0,
+        "goals_for": 3.4,
+        "goals_against": 1.4
       },
       "prediction": {
-        "double_chance": "1X",
+        "double_chance": "X2",
         "over_25": false,
-        "confidence": 61
+        "confidence": 56
       },
       "xpronos_score": 56,
       "badge": "",
@@ -12957,8 +14349,8 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 57.2,
-      "final_score": 56.3
+      "ml_score": 57.4,
+      "final_score": 56.4
     },
     {
       "id": 4637150,
@@ -13103,6 +14495,54 @@
       "verified_over": false,
       "ml_score": 66.4,
       "final_score": 55.6
+    },
+    {
+      "id": 4669152,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T23:30:00+00:00",
+      "home_team": "Novorizontino",
+      "away_team": "América Mineiro",
+      "home_logo": "assets/images/teams/sdv1-23765-v1.png",
+      "away_logo": "assets/images/teams/sdv1-8514-v2.png",
+      "league": "Brasileirão - Série B",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 1.5,
+        "home_dominance": 0.5,
+        "away_dominance": 0.0,
+        "goals_avg": 3.75,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.667,
+        "goals_for": 1.6,
+        "goals_against": 0.4
+      },
+      "away_form": {
+        "form_score": 0.2,
+        "goals_for": 1.0,
+        "goals_against": 1.4
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 60
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 75.1,
+      "final_score": 55.5
     },
     {
       "id": 4634156,
@@ -13681,54 +15121,6 @@
       "final_score": 54.1
     },
     {
-      "id": 4669152,
-      "date": "2026-08-20",
-      "event_date": "2026-08-20T23:30:00+00:00",
-      "home_team": "Novorizontino",
-      "away_team": "América Mineiro",
-      "home_logo": "assets/images/teams/sdv1-23765-v1.png",
-      "away_logo": "assets/images/teams/sdv1-8514-v2.webp",
-      "league": "Brasileirão - Série B",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 1.5,
-        "away_wins": 0.0,
-        "draws": 1.5,
-        "home_dominance": 0.5,
-        "away_dominance": 0.0,
-        "goals_avg": 3.75,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.667,
-        "goals_for": 1.6,
-        "goals_against": 0.4
-      },
-      "away_form": {
-        "form_score": 0.2,
-        "goals_for": 1.0,
-        "goals_against": 1.4
-      },
-      "prediction": {
-        "double_chance": "1X",
-        "over_25": false,
-        "confidence": 56
-      },
-      "xpronos_score": 49,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 69.2,
-      "final_score": 54.0
-    },
-    {
       "id": 4777113,
       "date": "2026-08-13",
       "event_date": "2026-08-13T01:15:00+00:00",
@@ -13969,6 +15361,54 @@
       "final_score": 53.6
     },
     {
+      "id": 4661043,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T16:00:00+00:00",
+      "home_team": "Levadia Tallinn",
+      "away_team": "Trans Narva",
+      "home_logo": "assets/images/teams/sdv2-team-5444.png",
+      "away_logo": "assets/images/teams/sdv1-8459-v1.png",
+      "league": "Meistriliiga",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 1.2,
+        "home_dominance": 0.556,
+        "away_dominance": 0.0,
+        "goals_avg": 5.25,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.667,
+        "goals_for": 2.2,
+        "goals_against": 1.0
+      },
+      "away_form": {
+        "form_score": 0.333,
+        "goals_for": 1.8,
+        "goals_against": 0.8
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 52,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 57.6,
+      "final_score": 53.4
+    },
+    {
       "id": 4621440,
       "date": "2026-08-19",
       "event_date": "2026-08-19T23:30:00+00:00",
@@ -13979,9 +15419,9 @@
       "league": "MLS",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "2nd Half",
+      "home_score": 0,
+      "away_score": 3,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -14015,6 +15455,54 @@
       "verified_over": false,
       "ml_score": 45.7,
       "final_score": 53.4
+    },
+    {
+      "id": 4804561,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T14:00:00+00:00",
+      "home_team": "Wadi Degla",
+      "away_team": "Zed FC",
+      "home_logo": "assets/images/teams/sdv1-8311-v1.webp",
+      "away_logo": "assets/images/teams/sdv1-29732-v3.webp",
+      "league": "Premier League",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.5,
+        "away_wins": 0.0,
+        "draws": 1.5,
+        "home_dominance": 0.5,
+        "away_dominance": 0.0,
+        "goals_avg": 4.5,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.533,
+        "goals_for": 1.2,
+        "goals_against": 0.6
+      },
+      "away_form": {
+        "form_score": 0.333,
+        "goals_for": 0.6,
+        "goals_against": 1.0
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 63.5,
+      "final_score": 52.6
     },
     {
       "id": 4801426,
@@ -14641,6 +16129,54 @@
       "final_score": 51.2
     },
     {
+      "id": 4818448,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T21:00:00+00:00",
+      "home_team": "CD Cacahuatique (W)",
+      "away_team": "Municipal Limeno (W)",
+      "home_logo": "assets/images/teams/sdv1-85610-v2.png",
+      "away_logo": "assets/images/teams/sdv1-85609-v2.webp",
+      "league": "Liga Femenina - Apertura",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.5,
+        "goals_avg": 6.75,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.333,
+        "goals_for": 1.8,
+        "goals_against": 2.2
+      },
+      "away_form": {
+        "form_score": 0.6,
+        "goals_for": 2.6,
+        "goals_against": 1.4
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 57.6,
+      "final_score": 51.1
+    },
+    {
       "id": 4680071,
       "date": "2026-08-16",
       "event_date": "2026-08-16T11:30:00+00:00",
@@ -14929,33 +16465,33 @@
       "final_score": 50.8
     },
     {
-      "id": 4621430,
-      "date": "2026-08-20",
-      "event_date": "2026-08-20T02:30:00+00:00",
-      "home_team": "Los Angeles Galaxy",
-      "away_team": "San Jose Earthquakes",
-      "home_logo": "assets/images/teams/sdv1-1342-v1.webp",
-      "away_logo": "assets/images/teams/sdv2-team-1345.webp",
-      "league": "MLS",
+      "id": 4788388,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T17:00:00+00:00",
+      "home_team": "Sabah",
+      "away_team": "Sumqayit",
+      "home_logo": "assets/images/teams/sdv1-50201-v5.png",
+      "away_logo": "assets/images/teams/sdv1-13803-v4.png",
+      "league": "Premier League",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
+      "status": "Postponed",
       "home_score": null,
       "away_score": null,
       "h2h_analysis": {
         "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 1.0,
-        "draws": 1.0,
-        "home_dominance": 0.0,
-        "away_dominance": 0.5,
-        "goals_avg": 1.5,
-        "over_25_prob": 0.0
+        "home_wins": 1.0,
+        "away_wins": 0.0,
+        "draws": 1.2,
+        "home_dominance": 0.455,
+        "away_dominance": 0.0,
+        "goals_avg": 3.2,
+        "over_25_prob": 0.5
       },
       "home_form": {
         "form_score": 0.467,
-        "goals_for": 1.2,
-        "goals_against": 1.2
+        "goals_for": 1.8,
+        "goals_against": 1.0
       },
       "away_form": {
         "form_score": 0.2,
@@ -14963,18 +16499,18 @@
         "goals_against": 2.4
       },
       "prediction": {
-        "double_chance": "X2",
+        "double_chance": "1X",
         "over_25": false,
-        "confidence": 61
+        "confidence": 56
       },
-      "xpronos_score": 49,
+      "xpronos_score": 45,
       "badge": "",
       "category": "simple",
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 55.6,
-      "final_score": 50.6
+      "ml_score": 65.6,
+      "final_score": 50.1
     },
     {
       "id": 4797239,
@@ -15119,6 +16655,54 @@
       "verified_over": false,
       "ml_score": 53.5,
       "final_score": 50.1
+    },
+    {
+      "id": 4621430,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T02:30:00+00:00",
+      "home_team": "Los Angeles Galaxy",
+      "away_team": "San Jose Earthquakes",
+      "home_logo": "assets/images/teams/sdv1-1342-v1.png",
+      "away_logo": "assets/images/teams/sdv2-team-1345.png",
+      "league": "MLS",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.0,
+        "draws": 1.0,
+        "home_dominance": 0.0,
+        "away_dominance": 0.5,
+        "goals_avg": 1.5,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.467,
+        "goals_for": 1.2,
+        "goals_against": 1.2
+      },
+      "away_form": {
+        "form_score": 0.2,
+        "goals_for": 1.6,
+        "goals_against": 2.4
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 61
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 52.9,
+      "final_score": 50.0
     },
     {
       "id": 4761260,
@@ -15601,6 +17185,54 @@
       "final_score": 49.2
     },
     {
+      "id": 4798160,
+      "date": "2026-08-20",
+      "event_date": "2026-08-20T22:00:00+00:00",
+      "home_team": "Olimpia",
+      "away_team": "Vasco da Gama",
+      "home_logo": "assets/images/teams/sdv1-8548-v3.png",
+      "away_logo": "assets/images/teams/sdv1-1227-v7.png",
+      "league": "CONMEBOL Sudamericana - Round of 16",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.5,
+        "goals_avg": 2.25,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.667,
+        "goals_for": 54.8,
+        "goals_against": 44.6
+      },
+      "away_form": {
+        "form_score": 0.333,
+        "goals_for": 0.6,
+        "goals_against": 1.0
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 49.4,
+      "final_score": 49.1
+    },
+    {
       "id": 4763772,
       "date": "2026-08-16",
       "event_date": "2026-08-16T16:00:00+00:00",
@@ -15697,54 +17329,6 @@
       "final_score": 49.1
     },
     {
-      "id": 4798160,
-      "date": "2026-08-20",
-      "event_date": "2026-08-20T22:00:00+00:00",
-      "home_team": "Olimpia",
-      "away_team": "Vasco da Gama",
-      "home_logo": "assets/images/teams/sdv1-8548-v3.png",
-      "away_logo": "assets/images/teams/sdv1-1227-v7.webp",
-      "league": "CONMEBOL Sudamericana - Round of 16",
-      "league_logo": null,
-      "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
-      "h2h_analysis": {
-        "total_matches": 2,
-        "home_wins": 0.0,
-        "away_wins": 1.5,
-        "draws": 1.5,
-        "home_dominance": 0.0,
-        "away_dominance": 0.5,
-        "goals_avg": 2.25,
-        "over_25_prob": 0.5
-      },
-      "home_form": {
-        "form_score": 0.667,
-        "goals_for": 54.8,
-        "goals_against": 44.6
-      },
-      "away_form": {
-        "form_score": 0.333,
-        "goals_for": 0.6,
-        "goals_against": 1.0
-      },
-      "prediction": {
-        "double_chance": "X2",
-        "over_25": false,
-        "confidence": 56
-      },
-      "xpronos_score": 49,
-      "badge": "",
-      "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
-      "ml_score": 49.0,
-      "final_score": 49.0
-    },
-    {
       "id": 4757084,
       "date": "2026-08-10",
       "event_date": "2026-08-10T17:00:00+00:00",
@@ -15839,6 +17423,54 @@
       "verified_over": true,
       "ml_score": 49.1,
       "final_score": 49.0
+    },
+    {
+      "id": 4814935,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T18:00:00+00:00",
+      "home_team": "Miramar Misiones",
+      "away_team": "Rentistas",
+      "home_logo": "assets/images/teams/sdv1-12567-v1.png",
+      "away_logo": "assets/images/teams/sdv1-8617-v1.webp",
+      "league": "Segunda Division - Regular Season",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.5,
+        "draws": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.5,
+        "goals_avg": 2.25,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.467,
+        "goals_for": 1.4,
+        "goals_against": 1.6
+      },
+      "away_form": {
+        "form_score": 0.467,
+        "goals_for": 0.8,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 61
+      },
+      "xpronos_score": 49,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 47.6,
+      "final_score": 48.6
     },
     {
       "id": 4728058,
@@ -16043,9 +17675,9 @@
       "league": "CONMEBOL Libertadores - Round of 16",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 0,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 3,
         "home_wins": 1.5,
@@ -16074,9 +17706,9 @@
       "xpronos_score": 44,
       "badge": "",
       "category": "simple",
-      "is_finished": false,
+      "is_finished": true,
       "verified_double": false,
-      "verified_over": false,
+      "verified_over": true,
       "ml_score": 59.8,
       "final_score": 48.0
     },
@@ -16609,6 +18241,54 @@
       "final_score": 46.9
     },
     {
+      "id": 4738605,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T17:30:00+00:00",
+      "home_team": "Stade Nyonnais",
+      "away_team": "Etoile Carouge",
+      "home_logo": "assets/images/teams/sdv2-team-1166.webp",
+      "away_logo": "assets/images/teams/sdv2-team-6231.webp",
+      "league": "Challenge League",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.0,
+        "draws": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.4,
+        "goals_avg": 1.5,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.0,
+        "goals_for": 0.8,
+        "goals_against": 2.6
+      },
+      "away_form": {
+        "form_score": 0.267,
+        "goals_for": 1.0,
+        "goals_against": 2.4
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 42,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 61.1,
+      "final_score": 46.8
+    },
+    {
       "id": 4748731,
       "date": "2026-08-15",
       "event_date": "2026-08-15T12:30:00+00:00",
@@ -16715,9 +18395,9 @@
       "league": "MLS",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "2nd Half",
+      "home_score": 1,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 1.0,
@@ -16849,6 +18529,102 @@
       "final_score": 45.8
     },
     {
+      "id": 4778934,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T14:15:00+00:00",
+      "home_team": "Al Gharafa",
+      "away_team": "Shahaniya SC",
+      "home_logo": "assets/images/teams/sdv1-6993-v1.webp",
+      "away_logo": "assets/images/teams/sdv2-team-16647.webp",
+      "league": "Doha Bank Stars League",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.2,
+        "draws": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.444,
+        "goals_avg": 3.3,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 2.0,
+        "goals_against": 1.2
+      },
+      "away_form": {
+        "form_score": 0.467,
+        "goals_for": 1.2,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 45,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 47.3,
+      "final_score": 45.6
+    },
+    {
+      "id": 4806493,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T18:00:00+00:00",
+      "home_team": "Al Karma",
+      "away_team": "Al Shorta Baghdad",
+      "home_logo": "assets/images/teams/sdv1-78842-v2.webp",
+      "away_logo": "assets/images/teams/sdv1-8246-v3.webp",
+      "league": "Iraqi League",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.2,
+        "draws": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.444,
+        "goals_avg": 2.1,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.6,
+        "goals_for": 1.4,
+        "goals_against": 0.6
+      },
+      "away_form": {
+        "form_score": 0.733,
+        "goals_for": 1.2,
+        "goals_against": 0.2
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 61
+      },
+      "xpronos_score": 45,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 47.0,
+      "final_score": 45.5
+    },
+    {
       "id": 4759625,
       "date": "2026-08-17",
       "event_date": "2026-08-17T16:00:00+00:00",
@@ -16945,6 +18721,54 @@
       "final_score": 45.2
     },
     {
+      "id": 4639092,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T18:30:00+00:00",
+      "home_team": "Comunicaciones",
+      "away_team": "Sportivo Italiano",
+      "home_logo": "assets/images/teams/sdv2-team-7120.webp",
+      "away_logo": "assets/images/teams/sdv1-7226-v1.png",
+      "league": "Primera B Metropolitana",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 1.0,
+        "away_wins": 0.0,
+        "draws": 1.5,
+        "home_dominance": 0.4,
+        "away_dominance": 0.0,
+        "goals_avg": 2.0,
+        "over_25_prob": 0.0
+      },
+      "home_form": {
+        "form_score": 0.267,
+        "goals_for": 1.2,
+        "goals_against": 1.4
+      },
+      "away_form": {
+        "form_score": 0.467,
+        "goals_for": 1.8,
+        "goals_against": 0.6
+      },
+      "prediction": {
+        "double_chance": "1X",
+        "over_25": false,
+        "confidence": 61
+      },
+      "xpronos_score": 42,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 53.9,
+      "final_score": 45.0
+    },
+    {
       "id": 4744528,
       "date": "2026-08-07",
       "event_date": "2026-08-07T15:30:00+00:00",
@@ -17003,9 +18827,9 @@
       "league": "APF Primera B",
       "league_logo": null,
       "venue": "",
-      "status": "Scheduled",
-      "home_score": null,
-      "away_score": null,
+      "status": "Ended",
+      "home_score": 1,
+      "away_score": 1,
       "h2h_analysis": {
         "total_matches": 2,
         "home_wins": 0.0,
@@ -17034,9 +18858,9 @@
       "xpronos_score": 42,
       "badge": "",
       "category": "simple",
-      "is_finished": false,
-      "verified_double": false,
-      "verified_over": false,
+      "is_finished": true,
+      "verified_double": true,
+      "verified_over": true,
       "ml_score": 53.7,
       "final_score": 44.9
     },
@@ -17135,6 +18959,54 @@
       "verified_over": true,
       "ml_score": 53.6,
       "final_score": 44.9
+    },
+    {
+      "id": 4636038,
+      "date": "2026-08-21",
+      "event_date": "2026-08-21T17:00:00+00:00",
+      "home_team": "Sirius",
+      "away_team": "BK Häcken",
+      "home_logo": "assets/images/teams/sdv2-team-1910.png",
+      "away_logo": "assets/images/teams/sdv2-team-1903.png",
+      "league": "Allsvenskan",
+      "league_logo": null,
+      "venue": "",
+      "status": "Scheduled",
+      "home_score": null,
+      "away_score": null,
+      "h2h_analysis": {
+        "total_matches": 2,
+        "home_wins": 0.0,
+        "away_wins": 1.0,
+        "draws": 1.5,
+        "home_dominance": 0.0,
+        "away_dominance": 0.4,
+        "goals_avg": 4.0,
+        "over_25_prob": 0.5
+      },
+      "home_form": {
+        "form_score": 0.533,
+        "goals_for": 2.2,
+        "goals_against": 1.6
+      },
+      "away_form": {
+        "form_score": 0.667,
+        "goals_for": 1.2,
+        "goals_against": 1.2
+      },
+      "prediction": {
+        "double_chance": "X2",
+        "over_25": false,
+        "confidence": 56
+      },
+      "xpronos_score": 42,
+      "badge": "",
+      "category": "simple",
+      "is_finished": false,
+      "verified_double": false,
+      "verified_over": false,
+      "ml_score": 52.4,
+      "final_score": 44.6
     },
     {
       "id": 4762527,
@@ -17622,7 +19494,7 @@
       "event_date": "2026-08-20T01:30:00+00:00",
       "home_team": "Colorado Rapids",
       "away_team": "Los Angeles FC",
-      "home_logo": "assets/images/teams/sdv1-1340-v1.webp",
+      "home_logo": "assets/images/teams/sdv1-1340-v1.png",
       "away_logo": "assets/images/teams/sdv1-51178-v1.png",
       "league": "MLS",
       "league_logo": null,
@@ -17661,8 +19533,8 @@
       "is_finished": false,
       "verified_double": false,
       "verified_over": false,
-      "ml_score": 40.5,
-      "final_score": 41.6
+      "ml_score": 40.9,
+      "final_score": 41.7
     }
   ],
   "categories": {
@@ -18196,6 +20068,54 @@
         "final_score": 58.4
       },
       {
+        "id": 4778496,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T23:00:00+00:00",
+        "home_team": "San Martín Fc",
+        "away_team": "Cd Plaza Amador Ii",
+        "home_logo": "assets/images/teams/sdv1-81770-v2.png",
+        "away_logo": "assets/images/teams/sdv2-team-81783.webp",
+        "league": "Liga Prom - Apertura - Eastern Conference - South Zone",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.6,
+          "goals_avg": 3.5,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.067,
+          "goals_for": 0.4,
+          "goals_against": 1.8
+        },
+        "away_form": {
+          "form_score": 0.2,
+          "goals_for": 1.4,
+          "goals_against": 2.2
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 56,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 65.2,
+        "final_score": 58.3
+      },
+      {
         "id": 4743192,
         "date": "2026-08-19",
         "event_date": "2026-08-19T23:00:00+00:00",
@@ -18206,9 +20126,9 @@
         "league": "Copa Venezuela",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "2nd Half",
+        "home_score": 0,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 1,
           "home_wins": 0.0,
@@ -18340,6 +20260,54 @@
         "final_score": 57.3
       },
       {
+        "id": 4675492,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T15:45:00+00:00",
+        "home_team": "Dinamo Minsk",
+        "away_team": "Torpedo-BelAZ Zhodino",
+        "home_logo": "assets/images/teams/sdv2-team-5426.png",
+        "away_logo": "assets/images/teams/sdv2-team-7518.png",
+        "league": "Vysshaya Liga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 1.0,
+          "home_dominance": 0.6,
+          "away_dominance": 0.0,
+          "goals_avg": 0.75,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.533,
+          "goals_for": 1.2,
+          "goals_against": 0.6
+        },
+        "away_form": {
+          "form_score": 0.8,
+          "goals_for": 2.4,
+          "goals_against": 0.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 61
+        },
+        "xpronos_score": 56,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 60.8,
+        "final_score": 57.2
+      },
+      {
         "id": 4783880,
         "date": "2026-08-09",
         "event_date": "2026-08-09T21:00:00+00:00",
@@ -18393,8 +20361,8 @@
         "event_date": "2026-08-20T20:30:00+00:00",
         "home_team": "Real Santander",
         "away_team": "Barranquilla FC",
-        "home_logo": "assets/images/teams/sdv1-9834-v2.webp",
-        "away_logo": "assets/images/teams/sdv1-13912-v1.webp",
+        "home_logo": "assets/images/teams/sdv1-9834-v2.png",
+        "away_logo": "assets/images/teams/sdv1-13912-v1.png",
         "league": "Primera B - Finalizacion",
         "league_logo": null,
         "venue": "",
@@ -18432,8 +20400,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 57.2,
-        "final_score": 57.0
+        "ml_score": 56.6,
+        "final_score": 56.9
       },
       {
         "id": 4664862,
@@ -18628,14 +20596,14 @@
         "final_score": 56.5
       },
       {
-        "id": 4675492,
-        "date": "2026-08-20",
-        "event_date": "2026-08-20T15:45:00+00:00",
-        "home_team": "Dinamo Minsk",
-        "away_team": "Torpedo-BelAZ Zhodino",
-        "home_logo": "assets/images/teams/sdv2-team-5426.png",
-        "away_logo": "assets/images/teams/sdv2-team-7518.png",
-        "league": "Vysshaya Liga",
+        "id": 4781144,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T14:00:00+00:00",
+        "home_team": "Kalba",
+        "away_team": "Al Wasl",
+        "home_logo": "assets/images/teams/sdv1-8355-v4.webp",
+        "away_logo": "assets/images/teams/sdv1-8346-v1.webp",
+        "league": "UAE Pro League",
         "league_logo": null,
         "venue": "",
         "status": "Scheduled",
@@ -18643,28 +20611,28 @@
         "away_score": null,
         "h2h_analysis": {
           "total_matches": 2,
-          "home_wins": 1.5,
-          "away_wins": 0.0,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
           "draws": 1.0,
-          "home_dominance": 0.6,
-          "away_dominance": 0.0,
-          "goals_avg": 0.75,
-          "over_25_prob": 0.0
+          "home_dominance": 0.0,
+          "away_dominance": 0.6,
+          "goals_avg": 3.25,
+          "over_25_prob": 0.5
         },
         "home_form": {
-          "form_score": 0.533,
+          "form_score": 0.2,
           "goals_for": 1.2,
-          "goals_against": 0.6
+          "goals_against": 1.6
         },
         "away_form": {
-          "form_score": 0.8,
-          "goals_for": 2.4,
-          "goals_against": 0.2
+          "form_score": 1.0,
+          "goals_for": 3.4,
+          "goals_against": 1.4
         },
         "prediction": {
-          "double_chance": "1X",
+          "double_chance": "X2",
           "over_25": false,
-          "confidence": 61
+          "confidence": 56
         },
         "xpronos_score": 56,
         "badge": "",
@@ -18672,8 +20640,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 57.2,
-        "final_score": 56.3
+        "ml_score": 57.4,
+        "final_score": 56.4
       },
       {
         "id": 4637150,
@@ -18818,6 +20786,54 @@
         "verified_over": false,
         "ml_score": 66.4,
         "final_score": 55.6
+      },
+      {
+        "id": 4669152,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T23:30:00+00:00",
+        "home_team": "Novorizontino",
+        "away_team": "América Mineiro",
+        "home_logo": "assets/images/teams/sdv1-23765-v1.png",
+        "away_logo": "assets/images/teams/sdv1-8514-v2.png",
+        "league": "Brasileirão - Série B",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 1.5,
+          "home_dominance": 0.5,
+          "away_dominance": 0.0,
+          "goals_avg": 3.75,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.667,
+          "goals_for": 1.6,
+          "goals_against": 0.4
+        },
+        "away_form": {
+          "form_score": 0.2,
+          "goals_for": 1.0,
+          "goals_against": 1.4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 60
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 75.1,
+        "final_score": 55.5
       },
       {
         "id": 4634156,
@@ -19396,54 +21412,6 @@
         "final_score": 54.1
       },
       {
-        "id": 4669152,
-        "date": "2026-08-20",
-        "event_date": "2026-08-20T23:30:00+00:00",
-        "home_team": "Novorizontino",
-        "away_team": "América Mineiro",
-        "home_logo": "assets/images/teams/sdv1-23765-v1.png",
-        "away_logo": "assets/images/teams/sdv1-8514-v2.webp",
-        "league": "Brasileirão - Série B",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 1.5,
-          "away_wins": 0.0,
-          "draws": 1.5,
-          "home_dominance": 0.5,
-          "away_dominance": 0.0,
-          "goals_avg": 3.75,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.667,
-          "goals_for": 1.6,
-          "goals_against": 0.4
-        },
-        "away_form": {
-          "form_score": 0.2,
-          "goals_for": 1.0,
-          "goals_against": 1.4
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
-          "confidence": 56
-        },
-        "xpronos_score": 49,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 69.2,
-        "final_score": 54.0
-      },
-      {
         "id": 4777113,
         "date": "2026-08-13",
         "event_date": "2026-08-13T01:15:00+00:00",
@@ -19684,6 +21652,54 @@
         "final_score": 53.6
       },
       {
+        "id": 4661043,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T16:00:00+00:00",
+        "home_team": "Levadia Tallinn",
+        "away_team": "Trans Narva",
+        "home_logo": "assets/images/teams/sdv2-team-5444.png",
+        "away_logo": "assets/images/teams/sdv1-8459-v1.png",
+        "league": "Meistriliiga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 1.2,
+          "home_dominance": 0.556,
+          "away_dominance": 0.0,
+          "goals_avg": 5.25,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.667,
+          "goals_for": 2.2,
+          "goals_against": 1.0
+        },
+        "away_form": {
+          "form_score": 0.333,
+          "goals_for": 1.8,
+          "goals_against": 0.8
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 52,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 57.6,
+        "final_score": 53.4
+      },
+      {
         "id": 4621440,
         "date": "2026-08-19",
         "event_date": "2026-08-19T23:30:00+00:00",
@@ -19694,9 +21710,9 @@
         "league": "MLS",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Halftime",
+        "home_score": 0,
+        "away_score": 2,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -19730,6 +21746,54 @@
         "verified_over": false,
         "ml_score": 45.7,
         "final_score": 53.4
+      },
+      {
+        "id": 4804561,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T14:00:00+00:00",
+        "home_team": "Wadi Degla",
+        "away_team": "Zed FC",
+        "home_logo": "assets/images/teams/sdv1-8311-v1.webp",
+        "away_logo": "assets/images/teams/sdv1-29732-v3.webp",
+        "league": "Premier League",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 1.5,
+          "home_dominance": 0.5,
+          "away_dominance": 0.0,
+          "goals_avg": 4.5,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.533,
+          "goals_for": 1.2,
+          "goals_against": 0.6
+        },
+        "away_form": {
+          "form_score": 0.333,
+          "goals_for": 0.6,
+          "goals_against": 1.0
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 63.5,
+        "final_score": 52.6
       },
       {
         "id": 4801426,
@@ -20356,6 +22420,54 @@
         "final_score": 51.2
       },
       {
+        "id": 4818448,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T21:00:00+00:00",
+        "home_team": "CD Cacahuatique (W)",
+        "away_team": "Municipal Limeno (W)",
+        "home_logo": "assets/images/teams/sdv1-85610-v2.png",
+        "away_logo": "assets/images/teams/sdv1-85609-v2.webp",
+        "league": "Liga Femenina - Apertura",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.5,
+          "goals_avg": 6.75,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.333,
+          "goals_for": 1.8,
+          "goals_against": 2.2
+        },
+        "away_form": {
+          "form_score": 0.6,
+          "goals_for": 2.6,
+          "goals_against": 1.4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 57.6,
+        "final_score": 51.1
+      },
+      {
         "id": 4680071,
         "date": "2026-08-16",
         "event_date": "2026-08-16T11:30:00+00:00",
@@ -20644,33 +22756,33 @@
         "final_score": 50.8
       },
       {
-        "id": 4621430,
-        "date": "2026-08-20",
-        "event_date": "2026-08-20T02:30:00+00:00",
-        "home_team": "Los Angeles Galaxy",
-        "away_team": "San Jose Earthquakes",
-        "home_logo": "assets/images/teams/sdv1-1342-v1.webp",
-        "away_logo": "assets/images/teams/sdv2-team-1345.webp",
-        "league": "MLS",
+        "id": 4788388,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T17:00:00+00:00",
+        "home_team": "Sabah",
+        "away_team": "Sumqayit",
+        "home_logo": "assets/images/teams/sdv1-50201-v5.png",
+        "away_logo": "assets/images/teams/sdv1-13803-v4.png",
+        "league": "Premier League",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
+        "status": "Postponed",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
           "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 1.0,
-          "draws": 1.0,
-          "home_dominance": 0.0,
-          "away_dominance": 0.5,
-          "goals_avg": 1.5,
-          "over_25_prob": 0.0
+          "home_wins": 1.0,
+          "away_wins": 0.0,
+          "draws": 1.2,
+          "home_dominance": 0.455,
+          "away_dominance": 0.0,
+          "goals_avg": 3.2,
+          "over_25_prob": 0.5
         },
         "home_form": {
           "form_score": 0.467,
-          "goals_for": 1.2,
-          "goals_against": 1.2
+          "goals_for": 1.8,
+          "goals_against": 1.0
         },
         "away_form": {
           "form_score": 0.2,
@@ -20678,18 +22790,18 @@
           "goals_against": 2.4
         },
         "prediction": {
-          "double_chance": "X2",
+          "double_chance": "1X",
           "over_25": false,
-          "confidence": 61
+          "confidence": 56
         },
-        "xpronos_score": 49,
+        "xpronos_score": 45,
         "badge": "",
         "category": "simple",
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 55.6,
-        "final_score": 50.6
+        "ml_score": 65.6,
+        "final_score": 50.1
       },
       {
         "id": 4797239,
@@ -20834,6 +22946,54 @@
         "verified_over": false,
         "ml_score": 53.5,
         "final_score": 50.1
+      },
+      {
+        "id": 4621430,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T02:30:00+00:00",
+        "home_team": "Los Angeles Galaxy",
+        "away_team": "San Jose Earthquakes",
+        "home_logo": "assets/images/teams/sdv1-1342-v1.png",
+        "away_logo": "assets/images/teams/sdv2-team-1345.png",
+        "league": "MLS",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.0,
+          "draws": 1.0,
+          "home_dominance": 0.0,
+          "away_dominance": 0.5,
+          "goals_avg": 1.5,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.467,
+          "goals_for": 1.2,
+          "goals_against": 1.2
+        },
+        "away_form": {
+          "form_score": 0.2,
+          "goals_for": 1.6,
+          "goals_against": 2.4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 61
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 52.9,
+        "final_score": 50.0
       },
       {
         "id": 4761260,
@@ -21316,6 +23476,54 @@
         "final_score": 49.2
       },
       {
+        "id": 4798160,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T22:00:00+00:00",
+        "home_team": "Olimpia",
+        "away_team": "Vasco da Gama",
+        "home_logo": "assets/images/teams/sdv1-8548-v3.png",
+        "away_logo": "assets/images/teams/sdv1-1227-v7.png",
+        "league": "CONMEBOL Sudamericana - Round of 16",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.5,
+          "goals_avg": 2.25,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.667,
+          "goals_for": 54.8,
+          "goals_against": 44.6
+        },
+        "away_form": {
+          "form_score": 0.333,
+          "goals_for": 0.6,
+          "goals_against": 1.0
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 49.4,
+        "final_score": 49.1
+      },
+      {
         "id": 4763772,
         "date": "2026-08-16",
         "event_date": "2026-08-16T16:00:00+00:00",
@@ -21412,54 +23620,6 @@
         "final_score": 49.1
       },
       {
-        "id": 4798160,
-        "date": "2026-08-20",
-        "event_date": "2026-08-20T22:00:00+00:00",
-        "home_team": "Olimpia",
-        "away_team": "Vasco da Gama",
-        "home_logo": "assets/images/teams/sdv1-8548-v3.png",
-        "away_logo": "assets/images/teams/sdv1-1227-v7.webp",
-        "league": "CONMEBOL Sudamericana - Round of 16",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 0.0,
-          "away_wins": 1.5,
-          "draws": 1.5,
-          "home_dominance": 0.0,
-          "away_dominance": 0.5,
-          "goals_avg": 2.25,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.667,
-          "goals_for": 54.8,
-          "goals_against": 44.6
-        },
-        "away_form": {
-          "form_score": 0.333,
-          "goals_for": 0.6,
-          "goals_against": 1.0
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": false,
-          "confidence": 56
-        },
-        "xpronos_score": 49,
-        "badge": "",
-        "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 49.0,
-        "final_score": 49.0
-      },
-      {
         "id": 4757084,
         "date": "2026-08-10",
         "event_date": "2026-08-10T17:00:00+00:00",
@@ -21554,6 +23714,54 @@
         "verified_over": true,
         "ml_score": 49.1,
         "final_score": 49.0
+      },
+      {
+        "id": 4814935,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T18:00:00+00:00",
+        "home_team": "Miramar Misiones",
+        "away_team": "Rentistas",
+        "home_logo": "assets/images/teams/sdv1-12567-v1.png",
+        "away_logo": "assets/images/teams/sdv1-8617-v1.webp",
+        "league": "Segunda Division - Regular Season",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.5,
+          "goals_avg": 2.25,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.467,
+          "goals_for": 1.4,
+          "goals_against": 1.6
+        },
+        "away_form": {
+          "form_score": 0.467,
+          "goals_for": 0.8,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 61
+        },
+        "xpronos_score": 49,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 47.6,
+        "final_score": 48.6
       },
       {
         "id": 4728058,
@@ -21758,9 +23966,9 @@
         "league": "CONMEBOL Libertadores - Round of 16",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 0,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 3,
           "home_wins": 1.5,
@@ -21789,9 +23997,9 @@
         "xpronos_score": 44,
         "badge": "",
         "category": "simple",
-        "is_finished": false,
+        "is_finished": true,
         "verified_double": false,
-        "verified_over": false,
+        "verified_over": true,
         "ml_score": 59.8,
         "final_score": 48.0
       },
@@ -22324,6 +24532,54 @@
         "final_score": 46.9
       },
       {
+        "id": 4738605,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T17:30:00+00:00",
+        "home_team": "Stade Nyonnais",
+        "away_team": "Etoile Carouge",
+        "home_logo": "assets/images/teams/sdv2-team-1166.webp",
+        "away_logo": "assets/images/teams/sdv2-team-6231.webp",
+        "league": "Challenge League",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.0,
+          "draws": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.4,
+          "goals_avg": 1.5,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.0,
+          "goals_for": 0.8,
+          "goals_against": 2.6
+        },
+        "away_form": {
+          "form_score": 0.267,
+          "goals_for": 1.0,
+          "goals_against": 2.4
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 42,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 61.1,
+        "final_score": 46.8
+      },
+      {
         "id": 4748731,
         "date": "2026-08-15",
         "event_date": "2026-08-15T12:30:00+00:00",
@@ -22430,9 +24686,9 @@
         "league": "MLS",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Halftime",
+        "home_score": 1,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 1.0,
@@ -22564,6 +24820,102 @@
         "final_score": 45.8
       },
       {
+        "id": 4778934,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T14:15:00+00:00",
+        "home_team": "Al Gharafa",
+        "away_team": "Shahaniya SC",
+        "home_logo": "assets/images/teams/sdv1-6993-v1.webp",
+        "away_logo": "assets/images/teams/sdv2-team-16647.webp",
+        "league": "Doha Bank Stars League",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.2,
+          "draws": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.444,
+          "goals_avg": 3.3,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 2.0,
+          "goals_against": 1.2
+        },
+        "away_form": {
+          "form_score": 0.467,
+          "goals_for": 1.2,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 45,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 47.3,
+        "final_score": 45.6
+      },
+      {
+        "id": 4806493,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T18:00:00+00:00",
+        "home_team": "Al Karma",
+        "away_team": "Al Shorta Baghdad",
+        "home_logo": "assets/images/teams/sdv1-78842-v2.webp",
+        "away_logo": "assets/images/teams/sdv1-8246-v3.webp",
+        "league": "Iraqi League",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.2,
+          "draws": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.444,
+          "goals_avg": 2.1,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 1.4,
+          "goals_against": 0.6
+        },
+        "away_form": {
+          "form_score": 0.733,
+          "goals_for": 1.2,
+          "goals_against": 0.2
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 61
+        },
+        "xpronos_score": 45,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 47.0,
+        "final_score": 45.5
+      },
+      {
         "id": 4759625,
         "date": "2026-08-17",
         "event_date": "2026-08-17T16:00:00+00:00",
@@ -22660,6 +25012,54 @@
         "final_score": 45.2
       },
       {
+        "id": 4639092,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T18:30:00+00:00",
+        "home_team": "Comunicaciones",
+        "away_team": "Sportivo Italiano",
+        "home_logo": "assets/images/teams/sdv2-team-7120.webp",
+        "away_logo": "assets/images/teams/sdv1-7226-v1.png",
+        "league": "Primera B Metropolitana",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 1.0,
+          "away_wins": 0.0,
+          "draws": 1.5,
+          "home_dominance": 0.4,
+          "away_dominance": 0.0,
+          "goals_avg": 2.0,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.267,
+          "goals_for": 1.2,
+          "goals_against": 1.4
+        },
+        "away_form": {
+          "form_score": 0.467,
+          "goals_for": 1.8,
+          "goals_against": 0.6
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 61
+        },
+        "xpronos_score": 42,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 53.9,
+        "final_score": 45.0
+      },
+      {
         "id": 4744528,
         "date": "2026-08-07",
         "event_date": "2026-08-07T15:30:00+00:00",
@@ -22718,9 +25118,9 @@
         "league": "APF Primera B",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 1,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -22749,9 +25149,9 @@
         "xpronos_score": 42,
         "badge": "",
         "category": "simple",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
+        "is_finished": true,
+        "verified_double": true,
+        "verified_over": true,
         "ml_score": 53.7,
         "final_score": 44.9
       },
@@ -22850,6 +25250,54 @@
         "verified_over": true,
         "ml_score": 53.6,
         "final_score": 44.9
+      },
+      {
+        "id": 4636038,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T17:00:00+00:00",
+        "home_team": "Sirius",
+        "away_team": "BK Häcken",
+        "home_logo": "assets/images/teams/sdv2-team-1910.png",
+        "away_logo": "assets/images/teams/sdv2-team-1903.png",
+        "league": "Allsvenskan",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 1.0,
+          "draws": 1.5,
+          "home_dominance": 0.0,
+          "away_dominance": 0.4,
+          "goals_avg": 4.0,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.533,
+          "goals_for": 2.2,
+          "goals_against": 1.6
+        },
+        "away_form": {
+          "form_score": 0.667,
+          "goals_for": 1.2,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 56
+        },
+        "xpronos_score": 42,
+        "badge": "",
+        "category": "simple",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 52.4,
+        "final_score": 44.6
       },
       {
         "id": 4762527,
@@ -23337,7 +25785,7 @@
         "event_date": "2026-08-20T01:30:00+00:00",
         "home_team": "Colorado Rapids",
         "away_team": "Los Angeles FC",
-        "home_logo": "assets/images/teams/sdv1-1340-v1.webp",
+        "home_logo": "assets/images/teams/sdv1-1340-v1.png",
         "away_logo": "assets/images/teams/sdv1-51178-v1.png",
         "league": "MLS",
         "league_logo": null,
@@ -23376,8 +25824,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 40.5,
-        "final_score": 41.6
+        "ml_score": 40.9,
+        "final_score": 41.7
       }
     ],
     "pro": [
@@ -23428,6 +25876,54 @@
         "verified_over": true,
         "ml_score": 68.6,
         "final_score": 71.2
+      },
+      {
+        "id": 4633680,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T18:45:00+00:00",
+        "home_team": "Finn Harps",
+        "away_team": "Cobh Ramblers",
+        "home_logo": "assets/images/teams/sdv1-844-v1.webp",
+        "away_logo": "assets/images/teams/sdv2-team-845.png",
+        "league": "Division 1",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 1.0,
+          "away_wins": 3.0,
+          "draws": 0.0,
+          "home_dominance": 0.25,
+          "away_dominance": 0.75,
+          "goals_avg": 3.67,
+          "over_25_prob": 0.333
+        },
+        "home_form": {
+          "form_score": 0.067,
+          "goals_for": 0.4,
+          "goals_against": 3.6
+        },
+        "away_form": {
+          "form_score": 0.6,
+          "goals_for": 1.6,
+          "goals_against": 1.0
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 73
+        },
+        "xpronos_score": 71,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 71.5,
+        "final_score": 71.1
       },
       {
         "id": 4807095,
@@ -23524,6 +26020,54 @@
         "verified_over": true,
         "ml_score": 64.2,
         "final_score": 69.3
+      },
+      {
+        "id": 4778498,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T14:00:00+00:00",
+        "home_team": "Academía Costa Del Este",
+        "away_team": "Sporting Sm Ii",
+        "home_logo": "assets/images/teams/sdv1-86077-v2.webp",
+        "away_logo": "assets/images/teams/sdv1-81772-v3.webp",
+        "league": "Liga Prom - Apertura - Eastern Conference - North Zone",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 2.5,
+          "away_wins": 0.0,
+          "draws": 1.2,
+          "home_dominance": 0.676,
+          "away_dominance": 0.0,
+          "goals_avg": 3.47,
+          "over_25_prob": 0.333
+        },
+        "home_form": {
+          "form_score": 0.4,
+          "goals_for": 1.6,
+          "goals_against": 1.6
+        },
+        "away_form": {
+          "form_score": 0.067,
+          "goals_for": 1.0,
+          "goals_against": 2.6
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 63
+        },
+        "xpronos_score": 68,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 70.0,
+        "final_score": 68.5
       },
       {
         "id": 4761984,
@@ -24016,9 +26560,9 @@
         "league": "ASEAN Championship - Semi Finals",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 2,
+        "away_score": 0,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 3.0,
@@ -24047,9 +26591,9 @@
         "xpronos_score": 64,
         "badge": "",
         "category": "pro",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
+        "is_finished": true,
+        "verified_double": true,
+        "verified_over": true,
         "ml_score": 74.4,
         "final_score": 66.6
       },
@@ -24582,54 +27126,6 @@
         "final_score": 65.1
       },
       {
-        "id": 4778930,
-        "date": "2026-08-20",
-        "event_date": "2026-08-20T14:15:00+00:00",
-        "home_team": "Al Wakrah",
-        "away_team": "Qatar SC",
-        "home_logo": "assets/images/teams/sdv2-team-5996.webp",
-        "away_logo": "assets/images/teams/sdv1-7086-v5.webp",
-        "league": "Doha Bank Stars League",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 2,
-          "home_wins": 2.7,
-          "away_wins": 0.0,
-          "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 4.35,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.733,
-          "goals_for": 2.6,
-          "goals_against": 1.0
-        },
-        "away_form": {
-          "form_score": 0.267,
-          "goals_for": 1.2,
-          "goals_against": 1.8
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
-          "confidence": 66
-        },
-        "xpronos_score": 64,
-        "badge": "",
-        "category": "pro",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 66.6,
-        "final_score": 64.7
-      },
-      {
         "id": 4639548,
         "date": "2026-08-08",
         "event_date": "2026-08-08T17:00:00+00:00",
@@ -24676,6 +27172,54 @@
         "verified_over": true,
         "ml_score": 66.8,
         "final_score": 64.7
+      },
+      {
+        "id": 4651926,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T15:30:00+00:00",
+        "home_team": "Haka",
+        "away_team": "SJK Akatemia",
+        "home_logo": "assets/images/teams/sdv2-team-1927.png",
+        "away_logo": "assets/images/teams/sdv1-13378-v2.png",
+        "league": "Ykkosliiga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 2.25,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 1.6,
+          "goals_against": 1.0
+        },
+        "away_form": {
+          "form_score": 0.267,
+          "goals_for": 0.2,
+          "goals_against": 1.4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 71
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 66.4,
+        "final_score": 64.6
       },
       {
         "id": 4747670,
@@ -24820,6 +27364,54 @@
         "verified_over": true,
         "ml_score": 65.5,
         "final_score": 64.4
+      },
+      {
+        "id": 4732182,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T22:45:00+00:00",
+        "home_team": "Real Cartagena",
+        "away_team": "Bogotá FC",
+        "home_logo": "assets/images/teams/sdv1-8635-v1.png",
+        "away_logo": "assets/images/teams/sdv1-10226-v1.png",
+        "league": "Primera B - Finalizacion",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 3.75,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.467,
+          "goals_for": 1.4,
+          "goals_against": 1.6
+        },
+        "away_form": {
+          "form_score": 0.133,
+          "goals_for": 0.4,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 66
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 65.4,
+        "final_score": 64.3
       },
       {
         "id": 4734840,
@@ -25014,38 +27606,38 @@
         "final_score": 64.2
       },
       {
-        "id": 4732182,
+        "id": 4778930,
         "date": "2026-08-20",
-        "event_date": "2026-08-20T22:45:00+00:00",
-        "home_team": "Real Cartagena",
-        "away_team": "Bogotá FC",
-        "home_logo": "assets/images/teams/sdv1-8635-v1.png",
-        "away_logo": "assets/images/teams/sdv1-10226-v1.png",
-        "league": "Primera B - Finalizacion",
+        "event_date": "2026-08-20T14:15:00+00:00",
+        "home_team": "Al Wakrah",
+        "away_team": "Qatar SC",
+        "home_logo": "assets/images/teams/sdv2-team-5996.png",
+        "away_logo": "assets/images/teams/sdv1-7086-v5.png",
+        "league": "Doha Bank Stars League",
         "league_logo": null,
         "venue": "",
-        "status": "Postponed",
+        "status": "Scheduled",
         "home_score": null,
         "away_score": null,
         "h2h_analysis": {
           "total_matches": 2,
-          "home_wins": 3.0,
+          "home_wins": 2.7,
           "away_wins": 0.0,
           "draws": 0.0,
           "home_dominance": 1.0,
           "away_dominance": 0.0,
-          "goals_avg": 3.75,
+          "goals_avg": 4.35,
           "over_25_prob": 0.5
         },
         "home_form": {
-          "form_score": 0.467,
-          "goals_for": 1.4,
-          "goals_against": 1.6
+          "form_score": 0.733,
+          "goals_for": 2.6,
+          "goals_against": 1.0
         },
         "away_form": {
-          "form_score": 0.133,
-          "goals_for": 0.4,
-          "goals_against": 1.2
+          "form_score": 0.267,
+          "goals_for": 1.2,
+          "goals_against": 1.8
         },
         "prediction": {
           "double_chance": "1X",
@@ -25058,7 +27650,7 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 64.5,
+        "ml_score": 64.4,
         "final_score": 64.1
       },
       {
@@ -25206,6 +27798,54 @@
         "final_score": 63.3
       },
       {
+        "id": 4633858,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T18:45:00+00:00",
+        "home_team": "Dundalk",
+        "away_team": "Galway United",
+        "home_logo": "assets/images/teams/sdv2-team-846.png",
+        "away_logo": "assets/images/teams/sdv2-team-841.png",
+        "league": "Premier Division",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 3.0,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 3.0,
+          "goals_against": 1.4
+        },
+        "away_form": {
+          "form_score": 0.333,
+          "goals_for": 0.8,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 66
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 60.9,
+        "final_score": 63.2
+      },
+      {
         "id": 4621436,
         "date": "2026-08-19",
         "event_date": "2026-08-19T23:30:00+00:00",
@@ -25216,9 +27856,9 @@
         "league": "MLS",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Halftime",
+        "home_score": 1,
+        "away_score": 2,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -25456,9 +28096,9 @@
         "league": "Primera B - Finalizacion",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 2,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -25487,7 +28127,7 @@
         "xpronos_score": 64,
         "badge": "",
         "category": "pro",
-        "is_finished": false,
+        "is_finished": true,
         "verified_double": false,
         "verified_over": false,
         "ml_score": 58.5,
@@ -25926,6 +28566,54 @@
         "final_score": 61.7
       },
       {
+        "id": 4819210,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T15:45:00+00:00",
+        "home_team": "Kuwait SC",
+        "away_team": "Kazma SC",
+        "home_logo": "assets/images/teams/sdv1-10290-v2.png",
+        "away_logo": "assets/images/teams/sdv1-10293-v1.png",
+        "league": "Club Friendlies",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 4,
+          "home_wins": 2.5,
+          "away_wins": 0.0,
+          "draws": 2.5,
+          "home_dominance": 0.5,
+          "away_dominance": 0.0,
+          "goals_avg": 2.75,
+          "over_25_prob": 0.25
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 1.8,
+          "goals_against": 1.4
+        },
+        "away_form": {
+          "form_score": 0.733,
+          "goals_for": 1.8,
+          "goals_against": 0.8
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 67
+        },
+        "xpronos_score": 63,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 56.8,
+        "final_score": 61.5
+      },
+      {
         "id": 4805988,
         "date": "2026-08-09",
         "event_date": "2026-08-09T11:00:00+00:00",
@@ -26310,6 +28998,54 @@
         "final_score": 60.8
       },
       {
+        "id": 4784528,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T13:00:00+00:00",
+        "home_team": "Johor Darul Ta’zim",
+        "away_team": "Kuching City FC",
+        "home_logo": "assets/images/teams/sdv1-10080-v1.webp",
+        "away_logo": "assets/images/teams/sdv2-team-51307.webp",
+        "league": "Liga Super - Regular Season",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.7,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 2.7,
+          "over_25_prob": 0.0
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 4.0,
+          "goals_against": 1.4
+        },
+        "away_form": {
+          "form_score": 0.667,
+          "goals_for": 1.6,
+          "goals_against": 1.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 71
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 50.9,
+        "final_score": 60.7
+      },
+      {
         "id": 4806047,
         "date": "2026-08-16",
         "event_date": "2026-08-16T18:00:00+00:00",
@@ -26502,6 +29238,54 @@
         "final_score": 60.7
       },
       {
+        "id": 4745289,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T18:45:00+00:00",
+        "home_team": "Linfield",
+        "away_team": "Cliftonville",
+        "home_logo": "assets/images/teams/sdv2-team-5594.png",
+        "away_logo": "assets/images/teams/sdv2-team-5442.png",
+        "league": "Premiership",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 3.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 3.75,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.4,
+          "goals_for": 1.2,
+          "goals_against": 2.0
+        },
+        "away_form": {
+          "form_score": 0.8,
+          "goals_for": 1.8,
+          "goals_against": 0.8
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 66
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 50.4,
+        "final_score": 60.6
+      },
+      {
         "id": 4734623,
         "date": "2026-08-15",
         "event_date": "2026-08-15T16:45:00+00:00",
@@ -26644,6 +29428,54 @@
         "verified_over": true,
         "ml_score": 56.2,
         "final_score": 60.5
+      },
+      {
+        "id": 4627090,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T08:45:00+00:00",
+        "home_team": "Yokohama Baystars",
+        "away_team": "Yomiuri Giants",
+        "home_logo": "assets/images/teams/sdv1-7461-v2.png",
+        "away_logo": "assets/images/teams/sdv2-team-6668.png",
+        "league": "NPB",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 6.0,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.4,
+          "goals_for": 2.2,
+          "goals_against": 3.2
+        },
+        "away_form": {
+          "form_score": 0.4,
+          "goals_for": 3.4,
+          "goals_against": 3.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 66
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 49.6,
+        "final_score": 60.4
       },
       {
         "id": 4761063,
@@ -27030,6 +29862,54 @@
         "final_score": 59.7
       },
       {
+        "id": 4819504,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T10:00:00+00:00",
+        "home_team": "LG Twins",
+        "away_team": "Kt Wiz Suwon",
+        "home_logo": "assets/images/teams/sdv1-19529-v1.png",
+        "away_logo": "assets/images/teams/sdv2-team-23721.webp",
+        "league": "KBO",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 8.25,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 3.4,
+          "goals_against": 2.6
+        },
+        "away_form": {
+          "form_score": 0.4,
+          "goals_for": 4.0,
+          "goals_against": 5.0
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 66
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 46.3,
+        "final_score": 59.6
+      },
+      {
         "id": 4746312,
         "date": "2026-08-08",
         "event_date": "2026-08-08T14:00:00+00:00",
@@ -27220,6 +30100,102 @@
         "verified_over": false,
         "ml_score": 57.8,
         "final_score": 59.5
+      },
+      {
+        "id": 4633859,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T18:45:00+00:00",
+        "home_team": "Drogheda Utd",
+        "away_team": "St. Patricks",
+        "home_logo": "assets/images/teams/sdv1-10381-v1.png",
+        "away_logo": "assets/images/teams/sdv2-team-835.png",
+        "league": "Premier Division",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 3.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 4.5,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.333,
+          "goals_for": 1.0,
+          "goals_against": 1.2
+        },
+        "away_form": {
+          "form_score": 0.8,
+          "goals_for": 1.8,
+          "goals_against": 1.0
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 66
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 45.5,
+        "final_score": 59.4
+      },
+      {
+        "id": 4818464,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T18:00:00+00:00",
+        "home_team": "Capitan Figari FBC",
+        "away_team": "Pilcomayo",
+        "home_logo": "assets/images/teams/sdv1-80012-v2.webp",
+        "away_logo": "assets/images/teams/sdv2-team-54409.webp",
+        "league": "APF Primera C",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 2.5,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 2.75,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 2.4,
+          "goals_against": 1.0
+        },
+        "away_form": {
+          "form_score": 0.733,
+          "goals_for": 2.2,
+          "goals_against": 0.6
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": false,
+          "confidence": 66
+        },
+        "xpronos_score": 64,
+        "badge": "",
+        "category": "pro",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 45.7,
+        "final_score": 59.4
       },
       {
         "id": 4808453,
@@ -27472,9 +30448,9 @@
         "league": "Copa Venezuela",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Ended",
+        "home_score": 4,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -27503,7 +30479,7 @@
         "xpronos_score": 64,
         "badge": "",
         "category": "pro",
-        "is_finished": false,
+        "is_finished": true,
         "verified_double": false,
         "verified_over": false,
         "ml_score": 44.4,
@@ -27992,6 +30968,54 @@
         "final_score": 93.3
       },
       {
+        "id": 4633677,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T18:45:00+00:00",
+        "home_team": "Wexford Youths",
+        "away_team": "Athlone Town",
+        "home_logo": "assets/images/teams/sdv2-team-853.png",
+        "away_logo": "assets/images/teams/sdv2-team-855.png",
+        "league": "Division 1",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 4,
+          "home_wins": 3.5,
+          "away_wins": 0.0,
+          "draws": 1.5,
+          "home_dominance": 0.7,
+          "away_dominance": 0.0,
+          "goals_avg": 3.38,
+          "over_25_prob": 0.75
+        },
+        "home_form": {
+          "form_score": 0.133,
+          "goals_for": 0.6,
+          "goals_against": 2.4
+        },
+        "away_form": {
+          "form_score": 0.333,
+          "goals_for": 1.2,
+          "goals_against": 1.4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 71
+        },
+        "xpronos_score": 97,
+        "badge": "🏆 PREMIUM LOCK",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 72.9,
+        "final_score": 91.0
+      },
+      {
         "id": 4814958,
         "date": "2026-08-15",
         "event_date": "2026-08-15T01:30:00+00:00",
@@ -28420,8 +31444,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 75.4,
-        "final_score": 87.1
+        "ml_score": 76.0,
+        "final_score": 87.2
       },
       {
         "id": 4650612,
@@ -30296,6 +33320,54 @@
         "final_score": 82.6
       },
       {
+        "id": 4806267,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T22:30:00+00:00",
+        "home_team": "The Strongest",
+        "away_team": "Universitario de Vinto",
+        "home_logo": "assets/images/teams/sdv1-8543-v8.webp",
+        "away_logo": "assets/images/teams/sdv2-team-49843.png",
+        "league": "División Profesional",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.5,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 4.75,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 1.6,
+          "goals_against": 1.6
+        },
+        "away_form": {
+          "form_score": 0.0,
+          "goals_for": 0.4,
+          "goals_against": 2.4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 75
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 77.8,
+        "final_score": 82.5
+      },
+      {
         "id": 4758236,
         "date": "2026-08-15",
         "event_date": "2026-08-15T16:15:00+00:00",
@@ -30486,6 +33558,54 @@
         "verified_over": true,
         "ml_score": 76.5,
         "final_score": 82.1
+      },
+      {
+        "id": 4740904,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T16:00:00+00:00",
+        "home_team": "Hegelmann Litauen Ii",
+        "away_team": "Ekranas",
+        "home_logo": "assets/images/teams/sdv1-71505-v2.webp",
+        "away_logo": "assets/images/teams/sdv1-2309-v1.webp",
+        "league": "I Lyga",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 2.5,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 4.5,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 1.4,
+          "goals_against": 1.0
+        },
+        "away_form": {
+          "form_score": 0.2,
+          "goals_for": 1.0,
+          "goals_against": 2.4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 75
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 75.9,
+        "final_score": 82.0
       },
       {
         "id": 4663485,
@@ -30978,9 +34098,9 @@
         "league": "NPB",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Final (Ex)",
+        "home_score": 8,
+        "away_score": 7,
         "h2h_analysis": {
           "total_matches": 3,
           "home_wins": 1.5,
@@ -31009,9 +34129,9 @@
         "xpronos_score": 87,
         "badge": "💎 VIP ELITE",
         "category": "vip",
-        "is_finished": false,
+        "is_finished": true,
         "verified_double": false,
-        "verified_over": false,
+        "verified_over": true,
         "ml_score": 64.3,
         "final_score": 81.3
       },
@@ -31398,6 +34518,54 @@
         "verified_over": false,
         "ml_score": 69.6,
         "final_score": 80.4
+      },
+      {
+        "id": 4819505,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T10:00:00+00:00",
+        "home_team": "Hanwha Eagles",
+        "away_team": "KIA Tigers",
+        "home_logo": "assets/images/teams/sdv1-19525-v1.png",
+        "away_logo": "assets/images/teams/sdv1-19521-v1.png",
+        "league": "KBO",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 3.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 12.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.0,
+          "goals_for": 4.6,
+          "goals_against": 7.6
+        },
+        "away_form": {
+          "form_score": 0.8,
+          "goals_for": 4.4,
+          "goals_against": 3.6
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 71
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 69.1,
+        "final_score": 80.3
       },
       {
         "id": 4747987,
@@ -32168,54 +35336,6 @@
         "final_score": 79.0
       },
       {
-        "id": 4805038,
-        "date": "2026-08-20",
-        "event_date": "2026-08-20T00:00:00+00:00",
-        "home_team": "Santeros de Aguada",
-        "away_team": "Vaqueros De Bayamon",
-        "home_logo": "assets/images/teams/sdv1-47990-v1.png",
-        "away_logo": "assets/images/teams/sdv2-team-47985.png",
-        "league": "BSN",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 3,
-          "home_wins": 1.5,
-          "away_wins": 3.0,
-          "draws": 0.0,
-          "home_dominance": 0.333,
-          "away_dominance": 0.667,
-          "goals_avg": 235.0,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "form_score": 0.5,
-          "goals_for": 80.75,
-          "goals_against": 82.75
-        },
-        "away_form": {
-          "form_score": 0.667,
-          "goals_for": 80.67,
-          "goals_against": 76.0
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "confidence": 64
-        },
-        "xpronos_score": 87,
-        "badge": "💎 VIP ELITE",
-        "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 53.1,
-        "final_score": 78.5
-      },
-      {
         "id": 4764152,
         "date": "2026-08-16",
         "event_date": "2026-08-16T19:00:00+00:00",
@@ -32358,6 +35478,102 @@
         "verified_over": true,
         "ml_score": 61.2,
         "final_score": 78.3
+      },
+      {
+        "id": 4626835,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T09:00:00+00:00",
+        "home_team": "Chunichi Dragons",
+        "away_team": "Yakult Swallows",
+        "home_logo": "assets/images/teams/sdv2-team-7459.webp",
+        "away_logo": "assets/images/teams/sdv1-7454-v2.png",
+        "league": "NPB",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 7.5,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.2,
+          "goals_for": 3.2,
+          "goals_against": 5.8
+        },
+        "away_form": {
+          "form_score": 0.6,
+          "goals_for": 3.2,
+          "goals_against": 2.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 71
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 60.0,
+        "final_score": 78.0
+      },
+      {
+        "id": 4626858,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T09:00:00+00:00",
+        "home_team": "Yomiuri Giants",
+        "away_team": "Hiroshima Toyo Carp",
+        "home_logo": "assets/images/teams/sdv2-team-6668.png",
+        "away_logo": "assets/images/teams/sdv1-7460-v2.png",
+        "league": "NPB",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 16.5,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.4,
+          "goals_for": 3.4,
+          "goals_against": 3.2
+        },
+        "away_form": {
+          "form_score": 0.8,
+          "goals_for": 5.4,
+          "goals_against": 3.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 71
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 59.9,
+        "final_score": 78.0
       },
       {
         "id": 4764131,
@@ -32552,6 +35768,54 @@
         "final_score": 77.7
       },
       {
+        "id": 4627133,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T09:00:00+00:00",
+        "home_team": "Hanshin Tigers",
+        "away_team": "Yakult Swallows",
+        "home_logo": "assets/images/teams/sdv1-7453-v1.png",
+        "away_logo": "assets/images/teams/sdv1-7454-v2.png",
+        "league": "NPB",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 6.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 3.2,
+          "goals_against": 3.0
+        },
+        "away_form": {
+          "form_score": 0.6,
+          "goals_for": 3.2,
+          "goals_against": 2.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 71
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 57.8,
+        "final_score": 77.5
+      },
+      {
         "id": 4777651,
         "date": "2026-08-09",
         "event_date": "2026-08-09T17:00:00+00:00",
@@ -32610,9 +35874,9 @@
         "league": "NWSL",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "2nd Half",
+        "home_score": 2,
+        "away_score": 1,
         "h2h_analysis": {
           "total_matches": 2,
           "home_wins": 0.0,
@@ -32792,6 +36056,54 @@
         "final_score": 76.6
       },
       {
+        "id": 4805038,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T00:00:00+00:00",
+        "home_team": "Santeros de Aguada",
+        "away_team": "Vaqueros De Bayamon",
+        "home_logo": "assets/images/teams/sdv1-47990-v1.png",
+        "away_logo": "assets/images/teams/sdv2-team-47985.png",
+        "league": "BSN",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 3,
+          "home_wins": 1.5,
+          "away_wins": 3.0,
+          "draws": 0.0,
+          "home_dominance": 0.333,
+          "away_dominance": 0.667,
+          "goals_avg": 235.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.5,
+          "goals_for": 80.75,
+          "goals_against": 82.75
+        },
+        "away_form": {
+          "form_score": 0.667,
+          "goals_for": 80.67,
+          "goals_against": 76.0
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 64
+        },
+        "xpronos_score": 87,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 45.1,
+        "final_score": 76.5
+      },
+      {
         "id": 4659127,
         "date": "2026-08-16",
         "event_date": "2026-08-16T00:00:00+00:00",
@@ -32838,6 +36150,54 @@
         "verified_over": true,
         "ml_score": 53.5,
         "final_score": 76.4
+      },
+      {
+        "id": 4633678,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T18:45:00+00:00",
+        "home_team": "Treaty United",
+        "away_team": "Cork City",
+        "home_logo": "assets/images/teams/sdv1-68024-v2.png",
+        "away_logo": "assets/images/teams/sdv2-team-837.png",
+        "league": "Division 1",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 6.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.133,
+          "goals_for": 0.6,
+          "goals_against": 2.2
+        },
+        "away_form": {
+          "form_score": 1.0,
+          "goals_for": 3.0,
+          "goals_against": 0.2
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 72
+        },
+        "xpronos_score": 77,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 73.1,
+        "final_score": 76.0
       },
       {
         "id": 4807495,
@@ -32984,6 +36344,54 @@
         "final_score": 75.5
       },
       {
+        "id": 4819503,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T10:00:00+00:00",
+        "home_team": "NC Dinos",
+        "away_team": "Doosan Bears",
+        "home_logo": "assets/images/teams/sdv2-team-19526.png",
+        "away_logo": "assets/images/teams/sdv2-team-19527.png",
+        "league": "KBO",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 3.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 15.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.4,
+          "goals_for": 5.2,
+          "goals_against": 7.0
+        },
+        "away_form": {
+          "form_score": 0.6,
+          "goals_for": 5.2,
+          "goals_against": 3.6
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 71
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 49.6,
+        "final_score": 75.4
+      },
+      {
         "id": 4815411,
         "date": "2026-08-16",
         "event_date": "2026-08-16T10:00:00+00:00",
@@ -33126,6 +36534,102 @@
         "verified_over": false,
         "ml_score": 65.8,
         "final_score": 75.0
+      },
+      {
+        "id": 4626823,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T09:00:00+00:00",
+        "home_team": "Rakuten Gold Eagles",
+        "away_team": "Chiba Lotte Marines",
+        "home_logo": "assets/images/teams/sdv2-team-7455.png",
+        "away_logo": "assets/images/teams/sdv1-7458-v2.png",
+        "league": "NPB",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 11.25,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.8,
+          "goals_for": 4.6,
+          "goals_against": 3.2
+        },
+        "away_form": {
+          "form_score": 0.2,
+          "goals_for": 2.0,
+          "goals_against": 5.2
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 71
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 47.1,
+        "final_score": 74.8
+      },
+      {
+        "id": 4627275,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T09:00:00+00:00",
+        "home_team": "Seibu Lions",
+        "away_team": "Orix Buffaloes",
+        "home_logo": "assets/images/teams/sdv1-7457-v2.png",
+        "away_logo": "assets/images/teams/sdv2-team-7456.png",
+        "league": "NPB",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 12.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.8,
+          "goals_for": 5.0,
+          "goals_against": 2.4
+        },
+        "away_form": {
+          "form_score": 0.2,
+          "goals_for": 4.6,
+          "goals_against": 7.4
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 71
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 47.1,
+        "final_score": 74.8
       },
       {
         "id": 4808115,
@@ -33320,6 +36824,54 @@
         "final_score": 74.6
       },
       {
+        "id": 4816959,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T02:00:00+00:00",
+        "home_team": "Alajuelense (W)",
+        "away_team": "Deportivo Saprissa (W)",
+        "home_logo": "assets/images/teams/sdv1-66838-v2.png",
+        "away_logo": "assets/images/teams/sdv1-66841-v2.png",
+        "league": "Primera Division Women",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 4,
+          "home_wins": 4.0,
+          "away_wins": 0.0,
+          "draws": 1.5,
+          "home_dominance": 0.727,
+          "away_dominance": 0.0,
+          "goals_avg": 2.75,
+          "over_25_prob": 0.5
+        },
+        "home_form": {
+          "form_score": 0.467,
+          "goals_for": 1.2,
+          "goals_against": 0.4
+        },
+        "away_form": {
+          "form_score": 0.667,
+          "goals_for": 2.2,
+          "goals_against": 1.0
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": false,
+          "confidence": 72
+        },
+        "xpronos_score": 78,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 63.8,
+        "final_score": 74.5
+      },
+      {
         "id": 4602951,
         "date": "2026-08-13",
         "event_date": "2026-08-13T18:10:00+00:00",
@@ -33414,6 +36966,54 @@
         "verified_over": true,
         "ml_score": 66.0,
         "final_score": 74.2
+      },
+      {
+        "id": 4627274,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T09:00:00+00:00",
+        "home_team": "Hiroshima Toyo Carp",
+        "away_team": "Chunichi Dragons",
+        "home_logo": "assets/images/teams/sdv1-7460-v2.png",
+        "away_logo": "assets/images/teams/sdv2-team-7459.webp",
+        "league": "NPB",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 15.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.8,
+          "goals_for": 5.4,
+          "goals_against": 3.2
+        },
+        "away_form": {
+          "form_score": 0.2,
+          "goals_for": 3.2,
+          "goals_against": 5.8
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 66
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 44.1,
+        "final_score": 74.0
       },
       {
         "id": 4602923,
@@ -33704,6 +37304,54 @@
         "final_score": 73.5
       },
       {
+        "id": 4819506,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T10:00:00+00:00",
+        "home_team": "Lotte Giants",
+        "away_team": "Kiwoom Heroes",
+        "home_logo": "assets/images/teams/sdv1-19523-v1.png",
+        "away_logo": "assets/images/teams/sdv1-62791-v2.png",
+        "league": "KBO",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 3.0,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 25.5,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.8,
+          "goals_for": 9.4,
+          "goals_against": 5.6
+        },
+        "away_form": {
+          "form_score": 0.2,
+          "goals_for": 5.8,
+          "goals_against": 7.8
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 66
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 41.7,
+        "final_score": 73.4
+      },
+      {
         "id": 4804947,
         "date": "2026-08-15",
         "event_date": "2026-08-15T00:00:00+00:00",
@@ -33944,54 +37592,6 @@
         "final_score": 72.9
       },
       {
-        "id": 4816959,
-        "date": "2026-08-20",
-        "event_date": "2026-08-20T02:00:00+00:00",
-        "home_team": "Alajuelense (W)",
-        "away_team": "Deportivo Saprissa (W)",
-        "home_logo": "assets/images/teams/sdv1-66838-v2.png",
-        "away_logo": "assets/images/teams/sdv1-66841-v2.png",
-        "league": "Primera Division Women",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 4,
-          "home_wins": 4.0,
-          "away_wins": 0.0,
-          "draws": 1.5,
-          "home_dominance": 0.727,
-          "away_dominance": 0.0,
-          "goals_avg": 2.75,
-          "over_25_prob": 0.5
-        },
-        "home_form": {
-          "form_score": 0.467,
-          "goals_for": 1.2,
-          "goals_against": 0.4
-        },
-        "away_form": {
-          "form_score": 0.667,
-          "goals_for": 2.2,
-          "goals_against": 1.0
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": false,
-          "confidence": 72
-        },
-        "xpronos_score": 78,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 57.4,
-        "final_score": 72.8
-      },
-      {
         "id": 4726111,
         "date": "2026-08-11",
         "event_date": "2026-08-11T23:00:00+00:00",
@@ -34182,6 +37782,54 @@
         "verified_over": false,
         "ml_score": 59.5,
         "final_score": 72.6
+      },
+      {
+        "id": 4614665,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T00:40:00+00:00",
+        "home_team": "Colorado Rockies",
+        "away_team": "Los Angeles Dodgers",
+        "home_logo": "assets/images/teams/sdv2-team-7419.webp",
+        "away_logo": "assets/images/teams/sdv2-team-7410.png",
+        "league": "MLB",
+        "league_logo": null,
+        "venue": "",
+        "status": "3rd Inning",
+        "home_score": 0,
+        "away_score": 1,
+        "h2h_analysis": {
+          "total_matches": 2,
+          "home_wins": 0.0,
+          "away_wins": 3.0,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 21.75,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.4,
+          "goals_for": 6.0,
+          "goals_against": 6.8
+        },
+        "away_form": {
+          "form_score": 0.6,
+          "goals_for": 5.4,
+          "goals_against": 4.6
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 66
+        },
+        "xpronos_score": 84,
+        "badge": "💎 VIP ELITE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 37.9,
+        "final_score": 72.5
       },
       {
         "id": 4653773,
@@ -34424,54 +38072,6 @@
         "final_score": 72.2
       },
       {
-        "id": 4812170,
-        "date": "2026-08-20",
-        "event_date": "2026-08-20T19:00:00+00:00",
-        "home_team": "Always Ready",
-        "away_team": "Real Oruro",
-        "home_logo": "assets/images/teams/sdv2-team-45832.webp",
-        "away_logo": "assets/images/teams/sdv2-team-72056.webp",
-        "league": "Copa Paceña",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_wins": 1.2,
-          "away_wins": 0.0,
-          "draws": 0.0,
-          "home_dominance": 1.0,
-          "away_dominance": 0.0,
-          "goals_avg": 4.8,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "form_score": 0.533,
-          "goals_for": 1.8,
-          "goals_against": 1.4
-        },
-        "away_form": {
-          "form_score": 0.467,
-          "goals_for": 1.8,
-          "goals_against": 1.8
-        },
-        "prediction": {
-          "double_chance": "1X",
-          "over_25": true,
-          "confidence": 68
-        },
-        "xpronos_score": 77,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 57.2,
-        "final_score": 72.0
-      },
-      {
         "id": 4614807,
         "date": "2026-08-16",
         "event_date": "2026-08-16T17:40:00+00:00",
@@ -34566,6 +38166,54 @@
         "verified_over": true,
         "ml_score": 56.8,
         "final_score": 72.0
+      },
+      {
+        "id": 4812170,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T19:00:00+00:00",
+        "home_team": "Always Ready",
+        "away_team": "Real Oruro",
+        "home_logo": "assets/images/teams/sdv2-team-45832.png",
+        "away_logo": "assets/images/teams/sdv2-team-72056.png",
+        "league": "Copa Paceña",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 1.2,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 4.8,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.533,
+          "goals_for": 1.8,
+          "goals_against": 1.4
+        },
+        "away_form": {
+          "form_score": 0.467,
+          "goals_for": 1.8,
+          "goals_against": 1.8
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 68
+        },
+        "xpronos_score": 77,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 56.0,
+        "final_score": 71.8
       },
       {
         "id": 4809606,
@@ -34664,54 +38312,6 @@
         "final_score": 71.6
       },
       {
-        "id": 4614738,
-        "date": "2026-08-20",
-        "event_date": "2026-08-20T16:40:00+00:00",
-        "home_team": "Cincinnati Reds",
-        "away_team": "St. Louis Cardinals",
-        "home_logo": "assets/images/teams/sdv1-7429-v3.png",
-        "away_logo": "assets/images/teams/sdv2-team-7428.png",
-        "league": "MLB",
-        "league_logo": null,
-        "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
-        "h2h_analysis": {
-          "total_matches": 1,
-          "home_wins": 0.0,
-          "away_wins": 1.5,
-          "draws": 0.0,
-          "home_dominance": 0.0,
-          "away_dominance": 1.0,
-          "goals_avg": 4.5,
-          "over_25_prob": 1.0
-        },
-        "home_form": {
-          "form_score": 0.2,
-          "goals_for": 2.4,
-          "goals_against": 5.8
-        },
-        "away_form": {
-          "form_score": 0.8,
-          "goals_for": 5.6,
-          "goals_against": 2.6
-        },
-        "prediction": {
-          "double_chance": "X2",
-          "over_25": true,
-          "confidence": 68
-        },
-        "xpronos_score": 77,
-        "badge": "🔥 ULTRA SAFE",
-        "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
-        "ml_score": 54.0,
-        "final_score": 71.2
-      },
-      {
         "id": 4614858,
         "date": "2026-08-19",
         "event_date": "2026-08-19T22:40:00+00:00",
@@ -34722,9 +38322,9 @@
         "league": "MLB",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "6th Inning",
+        "home_score": 0,
+        "away_score": 2,
         "h2h_analysis": {
           "total_matches": 1,
           "home_wins": 0.0,
@@ -35000,14 +38600,14 @@
         "final_score": 70.5
       },
       {
-        "id": 4732177,
+        "id": 4614738,
         "date": "2026-08-20",
-        "event_date": "2026-08-20T22:00:00+00:00",
-        "home_team": "Leones",
-        "away_team": "Real Cundinamarca",
-        "home_logo": "assets/images/teams/sdv1-9829-v1.webp",
-        "away_logo": "assets/images/teams/sdv1-9835-v4.webp",
-        "league": "Primera B - Finalizacion",
+        "event_date": "2026-08-20T16:40:00+00:00",
+        "home_team": "Cincinnati Reds",
+        "away_team": "St. Louis Cardinals",
+        "home_logo": "assets/images/teams/sdv1-7429-v3.png",
+        "away_logo": "assets/images/teams/sdv2-team-7428.png",
+        "league": "MLB",
         "league_logo": null,
         "venue": "",
         "status": "Scheduled",
@@ -35016,22 +38616,22 @@
         "h2h_analysis": {
           "total_matches": 1,
           "home_wins": 0.0,
-          "away_wins": 1.2,
+          "away_wins": 1.5,
           "draws": 0.0,
           "home_dominance": 0.0,
           "away_dominance": 1.0,
-          "goals_avg": 3.6,
+          "goals_avg": 4.5,
           "over_25_prob": 1.0
         },
         "home_form": {
-          "form_score": 0.533,
-          "goals_for": 1.0,
-          "goals_against": 1.0
+          "form_score": 0.2,
+          "goals_for": 2.4,
+          "goals_against": 5.8
         },
         "away_form": {
-          "form_score": 0.667,
-          "goals_for": 1.8,
-          "goals_against": 1.0
+          "form_score": 0.8,
+          "goals_for": 5.6,
+          "goals_against": 2.6
         },
         "prediction": {
           "double_chance": "X2",
@@ -35044,8 +38644,8 @@
         "is_finished": false,
         "verified_double": false,
         "verified_over": false,
-        "ml_score": 48.9,
-        "final_score": 70.0
+        "ml_score": 48.2,
+        "final_score": 69.8
       },
       {
         "id": 4614655,
@@ -35058,7 +38658,7 @@
         "league": "MLB",
         "league_logo": null,
         "venue": "",
-        "status": "8th Inning",
+        "status": "Final",
         "home_score": 7,
         "away_score": 6,
         "h2h_analysis": {
@@ -35089,9 +38689,9 @@
         "xpronos_score": 77,
         "badge": "🔥 ULTRA SAFE",
         "category": "vip",
-        "is_finished": false,
+        "is_finished": true,
         "verified_double": false,
-        "verified_over": false,
+        "verified_over": true,
         "ml_score": 48.4,
         "final_score": 69.8
       },
@@ -35144,6 +38744,102 @@
         "final_score": 69.3
       },
       {
+        "id": 4732177,
+        "date": "2026-08-20",
+        "event_date": "2026-08-20T22:00:00+00:00",
+        "home_team": "Leones",
+        "away_team": "Real Cundinamarca",
+        "home_logo": "assets/images/teams/sdv1-9829-v1.png",
+        "away_logo": "assets/images/teams/sdv1-9835-v4.png",
+        "league": "Primera B - Finalizacion",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 0.0,
+          "away_wins": 1.2,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 3.6,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.533,
+          "goals_for": 1.0,
+          "goals_against": 1.0
+        },
+        "away_form": {
+          "form_score": 0.667,
+          "goals_for": 1.8,
+          "goals_against": 1.0
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 68
+        },
+        "xpronos_score": 77,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 45.7,
+        "final_score": 69.2
+      },
+      {
+        "id": 4614766,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T23:15:00+00:00",
+        "home_team": "Baltimore Orioles",
+        "away_team": "Tampa Bay Rays",
+        "home_logo": "assets/images/teams/sdv2-team-7417.png",
+        "away_logo": "assets/images/teams/sdv1-7434-v3.png",
+        "league": "MLB",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 1.5,
+          "away_wins": 0.0,
+          "draws": 0.0,
+          "home_dominance": 1.0,
+          "away_dominance": 0.0,
+          "goals_avg": 18.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 6.2,
+          "goals_against": 4.0
+        },
+        "away_form": {
+          "form_score": 0.8,
+          "goals_for": 7.2,
+          "goals_against": 5.0
+        },
+        "prediction": {
+          "double_chance": "1X",
+          "over_25": true,
+          "confidence": 68
+        },
+        "xpronos_score": 77,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 45.1,
+        "final_score": 69.0
+      },
+      {
         "id": 4818558,
         "date": "2026-08-19",
         "event_date": "2026-08-19T10:00:00+00:00",
@@ -35154,9 +38850,9 @@
         "league": "KBO",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Final",
+        "home_score": 5,
+        "away_score": 4,
         "h2h_analysis": {
           "total_matches": 1,
           "home_wins": 1.5,
@@ -35185,9 +38881,9 @@
         "xpronos_score": 77,
         "badge": "🔥 ULTRA SAFE",
         "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
+        "is_finished": true,
+        "verified_double": true,
+        "verified_over": true,
         "ml_score": 43.9,
         "final_score": 68.7
       },
@@ -35202,9 +38898,9 @@
         "league": "KBO",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Final",
+        "home_score": 2,
+        "away_score": 8,
         "h2h_analysis": {
           "total_matches": 1,
           "home_wins": 0.0,
@@ -35233,9 +38929,9 @@
         "xpronos_score": 77,
         "badge": "🔥 ULTRA SAFE",
         "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
+        "is_finished": true,
+        "verified_double": true,
+        "verified_over": true,
         "ml_score": 42.7,
         "final_score": 68.4
       },
@@ -35250,9 +38946,9 @@
         "league": "MLB",
         "league_logo": null,
         "venue": "",
-        "status": "Scheduled",
-        "home_score": null,
-        "away_score": null,
+        "status": "Final",
+        "home_score": 4,
+        "away_score": 3,
         "h2h_analysis": {
           "total_matches": 1,
           "home_wins": 1.5,
@@ -35281,9 +38977,9 @@
         "xpronos_score": 77,
         "badge": "🔥 ULTRA SAFE",
         "category": "vip",
-        "is_finished": false,
-        "verified_double": false,
-        "verified_over": false,
+        "is_finished": true,
+        "verified_double": true,
+        "verified_over": true,
         "ml_score": 41.4,
         "final_score": 68.1
       },
@@ -35334,15 +39030,63 @@
         "verified_over": true,
         "ml_score": 37.5,
         "final_score": 67.1
+      },
+      {
+        "id": 4614729,
+        "date": "2026-08-21",
+        "event_date": "2026-08-21T22:40:00+00:00",
+        "home_team": "Philadelphia Phillies",
+        "away_team": "St. Louis Cardinals",
+        "home_logo": "assets/images/teams/sdv2-team-7413.webp",
+        "away_logo": "assets/images/teams/sdv2-team-7428.png",
+        "league": "MLB",
+        "league_logo": null,
+        "venue": "",
+        "status": "Scheduled",
+        "home_score": null,
+        "away_score": null,
+        "h2h_analysis": {
+          "total_matches": 1,
+          "home_wins": 0.0,
+          "away_wins": 1.5,
+          "draws": 0.0,
+          "home_dominance": 0.0,
+          "away_dominance": 1.0,
+          "goals_avg": 12.0,
+          "over_25_prob": 1.0
+        },
+        "home_form": {
+          "form_score": 0.6,
+          "goals_for": 5.2,
+          "goals_against": 6.2
+        },
+        "away_form": {
+          "form_score": 0.8,
+          "goals_for": 5.6,
+          "goals_against": 2.6
+        },
+        "prediction": {
+          "double_chance": "X2",
+          "over_25": true,
+          "confidence": 63
+        },
+        "xpronos_score": 77,
+        "badge": "🔥 ULTRA SAFE",
+        "category": "vip",
+        "is_finished": false,
+        "verified_double": false,
+        "verified_over": false,
+        "ml_score": 37.1,
+        "final_score": 67.0
       }
     ]
   },
   "stats": {
-    "total_bets": 291,
-    "wins": 195,
-    "roi": -33.0
+    "total_bets": 301,
+    "wins": 200,
+    "roi": -33.6
   },
   "bookmakers": [],
-  "generated_at": "2026-08-19T01:21:37.545796Z",
+  "generated_at": "2026-08-20T01:21:55.400905Z",
   "retention_days": 14
 }
