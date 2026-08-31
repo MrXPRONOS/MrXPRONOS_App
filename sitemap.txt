@@ -6,6 +6,7 @@ https://mrxpronos.github.io/MrXPRONOS_App/conseils.html
 https://mrxpronos.github.io/MrXPRONOS_App/infos.html
 https://mrxpronos.github.io/MrXPRONOS_App/bonus.html
 https://mrxpronos.github.io/MrXPRONOS_App/contact.html
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=stop-loss-take-profit-la-version-fcfa-petites-mises-avec-tableau-exemples-fcfa-4114cb
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=cote-trop-belle-le-framework-mr-xpronos-ultra-pratique-pour-securiser-tes-mises-e210f7
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=dnb-draw-no-bet-plan-7-jours-fcfa-discipline-limites
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=double-chance-1x-x2-11-regles-a-suivre-sinon-tu-vas-souffrir
@@ -85,7 +86,8 @@ https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=rigas-fs-vs-bfc-daug
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=tickets-prudents-plan-clair-15-minutes-afrique-francophone
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=la-methode-simple-et-realiste-compte-limite-en-fcfa-exemples-concrets
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=stjarnan-vs-ka-akureyri-le-choc-islandais-qui-pourrait-tout-changer-en-besta-deild-karla
-https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=parier-en-fcfa-match-piege-petites-mises
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=conseil-pratique-les-pieges-des-favoris-a-petite-cote
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=conseil-pratique-comment-analyser-un-match-rapidement
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=conseil-pratique-gestion-de-bankroll-en-fcfa
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=conseil-pratique-comment-parier-en-live-avec-discipline
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=conseil-pratique-comment-eviter-le-tilt
