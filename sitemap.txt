@@ -6,6 +6,7 @@ https://mrxpronos.github.io/MrXPRONOS_App/conseils.html
 https://mrxpronos.github.io/MrXPRONOS_App/infos.html
 https://mrxpronos.github.io/MrXPRONOS_App/bonus.html
 https://mrxpronos.github.io/MrXPRONOS_App/contact.html
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=routine-du-parieur-eviter-la-ruine-21-jours
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=parier-en-fcfa-carton-rouge-live-le-mini-plan-sur-14-jours-8d7b3f
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=stop-loss-take-profit-la-version-fcfa-petites-mises-avec-tableau-exemples-fcfa-4114cb
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=cote-trop-belle-le-framework-mr-xpronos-ultra-pratique-pour-securiser-tes-mises-e210f7
@@ -85,7 +86,6 @@ https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=mi-temps-fin-de-matc
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=parier-en-fcfa-cote-trop-belle-le-framework-mr-xpronos-ultra-pratique
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=rigas-fs-vs-bfc-daugavpils-le-choc-letton-qui-pourrait-tout-changer-en-virsliga
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=tickets-prudents-plan-clair-15-minutes-afrique-francophone
-https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=la-methode-simple-et-realiste-compte-limite-en-fcfa-exemples-concrets
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=conseil-pratique-comment-utiliser-un-bonus-sans-se-pieger
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=conseil-pratique-les-pieges-des-favoris-a-petite-cote
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=conseil-pratique-comment-analyser-un-match-rapidement
