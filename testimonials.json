@@ -1,32 +1,32 @@
 [
   {
-    "name": "Pascal Diallo",
+    "name": "Nana Coulibaly",
     "rating": 4,
-    "city": "Ouagadougou",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, mes coupons sont plus simples et je me trompe moins souvent, ça change la donne à Ouaga."
+    "city": "Nairobi",
+    "text": "Depuis que je suis les conseils de Mr XPRONOS, je mise moins mais je gagne plus souvent, c’est ça la vraie régularité. À Nairobi, ça change tout."
   },
   {
-    "name": "Thierno Koné",
-    "rating": 4,
-    "city": "Accra",
-    "text": "Depuis que je suis les conseils de Mr XPRONOS, je gère mieux mon argent et je mise plus intelligemment. Les résultats parlent d’eux-mêmes, petit à petit ça monte."
-  },
-  {
-    "name": "Amadou Chanda",
+    "name": "Léa Eze",
     "rating": 5,
-    "city": "Conakry",
-    "text": "Franchement, les analyses font la différence. Maintenant je choisis mieux mes matchs. Ça change ma façon de jouer."
+    "city": "Alger",
+    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je choisis mes matchs avec plus de précision et ça paie bien. À Alger, c’est devenu mon meilleur outil pour éviter les mauvaises…"
   },
   {
-    "name": "Mody Kante",
+    "name": "Maimouna Traoré",
     "rating": 4,
-    "city": "Douala",
-    "text": "Depuis que je suis les analyses H2H de Mr XPRONOS, je mise plus malin et ça paie bien à Douala."
-  },
-  {
-    "name": "Waly Aboubakar",
-    "rating": 5,
     "city": "Bamako",
-    "text": "Avec Mr XPRONOS, j’ai enfin compris pourquoi tel match pouvait basculer, leurs analyses sont claires et ça aide à mieux parier. Depuis Bamako, je me sens moins dans le flou."
+    "text": "Depuis que j’ai commencé à suivre les conseils de Mr XPRONOS, je gère mieux mes mises et je perds moins. Ça me permet de jouer plus longtemps sans tout claquer d’un coup."
+  },
+  {
+    "name": "Sidy Omar",
+    "rating": 5,
+    "city": "Kinshasa",
+    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
+  },
+  {
+    "name": "Bintou Nkosi",
+    "rating": 5,
+    "city": "Lagos",
+    "text": "Franchement, les coupons font la différence. Maintenant je fais moins de combinés inutiles."
   }
 ]

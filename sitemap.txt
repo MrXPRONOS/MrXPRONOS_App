@@ -6,6 +6,8 @@ https://mrxpronos.github.io/MrXPRONOS_App/conseils.html
 https://mrxpronos.github.io/MrXPRONOS_App/infos.html
 https://mrxpronos.github.io/MrXPRONOS_App/bonus.html
 https://mrxpronos.github.io/MrXPRONOS_App/contact.html
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=gestion-de-bankroll-stop-ne-fais-plus-cette-erreur-pour-jouer-plus-propre
+https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=chunichi-dragons-vs-hiroshima-toyo-carp-le-choc-de-la-npb-qui-pourrait-tout-changer-en-202
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=routine-du-parieur-eviter-la-ruine-21-jours
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=parier-en-fcfa-carton-rouge-live-le-mini-plan-sur-14-jours-8d7b3f
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=stop-loss-take-profit-la-version-fcfa-petites-mises-avec-tableau-exemples-fcfa-4114cb
@@ -84,8 +86,7 @@ https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=bonus-de-bienvenue-l
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=carton-rouge-live-plan-7-minutes
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=mi-temps-fin-de-match-le-guide-anti-pieges-niveau-intermediaire
 https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=parier-en-fcfa-cote-trop-belle-le-framework-mr-xpronos-ultra-pratique
-https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=rigas-fs-vs-bfc-daugavpils-le-choc-letton-qui-pourrait-tout-changer-en-virsliga
-https://mrxpronos.github.io/MrXPRONOS_App/article.html?slug=tickets-prudents-plan-clair-15-minutes-afrique-francophone
+https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=gestion-bankroll-fcfa-paris-sportifs
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=conseil-pratique-comment-utiliser-un-bonus-sans-se-pieger
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=conseil-pratique-les-pieges-des-favoris-a-petite-cote
 https://mrxpronos.github.io/MrXPRONOS_App/conseil.html?slug=conseil-pratique-comment-analyser-un-match-rapidement
