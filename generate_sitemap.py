@@ -26,6 +26,18 @@ STATIC_PAGES = {
     "infos.html": {"priority": "0.6", "freq": "daily"},
     "bonus.html": {"priority": "0.6", "freq": "monthly"},
     "contact.html": {"priority": "0.5", "freq": "yearly"},
+    "prono-live/": {"priority": "0.95", "freq": "hourly"},
+    "prono-live/guide-prono-live.html": {"priority": "0.75", "freq": "monthly"},
+    "prono-live/guide-corners-live.html": {"priority": "0.75", "freq": "monthly"},
+    "prono-live/over-corners-live.html": {"priority": "0.75", "freq": "monthly"},
+    "prono-live/tirs-match-live.html": {"priority": "0.75", "freq": "monthly"},
+    "prono-live/erreurs-paris-live.html": {"priority": "0.75", "freq": "monthly"},
+    "prono-live/bankroll-paris-live.html": {"priority": "0.75", "freq": "monthly"},
+    "prono-live/bookmaker-fiable-togo.html": {"priority": "0.75", "freq": "monthly"},
+    "prono-live/faq-prono-live.html": {"priority": "0.75", "freq": "monthly"},
+    "prono-live/statut.html": {"priority": "0.5", "freq": "daily"},
+    "prono-live/jeu-responsable.html": {"priority": "0.5", "freq": "monthly"},
+    "prono-live/a-propos.html": {"priority": "0.5", "freq": "monthly"},
 }
 
 def safe_lastmod(date_str: str, fallback: str) -> str:

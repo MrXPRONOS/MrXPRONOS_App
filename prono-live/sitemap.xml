@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/</loc><changefreq>hourly</changefreq><priority>1.0</priority></url>
-<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/guide-prono-live.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/a-propos.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/guide-prono-live.html</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/guide-corners-live.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/over-corners-live.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/tirs-match-live.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/erreurs-paris-live.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/bankroll-paris-live.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/bookmaker-fiable-togo.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/a-propos.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
 <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/jeu-responsable.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/statut.html</loc><changefreq>daily</changefreq><priority>0.5</priority></url>
+<url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/faq-prono-live.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 <url><loc>https://mrxpronos.github.io/MrXPRONOS_App/prono-live/confidentialite.html</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>
