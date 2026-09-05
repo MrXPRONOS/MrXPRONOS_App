@@ -57,3 +57,35 @@ body{background:#020d20}
 @media(max-width:1100px){.topbar nav{gap:23px}.reference-layout{grid-template-columns:1fr}.reference-sidebar{grid-template-columns:1fr 1fr}.stadium-hero{height:390px}.live-dashboard{padding-inline:22px}}
 @media(max-width:720px){.topbar .brand b{font-size:18px}.stadium-hero{height:290px;background-position:center}.reference-stats{grid-template-columns:1fr 1fr}.reference-stats>div:nth-child(3){grid-column:1/-1}.reference-sidebar{grid-template-columns:1fr}.signal-heading h2{font-size:25px}.mini-bookmaker-grid a{height:92px}.live-dashboard{border-radius:18px 18px 0 0;padding:15px 14px 50px}.topbar{padding-inline:14px}}
 @media(max-width:480px){.stadium-hero{height:235px;background-size:cover}.reference-stats{gap:8px}.reference-stats>div{min-height:78px;padding:10px}.stat-icon{width:40px;height:40px;font-size:22px!important}.stat-tile b{font-size:23px}.stat-tile>span:nth-child(2){font-size:11px}.signal-heading h2{font-size:21px}.reference-sidebar{display:block}.trust-card{margin-top:12px}}
+
+/* Ajustements mobiles demandés */
+.signal-bars{width:25px;height:25px;display:inline-flex;align-items:flex-end;gap:3px;letter-spacing:0;flex:none}
+.signal-bars i{display:block;width:5px;background:#45d7ff;box-shadow:0 0 7px rgba(69,215,255,.45)}
+.signal-bars i:nth-child(1){height:11px}.signal-bars i:nth-child(2){height:22px}.signal-bars i:nth-child(3){height:16px}
+@media(max-width:720px){
+.reference-stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.reference-stats>div:nth-child(3){grid-column:auto}
+.reference-stats>div{min-width:0;min-height:72px;padding:7px 6px;gap:5px}
+.reference-stats .stat-icon{width:30px;height:30px;font-size:17px!important}
+.reference-stats .stat-tile>span:nth-child(2){min-width:0;font-size:9px;line-height:1.2;letter-spacing:0}
+.reference-stats .stat-tile b{font-size:18px;margin-top:5px;white-space:nowrap}
+.reference-stats .stat-refresh{display:none}
+.signal-heading{display:flex;align-items:center;flex-wrap:nowrap;gap:6px}
+.signal-heading>div{min-width:0;gap:7px;flex:1;white-space:nowrap}
+.signal-heading h2{font-size:clamp(15px,4.5vw,21px);letter-spacing:-.6px;white-space:nowrap}
+.signal-heading .count-pill{flex:none;white-space:nowrap;font-size:10px;padding:5px 8px}
+.signal-bars{width:20px;height:21px;gap:2px}.signal-bars i{width:4px}
+.reference-main>.filters{width:max-content;min-width:116px;display:flex;flex-direction:column;align-items:stretch;gap:0;margin:4px 0 12px;border:1px solid rgba(69,200,255,.28);border-radius:10px;background:#071a36;overflow:hidden}
+.reference-main>.filters .filter{display:none;width:100%;min-width:116px;text-align:left;border:0;border-radius:0;padding:8px 30px 8px 12px;background:transparent;position:relative}
+.reference-main>.filters .filter.active{display:block;background:#0d5fba;color:#fff}
+.reference-main>.filters .filter.active:after{content:"⌄";position:absolute;right:11px;top:50%;transform:translateY(-56%);font-size:17px;line-height:1}
+.reference-main>.filters.filters-open .filter{display:block}
+.reference-main>.filters.filters-open .filter.active:after{content:"⌃"}
+.bookmaker-section>.section-title{display:grid;grid-template-columns:1fr;align-items:start}
+.bookmaker-section .promo-copy{justify-self:start;margin-top:10px}
+}
+@media(max-width:480px){
+.reference-stats>div{padding:6px 4px}.reference-stats .stat-icon{width:27px;height:27px;font-size:15px!important}
+.reference-stats .stat-tile b{font-size:16px}.reference-stats .stat-tile>span:nth-child(2){font-size:8px}
+.signal-heading h2{font-size:14px}.signal-heading .count-pill{font-size:9px}.signal-bars{width:18px}
+}
