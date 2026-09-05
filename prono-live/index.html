@@ -1,70 +1,22 @@
-<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Prono Live : pronostics football en direct | MrXPRONOS</title>
-  <meta name="description" content="Suivez les matchs et pronostics football en direct avec Prono Live par MrXPRONOS : scores, corners, tirs, fautes, fiabilité et mises à jour live.">
-  <meta name="robots" content="index,follow,max-image-preview:large">
-  <meta name="theme-color" content="#071510">
-  <link rel="canonical" href="https://mrxpronos.github.io/MrXPRONOS_App/prono-live/">
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="manifest" href="manifest.webmanifest">
-  <meta property="og:type" content="website"><meta property="og:locale" content="fr_FR">
-  <meta property="og:site_name" content="Prono Live par MrXPRONOS">
-  <meta property="og:title" content="Prono Live : les matchs en direct, autrement">
-  <meta property="og:description" content="Pronostics football live, statistiques et signaux actualisés par MrXPRONOS.">
-  <meta property="og:url" content="https://mrxpronos.github.io/MrXPRONOS_App/prono-live/">
-  <meta name="twitter:card" content="summary"><meta name="twitter:title" content="Prono Live par MrXPRONOS">
-  <link rel="preconnect" href="https://nhwafcpndlufzzxexikh.supabase.co">
-  <link rel="stylesheet" href="assets/styles.css">
-  <link rel="stylesheet" href="assets/logos.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Prono Live par MrXPRONOS","alternateName":"Prono Live","url":"https://mrxpronos.github.io/MrXPRONOS_App/prono-live/","inLanguage":"fr","description":"Pronostics et statistiques de football en direct par MrXPRONOS","publisher":{"@type":"Organization","name":"MrXPRONOS","sameAs":["https://t.me/mr_xpronos","https://www.instagram.com/mr_xpronos","https://www.facebook.com/share/1DsG6H6gf1/"]}}</script>
-</head>
-<body>
-  <header class="site-header">
-    <a class="brand" href="./" aria-label="Accueil Prono Live"><span class="brand-ball">PL</span><span><b>PRONO LIVE</b><small>PAR MrXPRONOS</small></span></a>
-    <nav aria-label="Navigation principale"><a class="active" href="#direct">En direct</a><a href="#bookmakers">Bookmakers</a><a href="guide-prono-live.html">Guide</a></nav>
-    <a class="social-cta" href="https://t.me/mr_xpronos" target="_blank" rel="noopener"><img src="../assets/images/telegram.webp" alt="" width="18" height="18"> Rejoindre Telegram</a>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow"><span class="pulse"></span> ANALYSE FOOTBALL EN TEMPS RÉEL</div>
-        <h1>Le match bouge.<br><em>Nos pronos aussi.</em></h1>
-        <p>Prono Live transforme les données des matchs en direct de MrXPRONOS en signaux simples à lire : corners, tirs, fautes et niveau de confiance.</p>
-        <div class="hero-actions"><a class="btn primary" href="#direct">Voir les pronos live</a><a class="btn ghost" href="#methode">Notre méthode</a></div>
-        <div class="trust-row"><span>✓ Mise à jour automatique</span><span>✓ Analyse statistique</span><span>✓ Accès gratuit</span></div>
-      </div>
-      <div class="score-stage" aria-label="Aperçu des données live">
-        <div class="stadium-lines"></div><div class="floating-label"><span class="pulse"></span> LIVE</div>
-        <div class="score-card"><small>APERÇU TEMPS RÉEL</small><div class="teams"><div><span class="team-mark">A</span><b>Équipe A</b></div><strong>1 <i>68′</i> 0</strong><div><span class="team-mark away">B</span><b>Équipe B</b></div></div><div class="signal"><span>Signal détecté</span><b>Plus de 8,5 corners</b><small>Indice de confiance élevé</small></div></div>
-      </div>
-    </section>
-
-    <section class="ticker" aria-label="Résumé live"><div><span class="pulse"></span><b id="live-count">0</b> matchs en direct</div><div><b id="signal-count">0</b> pronostics disponibles</div><div>Actualisé <b id="last-update">maintenant</b></div></section>
-
-    <section class="live-section" id="direct">
-      <div class="section-head"><div><span class="kicker">CENTRE LIVE</span><h2>Pronostics football en direct</h2><p>Les opportunités les plus intéressantes remontent en premier.</p></div><button id="refresh-btn" class="refresh" type="button" aria-label="Actualiser les données">↻ Actualiser</button></div>
-      <div class="filters" role="group" aria-label="Filtres"><button class="filter active" data-filter="all">Tous</button><button class="filter" data-filter="corners">Corners</button><button class="filter" data-filter="tirs">Tirs</button><button class="filter" data-filter="fautes">Fautes</button></div>
-      <div id="status" class="status-bar">Connexion aux données live…</div>
-      <div id="live-grid" class="live-grid" aria-live="polite" aria-busy="true"></div>
-    </section>
-
-    <aside class="promo-strip" id="bookmakers"><div><span class="kicker">OFFRES PARTENAIRES</span><h2>Prêt à jouer votre sélection ?</h2><p>Copiez le code avant de vous inscrire. Les conditions de bonus varient selon le bookmaker et le pays.</p></div><button class="promo-code" type="button" data-copy="XPVIP"><span>CODE PROMO</span><b>XPVIP</b><small>Cliquer pour copier</small></button></aside>
-
-    <section class="bookmaker-section"><div class="section-head"><div><span class="kicker">NOS PARTENAIRES</span><h2>Choisissez votre bookmaker</h2></div></div><div class="bookmaker-grid" id="bookmaker-grid"></div><p class="affiliate-note">Certains liens sont affiliés : MrXPRONOS peut recevoir une commission, sans coût supplémentaire pour vous. Vérifiez la disponibilité et les conditions dans votre pays.</p></section>
-
-    <section class="method" id="methode"><div><span class="kicker">POURQUOI PRONO LIVE ?</span><h2>Lire le match, pas seulement la cote.</h2><p>Notre moteur observe l’évolution du score et les statistiques disponibles pour détecter des contextes intéressants. Chaque signal indique sa minute, sa probabilité estimée et sa fiabilité.</p><a href="guide-prono-live.html">Comprendre un prono live →</a></div><ol><li><b>01</b><span><strong>Données en direct</strong>Les événements du match sont collectés et actualisés.</span></li><li><b>02</b><span><strong>Analyse du contexte</strong>Le moteur compare rythme, minute et statistiques clés.</span></li><li><b>03</b><span><strong>Signal clair</strong>Le pronostic le plus pertinent est affiché simplement.</span></li></ol></section>
-
-    <section class="responsible"><div class="shield">18+</div><div><h2>Le pronostic n’est jamais une garantie.</h2><p>Jouez uniquement si vous êtes majeur, fixez un budget avant le match et ne cherchez jamais à récupérer une perte. Les probabilités affichées sont des estimations, pas des certitudes.</p></div><a href="jeu-responsable.html">Nos règles de jeu responsable</a></section>
-  </main>
-
-  <footer><div class="footer-brand"><a class="brand" href="./"><span class="brand-ball">PL</span><span><b>PRONO LIVE</b><small>PAR MrXPRONOS</small></span></a><p>La plateforme dédiée aux pronostics football en direct, propulsée par les données MrXPRONOS.</p></div><div><h3>Navigation</h3><a href="#direct">Pronos live</a><a href="#bookmakers">Bookmakers</a><a href="guide-prono-live.html">Guide du live</a></div><div><h3>Informations</h3><a href="a-propos.html">À propos</a><a href="jeu-responsable.html">Jeu responsable</a><a href="confidentialite.html">Confidentialité</a></div><div><h3>Réseaux</h3><a class="social-link" target="_blank" rel="noopener" href="https://t.me/mr_xpronos"><img src="../assets/images/telegram.webp" alt="Logo Telegram">Telegram</a><a class="social-link" target="_blank" rel="noopener" href="https://www.instagram.com/mr_xpronos"><img src="../assets/images/instagram.webp" alt="Logo Instagram">Instagram</a><a class="social-link" target="_blank" rel="noopener" href="https://www.facebook.com/share/1DsG6H6gf1/"><img src="../assets/images/facebook.webp" alt="Logo Facebook">Facebook</a></div><p class="copyright">© 2026 Prono Live par MrXPRONOS · Réservé aux 18 ans et plus.</p></footer>
-
-  <div id="toast" class="toast" role="status"></div>
-  <dialog id="detail-modal"><button class="modal-close" aria-label="Fermer">×</button><div id="modal-content"></div></dialog>
-  <script src="assets/app.js" defer></script>
-</body>
-</html>
+<!doctype html><html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pronostics football live et statistiques en direct | Prono Live</title>
+<meta name="description" content="Consultez les meilleurs pronostics football en direct de MrXPRONOS : corners, tirs, fautes, scores live, fiabilité et historique vérifié.">
+<meta name="robots" content="index,follow,max-image-preview:large"><meta name="theme-color" content="#071a3a">
+<link rel="canonical" href="https://mrxpronos.github.io/MrXPRONOS_App/prono-live/"><link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest"><link rel="preconnect" href="https://nhwafcpndlufzzxexikh.supabase.co"><link rel="stylesheet" href="assets/styles.css">
+<meta property="og:type" content="website"><meta property="og:locale" content="fr_FR"><meta property="og:site_name" content="Prono Live par MrXPRONOS"><meta property="og:title" content="Prono Live — Analyse football en direct"><meta property="og:description" content="Scores, statistiques et pronostics football live actualisés par MrXPRONOS."><meta property="og:url" content="https://mrxpronos.github.io/MrXPRONOS_App/prono-live/"><meta property="og:image" content="https://mrxpronos.github.io/MrXPRONOS_App/prono-live/assets/og-prono-live.webp"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Prono Live par MrXPRONOS"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Prono Live par MrXPRONOS"><meta name="twitter:image" content="https://mrxpronos.github.io/MrXPRONOS_App/prono-live/assets/og-prono-live.webp">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://mrxpronos.github.io/MrXPRONOS_App/#organization","name":"MrXPRONOS","url":"https://mrxpronos.github.io/MrXPRONOS_App/","sameAs":["https://t.me/mr_xpronos","https://www.instagram.com/mr_xpronos","https://www.facebook.com/share/1DsG6H6gf1/"]},{"@type":"WebSite","@id":"https://mrxpronos.github.io/MrXPRONOS_App/prono-live/#website","name":"Prono Live par MrXPRONOS","url":"https://mrxpronos.github.io/MrXPRONOS_App/prono-live/","inLanguage":"fr","publisher":{"@id":"https://mrxpronos.github.io/MrXPRONOS_App/#organization"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"MrXPRONOS","item":"https://mrxpronos.github.io/MrXPRONOS_App/"},{"@type":"ListItem","position":2,"name":"Prono Live","item":"https://mrxpronos.github.io/MrXPRONOS_App/prono-live/"}]}]}</script></head><body>
+<header class="topbar"><a class="brand" href="./"><span class="brand-mark">PL</span><span><b>PRONO LIVE</b><small>PAR MrXPRONOS</small></span></a><nav aria-label="Navigation principale"><button data-view="live" class="nav-link active">Live</button><button data-view="upcoming" class="nav-link">À venir</button><button data-view="history" class="nav-link">Historique</button><a href="#bookmakers">Bookmakers</a><a href="guide-prono-live.html">Guides</a></nav><button id="alert-btn" class="alert-btn" type="button">🔔 Activer les alertes</button></header>
+<main><section class="live-dashboard" id="direct"><div class="dashboard-head"><div><div class="eyebrow"><span class="live-dot"></span> CENTRE LIVE MrXPRONOS</div><h1>Pronostics football <em>en direct</em></h1><p id="service-line">Connexion au moteur live…</p></div><button id="refresh-btn" class="icon-btn" type="button" aria-label="Actualiser">↻</button></div>
+<div class="quick-stats"><div><span>Matchs live</span><b id="live-count">0</b></div><div><span>Signaux fiables</span><b id="signal-count">0</b></div><div><span>À venir</span><b id="upcoming-count">0</b></div><div><span>Actualisé</span><b id="last-update">—</b></div></div>
+<div class="filters" role="group" aria-label="Filtres des pronostics"><button class="filter active" data-filter="all">Tous</button><button class="filter" data-filter="corners">Corners</button><button class="filter" data-filter="tirs">Tirs</button><button class="filter" data-filter="fautes">Fautes</button></div>
+<section id="view-live" class="data-view active"><div class="section-title"><div><span class="overline">SÉLECTION DU MOTEUR</span><h2>Meilleurs signaux live</h2></div><span id="top-count" class="count-pill">0 signal</span></div><div id="top-grid" class="match-grid" aria-live="polite"><div class="skeleton"></div><div class="skeleton"></div></div><div class="section-title secondary"><div><span class="overline">SURVEILLANCE</span><h2>Autres matchs en direct</h2></div></div><div id="other-grid" class="match-grid compact-grid"></div></section>
+<section id="view-upcoming" class="data-view"><div class="section-title"><div><span class="overline">PROCHAINS MATCHS</span><h2>Matchs bientôt surveillés</h2></div></div><div id="upcoming-grid" class="match-grid"></div></section>
+<section id="view-history" class="data-view"><div class="section-title"><div><span class="overline">RÉSULTATS RÉELS</span><h2>Historique vérifié</h2></div><div class="history-summary"><span>7 jours <b id="rate-7">—</b></span><span>30 jours <b id="rate-30">—</b></span></div></div><div id="history-grid" class="match-grid"></div></section></section>
+<section class="meaning-section" id="methode"><div><span class="overline">BIEN LIRE LES INDICATEURS</span><h2>Trois chiffres, trois rôles différents.</h2></div><div class="meaning-grid"><article><span>01</span><h3>Probabilité estimée</h3><p>Chance calculée pour le pronostic à partir du contexte observé.</p></article><article><span>02</span><h3>Fiabilité</h3><p>Qualité et quantité des données disponibles pour cette analyse.</p></article><article><span>03</span><h3>Score du signal</h3><p>Intérêt global de l’opportunité pour la classer parmi les autres.</p></article></div></section>
+<section class="bookmaker-section" id="bookmakers"><div class="section-title"><div><span class="overline">PARTENAIRES</span><h2>Choisissez votre bookmaker</h2><p>Disponibilité et bonus variables selon votre pays. Copiez le code avant l’inscription.</p></div><button class="promo-copy" data-copy="XPVIP"><small>CODE PROMO</small><b>XPVIP</b><span>Copier</span></button></div><div id="bookmaker-grid" class="bookmaker-grid"></div><p class="affiliate-note">Liens affiliés : MrXPRONOS peut recevoir une commission sans coût supplémentaire pour vous. 18+.</p></section>
+<section class="guides-section"><div class="section-title"><div><span class="overline">APPRENDRE</span><h2>Guides du pari en direct</h2></div><a href="guide-prono-live.html">Guide complet →</a></div><div class="guide-grid"><a href="guide-corners-live.html"><b>01</b><h3>Analyser les corners en direct</h3><span>Lire →</span></a><a href="over-corners-live.html"><b>02</b><h3>Quand jouer un over corners ?</h3><span>Lire →</span></a><a href="tirs-match-live.html"><b>03</b><h3>Interpréter les tirs d’un match</h3><span>Lire →</span></a><a href="erreurs-paris-live.html"><b>04</b><h3>Éviter les erreurs du live</h3><span>Lire →</span></a><a href="bankroll-paris-live.html"><b>05</b><h3>Protéger sa bankroll</h3><span>Lire →</span></a><a href="bookmaker-fiable-togo.html"><b>06</b><h3>Choisir un bookmaker au Togo</h3><span>Lire →</span></a></div></section>
+<section class="status-card"><div class="status-icon" id="status-icon">●</div><div><span class="overline">ÉTAT DU SERVICE</span><h2 id="status-title">Vérification en cours</h2><p id="status-detail">Connexion aux données MrXPRONOS.</p></div><a href="statut.html">Voir les détails</a></section><section class="responsible"><b>18+</b><div><h2>Un pronostic n’est jamais une garantie.</h2><p>Fixez votre budget avant le match. Ne cherchez jamais à récupérer une perte.</p></div><a href="jeu-responsable.html">Jeu responsable</a></section></main>
+<footer><a class="brand" href="./"><span class="brand-mark">PL</span><span><b>PRONO LIVE</b><small>PAR MrXPRONOS</small></span></a><div><h3>Informations</h3><a href="a-propos.html">À propos</a><a href="confidentialite.html">Confidentialité</a><a href="statut.html">État du service</a><a href="faq-prono-live.html">Questions fréquentes</a></div><div><h3>Réseaux</h3><a href="https://t.me/mr_xpronos" target="_blank" rel="noopener"><img src="../assets/images/telegram.webp" alt="">Telegram</a><a href="https://www.instagram.com/mr_xpronos" target="_blank" rel="noopener"><img src="../assets/images/instagram.webp" alt="">Instagram</a><a href="https://www.facebook.com/share/1DsG6H6gf1/" target="_blank" rel="noopener"><img src="../assets/images/facebook.webp" alt="">Facebook</a></div><p>© 2026 Prono Live par MrXPRONOS · Réservé aux 18 ans et plus.</p></footer>
+<nav class="mobile-nav" aria-label="Navigation mobile"><button data-view="live" class="active"><span>⚡</span>Live</button><button data-view="upcoming"><span>◷</span>À venir</button><button data-view="history"><span>✓</span>Historique</button><a href="#bookmakers"><span>★</span>Bookmakers</a><a href="https://t.me/mr_xpronos" target="_blank" rel="noopener"><img src="../assets/images/telegram.webp" alt="">Telegram</a></nav><a class="sticky-promo" href="#bookmakers"><span>Code promo</span><b>XPVIP</b><small>Voir les bookmakers</small></a><div id="toast" class="toast" role="status"></div>
+<dialog id="detail-modal"><button class="modal-close" aria-label="Fermer">×</button><div id="modal-content"></div></dialog><dialog id="alert-modal"><button class="modal-close" aria-label="Fermer">×</button><h2>Alertes Prono Live</h2><p>Recevez les nouveaux signaux et leur validation.</p><label><input type="checkbox" id="alert-new" checked> Nouveaux pronostics live</label><label><input type="checkbox" id="alert-result" checked> Résultats validés</label><button id="confirm-alerts" class="primary-btn">Activer les notifications</button><a href="https://t.me/mr_xpronos" target="_blank" rel="noopener">Recevoir aussi les alertes Telegram →</a></dialog><script src="assets/app.js" defer></script></body></html>
