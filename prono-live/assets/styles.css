@@ -91,3 +91,21 @@ body{background:#020d20}
 }
 
 @media(max-width:720px){.sticky-promo{display:none}.bookmaker-section>.section-title .promo-copy{display:flex;position:static;order:2}}
+
+/* Separateurs fins et blocs information epures */
+.meaning-section,.bookmaker-section,.guides-section{border-top:1px solid rgba(116,174,235,.16)}
+.status-card,.responsible{border:1px solid rgba(69,200,255,.18);border-left:3px solid #26bfff;background:linear-gradient(145deg,rgba(8,31,63,.78),rgba(3,17,36,.7));box-shadow:none}
+.status-icon{position:relative;width:48px;height:48px;background:rgba(61,226,156,.09);border:1px solid rgba(61,226,156,.36);color:transparent!important}
+.status-icon:before{content:"✓";position:absolute;inset:0;display:grid;place-items:center;color:var(--green);font:800 20px Manrope}
+.responsible{border-left-color:var(--red)}.responsible>b{width:48px;height:48px;border:1px solid var(--red);background:rgba(255,89,100,.07);font-size:16px}
+.status-card h2,.responsible h2{font-size:20px;letter-spacing:-.4px}.status-card>a,.responsible>a{text-underline-offset:4px}
+@media(max-width:580px){
+.meaning-section,.bookmaker-section,.guides-section,.status-card,.responsible{border-top:1px solid rgba(116,174,235,.2)}
+.status-card,.responsible{margin:0 20px;padding:26px 0;border-left:0;border-right:0;border-bottom:0;border-radius:0;background:transparent;grid-template-columns:42px minmax(0,1fr);gap:14px;align-items:start}
+.status-card{margin-top:28px}.responsible{margin-top:0;margin-bottom:25px}
+.status-icon,.responsible>b{width:40px;height:40px;margin-top:2px}.status-icon:before{font-size:17px}.responsible>b{font-size:14px}
+.status-card h2,.responsible h2{font-size:19px;line-height:1.25;margin:2px 0 6px}
+.status-card p,.responsible p{font-size:15px;line-height:1.55}
+.status-card>a,.responsible>a{grid-column:2;font-size:14px;margin-top:2px}
+.sticky-promo{display:none}
+}
