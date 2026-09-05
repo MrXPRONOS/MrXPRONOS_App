@@ -89,3 +89,5 @@ body{background:#020d20}
 .reference-stats .stat-tile b{font-size:16px}.reference-stats .stat-tile>span:nth-child(2){font-size:8px}
 .signal-heading h2{font-size:14px}.signal-heading .count-pill{font-size:9px}.signal-bars{width:18px}
 }
+
+@media(max-width:720px){.sticky-promo{display:none}.bookmaker-section>.section-title .promo-copy{display:flex;position:static;order:2}}
