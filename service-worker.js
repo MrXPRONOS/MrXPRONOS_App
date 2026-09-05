@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v11';
+const VERSION = 'v12-pronos-fix';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -132,33 +132,34 @@ const strategies = {
 
     networkFirst: async (request) => {
         const cache = await caches.open(DYNAMIC_CACHE);
+        const stableUrl = new URL(request.url);
+        stableUrl.search = '';
+        const stableRequest = new Request(stableUrl.toString(), { method: 'GET' });
 
         try {
-            const networkResponse = await fetch(request);
+            const networkResponse = await fetch(request, { cache: 'no-store' });
             if (networkResponse && networkResponse.ok) {
-                cache.put(request, networkResponse.clone());
+                // Les paramètres ?t=... changent à chaque appel : on utilise une clé stable.
+                await cache.put(stableRequest, networkResponse.clone());
                 return networkResponse;
             }
-        } catch {
-            log('📴 Réseau indisponible, tentative cache:', request.url);
+            throw new Error(`HTTP ${networkResponse?.status || 0}`);
+        } catch (error) {
+            log('📴 Réseau indisponible, tentative cache stable:', stableUrl.toString(), error?.message || error);
         }
 
-        const cached = await cache.match(request);
+        const cached = await cache.match(stableRequest);
         if (cached) return cached;
 
-        if (request.url.includes('data.json')) {
-            return new Response(
-                JSON.stringify({
-                    matches: [],
-                    categories: { simple: [], pro: [], vip: [] },
-                    stats: { total_bets: 0, wins: 0, roi: 0 },
-                    bookmakers: []
-                }),
-                { headers: { 'Content-Type': 'application/json' } }
-            );
-        }
-
-        return new Response('Offline', { status: 503 });
+        // Ne jamais fabriquer un faux data.json vide en HTTP 200.
+        // main.js utilisera alors son dernier cache local non vide.
+        return new Response(
+            JSON.stringify({ error: 'offline', message: 'Donnée indisponible hors ligne' }),
+            {
+                status: 503,
+                headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }
+            }
+        );
     },
 
     staleWhileRevalidate: async (request) => {

@@ -1,0 +1,10 @@
+.social-cta { gap: 8px; }
+.social-cta img { border-radius: 50%; object-fit: contain; }
+.bk-logo { width: 92px; height: 42px; object-fit: contain; background: #fff; border-radius: 10px; padding: 7px; }
+.bookmaker-card { min-height: 82px; }
+.bookmaker-card .bk-name { flex: 1; }
+.social-link { display: flex !important; align-items: center; gap: 9px; }
+.social-link img { width: 25px; height: 25px; object-fit: contain; border-radius: 7px; }
+.team-logo { display: block; }
+.team-logo.is-loading { opacity: .7; }
+.logo-fallback { flex: 0 0 34px; }

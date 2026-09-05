@@ -6,13 +6,11 @@
     <title>Pronostics - Mr XPRONOS</title>
     <meta name="description" content="Pronostics sportifs du jour, analyses H2H, conseils. Code promo XPVIP.">
     <meta name="robots" content="index, follow">
-
     <meta property="og:title" content="Pronostics - Mr XPRONOS">
     <meta property="og:description" content="Pronostics sportifs du jour, analyses H2H, conseils. Code promo XPVIP.">
     <meta property="og:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
     <meta property="og:url" content="https://mrxpronos.github.io/MrXPRONOS_App/pronos.html">
     <meta property="og:type" content="website">
-
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Pronostics - Mr XPRONOS">
     <meta name="twitter:description" content="Pronostics sportifs du jour, analyses H2H, conseils. Code promo XPVIP.">
@@ -21,11 +19,9 @@
     <link rel="icon" href="assets/images/favicon.webp">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="assets/css/style.css">
     <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
@@ -35,7 +31,6 @@
             <div class="logo">
                 <a href="index.html">Mr <span>XPRONOS</span></a>
             </div>
-
             <div class="header-actions">
                 <button id="install-app" class="btn btn-secondary" type="button" style="display:none;">
                     Installer l'app
@@ -47,7 +42,6 @@
 
     <main class="container">
         <h1 style="color: var(--or); margin: 2rem 0 1rem;">📊 Coupons Double Chance</h1>
-
         <div class="search-container">
             <input
                 type="text"
@@ -59,7 +53,6 @@
         </div>
 
         <div id="success-rate-container" class="success-rate" style="display: none;"></div>
-
         <div class="day-filters">
             <button class="day-btn active" data-day="today" type="button">Aujourd'hui</button>
             <button class="day-btn" data-day="tomorrow" type="button">Demain</button>
@@ -69,7 +62,6 @@
         <div id="matches-container" class="matches-grid" aria-live="polite">
             <div class="loading">Chargement des matchs...</div>
         </div>
-
         <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;"></div>
     </main>
 
@@ -117,7 +109,6 @@
                 <a href="bonus.html">Bonus & Promo</a>
                 <a href="contact.html">Contact</a>
             </div>
-
             <div class="social-links">
                 <a href="https://wa.me/22899201444" target="_blank" rel="noopener noreferrer"><img src="assets/images/whatsapp.webp" alt="WhatsApp" loading="lazy"></a>
                 <a href="https://t.me/mr_xpronos" target="_blank" rel="noopener noreferrer"><img src="assets/images/telegram.webp" alt="Telegram" loading="lazy"></a>
@@ -126,15 +117,21 @@
                 <a href="https://youtube.com/@mrxpronos?si=f6Z66923Lx9KF3ri" target="_blank" rel="noopener noreferrer"><img src="assets/images/youtube.webp" alt="YouTube" loading="lazy"></a>
                 <a href="https://www.threads.com/@mr_xpronos" target="_blank" rel="noopener noreferrer"><img src="assets/images/threads.webp" alt="Threads" loading="lazy"></a>
             </div>
-
             <div class="bookmakers" id="bookmakers-footer"></div>
-
             <p>&copy; 2025 Mr XPRONOS. Tous droits réservés. <span style="font-size:0.7rem; opacity:0.7;">18+ • Divertissement seulement</span></p>
         </div>
     </footer>
 
-    <script type="module" src="assets/js/main.js"></script>
-    <script defer src="assets/js/pwa.js"></script>
+    <script>
+      // Demande immédiatement au navigateur de vérifier la nouvelle version du Service Worker.
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.getRegistration().then((registration) => registration?.update()).catch(() => {});
+        });
+      }
+    </script>
+    <script type="module" src="assets/js/main.js?v=20260806-pronos-fix"></script>
+    <script defer src="assets/js/pwa.js?v=20260806-pronos-fix"></script>
     <script defer src="assets/js/assistant.js"></script>
     <script defer src="assets/js/menu.js"></script>
     <script defer src="assets/js/back-to-top.js"></script>

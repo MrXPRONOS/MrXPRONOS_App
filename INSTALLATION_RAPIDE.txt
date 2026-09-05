@@ -1,0 +1,11 @@
+1. Décompresser ce dossier à la racine du projet.
+2. Remplacer :
+   - assets/js/main.js
+   - service-worker.js
+   - pronos.html
+3. Exécuter :
+   git add assets/js/main.js service-worker.js pronos.html
+   git commit -m "Fix affichage des pronostics"
+   git push
+4. Ouvrir : pronos.html?v=20260806-pronos-fix
+5. Faire Ctrl+F5, ou fermer/réouvrir la PWA deux fois.
