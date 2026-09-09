@@ -1,32 +1,32 @@
 [
   {
-    "name": "Baba Mensah",
+    "name": "Modibo Dembélé",
     "rating": 5,
-    "city": "Bamako",
-    "text": "Depuis 30 jours je suis les explications, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
+    "city": "Luanda",
+    "text": "Depuis 30 jours je suis les analyses, et je choisis mieux mes matchs. C’est simple et ça m’aide vraiment."
   },
   {
-    "name": "Bassirou Banda",
-    "rating": 5,
-    "city": "Lagos",
-    "text": "Franchement, les analyses font la différence. Maintenant je fais moins de combinés inutiles."
-  },
-  {
-    "name": "Néné Sawadogo",
-    "rating": 5,
-    "city": "Casablanca",
-    "text": "Franchement, les analyses font la différence. Maintenant je joue moins mais plus propre. Ça change ma façon de jouer."
-  },
-  {
-    "name": "Diarra Sissoko",
+    "name": "Fatoumata Mbeki",
     "rating": 4,
-    "city": "Douala",
-    "text": "Depuis 14 jours je suis les explications, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
+    "city": "Bamako",
+    "text": "Depuis 14 jours je suis la fiabilité, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
   },
   {
-    "name": "Rama Camara",
+    "name": "Kadiatou Coulibaly",
+    "rating": 4,
+    "city": "Antananarivo",
+    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
+  },
+  {
+    "name": "Fama Onyeka",
     "rating": 5,
-    "city": "Johannesburg",
-    "text": "Franchement, la méthode font la différence. Maintenant je mise plus discipliné. Ça change ma façon de jouer."
+    "city": "Alger",
+    "text": "Les pronos sont clairs et je comprends enfin pourquoi je joue. Je préfère cette méthode aux paris au hasard."
+  },
+  {
+    "name": "Tata Mbeki",
+    "rating": 5,
+    "city": "Luanda",
+    "text": "Franchement, les analyses font la différence. Maintenant je comprends enfin pourquoi je joue."
   }
 ]
