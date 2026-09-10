@@ -1,32 +1,32 @@
 [
   {
-    "name": "El hadji Kazadi",
+    "name": "Kankou Touré",
     "rating": 4,
-    "city": "Antananarivo",
-    "text": "Depuis 14 jours je suis les analyses, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
-  },
-  {
-    "name": "Xavier Mbeki",
-    "rating": 5,
-    "city": "Libreville",
-    "text": "Depuis 7 jours je suis la fiabilité, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
-  },
-  {
-    "name": "Aisha Mohamed",
-    "rating": 5,
-    "city": "Conakry",
+    "city": "Ouagadougou",
     "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
   },
   {
-    "name": "Lamine Ba",
+    "name": "Fama Ba",
     "rating": 5,
-    "city": "Ouagadougou",
-    "text": "Depuis 30 jours je suis la méthode, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
+    "city": "Antananarivo",
+    "text": "Franchement, le live font la différence. Maintenant je comprends enfin pourquoi je joue. Ça change ma façon de jouer."
   },
   {
-    "name": "Nabou Zongo",
+    "name": "Rama Okafor",
+    "rating": 4,
+    "city": "Ouagadougou",
+    "text": "Depuis 30 jours je suis le live, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
+  },
+  {
+    "name": "Kadidia Diarra",
+    "rating": 4,
+    "city": "Douala",
+    "text": "Franchement, les analyses font la différence. Maintenant je fais moins de combinés inutiles."
+  },
+  {
+    "name": "Ibrahim Kabasele",
     "rating": 5,
-    "city": "Dakar",
-    "text": "Les pronos sont clairs et je choisis mieux mes matchs. Je préfère cette méthode aux paris au hasard."
+    "city": "Lomé",
+    "text": "Franchement, la méthode font la différence. Maintenant je mise plus discipliné. Ça change ma façon de jouer."
   }
 ]

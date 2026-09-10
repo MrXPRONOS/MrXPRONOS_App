@@ -15,6 +15,7 @@ UTC = timezone.utc
 # Telegram
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+SECONDARY_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID_SECONDARY", "@mrxpronosfr")
 SITE_URL = os.environ.get("SITE_URL", "https://mrxpronos.github.io/MrXPRONOS_App/")
 MORE_URL = os.environ.get("MORE_URL", SITE_URL + "pronos.html")
 HIST_URL = os.environ.get("HIST_URL", SITE_URL + "historique.html")
@@ -26,9 +27,16 @@ OUT_DIR = os.environ.get("OUT_DIR", "telegram_out")
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or os.environ.get("SUPABASE_KEY")
 
+def telegram_chat_ids():
+    """Retourne les canaux Telegram sans doublon, canal principal puis secondaire."""
+    chat_ids = [CHAT_ID, SECONDARY_CHAT_ID]
+    return list(dict.fromkeys(chat_id.strip() for chat_id in chat_ids if chat_id and chat_id.strip()))
+
 def require_telegram():
     if not TOKEN or not CHAT_ID:
         raise SystemExit("Secrets manquants: TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID")
+    if not telegram_chat_ids():
+        raise SystemExit("Aucun canal Telegram configuré")
 
 def require_supabase():
     if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
@@ -45,17 +53,26 @@ def sb_headers():
 # --- Helpers Telegram ---
 def send_message(text: str, buttons=None):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {
-        "chat_id": CHAT_ID,
-        "text": text,
-        "disable_web_page_preview": True,
-    }
-    if buttons:
-        payload["reply_markup"] = json.dumps({"inline_keyboard": buttons})
-    r = requests.post(url, data=payload, timeout=60)
-    if not r.ok:
-        print("Telegram message error:", r.status_code, r.text)
-        r.raise_for_status()
+    errors = []
+    for chat_id in telegram_chat_ids():
+        payload = {
+            "chat_id": chat_id,
+            "text": text,
+            "disable_web_page_preview": True,
+        }
+        if buttons:
+            payload["reply_markup"] = json.dumps({"inline_keyboard": buttons})
+        try:
+            r = requests.post(url, data=payload, timeout=60)
+            if not r.ok:
+                print(f"Telegram message error [{chat_id}]:", r.status_code, r.text)
+                r.raise_for_status()
+            print(f"Telegram message envoyé vers {chat_id}")
+        except Exception as exc:
+            errors.append(f"{chat_id}: {exc}")
+
+    if errors:
+        raise RuntimeError("Échec d'envoi Telegram: " + " | ".join(errors))
 
 def send_photo(photo_path: str, caption: str = ""):
     url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
@@ -65,20 +82,30 @@ def send_photo(photo_path: str, caption: str = ""):
             [{"text": "Ouvrir le site", "url": SITE_URL}],
         ]
     }
-    with open(photo_path, "rb") as f:
-        r = requests.post(
-            url,
-            data={
-                "chat_id": CHAT_ID,
-                "caption": caption,
-                "reply_markup": json.dumps(keyboard),
-            },
-            files={"photo": f},
-            timeout=120
-        )
-    if not r.ok:
-        print("Telegram photo error:", r.status_code, r.text)
-        r.raise_for_status()
+    errors = []
+    for chat_id in telegram_chat_ids():
+        try:
+            # Le fichier doit être rouvert pour chaque canal Telegram.
+            with open(photo_path, "rb") as f:
+                r = requests.post(
+                    url,
+                    data={
+                        "chat_id": chat_id,
+                        "caption": caption,
+                        "reply_markup": json.dumps(keyboard),
+                    },
+                    files={"photo": f},
+                    timeout=120
+                )
+            if not r.ok:
+                print(f"Telegram photo error [{chat_id}]:", r.status_code, r.text)
+                r.raise_for_status()
+            print(f"Telegram photo envoyée vers {chat_id}")
+        except Exception as exc:
+            errors.append(f"{chat_id}: {exc}")
+
+    if errors:
+        raise RuntimeError("Échec d'envoi Telegram: " + " | ".join(errors))
 
 # --- Helpers Supabase ---
 def sb_log_sent(match_id: str, date_str: str):
