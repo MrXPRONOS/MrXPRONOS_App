@@ -1,0 +1,86 @@
+name: Replace 1xBet affiliate link project-wide
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/replace-1xbet-affiliate-link.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  replace-link:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Replace old 1xBet affiliate URL everywhere
+        shell: python
+        run: |
+          from pathlib import Path
+
+          old = "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"
+          new = "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573"
+
+          ignored_dirs = {'.git', 'node_modules', '.venv', 'venv', '__pycache__'}
+          changed = []
+          replacements = 0
+
+          for path in Path('.').rglob('*'):
+              if not path.is_file() or any(part in ignored_dirs for part in path.parts):
+                  continue
+              try:
+                  raw = path.read_bytes()
+                  text = raw.decode('utf-8')
+              except (UnicodeDecodeError, OSError):
+                  continue
+
+              count = text.count(old)
+              if not count:
+                  continue
+
+              path.write_text(text.replace(old, new), encoding='utf-8')
+              changed.append(str(path))
+              replacements += count
+
+          print(f"Replacements: {replacements}")
+          print("Changed files:")
+          for path in changed:
+              print(f" - {path}")
+
+          if replacements == 0:
+              raise SystemExit("Old 1xBet affiliate URL not found; nothing was changed.")
+
+      - name: Verify old link is gone
+        shell: python
+        run: |
+          from pathlib import Path
+          old = "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"
+          ignored_dirs = {'.git', 'node_modules', '.venv', 'venv', '__pycache__'}
+          remaining = []
+          for path in Path('.').rglob('*'):
+              if not path.is_file() or any(part in ignored_dirs for part in path.parts):
+                  continue
+              try:
+                  if old in path.read_text(encoding='utf-8'):
+                      remaining.append(str(path))
+              except (UnicodeDecodeError, OSError):
+                  pass
+          if remaining:
+              raise SystemExit("Old URL still present in: " + ", ".join(remaining))
+          print("Verification OK: old 1xBet URL is absent from UTF-8 project files.")
+
+      - name: Commit replacement
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Update 1xBet affiliate link everywhere"
+          git push
