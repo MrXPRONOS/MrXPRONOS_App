@@ -1,32 +1,32 @@
 [
   {
-    "name": "Haby Camara",
-    "rating": 5,
+    "name": "Salif Mukendi",
+    "rating": 4,
     "city": "Johannesburg",
-    "text": "Depuis 7 jours je suis la méthode, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
+    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
   },
   {
-    "name": "Fatou Camara",
-    "rating": 4,
-    "city": "Douala",
-    "text": "Les pronos sont clairs et je comprends enfin pourquoi je joue. Je préfère cette méthode aux paris au hasard."
-  },
-  {
-    "name": "Fodé Kiprop",
+    "name": "Aïssatou Boateng",
     "rating": 5,
-    "city": "Kigali",
-    "text": "Depuis 30 jours je suis les explications, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
+    "city": "Casablanca",
+    "text": "Depuis 7 jours je suis les analyses, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
   },
   {
-    "name": "Jacques Dlamini",
+    "name": "Aïssatou Tembo",
     "rating": 4,
-    "city": "Yaoundé",
-    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
+    "city": "Dakar",
+    "text": "Franchement, le live font la différence. Maintenant je choisis mieux mes matchs. Ça change ma façon de jouer."
   },
   {
-    "name": "Hawa Diaby",
+    "name": "Kadiatou Kabore",
+    "rating": 5,
+    "city": "Douala",
+    "text": "Franchement, la fiabilité font la différence. Maintenant je fais moins de combinés inutiles."
+  },
+  {
+    "name": "Awa Zuma",
     "rating": 5,
     "city": "Luanda",
-    "text": "Franchement, la fiabilité font la différence. Maintenant je comprends enfin pourquoi je joue."
+    "text": "Depuis 10 jours je suis les explications, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
   }
 ]
