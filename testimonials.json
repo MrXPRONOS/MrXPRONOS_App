@@ -1,32 +1,32 @@
 [
   {
-    "name": "Zeynab Sall",
-    "rating": 5,
-    "city": "Dakar",
-    "text": "Franchement, la méthode font la différence. Maintenant je mise plus discipliné. Ça change ma façon de jouer."
-  },
-  {
-    "name": "Aisha Kante",
+    "name": "Xavier Onyeka",
     "rating": 4,
-    "city": "Kinshasa",
-    "text": "Depuis 14 jours je suis les explications, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
+    "city": "Accra",
+    "text": "Depuis 14 jours je suis les analyses, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
   },
   {
-    "name": "Zalika Kante",
+    "name": "Ousmane Sangaré",
+    "rating": 5,
+    "city": "Douala",
+    "text": "Franchement, les analyses font la différence. Maintenant je choisis mieux mes matchs. Ça change ma façon de jouer."
+  },
+  {
+    "name": "Ramatoulaye Sacko",
+    "rating": 5,
+    "city": "Abidjan",
+    "text": "Les pronos sont clairs et je joue moins mais plus propre. Je préfère cette méthode aux paris au hasard."
+  },
+  {
+    "name": "Fodé Camara",
+    "rating": 5,
+    "city": "Tunis",
+    "text": "Depuis 10 jours je suis les coupons, et je choisis mieux mes matchs. C’est simple et ça m’aide vraiment."
+  },
+  {
+    "name": "Boubacar Hassan",
     "rating": 4,
-    "city": "Casablanca",
-    "text": "Depuis 10 jours je suis la fiabilité, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
-  },
-  {
-    "name": "Lassina Kazadi",
-    "rating": 5,
-    "city": "Luanda",
-    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
-  },
-  {
-    "name": "Karim Kouyate",
-    "rating": 5,
-    "city": "Libreville",
-    "text": "Franchement, les explications font la différence. Maintenant je joue moins mais plus propre."
+    "city": "Ouagadougou",
+    "text": "Franchement, les analyses font la différence. Maintenant je fais moins de combinés inutiles."
   }
 ]
