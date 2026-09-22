@@ -33,7 +33,7 @@ jobs:
           # Capture URLs in source files. We deliberately do not replace generic
           # 1xbet.com links unless they carry the Mr XPRONOS affiliate campaign.
           url_re = re.compile(r"""https?://[^\s'"<>\`)]+""", re.IGNORECASE)
-          ref_host_re = re.compile(r"^https?://(?:www\.)?(?:refpa\d*\.com|reffpa\.com)/L\?", re.IGNORECASE)
+          ref_host_re = re.compile(r"^https?://(?:www\\.)?(?:refpa\\d*\\.com|reffpa\\.com)/L\\?", re.IGNORECASE)
 
           def canonical(url: str) -> str:
               return html.unescape(url).replace("\\&", "&").rstrip(".,;")
@@ -41,8 +41,8 @@ jobs:
           def is_1xbet_affiliate(url: str) -> bool:
               u = canonical(url)
               return (
-                  bool(ref_host_re.match(u))
-                  or ("tag=d_2054511m_" in u and "site=2054511" in u)
+                  ("tag=d_2054511m_" in u and "site=2054511" in u)
+                  or ("site=2054511" in u and "ad=1573" in u and "reffpa.com/L?" in u)
               )
 
           def replacement_for(original: str) -> str:
@@ -124,7 +124,7 @@ jobs:
               "dist", "build", ".next", "coverage"
           }
           url_re = re.compile(r"""https?://[^\s'"<>\`)]+""", re.IGNORECASE)
-          ref_host_re = re.compile(r"^https?://(?:www\.)?(?:refpa\d*\.com|reffpa\.com)/L\?", re.IGNORECASE)
+          ref_host_re = re.compile(r"^https?://(?:www\\.)?(?:refpa\\d*\\.com|reffpa\\.com)/L\\?", re.IGNORECASE)
 
           def canonical(url: str) -> str:
               return html.unescape(url).replace("\\&", "&").rstrip(".,;")
@@ -132,8 +132,8 @@ jobs:
           def is_1xbet_affiliate(url: str) -> bool:
               u = canonical(url)
               return (
-                  bool(ref_host_re.match(u))
-                  or ("tag=d_2054511m_" in u and "site=2054511" in u)
+                  ("tag=d_2054511m_" in u and "site=2054511" in u)
+                  or ("site=2054511" in u and "ad=1573" in u and "reffpa.com/L?" in u)
               )
 
           legacy = []
