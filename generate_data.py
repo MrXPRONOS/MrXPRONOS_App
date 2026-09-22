@@ -1077,7 +1077,7 @@ def main():
     stats = compute_stats(final_matches)
 
     default_bookmakers = [
-        {"name": "1xBet", "logo": "assets/images/1xbet.webp", "url": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599"},
+        {"name": "1xBet", "logo": "assets/images/1xbet.webp", "url": "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573"},
         {"name": "1win", "logo": "assets/images/1win.webp", "url": "https://1wrbgb.com/?open=register&p=qqcw"},
         {"name": "Betwinner", "logo": "assets/images/betwinner.webp", "url": "https://bwredir.com/299Y"},
         {"name": "Melbet", "logo": "assets/images/melbet.webp", "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041"},

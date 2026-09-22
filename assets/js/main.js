@@ -1156,7 +1156,7 @@ function renderBookmakers(bookmakers) {
     {
       name: "1xBet",
       logo: "assets/images/1xbet.webp",
-      url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
+      url: "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573",
       desc: "Bonus de bienvenue jusqu'à 130€",
     },
     {
@@ -2190,7 +2190,7 @@ function initBonusPage() {
     {
       name: "1xBet",
       logo: "assets/images/1xbet.webp",
-      url: "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
+      url: "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573",
       desc: "Bonus de bienvenue jusqu'à 130€",
     },
     { name: "1win", logo: "assets/images/1win.webp", url: "https://1wrbgb.com/?open=register&p=qqcw", desc: "Bonus exclusif avec XPVIP" },

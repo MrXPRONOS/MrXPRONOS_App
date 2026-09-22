@@ -3,10 +3,10 @@ const SUPABASE='https://nhwafcpndlufzzxexikh.supabase.co';
 const ANON='sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt';
 const SITE='https://mrxpronos.github.io/MrXPRONOS_App/prono-live/';
 const BOOKMAKERS=[
- {name:'1xBet',logo:'../assets/images/1xbet.webp',bonus:'Bonus de bienvenue selon le pays',countries:'Togo et pays disponibles',code:'XPVIP',url:'https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599'},
+ {name:'1xBet',logo:'../assets/images/1xbet.webp',bonus:'Bonus de bienvenue selon le pays',countries:'Togo et pays disponibles',code:'XPVIP',url:'https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573'},
  {name:'1win',logo:'../assets/images/1win.webp',bonus:'Offre nouveaux joueurs',countries:'Selon disponibilité locale',code:'XPVIP',url:'https://1wrbgb.com/?open=register&p=qqcw'},
  {name:'Betwinner',logo:'../assets/images/betwinner.webp',bonus:'Bonus de bienvenue',countries:'Selon disponibilité locale',code:'XPVIP',url:'https://bwredir.com/299Y'},
- {name:'Melbet',logo:'../assets/images/melbet.webp',bonus:'Offre partenaire',countries:'Selon disponibilité locale',code:'XPVIP',url:'https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041'},
+ {name:'Melbet',logo:'../assets/images/melbet.webp',bonus:'Offre partenaire',countries:'Selon disponibilité locale',code:'XPVIP',url:'https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573'},
  {name:'Linebet',logo:'../assets/images/linebet.webp',bonus:'Offre nouveaux joueurs',countries:'Selon disponibilité locale',code:'XPVIP',url:'https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611'},
  {name:'BetClic',logo:'../assets/images/betclic.webp',bonus:'Offre de bienvenue',countries:'Selon disponibilité locale',code:'Vérifier sur le site',url:'https://betpari-click.com/2vY0?extid=USD'}
 ];
