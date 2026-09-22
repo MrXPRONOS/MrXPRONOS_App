@@ -1174,7 +1174,7 @@ function renderBookmakers(bookmakers) {
     {
       name: "Melbet",
       logo: "assets/images/melbet.webp",
-      url: "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573",
+      url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
       desc: "Bonus premium Melbet avec inscription rapide",
     },
     {
@@ -2195,7 +2195,7 @@ function initBonusPage() {
     },
     { name: "1win", logo: "assets/images/1win.webp", url: "https://1wrbgb.com/?open=register&p=qqcw", desc: "Bonus exclusif avec XPVIP" },
     { name: "Betwinner", logo: "assets/images/betwinner.webp", url: "https://bwredir.com/299Y", desc: "Offre spéciale nouveaux joueurs" },
-    { name: "Melbet", logo: "assets/images/melbet.webp", url: "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573", desc: "Bonus premium Melbet avec inscription rapide" },
+    { name: "Melbet", logo: "assets/images/melbet.webp", url: "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041", desc: "Bonus premium Melbet avec inscription rapide" },
     { name: "Linebet", logo: "assets/images/linebet.webp", url: "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611", desc: "Bonus et promotions spéciales Linebet" },
     { name: "Betclic", logo: "assets/images/betclic.webp", url: "https://betpari-click.com/2vY0?extid=USD", desc: "Offre de bienvenue Betclic" },
   ];
