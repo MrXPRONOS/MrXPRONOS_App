@@ -21,8 +21,8 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
-          import re
           import html
+          import re
 
           NEW = "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573"
           ignored_dirs = {
@@ -30,20 +30,20 @@ jobs:
               "dist", "build", ".next", "coverage"
           }
 
-          # Capture URLs in source files. We deliberately do not replace generic
-          # 1xbet.com links unless they carry the Mr XPRONOS affiliate campaign.
-          url_re = re.compile(r"""https?://[^\s'"<>\`)]+""", re.IGNORECASE)
-          ref_host_re = re.compile(r"^https?://(?:www\\.)?(?:refpa\\d*\\.com|reffpa\\.com)/L\\?", re.IGNORECASE)
+          # Match ONLY the Mr XPRONOS 1xBet campaign.
+          # The expression stops at the numeric ad id, so it cannot swallow
+          # Markdown syntax such as ](...) or JSON-escaped newlines.
+          sep = r"(?:&|&amp;|\\&)"
+          affiliate_re = re.compile(
+              r"https?://(?:www\.)?(?:refpa\d*\.com|reffpa\.com)/L\?"
+              r"tag=d_2054511m_[A-Za-z0-9_-]+"
+              + sep + r"site=2054511"
+              + sep + r"ad=\d+",
+              re.IGNORECASE,
+          )
 
           def canonical(url: str) -> str:
-              return html.unescape(url).replace("\\&", "&").rstrip(".,;")
-
-          def is_1xbet_affiliate(url: str) -> bool:
-              u = canonical(url)
-              return (
-                  ("tag=d_2054511m_" in u and "site=2054511" in u)
-                  or ("site=2054511" in u and "ad=1573" in u and "reffpa.com/L?" in u)
-              )
+              return html.unescape(url).replace("\\&", "&")
 
           def replacement_for(original: str) -> str:
               if "&amp;" in original:
@@ -53,8 +53,8 @@ jobs:
               return NEW
 
           changed_files = []
+          detected = []
           replacement_count = 0
-          found_locations = []
 
           for path in Path(".").rglob("*"):
               if not path.is_file() or any(part in ignored_dirs for part in path.parts):
@@ -64,47 +64,30 @@ jobs:
               except (UnicodeDecodeError, OSError):
                   continue
 
-              original_text = text
-              seen_in_file = []
+              matches = list(affiliate_re.finditer(text))
+              if not matches:
+                  continue
+
+              detected.append((str(path), [canonical(m.group(0)) for m in matches]))
 
               def repl(match):
-                  nonlocal_text = match.group(0)
-                  if not is_1xbet_affiliate(nonlocal_text):
-                      return nonlocal_text
+                  nonlocal replacement_count
+                  original = match.group(0)
+                  if canonical(original) == NEW:
+                      return original
+                  replacement_count += 1
+                  return replacement_for(original)
 
-                  seen_in_file.append(nonlocal_text)
-                  # Already the requested destination (possibly HTML/Markdown escaped).
-                  if canonical(nonlocal_text) == NEW:
-                      return nonlocal_text
-
-                  return replacement_for(nonlocal_text)
-
-              text = url_re.sub(repl, text)
-
-              if seen_in_file:
-                  found_locations.append((str(path), sorted(set(seen_in_file))))
-
-              if text != original_text:
-                  # Count actual substitutions, not merely detections.
-                  before = [
-                      canonical(m.group(0))
-                      for m in url_re.finditer(original_text)
-                      if is_1xbet_affiliate(m.group(0))
-                  ]
-                  after = [
-                      canonical(m.group(0))
-                      for m in url_re.finditer(text)
-                      if is_1xbet_affiliate(m.group(0))
-                  ]
-                  replacement_count += max(0, sum(1 for u in before if u != NEW))
-                  path.write_text(text, encoding="utf-8")
+              new_text = affiliate_re.sub(repl, text)
+              if new_text != text:
+                  path.write_text(new_text, encoding="utf-8")
                   changed_files.append(str(path))
 
           print("=== 1xBet affiliate URLs detected ===")
-          for path, urls in found_locations:
+          for path, urls in detected:
               print(path)
-              for url in urls:
-                  print("  -", canonical(url))
+              for url in sorted(set(urls)):
+                  print("  -", url)
 
           print(f"Actual replacements: {replacement_count}")
           print("Changed files:")
@@ -115,29 +98,29 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
-          import re
           import html
+          import re
 
           NEW = "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573"
           ignored_dirs = {
               ".git", "node_modules", ".venv", "venv", "__pycache__",
               "dist", "build", ".next", "coverage"
           }
-          url_re = re.compile(r"""https?://[^\s'"<>\`)]+""", re.IGNORECASE)
-          ref_host_re = re.compile(r"^https?://(?:www\\.)?(?:refpa\\d*\\.com|reffpa\\.com)/L\\?", re.IGNORECASE)
+          sep = r"(?:&|&amp;|\\&)"
+          affiliate_re = re.compile(
+              r"https?://(?:www\.)?(?:refpa\d*\.com|reffpa\.com)/L\?"
+              r"tag=d_2054511m_[A-Za-z0-9_-]+"
+              + sep + r"site=2054511"
+              + sep + r"ad=\d+",
+              re.IGNORECASE,
+          )
 
           def canonical(url: str) -> str:
-              return html.unescape(url).replace("\\&", "&").rstrip(".,;")
-
-          def is_1xbet_affiliate(url: str) -> bool:
-              u = canonical(url)
-              return (
-                  ("tag=d_2054511m_" in u and "site=2054511" in u)
-                  or ("site=2054511" in u and "ad=1573" in u and "reffpa.com/L?" in u)
-              )
+              return html.unescape(url).replace("\\&", "&")
 
           legacy = []
           current = []
+
           for path in Path(".").rglob("*"):
               if not path.is_file() or any(part in ignored_dirs for part in path.parts):
                   continue
@@ -146,14 +129,12 @@ jobs:
               except (UnicodeDecodeError, OSError):
                   continue
 
-              for m in url_re.finditer(text):
-                  if not is_1xbet_affiliate(m.group(0)):
-                      continue
-                  u = canonical(m.group(0))
-                  if u == NEW:
+              for match in affiliate_re.finditer(text):
+                  url = canonical(match.group(0))
+                  if url == NEW:
                       current.append(str(path))
                   else:
-                      legacy.append((str(path), u))
+                      legacy.append((str(path), url))
 
           if legacy:
               for path, url in legacy:
