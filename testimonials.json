@@ -1,32 +1,32 @@
 [
   {
-    "name": "El hadji Sall",
-    "rating": 4,
-    "city": "Kigali",
-    "text": "Depuis 21 jours je suis la fiabilité, et je choisis mieux mes matchs. C’est simple et ça m’aide vraiment."
+    "name": "Xavier Okafor",
+    "rating": 5,
+    "city": "Dakar",
+    "text": "Depuis 7 jours je suis la méthode, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
   },
   {
-    "name": "Mamadou Owusu",
-    "rating": 5,
+    "name": "Gaoussou Sow",
+    "rating": 4,
     "city": "Ouagadougou",
-    "text": "Les pronos sont clairs et je choisis mieux mes matchs. Je préfère cette méthode aux paris au hasard."
+    "text": "Franchement, les explications font la différence. Maintenant je joue moins mais plus propre."
   },
   {
-    "name": "Modibo Hassan",
+    "name": "Xavier Tembo",
+    "rating": 5,
+    "city": "Lagos",
+    "text": "Depuis 7 jours je suis la méthode, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
+  },
+  {
+    "name": "Aïssatou Camara",
     "rating": 4,
-    "city": "Niamey",
-    "text": "Les pronos sont clairs et je comprends enfin pourquoi je joue. Je préfère cette méthode aux paris au hasard."
+    "city": "Alger",
+    "text": "Franchement, la méthode font la différence. Maintenant je joue moins mais plus propre. Ça change ma façon de jouer."
   },
   {
-    "name": "Nabou Touré",
+    "name": "Koumba Onyeka",
     "rating": 5,
-    "city": "Le Caire",
-    "text": "Depuis 14 jours je suis les analyses, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
-  },
-  {
-    "name": "Pape Adebayor",
-    "rating": 5,
-    "city": "Lomé",
-    "text": "Franchement, les analyses font la différence. Maintenant je mise plus discipliné. Ça change ma façon de jouer."
+    "city": "Alger",
+    "text": "Depuis 10 jours je suis la méthode, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
   }
 ]
