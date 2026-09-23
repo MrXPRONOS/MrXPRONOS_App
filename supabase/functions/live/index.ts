@@ -1559,13 +1559,13 @@ async function sendTelegramPhoto(
             inline_keyboard: [
               [
                 {
-                  text: "Voir plus d’opportunités 🔥",
+                  text: "Voir plus de coupons 🔥",
                   url: "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",
                 },
               ],
               [
                 {
-                  text: "S’inscrire chez un bookmaker 🎯",
+                  text: "S’inscrire ou réinitialiser son compte 🎯",
                   url: "https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html",
                 },
               ],
@@ -1650,13 +1650,13 @@ async function sendTelegramMessage(
           inline_keyboard: [
             [
               {
-                text: "Voir plus d’opportunités 🔥",
+                text: "Voir plus de coupons 🔥",
                 url: "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",
               },
             ],
             [
               {
-                text: "S’inscrire chez un bookmaker 🎯",
+                text: "S’inscrire ou réinitialiser son compte 🎯",
                 url: "https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html",
               },
             ],
