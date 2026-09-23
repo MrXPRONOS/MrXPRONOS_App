@@ -1737,111 +1737,136 @@ async function buildTelegramValidationPng(
   const fonts = await loadFontData();
 
   const meta = validationStatusMeta(outcome);
-  const minute = safeNumber(match?.current_minute ?? match?.minute, validationType === "final" ? 90 : 0);
+  const minute = safeNumber(
+    match?.current_minute ?? match?.minute,
+    validationType === "final" ? 90 : 0,
+  );
   const score = `${safeNumber(match?.home_score, 0)}-${safeNumber(match?.away_score, 0)}`;
 
   const rawType = String(pred?.prediction_type ?? pred?.type ?? "");
-  const typeLabel = formatLivePredictionType(rawType);
   const threshold = formatThreshold(
     pred?.threshold ?? pred?.pronostic ?? pred?.line ?? pred?.target_value ?? "",
   );
 
-  const [homeLogoData, awayLogoData, leagueLogoData] = await Promise.all([
+  const [homeLogoData, awayLogoData] = await Promise.all([
     getTelegramLogoData(match, "home"),
     getTelegramLogoData(match, "away"),
-    getTelegramLogoData(match, "league"),
   ]);
 
-  const homeName = fitText(match?.home_team ?? "Équipe A", 22);
-  const awayName = fitText(match?.away_team ?? "Équipe B", 22);
+  const homeName = fitText(match?.home_team ?? "Équipe A", 25);
+  const awayName = fitText(match?.away_team ?? "Équipe B", 25);
   const leagueName = fitText(
     match?.league?.name ?? match?.league_name ?? match?.competition ?? "Football",
-    30,
+    38,
   );
 
   const couponText = buildValidationCouponText(pred);
   const homeInitials = escapeHtml(getTeamInitials(match?.home_team ?? "Home"));
   const awayInitials = escapeHtml(getTeamInitials(match?.away_team ?? "Away"));
-  const resultLabel = validationType === "instant" ? "Validé en live" : "Validé fin de match";
-  const resultSentence =
-    outcome === "success"
-      ? "Le seuil a été dépassé. Coupon validé."
-      : "Le seuil n'a pas été dépassé. Coupon perdu.";
 
+  const finishedLabel = validationType === "instant"
+    ? `Validé en LIVE${minute > 0 ? ` · ${minute}'` : ""}`
+    : "Match terminé";
+
+  const statusText = outcome === "success" ? "Validé" : "Perdu";
+  const statusColor = outcome === "success" ? "#4A8ED8" : "#E05252";
+  const resultText = outcome === "success" ? "RÉUSSI" : "ÉCHOUÉ";
+  const resultColor = outcome === "success" ? "#35C76F" : "#EF5350";
+
+  // Même identité visuelle que le nouveau coupon LIVE :
+  // 1XBET + CODE PROMO XPVIP + un seul événement + aucune cote.
   const markup = html(`
-    <div style="width:1080px;height:1080px;display:flex;flex-direction:column;background:#050505;color:#ffffff;font-family:'Noto Sans';padding:52px;box-sizing:border-box;">
-      <div style="width:976px;height:976px;display:flex;flex-direction:column;border:3px solid ${meta.border};border-radius:46px;padding:38px;box-sizing:border-box;background:#0d0d0d;">
+    <div style="width:1080px;height:860px;display:flex;flex-direction:column;background:#152D45;color:#F7FAFC;font-family:'Noto Sans';box-sizing:border-box;">
 
-        <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;margin-bottom:26px;">
+      <div style="width:1080px;height:118px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;background:#000000;padding:0 30px;box-sizing:border-box;">
+        <div style="display:flex;flex-direction:row;align-items:center;font-style:italic;font-weight:900;letter-spacing:-5px;line-height:1;">
+          <div style="display:flex;font-size:70px;color:#FFFFFF;">1X</div>
+          <div style="display:flex;font-size:70px;color:#1598DA;">BET</div>
+        </div>
+
+        <div style="height:72px;display:flex;flex-direction:row;align-items:center;background:#EAD03B;padding:0 28px;box-sizing:border-box;">
+          <div style="display:flex;font-size:35px;font-weight:900;color:#050505;letter-spacing:-1px;">
+            CODE PROMO XPVIP
+          </div>
+        </div>
+      </div>
+
+      <div style="width:1080px;height:150px;display:flex;flex-direction:column;background:#17314A;border-bottom:2px solid #2B4359;padding:26px 34px;box-sizing:border-box;">
+        <div style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
+          <div style="display:flex;flex-direction:row;align-items:center;">
+            <div style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;margin-right:14px;color:#A8B7C6;font-size:25px;">▰</div>
+            <div style="display:flex;font-size:30px;font-weight:700;color:#DCE5ED;">Événements : 1</div>
+          </div>
+          <div style="display:flex;font-size:29px;font-weight:500;color:#E7EEF4;">1 sur 1 terminé</div>
+        </div>
+
+        <div style="margin-top:24px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
+          <div style="display:flex;font-size:28px;font-weight:500;color:#8EA2B4;">Statut:</div>
+          <div style="display:flex;font-size:30px;font-weight:800;color:${statusColor};">${escapeHtml(statusText)}</div>
+        </div>
+      </div>
+
+      <div style="width:1044px;height:480px;margin:18px;display:flex;flex-direction:column;background:#142C43;border:2px solid #10263A;border-radius:28px;box-sizing:border-box;overflow:hidden;">
+        <div style="height:94px;display:flex;flex-direction:row;align-items:center;padding:20px 24px 14px 24px;box-sizing:border-box;">
+          <div style="width:46px;height:46px;border-radius:999px;border:3px solid #70869A;display:flex;align-items:center;justify-content:center;color:#8FA3B5;font-size:25px;margin-right:16px;">⚽</div>
           <div style="display:flex;flex-direction:column;">
-            <div style="display:flex;font-size:25px;color:#D4AF37;font-weight:900;letter-spacing:2px;">MR XPRONOS</div>
-            <div style="display:flex;margin-top:10px;font-size:50px;font-weight:900;color:#ffffff;line-height:1;">${escapeHtml(meta.header)}</div>
+            <div style="display:flex;font-size:23px;font-weight:500;color:#8FA3B5;">Football · ${escapeHtml(leagueName)}</div>
+            <div style="display:flex;margin-top:5px;font-size:22px;font-weight:500;color:#8FA3B5;">${escapeHtml(finishedLabel)}</div>
           </div>
-          <div style="display:flex;background:${meta.color};color:#050505;padding:15px 28px;border-radius:999px;font-size:27px;font-weight:900;">${escapeHtml(meta.status)}</div>
         </div>
 
-        <div style="display:flex;flex-direction:column;background:#171717;border:1px solid #2b2b2b;border-radius:34px;padding:30px;margin-bottom:26px;box-sizing:border-box;">
-          <div style="display:flex;flex-direction:row;align-items:center;margin-bottom:26px;">
+        <div style="height:190px;display:flex;flex-direction:row;align-items:center;justify-content:center;padding:0 26px;box-sizing:border-box;">
+          <div style="width:370px;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;">
+            <div style="max-width:245px;display:flex;font-size:31px;font-weight:600;text-align:right;color:#F4F7FA;line-height:1.1;margin-right:18px;">${escapeHtml(homeName)}</div>
             ${
-              leagueLogoData
-                ? `<img src="${leagueLogoData}" width="44" height="44" style="border-radius:999px;margin-right:16px;" />`
-                : `<div style="display:flex;width:44px;height:44px;border-radius:999px;border:2px solid #D4AF37;margin-right:16px;"></div>`
+              homeLogoData
+                ? `<img src="${homeLogoData}" width="78" height="78" style="object-fit:contain;" />`
+                : `<div style="width:78px;height:78px;border-radius:999px;border:3px solid #4A8ED8;color:#4A8ED8;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;">${homeInitials}</div>`
             }
-            <div style="display:flex;font-size:27px;font-weight:800;color:#D4AF37;">${escapeHtml(leagueName)}</div>
           </div>
 
-          <div style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
-            <div style="width:255px;display:flex;flex-direction:column;align-items:center;">
-              ${
-                homeLogoData
-                  ? `<img src="${homeLogoData}" width="92" height="92" style="object-fit:contain;border-radius:18px;" />`
-                  : `<div style="width:92px;height:92px;border-radius:999px;border:3px solid #D4AF37;color:#D4AF37;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;">${homeInitials}</div>`
-              }
-              <div style="display:flex;margin-top:16px;font-size:29px;font-weight:900;text-align:center;color:#ffffff;line-height:1.12;">${escapeHtml(homeName)}</div>
-            </div>
+          <div style="width:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div style="display:flex;font-size:50px;font-weight:800;color:#F5F7FA;">${escapeHtml(score)}</div>
+            <div style="display:flex;margin-top:8px;font-size:22px;font-weight:700;color:#8FA3B5;">Score final</div>
+          </div>
 
-            <div style="width:310px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-              <div style="display:flex;font-size:76px;font-weight:900;color:#ffffff;line-height:1;">${score}</div>
-              <div style="display:flex;margin-top:12px;font-size:22px;color:#A3A3A3;font-weight:800;">${escapeHtml(resultLabel)}</div>
-            </div>
-
-            <div style="width:255px;display:flex;flex-direction:column;align-items:center;">
-              ${
-                awayLogoData
-                  ? `<img src="${awayLogoData}" width="92" height="92" style="object-fit:contain;border-radius:18px;" />`
-                  : `<div style="width:92px;height:92px;border-radius:999px;border:3px solid #D4AF37;color:#D4AF37;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;">${awayInitials}</div>`
-              }
-              <div style="display:flex;margin-top:16px;font-size:29px;font-weight:900;text-align:center;color:#ffffff;line-height:1.12;">${escapeHtml(awayName)}</div>
-            </div>
+          <div style="width:370px;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;">
+            ${
+              awayLogoData
+                ? `<img src="${awayLogoData}" width="78" height="78" style="object-fit:contain;" />`
+                : `<div style="width:78px;height:78px;border-radius:999px;border:3px solid #4A8ED8;color:#4A8ED8;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;">${awayInitials}</div>`
+            }
+            <div style="max-width:245px;display:flex;font-size:31px;font-weight:600;text-align:left;color:#F4F7FA;line-height:1.1;margin-left:18px;">${escapeHtml(awayName)}</div>
           </div>
         </div>
 
-        <div style="display:flex;flex-direction:column;background:${meta.bg};border:2px solid ${meta.border};border-radius:34px;padding:36px;box-sizing:border-box;">
-          <div style="display:flex;font-size:24px;font-weight:900;color:${meta.color};text-transform:uppercase;letter-spacing:1px;">Résultat du coupon</div>
+        <div style="height:2px;width:100%;display:flex;background:#29435A;"></div>
 
-          <div style="margin-top:18px;width:820px;font-size:50px;font-weight:900;color:#ffffff;line-height:1.12;display:flex;flex-direction:column;">
-            ${escapeHtml(couponText)}
+        <div style="height:108px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0 28px;box-sizing:border-box;">
+          <div style="display:flex;flex-direction:column;max-width:780px;">
+            <div style="display:flex;font-size:23px;font-weight:500;color:#91A4B6;">Résultat du coupon</div>
+            <div style="display:flex;margin-top:8px;font-size:32px;font-weight:700;color:#F7FAFC;">${escapeHtml(couponText)}</div>
           </div>
-
-          <div style="margin-top:26px;display:flex;flex-direction:row;">
-            <div style="display:flex;background:#050505;border:1px solid #3a3a3a;border-radius:18px;padding:16px 20px;font-size:25px;font-weight:900;color:#ffffff;margin-right:16px;">Type : ${escapeHtml(typeLabel)}</div>
-            <div style="display:flex;background:#050505;border:1px solid #3a3a3a;border-radius:18px;padding:16px 20px;font-size:25px;font-weight:900;color:#ffffff;">Statut : ${escapeHtml(meta.status)}</div>
-          </div>
-
-          <div style="display:flex;margin-top:26px;font-size:28px;font-weight:800;color:#ffffff;">Final : ${escapeHtml(currentValue)} • Seuil : ${escapeHtml(threshold)}</div>
-          <div style="display:flex;margin-top:22px;font-size:25px;line-height:1.35;font-weight:700;color:#E5E7EB;">${escapeHtml(resultSentence)}</div>
+          <div style="display:flex;font-size:29px;font-weight:900;color:${resultColor};">${resultText}</div>
         </div>
 
-        <div style="margin-top:auto;text-align:center;font-size:21px;color:#A3A3A3;font-weight:700;display:flex;align-items:center;justify-content:center;">
-          18+ • Joue responsablement
+        <div style="height:2px;width:100%;display:flex;background:#29435A;"></div>
+
+        <div style="height:84px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0 28px;box-sizing:border-box;">
+          <div style="display:flex;font-size:25px;font-weight:500;color:#8FA3B5;">Final : ${escapeHtml(currentValue)} · Seuil : ${escapeHtml(threshold)}</div>
+          <div style="display:flex;font-size:29px;font-weight:800;color:${statusColor};">${escapeHtml(statusText)}</div>
         </div>
+      </div>
+
+      <div style="width:1080px;height:94px;display:flex;flex-direction:row;align-items:center;justify-content:center;background:#17314A;border-top:2px solid #2B4359;">
+        <div style="display:flex;font-size:22px;font-weight:500;color:#8EA2B4;">18+ • Joue responsablement • Mr XPRONOS</div>
       </div>
     </div>
   `);
 
   const svg = await satori(markup, {
     width: 1080,
-    height: 1080,
+    height: 860,
     fonts: [
       { name: "Noto Sans", data: fonts.regular, weight: 400, style: "normal" },
       { name: "Noto Sans", data: fonts.bold, weight: 700, style: "normal" },
