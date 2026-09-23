@@ -997,8 +997,7 @@ const REMOTE_FONT_URLS: Record<string, string[]> = {
     "https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSans/NotoSans-Regular.ttf",
     "https://raw.githubusercontent.com/googlefonts/noto-fonts/main/hinted/ttf/NotoSans/NotoSans-Regular.ttf",
   ],
-  "NotoSans-Bold.ttf": [
-    "https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSans/NotoSans-Bold.ttf",
+  "NotoSans-Bold.ttf": [    "https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSans/NotoSans-Bold.ttf",
     "https://raw.githubusercontent.com/googlefonts/noto-fonts/main/hinted/ttf/NotoSans/NotoSans-Bold.ttf",
   ],
   "NotoSans-ExtraBold.ttf": [
@@ -1156,139 +1155,252 @@ async function ensureResvgReady() {
   }
 }
 
+function formatTelegramSlipDateTime(match: any) {
+  const raw = getMatchEventDate(match);
+  const d = raw ? new Date(raw) : new Date();
+
+  if (!Number.isFinite(d.getTime())) {
+    return "--.--.---- (--:--)";
+  }
+
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = String(d.getFullYear());
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  return `${day}.${month}.${year} (${hours}:${minutes})`;
+}
+
+function formatTelegramClock(value: unknown) {
+  const minute = Math.max(0, safeNumber(value, 0));
+  const whole = Math.floor(minute);
+  let seconds = Math.round((minute - whole) * 60);
+  let mins = whole;
+
+  if (seconds >= 60) {
+    mins += 1;
+    seconds = 0;
+  }
+
+  return `${mins}:${String(seconds).padStart(2, "0")}`;
+}
+
+function pickTelegramNumber(...values: unknown[]): number | null {
+  for (const value of values) {
+    if (value == null || value === "") continue;
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
+}
+
+function formatTelegramOdds(value: number | null) {
+  if (value == null) return "—";
+  return (Math.round(Math.max(0, value) * 100) / 100).toFixed(2).replace(/\.00$/, "");
+}
+
+function formatTelegramMoney(value: number | null) {
+  if (value == null) return "—";
+  const amount = Math.round(Math.max(0, value));
+  return `${amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} F`;
+}
+
+function buildTelegramSelectionText(pred: any) {
+  const rawType = String(pred?.prediction_type ?? pred?.type ?? "");
+  const threshold = formatThreshold(
+    pred?.threshold ?? pred?.pronostic ?? pred?.line ?? pred?.target_value ?? "",
+  );
+  const typeLabel = formatLivePredictionType(rawType);
+
+  if (typeLabel && typeLabel !== "Signal LIVE") {
+    return `Total. (${threshold}) Plus de. ${typeLabel}`;
+  }
+
+  return `Total. (${threshold}) Plus de`;
+}
+
+function deriveTelegramSlipStats(pred: any) {
+  const oddsNumber = pickTelegramNumber(
+    pred?.odd,
+    pred?.odds,
+    pred?.cote,
+    pred?.quote,
+    pred?.coefficient,
+  );
+
+  const stakeNumber = pickTelegramNumber(
+    pred?.stake,
+    pred?.mise,
+    pred?.bet_amount,
+    pred?.amount,
+  );
+
+  const explicitPotential = pickTelegramNumber(
+    pred?.potential_gain,
+    pred?.gains,
+    pred?.gain,
+    pred?.profit,
+  );
+
+  const potentialNumber = explicitPotential ??
+    (oddsNumber != null && stakeNumber != null ? stakeNumber * oddsNumber : null);
+
+  return {
+    oddsNumber,
+    oddsText: formatTelegramOdds(oddsNumber),
+    stakeNumber,
+    stakeText: formatTelegramMoney(stakeNumber),
+    potentialNumber,
+    potentialText: formatTelegramMoney(potentialNumber),
+  };
+}
+
+async function getTelegramBookmakerBrandData() {
+  const base = SITE_URL.replace(/\/$/, "");
+  const [oneXbet, melbet] = await Promise.all([
+    imageUrlToDataUri(`${base}/assets/images/1xbet.png`),
+    imageUrlToDataUri(`${base}/assets/images/melbet.webp`),
+  ]);
+
+  return { oneXbet, melbet };
+}
+
 async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array> {
   const { satori, html, Resvg } = await loadTelegramRenderModules();
   await ensureResvgReady();
   const fonts = await loadFontData();
 
   const minute = safeNumber(match?.current_minute ?? match?.minute, 0);
-  const score = `${safeNumber(match?.home_score, 0)}-${safeNumber(match?.away_score, 0)}`;
+  const scoreMain = `${safeNumber(match?.home_score, 0)} : ${safeNumber(match?.away_score, 0)}`;
+  const scoreSmall = `${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)} (${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)})`;
+  const selectionText = buildTelegramSelectionText(pred);
+  const stats = deriveTelegramSlipStats(pred);
+  const eventDateText = formatTelegramSlipDateTime(match);
+  const elapsed = formatTelegramClock(minute);
+  const slipNumber = String(pred?.id ?? pred?.prediction_id ?? match?.id ?? buildCanonicalMatchId(match)).replace(/[^0-9A-Za-z]/g, "").slice(-12) || "87751503787";
 
-  const rawType = String(pred?.prediction_type ?? pred?.type ?? "");
-  const threshold = formatThreshold(
-    pred?.threshold ?? pred?.pronostic ?? pred?.line ?? pred?.target_value ?? "",
-  );
-
-  const [homeLogoData, awayLogoData] = await Promise.all([
+  const [{ oneXbet: oneXbetLogoData, melbet: melbetLogoData }, homeLogoData, awayLogoData] = await Promise.all([
+    getTelegramBookmakerBrandData(),
     getTelegramLogoData(match, "home"),
     getTelegramLogoData(match, "away"),
   ]);
 
-  const homeName = fitText(match?.home_team ?? "Équipe A", 25);
-  const awayName = fitText(match?.away_team ?? "Équipe B", 25);
-  const leagueName = fitText(
-    match?.league?.name ?? match?.league_name ?? match?.competition ?? "Football",
-    38,
-  );
-
-  const couponText =
-    rawType === "total_corners"
-      ? `Total plus de ${threshold} corners`
-      : rawType === "total_shots"
-      ? `Total plus de ${threshold} tirs`
-      : rawType === "total_fouls"
-      ? `Total plus de ${threshold} fautes`
-      : `Total plus de ${threshold}`;
+  const homeName = fitText(match?.home_team ?? "Équipe A", 20);
+  const awayName = fitText(match?.away_team ?? "Équipe B", 20);
+  const leagueName = fitText(getLeagueName(match), 34);
 
   const homeInitials = escapeHtml(getTeamInitials(match?.home_team ?? "Home"));
   const awayInitials = escapeHtml(getTeamInitials(match?.away_team ?? "Away"));
 
-  // Coupon LIVE inspiré de la présentation 1xBet fournie :
-  // - un seul événement
-  // - bandeau 1XBET + code promo XPVIP
-  // - aucune cote affichée
-  // - présentation compacte pour Telegram
   const markup = html(`
-    <div style="width:1080px;height:860px;display:flex;flex-direction:column;background:#152D45;color:#F7FAFC;font-family:'Noto Sans';box-sizing:border-box;">
-
-      <div style="width:1080px;height:118px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;background:#000000;padding:0 30px;box-sizing:border-box;">
-        <div style="display:flex;flex-direction:row;align-items:center;font-style:italic;font-weight:900;letter-spacing:-5px;line-height:1;">
-          <div style="display:flex;font-size:70px;color:#FFFFFF;">1X</div>
-          <div style="display:flex;font-size:70px;color:#1598DA;">BET</div>
+    <div style="width:1080px;height:1030px;display:flex;flex-direction:column;background:#eef2f6;color:#16324B;font-family:'Noto Sans';box-sizing:border-box;padding:0;">
+      <div style="width:1080px;height:112px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;background:#050505;padding:0 28px;box-sizing:border-box;">
+        <div style="display:flex;flex-direction:row;align-items:center;height:74px;">
+          ${oneXbetLogoData
+            ? `<img src="${oneXbetLogoData}" width="210" height="68" style="object-fit:contain;" />`
+            : `<div style="display:flex;font-size:45px;font-weight:900;font-style:italic;color:#FFFFFF;">1XBET</div>`}
+          <div style="display:flex;font-size:22px;font-weight:800;color:#FFFFFF;margin:0 16px;">ou</div>
+          ${melbetLogoData
+            ? `<img src="${melbetLogoData}" width="205" height="68" style="object-fit:contain;" />`
+            : `<div style="display:flex;font-size:45px;font-weight:900;font-style:italic;color:#FFFFFF;">MELBET</div>`}
         </div>
-
-        <div style="height:72px;display:flex;flex-direction:row;align-items:center;background:#EAD03B;padding:0 28px;box-sizing:border-box;">
-          <div style="display:flex;font-size:35px;font-weight:900;color:#050505;letter-spacing:-1px;">
-            CODE PROMO XPVIP
-          </div>
-        </div>
-      </div>
-
-      <div style="width:1080px;height:150px;display:flex;flex-direction:column;background:#17314A;border-bottom:2px solid #2B4359;padding:26px 34px;box-sizing:border-box;">
-        <div style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
-          <div style="display:flex;flex-direction:row;align-items:center;">
-            <div style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;margin-right:14px;color:#A8B7C6;font-size:25px;">▰</div>
-            <div style="display:flex;font-size:30px;font-weight:700;color:#DCE5ED;">Événements : 1</div>
-          </div>
-          <div style="display:flex;font-size:29px;font-weight:500;color:#E7EEF4;">0 sur 1 terminé</div>
-        </div>
-
-        <div style="margin-top:24px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
-          <div style="display:flex;font-size:28px;font-weight:500;color:#8EA2B4;">Statut:</div>
-          <div style="display:flex;font-size:30px;font-weight:700;color:#4A8ED8;">Accepté</div>
+        <div style="height:68px;display:flex;flex-direction:row;align-items:center;background:#F1CF36;border-radius:8px;padding:0 24px;box-sizing:border-box;">
+          <div style="display:flex;font-size:33px;font-weight:900;color:#111111;letter-spacing:-0.8px;">CODE PROMO XPVIP</div>
         </div>
       </div>
 
-      <div style="width:1044px;height:480px;margin:18px;display:flex;flex-direction:column;background:#142C43;border:2px solid #10263A;border-radius:28px;box-sizing:border-box;overflow:hidden;">
-        <div style="height:94px;display:flex;flex-direction:row;align-items:center;padding:20px 24px 14px 24px;box-sizing:border-box;">
-          <div style="width:46px;height:46px;border-radius:999px;border:3px solid #70869A;display:flex;align-items:center;justify-content:center;color:#8FA3B5;font-size:25px;margin-right:16px;">⚽</div>
-          <div style="display:flex;flex-direction:column;">
-            <div style="display:flex;font-size:23px;font-weight:500;color:#8FA3B5;">Football · ${escapeHtml(leagueName)}</div>
-            <div style="display:flex;margin-top:5px;font-size:22px;font-weight:500;color:#8FA3B5;">LIVE · ${minute}'</div>
+      <div style="width:100%;padding:18px 18px 26px 18px;box-sizing:border-box;display:flex;">
+        <div style="width:1044px;display:flex;flex-direction:column;background:#FFFFFF;border:2px solid #cdd5dd;border-radius:18px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.08);">
+          <div style="padding:18px 22px 14px 22px;display:flex;flex-direction:row;align-items:flex-start;justify-content:space-between;box-sizing:border-box;">
+            <div style="display:flex;flex-direction:column;">
+              <div style="display:flex;font-size:28px;font-weight:500;color:#8fa0ae;">${escapeHtml(eventDateText)}</div>
+              <div style="display:flex;flex-direction:row;align-items:baseline;margin-top:8px;">
+                <div style="display:flex;font-size:50px;font-weight:900;color:#1A3B57;line-height:1;">Simple</div>
+                <div style="display:flex;font-size:33px;font-weight:500;color:#4D6881;margin-left:14px;line-height:1;">N° ${escapeHtml(slipNumber)}</div>
+              </div>
+            </div>
+            <div style="display:flex;background:#EF3D33;color:#FFFFFF;border-radius:8px;padding:6px 12px;font-size:25px;font-weight:900;line-height:1;">• En direct</div>
+          </div>
+
+          <div style="width:100%;height:1px;background:#d8dde2;"></div>
+
+          <div style="padding:18px 22px 16px 22px;display:flex;flex-direction:column;box-sizing:border-box;gap:10px;">
+            <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Cote :</div>
+              <div style="display:flex;font-size:35px;font-weight:900;color:#1D3D56;">${escapeHtml(stats.oddsText)}</div>
+            </div>
+            <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Mise :</div>
+              <div style="display:flex;font-size:35px;font-weight:900;color:#1D3D56;">${escapeHtml(stats.stakeText)}</div>
+            </div>
+            <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Gains potentiels :</div>
+              <div style="display:flex;font-size:35px;font-weight:900;color:#1D3D56;">${escapeHtml(stats.potentialText)}</div>
+            </div>
+            <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Statut :</div>
+              <div style="display:flex;flex-direction:row;align-items:center;font-size:34px;font-weight:900;color:#4A94D8;">
+                <div style="width:26px;height:26px;border-radius:999px;background:#4A94D8;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;margin-right:10px;">✓</div>
+                Accepté
+              </div>
+            </div>
+          </div>
+
+          <div style="padding:0 12px 14px 12px;display:flex;">
+            <div style="width:100%;display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #d8dde2;border-radius:18px;overflow:hidden;">
+              <div style="padding:16px 18px 10px 18px;display:flex;flex-direction:row;align-items:flex-start;justify-content:space-between;">
+                <div style="display:flex;flex-direction:row;align-items:flex-start;">
+                  <div style="width:34px;height:34px;border-radius:999px;border:3px solid #b2bec8;display:flex;align-items:center;justify-content:center;color:#95A7B6;font-size:18px;margin-right:12px;">⚽</div>
+                  <div style="display:flex;flex-direction:column;">
+                    <div style="display:flex;font-size:18px;font-weight:800;color:#7e97aa;">Football . ${escapeHtml(leagueName)}</div>
+                    <div style="display:flex;margin-top:2px;font-size:15px;font-weight:700;color:#7e97aa;">${escapeHtml(eventDateText)}</div>
+                  </div>
+                </div>
+                <div style="display:flex;background:#EF3D33;color:#FFFFFF;border-radius:7px;padding:5px 10px;font-size:20px;font-weight:900;line-height:1;">• En direct</div>
+              </div>
+
+              <div style="padding:6px 24px 10px 24px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
+                <div style="width:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <div style="display:flex;font-size:19px;font-weight:800;color:#1D3650;text-align:center;line-height:1.12;min-height:48px;align-items:center;justify-content:center;">${escapeHtml(homeName)}</div>
+                  <div style="margin-top:10px;width:76px;height:76px;border-radius:999px;border:2px solid #cad3dc;background:#ffffff;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                    ${homeLogoData ? `<img src="${homeLogoData}" width="70" height="70" style="object-fit:contain;border-radius:999px;" />` : `<div style="display:flex;font-size:28px;font-weight:900;color:#5c7389;">${homeInitials}</div>`}
+                  </div>
+                </div>
+                <div style="width:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <div style="display:flex;font-size:56px;font-weight:900;color:#15344D;line-height:1;">${escapeHtml(scoreMain)}</div>
+                  <div style="display:flex;margin-top:14px;font-size:17px;font-weight:700;color:#7f95a6;">${escapeHtml(scoreSmall)}</div>
+                </div>
+                <div style="width:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <div style="display:flex;font-size:19px;font-weight:800;color:#1D3650;text-align:center;line-height:1.12;min-height:48px;align-items:center;justify-content:center;">${escapeHtml(awayName)}</div>
+                  <div style="margin-top:10px;width:76px;height:76px;border-radius:999px;border:2px solid #cad3dc;background:#ffffff;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                    ${awayLogoData ? `<img src="${awayLogoData}" width="70" height="70" style="object-fit:contain;border-radius:999px;" />` : `<div style="display:flex;font-size:28px;font-weight:900;color:#5c7389;">${awayInitials}</div>`}
+                  </div>
+                </div>
+              </div>
+
+              <div style="width:100%;height:1px;background:#d8dde2;"></div>
+
+              <div style="padding:14px 18px 10px 18px;display:flex;flex-direction:column;">
+                <div style="display:flex;font-size:33px;font-weight:900;color:#263948;line-height:1.15;">${escapeHtml(selectionText)}</div>
+                <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;margin-top:18px;">
+                  <div style="display:flex;font-size:27px;font-weight:900;color:#7c95a7;">EN DIRECT</div>
+                  <div style="display:flex;font-size:27px;font-weight:900;color:#263948;">temps écoulé : ${escapeHtml(elapsed)}</div>
+                </div>
+                <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;margin-top:12px;">
+                  <div style="display:flex;font-size:28px;font-weight:700;color:#8da0af;">Statut :</div>
+                  <div style="display:flex;font-size:31px;font-weight:900;color:#4A94D8;">Accepté</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div style="height:190px;display:flex;flex-direction:row;align-items:center;justify-content:center;padding:0 26px;box-sizing:border-box;">
-          <div style="width:370px;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;">
-            <div style="max-width:245px;display:flex;font-size:31px;font-weight:600;text-align:right;color:#F4F7FA;line-height:1.1;margin-right:18px;">${escapeHtml(homeName)}</div>
-            ${
-              homeLogoData
-                ? `<img src="${homeLogoData}" width="78" height="78" style="object-fit:contain;" />`
-                : `<div style="width:78px;height:78px;border-radius:999px;border:3px solid #4A8ED8;color:#4A8ED8;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;">${homeInitials}</div>`
-            }
-          </div>
-
-          <div style="width:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <div style="display:flex;font-size:36px;font-weight:500;color:#F5F7FA;">VS</div>
-            <div style="display:flex;margin-top:8px;font-size:25px;font-weight:700;color:#8FA3B5;">${escapeHtml(score)}</div>
-          </div>
-
-          <div style="width:370px;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;">
-            ${
-              awayLogoData
-                ? `<img src="${awayLogoData}" width="78" height="78" style="object-fit:contain;" />`
-                : `<div style="width:78px;height:78px;border-radius:999px;border:3px solid #4A8ED8;color:#4A8ED8;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;">${awayInitials}</div>`
-            }
-            <div style="max-width:245px;display:flex;font-size:31px;font-weight:600;text-align:left;color:#F4F7FA;line-height:1.1;margin-left:18px;">${escapeHtml(awayName)}</div>
-          </div>
-        </div>
-
-        <div style="height:2px;width:100%;display:flex;background:#29435A;"></div>
-
-        <div style="height:108px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0 28px;box-sizing:border-box;">
-          <div style="display:flex;flex-direction:column;">
-            <div style="display:flex;font-size:23px;font-weight:500;color:#91A4B6;">Pronostic LIVE</div>
-            <div style="display:flex;margin-top:8px;font-size:32px;font-weight:700;color:#F7FAFC;">${escapeHtml(couponText)}</div>
-          </div>
-        </div>
-
-        <div style="height:2px;width:100%;display:flex;background:#29435A;"></div>
-
-        <div style="height:84px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0 28px;box-sizing:border-box;">
-          <div style="display:flex;font-size:26px;font-weight:500;color:#8FA3B5;">Statut:</div>
-          <div style="display:flex;font-size:29px;font-weight:700;color:#4A8ED8;">Accepté</div>
-        </div>
-      </div>
-
-      <div style="width:1080px;height:94px;display:flex;flex-direction:row;align-items:center;justify-content:center;background:#17314A;border-top:2px solid #2B4359;">
-        <div style="display:flex;font-size:22px;font-weight:500;color:#8EA2B4;">18+ • Joue responsablement • Mr XPRONOS</div>
       </div>
     </div>
   `);
 
   const svg = await satori(markup, {
     width: 1080,
-    height: 860,
+    height: 1030,
     fonts: [
       { name: "Noto Sans", data: fonts.regular, weight: 400, style: "normal" },
       { name: "Noto Sans", data: fonts.bold, weight: 700, style: "normal" },
@@ -1597,7 +1709,8 @@ async function sendTelegramLiveCoupon(
   const detailedFallback = buildTelegramLiveFallbackText(match, pred);
 
   try {
-    const pngBytes = await buildTelegramCouponPng(match, pred);
+    const renderPred = predictionId == null ? pred : { ...pred, id: predictionId };
+    const pngBytes = await buildTelegramCouponPng(match, renderPred);
     console.log("✅ PNG NOUVEAU COUPON LIVE généré", { bytes: pngBytes.byteLength });
     const photoResult = await sendTelegramPhoto(pngBytes, shortCaption, liveUrl, targetChatIds);
 
@@ -1736,137 +1849,157 @@ async function buildTelegramValidationPng(
   await ensureResvgReady();
   const fonts = await loadFontData();
 
-  const meta = validationStatusMeta(outcome);
   const minute = safeNumber(
     match?.current_minute ?? match?.minute,
     validationType === "final" ? 90 : 0,
   );
-  const score = `${safeNumber(match?.home_score, 0)}-${safeNumber(match?.away_score, 0)}`;
+  const scoreMain = `${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)}`;
+  const scoreSmall = `${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)} (${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)})`;
+  const selectionText = buildTelegramSelectionText(pred);
+  const baseStats = deriveTelegramSlipStats(pred);
+  const eventDateText = formatTelegramSlipDateTime(match);
+  const elapsed = formatTelegramClock(minute);
+  const slipNumber = String(pred?.id ?? pred?.prediction_id ?? match?.id ?? buildCanonicalMatchId(match)).replace(/[^0-9A-Za-z]/g, "").slice(-12) || "87751346361";
 
-  const rawType = String(pred?.prediction_type ?? pred?.type ?? "");
-  const threshold = formatThreshold(
-    pred?.threshold ?? pred?.pronostic ?? pred?.line ?? pred?.target_value ?? "",
-  );
-
-  const [homeLogoData, awayLogoData] = await Promise.all([
+  const [{ oneXbet: oneXbetLogoData, melbet: melbetLogoData }, homeLogoData, awayLogoData] = await Promise.all([
+    getTelegramBookmakerBrandData(),
     getTelegramLogoData(match, "home"),
     getTelegramLogoData(match, "away"),
   ]);
 
-  const homeName = fitText(match?.home_team ?? "Équipe A", 25);
-  const awayName = fitText(match?.away_team ?? "Équipe B", 25);
-  const leagueName = fitText(
-    match?.league?.name ?? match?.league_name ?? match?.competition ?? "Football",
-    38,
-  );
+  const homeName = fitText(match?.home_team ?? "Équipe A", 20);
+  const awayName = fitText(match?.away_team ?? "Équipe B", 20);
+  const leagueName = fitText(getLeagueName(match), 34);
 
-  const couponText = buildValidationCouponText(pred);
   const homeInitials = escapeHtml(getTeamInitials(match?.home_team ?? "Home"));
   const awayInitials = escapeHtml(getTeamInitials(match?.away_team ?? "Away"));
 
-  const finishedLabel = validationType === "instant"
-    ? `Validé en LIVE${minute > 0 ? ` · ${minute}'` : ""}`
-    : "Match terminé";
+  const explicitPaidGain = pickTelegramNumber(
+    pred?.validated_gain,
+    pred?.paid_gain,
+    pred?.potential_gain,
+    pred?.gain,
+  );
+  const payoutNumber = outcome === "success"
+    ? (explicitPaidGain ?? baseStats.potentialNumber)
+    : (baseStats.stakeNumber != null ? 0 : null);
+  const payoutText = formatTelegramMoney(payoutNumber);
+  const payoutColor = outcome === "success" ? "#58B967" : "#E35A5A";
+  const globalStatus = outcome === "success" ? "Payé" : "Perdu";
+  const resultStatus = outcome === "success" ? "Gain" : "Perdu";
+  const resultColor = outcome === "success" ? "#58B967" : "#E35A5A";
+  const infoBadge = validationType === "instant" ? "• En direct" : "• Terminé";
+  const scoreLabel = validationType === "instant" ? `temps écoulé : ${elapsed}` : "match terminé";
 
-  const statusText = outcome === "success" ? "Validé" : "Perdu";
-  const statusColor = outcome === "success" ? "#4A8ED8" : "#E05252";
-  const resultText = outcome === "success" ? "RÉUSSI" : "ÉCHOUÉ";
-  const resultColor = outcome === "success" ? "#35C76F" : "#EF5350";
-
-  // Même identité visuelle que le nouveau coupon LIVE :
-  // 1XBET + CODE PROMO XPVIP + un seul événement + aucune cote.
   const markup = html(`
-    <div style="width:1080px;height:860px;display:flex;flex-direction:column;background:#152D45;color:#F7FAFC;font-family:'Noto Sans';box-sizing:border-box;">
-
-      <div style="width:1080px;height:118px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;background:#000000;padding:0 30px;box-sizing:border-box;">
-        <div style="display:flex;flex-direction:row;align-items:center;font-style:italic;font-weight:900;letter-spacing:-5px;line-height:1;">
-          <div style="display:flex;font-size:70px;color:#FFFFFF;">1X</div>
-          <div style="display:flex;font-size:70px;color:#1598DA;">BET</div>
+    <div style="width:1080px;height:1030px;display:flex;flex-direction:column;background:#eef2f6;color:#16324B;font-family:'Noto Sans';box-sizing:border-box;padding:0;">
+      <div style="width:1080px;height:112px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;background:#050505;padding:0 28px;box-sizing:border-box;">
+        <div style="display:flex;flex-direction:row;align-items:center;height:74px;">
+          ${oneXbetLogoData
+            ? `<img src="${oneXbetLogoData}" width="210" height="68" style="object-fit:contain;" />`
+            : `<div style="display:flex;font-size:45px;font-weight:900;font-style:italic;color:#FFFFFF;">1XBET</div>`}
+          <div style="display:flex;font-size:22px;font-weight:800;color:#FFFFFF;margin:0 16px;">ou</div>
+          ${melbetLogoData
+            ? `<img src="${melbetLogoData}" width="205" height="68" style="object-fit:contain;" />`
+            : `<div style="display:flex;font-size:45px;font-weight:900;font-style:italic;color:#FFFFFF;">MELBET</div>`}
         </div>
-
-        <div style="height:72px;display:flex;flex-direction:row;align-items:center;background:#EAD03B;padding:0 28px;box-sizing:border-box;">
-          <div style="display:flex;font-size:35px;font-weight:900;color:#050505;letter-spacing:-1px;">
-            CODE PROMO XPVIP
-          </div>
-        </div>
-      </div>
-
-      <div style="width:1080px;height:150px;display:flex;flex-direction:column;background:#17314A;border-bottom:2px solid #2B4359;padding:26px 34px;box-sizing:border-box;">
-        <div style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
-          <div style="display:flex;flex-direction:row;align-items:center;">
-            <div style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;margin-right:14px;color:#A8B7C6;font-size:25px;">▰</div>
-            <div style="display:flex;font-size:30px;font-weight:700;color:#DCE5ED;">Événements : 1</div>
-          </div>
-          <div style="display:flex;font-size:29px;font-weight:500;color:#E7EEF4;">1 sur 1 terminé</div>
-        </div>
-
-        <div style="margin-top:24px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
-          <div style="display:flex;font-size:28px;font-weight:500;color:#8EA2B4;">Statut:</div>
-          <div style="display:flex;font-size:30px;font-weight:800;color:${statusColor};">${escapeHtml(statusText)}</div>
+        <div style="height:68px;display:flex;flex-direction:row;align-items:center;background:#F1CF36;border-radius:8px;padding:0 24px;box-sizing:border-box;">
+          <div style="display:flex;font-size:33px;font-weight:900;color:#111111;letter-spacing:-0.8px;">CODE PROMO XPVIP</div>
         </div>
       </div>
 
-      <div style="width:1044px;height:480px;margin:18px;display:flex;flex-direction:column;background:#142C43;border:2px solid #10263A;border-radius:28px;box-sizing:border-box;overflow:hidden;">
-        <div style="height:94px;display:flex;flex-direction:row;align-items:center;padding:20px 24px 14px 24px;box-sizing:border-box;">
-          <div style="width:46px;height:46px;border-radius:999px;border:3px solid #70869A;display:flex;align-items:center;justify-content:center;color:#8FA3B5;font-size:25px;margin-right:16px;">⚽</div>
-          <div style="display:flex;flex-direction:column;">
-            <div style="display:flex;font-size:23px;font-weight:500;color:#8FA3B5;">Football · ${escapeHtml(leagueName)}</div>
-            <div style="display:flex;margin-top:5px;font-size:22px;font-weight:500;color:#8FA3B5;">${escapeHtml(finishedLabel)}</div>
+      <div style="width:100%;padding:18px 18px 26px 18px;box-sizing:border-box;display:flex;">
+        <div style="width:1044px;display:flex;flex-direction:column;background:#FFFFFF;border:2px solid #cdd5dd;border-radius:18px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.08);">
+          <div style="padding:18px 22px 14px 22px;display:flex;flex-direction:row;align-items:flex-start;justify-content:space-between;box-sizing:border-box;">
+            <div style="display:flex;flex-direction:row;align-items:flex-start;">
+              <div style="width:56px;height:56px;border-radius:999px;background:#eff3f6;color:#AAB8C4;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;margin-right:14px;">⚽</div>
+              <div style="display:flex;flex-direction:column;">
+                <div style="display:flex;font-size:28px;font-weight:500;color:#8fa0ae;">${escapeHtml(eventDateText)}</div>
+                <div style="display:flex;flex-direction:row;align-items:baseline;margin-top:8px;">
+                  <div style="display:flex;font-size:50px;font-weight:900;color:#1A3B57;line-height:1;">Simple</div>
+                  <div style="display:flex;font-size:33px;font-weight:500;color:#4D6881;margin-left:14px;line-height:1;">N° ${escapeHtml(slipNumber)}</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;background:#EF3D33;color:#FFFFFF;border-radius:8px;padding:6px 12px;font-size:25px;font-weight:900;line-height:1;">${escapeHtml(infoBadge)}</div>
+          </div>
+
+          <div style="width:100%;height:1px;background:#d8dde2;"></div>
+
+          <div style="padding:18px 22px 16px 22px;display:flex;flex-direction:column;box-sizing:border-box;gap:10px;">
+            <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Cotes:</div>
+              <div style="display:flex;font-size:35px;font-weight:900;color:#1D3D56;">${escapeHtml(baseStats.oddsText)}</div>
+            </div>
+            <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Mise:</div>
+              <div style="display:flex;font-size:35px;font-weight:900;color:#1D3D56;">${escapeHtml(baseStats.stakeText)}</div>
+            </div>
+            <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Gains:</div>
+              <div style="display:flex;font-size:35px;font-weight:900;color:${payoutColor};">${escapeHtml(payoutText)}</div>
+            </div>
+            <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Statut:</div>
+              <div style="display:flex;font-size:34px;font-weight:900;color:${payoutColor};">${escapeHtml(globalStatus)}</div>
+            </div>
+          </div>
+
+          <div style="padding:0 12px 14px 12px;display:flex;">
+            <div style="width:100%;display:flex;flex-direction:column;background:#FFFFFF;border:1px solid #d8dde2;border-radius:18px;overflow:hidden;">
+              <div style="padding:16px 18px 10px 18px;display:flex;flex-direction:row;align-items:flex-start;justify-content:space-between;">
+                <div style="display:flex;flex-direction:row;align-items:flex-start;">
+                  <div style="width:34px;height:34px;border-radius:999px;border:3px solid #b2bec8;display:flex;align-items:center;justify-content:center;color:#95A7B6;font-size:18px;margin-right:12px;">⚽</div>
+                  <div style="display:flex;flex-direction:column;">
+                    <div style="display:flex;font-size:18px;font-weight:800;color:#7e97aa;">Football . ${escapeHtml(leagueName)}</div>
+                    <div style="display:flex;margin-top:2px;font-size:15px;font-weight:700;color:#7e97aa;">${escapeHtml(eventDateText)}</div>
+                  </div>
+                </div>
+                <div style="display:flex;background:#EF3D33;color:#FFFFFF;border-radius:7px;padding:5px 10px;font-size:20px;font-weight:900;line-height:1;">${escapeHtml(infoBadge)}</div>
+              </div>
+
+              <div style="padding:6px 24px 10px 24px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
+                <div style="width:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <div style="display:flex;font-size:19px;font-weight:800;color:#1D3650;text-align:center;line-height:1.12;min-height:48px;align-items:center;justify-content:center;">${escapeHtml(homeName)}</div>
+                  <div style="margin-top:10px;width:76px;height:76px;border-radius:999px;border:2px solid #cad3dc;background:#ffffff;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                    ${homeLogoData ? `<img src="${homeLogoData}" width="70" height="70" style="object-fit:contain;border-radius:999px;" />` : `<div style="display:flex;font-size:28px;font-weight:900;color:#5c7389;">${homeInitials}</div>`}
+                  </div>
+                </div>
+                <div style="width:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <div style="display:flex;font-size:56px;font-weight:900;color:#15344D;line-height:1;">${escapeHtml(scoreMain)}</div>
+                  <div style="display:flex;margin-top:14px;font-size:17px;font-weight:700;color:#7f95a6;">${escapeHtml(scoreSmall)}</div>
+                </div>
+                <div style="width:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <div style="display:flex;font-size:19px;font-weight:800;color:#1D3650;text-align:center;line-height:1.12;min-height:48px;align-items:center;justify-content:center;">${escapeHtml(awayName)}</div>
+                  <div style="margin-top:10px;width:76px;height:76px;border-radius:999px;border:2px solid #cad3dc;background:#ffffff;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                    ${awayLogoData ? `<img src="${awayLogoData}" width="70" height="70" style="object-fit:contain;border-radius:999px;" />` : `<div style="display:flex;font-size:28px;font-weight:900;color:#5c7389;">${awayInitials}</div>`}
+                  </div>
+                </div>
+              </div>
+
+              <div style="width:100%;height:1px;background:#d8dde2;"></div>
+
+              <div style="padding:14px 18px 10px 18px;display:flex;flex-direction:column;">
+                <div style="display:flex;font-size:33px;font-weight:900;color:#263948;line-height:1.15;">${escapeHtml(selectionText)}</div>
+                <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;margin-top:18px;">
+                  <div style="display:flex;font-size:27px;font-weight:900;color:#7c95a7;">EN DIRECT</div>
+                  <div style="display:flex;font-size:27px;font-weight:900;color:#263948;">${escapeHtml(scoreLabel)}</div>
+                </div>
+                <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;margin-top:12px;">
+                  <div style="display:flex;font-size:28px;font-weight:700;color:#8da0af;">Statut:</div>
+                  <div style="display:flex;font-size:31px;font-weight:900;color:${resultColor};">${escapeHtml(resultStatus)}</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div style="height:190px;display:flex;flex-direction:row;align-items:center;justify-content:center;padding:0 26px;box-sizing:border-box;">
-          <div style="width:370px;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;">
-            <div style="max-width:245px;display:flex;font-size:31px;font-weight:600;text-align:right;color:#F4F7FA;line-height:1.1;margin-right:18px;">${escapeHtml(homeName)}</div>
-            ${
-              homeLogoData
-                ? `<img src="${homeLogoData}" width="78" height="78" style="object-fit:contain;" />`
-                : `<div style="width:78px;height:78px;border-radius:999px;border:3px solid #4A8ED8;color:#4A8ED8;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;">${homeInitials}</div>`
-            }
-          </div>
-
-          <div style="width:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-            <div style="display:flex;font-size:50px;font-weight:800;color:#F5F7FA;">${escapeHtml(score)}</div>
-            <div style="display:flex;margin-top:8px;font-size:22px;font-weight:700;color:#8FA3B5;">Score final</div>
-          </div>
-
-          <div style="width:370px;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;">
-            ${
-              awayLogoData
-                ? `<img src="${awayLogoData}" width="78" height="78" style="object-fit:contain;" />`
-                : `<div style="width:78px;height:78px;border-radius:999px;border:3px solid #4A8ED8;color:#4A8ED8;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;">${awayInitials}</div>`
-            }
-            <div style="max-width:245px;display:flex;font-size:31px;font-weight:600;text-align:left;color:#F4F7FA;line-height:1.1;margin-left:18px;">${escapeHtml(awayName)}</div>
-          </div>
-        </div>
-
-        <div style="height:2px;width:100%;display:flex;background:#29435A;"></div>
-
-        <div style="height:108px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0 28px;box-sizing:border-box;">
-          <div style="display:flex;flex-direction:column;max-width:780px;">
-            <div style="display:flex;font-size:23px;font-weight:500;color:#91A4B6;">Résultat du coupon</div>
-            <div style="display:flex;margin-top:8px;font-size:32px;font-weight:700;color:#F7FAFC;">${escapeHtml(couponText)}</div>
-          </div>
-          <div style="display:flex;font-size:29px;font-weight:900;color:${resultColor};">${resultText}</div>
-        </div>
-
-        <div style="height:2px;width:100%;display:flex;background:#29435A;"></div>
-
-        <div style="height:84px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0 28px;box-sizing:border-box;">
-          <div style="display:flex;font-size:25px;font-weight:500;color:#8FA3B5;">Final : ${escapeHtml(currentValue)} · Seuil : ${escapeHtml(threshold)}</div>
-          <div style="display:flex;font-size:29px;font-weight:800;color:${statusColor};">${escapeHtml(statusText)}</div>
-        </div>
-      </div>
-
-      <div style="width:1080px;height:94px;display:flex;flex-direction:row;align-items:center;justify-content:center;background:#17314A;border-top:2px solid #2B4359;">
-        <div style="display:flex;font-size:22px;font-weight:500;color:#8EA2B4;">18+ • Joue responsablement • Mr XPRONOS</div>
       </div>
     </div>
   `);
 
   const svg = await satori(markup, {
     width: 1080,
-    height: 860,
+    height: 1030,
     fonts: [
       { name: "Noto Sans", data: fonts.regular, weight: 400, style: "normal" },
       { name: "Noto Sans", data: fonts.bold, weight: 700, style: "normal" },
@@ -1898,8 +2031,7 @@ function buildTelegramValidationText(pred: any, outcome: "success" | "failure", 
 function buildTelegramValidationFallbackText(
   match: any,
   pred: any,
-  outcome: "success" | "failure",
-  currentValue: number,
+  outcome: "success" | "failure",  currentValue: number,
   validationType: "instant" | "final",
 ) {
   const meta = validationStatusMeta(outcome);
@@ -1935,7 +2067,7 @@ async function sendTelegramValidationResult(
   validationType: "instant" | "final",
   predictionId?: string | number | null,
 ) {
-  const liveUrl = `${SITE_URL.replace(/\/$/, "")}/live.html`;
+  const liveUrl = "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/";
   const shortCaption = buildTelegramValidationText(pred, outcome, currentValue);
   const detailedFallback = buildTelegramValidationFallbackText(
     match,
@@ -2899,7 +3031,6 @@ async function retryPendingTelegramLiveCoupons(
       row?.telegram_sent !== true &&
       safeNumber(row?.telegram_attempts, 0) < 5,
   );
-
   if (!eligible.length) return emptyResult;
 
   const liveMap = new Map<string, any>();
@@ -3898,8 +4029,7 @@ async function validatePredictionsNow() {
       const keptId = validation.id;
 
       await insertNotification({
-        user_id: "all",
-        type: "prediction_validated",
+        user_id: "all",        type: "prediction_validated",
         title: "Prédiction validée",
         message:
 `${pred.match_name}
