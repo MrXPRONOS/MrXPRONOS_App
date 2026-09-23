@@ -1448,7 +1448,13 @@ async function sendTelegramPhoto(
               [
                 {
                   text: "Voir plus d’opportunités 🔥",
-                  url: buttonUrl,
+                  url: "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",
+                },
+              ],
+              [
+                {
+                  text: "S’inscrire chez un bookmaker 🎯",
+                  url: "https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html",
                 },
               ],
             ],
@@ -1529,7 +1535,20 @@ async function sendTelegramMessage(
       form.append(
         "reply_markup",
         JSON.stringify({
-          inline_keyboard: [[{ text: "Voir plus d’opportunités 🔥", url: buttonUrl }]],
+          inline_keyboard: [
+            [
+              {
+                text: "Voir plus d’opportunités 🔥",
+                url: "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",
+              },
+            ],
+            [
+              {
+                text: "S’inscrire chez un bookmaker 🎯",
+                url: "https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html",
+              },
+            ],
+          ],
         }),
       );
     }
@@ -1573,7 +1592,7 @@ async function sendTelegramLiveCoupon(
   predictionId?: string | number | null,
   targetChatIds?: string[],
 ): Promise<TelegramSendResult> {
-  const liveUrl = `${SITE_URL.replace(/\/$/, "")}/live.html`;
+  const liveUrl = "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/";
   const shortCaption = buildTelegramText(match, pred);
   const detailedFallback = buildTelegramLiveFallbackText(match, pred);
 
