@@ -1,32 +1,32 @@
 [
   {
-    "name": "El hadji Touré",
+    "name": "Haby Chanda",
     "rating": 5,
-    "city": "Yaoundé",
-    "text": "Depuis 21 jours je suis la fiabilité, et je choisis mieux mes matchs. C’est simple et ça m’aide vraiment."
+    "city": "Kinshasa",
+    "text": "Franchement, la fiabilité font la différence. Maintenant je joue moins mais plus propre. Ça change ma façon de jouer."
   },
   {
-    "name": "Fatou Ndiaye",
+    "name": "Mahamadou Chanda",
+    "rating": 5,
+    "city": "Kinshasa",
+    "text": "Depuis 14 jours je suis les explications, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
+  },
+  {
+    "name": "Maimouna Mutombo",
     "rating": 4,
-    "city": "Lomé",
-    "text": "Les pronos sont clairs et je comprends enfin pourquoi je joue. Je préfère cette méthode aux paris au hasard."
+    "city": "Lagos",
+    "text": "Franchement, les coupons font la différence. Maintenant je fais moins de combinés inutiles."
   },
   {
-    "name": "Mahamadou Keita",
+    "name": "Zalika Camara",
     "rating": 5,
-    "city": "Ouagadougou",
-    "text": "Les pronos sont clairs et je choisis mieux mes matchs. Je préfère cette méthode aux paris au hasard."
+    "city": "Johannesburg",
+    "text": "Depuis 7 jours je suis les explications, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
   },
   {
-    "name": "Oumy Ndlovu",
+    "name": "Issa Mohamed",
     "rating": 5,
-    "city": "Dakar",
-    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
-  },
-  {
-    "name": "Ramatou Koné",
-    "rating": 5,
-    "city": "Le Caire",
-    "text": "Franchement, la méthode font la différence. Maintenant je choisis mieux mes matchs. Ça change ma façon de jouer."
+    "city": "Douala",
+    "text": "Depuis 7 jours je suis la méthode, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
   }
 ]
