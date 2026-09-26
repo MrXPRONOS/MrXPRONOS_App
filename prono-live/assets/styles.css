@@ -109,3 +109,61 @@ body{background:#020d20}
 .status-card>a,.responsible>a{grid-column:2;font-size:14px;margin-top:2px}
 .sticky-promo{display:none}
 }
+
+
+/* ===== Nouveau style coupon LIVE ===== */
+.signal-coupon{background:transparent;border:0;padding:0;border-radius:0;overflow:visible;box-shadow:none}
+.signal-coupon:hover{transform:none!important}
+.coupon-sponsor{background:#000;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:10px 10px 0 0;gap:12px}
+.coupon-sponsor-left{display:flex;align-items:center;gap:10px;min-width:0}
+.coupon-sponsor-left img{height:26px;width:auto;object-fit:contain;background:transparent;border-radius:0;padding:0}
+.coupon-sponsor-left span{font-size:10px;font-weight:900;color:#c5c5c5}
+.coupon-promo{background:#f2cf32;color:#0a0a0a;padding:8px 12px;border-radius:4px;font-size:12px;font-weight:900;white-space:nowrap}
+.coupon-paper{background:#fff;color:#18384f;border:1px solid #d6dfe4;border-radius:0 0 10px 10px;overflow:hidden}
+.coupon-head{padding:14px 16px 12px}
+.coupon-id-wrap{display:flex;align-items:center;gap:12px}
+.coupon-ball{position:relative;width:42px;height:42px;border-radius:50%;background:#eef3f6;display:flex;align-items:center;justify-content:center;color:#9cafb9;font-size:21px;flex:0 0 42px}
+.coupon-ball i{position:absolute;right:-2px;bottom:-2px;width:15px;height:15px;border-radius:50%;background:#49bc70;border:2px solid #fff;color:#fff;display:flex;align-items:center;justify-content:center;font-size:8px;font-style:normal;font-weight:900}
+.coupon-date{font-size:11px;color:#78909c;font-weight:700;display:flex;align-items:center;gap:8px}
+.coupon-live{display:inline-flex;align-items:center;background:#f0443e;color:#fff;border-radius:3px;padding:3px 6px;font-size:9px;font-weight:900;white-space:nowrap}
+.coupon-simple{font:900 21px Manrope;color:#163a53;margin-top:2px}
+.coupon-simple small{font:500 11px DM Sans;color:#31536a;margin-left:8px}
+.coupon-dashed{border-top:1px dashed #d8e0e5}
+.coupon-finance{padding:10px 16px 12px}
+.coupon-finance>div,.coupon-market,.coupon-live-row,.coupon-status-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.coupon-finance>div{min-height:26px}
+.coupon-finance span,.coupon-status-row span{font-size:13px;color:#78909c;font-weight:700}
+.coupon-finance b{font-size:14px;color:#163a53}
+.coupon-accepted{color:#4a9bd3!important;display:flex;align-items:center;gap:6px}
+.coupon-accepted i{width:17px;height:17px;border-radius:50%;background:#4a9bd3;color:#fff;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:11px}
+.coupon-divider{height:9px;background:#edf2f5;border-top:1px solid #e2e8ec;border-bottom:1px solid #e2e8ec}
+.coupon-event{padding:0 13px 12px}
+.coupon-event-head{min-height:55px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.coupon-event-title{display:flex;align-items:center;gap:7px;min-width:0}
+.coupon-football{width:24px;height:24px;border-radius:50%;background:#eff4f6;display:flex;align-items:center;justify-content:center;color:#8aa1af;font-size:13px;flex:0 0 24px}
+.coupon-event-title div{display:grid;min-width:0}
+.coupon-event-title b{font-size:12px;color:#7e96a5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.coupon-event-title small{font-size:10px;color:#7e96a5;font-weight:600}
+.coupon-score-row{display:grid;grid-template-columns:minmax(0,1fr) 76px minmax(0,1fr);align-items:center;gap:7px;padding:12px 0 9px}
+.coupon-team{display:flex;align-items:center;gap:7px;min-width:0}
+.coupon-team.home{justify-content:flex-end;text-align:right}
+.coupon-team.away{justify-content:flex-start;text-align:left}
+.coupon-team b{font-size:12px;color:#19394e;line-height:1.15}
+.coupon-team-logo{width:38px;height:38px;border-radius:50%;object-fit:contain;background:#fff;border:1px solid #77a56a;padding:2px;flex:0 0 38px}
+.coupon-team-logo.logo-fallback{display:grid;place-items:center;color:#19394e;font-weight:900;background:#f8fbff}
+.coupon-score{text-align:center}
+.coupon-score b{display:block;font:900 24px Manrope;color:#18384f}
+.coupon-score small{display:block;font-size:10px;color:#8aa0ad;margin-top:6px;white-space:nowrap}
+.coupon-rule{height:1px;background:#dce4e9}
+.coupon-market{padding:11px 0 8px}
+.coupon-market strong{font-size:12px;color:#19394e}
+.coupon-market b{font-size:12px;color:#19394e}
+.coupon-live-row{min-height:28px}
+.coupon-live-row span{font-size:11px;color:#7e96a5;font-weight:800}
+.coupon-live-row b{font-size:11px;color:#19394e}
+.coupon-status-row{min-height:27px}
+.coupon-status-row b{font-size:11px;color:#4a9bd3}
+.coupon-actions{display:flex;gap:6px;padding:9px 12px 12px;border-top:1px solid #edf1f3}
+.coupon-actions button{flex:1;border:1px solid #d9e3e8;background:#f7fafb;color:#31536a;border-radius:7px;padding:7px 8px;font-size:10px;font-weight:800;cursor:pointer}
+.reference-matches{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+@media(max-width:720px){.reference-matches{grid-template-columns:1fr}.coupon-sponsor-left img{height:23px}.coupon-promo{font-size:10px;padding:7px 9px}.coupon-simple{font-size:19px}.coupon-score-row{grid-template-columns:minmax(0,1fr) 68px minmax(0,1fr)}.coupon-team b{font-size:11px}.coupon-team-logo{width:34px;height:34px;flex-basis:34px}.coupon-score b{font-size:22px}}
