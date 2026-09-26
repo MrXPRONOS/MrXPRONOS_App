@@ -13,3 +13,6 @@ static_files = [
   "./functions/live/_fonts/NotoSans-Bold.ttf",
   "./functions/live/_fonts/NotoSans-ExtraBold.ttf"
 ]
+
+[functions.daily-pronos]
+verify_jwt = false
