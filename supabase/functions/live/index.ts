@@ -418,11 +418,27 @@ async function fetchBSD(endpoint: string, params?: Record<string, string>) {
   });
 
   if (!res.ok) {
-    const error = await res.text().catch(() => "");
-    throw new Error(`BSD API error (${res.status}): ${error || res.statusText}`);
+    const errorBody = await res.text().catch(() => "");
+    const err: any = new Error(
+      `BSD API error (${res.status}): ${errorBody || res.statusText}`,
+    );
+    err.status = res.status;
+    err.body = errorBody;
+    throw err;
   }
 
   return res.json();
+}
+
+function isBSDQuotaError(error: any) {
+  const status = safeNumber(error?.status, 0);
+  const message = String(error?.message || error?.body || "").toLowerCase();
+  return (
+    status === 429 ||
+    message.includes("taster_exhausted") ||
+    message.includes("quota") ||
+    message.includes("rate limit")
+  );
 }
 
 function isFinishedEvent(ev: any) {
@@ -3979,6 +3995,7 @@ type RefreshBatchOptions = {
   cursor?: string | null;
   batchSize?: number;
   allowTelegram?: boolean;
+  skipBsd?: boolean;
 };
 
 function stableRefreshMatchId(match: any): string {
@@ -4004,8 +4021,27 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   const allowTelegram = options.allowTelegram !== false;
 
   // 1) Sources.
-  const liveData = await fetchBSD("/live/");
-  const originalRawMatches = liveData.results || [];
+  // BSD peut atteindre son quota gratuit quotidien. Dans ce cas, on ne fait
+  // plus échouer tout le refresh : ESPN continue d'alimenter le moteur.
+  let originalRawMatches: any[] = [];
+  let bsdError: string | null = null;
+  let bsdRateLimited = false;
+
+  if (!options.skipBsd) {
+    try {
+      const liveData = await fetchBSD("/live/");
+      originalRawMatches = liveData?.results || [];
+    } catch (e: any) {
+      bsdError = e?.message || String(e);
+      bsdRateLimited = isBSDQuotaError(e);
+
+      if (bsdRateLimited) {
+        console.warn("⚠️ Quota BSD épuisé: refresh poursuivi avec ESPN uniquement");
+      } else {
+        console.error("⚠️ Source BSD indisponible: refresh poursuivi avec ESPN", e);
+      }
+    }
+  }
 
   const espnResult = await fetchEspnLiveMatchesForMerge();
 
@@ -4051,6 +4087,9 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
         espn_only_matches: merged.meta.espn_only_matches,
         espn_enabled: merged.meta.espn_enabled,
         espn_error: espnResult.error,
+        bsd_error: bsdError,
+        bsd_rate_limited: bsdRateLimited,
+        bsd_skipped: options.skipBsd === true,
         predictions_created: 0,
         predictions_existing: 0,
         predictions_failed: 0,
@@ -4138,6 +4177,9 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       espn_only_matches: merged.meta.espn_only_matches,
       espn_enabled: merged.meta.espn_enabled,
       espn_error: espnResult.error,
+      bsd_error: bsdError,
+      bsd_rate_limited: bsdRateLimited,
+      bsd_skipped: options.skipBsd === true,
 
       predictions_created: createdPreds,
       predictions_existing: existingPreds,
@@ -4153,6 +4195,7 @@ async function invokeRefreshBatch(
   cursor: string | null,
   batchSize: number,
   allowTelegram = true,
+  skipBsd = false,
 ) {
   const endpoint = new URL(
     `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/live/refresh/batch`,
@@ -4160,6 +4203,7 @@ async function invokeRefreshBatch(
 
   endpoint.searchParams.set("batch_size", String(batchSize));
   endpoint.searchParams.set("allow_telegram", allowTelegram ? "1" : "0");
+  endpoint.searchParams.set("skip_bsd", skipBsd ? "1" : "0");
   if (cursor) endpoint.searchParams.set("cursor", cursor);
 
   const headers: Record<string, string> = {
@@ -4213,6 +4257,7 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
   let processedMatches = 0;
   let hasMore = true;
   let lastTotalLiveMatches = 0;
+  let skipBsd = false;
 
   const aggregate: any = {
     batches_completed: 0,
@@ -4241,6 +4286,7 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
           cursor,
           effectiveBatchSize,
           allowTelegram,
+          skipBsd,
         );
       } catch (e: any) {
         if (safeNumber(e?.status, 0) === 546 && effectiveBatchSize > 1) {
@@ -4270,6 +4316,10 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
 
     const meta = result?.meta || {};
 
+    // Une fois le quota BSD détecté sur un lot, les lots suivants de CE refresh
+    // n'appellent plus BSD et utilisent ESPN uniquement.
+    if (meta.bsd_rate_limited) skipBsd = true;
+
     processedMatches += safeNumber(meta.batch_count, 0);
     lastTotalLiveMatches = safeNumber(
       meta.total_live_matches,
@@ -4295,6 +4345,9 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
       0,
     );
     aggregate.updated_running += safeNumber(meta.updated_running, 0);
+    aggregate.bsd_rate_limited =
+      aggregate.bsd_rate_limited || Boolean(meta.bsd_rate_limited);
+    if (meta.bsd_skipped) aggregate.bsd_skipped_batches++;
 
     hasMore = Boolean(result?.has_more);
     const nextCursor =
@@ -4609,11 +4662,14 @@ serve(async (req) => {
       const cursor = url.searchParams.get("cursor") || null;
       const allowTelegram =
         String(url.searchParams.get("allow_telegram") || "1") !== "0";
+      const skipBsd =
+        String(url.searchParams.get("skip_bsd") || "0") === "1";
 
       const result = await refreshLiveDataBatch({
         cursor,
         batchSize,
         allowTelegram,
+        skipBsd,
       });
 
       return json({
