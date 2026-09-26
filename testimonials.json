@@ -1,32 +1,32 @@
 [
   {
-    "name": "Xavier Okafor",
+    "name": "Haby Chanda",
     "rating": 5,
-    "city": "Dakar",
-    "text": "Depuis 7 jours je suis la méthode, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
+    "city": "Kinshasa",
+    "text": "Franchement, la fiabilité font la différence. Maintenant je joue moins mais plus propre. Ça change ma façon de jouer."
   },
   {
-    "name": "Gaoussou Sow",
+    "name": "Mahamadou Chanda",
+    "rating": 5,
+    "city": "Kinshasa",
+    "text": "Depuis 14 jours je suis les explications, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
+  },
+  {
+    "name": "Maimouna Mutombo",
     "rating": 4,
-    "city": "Ouagadougou",
-    "text": "Franchement, les explications font la différence. Maintenant je joue moins mais plus propre."
-  },
-  {
-    "name": "Xavier Tembo",
-    "rating": 5,
     "city": "Lagos",
-    "text": "Depuis 7 jours je suis la méthode, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
+    "text": "Franchement, les coupons font la différence. Maintenant je fais moins de combinés inutiles."
   },
   {
-    "name": "Aïssatou Camara",
-    "rating": 4,
-    "city": "Alger",
-    "text": "Franchement, la méthode font la différence. Maintenant je joue moins mais plus propre. Ça change ma façon de jouer."
-  },
-  {
-    "name": "Koumba Onyeka",
+    "name": "Zalika Camara",
     "rating": 5,
-    "city": "Alger",
-    "text": "Depuis 10 jours je suis la méthode, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
+    "city": "Johannesburg",
+    "text": "Depuis 7 jours je suis les explications, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
+  },
+  {
+    "name": "Issa Mohamed",
+    "rating": 5,
+    "city": "Douala",
+    "text": "Depuis 7 jours je suis la méthode, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
   }
 ]
