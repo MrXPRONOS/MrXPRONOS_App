@@ -997,7 +997,8 @@ const REMOTE_FONT_URLS: Record<string, string[]> = {
     "https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSans/NotoSans-Regular.ttf",
     "https://raw.githubusercontent.com/googlefonts/noto-fonts/main/hinted/ttf/NotoSans/NotoSans-Regular.ttf",
   ],
-  "NotoSans-Bold.ttf": [    "https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSans/NotoSans-Bold.ttf",
+  "NotoSans-Bold.ttf": [
+    "https://cdn.jsdelivr.net/gh/googlefonts/noto-fonts@main/hinted/ttf/NotoSans/NotoSans-Bold.ttf",
     "https://raw.githubusercontent.com/googlefonts/noto-fonts/main/hinted/ttf/NotoSans/NotoSans-Bold.ttf",
   ],
   "NotoSans-ExtraBold.ttf": [
@@ -1259,7 +1260,7 @@ async function getTelegramBookmakerBrandData() {
   const base = SITE_URL.replace(/\/$/, "");
   const [oneXbet, melbet] = await Promise.all([
     imageUrlToDataUri(`${base}/assets/images/1xbet.png`),
-    imageUrlToDataUri(`${base}/assets/images/melbet.webp`),
+    imageUrlToDataUri(`${base}/assets/images/melbet.png`),
   ]);
 
   return { oneXbet, melbet };
@@ -1310,11 +1311,11 @@ async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array
       </div>
 
       <div style="width:100%;padding:18px 18px 26px 18px;box-sizing:border-box;display:flex;">
-        <div style="width:1044px;display:flex;flex-direction:column;background:#FFFFFF;border:2px solid #cdd5dd;border-radius:18px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.08);">
+        <div style="width:1044px;display:flex;flex-direction:column;background:#FFFFFF;border:2px solid #cdd5dd;border-radius:18px;overflow:hidden;">
           <div style="padding:18px 22px 14px 22px;display:flex;flex-direction:row;align-items:flex-start;justify-content:space-between;box-sizing:border-box;">
             <div style="display:flex;flex-direction:column;">
               <div style="display:flex;font-size:28px;font-weight:500;color:#8fa0ae;">${escapeHtml(eventDateText)}</div>
-              <div style="display:flex;flex-direction:row;align-items:baseline;margin-top:8px;">
+              <div style="display:flex;flex-direction:row;align-items:center;margin-top:8px;">
                 <div style="display:flex;font-size:50px;font-weight:900;color:#1A3B57;line-height:1;">Simple</div>
                 <div style="display:flex;font-size:33px;font-weight:500;color:#4D6881;margin-left:14px;line-height:1;">N° ${escapeHtml(slipNumber)}</div>
               </div>
@@ -1401,6 +1402,158 @@ async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array
   const svg = await satori(markup, {
     width: 1080,
     height: 1030,
+    fonts: [
+      { name: "Noto Sans", data: fonts.regular, weight: 400, style: "normal" },
+      { name: "Noto Sans", data: fonts.bold, weight: 700, style: "normal" },
+      { name: "Noto Sans", data: fonts.extraBold, weight: 900, style: "normal" },
+    ],
+    embedFont: true,
+  });
+
+  const resvg = new Resvg(svg, {
+    fitTo: { mode: "original" },
+    font: {
+      loadSystemFonts: false,
+    },
+  });
+
+  return resvg.render().asPng();
+}
+
+
+async function buildTelegramCouponPngSafe(match: any, pred: any): Promise<Uint8Array> {
+  const { satori, html, Resvg } = await loadTelegramRenderModules();
+  await ensureResvgReady();
+  const fonts = await loadFontData();
+
+  const minute = safeNumber(match?.current_minute ?? match?.minute, 0);
+  const score = `${safeNumber(match?.home_score, 0)}-${safeNumber(match?.away_score, 0)}`;
+
+  const rawType = String(pred?.prediction_type ?? pred?.type ?? "");
+  const threshold = formatThreshold(
+    pred?.threshold ?? pred?.pronostic ?? pred?.line ?? pred?.target_value ?? "",
+  );
+
+  const [homeLogoData, awayLogoData] = await Promise.all([
+    getTelegramLogoData(match, "home"),
+    getTelegramLogoData(match, "away"),
+  ]);
+
+  const homeName = fitText(match?.home_team ?? "Équipe A", 25);
+  const awayName = fitText(match?.away_team ?? "Équipe B", 25);
+  const leagueName = fitText(
+    match?.league?.name ?? match?.league_name ?? match?.competition ?? "Football",
+    38,
+  );
+
+  const couponText =
+    rawType === "total_corners"
+      ? `Total plus de ${threshold} corners`
+      : rawType === "total_shots"
+      ? `Total plus de ${threshold} tirs`
+      : rawType === "total_fouls"
+      ? `Total plus de ${threshold} fautes`
+      : `Total plus de ${threshold}`;
+
+  const homeInitials = escapeHtml(getTeamInitials(match?.home_team ?? "Home"));
+  const awayInitials = escapeHtml(getTeamInitials(match?.away_team ?? "Away"));
+
+  // Coupon LIVE inspiré de la présentation 1xBet fournie :
+  // - un seul événement
+  // - bandeau 1XBET + code promo XPVIP
+  // - aucune cote affichée
+  // - présentation compacte pour Telegram
+  const markup = html(`
+    <div style="width:1080px;height:860px;display:flex;flex-direction:column;background:#152D45;color:#F7FAFC;font-family:'Noto Sans';box-sizing:border-box;">
+
+      <div style="width:1080px;height:118px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;background:#000000;padding:0 30px;box-sizing:border-box;">
+        <div style="display:flex;flex-direction:row;align-items:center;font-style:italic;font-weight:900;letter-spacing:-5px;line-height:1;">
+          <div style="display:flex;font-size:70px;color:#FFFFFF;">1X</div>
+          <div style="display:flex;font-size:70px;color:#1598DA;">BET</div>
+        </div>
+
+        <div style="height:72px;display:flex;flex-direction:row;align-items:center;background:#EAD03B;padding:0 28px;box-sizing:border-box;">
+          <div style="display:flex;font-size:35px;font-weight:900;color:#050505;letter-spacing:-1px;">
+            CODE PROMO XPVIP
+          </div>
+        </div>
+      </div>
+
+      <div style="width:1080px;height:150px;display:flex;flex-direction:column;background:#17314A;border-bottom:2px solid #2B4359;padding:26px 34px;box-sizing:border-box;">
+        <div style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
+          <div style="display:flex;flex-direction:row;align-items:center;">
+            <div style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;margin-right:14px;color:#A8B7C6;font-size:25px;">▰</div>
+            <div style="display:flex;font-size:30px;font-weight:700;color:#DCE5ED;">Événements : 1</div>
+          </div>
+          <div style="display:flex;font-size:29px;font-weight:500;color:#E7EEF4;">0 sur 1 terminé</div>
+        </div>
+
+        <div style="margin-top:24px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
+          <div style="display:flex;font-size:28px;font-weight:500;color:#8EA2B4;">Statut:</div>
+          <div style="display:flex;font-size:30px;font-weight:700;color:#4A8ED8;">Accepté</div>
+        </div>
+      </div>
+
+      <div style="width:1044px;height:480px;margin:18px;display:flex;flex-direction:column;background:#142C43;border:2px solid #10263A;border-radius:28px;box-sizing:border-box;overflow:hidden;">
+        <div style="height:94px;display:flex;flex-direction:row;align-items:center;padding:20px 24px 14px 24px;box-sizing:border-box;">
+          <div style="width:46px;height:46px;border-radius:999px;border:3px solid #70869A;display:flex;align-items:center;justify-content:center;color:#8FA3B5;font-size:25px;margin-right:16px;">⚽</div>
+          <div style="display:flex;flex-direction:column;">
+            <div style="display:flex;font-size:23px;font-weight:500;color:#8FA3B5;">Football · ${escapeHtml(leagueName)}</div>
+            <div style="display:flex;margin-top:5px;font-size:22px;font-weight:500;color:#8FA3B5;">LIVE · ${minute}'</div>
+          </div>
+        </div>
+
+        <div style="height:190px;display:flex;flex-direction:row;align-items:center;justify-content:center;padding:0 26px;box-sizing:border-box;">
+          <div style="width:370px;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;">
+            <div style="max-width:245px;display:flex;font-size:31px;font-weight:600;text-align:right;color:#F4F7FA;line-height:1.1;margin-right:18px;">${escapeHtml(homeName)}</div>
+            ${
+              homeLogoData
+                ? `<img src="${homeLogoData}" width="78" height="78" style="object-fit:contain;" />`
+                : `<div style="width:78px;height:78px;border-radius:999px;border:3px solid #4A8ED8;color:#4A8ED8;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;">${homeInitials}</div>`
+            }
+          </div>
+
+          <div style="width:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div style="display:flex;font-size:36px;font-weight:500;color:#F5F7FA;">VS</div>
+            <div style="display:flex;margin-top:8px;font-size:25px;font-weight:700;color:#8FA3B5;">${escapeHtml(score)}</div>
+          </div>
+
+          <div style="width:370px;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;">
+            ${
+              awayLogoData
+                ? `<img src="${awayLogoData}" width="78" height="78" style="object-fit:contain;" />`
+                : `<div style="width:78px;height:78px;border-radius:999px;border:3px solid #4A8ED8;color:#4A8ED8;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;">${awayInitials}</div>`
+            }
+            <div style="max-width:245px;display:flex;font-size:31px;font-weight:600;text-align:left;color:#F4F7FA;line-height:1.1;margin-left:18px;">${escapeHtml(awayName)}</div>
+          </div>
+        </div>
+
+        <div style="height:2px;width:100%;display:flex;background:#29435A;"></div>
+
+        <div style="height:108px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0 28px;box-sizing:border-box;">
+          <div style="display:flex;flex-direction:column;">
+            <div style="display:flex;font-size:23px;font-weight:500;color:#91A4B6;">Pronostic LIVE</div>
+            <div style="display:flex;margin-top:8px;font-size:32px;font-weight:700;color:#F7FAFC;">${escapeHtml(couponText)}</div>
+          </div>
+        </div>
+
+        <div style="height:2px;width:100%;display:flex;background:#29435A;"></div>
+
+        <div style="height:84px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0 28px;box-sizing:border-box;">
+          <div style="display:flex;font-size:26px;font-weight:500;color:#8FA3B5;">Statut:</div>
+          <div style="display:flex;font-size:29px;font-weight:700;color:#4A8ED8;">Accepté</div>
+        </div>
+      </div>
+
+      <div style="width:1080px;height:94px;display:flex;flex-direction:row;align-items:center;justify-content:center;background:#17314A;border-top:2px solid #2B4359;">
+        <div style="display:flex;font-size:22px;font-weight:500;color:#8EA2B4;">18+ • Joue responsablement • Mr XPRONOS</div>
+      </div>
+    </div>
+  `);
+
+  const svg = await satori(markup, {
+    width: 1080,
+    height: 860,
     fonts: [
       { name: "Noto Sans", data: fonts.regular, weight: 400, style: "normal" },
       { name: "Noto Sans", data: fonts.bold, weight: 700, style: "normal" },
@@ -1707,49 +1860,69 @@ async function sendTelegramLiveCoupon(
   const liveUrl = "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/";
   const shortCaption = buildTelegramText(match, pred);
   const detailedFallback = buildTelegramLiveFallbackText(match, pred);
+  const renderPred = predictionId == null ? pred : { ...pred, id: predictionId };
+
+  let pngBytes: Uint8Array | null = null;
+  let primaryRenderError = "";
 
   try {
-    const renderPred = predictionId == null ? pred : { ...pred, id: predictionId };
-    const pngBytes = await buildTelegramCouponPng(match, renderPred);
+    pngBytes = await buildTelegramCouponPng(match, renderPred);
     console.log("✅ PNG NOUVEAU COUPON LIVE généré", { bytes: pngBytes.byteLength });
-    const photoResult = await sendTelegramPhoto(pngBytes, shortCaption, liveUrl, targetChatIds);
-
-    if (photoResult.ok) return photoResult;
-
-    // Si l'image n'a échoué que sur un canal, on envoie le fallback texte
-    // uniquement sur ce canal pour éviter un doublon sur les canaux déjà servis.
-    const fallbackTargets = photoResult.failedChatIds.length
-      ? photoResult.failedChatIds
-      : (targetChatIds?.length ? targetChatIds : telegramChatIds());
-
-    console.warn("⚠️ Envoi image LIVE incomplet, fallback texte détaillé:", photoResult.error);
-    const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl, fallbackTargets);
-
-    const sentChatIds = [...new Set([...photoResult.sentChatIds, ...fallbackResult.sentChatIds])];
-    const failedChatIds = [...new Set(fallbackResult.failedChatIds)];
-
-    return {
-      ok: failedChatIds.length === 0,
-      sentChatIds,
-      failedChatIds,
-      error: failedChatIds.length
-        ? [photoResult.error, fallbackResult.error].filter(Boolean).join(" | ") || "Échec Telegram"
-        : null,
-    };
   } catch (e: any) {
-    const generationError = e?.message || String(e);
-    console.error("❌ Génération image LIVE impossible, fallback texte détaillé:", e);
-    const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl, targetChatIds);
+    primaryRenderError = e?.stack || e?.message || String(e);
+    console.error("❌ Nouveau rendu LIVE impossible, tentative du rendu image sécurisé:", primaryRenderError);
 
-    return {
-      ...fallbackResult,
-      error: fallbackResult.ok
-        ? null
-        : [generationError, fallbackResult.error].filter(Boolean).join(" | ") || "Échec Telegram",
-    };
+    try {
+      pngBytes = await buildTelegramCouponPngSafe(match, renderPred);
+      console.log("✅ PNG LIVE de secours généré", { bytes: pngBytes.byteLength });
+    } catch (safeError: any) {
+      const safeDetail = safeError?.stack || safeError?.message || String(safeError);
+      console.error("❌ Les deux rendus image LIVE ont échoué:", {
+        primary: primaryRenderError,
+        safe: safeDetail,
+      });
+
+      const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl, targetChatIds);
+      return {
+        ...fallbackResult,
+        error: fallbackResult.ok
+          ? null
+          : [primaryRenderError, safeDetail, fallbackResult.error]
+              .filter(Boolean)
+              .join(" | ") || "Échec Telegram",
+      };
+    }
   }
-}
 
+  if (!pngBytes) {
+    const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl, targetChatIds);
+    return fallbackResult;
+  }
+
+  const photoResult = await sendTelegramPhoto(pngBytes, shortCaption, liveUrl, targetChatIds);
+  if (photoResult.ok) return photoResult;
+
+  // L'image a été générée mais Telegram l'a refusée sur un ou plusieurs canaux.
+  // On conserve le fallback texte uniquement pour les canaux concernés.
+  const fallbackTargets = photoResult.failedChatIds.length
+    ? photoResult.failedChatIds
+    : (targetChatIds?.length ? targetChatIds : telegramChatIds());
+
+  console.warn("⚠️ Envoi image LIVE incomplet, fallback texte détaillé:", photoResult.error);
+  const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl, fallbackTargets);
+
+  const sentChatIds = [...new Set([...photoResult.sentChatIds, ...fallbackResult.sentChatIds])];
+  const failedChatIds = [...new Set(fallbackResult.failedChatIds)];
+
+  return {
+    ok: failedChatIds.length === 0,
+    sentChatIds,
+    failedChatIds,
+    error: failedChatIds.length
+      ? [photoResult.error, fallbackResult.error].filter(Boolean).join(" | ") || "Échec Telegram"
+      : null,
+  };
+}
 
 function validationStatusMeta(outcome: "success" | "failure") {
   if (outcome === "success") {
@@ -1909,13 +2082,13 @@ async function buildTelegramValidationPng(
       </div>
 
       <div style="width:100%;padding:18px 18px 26px 18px;box-sizing:border-box;display:flex;">
-        <div style="width:1044px;display:flex;flex-direction:column;background:#FFFFFF;border:2px solid #cdd5dd;border-radius:18px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.08);">
+        <div style="width:1044px;display:flex;flex-direction:column;background:#FFFFFF;border:2px solid #cdd5dd;border-radius:18px;overflow:hidden;">
           <div style="padding:18px 22px 14px 22px;display:flex;flex-direction:row;align-items:flex-start;justify-content:space-between;box-sizing:border-box;">
             <div style="display:flex;flex-direction:row;align-items:flex-start;">
               <div style="width:56px;height:56px;border-radius:999px;background:#eff3f6;color:#AAB8C4;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;margin-right:14px;">⚽</div>
               <div style="display:flex;flex-direction:column;">
                 <div style="display:flex;font-size:28px;font-weight:500;color:#8fa0ae;">${escapeHtml(eventDateText)}</div>
-                <div style="display:flex;flex-direction:row;align-items:baseline;margin-top:8px;">
+                <div style="display:flex;flex-direction:row;align-items:center;margin-top:8px;">
                   <div style="display:flex;font-size:50px;font-weight:900;color:#1A3B57;line-height:1;">Simple</div>
                   <div style="display:flex;font-size:33px;font-weight:500;color:#4D6881;margin-left:14px;line-height:1;">N° ${escapeHtml(slipNumber)}</div>
                 </div>
@@ -2018,6 +2191,167 @@ async function buildTelegramValidationPng(
   return resvg.render().asPng();
 }
 
+
+async function buildTelegramValidationPngSafe(
+  match: any,
+  pred: any,
+  outcome: "success" | "failure",
+  currentValue: number,
+  validationType: "instant" | "final",
+): Promise<Uint8Array> {
+  const { satori, html, Resvg } = await loadTelegramRenderModules();
+  await ensureResvgReady();
+  const fonts = await loadFontData();
+
+  const meta = validationStatusMeta(outcome);
+  const minute = safeNumber(
+    match?.current_minute ?? match?.minute,
+    validationType === "final" ? 90 : 0,
+  );
+  const score = `${safeNumber(match?.home_score, 0)}-${safeNumber(match?.away_score, 0)}`;
+
+  const rawType = String(pred?.prediction_type ?? pred?.type ?? "");
+  const threshold = formatThreshold(
+    pred?.threshold ?? pred?.pronostic ?? pred?.line ?? pred?.target_value ?? "",
+  );
+
+  const [homeLogoData, awayLogoData] = await Promise.all([
+    getTelegramLogoData(match, "home"),
+    getTelegramLogoData(match, "away"),
+  ]);
+
+  const homeName = fitText(match?.home_team ?? "Équipe A", 25);
+  const awayName = fitText(match?.away_team ?? "Équipe B", 25);
+  const leagueName = fitText(
+    match?.league?.name ?? match?.league_name ?? match?.competition ?? "Football",
+    38,
+  );
+
+  const couponText = buildValidationCouponText(pred);
+  const homeInitials = escapeHtml(getTeamInitials(match?.home_team ?? "Home"));
+  const awayInitials = escapeHtml(getTeamInitials(match?.away_team ?? "Away"));
+
+  const finishedLabel = validationType === "instant"
+    ? `Validé en LIVE${minute > 0 ? ` · ${minute}'` : ""}`
+    : "Match terminé";
+
+  const statusText = outcome === "success" ? "Validé" : "Perdu";
+  const statusColor = outcome === "success" ? "#4A8ED8" : "#E05252";
+  const resultText = outcome === "success" ? "RÉUSSI" : "ÉCHOUÉ";
+  const resultColor = outcome === "success" ? "#35C76F" : "#EF5350";
+
+  // Même identité visuelle que le nouveau coupon LIVE :
+  // 1XBET + CODE PROMO XPVIP + un seul événement + aucune cote.
+  const markup = html(`
+    <div style="width:1080px;height:860px;display:flex;flex-direction:column;background:#152D45;color:#F7FAFC;font-family:'Noto Sans';box-sizing:border-box;">
+
+      <div style="width:1080px;height:118px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;background:#000000;padding:0 30px;box-sizing:border-box;">
+        <div style="display:flex;flex-direction:row;align-items:center;font-style:italic;font-weight:900;letter-spacing:-5px;line-height:1;">
+          <div style="display:flex;font-size:70px;color:#FFFFFF;">1X</div>
+          <div style="display:flex;font-size:70px;color:#1598DA;">BET</div>
+        </div>
+
+        <div style="height:72px;display:flex;flex-direction:row;align-items:center;background:#EAD03B;padding:0 28px;box-sizing:border-box;">
+          <div style="display:flex;font-size:35px;font-weight:900;color:#050505;letter-spacing:-1px;">
+            CODE PROMO XPVIP
+          </div>
+        </div>
+      </div>
+
+      <div style="width:1080px;height:150px;display:flex;flex-direction:column;background:#17314A;border-bottom:2px solid #2B4359;padding:26px 34px;box-sizing:border-box;">
+        <div style="display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
+          <div style="display:flex;flex-direction:row;align-items:center;">
+            <div style="width:34px;height:34px;display:flex;align-items:center;justify-content:center;margin-right:14px;color:#A8B7C6;font-size:25px;">▰</div>
+            <div style="display:flex;font-size:30px;font-weight:700;color:#DCE5ED;">Événements : 1</div>
+          </div>
+          <div style="display:flex;font-size:29px;font-weight:500;color:#E7EEF4;">1 sur 1 terminé</div>
+        </div>
+
+        <div style="margin-top:24px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
+          <div style="display:flex;font-size:28px;font-weight:500;color:#8EA2B4;">Statut:</div>
+          <div style="display:flex;font-size:30px;font-weight:800;color:${statusColor};">${escapeHtml(statusText)}</div>
+        </div>
+      </div>
+
+      <div style="width:1044px;height:480px;margin:18px;display:flex;flex-direction:column;background:#142C43;border:2px solid #10263A;border-radius:28px;box-sizing:border-box;overflow:hidden;">
+        <div style="height:94px;display:flex;flex-direction:row;align-items:center;padding:20px 24px 14px 24px;box-sizing:border-box;">
+          <div style="width:46px;height:46px;border-radius:999px;border:3px solid #70869A;display:flex;align-items:center;justify-content:center;color:#8FA3B5;font-size:25px;margin-right:16px;">⚽</div>
+          <div style="display:flex;flex-direction:column;">
+            <div style="display:flex;font-size:23px;font-weight:500;color:#8FA3B5;">Football · ${escapeHtml(leagueName)}</div>
+            <div style="display:flex;margin-top:5px;font-size:22px;font-weight:500;color:#8FA3B5;">${escapeHtml(finishedLabel)}</div>
+          </div>
+        </div>
+
+        <div style="height:190px;display:flex;flex-direction:row;align-items:center;justify-content:center;padding:0 26px;box-sizing:border-box;">
+          <div style="width:370px;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;">
+            <div style="max-width:245px;display:flex;font-size:31px;font-weight:600;text-align:right;color:#F4F7FA;line-height:1.1;margin-right:18px;">${escapeHtml(homeName)}</div>
+            ${
+              homeLogoData
+                ? `<img src="${homeLogoData}" width="78" height="78" style="object-fit:contain;" />`
+                : `<div style="width:78px;height:78px;border-radius:999px;border:3px solid #4A8ED8;color:#4A8ED8;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;">${homeInitials}</div>`
+            }
+          </div>
+
+          <div style="width:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div style="display:flex;font-size:50px;font-weight:800;color:#F5F7FA;">${escapeHtml(score)}</div>
+            <div style="display:flex;margin-top:8px;font-size:22px;font-weight:700;color:#8FA3B5;">Score final</div>
+          </div>
+
+          <div style="width:370px;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;">
+            ${
+              awayLogoData
+                ? `<img src="${awayLogoData}" width="78" height="78" style="object-fit:contain;" />`
+                : `<div style="width:78px;height:78px;border-radius:999px;border:3px solid #4A8ED8;color:#4A8ED8;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;">${awayInitials}</div>`
+            }
+            <div style="max-width:245px;display:flex;font-size:31px;font-weight:600;text-align:left;color:#F4F7FA;line-height:1.1;margin-left:18px;">${escapeHtml(awayName)}</div>
+          </div>
+        </div>
+
+        <div style="height:2px;width:100%;display:flex;background:#29435A;"></div>
+
+        <div style="height:108px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0 28px;box-sizing:border-box;">
+          <div style="display:flex;flex-direction:column;max-width:780px;">
+            <div style="display:flex;font-size:23px;font-weight:500;color:#91A4B6;">Résultat du coupon</div>
+            <div style="display:flex;margin-top:8px;font-size:32px;font-weight:700;color:#F7FAFC;">${escapeHtml(couponText)}</div>
+          </div>
+          <div style="display:flex;font-size:29px;font-weight:900;color:${resultColor};">${resultText}</div>
+        </div>
+
+        <div style="height:2px;width:100%;display:flex;background:#29435A;"></div>
+
+        <div style="height:84px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:0 28px;box-sizing:border-box;">
+          <div style="display:flex;font-size:25px;font-weight:500;color:#8FA3B5;">Final : ${escapeHtml(currentValue)} · Seuil : ${escapeHtml(threshold)}</div>
+          <div style="display:flex;font-size:29px;font-weight:800;color:${statusColor};">${escapeHtml(statusText)}</div>
+        </div>
+      </div>
+
+      <div style="width:1080px;height:94px;display:flex;flex-direction:row;align-items:center;justify-content:center;background:#17314A;border-top:2px solid #2B4359;">
+        <div style="display:flex;font-size:22px;font-weight:500;color:#8EA2B4;">18+ • Joue responsablement • Mr XPRONOS</div>
+      </div>
+    </div>
+  `);
+
+  const svg = await satori(markup, {
+    width: 1080,
+    height: 860,
+    fonts: [
+      { name: "Noto Sans", data: fonts.regular, weight: 400, style: "normal" },
+      { name: "Noto Sans", data: fonts.bold, weight: 700, style: "normal" },
+      { name: "Noto Sans", data: fonts.extraBold, weight: 900, style: "normal" },
+    ],
+    embedFont: true,
+  });
+
+  const resvg = new Resvg(svg, {
+    fitTo: { mode: "original" },
+    font: {
+      loadSystemFonts: false,
+    },
+  });
+
+  return resvg.render().asPng();
+}
+
 function buildTelegramValidationText(pred: any, outcome: "success" | "failure", currentValue: number) {
   const meta = validationStatusMeta(outcome);
   const couponText = buildValidationCouponText(pred);
@@ -2076,48 +2410,73 @@ async function sendTelegramValidationResult(
     currentValue,
     validationType,
   );
+  const renderPred = predictionId == null ? pred : { ...pred, id: predictionId };
+
+  let pngBytes: Uint8Array | null = null;
+  let primaryRenderError = "";
 
   try {
-    const pngBytes = await buildTelegramValidationPng(match, pred, outcome, currentValue, validationType);
-    console.log("✅ PNG VALIDATION généré", { bytes: pngBytes.byteLength, outcome, validationType });
-    const photoResult = await sendTelegramPhoto(pngBytes, shortCaption, liveUrl);
+    pngBytes = await buildTelegramValidationPng(
+      match,
+      renderPred,
+      outcome,
+      currentValue,
+      validationType,
+    );
+    console.log("✅ PNG VALIDATION généré", {
+      bytes: pngBytes.byteLength,
+      outcome,
+      validationType,
+    });
+  } catch (e: any) {
+    primaryRenderError = e?.stack || e?.message || String(e);
+    console.error(
+      "❌ Nouveau rendu VALIDATION impossible, tentative du rendu image sécurisé:",
+      primaryRenderError,
+    );
 
-    if (photoResult.ok) return true;
+    try {
+      pngBytes = await buildTelegramValidationPngSafe(
+        match,
+        renderPred,
+        outcome,
+        currentValue,
+        validationType,
+      );
+      console.log("✅ PNG VALIDATION de secours généré", {
+        bytes: pngBytes.byteLength,
+        outcome,
+        validationType,
+      });
+    } catch (safeError: any) {
+      const safeDetail = safeError?.stack || safeError?.message || String(safeError);
+      console.error("❌ Les deux rendus image VALIDATION ont échoué:", {
+        primary: primaryRenderError,
+        safe: safeDetail,
+      });
 
-    const fallbackTargets = photoResult.failedChatIds.length
-      ? photoResult.failedChatIds
-      : telegramChatIds();
+      const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl);
+      return fallbackResult.ok;
+    }
+  }
 
-    console.warn("⚠️ Envoi image VALIDATION incomplet, fallback texte détaillé:", photoResult.error);
-    const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl, fallbackTargets);
-    return fallbackResult.ok;
-  } catch (e) {
-    console.error("❌ Génération image VALIDATION impossible, fallback texte détaillé:", e);
+  if (!pngBytes) {
     const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl);
     return fallbackResult.ok;
   }
+
+  const photoResult = await sendTelegramPhoto(pngBytes, shortCaption, liveUrl);
+  if (photoResult.ok) return true;
+
+  const fallbackTargets = photoResult.failedChatIds.length
+    ? photoResult.failedChatIds
+    : telegramChatIds();
+
+  console.warn("⚠️ Envoi image VALIDATION incomplet, fallback texte détaillé:", photoResult.error);
+  const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl, fallbackTargets);
+  return fallbackResult.ok;
 }
 
-
-// =======================================================
-// ✅ CRON HEALTH (cron_runs)
-// =======================================================
-async function setCronRun(name: string, ok: boolean, meta: any = {}) {
-  try {
-    await supabase.from("cron_runs").upsert({
-      name,
-      last_run_at: new Date().toISOString(),
-      last_ok: ok,
-      meta: meta ?? {},
-    });
-  } catch (e) {
-    console.error("cron_runs upsert failed:", e);
-  }
-}
-
-// =======================================================
-// LIVE ENGINE
-// =======================================================
 function computeMomentum(stats: any) {
   const h = stats?.home || {};
   const a = stats?.away || {};
