@@ -1,0 +1,28 @@
+name: Pronostics du jour
+
+on:
+  schedule:
+    - cron: '10 0 * * *'
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: daily-pronos
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '10 0 * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Générer le snapshot quotidien
+        run: |
+          curl --fail-with-body -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/daily-pronos/generate"             -H "Content-Type: application/json"             -H "x-cron-secret: ${{ secrets.CRON_SECRET }}"             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+
+  validate:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '*/30 * * * *'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Valider les pronostics terminés
+        run: |
+          curl --fail-with-body -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/daily-pronos/validate"             -H "Content-Type: application/json"             -H "x-cron-secret: ${{ secrets.CRON_SECRET }}"             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
