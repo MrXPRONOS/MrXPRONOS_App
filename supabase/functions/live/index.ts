@@ -79,6 +79,26 @@ if (!SUPABASE_SERVICE_ROLE_KEY) console.error("SUPABASE_SERVICE_ROLE_KEY non dé
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+async function setCronRun(jobName: string, success: boolean, details: any = {}) {
+  // Observabilité facultative : l'absence de table cron_runs ne doit jamais
+  // casser un refresh LIVE.
+  try {
+    const row = {
+      job_name: jobName,
+      success,
+      details,
+      updated_at: nowIso(),
+    };
+    const { error } = await supabase
+      .from("cron_runs")
+      .upsert(row, { onConflict: "job_name" });
+    if (error) console.warn("cron_runs indisponible (ignoré):", error.message);
+  } catch (e) {
+    console.warn("setCronRun ignoré:", e);
+  }
+}
+
+
 // =======================================================
 // CORS
 // =======================================================
@@ -4747,36 +4767,52 @@ serve(async (req) => {
     }
 
     // Coordinateur compatible avec l'ancienne URL.
-    // Le cron continue d'appeler exactement POST /live/refresh.
+    // IMPORTANT : le cron externe ne doit pas attendre tous les lots.
+    // On répond immédiatement (202) puis Supabase continue le refresh en arrière-plan.
     if (path === "/refresh" && req.method === "POST") {
       requireCronAuth(req, url);
 
-      try {
-        const result = await refreshLiveDataInBatches(
-          LIVE_REFRESH_BATCH_SIZE,
-        );
+      const refreshTask = (async () => {
+        try {
+          const result = await refreshLiveDataInBatches(
+            LIVE_REFRESH_BATCH_SIZE,
+          );
 
-        await setCronRun("live_refresh", !result.has_more, {
-          processed_matches: result.processed_matches,
-          total_live_matches: result.total_live_matches,
-          next_cursor: result.next_cursor,
-          ...result.meta,
-        });
+          await setCronRun("live_refresh", !result.has_more, {
+            processed_matches: result.processed_matches,
+            total_live_matches: result.total_live_matches,
+            next_cursor: result.next_cursor,
+            ...result.meta,
+          });
+        } catch (e: any) {
+          await setCronRun("live_refresh", false, {
+            error: e?.message || String(e),
+          });
+          console.error("Background live refresh failed:", e);
+        }
+      })();
 
+      const edgeRuntime = (globalThis as any).EdgeRuntime;
+      if (edgeRuntime?.waitUntil) {
+        edgeRuntime.waitUntil(refreshTask);
         return json({
-          success: !result.has_more,
-          count: result.processed_matches,
-          total_live_matches: result.total_live_matches,
-          has_more: result.has_more,
-          next_cursor: result.next_cursor,
-          meta: result.meta,
-        });
-      } catch (e: any) {
-        await setCronRun("live_refresh", false, {
-          error: e?.message || String(e),
-        });
-        throw e;
+          accepted: true,
+          background: true,
+          message: "Refresh LIVE démarré en arrière-plan",
+        }, 202);
       }
+
+      // Fallback local/non-Supabase : un seul lot borné pour éviter les timeouts.
+      const oneBatch = await refreshLiveDataBatch({
+        batchSize: LIVE_REFRESH_BATCH_SIZE,
+        allowTelegram: true,
+      });
+
+      return json({
+        accepted: true,
+        background: false,
+        ...oneBatch,
+      }, 200);
     }
 
     // ===================================================
