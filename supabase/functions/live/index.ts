@@ -46,6 +46,8 @@ const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") || "";
 // un coupon doit partir une seule fois vers chacun des deux canaux.
 const TELEGRAM_CHAT_ID_SECONDARY = Deno.env.get("TELEGRAM_CHAT_ID_SECONDARY") || "@mrxpronosfr";
 const SITE_URL = Deno.env.get("SITE_URL") || "https://mrxpronos.github.io/MrXPRONOS_App/";
+const TELEGRAM_IN_REFRESH =
+  String(Deno.env.get("TELEGRAM_IN_REFRESH") || "false").toLowerCase() === "true";
 
 const BSD_API_BASE = "https://sports.bzzoiro.com/api/v2";
 const BSD_COVERAGE_URL = "https://sports.bzzoiro.com/api/v2/coverage/?sport=football";
@@ -1131,14 +1133,38 @@ async function fetchRemoteFont(filename: string): Promise<Uint8Array> {
   throw new Error(`Impossible de charger ${filename}: ${errors.join(" | ")}`);
 }
 
+async function readBundledTelegramFont(filename: string): Promise<Uint8Array> {
+  try {
+    const url = new URL(`./_fonts/${filename}`, import.meta.url);
+    const bytes = await Deno.readFile(url);
+    if (!isValidFontFile(bytes)) {
+      throw new Error(
+        `police locale invalide (${bytes.byteLength} octets, header=${fontHeader(bytes)})`,
+      );
+    }
+    console.log("✅ Police Telegram locale chargée", {
+      filename,
+      bytes: bytes.byteLength,
+    });
+    return bytes;
+  } catch (e: any) {
+    console.warn(
+      "⚠️ Police locale indisponible, fallback distant:",
+      filename,
+      e?.message || String(e),
+    );
+    return await fetchRemoteFont(filename);
+  }
+}
+
 async function loadFontData(): Promise<TelegramFonts> {
   if (cachedFontData) return cachedFontData;
 
-  // Chargement séquentiel volontaire : moins de pic mémoire/CPU qu'un Promise.all
-  // dans le worker Supabase.
-  const regular = await fetchRemoteFont("NotoSans-Regular.ttf");
-  const bold = await fetchRemoteFont("NotoSans-Bold.ttf");
-  const extraBold = await fetchRemoteFont("NotoSans-ExtraBold.ttf");
+  // Les polices sont déjà packagées dans la fonction Supabase via static_files.
+  // Cela évite 3 téléchargements réseau et réduit fortement le coût d'un cold start.
+  const regular = await readBundledTelegramFont("NotoSans-Regular.ttf");
+  const bold = await readBundledTelegramFont("NotoSans-Bold.ttf");
+  const extraBold = await readBundledTelegramFont("NotoSans-ExtraBold.ttf");
 
   cachedFontData = {
     regular: toExactArrayBuffer(regular),
@@ -1146,7 +1172,7 @@ async function loadFontData(): Promise<TelegramFonts> {
     extraBold: toExactArrayBuffer(extraBold),
   };
 
-  console.log("✅ Polices Telegram prêtes (mode léger, cache actif)");
+  console.log("✅ Polices Telegram prêtes (bundle local + cache)");
   return cachedFontData;
 }
 
@@ -1319,13 +1345,10 @@ function deriveTelegramSlipStats(pred: any) {
 }
 
 async function getTelegramBookmakerBrandData() {
-  const base = SITE_URL.replace(/\/$/, "");
-  const [oneXbet, melbet] = await Promise.all([
-    imageUrlToDataUri(`${base}/assets/images/1xbet.png`),
-    imageUrlToDataUri(`${base}/assets/images/melbet.png`),
-  ]);
-
-  return { oneXbet, melbet };
+  // Les libellés texte 1XBET / MELBET sont déjà prévus dans le template.
+  // melbet.png du dépôt contient en réalité du WEBP (header RIFF/WEBP),
+  // donc on évite volontairement ces deux téléchargements ici.
+  return { oneXbet: "", melbet: "" };
 }
 
 async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array> {
@@ -4098,7 +4121,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     Math.min(5, Math.floor(options.batchSize ?? LIVE_REFRESH_BATCH_SIZE)),
   );
   const cursor = String(options.cursor || "");
-  const allowTelegram = options.allowTelegram !== false;
+  const allowTelegram = TELEGRAM_IN_REFRESH && options.allowTelegram === true;
   const refreshAt = nowIso();
 
   let allRawMatches: any[] = [];
@@ -4197,6 +4220,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
         bsd_rate_limited: bsdRateLimited,
         bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0,
         snapshot_reused: snapshotReused,
+        telegram_in_refresh: allowTelegram,
         predictions_created: 0,
         predictions_existing: 0,
         predictions_failed: 0,
@@ -4265,6 +4289,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       bsd_rate_limited: bsdRateLimited,
       bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0,
       snapshot_reused: snapshotReused,
+      telegram_in_refresh: allowTelegram,
       predictions_created: createdPreds,
       predictions_existing: existingPreds,
       predictions_failed: failedPreds,
@@ -4358,7 +4383,7 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
 
   while (hasMore && batchNumber < LIVE_REFRESH_MAX_BATCHES) {
     let effectiveBatchSize = Math.max(1, Math.min(5, batchSize));
-    let allowTelegram = true;
+    let allowTelegram = false;
     let result: any = null;
 
     // Protection supplémentaire :
@@ -4369,7 +4394,7 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
         result = await invokeRefreshBatch(
           cursor,
           effectiveBatchSize,
-          allowTelegram,
+          false,
           skipBsd,
           batchNumber > 0,
         );
@@ -4762,6 +4787,22 @@ serve(async (req) => {
 
       return json({
         success: true,
+        ...result,
+      });
+    }
+
+    // ===================================================
+    // TELEGRAM: traitement isolé d'un seul coupon
+    // ===================================================
+    // Cette route est volontairement séparée du refresh LIVE afin que
+    // Satori/Resvg ne consomment jamais le budget CPU du moteur de pronostics.
+    if (path === "/telegram/process-one" && req.method === "POST") {
+      requireCronAuth(req, url);
+
+      const result = await retryPendingTelegramLiveCoupons([], 1);
+      return json({
+        success: true,
+        isolated: true,
         ...result,
       });
     }
