@@ -3434,6 +3434,213 @@ async function markTelegramDelivery(
   return true;
 }
 
+async function processTelegramPredictionById(predictionId: string | number) {
+  const id = String(predictionId || "").trim();
+  if (!id) {
+    return {
+      telegram_retry_enabled: true,
+      telegram_retry_processed: 0,
+      telegram_retry_sent: 0,
+      telegram_retry_failed: 1,
+      telegram_retry_skipped: 0,
+      error: "prediction_id manquant",
+    };
+  }
+
+  await releaseStaleTelegramClaims();
+
+  const { data: row, error } = await supabase
+    .from("live_predictions")
+    .select(
+      "id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, confidence, validated, telegram_sent, telegram_attempts, telegram_pending_chat_ids, created_at",
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    if (isUndefinedColumnError(error)) {
+      return {
+        telegram_retry_enabled: false,
+        telegram_retry_processed: 0,
+        telegram_retry_sent: 0,
+        telegram_retry_failed: 1,
+        telegram_retry_skipped: 0,
+        error: "colonnes Telegram retry absentes",
+      };
+    }
+    throw error;
+  }
+
+  if (!row) {
+    return {
+      telegram_retry_enabled: true,
+      telegram_retry_processed: 0,
+      telegram_retry_sent: 0,
+      telegram_retry_failed: 0,
+      telegram_retry_skipped: 1,
+      error: "prediction introuvable",
+    };
+  }
+
+  if (row.validated === true) {
+    return {
+      telegram_retry_enabled: true,
+      telegram_retry_processed: 0,
+      telegram_retry_sent: 0,
+      telegram_retry_failed: 0,
+      telegram_retry_skipped: 1,
+      error: "prediction déjà validée",
+    };
+  }
+
+  if (row.telegram_sent === true && row.telegram_last_error !== "__SENDING__") {
+    return {
+      telegram_retry_enabled: true,
+      telegram_retry_processed: 0,
+      telegram_retry_sent: 0,
+      telegram_retry_failed: 0,
+      telegram_retry_skipped: 1,
+      already_sent: true,
+    };
+  }
+
+  const currentMatch = await getTelegramMatchFromCache(row, null);
+  if (!currentMatch) {
+    return {
+      telegram_retry_enabled: true,
+      telegram_retry_processed: 0,
+      telegram_retry_sent: 0,
+      telegram_retry_failed: 1,
+      telegram_retry_skipped: 0,
+      error: "match introuvable dans le cache LIVE",
+    };
+  }
+
+  const retryMatch = {
+    ...currentMatch,
+    home_team: row.home_team ?? currentMatch.home_team,
+    away_team: row.away_team ?? currentMatch.away_team,
+    home_score: row.home_score ?? currentMatch.home_score ?? 0,
+    away_score: row.away_score ?? currentMatch.away_score ?? 0,
+    current_minute: row.minute ?? currentMatch.current_minute ?? 0,
+    league_name: row.league_name ?? currentMatch.league_name ?? currentMatch?.league?.name,
+    league: {
+      ...(currentMatch?.league || {}),
+      name: row.league_name ?? currentMatch?.league?.name ?? "Football",
+    },
+  };
+
+  const retryPred = {
+    ...row,
+    type: row.prediction_type,
+    prediction_type: row.prediction_type,
+    pronostic: row.threshold,
+    signal_value: row.projected_value ?? row.current_value ?? 0,
+    current: row.projected_value ?? row.current_value ?? 0,
+  };
+
+  const claimed = await claimTelegramDelivery(row.id);
+  if (!claimed) {
+    return {
+      telegram_retry_enabled: true,
+      telegram_retry_processed: 0,
+      telegram_retry_sent: 0,
+      telegram_retry_failed: 0,
+      telegram_retry_skipped: 1,
+      already_claimed: true,
+    };
+  }
+
+  const pendingChatIds = Array.isArray(row.telegram_pending_chat_ids)
+    ? row.telegram_pending_chat_ids
+      .map((chatId: unknown) => String(chatId || "").trim())
+      .filter(Boolean)
+    : [];
+
+  try {
+    const delivery = await sendTelegramLiveCoupon(
+      retryMatch,
+      retryPred,
+      row.id,
+      pendingChatIds.length ? pendingChatIds : undefined,
+    );
+
+    await markTelegramDelivery(row.id, delivery);
+
+    return {
+      telegram_retry_enabled: true,
+      telegram_retry_processed: 1,
+      telegram_retry_sent: delivery.ok ? 1 : 0,
+      telegram_retry_failed: delivery.ok ? 0 : 1,
+      telegram_retry_skipped: 0,
+      prediction_id: row.id,
+      sent_chat_ids: delivery.sentChatIds,
+      failed_chat_ids: delivery.failedChatIds,
+      error: delivery.error,
+    };
+  } catch (e: any) {
+    const failedTargets =
+      pendingChatIds.length ? pendingChatIds : telegramChatIds();
+
+    await markTelegramDelivery(row.id, {
+      ok: false,
+      sentChatIds: [],
+      failedChatIds: failedTargets,
+      error: e?.message || String(e),
+    });
+
+    throw e;
+  }
+}
+
+async function dispatchTelegramPrediction(predictionId: string | number) {
+  const id = String(predictionId || "").trim();
+  if (!id) return false;
+
+  try {
+    const endpoint = new URL(
+      `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/live/telegram/process-one`,
+    );
+    endpoint.searchParams.set("prediction_id", id);
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      "apikey": SUPABASE_SERVICE_ROLE_KEY,
+    };
+    if (CRON_SECRET) headers["x-cron-secret"] = CRON_SECRET;
+
+    // La route cible répond immédiatement 202 puis rend l'image dans SA propre
+    // invocation Edge. On attend seulement l'accusé de réception, jamais Satori/Resvg.
+    const res = await fetch(endpoint.toString(), {
+      method: "POST",
+      headers,
+    });
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.warn("⚠️ Dispatch Telegram immédiat refusé:", {
+        prediction_id: id,
+        status: res.status,
+        body,
+      });
+      return false;
+    }
+
+    console.log("🚀 Coupon Telegram dispatché immédiatement", {
+      prediction_id: id,
+      status: res.status,
+    });
+    return true;
+  } catch (e: any) {
+    console.warn("⚠️ Dispatch Telegram immédiat impossible:", {
+      prediction_id: id,
+      error: e?.message || String(e),
+    });
+    return false;
+  }
+}
+
 async function retryPendingTelegramLiveCoupons(
   liveMatchesNormalized: any[],
   maxToProcess = 1,
@@ -3672,25 +3879,23 @@ Au signal: ${signalValue}`,
     related_prediction_id: data.id,
   });
 
-  // En mode refresh par lots, l'image Telegram est mise en file et traitée
-  // après les calculs. Cela empêche plusieurs rendus Satori/Resvg dans la même
-  // invocation, principale cause possible de pics CPU.
-  let telegramAttempted = false;
+  // Dès qu'un nouveau signal est enregistré, on déclenche immédiatement
+  // une AUTRE invocation Edge dédiée au rendu/envoi Telegram.
+  // Le moteur LIVE ne charge jamais Satori/Resvg lui-même.
+  const telegramDispatched = await dispatchTelegramPrediction(data.id);
 
-  if (options.sendTelegram !== false) {
-    const claimed = await claimTelegramDelivery(data.id);
-    if (claimed) {
-      telegramAttempted = true;
-      const telegramDelivery = await sendTelegramLiveCoupon(match, pred, data.id);
-      await markTelegramDelivery(data.id, telegramDelivery);
-    } else {
-      console.log("⏭️ Envoi Telegram ignoré: prediction déjà claimée", { prediction_id: data.id });
-    }
-  } else {
-    console.log("📥 Coupon LIVE mis en file Telegram", { prediction_id: data.id });
+  if (!telegramDispatched) {
+    console.log("📥 Coupon LIVE conservé en file pour retry Telegram", {
+      prediction_id: data.id,
+    });
   }
 
-  return { created: true, id: data.id, telegram_attempted: telegramAttempted };
+  return {
+    created: true,
+    id: data.id,
+    telegram_attempted: false,
+    telegram_dispatched: telegramDispatched,
+  };
 }
 
 async function getCachedLiveStats(matchId: string) {
@@ -4799,10 +5004,41 @@ serve(async (req) => {
     if (path === "/telegram/process-one" && req.method === "POST") {
       requireCronAuth(req, url);
 
-      const result = await retryPendingTelegramLiveCoupons([], 1);
+      const body = await req.json().catch(() => ({}));
+      const predictionId =
+        url.searchParams.get("prediction_id") ||
+        String(body?.prediction_id || "").trim() ||
+        null;
+
+      const telegramTask = predictionId
+        ? processTelegramPredictionById(predictionId)
+        : retryPendingTelegramLiveCoupons([], 1);
+
+      const edgeRuntime = (globalThis as any).EdgeRuntime;
+      if (edgeRuntime?.waitUntil) {
+        edgeRuntime.waitUntil(
+          telegramTask.catch((e: any) => {
+            console.error("❌ Telegram worker isolé échoué:", {
+              prediction_id: predictionId,
+              error: e?.message || String(e),
+            });
+          }),
+        );
+
+        return json({
+          accepted: true,
+          isolated: true,
+          background: true,
+          prediction_id: predictionId,
+        }, 202);
+      }
+
+      const result = await telegramTask;
       return json({
         success: true,
         isolated: true,
+        background: false,
+        prediction_id: predictionId,
         ...result,
       });
     }
