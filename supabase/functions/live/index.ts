@@ -47,7 +47,8 @@ const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") || "";
 const TELEGRAM_CHAT_ID_SECONDARY = Deno.env.get("TELEGRAM_CHAT_ID_SECONDARY") || "@mrxpronosfr";
 const SITE_URL = Deno.env.get("SITE_URL") || "https://mrxpronos.github.io/MrXPRONOS_App/";
 
-const BSD_API_BASE = "https://sports.bzzoiro.com/api";
+const BSD_API_BASE = "https://sports.bzzoiro.com/api/v2";
+const BSD_COVERAGE_URL = "https://sports.bzzoiro.com/api/v2/coverage/?sport=football";
 const BSD_IMG_BASE = "https://sports.bzzoiro.com/img";
 
 const ESPN_SCOREBOARD_URL =
@@ -439,6 +440,31 @@ function isBSDQuotaError(error: any) {
     message.includes("quota") ||
     message.includes("rate limit")
   );
+}
+
+function bsdResults(payload: any): any[] {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.results)) return payload.results;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.events)) return payload.events;
+  return [];
+}
+
+async function fetchBSDCoverage() {
+  try {
+    const res = await fetch(BSD_COVERAGE_URL, {
+      headers: { "Accept": "application/json" },
+    });
+    if (!res.ok) return null;
+    const payload = await res.json();
+    if (Array.isArray(payload?.sports)) {
+      return payload.sports.find((x: any) => String(x?.sport).toLowerCase() === "football") || null;
+    }
+    return payload;
+  } catch (e) {
+    console.warn("BSD coverage unavailable (ignored):", e);
+    return null;
+  }
 }
 
 function isFinishedEvent(ev: any) {
@@ -3996,6 +4022,7 @@ type RefreshBatchOptions = {
   batchSize?: number;
   allowTelegram?: boolean;
   skipBsd?: boolean;
+  useSnapshot?: boolean;
 };
 
 function stableRefreshMatchId(match: any): string {
@@ -4006,6 +4033,39 @@ function sortMatchesForRefresh(matches: any[]) {
   return [...(matches || [])].sort((a: any, b: any) =>
     stableRefreshMatchId(a).localeCompare(stableRefreshMatchId(b))
   );
+}
+
+async function loadRecentRefreshSnapshot(maxAgeSeconds = 150) {
+  const since = new Date(Date.now() - maxAgeSeconds * 1000).toISOString();
+  const { data, error } = await supabase
+    .from(T_STATS_MERGED)
+    .select("merged_match_json, updated_at")
+    .gte("updated_at", since)
+    .order("updated_at", { ascending: false })
+    .limit(500);
+
+  if (error || !data?.length) return [];
+
+  const newest = Math.max(
+    ...data.map((r: any) => new Date(r.updated_at).getTime()).filter(Number.isFinite),
+  );
+
+  // Les lignes d'un même snapshot sont écrites presque au même instant.
+  // On garde uniquement le dernier groupe pour ne pas mélanger deux cycles.
+  const recent = data.filter((r: any) => {
+    const ts = new Date(r.updated_at).getTime();
+    return Number.isFinite(ts) && newest - ts <= 15_000;
+  });
+
+  const byId = new Map<string, any>();
+  for (const r of recent) {
+    const m = r?.merged_match_json;
+    if (!m) continue;
+    if (m?.is_finished === true) continue;
+    const id = stableRefreshMatchId(m);
+    if (!byId.has(id)) byId.set(id, m);
+  }
+  return sortMatchesForRefresh([...byId.values()]);
 }
 
 /**
@@ -4019,41 +4079,70 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   );
   const cursor = String(options.cursor || "");
   const allowTelegram = options.allowTelegram !== false;
+  const refreshAt = nowIso();
 
-  // 1) Sources.
-  // BSD peut atteindre son quota gratuit quotidien. Dans ce cas, on ne fait
-  // plus échouer tout le refresh : ESPN continue d'alimenter le moteur.
-  let originalRawMatches: any[] = [];
+  let allRawMatches: any[] = [];
+  let sourceRows: any[] = [];
+  let sourceMeta: any = {
+    original_source_matches: 0,
+    espn_source_matches: 0,
+    duplicates_merged: 0,
+    espn_only_matches: 0,
+    espn_enabled: ENABLE_ESPN_MERGE,
+  };
+  let espnError: string | null = null;
   let bsdError: string | null = null;
   let bsdRateLimited = false;
+  let snapshotReused = false;
+  let coverage: any = null;
 
-  if (!options.skipBsd) {
-    try {
-      const liveData = await fetchBSD("/live/");
-      originalRawMatches = liveData?.results || [];
-    } catch (e: any) {
-      bsdError = e?.message || String(e);
-      bsdRateLimited = isBSDQuotaError(e);
-
-      if (bsdRateLimited) {
-        console.warn("⚠️ Quota BSD épuisé: refresh poursuivi avec ESPN uniquement");
-      } else {
-        console.error("⚠️ Source BSD indisponible: refresh poursuivi avec ESPN", e);
-      }
-    }
+  // Les lots 2+ réutilisent le snapshot complet créé par le premier lot.
+  // C'est le point essentiel : un refresh = au maximum UN appel BSD /events/live/.
+  if (options.useSnapshot) {
+    allRawMatches = await loadRecentRefreshSnapshot();
+    snapshotReused = allRawMatches.length > 0;
   }
 
-  const espnResult = await fetchEspnLiveMatchesForMerge();
+  if (!snapshotReused) {
+    let originalRawMatches: any[] = [];
 
-  // 2) Fusion des sources.
-  const merged = mergeOriginalAndEspnMatches(
-    originalRawMatches,
-    espnResult.matches || [],
-  );
+    coverage = await fetchBSDCoverage();
+    const liveNow = safeNumber(coverage?.live_now, -1);
 
-  // Ordre stable indispensable pour ne jamais retraiter le même match
-  // dans la chaîne de lots.
-  const allRawMatches = sortMatchesForRefresh(merged.mergedMatches);
+    if (!options.skipBsd && liveNow !== 0) {
+      try {
+        const liveData = await fetchBSD("/events/live/");
+        originalRawMatches = bsdResults(liveData);
+      } catch (e: any) {
+        bsdError = e?.message || String(e);
+        bsdRateLimited = isBSDQuotaError(e);
+        if (bsdRateLimited) {
+          console.warn("⚠️ Quota BSD épuisé: ESPN + cache prennent le relais");
+        } else {
+          console.error("⚠️ BSD v2 live indisponible: ESPN prend le relais", e);
+        }
+      }
+    }
+
+    const espnResult = await fetchEspnLiveMatchesForMerge();
+    espnError = espnResult.error;
+
+    const merged = mergeOriginalAndEspnMatches(
+      originalRawMatches,
+      espnResult.matches || [],
+    );
+
+    allRawMatches = sortMatchesForRefresh(merged.mergedMatches);
+    sourceRows = merged.sourceRows || [];
+    sourceMeta = merged.meta || sourceMeta;
+
+    // Snapshot COMPLET persistant avant de découper en lots.
+    // Les invocations enfants suivantes lisent exactement ces mêmes matchs
+    // sans rappeler BSD ni ESPN.
+    if (allRawMatches.length) {
+      await persistStatsSourcesAndMerged(sourceRows, allRawMatches);
+    }
+  }
 
   const candidates = cursor
     ? allRawMatches.filter(
@@ -4062,12 +4151,9 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     : allRawMatches;
 
   const rawMatches = candidates.slice(0, batchSize);
-  const refreshAt = nowIso();
-
   const nextCursor = rawMatches.length
     ? stableRefreshMatchId(rawMatches[rawMatches.length - 1])
     : cursor || null;
-
   const hasMore = candidates.length > rawMatches.length;
 
   if (!rawMatches.length) {
@@ -4081,15 +4167,16 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
         batch_count: 0,
         cursor: cursor || null,
         next_cursor: nextCursor,
-        original_source_matches: merged.meta.original_source_matches,
-        espn_source_matches: merged.meta.espn_source_matches,
-        duplicates_merged: merged.meta.duplicates_merged,
-        espn_only_matches: merged.meta.espn_only_matches,
-        espn_enabled: merged.meta.espn_enabled,
-        espn_error: espnResult.error,
+        original_source_matches: safeNumber(sourceMeta.original_source_matches, 0),
+        espn_source_matches: safeNumber(sourceMeta.espn_source_matches, 0),
+        duplicates_merged: safeNumber(sourceMeta.duplicates_merged, 0),
+        espn_only_matches: safeNumber(sourceMeta.espn_only_matches, 0),
+        espn_enabled: ENABLE_ESPN_MERGE,
+        espn_error: espnError,
         bsd_error: bsdError,
         bsd_rate_limited: bsdRateLimited,
-        bsd_skipped: options.skipBsd === true,
+        bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0,
+        snapshot_reused: snapshotReused,
         predictions_created: 0,
         predictions_existing: 0,
         predictions_failed: 0,
@@ -4097,28 +4184,12 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     };
   }
 
-  // 3) Audit uniquement pour les matchs de CE lot.
-  // Avant, tout était persisté à chaque refresh.
-  const batchCanonicalIds = new Set(
-    rawMatches.map((m: any) => buildCanonicalMatchId(m)),
-  );
-
-  const batchSourceRows = (merged.sourceRows || []).filter((row: any) =>
-    batchCanonicalIds.has(String(row?.canonical_match_id || ""))
-  );
-
-  await persistStatsSourcesAndMerged(batchSourceRows, rawMatches);
-
-  // 4) Calcul uniquement sur 5 matchs maximum.
   const normalizedMatches = rawMatches.map((m: any) =>
     normalizeMatch(m, refreshAt)
   );
 
-  // 5) Un seul UPSERT Supabase pour le lot.
   await cacheLiveMatches(rawMatches, refreshAt);
 
-  // 6) Sauvegarde des nouveaux pronostics SANS rendre immédiatement toutes
-  // les images Telegram. Ils entrent dans la file telegram_sent=false.
   let createdPreds = 0;
   let existingPreds = 0;
   let failedPreds = 0;
@@ -4136,17 +4207,11 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     }
   }
 
-  // 7) Au maximum UNE validation instantanée par lot.
-  // Cela borne également le nombre de rendus d'image.
   const instant = await validatePredictionsInPlay(normalizedMatches, {
-    // En fallback CPU sans Telegram, on ne valide pas encore le coupon :
-    // il reste pending et pourra être validé + envoyé au prochain passage.
     maxInstantValidations: allowTelegram ? 1 : 0,
     sendTelegram: allowTelegram,
   });
 
-  // 8) Si aucune image de validation n'a été rendue dans ce lot,
-  // on traite au maximum UN coupon Telegram en attente.
   const telegramRetry =
     allowTelegram && safeNumber(instant.instant_validated, 0) === 0
       ? await retryPendingTelegramLiveCoupons(normalizedMatches, 1)
@@ -4170,32 +4235,30 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       cursor: cursor || null,
       next_cursor: nextCursor,
       has_more: hasMore,
-
-      original_source_matches: merged.meta.original_source_matches,
-      espn_source_matches: merged.meta.espn_source_matches,
-      duplicates_merged: merged.meta.duplicates_merged,
-      espn_only_matches: merged.meta.espn_only_matches,
-      espn_enabled: merged.meta.espn_enabled,
-      espn_error: espnResult.error,
+      original_source_matches: safeNumber(sourceMeta.original_source_matches, 0),
+      espn_source_matches: safeNumber(sourceMeta.espn_source_matches, 0),
+      duplicates_merged: safeNumber(sourceMeta.duplicates_merged, 0),
+      espn_only_matches: safeNumber(sourceMeta.espn_only_matches, 0),
+      espn_enabled: ENABLE_ESPN_MERGE,
+      espn_error: espnError,
       bsd_error: bsdError,
       bsd_rate_limited: bsdRateLimited,
-      bsd_skipped: options.skipBsd === true,
-
+      bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0,
+      snapshot_reused: snapshotReused,
       predictions_created: createdPreds,
       predictions_existing: existingPreds,
       predictions_failed: failedPreds,
-
       ...telegramRetry,
       ...instant,
     },
   };
 }
-
 async function invokeRefreshBatch(
   cursor: string | null,
   batchSize: number,
   allowTelegram = true,
   skipBsd = false,
+  useSnapshot = false,
 ) {
   const endpoint = new URL(
     `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/live/refresh/batch`,
@@ -4204,6 +4267,7 @@ async function invokeRefreshBatch(
   endpoint.searchParams.set("batch_size", String(batchSize));
   endpoint.searchParams.set("allow_telegram", allowTelegram ? "1" : "0");
   endpoint.searchParams.set("skip_bsd", skipBsd ? "1" : "0");
+  endpoint.searchParams.set("use_snapshot", useSnapshot ? "1" : "0");
   if (cursor) endpoint.searchParams.set("cursor", cursor);
 
   const headers: Record<string, string> = {
@@ -4287,6 +4351,7 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
           effectiveBatchSize,
           allowTelegram,
           skipBsd,
+          batchNumber > 0,
         );
       } catch (e: any) {
         if (safeNumber(e?.status, 0) === 546 && effectiveBatchSize > 1) {
@@ -4664,12 +4729,15 @@ serve(async (req) => {
         String(url.searchParams.get("allow_telegram") || "1") !== "0";
       const skipBsd =
         String(url.searchParams.get("skip_bsd") || "0") === "1";
+      const useSnapshot =
+        String(url.searchParams.get("use_snapshot") || "0") === "1";
 
       const result = await refreshLiveDataBatch({
         cursor,
         batchSize,
         allowTelegram,
         skipBsd,
+        useSnapshot,
       });
 
       return json({
@@ -4747,24 +4815,24 @@ serve(async (req) => {
     // UI: today (BSD direct)
     // ===================================================
     if (path === "/today" && req.method === "GET") {
-      const today = url.searchParams.get("date") || new Date().toISOString().slice(0, 10);
+      const date = url.searchParams.get("date") || new Date().toISOString().slice(0, 10);
 
-      const liveData = await fetchBSD("/live/");
-      const liveMatches = liveData.results || [];
+      // IMPORTANT QUOTA: cette route est appelée par le site toutes les 20 s.
+      // Elle ne doit donc JAMAIS consommer BSD.
+      const liveMatches = await getLiveMatchesFromDb().catch(() => []);
 
-      const eventsData = await fetchBSD("/events/", { date_from: today, date_to: today });
-      const allEvents = eventsData.results || [];
+      let events: any[] = [];
+      try {
+        const scoreboard = await fetchEspnScoreboard(toDateKey(date), false);
+        events = (scoreboard?.events || [])
+          .map(normalizeEspnEventToOriginalMatch)
+          .filter(Boolean);
+      } catch (e) {
+        console.warn("ESPN /today unavailable:", e);
+      }
 
-      const scheduled: any[] = [];
-      const finished: any[] = [];
-
-      allEvents.forEach((ev: any) => {
-        if (isFinishedEvent(ev)) finished.push(ev);
-        else {
-          const isLive = liveMatches.some((l: any) => String(l.id) === String(ev.id));
-          if (!isLive) scheduled.push(ev);
-        }
-      });
+      const scheduled = events.filter((m: any) => !m.is_live && !m.is_finished);
+      const finished = events.filter((m: any) => m.is_finished);
 
       return json({
         data: {
@@ -4772,9 +4840,9 @@ serve(async (req) => {
           scheduled: { count: scheduled.length, matches: scheduled },
           finished: { count: finished.length, matches: finished.slice(0, 10) },
         },
+        meta: { source: "supabase+espn", bsd_calls: 0 },
       });
     }
-
     // ===================================================
     // UI: history (48h) + logos
     // ===================================================

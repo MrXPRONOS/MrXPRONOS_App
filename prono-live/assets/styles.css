@@ -167,3 +167,43 @@ body{background:#020d20}
 .coupon-actions button{flex:1;border:1px solid #d9e3e8;background:#f7fafb;color:#31536a;border-radius:7px;padding:7px 8px;font-size:10px;font-weight:800;cursor:pointer}
 .reference-matches{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
 @media(max-width:720px){.reference-matches{grid-template-columns:1fr}.coupon-sponsor-left img{height:23px}.coupon-promo{font-size:10px;padding:7px 9px}.coupon-simple{font-size:19px}.coupon-score-row{grid-template-columns:minmax(0,1fr) 68px minmax(0,1fr)}.coupon-team b{font-size:11px}.coupon-team-logo{width:34px;height:34px;flex-basis:34px}.coupon-score b{font-size:22px}}
+
+
+/* ===== Pronostics du jour : ticket pré-match ===== */
+.daily-title p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.daily-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.daily-ticket{background:#f3f7f9;border:1px solid #d5dfe4;border-radius:16px;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.14)}
+.daily-ticket-head{background:#fff;padding:14px 16px 12px}
+.daily-ticket-id{display:flex;align-items:center;gap:11px}
+.daily-ticket-ball{position:relative;width:42px;height:42px;flex:0 0 42px;border-radius:50%;background:#eef3f6;display:flex;align-items:center;justify-content:center;color:#96aab6;font-size:20px}
+.daily-ticket-ball i{position:absolute;right:-2px;bottom:-2px;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#2aa878;color:#fff;border:2px solid #fff;font:900 9px Manrope;font-style:normal}
+.daily-ticket-date{font-size:11px;font-weight:700;color:#7d93a0}
+.daily-ticket-simple{font:900 21px Manrope;color:#19384e;line-height:1.15}
+.daily-ticket-simple small{font:500 11px DM Sans;color:#597285;margin-left:7px}
+.daily-ticket-rule{border-top:1px solid #e2e9ed;background:#fff}
+.daily-ticket-finance{background:#fff;padding:10px 16px 12px}
+.daily-ticket-finance>div{min-height:27px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.daily-ticket-finance span{font-size:13px;color:#78909c;font-weight:700}
+.daily-ticket-finance b{font-size:14px;color:#17384f;font-weight:900}
+.daily-status{color:#2b9b73!important}
+.daily-status.won{color:#2b9b73!important}
+.daily-status.lost{color:#e05252!important}
+.daily-status.push{color:#d09b28!important}
+.daily-match-box{margin:7px;background:#fff;border:5px solid #e7edf0;border-radius:16px;padding:12px 12px 10px}
+.daily-match-meta{display:flex;align-items:flex-start;gap:7px;color:#7c93a1}
+.daily-mini-ball{width:22px;height:22px;flex:0 0 22px;border-radius:50%;background:#eef3f6;display:flex;align-items:center;justify-content:center;font-size:11px}
+.daily-match-meta>div{display:grid;min-width:0}
+.daily-match-meta b{font-size:12px;line-height:1.2;color:#7d93a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.daily-match-meta small{font-size:10px;color:#8fa1ab;font-weight:700;margin-top:2px}
+.daily-teams{display:grid;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr);align-items:center;gap:8px;padding:18px 4px 14px}
+.daily-teams .coupon-team b{font-size:13px;color:#18384f}
+.daily-teams .coupon-team-logo{width:42px;height:42px;flex-basis:42px;border:1px solid #d4dee4}
+.daily-vs{text-align:center;font:900 21px Manrope;color:#17384f}
+.daily-market-line{border-top:1px solid #e4eaee;padding:10px 0 8px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.daily-market-line strong{font-size:12px;line-height:1.25;color:#203c4e}
+.daily-market-line>b{font-size:13px;color:#19384e}
+.daily-market-status{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:3px}
+.daily-market-status span{font-size:12px;font-weight:700;color:#8298a5}
+.daily-market-status b{font-size:13px;font-weight:900}
+#view-daily .empty{background:#fff;color:#5e7685;border-color:#d8e1e6}
+@media(max-width:720px){.daily-grid{grid-template-columns:1fr}.daily-ticket{border-radius:14px}.daily-match-box{border-width:4px}.daily-ticket-simple{font-size:19px}.daily-teams{grid-template-columns:minmax(0,1fr) 38px minmax(0,1fr)}.daily-vs{font-size:19px}.daily-teams .coupon-team{gap:5px}.daily-teams .coupon-team-logo{width:38px;height:38px;flex-basis:38px}.daily-teams .coupon-team b{font-size:12px}}
