@@ -82,22 +82,15 @@ if (!SUPABASE_SERVICE_ROLE_KEY) console.error("SUPABASE_SERVICE_ROLE_KEY non dé
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
 async function setCronRun(jobName: string, success: boolean, details: any = {}) {
-  // Observabilité facultative : l'absence de table cron_runs ne doit jamais
-  // casser un refresh LIVE.
-  try {
-    const row = {
-      job_name: jobName,
-      success,
-      details,
-      updated_at: nowIso(),
-    };
-    const { error } = await supabase
-      .from("cron_runs")
-      .upsert(row, { onConflict: "job_name" });
-    if (error) console.warn("cron_runs indisponible (ignoré):", error.message);
-  } catch (e) {
-    console.warn("setCronRun ignoré:", e);
-  }
+  // La table cron_runs de ce projet n'a pas le schéma attendu par l'ancien code
+  // (notamment pas de colonne "details"). Le suivi reste donc dans les logs Edge,
+  // sans requête DB supplémentaire et sans risque de casser le refresh.
+  console.log("CRON_RUN", {
+    job_name: jobName,
+    success,
+    details,
+    at: nowIso(),
+  });
 }
 
 
