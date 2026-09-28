@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Générer le snapshot quotidien
         run: |
-          curl --fail-with-body -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/daily-pronos/generate"             -H "Content-Type: application/json"             -H "x-cron-secret: ${{ secrets.CRON_SECRET }}"             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+          curl --fail-with-body -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/live/daily/generate"             -H "Content-Type: application/json"             -H "x-cron-secret: ${{ secrets.CRON_SECRET }}"             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
 
   validate:
     if: github.event_name == 'workflow_dispatch' || github.event.schedule == '*/30 * * * *'
@@ -25,4 +25,4 @@ jobs:
     steps:
       - name: Valider les pronostics terminés
         run: |
-          curl --fail-with-body -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/daily-pronos/validate"             -H "Content-Type: application/json"             -H "x-cron-secret: ${{ secrets.CRON_SECRET }}"             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+          curl --fail-with-body -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/live/daily/validate"             -H "Content-Type: application/json"             -H "x-cron-secret: ${{ secrets.CRON_SECRET }}"             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
