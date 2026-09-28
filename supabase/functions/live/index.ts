@@ -1097,14 +1097,10 @@ async function getTelegramLogoData(match: any, kind: "home" | "away" | "league")
       if (espn) return espn;
     }
 
-    const name = teamNameForLogo(match, kind);
-    if (name) {
-      const espnByName = await findEspnTeamLogoByName(name);
-      if (espnByName) {
-        const converted = await imageUrlToDataUri(espnByName);
-        if (converted) return converted;
-      }
-    }
+    // IMPORTANT : pas de recherche ESPN approximative par nom ici.
+    // Elle pouvait associer un club à une sélection/pays portant un nom proche
+    // et afficher un drapeau incorrect. Sans identifiant/logo fiable, le coupon
+    // utilise simplement les initiales de l'équipe.
   }
 
   console.warn("⚠️ Aucun logo exploitable pour Telegram:", {
@@ -1292,9 +1288,11 @@ async function loadFontData(): Promise<TelegramFonts> {
 
   // Les polices sont déjà packagées dans la fonction Supabase via static_files.
   // Cela évite 3 téléchargements réseau et réduit fortement le coût d'un cold start.
-  const regular = await readBundledTelegramFont("NotoSans-Regular.ttf");
-  const bold = await readBundledTelegramFont("NotoSans-Bold.ttf");
-  const extraBold = await readBundledTelegramFont("NotoSans-ExtraBold.ttf");
+  const [regular, bold, extraBold] = await Promise.all([
+    readBundledTelegramFont("NotoSans-Regular.ttf"),
+    readBundledTelegramFont("NotoSans-Bold.ttf"),
+    readBundledTelegramFont("NotoSans-ExtraBold.ttf"),
+  ]);
 
   cachedFontData = {
     regular: toExactArrayBuffer(regular),
@@ -2281,51 +2279,49 @@ async function sendTelegramLiveCoupon(
 
   let pngBytes: Uint8Array | null = null;
 
-  // 1) Rendu direct SVG -> PNG : beaucoup plus léger que Satori.
+  // IMPORTANT :
+  // Le rendu SVG direct n'est plus utilisé pour l'envoi Telegram.
+  // Resvg peut produire un PNG valide même lorsque les polices ne sont pas
+  // réellement enregistrées dans un déploiement manuel Supabase : les rectangles
+  // et logos apparaissent alors, mais TOUT le texte disparaît.
+  //
+  // Satori transforme le texte en formes SVG avant Resvg, ce qui garantit que le
+  // texte du coupon est réellement présent dans l'image finale.
+
+  // 1) Rendu Satori simplifié : priorité, car moins lourd que le coupon premium.
   try {
-    pngBytes = await buildTelegramCouponPngDirect(match, renderPred);
-    console.log("✅ PNG LIVE DIRECT généré", { bytes: pngBytes.byteLength });
+    pngBytes = await buildTelegramCouponPngSafe(match, renderPred);
+    console.log("✅ PNG LIVE SATORI léger généré", {
+      bytes: pngBytes.byteLength,
+      prediction_id: predictionId ?? pred?.id ?? null,
+    });
   } catch (e: any) {
     const detail = e?.stack || e?.message || String(e);
-    errors.push(`direct: ${detail}`);
-    console.error("❌ Rendu LIVE direct impossible:", detail);
+    errors.push(`satori_safe: ${detail}`);
+    console.error("❌ Rendu Satori léger LIVE impossible:", detail);
   }
 
-  // 2) Ancien rendu premium Satori en secours.
+  // 2) Rendu premium Satori en second secours image.
   if (!pngBytes) {
     try {
       pngBytes = await buildTelegramCouponPng(match, renderPred);
-      console.log("✅ PNG NOUVEAU COUPON LIVE généré", {
+      console.log("✅ PNG LIVE SATORI premium généré", {
         bytes: pngBytes.byteLength,
+        prediction_id: predictionId ?? pred?.id ?? null,
       });
     } catch (e: any) {
       const detail = e?.stack || e?.message || String(e);
-      errors.push(`satori: ${detail}`);
-      console.error("❌ Rendu Satori LIVE impossible:", detail);
+      errors.push(`satori_premium: ${detail}`);
+      console.error("❌ Rendu Satori premium LIVE impossible:", detail);
     }
   }
 
-  // 3) Dernier rendu image simplifié Satori.
-  if (!pngBytes) {
-    try {
-      pngBytes = await buildTelegramCouponPngSafe(match, renderPred);
-      console.log("✅ PNG LIVE de secours généré", {
-        bytes: pngBytes.byteLength,
-      });
-    } catch (e: any) {
-      const detail = e?.stack || e?.message || String(e);
-      errors.push(`safe: ${detail}`);
-      console.error("❌ Rendu image LIVE de secours impossible:", detail);
-    }
-  }
-
-  // IMPORTANT : plus aucun fallback texte.
-  // Si les images échouent, le coupon reste telegram_sent=false et sera retenté.
+  // IMAGE obligatoire : aucun message texte simple ne remplace le coupon.
   if (!pngBytes) {
     const failedTargets = sanitizeTelegramTargets(targetChatIds);
     const error = errors.join(" | ") || "Aucun rendu image Telegram disponible";
 
-    console.error("❌ Coupon LIVE non envoyé: IMAGE obligatoire", {
+    console.error("❌ Coupon LIVE non envoyé: rendu IMAGE obligatoire", {
       prediction_id: predictionId ?? pred?.id ?? null,
       failed_targets: failedTargets,
       error,
@@ -2346,8 +2342,6 @@ async function sendTelegramLiveCoupon(
     targetChatIds,
   );
 
-  // Si Telegram refuse la photo, on ne remplace plus par un message texte.
-  // La ligne reste à retenter uniquement sur les canaux en échec.
   if (!photoResult.ok) {
     console.error("❌ Coupon LIVE image refusé par Telegram; aucun fallback texte:", {
       prediction_id: predictionId ?? pred?.id ?? null,
