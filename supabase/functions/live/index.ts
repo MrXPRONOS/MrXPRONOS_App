@@ -1116,20 +1116,42 @@ async function getTelegramLogoData(match: any, kind: "home" | "away" | "league")
   return "";
 }
 
-type TelegramRenderModules = {
+type TelegramResvgModule = {
   initWasm: (bytes: ArrayBuffer) => Promise<void>;
   Resvg: any;
+};
+
+type TelegramRenderModules = TelegramResvgModule & {
   satori: any;
   html: any;
 };
 
+let telegramResvgModulePromise: Promise<TelegramResvgModule> | null = null;
 let telegramRenderModulesPromise: Promise<TelegramRenderModules> | null = null;
+
+async function loadTelegramResvgModule(): Promise<TelegramResvgModule> {
+  if (!telegramResvgModulePromise) {
+    telegramResvgModulePromise = import(
+      "https://esm.sh/@resvg/resvg-wasm@2.6.2?target=deno"
+    )
+      .then((mod: any) => ({
+        initWasm: mod.initWasm,
+        Resvg: mod.Resvg,
+      }))
+      .catch((e) => {
+        telegramResvgModulePromise = null;
+        throw e;
+      });
+  }
+
+  return await telegramResvgModulePromise;
+}
 
 async function loadTelegramRenderModules(): Promise<TelegramRenderModules> {
   if (!telegramRenderModulesPromise) {
     telegramRenderModulesPromise = (async () => {
       const [resvgMod, satoriMod, htmlMod] = await Promise.all([
-        import("https://esm.sh/@resvg/resvg-wasm@2.6.2?target=deno"),
+        loadTelegramResvgModule(),
         import("npm:satori@0.12.0"),
         import("npm:satori-html@0.3.2"),
       ]);
@@ -1141,7 +1163,6 @@ async function loadTelegramRenderModules(): Promise<TelegramRenderModules> {
         html: htmlMod.html,
       };
     })().catch((e) => {
-      // Une erreur de chargement ne doit pas empoisonner le worker chaud.
       telegramRenderModulesPromise = null;
       throw e;
     });
@@ -1335,7 +1356,7 @@ async function fetchResvgWasm(): Promise<ArrayBuffer> {
 async function ensureResvgReady() {
   if (!resvgReady) {
     resvgReady = (async () => {
-      const { initWasm } = await loadTelegramRenderModules();
+      const { initWasm } = await loadTelegramResvgModule();
       const wasmBytes = await fetchResvgWasm();
       await initWasm(wasmBytes);
       console.log("✅ resvg initialisé pour les images Telegram");
@@ -1458,6 +1479,208 @@ async function getTelegramBookmakerBrandData() {
   // melbet.png du dépôt contient en réalité du WEBP (header RIFF/WEBP),
   // donc on évite volontairement ces deux téléchargements ici.
   return { oneXbet: "", melbet: "" };
+}
+
+function escapeXml(value: unknown): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function telegramMarketLabel(type: unknown) {
+  const raw = String(type || "");
+  if (raw === "total_corners") return "corners";
+  if (raw === "total_shots") return "tirs";
+  if (raw === "total_fouls") return "fautes";
+  return "signal";
+}
+
+function telegramCalculatedLiveOdds(pred: any) {
+  const explicit = [
+    pred?.odds,
+    pred?.odd,
+    pred?.cote,
+    pred?.live_odds,
+    pred?.bookmaker_odds,
+  ]
+    .map(Number)
+    .find((v) => Number.isFinite(v) && v > 1);
+
+  if (explicit) return Number(explicit.toFixed(2));
+
+  const probability = Math.min(
+    0.95,
+    Math.max(0.20, safeNumber(pred?.probability, 0.78)),
+  );
+
+  const type = String(pred?.prediction_type ?? pred?.type ?? "");
+  const range =
+    type === "total_shots"
+      ? [1.08, 2.45]
+      : type === "total_fouls"
+      ? [1.08, 2.35]
+      : [1.08, 2.35];
+
+  return Number(
+    Math.min(range[1], Math.max(range[0], 0.94 / probability)).toFixed(2),
+  );
+}
+
+function telegramSvgLogo(
+  dataUri: string,
+  x: number,
+  y: number,
+  size: number,
+  initials: string,
+) {
+  if (dataUri) {
+    return `<image href="${dataUri}" x="${x}" y="${y}" width="${size}" height="${size}" preserveAspectRatio="xMidYMid meet"/>`;
+  }
+
+  const cx = x + size / 2;
+  const cy = y + size / 2;
+  return `
+    <circle cx="${cx}" cy="${cy}" r="${size / 2 - 2}" fill="#EAF2F8" stroke="#4A94D8" stroke-width="4"/>
+    <text x="${cx}" y="${cy + 11}" text-anchor="middle" font-family="Noto Sans" font-size="28" font-weight="700" fill="#1A3B57">${escapeXml(initials)}</text>
+  `;
+}
+
+async function buildTelegramCouponPngDirect(
+  match: any,
+  pred: any,
+): Promise<Uint8Array> {
+  const { Resvg } = await loadTelegramResvgModule();
+  await ensureResvgReady();
+  const fonts = await loadFontData();
+
+  const minute = Math.max(
+    0,
+    safeNumber(match?.current_minute ?? match?.minute, 0),
+  );
+  const homeScore = safeNumber(match?.home_score, 0);
+  const awayScore = safeNumber(match?.away_score, 0);
+  const threshold = formatThreshold(
+    pred?.threshold ?? pred?.pronostic ?? pred?.line ?? pred?.target_value ?? "",
+  );
+  const market = telegramMarketLabel(
+    pred?.prediction_type ?? pred?.type,
+  );
+  const selection =
+    market === "signal"
+      ? `Plus de ${threshold}`
+      : `Total plus de ${threshold} ${market}`;
+
+  const homeName = fitText(match?.home_team ?? "Équipe A", 24);
+  const awayName = fitText(match?.away_team ?? "Équipe B", 24);
+  const leagueName = fitText(getLeagueName(match), 34);
+  const eventDateText = formatTelegramSlipDateTime(match);
+  const slipNumber = String(
+    pred?.id ??
+      pred?.prediction_id ??
+      match?.id ??
+      buildCanonicalMatchId(match),
+  )
+    .replace(/[^0-9A-Za-z]/g, "")
+    .slice(-12) || "MRXPRONOS";
+
+  const currentValue = safeNumber(
+    pred?.current_value ??
+      pred?.current ??
+      pred?.projected_value ??
+      pred?.signal_value,
+    0,
+  );
+
+  const odds = telegramCalculatedLiveOdds(pred);
+  const stake = 500_000;
+  const potential = Math.round(stake * odds);
+
+  const [homeLogo, awayLogo] = await Promise.all([
+    getTelegramLogoData(match, "home"),
+    getTelegramLogoData(match, "away"),
+  ]);
+
+  const homeInitials = getTeamInitials(homeName);
+  const awayInitials = getTeamInitials(awayName);
+
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1030" viewBox="0 0 1080 1030">
+  <rect width="1080" height="1030" fill="#EEF2F6"/>
+
+  <rect x="0" y="0" width="1080" height="112" fill="#050505"/>
+  <text x="34" y="73" font-family="Noto Sans" font-size="48" font-weight="700" fill="#FFFFFF">1XBET</text>
+  <text x="205" y="71" font-family="Noto Sans" font-size="22" font-weight="700" fill="#FFFFFF">OU</text>
+  <text x="260" y="73" font-family="Noto Sans" font-size="48" font-weight="700" fill="#FFFFFF">MELBET</text>
+  <rect x="715" y="22" width="333" height="68" rx="8" fill="#F1CF36"/>
+  <text x="881" y="66" text-anchor="middle" font-family="Noto Sans" font-size="30" font-weight="700" fill="#111111">CODE PROMO XPVIP</text>
+
+  <rect x="18" y="130" width="1044" height="874" rx="20" fill="#FFFFFF" stroke="#CDD5DD" stroke-width="2"/>
+
+  <text x="42" y="184" font-family="Noto Sans" font-size="27" fill="#8FA0AE">${escapeXml(eventDateText)}</text>
+  <text x="42" y="238" font-family="Noto Sans" font-size="48" font-weight="700" fill="#1A3B57">Simple</text>
+  <text x="195" y="237" font-family="Noto Sans" font-size="31" fill="#4D6881">N° ${escapeXml(slipNumber)}</text>
+  <rect x="884" y="164" width="142" height="42" rx="8" fill="#EF3D33"/>
+  <text x="955" y="193" text-anchor="middle" font-family="Noto Sans" font-size="24" font-weight="700" fill="#FFFFFF">EN DIRECT</text>
+
+  <line x1="18" y1="270" x2="1062" y2="270" stroke="#D8DDE2" stroke-width="2"/>
+
+  <text x="42" y="324" font-family="Noto Sans" font-size="30" font-weight="700" fill="#8296A7">Cote calculée :</text>
+  <text x="1024" y="324" text-anchor="end" font-family="Noto Sans" font-size="32" font-weight="700" fill="#1D3D56">${odds.toFixed(2)}</text>
+
+  <text x="42" y="373" font-family="Noto Sans" font-size="30" font-weight="700" fill="#8296A7">Mise :</text>
+  <text x="1024" y="373" text-anchor="end" font-family="Noto Sans" font-size="32" font-weight="700" fill="#1D3D56">500 000 F</text>
+
+  <text x="42" y="422" font-family="Noto Sans" font-size="30" font-weight="700" fill="#8296A7">Gain potentiel :</text>
+  <text x="1024" y="422" text-anchor="end" font-family="Noto Sans" font-size="32" font-weight="700" fill="#58A95C">${potential.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} F</text>
+
+  <text x="42" y="471" font-family="Noto Sans" font-size="30" font-weight="700" fill="#8296A7">Statut :</text>
+  <text x="1024" y="471" text-anchor="end" font-family="Noto Sans" font-size="32" font-weight="700" fill="#4A94D8">Accepté</text>
+
+  <line x1="18" y1="500" x2="1062" y2="500" stroke="#D8DDE2" stroke-width="2"/>
+
+  <text x="42" y="552" font-family="Noto Sans" font-size="25" fill="#71879A">Football · ${escapeXml(leagueName)}</text>
+  <text x="1024" y="552" text-anchor="end" font-family="Noto Sans" font-size="25" font-weight="700" fill="#EF3D33">${Math.floor(minute)}'</text>
+
+  ${telegramSvgLogo(homeLogo, 130, 610, 90, homeInitials)}
+  ${telegramSvgLogo(awayLogo, 860, 610, 90, awayInitials)}
+
+  <text x="340" y="646" text-anchor="end" font-family="Noto Sans" font-size="30" font-weight="700" fill="#16324B">${escapeXml(homeName)}</text>
+  <text x="740" y="646" font-family="Noto Sans" font-size="30" font-weight="700" fill="#16324B">${escapeXml(awayName)}</text>
+
+  <text x="540" y="650" text-anchor="middle" font-family="Noto Sans" font-size="44" font-weight="700" fill="#1A3B57">${homeScore} - ${awayScore}</text>
+
+  <rect x="42" y="742" width="996" height="112" rx="14" fill="#F5F8FA" stroke="#D8E0E7" stroke-width="2"/>
+  <text x="70" y="789" font-family="Noto Sans" font-size="25" fill="#8296A7">PRONOSTIC LIVE</text>
+  <text x="70" y="832" font-family="Noto Sans" font-size="34" font-weight="700" fill="#16324B">${escapeXml(selection)}</text>
+
+  <text x="42" y="910" font-family="Noto Sans" font-size="27" fill="#8296A7">Valeur actuelle :</text>
+  <text x="1024" y="910" text-anchor="end" font-family="Noto Sans" font-size="30" font-weight="700" fill="#16324B">${escapeXml(currentValue)}</text>
+
+  <text x="42" y="956" font-family="Noto Sans" font-size="25" fill="#8296A7">Temps écoulé :</text>
+  <text x="1024" y="956" text-anchor="end" font-family="Noto Sans" font-size="28" font-weight="700" fill="#263948">${Math.floor(minute)}:00</text>
+</svg>`;
+
+  const resvg = new Resvg(svg, {
+    fitTo: { mode: "original" },
+    font: {
+      fontBuffers: [
+        new Uint8Array(fonts.regular),
+        new Uint8Array(fonts.bold),
+      ],
+      defaultFontFamily: "Noto Sans",
+      sansSerifFamily: "Noto Sans",
+    },
+  });
+
+  const png = resvg.render().asPng();
+  if (!png || png.byteLength < 1000) {
+    throw new Error(`PNG direct invalide (${png?.byteLength || 0} octets)`);
+  }
+
+  return png;
 }
 
 async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array> {
@@ -2053,69 +2276,87 @@ async function sendTelegramLiveCoupon(
 ): Promise<TelegramSendResult> {
   const liveUrl = "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/";
   const shortCaption = buildTelegramText(match, pred);
-  const detailedFallback = buildTelegramLiveFallbackText(match, pred);
   const renderPred = predictionId == null ? pred : { ...pred, id: predictionId };
+  const errors: string[] = [];
 
   let pngBytes: Uint8Array | null = null;
-  let primaryRenderError = "";
 
+  // 1) Rendu direct SVG -> PNG : beaucoup plus léger que Satori.
   try {
-    pngBytes = await buildTelegramCouponPng(match, renderPred);
-    console.log("✅ PNG NOUVEAU COUPON LIVE généré", { bytes: pngBytes.byteLength });
+    pngBytes = await buildTelegramCouponPngDirect(match, renderPred);
+    console.log("✅ PNG LIVE DIRECT généré", { bytes: pngBytes.byteLength });
   } catch (e: any) {
-    primaryRenderError = e?.stack || e?.message || String(e);
-    console.error("❌ Nouveau rendu LIVE impossible, tentative du rendu image sécurisé:", primaryRenderError);
+    const detail = e?.stack || e?.message || String(e);
+    errors.push(`direct: ${detail}`);
+    console.error("❌ Rendu LIVE direct impossible:", detail);
+  }
 
+  // 2) Ancien rendu premium Satori en secours.
+  if (!pngBytes) {
     try {
-      pngBytes = await buildTelegramCouponPngSafe(match, renderPred);
-      console.log("✅ PNG LIVE de secours généré", { bytes: pngBytes.byteLength });
-    } catch (safeError: any) {
-      const safeDetail = safeError?.stack || safeError?.message || String(safeError);
-      console.error("❌ Les deux rendus image LIVE ont échoué:", {
-        primary: primaryRenderError,
-        safe: safeDetail,
+      pngBytes = await buildTelegramCouponPng(match, renderPred);
+      console.log("✅ PNG NOUVEAU COUPON LIVE généré", {
+        bytes: pngBytes.byteLength,
       });
-
-      const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl, targetChatIds);
-      return {
-        ...fallbackResult,
-        error: fallbackResult.ok
-          ? null
-          : [primaryRenderError, safeDetail, fallbackResult.error]
-              .filter(Boolean)
-              .join(" | ") || "Échec Telegram",
-      };
+    } catch (e: any) {
+      const detail = e?.stack || e?.message || String(e);
+      errors.push(`satori: ${detail}`);
+      console.error("❌ Rendu Satori LIVE impossible:", detail);
     }
   }
 
+  // 3) Dernier rendu image simplifié Satori.
   if (!pngBytes) {
-    const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl, targetChatIds);
-    return fallbackResult;
+    try {
+      pngBytes = await buildTelegramCouponPngSafe(match, renderPred);
+      console.log("✅ PNG LIVE de secours généré", {
+        bytes: pngBytes.byteLength,
+      });
+    } catch (e: any) {
+      const detail = e?.stack || e?.message || String(e);
+      errors.push(`safe: ${detail}`);
+      console.error("❌ Rendu image LIVE de secours impossible:", detail);
+    }
   }
 
-  const photoResult = await sendTelegramPhoto(pngBytes, shortCaption, liveUrl, targetChatIds);
-  if (photoResult.ok) return photoResult;
+  // IMPORTANT : plus aucun fallback texte.
+  // Si les images échouent, le coupon reste telegram_sent=false et sera retenté.
+  if (!pngBytes) {
+    const failedTargets = sanitizeTelegramTargets(targetChatIds);
+    const error = errors.join(" | ") || "Aucun rendu image Telegram disponible";
 
-  // L'image a été générée mais Telegram l'a refusée sur un ou plusieurs canaux.
-  // On conserve le fallback texte uniquement pour les canaux concernés.
-  const fallbackTargets = photoResult.failedChatIds.length
-    ? photoResult.failedChatIds
-    : (targetChatIds?.length ? targetChatIds : telegramChatIds());
+    console.error("❌ Coupon LIVE non envoyé: IMAGE obligatoire", {
+      prediction_id: predictionId ?? pred?.id ?? null,
+      failed_targets: failedTargets,
+      error,
+    });
 
-  console.warn("⚠️ Envoi image LIVE incomplet, fallback texte détaillé:", photoResult.error);
-  const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl, fallbackTargets);
+    return {
+      ok: false,
+      sentChatIds: [],
+      failedChatIds: failedTargets,
+      error,
+    };
+  }
 
-  const sentChatIds = [...new Set([...photoResult.sentChatIds, ...fallbackResult.sentChatIds])];
-  const failedChatIds = [...new Set(fallbackResult.failedChatIds)];
+  const photoResult = await sendTelegramPhoto(
+    pngBytes,
+    shortCaption,
+    liveUrl,
+    targetChatIds,
+  );
 
-  return {
-    ok: failedChatIds.length === 0,
-    sentChatIds,
-    failedChatIds,
-    error: failedChatIds.length
-      ? [photoResult.error, fallbackResult.error].filter(Boolean).join(" | ") || "Échec Telegram"
-      : null,
-  };
+  // Si Telegram refuse la photo, on ne remplace plus par un message texte.
+  // La ligne reste à retenter uniquement sur les canaux en échec.
+  if (!photoResult.ok) {
+    console.error("❌ Coupon LIVE image refusé par Telegram; aucun fallback texte:", {
+      prediction_id: predictionId ?? pred?.id ?? null,
+      error: photoResult.error,
+      failed_chat_ids: photoResult.failedChatIds,
+    });
+  }
+
+  return photoResult;
 }
 
 function validationStatusMeta(outcome: "success" | "failure") {
