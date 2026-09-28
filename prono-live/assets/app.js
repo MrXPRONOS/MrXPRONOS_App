@@ -1,5 +1,5 @@
 const API='https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live';
-const DAILY_API='https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/daily-pronos';
+const DAILY_API=API+'/daily';
 const SUPABASE='https://nhwafcpndlufzzxexikh.supabase.co';
 const ANON='sb_publishable_lclkhPk4SxHqvapianW4SQ_xZjDYvPt';
 const SITE='https://mrxpronos.github.io/MrXPRONOS_App/prono-live/';
