@@ -72,6 +72,23 @@ const LIVE_REFRESH_MAX_BATCHES = Math.max(
   Math.min(50, safeEnvInt("LIVE_REFRESH_MAX_BATCHES", 20)),
 );
 
+// Enrichissement des statistiques LIVE BSD.
+// /events/live/ est volontairement compact chez BSD : les corners/tirs/fautes
+// détaillés viennent de /events/{id}/stats/. On borne ces appels pour rester
+// largement sous le quota gratuit quotidien.
+const BSD_STATS_MAX_CALLS_PER_REFRESH = Math.max(
+  1,
+  Math.min(5, safeEnvInt("BSD_STATS_MAX_CALLS_PER_REFRESH", 3)),
+);
+const BSD_STATS_REFRESH_SECONDS = Math.max(
+  45,
+  Math.min(600, safeEnvInt("BSD_STATS_REFRESH_SECONDS", 120)),
+);
+const BSD_STATS_QUOTA_RESERVE = Math.max(
+  250,
+  Math.min(3000, safeEnvInt("BSD_STATS_QUOTA_RESERVE", 900)),
+);
+
 const T_STATS_SOURCES = "live_stats_sources";
 const T_STATS_MERGED = "live_stats_merged";
 
@@ -242,13 +259,46 @@ function getAwayStats(stats: any) {
   return stats?.away || {};
 }
 
+function nullableNumber(value: unknown): number | null {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function hasCompleteStatPair(stats: any, key: string): boolean {
+  return (
+    nullableNumber(stats?.home?.[key]) != null &&
+    nullableNumber(stats?.away?.[key]) != null
+  );
+}
+
 function statPairTotal(stats: any, key: string, totalKey?: string) {
   const totals = stats?.totals || {};
   const tk = totalKey || key;
-  const explicit = safeNumber(totals?.[tk], NaN);
-  if (Number.isFinite(explicit)) return explicit;
+  const explicit = nullableNumber(totals?.[tk]);
+  if (explicit != null) return explicit;
 
-  return safeNumber(getHomeStats(stats)?.[key], 0) + safeNumber(getAwayStats(stats)?.[key], 0);
+  const home = nullableNumber(getHomeStats(stats)?.[key]);
+  const away = nullableNumber(getAwayStats(stats)?.[key]);
+  if (home == null || away == null) return NaN;
+  return home + away;
+}
+
+function statsCompleteness(stats: any) {
+  const shots = hasCompleteStatPair(stats, "total_shots");
+  const shotsOnTarget = hasCompleteStatPair(stats, "shots_on_target");
+  const corners = hasCompleteStatPair(stats, "corner_kicks");
+  const fouls = hasCompleteStatPair(stats, "fouls");
+
+  const core = [shots, corners, fouls].filter(Boolean).length;
+  return {
+    shots,
+    shots_on_target: shotsOnTarget,
+    corners,
+    fouls,
+    core_complete: core,
+    score: Math.round((core / 3) * 100),
+  };
 }
 
 function ensureLiveStatsShape(stats: any) {
@@ -256,17 +306,34 @@ function ensureLiveStatsShape(stats: any) {
   const away = { ...(stats?.away || {}) };
   const totals = { ...(stats?.totals || {}) };
 
-  if (totals.corners == null) {
-    totals.corners = safeNumber(home.corner_kicks, 0) + safeNumber(away.corner_kicks, 0);
+  const pairs: Array<[string, string]> = [
+    ["corner_kicks", "corners"],
+    ["fouls", "fouls"],
+    ["yellow_cards", "yellow_cards"],
+    ["red_cards", "red_cards"],
+    ["total_shots", "total_shots"],
+    ["shots_on_target", "shots_on_target"],
+  ];
+
+  for (const [key, totalKey] of pairs) {
+    home[key] = nullableNumber(home[key]);
+    away[key] = nullableNumber(away[key]);
+
+    const explicit = nullableNumber(totals[totalKey]);
+    if (explicit != null) {
+      totals[totalKey] = explicit;
+    } else if (home[key] != null && away[key] != null) {
+      totals[totalKey] = home[key] + away[key];
+    } else {
+      totals[totalKey] = null;
+    }
   }
-  if (totals.fouls == null) {
-    totals.fouls = safeNumber(home.fouls, 0) + safeNumber(away.fouls, 0);
+
+  if (home.ball_possession !== undefined) {
+    home.ball_possession = nullableNumber(home.ball_possession);
   }
-  if (totals.total_shots == null) {
-    totals.total_shots = safeNumber(home.total_shots, 0) + safeNumber(away.total_shots, 0);
-  }
-  if (totals.shots_on_target == null) {
-    totals.shots_on_target = safeNumber(home.shots_on_target, 0) + safeNumber(away.shots_on_target, 0);
+  if (away.ball_possession !== undefined) {
+    away.ball_possession = nullableNumber(away.ball_possession);
   }
 
   return { ...stats, home, away, totals };
@@ -275,30 +342,53 @@ function ensureLiveStatsShape(stats: any) {
 function applyStatPairIfBetter(base: any, extra: any, key: string, totalKey?: string) {
   const tk = totalKey || key;
 
-  const baseTotal = statPairTotal(base, key, tk);
-  const extraTotal = statPairTotal(extra, key, tk);
+  const bh = nullableNumber(base?.home?.[key]);
+  const ba = nullableNumber(base?.away?.[key]);
+  const eh = nullableNumber(extra?.home?.[key]);
+  const ea = nullableNumber(extra?.away?.[key]);
 
-  if (extraTotal <= 0) return;
-  if (baseTotal > 0 && extraTotal < baseTotal) return;
+  const baseComplete = bh != null && ba != null;
+  const extraComplete = eh != null && ea != null;
 
-  base.home[key] = safeNumber(extra?.home?.[key], base.home[key] ?? 0);
-  base.away[key] = safeNumber(extra?.away?.[key], base.away[key] ?? 0);
-  base.totals[tk] = extraTotal;
+  if (extraComplete) {
+    const baseTotal = baseComplete ? (bh! + ba!) : -1;
+    const extraTotal = eh! + ea!;
+
+    // Une statistique cumulative ne doit jamais reculer. Une paire complète
+    // remplace une paire absente ou plus ancienne.
+    if (!baseComplete || extraTotal >= baseTotal) {
+      base.home[key] = eh;
+      base.away[key] = ea;
+      base.totals[tk] = extraTotal;
+    }
+    return;
+  }
+
+  // Données partielles : on remplit seulement ce qui était inconnu.
+  if (bh == null && eh != null) base.home[key] = eh;
+  if (ba == null && ea != null) base.away[key] = ea;
+
+  const nh = nullableNumber(base?.home?.[key]);
+  const na = nullableNumber(base?.away?.[key]);
+  base.totals[tk] = nh != null && na != null ? nh + na : null;
 }
 
 function mergeLiveStats(primaryStats: any, secondaryStats: any) {
   const merged = ensureLiveStatsShape(primaryStats || {});
   const extra = ensureLiveStatsShape(secondaryStats || {});
 
-  // Stats cumulatives : on prend la source qui a la valeur la plus récente/complète.
   applyStatPairIfBetter(merged, extra, "corner_kicks", "corners");
   applyStatPairIfBetter(merged, extra, "fouls", "fouls");
   applyStatPairIfBetter(merged, extra, "yellow_cards", "yellow_cards");
   applyStatPairIfBetter(merged, extra, "red_cards", "red_cards");
-
-  // On ne remplace les tirs que si l’autre source a vraiment plus d’info.
   applyStatPairIfBetter(merged, extra, "total_shots", "total_shots");
   applyStatPairIfBetter(merged, extra, "shots_on_target", "shots_on_target");
+
+  // Possession n'est pas cumulative ; on prend la valeur secondaire quand elle existe.
+  const hp = nullableNumber(extra?.home?.ball_possession);
+  const ap = nullableNumber(extra?.away?.ball_possession);
+  if (hp != null) merged.home.ball_possession = hp;
+  if (ap != null) merged.away.ball_possession = ap;
 
   return ensureLiveStatsShape(merged);
 }
@@ -418,6 +508,29 @@ function requireDebugAuth(url: URL) {
   if (key !== DEBUG_KEY) throw new Error("Unauthorized (DEBUG_KEY)");
 }
 
+let bsdQuotaRemaining: number | null = null;
+let bsdQuotaResetSeconds: number | null = null;
+
+function updateBsdQuotaState(res: Response) {
+  const raw = res.headers.get("RateLimit") || "";
+  const remainingMatch = raw.match(/(?:^|;)\s*r=(\d+)/i);
+  const resetMatch = raw.match(/(?:^|;)\s*t=(\d+)/i);
+
+  if (remainingMatch) bsdQuotaRemaining = safeNumber(remainingMatch[1], null as any);
+  if (resetMatch) bsdQuotaResetSeconds = safeNumber(resetMatch[1], null as any);
+}
+
+function bsdStatsCallBudget() {
+  const configured = BSD_STATS_MAX_CALLS_PER_REFRESH;
+  if (bsdQuotaRemaining == null) return configured;
+
+  const usable = bsdQuotaRemaining - BSD_STATS_QUOTA_RESERVE;
+  if (usable <= 0) return 0;
+  if (usable < 250) return 1;
+  if (usable < 700) return Math.min(2, configured);
+  return configured;
+}
+
 async function fetchBSD(endpoint: string, params?: Record<string, string>) {
   if (!BSD_API_TOKEN) throw new Error("BSD_API_TOKEN missing");
 
@@ -432,6 +545,8 @@ async function fetchBSD(endpoint: string, params?: Record<string, string>) {
   const res = await fetch(url.toString(), {
     headers: { Authorization: `Token ${BSD_API_TOKEN}` },
   });
+
+  updateBsdQuotaState(res);
 
   if (!res.ok) {
     const errorBody = await res.text().catch(() => "");
@@ -2704,6 +2819,7 @@ function computeHeatLevel(match: any) {
 }
 
 function predictTotalCorners(stats: any, minute: number, momentum: any) {
+  if (!hasCompleteStatPair(stats, "corner_kicks")) return null;
   const totals = getTotalStats(stats);
   const current = totals.corners;
 
@@ -2753,6 +2869,7 @@ function predictTotalCorners(stats: any, minute: number, momentum: any) {
 }
 
 function predictTotalShots(stats: any, minute: number, momentum: any) {
+  if (!hasCompleteStatPair(stats, "total_shots")) return null;
   const totals = getTotalStats(stats);
   const current = totals.shots;
 
@@ -2796,6 +2913,7 @@ function predictTotalShots(stats: any, minute: number, momentum: any) {
 }
 
 function predictTotalFouls(stats: any, minute: number, momentum: any) {
+  if (!hasCompleteStatPair(stats, "fouls")) return null;
   const totals = getTotalStats(stats);
   const current = totals.fouls;
 
@@ -2923,16 +3041,20 @@ function extractEspnMinute(status: any): number {
   return 0;
 }
 
-function getEspnStat(competitor: any, statName: string, fallback = 0): number {
+function getEspnStatNullable(
+  competitor: any,
+  names: string | string[],
+): number | null {
+  const wanted = new Set(Array.isArray(names) ? names : [names]);
   const stats = competitor?.statistics || [];
 
   for (const s of stats) {
-    if (s?.name === statName) {
-      return safeNumber(s?.displayValue ?? s?.value, fallback);
+    if (wanted.has(String(s?.name || ""))) {
+      return nullableNumber(s?.displayValue ?? s?.value);
     }
   }
 
-  return fallback;
+  return null;
 }
 
 function countEspnCards(details: any[], teamId: string | number | undefined) {
@@ -2985,10 +3107,16 @@ function normalizeEspnEventToOriginalMatch(event: any) {
   const homeTeamId = String(homeTeam?.id || "");
   const awayTeamId = String(awayTeam?.id || "");
 
-  const homeCorners = getEspnStat(home, "wonCorners");
-  const awayCorners = getEspnStat(away, "wonCorners");
-  const homeFouls = getEspnStat(home, "foulsCommitted");
-  const awayFouls = getEspnStat(away, "foulsCommitted");
+  const homeCorners = getEspnStatNullable(home, ["wonCorners", "corners"]);
+  const awayCorners = getEspnStatNullable(away, ["wonCorners", "corners"]);
+  const homeFouls = getEspnStatNullable(home, ["foulsCommitted", "fouls"]);
+  const awayFouls = getEspnStatNullable(away, ["foulsCommitted", "fouls"]);
+  const homeShots = getEspnStatNullable(home, ["totalShots", "shotsTotal"]);
+  const awayShots = getEspnStatNullable(away, ["totalShots", "shotsTotal"]);
+  const homeShotsOnTarget = getEspnStatNullable(home, ["shotsOnTarget", "shotsOnGoal"]);
+  const awayShotsOnTarget = getEspnStatNullable(away, ["shotsOnTarget", "shotsOnGoal"]);
+  const homePossession = getEspnStatNullable(home, ["possessionPct", "possession"]);
+  const awayPossession = getEspnStatNullable(away, ["possessionPct", "possession"]);
 
   const homeCards = countEspnCards(details, homeTeamId);
   const awayCards = countEspnCards(details, awayTeamId);
@@ -2997,20 +3125,20 @@ function normalizeEspnEventToOriginalMatch(event: any) {
     home: {
       corner_kicks: homeCorners,
       fouls: homeFouls,
+      total_shots: homeShots,
+      shots_on_target: homeShotsOnTarget,
+      ball_possession: homePossession,
       yellow_cards: homeCards.yellow,
       red_cards: homeCards.red,
     },
     away: {
       corner_kicks: awayCorners,
       fouls: awayFouls,
+      total_shots: awayShots,
+      shots_on_target: awayShotsOnTarget,
+      ball_possession: awayPossession,
       yellow_cards: awayCards.yellow,
       red_cards: awayCards.red,
-    },
-    totals: {
-      corners: homeCorners + awayCorners,
-      fouls: homeFouls + awayFouls,
-      yellow_cards: homeCards.yellow + awayCards.yellow,
-      red_cards: homeCards.red + awayCards.red,
     },
   });
 
@@ -3043,6 +3171,8 @@ function normalizeEspnEventToOriginalMatch(event: any) {
     away_logo: awayLogo,
     league_logo: leagueLogo,
     live_stats: liveStats,
+    stats_last_updated_at:
+      statsCompleteness(liveStats).core_complete > 0 ? nowIso() : null,
     raw_data: {
       source: "espn",
       event_id: eventId,
@@ -3091,6 +3221,10 @@ function mergeOneOriginalWithEspn(original: any, espn: any) {
     ...original,
     current_minute: Math.max(originalMinute, espnMinute),
     live_stats: mergedStats,
+    stats_last_updated_at:
+      espn?.stats_last_updated_at ||
+      original?.stats_last_updated_at ||
+      null,
     home_logo: original?.home_logo || espn?.home_logo || original?.raw_data?.home_logo || espn?.raw_data?.home_logo || null,
     away_logo: original?.away_logo || espn?.away_logo || original?.raw_data?.away_logo || espn?.raw_data?.away_logo || null,
     league_logo: original?.league_logo || espn?.league_logo || original?.raw_data?.league_logo || espn?.raw_data?.league_logo || null,
@@ -3260,7 +3394,8 @@ function normalizeMatch(match: any, updatedAt?: string) {
     ai_score: computeAiScore(match, allPredictions),
     value_score: computeValueScore(match, allPredictions),
     reliability_score: allPredictions?.[0]?.reliability || 0,
-    data_quality_score: 90,
+    data_quality_score: statsCompleteness(stats).score,
+    stats_completeness: statsCompleteness(stats),
     heat_level: computeHeatLevel(match),
     freshness_seconds: computeFreshness(updatedAt || new Date().toISOString()),
   };
@@ -4258,6 +4393,182 @@ async function getLiveOpportunitiesFromDb() {
 // =======================================================
 // ROUTES CORE
 // =======================================================
+function normalizeBsdStatsPayload(payload: any) {
+  const raw = payload?.stats || {};
+  const home = { ...(raw?.home || {}) };
+  const away = { ...(raw?.away || {}) };
+
+  // BSD recommande le shotmap comme décompte de référence des tirs.
+  const shotmap = Array.isArray(payload?.shotmap)
+    ? payload.shotmap.filter((s: any) => String(s?.sit || "").toLowerCase() !== "shootout")
+    : [];
+
+  if (shotmap.length) {
+    const homeShots = shotmap.filter((s: any) => s?.home === true);
+    const awayShots = shotmap.filter((s: any) => s?.home === false);
+    const onTarget = (s: any) => ["goal", "save"].includes(String(s?.type || "").toLowerCase());
+
+    home.total_shots = homeShots.length;
+    away.total_shots = awayShots.length;
+    home.shots_on_target = homeShots.filter(onTarget).length;
+    away.shots_on_target = awayShots.filter(onTarget).length;
+  }
+
+  return ensureLiveStatsShape({ home, away });
+}
+
+async function loadCachedLiveMatchRows(matchIds: string[]) {
+  const ids = [...new Set(matchIds.map(String).filter(Boolean))];
+  const map = new Map<string, any>();
+  if (!ids.length) return map;
+
+  const { data, error } = await supabase
+    .from("matches_live")
+    .select("id, raw_data, updated_at")
+    .in("id", ids);
+
+  if (error) {
+    console.warn("Cache LIVE stats non lisible (ignoré):", error.message);
+    return map;
+  }
+
+  for (const row of data || []) map.set(String(row.id), row);
+  return map;
+}
+
+async function reuseCachedStats(matches: any[]) {
+  const cache = await loadCachedLiveMatchRows(
+    (matches || []).map((m: any) => String(m?.id || "")),
+  );
+
+  return (matches || []).map((match: any) => {
+    const row = cache.get(String(match?.id));
+    const cached = row?.raw_data || null;
+    if (!cached) return match;
+
+    const mergedStats = mergeLiveStats(
+      cached?.live_stats || cached?.raw_data?.live_stats || {},
+      getMatchLiveStats(match),
+    );
+
+    return {
+      ...match,
+      live_stats: mergedStats,
+      stats_last_updated_at:
+        match?.stats_last_updated_at ||
+        cached?.stats_last_updated_at ||
+        cached?.raw_data?.stats_last_updated_at ||
+        null,
+      raw_data: {
+        ...(match?.raw_data || {}),
+        live_stats: mergedStats,
+      },
+    };
+  });
+}
+
+function isBsdNumericEvent(match: any) {
+  return /^\d+$/.test(String(match?.id || ""));
+}
+
+function statsAgeSeconds(match: any) {
+  const raw =
+    match?.stats_last_updated_at ||
+    match?.raw_data?.stats_last_updated_at ||
+    null;
+  if (!raw) return Number.POSITIVE_INFINITY;
+  const ts = new Date(raw).getTime();
+  if (!Number.isFinite(ts)) return Number.POSITIVE_INFINITY;
+  return Math.max(0, Math.floor((Date.now() - ts) / 1000));
+}
+
+async function enrichLiveMatchesWithBsdStats(matches: any[]) {
+  const budget = bsdStatsCallBudget();
+  if (budget <= 0) {
+    return {
+      matches,
+      calls: 0,
+      enriched: 0,
+      failed: 0,
+      skipped_quota: true,
+    };
+  }
+
+  const candidates = (matches || [])
+    .filter((m: any) => {
+      if (!isBsdNumericEvent(m)) return false;
+      const minute = safeNumber(m?.current_minute ?? m?.minute, 0);
+      if (minute < 10 || minute > 88) return false;
+
+      const completeness = statsCompleteness(getMatchLiveStats(m));
+      return (
+        completeness.core_complete < 3 ||
+        statsAgeSeconds(m) >= BSD_STATS_REFRESH_SECONDS
+      );
+    })
+    .sort((a: any, b: any) => {
+      const ca = statsCompleteness(getMatchLiveStats(a)).core_complete;
+      const cb = statsCompleteness(getMatchLiveStats(b)).core_complete;
+      if (ca !== cb) return ca - cb; // d'abord les matchs les plus incomplets
+      return statsAgeSeconds(b) - statsAgeSeconds(a); // puis les plus anciens
+    })
+    .slice(0, budget);
+
+  let calls = 0;
+  let enriched = 0;
+  let failed = 0;
+
+  const out = [...(matches || [])];
+  const indexById = new Map(out.map((m: any, i: number) => [String(m?.id), i]));
+
+  for (const match of candidates) {
+    try {
+      calls++;
+      const payload = await fetchBSD(`/events/${match.id}/stats/`);
+      const freshStats = normalizeBsdStatsPayload(payload);
+      const mergedStats = mergeLiveStats(getMatchLiveStats(match), freshStats);
+      const idx = indexById.get(String(match.id));
+      if (idx == null) continue;
+
+      out[idx] = {
+        ...out[idx],
+        live_stats: mergedStats,
+        stats_last_updated_at: nowIso(),
+        raw_data: {
+          ...(out[idx]?.raw_data || {}),
+          live_stats: mergedStats,
+          stats_last_updated_at: nowIso(),
+          stats_sources: [
+            ...new Set([
+              ...((out[idx]?.raw_data?.stats_sources || []) as string[]),
+              "bsd_stats",
+            ]),
+          ],
+        },
+      };
+      enriched++;
+    } catch (e: any) {
+      failed++;
+      if (isBSDQuotaError(e)) {
+        console.warn("⚠️ Quota BSD atteint pendant enrichissement stats; arrêt des appels stats.");
+        break;
+      }
+      console.warn("⚠️ Stats BSD indisponibles pour le match", {
+        match_id: match?.id,
+        error: e?.message || String(e),
+      });
+    }
+  }
+
+  return {
+    matches: out,
+    calls,
+    enriched,
+    failed,
+    skipped_quota: false,
+  };
+}
+
 type RefreshBatchOptions = {
   cursor?: string | null;
   batchSize?: number;
@@ -4377,6 +4688,24 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     sourceRows = merged.sourceRows || [];
     sourceMeta = merged.meta || sourceMeta;
 
+    // /events/live/ est compact et ne fournit pas les stats détaillées.
+    // 1) on réutilise d'abord notre dernier snapshot connu;
+    // 2) ESPN complète gratuitement ce qu'il possède;
+    // 3) BSD /stats/ enrichit seulement quelques matchs prioritaires par cycle.
+    allRawMatches = await reuseCachedStats(allRawMatches);
+
+    const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
+    sourceMeta = {
+      ...sourceMeta,
+      bsd_stats_calls: statsEnrichment.calls,
+      bsd_stats_enriched: statsEnrichment.enriched,
+      bsd_stats_failed: statsEnrichment.failed,
+      bsd_stats_skipped_quota: statsEnrichment.skipped_quota,
+      bsd_quota_remaining: bsdQuotaRemaining,
+      bsd_quota_reset_seconds: bsdQuotaResetSeconds,
+    };
+
     // Snapshot COMPLET persistant avant de découper en lots.
     // Les invocations enfants suivantes lisent exactement ces mêmes matchs
     // sans rappeler BSD ni ESPN.
@@ -4410,6 +4739,10 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
         next_cursor: nextCursor,
         original_source_matches: safeNumber(sourceMeta.original_source_matches, 0),
         espn_source_matches: safeNumber(sourceMeta.espn_source_matches, 0),
+        bsd_stats_calls: safeNumber(sourceMeta.bsd_stats_calls, 0),
+        bsd_stats_enriched: safeNumber(sourceMeta.bsd_stats_enriched, 0),
+        bsd_stats_failed: safeNumber(sourceMeta.bsd_stats_failed, 0),
+        bsd_quota_remaining: sourceMeta.bsd_quota_remaining ?? bsdQuotaRemaining,
         duplicates_merged: safeNumber(sourceMeta.duplicates_merged, 0),
         espn_only_matches: safeNumber(sourceMeta.espn_only_matches, 0),
         espn_enabled: ENABLE_ESPN_MERGE,
@@ -4479,6 +4812,10 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       has_more: hasMore,
       original_source_matches: safeNumber(sourceMeta.original_source_matches, 0),
       espn_source_matches: safeNumber(sourceMeta.espn_source_matches, 0),
+      bsd_stats_calls: safeNumber(sourceMeta.bsd_stats_calls, 0),
+      bsd_stats_enriched: safeNumber(sourceMeta.bsd_stats_enriched, 0),
+      bsd_stats_failed: safeNumber(sourceMeta.bsd_stats_failed, 0),
+      bsd_quota_remaining: sourceMeta.bsd_quota_remaining ?? bsdQuotaRemaining,
       duplicates_merged: safeNumber(sourceMeta.duplicates_merged, 0),
       espn_only_matches: safeNumber(sourceMeta.espn_only_matches, 0),
       espn_enabled: ENABLE_ESPN_MERGE,
