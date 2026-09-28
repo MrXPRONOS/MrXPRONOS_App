@@ -5254,19 +5254,42 @@ function dailyEventId(ev: any) {
   return ev?.id ?? ev?.event_id ?? null;
 }
 
-function dailyEventLogo(ev: any, side: "home" | "away") {
+function dailyEventTeamId(ev: any, side: "home" | "away") {
   const team = side === "home"
     ? (ev?.home_team_obj ?? ev?.home ?? ev?.teams?.home ?? ev?.home_team)
     : (ev?.away_team_obj ?? ev?.away ?? ev?.teams?.away ?? ev?.away_team);
 
   return (
+    team?.id ??
+    team?.api_id ??
+    team?.team_id ??
+    ev?.[side + "_team_id"] ??
+    ev?.[side + "_id"] ??
+    null
+  );
+}
+
+function dailyEventLogo(ev: any, side: "home" | "away") {
+  const team = side === "home"
+    ? (ev?.home_team_obj ?? ev?.home ?? ev?.teams?.home ?? ev?.home_team)
+    : (ev?.away_team_obj ?? ev?.away ?? ev?.teams?.away ?? ev?.away_team);
+
+  const direct =
     team?.logo_url ??
     team?.logo ??
     team?.image_url ??
     team?.image ??
     ev?.[side + "_logo"] ??
-    null
-  );
+    null;
+
+  if (typeof direct === "string" && direct.trim()) return direct;
+
+  const teamId = dailyEventTeamId(ev, side);
+  if (teamId != null && /^\d+$/.test(String(teamId))) {
+    return `${BSD_IMG_BASE}/team/${teamId}/?bg=transparent`;
+  }
+
+  return null;
 }
 
 function dailyResultRows(payload: any): any[] {
@@ -5353,39 +5376,188 @@ function dailyNormOutcome(v: unknown) {
     .replace(/\s+/g, "");
 }
 
-function dailyPickDoubleChanceOdds(payload: any, wanted: string) {
+function dailyOutcomeAliases(wanted: string) {
   const target = dailyNormOutcome(wanted);
-  const rows = dailyCollectOddsObjects(payload);
 
-  const candidates = rows
-    .filter((row: any) => {
-      const market = dailyNormMarket(
-        row?.market ?? row?.market_type ?? row?.market_name,
+  if (target === "1X") {
+    return new Set([
+      "1X", "HOME_DRAW", "HOMEDRAW", "HOMEORDRAW",
+      "HOME_OR_DRAW", "1_X", "HD",
+    ]);
+  }
+
+  if (target === "X2") {
+    return new Set([
+      "X2", "DRAW_AWAY", "DRAWAWAY", "DRAWORAWAY",
+      "DRAW_OR_AWAY", "X_2", "DA",
+    ]);
+  }
+
+  return new Set([
+    "12", "HOME_AWAY", "HOMEAWAY", "HOMEORAWAY",
+    "HOME_OR_AWAY", "1_2", "HA",
+  ]);
+}
+
+function dailyOutcomeKey(v: unknown) {
+  return String(v ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function dailyExtractPrice(v: any): number | null {
+  if (typeof v === "number" || typeof v === "string") {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 1.01 ? Number(n.toFixed(2)) : null;
+  }
+
+  if (!v || typeof v !== "object") return null;
+
+  for (const key of [
+    "price", "odds", "decimal_odds", "odds_decimal",
+    "value", "consensus_price",
+  ]) {
+    const n = Number(v?.[key]);
+    if (Number.isFinite(n) && n > 1.01) return Number(n.toFixed(2));
+  }
+
+  return null;
+}
+
+function dailyExtractTargetFromMap(value: any, aliases: Set<string>): number | null {
+  if (!value || typeof value !== "object") return null;
+
+  for (const [key, raw] of Object.entries(value)) {
+    if (aliases.has(dailyOutcomeKey(key))) {
+      const price = dailyExtractPrice(raw);
+      if (price != null) return price;
+    }
+  }
+
+  return null;
+}
+
+function dailyPickDoubleChanceOdds(payload: any, wanted: string) {
+  const aliases = dailyOutcomeAliases(wanted);
+
+  // Formes directes utilisées par le consensus / détail événement.
+  const directContainers = [
+    payload?.odds?.double_chance,
+    payload?.double_chance,
+    payload?.consensus?.double_chance,
+    payload?.odds_consensus?.double_chance,
+    payload?.markets?.double_chance,
+  ];
+
+  for (const container of directContainers) {
+    const price = dailyExtractTargetFromMap(container, aliases);
+    if (price != null) {
+      return { odds: price, source: "consensus" };
+    }
+  }
+
+  const marketCandidates: any[] = [];
+
+  function walk(value: any, depth = 0) {
+    if (depth > 8 || value == null) return;
+
+    if (Array.isArray(value)) {
+      for (const x of value) walk(x, depth + 1);
+      return;
+    }
+
+    if (typeof value !== "object") return;
+
+    const marketName = dailyNormMarket(
+      value?.market ??
+      value?.market_type ??
+      value?.market_name ??
+      value?.market_kind ??
+      value?.market_family ??
+      value?.kind ??
+      value?.family,
+    );
+
+    const looksDc =
+      marketName.includes("double_chance") ||
+      marketName === "dc" ||
+      marketName.startsWith("dc_") ||
+      marketName.includes("doublechance");
+
+    if (looksDc) marketCandidates.push(value);
+
+    for (const x of Object.values(value)) {
+      if (x && typeof x === "object") walk(x, depth + 1);
+    }
+  }
+
+  walk(payload);
+
+  const prices: number[] = [];
+
+  for (const market of marketCandidates) {
+    // Prix consensus directement attachés au marché.
+    for (const container of [
+      market?.prices,
+      market?.consensus,
+      market?.consensus_prices,
+      market?.odds,
+      market?.selections,
+    ]) {
+      const direct = dailyExtractTargetFromMap(container, aliases);
+      if (direct != null) prices.push(direct);
+    }
+
+    // Forme flattened : { outcome: "1X", price: 1.25 }.
+    const outcome = dailyOutcomeKey(
+      market?.outcome ??
+      market?.selection ??
+      market?.name,
+    );
+    if (aliases.has(outcome)) {
+      const p = dailyExtractPrice(market);
+      if (p != null) prices.push(p);
+    }
+
+    // Forme markets[].bookmakers[].prices.{HOME_DRAW|1X|...}
+    for (const book of market?.bookmakers || []) {
+      const p = dailyExtractTargetFromMap(
+        book?.prices ?? book?.odds ?? book,
+        aliases,
       );
-      const outcome = dailyNormOutcome(
-        row?.outcome ?? row?.selection ?? row?.name,
-      );
+      if (p != null) prices.push(p);
+    }
+  }
 
-      return market.includes("double_chance") && outcome === target;
-    })
-    .map((row: any) => ({
-      odds: safeNumber(
-        row?.decimal_odds ??
-          row?.odds_decimal ??
-          row?.odds ??
-          row?.price,
-        0,
-      ),
-      source: String(
-        row?.bookmaker_name ??
-          row?.bookmaker_slug ??
-          "consensus",
-      ),
-    }))
-    .filter((row: any) => row.odds > 1.01)
-    .sort((a: any, b: any) => b.odds - a.odds);
+  // Ancienne forme flattened conservée en dernier recours.
+  for (const row of dailyCollectOddsObjects(payload)) {
+    const market = dailyNormMarket(
+      row?.market ?? row?.market_type ?? row?.market_name,
+    );
+    const outcome = dailyOutcomeKey(
+      row?.outcome ?? row?.selection ?? row?.name,
+    );
 
-  return candidates[0] ?? null;
+    if (
+      (market.includes("double_chance") || market.startsWith("dc_")) &&
+      aliases.has(outcome)
+    ) {
+      const p = dailyExtractPrice(row);
+      if (p != null) prices.push(p);
+    }
+  }
+
+  if (!prices.length) return null;
+
+  // Si plusieurs bookmakers sont présents mais aucun champ consensus explicite,
+  // on utilise leur moyenne comme consensus, jamais le "meilleur prix".
+  const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+  return {
+    odds: Number(avg.toFixed(2)),
+    source: prices.length > 1 ? "consensus_avg" : "consensus",
+  };
 }
 
 function dailyTableMissing(error: any) {
@@ -5424,6 +5596,96 @@ function dailySourceOdds(p: any): number | null {
   return null;
 }
 
+function dailyIsLikelyFootball(p: any) {
+  const text = [
+    p?.competition,
+    p?.league_name,
+    p?.league,
+    p?.home_team,
+    p?.away_team,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  // Le fournisseur amont a déjà renvoyé quelques rencontres d'autres sports
+  // malgré l'endpoint football (ex.: NPB/baseball, Basketball). On les bloque
+  // avant de les publier dans "Pronostics du jour".
+  return !/\b(npb|mlb|kbo|cpbl|baseball|basketball|basket|nba|wnba|nhl|ice hockey|hockey|cricket|volleyball|handball|nfl|american football)\b/i.test(text);
+}
+
+let dailySiteDataCache: { at: number; byId: Map<string, any> } | null = null;
+const DAILY_SITE_DATA_TTL_MS = 10 * 60 * 1000;
+
+async function dailyLoadSiteDataMap() {
+  const now = Date.now();
+  if (
+    dailySiteDataCache &&
+    now - dailySiteDataCache.at < DAILY_SITE_DATA_TTL_MS
+  ) {
+    return dailySiteDataCache.byId;
+  }
+
+  const byId = new Map<string, any>();
+
+  try {
+    const base = SITE_URL.replace(/\/$/, "");
+    const res = await fetch(`${base}/data.json`, {
+      headers: { "Accept": "application/json" },
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const payload = await res.json();
+    for (const row of payload?.matches || []) {
+      if (row?.id != null) byId.set(String(row.id), row);
+    }
+
+    dailySiteDataCache = { at: now, byId };
+  } catch (e: any) {
+    console.warn("data.json public indisponible pour les logos daily:", e?.message || String(e));
+    dailySiteDataCache = { at: now, byId };
+  }
+
+  return byId;
+}
+
+function dailyAbsoluteSiteAsset(path: unknown) {
+  const raw = String(path || "").trim();
+  if (!raw) return null;
+  if (/^https?:\/\//i.test(raw)) return raw;
+
+  const base = SITE_URL.replace(/\/$/, "");
+  return `${base}/${raw.replace(/^\/+/, "")}`;
+}
+
+async function dailyEnrichSourceRows(sourceRows: any[]) {
+  const byId = await dailyLoadSiteDataMap();
+
+  return (sourceRows || []).map((p: any) => {
+    const raw = byId.get(String(p?.match_id ?? p?.id ?? ""));
+    if (!raw) return p;
+
+    return {
+      ...p,
+      home_logo:
+        p?.home_logo ??
+        dailyAbsoluteSiteAsset(raw?.home_logo),
+      away_logo:
+        p?.away_logo ??
+        dailyAbsoluteSiteAsset(raw?.away_logo),
+      event_date:
+        p?.event_date ??
+        raw?.event_date ??
+        null,
+      competition:
+        p?.competition ??
+        raw?.league ??
+        null,
+    };
+  });
+}
+
 async function dailyGetSourcePronos(date: string) {
   const { data, error } = await supabase
     .from("pronostics")
@@ -5435,7 +5697,7 @@ async function dailyGetSourcePronos(date: string) {
 
   return (data || []).filter((p: any) => {
     const pick = String(p?.prediction || "").toUpperCase();
-    return ["1X", "X2", "12"].includes(pick);
+    return ["1X", "X2", "12"].includes(pick) && dailyIsLikelyFootball(p);
   });
 }
 
@@ -5484,6 +5746,23 @@ function dailyFallbackRows(date: string, sourceRows: any[]) {
   });
 }
 
+let dailyAutoGenerateAt = 0;
+let dailyAutoGenerateDate = "";
+
+function dailyShouldAutoGenerate(date: string) {
+  if (date !== dailyTodayUtc()) return false;
+  if (
+    dailyAutoGenerateDate === date &&
+    Date.now() - dailyAutoGenerateAt < 10 * 60 * 1000
+  ) {
+    return false;
+  }
+
+  dailyAutoGenerateDate = date;
+  dailyAutoGenerateAt = Date.now();
+  return true;
+}
+
 async function dailyGetForUi(date: string) {
   const stored = await supabase
     .from("daily_predictions")
@@ -5508,6 +5787,7 @@ async function dailyGetForUi(date: string) {
   let sourceRows: any[] = [];
   try {
     sourceRows = await dailyGetSourcePronos(date);
+    sourceRows = await dailyEnrichSourceRows(sourceRows);
   } catch (e) {
     console.error("Fallback pronostics du jour indisponible:", e);
   }
@@ -5527,7 +5807,9 @@ async function dailyGetForUi(date: string) {
 
 async function dailyGenerateSnapshots() {
   const date = dailyTodayUtc();
-  const pronos = await dailyGetSourcePronos(date);
+  const pronos = await dailyEnrichSourceRows(
+    await dailyGetSourcePronos(date),
+  );
 
   if (!pronos.length) {
     return {
@@ -5618,30 +5900,49 @@ async function dailyGenerateSnapshots() {
       continue;
     }
 
-    let oddsPayload: any;
-    try {
-      oddsPayload = await fetchBSD(
-        `/events/${dailyEventId(ev)}/odds/`,
-      );
-    } catch (e: any) {
-      skipped++;
-      details.push({
-        match_id: p?.match_id,
-        status: "odds_error",
-        error: e?.message || String(e),
-      });
+    // 1) Certaines listes d'événements contiennent déjà le consensus.
+    let picked = dailyPickDoubleChanceOdds(ev, outcome);
+    let oddsError: string | null = null;
 
-      // Un quota 429 ne doit pas provoquer une rafale d'appels inutiles.
-      if (isBSDQuotaError(e)) break;
-      continue;
+    // 2) Sinon on utilise l'endpoint odds de l'événement.
+    if (!picked) {
+      try {
+        const oddsPayload = await fetchBSD(
+          `/events/${dailyEventId(ev)}/odds/`,
+        );
+        picked = dailyPickDoubleChanceOdds(oddsPayload, outcome);
+      } catch (e: any) {
+        oddsError = e?.message || String(e);
+        if (isBSDQuotaError(e)) {
+          details.push({
+            match_id: p?.match_id,
+            status: "odds_quota_exhausted",
+            error: oddsError,
+          });
+          break;
+        }
+      }
     }
 
-    const picked = dailyPickDoubleChanceOdds(oddsPayload, outcome);
+    // 3) Dernier fallback : le détail événement expose souvent le consensus
+    // même quand la réponse /odds/ a une structure différente.
+    if (!picked && !oddsError) {
+      try {
+        const detailPayload = await fetchBSD(
+          `/events/${dailyEventId(ev)}/`,
+        );
+        picked = dailyPickDoubleChanceOdds(detailPayload, outcome);
+      } catch (e: any) {
+        oddsError = e?.message || String(e);
+      }
+    }
+
     if (!picked) {
       skipped++;
       details.push({
         match_id: p?.match_id,
         status: "consensus_odds_not_found",
+        error: oddsError,
       });
       continue;
     }
@@ -5678,7 +5979,7 @@ async function dailyGenerateSnapshots() {
       outcome,
       line: null,
       odds_snapshot: odds,
-      odds_source: "consensus",
+      odds_source: picked.source || "consensus",
       odds_captured_at: nowIso(),
       stake,
       potential_gain: gain,
@@ -6159,6 +6460,25 @@ serve(async (req) => {
         dailyTodayUtc();
 
       const result = await dailyGetForUi(date);
+
+      if (
+        !result.snapshot_available &&
+        !result.daily_predictions_table_missing &&
+        result.count > 0 &&
+        dailyShouldAutoGenerate(date)
+      ) {
+        const task = dailyGenerateSnapshots()
+          .then((generated) => {
+            console.log("AUTO_DAILY_GENERATE", generated);
+          })
+          .catch((e: any) => {
+            console.warn("AUTO_DAILY_GENERATE failed:", e?.message || String(e));
+          });
+
+        const edgeRuntime = (globalThis as any).EdgeRuntime;
+        if (edgeRuntime?.waitUntil) edgeRuntime.waitUntil(task);
+      }
+
       return json(result);
     }
 
