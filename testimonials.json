@@ -1,32 +1,32 @@
 [
   {
-    "name": "Fousseni Ba",
+    "name": "Zalika Dembélé",
+    "rating": 5,
+    "city": "Cotonou",
+    "text": "Les pronos sont clairs et je fais moins de combinés inutiles. Je préfère cette méthode aux paris au hasard."
+  },
+  {
+    "name": "Lalla Kouyate",
     "rating": 4,
-    "city": "Abidjan",
-    "text": "Depuis 21 jours je suis la méthode, et je mise plus discipliné. C’est simple et ça m’aide vraiment."
+    "city": "Nairobi",
+    "text": "Les pronos sont clairs et je comprends enfin pourquoi je joue. Je préfère cette méthode aux paris au hasard."
   },
   {
-    "name": "Penda Owusu",
+    "name": "Zeynab Okafor",
     "rating": 5,
-    "city": "Tunis",
-    "text": "Franchement, le live font la différence. Maintenant je joue moins mais plus propre. Ça change ma façon de jouer."
+    "city": "Douala",
+    "text": "Depuis 30 jours je suis la méthode, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
   },
   {
-    "name": "Oumy Dembélé",
-    "rating": 5,
-    "city": "Bamako",
-    "text": "Depuis 30 jours je suis le live, et je choisis mieux mes matchs. C’est simple et ça m’aide vraiment."
-  },
-  {
-    "name": "Nana Chanda",
-    "rating": 5,
-    "city": "Johannesburg",
-    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
-  },
-  {
-    "name": "Awa Diallo",
+    "name": "Fousseni Bamba",
     "rating": 5,
     "city": "Lomé",
-    "text": "Les pronos sont clairs et je choisis mieux mes matchs. Je préfère cette méthode aux paris au hasard."
+    "text": "Franchement, les explications font la différence. Maintenant je comprends enfin pourquoi je joue."
+  },
+  {
+    "name": "Sékou Sall",
+    "rating": 4,
+    "city": "Douala",
+    "text": "Depuis 21 jours je suis le live, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
   }
 ]
