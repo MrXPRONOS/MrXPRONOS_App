@@ -3961,7 +3961,7 @@ async function invokeTelegramWorker(
   predictionId?: string | number | null,
 ) {
   const endpoint = new URL(
-    `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/live/telegram/process-one`,
+    `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/telegram-live`,
   );
 
   if (predictionId != null && String(predictionId).trim()) {
@@ -3975,29 +3975,52 @@ async function invokeTelegramWorker(
   };
   if (CRON_SECRET) headers["x-cron-secret"] = CRON_SECRET;
 
-  const res = await fetch(endpoint.toString(), {
-    method: "POST",
-    headers,
-  });
+  let lastError: any = null;
 
-  const raw = await res.text().catch(() => "");
-  let body: any = {};
-  try {
-    body = raw ? JSON.parse(raw) : {};
-  } catch {
-    body = { raw };
+  // Les 503 Supabase sont souvent transitoires (cold start / saturation).
+  // On retente l'invocation dédiée sans toucher au moteur LIVE.
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const res = await fetch(endpoint.toString(), {
+        method: "POST",
+        headers,
+      });
+
+      const raw = await res.text().catch(() => "");
+      let body: any = {};
+      try {
+        body = raw ? JSON.parse(raw) : {};
+      } catch {
+        body = { raw };
+      }
+
+      if (res.ok) return body;
+
+      const err: any = new Error(
+        `Telegram worker HTTP ${res.status}: ${body?.error || raw || res.statusText}`,
+      );
+      err.status = res.status;
+      err.body = body;
+      lastError = err;
+
+      if (![429, 502, 503, 504].includes(res.status) || attempt === 3) {
+        throw err;
+      }
+    } catch (e: any) {
+      lastError = e;
+      const status = safeNumber(e?.status, 0);
+      if (
+        attempt === 3 ||
+        (status && ![429, 502, 503, 504].includes(status))
+      ) {
+        throw e;
+      }
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, attempt * 700));
   }
 
-  if (!res.ok) {
-    const error = new Error(
-      `Telegram worker HTTP ${res.status}: ${body?.error || raw || res.statusText}`,
-    );
-    (error as any).status = res.status;
-    (error as any).body = body;
-    throw error;
-  }
-
-  return body;
+  throw lastError || new Error("Telegram worker indisponible");
 }
 
 async function dispatchTelegramPrediction(predictionId: string | number) {
@@ -4005,9 +4028,6 @@ async function dispatchTelegramPrediction(predictionId: string | number) {
   if (!id) return false;
 
   try {
-    // IMPORTANT : on attend la fin de l'invocation ENFANT Telegram.
-    // Le rendu image consomme le CPU de cette invocation séparée, pas celui
-    // du lot LIVE, mais on sait réellement si Telegram a reçu l'image.
     const result = await invokeTelegramWorker(id);
 
     const sent =
@@ -4015,20 +4035,20 @@ async function dispatchTelegramPrediction(predictionId: string | number) {
       result?.already_sent === true;
 
     if (!sent) {
-      console.warn("⚠️ Worker Telegram terminé sans envoi:", {
+      console.warn("⚠️ Worker Telegram dédié terminé sans envoi:", {
         prediction_id: id,
         result,
       });
       return false;
     }
 
-    console.log("✅ Coupon Telegram confirmé", {
+    console.log("✅ Coupon Telegram confirmé par worker dédié", {
       prediction_id: id,
       sent_chat_ids: result?.sent_chat_ids || [],
     });
     return true;
   } catch (e: any) {
-    console.warn("⚠️ Dispatch Telegram immédiat impossible:", {
+    console.warn("⚠️ Dispatch Telegram dédié impossible:", {
       prediction_id: id,
       error: e?.message || String(e),
     });
@@ -4059,7 +4079,11 @@ async function dispatchOnePendingTelegramRetry() {
       telegram_worker_retry_error: result?.error || null,
     };
   } catch (e: any) {
-    console.warn("⚠️ Retry Telegram isolé impossible:", e?.message || String(e));
+    console.warn(
+      "⚠️ Retry Telegram worker dédié impossible:",
+      e?.message || String(e),
+    );
+
     return {
       telegram_worker_retry_processed: 0,
       telegram_worker_retry_sent: 0,
