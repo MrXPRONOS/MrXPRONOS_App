@@ -3816,7 +3816,7 @@ async function processTelegramPredictionById(predictionId: string | number) {
   const { data: row, error } = await supabase
     .from("live_predictions")
     .select(
-      "id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, confidence, validated, telegram_sent, telegram_attempts, telegram_pending_chat_ids, created_at",
+      "id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, confidence, validated, telegram_sent, telegram_attempts, telegram_last_error, telegram_last_attempt_at, telegram_pending_chat_ids, created_at",
     )
     .eq("id", id)
     .maybeSingle();
@@ -3957,43 +3957,74 @@ async function processTelegramPredictionById(predictionId: string | number) {
   }
 }
 
+async function invokeTelegramWorker(
+  predictionId?: string | number | null,
+) {
+  const endpoint = new URL(
+    `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/live/telegram/process-one`,
+  );
+
+  if (predictionId != null && String(predictionId).trim()) {
+    endpoint.searchParams.set("prediction_id", String(predictionId).trim());
+  }
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+    "apikey": SUPABASE_SERVICE_ROLE_KEY,
+  };
+  if (CRON_SECRET) headers["x-cron-secret"] = CRON_SECRET;
+
+  const res = await fetch(endpoint.toString(), {
+    method: "POST",
+    headers,
+  });
+
+  const raw = await res.text().catch(() => "");
+  let body: any = {};
+  try {
+    body = raw ? JSON.parse(raw) : {};
+  } catch {
+    body = { raw };
+  }
+
+  if (!res.ok) {
+    const error = new Error(
+      `Telegram worker HTTP ${res.status}: ${body?.error || raw || res.statusText}`,
+    );
+    (error as any).status = res.status;
+    (error as any).body = body;
+    throw error;
+  }
+
+  return body;
+}
+
 async function dispatchTelegramPrediction(predictionId: string | number) {
   const id = String(predictionId || "").trim();
   if (!id) return false;
 
   try {
-    const endpoint = new URL(
-      `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/live/telegram/process-one`,
-    );
-    endpoint.searchParams.set("prediction_id", id);
+    // IMPORTANT : on attend la fin de l'invocation ENFANT Telegram.
+    // Le rendu image consomme le CPU de cette invocation séparée, pas celui
+    // du lot LIVE, mais on sait réellement si Telegram a reçu l'image.
+    const result = await invokeTelegramWorker(id);
 
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-      "apikey": SUPABASE_SERVICE_ROLE_KEY,
-    };
-    if (CRON_SECRET) headers["x-cron-secret"] = CRON_SECRET;
+    const sent =
+      safeNumber(result?.telegram_retry_sent, 0) > 0 ||
+      result?.already_sent === true;
 
-    // La route cible répond immédiatement 202 puis rend l'image dans SA propre
-    // invocation Edge. On attend seulement l'accusé de réception, jamais Satori/Resvg.
-    const res = await fetch(endpoint.toString(), {
-      method: "POST",
-      headers,
-    });
-
-    if (!res.ok) {
-      const body = await res.text().catch(() => "");
-      console.warn("⚠️ Dispatch Telegram immédiat refusé:", {
+    if (!sent) {
+      console.warn("⚠️ Worker Telegram terminé sans envoi:", {
         prediction_id: id,
-        status: res.status,
-        body,
+        result,
       });
       return false;
     }
 
-    console.log("🚀 Coupon Telegram dispatché immédiatement", {
+    console.log("✅ Coupon Telegram confirmé", {
       prediction_id: id,
-      status: res.status,
+      sent_chat_ids: result?.sent_chat_ids || [],
     });
     return true;
   } catch (e: any) {
@@ -4002,6 +4033,40 @@ async function dispatchTelegramPrediction(predictionId: string | number) {
       error: e?.message || String(e),
     });
     return false;
+  }
+}
+
+async function dispatchOnePendingTelegramRetry() {
+  try {
+    const result = await invokeTelegramWorker(null);
+    return {
+      telegram_worker_retry_processed: safeNumber(
+        result?.telegram_retry_processed,
+        0,
+      ),
+      telegram_worker_retry_sent: safeNumber(
+        result?.telegram_retry_sent,
+        0,
+      ),
+      telegram_worker_retry_failed: safeNumber(
+        result?.telegram_retry_failed,
+        0,
+      ),
+      telegram_worker_retry_skipped: safeNumber(
+        result?.telegram_retry_skipped,
+        0,
+      ),
+      telegram_worker_retry_error: result?.error || null,
+    };
+  } catch (e: any) {
+    console.warn("⚠️ Retry Telegram isolé impossible:", e?.message || String(e));
+    return {
+      telegram_worker_retry_processed: 0,
+      telegram_worker_retry_sent: 0,
+      telegram_worker_retry_failed: 1,
+      telegram_worker_retry_skipped: 0,
+      telegram_worker_retry_error: e?.message || String(e),
+    };
   }
 }
 
@@ -5023,16 +5088,11 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     sendTelegram: allowTelegram,
   });
 
-  const telegramRetry =
-    allowTelegram && safeNumber(instant.instant_validated, 0) === 0
-      ? await retryPendingTelegramLiveCoupons(normalizedMatches, 1)
-      : {
-        telegram_retry_enabled: true,
-        telegram_retry_processed: 0,
-        telegram_retry_sent: 0,
-        telegram_retry_failed: 0,
-        telegram_retry_skipped: 0,
-      };
+  // Le rendu Telegram reste hors de ce lot LIVE. On demande simplement à
+  // une invocation enfant de reprendre UN coupon resté en attente.
+  // Ainsi les pronos déjà visibles sur le site mais non envoyés se réparent
+  // automatiquement au fil des refresh.
+  const telegramRetry = await dispatchOnePendingTelegramRetry();
 
   return {
     matches: normalizedMatches,
@@ -6592,6 +6652,34 @@ serve(async (req) => {
       });
     }
 
+    if (path === "/telegram/status" && req.method === "GET") {
+      requireCronAuth(req, url);
+
+      const predictionId = String(
+        url.searchParams.get("prediction_id") || "",
+      ).trim();
+
+      let q = supabase
+        .from("live_predictions")
+        .select(
+          "id, match_name, prediction_type, threshold, created_at, telegram_sent, telegram_attempts, telegram_last_attempt_at, telegram_last_error, telegram_pending_chat_ids, telegram_sent_at",
+        )
+        .order("created_at", { ascending: false })
+        .limit(predictionId ? 1 : 20);
+
+      if (predictionId) q = q.eq("id", predictionId);
+
+      const { data, error } = await q;
+      if (error) throw error;
+
+      return json({
+        telegram_configured:
+          Boolean(TELEGRAM_BOT_TOKEN) && telegramChatIds().length > 0,
+        target_chat_count: telegramChatIds().length,
+        predictions: data || [],
+      });
+    }
+
     // ===================================================
     // TELEGRAM: traitement isolé d'un seul coupon
     // ===================================================
@@ -6606,32 +6694,16 @@ serve(async (req) => {
         String(body?.prediction_id || "").trim() ||
         null;
 
-      const telegramTask = predictionId
-        ? processTelegramPredictionById(predictionId)
-        : retryPendingTelegramLiveCoupons([], 1);
+      // Traitement SYNCHRONE dans cette invocation dédiée.
+      // Le caller reçoit le vrai résultat de sendPhoto au lieu d'un simple 202
+      // qui pouvait masquer un crash Satori/Resvg après la réponse.
+      const result = predictionId
+        ? await processTelegramPredictionById(predictionId)
+        : await retryPendingTelegramLiveCoupons([], 1);
 
-      const edgeRuntime = (globalThis as any).EdgeRuntime;
-      if (edgeRuntime?.waitUntil) {
-        edgeRuntime.waitUntil(
-          telegramTask.catch((e: any) => {
-            console.error("❌ Telegram worker isolé échoué:", {
-              prediction_id: predictionId,
-              error: e?.message || String(e),
-            });
-          }),
-        );
-
-        return json({
-          accepted: true,
-          isolated: true,
-          background: true,
-          prediction_id: predictionId,
-        }, 202);
-      }
-
-      const result = await telegramTask;
       return json({
-        success: true,
+        success:
+          safeNumber(result?.telegram_retry_failed, 0) === 0,
         isolated: true,
         background: false,
         prediction_id: predictionId,
