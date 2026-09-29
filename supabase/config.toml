@@ -18,3 +18,7 @@ static_files = [
 verify_jwt = false
 
 # trigger daily-pronos deploy
+
+
+[functions.telegram-live]
+verify_jwt = false
