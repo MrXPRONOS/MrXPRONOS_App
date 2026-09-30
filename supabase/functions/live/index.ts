@@ -46,8 +46,9 @@ const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") || "";
 // un coupon doit partir une seule fois vers chacun des deux canaux.
 const TELEGRAM_CHAT_ID_SECONDARY = Deno.env.get("TELEGRAM_CHAT_ID_SECONDARY") || "@mrxpronosfr";
 const SITE_URL = Deno.env.get("SITE_URL") || "https://mrxpronos.github.io/MrXPRONOS_App/";
-const TELEGRAM_IN_REFRESH =
-  String(Deno.env.get("TELEGRAM_IN_REFRESH") || "false").toLowerCase() === "true";
+// Telegram est de nouveau traité directement par live.ts.
+// Le rendu reste borné à UN coupon par lot pour éviter les pics CPU.
+const TELEGRAM_IN_REFRESH = true;
 
 const BSD_API_BASE = "https://sports.bzzoiro.com/api/v2";
 const BSD_COVERAGE_URL = "https://sports.bzzoiro.com/api/v2/coverage/?sport=football";
@@ -2274,83 +2275,79 @@ async function sendTelegramLiveCoupon(
 ): Promise<TelegramSendResult> {
   const liveUrl = "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/";
   const shortCaption = buildTelegramText(match, pred);
-  const renderPred = predictionId == null ? pred : { ...pred, id: predictionId };
-  const errors: string[] = [];
+  const detailedFallback = buildTelegramLiveFallbackText(match, pred);
 
-  let pngBytes: Uint8Array | null = null;
-
-  // IMPORTANT :
-  // Le rendu SVG direct n'est plus utilisé pour l'envoi Telegram.
-  // Resvg peut produire un PNG valide même lorsque les polices ne sont pas
-  // réellement enregistrées dans un déploiement manuel Supabase : les rectangles
-  // et logos apparaissent alors, mais TOUT le texte disparaît.
-  //
-  // Satori transforme le texte en formes SVG avant Resvg, ce qui garantit que le
-  // texte du coupon est réellement présent dans l'image finale.
-
-  // 1) Rendu Satori simplifié : priorité, car moins lourd que le coupon premium.
   try {
-    pngBytes = await buildTelegramCouponPngSafe(match, renderPred);
-    console.log("✅ PNG LIVE SATORI léger généré", {
+    const pngBytes = await buildTelegramCouponPng(match, pred, predictionId);
+    console.log("✅ PNG NOUVEAU COUPON LIVE généré", {
       bytes: pngBytes.byteLength,
       prediction_id: predictionId ?? pred?.id ?? null,
     });
-  } catch (e: any) {
-    const detail = e?.stack || e?.message || String(e);
-    errors.push(`satori_safe: ${detail}`);
-    console.error("❌ Rendu Satori léger LIVE impossible:", detail);
-  }
 
-  // 2) Rendu premium Satori en second secours image.
-  if (!pngBytes) {
-    try {
-      pngBytes = await buildTelegramCouponPng(match, renderPred);
-      console.log("✅ PNG LIVE SATORI premium généré", {
-        bytes: pngBytes.byteLength,
-        prediction_id: predictionId ?? pred?.id ?? null,
-      });
-    } catch (e: any) {
-      const detail = e?.stack || e?.message || String(e);
-      errors.push(`satori_premium: ${detail}`);
-      console.error("❌ Rendu Satori premium LIVE impossible:", detail);
-    }
-  }
+    const photoResult = await sendTelegramPhoto(
+      pngBytes,
+      shortCaption,
+      liveUrl,
+      targetChatIds,
+    );
 
-  // IMAGE obligatoire : aucun message texte simple ne remplace le coupon.
-  if (!pngBytes) {
-    const failedTargets = sanitizeTelegramTargets(targetChatIds);
-    const error = errors.join(" | ") || "Aucun rendu image Telegram disponible";
+    if (photoResult.ok) return photoResult;
 
-    console.error("❌ Coupon LIVE non envoyé: rendu IMAGE obligatoire", {
-      prediction_id: predictionId ?? pred?.id ?? null,
-      failed_targets: failedTargets,
-      error,
-    });
+    const fallbackTargets = photoResult.failedChatIds.length
+      ? photoResult.failedChatIds
+      : (targetChatIds?.length ? targetChatIds : telegramChatIds());
+
+    console.warn(
+      "⚠️ Envoi image LIVE incomplet, fallback texte détaillé:",
+      photoResult.error,
+    );
+
+    const fallbackResult = await sendTelegramMessage(
+      detailedFallback,
+      liveUrl,
+      fallbackTargets,
+    );
+
+    const sentChatIds = [
+      ...new Set([
+        ...photoResult.sentChatIds,
+        ...fallbackResult.sentChatIds,
+      ]),
+    ];
+    const failedChatIds = [...new Set(fallbackResult.failedChatIds)];
 
     return {
-      ok: false,
-      sentChatIds: [],
-      failedChatIds: failedTargets,
-      error,
+      ok: failedChatIds.length === 0,
+      sentChatIds,
+      failedChatIds,
+      error: failedChatIds.length
+        ? [photoResult.error, fallbackResult.error]
+          .filter(Boolean)
+          .join(" | ") || "Échec Telegram"
+        : null,
+    };
+  } catch (e: any) {
+    const generationError = e?.message || String(e);
+    console.error(
+      "❌ Génération image LIVE impossible, fallback texte détaillé:",
+      e,
+    );
+
+    const fallbackResult = await sendTelegramMessage(
+      detailedFallback,
+      liveUrl,
+      targetChatIds,
+    );
+
+    return {
+      ...fallbackResult,
+      error: fallbackResult.ok
+        ? null
+        : [generationError, fallbackResult.error]
+          .filter(Boolean)
+          .join(" | ") || "Échec Telegram",
     };
   }
-
-  const photoResult = await sendTelegramPhoto(
-    pngBytes,
-    shortCaption,
-    liveUrl,
-    targetChatIds,
-  );
-
-  if (!photoResult.ok) {
-    console.error("❌ Coupon LIVE image refusé par Telegram; aucun fallback texte:", {
-      prediction_id: predictionId ?? pred?.id ?? null,
-      error: photoResult.error,
-      failed_chat_ids: photoResult.failedChatIds,
-    });
-  }
-
-  return photoResult;
 }
 
 function validationStatusMeta(outcome: "success" | "failure") {
@@ -4247,6 +4244,18 @@ async function savePrediction(
   const thresholdNum = Number(safeNumber(pred.threshold, 0).toFixed(1));
   const signalValue = safeNumber(pred.signal_value ?? pred.current, 0);
 
+  // Snapshot du signal pour garder exactement la même cote au retry/à la validation.
+  pred.minute = pred.minute ?? match.current_minute ?? 0;
+  pred.projected_value = pred.projected_value ?? signalValue;
+  pred.signal_value = pred.signal_value ?? signalValue;
+  pred.home_score = pred.home_score ?? match.home_score ?? 0;
+  pred.away_score = pred.away_score ?? match.away_score ?? 0;
+
+  const livePricing = computeLiveCouponPricing(match, pred);
+  pred.live_odds = livePricing.odds;
+  pred.stake_fcfa = LIVE_COUPON_STAKE_FCFA;
+  pred.potential_gain_fcfa = livePricing.potentialGain;
+
   const payload: any = {
     match_id: matchId,
     match_name: `${match.home_team} vs ${match.away_team}`,
@@ -4256,7 +4265,7 @@ async function savePrediction(
     away_score: match.away_score ?? 0,
 
     minute: match.current_minute ?? 0,
-    league_name: match.league?.name ?? null,
+    league_name: match.league?.name ?? match.league_name ?? null,
 
     prediction_type: pred.type,
     probability: pred.probability,
@@ -4270,7 +4279,6 @@ async function savePrediction(
     validated: false,
     outcome: null,
 
-    // Etat Telegram explicite : évite les NULL ambigus et facilite le CLAIM atomique.
     telegram_sent: false,
     telegram_attempts: 0,
     telegram_last_attempt_at: null,
@@ -4280,7 +4288,6 @@ async function savePrediction(
     updated_at: new Date().toISOString(),
   };
 
-  // pré-check : d'abord validated=false (si index partiel), sinon fallback sans filtre
   const existingRunning = await findExistingPredictionId({
     match_id: matchId,
     prediction_type: pred.type,
@@ -4289,7 +4296,6 @@ async function savePrediction(
   });
   if (existingRunning) return { created: false, id: existingRunning };
 
-  // INSERT
   const { data, error } = await supabase
     .from("live_predictions")
     .insert({ ...payload, created_at: new Date().toISOString() })
@@ -4298,7 +4304,6 @@ async function savePrediction(
 
   if (error) {
     if (isDuplicateKeyError(error)) {
-      // race condition: quelqu’un a insert entre temps
       const id2 =
         (await findExistingPredictionId({
           match_id: matchId,
@@ -4326,19 +4331,34 @@ async function savePrediction(
 Pronostic: ${pred.title}
 Minute du signal: ${payload.minute}'
 Pronostic (seuil): ${payload.threshold}
-Au signal: ${signalValue}`,
+Au signal: ${signalValue}
+Cote calculée: ${formatReceiptOdds(livePricing.odds)}
+Mise coupon: ${formatReceiptMoney(LIVE_COUPON_STAKE_FCFA)}`,
     priority: pred.probability >= 0.86 ? "urgent" : "normal",
     read: false,
     related_prediction_id: data.id,
   });
 
-  // Dès qu'un nouveau signal est enregistré, on déclenche immédiatement
-  // une AUTRE invocation Edge dédiée au rendu/envoi Telegram.
-  // Le moteur LIVE ne charge jamais Satori/Resvg lui-même.
-  const telegramDispatched = await dispatchTelegramPrediction(data.id);
+  let telegramAttempted = false;
 
-  if (!telegramDispatched) {
-    console.log("📥 Coupon LIVE conservé en file pour retry Telegram", {
+  if (options.sendTelegram !== false) {
+    const claimed = await claimTelegramDelivery(data.id);
+
+    if (claimed) {
+      telegramAttempted = true;
+      const telegramDelivery = await sendTelegramLiveCoupon(
+        match,
+        pred,
+        data.id,
+      );
+      await markTelegramDelivery(data.id, telegramDelivery);
+    } else {
+      console.log("⏭️ Envoi Telegram ignoré: prediction déjà claimée", {
+        prediction_id: data.id,
+      });
+    }
+  } else {
+    console.log("📥 Coupon LIVE mis en file Telegram", {
       prediction_id: data.id,
     });
   }
@@ -4346,8 +4366,7 @@ Au signal: ${signalValue}`,
   return {
     created: true,
     id: data.id,
-    telegram_attempted: false,
-    telegram_dispatched: telegramDispatched,
+    telegram_attempted: telegramAttempted,
   };
 }
 
@@ -4955,7 +4974,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     Math.min(5, Math.floor(options.batchSize ?? LIVE_REFRESH_BATCH_SIZE)),
   );
   const cursor = String(options.cursor || "");
-  const allowTelegram = TELEGRAM_IN_REFRESH && options.allowTelegram === true;
+  const allowTelegram = TELEGRAM_IN_REFRESH && options.allowTelegram !== false;
   const refreshAt = nowIso();
 
   let allRawMatches: any[] = [];
@@ -5112,11 +5131,19 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     sendTelegram: allowTelegram,
   });
 
-  // Le rendu Telegram reste hors de ce lot LIVE. On demande simplement à
-  // une invocation enfant de reprendre UN coupon resté en attente.
-  // Ainsi les pronos déjà visibles sur le site mais non envoyés se réparent
-  // automatiquement au fil des refresh.
-  const telegramRetry = await dispatchOnePendingTelegramRetry();
+  // Au maximum UN rendu Telegram par lot, comme dans la version fonctionnelle.
+  // S'il y a déjà eu une validation instantanée avec image dans ce lot,
+  // on reporte le nouveau coupon au passage suivant.
+  const telegramRetry =
+    allowTelegram && safeNumber(instant.instant_validated, 0) === 0
+      ? await retryPendingTelegramLiveCoupons(normalizedMatches, 1)
+      : {
+        telegram_retry_enabled: true,
+        telegram_retry_processed: 0,
+        telegram_retry_sent: 0,
+        telegram_retry_failed: 0,
+        telegram_retry_skipped: 0,
+      };
 
   return {
     matches: normalizedMatches,
@@ -5238,7 +5265,7 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
 
   while (hasMore && batchNumber < LIVE_REFRESH_MAX_BATCHES) {
     let effectiveBatchSize = Math.max(1, Math.min(5, batchSize));
-    let allowTelegram = false;
+    let allowTelegram = true;
     let result: any = null;
 
     // Protection supplémentaire :
@@ -5249,7 +5276,7 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
         result = await invokeRefreshBatch(
           cursor,
           effectiveBatchSize,
-          false,
+          allowTelegram,
           skipBsd,
           batchNumber > 0,
         );
