@@ -1593,21 +1593,22 @@ async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint
     ? dt.toLocaleDateString("fr-FR", { timeZone: "UTC" }) + " (" +
       dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + ")"
     : formatTelegramSlipDateTime(match);
-  const minute = safeNumber(pred?.minute ?? match?.current_minute ?? match?.minute, 0);
+  const minute = safeNumber(pred?.signal_minute ?? pred?.minute ?? match?.current_minute ?? match?.minute, 0);
   const home = fitText(match?.home_team ?? "Équipe A", 18);
   const away = fitText(match?.away_team ?? "Équipe B", 18);
   const league = fitText(getLeagueName(match), 33);
-  const raw = match?.raw_data ?? {};
+  // Les statistiques de mi-temps doivent elles aussi venir du snapshot, jamais du match actualisé.
+  const raw = {signal_half1_home:pred?.signal_half1_home,signal_half1_away:pred?.signal_half1_away,signal_half2_home:pred?.signal_half2_home,signal_half2_away:pred?.signal_half2_away};
   const getNum = (...values: any[]) => {
     for (const v of values) if (v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v))) return Number(v);
     return null;
   };
-  const h1 = getNum(raw?.ht_home, raw?.home_ht, raw?.halftime_home, raw?.first_half_home);
-  const a1 = getNum(raw?.ht_away, raw?.away_ht, raw?.halftime_away, raw?.first_half_away);
-  const h2 = getNum(raw?.sh_home, raw?.home_sh, raw?.second_half_home, raw?.period2_home);
-  const a2 = getNum(raw?.sh_away, raw?.away_sh, raw?.second_half_away, raw?.period2_away);
-  const homeScore = h1 !== null && h2 !== null ? h1 + h2 : safeNumber(pred?.home_score ?? match?.home_score, 0);
-  const awayScore = a1 !== null && a2 !== null ? a1 + a2 : safeNumber(pred?.away_score ?? match?.away_score, 0);
+  const h1 = getNum(raw?.signal_half1_home);
+  const a1 = getNum(raw?.signal_half1_away);
+  const h2 = getNum(raw?.signal_half2_home);
+  const a2 = getNum(raw?.signal_half2_away);
+  const homeScore = h1 !== null && h2 !== null ? h1 + h2 : safeNumber(pred?.signal_home_score ?? pred?.home_score ?? match?.home_score, 0);
+  const awayScore = a1 !== null && a2 !== null ? a1 + a2 : safeNumber(pred?.signal_away_score ?? pred?.away_score ?? match?.away_score, 0);
   const periodText = h1 !== null && a1 !== null
     ? (h2 !== null && a2 !== null ? homeScore + ":" + awayScore + " (" + h1 + ":" + a1 + "," + h2 + ":" + a2 + ")" : homeScore + ":" + awayScore + " (" + h1 + ":" + a1 + ")")
     : "";
@@ -3841,7 +3842,7 @@ async function retryPendingTelegramLiveCoupons(
   const { data: pending, error } = await supabase
     .from("live_predictions")
     .select(
-      "id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, confidence, validated, telegram_sent, telegram_attempts, telegram_pending_chat_ids, created_at, signal_home_score, signal_away_score, signal_minute, live_odds, stake_fcfa, potential_gain_fcfa",
+      "id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, confidence, validated, telegram_sent, telegram_attempts, telegram_pending_chat_ids, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa",
     )
     .eq("validated", false)
     .order("created_at", { ascending: true })
