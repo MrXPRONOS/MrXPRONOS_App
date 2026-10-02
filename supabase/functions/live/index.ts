@@ -4303,7 +4303,7 @@ async function validatePredictionsInPlay(
 
   const { data: pending, error } = await supabase
     .from("live_predictions")
-    .select("id, match_id, match_name, prediction_type, threshold, validated")
+    .select("id, match_id, match_name, prediction_type, threshold, validated, telegram_sent, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa")
     .eq("validated", false);
 
   if (error) throw error;
@@ -4327,6 +4327,8 @@ async function validatePredictionsInPlay(
   let skipped = 0;
 
   for (const pred of pending) {
+    // Jamais valider avant la publication du coupon initial.
+    if(pred.telegram_sent!==true){skipped++;continue;}
     const match = liveMap.get(String(pred.match_id));
     if (!match) {
       skipped++;
@@ -5169,7 +5171,7 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
 async function validatePredictionsNow() {
   const { data: pending, error: pendingError } = await supabase
     .from("live_predictions")
-    .select("id, match_id, match_name, prediction_type, threshold, league_name, validated, created_at")
+    .select("id, match_id, match_name, prediction_type, threshold, league_name, validated, created_at, telegram_sent, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa")
     .eq("validated", false)
     .order("created_at", { ascending: false });
 
@@ -5181,6 +5183,8 @@ async function validatePredictionsNow() {
   let failed = 0;
 
   for (const pred of pending) {
+    // Le coupon accepté doit toujours précéder le résultat.
+    if(pred.telegram_sent!==true){skipped++;continue;}
     let ev: any = null;
     try {
       ev = await fetchBSD(`/events/${pred.match_id}/`);
