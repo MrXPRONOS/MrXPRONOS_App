@@ -1581,33 +1581,63 @@ function telegramPeriodScores(match: any) {
 }
 
 /** Dessin SVG direct : dimensions exactes de la capture, sans Satori. */
+// Tracés vectoriels: aucun glyphe dépendant du moteur de polices de Resvg.
+let telegramVectorFontsPromise: Promise<{regular:any;bold:any}> | null = null;
+async function getTelegramVectorFonts() {
+  if (!telegramVectorFontsPromise) telegramVectorFontsPromise = (async () => {
+    const module:any = await import("npm:opentype.js@1.3.4");
+    const op = module.default?.parse ? module.default : module;
+    const fonts = await loadFontData();
+    async function parse(bytes:ArrayBuffer, name:string){
+      try { const f=op.parse(bytes.slice(0)); if(!f?.unitsPerEm)throw Error("no glyphs"); return f; }
+      catch(e:any){
+        console.warn("Police locale rejetée, récupération source distante:",name,e?.message);
+        const clean=await fetchRemoteFont(name);
+        return op.parse(toExactArrayBuffer(clean));
+      }
+    }
+    const [regular,bold]=await Promise.all([
+      parse(fonts.regular,"NotoSans-Regular.ttf"),parse(fonts.bold,"NotoSans-Bold.ttf")
+    ]);
+    return {regular,bold};
+  })().catch((e:any)=>{telegramVectorFontsPromise=null;throw e;});
+  return await telegramVectorFontsPromise;
+}
+function telegramVectorText(font:any,x:number,y:number,raw:string,size:number,color:string,anchor:string){
+  const str=String(raw??"");
+  const width=font.getAdvanceWidth(str,size,{kerning:true});
+  const left=anchor==="end"?x-width:anchor==="middle"?x-width/2:x;
+  const data=font.getPath(str,left,y,size,{kerning:true}).toPathData(2);
+  return '<path fill="'+color+'" d="'+data+'"/>';
+}
 async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint8Array> {
   // Rendu 429 x 455 pixel : même ratio et placements que le coupon de référence.
   // Pas de Satori, pas de deuxième worker, et aucune cote bookmaker inventée.
   const { Resvg } = await loadTelegramResvgModule();
   await ensureResvgReady();
-  const fonts = await loadFontData();
+  const vectorFonts = await getTelegramVectorFonts();
   const esc = escapeXml;
   const dt = pred?.created_at ? new Date(pred.created_at) : new Date();
   const date = Number.isFinite(dt.getTime())
     ? dt.toLocaleDateString("fr-FR", { timeZone: "UTC" }) + " (" +
       dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + ")"
     : formatTelegramSlipDateTime(match);
-  const minute = safeNumber(pred?.minute ?? match?.current_minute ?? match?.minute, 0);
+  const minute = safeNumber(pred?.signal_minute ?? pred?.minute ?? match?.current_minute ?? match?.minute, 0);
   const home = fitText(match?.home_team ?? "Équipe A", 18);
   const away = fitText(match?.away_team ?? "Équipe B", 18);
   const league = fitText(getLeagueName(match), 33);
-  const raw = match?.raw_data ?? {};
+  // Les statistiques de mi-temps doivent elles aussi venir du snapshot, jamais du match actualisé.
+  const raw = {signal_half1_home:pred?.signal_half1_home,signal_half1_away:pred?.signal_half1_away,signal_half2_home:pred?.signal_half2_home,signal_half2_away:pred?.signal_half2_away};
   const getNum = (...values: any[]) => {
     for (const v of values) if (v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v))) return Number(v);
     return null;
   };
-  const h1 = getNum(raw?.ht_home, raw?.home_ht, raw?.halftime_home, raw?.first_half_home);
-  const a1 = getNum(raw?.ht_away, raw?.away_ht, raw?.halftime_away, raw?.first_half_away);
-  const h2 = getNum(raw?.sh_home, raw?.home_sh, raw?.second_half_home, raw?.period2_home);
-  const a2 = getNum(raw?.sh_away, raw?.away_sh, raw?.second_half_away, raw?.period2_away);
-  const homeScore = h1 !== null && h2 !== null ? h1 + h2 : safeNumber(pred?.home_score ?? match?.home_score, 0);
-  const awayScore = a1 !== null && a2 !== null ? a1 + a2 : safeNumber(pred?.away_score ?? match?.away_score, 0);
+  const h1 = getNum(raw?.signal_half1_home);
+  const a1 = getNum(raw?.signal_half1_away);
+  const h2 = getNum(raw?.signal_half2_home);
+  const a2 = getNum(raw?.signal_half2_away);
+  const homeScore = h1 !== null && h2 !== null ? h1 + h2 : safeNumber(pred?.signal_home_score ?? pred?.home_score ?? match?.home_score, 0);
+  const awayScore = a1 !== null && a2 !== null ? a1 + a2 : safeNumber(pred?.signal_away_score ?? pred?.away_score ?? match?.away_score, 0);
   const periodText = h1 !== null && a1 !== null
     ? (h2 !== null && a2 !== null ? homeScore + ":" + awayScore + " (" + h1 + ":" + a1 + "," + h2 + ":" + a2 + ")" : homeScore + ":" + awayScore + " (" + h1 + ":" + a1 + ")")
     : "";
@@ -1630,9 +1660,8 @@ async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint
   const football = (x:number,y:number,sz:number) => '<image href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAFF0lEQVR42u1VW2xUVRRd+5y5986LPqZDW8pDkFKKlacFIYApMUBi8Es7H0ZJ0AQT44/GaPTDdj410R/Dh/ERxejHHYwaYwg+QiMGQRSwUKCAUGg70NJ5dQZm7r3nnu1HLZZnSPx155yPk5ystc86e+9FuEswsyQif/L84de/NJWvFZrIEOVIPPjXtg0bKpP3AGgi4psxxJ3AO21bEpG/Z8/RyFhJbfti977v8vkrx5TyDngV94/CcOnI4f6ht0ZKvJSIfCJiZqZ7IrCZZSqR8LMlb8vKdYuPpEezH4/lxx+TgmJaawmtLa391vPpkVeVUz48WvR2MHOYiLirq+sGzFsYbduWiUTC/2DX9y821E9/zzICCAjhHeo9TpZpCmYmEoId1+PGeEzPnzNLllwlCoXC/uHC+OMvd27OAcCkXHQ78Hd2fvVE0ArtKhXHVbniYG37MpnJFXD6/AWEghZ8rSGEwPr25TjU24fc+Lgbj0+3nPLVvYVztZuADp1MEgNgOeVDqa2tjZtaHop7GrtZ+yECwTACMpMrYFHzPDAzIqEQQpaJ1vlzkR4ZRSQckp7jeJFpVc1GpJh9/aVFB2zblqlUiq/r1d3TI4mI8473XCgcme56ns9gQUTwlAIJQkO8DvHaGkyvi6F6WhRlxwERgZnBIFkpl7Wn1Svbu94PJxIJDYBoSk2SlJI/+7bn4Eg2t1L7vk+ALDsOlrQuQKXi4OiJ0wgGLfi+RjgUxNr2pTh49Dh834cQAspTOhaLyaWtCzauarvvR5tZikl5gQ34+teLC1OWgYpHxfeEohVl2NaCSC0wODmBaNwDQMhMNBlCsOBtMjaJk3B67rgZnhKaWXPNDC82bPWAEAnQAFAKB74rN5oP9ydU1NKPLw8sXI5PLQmtEYj+FwXz+U8iEtAc0a8AHLDODshUFsWr8aa9uXwfU8SCExf84sKhbG6yaFmSTgJIDmWY3ldC7j9Z48beWLJYAZV7I5NDXEcTF9GQTCxCI4rotZjQ3IjxdxrP8sTCMA11Ooi9dxY13N1RsabbJmIxGM9Z46M3wlV2DX9dhTCgNDw5BCYE5TA8ZLJbiuh3KlAiJC89zZ6D83AMf1UHZcOK5LR/pOUfrSlRMA0NPTM/ECAOjq2hsgIvX2R6mfotGqhVevFbUACcs00XfmHNqXtCESCgEEKOVjRn0co5ksiqVrCFomtNYctCwxlhkrfjN08WcA6Ojo8Ke0dYcGAMs0djhOWUkSREIwM8MIBCAEQbO+vn2tYZkmGAwiAkAqFI4IKeSnyRe2jtoTs4xv28nvfvJlMhStejOXzTi+r41HVq2ggaFhDAylYRoGmAEGo2N1O473n8Wl0TFVVVVlgHnQgF4+du7PXHd3N99CAIBsm0UiIfzUD/t3NjY0PONVyr6nlP792EkZskzSPJGxUopra6p56cIWv1ipmEqpsYuD6Y3bE5uPdjGLJJG+XkVTLaCzE7qLtXjKMLYOZ64OCSlfu5geMYxAAJpZA6yZiZghp0WjaFkwVyrPPxiPymdpzeITtm3LxBQPuWVcExEnAfaUovpq641MNr9mZmP9502N9SMkhAiGwgHLsqRpmZXW++f+qlzv+Se3PLqOiE5MSjwVL3Bbt/mnbG1muZDoNwBP7+u9UJvJlhZqz61Tksrxhtrzy1tmnp8yLMVU97vnYGZh879T9+ZUmFnezsnuaDh3IaJUKnVd0r6+Pk4mkxr/x3+NvwHWHqQSNvXFqQAAAABJRU5ErkJggg==" x="'+x+'" y="'+y+'" width="'+sz+'" height="'+sz+'"/>';
   const circle = (logo:string,x:number,name:string) => logo
     ? '<image href="'+logo+'" x="'+x+'" y="282" width="34" height="34" preserveAspectRatio="xMidYMid meet"/>'
-    : '<circle cx="'+(x+17)+'" cy="299" r="16" fill="#eff2f4" stroke="#a8b6c2"/><text x="'+(x+17)+'" y="303" text-anchor="middle" font-size="9" font-weight="700" fill="#1e3645">'+esc(getTeamInitials(name))+'</text>';
-  const tx=(x:number,y:number,txt:string,size:number,color="#1c3242",weight=700,anchor="start") =>
-    '<text x="'+x+'" y="'+y+'" font-family="Noto Sans" font-size="'+size+'" font-weight="'+weight+'" text-anchor="'+anchor+'" fill="'+color+'">'+esc(txt)+'</text>';
+    : '<circle cx="'+(x+17)+'" cy="299" r="16" fill="#eff2f4" stroke="#a8b6c2"/>'+telegramVectorText(vectorFonts.bold,x+17,303,getTeamInitials(name),9,"#1e3645","middle");
+  const tx=(x:number,y:number,txt:string,size:number,color="#1c3242",weight=700,anchor="start") => telegramVectorText(weight>=700?vectorFonts.bold:vectorFonts.regular,x,y,txt,size,color,anchor);
   const svg='<svg xmlns="http://www.w3.org/2000/svg" width="429" height="455" viewBox="0 0 429 455">'+
     '<rect width="429" height="455" rx="9" fill="#fff" stroke="#dbe0e5"/>'+
     '<circle cx="42" cy="48" r="25" fill="#ecf1f4"/>'+football(29,35,26)+
@@ -1656,10 +1685,7 @@ async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint
     tx(19,410,"EN DIRECT",13,"#869aa7")+tx(412,410,"temps écoulé : "+formatTelegramClock(minute),13,"#24333e",700,"end")+
     tx(19,439,"Statut:",13,"#869aa7")+tx(412,439,slipStatus,13,statusColor,700,"end")+
     '</svg>';
-  const renderer = new Resvg(svg,{
-    fitTo:{mode:"original"},
-    font:{fontBuffers:[new Uint8Array(fonts.regular),new Uint8Array(fonts.bold)],defaultFontFamily:"Noto Sans",sansSerifFamily:"Noto Sans"}
-  });
+  const renderer = new Resvg(svg,{fitTo:{mode:"original"}});
   const png = renderer.render().asPng();
   if (!png || png.byteLength < 1500) throw new Error("PNG SVG Telegram invalide");
   return png;
@@ -3841,7 +3867,7 @@ async function retryPendingTelegramLiveCoupons(
   const { data: pending, error } = await supabase
     .from("live_predictions")
     .select(
-      "id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, confidence, validated, telegram_sent, telegram_attempts, telegram_pending_chat_ids, created_at, signal_home_score, signal_away_score, signal_minute, live_odds, stake_fcfa, potential_gain_fcfa",
+      "id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, confidence, validated, telegram_sent, telegram_attempts, telegram_pending_chat_ids, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa",
     )
     .eq("validated", false)
     .order("created_at", { ascending: true })
