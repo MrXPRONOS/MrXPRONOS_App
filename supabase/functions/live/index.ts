@@ -2734,87 +2734,24 @@ function buildTelegramValidationFallbackText(
 }
 
 async function sendTelegramValidationResult(
-  match: any,
-  pred: any,
-  outcome: "success" | "failure",
-  currentValue: number,
-  validationType: "instant" | "final",
-  predictionId?: string | number | null,
-) {
-  const liveUrl = "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/";
-  const shortCaption = buildTelegramValidationText(pred, outcome, currentValue);
-  const detailedFallback = buildTelegramValidationFallbackText(
-    match,
-    pred,
-    outcome,
-    currentValue,
-    validationType,
-  );
-  const renderPred = predictionId == null ? pred : { ...pred, id: predictionId };
-
-  let pngBytes: Uint8Array | null = null;
-  let primaryRenderError = "";
-
-  try {
-    pngBytes = await buildTelegramValidationPng(
-      match,
-      renderPred,
-      outcome,
-      currentValue,
-      validationType,
+  match:any,pred:any,outcome:"success"|"failure",currentValue:number,
+  validationType:"instant"|"final",predictionId?:string|number|null
+){
+  try{
+    // SVG direct validé: même police que les coupons LIVE, aucun appel Satori.
+    const snapshotPred={...pred,id:predictionId??pred?.id};
+    const png=await buildTelegramCouponPngDirect(
+      {...match,current_minute:match?.current_minute??(validationType==="final"?90:0)},
+      snapshotPred
     );
-    console.log("✅ PNG VALIDATION généré", {
-      bytes: pngBytes.byteLength,
-      outcome,
-      validationType,
-    });
-  } catch (e: any) {
-    primaryRenderError = e?.stack || e?.message || String(e);
-    console.error(
-      "❌ Nouveau rendu VALIDATION impossible, tentative du rendu image sécurisé:",
-      primaryRenderError,
-    );
-
-    try {
-      pngBytes = await buildTelegramValidationPngSafe(
-        match,
-        renderPred,
-        outcome,
-        currentValue,
-        validationType,
-      );
-      console.log("✅ PNG VALIDATION de secours généré", {
-        bytes: pngBytes.byteLength,
-        outcome,
-        validationType,
-      });
-    } catch (safeError: any) {
-      const safeDetail = safeError?.stack || safeError?.message || String(safeError);
-      console.error("❌ Les deux rendus image VALIDATION ont échoué:", {
-        primary: primaryRenderError,
-        safe: safeDetail,
-      });
-
-      const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl);
-      return fallbackResult.ok;
-    }
+    const result=await sendTelegramPhoto(png,buildTelegramValidationText(pred,outcome,currentValue),
+      "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/");
+    if(!result.ok)console.error("TELEGRAM_VALIDATION_IMAGE_SEND_FAILED",result.error);
+    return result.ok;
+  }catch(e:any){
+    console.error("TELEGRAM_VALIDATION_IMAGE_FAILED",e?.stack||e?.message||String(e));
+    return false; // Aucun fallback texte; la validation persiste et peut être retentée.
   }
-
-  if (!pngBytes) {
-    const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl);
-    return fallbackResult.ok;
-  }
-
-  const photoResult = await sendTelegramPhoto(pngBytes, shortCaption, liveUrl);
-  if (photoResult.ok) return true;
-
-  const fallbackTargets = photoResult.failedChatIds.length
-    ? photoResult.failedChatIds
-    : telegramChatIds();
-
-  console.warn("⚠️ Envoi image VALIDATION incomplet, fallback texte détaillé:", photoResult.error);
-  const fallbackResult = await sendTelegramMessage(detailedFallback, liveUrl, fallbackTargets);
-  return fallbackResult.ok;
 }
 
 function computeMomentum(stats: any) {
@@ -3900,7 +3837,7 @@ async function retryPendingTelegramLiveCoupons(
   const { data: pending, error } = await supabase
     .from("live_predictions")
     .select(
-      "id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, confidence, validated, telegram_sent, telegram_attempts, telegram_pending_chat_ids, created_at",
+      "id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, confidence, validated, telegram_sent, telegram_attempts, telegram_pending_chat_ids, created_at, signal_home_score, signal_away_score, signal_minute, live_odds, stake_fcfa, potential_gain_fcfa",
     )
     .eq("validated", false)
     .order("created_at", { ascending: true })
@@ -4018,6 +3955,26 @@ async function retryPendingTelegramLiveCoupons(
 }
 
 
+// Cote INDICATIVE calculée : ne correspond pas à une cote 1xBet/Melbet vérifiée.
+function computeLiveCouponPricing(match: any, pred: any) {
+  const explicit=pickTelegramNumber(pred?.live_odds,pred?.odds,pred?.odd,pred?.cote);
+  const probability=Math.min(0.95,Math.max(0.20,safeNumber(pred?.probability,0.78)));
+  const upper=String(pred?.prediction_type??pred?.type??"")==="total_shots"?2.45:2.35;
+  const odds=explicit!==null&&explicit>1?Number(explicit.toFixed(2)):
+    Number(Math.min(upper,Math.max(1.08,0.94/probability)).toFixed(2));
+  return {odds,potentialGain:Math.round(LIVE_COUPON_STAKE_FCFA*odds),source:explicit!==null&&explicit>1?"provided":"calculated"};
+}
+
+function signalPeriodCapture(match:any){
+  const raw=match?.raw_data??match?.raw??match??{};
+  const first=(...vs:any[])=>{for(const v of vs)if(v!==null&&v!==undefined&&v!==""&&Number.isFinite(Number(v)))return Number(v);return null};
+  return {
+    signal_half1_home:first(raw?.ht_home,raw?.home_ht,raw?.halftime_home,raw?.first_half_home),
+    signal_half1_away:first(raw?.ht_away,raw?.away_ht,raw?.halftime_away,raw?.first_half_away),
+    signal_half2_home:first(raw?.sh_home,raw?.home_sh,raw?.second_half_home,raw?.period2_home),
+    signal_half2_away:first(raw?.sh_away,raw?.away_sh,raw?.second_half_away,raw?.period2_away)
+  };
+}
 /**
  * ✅ savePrediction :
  * - INSERT only
@@ -4049,10 +4006,18 @@ async function savePrediction(
     match_name: `${match.home_team} vs ${match.away_team}`,
     home_team: match.home_team ?? null,
     away_team: match.away_team ?? null,
-    home_score: match.home_score ?? 0,
-    away_score: match.away_score ?? 0,
+    home_score: pred.home_score,
+    away_score: pred.away_score,
+    signal_home_score: pred.home_score,
+    signal_away_score: pred.away_score,
+    signal_minute: pred.minute,
+    ...signalPeriodCapture(match),
+    live_odds: livePricing.odds,
+    stake_fcfa: LIVE_COUPON_STAKE_FCFA,
+    potential_gain_fcfa: livePricing.potentialGain,
+    odds_source: livePricing.source,
 
-    minute: match.current_minute ?? 0,
+    minute: pred.minute,
     league_name: match.league?.name ?? match.league_name ?? null,
 
     prediction_type: pred.type,
@@ -4454,6 +4419,14 @@ function predictionRowToUi(p: any) {
     validation_type: p.validation_type ?? null,
 
     created_at: p.created_at ?? null,
+    signal_home_score:p.signal_home_score,signal_away_score:p.signal_away_score,
+    signal_minute:p.signal_minute,signal_half1_home:p.signal_half1_home,
+    signal_half1_away:p.signal_half1_away,signal_half2_home:p.signal_half2_home,
+    signal_half2_away:p.signal_half2_away,
+    home_score:p.signal_home_score,away_score:p.signal_away_score,
+    minute:p.signal_minute,live_odds:p.live_odds,
+    stake_fcfa:p.stake_fcfa,potential_gain_fcfa:p.potential_gain_fcfa,
+    odds_source:p.odds_source,
   };
 }
 
@@ -4474,7 +4447,7 @@ async function getLiveMatchesFromDb(maxAgeSeconds = 240) {
 
   const { data: preds, error: predErr } = await supabase
     .from("live_predictions")
-    .select("id, match_id, prediction_type, probability, message, threshold, current_value, projected_value, confidence, validated, outcome, validation_type, created_at")
+    .select("id, match_id, prediction_type, probability, message, threshold, current_value, projected_value, confidence, validated, outcome, validation_type, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source")
     .in("match_id", ids)
     .eq("validated", false)
     .order("created_at", { ascending: false });
@@ -5314,6 +5287,16 @@ function enrichPredictionForUi(p: any, raw: any) {
     validated_at: p.validated_at ?? null,
 
     timestamp: new Date(p.created_at).getTime(),
+    created_at:p.created_at,
+    signal_home_score:p.signal_home_score,signal_away_score:p.signal_away_score,
+    signal_minute:p.signal_minute,
+    signal_half1_home:p.signal_half1_home,signal_half1_away:p.signal_half1_away,
+    signal_half2_home:p.signal_half2_home,signal_half2_away:p.signal_half2_away,
+    home_score:p.signal_home_score??p.home_score??0,
+    away_score:p.signal_away_score??p.away_score??0,
+    minute:p.signal_minute??p.minute??null,
+    live_odds:p.live_odds,stake_fcfa:p.stake_fcfa,
+    potential_gain_fcfa:p.potential_gain_fcfa,odds_source:p.odds_source
   };
 }
 
@@ -6706,7 +6689,7 @@ serve(async (req) => {
 
       const { data, error } = await supabase
         .from("live_predictions")
-        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at")
+        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source")
         .gte("created_at", since)
         .order("created_at", { ascending: false });
 
@@ -6730,7 +6713,7 @@ serve(async (req) => {
 
       const { data: p, error } = await supabase
         .from("live_predictions")
-        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at")
+        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source")
         .eq("id", id)
         .maybeSingle();
 
