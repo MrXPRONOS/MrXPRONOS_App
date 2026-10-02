@@ -1547,138 +1547,137 @@ function telegramSvgLogo(
   `;
 }
 
-async function buildTelegramCouponPngDirect(
-  match: any,
-  pred: any,
-): Promise<Uint8Array> {
-  const { Resvg } = await loadTelegramResvgModule();
-  await ensureResvgReady();
-  const fonts = await loadFontData();
 
-  const minute = Math.max(
-    0,
-    safeNumber(match?.current_minute ?? match?.minute, 0),
-  );
-  const homeScore = safeNumber(match?.home_score, 0);
-  const awayScore = safeNumber(match?.away_score, 0);
-  const threshold = formatThreshold(
-    pred?.threshold ?? pred?.pronostic ?? pred?.line ?? pred?.target_value ?? "",
-  );
-  const market = telegramMarketLabel(
-    pred?.prediction_type ?? pred?.type,
-  );
-  const selection =
-    market === "signal"
-      ? `Plus de ${threshold}`
-      : `Total plus de ${threshold} ${market}`;
-
-  const homeName = fitText(match?.home_team ?? "Équipe A", 24);
-  const awayName = fitText(match?.away_team ?? "Équipe B", 24);
-  const leagueName = fitText(getLeagueName(match), 34);
-  const eventDateText = formatTelegramSlipDateTime(match);
-  const slipNumber = String(
-    pred?.id ??
-      pred?.prediction_id ??
-      match?.id ??
-      buildCanonicalMatchId(match),
-  )
-    .replace(/[^0-9A-Za-z]/g, "")
-    .slice(-12) || "MRXPRONOS";
-
-  const currentValue = safeNumber(
-    pred?.current_value ??
-      pred?.current ??
-      pred?.projected_value ??
-      pred?.signal_value,
-    0,
-  );
-
-  const odds = telegramCalculatedLiveOdds(pred);
-  const stake = 500_000;
-  const potential = Math.round(stake * odds);
-
-  const [homeLogo, awayLogo] = await Promise.all([
-    getTelegramLogoData(match, "home"),
-    getTelegramLogoData(match, "away"),
-  ]);
-
-  const homeInitials = getTeamInitials(homeName);
-  const awayInitials = getTeamInitials(awayName);
-
-  const svg = `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1030" viewBox="0 0 1080 1030">
-  <rect width="1080" height="1030" fill="#EEF2F6"/>
-
-  <rect x="0" y="0" width="1080" height="112" fill="#050505"/>
-  <text x="34" y="73" font-family="Noto Sans" font-size="48" font-weight="700" fill="#FFFFFF">1XBET</text>
-  <text x="205" y="71" font-family="Noto Sans" font-size="22" font-weight="700" fill="#FFFFFF">OU</text>
-  <text x="260" y="73" font-family="Noto Sans" font-size="48" font-weight="700" fill="#FFFFFF">MELBET</text>
-  <rect x="715" y="22" width="333" height="68" rx="8" fill="#F1CF36"/>
-  <text x="881" y="66" text-anchor="middle" font-family="Noto Sans" font-size="30" font-weight="700" fill="#111111">CODE PROMO XPVIP</text>
-
-  <rect x="18" y="130" width="1044" height="874" rx="20" fill="#FFFFFF" stroke="#CDD5DD" stroke-width="2"/>
-
-  <text x="42" y="184" font-family="Noto Sans" font-size="27" fill="#8FA0AE">${escapeXml(eventDateText)}</text>
-  <text x="42" y="238" font-family="Noto Sans" font-size="48" font-weight="700" fill="#1A3B57">Simple</text>
-  <text x="195" y="237" font-family="Noto Sans" font-size="31" fill="#4D6881">N° ${escapeXml(slipNumber)}</text>
-  <rect x="884" y="164" width="142" height="42" rx="8" fill="#EF3D33"/>
-  <text x="955" y="193" text-anchor="middle" font-family="Noto Sans" font-size="24" font-weight="700" fill="#FFFFFF">EN DIRECT</text>
-
-  <line x1="18" y1="270" x2="1062" y2="270" stroke="#D8DDE2" stroke-width="2"/>
-
-  <text x="42" y="324" font-family="Noto Sans" font-size="30" font-weight="700" fill="#8296A7">Cote calculée :</text>
-  <text x="1024" y="324" text-anchor="end" font-family="Noto Sans" font-size="32" font-weight="700" fill="#1D3D56">${odds.toFixed(2)}</text>
-
-  <text x="42" y="373" font-family="Noto Sans" font-size="30" font-weight="700" fill="#8296A7">Mise :</text>
-  <text x="1024" y="373" text-anchor="end" font-family="Noto Sans" font-size="32" font-weight="700" fill="#1D3D56">500 000 F</text>
-
-  <text x="42" y="422" font-family="Noto Sans" font-size="30" font-weight="700" fill="#8296A7">Gain potentiel :</text>
-  <text x="1024" y="422" text-anchor="end" font-family="Noto Sans" font-size="32" font-weight="700" fill="#58A95C">${potential.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")} F</text>
-
-  <text x="42" y="471" font-family="Noto Sans" font-size="30" font-weight="700" fill="#8296A7">Statut :</text>
-  <text x="1024" y="471" text-anchor="end" font-family="Noto Sans" font-size="32" font-weight="700" fill="#4A94D8">Accepté</text>
-
-  <line x1="18" y1="500" x2="1062" y2="500" stroke="#D8DDE2" stroke-width="2"/>
-
-  <text x="42" y="552" font-family="Noto Sans" font-size="25" fill="#71879A">Football · ${escapeXml(leagueName)}</text>
-  <text x="1024" y="552" text-anchor="end" font-family="Noto Sans" font-size="25" font-weight="700" fill="#EF3D33">${Math.floor(minute)}'</text>
-
-  ${telegramSvgLogo(homeLogo, 130, 610, 90, homeInitials)}
-  ${telegramSvgLogo(awayLogo, 860, 610, 90, awayInitials)}
-
-  <text x="340" y="646" text-anchor="end" font-family="Noto Sans" font-size="30" font-weight="700" fill="#16324B">${escapeXml(homeName)}</text>
-  <text x="740" y="646" font-family="Noto Sans" font-size="30" font-weight="700" fill="#16324B">${escapeXml(awayName)}</text>
-
-  <text x="540" y="650" text-anchor="middle" font-family="Noto Sans" font-size="44" font-weight="700" fill="#1A3B57">${homeScore} - ${awayScore}</text>
-
-  <rect x="42" y="742" width="996" height="112" rx="14" fill="#F5F8FA" stroke="#D8E0E7" stroke-width="2"/>
-  <text x="70" y="789" font-family="Noto Sans" font-size="25" fill="#8296A7">PRONOSTIC LIVE</text>
-  <text x="70" y="832" font-family="Noto Sans" font-size="34" font-weight="700" fill="#16324B">${escapeXml(selection)}</text>
-
-  <text x="42" y="910" font-family="Noto Sans" font-size="27" fill="#8296A7">Valeur actuelle :</text>
-  <text x="1024" y="910" text-anchor="end" font-family="Noto Sans" font-size="30" font-weight="700" fill="#16324B">${escapeXml(currentValue)}</text>
-
-  <text x="42" y="956" font-family="Noto Sans" font-size="25" fill="#8296A7">Temps écoulé :</text>
-  <text x="1024" y="956" text-anchor="end" font-family="Noto Sans" font-size="28" font-weight="700" fill="#263948">${Math.floor(minute)}:00</text>
-</svg>`;
-
-  const resvg = new Resvg(svg, {
-    fitTo: { mode: "original" },
-    font: {
-      fontBuffers: [
-        new Uint8Array(fonts.regular),
-        new Uint8Array(fonts.bold),
-      ],
-      defaultFontFamily: "Noto Sans",
-      sansSerifFamily: "Noto Sans",
-    },
-  });
-
-  const png = resvg.render().asPng();
-  if (!png || png.byteLength < 1000) {
-    throw new Error(`PNG direct invalide (${png?.byteLength || 0} octets)`);
+/** Affichage du score de la capture. Aucun score de mi-temps n'est inventé. */
+function telegramPeriodScores(match: any) {
+  const raw = match?.raw_data ?? match?.raw ?? match ?? {};
+  const select = (...xs: any[]) => {
+    for (const x of xs) {
+      if (x === null || x === undefined || x === "") continue;
+      const n = Number(x);
+      if (Number.isFinite(n) && n >= 0) return n;
+    }
+    return null;
+  };
+  const p1h = select(raw?.ht_home,raw?.home_ht,raw?.halftime_home,raw?.first_half_home,raw?.periods?.first?.home,raw?.periods?.[0]?.home);
+  const p1a = select(raw?.ht_away,raw?.away_ht,raw?.halftime_away,raw?.first_half_away,raw?.periods?.first?.away,raw?.periods?.[0]?.away);
+  const p2h = select(raw?.sh_home,raw?.home_sh,raw?.second_half_home,raw?.periods?.second?.home,raw?.periods?.[1]?.home);
+  const p2a = select(raw?.sh_away,raw?.away_sh,raw?.second_half_away,raw?.periods?.second?.away,raw?.periods?.[1]?.away);
+  let home = safeNumber(match?.home_score,0), away=safeNumber(match?.away_score,0);
+  let detail = "";
+  if([p1h,p1a,p2h,p2a].every(x=>x !== null)){
+    home=p1h+p2h; away=p1a+p2a;
+    detail=home+":"+away+" ("+p1h+":"+p1a+", "+p2h+":"+p2a+")";
+  } else if(p1h !== null && p1a !== null && home >= p1h && away >= p1a) {
+    const secondStarted=safeNumber(match?.current_minute ?? match?.minute,0)>45;
+    if(secondStarted) detail=home+":"+away+" ("+p1h+":"+p1a+", "+(home-p1h)+":"+(away-p1a)+")";
+    else detail=home+":"+away+" ("+p1h+":"+p1a+")";
+  } else {
+    const supplied=String(raw?.score_detail ?? raw?.display_score ?? "").trim();
+    // Une chaîne fournie par le fournisseur uniquement, pas de score fictif.
+    if(/^\d+:\d+\s*\(\d+:\d+/.test(supplied))detail=supplied.slice(0,34);
   }
+  return {home,away,detail};
+}
 
+/** Dessin SVG direct : dimensions exactes de la capture, sans Satori. */
+async function buildTelegramCouponPngDirect(match: any,pred: any):Promise<Uint8Array>{
+  const [{Resvg},fonts,homeLogo,awayLogo]=await Promise.all([
+    loadTelegramResvgModule(),
+    Promise.all([
+      readBundledTelegramFont("NotoSans-Regular.ttf"),
+      readBundledTelegramFont("NotoSans-Bold.ttf")
+    ]),
+    getTelegramLogoData(match,"home"),
+    getTelegramLogoData(match,"away")
+  ]);
+  await ensureResvgReady();
+  const score=telegramPeriodScores(match);
+  const minute=safeNumber(match?.current_minute ?? match?.minute,0);
+  const odds=telegramCalculatedLiveOdds(pred);
+  const selection=buildTelegramSelectionText(pred);
+  const stake=500000;
+  const potential=Math.round(stake*odds);
+  const formatMoney=(n:number)=>Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g," ")+" F";
+  const home=fitText(match?.home_team??"Équipe A",19),away=fitText(match?.away_team??"Équipe B",19);
+  const league=fitText(getLeagueName(match),31);
+  const date=formatTelegramSlipDateTime(match);
+  const number=String(pred?.id??pred?.prediction_id??match?.id??"").replace(/[^a-zA-Z0-9]/g,"").slice(-11);
+  const type=String(pred?.prediction_type??pred?.type??"");
+  const longName=selection.length>39?selection.slice(0,38)+"…":selection;
+  const timeLabel=formatTelegramClock(minute);
+  const escape=escapeXml;
+  // Ce pictogramme reproduit le ballon bleu/gris fourni par l'utilisateur.
+  const football=String.raw\`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="11.4" fill="#eef2f4"/>
+    <path d="M9 2 14 2 17 7 14.4 10.4 9.5 10.4 7 7Z" fill="#8EA5B3"/>
+    <path d="m1 9 6-2 2.5 3.4L7 15.4 2.5 16Z" fill="#98ADBA"/>
+    <path d="m17 7 6 2-1.5 7L17 15.4l-2.6-5Z" fill="#98ADBA"/>
+    <path d="m9.5 10.4 4.9 0 2.6 5-5 5-5-5Z" fill="#90A6B4"/>
+    <path d="M5 19 7 15.4l5 5-1 3A12 12 0 0 1 5 19ZM19 19l-7 1.4 1 3A12 12 0 0 0 19 19Z" fill="#91A9B9"/>
+  </svg>\`;
+  const ball="data:image/svg+xml;base64,"+btoa(football);
+  const team=(logo:string,x:number,y:number,initials:string)=>{
+    if(logo) return '<image href="'+logo+'" x="'+x+'" y="'+y+'" width="34" height="34" preserveAspectRatio="xMidYMid meet"/>';
+    return '<circle cx="'+(x+17)+'" cy="'+(y+17)+'" r="16" fill="#edf3f5" stroke="#88a4b2"/>'+
+      '<text x="'+(x+17)+'" y="'+(y+21)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#193748">'+escape(initials)+'</text>';
+  };
+  const homeInitials=getTeamInitials(home),awayInitials=getTeamInitials(away);
+  const svg=\`<svg xmlns="http://www.w3.org/2000/svg" width="429" height="455" viewBox="0 0 429 455">
+    <rect width="429" height="455" fill="white"/><circle cx="42" cy="48" r="25" fill="#edf1f4"/>
+    <image href="\${ball}" x="30" y="37" width="24" height="24"/>
+    <circle cx="62" cy="69" r="9.5" fill="#29b573"/><path d="m58 69 3 3 5-7" stroke="white" stroke-width="1.7" fill="none"/>
+    <g font-family="Noto Sans" fill="#20313c">
+      <text x="80" y="34" fill="#8395a5" font-size="12" font-weight="700">\${escape(date)}</text>
+      <text x="80" y="55" font-size="19" font-weight="700">Simple</text>
+      <text x="80" y="72" font-size="10">N° \${escape(number)}</text>
+    </g>
+    <rect x="348" y="24" width="67" height="13" rx="3" fill="#ef4338"/><text x="381.5" y="33.3" text-anchor="middle" font-family="Noto Sans" font-size="9" font-weight="700" fill="white">• En direct</text>
+    <path d="M0 87 H429" stroke="#e1e6e9"/>
+    <g font-family="Noto Sans" font-weight="700">
+      <g font-size="15" fill="#8395a3">
+        <text x="16" y="114">Cotes:</text><text x="16" y="141">Mise:</text>
+        <text x="16" y="167">Gains:</text><text x="16" y="193">Statut:</text>
+      </g>
+      <g font-size="15" text-anchor="end">
+        <text x="414" y="114" fill="#243240">\${odds.toFixed(2)}</text>
+        <text x="414" y="141" fill="#243240">500 000 F</text>
+        <text x="414" y="167" fill="#4dba67">\${formatMoney(potential)}</text>
+        <text x="414" y="193" fill="#4d95d6">Accepté</text>
+      </g>
+    </g>
+    <path d="M0 211 H429" stroke="#eff3f5" stroke-width="8"/>
+    <rect x="7" y="219" width="415" height="234" rx="12" fill="#fbfbfb" stroke="#dae1e7"/>
+    <image href="\${ball}" x="19" y="236" width="23" height="23"/>
+    <text x="52" y="244" font-family="Noto Sans" font-size="12" font-weight="700" fill="#8195a3">Football · \${escape(league)}</text>
+    <text x="52" y="261" font-family="Noto Sans" font-size="12" font-weight="700" fill="#8195a3">\${escape(date)}</text>
+    <rect x="352" y="225" width="67" height="13" rx="3" fill="#ef4338"/>
+    <text x="385.5" y="234.5" text-anchor="middle" font-family="Noto Sans" font-size="9" font-weight="700" fill="white">• En direct</text>
+    <text x="138" y="304" text-anchor="end" font-family="Noto Sans" font-size="13" font-weight="700" fill="#243240">\${escape(home)}</text>
+    \${team(homeLogo,148,283,homeInitials)}
+    <text x="216" y="306" text-anchor="middle" font-family="Noto Sans" font-size="19" font-weight="700" fill="#243240">\${score.home}:\${score.away}</text>
+    \${team(awayLogo,249,283,awayInitials)}
+    <text x="294" y="304" font-family="Noto Sans" font-size="13" font-weight="700" fill="#243240">\${escape(away)}</text>
+    <text x="216" y="352" text-anchor="middle" font-family="Noto Sans" font-size="12" fill="#8398a8">\${escape(score.detail)}</text>
+    <path d="M8 363 H422" stroke="#dde2e7"/>
+    <text x="20" y="383" font-family="Noto Sans" font-size="13.5" font-weight="700" fill="#243240">\${escape(longName)}</text>
+    <text x="412" y="383" text-anchor="end" font-family="Noto Sans" font-size="14" font-weight="700" fill="#243240">\${odds.toFixed(2)}</text>
+    <text x="20" y="410" font-family="Noto Sans" font-size="13.5" font-weight="700" fill="#8398a8">EN DIRECT</text>
+    <text x="412" y="410" text-anchor="end" font-family="Noto Sans" font-size="13.5" font-weight="700" fill="#243240">temps écoulé : \${timeLabel}</text>
+    <text x="20" y="439" font-family="Noto Sans" font-size="13.5" font-weight="700" fill="#8398a8">Statut:</text>
+    <text x="412" y="439" text-anchor="end" font-family="Noto Sans" font-size="13.5" font-weight="700" fill="#4d95d6">Accepté</text>
+    </svg>\`;
+  const resvg=new Resvg(svg,{
+    fitTo:{mode:"original"},
+    font:{
+      fontBuffers:fonts.map(f=>new Uint8Array(f)),
+      defaultFontFamily:"Noto Sans",
+      sansSerifFamily:"Noto Sans"
+    }
+  });
+  const png=resvg.render().asPng();
+  if(!png||png.byteLength<1200)throw new Error("PNG coupon SVG invalide");
+  console.log("COUPON_DIRECT_PNG",png.byteLength,"429x455");
   return png;
 }
 
@@ -2268,84 +2267,24 @@ async function sendTelegramMessage(
 }
 
 async function sendTelegramLiveCoupon(
-  match: any,
-  pred: any,
-  predictionId?: string | number | null,
-  targetChatIds?: string[],
-): Promise<TelegramSendResult> {
-  const liveUrl = "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/";
-  const shortCaption = buildTelegramText(match, pred);
-  const detailedFallback = buildTelegramLiveFallbackText(match, pred);
-
-  try {
-    const pngBytes = await buildTelegramCouponPng(match, pred, predictionId);
-    console.log("✅ PNG NOUVEAU COUPON LIVE généré", {
-      bytes: pngBytes.byteLength,
-      prediction_id: predictionId ?? pred?.id ?? null,
-    });
-
-    const photoResult = await sendTelegramPhoto(
-      pngBytes,
-      shortCaption,
-      liveUrl,
-      targetChatIds,
+  match:any,pred:any,predictionId?:string|number|null,targetChatIds?:string[]
+):Promise<TelegramSendResult>{
+  const targets=sanitizeTelegramTargets(targetChatIds);
+  try{
+    const renderPred=predictionId==null?pred:{...pred,id:predictionId};
+    const png=await buildTelegramCouponPngDirect(match,renderPred);
+    const delivered=await sendTelegramPhoto(
+      png,buildTelegramText(match,renderPred),
+      "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",
+      targets
     );
-
-    if (photoResult.ok) return photoResult;
-
-    const fallbackTargets = photoResult.failedChatIds.length
-      ? photoResult.failedChatIds
-      : (targetChatIds?.length ? targetChatIds : telegramChatIds());
-
-    console.warn(
-      "⚠️ Envoi image LIVE incomplet, fallback texte détaillé:",
-      photoResult.error,
-    );
-
-    const fallbackResult = await sendTelegramMessage(
-      detailedFallback,
-      liveUrl,
-      fallbackTargets,
-    );
-
-    const sentChatIds = [
-      ...new Set([
-        ...photoResult.sentChatIds,
-        ...fallbackResult.sentChatIds,
-      ]),
-    ];
-    const failedChatIds = [...new Set(fallbackResult.failedChatIds)];
-
+    if(!delivered.ok)console.warn("TELEGRAM_IMAGE_FAILED",delivered.error);
+    return delivered;
+  }catch(e:any){
+    console.error("TELEGRAM_IMAGE_RENDER_FAILED",e?.stack??e);
     return {
-      ok: failedChatIds.length === 0,
-      sentChatIds,
-      failedChatIds,
-      error: failedChatIds.length
-        ? [photoResult.error, fallbackResult.error]
-          .filter(Boolean)
-          .join(" | ") || "Échec Telegram"
-        : null,
-    };
-  } catch (e: any) {
-    const generationError = e?.message || String(e);
-    console.error(
-      "❌ Génération image LIVE impossible, fallback texte détaillé:",
-      e,
-    );
-
-    const fallbackResult = await sendTelegramMessage(
-      detailedFallback,
-      liveUrl,
-      targetChatIds,
-    );
-
-    return {
-      ...fallbackResult,
-      error: fallbackResult.ok
-        ? null
-        : [generationError, fallbackResult.error]
-          .filter(Boolean)
-          .join(" | ") || "Échec Telegram",
+      ok:false,sentChatIds:[],failedChatIds:targets,
+      error:e?.message??String(e)
     };
   }
 }
