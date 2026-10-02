@@ -43,23 +43,41 @@ function team(name,urls,side){const data=encodeURIComponent(JSON.stringify(urls)
 function wireLogos(){$$('img[data-sources]').forEach(img=>{let sources=[];try{sources=JSON.parse(decodeURIComponent(img.dataset.sources))}catch{}let i=0;const next=()=>{if(i<sources.length){img.src=sources[i++];return}const s=document.createElement('span');s.className='team-logo logo-fallback';s.textContent=String(img.dataset.team||'?').trim().split(/\s+/).slice(0,2).map(x=>x[0]||'').join('').toUpperCase();s.setAttribute('aria-label',`Logo indisponible : ${img.dataset.team||'équipe'}`);img.replaceWith(s)};img.onerror=next;img.onload=()=>{if(!img.naturalWidth||!img.naturalHeight)next()};next()})}
 function freshness(m){let sec=num(m.freshness_seconds,-1);if(sec<0&&m.updated_at)sec=Math.max(0,(Date.now()-new Date(m.updated_at).getTime())/1000);if(sec<0)return'Actualisé récemment';if(sec<60)return`Actualisé il y a ${Math.round(sec)} s`;if(sec<180)return`Actualisé il y a ${Math.round(sec/60)} min`;return'Données à vérifier'}
 function shareText(m,p){return `🔴 PRONO LIVE\n\n⚽ ${m.home_team} – ${m.away_team}\n⏱ ${num(m.current_minute)}e minute · Score ${num(m.home_score)}-${num(m.away_score)}\n🎯 Pronostic : ${predictionTitle(p)}\n\nVoir l’analyse complète : ${SITE}\n18+ · Jouez responsablement.`}
-function signalCard(m,p,i=0){const odds=liveOdds(p),stake=500000,gain=Math.round(stake*odds),sc=metricScore(m,p),ref=couponRef(p,m),league=m?.league?.name||m?.league_name||m?.league||'Football',eventDate=m?.event_date||m?.start_time||m?.date,created=p?.created_at||m?.updated_at||new Date().toISOString(),key=signalKey(p,i);return `<article class="signal-coupon" data-id="${esc(m.id)}" data-pred="${esc(key)}">
-<div class="coupon-sponsor"><div class="coupon-sponsor-left"><img src="../assets/images/1xbet.webp" alt="1xBet"><span>OU</span><img src="../assets/images/melbet.webp" alt="Melbet"></div><div class="coupon-promo">CODE PROMO <b>XPVIP</b></div></div>
-<div class="coupon-paper">
-<div class="coupon-head"><div class="coupon-id-wrap"><div class="coupon-ball"><span>⚽︎</span><i>i</i></div><div><div class="coupon-date">${esc(fmtCouponDate(created))}<span class="coupon-live">• En direct</span></div><div class="coupon-simple">Simple <small>N° ${esc(ref)}</small></div></div></div></div>
-<div class="coupon-dashed"></div>
-<div class="coupon-finance"><div><span>Cote :</span><b>${odds.toFixed(2)}</b></div><div><span>Mise :</span><b>${money(stake)}</b></div><div><span>Gains potentiels :</span><b>${money(gain)}</b></div><div><span>Statut :</span><b class="coupon-accepted"><i>✓</i>Accepté</b></div></div>
-<div class="coupon-divider"></div>
-<div class="coupon-event">
-<div class="coupon-event-head"><div class="coupon-event-title"><span class="coupon-football">⚽︎</span><div><b>Football . ${esc(league)}</b><small>${esc(fmtEventDate(eventDate))}</small></div></div><span class="coupon-live">• En direct</span></div>
-<div class="coupon-score-row">${couponTeam(m.home_team,logoCandidates(m,'home'),'home')}<div class="coupon-score"><b>${esc(sc.main)}</b><small>${esc(sc.detail)}</small></div>${couponTeam(m.away_team,logoCandidates(m,'away'),'away')}</div>
-<div class="coupon-rule"></div>
-<div class="coupon-market"><strong>${esc(predictionTitle(p).replace(/^Total /i,'Total. '))}</strong><b>${odds.toFixed(2)}</b></div>
-<div class="coupon-live-row"><span>EN DIRECT</span><b>temps écoulé : ${num(m.current_minute)}:00</b></div>
-<div class="coupon-status-row"><span>Statut:</span><b>Accepté</b></div>
-</div>
-<div class="coupon-actions"><button data-share="whatsapp" data-id="${esc(m.id)}" data-pred="${esc(key)}">WhatsApp</button><button data-share="telegram" data-id="${esc(m.id)}" data-pred="${esc(key)}">Telegram</button><button data-detail="${esc(m.id)}" data-pred="${esc(key)}">Analyse</button></div>
-</div></article>`}
+
+function originalSignalSnapshot(m,p){
+  const row=p?.snapshot||p?.signal_snapshot||{};
+  const minute=[row.minute,p?.signal_minute,p?.minute,p?.current_minute,p?.minute_at_signal].find(hasNum);
+  const home=[row.home_score,p?.signal_home_score,p?.home_score].find(hasNum);
+  const away=[row.away_score,p?.signal_away_score,p?.away_score].find(hasNum);
+  const h1=[row.half1_home,p?.signal_half1_home].find(hasNum),a1=[row.half1_away,p?.signal_half1_away].find(hasNum);
+  const h2=[row.half2_home,p?.signal_half2_home].find(hasNum),a2=[row.half2_away,p?.signal_half2_away].find(hasNum);
+  const main=hasNum(home)&&hasNum(away)?Number(home)+':'+Number(away):'— : —';
+  const detail=[h1,a1,h2,a2].every(hasNum)?main+' ('+h1+':'+a1+', '+h2+':'+a2+')':h1!==undefined&&a1!==undefined?main+' ('+h1+':'+a1+')':'';
+  return {minute:hasNum(minute)?Number(minute):null,main,detail};
+}
+function capturedOdds(p){const x=[p?.live_odds,p?.odds,p?.odd,p?.cote].find(v=>hasNum(v)&&Number(v)>1);return x===undefined?null:Number(x)}
+function couponStatus(h){if(!h?.validated)return['accepted','Accepté','Accepté'];if(h?.outcome==='success')return['won','Payé','Gain'];if(h?.outcome==='failure')return['lost','Perdu','Perdu'];return['accepted','Accepté','En attente']}
+function snapshotCoupon(m,p,opts={}){
+ const historical=!!opts.historical,ss=originalSignalSnapshot(m,p),odds=capturedOdds(p),stake=hasNum(p?.stake_fcfa)?num(p.stake_fcfa):hasNum(p?.stake)?num(p.stake):500000,
+ gain=hasNum(p?.potential_gain_fcfa)?num(p.potential_gain_fcfa):hasNum(p?.potential_gain)?num(p.potential_gain):odds===null?null:Math.round(stake*odds),
+ [state,label,finalStatus]=couponStatus(historical?m:p),ref=couponRef(p,m),
+ league=m?.league?.name||m?.league_name||m?.league||'Football',eventDate=m?.event_date||m?.start_time||m?.date,
+ created=p?.created_at||m?.created_at||p?.timestamp||m?.timestamp||eventDate,
+ home=m.home_team||m.home?.name||'Équipe domicile',away=m.away_team||m.away?.name||'Équipe extérieure',
+ key=signalKey(p,0);
+ const oddsLabel=odds!==null?odds.toFixed(2):'—';
+ const minuteLabel=ss.minute===null?'—':Math.floor(ss.minute)+':'+String(Math.round((ss.minute%1)*60)).padStart(2,'0');
+ return '<article class="signal-coupon coupon-snapshot '+state+'" data-id="'+esc(m.id)+'" data-pred="'+esc(key)+'">'+
+ (historical?'':'<div class="coupon-sponsor"><div class="coupon-sponsor-left"><img src="../assets/images/1xbet.webp" alt="1xBet"><span>OU</span><img src="../assets/images/melbet.webp" alt="Melbet"></div><div class="coupon-promo">CODE PROMO <b>XPVIP</b></div></div>')+
+ '<div class="coupon-paper"><div class="coupon-head"><div class="coupon-id-wrap"><div class="coupon-ball"><span>⚽</span><i>✓</i></div><div><div class="coupon-date">'+esc(fmtCouponDate(created))+(historical?'':'<span class="coupon-live">• En direct</span>')+'</div><div class="coupon-simple">Simple <small>N° '+esc(ref)+'</small></div></div></div></div><div class="coupon-dashed"></div>'+
+ '<div class="coupon-finance"><div><span>Cote :</span><b>'+oddsLabel+'</b></div><div><span>Mise :</span><b>'+money(stake)+'</b></div><div><span>Gains potentiels :</span><b>'+(gain===null?'—':money(gain))+'</b></div><div><span>Statut :</span><b class="coupon-accepted '+state+'">'+esc(label)+'</b></div></div><div class="coupon-divider"></div>'+
+ '<div class="coupon-event"><div class="coupon-event-head"><div class="coupon-event-title"><span class="coupon-football">⚽</span><div><b>Football . '+esc(league)+'</b><small>'+esc(fmtEventDate(eventDate))+'</small></div></div>'+(historical?'':'<span class="coupon-live">• En direct</span>')+'</div>'+
+ '<div class="coupon-score-row">'+couponTeam(home,logoCandidates(m,'home'),'home')+'<div class="coupon-score"><b>'+esc(ss.main)+'</b><small>'+esc(ss.detail)+'</small></div>'+couponTeam(away,logoCandidates(m,'away'),'away')+'</div>'+
+ '<div class="coupon-rule"></div><div class="coupon-market"><strong>'+esc(predictionTitle(p).replace(/^Total /i,'Total. '))+'</strong><b>'+oddsLabel+'</b></div><div class="coupon-live-row"><span>EN DIRECT</span><b>temps écoulé : '+minuteLabel+'</b></div><div class="coupon-status-row"><span>Statut:</span><b class="'+state+'">'+esc(finalStatus)+'</b></div></div>'+
+ (historical?'':'<div class="coupon-actions"><button data-share="whatsapp" data-id="'+esc(m.id)+'" data-pred="'+esc(key)+'">WhatsApp</button><button data-share="telegram" data-id="'+esc(m.id)+'" data-pred="'+esc(key)+'">Telegram</button><button data-detail="'+esc(m.id)+'" data-pred="'+esc(key)+'">Analyse</button></div>')+
+ '</div></article>';
+}
+function signalCard(m,p,i=0){return snapshotCoupon(m,p)}
 function watchCard(m){const corners=liveStat(m,'corner_kicks','corners'),shots=liveStat(m,'total_shots'),fouls=liveStat(m,'fouls');return `<article class="match-card"><div class="card-top"><span class="league">${esc(m?.league?.name||'Football')}</span><span class="fresh">${esc(freshness(m))}</span></div><div class="score-row">${team(m.home_team,logoCandidates(m,'home'),'home')}<div class="score">${num(m.home_score)} — ${num(m.away_score)}<small>LIVE ${num(m.current_minute)}′</small></div>${team(m.away_team,logoCandidates(m,'away'),'away')}</div><div class="stat-row"><span>Corners <b>${statText(corners)}</b></span><span>Tirs <b>${statText(shots)}</b></span><span>Fautes <b>${statText(fouls)}</b></span></div><div class="prediction-box"><span class="market">Analyse en cours</span><strong>Le moteur attend des données suffisamment fiables.</strong></div></article>`}
 function upcomingCard(m){const home=m.home_team||m.home?.name||m.teams?.home?.name||'Équipe domicile',away=m.away_team||m.away?.name||m.teams?.away?.name||'Équipe extérieure',time=m.event_date||m.start_time||m.timestamp||m.fixture?.date;return `<article class="match-card"><div class="card-top"><span class="league">${esc(m?.league?.name||m.league||'Football')}</span><span class="fresh">À venir</span></div><div class="score-row">${team(home,logoCandidates(m,'home'),'home')}<div class="score">VS<small>${time?new Date(time).toLocaleString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'Bientôt'}</small></div>${team(away,logoCandidates(m,'away'),'away')}</div><div class="prediction-box"><span class="market">Surveillance programmée</span><strong>Les signaux apparaîtront pendant le match.</strong></div></article>`}
 
@@ -85,7 +103,7 @@ function dailyCard(row){const [statusClass,statusLabel]=dailyStatus(row),odds=nu
 function renderDaily(){const root=$('#daily-grid');if(!root)return;root.innerHTML=dailyPredictions.length?dailyPredictions.map(dailyCard).join(''):empty('Aucun pronostic du jour disponible.');const count=$('#daily-count');if(count)count.textContent=`${dailyPredictions.length} prono${dailyPredictions.length>1?'s':''}`;wireLogos()}
 
 function historyOutcome(h){if(!h.validated)return['pending','En attente'];return h.outcome==='success'?['win','✓ Réussi']:['loss','✕ Échoué']}
-function historyCard(h){const [cls,label]=historyOutcome(h),threshold=h.pronostic??h.threshold,p={...h,pronostic:threshold},home=h.home_team||h.home?.name||'Équipe domicile',away=h.away_team||h.away?.name||'Équipe extérieure';return `<article class="match-card"><div class="card-top"><span class="league">${esc(h?.league?.name||'Football')}</span><span class="result-badge ${cls}">${label}</span></div><div class="score-row">${team(home,logoCandidates(h,'home'),'home')}<div class="score">${num(h.home_score)} — ${num(h.away_score)}<small>Signal ${h.current_minute??h.minute??'—'}′</small></div>${team(away,logoCandidates(h,'away'),'away')}</div><div class="prediction-box"><span class="market">${esc(market(p))}</span><strong>${esc(predictionTitle(p))}</strong></div><div class="stat-row"><span>Probabilité <b>${Math.round(num(h.probability)*100)||'—'}%</b></span><span>${h.timestamp?new Date(h.timestamp).toLocaleDateString('fr-FR'):''}</span></div></article>`}
+function historyCard(h){return snapshotCoupon(h,{...h,pronostic:h.pronostic??h.threshold,type:h.type??h.prediction_type}, {historical:true})}
 function empty(text){return `<div class="empty"><b>${esc(text)}</b><br>Cette zone se met à jour automatiquement.</div>`}
 function filtered(list){return activeFilter==='all'?list:list.filter(m=>(m.predictions||[]).some(p=>market(p)===activeFilter))}
 function render(){const oppIds=new Set(opportunities.map(o=>String(o.id))),tops=filteredSignalEntries(opportunities),others=filtered(liveMatches.filter(m=>!oppIds.has(String(m.id))));$('#top-grid').innerHTML=tops.length?tops.map(x=>signalCard(x.m,x.p,x.i)).join(''):empty('Aucun signal fiable pour le moment.');$('#other-grid').innerHTML=others.length?others.map(watchCard).join(''):empty('Aucun autre match live actuellement.');$('#upcoming-grid').innerHTML=upcoming.length?upcoming.map(upcomingCard).join(''):empty('Aucun match à venir disponible.');$('#history-grid').innerHTML=history.length?history.slice(0,40).map(historyCard).join(''):empty('Aucun résultat vérifié disponible.');$('#top-count').textContent=`${tops.length} signal${tops.length>1?'s':''}`;renderDaily();wireLogos();wireActions();renderRates()}
