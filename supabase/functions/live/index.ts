@@ -3694,7 +3694,7 @@ async function processTelegramPredictionById(predictionId: string | number) {
   const { data: row, error } = await supabase
     .from("live_predictions")
     .select(
-      "id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, confidence, validated, telegram_sent, telegram_attempts, telegram_last_error, telegram_last_attempt_at, telegram_pending_chat_ids, created_at",
+      "id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, confidence, validated, telegram_sent, telegram_attempts, telegram_last_error, telegram_last_attempt_at, telegram_pending_chat_ids, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa",
     )
     .eq("id", id)
     .maybeSingle();
@@ -4907,12 +4907,13 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   let createdPreds = 0;
   let existingPreds = 0;
   let failedPreds = 0;
+  const freshTelegramIds: string[] = [];
 
   for (const m of normalizedMatches) {
     for (const pred of m.predictions || []) {
       try {
         const res = await savePrediction(m, pred, { sendTelegram: false });
-        if (res.created) createdPreds++;
+        if (res.created) { createdPreds++; if(res.id)freshTelegramIds.push(String(res.id)); }
         else existingPreds++;
       } catch (e) {
         failedPreds++;
@@ -4921,24 +4922,24 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     }
   }
 
-  const instant = await validatePredictionsInPlay(normalizedMatches, {
-    maxInstantValidations: allowTelegram ? 1 : 0,
-    sendTelegram: allowTelegram,
+  // Un nouveau coupon doit être publié avant toute validation.
+  const noTelegram=()=>({telegram_retry_enabled:true,telegram_retry_processed:0,telegram_retry_sent:0,telegram_retry_failed:0,telegram_retry_skipped:0});
+  let telegramRetry:any=noTelegram();
+  if(allowTelegram){
+    try{
+      telegramRetry=freshTelegramIds.length
+        ? await processTelegramPredictionById(freshTelegramIds[0])
+        : await retryPendingTelegramLiveCoupons(normalizedMatches,1);
+    }catch(e:any){
+      console.error("Nouvelle publication Telegram prioritaire échouée:",e);
+      telegramRetry={...noTelegram(),telegram_retry_failed:1};
+    }
+  }
+  const imageBudgetRemaining=allowTelegram && telegramRetry.telegram_retry_processed===0;
+  const instant=await validatePredictionsInPlay(normalizedMatches,{
+    maxInstantValidations:imageBudgetRemaining?1:0,
+    sendTelegram:imageBudgetRemaining,
   });
-
-  // Au maximum UN rendu Telegram par lot, comme dans la version fonctionnelle.
-  // S'il y a déjà eu une validation instantanée avec image dans ce lot,
-  // on reporte le nouveau coupon au passage suivant.
-  const telegramRetry =
-    allowTelegram && safeNumber(instant.instant_validated, 0) === 0
-      ? await retryPendingTelegramLiveCoupons(normalizedMatches, 1)
-      : {
-        telegram_retry_enabled: true,
-        telegram_retry_processed: 0,
-        telegram_retry_sent: 0,
-        telegram_retry_failed: 0,
-        telegram_retry_skipped: 0,
-      };
 
   return {
     matches: normalizedMatches,
