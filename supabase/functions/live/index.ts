@@ -1620,6 +1620,10 @@ async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint
   const threshold = formatThreshold(pred?.threshold ?? pred?.pronostic ?? pred?.line ?? "");
   const type = formatLivePredictionType(String(pred?.prediction_type ?? pred?.type ?? ""));
   const selection = "Total. ("+threshold+") Plus de. "+type;
+  const validationOutcome: "success"|"failure"|null = pred?.__validationOutcome??null;
+  const receiptStatus=validationOutcome==="success"?"Payé":validationOutcome==="failure"?"Perdu":"Accepté";
+  const slipStatus=validationOutcome==="success"?"Gain":validationOutcome==="failure"?"Perdu":"Accepté";
+  const statusColor=validationOutcome==="success"?"#33a766":validationOutcome==="failure"?"#df4545":"#4f96d7";
   const [homeLogo,awayLogo] = await Promise.all([
     getTelegramLogoData(match,"home"), getTelegramLogoData(match,"away")
   ]);
@@ -1639,7 +1643,7 @@ async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint
     tx(16,113,"Cotes:",15,"#8497a5")+tx(16,141,"Mise:",15,"#8497a5")+
     tx(16,167,"Gains potentiels:",15,"#8497a5")+tx(16,193,"Statut:",15,"#8497a5")+
     tx(414,113,value(odds),15,"#1c3242",700,"end")+tx(414,141,money(stake),15,"#1c3242",700,"end")+
-    tx(414,167,money(potential),15,"#4dbb69",700,"end")+tx(414,193,"Accepté",15,"#4f96d7",700,"end")+
+    tx(414,167,money(potential),15,"#4dbb69",700,"end")+tx(414,193,receiptStatus,15,statusColor,700,"end")+
     '<path d="M0 211h429" stroke="#eff3f5" stroke-width="8"/><rect x="7" y="219" width="415" height="234" rx="11" fill="#fbfbfb" stroke="#d9e1e7"/>'+
     football(18,235,24)+tx(52,245,"Football · "+league,12,"#8599a7")+tx(52,262,date,12,"#8599a7")+
     '<rect x="352" y="226" width="67" height="13" rx="3" fill="#ef4338"/>'+tx(385.5,235,"• En direct",9,"#fff",700,"middle")+
@@ -1650,7 +1654,7 @@ async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint
     '<path d="M8 363h414" stroke="#dbe1e6"/>'+
     tx(19,383,selection,13,"#24333e",700)+tx(412,383,value(odds),14,"#24333e",700,"end")+
     tx(19,410,"EN DIRECT",13,"#869aa7")+tx(412,410,"temps écoulé : "+formatTelegramClock(minute),13,"#24333e",700,"end")+
-    tx(19,439,"Statut:",13,"#869aa7")+tx(412,439,"Accepté",13,"#4f96d7",700,"end")+
+    tx(19,439,"Statut:",13,"#869aa7")+tx(412,439,slipStatus,13,statusColor,700,"end")+
     '</svg>';
   const renderer = new Resvg(svg,{
     fitTo:{mode:"original"},
@@ -2739,7 +2743,7 @@ async function sendTelegramValidationResult(
 ){
   try{
     // SVG direct validé: même police que les coupons LIVE, aucun appel Satori.
-    const snapshotPred={...pred,id:predictionId??pred?.id};
+    const snapshotPred={...pred,id:predictionId??pred?.id,__validationOutcome:outcome};
     const png=await buildTelegramCouponPngDirect(
       {...match,current_minute:match?.current_minute??(validationType==="final"?90:0)},
       snapshotPred
@@ -3886,9 +3890,9 @@ async function retryPendingTelegramLiveCoupons(
       ...currentMatch,
       home_team: row.home_team ?? currentMatch.home_team,
       away_team: row.away_team ?? currentMatch.away_team,
-      home_score: row.home_score ?? currentMatch.home_score ?? 0,
-      away_score: row.away_score ?? currentMatch.away_score ?? 0,
-      current_minute: row.minute ?? currentMatch.current_minute ?? 0,
+      home_score: row.signal_home_score ?? row.home_score ?? currentMatch.home_score ?? 0,
+      away_score: row.signal_away_score ?? row.away_score ?? currentMatch.away_score ?? 0,
+      current_minute: row.signal_minute ?? row.minute ?? currentMatch.current_minute ?? 0,
       league_name: row.league_name ?? currentMatch.league_name ?? currentMatch?.league?.name,
       league: {
         ...(currentMatch?.league || {}),
@@ -3954,6 +3958,10 @@ async function retryPendingTelegramLiveCoupons(
   return emptyResult;
 }
 
+
+const LIVE_COUPON_STAKE_FCFA = 500_000;
+const formatReceiptOdds = (n:number) => n.toFixed(2);
+const formatReceiptMoney = (n:number) => formatTelegramMoney(n);
 
 // Cote INDICATIVE calculée : ne correspond pas à une cote 1xBet/Melbet vérifiée.
 function computeLiveCouponPricing(match: any, pred: any) {
