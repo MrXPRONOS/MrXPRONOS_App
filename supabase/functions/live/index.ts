@@ -1581,103 +1581,84 @@ function telegramPeriodScores(match: any) {
 }
 
 /** Dessin SVG direct : dimensions exactes de la capture, sans Satori. */
-async function buildTelegramCouponPngDirect(match: any,pred: any):Promise<Uint8Array>{
-  const [{Resvg},fonts,homeLogo,awayLogo]=await Promise.all([
-    loadTelegramResvgModule(),
-    Promise.all([
-      readBundledTelegramFont("NotoSans-Regular.ttf"),
-      readBundledTelegramFont("NotoSans-Bold.ttf")
-    ]),
-    getTelegramLogoData(match,"home"),
-    getTelegramLogoData(match,"away")
-  ]);
+async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint8Array> {
+  // Rendu 429 x 455 pixel : même ratio et placements que le coupon de référence.
+  // Pas de Satori, pas de deuxième worker, et aucune cote bookmaker inventée.
+  const { Resvg } = await loadTelegramResvgModule();
   await ensureResvgReady();
-  const score=telegramPeriodScores(match);
-  const minute=safeNumber(match?.current_minute ?? match?.minute,0);
-  const odds=telegramCalculatedLiveOdds(pred);
-  const selection=buildTelegramSelectionText(pred);
-  const stake=500000;
-  const potential=Math.round(stake*odds);
-  const formatMoney=(n:number)=>Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g," ")+" F";
-  const home=fitText(match?.home_team??"Équipe A",19),away=fitText(match?.away_team??"Équipe B",19);
-  const league=fitText(getLeagueName(match),31);
-  const date=formatTelegramSlipDateTime(match);
-  const number=String(pred?.id??pred?.prediction_id??match?.id??"").replace(/[^a-zA-Z0-9]/g,"").slice(-11);
-  const type=String(pred?.prediction_type??pred?.type??"");
-  const longName=selection.length>39?selection.slice(0,38)+"…":selection;
-  const timeLabel=formatTelegramClock(minute);
-  const escape=escapeXml;
-  // Ce pictogramme reproduit le ballon bleu/gris fourni par l'utilisateur.
-  const football=String.raw\`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="11.4" fill="#eef2f4"/>
-    <path d="M9 2 14 2 17 7 14.4 10.4 9.5 10.4 7 7Z" fill="#8EA5B3"/>
-    <path d="m1 9 6-2 2.5 3.4L7 15.4 2.5 16Z" fill="#98ADBA"/>
-    <path d="m17 7 6 2-1.5 7L17 15.4l-2.6-5Z" fill="#98ADBA"/>
-    <path d="m9.5 10.4 4.9 0 2.6 5-5 5-5-5Z" fill="#90A6B4"/>
-    <path d="M5 19 7 15.4l5 5-1 3A12 12 0 0 1 5 19ZM19 19l-7 1.4 1 3A12 12 0 0 0 19 19Z" fill="#91A9B9"/>
-  </svg>\`;
-  const ball="data:image/svg+xml;base64,"+btoa(football);
-  const team=(logo:string,x:number,y:number,initials:string)=>{
-    if(logo) return '<image href="'+logo+'" x="'+x+'" y="'+y+'" width="34" height="34" preserveAspectRatio="xMidYMid meet"/>';
-    return '<circle cx="'+(x+17)+'" cy="'+(y+17)+'" r="16" fill="#edf3f5" stroke="#88a4b2"/>'+
-      '<text x="'+(x+17)+'" y="'+(y+21)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#193748">'+escape(initials)+'</text>';
+  const fonts = await loadFontData();
+  const esc = escapeXml;
+  const dt = pred?.created_at ? new Date(pred.created_at) : new Date();
+  const date = Number.isFinite(dt.getTime())
+    ? dt.toLocaleDateString("fr-FR", { timeZone: "UTC" }) + " (" +
+      dt.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }) + ")"
+    : formatTelegramSlipDateTime(match);
+  const minute = safeNumber(pred?.minute ?? match?.current_minute ?? match?.minute, 0);
+  const home = fitText(match?.home_team ?? "Équipe A", 18);
+  const away = fitText(match?.away_team ?? "Équipe B", 18);
+  const league = fitText(getLeagueName(match), 33);
+  const raw = match?.raw_data ?? {};
+  const getNum = (...values: any[]) => {
+    for (const v of values) if (v !== null && v !== undefined && v !== "" && Number.isFinite(Number(v))) return Number(v);
+    return null;
   };
-  const homeInitials=getTeamInitials(home),awayInitials=getTeamInitials(away);
-  const svg=\`<svg xmlns="http://www.w3.org/2000/svg" width="429" height="455" viewBox="0 0 429 455">
-    <rect width="429" height="455" fill="white"/><circle cx="42" cy="48" r="25" fill="#edf1f4"/>
-    <image href="\${ball}" x="30" y="37" width="24" height="24"/>
-    <circle cx="62" cy="69" r="9.5" fill="#29b573"/><path d="m58 69 3 3 5-7" stroke="white" stroke-width="1.7" fill="none"/>
-    <g font-family="Noto Sans" fill="#20313c">
-      <text x="80" y="34" fill="#8395a5" font-size="12" font-weight="700">\${escape(date)}</text>
-      <text x="80" y="55" font-size="19" font-weight="700">Simple</text>
-      <text x="80" y="72" font-size="10">N° \${escape(number)}</text>
-    </g>
-    <rect x="348" y="24" width="67" height="13" rx="3" fill="#ef4338"/><text x="381.5" y="33.3" text-anchor="middle" font-family="Noto Sans" font-size="9" font-weight="700" fill="white">• En direct</text>
-    <path d="M0 87 H429" stroke="#e1e6e9"/>
-    <g font-family="Noto Sans" font-weight="700">
-      <g font-size="15" fill="#8395a3">
-        <text x="16" y="114">Cotes:</text><text x="16" y="141">Mise:</text>
-        <text x="16" y="167">Gains:</text><text x="16" y="193">Statut:</text>
-      </g>
-      <g font-size="15" text-anchor="end">
-        <text x="414" y="114" fill="#243240">\${odds.toFixed(2)}</text>
-        <text x="414" y="141" fill="#243240">500 000 F</text>
-        <text x="414" y="167" fill="#4dba67">\${formatMoney(potential)}</text>
-        <text x="414" y="193" fill="#4d95d6">Accepté</text>
-      </g>
-    </g>
-    <path d="M0 211 H429" stroke="#eff3f5" stroke-width="8"/>
-    <rect x="7" y="219" width="415" height="234" rx="12" fill="#fbfbfb" stroke="#dae1e7"/>
-    <image href="\${ball}" x="19" y="236" width="23" height="23"/>
-    <text x="52" y="244" font-family="Noto Sans" font-size="12" font-weight="700" fill="#8195a3">Football · \${escape(league)}</text>
-    <text x="52" y="261" font-family="Noto Sans" font-size="12" font-weight="700" fill="#8195a3">\${escape(date)}</text>
-    <rect x="352" y="225" width="67" height="13" rx="3" fill="#ef4338"/>
-    <text x="385.5" y="234.5" text-anchor="middle" font-family="Noto Sans" font-size="9" font-weight="700" fill="white">• En direct</text>
-    <text x="138" y="304" text-anchor="end" font-family="Noto Sans" font-size="13" font-weight="700" fill="#243240">\${escape(home)}</text>
-    \${team(homeLogo,148,283,homeInitials)}
-    <text x="216" y="306" text-anchor="middle" font-family="Noto Sans" font-size="19" font-weight="700" fill="#243240">\${score.home}:\${score.away}</text>
-    \${team(awayLogo,249,283,awayInitials)}
-    <text x="294" y="304" font-family="Noto Sans" font-size="13" font-weight="700" fill="#243240">\${escape(away)}</text>
-    <text x="216" y="352" text-anchor="middle" font-family="Noto Sans" font-size="12" fill="#8398a8">\${escape(score.detail)}</text>
-    <path d="M8 363 H422" stroke="#dde2e7"/>
-    <text x="20" y="383" font-family="Noto Sans" font-size="13.5" font-weight="700" fill="#243240">\${escape(longName)}</text>
-    <text x="412" y="383" text-anchor="end" font-family="Noto Sans" font-size="14" font-weight="700" fill="#243240">\${odds.toFixed(2)}</text>
-    <text x="20" y="410" font-family="Noto Sans" font-size="13.5" font-weight="700" fill="#8398a8">EN DIRECT</text>
-    <text x="412" y="410" text-anchor="end" font-family="Noto Sans" font-size="13.5" font-weight="700" fill="#243240">temps écoulé : \${timeLabel}</text>
-    <text x="20" y="439" font-family="Noto Sans" font-size="13.5" font-weight="700" fill="#8398a8">Statut:</text>
-    <text x="412" y="439" text-anchor="end" font-family="Noto Sans" font-size="13.5" font-weight="700" fill="#4d95d6">Accepté</text>
-    </svg>\`;
-  const resvg=new Resvg(svg,{
+  const h1 = getNum(raw?.ht_home, raw?.home_ht, raw?.halftime_home, raw?.first_half_home);
+  const a1 = getNum(raw?.ht_away, raw?.away_ht, raw?.halftime_away, raw?.first_half_away);
+  const h2 = getNum(raw?.sh_home, raw?.home_sh, raw?.second_half_home, raw?.period2_home);
+  const a2 = getNum(raw?.sh_away, raw?.away_sh, raw?.second_half_away, raw?.period2_away);
+  const homeScore = h1 !== null && h2 !== null ? h1 + h2 : safeNumber(pred?.home_score ?? match?.home_score, 0);
+  const awayScore = a1 !== null && a2 !== null ? a1 + a2 : safeNumber(pred?.away_score ?? match?.away_score, 0);
+  const periodText = h1 !== null && a1 !== null
+    ? (h2 !== null && a2 !== null ? homeScore + ":" + awayScore + " (" + h1 + ":" + a1 + "," + h2 + ":" + a2 + ")" : homeScore + ":" + awayScore + " (" + h1 + ":" + a1 + ")")
+    : "";
+  const odds = pickTelegramNumber(pred?.live_odds, pred?.odds, pred?.odd, pred?.cote);
+  const stake = LIVE_COUPON_STAKE_FCFA;
+  const potential = odds !== null && odds > 1 ? Math.round(stake * odds) : null;
+  const value = (v: number|null) => v === null ? "—" : v.toFixed(2);
+  const money = (v: number|null) => v === null ? "—" : Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g," ")+" F";
+  const slip = String(pred?.id ?? pred?.prediction_id ?? match?.id ?? "").replace(/[^a-zA-Z0-9]/g,"").slice(-11);
+  const threshold = formatThreshold(pred?.threshold ?? pred?.pronostic ?? pred?.line ?? "");
+  const type = formatLivePredictionType(String(pred?.prediction_type ?? pred?.type ?? ""));
+  const selection = "Total. ("+threshold+") Plus de. "+type;
+  const [homeLogo,awayLogo] = await Promise.all([
+    getTelegramLogoData(match,"home"), getTelegramLogoData(match,"away")
+  ]);
+  const smallBall = '<circle cx="12" cy="12" r="11" fill="#ecf0f3" stroke="#d4dce2"/><path d="M12 4l5 4-2 6H9L7 8zM4 10l3-2 2 6-3 3-3-2zM20 10l-3-2-2 6 3 3 3-2zM9 14h6l3 3-4 4h-4l-4-4z" fill="#96a8b5"/>';
+  const football = (x:number,y:number,sz:number) => '<svg x="'+x+'" y="'+y+'" width="'+sz+'" height="'+sz+'" viewBox="0 0 24 24">'+smallBall+'</svg>';
+  const circle = (logo:string,x:number,name:string) => logo
+    ? '<image href="'+logo+'" x="'+x+'" y="282" width="34" height="34" preserveAspectRatio="xMidYMid meet"/>'
+    : '<circle cx="'+(x+17)+'" cy="299" r="16" fill="#eff2f4" stroke="#a8b6c2"/><text x="'+(x+17)+'" y="303" text-anchor="middle" font-size="9" font-weight="700" fill="#1e3645">'+esc(getTeamInitials(name))+'</text>';
+  const tx=(x:number,y:number,txt:string,size:number,color="#1c3242",weight=700,anchor="start") =>
+    '<text x="'+x+'" y="'+y+'" font-family="Noto Sans" font-size="'+size+'" font-weight="'+weight+'" text-anchor="'+anchor+'" fill="'+color+'">'+esc(txt)+'</text>';
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="429" height="455" viewBox="0 0 429 455">'+
+    '<rect width="429" height="455" rx="9" fill="#fff" stroke="#dbe0e5"/>'+
+    '<circle cx="42" cy="48" r="25" fill="#ecf1f4"/>'+football(29,35,26)+
+    '<circle cx="62" cy="69" r="9" fill="#29b36c"/><path d="M58 69l3 3 5-7" fill="none" stroke="white" stroke-width="1.7"/>'+
+    tx(80,34,date,12,"#8698a6")+tx(80,55,"Simple",19)+tx(80,72,"N° "+slip,10,"#24313a",600)+
+    '<rect x="348" y="24" width="67" height="14" rx="3" fill="#ef4338"/>'+tx(381.5,34,"• En direct",9,"#fff",700,"middle")+
+    '<path d="M0 87h429" stroke="#e4e8eb"/>'+
+    tx(16,113,"Cotes:",15,"#8497a5")+tx(16,141,"Mise:",15,"#8497a5")+
+    tx(16,167,"Gains potentiels:",15,"#8497a5")+tx(16,193,"Statut:",15,"#8497a5")+
+    tx(414,113,value(odds),15,"#1c3242",700,"end")+tx(414,141,money(stake),15,"#1c3242",700,"end")+
+    tx(414,167,money(potential),15,"#4dbb69",700,"end")+tx(414,193,"Accepté",15,"#4f96d7",700,"end")+
+    '<path d="M0 211h429" stroke="#eff3f5" stroke-width="8"/><rect x="7" y="219" width="415" height="234" rx="11" fill="#fbfbfb" stroke="#d9e1e7"/>'+
+    football(18,235,24)+tx(52,245,"Football · "+league,12,"#8599a7")+tx(52,262,date,12,"#8599a7")+
+    '<rect x="352" y="226" width="67" height="13" rx="3" fill="#ef4338"/>'+tx(385.5,235,"• En direct",9,"#fff",700,"middle")+
+    tx(139,304,home,13,"#20323f",700,"end")+circle(homeLogo,150,home)+
+    tx(216,305,homeScore+":"+awayScore,19,"#20323f",800,"middle")+circle(awayLogo,249,away)+
+    tx(292,304,away,13,"#20323f")+
+    tx(216,351,periodText,12,"#879da9",400,"middle")+
+    '<path d="M8 363h414" stroke="#dbe1e6"/>'+
+    tx(19,383,selection,13,"#24333e",700)+tx(412,383,value(odds),14,"#24333e",700,"end")+
+    tx(19,410,"EN DIRECT",13,"#869aa7")+tx(412,410,"temps écoulé : "+formatTelegramClock(minute),13,"#24333e",700,"end")+
+    tx(19,439,"Statut:",13,"#869aa7")+tx(412,439,"Accepté",13,"#4f96d7",700,"end")+
+    '</svg>';
+  const renderer = new Resvg(svg,{
     fitTo:{mode:"original"},
-    font:{
-      fontBuffers:fonts.map(f=>new Uint8Array(f)),
-      defaultFontFamily:"Noto Sans",
-      sansSerifFamily:"Noto Sans"
-    }
+    font:{fontBuffers:[new Uint8Array(fonts.regular),new Uint8Array(fonts.bold)],defaultFontFamily:"Noto Sans",sansSerifFamily:"Noto Sans"}
   });
-  const png=resvg.render().asPng();
-  if(!png||png.byteLength<1200)throw new Error("PNG coupon SVG invalide");
-  console.log("COUPON_DIRECT_PNG",png.byteLength,"429x455");
+  const png = renderer.render().asPng();
+  if (!png || png.byteLength < 1500) throw new Error("PNG SVG Telegram invalide");
   return png;
 }
 
@@ -2269,23 +2250,18 @@ async function sendTelegramMessage(
 async function sendTelegramLiveCoupon(
   match:any,pred:any,predictionId?:string|number|null,targetChatIds?:string[]
 ):Promise<TelegramSendResult>{
-  const targets=sanitizeTelegramTargets(targetChatIds);
-  try{
-    const renderPred=predictionId==null?pred:{...pred,id:predictionId};
-    const png=await buildTelegramCouponPngDirect(match,renderPred);
-    const delivered=await sendTelegramPhoto(
-      png,buildTelegramText(match,renderPred),
-      "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",
-      targets
+  try {
+    const png=await buildTelegramCouponPngDirect(match,{
+      ...pred,id:predictionId??pred?.id
+    });
+    return await sendTelegramPhoto(
+      png,buildTelegramText(match,pred),
+      "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",targetChatIds
     );
-    if(!delivered.ok)console.warn("TELEGRAM_IMAGE_FAILED",delivered.error);
-    return delivered;
-  }catch(e:any){
-    console.error("TELEGRAM_IMAGE_RENDER_FAILED",e?.stack??e);
-    return {
-      ok:false,sentChatIds:[],failedChatIds:targets,
-      error:e?.message??String(e)
-    };
+  } catch(e:any){
+    const err=e?.stack||e?.message||String(e);
+    console.error("TELEGRAM_IMAGE_ERROR",err);
+    return {ok:false,sentChatIds:[],failedChatIds:sanitizeTelegramTargets(targetChatIds),error:err};
   }
 }
 
@@ -3893,141 +3869,15 @@ async function processTelegramPredictionById(predictionId: string | number) {
   }
 }
 
-async function invokeTelegramWorker(
-  predictionId?: string | number | null,
-) {
-  const endpoint = new URL(
-    `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/telegram-live`,
-  );
-
-  if (predictionId != null && String(predictionId).trim()) {
-    endpoint.searchParams.set("prediction_id", String(predictionId).trim());
-  }
-
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-    "apikey": SUPABASE_SERVICE_ROLE_KEY,
+async function dispatchOnePendingTelegramRetry(){
+  const r=await retryPendingTelegramLiveCoupons([],1);
+  return {
+    telegram_worker_retry_processed:r.telegram_retry_processed,
+    telegram_worker_retry_sent:r.telegram_retry_sent,
+    telegram_worker_retry_failed:r.telegram_retry_failed,
+    telegram_worker_retry_skipped:r.telegram_retry_skipped,
+    telegram_worker_retry_error:null
   };
-  if (CRON_SECRET) headers["x-cron-secret"] = CRON_SECRET;
-
-  let lastError: any = null;
-
-  // Les 503 Supabase sont souvent transitoires (cold start / saturation).
-  // On retente l'invocation dédiée sans toucher au moteur LIVE.
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    try {
-      const res = await fetch(endpoint.toString(), {
-        method: "POST",
-        headers,
-      });
-
-      const raw = await res.text().catch(() => "");
-      let body: any = {};
-      try {
-        body = raw ? JSON.parse(raw) : {};
-      } catch {
-        body = { raw };
-      }
-
-      if (res.ok) return body;
-
-      const err: any = new Error(
-        `Telegram worker HTTP ${res.status}: ${body?.error || raw || res.statusText}`,
-      );
-      err.status = res.status;
-      err.body = body;
-      lastError = err;
-
-      if (![429, 502, 503, 504].includes(res.status) || attempt === 3) {
-        throw err;
-      }
-    } catch (e: any) {
-      lastError = e;
-      const status = safeNumber(e?.status, 0);
-      if (
-        attempt === 3 ||
-        (status && ![429, 502, 503, 504].includes(status))
-      ) {
-        throw e;
-      }
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, attempt * 700));
-  }
-
-  throw lastError || new Error("Telegram worker indisponible");
-}
-
-async function dispatchTelegramPrediction(predictionId: string | number) {
-  const id = String(predictionId || "").trim();
-  if (!id) return false;
-
-  try {
-    const result = await invokeTelegramWorker(id);
-
-    const sent =
-      safeNumber(result?.telegram_retry_sent, 0) > 0 ||
-      result?.already_sent === true;
-
-    if (!sent) {
-      console.warn("⚠️ Worker Telegram dédié terminé sans envoi:", {
-        prediction_id: id,
-        result,
-      });
-      return false;
-    }
-
-    console.log("✅ Coupon Telegram confirmé par worker dédié", {
-      prediction_id: id,
-      sent_chat_ids: result?.sent_chat_ids || [],
-    });
-    return true;
-  } catch (e: any) {
-    console.warn("⚠️ Dispatch Telegram dédié impossible:", {
-      prediction_id: id,
-      error: e?.message || String(e),
-    });
-    return false;
-  }
-}
-
-async function dispatchOnePendingTelegramRetry() {
-  try {
-    const result = await invokeTelegramWorker(null);
-    return {
-      telegram_worker_retry_processed: safeNumber(
-        result?.telegram_retry_processed,
-        0,
-      ),
-      telegram_worker_retry_sent: safeNumber(
-        result?.telegram_retry_sent,
-        0,
-      ),
-      telegram_worker_retry_failed: safeNumber(
-        result?.telegram_retry_failed,
-        0,
-      ),
-      telegram_worker_retry_skipped: safeNumber(
-        result?.telegram_retry_skipped,
-        0,
-      ),
-      telegram_worker_retry_error: result?.error || null,
-    };
-  } catch (e: any) {
-    console.warn(
-      "⚠️ Retry Telegram worker dédié impossible:",
-      e?.message || String(e),
-    );
-
-    return {
-      telegram_worker_retry_processed: 0,
-      telegram_worker_retry_sent: 0,
-      telegram_worker_retry_failed: 1,
-      telegram_worker_retry_skipped: 0,
-      telegram_worker_retry_error: e?.message || String(e),
-    };
-  }
 }
 
 async function retryPendingTelegramLiveCoupons(
