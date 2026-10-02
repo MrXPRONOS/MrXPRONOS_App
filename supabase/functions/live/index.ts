@@ -1587,7 +1587,13 @@ async function getTelegramVectorFonts() {
   if (!telegramVectorFontsPromise) telegramVectorFontsPromise = (async () => {
     const module:any = await import("npm:opentype.js@1.3.4");
     const op = module.default?.parse ? module.default : module;
-    const fonts = await loadFontData();
+    // Seules deux polices sont nécessaires aux coupons SVG ; ne pas charger
+    // ExtraBold ou Satori (anciens chemins responsables du rendu blanc).
+    const fontBytes=await Promise.all([
+      readBundledTelegramFont("NotoSans-Regular.ttf"),
+      readBundledTelegramFont("NotoSans-Bold.ttf")
+    ]);
+    const fonts={regular:toExactArrayBuffer(fontBytes[0]),bold:toExactArrayBuffer(fontBytes[1])};
     async function parse(bytes:ArrayBuffer, name:string){
       try { const f=op.parse(bytes.slice(0)); if(!f?.unitsPerEm)throw Error("no glyphs"); return f; }
       catch(e:any){
@@ -4109,7 +4115,8 @@ async function savePrediction(
     throw error;
   }
 
-  await insertNotification({
+  // Une panne de notifications ne doit jamais empêcher la publication Telegram.
+  try { await insertNotification({
     user_id: "all",
     type: "live_prediction",
     title: "Nouvelle opportunité LIVE",
@@ -4124,7 +4131,7 @@ Mise coupon: ${formatReceiptMoney(LIVE_COUPON_STAKE_FCFA)}`,
     priority: pred.probability >= 0.86 ? "urgent" : "normal",
     read: false,
     related_prediction_id: data.id,
-  });
+  }); }catch(e:any){console.warn("Notification LIVE indisponible, Telegram continue:",e?.message||String(e));}
 
   let telegramAttempted = false;
 
