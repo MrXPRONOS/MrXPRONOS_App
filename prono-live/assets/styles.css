@@ -207,3 +207,31 @@ body{background:#020d20}
 .daily-market-status b{font-size:13px;font-weight:900}
 #view-daily .empty{background:#fff;color:#5e7685;border-color:#d8e1e6}
 @media(max-width:720px){.daily-grid{grid-template-columns:1fr}.daily-ticket{border-radius:14px}.daily-match-box{border-width:4px}.daily-ticket-simple{font-size:19px}.daily-teams{grid-template-columns:minmax(0,1fr) 38px minmax(0,1fr)}.daily-vs{font-size:19px}.daily-teams .coupon-team{gap:5px}.daily-teams .coupon-team-logo{width:38px;height:38px;flex-basis:38px}.daily-teams .coupon-team b{font-size:12px}}
+
+/* Captures immuables: dimensions et palette du coupon de référence Telegram */
+.coupon-snapshot{width:100%;max-width:429px;margin:0 auto}
+.coupon-snapshot .coupon-paper{border-radius:0 0 10px 10px;background:#fff}
+.coupon-snapshot.won .coupon-paper,
+.coupon-snapshot.lost .coupon-paper,
+.coupon-snapshot.accepted .coupon-paper{background:#fff}
+.coupon-snapshot .coupon-event{background:#fbfbfb;border:1px solid #d9e1e7;border-radius:12px;margin:5px 7px 7px;padding:0 12px 10px}
+.coupon-snapshot .coupon-score-row{grid-template-columns:minmax(0,1fr) 60px minmax(0,1fr);align-items:center;padding:12px 0 10px;gap:7px}
+.coupon-snapshot .coupon-score b{font-size:20px}
+.coupon-snapshot .coupon-team-logo{width:34px;height:34px;flex-basis:34px;border:1px solid #cad6dd}
+.coupon-snapshot .coupon-score small{font-size:11px;color:#879da9}
+.coupon-snapshot .coupon-finance>div{min-height:27px}
+.coupon-snapshot .coupon-accepted.accepted,
+.coupon-snapshot .coupon-status-row b.accepted{color:#4a90e2!important}
+.coupon-snapshot .coupon-accepted.won,
+.coupon-snapshot .coupon-status-row b.won{color:#2ea868!important}
+.coupon-snapshot .coupon-accepted.lost,
+.coupon-snapshot .coupon-status-row b.lost{color:#dc4848!important}
+.coupon-snapshot .coupon-football,.coupon-snapshot .coupon-ball{color:#91a7b5}
+.coupon-snapshot .coupon-team b{font-size:12px}
+.coupon-snapshot .coupon-head{padding:14px 14px 12px}
+.coupon-snapshot .coupon-simple{font-size:20px}
+.coupon-snapshot .coupon-event-head{min-height:55px}
+.coupon-snapshot .coupon-event-title small{font-size:11px}
+.coupon-snapshot .coupon-market strong{font-size:13px}
+.coupon-snapshot .coupon-live-row,.coupon-snapshot .coupon-status-row{font-size:12px}
+@media (max-width:410px){.coupon-snapshot .coupon-sponsor{padding:7px;gap:4px}.coupon-snapshot .coupon-sponsor-left img{height:17px}.coupon-snapshot .coupon-promo{font-size:9px;padding:7px}.coupon-snapshot .coupon-team{gap:4px}.coupon-snapshot .coupon-team-logo{width:29px;height:29px;flex-basis:29px}}
