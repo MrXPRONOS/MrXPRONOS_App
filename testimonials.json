@@ -1,32 +1,32 @@
 [
   {
-    "name": "Lassina Diop",
-    "rating": 4,
+    "name": "Djeneba Kabore",
+    "rating": 5,
+    "city": "Lagos",
+    "text": "Franchement, les analyses font la différence. Maintenant je mise plus discipliné. Ça change ma façon de jouer."
+  },
+  {
+    "name": "Djeneba Mukendi",
+    "rating": 5,
+    "city": "Cotonou",
+    "text": "Les pronos sont clairs et je mise plus discipliné. Je préfère cette méthode aux paris au hasard."
+  },
+  {
+    "name": "Xavier Sall",
+    "rating": 5,
     "city": "Kigali",
-    "text": "Depuis 10 jours je suis les analyses, et je comprends enfin pourquoi je joue. C’est simple et ça m’aide vraiment."
+    "text": "Les pronos sont clairs et je comprends enfin pourquoi je joue. Je préfère cette méthode aux paris au hasard."
   },
   {
-    "name": "Léa Bamba",
-    "rating": 5,
-    "city": "Alger",
-    "text": "Depuis 21 jours je suis le live, et je choisis mieux mes matchs. C’est simple et ça m’aide vraiment."
-  },
-  {
-    "name": "Chaka Chanda",
-    "rating": 4,
-    "city": "Johannesburg",
-    "text": "Depuis 21 jours je suis le live, et je joue moins mais plus propre. C’est simple et ça m’aide vraiment."
-  },
-  {
-    "name": "Mamadou Ba",
-    "rating": 5,
-    "city": "Bamako",
-    "text": "Franchement, le live font la différence. Maintenant je fais moins de combinés inutiles. Ça change ma façon de jouer."
-  },
-  {
-    "name": "Oumou Onyeka",
+    "name": "Oumou Mohamed",
     "rating": 5,
     "city": "Le Caire",
-    "text": "Franchement, les coupons font la différence. Maintenant je choisis mieux mes matchs. Ça change ma façon de jouer."
+    "text": "Franchement, les coupons font la différence. Maintenant je comprends enfin pourquoi je joue."
+  },
+  {
+    "name": "Nagnouma Boateng",
+    "rating": 4,
+    "city": "Tunis",
+    "text": "Depuis 21 jours je suis les coupons, et je fais moins de combinés inutiles. C’est simple et ça m’aide vraiment."
   }
 ]
