@@ -41,5 +41,6 @@ jobs:
             echo "No banner changes."
           else
             git commit -m "chore(prono-live): refresh official bonus banners"
-            git push
+            git pull --rebase origin main
+            git push origin main
           fi
