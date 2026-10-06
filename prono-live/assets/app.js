@@ -11,6 +11,15 @@ const BOOKMAKERS=[
  {name:'Linebet',logo:'../assets/images/linebet.webp',bonus:'Offre nouveaux joueurs',countries:'Selon disponibilité locale',code:'XPVIP',url:'https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611'},
  {name:'BetClic',logo:'../assets/images/betclic.webp',bonus:'Offre de bienvenue',countries:'Selon disponibilité locale',code:'Vérifier sur le site',url:'https://betpari-click.com/2vY0?extid=USD'}
 ];
+const BONUSES=[
+ {bookmaker:'1xBet',logo:'../assets/images/1xbet.webp',badge:'BIENVENUE',title:'Bonus premier dépôt',value:'Jusqu’à 100 %',description:'Offre de bienvenue pour un premier dépôt éligible. Le plafond et les conditions dépendent du pays et du compte.',code:'XPVIP',url:'https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573',featured:true},
+ {bookmaker:'1xBet',logo:'../assets/images/1xbet.webp',badge:'CASHBACK',title:'Crypto Freebet',value:'Jusqu’à 30 %',description:'Cashback/freebet sur certaines opérations crypto éligibles selon les conditions de la promotion.',code:'XPVIP',url:'https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573'},
+ {bookmaker:'1win',logo:'../assets/images/1win.webp',badge:'NOUVEAUX JOUEURS',title:'Pack de bienvenue',value:'Bonus multi-dépôts',description:'Offre de bienvenue réservée aux nouveaux comptes. Le pourcentage et les plafonds peuvent varier selon le pays.',code:'XPVIP',url:'https://1wrbgb.com/?open=register&p=qqcw',featured:true},
+ {bookmaker:'Betwinner',logo:'../assets/images/betwinner.webp',badge:'BIENVENUE',title:'Bonus premier dépôt',value:'Offre de bienvenue',description:'Bonus destiné aux nouveaux joueurs après inscription et dépôt éligible. Vérifiez le montant affiché avant de déposer.',code:'XPVIP',url:'https://bwredir.com/299Y'},
+ {bookmaker:'Melbet',logo:'../assets/images/melbet.webp',badge:'BIENVENUE',title:'Bonus premier dépôt',value:'Offre partenaire',description:'Bonus de bienvenue pour les nouveaux comptes éligibles, avec conditions de mise propres à votre région.',code:'XPVIP',url:'https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041'},
+ {bookmaker:'Linebet',logo:'../assets/images/linebet.webp',badge:'BIENVENUE',title:'Bonus nouveaux joueurs',value:'Offre de dépôt',description:'Promotion réservée aux nouveaux utilisateurs éligibles. Le montant exact s’affiche au moment de l’inscription.',code:'XPVIP',url:'https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611'},
+ {bookmaker:'BetClic',logo:'../assets/images/betclic.webp',badge:'PARI REMBOURSÉ',title:'Premier pari remboursé',value:'En Freebets',description:'Selon le marché local, le premier pari perdant peut être remboursé en Freebets dans la limite prévue par l’offre.',code:'Vérifier sur le site',url:'https://betpari-click.com/2vY0?extid=USD'}
+];
 let liveMatches=[],opportunities=[],upcoming=[],history=[],dailyPredictions=[],activeFilter='all',knownSignals=new Set();
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -122,5 +131,21 @@ async function enableAlerts(){if(!('serviceWorker'in navigator)||!('PushManager'
 function selectView(view){const target=$(`#view-${view}`);if(!target)return;$$('.data-view').forEach(v=>v.classList.toggle('active',v===target));$$('[data-view]').forEach(b=>{const active=b.dataset.view===view;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});requestAnimationFrame(()=>target.scrollIntoView({behavior:'smooth',block:'start'}));track('view_'+view)}
 function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),2300)}
 $('#bookmaker-grid').innerHTML=BOOKMAKERS.map(b=>`<article class="bookmaker-card"><img class="bk-logo" src="${b.logo}" alt="Logo ${esc(b.name)}"><div class="bk-info"><b>${esc(b.name)}</b><small>${esc(b.bonus)}</small><span>${esc(b.countries)} · Code : ${esc(b.code)}</span></div><a href="${b.url}" target="_blank" rel="sponsored noopener" data-bookmaker="${esc(b.name)}">S’inscrire chez ${esc(b.name)}</a></article>`).join('');
-$$('[data-view]').forEach(b=>b.onclick=()=>selectView(b.dataset.view));$$('.filter').forEach(b=>b.onclick=()=>{const box=b.closest('.filters'),mobile=matchMedia('(max-width:720px)').matches;if(mobile&&b.classList.contains('active')&&!box.classList.contains('filters-open')){box.classList.add('filters-open');b.setAttribute('aria-expanded','true');return}$$('.filter').forEach(x=>{x.classList.remove('active');x.setAttribute('aria-expanded','false')});b.classList.add('active');activeFilter=b.dataset.filter;box?.classList.remove('filters-open');render()});document.addEventListener('click',e=>{$$('.filters.filters-open').forEach(box=>{if(!box.contains(e.target))box.classList.remove('filters-open')})});$$('[data-copy]').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.copy)}catch{}toast('Code XPVIP copié');track('promo_copy')});$$('dialog .modal-close').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('#alert-btn').onclick=()=>$('#alert-modal').showModal();$('#confirm-alerts').onclick=enableAlerts;$('#refresh-btn').onclick=()=>load();
+const bonusGrid=$('#bonus-grid');
+if(bonusGrid){
+  bonusGrid.innerHTML=BONUSES.map((b,i)=>`<article class="bonus-card ${b.featured?'featured':''}">
+    <div class="bonus-card-top">
+      <span class="bonus-badge">${esc(b.badge)}</span>
+      <img src="${b.logo}" alt="Logo ${esc(b.bookmaker)}" loading="lazy">
+    </div>
+    <div class="bonus-card-body">
+      <h3>${esc(b.title)}</h3>
+      <strong class="bonus-value">${esc(b.value)}</strong>
+      <p>${esc(b.description)}</p>
+      <div class="bonus-code"><span>Code promo</span><b>${esc(b.code)}</b>${b.code==='XPVIP'?'<button type="button" data-copy="XPVIP">Copier</button>':''}</div>
+    </div>
+    <a class="bonus-cta" href="${b.url}" target="_blank" rel="sponsored noopener" data-bookmaker="${esc(b.bookmaker)}" data-bonus="${i}">Profiter du bonus</a>
+  </article>`).join('');
+}
+$('[data-view]').forEach(b=>b.onclick=()=>selectView(b.dataset.view));$('.bonus-nav-link').forEach(a=>a.onclick=()=>track('bonus_nav_click'));$$('.filter').forEach(b=>b.onclick=()=>{const box=b.closest('.filters'),mobile=matchMedia('(max-width:720px)').matches;if(mobile&&b.classList.contains('active')&&!box.classList.contains('filters-open')){box.classList.add('filters-open');b.setAttribute('aria-expanded','true');return}$$('.filter').forEach(x=>{x.classList.remove('active');x.setAttribute('aria-expanded','false')});b.classList.add('active');activeFilter=b.dataset.filter;box?.classList.remove('filters-open');render()});document.addEventListener('click',e=>{$$('.filters.filters-open').forEach(box=>{if(!box.contains(e.target))box.classList.remove('filters-open')})});$('[data-copy]').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.copy)}catch{}toast('Code XPVIP copié');track('promo_copy')});$('[data-bonus]').forEach(a=>a.onclick=()=>track('bonus_click',a.dataset.bookmaker||'bonus'));$$('dialog .modal-close').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('#alert-btn').onclick=()=>$('#alert-modal').showModal();$('#confirm-alerts').onclick=enableAlerts;$('#refresh-btn').onclick=()=>load();
 if('serviceWorker'in navigator)navigator.serviceWorker.register('service-worker.js',{scope:'./'}).catch(()=>{});if('Notification'in window&&Notification.permission==='granted')$('#alert-btn').textContent='🔔 Alertes activées';track('page_view');load();setInterval(()=>load(true),20000);
