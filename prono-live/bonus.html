@@ -41,6 +41,29 @@ body{background:linear-gradient(180deg,#020d20,#041832);color:#fff}
 .official-note{margin-top:24px;padding:16px 18px;border-radius:14px;border:1px solid rgba(242,207,50,.24);background:rgba(242,207,50,.05);color:#d9c98d;font-size:12px;line-height:1.6}
 @media(max-width:1050px){.bonus-hero-inner,.book-head,.bonus-card-rich{grid-template-columns:1fr}.bonus-grid-rich{grid-template-columns:1fr}.book-actions{min-width:0}.book-actions a,.book-actions button{width:100%}}
 @media(max-width:720px){.bonus-hero,.bonus-page-main{padding-left:14px;padding-right:14px}.bonus-hero{padding-top:32px}.bonus-grid-rich{padding:13px}.book-head{padding:16px}.bonus-card-rich{padding:13px}.detail-grid{grid-template-columns:1fr}.mobile-nav{display:grid!important;grid-template-columns:repeat(5,1fr)!important}.mobile-nav a{font-size:10px}}
+
+.bonus-modal{border:0;padding:0;background:transparent;color:#fff;width:min(920px,94vw);max-height:90vh}
+.bonus-modal::backdrop{background:rgba(0,8,20,.78);backdrop-filter:blur(5px)}
+.bonus-modal-card{background:linear-gradient(180deg,#071b38,#031326);border:1px solid rgba(77,220,255,.28);border-radius:20px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+.bonus-modal-hero{position:relative;height:min(330px,38vh);background:#04162f;overflow:hidden}
+.bonus-modal-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.bonus-modal-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.02),rgba(3,13,31,.85))}
+.bonus-modal-title{position:absolute;z-index:2;left:22px;right:72px;bottom:20px}
+.bonus-modal-title small{display:block;color:#9fe9ff;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+.bonus-modal-title h2{margin:0;font:900 clamp(22px,4vw,34px) Manrope,sans-serif}
+.bonus-modal-close{position:absolute;z-index:4;right:14px;top:14px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.24);background:rgba(1,13,31,.72);color:#fff;font-size:24px;cursor:pointer}
+.bonus-modal-body{padding:22px;max-height:50vh;overflow:auto}
+.bonus-modal-lead{color:#bfd5e4;line-height:1.7;margin:0 0 16px}
+.bonus-modal-section{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.08)}
+.bonus-modal-section h3{margin:0 0 10px;font:900 15px Manrope;color:#8edfff}
+.bonus-modal-section ul,.bonus-modal-section ol{margin:0;padding-left:20px;color:#e1eef7;line-height:1.7;font-size:14px}
+.bonus-modal-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.bonus-modal-actions a,.bonus-modal-actions button{padding:11px 14px;border-radius:10px;text-decoration:none;font-size:12px;font-weight:900}
+.bonus-modal-actions a:first-child{background:linear-gradient(180deg,#f2cf32,#d7ad16);color:#071326}
+.bonus-modal-actions a:nth-child(2){border:1px solid rgba(77,220,255,.32);color:#fff;background:rgba(77,220,255,.07)}
+.bonus-modal-actions button{border:1px solid rgba(255,255,255,.16);background:#071a36;color:#fff;cursor:pointer}
+.more-conditions{border:1px solid rgba(77,220,255,.35)!important;background:rgba(77,220,255,.08)!important;color:#fff!important}
+@media(max-width:720px){.bonus-modal-body{padding:16px}.bonus-modal-hero{height:220px}.bonus-modal-title{left:16px;bottom:15px}}
 </style>
 </head>
 <body>
@@ -72,7 +95,7 @@ body{background:linear-gradient(180deg,#020d20,#041832);color:#fff}
 <main class="bonus-page-main">
 <div id="book-jump" class="book-jump"></div>
 <div id="bonus-root"></div>
-<div class="official-note"><b>À propos des visuels :</b> la page utilise les visuels/logos officiels des bookmakers déjà intégrés au projet. Quand une campagne possède une bannière promotionnelle officielle stable et réutilisable, elle pourra remplacer automatiquement ce visuel sans modifier la structure de la page.</div>
+<div class="official-note"><b>Affiches et conditions :</b> chaque carte utilise une affiche récupérée depuis la page officielle de la promotion et stockée localement dans le projet. Le bouton « Voir les conditions » ouvre une fenêtre avec l’affiche, les conditions détaillées et la marche à suivre. Le lien « Voir les conditions officielles » reste disponible dans la fenêtre pour consulter le texte intégral publié par le bookmaker.</div>
 </main>
 
 <nav class="mobile-nav" aria-label="Navigation mobile">
@@ -83,6 +106,25 @@ body{background:linear-gradient(180deg,#020d20,#041832);color:#fff}
 <a href="bonus.html" class="active"><span>🎁</span>Bonus</a>
 </nav>
 
+<dialog id="bonus-modal" class="bonus-modal">
+  <div class="bonus-modal-card">
+    <div class="bonus-modal-hero">
+      <img id="bonus-modal-image" alt="">
+      <button class="bonus-modal-close" type="button" aria-label="Fermer">×</button>
+      <div class="bonus-modal-title"><small id="bonus-modal-book"></small><h2 id="bonus-modal-heading"></h2></div>
+    </div>
+    <div class="bonus-modal-body">
+      <p id="bonus-modal-lead" class="bonus-modal-lead"></p>
+      <div class="bonus-modal-section"><h3>Conditions détaillées</h3><ul id="bonus-modal-conditions"></ul></div>
+      <div class="bonus-modal-section"><h3>Marche à suivre</h3><ol id="bonus-modal-steps"></ol></div>
+      <div class="bonus-modal-actions">
+        <a id="bonus-modal-cta" target="_blank" rel="sponsored noopener">Profiter du bonus</a>
+        <a id="bonus-modal-rules" target="_blank" rel="noopener">Voir les conditions officielles</a>
+        <button id="bonus-modal-copy" type="button">Copier le code promo</button>
+      </div>
+    </div>
+  </div>
+</dialog>
 <footer><a class="brand" href="./"><span class="brand-mark">PL</span><span><b>PRONO LIVE</b><small>PAR MrXPRONOS</small></span></a><p>© 2026 Prono Live par MrXPRONOS · 18+ · Jouez responsablement.</p></footer>
 <div id="toast" class="toast" role="status"></div>
 <script>
@@ -135,8 +177,37 @@ const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const jump=document.getElementById('book-jump'),root=document.getElementById('bonus-root'),toast=document.getElementById('toast');
 jump.innerHTML=BOOKS.map(b=>'<a href="#'+slug(b.name)+'"><img src="'+b.logo+'" alt=""><span>'+esc(b.name)+'</span></a>').join('');
-root.innerHTML=BOOKS.map(b=>'<section class="book-group" id="'+slug(b.name)+'"><div class="book-head"><div class="book-logo"><img src="'+b.logo+'" alt="Logo '+esc(b.name)+'"></div><div><h2>'+esc(b.name)+'</h2><p>'+esc(b.intro)+'</p></div><div class="book-actions"><a href="'+b.url+'" target="_blank" rel="sponsored noopener">Voir '+esc(b.name)+'</a><button data-copy="'+esc(b.code)+'">Copier '+esc(b.code)+'</button></div></div><div class="bonus-grid-rich">'+b.bonuses.map((x,i)=>{const key=slug(b.name)+'-'+(i+1),banner='assets/bonus-banners/'+key+'.webp';return '<article class="bonus-card-rich"><div class="promo-art promo-art-photo"><span class="badge">'+esc(x[0])+'</span><img src="'+banner+'" data-fallback="'+b.logo+'" alt="Bannière officielle '+esc(b.name)+' — '+esc(x[1])+'" loading="lazy"><div class="promo-source">Visuel promotionnel officiel</div><div class="art-title">'+esc(x[1])+'</div></div><div class="bonus-copy"><h3>'+esc(x[1])+'</h3><span class="value">'+esc(x[2])+'</span><p>'+esc(x[3])+'</p><div class="detail-grid"><div class="detail-box"><h4>Conditions</h4><ul>'+x[4].map(v=>'<li>'+esc(v)+'</li>').join('')+'</ul></div><div class="detail-box"><h4>Marche à suivre</h4><ol>'+x[5].map(v=>'<li>'+esc(v)+'</li>').join('')+'</ol></div></div><div class="card-actions"><a href="'+b.url+'" target="_blank" rel="sponsored noopener">Profiter du bonus</a><a href="'+x[6]+'" target="_blank" rel="noopener">Conditions officielles</a><button data-copy="'+esc(b.code)+'">Copier le code</button></div></div></article>'}).join('')+'</div><div class="group-note">Les montants, critères, dates et disponibilités peuvent varier selon votre pays, votre devise et votre compte. Vérifiez toujours les conditions officielles avant de déposer.</div></section>').join('');
+root.innerHTML=BOOKS.map(b=>'<section class="book-group" id="'+slug(b.name)+'"><div class="book-head"><div class="book-logo"><img src="'+b.logo+'" alt="Logo '+esc(b.name)+'"></div><div><h2>'+esc(b.name)+'</h2><p>'+esc(b.intro)+'</p></div><div class="book-actions"><a href="'+b.url+'" target="_blank" rel="sponsored noopener">Voir '+esc(b.name)+'</a><button data-copy="'+esc(b.code)+'">Copier '+esc(b.code)+'</button></div></div><div class="bonus-grid-rich">'+b.bonuses.map((x,i)=>{const key=slug(b.name)+'-'+(i+1),banner='assets/bonus-banners/'+key+'.webp';return '<article class="bonus-card-rich"><div class="promo-art promo-art-photo"><span class="badge">'+esc(x[0])+'</span><img src="'+banner+'" data-fallback="'+b.logo+'" alt="Bannière officielle '+esc(b.name)+' — '+esc(x[1])+'" loading="lazy"><div class="promo-source">Visuel promotionnel officiel</div><div class="art-title">'+esc(x[1])+'</div></div><div class="bonus-copy"><h3>'+esc(x[1])+'</h3><span class="value">'+esc(x[2])+'</span><p>'+esc(x[3])+'</p><div class="detail-grid"><div class="detail-box"><h4>Conditions</h4><ul><li>'+esc(x[4][0]||'Voir les conditions complètes')+'</li><li>'+esc(x[4][1]||'Les critères peuvent varier selon votre compte')+'</li></ul></div><div class="detail-box"><h4>Marche à suivre</h4><ol><li>'+esc(x[5][0]||'Ouvrir la promotion')+'</li><li>'+esc(x[5][1]||'Suivre les étapes affichées')+'</li></ol></div></div><div class="card-actions"><a href="'+b.url+'" target="_blank" rel="sponsored noopener">Profiter du bonus</a><button class="more-conditions" data-book="'+esc(b.name)+'" data-index="'+i+'">Voir les conditions</button><button data-copy="'+esc(b.code)+'">Copier le code</button></div></div></article>'}).join('')+'</div><div class="group-note">Les montants, critères, dates et disponibilités peuvent varier selon votre pays, votre devise et votre compte. Vérifiez toujours les conditions officielles avant de déposer.</div></section>').join('');
 document.querySelectorAll('.promo-art img[data-fallback]').forEach(img=>{img.addEventListener('error',()=>{if(img.dataset.fallback&&img.src!==img.dataset.fallback){img.src=img.dataset.fallback;img.classList.add('fallback-logo');const source=img.closest('.promo-art')?.querySelector('.promo-source');if(source)source.textContent='Visuel officiel temporairement indisponible'}})});
+const bonusModal=document.getElementById('bonus-modal');
+const modalImg=document.getElementById('bonus-modal-image');
+const modalBook=document.getElementById('bonus-modal-book');
+const modalHeading=document.getElementById('bonus-modal-heading');
+const modalLead=document.getElementById('bonus-modal-lead');
+const modalConditions=document.getElementById('bonus-modal-conditions');
+const modalSteps=document.getElementById('bonus-modal-steps');
+const modalCta=document.getElementById('bonus-modal-cta');
+const modalRules=document.getElementById('bonus-modal-rules');
+const modalCopy=document.getElementById('bonus-modal-copy');
+function openBonusModal(bookName,index){
+  const b=BOOKS.find(x=>x.name===bookName);if(!b)return;
+  const x=b.bonuses[Number(index)];if(!x)return;
+  const key=slug(b.name)+'-'+(Number(index)+1);
+  modalImg.src='assets/bonus-banners/'+key+'.webp';
+  modalImg.alt='Affiche officielle '+b.name+' — '+x[1];
+  modalBook.textContent=b.name+' · '+x[0];
+  modalHeading.textContent=x[1]+' — '+x[2];
+  modalLead.textContent=x[3];
+  modalConditions.innerHTML=x[4].map(v=>'<li>'+esc(v)+'</li>').join('');
+  modalSteps.innerHTML=x[5].map(v=>'<li>'+esc(v)+'</li>').join('');
+  modalCta.href=b.url;modalRules.href=x[6];
+  modalCopy.dataset.copy=b.code;
+  bonusModal.showModal();
+}
+document.querySelectorAll('.more-conditions').forEach(btn=>btn.addEventListener('click',()=>openBonusModal(btn.dataset.book,btn.dataset.index)));
+document.querySelector('.bonus-modal-close')?.addEventListener('click',()=>bonusModal.close());
+bonusModal?.addEventListener('click',e=>{if(e.target===bonusModal)bonusModal.close()});
+modalCopy?.addEventListener('click',async()=>{const v=modalCopy.dataset.copy||'';try{await navigator.clipboard.writeText(v)}catch{}if(toast){toast.textContent='Code copié : '+v;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1800)}});
 document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',async()=>{const v=b.dataset.copy;try{await navigator.clipboard.writeText(v)}catch{}if(toast){toast.textContent='Code copié : '+v;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1800)}}));
 </script>
 </body>
