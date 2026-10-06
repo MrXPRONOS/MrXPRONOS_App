@@ -1,10 +1,10 @@
-const CACHE='prono-live-v10';
+const CACHE='prono-live-v9';
 const ASSETS=[
   './',
   './index.html',
   './bonus.html',
   './assets/styles.css?v=20261006-bonus5',
-  './assets/app.js?v=20261006-fix1',
+  './assets/app.js?v=20261006-bonus5',
   './assets/favicon.svg',
   './assets/og-prono-live.webp',
   './manifest.webmanifest'
