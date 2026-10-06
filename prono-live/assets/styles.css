@@ -235,3 +235,29 @@ body{background:#020d20}
 .coupon-snapshot .coupon-market strong{font-size:13px}
 .coupon-snapshot .coupon-live-row,.coupon-snapshot .coupon-status-row{font-size:12px}
 @media (max-width:410px){.coupon-snapshot .coupon-sponsor{padding:7px;gap:4px}.coupon-snapshot .coupon-sponsor-left img{height:17px}.coupon-snapshot .coupon-promo{font-size:9px;padding:7px}.coupon-snapshot .coupon-team{gap:4px}.coupon-snapshot .coupon-team-logo{width:29px;height:29px;flex-basis:29px}}
+
+
+/* ===== BONUS PARTENAIRES ===== */
+.bonus-section{border-top:1px solid rgba(116,174,235,.16);padding:54px 38px;background:linear-gradient(180deg,#031226,#041832)}
+.bonus-title{align-items:flex-start}
+.bonus-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px}
+.bonus-card{position:relative;display:flex;flex-direction:column;min-height:100%;border:1px solid rgba(0,190,255,.28);border-radius:16px;background:linear-gradient(145deg,#082650,#04162f);overflow:hidden;box-shadow:inset 0 1px rgba(255,255,255,.035)}
+.bonus-card.featured{border-color:rgba(242,207,50,.72);box-shadow:0 0 0 1px rgba(242,207,50,.08),0 12px 30px rgba(0,0,0,.2)}
+.bonus-card-top{min-height:78px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid rgba(116,174,235,.14)}
+.bonus-card-top img{width:108px;height:44px;object-fit:contain;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35))}
+.bonus-badge{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px;border-radius:999px;background:rgba(63,213,255,.10);border:1px solid rgba(63,213,255,.32);color:#61ddff;font-size:10px;font-weight:900;letter-spacing:.06em}
+.bonus-card.featured .bonus-badge{background:rgba(242,207,50,.12);border-color:rgba(242,207,50,.42);color:#f2cf32}
+.bonus-card-body{padding:18px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
+.bonus-card h3{margin:0;color:#fff;font:800 18px Manrope}
+.bonus-value{font:900 24px Manrope;color:#4ddcff;line-height:1.1}
+.bonus-card.featured .bonus-value{color:#f2cf32}
+.bonus-card p{margin:0;color:#b6c9dc;font-size:13px;line-height:1.55}
+.bonus-code{margin-top:auto;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;padding:10px 11px;border-radius:10px;background:#031326;border:1px solid rgba(255,255,255,.08)}
+.bonus-code span{font-size:10px;text-transform:uppercase;color:#7fa2c1;font-weight:800;letter-spacing:.05em}
+.bonus-code b{color:#fff;font:900 15px Manrope}
+.bonus-code button{border:1px solid rgba(77,220,255,.4);background:rgba(77,220,255,.08);color:#58dfff;border-radius:7px;padding:5px 8px;font-size:10px;font-weight:900;cursor:pointer}
+.bonus-cta{display:block;margin:0 16px 16px;padding:11px 14px;border-radius:10px;background:linear-gradient(180deg,#09aee6,#0285c7);color:#fff!important;text-align:center;text-decoration:none;font-size:13px;font-weight:900;box-shadow:0 8px 18px rgba(0,151,214,.18)}
+.bonus-card.featured .bonus-cta{background:linear-gradient(180deg,#f2cf32,#d6ab15);color:#071326!important}
+.bonus-nav-link span{display:block}
+@media(max-width:1100px){.bonus-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bonus-section{padding-inline:22px}}
+@media(max-width:720px){.bonus-section{padding:40px 14px}.bonus-grid{grid-template-columns:1fr}.bonus-card-top{min-height:68px}.bonus-card-top img{width:96px;height:38px}.bonus-value{font-size:21px}.bonus-title .promo-copy{margin-top:10px}}
