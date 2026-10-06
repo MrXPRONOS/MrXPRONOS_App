@@ -1,5 +1,14 @@
-const CACHE='prono-live-v8';
-const ASSETS=['./','./index.html','./assets/styles.css?v=20261006-bonus2','./assets/app.js?v=20261006-bonus2','./assets/favicon.svg','./assets/og-prono-live.webp','./manifest.webmanifest'];
+const CACHE='prono-live-v9';
+const ASSETS=[
+  './',
+  './index.html',
+  './bonus.html',
+  './assets/styles.css?v=20261006-bonus5',
+  './assets/app.js?v=20261006-bonus5',
+  './assets/favicon.svg',
+  './assets/og-prono-live.webp',
+  './manifest.webmanifest'
+];
 
 self.addEventListener('install',event=>{
   event.waitUntil(
