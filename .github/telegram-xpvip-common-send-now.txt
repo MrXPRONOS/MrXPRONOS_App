@@ -1,2 +1,2 @@
-Trigger common XPVIP promo with valid generated artwork.
-Updated: 2026-10-07T12:55:00Z
+Trigger common XPVIP promo after exact-image reconstruction fix.
+Updated: 2026-10-07T12:58:00Z
