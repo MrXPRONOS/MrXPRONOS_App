@@ -2,7 +2,9 @@ name: Telegram - Guide bookmaker quotidien
 
 on:
   schedule:
-    - cron: '0 10 * * *'
+    # 09:15 UTC = 09:15 au Togo. On evite pile 09:00 car GitHub peut retarder
+    # les workflows programmes au debut de l'heure.
+    - cron: '15 9 * * *'
   workflow_dispatch:
     inputs:
       bookmaker:
@@ -19,6 +21,12 @@ on:
           - 1win
           - betclic
           - common
+  # Permet un test immédiat contrôlé en modifiant uniquement ce fichier marqueur.
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/telegram-bookmaker-send-now.txt'
 
 permissions:
   contents: read
