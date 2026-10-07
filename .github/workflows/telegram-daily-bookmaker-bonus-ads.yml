@@ -1,0 +1,51 @@
+name: Telegram - Bonus bookmaker quotidien
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      bookmaker:
+        description: "Bookmaker à publier"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - melbet
+          - betwinner
+          - 1xbet
+          - linebet
+          - 1win
+          - betclic
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/telegram-bookmaker-bonus-send-now.txt'
+      - 'scripts/send_daily_bookmaker_bonus_ads.py'
+      - '.github/workflows/telegram-daily-bookmaker-bonus-ads.yml'
+      - 'assets/images/telegram-bonus-ads/**'
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests pillow
+
+      - name: Send daily bookmaker bonus ad
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+          BOOKMAKER_FORCE_KEY: ${{ github.event.inputs.bookmaker || '' }}
+        run: python scripts/send_daily_bookmaker_bonus_ads.py
