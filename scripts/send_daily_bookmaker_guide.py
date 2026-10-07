@@ -91,23 +91,27 @@ def common_keyboard():
 def caption_for(partner):
     return (
         f"📲 <b>COMMENT CRÉER TON COMPTE {partner['name'].upper()} ?</b>\n\n"
-        "Suis simplement les étapes indiquées sur l'image puis utilise le bouton ci-dessous "
-        "pour passer par le lien partenaire MrXPRONOS.\n\n"
-        "🎁 <b>Code promo : XPVIP</b>\n"
-        "Avant de valider ton inscription, vérifie que <b>XPVIP</b> apparaît bien dans le champ "
-        "« Code promo » lorsque ce champ est proposé.\n\n"
-        "⚠️ <b>18+</b> · Les bonus, montants et conditions peuvent varier selon le pays et le compte. "
-        "Joue de façon responsable."
+        "Suis les étapes affichées sur l’image puis utilise le bouton ci-dessous pour accéder "
+        "au lien partenaire MrXPRONOS.\n\n"
+        "<blockquote>🎁 <b>CODE PROMO : XPVIP</b>\n"
+        "<i>Avant de valider ton inscription, vérifie que XPVIP apparaît bien dans le champ "
+        "« Code promo » lorsqu’il est proposé.</i></blockquote>\n\n"
+        "👇 <b>Inscription :</b> clique sur le bouton juste en dessous.\n\n"
+        "⚠️ <b>18+</b> · <i>Offres et conditions variables selon le pays et le compte. "
+        "Joue de façon responsable.</i>"
     )
 
 
 def common_caption():
     return (
-        "🔥 <b>CODE PROMO XPVIP — PARTENAIRES MrXPRONOS</b>\n\n"
-        "Choisis ton bookmaker avec les boutons ci-dessous et vérifie que le code "
-        "<b>XPVIP</b> est bien renseigné lorsque le champ promo est proposé.\n\n"
-        "⚠️ <b>18+</b> · Les offres et conditions peuvent varier selon le pays. "
-        "Joue de façon responsable."
+        "🔥 <b>XPVIP — PARTENAIRES MrXPRONOS</b>\n\n"
+        "Choisis le bookmaker qui te convient avec les boutons ci-dessous.\n\n"
+        "<blockquote>🎁 <b>CODE PROMO : XPVIP</b>\n"
+        "<i>Vérifie que le code est bien renseigné lorsque le champ promo est proposé "
+        "avant de terminer ton inscription.</i></blockquote>\n\n"
+        "👇 <b>Sélectionne ton bookmaker :</b>\n\n"
+        "⚠️ <b>18+</b> · <i>Les offres et conditions peuvent varier selon le pays. "
+        "Joue de façon responsable.</i>"
     )
 
 
