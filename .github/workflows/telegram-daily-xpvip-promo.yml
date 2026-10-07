@@ -2,6 +2,11 @@ name: Telegram - Promo XPVIP commune (manuel)
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/telegram-xpvip-common-send-now.txt'
 
 permissions:
   contents: read
@@ -25,8 +30,8 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install requests
-        run: pip install requests
+      - name: Install dependencies
+        run: pip install requests pillow
 
       - name: Send daily partner promo to Telegram
         run: python scripts/send_daily_partner_promo.py
