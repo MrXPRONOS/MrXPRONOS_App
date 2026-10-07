@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import json
+import base64
 import textwrap
 import requests
 from pathlib import Path
@@ -11,6 +12,8 @@ TOKEN=os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID=os.environ.get("TELEGRAM_CHAT_ID")
 SECONDARY_CHAT_ID=os.environ.get("TELEGRAM_CHAT_ID_SECONDARY")
 IMAGE_PATH=os.environ.get("PROMO_IMAGE","assets/images/xpvip-partners-daily.jpg")
+BASE64_IMAGE_DIR=Path("assets/images/xpvip-partners-daily.b64")
+BASE64_IMAGE_PARTS=("01.txt","02.txt","03.txt")
 
 CAPTION=os.environ.get(
     "PROMO_CAPTION",
@@ -114,12 +117,36 @@ def generate_fallback_common(out_path):
     img.save(out_path,"JPEG",quality=90,optimize=True,progressive=False)
     return out_path
 
-def prepare_telegram_image(source):
-    source=Path(source)
-    out=Path(".tmp_xpvip_telegram.jpg")
+def restore_real_promo_image():
+    encoded_parts=[]
+    for name in BASE64_IMAGE_PARTS:
+        part=BASE64_IMAGE_DIR / name
+        if not part.exists():
+            raise SystemExit(f"Morceau image XPVIP introuvable: {part}")
+        encoded_parts.append(part.read_text(encoding="utf-8").strip())
 
-    if not source.exists():
-        raise SystemExit(f"Image promo XPVIP introuvable: {source}")
+    encoded="".join(encoded_parts)
+    try:
+        raw=base64.b64decode(encoded, validate=True)
+    except Exception as exc:
+        raise SystemExit(f"Image XPVIP encodée invalide: {exc}")
+
+    source=Path(".tmp_xpvip_source.jpg")
+    source.write_bytes(raw)
+
+    try:
+        with Image.open(source) as check:
+            check.verify()
+    except Exception as exc:
+        raise SystemExit(f"Image XPVIP reconstruite invalide: {exc}")
+
+    print(f"✅ Vraie image XPVIP reconstruite depuis {len(BASE64_IMAGE_PARTS)} morceaux")
+    return source
+
+
+def prepare_telegram_image(source):
+    source=restore_real_promo_image()
+    out=Path(".tmp_xpvip_telegram.jpg")
 
     try:
         with Image.open(source) as im:
@@ -129,12 +156,14 @@ def prepare_telegram_image(source):
                 ratio=max_side/max(im.size)
                 im=im.resize((max(1,int(im.width*ratio)),max(1,int(im.height*ratio))),Image.LANCZOS)
             im.save(out,"JPEG",quality=92,optimize=True,progressive=False)
+
         with Image.open(out) as check:
             check.verify()
-        print(f"🖼️ Vraie image promo XPVIP utilisée: {source}")
+
+        print(f"🖼️ Vraie image promo XPVIP prête pour Telegram: {out}")
         return out
     except Exception as exc:
-        raise SystemExit(f"Image promo XPVIP invalide: {source}: {exc}")
+        raise SystemExit(f"Impossible de préparer la vraie image XPVIP: {exc}")
 
 def main():
     if not TOKEN or not CHAT_ID:
