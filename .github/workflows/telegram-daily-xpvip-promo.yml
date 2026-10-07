@@ -1,6 +1,8 @@
-name: Telegram - Promo XPVIP commune (manuel)
+name: Telegram - Promo XPVIP commune
 
 on:
+  schedule:
+    - cron: '0 5 * * *'
   workflow_dispatch:
   push:
     branches:
