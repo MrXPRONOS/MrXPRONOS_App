@@ -16,32 +16,32 @@ OVERRIDE = (os.environ.get("BOOKMAKER_OVERRIDE") or "").strip().lower()
 PARTNERS = {
     "melbet": {
         "name": "MelBet",
-        "image": "assets/images/telegram-guides/melbet-xpvip.png",
+        "image": "assets/images/melbet.png",
         "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
     },
     "betwinner": {
         "name": "BetWinner",
-        "image": "assets/images/telegram-guides/betwinner-xpvip.png",
+        "image": "assets/images/betwinner.png",
         "url": "https://bwredir.com/299Y",
     },
     "1xbet": {
         "name": "1xBet",
-        "image": "assets/images/telegram-guides/1xbet-xpvip.png",
+        "image": "assets/images/1xbet.png",
         "url": "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573",
     },
     "linebet": {
         "name": "LineBet",
-        "image": "assets/images/telegram-guides/linebet-xpvip.png",
+        "image": "assets/images/linebet.png",
         "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
     },
     "1win": {
         "name": "1Win",
-        "image": "assets/images/telegram-guides/1win-xpvip.png",
+        "image": "assets/images/1win.png",
         "url": "https://1wrbgb.com/?open=register&p=qqcw",
     },
     "betclic": {
         "name": "Betclic",
-        "image": "assets/images/telegram-guides/betclic-xpvip.png",
+        "image": "assets/images/betclic.png",
         "url": "https://betpari-click.com/2vY0?extid=USD",
     },
 }
