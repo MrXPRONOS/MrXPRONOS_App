@@ -1,0 +1,262 @@
+{
+  "1xbet-1": {
+    "title": "1xBet — Premier dépôt",
+    "source": "https://1xbet.com/fr/bonus/rules",
+    "mode": "official_page_crop",
+    "page": "https://1xbet.com/fr/block"
+  },
+  "1xbet-2": {
+    "title": "1xBet — Hyper Bonus",
+    "source": "https://1xbet.com/fr/bonus/rules/hyper_bonus",
+    "mode": "official_page_crop",
+    "page": "https://1xbet.com/fr/block"
+  },
+  "1xbet-3": {
+    "title": "1xBet — Lucky Friday",
+    "source": "https://1xbet.com/fr/promotions/lucky-friday",
+    "mode": "official_page_crop",
+    "page": "https://1xbet.com/fr/block"
+  },
+  "1xbet-4": {
+    "title": "1xBet — Crypto Freebet",
+    "source": "https://1xbet.com/fr/bonus/rules/crypto-freebet",
+    "mode": "official_page_crop",
+    "page": "https://1xbet.com/fr/block"
+  },
+  "1xbet-5": {
+    "title": "1xBet — Pari sans risque",
+    "source": "https://1xbet.com/fr/promotions/no-risk-bet",
+    "mode": "official_page_crop",
+    "page": "https://1xbet.com/fr/block"
+  },
+  "1win-1": {
+    "title": "1win — Bonus bienvenue",
+    "source": "https://1win.com/v3/landing-page/football?p=joz6",
+    "mode": "official_page_crop",
+    "page": "https://1win.com/v3/landing-page/football?p=joz6"
+  },
+  "1win-2": {
+    "title": "1win — Promotion 2",
+    "source": "https://1win.com/",
+    "mode": "official_banner",
+    "image": "https://optimize.v3.bundlecdn.com/unsafe/banner_mobile_5x/plain/https://d1x0nzb6t1pnx3.cloudfront.net/banner-files/DknZzCFQnZhyQld8WNLwQGySAkljwOGzRIRc6_yHHOkuuLVXw5SWKeZ_r6llM_EOeVbcqwxXQw2UGNR6mgO27C0dAyVjkrceARzk.jpg",
+    "page": "https://1win.com/fr-CI/?p=joz6",
+    "size": [
+      1820,
+      728
+    ]
+  },
+  "1win-3": {
+    "title": "1win — Promotion 3",
+    "source": "https://1win.com/",
+    "mode": "official_banner",
+    "image": "https://optimize.v3.bundlecdn.com/unsafe/banner_mobile_5x/plain/https://d1x0nzb6t1pnx3.cloudfront.net/banner-files/DknZzCFQnZhyQld8WNLwQGySAkljwOGzRIRc6_yHHOkuuLVXw5SWKeZ_r6llM_EOeVbcqwxXQw2UGNR6mgO27C0dAyVjkrceARzk.jpg",
+    "page": "https://1win.com/fr-CI/?p=joz6",
+    "size": [
+      1820,
+      728
+    ]
+  },
+  "1win-4": {
+    "title": "1win — Cashback",
+    "source": "https://forum.1win.com/topic/44-%F0%9F%92%B0-get-up-to-30-cashback-on-your-weekly-losses/",
+    "mode": "official_banner",
+    "image": "https://web-k8s-forum-prod.s3.eu-central-1.amazonaws.com/uploads/monthly_2025_07/15.png.4cb176cd4b74fcce492d88cf8e106c85.png",
+    "page": "https://forum.1win.com/topic/44-%F0%9F%92%B0-get-up-to-30-cashback-on-your-weekly-losses/",
+    "size": [
+      1000,
+      450
+    ]
+  },
+  "1win-5": {
+    "title": "1win — Free Spins Friday",
+    "source": "https://forum.1win.com/topic/111-%F0%9F%8E%81-collect-100-free-spins-every-friday/",
+    "mode": "official_banner",
+    "image": "https://web-k8s-forum-prod.s3.eu-central-1.amazonaws.com/uploads/monthly_2025_05/image.png.8e7a02576f5344f8a9d2444232675b97.png",
+    "page": "https://forum.1win.com/topic/111-%F0%9F%8E%81-collect-100-free-spins-every-friday/",
+    "size": [
+      1000,
+      450
+    ]
+  },
+  "betwinner-1": {
+    "title": "Betwinner — Premier dépôt",
+    "source": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/bonus-de-premier-depot/",
+    "mode": "official_banner",
+    "image": "https://guidebook.betwinner.com/wp-content/uploads/2024/07/image-117.png",
+    "page": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/bonus-de-premier-depot/",
+    "size": [
+      1024,
+      485
+    ]
+  },
+  "betwinner-2": {
+    "title": "Betwinner — Bonus du jeudi",
+    "source": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/bonus-du-jeudi/",
+    "mode": "official_banner",
+    "image": "https://guidebook.betwinner.com/wp-content/uploads/2024/09/access-deposit-french-1536x687.webp",
+    "page": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/bonus-du-jeudi/",
+    "size": [
+      1536,
+      687
+    ]
+  },
+  "betwinner-3": {
+    "title": "Betwinner — Cashback sport",
+    "source": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/remboursement-sur-les-sports/",
+    "mode": "official_banner",
+    "image": "https://guidebook.betwinner.com/wp-content/uploads/2024/09/access-other-sports-french-1024x411.webp",
+    "page": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/remboursement-sur-les-sports/",
+    "size": [
+      1024,
+      411
+    ]
+  },
+  "betwinner-4": {
+    "title": "Betwinner — 20 paris perdants",
+    "source": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/serie-de-20-paris-perdants/",
+    "mode": "official_banner",
+    "image": "https://guidebook.betwinner.com/wp-content/uploads/2024/10/bet-slip-section-french-1-1-1536x447.webp",
+    "page": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/serie-de-20-paris-perdants/",
+    "size": [
+      1536,
+      447
+    ]
+  },
+  "betwinner-5": {
+    "title": "Betwinner — TOTO",
+    "source": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/bonus-toto/",
+    "mode": "official_banner",
+    "image": "https://guidebook.betwinner.com/wp-content/uploads/2024/10/toto-french-1536x739.webp",
+    "page": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/bonus-toto/",
+    "size": [
+      1536,
+      739
+    ]
+  },
+  "melbet-1": {
+    "title": "MelBet — Premier dépôt",
+    "source": "https://guidebook.melbet.com/fr/bonus/melbet-first-deposit-bonus/",
+    "mode": "official_page_crop",
+    "page": "https://guidebook.melbet.com/fr/bonus/melbet-first-deposit-bonus/"
+  },
+  "melbet-2": {
+    "title": "MelBet — Bonus casino",
+    "source": "https://guidebook.melbet.com/fr/casino/",
+    "mode": "official_banner",
+    "image": "https://guidebook.melbet.com/wp-content/uploads/2025/03/best-games-melbet-website-desktop-1024x525.jpg",
+    "page": "https://guidebook.melbet.com/fr/casino/",
+    "size": [
+      1024,
+      525
+    ]
+  },
+  "melbet-3": {
+    "title": "MelBet — Bonus application",
+    "source": "https://guidebook.melbet.com/fr/app/",
+    "mode": "official_page_crop",
+    "page": "https://guidebook.melbet.com/fr/app/"
+  },
+  "melbet-4": {
+    "title": "MelBet — Code promo",
+    "source": "https://guidebook.melbet.com/fr/bonus/promo-code/",
+    "mode": "official_banner",
+    "image": "https://guidebook.melbet.com/wp-content/uploads/2025/05/promo-code-check-section-melbet-desktop-website-1024x518.jpg",
+    "page": "https://guidebook.melbet.com/fr/bonus/promo-code/",
+    "size": [
+      1024,
+      518
+    ]
+  },
+  "melbet-5": {
+    "title": "MelBet — Bonus & Cashback",
+    "source": "https://guidebook.melbet.com/fr/bonus/",
+    "mode": "official_banner",
+    "image": "https://guidebook.melbet.com/wp-content/uploads/2025/04/bet-with-bonus-code-desktop-1024x522.jpg",
+    "page": "https://guidebook.melbet.com/fr/bonus/",
+    "size": [
+      1024,
+      522
+    ]
+  },
+  "linebet-1": {
+    "title": "Linebet — Premier dépôt",
+    "source": "https://linebet.com/fr/promotions/1st",
+    "mode": "official_promo_element",
+    "page": "https://linebet.com/fr/block"
+  },
+  "linebet-2": {
+    "title": "Linebet — Pack casino",
+    "source": "https://linebet.com/fr/bonus/casino/promotions/slot_first_deposit",
+    "mode": "official_promo_element",
+    "page": "https://linebet.com/fr/block"
+  },
+  "linebet-3": {
+    "title": "Linebet — Cashback hebdomadaire",
+    "source": "https://linebet.com/fr/bonus/rules/cash_sport",
+    "mode": "official_promo_element",
+    "page": "https://linebet.com/fr/block"
+  },
+  "linebet-4": {
+    "title": "Linebet — Lundi Chanceux",
+    "source": "https://linebet.com/fr/bonus/rules/happy_monday",
+    "mode": "official_promo_element",
+    "page": "https://linebet.com/fr/block"
+  },
+  "linebet-5": {
+    "title": "Linebet — Cashback VIP Casino",
+    "source": "https://linebet.com/fr/bonus/casino/promotions/vip_cashback",
+    "mode": "official_promo_element",
+    "page": "https://linebet.com/fr/block"
+  },
+  "betclic-1": {
+    "title": "Betclic — Bienvenue",
+    "source": "https://partner.betclic.fr/lp5/",
+    "mode": "official_banner",
+    "image": "https://partnerbet9baaf778e2.blob.core.windows.net/blobpartnerbet9baaf778e2/wp-content/uploads/ML_FR.png",
+    "page": "https://partner.betclic.fr/lp5/",
+    "size": [
+      1080,
+      288
+    ]
+  },
+  "betclic-2": {
+    "title": "Betclic — Offre mobile",
+    "source": "https://partner.betclic.ci/hello-world/",
+    "mode": "official_banner",
+    "image": "https://partnerbet9baaf778e2.blob.core.windows.net/blobpartnerbet9baaf778e2/wp-content/uploads/Canape-1.jpg",
+    "page": "https://partner.betclic.ci/hello-world/",
+    "size": [
+      1400,
+      684
+    ]
+  },
+  "betclic-3": {
+    "title": "Betclic — Offre live",
+    "source": "https://partner.betclic.ci/meczlive/",
+    "mode": "official_banner",
+    "image": "https://partnerbet9baaf778e2.blob.core.windows.net/blobpartnerbet9baaf778e2/wp-content/uploads/PL_WildWest-1.jpg",
+    "page": "https://partner.betclic.ci/meczlive/",
+    "size": [
+      1400,
+      684
+    ]
+  },
+  "betclic-4": {
+    "title": "Betclic — Bonus VIP",
+    "source": "https://partner.betclic.ci/bonusvip/",
+    "mode": "official_banner",
+    "image": "https://partnerbet9baaf778e2.blob.core.windows.net/blobpartnerbet9baaf778e2/wp-content/uploads/PL_WildWest-1.jpg",
+    "page": "https://partner.betclic.ci/bonusvip/",
+    "size": [
+      1400,
+      684
+    ]
+  },
+  "betclic-5": {
+    "title": "Betclic — But en Or",
+    "source": "https://promo.betclic.fr/but-en-or/",
+    "mode": "official_page_crop",
+    "page": "https://promo.betclic.fr/but-en-or/"
+  }
+}
