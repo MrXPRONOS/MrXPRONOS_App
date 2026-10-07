@@ -16,32 +16,32 @@ OVERRIDE = (os.environ.get("BOOKMAKER_OVERRIDE") or "").strip().lower()
 PARTNERS = {
     "melbet": {
         "name": "MelBet",
-        "image": "assets/images/melbet.png",
+        "image": "assets/images/telegram-guides/melbet-xpvip.jpg",
         "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
     },
     "betwinner": {
         "name": "BetWinner",
-        "image": "assets/images/betwinner.png",
+        "image": "assets/images/telegram-guides/betwinner-xpvip.jpg",
         "url": "https://bwredir.com/299Y",
     },
     "1xbet": {
         "name": "1xBet",
-        "image": "assets/images/1xbet.png",
+        "image": "assets/images/telegram-guides/1xbet-xpvip.jpg",
         "url": "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573",
     },
     "linebet": {
         "name": "LineBet",
-        "image": "assets/images/linebet.png",
+        "image": "assets/images/telegram-guides/linebet-xpvip.jpg",
         "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
     },
     "1win": {
         "name": "1Win",
-        "image": "assets/images/1win.png",
+        "image": "assets/images/telegram-guides/1win-xpvip.jpg",
         "url": "https://1wrbgb.com/?open=register&p=qqcw",
     },
     "betclic": {
         "name": "Betclic",
-        "image": "assets/images/betclic.png",
+        "image": "assets/images/telegram-guides/betclic-xpvip.jpg",
         "url": "https://betpari-click.com/2vY0?extid=USD",
     },
 }
@@ -162,6 +162,9 @@ def main():
     else:
         partner = PARTNERS[today]
         image = partner["image"]
+        if not Path(image).exists():
+            raise SystemExit(f"Affiche XPVIP introuvable pour {partner['name']}: {image}")
+        print(f"🖼️ Affiche XPVIP sélectionnée: {image}")
         caption = caption_for(partner)
         keyboard = single_keyboard(partner)
         label = partner["name"]
