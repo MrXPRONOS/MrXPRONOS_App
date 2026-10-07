@@ -1,0 +1,54 @@
+name: Telegram - Guide bookmaker quotidien
+
+on:
+  schedule:
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+    inputs:
+      bookmaker:
+        description: "Bookmaker à envoyer"
+        required: false
+        default: "auto"
+        type: choice
+        options:
+          - auto
+          - melbet
+          - betwinner
+          - 1xbet
+          - linebet
+          - 1win
+          - betclic
+          - common
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-daily-bookmaker-guide
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Send daily bookmaker guide
+        run: python scripts/send_daily_bookmaker_guide.py
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+          BOOKMAKER_OVERRIDE: ${{ github.event.inputs.bookmaker || 'auto' }}
