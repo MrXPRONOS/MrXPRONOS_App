@@ -1,8 +1,6 @@
-name: Telegram - Promo XPVIP quotidienne
+name: Telegram - Promo XPVIP commune (manuel)
 
 on:
-  schedule:
-    - cron: '0 9 * * *'
   workflow_dispatch:
 
 permissions:
