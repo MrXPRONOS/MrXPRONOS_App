@@ -1,0 +1,36 @@
+name: Telegram - Bookmaker promos selon le jour
+
+on:
+  schedule:
+    # 05:00 UTC = 05:00 au Togo
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      weekday:
+        description: 'Jour à simuler (0=lundi, 2=mercredi, 3=jeudi, 4=vendredi). Vide = jour actuel.'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependency
+        run: pip install requests
+
+      - name: Send day-based bookmaker promos
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+          FORCE_WEEKDAY: ${{ github.event.inputs.weekday || '' }}
+        run: python scripts/send_day_based_bookmaker_promos.py
