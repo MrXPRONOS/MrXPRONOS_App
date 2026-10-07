@@ -5,7 +5,7 @@ from pathlib import Path
 
 TOKEN=os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID=os.environ.get("TELEGRAM_CHAT_ID")
-SECONDARY_CHAT_ID=os.environ.get("TELEGRAM_CHAT_ID_SECONDARY","@mrxpronosfr")
+SECONDARY_CHAT_ID=os.environ.get("TELEGRAM_CHAT_ID_SECONDARY")
 IMAGE_PATH=os.environ.get("PROMO_IMAGE","assets/images/xpvip-partners-daily.jpg")
 CAPTION=os.environ.get(
     "PROMO_CAPTION",
@@ -24,8 +24,16 @@ PARTNERS=[
 ]
 
 def chat_ids():
-    vals=[CHAT_ID,SECONDARY_CHAT_ID]
-    return list(dict.fromkeys(v.strip() for v in vals if v and v.strip()))
+    vals=[("primary", CHAT_ID)]
+    if SECONDARY_CHAT_ID and SECONDARY_CHAT_ID.strip():
+        vals.append(("secondary", SECONDARY_CHAT_ID.strip()))
+    seen=set()
+    out=[]
+    for role, value in vals:
+        if value and value.strip() and value.strip() not in seen:
+            seen.add(value.strip())
+            out.append((role, value.strip()))
+    return out
 
 def keyboard():
     rows=[]
@@ -44,8 +52,8 @@ def main():
         raise SystemExit(f"Image introuvable: {p}")
     api=f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
     markup=json.dumps(keyboard(),ensure_ascii=False)
-    errors=[]
-    for cid in chat_ids():
+    primary_error=None
+    for role, cid in chat_ids():
         try:
             with p.open("rb") as f:
                 r=requests.post(
@@ -61,11 +69,14 @@ def main():
                 )
             if not r.ok:
                 raise RuntimeError(f"{r.status_code} {r.text}")
-            print(f"Promo XPVIP envoyée vers {cid}")
+            print(f"✅ Promo XPVIP envoyée vers {cid} ({role})")
         except Exception as e:
-            errors.append(f"{cid}: {e}")
-    if errors:
-        raise SystemExit(" | ".join(errors))
+            if role == "primary":
+                primary_error=f"{cid}: {e}"
+            else:
+                print(f"⚠️ Canal secondaire ignoré après erreur: {cid}: {e}")
+    if primary_error:
+        raise SystemExit(primary_error)
 
 if __name__=="__main__":
     main()
