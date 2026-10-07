@@ -2,9 +2,8 @@ name: Telegram - Guide bookmaker quotidien
 
 on:
   schedule:
-    # 09:15 UTC = 09:15 au Togo. On evite pile 09:00 car GitHub peut retarder
-    # les workflows programmes au debut de l'heure.
-    - cron: '15 9 * * *'
+    # 09:00 UTC = 09:00 au Togo.
+    - cron: '0 9 * * *'
   workflow_dispatch:
     inputs:
       bookmaker:
