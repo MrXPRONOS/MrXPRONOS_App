@@ -9,9 +9,14 @@ SECONDARY_CHAT_ID=os.environ.get("TELEGRAM_CHAT_ID_SECONDARY")
 IMAGE_PATH=os.environ.get("PROMO_IMAGE","assets/images/xpvip-partners-daily.jpg")
 CAPTION=os.environ.get(
     "PROMO_CAPTION",
-    "🔥 Crée ton compte avec le code promo XPVIP et profite des offres disponibles chez nos bookmakers partenaires.\n\n"
-    "Utilise toujours le lien officiel du partenaire et vérifie que le code XPVIP est bien appliqué à l'inscription.\n\n"
-    "⚠️ 18+ · Joue de façon responsable. Les bonus et conditions peuvent varier selon le pays et le compte."
+    "🔥 <b>XPVIP — PARTENAIRES MrXPRONOS</b>\n\n"
+    "Retrouve ci-dessous les liens d’inscription de nos bookmakers partenaires.\n\n"
+    "<blockquote>🎁 <b>CODE PROMO : XPVIP</b>\n"
+    "<i>Avant de terminer ton inscription, vérifie que XPVIP est bien renseigné "
+    "lorsque le champ « Code promo » est proposé.</i></blockquote>\n\n"
+    "👇 <b>Choisis ton bookmaker avec les boutons ci-dessous.</b>\n\n"
+    "⚠️ <b>18+</b> · <i>Les offres et conditions peuvent varier selon le pays et le compte. "
+    "Joue de façon responsable.</i>"
 )
 
 PARTNERS=[
