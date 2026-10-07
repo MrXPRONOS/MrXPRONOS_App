@@ -118,31 +118,23 @@ def prepare_telegram_image(source):
     source=Path(source)
     out=Path(".tmp_xpvip_telegram.jpg")
 
-    if source.exists():
-        try:
-            with Image.open(source) as im:
-                im=ImageOps.exif_transpose(im)
-                im=im.convert("RGB")
-                # Telegram accepte largement ceci ; on normalise pour éviter IMAGE_PROCESS_FAILED.
-                max_side=2000
-                if max(im.size)>max_side:
-                    ratio=max_side/max(im.size)
-                    im=im.resize((max(1,int(im.width*ratio)),max(1,int(im.height*ratio))),Image.LANCZOS)
-                im.save(out,"JPEG",quality=90,optimize=True,progressive=False)
-            # Vérification réelle après réencodage
-            with Image.open(out) as check:
-                check.verify()
-            print(f"🖼️ Image commune normalisée pour Telegram: {out}")
-            return out
-        except Exception as exc:
-            print(f"⚠️ Image commune source illisible/incompatible: {source}: {exc}")
+    if not source.exists():
+        raise SystemExit(f"Image promo XPVIP introuvable: {source}")
 
-    print("🛠️ Génération d’un visuel commun de secours compatible Telegram…")
-    generate_fallback_common(out)
-    with Image.open(out) as check:
-        check.verify()
-    print(f"✅ Visuel commun de secours généré: {out}")
-    return out
+    try:
+        with Image.open(source) as im:
+            im=ImageOps.exif_transpose(im).convert("RGB")
+            max_side=2000
+            if max(im.size)>max_side:
+                ratio=max_side/max(im.size)
+                im=im.resize((max(1,int(im.width*ratio)),max(1,int(im.height*ratio))),Image.LANCZOS)
+            im.save(out,"JPEG",quality=92,optimize=True,progressive=False)
+        with Image.open(out) as check:
+            check.verify()
+        print(f"🖼️ Vraie image promo XPVIP utilisée: {source}")
+        return out
+    except Exception as exc:
+        raise SystemExit(f"Image promo XPVIP invalide: {source}: {exc}")
 
 def main():
     if not TOKEN or not CHAT_ID:
