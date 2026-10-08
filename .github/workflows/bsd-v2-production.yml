@@ -52,7 +52,8 @@ jobs:
               and m["prediction"].get("odds_source") in ("bsd_consensus","bsd_bookmaker")
               and isinstance(m["prediction"].get("odds"),(int,float))
               and not isinstance(m["prediction"]["odds"],bool)
-              and 1.20 <= m["prediction"]["odds"] <= 100
+              and 1.01 <= m["prediction"]["odds"] <= 100
+              and (m["prediction"]["odds"]>=1.20 or m.get("combo_only") is True)
               for m in data["matches"]
           ), "Invalid BSD priced selection in published feed"
           print("BSD_V2_PRICED_FEED_OK",len(data["matches"]))
@@ -64,8 +65,15 @@ jobs:
               assert len({p["market"] for p in selections})==len(selections), "Market families must differ"
               for pick in selections:
                   assert pick["odds_source"] in ("bsd_consensus","bsd_bookmaker")
-                  assert type(pick["odds"]) in (int,float) and 1.20<=pick["odds"]<=100
+                  assert type(pick["odds"]) in (int,float) and 1.01<=pick["odds"]<=100
+                  assert pick["odds"]>=1.20 or match.get("combo_only") is True
                   assert pick["selection_key"]!="UNDER_45"
+          for match in data["matches"]:
+              combo=match.get("combo_prediction")
+              if combo:
+                  assert type(combo["odds"]) in (int,float) and 1.01<=combo["odds"]<1.50
+                  assert combo["odds_source"] in ("bsd_consensus","bsd_bookmaker")
+                  assert combo["selection_key"]!="UNDER_45"
           print("BSD_V2_FEED_OK",len(data["matches"]))
           PY
           git config user.name "github-actions[bot]"
