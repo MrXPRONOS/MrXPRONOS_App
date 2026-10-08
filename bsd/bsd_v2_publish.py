@@ -220,6 +220,22 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             btts_model=btts_model,total_model=total_model,dc_model=dc_model,
             market_audit=market_audit,
         )
+        if prediction is None and normal_quotes:
+            # A high-priced quote exists but cannot be selected: allow the
+            # independent, stronger low-priced alternatives into the combo feed.
+            low_only={code:q for code,q in valid_quotes.items() if q["odds"]<1.20}
+            if low_only:
+                prediction,reason=predict_v2(
+                    f,index,calibration=calibration,quality_policy=policy,
+                    rho=rho,clock=now,mode="reliability",
+                    odds_by_market={code:q["odds"] for code,q in low_only.items()},
+                    require_odds=True,min_odds=MIN_COMBO_ODDS,
+                    allow_combo_prices=True,excluded_keys=EXCLUDED_SELECTIONS,
+                    btts_model=btts_model,total_model=total_model,dc_model=dc_model,
+                    market_audit=market_audit)
+                if prediction:
+                    combo_only=True
+                    active_quotes=low_only
         if prediction is None:
             entry["reason"]=reason
             stats[reason]+=1
