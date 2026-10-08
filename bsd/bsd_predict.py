@@ -12,6 +12,7 @@ from math import exp, factorial
 from typing import Any, Dict, List, Optional, Tuple
 
 from bsd_h2h import _team_id, _utc, _valid_score, local_h2h
+from bsd_markets import candidates_from_goals, select_best
 
 STATUS_OK = frozenset(("notstarted", "upcoming"))
 BASE_GOALS_HOME = 1.43
@@ -160,6 +161,7 @@ def predict_fixture(
     min_games: int = 3,
     min_double_chance: float = 0.67,
     clock: Optional[datetime] = None,
+    calibration=None,
 ) -> Tuple[Optional[dict], str]:
     """Returns (derived prediction, reason); never uses post-kickoff evidence."""
     status = str(fixture.get("status") or "").lower()
@@ -190,22 +192,15 @@ def predict_fixture(
     xg_a = _estimated_goals(af, away_venue, hf, BASE_GOALS_AWAY)
     probs = poisson_markets(xg_h, xg_a)
     h2h = index.h2h(hid, aid, kickoff_str)
-    # H2H as a restrained adjustment, since it's often a tiny sample.
-    if h2h["total_matches"] >= 2:
-        n = h2h["total_matches"]
-        historical_edge = (h2h["home_wins"] - h2h["away_wins"]) / n
-        adjust = _clip(.035 * historical_edge * min(n / 5, 1), -.035, .035)
-        probs["home_win"] = _clip(probs["home_win"] + adjust, .0, 1.0)
-        probs["away_win"] = _clip(probs["away_win"] - adjust, .0, 1.0)
-
-    one_x = probs["home_win"] + probs["draw"]
-    x_two = probs["away_win"] + probs["draw"]
-    if max(one_x, x_two) < min_double_chance or abs(one_x - x_two) < 0.035:
-        return None, "no_clear_edge"
-    choice = "1X" if one_x > x_two else "X2"
-    dc_prob = max(one_x, x_two)
+    # Le marché est sélectionné parmi tous les résultats et totals de buts.
+    # H2H disponible à titre informatif; ne pas déformer la distribution de scores.
+    choice, ranking = select_best(candidates_from_goals(xg_h, xg_a), calibration=calibration)
+    if choice is None:
+        return None, "no_reliable_market"
+    selected = choice["candidate"]
+    dc_prob = choice["calibrated_probability"]
     quality = round(100 * min(1, (min(hf["played"], af["played"]) / 10)))
-    category = "vip" if dc_prob >= .84 and quality >= 90 else "pro" if dc_prob >= .76 and quality >= 60 else "simple"
+    category = "vip" if choice["conservative_probability"] >= .80 and quality >= 90 and choice["calibration_samples"] >= 100 else "pro" if choice["conservative_probability"] >= .73 and quality >= 60 else "simple"
     confidence = round(100 * dc_prob, 1)
     # These categories are experimental and not claims of real-world hit rate.
     prediction = {
@@ -226,11 +221,23 @@ def predict_fixture(
         "verified_double": False,
         "verified_over": False,
         "prediction": {
-            "double_chance": choice,
+            "double_chance": selected.outcome if selected.market == "double_chance" else None,
+            "type": selected.label,
+            "market": selected.market,
+            "outcome": selected.outcome,
+            "line": selected.line,
+            "market_code": selected.market_code,
+            "selection_key": selected.key,
             "confidence": confidence,
+            "conservative_confidence": round(100 * choice["conservative_probability"], 1),
+            "fair_odds": choice["model_fair_odds"],
+            "calibration_samples": choice["calibration_samples"],
             "over_25": probs["over_25"] >= .5,
             "over_25_probability": round(probs["over_25"], 4),
         },
+        "market_ranking": [{"market_code": x["candidate"].market_code, "label": x["candidate"].label,
+                            "conservative_probability": x["conservative_probability"],
+                            "calibrated_probability": x["calibrated_probability"]} for x in ranking[:5]],
         "home_form": hf,
         "away_form": af,
         "h2h_analysis": h2h,
@@ -242,6 +249,6 @@ def predict_fixture(
         "quality_score": quality,
         "category": category,
         "badge": "TEST BSD - NON VALIDE",
-        "model_version": "bsd-poisson-v0.1-uncalibrated",
+        "model_version": "bsd-markets-v1-calibration-optional",
     }
     return prediction, "ok"
