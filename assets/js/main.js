@@ -1600,6 +1600,24 @@ async function displayHistory() {
   }
 
   const todayStr = getLocalDateString("today");
+  const outcomeForBsdPick = (pick, home, away) => {
+    const key = String(pick?.selection_key || "");
+    const h = Number(home), a = Number(away);
+    if (!Number.isInteger(h) || !Number.isInteger(a) || h < 0 || a < 0) return false;
+    if (key === "1") return h > a;
+    if (key === "X") return h === a;
+    if (key === "2") return a > h;
+    if (key === "1X") return h >= a;
+    if (key === "X2") return a >= h;
+    if (key === "12") return h !== a;
+    if (key === "BTTS_YES") return h > 0 && a > 0;
+    if (key === "BTTS_NO") return h === 0 || a === 0;
+    const goals = key.match(/^(OVER|UNDER)_(15|25|35|45)$/);
+    if (!goals) return false;
+    const line = Number(goals[2]) / 10;
+    return goals[1] === "OVER" ? h + a > line : h + a < line;
+  };
+
   const historyMatches = allData.matches.filter((m) => {
     const d = getLocalDateFromEvent(m.event_date);
     return !m.combo_only && d && d < todayStr;
@@ -1610,8 +1628,8 @@ async function displayHistory() {
       ...m,
       id: String(m.id) + ":" + String(selection.selection_key || "primary"),
       prediction: selection,
-      verified_double: selection.selection_key === m.prediction?.selection_key
-        ? Boolean(m.verified_double) : false,
+      verified_double: m.is_finished && m.home_score != null && m.away_score != null
+        ? outcomeForBsdPick(selection, m.home_score, m.away_score) : false,
     }));
   });
 
