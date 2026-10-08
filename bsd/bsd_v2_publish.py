@@ -113,7 +113,11 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     # les anciens pronostics à venir sans cote ou Under 4,5 sont retirés.
     saved={key:row for key,row in saved.items()
            if str(row.get("status","")).lower()=="finished"
-           and row.get("prediction",{}).get("selection_key") not in EXCLUDED_SELECTIONS}
+           and row.get("prediction",{}).get("selection_key") not in EXCLUDED_SELECTIONS
+           and row.get("prediction",{}).get("odds_source") in ("bsd_consensus","bsd_bookmaker")
+           and isinstance(row.get("prediction",{}).get("odds"), (int,float))
+           and not isinstance(row["prediction"]["odds"],bool)
+           and MIN_BSD_ODDS <= row["prediction"]["odds"] <= 100}
     index=V2History(history)
     stats=Counter()
     by_id={str(f["id"]):f for f in fixtures if isinstance(f,dict) and f.get("id") is not None}
