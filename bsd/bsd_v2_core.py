@@ -215,6 +215,10 @@ def markets_from_matrix(matrix) -> List[Candidate]:
 def _calibrated(candidate: Candidate, calibration: Optional[MarketCalibrator]):
     if calibration is None:
         return candidate.probability, 0
+    # Multiclass result/DC probabilities are already calibrated jointly
+    # before ranking; independent market calibration would break coherence.
+    if getattr(calibration, "outcome_calibration", None) is not None and candidate.family in ("result","double_chance"):
+        return candidate.probability, calibration.outcome_calibration.n
     _lower, p, n = calibration.score(candidate)
     return p, n
 
