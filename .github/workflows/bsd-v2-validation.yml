@@ -1,0 +1,48 @@
+name: BSD V2 - Validation experimentale
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_test:
+        description: Nombre de matchs historiques testes en 2026 (1-5000)
+        required: false
+        default: '1000'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-v2-validation
+  cancel-in-progress: false
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: python -m pip install requests cryptography
+      - name: Regression tests V1 and V2
+        run: python -m unittest discover -s bsd -p 'test_*.py' -v
+      - name: Restore private BSD history
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: python bsd/bsd_archive.py restore
+      - name: Walk-forward evaluation (fit 2024, calibrate 2025, test 2026)
+        env:
+          MAX_TEST: '${{ inputs.max_test }}'
+        run: python bsd/bsd_v2_evaluate.py --max-test "${MAX_TEST:-1000}"
+      - name: Check V2 report
+        run: |
+          python -c 'import json; x=json.load(open("bsd/v2_backtest_report.json")); assert x["model"]=="bsd-v2-isolated"; assert x["test"]["checked"]>0; print("BSD_V2_REPORT_OK",x["test"]["selected"])'
+      - name: Upload V2 experimental metrics only
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v2-validation-report
+          path: bsd/v2_backtest_report.json
+          retention-days: 7
+          if-no-files-found: error
