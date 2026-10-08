@@ -224,13 +224,14 @@ def main():
     index=V2History(historic)
     rho,_=fit_rho_2024(index)
     btts_model,btts_info=fit_btts_model(index,rho=rho)
-    cal,policy,diag=fit_policy(index,rho=rho,btts_model=btts_model,total_model=total_model,total_model=total_model)
+    total_model,total_info=fit_total_model(index,rho=rho)
+    cal,policy,diag=fit_policy(index,rho=rho,btts_model=btts_model,total_model=total_model)
     def odds_fetcher(event, captured):
         return fetch_event_odds(client,int(event["id"]),kickoff=fixture_datetime(event),
                                 captured_at=captured,bookmaker_slug="consensus")
     output=assemble(existing,fixtures,historic,now=now,calibration=cal,policy=policy,
                     rho=rho,odds_fetcher=odds_fetcher,max_odds_requests=args.max_odds_events,
-                    btts_model=btts_model,total_model=total_model,total_model=total_model)
+                    btts_model=btts_model,total_model=total_model)
     output["diagnostics"].update({"api_calls":client.requests_made,
                                   "quality_validation":diag,"rho":rho,
                                   "btts_training":btts_info,"totals_training":total_info})
