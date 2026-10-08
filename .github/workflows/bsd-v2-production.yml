@@ -48,7 +48,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data.json
           if ! git diff --cached --quiet; then
-            git commit -m "data(bsd): publish V2 football picks and verified results [skip ci]"
+            git commit -m "data(bsd): publish V2 football picks and verified results"
             git pull --rebase origin main
             git push origin HEAD:main
           fi
