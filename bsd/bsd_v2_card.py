@@ -19,6 +19,7 @@ ASSETS=ROOT/"assets/images"
 BALL=ASSETS/"bsd-football-generated.png"
 BRAND_ONE=ASSETS/"1xbet.webp"
 BRAND_TWO=ASSETS/"melbet.webp"
+TEAM_ICON_CACHE={}
 INK="#12334c"; MUTED="#6a8ba2"; GREEN="#34b466"; BORDER="#dde3e8"
 W,H=1080,1300
 ALLOWED_ODD_SOURCES=("bsd_consensus","bsd_bookmaker")
@@ -84,13 +85,47 @@ def _public_https(url):
                     "sports.bzzoiro.com","media.bzzoiro.com",
                     "www.thesportsdb.com","r2.thesportsdb.com")
 
+def _lookup_team_badge(name,session):
+    """Optional public team-logo resolution, never guess an ID or badge.
+
+    Successful lookup requires exact normalized team name to avoid mistaking
+    similarly named clubs from different countries.
+    """
+    import unicodedata
+    def norm(value):
+        return "".join(ch for ch in unicodedata.normalize("NFKD",str(value).casefold())
+                       if ch.isalnum())
+    target=norm(name)
+    if not target:return None
+    if target in TEAM_ICON_CACHE:return TEAM_ICON_CACHE[target]
+    badge=None
+    try:
+        response=session.get("https://www.thesportsdb.com/api/v1/json/3/searchteams.php",
+                             params={"t":name},timeout=8)
+        response.raise_for_status()
+        teams=response.json().get("teams") or []
+        exact=[t for t in teams if norm(t.get("strTeam"))==target
+               and str(t.get("strSport") or "").lower()=="soccer"]
+        if len(exact)==1:
+            candidate=exact[0].get("strBadge") or exact[0].get("strTeamBadge")
+            if _public_https(candidate):badge=candidate
+    except (requests.RequestException,ValueError,TypeError,AttributeError):
+        pass
+    TEAM_ICON_CACHE[target]=badge
+    return badge
+
+
 def _team_image(match,side,*,session=None):
-    for key in (side+"_logo",side+"_team_logo",side+"_logo_url"):
-        source=match.get(key)
+    session=session or requests.Session()
+    sources=[match.get(key) for key in (side+"_logo",side+"_team_logo",side+"_logo_url")]
+    if not any(_public_https(src) for src in sources):
+        sources.append(_lookup_team_badge(match.get(side+"_team") or "",session))
+    for source in sources:
         if _public_https(source):
             try:
-                session=session or requests.Session()
-                response=session.get(source,timeout=7,headers={"Accept":"image/png,image/webp,image/jpeg"})
+                response=session.get(source,timeout=8,
+                  headers={"Accept":"image/png,image/webp,image/jpeg"},
+                  allow_redirects=False)
                 response.raise_for_status()
                 if len(response.content)>1000000:continue
                 with Image.open(BytesIO(response.content)) as original:
