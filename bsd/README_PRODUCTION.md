@@ -60,3 +60,14 @@
 - La publication exacte et sans doublon dépend de la réponse Telegram et du registre Supabase; les délais et l'incertitude des erreurs réseau ne permettent pas de promettre un « exactement une fois » sans protocole de sortie transactionnelle.
 - Installation: pip install pillow requests cryptography.
 - Vérifier le workflow GitHub Actions complet et un envoi réel avant de déclarer l'automatisation opérationnelle.
+
+
+## Politique de cotes BSD — migration (8 octobre 2026)
+- Sélection **interdite** : UNDER_45, quelle que soit sa cote.
+- Pour toutes les nouvelles sélections, une cote BSD d'une source vérifiée consensus/bookmaker est obligatoire et doit être **>= 1.20**.
+- Les prix provenant seulement du modèle (fair_odds) ne sont jamais utilisés comme prix commercial.
+- Le générateur récupère les cotes **avant** le choix du marché ; le moteur classe les candidats admissibles sur leur probabilité calibrée, en excluant les marchés sans cote. Si un marché est rejeté par le filtre qualité, il examine le suivant.
+- S'il ne reste aucune option convenable, le match est absent du flux et n'est pas diffusé sur Telegram. Le nombre de pronostics publiés est donc variable.
+- Le contrôle de GitHub Actions avant déploiement et celui du diffuseur Telegram refusent également les coupons sous 1.20, les anciens UNDER_45 et les cotes non renseignées.
+- Nettoyage direct du fichier existant : 96 anciens pronostics, 4 encore admissibles selon les cotes déjà archivées. La génération quotidienne suivante évaluera d'autres marchés cotés pour les matchs à venir ; elle ne garantit pas 96 pronostics.
+- Un push de data.json dans main n'est pas à lui seul la preuve de la mise en ligne de GitHub Pages ; le déploiement explicite via workflow doit être vérifié.
