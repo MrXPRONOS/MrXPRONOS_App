@@ -97,7 +97,8 @@ class V2QualityPolicy:
                    min_market_validation=doc["min_market_validation"])
 
 
-def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validation=1200):
+def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validation=1200,
+               btts_model=None):
     """Séparation temporelle stricte à l'intérieur de 2025, sans ré-entrainement
     sur le trimestre utilisé pour estimer la qualité par marché.
     """
@@ -116,7 +117,11 @@ def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validat
         feat,why=estimate_goals(event,index)
         if feat is None:continue
         scored=outcome_scores(event)
-        for c in markets_from_matrix(score_matrix(feat["home"],feat["away"],rho)):
+        candidates=markets_from_matrix(score_matrix(feat["home"],feat["away"],rho))
+        if btts_model is not None:
+            from bsd_v2_btts import btts_candidates
+            candidates=btts_candidates(event,index,candidates,btts_model)
+        for c in candidates:
             cal.observe(c,realized(c,*scored))
         trained+=1
     perf=defaultdict(lambda:{"n":0,"wins":0,"sum_pred":0.})
@@ -125,6 +130,9 @@ def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validat
         feat,why=estimate_goals(event,index)
         if feat is None:continue
         candidates=markets_from_matrix(score_matrix(feat["home"],feat["away"],rho))
+        if btts_model is not None:
+            from bsd_v2_btts import btts_candidates
+            candidates=btts_candidates(event,index,candidates,btts_model)
         # Contrôle par marché : tous les marchés observés, pas seulement le gagnant.
         actual=outcome_scores(event)
         for c in candidates:
