@@ -31,7 +31,14 @@ class PricedSelectionTests(unittest.TestCase):
         choice,ranks=choose_market(markets,odds_by_market={allowed.market_code:1.19},
                                    require_odds=True,min_probability=.1)
         self.assertIsNone(choice)
+        # A minimum 1.20 price is necessary, not sufficient: the conservative
+        # probability must also beat break-even by at least 2.5 points.
         choice,ranks=choose_market(markets,odds_by_market={allowed.market_code:1.20},
+                                   require_odds=True,min_probability=.1)
+        self.assertIsNone(choice)
+        from dataclasses import replace
+        confident=replace(allowed,probability=.90)
+        choice,ranks=choose_market([confident],odds_by_market={allowed.market_code:1.20},
                                    require_odds=True,min_probability=.1)
         self.assertEqual(choice["candidate"].key,"OVER_15")
         self.assertEqual(choice["bookmaker_odds"],1.20)
