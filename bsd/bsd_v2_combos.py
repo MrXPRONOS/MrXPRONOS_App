@@ -42,7 +42,7 @@ def build_combos(matches,*,max_kickoff_gap_hours=24):
             break
     return grouped
 
-def due_combos(combos,now,*,min_minutes=0,max_minutes=60):
+def due_combos(combos,now,*,min_minutes=45,max_minutes=65):
     selected=[]
     for c in combos:
         if len(c.get("legs",[]))!=2:continue
