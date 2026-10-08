@@ -21,7 +21,11 @@ class V2AdvancedTests(unittest.TestCase):
         policy=V2QualityPolicy({"UNDER_45":{"n":60,"wins":30,"sum_pred":48.}})
         item=next(x for x in markets_from_matrix(score_matrix(1.1,1.0)) if x.key=="UNDER_45")
         self.assertEqual(policy.check_market({"candidate":item}),"quality_market_overconfident")
-        self.assertEqual(V2QualityPolicy.from_dict(policy.to_dict()).min_league,20)
+        restored=V2QualityPolicy.from_dict(policy.to_dict())
+        # Le seuil championnat a été abaissé à 15 pour élargir la couverture.
+        self.assertEqual(restored.min_league,15)
+        # Le contrôle qualité conserve le nouveau minimum de 5 matchs.
+        self.assertEqual(restored.min_form,5)
 
     def test_quality_bad_league(self):
         p=V2QualityPolicy()
