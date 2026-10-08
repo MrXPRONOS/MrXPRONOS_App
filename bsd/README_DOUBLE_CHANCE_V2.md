@@ -9,7 +9,7 @@ Les modifications sont sur GitHub main. La présence du code ne prouve pas une a
 | 3 | Domicile/extérieur (lissage petites séries) | Implémenté | Validation données réelles |
 | 4 | Force des adversaires, Elo chronologique | Implémenté | Comparaison Brier/Elo via historique |
 | 5 | Forme récente pondérée (5/15 matchs) | Implémenté | Test réel |
-| 6 | Équilibre attaques/défenses | Partiel : évitement de défaite, Elo et résultats (pas de second modèle attaque/défense indépendant) | Évaluation ablation requise |
+| 6 | Équilibre attaques/défenses | Implémenté : taux de buts marqués/encaissés pondérés, opposition attaque/défense | Évaluation ablation requise |
 | 7 | Fréquence des nuls par championnat | Implémenté avec lissage | Test par ligue |
 | 8 | Calibration multinomiale jointe 1/X/2 | Implémenté, 1X/X2/12 sont des sommes normalisées | Tests CI |
 | 9 | Cotes BSD réelles >=1,20 + marge conservatrice | Implémenté dans `choose_market` | Publication réelle BSD |
