@@ -12,6 +12,7 @@ from math import isfinite
 
 from bsd_h2h import _utc
 from bsd_v2_stakes import single_stake, combination_stake, money
+from bsd_v2_labels import market_label
 
 PARSE_MODE = "HTML"
 MAX_CAPTION_LENGTH = 1024  # Telegram photo caption limit after entity parsing.
@@ -49,8 +50,9 @@ def _fixture(match):
 
 
 def _selection(match):
-    return _safe((match.get("prediction") or {}).get("type")
-                 or (match.get("prediction") or {}).get("label") or "Pronostic", 100)
+    pick=match.get("prediction") or {}
+    return _safe(market_label(pick.get("selection_key"),
+                      pick.get("type") or pick.get("label") or "Pronostic"),100)
 
 
 def _closing():
