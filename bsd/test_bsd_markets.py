@@ -34,6 +34,15 @@ class MultiMarketTests(unittest.TestCase):
         self.assertIsNone(best)
         self.assertEqual(ranking, [])
 
+    def test_calibration_cannot_inflate_more_than_3_5_points(self):
+        c = MarketCalibrator()
+        item = self.options[0]
+        for _ in range(1000):
+            c.observe(item, 1)
+        _, calibrated, n = c.score(item)
+        self.assertEqual(n, 1000)
+        self.assertLessEqual(calibrated - item.probability, 0.03500001)
+
     def test_calibration_serialization(self):
         c = MarketCalibrator()
         option = self.options[0]
