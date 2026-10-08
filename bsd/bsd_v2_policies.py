@@ -98,7 +98,7 @@ class V2QualityPolicy:
 
 
 def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validation=1200,
-               btts_model=None, total_model=None):
+               btts_model=None, total_model=None, dc_model=None):
     """Séparation temporelle stricte à l'intérieur de 2025, sans ré-entrainement
     sur le trimestre utilisé pour estimer la qualité par marché.
     """
@@ -112,6 +112,8 @@ def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validat
     train=thin(train,max_train)
     validation=thin(validation,max_validation)
     cal=V2Calibration()
+    from bsd_v2_double_chance import OutcomeCalibration, adjust_candidates as dc_adjust, score_probs
+    outcome_cal=OutcomeCalibration()
     trained=0
     for event in train:
         feat,why=estimate_goals(event,index)
@@ -124,7 +126,14 @@ def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validat
         if btts_model is not None:
             from bsd_v2_btts import btts_candidates
             candidates=btts_candidates(event,index,candidates,btts_model)
+        if dc_model is not None:
+            base_result=dc_adjust(event,index,candidates,dc_model)
+            y=0 if scored[0]>scored[1] else 1 if scored[0]==scored[1] else 2
+            outcome_cal.observe(score_probs(base_result),y)
+            candidates=base_result
         for c in candidates:
+            if dc_model is not None and c.family in ("result","double_chance"):
+                continue
             cal.observe(c,realized(c,*scored))
         trained+=1
     perf=defaultdict(lambda:{"n":0,"wins":0,"sum_pred":0.})
@@ -139,6 +148,8 @@ def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validat
         if btts_model is not None:
             from bsd_v2_btts import btts_candidates
             candidates=btts_candidates(event,index,candidates,btts_model)
+        if dc_model is not None:
+            candidates=dc_adjust(event,index,candidates,dc_model,outcome_cal)
         # Contrôle par marché : tous les marchés observés, pas seulement le gagnant.
         actual=outcome_scores(event)
         for c in candidates:
@@ -148,6 +159,8 @@ def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validat
             row["wins"]+=realized(c,*actual)
             row["sum_pred"]+=p
         validated+=1
+    if dc_model is not None:
+        cal.outcome_calibration=outcome_cal
     policy=V2QualityPolicy(dict(perf))
     diag={"train_period":"2025-01-01 to 2025-08-31",
           "validation_period":"2025-09-01 to 2025-12-31",
