@@ -13,7 +13,7 @@ from typing import Dict, List, Optional, Tuple
 
 # Ne pas autoriser les prix théoriques dérisoires; ne remplace PAS des cotes réelles.
 DEFAULT_MIN_FAIR_ODDS = 1.32
-DEFAULT_MIN_PROBABILITY = 0.60
+DEFAULT_MIN_PROBABILITY = 0.70
 
 
 @dataclass(frozen=True)
@@ -117,10 +117,17 @@ class MarketCalibrator:
 
     def score(self, item: Candidate) -> Tuple[float, float, int]:
         n, successes = self.counts.get(item.key + ":" + self._bucket(item.probability), (0, 0))
-        posterior = (self.prior_strength * item.probability + successes) / (self.prior_strength + n)
-        # Sélection prudente, pénalité d'incertitude, pas une borne de confiance garantie.
-        conservative = posterior - 0.5 * sqrt(posterior * (1 - posterior) / (self.prior_strength + n + 1))
-        return max(0.0, conservative), posterior, n
+        empirical_posterior = (self.prior_strength * item.probability + successes) / (self.prior_strength + n)
+        # La calibration provient de 2025, pas de la saison courante : on limite
+        # son influence pour éviter des probabilités exagérément optimistes.
+        transfer_weight = 0.35 * n / (n + 400)
+        shift = max(-0.035, min(0.035, transfer_weight * (empirical_posterior - item.probability)))
+        calibrated = max(0.01, min(0.99, item.probability + shift))
+        # Garde-fou empirique, pas une borne statistique à 95 % :
+        # une tranche calibrée globalement ne garantit pas un match particulier.
+        uncertainty = max(0.015, 0.5 * sqrt(calibrated * (1 - calibrated) / (self.prior_strength + n + 1)))
+        conservative = calibrated - uncertainty
+        return max(0.0, conservative), calibrated, n
 
     def to_dict(self):
         return {"model": "bsd-market-calibration-v1", "prior_strength": self.prior_strength,
@@ -151,7 +158,7 @@ def select_best(candidates: List[Candidate], *, calibration: Optional[MarketCali
         if not min_fair_odds <= fair_odds <= max_fair_odds:
             continue
         if calibration is None:
-            conservative, calibrated, support = c.probability - .035, c.probability, 0
+            conservative, calibrated, support = c.probability - .04, c.probability, 0
         else:
             conservative, calibrated, support = calibration.score(c)
         if conservative < min_probability:
