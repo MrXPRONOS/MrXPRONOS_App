@@ -31,13 +31,13 @@ class OfflineSession:
 
 class CombosTests(unittest.TestCase):
     def test_two_different_fixtures_and_product_odds(self):
-        a,b=match(1,30,1.25),match(2,50,1.58)
+        a,b=match(1,30,1.25),match(2,50,1.38)
         coupons=build_combos([b,a])
         self.assertEqual(len(coupons),1)
         c=coupons[0]
         self.assertNotEqual(c["legs"][0]["id"],c["legs"][1]["id"])
-        self.assertAlmostEqual(c["combined_odds"],1.975)
-        self.assertAlmostEqual(c["potential_gain"],987500)
+        self.assertAlmostEqual(c["combined_odds"],1.725)
+        self.assertAlmostEqual(c["potential_gain"],862500)
         self.assertEqual(c["id"],build_combos([a,b])[0]["id"])
 
     def test_due_only_within_hour_before_first_kickoff(self):
@@ -49,13 +49,36 @@ class CombosTests(unittest.TestCase):
     def test_invalid_under45_low_price_and_missing_prices_refused(self):
         a=match(1,40)
         bad=match(2,55,1.19)
-        self.assertEqual(build_combos([a,bad]),[])
+        self.assertEqual(len(build_combos([a,bad])),1)
         bad["prediction"]["odds"]=1.5
         bad["prediction"]["selection_key"]="UNDER_45"
         self.assertEqual(build_combos([a,bad]),[])
         bad["prediction"]["selection_key"]="BTTS_YES"
         bad["prediction"]["odds_source"]=None
         self.assertEqual(build_combos([a,bad]),[])
+
+    def test_strict_upper_limit_and_lower_than_120_allowed(self):
+        a=match(1,55,1.12)
+        b=match(2,75,1.35)
+        self.assertEqual(len(build_combos([a,b])),1)
+        b["prediction"]["odds"]=1.50
+        self.assertEqual(build_combos([a,b]),[])
+        b["prediction"]["odds"]=1.75
+        self.assertEqual(build_combos([a,b]),[])
+        b["prediction"]["odds"]=1.00
+        self.assertEqual(build_combos([a,b]),[])
+
+    def test_combo_selection_is_independent_of_primary_single_market(self):
+        a=match(1,50,1.88)
+        a["combo_prediction"]={"selection_key":"UNDER_35","odds":1.18,
+                                "confidence":94.5,"odds_source":"bsd_consensus",
+                                "type":"Moins de 3.5 buts","market":"goals"}
+        b=match(2,55,1.38)
+        coupons=build_combos([a,b])
+        self.assertEqual(len(coupons),1)
+        self.assertEqual(coupons[0]["legs"][0]["prediction"]["selection_key"],"UNDER_35")
+        self.assertAlmostEqual(coupons[0]["combined_odds"],1.18*1.38)
+        self.assertEqual(a["prediction"]["odds"],1.88)
 
     def test_no_two_legs_from_same_fixture(self):
         a=match(1,40);b=match(1,55)
