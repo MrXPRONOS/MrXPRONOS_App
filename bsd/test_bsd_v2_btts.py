@@ -64,6 +64,37 @@ class BTTSTests(unittest.TestCase):
         self.assertEqual(model.blend,0.)
         self.assertEqual(diag["trained"],0)
 
+    def test_opponent_scoring_features_change_when_opponent_history_changes(self):
+        base=btts_features(self.match,V2History(self.history))
+        opponent_games=[]
+        for i in range(8):
+            opponent_games.append({
+                "id":1000+i,"event_date":(self.now-timedelta(days=100-i)).isoformat(),
+                "status":"finished","home_team_id":50+i,"away_team_id":11,
+                "home_score":0,"away_score":1,"league_id":9})
+        modified=btts_features(self.match,V2History(self.history+opponent_games))
+        self.assertNotEqual(base,modified)
+
+    def test_priced_btts_uses_conservative_break_even_margin(self):
+        from bsd_v2_core import choose_market
+        item=next(c for c in markets_from_matrix(score_matrix(1.4,1.2))
+                  if c.key=="BTTS_YES")
+        weak=replace(item,probability=.72)
+        picked,_=choose_market([weak],odds_by_market={item.market_code:1.50},
+            require_odds=True,league_samples=10,form_samples=6)
+        self.assertIsNone(picked)
+        good=replace(item,probability=.86)
+        picked,_=choose_market([good],odds_by_market={item.market_code:1.50},
+            require_odds=True,league_samples=10,form_samples=6)
+        self.assertEqual(picked["candidate"].key,"BTTS_YES")
+
+    def test_btts_never_uses_unquoted_price(self):
+        from bsd_v2_core import choose_market
+        item=next(c for c in markets_from_matrix(score_matrix(1.4,1.2))
+                  if c.key=="BTTS_NO")
+        picked,_=choose_market([replace(item,probability=.95)],require_odds=True)
+        self.assertIsNone(picked)
+
     def test_prediction_selects_quoted_btts_if_best_eligible(self):
         items=markets_from_matrix(score_matrix(1.4,1.2))
         yes=next(c for c in items if c.key=="BTTS_YES")
