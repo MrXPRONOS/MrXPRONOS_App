@@ -41,7 +41,17 @@ jobs:
           import json
           data=json.load(open("data.json",encoding="utf-8"))
           assert data["source"]=="bsd" and data["model_version"]=="bsd-v2-isolated"
-          assert isinstance(data["matches"],list) and all(m["source"]=="bsd" and m["prediction"]["selection_key"] for m in data["matches"])
+          assert isinstance(data["matches"],list)
+          assert all(m["source"]=="bsd" and m["prediction"]["selection_key"] for m in data["matches"])
+          assert all(
+              m["prediction"]["selection_key"] != "UNDER_45"
+              and m["prediction"].get("odds_source") in ("bsd_consensus","bsd_bookmaker")
+              and isinstance(m["prediction"].get("odds"),(int,float))
+              and not isinstance(m["prediction"]["odds"],bool)
+              and 1.20 <= m["prediction"]["odds"] <= 100
+              for m in data["matches"]
+          ), "Invalid BSD priced selection in published feed"
+          print("BSD_V2_PRICED_FEED_OK",len(data["matches"]))
           print("BSD_V2_FEED_OK",len(data["matches"]))
           PY
           git config user.name "github-actions[bot]"
