@@ -14,7 +14,7 @@ from bsd_calibrate import fit_calibration
 from bsd_predict import HistoryIndex, predict_fixture
 from bsd_v2_policies import fit_policy
 from bsd_v2_btts import fit_btts_model
-from bsd_v2_over_under import fit_total_model, btts_candidates
+from bsd_v2_over_under import fit_total_model, adjust_candidates
 
 
 def get_sample(index, year, max_matches):
@@ -108,7 +108,7 @@ def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
                     v1_counts["wins"] += v1_pick
         prediction, reason = predict_v2(fixture,index,calibration=calibration,rho=rho,
                                         clock=fixture_datetime(event)-timedelta(seconds=1),
-                                        quality_policy=quality_policy,btts_model=btts_model,total_model=total_model,total_model=total_model)
+                                        quality_policy=quality_policy,btts_model=btts_model,total_model=total_model)
         if prediction is None:
             counters["skip_"+reason]+=1
             continue
@@ -198,12 +198,13 @@ def evaluate(history, *, max_test=1000, max_train=1800):
     index=V2History(history)
     rho,rho_info=fit_rho_2024(index)
     btts_model,btts_info=fit_btts_model(index,rho=rho)
-    cal,quality_policy,policy_info=fit_policy(index,rho=rho,max_train=max_train,btts_model=btts_model,total_model=total_model,total_model=total_model)
+    total_model,total_info=fit_total_model(index,rho=rho)
+    cal,quality_policy,policy_info=fit_policy(index,rho=rho,max_train=max_train,btts_model=btts_model,total_model=total_model)
     trained=policy_info['training_eligible']
     v1_cal, v1_training = fit_calibration(history, year=2025, max_fixtures=max_train)
     results=run_evaluation(index,cal,rho,max_matches=max_test,
                            v1_index=HistoryIndex(history),v1_calibration=v1_cal,
-                           quality_policy=quality_policy,btts_model=btts_model,total_model=total_model,total_model=total_model)
+                           quality_policy=quality_policy,btts_model=btts_model,total_model=total_model)
     return {"model":"bsd-v2-isolated", "history_eligible":len(index.global_games),
             "training":{"rho":rho_info,"calibration_year":2025,"calibration_games":trained,"quality_policy":policy_info,
                         "btts_training":btts_info,
