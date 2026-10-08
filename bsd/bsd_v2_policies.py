@@ -98,7 +98,7 @@ class V2QualityPolicy:
 
 
 def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validation=1200,
-               btts_model=None):
+               btts_model=None, total_model=None):
     """Séparation temporelle stricte à l'intérieur de 2025, sans ré-entrainement
     sur le trimestre utilisé pour estimer la qualité par marché.
     """
@@ -118,6 +118,9 @@ def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validat
         if feat is None:continue
         scored=outcome_scores(event)
         candidates=markets_from_matrix(score_matrix(feat["home"],feat["away"],rho))
+        if total_model is not None:
+            from bsd_v2_over_under import adjust_candidates
+            candidates=adjust_candidates(event,index,candidates,total_model)
         if btts_model is not None:
             from bsd_v2_btts import btts_candidates
             candidates=btts_candidates(event,index,candidates,btts_model)
