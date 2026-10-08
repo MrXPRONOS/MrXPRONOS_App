@@ -13,6 +13,13 @@ from bsd_v2_card import render as render_card
 
 KIND="bsd_v2_hourly"
 URL="https://mrxpronos.github.io/MrXPRONOS_App/pronos.html"
+BOOKMAKERS_URL="https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html"
+
+def action_buttons():
+    return {"inline_keyboard":[
+        [{"text":"Voir plus de coupons 🔥","url":URL}],
+        [{"text":"S’inscrire ou réinitialiser son compte 🎯","url":BOOKMAKERS_URL}],
+    ]}
 
 def due(matches,now,min_minutes=60,max_minutes=120):
     selected=[]
@@ -75,8 +82,8 @@ def send_one(session,token,chat_id,match):
         caption=("⚽ Pronostic BSD V2 : "+str(match["home_team"])+" vs "+
                  str(match["away_team"])+"\n"+
                  str(match["prediction"].get("type") or "")+
-                 "\nSimulation 500 000 F · aucun pari placé · 18+")
-        markup={"inline_keyboard":[[{"text":"Voir les pronostics","url":URL}]]}
+                 "\nParier responsablement.")
+        markup=action_buttons()
         with open(image,"rb") as pic:
             r=session.post(f"https://api.telegram.org/bot{token}/sendPhoto",
                 data={"chat_id":chat_id,"caption":caption,
