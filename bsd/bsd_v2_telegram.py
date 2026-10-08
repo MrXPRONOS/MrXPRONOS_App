@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""BSD V2 -> Telegram hourly: send every eligible prediction 60-120min before KO.
+"""BSD V2 -> Telegram: 20h batch of night coupons plus normal daily windows.
 
-Only confirmed site BSD V2 predictions are eligible. Existing telegram_sent
-unique (kind,ref_id,ref_date) used as durable ledger. No ongoing match sent.
+Night coupons: 21h–05h local Togo time (UTC) grouped at 20h.
+Supabase unique(kind,ref_id,ref_date) prevents resending eligible picks.
 """
 import argparse,json,os,time
 from datetime import datetime,timedelta,timezone
@@ -108,7 +108,7 @@ def send_one(session,token,chat_id,match,*,night=False):
     from tempfile import TemporaryDirectory
     with TemporaryDirectory() as directory:
         image=render_card(match,Path(directory)/"coupon.png")
-        caption=(("🌙 COUPONS NUIT\n" if night else "")+"⚽ Pronostic BSD V2 : "+str(match["home_team"])+" vs "+
+        caption=(("🌙 Coupons nuit\n" if night else "")+"⚽ Pronostic BSD V2 : "+str(match["home_team"])+" vs "+
                  str(match["away_team"])+"\n"+
                  str(match["prediction"].get("type") or "")+
                  "\nParier responsablement.")
@@ -132,7 +132,7 @@ def send_combo(session,token,chat,combo,*,night=False):
     from bsd_v2_combo_card import render_combo
     with TemporaryDirectory() as directory:
         photo=render_combo(combo,Path(directory)/"combine.png",session=session)
-        caption=(("🌙 COUPONS NUIT\n" if night else "")+"⚽ Combiné de deux matchs BSD V2\n"+
+        caption=(("🌙 Coupons nuit\n" if night else "")+"⚽ Combiné de deux matchs BSD V2\n"+
                  "Cote totale : "+format(combo["combined_odds"],".3f")+
                  "\nParier responsablement.")
         with photo.open("rb") as pic:
@@ -186,7 +186,6 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
     report["combos_sent"]=0
     report["combos_claimed"]=0
     for combo in combo_picks:
-        ledger=combo_ledger_match(combo)
         for chat in chat_ids:
             # Kind is separate from one-event predictions but uses the
             # existing unique kind+ref_id+date Supabase ledger.
