@@ -3,12 +3,6 @@ name: Create and Publish Shorts Video
 on:
   workflow_dispatch:
 
-  workflow_run:
-    workflows:
-      - Daily Update
-    types:
-      - completed
-
 permissions:
   contents: read
 
@@ -23,7 +17,7 @@ jobs:
     name: Generate and publish shorts
     runs-on: ubuntu-latest
 
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' # no automatic SportData shorts
 
     env:
       # GitHub token pour mettre à jour les secrets automatiquement
