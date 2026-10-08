@@ -238,7 +238,9 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
         if c.key in banned:
             continue
         p, n = _calibrated(c, calibration)
-        if p < min_probability and not (require_odds and c.family=="goals"):
+        # Real-priced BTTS and goal totals are assessed against their odds,
+        # instead of the arbitrary universal 70% probability floor.
+        if p < min_probability and not (require_odds and c.family in ("goals","btts")):
             continue
         price = None
         if odds_by_market and c.market_code in odds_by_market:
@@ -256,7 +258,7 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
         # unadjusted central estimate; missing history penalizes certainty.
         uncertainty = .012 + (.025 if league_samples < 30 else 0) + (.020 if form_samples < 8 else 0)
         ranking_confidence = max(0, p - uncertainty)
-        if require_odds and c.family=="goals":
+        if require_odds and c.family in ("goals","btts"):
             if ranking_confidence < max(.50,1.0/price+.025):
                 continue
         ev = p * price - 1 if price is not None else None
