@@ -40,6 +40,10 @@ jobs:
         env:
           MAX_TEST: '${{ inputs.max_test }}'
         run: python bsd/bsd_v2_btts_backtest.py --max-test "${MAX_TEST:-1000}"
+      - name: Independent Over/Under totals holdout
+        env:
+          MAX_TEST: '${{ inputs.max_test }}'
+        run: python bsd/bsd_v2_totals_backtest.py --max-test "${MAX_TEST:-1000}"
       - name: Check V2 report
         run: |
           python -c 'import json; x=json.load(open("bsd/v2_backtest_report.json")); assert x["model"]=="bsd-v2-isolated"; assert x["test"]["checked"]>0; print("BSD_V2_REPORT_OK",x["test"]["selected"])'
@@ -50,5 +54,6 @@ jobs:
           path: |
             bsd/v2_backtest_report.json
             bsd/v2_btts_backtest.json
+            bsd/v2_totals_backtest.json
           retention-days: 7
           if-no-files-found: error
