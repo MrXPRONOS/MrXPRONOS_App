@@ -67,7 +67,7 @@ class PricedSelectionTests(unittest.TestCase):
         if out["matches"]:
             self.assertEqual(out["matches"][0]["prediction"]["odds_source"],"bsd_consensus")
 
-    def test_expired_unquoted_feed_entries_are_removed(self):
+    def test_invalid_legacy_feed_entries_are_removed(self):
         ko=(self.now+timedelta(hours=3)).isoformat()
         past=(self.now-timedelta(days=1)).isoformat()
         old={"source":"bsd","matches":[
@@ -76,7 +76,7 @@ class PricedSelectionTests(unittest.TestCase):
              "prediction":{"selection_key":"UNDER_45","odds":None}},
             {"id":"bsd:2","source":"bsd","source_event_id":2,
              "event_date":past,"status":"finished",
-             "prediction":{"selection_key":"1X","odds":1.18,"odds_source":"bsd_consensus"}},
+             "prediction":{"selection_key":"1X","odds":1.00,"odds_source":"bsd_consensus"}},
         ]}
         out=assemble(old,[],self.history,now=self.now,calibration=None,policy=None,rho=0)
         self.assertEqual(out["matches"],[])
