@@ -1,0 +1,62 @@
+name: BSD V2 - Production hourly
+
+on:
+  schedule:
+    - cron: '5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bsd-v2-production-hourly
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: python -m pip install requests cryptography
+      - name: Run regression tests
+        run: python -m unittest discover -s bsd -p 'test_*.py' -v
+      - name: Restore private BSD historical matches
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: python bsd/bsd_archive.py restore
+      - name: Build BSD V2 site feed and settle completed matches
+        env:
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+        run: python bsd/bsd_v2_publish.py --max-requests 120
+      - name: Validate feed and commit website data
+        run: |
+          python - <<'PY'
+          import json
+          data=json.load(open("data.json",encoding="utf-8"))
+          assert data["source"]=="bsd" and data["model_version"]=="bsd-v2-isolated"
+          assert data["matches"] and all(m["source"]=="bsd" and m["prediction"]["selection_key"] for m in data["matches"])
+          print("BSD_V2_FEED_OK",len(data["matches"]))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data(bsd): publish V2 football picks and verified results [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Send every due match to Telegram (60-120 minutes before kick-off)
+        env:
+          TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
+          TELEGRAM_CHAT_ID: '${{ secrets.TELEGRAM_CHAT_ID }}'
+          SUPABASE_URL: '${{ secrets.SUPABASE_URL }}'
+          SUPABASE_SERVICE_ROLE_KEY: '${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}'
+          SUPABASE_KEY: '${{ secrets.SUPABASE_KEY }}'
+        run: python bsd/bsd_v2_telegram.py
