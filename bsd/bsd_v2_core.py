@@ -19,7 +19,7 @@ from bsd_markets import Candidate, MarketCalibrator, candidates_from_goals, real
 
 SETTLEMENT_DELAY = 4 * 3600
 HALF_LIFE_DAYS = 120
-MIN_TEAM_GAMES = 5
+MIN_TEAM_GAMES = 4
 MIN_PROBABILITY = .70
 
 
@@ -102,8 +102,8 @@ class V2History:
         global_a = (sum(outcome_scores(x)[1] for x in global_rows) + 200 * 1.20) / (len(global_rows) + 200)
         rows = self.league(key, at)
         # Empirical Bayes: league-specific averages shrunk toward current global rates.
-        h = (sum(outcome_scores(x)[0] for x in rows) + 70 * global_h) / (len(rows) + 70)
-        a = (sum(outcome_scores(x)[1] for x in rows) + 70 * global_a) / (len(rows) + 70)
+        h = (sum(outcome_scores(x)[0] for x in rows) + 90 * global_h) / (len(rows) + 90)
+        a = (sum(outcome_scores(x)[1] for x in rows) + 90 * global_a) / (len(rows) + 90)
         return max(.6, h), max(.6, a), len(rows)
 
 
@@ -136,7 +136,7 @@ def _weighted_rate(events, team_id, at, *, goals_for, opponent_adjust, league_me
                     goals *= factor
         numerator += weight * goals
         denominator += weight
-    return (numerator + 4 * league_mean) / (denominator + 4)
+    return (numerator + 5 * league_mean) / (denominator + 5)
 
 
 def estimate_goals(event: dict, index: V2History) -> Tuple[Optional[dict], str]:
@@ -260,10 +260,17 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
             continue
         # Use a conservative probability for price suitability, never the
         # unadjusted central estimate; missing history penalizes certainty.
-        uncertainty = .012 + (.025 if league_samples < 30 else 0) + (.020 if form_samples < 8 else 0)
+        profiles = {
+            "double_chance":(.010,.018,.015,.018),
+            "btts":(.016,.022,.018,.022),
+            "goals":(.014,.020,.018,.022),
+            "result":(.012,.025,.020,.025),
+        }
+        base, league_penalty, form_penalty, edge = profiles.get(c.family, profiles["result"])
+        uncertainty = base + (league_penalty if league_samples < 30 else 0) + (form_penalty if form_samples < 8 else 0)
         ranking_confidence = max(0, p - uncertainty)
-        if require_odds and c.family in ("goals","btts","double_chance"):
-            if ranking_confidence < max(.50,1.0/price+.025):
+        if require_odds and c.family in ("goals","btts","double_chance","result"):
+            if ranking_confidence < max(.50,1.0/price+edge):
                 continue
         ev = p * price - 1 if price is not None else None
         if mode == "value" and ev <= .03:
@@ -366,6 +373,16 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         "estimated_goals": expected, "score_model": "Dixon-Coles" if rho else "Poisson",
         "rho": rho, "selection_mode": mode, "category": "pro" if pro else "simple",
         "model_version": "bsd-v2-isolated", "experimental": True, "published": False,
+        "ranked_candidates": [{"key":row["candidate"].key,
+                               "name":row["candidate"].label,
+                               "market":row["candidate"].market,
+                               "outcome":row["candidate"].outcome,
+                               "line":row["candidate"].line,
+                               "market_code":row["candidate"].market_code,
+                               "probability":row["calibrated_probability"],
+                               "conservative_probability":row["ranking_confidence"],
+                               "odds":row["bookmaker_odds"]}
+                              for row in all_options],
         "top_candidates": [{"key": row["candidate"].key,
                             "probability": row["calibrated_probability"],
                             "fair_odds": row["theoretical_fair_odds"]}
