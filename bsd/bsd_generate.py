@@ -10,6 +10,7 @@ from pathlib import Path
 from bsd_api import BSDAPIError, BSDClient
 from bsd_archive import MATCHES_FILE, _read_json
 from bsd_predict import HistoryIndex, predict_fixture
+from bsd_enrich import enrich_leagues
 
 OUTPUT = Path("bsd/data_bsd.json")
 
@@ -63,7 +64,9 @@ def main():
             raise RuntimeError("Journee BSD incomplete : %s (%d/%d)" %
                                (d, len(batch.events), batch.total_reported))
         fixtures.extend(batch.events)
+    league_diag = enrich_leagues(fixtures, client)
     result = generate(fixtures, history, now=now)
+    result["diagnostics"].update(league_diag)
     if not fixtures:
         raise RuntimeError("BSD n'a renvoye aucun match : diagnostic, pas de remplacement du fichier")
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
