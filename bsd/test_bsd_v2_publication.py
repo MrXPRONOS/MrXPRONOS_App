@@ -47,7 +47,7 @@ class PublicationTests(unittest.TestCase):
     def test_settlement_follows_selected_market(self):
         m=self.prediction(self.now,11)
         m["status"]="notstarted"
-        event={"status":"finished","event_date":m["event_date"],"home_score":3,"away_score":2}
+        event={"status":"finished","event_date":m["event_date"],"home_score":0,"away_score":0}
         updated=update_settlement(m,event)
         self.assertTrue(updated["is_finished"])
         self.assertFalse(updated["verified_prediction"])
