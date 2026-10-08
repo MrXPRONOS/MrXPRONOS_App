@@ -52,6 +52,34 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
+      - name: Prepare public browser config
+        env:
+          PUBLIC_SUPABASE_URL: '${{ secrets.SUPABASE_URL }}'
+          PUBLIC_SUPABASE_ANON_KEY: '${{ secrets.SUPABASE_ANON_KEY }}'
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          source=Path("config.template.js")
+          if source.exists():
+              value=source.read_text(encoding="utf-8")
+              value=value.replace("SUPABASE_URL",os.environ.get("PUBLIC_SUPABASE_URL",""))
+              value=value.replace("SUPABASE_ANON_KEY",os.environ.get("PUBLIC_SUPABASE_ANON_KEY",""))
+              target=Path("assets/js/config.js")
+              target.parent.mkdir(parents=True,exist_ok=True)
+              target.write_text(value,encoding="utf-8")
+          PY
+      - name: Remove private runtime files before website deployment
+        run: |
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json bsd/v2_calibration.json
+          rm -rf bsd/cache bsd/private_history
+      - name: Deploy updated BSD V2 website on GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: '${{ secrets.GITHUB_TOKEN }}'
+          publish_dir: ./
+          destination_dir: ./
+          keep_files: true
       - name: Send every due match to Telegram (60-120 minutes before kick-off)
         env:
           TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
