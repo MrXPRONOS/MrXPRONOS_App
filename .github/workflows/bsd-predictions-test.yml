@@ -50,6 +50,10 @@ jobs:
           BACKTEST_DAYS: '${{ inputs.backtest_days }}'
         run: |
           python bsd/bsd_recent_backtest.py --days "${BACKTEST_DAYS:-3}" --max-pages 10 --max-requests 45
+      - name: Backtest 14 journees UTC terminees (comparaison robuste)
+        env:
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+        run: python bsd/bsd_recent_backtest.py --days 14 --max-pages 10 --max-requests 100 --output bsd/recent_backtest_14d_report.json
       - name: Generate test BSD predictions only
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
@@ -68,5 +72,6 @@ jobs:
           path: |
             bsd/data_bsd.json
             bsd/recent_backtest_report.json
+            bsd/recent_backtest_14d_report.json
           retention-days: 3
           if-no-files-found: error
