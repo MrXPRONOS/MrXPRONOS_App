@@ -9,7 +9,7 @@ from bsd_api import BSDClient
 from bsd_h2h import _utc,_valid_score
 from bsd_markets import candidates_from_goals,realized
 from bsd_v2_card import render as render_card
-from bsd_v2_telegram import KIND,URL,headers
+from bsd_v2_telegram import KIND,URL,headers,action_buttons
 
 def sent_records(session,base,key,limit=750):
     since=(datetime.now(timezone.utc)-timedelta(days=10)).date().isoformat()
@@ -49,11 +49,11 @@ def verdict(match,event,now):
 def post_gain(session,token,chat,match):
     with tempfile.TemporaryDirectory() as directory:
         image=render_card(match,Path(directory)/"gain.png",win=True)
-        keyboard={"inline_keyboard":[[{"text":"Voir les pronostics","url":URL}]]}
+        keyboard=action_buttons()
         with image.open("rb") as pic:
             resp=session.post("https://api.telegram.org/bot"+token+"/sendPhoto",
                 data={"chat_id":chat,"caption":"✅ GAIN — "+str(match["home_team"])+" vs "+
-                      str(match["away_team"])+"\nPronostic validé par BSD, aucun pari réel attesté.",
+                      str(match["away_team"])+"\nParier responsablement.",
                       "reply_markup":json.dumps(keyboard)},
                 files={"photo":pic},timeout=60)
     resp.raise_for_status()
