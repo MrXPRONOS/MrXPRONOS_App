@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   daily-update:
-    if: github.event_name != 'push' || github.actor != 'github-actions[bot]'
+    if: false # SportData retired: BSD V2 is the only production predictor
     runs-on: ubuntu-latest
     timeout-minutes: 35
 
