@@ -44,7 +44,7 @@ class V2AdvancedTests(unittest.TestCase):
         ]
         result,skips=parse_odds(items,222,kickoff=kickoff,fetched_at=now)
         self.assertEqual(len(result),1)
-        self.assertEqual(result["1X2_1_FT"]["odds"],1.80)
+        self.assertEqual(result["1X2_HOME_FT"]["odds"],1.80)
         self.assertIsNone(result["1X2_1_FT"]["bookmaker_selection_code"])
 
     def test_empty_shadow_no_publish(self):
