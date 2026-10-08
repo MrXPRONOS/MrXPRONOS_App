@@ -227,7 +227,7 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
                   mode="reliability", min_probability=MIN_PROBABILITY, league_samples=100,
                   form_samples=10, require_odds=False, min_odds=1.20,
                   excluded_keys=None, market_audit=None,
-                  family_adjustments=None):
+                  family_adjustments=None, allow_combo_prices=False):
     """Fiabilité = meilleure probabilité calibrée (PAS meilleure cote).
 
     Mode value explicit : exige des cotes fournies et retourne le meilleur EV.
@@ -282,7 +282,9 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
                        + (family_adjustments or {}).get(c.family,0.))
         ranking_confidence = max(0, p - uncertainty)
         if require_odds and c.family in ("goals","btts","double_chance","result"):
-            if ranking_confidence < max(.50,1.0/price+edge):
+            # Odds below 1.20 are only eligible as high-confidence combo legs.
+            threshold = .90 if allow_combo_prices and price < 1.20 else max(.50,1.0/price+edge)
+            if ranking_confidence < threshold:
                 audit(c,"conservative_probability_below_price_edge",p,price,ranking_confidence)
                 continue
         ev = p * price - 1 if price is not None else None
@@ -308,7 +310,7 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
                mode="reliability", odds_by_market=None, quality_policy=None,
                require_odds=False, min_odds=1.20, excluded_keys=None,
                btts_model=None, total_model=None, dc_model=None,
-               market_audit=None):
+               market_audit=None, allow_combo_prices=False):
     if str(event.get("status") or "").lower() not in ("notstarted", "upcoming"):
         return None, "not_upcoming"
     if event.get("id") is None:
@@ -352,6 +354,7 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         form_samples=min(expected["home_recent_matches"], expected["away_recent_matches"]),
         require_odds=require_odds, min_odds=min_odds, excluded_keys=excluded_keys,
         market_audit=market_audit,
+        allow_combo_prices=allow_combo_prices,
         family_adjustments=(quality_policy.family_uncertainty_adjustments()
                             if quality_policy is not None and
                             hasattr(quality_policy,"family_uncertainty_adjustments") else None),
