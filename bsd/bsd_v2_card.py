@@ -36,7 +36,9 @@ def right(draw,text,right_x,y,size=28,bold=False,fill=NAVY):
 
 def icon(canvas,x,y,d=56):
     if BALL.is_file():
-        img=Image.open(BALL).convert("RGBA");img.thumbnail((d,d),Image.Resampling.LANCZOS)
+        with Image.open(BALL) as original:
+            img=original.convert("RGBA")
+        img.thumbnail((d,d),Image.Resampling.LANCZOS)
         canvas.paste(img,(x,y),img)
 
 def render(match,output,*,win=False,stake=500000,now=None):
@@ -75,7 +77,10 @@ def render(match,output,*,win=False,stake=500000,now=None):
     ref=str(match.get("id") or "")
     clipped(d,"ID "+ref,340,259,620,23,False,NAVY)
     d.line((28,350,1050,350),fill="#d9e2e8",width=2)
-    rows=[("Cote BSD :",label),("Mise simulée :",f"{stake:,}".replace(","," ")+" F"),
+    price_label=("Cote BSD consensus :" if source=="bsd_consensus" else
+                 "Cote BSD bookmaker :" if source=="bsd_bookmaker" else
+                 "Cote BSD :")
+    rows=[(price_label,label),("Mise simulée :",f"{stake:,}".replace(","," ")+" F"),
           ("Gain potentiel simulé :",gross),("Statut :","GAGNÉ (pronostic)" if win else "PRONOSTIC, NON PARIÉ")]
     for idx,(key,val) in enumerate(rows):
         y=388+idx*61
