@@ -13,6 +13,7 @@ import socket
 import requests
 from PIL import Image, ImageDraw, ImageFont
 from bsd_h2h import _utc
+from bsd_v2_stakes import single_stake,gain_potentiel,money
 
 ROOT=Path(__file__).resolve().parent.parent
 ASSETS=ROOT/"assets/images"
@@ -159,13 +160,15 @@ def _odds(match):
         return odds
     except (ValueError,TypeError):return None
 
-def render(match,output,*,win=False,stake=500000,now=None,session=None):
+def render(match,output,*,win=False,stake=None,now=None,session=None):
     now=now or datetime.now(timezone.utc)
     kickoff=_utc(match["event_date"])
     pred=match.get("prediction") or {}
     odds=_odds(match)
     price=f"{odds:.2f}" if odds is not None else "Indisponible"
-    gross=f"{round(stake*odds):,}".replace(","," ")+" F" if odds else "—"
+    if stake is None:
+        stake=single_stake(odds)
+    gross=money(gain_potentiel(stake,odds))
     image=Image.new("RGB",(W,H),"#f0f2f5")
     d=ImageDraw.Draw(image)
     d.rectangle((0,0,W,128),fill="#070707")
@@ -182,7 +185,7 @@ def render(match,output,*,win=False,stake=500000,now=None,session=None):
     write(d,"N° "+str(match.get("id") or "—"),181,297,size=28,maximum=815)
     d.line((34,376,1046,376),fill=BORDER,width=3)
     # Aligned left/right financial summary; "gain" is projected, not confirmed payment.
-    rows=(("Cotes:",price),("Mise:",f"{stake:,}".replace(","," ")+" F"),
+    rows=(("Cotes:",price),("Mise indicative:",money(stake)),
           ("Gains potentiels:",gross),
           ("Statut:","Pronostic gagnant" if win else "Pronostic"))
     for i,(key,value) in enumerate(rows):
