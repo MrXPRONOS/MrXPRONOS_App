@@ -115,6 +115,11 @@ def main():
     args=p.parse_args()
     data=json.loads(Path(args.data).read_text(encoding="utf-8"))
     now=datetime.now(timezone.utc)
+    if data.get('source') != 'bsd' or data.get('model_version') != 'bsd-v2-isolated':
+        raise RuntimeError('Le fichier de pronostics du site ne provient pas de BSD V2')
+    generated = _utc(str(data.get('generated_at') or ''))
+    if now - generated > timedelta(hours=36):
+        raise RuntimeError('Pronostics BSD V2 trop anciens: Telegram ne diffuse pas un ancien fichier')
     if args.dry_run:
         print("BSD_TELEGRAM_DRY_RUN:",json.dumps([{"id":m["id"],"kickoff":m["event_date"]}
           for m in due(data["matches"],now)]))
