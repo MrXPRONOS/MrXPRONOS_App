@@ -16,6 +16,7 @@ from bsd_h2h import _utc, _valid_score
 from bsd_markets import candidates_from_goals, realized
 from bsd_v2_core import V2History, fit_rho_2024, predict_v2, fixture_datetime
 from bsd_v2_policies import fit_policy
+from bsd_v2_odds import fetch_event_odds
 
 SITE_FILE = Path("data.json")
 HISTORY_DAYS = 14
@@ -62,6 +63,8 @@ def to_site(p, fixture):
             "confidence":prob,"double_chance":pred["outcome"] if pred["market"]=="double_chance" else None,
             "fair_odds":pred["fair_odds"],"odds":pred["bookmaker_odds"],
             "model_version":p["model_version"],
+            "odds_source":pred.get("odds_source"),
+            "odds_updated_at":pred.get("odds_updated_at"),
         },
         "model_version":p["model_version"], "final_score":prob,"xpronos_score":prob,
         "generated_at":p.get("prediction_generated_at") or datetime.now(timezone.utc).isoformat(),
@@ -101,7 +104,8 @@ def update_settlement(row,event):
     return row
 
 
-def assemble(existing, fixtures, history, *, now, calibration, policy, rho):
+def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
+             odds_fetcher=None, max_odds_requests=25):
     saved=eligible_previous(existing,now)
     index=V2History(history)
     stats=Counter()
@@ -125,6 +129,22 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho):
             stats[reason]+=1
             continue
         prediction["prediction_generated_at"]=now.isoformat()
+        if odds_fetcher and stats["odds_attempts"] < max_odds_requests:
+            stats["odds_attempts"] += 1
+            try:
+                quotes, diagnostics = odds_fetcher(f, now)
+                selected_code = prediction["prediction"]["internal_market_code"]
+                quote = quotes.get(selected_code)
+                if quote:
+                    prediction["prediction"]["bookmaker_odds"] = quote["odds"]
+                    prediction["prediction"]["odds_source"] = quote["origin"]
+                    prediction["prediction"]["odds_updated_at"] = quote["updated_at"]
+                    stats["odds_verified"] += 1
+                else:
+                    stats["odds_missing_selected_market"] += 1
+            except Exception as exc:
+                stats["odds_errors"] += 1
+                print("BSD_ODDS_UNAVAILABLE", f["id"], type(exc).__name__)
         result.append(to_site(prediction,f))
         known.add(eid)
         stats["created"]+=1
@@ -155,7 +175,8 @@ def fetch_date_range(client,start,end):
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--output",default=str(SITE_FILE))
-    p.add_argument("--max-requests",type=int,default=120)
+    p.add_argument("--max-requests",type=int,default=140)
+    p.add_argument("--max-odds-events",type=int,default=25)
     args=p.parse_args()
     now=datetime.now(timezone.utc)
     historic=_read_json(MATCHES_FILE,None)
@@ -168,7 +189,11 @@ def main():
     index=V2History(historic)
     rho,_=fit_rho_2024(index)
     cal,policy,diag=fit_policy(index,rho=rho)
-    output=assemble(existing,fixtures,historic,now=now,calibration=cal,policy=policy,rho=rho)
+    def odds_fetcher(event, captured):
+        return fetch_event_odds(client,int(event["id"]),kickoff=fixture_datetime(event),
+                                captured_at=captured,bookmaker_slug="consensus")
+    output=assemble(existing,fixtures,historic,now=now,calibration=cal,policy=policy,
+                    rho=rho,odds_fetcher=odds_fetcher,max_odds_requests=args.max_odds_events)
     output["diagnostics"].update({"api_calls":client.requests_made,
                                   "quality_validation":diag,"rho":rho})
     dest=Path(args.output)
