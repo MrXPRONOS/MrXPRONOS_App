@@ -238,7 +238,7 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
         if c.key in banned:
             continue
         p, n = _calibrated(c, calibration)
-        if p < min_probability:
+        if p < min_probability and not (require_odds and c.family=="goals"):
             continue
         price = None
         if odds_by_market and c.market_code in odds_by_market:
@@ -252,6 +252,11 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
                     pass
         if (require_odds or mode == "value") and price is None:
             continue
+        # For quoted goal totals, compare price-implied break-even to the
+        # calibrated probability; no arbitrary global 70% threshold.
+        if require_odds and c.family=="goals":
+            if p < max(.50,1.0/price+.025):
+                continue
         ev = p * price - 1 if price is not None else None
         if mode == "value" and ev <= .03:
             continue
