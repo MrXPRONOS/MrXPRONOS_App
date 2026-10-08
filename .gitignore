@@ -19,3 +19,6 @@ Thumbs.db
 
 # Données sensibles
 #data.json
+
+# BSD API - cache temporaire, ne pas publier les réponses brutes
+bsd/cache/
