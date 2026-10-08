@@ -20,8 +20,9 @@ def summarize(items):
             "brier":round(brier,6),
             "calibration_gap":round(sum(p for p,y in items)/n-successes/n,5)}
 
-def audit(index,model,calibration,rho,year=2026,max_matches=1800):
+def audit(index,model,calibration,rho,year=2026,max_matches=1800,baseline_calibration=None):
     base=defaultdict(list);changed=defaultdict(list)
+    baseline_calibrated=defaultdict(list)
     by_league=defaultdict(list)
     buckets=defaultdict(list)
     tested=0
@@ -39,12 +40,16 @@ def audit(index,model,calibration,rho,year=2026,max_matches=1800):
             baseline=before[key].probability
             _,p,_n=calibration.score(after[key])
             base[key].append((baseline,y))
+            if baseline_calibration is not None:
+                _low,base_calibrated,_n=baseline_calibration.score(before[key])
+                baseline_calibrated[key].append((base_calibrated,y))
             changed[key].append((p,y))
             lk=league_key(match) or "unknown"
             by_league[(lk,key)].append((p,y))
             buckets[(key,int(p*10))].append((p,y))
     return {"year":year,"matches":tested,
             "baseline":{k:summarize(v) for k,v in base.items()},
+            "baseline_calibrated":{k:summarize(v) for k,v in baseline_calibrated.items()},
             "specialized_calibrated":{k:summarize(v) for k,v in changed.items()},
             "by_league":{a+"|"+b:summarize(v) for (a,b),v in by_league.items() if len(v)>=25},
             "by_probability_bucket":{k+"|"+str(b):summarize(v)
@@ -61,11 +66,14 @@ def main():
     rho,_=fit_rho_2024(index)
     model,diagnostics=fit_total_model(index,rho=rho)
     calibration,quality,_=fit_policy(index,rho=rho,total_model=model)
+    calibration_reference,_,_=fit_policy(index,rho=rho,total_model=None)
     result={"model":"bsd-over-under-1","training":diagnostics,
-            "test":audit(index,model,calibration,rho,max_matches=a.max_test)}
+            "test":audit(index,model,calibration,rho,max_matches=a.max_test,
+                         baseline_calibration=calibration_reference)}
     path=Path(a.output);path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     print("BSD_TOTALS_BACKTEST:",json.dumps({"tested":result["test"]["matches"],
           "baseline":result["test"]["baseline"],
+          "baseline_calibrated":result["test"]["baseline_calibrated"],
           "specialized_calibrated":result["test"]["specialized_calibrated"]},ensure_ascii=False))
 if __name__=="__main__":main()
