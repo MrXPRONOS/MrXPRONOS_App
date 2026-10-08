@@ -54,6 +54,31 @@ def _rates(games, team_id, kickoff, *, venue=None):
             weight_sum)
 
 
+def _opponent_adjusted_scoring(games,team_id,index,at,league_prior):
+    """Each scored-goal occurrence weighted by opponents' past clean-sheet rate."""
+    values=[]
+    for match in games:
+        score=outcome_scores(match)
+        if score is None:continue
+        home=_team_id(match,"home")==team_id
+        scored=score[0 if home else 1]
+        opponent=_team_id(match,"away" if home else "home")
+        previous=index.team(opponent,at,limit=12) if opponent else []
+        conceded_frequency=[]
+        for past in previous:
+            old=outcome_scores(past)
+            if old is None:continue
+            opponent_home=_team_id(past,"home")==opponent
+            conceded=old[1 if opponent_home else 0]
+            conceded_frequency.append(int(conceded>0))
+        concede_rate=(sum(conceded_frequency)+6*league_prior)/(len(conceded_frequency)+6)
+        strength=max(.80,min(1.20,league_prior/max(.25,concede_rate)))
+        age=max(0.,(at-fixture_datetime(match)).total_seconds()/86400)
+        values.append((int(scored>0)*strength,exp(-log(2.)*age/90.)))
+    weight=sum(w for _v,w in values)
+    return min(.99,max(.01,(sum(v*w for v,w in values)+5*league_prior)/(weight+5)))
+
+
 def btts_features(event, index):
     """Features pre-match only, returns None for teams without enough recent form."""
     hid, aid = _team_id(event, "home"), _team_id(event, "away")
@@ -86,8 +111,10 @@ def btts_features(event, index):
     league_p = (btts_wins + 35*BASE_RATE)/(len(games) + 35)
     # Strength adjustment: the opponent's tendency to concede matters as
     # much as the team's own tendency to score.
-    home_scoring = .6*hvgf + .4*avga
-    away_scoring = .6*avgf + .4*hvga
+    adjusted_home=_opponent_adjusted_scoring(home_games,hid,index,at,.72)
+    adjusted_away=_opponent_adjusted_scoring(away_games,aid,index,at,.72)
+    home_scoring = .45*hvgf + .35*avga + .20*adjusted_home
+    away_scoring = .45*avgf + .35*hvga + .20*adjusted_away
     return (1.0, hgf-.5, agf-.5, hga-.5, aga-.5,
             hvgf-.5, avgf-.5, hvga-.5, avga-.5,
             league_p-.5, home_scoring*away_scoring-.36)
