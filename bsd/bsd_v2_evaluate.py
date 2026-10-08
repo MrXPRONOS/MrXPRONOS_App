@@ -12,6 +12,7 @@ from bsd_backtest import wilson_interval
 from bsd_recent_backtest import paired_comparison
 from bsd_calibrate import fit_calibration
 from bsd_predict import HistoryIndex, predict_fixture
+from bsd_v2_policies import fit_policy
 
 
 def get_sample(index, year, max_matches):
@@ -71,7 +72,7 @@ def _update_group(stats, win, probability, brier, under45_win):
 
 
 def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
-                   v1_index=None, v1_calibration=None):
+                   v1_index=None, v1_calibration=None, quality_policy=None):
     counters = Counter()
     by_market = {}
     baselines = Counter()
@@ -103,7 +104,8 @@ def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
                     v1_counts["selected"] += 1
                     v1_counts["wins"] += v1_pick
         prediction, reason = predict_v2(fixture,index,calibration=calibration,rho=rho,
-                                        clock=fixture_datetime(event)-timedelta(seconds=1))
+                                        clock=fixture_datetime(event)-timedelta(seconds=1),
+                                        quality_policy=quality_policy)
         if prediction is None:
             counters["skip_"+reason]+=1
             continue
@@ -187,12 +189,14 @@ def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
 def evaluate(history, *, max_test=1000, max_train=1800):
     index=V2History(history)
     rho,rho_info=fit_rho_2024(index)
-    cal,trained=fit_calibration_v2(index,rho,max_train)
+    cal,quality_policy,policy_info=fit_policy(index,rho=rho,max_train=max_train)
+    trained=policy_info['training_eligible']
     v1_cal, v1_training = fit_calibration(history, year=2025, max_fixtures=max_train)
     results=run_evaluation(index,cal,rho,max_matches=max_test,
-                           v1_index=HistoryIndex(history),v1_calibration=v1_cal)
+                           v1_index=HistoryIndex(history),v1_calibration=v1_cal,
+                           quality_policy=quality_policy)
     return {"model":"bsd-v2-isolated", "history_eligible":len(index.global_games),
-            "training":{"rho":rho_info,"calibration_year":2025,"calibration_games":trained,
+            "training":{"rho":rho_info,"calibration_year":2025,"calibration_games":trained,"quality_policy":policy_info,
                         "v1_calibration_games":v1_training.get("fixtures_with_form")},
             "test":results},cal,rho
 
@@ -210,7 +214,8 @@ def main():
     result,cal,rho=evaluate(history,max_test=args.max_test,max_train=args.max_train)
     path=Path(args.output);path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
-    Path("bsd/v2_calibration.json").write_text(json.dumps({"rho":rho,"calibration":cal.to_dict()}),encoding="utf-8")
+    # Calibration and quality policy are generated per run, never committed in plaintext.
+    # Do not serialize the raw per-market training aggregates to a public artifact.
     print("BSD_V2_EVALUATION:",json.dumps(result,ensure_ascii=False))
 
 
