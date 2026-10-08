@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
+import requests
 
 from PIL import Image
 from bsd_v2_card import render,BALL,BRAND_ONE,BRAND_TWO,wrap_name,_odds,TEAM_ICON_CACHE,_lookup_team_badge
@@ -21,6 +22,11 @@ def sample_match():
     }
 
 
+class OfflineImageSession:
+    def get(self,*args,**kwargs):
+        raise requests.RequestException("Offline test fixture")
+
+
 class CardAndSettlement(unittest.TestCase):
     def test_real_png_asset_installed(self):
         self.assertTrue(BALL.is_file())
@@ -34,7 +40,8 @@ class CardAndSettlement(unittest.TestCase):
             for winner in (False,True):
                 saved=render({**m,"home_score":2,"away_score":1},
                     Path(d)/("win.png" if winner else "preview.png"),win=winner,
-                    now=datetime(2026,10,8,10,tzinfo=timezone.utc))
+                    now=datetime(2026,10,8,10,tzinfo=timezone.utc),
+                    session=OfflineImageSession())
                 with Image.open(saved) as im:
                     self.assertEqual(im.size,(1080,1300))
                     self.assertEqual(im.format,"PNG")
@@ -42,7 +49,7 @@ class CardAndSettlement(unittest.TestCase):
     def test_false_odd_hidden_instead_of_invented(self):
         m=sample_match();m["prediction"].pop("odds_source")
         with tempfile.TemporaryDirectory() as d:
-            render(m,Path(d)/"no_odds.png")
+            render(m,Path(d)/"no_odds.png",session=OfflineImageSession())
             self.assertTrue((Path(d)/"no_odds.png").stat().st_size>1000)
 
     def test_official_brand_assets_are_present(self):
