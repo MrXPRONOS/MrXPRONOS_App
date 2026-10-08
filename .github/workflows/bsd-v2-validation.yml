@@ -36,6 +36,10 @@ jobs:
         env:
           MAX_TEST: '${{ inputs.max_test }}'
         run: python bsd/bsd_v2_evaluate.py --max-test "${MAX_TEST:-1000}"
+      - name: Independent BTTS Yes/No out-of-sample validation
+        env:
+          MAX_TEST: '${{ inputs.max_test }}'
+        run: python bsd/bsd_v2_btts_backtest.py --max-test "${MAX_TEST:-1000}"
       - name: Check V2 report
         run: |
           python -c 'import json; x=json.load(open("bsd/v2_backtest_report.json")); assert x["model"]=="bsd-v2-isolated"; assert x["test"]["checked"]>0; print("BSD_V2_REPORT_OK",x["test"]["selected"])'
@@ -43,6 +47,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bsd-v2-validation-report
-          path: bsd/v2_backtest_report.json
+          path: |
+            bsd/v2_backtest_report.json
+            bsd/v2_btts_backtest.json
           retention-days: 7
           if-no-files-found: error
