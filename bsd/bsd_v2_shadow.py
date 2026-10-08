@@ -35,6 +35,7 @@ def generate_shadow(events, history, calibration, policy, rho, *, now, mode="rel
             continue
         odds=None
         quote_metadata=None
+        quotes={}
         if quote_fetcher and odds_queried<max_odds_events and str(fixture.get("status","")).lower() in ("notstarted","upcoming"):
             try:
                 quotes, quote_metadata=quote_fetcher(fixture,now)
@@ -51,6 +52,14 @@ def generate_shadow(events, history, calibration, policy, rho, *, now, mode="rel
             continue
         if quote_metadata is not None:
             pred["odds_diagnostics"]=quote_metadata
+        selected_quote=quotes.get(pred["prediction"]["internal_market_code"])
+        if selected_quote is not None:
+            pred["prediction"]["quote_provenance"]={
+                "bookmaker":selected_quote["bookmaker"],
+                "origin":selected_quote["origin"],
+                "captured_at":selected_quote["captured_at"],
+                "updated_at":selected_quote["updated_at"],
+            }
         pred["prediction_generated_at"]=now.isoformat()
         output.append(pred)
     result={
