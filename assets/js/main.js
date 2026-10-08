@@ -1603,6 +1603,16 @@ async function displayHistory() {
   const historyMatches = allData.matches.filter((m) => {
     const d = getLocalDateFromEvent(m.event_date);
     return d && d < todayStr;
+  }).flatMap((m) => {
+    const choices = Array.isArray(m.predictions) && m.predictions.length
+      ? m.predictions.slice(0, 2) : [m.prediction || {}];
+    return choices.map((selection) => ({
+      ...m,
+      id: String(m.id) + ":" + String(selection.selection_key || "primary"),
+      prediction: selection,
+      verified_double: selection.selection_key === m.prediction?.selection_key
+        ? Boolean(m.verified_double) : false,
+    }));
   });
 
   if (!historyMatches.length) {
