@@ -21,6 +21,8 @@ from bsd_v2_odds import fetch_event_odds
 SITE_FILE = Path("data.json")
 HISTORY_DAYS = 14
 FUTURE_DAYS = 2
+MIN_BSD_ODDS = 1.20
+EXCLUDED_SELECTIONS = frozenset({'UNDER_45'})
 
 def team_name(item, side):
     value=item.get(side+"_team")
@@ -107,6 +109,11 @@ def update_settlement(row,event):
 def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
              odds_fetcher=None, max_odds_requests=25):
     saved=eligible_previous(existing,now)
+    # Conserver uniquement les anciens événements TERMINÉS pour le bilan :
+    # les anciens pronostics à venir sans cote ou Under 4,5 sont retirés.
+    saved={key:row for key,row in saved.items()
+           if str(row.get("status","")).lower()=="finished"
+           and row.get("prediction",{}).get("selection_key") not in EXCLUDED_SELECTIONS}
     index=V2History(history)
     stats=Counter()
     by_id={str(f["id"]):f for f in fixtures if isinstance(f,dict) and f.get("id") is not None}
@@ -123,28 +130,49 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         except (ValueError,TypeError):continue
         if kickoff<=now or kickoff>now+timedelta(days=FUTURE_DAYS):continue
         if str(f.get("status") or "").lower() not in ("notstarted","upcoming"):continue
-        prediction,reason=predict_v2(f,index,calibration=calibration,
-                 quality_policy=policy,rho=rho,clock=now,mode="reliability")
+        if not odds_fetcher:
+            stats["no_odds_provider"] += 1
+            continue
+        if stats["odds_attempts"] >= max_odds_requests:
+            stats["odds_budget_exhausted"] += 1
+            continue
+        stats["odds_attempts"] += 1
+        try:
+            quotes, diagnostics = odds_fetcher(f, now)
+        except Exception as exc:
+            stats["odds_errors"] += 1
+            print("BSD_ODDS_UNAVAILABLE", f["id"], type(exc).__name__)
+            continue
+        valid_quotes = {
+            code: quote for code,quote in quotes.items()
+            if isinstance(quote,dict) and code != "OU_4.5_UNDER_FT"
+            and quote.get("origin") in ("bsd_consensus","bsd_bookmaker")
+            and isinstance(quote.get("odds"), (int,float))
+            and not isinstance(quote.get("odds"),bool)
+            and MIN_BSD_ODDS <= quote["odds"] <= 100
+        }
+        if not valid_quotes:
+            stats["no_qualified_bsd_odds"] += 1
+            continue
+        prediction,reason=predict_v2(
+            f,index,calibration=calibration,quality_policy=policy,
+            rho=rho,clock=now,mode="reliability",
+            odds_by_market={code: quote["odds"] for code,quote in valid_quotes.items()},
+            require_odds=True,min_odds=MIN_BSD_ODDS,excluded_keys=EXCLUDED_SELECTIONS,
+        )
         if prediction is None:
             stats[reason]+=1
             continue
+        selected_code = prediction["prediction"]["internal_market_code"]
+        quote = valid_quotes.get(selected_code)
+        if quote is None:
+            stats["selection_without_verified_odds"] += 1
+            continue
+        prediction["prediction"]["bookmaker_odds"] = quote["odds"]
+        prediction["prediction"]["odds_source"] = quote["origin"]
+        prediction["prediction"]["odds_updated_at"] = quote["updated_at"]
         prediction["prediction_generated_at"]=now.isoformat()
-        if odds_fetcher and stats["odds_attempts"] < max_odds_requests:
-            stats["odds_attempts"] += 1
-            try:
-                quotes, diagnostics = odds_fetcher(f, now)
-                selected_code = prediction["prediction"]["internal_market_code"]
-                quote = quotes.get(selected_code)
-                if quote:
-                    prediction["prediction"]["bookmaker_odds"] = quote["odds"]
-                    prediction["prediction"]["odds_source"] = quote["origin"]
-                    prediction["prediction"]["odds_updated_at"] = quote["updated_at"]
-                    stats["odds_verified"] += 1
-                else:
-                    stats["odds_missing_selected_market"] += 1
-            except Exception as exc:
-                stats["odds_errors"] += 1
-                print("BSD_ODDS_UNAVAILABLE", f["id"], type(exc).__name__)
+        stats["odds_verified"] += 1
         result.append(to_site(prediction,f))
         known.add(eid)
         stats["created"]+=1
@@ -176,7 +204,7 @@ def main():
     p=argparse.ArgumentParser()
     p.add_argument("--output",default=str(SITE_FILE))
     p.add_argument("--max-requests",type=int,default=140)
-    p.add_argument("--max-odds-events",type=int,default=25)
+    p.add_argument("--max-odds-events",type=int,default=350)
     args=p.parse_args()
     now=datetime.now(timezone.utc)
     historic=_read_json(MATCHES_FILE,None)
