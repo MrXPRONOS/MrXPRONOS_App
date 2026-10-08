@@ -10,7 +10,7 @@ from bisect import bisect_right
 from collections import Counter, defaultdict
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
-from math import exp, factorial, log
+from math import exp, factorial, log, isfinite
 from statistics import mean
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -221,7 +221,8 @@ def _calibrated(candidate: Candidate, calibration: Optional[MarketCalibrator]):
 
 def choose_market(candidates, *, calibration=None, odds_by_market=None,
                   mode="reliability", min_probability=MIN_PROBABILITY, league_samples=100,
-                  form_samples=10):
+                  form_samples=10, require_odds=False, min_odds=1.20,
+                  excluded_keys=None):
     """Fiabilité = meilleure probabilité calibrée (PAS meilleure cote).
 
     Mode value explicit : exige des cotes fournies et retourne le meilleur EV.
@@ -229,25 +230,31 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
     """
     if mode not in ("reliability", "value"):
         raise ValueError("Unknown ranking mode")
+    if not 1.01 <= min_odds <= 100:
+        raise ValueError("Cote minimale incorrecte")
+    banned = frozenset(excluded_keys or ())
     rows = []
     for c in candidates:
+        if c.key in banned:
+            continue
         p, n = _calibrated(c, calibration)
         if p < min_probability:
             continue
-        if mode == "value":
-            if not odds_by_market or c.market_code not in odds_by_market:
-                continue
-            try:
-                price = float(odds_by_market[c.market_code])
-            except (TypeError, ValueError):
-                continue
-            if not 1.01 <= price <= 100:
-                continue
-            ev = p * price - 1
-            if ev <= .03:
-                continue
-        else:
-            price, ev = None, None
+        price = None
+        if odds_by_market and c.market_code in odds_by_market:
+            value = odds_by_market[c.market_code]
+            if not isinstance(value, bool):
+                try:
+                    value = float(value)
+                    if isfinite(value) and min_odds <= value <= 100:
+                        price = value
+                except (TypeError, ValueError):
+                    pass
+        if (require_odds or mode == "value") and price is None:
+            continue
+        ev = p * price - 1 if price is not None else None
+        if mode == "value" and ev <= .03:
+            continue
         # Incertitude augmente en cas de peu de matches ou championnat mal couvert.
         uncertainty = .012 + (.025 if league_samples < 30 else 0) + (.020 if form_samples < 8 else 0)
         ranking_confidence = max(0, p - uncertainty)
@@ -266,7 +273,8 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
 
 
 def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
-               mode="reliability", odds_by_market=None, quality_policy=None):
+               mode="reliability", odds_by_market=None, quality_policy=None,
+               require_odds=False, min_odds=1.20, excluded_keys=None):
     if str(event.get("status") or "").lower() not in ("notstarted", "upcoming"):
         return None, "not_upcoming"
     if event.get("id") is None:
@@ -289,13 +297,17 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         candidates, calibration=calibration, odds_by_market=odds_by_market,
         mode=mode, league_samples=expected["league_samples"],
         form_samples=min(expected["home_recent_matches"], expected["away_recent_matches"]),
+        require_odds=require_odds, min_odds=min_odds, excluded_keys=excluded_keys,
     )
     if choice is None:
         return None, "no_qualified_market"
     if quality_policy is not None:
-        rejection = quality_policy.check_market(choice)
-        if rejection:
-            return None, rejection
+        # Un marché trop optimiste ne doit pas faire rejeter le match entier :
+        # examiner le deuxième marché coté, puis les suivants.
+        choice = next((row for row in all_options
+                       if quality_policy.check_market(row) is None), None)
+        if choice is None:
+            return None, "quality_all_quoted_markets_rejected"
     c = choice["candidate"]
     # "PRO" based on data coverage; this label is not a measured hit-rate promise.
     pro = (choice["ranking_confidence"] >= .77 and expected["league_samples"] >= 40
