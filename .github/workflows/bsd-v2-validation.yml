@@ -51,6 +51,20 @@ jobs:
       - name: Check V2 report
         run: |
           python -c 'import json; x=json.load(open("bsd/v2_backtest_report.json")); assert x["model"]=="bsd-v2-isolated"; assert x["test"]["checked"]>0; print("BSD_V2_REPORT_OK",x["test"]["selected"])'
+      - name: Validate Double Chance report structure and coverage
+        run: |
+          python - <<'PY'
+          import json
+          data=json.load(open("bsd/v2_double_chance_backtest.json"))
+          test=data["test"]
+          assert test["eligible"]>0, "Double Chance: no historical test fixture"
+          for key in ("1X","X2","12"):
+              ref=test["baseline_calibrated"][key]
+              candidate=test["specialized_calibrated"][key]
+              assert ref["n"]==candidate["n"]==test["eligible"]
+              assert 0<=ref["brier"]<=1 and 0<=candidate["brier"]<=1
+          print("BSD_DC_REPORT_OK",test["eligible"])
+          PY
       - name: Upload V2 experimental metrics only
         uses: actions/upload-artifact@v4
         with:
