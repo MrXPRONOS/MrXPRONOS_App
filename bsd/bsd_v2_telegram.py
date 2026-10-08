@@ -10,6 +10,7 @@ from pathlib import Path
 import requests
 from bsd_h2h import _utc
 from bsd_v2_card import render as render_card
+from bsd_v2_night import is_night_match,matches_for_night,batch_date
 
 KIND="bsd_v2_hourly"
 COMBO_KIND="bsd_v2_combo_hourly"
@@ -26,6 +27,7 @@ def due(matches,now,min_minutes=60,max_minutes=120):
     selected=[]
     for m in matches:
         if not isinstance(m,dict) or m.get("source")!="bsd":continue
+        if is_night_match(m):continue
         if str(m.get("status","")).lower() not in ("notstarted","upcoming"):continue
         try:dt=_utc(str(m.get("event_date") or ""))
         except (ValueError,TypeError):continue
@@ -43,7 +45,7 @@ def due(matches,now,min_minutes=60,max_minutes=120):
 
 def combos_due(matches,now):
     from bsd_v2_combos import build_combos,due_combos
-    return due_combos(build_combos(matches),now)
+    return due_combos(build_combos([m for m in matches if not is_night_match(m)]),now)
 
 
 def expand_tickets(match):
@@ -100,13 +102,13 @@ def release_failed_claim(session,base,key,match,chat_id):
     r.raise_for_status()
 
 
-def send_one(session,token,chat_id,match):
+def send_one(session,token,chat_id,match,*,night=False):
     # Telegram envoie la photo générée depuis le PNG du ballon et des données BSD.
     # Pas de capture de ticket de bookmaker et aucune cote inventée.
     from tempfile import TemporaryDirectory
     with TemporaryDirectory() as directory:
         image=render_card(match,Path(directory)/"coupon.png")
-        caption=("⚽ Pronostic BSD V2 : "+str(match["home_team"])+" vs "+
+        caption=(("🌙 COUPONS NUIT\n" if night else "")+"⚽ Pronostic BSD V2 : "+str(match["home_team"])+" vs "+
                  str(match["away_team"])+"\n"+
                  str(match["prediction"].get("type") or "")+
                  "\nParier responsablement.")
@@ -125,12 +127,12 @@ def combo_ledger_match(combo):
     return {"id":combo["id"],"date":combo["date"]}
 
 
-def send_combo(session,token,chat,combo):
+def send_combo(session,token,chat,combo,*,night=False):
     from tempfile import TemporaryDirectory
     from bsd_v2_combo_card import render_combo
     with TemporaryDirectory() as directory:
         photo=render_combo(combo,Path(directory)/"combine.png",session=session)
-        caption=("⚽ Combiné de deux matchs BSD V2\n"+
+        caption=(("🌙 COUPONS NUIT\n" if night else "")+"⚽ Combiné de deux matchs BSD V2\n"+
                  "Cote totale : "+format(combo["combined_odds"],".3f")+
                  "\nParier responsablement.")
         with photo.open("rb") as pic:
@@ -147,8 +149,12 @@ def send_combo(session,token,chat,combo):
 def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
     if data.get("source")!="bsd" or data.get("model_version")!="bsd-v2-isolated":
         raise ValueError("Production JSON is not BSD V2")
+    night_matches=matches_for_night(data["matches"],now)
+    night_mode=batch_date(now) is not None
     selections=[pick for m in due(data["matches"],now) for pick in expand_tickets(m)]
-    report={"due":len(selections),"sent":0,"already_claimed":0,"errors":0}
+    selections += [pick for m in night_matches for pick in expand_tickets(m)]
+    report={"due":len(selections),"sent":0,"already_claimed":0,"errors":0,
+            "night_matches":len(night_matches),"night_picks_sent":0,"night_combos_sent":0}
     for match in selections:
         for chat in chat_ids:
             claimed=False
@@ -157,8 +163,10 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
                 if not claimed:
                     report["already_claimed"]+=1
                     continue
-                send_one(session,token,chat,match)
+                night=is_night_match(match)
+                send_one(session,token,chat,match,night=night)
                 report["sent"]+=1
+                if night:report["night_picks_sent"]+=1
                 time.sleep(.3)
             except Exception as e:
                 report["errors"]+=1
@@ -169,6 +177,11 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
                     except Exception as release_error:
                         print("TELEGRAM_BSD_RELEASE_ERROR:",type(release_error).__name__)
     combo_picks=combos_due(data["matches"],now)
+    from bsd_v2_combos import build_combos
+    from bsd_v2_night import night_date
+    if night_mode:
+        combo_picks += [c for c in build_combos(night_matches)
+                        if night_date(c["event_date"])==batch_date(now)]
     report["combos_due"]=len(combo_picks)
     report["combos_sent"]=0
     report["combos_claimed"]=0
@@ -191,8 +204,10 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
                 if not claimed:
                     report["combos_claimed"]+=1
                     continue
-                send_combo(session,token,chat,combo)
+                night=night_mode and is_night_match(combo["legs"][0])
+                send_combo(session,token,chat,combo,night=night)
                 report["combos_sent"]+=1
+                if night:report["night_combos_sent"]+=1
             except Exception as exc:
                 report["errors"]+=1
                 print("BSD_COMBO_ERROR",combo["id"],type(exc).__name__,str(exc)[:170])
@@ -224,6 +239,8 @@ def main():
           for match in due(data["matches"],now) for m in expand_tickets(match)]))
         print("BSD_COMBO_DRY_RUN:",json.dumps([{"id":x["id"],"kickoff":x["event_date"]}
               for x in combos_due(data["matches"],now)]))
+        print("BSD_NIGHT_DRY_RUN:",json.dumps([{"id":m["id"],"kickoff":m["event_date"]}
+              for m in matches_for_night(data["matches"],now)]))
         return
     token=os.getenv("TELEGRAM_BOT_TOKEN")
     chat=os.getenv("TELEGRAM_CHAT_ID")
