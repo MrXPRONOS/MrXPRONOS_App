@@ -2,6 +2,7 @@
 import unittest
 from datetime import datetime,timezone
 from bsd_v2_core import V2History,score_matrix,markets_from_matrix,choose_market,predict_v2,estimate_goals
+from bsd_v2_evaluate import run_evaluation, BASELINE_KEYS
 
 
 def game(i,dt,h=1,a=2,hs=2,aws=1,league=99):
@@ -51,6 +52,12 @@ class V2Tests(unittest.TestCase):
         self.assertIsNotNone(pred["prediction"]["key"])
         self.assertIsNone(pred["prediction"]["bookmaker_selection_code"])
         self.assertFalse(pred["published"])
+
+    def test_fair_baseline_includes_under_45(self):
+        self.assertIn('UNDER_45', BASELINE_KEYS)
+        report = run_evaluation(V2History(self.history), None, 0.0, year=2026, max_matches=10)
+        self.assertIn('fixed_baselines_same_fixtures', report)
+        self.assertIn('paired_vs_fixed_baselines_on_same_selected_fixtures', report)
 
     def test_missing_form_refuses(self):
         pred,reason=predict_v2(self.future,V2History([]))
