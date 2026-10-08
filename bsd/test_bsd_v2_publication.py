@@ -15,7 +15,8 @@ class PublicationTests(unittest.TestCase):
             "id":"bsd:"+str(n),"source":"bsd","source_event_id":n,
             "date":at.date().isoformat(),"event_date":at.isoformat(),
             "home_team":"A","away_team":"B","status":"notstarted",
-            "prediction":{"type":"Moins de 4.5 buts","selection_key":"UNDER_45","confidence":85},
+            "prediction":{"type":"Plus de 1.5 buts","selection_key":"OVER_15",
+                          "confidence":85,"odds":1.25,"odds_source":"bsd_consensus"},
         }
 
     def test_hourly_window_and_no_started_games(self):
@@ -28,6 +29,17 @@ class PublicationTests(unittest.TestCase):
         selected=due([a,b,c,d,e],now)
         self.assertEqual([m["id"] for m in selected],["bsd:1","bsd:2"])
 
+    def test_due_never_includes_unquoted_or_under_45(self):
+        valid=self.prediction(self.now+timedelta(minutes=90),1)
+        banned=self.prediction(self.now+timedelta(minutes=91),2)
+        banned["prediction"]["selection_key"]="UNDER_45"
+        unquoted=self.prediction(self.now+timedelta(minutes=92),3)
+        unquoted["prediction"]["odds"]=None
+        cheap=self.prediction(self.now+timedelta(minutes=93),4)
+        cheap["prediction"]["odds"]=1.19
+        self.assertEqual([m["id"] for m in due([valid,banned,unquoted,cheap],self.now)],
+                         ["bsd:1"])
+
     def test_all_eligible_picks_no_limit(self):
         fixtures=[self.prediction(self.now+timedelta(minutes=90),i) for i in range(35)]
         self.assertEqual(len(due(fixtures,self.now)),35)
@@ -39,7 +51,7 @@ class PublicationTests(unittest.TestCase):
         updated=update_settlement(m,event)
         self.assertTrue(updated["is_finished"])
         self.assertFalse(updated["verified_prediction"])
-        self.assertEqual(updated["prediction"]["selection_key"],"UNDER_45")
+        self.assertEqual(updated["prediction"]["selection_key"],"OVER_15")
 
     def test_wrong_kickoff_ignored(self):
         m=self.prediction(self.now,11)
