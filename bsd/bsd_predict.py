@@ -159,7 +159,6 @@ def predict_fixture(
     index: HistoryIndex,
     *,
     min_games: int = 3,
-    min_double_chance: float = 0.67,
     clock: Optional[datetime] = None,
     calibration=None,
 ) -> Tuple[Optional[dict], str]:
@@ -200,7 +199,8 @@ def predict_fixture(
     selected = choice["candidate"]
     dc_prob = choice["calibrated_probability"]
     quality = round(100 * min(1, (min(hf["played"], af["played"]) / 10)))
-    category = "vip" if choice["conservative_probability"] >= .80 and quality >= 90 and choice["calibration_samples"] >= 100 else "pro" if choice["conservative_probability"] >= .73 and quality >= 60 else "simple"
+    # VIP suspendu : le backtest 2026 montre 19/27 seulement; pas de label supérieur avant validation.
+    category = "pro" if choice["conservative_probability"] >= .73 and quality >= 80 else "simple"
     confidence = round(100 * dc_prob, 1)
     # These categories are experimental and not claims of real-world hit rate.
     prediction = {
@@ -249,6 +249,6 @@ def predict_fixture(
         "quality_score": quality,
         "category": category,
         "badge": "TEST BSD - NON VALIDE",
-        "model_version": "bsd-markets-v1-calibration-optional",
+        "model_version": "bsd-markets-v1.1-cautious",
     }
     return prediction, "ok"
