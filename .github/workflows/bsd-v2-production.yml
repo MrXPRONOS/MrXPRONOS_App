@@ -1,15 +1,15 @@
-name: BSD V2 - Production hourly
+name: BSD V2 - Generation quotidienne
 
 on:
   schedule:
-    - cron: '5 * * * *'
+    - cron: '5 0 * * *' # 00:05 UTC, une seule generation par jour
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: bsd-v2-production-hourly
+  group: bsd-v2-daily-generation
   cancel-in-progress: false
 
 jobs:
@@ -52,14 +52,6 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
-      - name: Send every due match to Telegram (60-120 minutes before kick-off)
-        env:
-          TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
-          TELEGRAM_CHAT_ID: '${{ secrets.TELEGRAM_CHAT_ID }}'
-          SUPABASE_URL: '${{ secrets.SUPABASE_URL }}'
-          SUPABASE_SERVICE_ROLE_KEY: '${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}'
-          SUPABASE_KEY: '${{ secrets.SUPABASE_KEY }}'
-        run: python bsd/bsd_v2_telegram.py
       - name: Prepare public browser config
         env:
           PUBLIC_SUPABASE_URL: '${{ secrets.SUPABASE_URL }}'
