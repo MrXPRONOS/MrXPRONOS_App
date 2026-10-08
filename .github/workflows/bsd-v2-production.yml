@@ -25,8 +25,12 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: python -m pip install requests cryptography pillow
+      - name: Compile Python sources
+        run: python -m compileall -q bsd
       - name: Run regression tests
         run: python -m unittest discover -s bsd -p 'test_*.py' -v
+      - name: Check website JavaScript syntax
+        run: node --check assets/js/main.js
       - name: Restore private BSD historical matches
         env:
           BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
@@ -52,6 +56,16 @@ jobs:
               for m in data["matches"]
           ), "Invalid BSD priced selection in published feed"
           print("BSD_V2_PRICED_FEED_OK",len(data["matches"]))
+          for match in data["matches"]:
+              selections=match.get("predictions") or [match["prediction"]]
+              assert 1<=len(selections)<=2, "Max 2 predictions per fixture"
+              assert selections[0]["selection_key"]==match["prediction"]["selection_key"]
+              assert len({p["selection_key"] for p in selections})==len(selections)
+              assert len({p["market"] for p in selections})==len(selections), "Market families must differ"
+              for pick in selections:
+                  assert pick["odds_source"] in ("bsd_consensus","bsd_bookmaker")
+                  assert type(pick["odds"]) in (int,float) and 1.20<=pick["odds"]<=100
+                  assert pick["selection_key"]!="UNDER_45"
           print("BSD_V2_FEED_OK",len(data["matches"]))
           PY
           git config user.name "github-actions[bot]"
@@ -62,6 +76,13 @@ jobs:
             git pull --rebase origin main
             git push origin HEAD:main
           fi
+      - name: Upload per-match price and rejection diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v2-market-rejections
+          path: bsd/rejections_report.json
+          retention-days: 14
+          if-no-files-found: error
       - name: Prepare public browser config
         env:
           PUBLIC_SUPABASE_URL: '${{ secrets.SUPABASE_URL }}'
@@ -81,7 +102,7 @@ jobs:
           PY
       - name: Remove private runtime files before website deployment
         run: |
-          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json bsd/v2_calibration.json
+          rm -f bsd/all_matches_bsd.json bsd/backfill_state.json bsd/v2_calibration.json bsd/rejections_report.json
           rm -rf bsd/cache bsd/private_history
       - name: Deploy updated BSD V2 website on GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
