@@ -10,6 +10,7 @@ from pathlib import Path
 import requests
 from bsd_h2h import _utc
 from bsd_v2_card import render as render_card
+from bsd_v2_captions import single_caption,combo_caption,PARSE_MODE
 from bsd_v2_night import is_night_match,matches_for_night,batch_date
 
 KIND="bsd_v2_hourly"
@@ -108,15 +109,12 @@ def send_one(session,token,chat_id,match,*,night=False):
     from tempfile import TemporaryDirectory
     with TemporaryDirectory() as directory:
         image=render_card(match,Path(directory)/"coupon.png")
-        caption=(("🌙 Coupons nuit\n" if night else "")+"⚽ Pronostic BSD V2 : "+str(match["home_team"])+" vs "+
-                 str(match["away_team"])+"\n"+
-                 str(match["prediction"].get("type") or "")+
-                 "\nParier responsablement.")
+        caption=single_caption(match,night=night)
         markup=action_buttons()
         with open(image,"rb") as pic:
             r=session.post(f"https://api.telegram.org/bot{token}/sendPhoto",
                 data={"chat_id":chat_id,"caption":caption,
-                      "reply_markup":json.dumps(markup)},
+                      "reply_markup":json.dumps(markup),"parse_mode":PARSE_MODE},
                 files={"photo":pic},timeout=60)
     r.raise_for_status()
     data=r.json()
@@ -132,13 +130,12 @@ def send_combo(session,token,chat,combo,*,night=False):
     from bsd_v2_combo_card import render_combo
     with TemporaryDirectory() as directory:
         photo=render_combo(combo,Path(directory)/"combine.png",session=session)
-        caption=(("🌙 Coupons nuit\n" if night else "")+"⚽ Combiné de deux matchs BSD V2\n"+
-                 "Cote totale : "+format(combo["combined_odds"],".3f")+
-                 "\nParier responsablement.")
+        caption=combo_caption(combo,night=night)
         with photo.open("rb") as pic:
             response=session.post("https://api.telegram.org/bot"+token+"/sendPhoto",
                 data={"chat_id":chat,"caption":caption,
-                      "reply_markup":json.dumps(action_buttons())},
+                      "reply_markup":json.dumps(action_buttons()),
+                      "parse_mode":PARSE_MODE},
                 files={"photo":pic},timeout=60)
     response.raise_for_status()
     body=response.json()
