@@ -13,6 +13,7 @@ from bsd_recent_backtest import paired_comparison
 from bsd_calibrate import fit_calibration
 from bsd_predict import HistoryIndex, predict_fixture
 from bsd_v2_policies import fit_policy
+from bsd_v2_btts import fit_btts_model, btts_candidates
 
 
 def get_sample(index, year, max_matches):
@@ -72,7 +73,8 @@ def _update_group(stats, win, probability, brier, under45_win):
 
 
 def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
-                   v1_index=None, v1_calibration=None, quality_policy=None):
+                   v1_index=None, v1_calibration=None, quality_policy=None,
+                   btts_model=None):
     counters = Counter()
     by_market = {}
     baselines = Counter()
@@ -105,13 +107,16 @@ def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
                     v1_counts["wins"] += v1_pick
         prediction, reason = predict_v2(fixture,index,calibration=calibration,rho=rho,
                                         clock=fixture_datetime(event)-timedelta(seconds=1),
-                                        quality_policy=quality_policy)
+                                        quality_policy=quality_policy,btts_model=btts_model)
         if prediction is None:
             counters["skip_"+reason]+=1
             continue
         choice = prediction["prediction"]
         feat=prediction["estimated_goals"]
-        markets={c.key:c for c in markets_from_matrix(score_matrix(feat["home"],feat["away"],rho))}
+        generated=markets_from_matrix(score_matrix(feat["home"],feat["away"],rho))
+        if btts_model is not None:
+            generated=btts_candidates(event,index,generated,btts_model)
+        markets={c.key:c for c in generated}
         correct=realized(markets[choice["key"]],*outcome_scores(event))
         counters["selected"]+=1
         counters["wins"]+=correct
@@ -189,14 +194,16 @@ def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
 def evaluate(history, *, max_test=1000, max_train=1800):
     index=V2History(history)
     rho,rho_info=fit_rho_2024(index)
-    cal,quality_policy,policy_info=fit_policy(index,rho=rho,max_train=max_train)
+    btts_model,btts_info=fit_btts_model(index,rho=rho)
+    cal,quality_policy,policy_info=fit_policy(index,rho=rho,max_train=max_train,btts_model=btts_model)
     trained=policy_info['training_eligible']
     v1_cal, v1_training = fit_calibration(history, year=2025, max_fixtures=max_train)
     results=run_evaluation(index,cal,rho,max_matches=max_test,
                            v1_index=HistoryIndex(history),v1_calibration=v1_cal,
-                           quality_policy=quality_policy)
+                           quality_policy=quality_policy,btts_model=btts_model)
     return {"model":"bsd-v2-isolated", "history_eligible":len(index.global_games),
             "training":{"rho":rho_info,"calibration_year":2025,"calibration_games":trained,"quality_policy":policy_info,
+                        "btts_training":btts_info,
                         "v1_calibration_games":v1_training.get("fixtures_with_form")},
             "test":results},cal,rho
 
