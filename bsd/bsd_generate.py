@@ -10,18 +10,19 @@ from pathlib import Path
 from bsd_api import BSDAPIError, BSDClient
 from bsd_archive import MATCHES_FILE, _read_json
 from bsd_predict import HistoryIndex, predict_fixture
+from bsd_markets import MarketCalibrator
 from bsd_enrich import enrich_leagues
 
 OUTPUT = Path("bsd/data_bsd.json")
 
 
-def generate(fixtures, history, *, now=None):
+def generate(fixtures, history, *, now=None, calibration=None):
     now = now or datetime.now(timezone.utc)
     index = HistoryIndex(history)
     results = []
     skipped = Counter()
     for item in fixtures:
-        prediction, reason = predict_fixture(item, index, clock=now)
+        prediction, reason = predict_fixture(item, index, clock=now, calibration=calibration)
         if prediction is not None:
             results.append(prediction)
         else:
@@ -65,7 +66,11 @@ def main():
                                (d, len(batch.events), batch.total_reported))
         fixtures.extend(batch.events)
     league_diag = enrich_leagues(fixtures, client)
-    result = generate(fixtures, history, now=now)
+    calibration_path = Path('bsd/calibration_bsd.json')
+    if not calibration_path.exists():
+        raise RuntimeError('Calibration BSD absente : lancer bsd_calibrate.py --year 2025')
+    calibration = MarketCalibrator.from_dict(json.loads(calibration_path.read_text(encoding='utf-8')))
+    result = generate(fixtures, history, now=now, calibration=calibration)
     result["diagnostics"].update(league_diag)
     if not fixtures:
         raise RuntimeError("BSD n'a renvoye aucun match : diagnostic, pas de remplacement du fichier")
