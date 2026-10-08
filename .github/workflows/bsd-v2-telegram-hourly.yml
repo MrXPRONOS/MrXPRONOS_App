@@ -1,0 +1,38 @@
+name: BSD V2 - Diffusion Telegram horaire
+
+on:
+  schedule:
+    - cron: '5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-v2-telegram-hourly
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Read latest site predictions, without BSD API
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Python runtime
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Telegram HTTP dependency only
+        run: python -m pip install requests
+      - name: Send each eligible kickoff (60 to 120 minutes away)
+        env:
+          TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
+          TELEGRAM_CHAT_ID: '${{ secrets.TELEGRAM_CHAT_ID }}'
+          SUPABASE_URL: '${{ secrets.SUPABASE_URL }}'
+          SUPABASE_SERVICE_ROLE_KEY: '${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}'
+          SUPABASE_KEY: '${{ secrets.SUPABASE_KEY }}'
+        run: python bsd/bsd_v2_telegram.py --data data.json
