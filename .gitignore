@@ -22,3 +22,4 @@ Thumbs.db
 
 # BSD API - cache temporaire, ne pas publier les réponses brutes
 bsd/cache/
+bsd/private_history/
