@@ -119,7 +119,7 @@ class TotalGoalsModel:
                 "trained":self.trained,"validated":self.validated}
 
 def uncertainty(event,index,model,baseline_total=None):
-    if model is None:return None
+    if model is None or model.blend<=0:return None
     feat=features(event,index)
     if feat is None:return "totals_missing_form"
     if feat["league_samples"]<20:return "totals_insufficient_league"
