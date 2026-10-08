@@ -9,12 +9,24 @@ import argparse
 import json
 from collections import Counter
 from datetime import datetime, timezone, timedelta
+from math import sqrt
 
 from bsd_archive import MATCHES_FILE, _read_json
 from bsd_predict import HistoryIndex, predict_fixture
 from bsd_h2h import _valid_score, _utc
 from bsd_markets import MarketCalibrator, realized
 from bsd_calibrate import historical_candidates
+
+
+def wilson_interval(wins, total, z=1.96):
+    """Intervalle approximatif à 95 % pour une proportion observée."""
+    if total <= 0:
+        return None
+    p = wins / total
+    denom = 1 + z*z/total
+    center = (p + z*z/(2*total)) / denom
+    width = z * sqrt((p*(1-p) + z*z/(4*total))/total) / denom
+    return [round(max(0, center-width), 4), round(min(1, center+width), 4)]
 
 
 def evaluate(matches, *, year=2026, max_fixtures=250, calibration=None):
@@ -85,13 +97,17 @@ def evaluate(matches, *, year=2026, max_fixtures=250, calibration=None):
         "hit_rate": round(wins / total, 4) if total else None,
         "brier_score": round(brier, 5) if brier is not None else None,
         "selection_coverage": round(total / len(fixtures), 4) if fixtures else None,
+        "overall_wilson_95_interval": wilson_interval(wins, total),
         "by_market": {k: {"selections": n, "wins": won_by_market[k],
                           "hit_rate": round(won_by_market[k] / n, 4),
-                          "average_predicted": round(predicted_by_market[k] / n, 4)}
+                          "average_predicted": round(predicted_by_market[k] / n, 4),
+                          "wilson_95_interval": wilson_interval(won_by_market[k], n),
+                          "small_sample": n < 30}
                       for k, n in sorted(by_market.items())},
         "fixed_market_baselines_same_fixtures": {
             k: {"selections": baseline[(k, "total")],
-                "hit_rate": round(baseline[(k, "correct")] / baseline[(k, "total")], 4)}
+                "hit_rate": round(baseline[(k, "correct")] / baseline[(k, "total")], 4),
+                "wilson_95_interval": wilson_interval(baseline[(k, "correct")], baseline[(k, "total")])}
             for k in ("1X", "X2", "12", "OVER_15", "UNDER_35", "BTTS_YES")
             if baseline[(k, "total")]},
         "categories": {cat: {"selections": num, "wins": won_by_cat[cat],
