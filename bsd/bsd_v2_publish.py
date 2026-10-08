@@ -150,9 +150,15 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                "event_date":f.get("event_date"),"quotes":[],"considered":[],"status":"rejected","reason":None}
         detailed.append(entry)
         try: kickoff=fixture_datetime(f)
-        except (ValueError,TypeError):continue
-        if kickoff<=now or kickoff>now+timedelta(days=FUTURE_DAYS):continue
-        if str(f.get("status") or "").lower() not in ("notstarted","upcoming"):continue
+        except (ValueError,TypeError):
+            entry["reason"]="invalid_kickoff"
+            continue
+        if kickoff<=now or kickoff>now+timedelta(days=FUTURE_DAYS):
+            entry["reason"]="outside_upcoming_window"
+            continue
+        if str(f.get("status") or "").lower() not in ("notstarted","upcoming"):
+            entry["reason"]="not_upcoming"
+            continue
         if not odds_fetcher:
             entry["reason"]="no_odds_provider"
             stats["no_odds_provider"] += 1
@@ -183,18 +189,20 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             entry["reason"]="no_qualified_bsd_odds"
             stats["no_qualified_bsd_odds"] += 1
             continue
+        market_audit=[]
+        entry["considered"]=market_audit
         prediction,reason=predict_v2(
             f,index,calibration=calibration,quality_policy=policy,
             rho=rho,clock=now,mode="reliability",
             odds_by_market={code: quote["odds"] for code,quote in valid_quotes.items()},
             require_odds=True,min_odds=MIN_BSD_ODDS,excluded_keys=EXCLUDED_SELECTIONS,
             btts_model=btts_model,total_model=total_model,dc_model=dc_model,
+            market_audit=market_audit,
         )
         if prediction is None:
             entry["reason"]=reason
             stats[reason]+=1
             continue
-        entry["considered"]=prediction.get("ranked_candidates",[])
         selected_code = prediction["prediction"]["internal_market_code"]
         quote = valid_quotes.get(selected_code)
         if quote is None:
