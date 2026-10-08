@@ -274,7 +274,8 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
 
 def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
                mode="reliability", odds_by_market=None, quality_policy=None,
-               require_odds=False, min_odds=1.20, excluded_keys=None):
+               require_odds=False, min_odds=1.20, excluded_keys=None,
+               btts_model=None):
     if str(event.get("status") or "").lower() not in ("notstarted", "upcoming"):
         return None, "not_upcoming"
     if event.get("id") is None:
@@ -293,6 +294,9 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         if rejection:
             return None, rejection
     candidates = markets_from_matrix(score_matrix(expected["home"], expected["away"], rho))
+    if btts_model is not None:
+        from bsd_v2_btts import btts_candidates
+        candidates = btts_candidates(event,index,candidates,btts_model)
     choice, all_options = choose_market(
         candidates, calibration=calibration, odds_by_market=odds_by_market,
         mode=mode, league_samples=expected["league_samples"],
