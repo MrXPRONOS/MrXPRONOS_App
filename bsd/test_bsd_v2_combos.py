@@ -77,6 +77,33 @@ class CombosTests(unittest.TestCase):
         self.assertNotIn("_telegram_selection_ref",tickets[0])
         self.assertEqual(tickets[1]["_telegram_selection_ref"],"bsd:17:BTTS_YES")
 
+    def test_two_market_wins_are_verified_independently(self):
+        from unittest.mock import patch
+        fixture=match(17,-24*60)
+        fixture["status"]="notstarted"
+        fixture["predictions"]=[fixture["prediction"],{
+            "selection_key":"BTTS_YES","type":"Les deux équipes marquent",
+            "market":"btts","odds":1.56,"odds_source":"bsd_consensus"}]
+        rows=[{"id":10,"ref_id":"-10012:bsd:17","ref_date":fixture["date"]},
+              {"id":11,"ref_id":"-10012:bsd:17:BTTS_YES","ref_date":fixture["date"]}]
+        official={"17":{"status":"finished","event_date":fixture["event_date"],
+                        "home_score":2,"away_score":0}}
+        class FakeHTTP:
+            def __init__(self):self.patches=[]
+            def patch(self,*args,**kwargs):
+                self.patches.append(kwargs)
+                class Response:
+                    def raise_for_status(self):pass
+                return Response()
+        session=FakeHTTP()
+        with patch("bsd_v2_verify_telegram.post_gain",return_value=411) as post:
+            counts=validate({"matches":[fixture]},rows,official,NOW,
+                            session,"token","https://test.supabase.co","key")
+        self.assertEqual(counts["wins_sent"],1)
+        self.assertEqual(counts["losses_silent"],1)
+        self.assertEqual(post.call_count,1)
+        self.assertEqual(len(session.patches),2)
+
     def test_combo_dark_image_generated_offline(self):
         combo=build_combos([match(1,40),match(2,50)])[0]
         with TemporaryDirectory() as directory:
