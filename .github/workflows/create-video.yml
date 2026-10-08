@@ -17,7 +17,7 @@ jobs:
     name: Generate and publish shorts
     runs-on: ubuntu-latest
 
-    if: github.event_name == 'workflow_dispatch' # no automatic SportData shorts
+    if: false # old SportData-based videos disabled until migrated
 
     env:
       # GitHub token pour mettre à jour les secrets automatiquement
