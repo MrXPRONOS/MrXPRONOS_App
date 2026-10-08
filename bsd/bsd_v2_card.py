@@ -14,6 +14,7 @@ import requests
 from PIL import Image, ImageDraw, ImageFont
 from bsd_h2h import _utc
 from bsd_v2_stakes import single_stake,gain_potentiel,money
+from bsd_v2_labels import market_label
 
 ROOT=Path(__file__).resolve().parent.parent
 ASSETS=ROOT/"assets/images"
@@ -210,7 +211,7 @@ def render(match,output,*,win=False,stake=None,now=None,session=None):
     for line_index,line in enumerate(wrap_name(d,right,255,size=33)):
         write(d,line,795,y_center-52+line_index*43,size=33,bold=True,maximum=255)
     d.line((56,1019,1022,1019),fill=BORDER,width=2)
-    write(d,pred.get("type") or pred.get("label") or "Pronostic",58,1044,
+    write(d,market_label(pred.get("selection_key"),pred.get("type") or pred.get("label") or "Pronostic"),58,1044,
           size=31,bold=True,maximum=740)
     write(d,price,1020,1044,size=31,bold=True,align="right")
     write(d,"Statut:",58,1125,size=29,color=MUTED)
