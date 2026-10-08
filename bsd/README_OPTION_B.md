@@ -82,3 +82,17 @@ Pour chaque date D en heure locale Togo (UTC toute l'année) :
 Les montants affichés sur les images Telegram (y compris les images de pronostics gagnants) proviennent du module commun `bsd/bsd_v2_stakes.py`. Les gains affichés sont le **retour potentiel brut théorique** (mise × cote), pas un gain effectivement versé. Sans cote BSD admissible, aucune mise fictive n'est fabriquée.
 
 Tests unitaires : `bsd/test_bsd_v2_stakes.py`, dont les frontières 1,99/2,00, 2,49/2,50, 2,99/3,00 et 3,99/4,00. À vérifier ensuite dans la suite GitHub Actions.
+
+
+## Légendes stylées Telegram (HTML)
+
+Toutes les légendes des images BSD V2 sont désormais construites dans `bsd/bsd_v2_captions.py` et transmises à l'API Telegram avec `parse_mode=HTML` :
+
+- **Coupon du jour** : titre gras, introduction italique, match en gras, bloc de citation pour sélection/cote/mise indicative, heure du Togo et rappel 18+.
+- **Coupons nuit** : identité « 🌙 Coupons nuit », introduction propre à la campagne 20h, puis les mêmes informations par coupon individuel.
+- **Combiné (jour et nuit)** : les deux matchs et leurs marchés dans un bloc de citation, cote combinée, mise indicative de 250 000 F CFA et horaire du premier match.
+- **Pronostic gagnant** : résultat et sélection validés, avec présentation sobre qui ne prétend pas qu'un bookmaker a effectivement payé un pari.
+
+Les variables d'équipes, les noms des marchés et autres champs BSD sont échappés avec `html.escape`. Les deux boutons Telegram restent inchangés. Tests : `bsd/test_bsd_v2_captions.py`.
+
+Ces messages sont un rendu de pronostics, pas des tickets de paris acceptés ni des garanties de gains.
