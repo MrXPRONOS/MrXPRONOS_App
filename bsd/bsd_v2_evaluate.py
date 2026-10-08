@@ -15,7 +15,7 @@ from bsd_predict import HistoryIndex, predict_fixture
 from bsd_v2_policies import fit_policy
 from bsd_v2_btts import fit_btts_model
 from bsd_v2_over_under import fit_total_model
-from bsd_v2_double_chance import fit_model as fit_dc_model, adjust_candidates
+from bsd_v2_double_chance import fit_model as fit_dc_model, adjust_candidates as dc_adjust
 
 
 def get_sample(index, year, max_matches):
