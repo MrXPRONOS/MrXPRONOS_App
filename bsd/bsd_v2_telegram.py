@@ -22,7 +22,13 @@ def due(matches,now,min_minutes=60,max_minutes=120):
         try:dt=_utc(str(m.get("event_date") or ""))
         except (ValueError,TypeError):continue
         delta=(dt-now).total_seconds()/60
-        if min_minutes<=delta<max_minutes and m.get("prediction",{}).get("selection_key"):
+        p=m.get("prediction") or {}
+        odds=p.get("odds")
+        valid_price=(isinstance(odds,(int,float)) and not isinstance(odds,bool)
+                     and 1.20<=odds<=100 and p.get("odds_source") in
+                     ("bsd_consensus","bsd_bookmaker"))
+        if (min_minutes<=delta<max_minutes and valid_price
+                and p.get("selection_key") and p["selection_key"]!="UNDER_45"):
             selected.append(m)
     return sorted(selected,key=lambda m:(m["event_date"],str(m["id"])))
 
