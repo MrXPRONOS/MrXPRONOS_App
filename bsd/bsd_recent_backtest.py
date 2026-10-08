@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
+from math import comb
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
@@ -55,6 +56,27 @@ def _rate(wins: int, total: int) -> Optional[float]:
     return round(wins / total, 4) if total else None
 
 
+
+def paired_comparison(model_only: int, baseline_only: int) -> Dict[str, Any]:
+    """Exact two-sided sign test on discordant outcomes of identical matches.
+
+    Exploratory comparison only: multiple baselines and temporal dependence
+    preclude interpreting this as a definitive model superiority test.
+    """
+    discordant = model_only + baseline_only
+    if discordant == 0:
+        p_value = 1.0
+    else:
+        smaller = min(model_only, baseline_only)
+        p_value = min(1.0, 2.0 * sum(comb(discordant, k) for k in range(smaller + 1)) / (2 ** discordant))
+    return {
+        "model_only_correct": model_only,
+        "baseline_only_correct": baseline_only,
+        "discordant_matches": discordant,
+        "two_sided_exact_p_exploratory": round(p_value, 6),
+    }
+
+
 def _summarize(counter: Counter) -> Dict[str, Any]:
     n = counter["selected"]
     return {
@@ -85,7 +107,7 @@ def evaluate_recent(
         raise ValueError("Il manque au moins une journée dans les résultats de l'API.")
     start = targets[0]
     # Le match de la veille peut avoir été encore en cours après minuit.
-    # Aucun match joué pendant les trois jours testés ne sert à prédire ceux-ci.
+    # Aucun match joué pendant la fenêtre testée ne sert à prédire celle-ci.
     freeze_at = datetime.combine(start, time.min, tzinfo=timezone.utc) - timedelta(hours=4)
     historical = []
     for event in history:
@@ -102,6 +124,7 @@ def evaluate_recent(
     per_market = defaultdict_counter()
     rejected = Counter()
     baseline = Counter()
+    paired = defaultdict_counter()
     predicted_sum = 0.0
     brier_sum = 0.0
     examples = []
@@ -180,8 +203,13 @@ def evaluate_recent(
             predicted_sum += p
             brier_sum += (p - outcome) ** 2
             for market in BASELINES:
+                baseline_won = realized(markets[market], home_score, away_score)
                 baseline[(market, "total")] += 1
-                baseline[(market, "wins")] += realized(markets[market], home_score, away_score)
+                baseline[(market, "wins")] += baseline_won
+                if outcome and not baseline_won:
+                    paired[market]["model_only_correct"] += 1
+                elif baseline_won and not outcome:
+                    paired[market]["baseline_only_correct"] += 1
             # Enregistre une sélection dérivée, jamais la base d'événements bruts.
             examples.append({
                 "date": key,
@@ -196,7 +224,7 @@ def evaluate_recent(
             })
 
     report = {
-        "mode": "three_day_pre_window_snapshot_backtest",
+        "mode": "multi_day_pre_window_snapshot_backtest",
         "experimental": True,
         "days": days,
         "start_date_utc": start.isoformat(),
@@ -219,6 +247,12 @@ def evaluate_recent(
                      "hit_rate": _rate(baseline[(market, "wins")], baseline[(market, "total")])}
             for market in BASELINES
             if baseline[(market, "total")]
+        },
+        "paired_model_vs_fixed_baselines": {
+            market: paired_comparison(
+                paired[market]["model_only_correct"],
+                paired[market]["baseline_only_correct"],
+            ) for market in BASELINES if baseline[(market, "total")]
         },
         "average_predicted": round(predicted_sum / totals["selected"], 4) if totals["selected"] else None,
         "brier_score": round(brier_sum / totals["selected"], 5) if totals["selected"] else None,
@@ -271,6 +305,7 @@ def main() -> None:
         k: report[k] for k in ("start_date_utc", "end_date_utc", "history_frozen_before_utc",
                               "history_events_used", "summary", "by_day", "by_market",
                               "fixed_market_baselines_same_selected_fixtures",
+                              "paired_model_vs_fixed_baselines",
                               "average_predicted", "brier_score", "http_calls", "quota_remaining")
     }, ensure_ascii=False))
     print("BSD_RECENT_BACKTEST_DETAILS: %s (%d selections)" % (path, len(report["predictions"])))
