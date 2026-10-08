@@ -45,6 +45,34 @@ class NightScheduleTests(unittest.TestCase):
                  fixture(3,when(9,6,0))]
         self.assertEqual(combos_due(matches,when(8,20,35)),[])
 
+    def test_all_night_picks_and_combo_sent_in_one_batch(self):
+        matches=[fixture(1,when(8,21,30)),fixture(2,when(9,1,0)),
+                 fixture(3,when(9,4,30)),fixture(4,when(8,18))]
+        data={"source":"bsd","model_version":"bsd-v2-isolated","matches":matches}
+        class Result:
+            def raise_for_status(self):pass
+            def json(self):return [{"id":9}]
+        class Session:
+            def post(self,*args,**kwargs):return Result()
+        posted=[]
+        def send_one(*args,**kwargs):
+            posted.append(("single",args[-1]["id"],kwargs.get("night")))
+            return 1
+        def send_combo(*args,**kwargs):
+            posted.append(("combo",args[-1]["id"],kwargs.get("night")))
+            return 2
+        with patch("bsd_v2_telegram.claim",return_value=True), \
+             patch("bsd_v2_telegram.send_one",side_effect=send_one), \
+             patch("bsd_v2_telegram.send_combo",side_effect=send_combo), \
+             patch("bsd_v2_telegram.time.sleep",return_value=None):
+            report=process(data,when(8,20,5),session=Session(),token="token",
+                chat_ids=["-100123"],supabase_url="https://test.supabase.co",supabase_key="key")
+        self.assertEqual(report["night_matches"],3)
+        self.assertEqual(report["night_picks_sent"],3)
+        self.assertEqual(report["night_combos_sent"],1)
+        self.assertEqual(len(posted),4)
+        self.assertTrue(all(item[2] for item in posted))
+
     def test_independent_tickets_keep_distinct_ids(self):
         match=fixture(1,when(8,22))
         match["predictions"]=[match["prediction"],{
