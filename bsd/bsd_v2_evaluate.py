@@ -7,8 +7,11 @@ from datetime import timedelta
 from pathlib import Path
 from bsd_archive import MATCHES_FILE, _read_json
 from bsd_v2_core import V2History, estimate_goals, score_matrix, markets_from_matrix, fit_rho_2024, predict_v2, fixture_datetime, outcome_scores
-from bsd_markets import MarketCalibrator, realized
+from bsd_markets import MarketCalibrator, candidates_from_goals, realized
 from bsd_backtest import wilson_interval
+from bsd_recent_backtest import paired_comparison
+from bsd_calibrate import fit_calibration
+from bsd_predict import HistoryIndex, predict_fixture
 
 
 def get_sample(index, year, max_matches):
@@ -34,14 +37,38 @@ def fit_calibration_v2(index, rho, max_matches=1800):
     return cal, trained
 
 
-def run_evaluation(index, calibration, rho, year=2026, max_matches=1000):
+BASELINE_KEYS = ("12", "1X", "X2", "OVER_15", "OVER_25", "UNDER_35", "UNDER_45", "BTTS_YES", "BTTS_NO")
+
+
+def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
+                   v1_index=None, v1_calibration=None):
     counters = Counter()
     by_market = {}
     baselines = Counter()
     brier = 0.
+    probability_sum = 0.
+    per_market_brier = Counter()
+    per_market_predicted = Counter()
+    paired_baselines = Counter()
+    v1_counts = Counter()
+    common_counts = Counter()
+    v1_candidates = {item.key: item for item in candidates_from_goals(1.4,1.2)}
     for event in get_sample(index,year,max_matches):
         counters["tested"]+=1
         fixture = dict(event,status="notstarted",home_score=None,away_score=None)
+        # Both versions predict the exact same held-out 2026 fixtures.
+        v1_pick = None
+        if v1_index is not None:
+            old_prediction, _ = predict_fixture(
+                fixture, v1_index, calibration=v1_calibration,
+                clock=fixture_datetime(event)-timedelta(seconds=1),
+            )
+            if old_prediction is not None:
+                v1_key = old_prediction["prediction"]["selection_key"]
+                if v1_key in v1_candidates:
+                    v1_pick = realized(v1_candidates[v1_key], *outcome_scores(event))
+                    v1_counts["selected"] += 1
+                    v1_counts["wins"] += v1_pick
         prediction, reason = predict_v2(fixture,index,calibration=calibration,rho=rho,
                                         clock=fixture_datetime(event)-timedelta(seconds=1))
         if prediction is None:
@@ -53,28 +80,61 @@ def run_evaluation(index, calibration, rho, year=2026, max_matches=1000):
         correct=realized(markets[choice["key"]],*outcome_scores(event))
         counters["selected"]+=1
         counters["wins"]+=correct
-        brier+=(choice["probability"]-correct)**2
+        this_brier=(choice["probability"]-correct)**2
+        brier+=this_brier
+        probability_sum+=choice["probability"]
+        per_market_brier[choice["key"]]+=this_brier
+        per_market_predicted[choice["key"]]+=choice["probability"]
+        if v1_pick is not None:
+            common_counts["selected"]+=1
+            common_counts["v1_wins"]+=v1_pick
+            common_counts["v2_wins"]+=correct
+            if correct and not v1_pick: common_counts["v2_only"]+=1
+            if v1_pick and not correct: common_counts["v1_only"]+=1
         market=by_market.setdefault(choice["key"],Counter())
         market["selected"]+=1
         market["wins"]+=correct
-        for key in ("12","1X","X2","OVER_15","UNDER_35","BTTS_YES"):
+        for key in BASELINE_KEYS:
+            fixed_won=realized(markets[key],*outcome_scores(event))
             baselines[(key,"total")]+=1
-            baselines[(key,"wins")]+=realized(markets[key],*outcome_scores(event))
+            baselines[(key,"wins")]+=fixed_won
+            if correct and not fixed_won: paired_baselines[(key,"model_only")]+=1
+            if fixed_won and not correct: paired_baselines[(key,"fixed_only")]+=1
     n=counters["selected"]
     return {
         "year":year,"checked":counters["tested"],"selected":n,"wins":counters["wins"],
         "hit_rate":round(counters["wins"]/n,4) if n else None,
         "brier":round(brier/n,5) if n else None,
+        "mean_predicted_probability":round(probability_sum/n,4) if n else None,
+        "prediction_minus_actual":round(probability_sum/n-counters["wins"]/n,4) if n else None,
         "wilson_95":wilson_interval(counters["wins"],n),
         "coverage":round(n/counters["tested"],4) if counters["tested"] else None,
         "skips":{k:v for k,v in counters.items() if k.startswith("skip_")},
         "by_market":{k:{"selected":v["selected"],"wins":v["wins"],
-                        "hit_rate":round(v["wins"]/v["selected"],4)} for k,v in sorted(by_market.items())},
+                        "hit_rate":round(v["wins"]/v["selected"],4),
+                        "mean_predicted_probability":round(per_market_predicted[k]/v["selected"],4),
+                        "brier":round(per_market_brier[k]/v["selected"],5),
+                        "wilson_95":wilson_interval(v["wins"],v["selected"])} for k,v in sorted(by_market.items())},
         "fixed_baselines_same_fixtures":{k:{"selected":baselines[(k,"total")],
                                          "wins":baselines[(k,"wins")],
                                          "hit_rate":round(baselines[(k,"wins")]/baselines[(k,"total")],4)}
-                                         for k in ("12","1X","X2","OVER_15","UNDER_35","BTTS_YES") if baselines[(k,"total")]},
-        "warning":"Retrospective; not prospective and no real odds, so no ROI."
+                                         for k in BASELINE_KEYS if baselines[(k,"total")]},
+        "paired_vs_fixed_baselines_on_same_selected_fixtures":{
+            k:paired_comparison(paired_baselines[(k,"model_only")],paired_baselines[(k,"fixed_only")])
+            for k in BASELINE_KEYS if baselines[(k,"total")]},
+        "v1_same_test_fixtures":{
+            "checked":counters["tested"],"selected":v1_counts["selected"],"wins":v1_counts["wins"],
+            "hit_rate":round(v1_counts["wins"]/v1_counts["selected"],4) if v1_counts["selected"] else None,
+            "coverage":round(v1_counts["selected"]/counters["tested"],4) if counters["tested"] else None
+        } if v1_index is not None else None,
+        "v1_v2_common_selections":{
+            "both_selected":common_counts["selected"],
+            "v1_wins":common_counts["v1_wins"],"v2_wins":common_counts["v2_wins"],
+            "v1_hit_rate":round(common_counts["v1_wins"]/common_counts["selected"],4) if common_counts["selected"] else None,
+            "v2_hit_rate":round(common_counts["v2_wins"]/common_counts["selected"],4) if common_counts["selected"] else None,
+            "paired":paired_comparison(common_counts["v2_only"],common_counts["v1_only"])
+        } if v1_index is not None else None,
+        "warning":"Retrospective, not prospective. Fixed baselines compare the same V2 selected matches; V1 is run on all identical tested fixtures and on the common selection subset. No real odds, so no ROI."
     }
 
 
@@ -82,9 +142,12 @@ def evaluate(history, *, max_test=1000, max_train=1800):
     index=V2History(history)
     rho,rho_info=fit_rho_2024(index)
     cal,trained=fit_calibration_v2(index,rho,max_train)
-    results=run_evaluation(index,cal,rho,max_matches=max_test)
+    v1_cal, v1_training = fit_calibration(history, year=2025, max_fixtures=max_train)
+    results=run_evaluation(index,cal,rho,max_matches=max_test,
+                           v1_index=HistoryIndex(history),v1_calibration=v1_cal)
     return {"model":"bsd-v2-isolated", "history_eligible":len(index.global_games),
-            "training":{"rho":rho_info,"calibration_year":2025,"calibration_games":trained},
+            "training":{"rho":rho_info,"calibration_year":2025,"calibration_games":trained,
+                        "v1_calibration_games":v1_training.get("fixtures_with_form")},
             "test":results},cal,rho
 
 
