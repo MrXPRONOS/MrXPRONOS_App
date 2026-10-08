@@ -13,9 +13,11 @@ from datetime import datetime, timezone, timedelta
 from bsd_archive import MATCHES_FILE, _read_json
 from bsd_predict import HistoryIndex, predict_fixture
 from bsd_h2h import _valid_score, _utc
+from bsd_markets import MarketCalibrator, realized
+from bsd_calibrate import historical_candidates
 
 
-def evaluate(matches, *, year=2026, max_fixtures=250):
+def evaluate(matches, *, year=2026, max_fixtures=250, calibration=None):
     index = HistoryIndex(matches)
     fixtures = []
     for item in matches:
@@ -42,14 +44,18 @@ def evaluate(matches, *, year=2026, max_fixtures=250):
     for kickoff, original in fixtures:
         fixture = dict(original)
         fixture["status"] = "notstarted"
-        prediction, reason = predict_fixture(fixture, index, clock=kickoff - timedelta(seconds=1))
+        prediction, reason = predict_fixture(fixture, index, clock=kickoff - timedelta(seconds=1), calibration=calibration)
         if prediction is None:
             skipped[reason] += 1
             continue
         hs = _valid_score(original["home_score"])
         aws = _valid_score(original["away_score"])
-        choice = prediction["prediction"]["double_chance"]
-        won = (hs >= aws if choice == "1X" else aws >= hs)
+        market_key = prediction["prediction"]["selection_key"]
+        options = {item.key: item for item in historical_candidates(fixture, index)}
+        if market_key not in options:
+            skipped["market_key_unavailable"] += 1
+            continue
+        won = bool(realized(options[market_key], hs, aws))
         wins += int(won)
         cat = prediction["category"]
         by_cat[cat] += 1
@@ -58,7 +64,8 @@ def evaluate(matches, *, year=2026, max_fixtures=250):
     total = len(scored)
     brier = sum((p - actual) ** 2 for p, actual in scored) / total if total else None
     return {
-        "mode": "offline_exploratory_backtest",
+        "mode": "offline_exploratory_backtest_multi_market",
+        "calibration_used": calibration is not None,
         "year": year,
         "checked_fixtures": len(fixtures),
         "evaluated_predictions": total,
@@ -83,4 +90,7 @@ if __name__ == "__main__":
     matches = _read_json(MATCHES_FILE, None)
     if not isinstance(matches, list) or not matches:
         parser.error("Historique BSD absent")
-    print("BSD_BACKTEST:", json.dumps(evaluate(matches, year=opts.year, max_fixtures=opts.max_fixtures), ensure_ascii=False))
+    from pathlib import Path
+    path = Path("bsd/calibration_bsd.json")
+    calibration = MarketCalibrator.from_dict(json.loads(path.read_text(encoding="utf-8"))) if path.exists() else None
+    print("BSD_BACKTEST:", json.dumps(evaluate(matches, year=opts.year, max_fixtures=opts.max_fixtures, calibration=calibration), ensure_ascii=False))
