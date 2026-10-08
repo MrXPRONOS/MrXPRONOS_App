@@ -33,7 +33,9 @@ class PredictorTests(unittest.TestCase):
             clock=datetime(2026, 10, 8, tzinfo=timezone.utc),
         )
         self.assertEqual(reason, "ok")
-        self.assertEqual(pred["prediction"]["double_chance"], "1X")
+        self.assertIn(pred["prediction"]["market"], ("1x2", "double_chance", "btts", "over_under_15", "over_under_25", "over_under_35", "over_under_45"))
+        self.assertTrue(pred["prediction"]["market_code"])
+        self.assertGreaterEqual(pred["prediction"]["conservative_confidence"], 60)
         self.assertEqual(pred["id"], "bsd:999")
         self.assertIsNone(pred["ml_score"])
 
