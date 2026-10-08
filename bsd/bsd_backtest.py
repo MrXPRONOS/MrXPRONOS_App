@@ -8,7 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from bsd_archive import MATCHES_FILE, _read_json
 from bsd_predict import HistoryIndex, predict_fixture
@@ -42,7 +42,7 @@ def evaluate(matches, *, year=2026, max_fixtures=250):
     for kickoff, original in fixtures:
         fixture = dict(original)
         fixture["status"] = "notstarted"
-        prediction, reason = predict_fixture(fixture, index, clock=kickoff.replace(year=kickoff.year - 1))
+        prediction, reason = predict_fixture(fixture, index, clock=kickoff - timedelta(seconds=1))
         if prediction is None:
             skipped[reason] += 1
             continue
