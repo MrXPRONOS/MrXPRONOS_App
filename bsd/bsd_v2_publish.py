@@ -18,6 +18,7 @@ from bsd_v2_core import V2History, fit_rho_2024, predict_v2, fixture_datetime
 from bsd_v2_policies import fit_policy
 from bsd_v2_btts import fit_btts_model
 from bsd_v2_over_under import fit_total_model
+from bsd_v2_double_chance import fit_model as fit_dc_model
 from bsd_v2_odds import fetch_event_odds
 
 SITE_FILE = Path("data.json")
@@ -109,7 +110,7 @@ def update_settlement(row,event):
 
 
 def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
-             odds_fetcher=None, max_odds_requests=25, btts_model=None, total_model=None):
+             odds_fetcher=None, max_odds_requests=25, btts_model=None, total_model=None, dc_model=None):
     saved=eligible_previous(existing,now)
     # Conserver uniquement les anciens événements TERMINÉS pour le bilan :
     # les anciens pronostics à venir sans cote ou Under 4,5 sont retirés.
@@ -165,7 +166,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             rho=rho,clock=now,mode="reliability",
             odds_by_market={code: quote["odds"] for code,quote in valid_quotes.items()},
             require_odds=True,min_odds=MIN_BSD_ODDS,excluded_keys=EXCLUDED_SELECTIONS,
-            btts_model=btts_model,total_model=total_model,
+            btts_model=btts_model,total_model=total_model,dc_model=dc_model,
         )
         if prediction is None:
             stats[reason]+=1
@@ -225,16 +226,17 @@ def main():
     rho,_=fit_rho_2024(index)
     btts_model,btts_info=fit_btts_model(index,rho=rho)
     total_model,total_info=fit_total_model(index,rho=rho)
-    cal,policy,diag=fit_policy(index,rho=rho,btts_model=btts_model,total_model=total_model)
+    dc_model,dc_info=fit_dc_model(index,rho=rho)
+    cal,policy,diag=fit_policy(index,rho=rho,btts_model=btts_model,total_model=total_model,dc_model=dc_model)
     def odds_fetcher(event, captured):
         return fetch_event_odds(client,int(event["id"]),kickoff=fixture_datetime(event),
                                 captured_at=captured,bookmaker_slug="consensus")
     output=assemble(existing,fixtures,historic,now=now,calibration=cal,policy=policy,
                     rho=rho,odds_fetcher=odds_fetcher,max_odds_requests=args.max_odds_events,
-                    btts_model=btts_model,total_model=total_model)
+                    btts_model=btts_model,total_model=total_model,dc_model=dc_model)
     output["diagnostics"].update({"api_calls":client.requests_made,
                                   "quality_validation":diag,"rho":rho,
-                                  "btts_training":btts_info,"totals_training":total_info})
+                                  "btts_training":btts_info,"totals_training":total_info,"double_chance_training":dc_info})
     dest=Path(args.output)
     dest.parent.mkdir(parents=True,exist_ok=True)
     temp=dest.with_suffix(".tmp")
