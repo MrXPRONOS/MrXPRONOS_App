@@ -27,7 +27,7 @@ def match_selections(match):
     all_picks=match.get("predictions") or [primary]
     if not isinstance(all_picks,list):all_picks=[primary]
     unique={}
-    for pick in [primary,*all_picks]:
+    for pick in [match.get("combo_prediction"),primary,*all_picks]:
         if isinstance(pick,dict) and pick.get("selection_key"):
             unique.setdefault(pick["selection_key"],pick)
     return list(unique.values())
