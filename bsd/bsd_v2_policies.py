@@ -73,6 +73,32 @@ class V2QualityPolicy:
             return "quality_stale_form"
         return None
 
+    def family_uncertainty_adjustments(self):
+        """Shrink observed late-2025 market optimism into bounded family penalties.
+
+        The validation period is separate from fitting. No historic bookmaker
+        prices are fabricated or inferred from these calibration errors.
+        """
+        total={}
+        for key,info in self.performance.items():
+            if key in ("1X","X2","12"):
+                family="double_chance"
+            elif key.startswith("BTTS_"):
+                family="btts"
+            elif key.startswith(("OVER_","UNDER_")):
+                family="goals"
+            elif key in ("1","X","2"):
+                family="result"
+            else:
+                continue
+            row=total.setdefault(family,{"n":0,"wins":0,"sum_pred":0.})
+            row["n"]+=int(info.get("n") or 0)
+            row["wins"]+=float(info.get("wins") or 0)
+            row["sum_pred"]+=float(info.get("sum_pred") or 0)
+        return {family:round(min(.05,max(0.,(v["sum_pred"]-v["wins"])/(v["n"]+300))),5)
+                for family,v in total.items() if v["n"]>=40}
+
+
     def check_market(self, choice):
         key = choice["candidate"].key
         stats = self.performance.get(key)
