@@ -118,17 +118,20 @@ def run(request_budget=90, league_page_size=100, max_season_pages=10):
         try:
             page = client.list_season_events(task["league_id"], task["season_id"], max_pages=max_season_pages, ttl=0)
             if not page.complete:
-                print("Saison %s incomplet (%d/%d): augmenter pages" % (task["key"], len(page.events), page.total_reported))
-                state["invalid_seasons"].append(task["key"])
-            else:
-                finished = [m for m in page.events if str(m.get("status") or "").lower() == "finished"]
-                matches = ingest_events(matches, finished)
-                completed.add(task["key"])
-                state["completed_seasons"] = sorted(completed)
+                print("Saison %s incomplete (%d/%d) : augmenter --season-pages" % (task["key"], len(page.events), page.total_reported))
+                # Ne jamais marquer une saison partielle comme terminee.
+                state["incomplete_task"] = task["key"]
+                save(matches, state)
+                break
+            finished = [m for m in page.events if str(m.get("status") or "").lower() == "finished"]
+            matches = ingest_events(matches, finished)
+            completed.add(task["key"])
+            state["completed_seasons"] = sorted(completed)
+            state.pop("incomplete_task", None)
             task_cursor += 1
             state["task_cursor"] = task_cursor
             save(matches, state)
-            print("Saison %s: %d matchs historiques finaux; total JSON=%d" % (task["key"], len(page.events), len(matches)))
+            print("Saison %s: %d matchs termines; total JSON=%d" % (task["key"], len(finished), len(matches)))
         except (BSDAPIError, BSDQuotaError) as exc:
             print("Erreur import saison %s: %s" % (task["key"], exc))
             break
