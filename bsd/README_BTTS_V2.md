@@ -41,3 +41,30 @@ Ce document décrit le code effectivement ajouté. **Les tests GitHub Actions et
 Ouvrir **BSD V2 - Validation experimentale** dans Actions, conserver `max_test=1000` et lancer. Vérifier les tests, puis `BSD_BTTS_BACKTEST`, `poisson_dixon_coles_baseline` et `specialized_calibrated`. Un résultat plus faible ou mal calibré invalide la prétention d'amélioration du classifieur, même si les tests unitaires réussissent.
 
 La réussite technique d'une implémentation ne garantit ni plus de paris BTTS ni un gain financier.
+
+
+## Audit d'achèvement technique — 8 octobre 2026
+
+Cette étape complète les correctifs de code restant dans la sélection BTTS et le backtest. Aucun run GitHub Actions consécutif à ces correctifs n'a encore été confirmé ; il serait donc inexact d'annoncer huit validations en production.
+
+| # | Amélioration | Code | Contrôle d'acceptation restant |
+|---|---|---|---|
+| 1 | Classifieur distinct Oui/Non | Implémenté : modèle logistique dédié, résultat binaire complémentaire | Brier 2026 face à baseline calibrée |
+| 2 | Fréquences de buts marqués/encaissés | Implémenté : fréquences pondérées, lissage et 14 matchs récents | Tests CI sur historique |
+| 3 | Domicile/extérieur | Implémenté : 12 matchs par lieu, repli sur forme globale quand faible couverture | Test réel de couverture |
+| 4 | Force défensive adverse | Renforcé : fréquence de buts encaissés des adversaires, correction bornée et pondération temporelle | Backtest comparatif par ligue |
+| 5 | Comportement du championnat | Implémenté : fréquence BTTS de la compétition avec lissage | Backtest par championnat |
+| 6 | Calibration BTTS Oui et Non | Implémenté : calibration distincte par marché et tranche de probabilité, 2025 uniquement | Brier et écarts par tranche |
+| 7 | Choix des cotes | Renforcé : prix BSD réel >=1,20 ET probabilité prudente >= max(50 %, 1/cote + 2,5 points); aucun seuil BTTS fixe de 70 % en mode coté | Test de l'API et publication |
+| 8 | Backtest indépendant | Renforcé : modèle historique de référence calibré séparément, scores Oui/Non sur mêmes matchs 2026, par ligue et tranche de probabilité | Exécution via GitHub Actions |
+
+Fichiers principaux modifiés dans cette phase : `bsd_v2_btts.py`, `bsd_v2_core.py`, `bsd_v2_btts_backtest.py`, `test_bsd_v2_btts.py`.
+
+### Contrôle final
+1. Lancer **BSD V2 - Validation experimentale** dans GitHub Actions.
+2. Vérifier `python -m unittest discover -s bsd -p 'test_*.py' -v`.
+3. Dans le fichier `v2_btts_backtest.json`, comparer `baseline_calibrated` à `specialized_calibrated` sur les mêmes rencontres. Lire les groupes `BTTS_YES`, `BTTS_NO`, `by_league` et `by_probability_bucket`.
+4. Si le nouveau modèle ne prouve pas de progrès sur sa validation 2024, le `blend` demeure 0 et les signaux classiques sont conservés.
+5. Sans cotes BSD historiques authentiques, aucun rendement financier rétrospectif n'est déduit.
+
+**État : code renforcé pour les huit axes; confirmation CI, validité statistique et API réelle encore en attente.**
