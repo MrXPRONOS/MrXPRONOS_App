@@ -76,6 +76,18 @@ def to_site(p, fixture):
         "generated_at":p.get("prediction_generated_at") or datetime.now(timezone.utc).isoformat(),
         "combo_only":bool(p.get("combo_only",False)),
     }
+    # Optional strictly low-priced market for the combined-coupon engine.
+    # This is not an extra standalone prediction or a second team fixture.
+    combo=p.get("combo_selection")
+    if combo:
+        result["combo_prediction"]={
+          "type":combo["name"],"label":combo["name"],
+          "market":combo["market"],"outcome":combo["outcome"],
+          "line":combo["line"],"selection_key":combo["key"],
+          "market_code":combo["market_code"],
+          "confidence":round(combo["probability"]*100,1),
+          "odds":combo["odds"],"odds_source":combo["odds_source"],
+          "odds_updated_at":combo.get("odds_updated_at")}
     extras=p.get("secondary_selections") or []
     if extras:
         result["predictions"]=[result["prediction"]]+[
@@ -245,6 +257,25 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                                "odds_updated_at":quoted["updated_at"]})
             break
         prediction["secondary_selections"]=additional
+        low_quotes={code:q for code,q in valid_quotes.items() if q["odds"]<1.50}
+        if low_quotes:
+            combo_choice,combo_reason=predict_v2(
+                f,index,calibration=calibration,quality_policy=policy,
+                rho=rho,clock=now,mode="reliability",
+                odds_by_market={code:q["odds"] for code,q in low_quotes.items()},
+                require_odds=True,min_odds=MIN_COMBO_ODDS,
+                allow_combo_prices=True,excluded_keys=EXCLUDED_SELECTIONS,
+                btts_model=btts_model,total_model=total_model,dc_model=dc_model)
+            if combo_choice:
+                chosen=combo_choice["prediction"]
+                quote=low_quotes[chosen["internal_market_code"]]
+                prediction["combo_selection"]={
+                    "name":chosen["name"],"market":chosen["market"],
+                    "outcome":chosen["outcome"],"line":chosen["line"],
+                    "key":chosen["key"],"market_code":chosen["internal_market_code"],
+                    "probability":chosen["probability"],"odds":quote["odds"],
+                    "odds_source":quote["origin"],
+                    "odds_updated_at":quote.get("updated_at")}
         entry["status"]="published"
         entry["reason"]=None
         entry["selections"]=[prediction["prediction"]["key"]]+[v["key"] for v in additional]
