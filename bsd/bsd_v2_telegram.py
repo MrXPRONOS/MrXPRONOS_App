@@ -48,6 +48,17 @@ def claim(session,base,key,match,chat_id):
     return isinstance(rows,list) and len(rows)>0
 
 
+def release_failed_claim(session,base,key,match,chat_id):
+    # Autorise le réessai lors du prochain cron si Telegram a rejeté l'envoi.
+    # Un timeout après acceptation par Telegram reste intrinsèquement ambigu.
+    params={"kind":"eq."+KIND,"ref_id":"eq."+chat_id+":"+str(match["id"]),
+            "ref_date":"eq."+match["date"]}
+    h=headers(key)
+    r=session.delete(base.rstrip("/")+"/rest/v1/telegram_sent",
+                     params=params,headers=h,timeout=30)
+    r.raise_for_status()
+
+
 def send_one(session,token,chat_id,match):
     dt=_utc(match["event_date"])
     p=match["prediction"]
@@ -77,8 +88,10 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
     report={"due":len(selections),"sent":0,"already_claimed":0,"errors":0}
     for match in selections:
         for chat in chat_ids:
+            claimed=False
             try:
-                if not claim(session,supabase_url,supabase_key,match,chat):
+                claimed=claim(session,supabase_url,supabase_key,match,chat)
+                if not claimed:
                     report["already_claimed"]+=1
                     continue
                 send_one(session,token,chat,match)
@@ -87,6 +100,11 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
             except Exception as e:
                 report["errors"]+=1
                 print("TELEGRAM_BSD_ERROR:",match["id"],type(e).__name__,str(e)[:180])
+                if claimed:
+                    try:
+                        release_failed_claim(session,supabase_url,supabase_key,match,chat)
+                    except Exception as release_error:
+                        print("TELEGRAM_BSD_RELEASE_ERROR:",type(release_error).__name__)
     return report
 
 
