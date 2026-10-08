@@ -28,3 +28,6 @@ bsd/private_history/
 bsd/all_matches_bsd.json
 bsd/backfill_state.json
 bsd/*.tmp
+
+# BSD predictions are experimental, never deploy directly
+bsd/data_bsd.json
