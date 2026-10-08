@@ -13,7 +13,7 @@ from bsd_v2_core import fixture_datetime, league_key, outcome_scores, estimate_g
 
 KEYS=("1","X","2")
 DC_KEYS=("1X","X2","12")
-FEATURES=13
+FEATURES=15
 
 def _softmax(values):
     top=max(values)
@@ -41,6 +41,20 @@ def _team_rates(games,team,at,prior_draw):
     draw=_decay_rate(games,at,lambda e,s:int(result(e,s)==0),prior=prior_draw)
     avoid=_decay_rate(games,at,lambda e,s:int(result(e,s)>=0),prior=.67)
     return win,draw,avoid
+
+def _goal_rates(games,team,at):
+    scored=0.;conceded=0.;total=0.
+    for game in games:
+        scores=outcome_scores(game)
+        if scores is None:continue
+        home=_team_id(game,"home")==team
+        gf=scores[0] if home else scores[1]
+        ga=scores[1] if home else scores[0]
+        w=exp(-log(2.)*max(0.,(at-fixture_datetime(game)).total_seconds()/86400)/110.)
+        scored+=gf*w;conceded+=ga*w;total+=w
+    return ((scored+5*1.35)/(total+5),
+            (conceded+5*1.35)/(total+5))
+
 
 def _build_elo(index):
     # Each update becomes visible only after BSD's four-hour settlement delay.
@@ -99,12 +113,16 @@ def features(event,index):
     recent_away=index.team(away,at,limit=5)
     hw5,hd5,_=_team_rates(recent_home,home,at,league_draw)
     aw5,ad5,_=_team_rates(recent_away,away,at,league_draw)
+    home_for,home_against=_goal_rates(hg,home,at)
+    away_for,away_against=_goal_rates(ag,away,at)
     return (1.,hw-aw,hwv-awv,ha-aav,hd+ad-2*league_draw,
             (hdv+adv)/2-league_draw,league_draw-.27,
             max(-1.5,min(1.5,elo)),hw5-aw5,
             (hw5-hw)-(aw5-aw),
             abs(hw-aw),min(ha,aav)-.6,
-            (len(hv)/(len(hv)+8)-len(av)/(len(av)+8)))
+            (len(hv)/(len(hv)+8)-len(av)/(len(av)+8)),
+            (home_for-away_against)/2.,
+            (away_for-home_against)/2.)
 
 def _train(rows,epochs=160):
     weights=[[0.]*FEATURES for _ in range(3)]
