@@ -266,7 +266,7 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
 
 
 def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
-               mode="reliability", odds_by_market=None):
+               mode="reliability", odds_by_market=None, quality_policy=None):
     if str(event.get("status") or "").lower() not in ("notstarted", "upcoming"):
         return None, "not_upcoming"
     if event.get("id") is None:
@@ -280,6 +280,10 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
     expected, reason = estimate_goals(event, index)
     if expected is None:
         return None, reason
+    if quality_policy is not None:
+        rejection = quality_policy.check_fixture(expected)
+        if rejection:
+            return None, rejection
     candidates = markets_from_matrix(score_matrix(expected["home"], expected["away"], rho))
     choice, all_options = choose_market(
         candidates, calibration=calibration, odds_by_market=odds_by_market,
@@ -288,6 +292,10 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
     )
     if choice is None:
         return None, "no_qualified_market"
+    if quality_policy is not None:
+        rejection = quality_policy.check_market(choice)
+        if rejection:
+            return None, rejection
     c = choice["candidate"]
     # "PRO" based on data coverage; this label is not a measured hit-rate promise.
     pro = (choice["ranking_confidence"] >= .77 and expected["league_samples"] >= 40
@@ -297,6 +305,7 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         "outcome": c.outcome, "line": c.line,
         "internal_market_code": c.market_code,
         "bookmaker_selection_code": None,
+        "odds_source": "provided_verified_quote" if choice["bookmaker_odds"] is not None else None,
         "probability": choice["calibrated_probability"],
         "conservative_probability": choice["ranking_confidence"],
         "fair_odds": choice["theoretical_fair_odds"],
