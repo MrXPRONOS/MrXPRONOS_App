@@ -32,3 +32,11 @@ bsd/*.tmp
 # BSD predictions are experimental, never deploy directly
 bsd/data_bsd.json
 bsd/calibration_bsd.json
+
+# BSD V2 derived/private runtime artifacts
+bsd/v2_shadow_predictions.json
+bsd/v2_prospective_settlement.json
+bsd/v2_calibration.json
+bsd/v2_backtest_report.json
+bsd/recent_backtest_report.json
+bsd/recent_backtest_14d_report.json
