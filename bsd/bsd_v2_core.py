@@ -226,7 +226,7 @@ def _calibrated(candidate: Candidate, calibration: Optional[MarketCalibrator]):
 def choose_market(candidates, *, calibration=None, odds_by_market=None,
                   mode="reliability", min_probability=MIN_PROBABILITY, league_samples=100,
                   form_samples=10, require_odds=False, min_odds=1.20,
-                  excluded_keys=None):
+                  excluded_keys=None, market_audit=None):
     """Fiabilité = meilleure probabilité calibrée (PAS meilleure cote).
 
     Mode value explicit : exige des cotes fournies et retourne le meilleur EV.
@@ -237,14 +237,22 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
     if not 1.01 <= min_odds <= 100:
         raise ValueError("Cote minimale incorrecte")
     banned = frozenset(excluded_keys or ())
+    def audit(candidate,reason,probability=None,price=None,conservative=None):
+        if market_audit is not None:
+            market_audit.append({"key":candidate.key,"family":candidate.family,
+                "market_code":candidate.market_code,"probability":probability,
+                "odds":price,"conservative_probability":conservative,
+                "result":reason})
     rows = []
     for c in candidates:
         if c.key in banned:
+            audit(c,"excluded_market")
             continue
         p, n = _calibrated(c, calibration)
         # Real-priced BTTS and goal totals are assessed against their odds,
         # instead of the arbitrary universal 70% probability floor.
         if p < min_probability and not (require_odds and c.family in ("goals","btts","double_chance")):
+            audit(c,"below_min_probability",p)
             continue
         price = None
         if odds_by_market and c.market_code in odds_by_market:
@@ -257,6 +265,7 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
                 except (TypeError, ValueError):
                     pass
         if (require_odds or mode == "value") and price is None:
+            audit(c,"missing_or_low_bsd_odds",p)
             continue
         # Use a conservative probability for price suitability, never the
         # unadjusted central estimate; missing history penalizes certainty.
@@ -271,10 +280,13 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
         ranking_confidence = max(0, p - uncertainty)
         if require_odds and c.family in ("goals","btts","double_chance","result"):
             if ranking_confidence < max(.50,1.0/price+edge):
+                audit(c,"conservative_probability_below_price_edge",p,price,ranking_confidence)
                 continue
         ev = p * price - 1 if price is not None else None
         if mode == "value" and ev <= .03:
+            audit(c,"expected_value_too_low",p,price,ranking_confidence)
             continue
+        audit(c,"qualified",p,price,ranking_confidence)
         rows.append({
             "candidate": c, "calibrated_probability": round(p, 6),
             "ranking_confidence": round(ranking_confidence, 6),
@@ -292,7 +304,8 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
 def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
                mode="reliability", odds_by_market=None, quality_policy=None,
                require_odds=False, min_odds=1.20, excluded_keys=None,
-               btts_model=None, total_model=None, dc_model=None):
+               btts_model=None, total_model=None, dc_model=None,
+               market_audit=None):
     if str(event.get("status") or "").lower() not in ("notstarted", "upcoming"):
         return None, "not_upcoming"
     if event.get("id") is None:
@@ -335,12 +348,19 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         mode=mode, league_samples=expected["league_samples"],
         form_samples=min(expected["home_recent_matches"], expected["away_recent_matches"]),
         require_odds=require_odds, min_odds=min_odds, excluded_keys=excluded_keys,
+        market_audit=market_audit,
     )
     if choice is None:
         return None, "no_qualified_market"
     if quality_policy is not None:
         # Un marché trop optimiste ne doit pas faire rejeter le match entier :
         # examiner le deuxième marché coté, puis les suivants.
+        if market_audit is not None:
+            for row in all_options:
+                fail=quality_policy.check_market(row)
+                if fail:
+                    market_audit.append({"key":row["candidate"].key,
+                        "family":row["candidate"].family,"result":fail})
         choice = next((row for row in all_options
                        if quality_policy.check_market(row) is None), None)
         if choice is None:
