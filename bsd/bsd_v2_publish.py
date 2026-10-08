@@ -129,8 +129,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho):
         known.add(eid)
         stats["created"]+=1
     result.sort(key=lambda r:(str(r.get("event_date","")),str(r.get("id",""))))
-    if not result:
-        raise RuntimeError("Aucun pronostic BSD V2 : refus de remplacer data.json")
+    # Un flux BSD vide est préférable au maintien de pronostics SportData périmés.
     output={
         "source":"bsd","model_version":"bsd-v2-isolated",
         "generated_at":now.isoformat(),"matches":result,
