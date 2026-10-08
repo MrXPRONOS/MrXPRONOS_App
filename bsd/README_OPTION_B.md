@@ -51,3 +51,15 @@ Les combinés sont enregistrés dans Supabase avec un type de message distinct p
 `bsd/test_bsd_v2_market_capacity.py` vérifie le choix des marchés à 1,01–1,19 seulement pour l'usage combiné, à condition d'avoir une probabilité prudente élevée.
 
 **Validation à terminer :** nouvelle génération de `data.json`, exécution des tests GitHub Actions et envoi réel du premier combiné correspondant aux règles actualisées.
+
+
+## Coupons nuit — diffusion groupée à 20 h (heure du Togo)
+
+Pour chaque date D en heure locale Togo (UTC toute l'année) :
+- **20 h 00–20 h 59 le jour D** : les passages du robot regroupent les coupons de la nuit. Le workflow actuel s'exécute normalement à **20 h 05, 20 h 20, 20 h 35 et 20 h 50 UTC** ; dès le premier passage réussi, les coupons sont marqués dans Supabase. Les passages suivants constituent des essais de rattrapage uniquement pour les messages non enregistrés.
+- Sont concernés les coups d'envoi entre **21 h le jour D** et **05 h 00 le jour D+1**. Les matchs à 00 h, 01 h, etc. sont attribués à la campagne du soir précédent. Après 05 h, la diffusion ordinaire reprend.
+- Chaque message contient le titre **« 🌙 Coupons nuit »**, le coupon et ses deux boutons. Les pronostics restent des images individuelles, mais partent dans la même campagne.
+- Les combinés de nuit ne regroupent que des matchs appartenant à cette fenêtre, selon les conditions de cotation déjà fixées : chaque cote BSD **1,01 à moins de 1,50**, deux matchs différents.
+- Un match classé « Coupons nuit » **n'est plus publié** dans les envois ordinaires une à deux heures avant coup d'envoi. Les mêmes identifiants Supabase empêchent les répétitions entre passages.
+- Un retard de démarrage des GitHub Actions ou un échec réseau peut décaler des messages : l'envoi à exactement 20 h 00 ne peut pas être garanti sur un système à planification GitHub.
+- Vérifications automatisées : `bsd/test_bsd_v2_night.py` (bornes de nuit, passage de minuit, regroupement, exclusion du flux ordinaire et simulation d'envoi).
