@@ -87,6 +87,24 @@ class DoubleChanceTests(unittest.TestCase):
         self.assertAlmostEqual(sum(second),1,places=9)
         self.assertNotEqual(first,second)
 
+    def test_ranking_preserves_joint_outcome_calibration(self):
+        from bsd_v2_policies import V2Calibration
+        cal=V2Calibration()
+        cal.outcome_calibration=OutcomeCalibration()
+        cal.outcome_calibration.observe((.50,.27,.23),1)
+        rows=adjust_candidates(self.future,self.index,
+            markets_from_matrix(score_matrix(1.5,1.2)),
+            DoubleChanceModel(tuple((0.,)*FEATURES for _ in range(3)),0.),
+            cal.outcome_calibration)
+        chosen,options=choose_market(rows,calibration=cal,require_odds=True,
+            min_probability=.1,odds_by_market={x.market_code:2.5 for x in rows
+                          if x.family=="double_chance"})
+        indexed={item["candidate"].key:item["calibrated_probability"]
+                 for item in options}
+        model={x.key:x.probability for x in rows}
+        for key in ("1X","12","X2"):
+            self.assertAlmostEqual(indexed[key],model[key],places=5)
+
     def test_uncertainty_rejects_double_chance_only(self):
         model=DoubleChanceModel(tuple((0.,)*FEATURES for _ in range(3)),1.,100,100)
         self.assertIsNotNone(uncertain(self.future,self.index,model,(.9,.05,.05)))
