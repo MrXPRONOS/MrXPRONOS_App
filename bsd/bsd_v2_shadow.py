@@ -48,7 +48,7 @@ def generate_shadow(events, history, calibration, policy, rho, *, now, mode="rel
             odds_queried+=1
         pred,reason=predict_v2(fixture,index,calibration=calibration,
                                quality_policy=policy,rho=rho,clock=now,
-                               mode=mode,odds_by_market=odds,btts_model=btts_model,total_model=total_model,total_model=total_model)
+                               mode=mode,odds_by_market=odds,btts_model=btts_model,total_model=total_model)
         if pred is None:
             skips[reason]+=1
             continue
@@ -92,7 +92,8 @@ def main():
     index=V2History(history)
     rho,_=fit_rho_2024(index)
     btts_model,btts_info=fit_btts_model(index,rho=rho)
-    cal,policy,info=fit_policy(index,rho=rho,btts_model=btts_model,total_model=total_model,total_model=total_model)
+    total_model,total_info=fit_total_model(index,rho=rho)
+    cal,policy,info=fit_policy(index,rho=rho,btts_model=btts_model,total_model=total_model)
     client=BSDClient(max_requests=args.max_requests)
     events=[]
     for day in range(args.days):
@@ -105,7 +106,7 @@ def main():
                                 captured_at=when,bookmaker_slug=args.bookmaker)
     result=generate_shadow(events,history,cal,policy,rho,now=now,mode=args.mode,
                            quote_fetcher=fetcher if args.max_odds_events else None,
-                           max_odds_events=args.max_odds_events,btts_model=btts_model,total_model=total_model,total_model=total_model)
+                           max_odds_events=args.max_odds_events,btts_model=btts_model,total_model=total_model)
     result["diagnostics"].update({"http_calls":client.requests_made,"rho":rho,
                                    "odds_bookmaker_requested":args.bookmaker,
                                    "quality_validation":info,"btts_training":btts_info,"totals_training":total_info})
