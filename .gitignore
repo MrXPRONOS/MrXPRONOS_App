@@ -23,3 +23,8 @@ Thumbs.db
 # BSD API - cache temporaire, ne pas publier les réponses brutes
 bsd/cache/
 bsd/private_history/
+
+# BSD historique: JSON déchiffré strictement local
+bsd/all_matches_bsd.json
+bsd/backfill_state.json
+bsd/*.tmp
