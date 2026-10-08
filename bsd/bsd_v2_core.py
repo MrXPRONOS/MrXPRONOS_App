@@ -252,17 +252,16 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
                     pass
         if (require_odds or mode == "value") and price is None:
             continue
-        # For quoted goal totals, compare price-implied break-even to the
-        # calibrated probability; no arbitrary global 70% threshold.
+        # Use a conservative probability for price suitability, never the
+        # unadjusted central estimate; missing history penalizes certainty.
+        uncertainty = .012 + (.025 if league_samples < 30 else 0) + (.020 if form_samples < 8 else 0)
+        ranking_confidence = max(0, p - uncertainty)
         if require_odds and c.family=="goals":
-            if p < max(.50,1.0/price+.025):
+            if ranking_confidence < max(.50,1.0/price+.025):
                 continue
         ev = p * price - 1 if price is not None else None
         if mode == "value" and ev <= .03:
             continue
-        # Incertitude augmente en cas de peu de matches ou championnat mal couvert.
-        uncertainty = .012 + (.025 if league_samples < 30 else 0) + (.020 if form_samples < 8 else 0)
-        ranking_confidence = max(0, p - uncertainty)
         rows.append({
             "candidate": c, "calibrated_probability": round(p, 6),
             "ranking_confidence": round(ranking_confidence, 6),
