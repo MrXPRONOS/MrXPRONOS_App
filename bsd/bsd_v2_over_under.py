@@ -143,27 +143,27 @@ def fit_total_model(index,rho=0.,max_training=1800,max_validation=450):
     def thin(seq,n):
         return seq if len(seq)<=n else [seq[int(i*len(seq)/n)] for i in range(n)]
     train=thin(train,max_training);valid=thin(valid,max_validation)
-    candidates=[]
+    def score(rows,scale,weight):
+        error=0.0
+        for feat,goals,baseline in rows:
+            dist=total_distribution(feat["mean"],max(feat["mean"],feat["variance"]*scale))
+            for line in LINES:
+                p=(1-weight)*baseline[line]+weight*sum(dist[int(line)+1:])
+                error+=(p-int(goals>line))**2
+        return error/(len(rows)*len(LINES))
     if len(train)>=100 and len(valid)>=50:
-        for scale in (.85,1.0,1.2):
-            for weight in (0.,.25,.50,.75,1.):
-                loss=0.
-                for feat,goals,baseline in valid:
-                    dist=total_distribution(feat["mean"],max(feat["mean"],feat["variance"]*scale))
-                    for line in LINES:
-                        p=(1-weight)*baseline[line]+weight*sum(dist[int(line)+1:])
-                        actual=int(goals>line)
-                        loss+=(p-actual)**2
-                candidates.append((loss/(len(valid)*len(LINES)),scale,weight))
-    if candidates:
+        # Learn dispersion on training only; reserve 2024 holdout for blending.
+        shape=min((.85,1.0,1.2),key=lambda scale:score(train,scale,1.0))
+        candidates=[(score(valid,shape,w),w) for w in (0.,.25,.50,.75,1.)]
         best=min(candidates)
-        baseline=min((item for item in candidates if item[2]==0.),key=lambda x:x[0])
-        chosen=best if best[0]<baseline[0]-.001 else baseline
-        return TotalGoalsModel(chosen[2],chosen[1],len(train),len(valid)),{
+        baseline=score(valid,shape,0.)
+        blend=best[1] if best[0]<baseline-.001 else 0.
+        chosen=score(valid,shape,blend)
+        return TotalGoalsModel(blend,shape,len(train),len(valid)),{
             "trained":len(train),"validated":len(valid),
-            "baseline_brier":round(baseline[0],6),
-            "selected_brier":round(chosen[0],6),
-            "blend":chosen[2],"variance_scale":chosen[1],
+            "baseline_brier":round(baseline,6),
+            "selected_brier":round(chosen,6),
+            "blend":blend,"variance_scale":shape,
             "train_period":"2024-01 through 2024-08",
             "validation_period":"2024-09 through 2024-12"}
     return TotalGoalsModel(0.,1.,len(train),len(valid)),{
