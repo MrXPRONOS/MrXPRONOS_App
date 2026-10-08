@@ -76,6 +76,28 @@ class CardAndSettlement(unittest.TestCase):
         self.assertEqual(len(client.calls),1)
         self.assertEqual(client.calls[0][0],"patch")
 
+    def test_winning_coupon_posts_one_image_then_marks_verified(self):
+        from unittest.mock import patch
+        m=sample_match()
+        record={"id":16,"ref_id":"-100123:bsd:77","ref_date":"2026-10-08"}
+        official={"77":{"status":"finished","event_date":m["event_date"],
+                       "home_score":2,"away_score":1}}
+        class Stub:
+            def __init__(self):self.patches=[]
+            def patch(self,*args,**kwargs):
+                self.patches.append((args,kwargs))
+                class Resp:
+                    def raise_for_status(self):pass
+                return Resp()
+        http=Stub()
+        with patch("bsd_v2_verify_telegram.post_gain", return_value=987) as send:
+            result=validate({"matches":[m]},[record],official,
+                datetime(2026,10,9,tzinfo=timezone.utc),
+                http,"token","https://example.supabase.co","secret")
+        self.assertEqual(result["wins_sent"],1)
+        self.assertEqual(send.call_count,1)
+        self.assertEqual(len(http.patches),1)
+
     def test_unfinished_not_validated(self):
         m=sample_match()
         self.assertIsNone(verdict(m,{"status":"notstarted","event_date":m["event_date"]},
