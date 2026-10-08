@@ -5,7 +5,7 @@ from datetime import datetime,timedelta,timezone
 from pathlib import Path
 
 from PIL import Image
-from bsd_v2_card import render,BALL
+from bsd_v2_card import render,BALL,BRAND_ONE,BRAND_TWO,wrap_name,_odds,TEAM_ICON_CACHE,_lookup_team_badge
 from bsd_v2_verify_telegram import verdict,validate
 from bsd_v2_publish import to_site
 
@@ -36,7 +36,7 @@ class CardAndSettlement(unittest.TestCase):
                     Path(d)/("win.png" if winner else "preview.png"),win=winner,
                     now=datetime(2026,10,8,10,tzinfo=timezone.utc))
                 with Image.open(saved) as im:
-                    self.assertEqual(im.size,(1080,1260))
+                    self.assertEqual(im.size,(1080,1300))
                     self.assertEqual(im.format,"PNG")
 
     def test_false_odd_hidden_instead_of_invented(self):
@@ -44,6 +44,58 @@ class CardAndSettlement(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             render(m,Path(d)/"no_odds.png")
             self.assertTrue((Path(d)/"no_odds.png").stat().st_size>1000)
+
+    def test_official_brand_assets_are_present(self):
+        for path in (BRAND_ONE,BRAND_TWO):
+            self.assertTrue(path.is_file(),str(path))
+            with Image.open(path) as img:
+                self.assertGreater(img.width,15)
+                self.assertGreater(img.height,10)
+
+    def test_long_team_names_wrap_in_two_lines(self):
+        from PIL import ImageDraw
+        canvas=Image.new("RGB",(1080,1300),"white")
+        lines=wrap_name(ImageDraw.Draw(canvas),
+             "Club Deportivo Universidad Católica de los Andes",255)
+        self.assertLessEqual(len(lines),2)
+
+    def test_odds_require_valid_verified_bsd_source(self):
+        m=sample_match()
+        self.assertIsNone(_odds(m)) # 1.18 below minimum
+        m["prediction"]["odds"]=1.43
+        self.assertEqual(_odds(m),1.43)
+        m["prediction"]["odds_source"]="made_up"
+        self.assertIsNone(_odds(m))
+
+    def test_team_badge_lookup_only_exact_football_name(self):
+        TEAM_ICON_CACHE.clear()
+        class Response:
+            def raise_for_status(self):pass
+            def json(self):
+                return {"teams":[{"strTeam":"Spartak Subotica","strSport":"Soccer",
+                                   "strBadge":"https://r2.thesportsdb.com/badges/test.png"},
+                                  {"strTeam":"Spartak","strSport":"Soccer",
+                                   "strBadge":"https://r2.thesportsdb.com/badges/wrong.png"}]}
+        class Session:
+            calls=0
+            def get(self,*a,**kw):
+                self.calls+=1
+                return Response()
+        client=Session()
+        from bsd_v2_card import _lookup_team_badge
+        self.assertEqual(_lookup_team_badge("Spartak Subotica",client),
+                         "https://r2.thesportsdb.com/badges/test.png")
+        self.assertEqual(_lookup_team_badge("Spartak Subotica",client),
+                         "https://r2.thesportsdb.com/badges/test.png")
+        self.assertEqual(client.calls,1)
+
+    def test_expected_inline_ctas_and_urls(self):
+        from bsd_v2_telegram import action_buttons
+        buttons=action_buttons()["inline_keyboard"]
+        self.assertEqual([x[0]["text"] for x in buttons],
+             ["Voir plus de coupons 🔥","S’inscrire ou réinitialiser son compte 🎯"])
+        self.assertEqual(buttons[1][0]["url"],
+             "https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html")
 
     def test_market_win_and_loss(self):
         m=sample_match()
