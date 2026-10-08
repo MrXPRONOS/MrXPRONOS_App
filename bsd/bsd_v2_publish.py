@@ -74,6 +74,18 @@ def to_site(p, fixture):
         "model_version":p["model_version"], "final_score":prob,"xpronos_score":prob,
         "generated_at":p.get("prediction_generated_at") or datetime.now(timezone.utc).isoformat(),
     }
+    extras=p.get("secondary_selections") or []
+    if extras:
+        result["predictions"]=[result["prediction"]]+[
+          {"type":m["name"],"label":m["name"],"market":m["market"],
+           "selection_key":m["key"],"market_code":m["market_code"],
+           "outcome":m["outcome"],"line":m["line"],
+           "confidence":round(m["probability"]*100,1),
+           "fair_odds":round(1/m["probability"],4),
+           "odds":m["odds"],"odds_source":m["odds_source"],
+           "odds_updated_at":m.get("odds_updated_at"),
+           "model_version":p["model_version"]}
+          for m in extras]
     return result
 
 
@@ -125,6 +137,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     stats=Counter()
     by_id={str(f["id"]):f for f in fixtures if isinstance(f,dict) and f.get("id") is not None}
     result=[]
+    detailed=[]
     for event_id,row in saved.items():
         event=by_id.get(event_id)
         result.append(update_settlement(row,event) if event else row)
@@ -133,23 +146,31 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         if not isinstance(f,dict) or f.get("id") is None:continue
         eid=str(f["id"])
         if eid in known:continue
+        entry={"event_id":eid,"home_team":team_name(f,"home"),"away_team":team_name(f,"away"),
+               "event_date":f.get("event_date"),"quotes":[],"considered":[],"status":"rejected","reason":None}
+        detailed.append(entry)
         try: kickoff=fixture_datetime(f)
         except (ValueError,TypeError):continue
         if kickoff<=now or kickoff>now+timedelta(days=FUTURE_DAYS):continue
         if str(f.get("status") or "").lower() not in ("notstarted","upcoming"):continue
         if not odds_fetcher:
+            entry["reason"]="no_odds_provider"
             stats["no_odds_provider"] += 1
             continue
         if stats["odds_attempts"] >= max_odds_requests:
+            entry["reason"]="odds_budget_exhausted"
             stats["odds_budget_exhausted"] += 1
             continue
         stats["odds_attempts"] += 1
         try:
             quotes, diagnostics = odds_fetcher(f, now)
         except Exception as exc:
+            entry["reason"]="odds_api_error"
             stats["odds_errors"] += 1
             print("BSD_ODDS_UNAVAILABLE", f["id"], type(exc).__name__)
             continue
+        entry["quotes"]=[{"market":code,"odds":q.get("odds"),"source":q.get("origin")}
+                          for code,q in sorted(quotes.items()) if isinstance(q,dict)]
         valid_quotes = {
             code: quote for code,quote in quotes.items()
             if isinstance(quote,dict) and code != "OU_4.5_UNDER_FT"
@@ -159,6 +180,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             and MIN_BSD_ODDS <= quote["odds"] <= 100
         }
         if not valid_quotes:
+            entry["reason"]="no_qualified_bsd_odds"
             stats["no_qualified_bsd_odds"] += 1
             continue
         prediction,reason=predict_v2(
@@ -169,17 +191,45 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             btts_model=btts_model,total_model=total_model,dc_model=dc_model,
         )
         if prediction is None:
+            entry["reason"]=reason
             stats[reason]+=1
             continue
+        entry["considered"]=prediction.get("ranked_candidates",[])
         selected_code = prediction["prediction"]["internal_market_code"]
         quote = valid_quotes.get(selected_code)
         if quote is None:
+            entry["reason"]="selection_without_verified_odds"
             stats["selection_without_verified_odds"] += 1
             continue
         prediction["prediction"]["bookmaker_odds"] = quote["odds"]
         prediction["prediction"]["odds_source"] = quote["origin"]
         prediction["prediction"]["odds_updated_at"] = quote["updated_at"]
         prediction["prediction_generated_at"]=now.isoformat()
+        # Keep the second highest quality independently priced prediction only
+        # when it belongs to a different market family.
+        first_family=prediction["prediction"]["market"]
+        additional=[]
+        for candidate in prediction.get("ranked_candidates",[]):
+            if candidate["key"]==prediction["prediction"]["key"]:continue
+            if candidate["market"]==first_family:continue
+            quoted=valid_quotes.get(candidate["market_code"])
+            if not quoted or candidate["key"] in EXCLUDED_SELECTIONS:continue
+            if policy is not None:
+                from bsd_markets import candidates_from_goals
+                from bsd_v2_core import markets_from_matrix,score_matrix
+                from dataclasses import replace
+                from bsd_v2_core import estimate_goals
+                extra_feat,_=estimate_goals(f,index)
+                possible=markets_from_matrix(score_matrix(extra_feat["home"],extra_feat["away"],rho))
+                actual_candidate=next((c for c in possible if c.key==candidate["key"]),None)
+                if actual_candidate and policy.check_market({"candidate":actual_candidate}) is not None:continue
+            additional.append({**candidate,"odds_source":quoted["origin"],
+                               "odds_updated_at":quoted["updated_at"]})
+            break
+        prediction["secondary_selections"]=additional
+        entry["status"]="published"
+        entry["reason"]=None
+        entry["selections"]=[prediction["prediction"]["key"]]+[v["key"] for v in additional]
         stats["odds_verified"] += 1
         result.append(to_site(prediction,f))
         known.add(eid)
@@ -190,7 +240,8 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         "source":"bsd","model_version":"bsd-v2-isolated",
         "generated_at":now.isoformat(),"matches":result,
         "bookmakers":existing.get("bookmakers",[]) if isinstance(existing,dict) else [],
-        "diagnostics":{"total":len(result),"rejections":dict(stats)},
+        "diagnostics":{"total":len(result),"rejections":dict(stats),
+                       "fixture_details":detailed},
     }
     return output
 
@@ -242,6 +293,11 @@ def main():
     temp=dest.with_suffix(".tmp")
     temp.write_text(json.dumps(output,ensure_ascii=False,indent=2),encoding="utf-8")
     temp.replace(dest)
+    report=dest.parent/"bsd"/"rejections_report.json"
+    report.parent.mkdir(parents=True,exist_ok=True)
+    report.write_text(json.dumps({"generated_at":now.isoformat(),
+      "summary":output["diagnostics"]["rejections"],
+      "rows":output["diagnostics"]["fixture_details"]},ensure_ascii=False,indent=2),encoding="utf-8")
     print("BSD_V2_SITE:",json.dumps({"matches":len(output["matches"]),
          "new":output["diagnostics"]["rejections"].get("created",0),
          "http_calls":client.requests_made,"output":str(dest)}))
