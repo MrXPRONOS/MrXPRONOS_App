@@ -60,20 +60,20 @@ def candidates_from_goals(home_xg: float, away_xg: float, *, max_goals: int = 16
                 if h + a > line:
                     overs[line] += p
     specs = [
-        ("1", "1x2", "HOME", "Victoire domicile", "result", p1, None),
-        ("X", "1x2", "DRAW", "Match nul", "result", pd, None),
-        ("2", "1x2", "AWAY", "Victoire extérieur", "result", p2, None),
-        ("1X", "double_chance", "1X", "Domicile ou nul", "double_chance", p1 + pd, None),
-        ("12", "double_chance", "12", "Une équipe gagne", "double_chance", p1 + p2, None),
-        ("X2", "double_chance", "X2", "Extérieur ou nul", "double_chance", p2 + pd, None),
-        ("BTTS_YES", "btts", "yes", "Les deux marquent : Oui", "btts", btts, None),
-        ("BTTS_NO", "btts", "no", "Les deux marquent : Non", "btts", 1-btts, None),
+        ("1", "1x2", "HOME", "1", "result", p1, None),
+        ("X", "1x2", "DRAW", "X", "result", pd, None),
+        ("2", "1x2", "AWAY", "2", "result", p2, None),
+        ("1X", "double_chance", "1X", "1X", "double_chance", p1 + pd, None),
+        ("12", "double_chance", "12", "12", "double_chance", p1 + p2, None),
+        ("X2", "double_chance", "X2", "X2", "double_chance", p2 + pd, None),
+        ("BTTS_YES", "btts", "yes", "Les deux équipes marquent : Oui", "btts", btts, None),
+        ("BTTS_NO", "btts", "no", "Les deux équipes marquent : Non", "btts", 1-btts, None),
     ]
     for line, p_over in overs.items():
         suffix = str(line).replace(".", "")
         specs += [
-            ("OVER_" + suffix, "over_under_" + suffix, "over", "Plus de %.1f buts" % line, "goals", p_over, line),
-            ("UNDER_" + suffix, "over_under_" + suffix, "under", "Moins de %.1f buts" % line, "goals", 1-p_over, line),
+            ("OVER_" + suffix, "over_under_" + suffix, "over", "Total buts : Over %.1f" % line, "goals", p_over, line),
+            ("UNDER_" + suffix, "over_under_" + suffix, "under", "Total buts : Under %.1f" % line, "goals", 1-p_over, line),
         ]
     return [Candidate(*spec) for spec in specs]
 
