@@ -49,8 +49,8 @@ def initial_state() -> dict:
     return {
         "version": 1,
         "provider": "BSD",
-        "year_from": 2016,
-        "year_to": 2024,
+        "year_from": 2024,
+        "year_to": 2026,
         "league_ids": [],
         "discovery_index": 0,
         "catalog_complete": False,
@@ -68,7 +68,7 @@ def restore() -> None:
             raise ValueError("Etat local non chiffre deja present sans archive d'origine.")
         _write_json(MATCHES_FILE, [])
         _write_json(STATE_FILE, initial_state())
-        print("BSD_ARCHIVE: nouvelle base locale 2016-2024")
+        print("BSD_ARCHIVE: nouvelle base locale 2024-2026")
         return
 
     envelope = _read_json(ENCRYPTED_FILE, {})
@@ -95,7 +95,7 @@ def seal() -> None:
     state = _read_json(STATE_FILE, None)
     if not isinstance(matches, list) or not isinstance(state, dict):
         raise ValueError("Fichiers JSON locaux manquants ou invalides.")
-    if state.get("provider") != "BSD" or state.get("year_from") != 2016 or state.get("year_to") != 2024:
+    if state.get("provider") != "BSD" or state.get("year_from") != 2024 or state.get("year_to") != 2026:
         raise ValueError("Intervalle BSD inattendu, refus de sceller.")
     ids = [str(m.get("id")) for m in matches if isinstance(m, dict) and m.get("id") is not None]
     if len(ids) != len(matches) or len(ids) != len(set(ids)):
