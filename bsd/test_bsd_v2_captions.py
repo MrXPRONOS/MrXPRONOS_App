@@ -12,7 +12,7 @@ from bsd_v2_verify_telegram import post_gain
 def fixture(home="A & B <FC>",away="O'Connor > United",market="Plus de 1,5 <buts>"):
     return {"id":"bsd:81","home_team":home,"away_team":away,
             "event_date":"2026-10-08T22:15:00+00:00",
-            "prediction":{"type":market,"odds":1.55,"selection_key":"OVER_15",
+            "prediction":{"type":market,"odds":1.55,"selection_key":"CUSTOM_MARKET",
                           "odds_source":"bsd_consensus"}}
 
 
