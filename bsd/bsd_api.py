@@ -257,6 +257,66 @@ class BSDClient:
             complete=len(events) >= (total if total is not None else 0),
         )
 
+    def list_season_events(
+        self,
+        league_id: int,
+        season_id: int,
+        *,
+        page_size: int = 200,
+        max_pages: int = 3,
+        ttl: int = 3600,
+    ) -> BSDPage:
+        """Charge une saison via les identifiants officiels, sans appels individuels."""
+        if int(league_id) <= 0 or int(season_id) <= 0:
+            raise ValueError("Identifiants de championnat/saison invalides")
+        if not 1 <= page_size <= 200 or not 1 <= max_pages <= 100:
+            raise ValueError("Pagination saison invalide")
+        all_events: List[Dict[str, Any]] = []
+        seen = set()
+        total: Optional[int] = None
+        for page_idx in range(max_pages):
+            payload = self.get_json(
+                "/events/",
+                {
+                    "league_id": int(league_id),
+                    "season_id": int(season_id),
+                    "limit": page_size,
+                    "offset": page_idx * page_size,
+                },
+                ttl=ttl,
+            )
+            if not isinstance(payload, dict) or not isinstance(payload.get("results"), list):
+                raise BSDAPIError("Réponse BSD saison sans tableau results")
+            if not isinstance(payload.get("count"), int) or payload["count"] < 0:
+                raise BSDAPIError("Réponse BSD saison sans count valide")
+            total = payload["count"]
+            rows = payload["results"]
+            for item in rows:
+                if not isinstance(item, dict) or item.get("id") is None:
+                    raise BSDAPIError("Événement de saison invalide")
+                if str(item["id"]) not in seen:
+                    seen.add(str(item["id"]))
+                    all_events.append(item)
+            if len(all_events) >= total or not rows or len(rows) < page_size:
+                break
+        return BSDPage(
+            events=all_events,
+            total_reported=total if total is not None else 0,
+            pages_fetched=page_idx + 1,
+            complete=len(all_events) >= (total if total is not None else 0),
+        )
+
+    def list_league_seasons(self, league_id: int, *, ttl: int = 3600) -> List[Dict[str, Any]]:
+        if int(league_id) <= 0:
+            raise ValueError("Identifiant de championnat invalide")
+        result = self.get_json("/leagues/" + str(int(league_id)) + "/seasons/", ttl=ttl)
+        seasons = result if isinstance(result, list) else (
+            result.get("results", result.get("seasons")) if isinstance(result, dict) else None
+        )
+        if not isinstance(seasons, list) or not all(isinstance(s, dict) and s.get("id") is not None for s in seasons):
+            raise BSDAPIError("Format liste des saisons BSD non reconnu")
+        return seasons
+
     def list_leagues(self, *, ttl: int = 3600, page_size: int = 100) -> Any:
         return self.get_json("/leagues/", {"limit": page_size, "offset": 0}, ttl=ttl)
 
