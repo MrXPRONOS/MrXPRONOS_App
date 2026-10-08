@@ -24,8 +24,9 @@ def sample_match():
 class CardAndSettlement(unittest.TestCase):
     def test_real_png_asset_installed(self):
         self.assertTrue(BALL.is_file())
-        self.assertEqual(Image.open(BALL).format,"PNG")
-        self.assertIn("A",Image.open(BALL).getbands())
+        with Image.open(BALL) as image:
+            self.assertEqual(image.format,"PNG")
+            self.assertIn("A",image.getbands())
 
     def test_both_cards_render_as_png(self):
         m=sample_match()
@@ -50,7 +51,8 @@ class CardAndSettlement(unittest.TestCase):
         result={"status":"finished","event_date":m["event_date"],"home_score":2,"away_score":1}
         self.assertEqual(verdict(m,result,time),(True,2,1))
         result["home_score"]=3
-        self.assertEqual(verdict(m,result,time),(False,3,1))
+        result["away_score"]=2
+        self.assertEqual(verdict(m,result,time),(False,3,2))
 
     def test_lost_coupon_never_sends_a_photo(self):
         m=sample_match()
