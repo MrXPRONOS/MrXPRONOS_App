@@ -58,6 +58,26 @@ class MarketCapacityTests(unittest.TestCase):
             require_odds=True)
         self.assertEqual(accepted["candidate"].key,"OVER_15")
 
+    def test_low_bsd_odds_are_combo_only_with_strict_confidence(self):
+        from dataclasses import replace
+        candidate=next(c for c in markets_from_matrix(score_matrix(1.6,1.1))
+                       if c.key=="OVER_15")
+        high_confidence=replace(candidate,probability=.98)
+        pick,_=choose_market([high_confidence],
+            odds_by_market={candidate.market_code:1.12},
+            require_odds=True,min_odds=1.01,allow_combo_prices=True)
+        self.assertIsNotNone(pick)
+        self.assertEqual(pick["bookmaker_odds"],1.12)
+        excluded,_=choose_market([high_confidence],
+            odds_by_market={candidate.market_code:1.12},
+            require_odds=True,min_odds=1.20)
+        self.assertIsNone(excluded)
+        low_confidence=replace(candidate,probability=.80)
+        unsafe,_=choose_market([low_confidence],
+            odds_by_market={candidate.market_code:1.12},
+            require_odds=True,min_odds=1.01,allow_combo_prices=True)
+        self.assertIsNone(unsafe)
+
     def test_two_selections_serialize_to_site(self):
         fixture={"id":77,"home_team":"Alpha","away_team":"Beta",
                  "event_date":(NOW+timedelta(hours=5)).isoformat(),"league_id":3}
