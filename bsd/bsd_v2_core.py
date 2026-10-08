@@ -240,7 +240,7 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
         p, n = _calibrated(c, calibration)
         # Real-priced BTTS and goal totals are assessed against their odds,
         # instead of the arbitrary universal 70% probability floor.
-        if p < min_probability and not (require_odds and c.family in ("goals","btts")):
+        if p < min_probability and not (require_odds and c.family in ("goals","btts","double_chance")):
             continue
         price = None
         if odds_by_market and c.market_code in odds_by_market:
@@ -258,7 +258,7 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
         # unadjusted central estimate; missing history penalizes certainty.
         uncertainty = .012 + (.025 if league_samples < 30 else 0) + (.020 if form_samples < 8 else 0)
         ranking_confidence = max(0, p - uncertainty)
-        if require_odds and c.family in ("goals","btts"):
+        if require_odds and c.family in ("goals","btts","double_chance"):
             if ranking_confidence < max(.50,1.0/price+.025):
                 continue
         ev = p * price - 1 if price is not None else None
@@ -281,7 +281,7 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
 def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
                mode="reliability", odds_by_market=None, quality_policy=None,
                require_odds=False, min_odds=1.20, excluded_keys=None,
-               btts_model=None, total_model=None):
+               btts_model=None, total_model=None, dc_model=None):
     if str(event.get("status") or "").lower() not in ("notstarted", "upcoming"):
         return None, "not_upcoming"
     if event.get("id") is None:
@@ -310,6 +310,15 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
     if btts_model is not None:
         from bsd_v2_btts import btts_candidates
         candidates = btts_candidates(event,index,candidates,btts_model)
+    if dc_model is not None:
+        from bsd_v2_double_chance import adjust_candidates as dc_candidates, uncertain as dc_uncertain, score_probs
+        baseline_result=score_probs(candidates)
+        # A missing/unstable venue history must never lead to a forced DC pick.
+        risk=dc_uncertain(event,index,dc_model,baseline_result)
+        candidates=dc_candidates(event,index,candidates,dc_model,
+                                 getattr(calibration,"outcome_calibration",None))
+        if risk:
+            candidates=[c for c in candidates if c.family!="double_chance"]
     choice, all_options = choose_market(
         candidates, calibration=calibration, odds_by_market=odds_by_market,
         mode=mode, league_samples=expected["league_samples"],
