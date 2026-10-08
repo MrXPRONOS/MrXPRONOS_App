@@ -226,7 +226,8 @@ def _calibrated(candidate: Candidate, calibration: Optional[MarketCalibrator]):
 def choose_market(candidates, *, calibration=None, odds_by_market=None,
                   mode="reliability", min_probability=MIN_PROBABILITY, league_samples=100,
                   form_samples=10, require_odds=False, min_odds=1.20,
-                  excluded_keys=None, market_audit=None):
+                  excluded_keys=None, market_audit=None,
+                  family_adjustments=None):
     """Fiabilité = meilleure probabilité calibrée (PAS meilleure cote).
 
     Mode value explicit : exige des cotes fournies et retourne le meilleur EV.
@@ -276,7 +277,9 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
             "result":(.012,.025,.020,.025),
         }
         base, league_penalty, form_penalty, edge = profiles.get(c.family, profiles["result"])
-        uncertainty = base + (league_penalty if league_samples < 30 else 0) + (form_penalty if form_samples < 8 else 0)
+        uncertainty = (base + (league_penalty if league_samples < 30 else 0)
+                       + (form_penalty if form_samples < 8 else 0)
+                       + (family_adjustments or {}).get(c.family,0.))
         ranking_confidence = max(0, p - uncertainty)
         if require_odds and c.family in ("goals","btts","double_chance","result"):
             if ranking_confidence < max(.50,1.0/price+edge):
@@ -349,6 +352,9 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         form_samples=min(expected["home_recent_matches"], expected["away_recent_matches"]),
         require_odds=require_odds, min_odds=min_odds, excluded_keys=excluded_keys,
         market_audit=market_audit,
+        family_adjustments=(quality_policy.family_uncertainty_adjustments()
+                            if quality_policy is not None and
+                            hasattr(quality_policy,"family_uncertainty_adjustments") else None),
     )
     if choice is None:
         return None, "no_qualified_market"
