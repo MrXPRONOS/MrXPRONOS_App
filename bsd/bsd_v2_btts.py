@@ -135,6 +135,8 @@ class BTTSModel:
         return _clamp(_sigmoid(sum(w*x for w,x in zip(self.weights,features))))
 
     def predict(self, event, index, baseline_probability):
+        if self.blend<=0:
+            return baseline_probability
         features = btts_features(event,index)
         p = self.predict_specialized(features)
         if p is None:
