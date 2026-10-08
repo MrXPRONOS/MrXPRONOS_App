@@ -70,6 +70,23 @@ class DoubleChanceTests(unittest.TestCase):
             require_odds=True)
         self.assertIsNone(cheap)
 
+    def test_specialized_features_know_opponent_strength_at_past_match_time(self):
+        f=features(self.future,self.index)
+        self.assertEqual(len(f),FEATURES)
+        self.assertTrue(all(abs(x)<5 for x in f))
+
+    def test_calibration_draw_band_and_complementary_markets(self):
+        c=OutcomeCalibration(prior=30)
+        for i in range(40):
+            p=(.55,.20,.25) if i%2==0 else (.30,.40,.30)
+            c.observe(p,1 if i%3==0 else 0)
+        self.assertGreaterEqual(len(c.bins),2)
+        first=c.apply((.55,.20,.25))
+        second=c.apply((.30,.40,.30))
+        self.assertAlmostEqual(sum(first),1,places=9)
+        self.assertAlmostEqual(sum(second),1,places=9)
+        self.assertNotEqual(first,second)
+
     def test_uncertainty_rejects_double_chance_only(self):
         model=DoubleChanceModel(tuple((0.,)*FEATURES for _ in range(3)),1.,100,100)
         self.assertIsNotNone(uncertain(self.future,self.index,model,(.9,.05,.05)))
