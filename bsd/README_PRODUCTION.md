@@ -43,3 +43,20 @@
 - Telegram n'envoie qu'un match dont le coup d'envoi est prévu dans **60 à moins de 120 minutes**, jamais après le début, et utilise `telegram_sent` pour éviter les doublons.
 - Un retard GitHub Actions peut provoquer un créneau manqué : une garantie d'envoi de tous les matchs 1 à 2 heures avant le coup d'envoi nécessite un déclencheur plus ponctuel qu'un cron non garanti.
 - Aucune garantie de livraison Telegram sans première vérification des secrets et de la table de dédoublonnage.
+
+
+## Coupons Telegram PNG et validation des gains (nouveau)
+- Génération avec Pillow : bsd/bsd_v2_card.py (1080 × 1260), même style visuel pour avant-match et gain.
+- Image football réellement générée et version transparente PNG intégrée au dépôt : assets/images/bsd-football-generated.png.
+- En-tête : 1XBET, MELBET, CODE PROMO XPVIP. Montant illustratif : 500 000 F.
+- L'affichage est explicitement une SIMULATION et ne prouve aucun pari accepté ou paiement.
+- Cotes : bsd/bsd_v2_publish.py interroge le flux consensus de BSD une fois lors de la génération du site. Une cote absente reste « Non disponible », jamais transformée en cote théorique. Le bookmaker affiché en entête ne garantit PAS que la cote consensus soit disponible chez 1XBet ou MELBET.
+- Seuls les marchés et les sélections effectivement retournés par le flux de cotes BSD sont affichés avec un prix; notamment le marché Under 4.5 exige une intégration spécifique depuis l'endpoint par match pour être couvert.
+- Messages d'annonce : bsd/bsd_v2_telegram.py envoie une image par match avec Telegram sendPhoto, sans supprimer la diffusion progressive 60–120 min avant le début.
+- Identifiant stable : chaque coupon utilise son BSD event ID, enregistré dans Supabase telegram_sent avec kind=bsd_v2_hourly et validation_sent=false. Le suivi se fait par canal.
+- Toutes les heures à HH:40 UTC : .github/workflows/bsd-v2-telegram-wins.yml lance bsd/bsd_v2_verify_telegram.py. Il vérifie les scores finaux BSD après une marge de 4 heures et évalue le marché original du coupon enregistré.
+- Gain : même rendu PNG avec badge GAIN, score réel, et publication Telegram; ensuite validation_sent=true. Perte : validation_sent=true, **aucune publication**. En attente : aucune action.
+- Le contrôle des gains consomme un faible nombre de requêtes BSD sur les journées à vérifier, contrairement au distributeur d'annonces qui ne consomme aucune requête BSD.
+- La publication exacte et sans doublon dépend de la réponse Telegram et du registre Supabase; les délais et l'incertitude des erreurs réseau ne permettent pas de promettre un « exactement une fois » sans protocole de sortie transactionnelle.
+- Installation: pip install pillow requests cryptography.
+- Vérifier le workflow GitHub Actions complet et un envoi réel avant de déclarer l'automatisation opérationnelle.
