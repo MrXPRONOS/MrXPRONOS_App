@@ -1,0 +1,75 @@
+name: BSD - Archive historique 2016-2024
+
+on:
+  schedule:
+    - cron: '35 1 * * *' # chaque jour a 01:35 UTC
+  workflow_dispatch:
+    inputs:
+      budget:
+        description: "Maximum d appels BSD pour ce lancement (1-500)"
+        required: false
+        default: "90"
+      season_pages:
+        description: "Pages max par saison (1-100)"
+        required: false
+        default: "10"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bsd-history-backfill
+  cancel-in-progress: false
+
+jobs:
+  bsd-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: python -m pip install requests cryptography
+      - name: Tests de regression BSD
+        run: python -m unittest discover -s bsd -p 'test_*.py' -v
+      - name: Restore encrypted JSON
+        env:
+          BSD_HISTORY_KEY: "${{ secrets.BSD_HISTORY_KEY }}"
+        run: |
+          if [ -z "$BSD_HISTORY_KEY" ]; then
+            echo "::error::BSD_HISTORY_KEY manquant; ajouter la cle Fernet dans Actions Secrets"
+            exit 1
+          fi
+          python bsd/bsd_archive.py restore
+      - name: Backfill incremental
+        env:
+          BSD_API_KEY: "${{ secrets.BSD_API_KEY }}"
+          BUDGET: "${{ github.event.inputs.budget }}"
+          SEASON_PAGES: "${{ github.event.inputs.season_pages }}"
+        run: |
+          if [ -z "$BSD_API_KEY" ]; then
+            echo "::error::BSD_API_KEY manquant"
+            exit 1
+          fi
+          python bsd/bsd_backfill.py --budget "${BUDGET:-90}" --season-pages "${SEASON_PAGES:-10}"
+      - name: Seal private archive
+        env:
+          BSD_HISTORY_KEY: "${{ secrets.BSD_HISTORY_KEY }}"
+        run: python bsd/bsd_archive.py seal
+      - name: Commit encrypted archive only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bsd/all_matches_bsd.enc.json
+          if git diff --cached --quiet; then
+            echo "No encrypted archive changes"
+            exit 0
+          fi
+          git commit -m "data(bsd): refresh encrypted 2016-2024 historical JSON [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
