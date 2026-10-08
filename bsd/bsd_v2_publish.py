@@ -20,6 +20,7 @@ from bsd_v2_btts import fit_btts_model
 from bsd_v2_over_under import fit_total_model
 from bsd_v2_double_chance import fit_model as fit_dc_model
 from bsd_v2_odds import fetch_event_odds
+from bsd_v2_labels import normalize_match,market_label
 
 SITE_FILE = Path("data.json")
 HISTORY_DAYS = 14
@@ -63,7 +64,7 @@ def to_site(p, fixture):
         "status":"notstarted","is_finished":False,"home_score":None,"away_score":None,
         "verified_prediction":False,"verified_double":False,
         "prediction":{
-            "type":pred["name"],"label":pred["name"],"market":pred["market"],
+            "type":market_label(pred["key"],pred["name"]),"label":market_label(pred["key"],pred["name"]),"market":pred["market"],
             "selection_key":pred["key"],"market_code":pred["internal_market_code"],
             "outcome":pred["outcome"],"line":pred["line"],
             "confidence":prob,"double_chance":pred["outcome"] if pred["market"]=="double_chance" else None,
@@ -81,7 +82,7 @@ def to_site(p, fixture):
     combo=p.get("combo_selection")
     if combo:
         result["combo_prediction"]={
-          "type":combo["name"],"label":combo["name"],
+          "type":market_label(combo["key"],combo["name"]),"label":market_label(combo["key"],combo["name"]),
           "market":combo["market"],"outcome":combo["outcome"],
           "line":combo["line"],"selection_key":combo["key"],
           "market_code":combo["market_code"],
@@ -91,7 +92,7 @@ def to_site(p, fixture):
     extras=p.get("secondary_selections") or []
     if extras:
         result["predictions"]=[result["prediction"]]+[
-          {"type":m["name"],"label":m["name"],"market":m["market"],
+          {"type":market_label(m["key"],m["name"]),"label":market_label(m["key"],m["name"]),"market":m["market"],
            "selection_key":m["key"],"market_code":m["market_code"],
            "outcome":m["outcome"],"line":m["line"],
            "confidence":round(m["probability"]*100,1),
@@ -299,6 +300,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         result.append(to_site(prediction,f))
         known.add(eid)
         stats["created"]+=1
+    result=[normalize_match(r) for r in result]
     result.sort(key=lambda r:(str(r.get("event_date","")),str(r.get("id",""))))
     # Un flux BSD vide est préférable au maintien de pronostics SportData périmés.
     output={
