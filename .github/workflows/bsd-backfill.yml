@@ -57,6 +57,8 @@ jobs:
             exit 1
           fi
           python bsd/bsd_backfill_2024_2026.py --budget "${BUDGET:-90}" --season-pages "${SEASON_PAGES:-10}"
+      - name: Audit historique BSD et H2H (hors ligne)
+        run: python bsd/bsd_quality_audit.py --samples 12
       - name: Seal private archive
         env:
           BSD_HISTORY_KEY: "${{ secrets.BSD_HISTORY_KEY }}"
