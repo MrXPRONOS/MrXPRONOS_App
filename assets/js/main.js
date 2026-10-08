@@ -1452,7 +1452,7 @@ function renderMatches(matches) {
   const grouped = {};
   // Treat two independent market selections for the same fixture as two
   // full match cards. Each card keeps its own market, probability and share CTA.
-  const standalone = matches.flatMap((match) => {
+  const standalone = matches.filter((match) => !match.combo_only).flatMap((match) => {
     const selections = Array.isArray(match.predictions) && match.predictions.length
       ? match.predictions.slice(0, 2) : [match.prediction || {}];
     return selections.map((pick) => ({
@@ -1602,7 +1602,7 @@ async function displayHistory() {
   const todayStr = getLocalDateString("today");
   const historyMatches = allData.matches.filter((m) => {
     const d = getLocalDateFromEvent(m.event_date);
-    return d && d < todayStr;
+    return !m.combo_only && d && d < todayStr;
   }).flatMap((m) => {
     const choices = Array.isArray(m.predictions) && m.predictions.length
       ? m.predictions.slice(0, 2) : [m.prediction || {}];
