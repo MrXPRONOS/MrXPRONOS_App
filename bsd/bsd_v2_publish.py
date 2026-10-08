@@ -295,7 +295,8 @@ def main():
                     btts_model=btts_model,total_model=total_model,dc_model=dc_model)
     output["diagnostics"].update({"api_calls":client.requests_made,
                                   "quality_validation":diag,"rho":rho,
-                                  "btts_training":btts_info,"totals_training":total_info,"double_chance_training":dc_info})
+                                  "btts_training":btts_info,"totals_training":total_info,"double_chance_training":dc_info,
+                                  "market_family_penalties":policy.family_uncertainty_adjustments()})
     dest=Path(args.output)
     dest.parent.mkdir(parents=True,exist_ok=True)
     temp=dest.with_suffix(".tmp")
