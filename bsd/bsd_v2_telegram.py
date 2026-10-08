@@ -46,6 +46,27 @@ def combos_due(matches,now):
     return due_combos(build_combos(matches),now)
 
 
+def expand_tickets(match):
+    """Up to two separately tracked market picks for the same BSD fixture."""
+    first=match.get("prediction") or {}
+    picks=[first]
+    for extra in (match.get("predictions") or [])[1:2]:
+        if extra.get("selection_key")!=first.get("selection_key"):
+            picks.append(extra)
+    result=[]
+    for idx,p in enumerate(picks):
+        odds=p.get("odds")
+        if (type(odds) not in (int,float) or not 1.20<=odds<=100 or
+            p.get("odds_source") not in ("bsd_consensus","bsd_bookmaker") or
+            p.get("selection_key") in ("UNDER_45",None)):
+            continue
+        variant={**match,"prediction":p}
+        if idx:
+            variant["_telegram_selection_ref"]=str(match["id"])+":"+str(p["selection_key"])
+        result.append(variant)
+    return result
+
+
 def headers(key):
     return {"apikey":key,"Authorization":"Bearer "+key,
             "Content-Type":"application/json",
@@ -56,7 +77,7 @@ def claim(session,base,key,match,chat_id):
     # One row per channel+match, anchored in the existing unique index.
     # Only the insert winner will send. This is at-most-once for this channel,
     # with a possible missed delivery if the runner crashes after claiming.
-    event_id=str(match["id"])
+    event_id=str(match.get("_telegram_selection_ref") or match["id"])
     ref=chat_id+":"+event_id
     date=match["date"]
     payload={"kind":KIND,"ref_id":ref,"ref_date":date,"validation_sent":False}
@@ -71,7 +92,7 @@ def claim(session,base,key,match,chat_id):
 def release_failed_claim(session,base,key,match,chat_id):
     # Autorise le réessai lors du prochain cron si Telegram a rejeté l'envoi.
     # Un timeout après acceptation par Telegram reste intrinsèquement ambigu.
-    params={"kind":"eq."+KIND,"ref_id":"eq."+chat_id+":"+str(match["id"]),
+    params={"kind":"eq."+KIND,"ref_id":"eq."+chat_id+":"+str(match.get("_telegram_selection_ref") or match["id"]),
             "ref_date":"eq."+match["date"]}
     h=headers(key)
     r=session.delete(base.rstrip("/")+"/rest/v1/telegram_sent",
@@ -126,7 +147,7 @@ def send_combo(session,token,chat,combo):
 def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
     if data.get("source")!="bsd" or data.get("model_version")!="bsd-v2-isolated":
         raise ValueError("Production JSON is not BSD V2")
-    selections=due(data["matches"],now)
+    selections=[pick for m in due(data["matches"],now) for pick in expand_tickets(m)]
     report={"due":len(selections),"sent":0,"already_claimed":0,"errors":0}
     for match in selections:
         for chat in chat_ids:
@@ -199,8 +220,8 @@ def main():
     if now - generated > timedelta(hours=36):
         raise RuntimeError('Pronostics BSD V2 trop anciens: Telegram ne diffuse pas un ancien fichier')
     if args.dry_run:
-        print("BSD_TELEGRAM_DRY_RUN:",json.dumps([{"id":m["id"],"kickoff":m["event_date"]}
-          for m in due(data["matches"],now)]))
+        print("BSD_TELEGRAM_DRY_RUN:",json.dumps([{"id":m.get("_telegram_selection_ref") or m["id"],"kickoff":m["event_date"]}
+          for match in due(data["matches"],now) for m in expand_tickets(match)]))
         print("BSD_COMBO_DRY_RUN:",json.dumps([{"id":x["id"],"kickoff":x["event_date"]}
               for x in combos_due(data["matches"],now)]))
         return
