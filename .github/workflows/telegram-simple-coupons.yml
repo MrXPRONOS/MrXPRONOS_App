@@ -1,10 +1,6 @@
 name: Telegram - Coupons simple du jour
 
 on:
-  workflow_run:
-    workflows: ["Daily Update"]   # doit correspondre au name: dans daily-update.yml
-    types: [completed]
-
   workflow_dispatch:
     inputs:
       mode:
@@ -24,8 +20,8 @@ jobs:
     name: Validate yesterday (images)
     # Plus de rattrapage automatique.
     # La validation tourne seulement après Daily Update réussi sur main.
-    if: >
-      github.event_name == 'workflow_run' &&
+    if: false # BSD V2 hourly supersedes old 5-coupon system
+    # github.event_name == 'workflow_run' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main'
 
@@ -88,8 +84,8 @@ jobs:
     # Envoi today seulement :
     # - après Daily Update réussi sur main
     # - OU lancement manuel avec mode=send-today
-    if: >
-      always() && (
+    if: false # BSD V2 hourly supersedes old 5-coupon system
+    # always() && (
         (github.event_name == 'workflow_run' &&
           github.event.workflow_run.conclusion == 'success' &&
           github.event.workflow_run.head_branch == 'main')
