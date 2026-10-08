@@ -6,7 +6,7 @@ from collections import Counter
 from datetime import timedelta
 from pathlib import Path
 from bsd_archive import MATCHES_FILE, _read_json
-from bsd_v2_core import V2History, estimate_goals, score_matrix, markets_from_matrix, fit_rho_2024, predict_v2, fixture_datetime, outcome_scores
+from bsd_v2_core import V2History, estimate_goals, score_matrix, markets_from_matrix, fit_rho_2024, predict_v2, fixture_datetime, outcome_scores, league_key
 from bsd_markets import MarketCalibrator, candidates_from_goals, realized
 from bsd_backtest import wilson_interval
 from bsd_recent_backtest import paired_comparison
@@ -40,6 +40,36 @@ def fit_calibration_v2(index, rho, max_matches=1800):
 BASELINE_KEYS = ("12", "1X", "X2", "OVER_15", "OVER_25", "UNDER_35", "UNDER_45", "BTTS_YES", "BTTS_NO")
 
 
+def _group_summary(stats):
+    n = stats["selected"]
+    if not n:
+        return {"selected": 0, "wins": 0, "hit_rate": None}
+    predicted = stats["probability_sum"] / n
+    observed = stats["wins"] / n
+    return {
+        "selected": n,
+        "wins": stats["wins"],
+        "hit_rate": round(observed, 4),
+        "mean_predicted_probability": round(predicted, 4),
+        "prediction_minus_actual": round(predicted - observed, 4),
+        "brier": round(stats["brier_sum"] / n, 5),
+        "wilson_95": wilson_interval(stats["wins"], n),
+        "under45_same_selected": {
+            "wins": stats["under45_wins"],
+            "hit_rate": round(stats["under45_wins"] / n, 4),
+        },
+        "small_sample": n < 30,
+    }
+
+
+def _update_group(stats, win, probability, brier, under45_win):
+    stats["selected"] += 1
+    stats["wins"] += win
+    stats["probability_sum"] += probability
+    stats["brier_sum"] += brier
+    stats["under45_wins"] += under45_win
+
+
 def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
                    v1_index=None, v1_calibration=None):
     counters = Counter()
@@ -49,6 +79,9 @@ def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
     probability_sum = 0.
     per_market_brier = Counter()
     per_market_predicted = Counter()
+    by_month = {}
+    by_league = {}
+    by_confidence_band = {}
     paired_baselines = Counter()
     v1_counts = Counter()
     common_counts = Counter()
@@ -85,6 +118,16 @@ def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
         probability_sum+=choice["probability"]
         per_market_brier[choice["key"]]+=this_brier
         per_market_predicted[choice["key"]]+=choice["probability"]
+        under45_win = realized(markets["UNDER_45"], *outcome_scores(event))
+        month_key = fixture_datetime(event).strftime("%Y-%m")
+        league_name = league_key(event) or "unknown"
+        low = min(90, int(choice["probability"] * 10) * 10)
+        confidence_band = "%02d-%02d%%" % (low, low + 9)
+        for group, group_key in ((by_month, month_key),
+                                 (by_league, league_name),
+                                 (by_confidence_band, confidence_band)):
+            _update_group(group.setdefault(group_key, Counter()),
+                          correct, choice["probability"], this_brier, under45_win)
         if v1_pick is not None:
             common_counts["selected"]+=1
             common_counts["v1_wins"]+=v1_pick
@@ -115,6 +158,9 @@ def run_evaluation(index, calibration, rho, year=2026, max_matches=1000,
                         "mean_predicted_probability":round(per_market_predicted[k]/v["selected"],4),
                         "brier":round(per_market_brier[k]/v["selected"],5),
                         "wilson_95":wilson_interval(v["wins"],v["selected"])} for k,v in sorted(by_market.items())},
+        "by_month": {k: _group_summary(v) for k, v in sorted(by_month.items())},
+        "by_league": {k: _group_summary(v) for k, v in sorted(by_league.items())},
+        "by_confidence_band": {k: _group_summary(v) for k, v in sorted(by_confidence_band.items())},
         "fixed_baselines_same_fixtures":{k:{"selected":baselines[(k,"total")],
                                          "wins":baselines[(k,"wins")],
                                          "hit_rate":round(baselines[(k,"wins")]/baselines[(k,"total")],4)}
