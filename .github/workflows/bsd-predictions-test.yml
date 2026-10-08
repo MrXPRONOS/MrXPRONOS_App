@@ -10,7 +10,11 @@ on:
       days:
         description: Nombre de jours a examiner (1 a 3)
         required: false
-        default: '1'
+        default: '3'
+      backtest_days:
+        description: Dernieres journees UTC terminees a tester (3 a 14)
+        required: false
+        default: '3'
 
 permissions:
   contents: read
@@ -40,6 +44,12 @@ jobs:
         run: python bsd/bsd_calibrate.py --year 2025 --max-fixtures 3000
       - name: Historical backtest (exploratory, no API)
         run: python bsd/bsd_backtest.py --year 2026 --max-fixtures 500
+      - name: Backtest des trois dernieres journees UTC terminees
+        env:
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          BACKTEST_DAYS: '${{ inputs.backtest_days }}'
+        run: |
+          python bsd/bsd_recent_backtest.py --days "${BACKTEST_DAYS:-3}" --max-pages 10 --max-requests 45
       - name: Generate test BSD predictions only
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
@@ -55,6 +65,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bsd-experimental-predictions
-          path: bsd/data_bsd.json
+          path: |
+            bsd/data_bsd.json
+            bsd/recent_backtest_report.json
           retention-days: 3
           if-no-files-found: error
