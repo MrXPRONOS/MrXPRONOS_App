@@ -1,0 +1,57 @@
+name: BSD V2 - Shadow daily (experimental)
+
+on:
+  schedule:
+    - cron: '15 6 * * *'
+  workflow_dispatch:
+    inputs:
+      selection_mode:
+        description: reliability or value
+        required: false
+        default: 'reliability'
+      max_odds_events:
+        description: Maximum live odds requests (0 disables odds)
+        required: false
+        default: '15'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bsd-v2-shadow
+  cancel-in-progress: false
+
+jobs:
+  shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Requirements
+        run: python -m pip install requests cryptography
+      - name: Unit tests
+        run: python -m unittest discover -s bsd -p 'test_*.py' -v
+      - name: Restore encrypted BSD history
+        env:
+          BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
+        run: python bsd/bsd_archive.py restore
+      - name: Generate unpublished V2 snapshot
+        env:
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          MODE: '${{ inputs.selection_mode }}'
+          MAX_ODDS: '${{ inputs.max_odds_events }}'
+        run: |
+          python bsd/bsd_v2_shadow.py --mode "${MODE:-reliability}" --max-odds-events "${MAX_ODDS:-15}" --max-requests 85
+      - name: Verify unpublished forecast artifact
+        run: |
+          python -c 'import json; d=json.load(open("bsd/v2_shadow_predictions.json")); assert d["experimental"] is True and d["published"] is False and d["format"]=="bsd-v2-shadow-v1"; print("SHADOW_V2_OK",len(d["matches"]))'
+      - name: Retain prospective snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: bsd-v2-shadow-${{ github.run_id }}
+          path: bsd/v2_shadow_predictions.json
+          retention-days: 90
+          if-no-files-found: error
