@@ -109,9 +109,9 @@ def send_combo(session,token,chat,combo):
     from bsd_v2_combo_card import render_combo
     with TemporaryDirectory() as directory:
         photo=render_combo(combo,Path(directory)/"combine.png",session=session)
-        caption=("⚽ Combiné de deux matchs BSD V2\\n"+
+        caption=("⚽ Combiné de deux matchs BSD V2\n"+
                  "Cote totale : "+format(combo["combined_odds"],".3f")+
-                 "\\nParier responsablement.")
+                 "\nParier responsablement.")
         with photo.open("rb") as pic:
             response=session.post("https://api.telegram.org/bot"+token+"/sendPhoto",
                 data={"chat_id":chat,"caption":caption,
