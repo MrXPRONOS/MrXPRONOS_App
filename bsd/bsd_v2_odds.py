@@ -15,9 +15,11 @@ from bsd_markets import candidates_from_goals
 # Codes internes -> filtre BSD officiel (uniquement FT).
 MARKETS = {c.market_code: (c.market, c.outcome)
            for c in candidates_from_goals(1.4, 1.2)}
-# La liste legacy n'autorise pas le filtre over_under_45; aucun tarif inventé.
+# Le paramètre de filtrage legacy ne nomme pas toutes les lignes. Les réponses
+# non filtrées peuvent contenir d'autres lignes, y compris 4,5 buts.
 ALLOWED_MARKETS = frozenset(("1x2", "double_chance", "btts",
-                            "over_under_15", "over_under_25", "over_under_35"))
+                            "over_under_15", "over_under_25", "over_under_35",
+                            "over_under_45"))
 
 
 def _odds_number(v):
@@ -40,6 +42,35 @@ def _event_id(row):
         return None
 
 
+def _canonical_market(row):
+    """Normalize only unambiguous full-time goal totals from unfiltered odds.
+
+    Never conflate total corners, half-time totals and goal lines.
+    """
+    raw = str(row.get("market") or "").strip().lower()
+    if raw not in ("over_under", "total_goals", "goals_over_under", "over_under_05",
+                   "over_under_15", "over_under_25", "over_under_35", "over_under_45"):
+        return raw
+    if raw.startswith("over_under_") and raw not in ("over_under",):
+        implied = {"05": .5, "15": 1.5, "25": 2.5, "35": 3.5, "45": 4.5}.get(raw[-2:])
+        if implied is None:
+            return ""
+        value = row.get("line")
+        if value is not None:
+            try:
+                if float(value) != implied:
+                    return ""
+            except (TypeError, ValueError):
+                return ""
+        return raw
+    try:
+        line = float(row["line"])
+    except (KeyError, TypeError, ValueError):
+        return ""
+    return {1.5: "over_under_15", 2.5: "over_under_25",
+            3.5: "over_under_35", 4.5: "over_under_45"}.get(line, "")
+
+
 def parse_odds(rows, event_id: int, *, kickoff: datetime, fetched_at: datetime,
                bookmaker_slug: str = "consensus", max_age_hours: int = 48):
     """Rejette toute cote ambiguë, d'un autre match, hors FT ou non pré-match.
@@ -49,6 +80,8 @@ def parse_odds(rows, event_id: int, *, kickoff: datetime, fetched_at: datetime,
     """
     if not isinstance(rows, list):
         raise ValueError("Liste de cotes BSD invalide")
+    if fetched_at >= kickoff:
+        raise ValueError("Cotes BSD après le coup d’envoi refusées")
     result = {}
     reject = {}
     mapping = {(market, outcome): code for code, (market, outcome) in MARKETS.items()
@@ -56,7 +89,7 @@ def parse_odds(rows, event_id: int, *, kickoff: datetime, fetched_at: datetime,
     for row in rows:
         if not isinstance(row, dict) or _event_id(row) != int(event_id):
             continue
-        kind = str(row.get("market") or "").strip()
+        kind = _canonical_market(row)
         outcome = str(row.get("outcome") or "").strip()
         code = mapping.get((kind, outcome))
         if not code:
