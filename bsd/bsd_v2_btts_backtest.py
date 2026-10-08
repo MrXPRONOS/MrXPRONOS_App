@@ -28,10 +28,13 @@ def _statistics(rows):
     }
 
 
-def audit(index,model,calibration,rho,*,year=2026,max_matches=2000):
+def audit(index,model,calibration,rho,*,year=2026,max_matches=2000,
+          baseline_calibration=None):
     by_group=defaultdict(list)
     by_league=defaultdict(list)
     baseline=defaultdict(list)
+    baseline_calibrated=defaultdict(list)
+    probability_buckets=defaultdict(list)
     counters=Counter()
     for match in get_sample(index,year,max_matches):
         counters["checked"]+=1
@@ -47,6 +50,10 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000):
             _,p,n=calibration.score(updated[key])
             by_group[key].append((p,win))
             baseline[key].append((original[key].probability,win))
+            if baseline_calibration is not None:
+                _lo,reference_p,_n=baseline_calibration.score(original[key])
+                baseline_calibrated[key].append((reference_p,win))
+            probability_buckets[(key,int(p*10))].append((p,win))
             by_league[(league_key(match),key)].append((p,win))
         counters["evaluated"]+=1
     results={
@@ -54,6 +61,10 @@ def audit(index,model,calibration,rho,*,year=2026,max_matches=2000):
         "skips":{k:v for k,v in counters.items() if k.startswith("skipped_")},
         "specialized_calibrated":{k:_statistics(v) for k,v in by_group.items()},
         "poisson_dixon_coles_baseline":{k:_statistics(v) for k,v in baseline.items()},
+        "baseline_calibrated":{k:_statistics(v) for k,v in baseline_calibrated.items()},
+        "by_probability_bucket":{k+"|"+str(bucket):_statistics(rows)
+                                 for (k,bucket),rows in probability_buckets.items()
+                                 if len(rows)>=20},
         "by_league":{k+"|"+side:_statistics(rows) for (k,side),rows in by_league.items()
                      if len(rows)>=20},
         "limitations":"Historical holdout, not a real-odds backtest. No inferred ROI. "
@@ -74,8 +85,10 @@ def main():
     rho,_=fit_rho_2024(index)
     model,training=fit_btts_model(index,rho=rho)
     cal,policy,periods=fit_policy(index,rho=rho,btts_model=model)
+    baseline_cal,_,_=fit_policy(index,rho=rho,btts_model=None)
     result={"model":"btts-specialized-v1","fit":training,"calibration":periods,
-            "test":audit(index,model,cal,rho,max_matches=args.max_test)}
+            "test":audit(index,model,cal,rho,max_matches=args.max_test,
+                         baseline_calibration=baseline_cal)}
     path=Path(args.output);path.parent.mkdir(parents=True,exist_ok=True)
     path.write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding="utf-8")
     print("BSD_BTTS_BACKTEST:",json.dumps(result,ensure_ascii=False))
