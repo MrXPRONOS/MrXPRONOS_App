@@ -196,20 +196,43 @@ class DoubleChanceModel:
                 "train_count":self.trained,"validation_count":self.validated}
 
 class OutcomeCalibration:
-    """Multiclass coherent correction learned from 2025; sums remain one."""
+    """Joint multiclass calibration by pre-calibration draw-probability band.
+
+    Trained using 2025 Jan-Aug only. Smoothing to a global residual prevents
+    sparse draw-rate bins from producing extreme corrections.
+    """
     def __init__(self,prior=130):
-        self.prior=prior
+        self.prior=int(prior)
         self.n=0
         self.residual=[0.,0.,0.]
+        self.bins={}
+
+    @staticmethod
+    def _bin(p):
+        return min(4,max(0,int(float(p[1])*5)))
 
     def observe(self,prob,actual):
+        p=_correct(prob)
         self.n+=1
-        for i in range(3):self.residual[i]+=int(i==actual)-prob[i]
+        bucket=self._bin(p)
+        count,residual=self.bins.get(bucket,(0,[0.,0.,0.]))
+        residual=list(residual)
+        for i in range(3):
+            error=int(i==actual)-p[i]
+            self.residual[i]+=error
+            residual[i]+=error
+        self.bins[bucket]=(count+1,residual)
 
     def apply(self,p):
-        if self.n==0:return _correct(p)
-        offsets=[x/(self.n+self.prior) for x in self.residual]
+        p=_correct(p)
+        if self.n==0:return p
+        global_offset=[r/(self.n+self.prior) for r in self.residual]
+        count,residual=self.bins.get(self._bin(p),(0,[0.,0.,0.]))
+        local_weight=count/(count+80.)
+        offsets=[(1-local_weight)*global_offset[i]+local_weight*
+                 residual[i]/(count+40.) for i in range(3)]
         return _correct([max(.0001,p[i]+offsets[i]) for i in range(3)])
+
 
 def adjust_candidates(event,index,candidates,model=None,calibration=None):
     """Produce coherent 1X2 and derived 1X/X2/12; no other markets altered."""
