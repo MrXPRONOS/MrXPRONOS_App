@@ -27,7 +27,7 @@ def render_combo(combo,path,*,now=None,session=None):
     write(d,"Événements : 2",39,382,size=31,color=INK)
     write(d,"0 sur 2 terminés",1043,382,size=27,color=MUTED,align="right")
     rows=[("Cotes:",f'{combo["combined_odds"]:.3f}'),
-          ("Mise:",f'{combo["stake"]:,}'.replace(","," ")+" F"),
+          ("Mise indicative:",f'{combo["stake"]:,}'.replace(","," ")+" F"),
           ("Gains potentiels:",f'{combo["potential_gain"]:,.2f}'.replace(","," ")+" F"),
           ("Statut:","Pronostic")]
     for i,(label,value) in enumerate(rows):
