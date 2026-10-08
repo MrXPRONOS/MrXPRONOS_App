@@ -74,12 +74,20 @@ def validate(data,rows,events,now,session,token,base,key,dry_run=False):
     report=Counter()
     for row in rows:
         ref=str(row.get("ref_id") or "")
-        chat,sep,ident=ref.rpartition(":bsd:")
+        chat,sep,selection_ref=ref.rpartition(":bsd:")
+        ident,extra_sep,selection_key=selection_ref.partition(":")
         if not sep or not chat or not ident.isdigit():
             report["invalid_ledger_ref"]+=1;continue
         match=matches.get("bsd:"+ident)
         if not match:
             report["missing_site_match"]+=1;continue
+        if extra_sep:
+            picks=match.get("predictions") or []
+            selected=next((p for p in picks if p.get("selection_key")==selection_key),None)
+            if selected is None:
+                report["missing_original_market"]+=1
+                continue
+            match={**match,"prediction":selected}
         result=verdict(match,events.get(ident),now)
         if result is None:
             report["pending"]+=1;continue
@@ -121,7 +129,8 @@ def main():
     now=datetime.now(timezone.utc)
     days=set()
     for row in rows:
-        _chat,_sep,ident=str(row.get("ref_id") or "").rpartition(":bsd:")
+        _chat,_sep,selection_ref=str(row.get("ref_id") or "").rpartition(":bsd:")
+        ident=selection_ref.partition(":")[0]
         match=match_index.get("bsd:"+ident)
         if match:
             try:
