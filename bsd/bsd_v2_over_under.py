@@ -19,6 +19,18 @@ def _rate(rows,at,team=None,venue=None):
     variance=max(.2,(sq+8*(2.6**2+2.6))/(total+8)-avg*avg)
     return avg,variance,total
 
+def _scoring(index,team_id,at,prior,conceded=False):
+    rows=index.team(team_id,at,limit=12)
+    values=[]
+    for e in rows:
+        score=outcome_scores(e)
+        if score is None:continue
+        home=_team_id(e,"home")==team_id
+        value=score[1 if home else 0] if conceded else score[0 if home else 1]
+        values.append(value)
+    return (sum(values)+5*prior)/(len(values)+5)
+
+
 def features(event,index):
     at=fixture_datetime(event)
     home=_team_id(event,"home");away=_team_id(event,"away")
@@ -39,10 +51,19 @@ def features(event,index):
     venue_mean=(hn/(hn+8)*hvenue+8/(hn+8)*hm+
                 an/(an+8)*avenue+8/(an+8)*am)/2
     baseline=(hm+am)/2
-    result_mean=.55*baseline+.25*venue_mean+.20*lmean
+    # Match-up: each team's scoring rate depends on the other team's defence.
+    league_team_mean=max(.45,lmean/2)
+    home_scoring=_scoring(index,home,at,league_team_mean)
+    away_scoring=_scoring(index,away,at,league_team_mean)
+    home_conceded=_scoring(index,home,at,league_team_mean,conceded=True)
+    away_conceded=_scoring(index,away,at,league_team_mean,conceded=True)
+    paired=(home_scoring*away_conceded+away_scoring*home_conceded)/league_team_mean
+    paired=max(.6,min(5.5,paired))
+    result_mean=.40*baseline+.25*venue_mean+.15*lmean+.20*paired
     dispersion=max(.4,min(12.,.5*(hvar+avar)))
     return {"mean":result_mean,"variance":dispersion,"league_mean":lmean,
             "league_variance":lvar,"home_mean":hm,"away_mean":am,
+            "opponent_adjusted_mean":paired,
             "league_samples":len(lg),"form_samples":min(len(hg),len(ag)),
             "venue_samples":min(len(hv),len(av))}
 
@@ -75,6 +96,18 @@ class TotalGoalsModel:
         return {"model":"bsd-over-under-1","blend":self.blend,
                 "variance_scale":self.variance_scale,
                 "trained":self.trained,"validated":self.validated}
+
+def uncertainty(event,index,model,baseline_total=None):
+    if model is None:return None
+    feat=features(event,index)
+    if feat is None:return "totals_missing_form"
+    if feat["league_samples"]<20:return "totals_insufficient_league"
+    if feat["venue_samples"]<3:return "totals_insufficient_venue"
+    if feat["variance"]/max(.5,feat["mean"])>2.6:return "totals_high_volatility"
+    if baseline_total is not None and abs(feat["mean"]-baseline_total)>1.0:
+        return "totals_models_disagree"
+    return None
+
 
 def adjust_candidates(event,index,candidates,model):
     if model is None or model.blend<=0:return candidates
