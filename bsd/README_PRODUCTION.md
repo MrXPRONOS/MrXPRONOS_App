@@ -51,7 +51,7 @@
 - En-tête : 1XBET, MELBET, CODE PROMO XPVIP. Montant illustratif : 500 000 F.
 - L'affichage est explicitement une SIMULATION et ne prouve aucun pari accepté ou paiement.
 - Cotes : bsd/bsd_v2_publish.py interroge le flux consensus de BSD une fois lors de la génération du site. Une cote absente reste « Non disponible », jamais transformée en cote théorique. Le bookmaker affiché en entête ne garantit PAS que la cote consensus soit disponible chez 1XBet ou MELBET.
-- Seuls les marchés et les sélections effectivement retournés par le flux de cotes BSD sont affichés avec un prix; notamment le marché Under 4.5 exige une intégration spécifique depuis l'endpoint par match pour être couvert.
+- Seuls les marchés et les sélections effectivement retournés par le flux de cotes BSD sont affichés avec un prix; le marché Under 4.5 est maintenant reconnu quand le flux BSD renvoie explicitement un marché de buts à ligne 4.5; si la ligne n’est pas offerte, la cote reste indisponible.
 - Messages d'annonce : bsd/bsd_v2_telegram.py envoie une image par match avec Telegram sendPhoto, sans supprimer la diffusion progressive 60–120 min avant le début.
 - Identifiant stable : chaque coupon utilise son BSD event ID, enregistré dans Supabase telegram_sent avec kind=bsd_v2_hourly et validation_sent=false. Le suivi se fait par canal.
 - Toutes les heures à HH:40 UTC : .github/workflows/bsd-v2-telegram-wins.yml lance bsd/bsd_v2_verify_telegram.py. Il vérifie les scores finaux BSD après une marge de 4 heures et évalue le marché original du coupon enregistré.
