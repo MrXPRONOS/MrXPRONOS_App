@@ -133,6 +133,9 @@ def fit_policy(index, *, rho, calibration_year=2025, max_train=3000, max_validat
         feat,why=estimate_goals(event,index)
         if feat is None:continue
         candidates=markets_from_matrix(score_matrix(feat["home"],feat["away"],rho))
+        if total_model is not None:
+            from bsd_v2_over_under import adjust_candidates
+            candidates=adjust_candidates(event,index,candidates,total_model)
         if btts_model is not None:
             from bsd_v2_btts import btts_candidates
             candidates=btts_candidates(event,index,candidates,btts_model)
