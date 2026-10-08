@@ -25,6 +25,7 @@ SITE_FILE = Path("data.json")
 HISTORY_DAYS = 14
 FUTURE_DAYS = 2
 MIN_BSD_ODDS = 1.20
+MIN_COMBO_ODDS = 1.01
 EXCLUDED_SELECTIONS = frozenset({'UNDER_45'})
 
 def team_name(item, side):
@@ -73,6 +74,7 @@ def to_site(p, fixture):
         },
         "model_version":p["model_version"], "final_score":prob,"xpronos_score":prob,
         "generated_at":p.get("prediction_generated_at") or datetime.now(timezone.utc).isoformat(),
+        "combo_only":bool(p.get("combo_only",False)),
     }
     extras=p.get("secondary_selections") or []
     if extras:
@@ -132,7 +134,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
            and row.get("prediction",{}).get("odds_source") in ("bsd_consensus","bsd_bookmaker")
            and isinstance(row.get("prediction",{}).get("odds"), (int,float))
            and not isinstance(row["prediction"]["odds"],bool)
-           and MIN_BSD_ODDS <= row["prediction"]["odds"] <= 100}
+           and MIN_COMBO_ODDS <= row["prediction"]["odds"] <= 100}
     index=V2History(history)
     stats=Counter()
     by_id={str(f["id"]):f for f in fixtures if isinstance(f,dict) and f.get("id") is not None}
@@ -183,7 +185,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             and quote.get("origin") in ("bsd_consensus","bsd_bookmaker")
             and isinstance(quote.get("odds"), (int,float))
             and not isinstance(quote.get("odds"),bool)
-            and MIN_BSD_ODDS <= quote["odds"] <= 100
+            and MIN_COMBO_ODDS <= quote["odds"] <= 100
         }
         if not valid_quotes:
             entry["reason"]="no_qualified_bsd_odds"
@@ -191,11 +193,18 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             continue
         market_audit=[]
         entry["considered"]=market_audit
+        normal_quotes={code:quote for code,quote in valid_quotes.items()
+                       if quote["odds"]>=MIN_BSD_ODDS}
+        # Prefer ordinary standalone markets. Only fall back to small-priced
+        # high-confidence markets for building combined two-event tickets.
+        active_quotes=normal_quotes if normal_quotes else valid_quotes
+        combo_only=not bool(normal_quotes)
         prediction,reason=predict_v2(
             f,index,calibration=calibration,quality_policy=policy,
             rho=rho,clock=now,mode="reliability",
-            odds_by_market={code: quote["odds"] for code,quote in valid_quotes.items()},
-            require_odds=True,min_odds=MIN_BSD_ODDS,excluded_keys=EXCLUDED_SELECTIONS,
+            odds_by_market={code: quote["odds"] for code,quote in active_quotes.items()},
+            require_odds=True,min_odds=MIN_COMBO_ODDS if combo_only else MIN_BSD_ODDS,
+            allow_combo_prices=combo_only,excluded_keys=EXCLUDED_SELECTIONS,
             btts_model=btts_model,total_model=total_model,dc_model=dc_model,
             market_audit=market_audit,
         )
@@ -203,6 +212,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             entry["reason"]=reason
             stats[reason]+=1
             continue
+        prediction["combo_only"]=combo_only
         selected_code = prediction["prediction"]["internal_market_code"]
         quote = valid_quotes.get(selected_code)
         if quote is None:
@@ -220,7 +230,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         for candidate in prediction.get("ranked_candidates",[]):
             if candidate["key"]==prediction["prediction"]["key"]:continue
             if candidate["market"]==first_family:continue
-            quoted=valid_quotes.get(candidate["market_code"])
+            quoted=active_quotes.get(candidate["market_code"])
             if not quoted or candidate["key"] in EXCLUDED_SELECTIONS:continue
             if policy is not None:
                 from bsd_markets import candidates_from_goals
