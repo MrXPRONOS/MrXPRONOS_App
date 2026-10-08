@@ -26,3 +26,28 @@ Les données historiques ne contiennent pas nécessairement de cotes bookmaker v
 Les combinés sont enregistrés dans Supabase avec un type de message distinct pour éviter les doublons ; la notification du résultat d'un combiné n'est pas encore intégrée. Les pronostics individuels, y compris les deux marchés éventuels d'un même match, conservent leur suivi indépendant.
 
 **État : fichiers GitHub committés, mais exécution GitHub Actions et envoi réel Telegram non encore confirmés.**
+
+
+## Modification des règles des combinés — 8 octobre 2026
+
+**Important : cette section remplace les anciennes descriptions des limites de cotes.**
+
+- Un combiné contient exactement **deux matchs différents**.
+- **Chaque sélection du combiné doit avoir une cote BSD authentifiée 1,01 <= cote < 1,50**.
+- Les cotes **1,50 ou davantage** ne peuvent jamais constituer une jambe de combiné, même avec un match à faible cote.
+- La restriction de 1,20 ne s'applique plus aux combinés. Les cotes **1,01 à 1,19** sont conservées uniquement si la probabilité prudente du modèle est d'au moins 90 % ; ce seuil reste un filtre prudent, non une garantie.
+- Les pronostics simples demeurent soumis à leur filtre individuel **>= 1,20** et à leur marge de sélection ; les choix à moins de 1,20 ne sont **pas envoyés seuls sur Telegram**.
+- Pour chaque match, le générateur peut enregistrer un marché séparé `combo_prediction` strictement sous 1,50, même si sa sélection individuelle principale est à 1,50 ou plus.
+- Le moteur de combinés examine `combo_prediction`, `prediction` et `predictions`, retient au maximum une sélection pour un même match et associe uniquement deux événements distincts.
+- Sur le site, **chaque sélection individuelle est présentée dans sa propre fiche** (y compris dans l'historique) ; aucune section « Pronostic 2 » n'est intégrée à la fiche du premier.
+- Les matchs `combo_only` (sélection principale < 1,20) sont conservés dans `data.json` pour Telegram combiné, mais ne sont pas affichés comme pronostics individuels sur le site.
+- Sur Telegram, les deux sélections individuelles sont suivies et envoyées séparément lorsque la cote de chacune est >= 1,20. Les combinés ont leur propre envoi et leur propre identifiant de dédoublonnage.
+- **Under 4,5 reste entièrement interdit.**
+
+### Tests de cette modification
+
+`bsd/test_bsd_v2_combos.py` vérifie les limites (1,01 inclus, 1,50 exclu), la non-association d'un même match et la possibilité d'un `combo_prediction` à faible cote lorsque la sélection principale est à plus de 1,50.
+
+`bsd/test_bsd_v2_market_capacity.py` vérifie le choix des marchés à 1,01–1,19 seulement pour l'usage combiné, à condition d'avoir une probabilité prudente élevée.
+
+**Validation à terminer :** nouvelle génération de `data.json`, exécution des tests GitHub Actions et envoi réel du premier combiné correspondant aux règles actualisées.
