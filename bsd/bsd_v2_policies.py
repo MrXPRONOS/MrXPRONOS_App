@@ -55,7 +55,7 @@ class V2Calibration:
 
 
 class V2QualityPolicy:
-    def __init__(self, performance=None, *, min_league=20, min_form=6, max_age=150,
+    def __init__(self, performance=None, *, min_league=15, min_form=5, max_age=150,
                  max_market_gap=.08, min_market_validation=30):
         self.performance=dict(performance or {})
         self.min_league=min_league
