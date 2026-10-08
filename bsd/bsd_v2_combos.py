@@ -9,6 +9,7 @@ from __future__ import annotations
 from hashlib import sha256
 from math import isfinite
 from bsd_h2h import _utc
+from bsd_v2_stakes import combination_stake,gain_potentiel
 
 COMBO_MIN_ODDS=1.01
 COMBO_MAX_ODDS=1.50
@@ -75,7 +76,8 @@ def build_combos(matches,*,max_kickoff_gap_hours=24):
                 "id":"combo:"+tag,"type":"combiné","status":"upcoming",
                 "event_date":a["event_date"],"date":_utc(a["event_date"]).date().isoformat(),
                 "legs":[a,b],"combined_odds":round(odd1*odd2,5),
-                "stake":500000,"potential_gain":round(500000*odd1*odd2,2),
+                "stake":combination_stake(),
+                "potential_gain":gain_potentiel(combination_stake(),round(odd1*odd2,5)),
             })
             used.update((aid,bid))
             break
