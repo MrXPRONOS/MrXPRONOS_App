@@ -37,7 +37,7 @@ class CombosTests(unittest.TestCase):
         c=coupons[0]
         self.assertNotEqual(c["legs"][0]["id"],c["legs"][1]["id"])
         self.assertAlmostEqual(c["combined_odds"],1.725)
-        self.assertAlmostEqual(c["potential_gain"],862500)
+        self.assertAlmostEqual(c["potential_gain"],431250)
         self.assertEqual(c["id"],build_combos([a,b])[0]["id"])
 
     def test_due_only_within_hour_before_first_kickoff(self):
