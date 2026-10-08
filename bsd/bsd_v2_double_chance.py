@@ -13,7 +13,7 @@ from bsd_v2_core import fixture_datetime, league_key, outcome_scores, estimate_g
 
 KEYS=("1","X","2")
 DC_KEYS=("1X","X2","12")
-FEATURES=15
+FEATURES=17
 
 def _softmax(values):
     top=max(values)
@@ -82,6 +82,27 @@ def _rating(index,team,at):
     pos=bisect_right(times,at.timestamp())-1
     return values[pos] if pos>=0 else 1500.
 
+def _opponent_strength_form(index,team,games,at):
+    """Historical form vs opponents' *then-current* Elo, never future Elo."""
+    win=avoid=weight_sum=0.
+    for game in games:
+        result=outcome_scores(game)
+        if result is None:continue
+        team_home=_team_id(game,"home")==team
+        opponent=_team_id(game,"away" if team_home else "home")
+        played=fixture_datetime(game)
+        opposing_elo=_rating(index,opponent,played) if opponent else 1500.
+        # Weight difficult opponents modestly more; cap outliers.
+        quality=max(.80,min(1.20,1+(opposing_elo-1500.)/1500.))
+        strength=exp(-log(2)*max(0.,(at-played).total_seconds()/86400)/100.)
+        goal_diff=result[0]-result[1] if team_home else result[1]-result[0]
+        win+=strength*quality*int(goal_diff>0)
+        avoid+=strength*quality*int(goal_diff>=0)
+        weight_sum+=strength
+    return ((win+6*.38)/(weight_sum+6),
+            (avoid+6*.65)/(weight_sum+6))
+
+
 def features(event,index):
     at=fixture_datetime(event)
     home=_team_id(event,"home");away=_team_id(event,"away")
@@ -115,6 +136,8 @@ def features(event,index):
     aw5,ad5,_=_team_rates(recent_away,away,at,league_draw)
     home_for,home_against=_goal_rates(hg,home,at)
     away_for,away_against=_goal_rates(ag,away,at)
+    home_win_quality,home_avoid_quality=_opponent_strength_form(index,home,hg,at)
+    away_win_quality,away_avoid_quality=_opponent_strength_form(index,away,ag,at)
     return (1.,hw-aw,hwv-awv,ha-aav,hd+ad-2*league_draw,
             (hdv+adv)/2-league_draw,league_draw-.27,
             max(-1.5,min(1.5,elo)),hw5-aw5,
@@ -122,7 +145,9 @@ def features(event,index):
             abs(hw-aw),min(ha,aav)-.6,
             (len(hv)/(len(hv)+8)-len(av)/(len(av)+8)),
             (home_for-away_against)/2.,
-            (away_for-home_against)/2.)
+            (away_for-home_against)/2.,
+            home_win_quality-away_win_quality,
+            home_avoid_quality-away_avoid_quality)
 
 def _train(rows,epochs=160):
     weights=[[0.]*FEATURES for _ in range(3)]
