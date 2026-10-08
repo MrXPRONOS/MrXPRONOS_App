@@ -930,7 +930,7 @@ function sharePronostic(match) {
 
   const msg = `■ COUPONS GRATUITS
 ■ ${match.home_team} vs ${match.away_team}
-■ Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%
+■ Pronostic : ${match.prediction.type || match.prediction.double_chance || "-"} – Fiabilité ${match.prediction.confidence}%
 ■ Plus de Coupons :
 ${BASE_SITE_URL}
 ■ Rejoins les gagnants !`;
@@ -1469,7 +1469,7 @@ function renderMatches(matches) {
 
     grouped[league].forEach((m) => {
       const pred = m.prediction || {};
-      const doubleChance = escapeHtml(pred.double_chance || "N/A");
+      const doubleChance = escapeHtml(pred.type || pred.label || pred.double_chance || "N/A");
 
       let confidence = toFloatSafe(pred.confidence, 0) || 0;
       if (confidence <= 1) confidence = confidence * 100;
@@ -1502,6 +1502,7 @@ function renderMatches(matches) {
         away_team: m.away_team,
         prediction: {
           double_chance: pred.double_chance,
+          type: pred.type || pred.label || pred.double_chance,
           confidence: confidence,
         },
       };
@@ -1548,7 +1549,7 @@ function renderMatches(matches) {
 
           <div class="analysis-panel ticket ${winnerClass}">
             <h4>Pronostic ${xpronosBadge}</h4>
-            <p><strong>Double chance :</strong> ${doubleChance} ${
+            <p><strong>Pronostic :</strong> ${doubleChance} ${
               eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ""
             }</p>
 
@@ -1649,7 +1650,7 @@ async function displayHistory() {
 
           <div class="analysis-panel">
             <h4>Pronostic</h4>
-            <p><strong>Double chance :</strong> ${escapeHtml(pred.double_chance || "N/A")}
+            <p><strong>Pronostic :</strong> ${escapeHtml(pred.type || pred.label || pred.double_chance || "N/A")}
               <input type="checkbox" class="prediction-checkbox" ${m.verified_double ? "checked" : ""} disabled>
             </p>
             <p><strong>Fiabilité :</strong> ${escapeHtml(String(Math.round(confidence * 10) / 10))}%</p>
@@ -2310,7 +2311,7 @@ function normalizeConfidence(conf) {
 function renderHomePickCard(m, { winner = false } = {}) {
   const pred = m.prediction || {};
   const conf = normalizeConfidence(pred.confidence);
-  const dc = pred.double_chance || "N/A";
+  const dc = pred.type || pred.label || pred.double_chance || "N/A";
 
   const league = m.league || "Ligue";
   const time = formatMatchTime(m.event_date);
@@ -2356,7 +2357,7 @@ function renderHomePickCard(m, { winner = false } = {}) {
       </div>
 
       <div class="pick-meta">
-        <div class="pick-row"><span>Double chance</span><b>${escapeHtml(dc)}</b></div>
+        <div class="pick-row"><span>Pronostic</span><b>${escapeHtml(dc)}</b></div>
         <div class="pick-row"><span>Fiabilité</span><b>${conf}%</b></div>
         <div class="pick-row"><span>Statut</span><b>${escapeHtml(status)}</b></div>
 
@@ -2434,7 +2435,7 @@ function displayLatestVerified() {
         </div>
         <div class="analysis-panel">
           <h4>Pronostic</h4>
-          <p><strong>Double chance :</strong> ${escapeHtml(m.prediction?.double_chance || "N/A")}
+          <p><strong>Pronostic :</strong> ${escapeHtml(m.prediction?.type || m.prediction?.label || m.prediction?.double_chance || "N/A")}
             <input type="checkbox" class="prediction-checkbox" checked disabled>
           </p>
           <p><strong>Fiabilité :</strong> ${escapeHtml(String(m.prediction?.confidence || 0))}%</p>
@@ -2457,7 +2458,7 @@ function startWinsSlider() {
   const html = wins
     .map((m) => {
       const score = `${m.home_score ?? "-"} - ${m.away_score ?? "-"}`;
-      return `<div class="win-item">■ <span>${escapeHtml(m.home_team)} ${escapeHtml(score)} ${escapeHtml(m.away_team)}</span> • ${escapeHtml(m.prediction?.double_chance || "")}</div>`;
+      return `<div class="win-item">■ <span>${escapeHtml(m.home_team)} ${escapeHtml(score)} ${escapeHtml(m.away_team)}</span> • ${escapeHtml(m.prediction?.type || m.prediction?.label || m.prediction?.double_chance || "")}</div>`;
     })
     .join("");
 
