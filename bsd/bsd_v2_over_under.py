@@ -2,7 +2,7 @@
 from dataclasses import dataclass, replace
 from math import exp, factorial, log, isfinite
 from bsd_h2h import _team_id
-from bsd_v2_core import fixture_datetime, outcome_scores, estimate_goals, score_matrix, markets_from_matrix
+from bsd_v2_core import fixture_datetime, outcome_scores, estimate_goals, score_matrix, markets_from_matrix, league_key
 
 LINES=(1.5,2.5,3.5,4.5)
 
@@ -40,8 +40,7 @@ def features(event,index):
     if min(len(hg),len(ag))<5:return None
     hv=index.team(home,at,limit=12,venue="home")
     av=index.team(away,at,limit=12,venue="away")
-    league_key_value=__import__("bsd_v2_core").league_key(event)
-    lg=index.league(league_key_value,at,limit=300)
+    lg=index.league(league_key(event),at,limit=300)
     hm,hvar,_=_rate(hg,at)
     am,avar,_=_rate(ag,at)
     lmean,lvar,ln=_rate(lg,at)
@@ -61,7 +60,28 @@ def features(event,index):
     paired=max(.6,min(5.5,paired))
     result_mean=.40*baseline+.25*venue_mean+.15*lmean+.20*paired
     dispersion=max(.4,min(12.,.5*(hvar+avar)))
+    # Per-line empirical Over rates, shrunk to the league and Poisson prior.
+    league_rates={}
+    empirical_over={}
+    groups=((hg[:5],.18),(hg[:10],.13),(hg[:15],.09),
+            (ag[:5],.18),(ag[:10],.13),(ag[:15],.09),
+            (hv,.05),(av,.05),(lg,.10))
+    for line in LINES:
+        poisson_tail=sum(exp(-result_mean)*result_mean**n/factorial(n)
+                         for n in range(int(line)+1,25))
+        league_wins=sum(int(sum(outcome_scores(g))>line) for g in lg
+                        if outcome_scores(g) is not None)
+        league_prior=(league_wins+20*poisson_tail)/(len(lg)+20)
+        league_rates[line]=league_prior
+        value=0.
+        for group,weight in groups:
+            n=len(group)
+            wins=sum(int(sum(outcome_scores(g))>line) for g in group
+                     if outcome_scores(g) is not None)
+            value+=weight*(wins+5*league_prior)/(n+5)
+        empirical_over[line]=max(.00001,min(.99999,value))
     return {"mean":result_mean,"variance":dispersion,"league_mean":lmean,
+            "empirical_over":empirical_over,"league_over_rates":league_rates,
             "league_variance":lvar,"home_mean":hm,"away_mean":am,
             "opponent_adjusted_mean":paired,
             "league_samples":len(lg),"form_samples":min(len(hg),len(ag)),
@@ -91,7 +111,8 @@ class TotalGoalsModel:
         feat=features(event,index)
         if feat is None:return None
         distribution=total_distribution(feat["mean"],max(feat["mean"],feat["variance"]*self.variance_scale))
-        return {line:sum(distribution[int(line)+1:]) for line in LINES}
+        return {line:.80*sum(distribution[int(line)+1:])+
+                     .20*feat["empirical_over"][line] for line in LINES}
     def to_dict(self):
         return {"model":"bsd-over-under-1","blend":self.blend,
                 "variance_scale":self.variance_scale,
@@ -148,7 +169,8 @@ def fit_total_model(index,rho=0.,max_training=1800,max_validation=450):
         for feat,goals,baseline in rows:
             dist=total_distribution(feat["mean"],max(feat["mean"],feat["variance"]*scale))
             for line in LINES:
-                p=(1-weight)*baseline[line]+weight*sum(dist[int(line)+1:])
+                special=.80*sum(dist[int(line)+1:])+.20*feat["empirical_over"][line]
+                p=(1-weight)*baseline[line]+weight*special
                 error+=(p-int(goals>line))**2
         return error/(len(rows)*len(LINES))
     if len(train)>=100 and len(valid)>=50:
