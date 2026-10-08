@@ -39,6 +39,10 @@ def evaluate(matches, *, year=2026, max_fixtures=250, calibration=None):
     skipped = Counter()
     by_cat = Counter()
     won_by_cat = Counter()
+    by_market = Counter()
+    won_by_market = Counter()
+    predicted_by_market = Counter()
+    baseline = Counter()
     scored = []
     wins = 0
     for kickoff, original in fixtures:
@@ -56,6 +60,13 @@ def evaluate(matches, *, year=2026, max_fixtures=250, calibration=None):
             skipped["market_key_unavailable"] += 1
             continue
         won = bool(realized(options[market_key], hs, aws))
+        by_market[market_key] += 1
+        won_by_market[market_key] += int(won)
+        predicted_by_market[market_key] += prediction['prediction']['confidence'] / 100.0
+        # Baselines sur les mêmes rencontres, sans sélection a posteriori.
+        for fixed_key in ('1X', 'X2', '12', 'OVER_15', 'UNDER_35', 'BTTS_YES'):
+            baseline[(fixed_key, 'correct')] += realized(options[fixed_key], hs, aws)
+            baseline[(fixed_key, 'total')] += 1
         wins += int(won)
         cat = prediction["category"]
         by_cat[cat] += 1
@@ -73,6 +84,16 @@ def evaluate(matches, *, year=2026, max_fixtures=250, calibration=None):
         "wins": wins,
         "hit_rate": round(wins / total, 4) if total else None,
         "brier_score": round(brier, 5) if brier is not None else None,
+        "selection_coverage": round(total / len(fixtures), 4) if fixtures else None,
+        "by_market": {k: {"selections": n, "wins": won_by_market[k],
+                          "hit_rate": round(won_by_market[k] / n, 4),
+                          "average_predicted": round(predicted_by_market[k] / n, 4)}
+                      for k, n in sorted(by_market.items())},
+        "fixed_market_baselines_same_fixtures": {
+            k: {"selections": baseline[(k, "total")],
+                "hit_rate": round(baseline[(k, "correct")] / baseline[(k, "total")], 4)}
+            for k in ("1X", "X2", "12", "OVER_15", "UNDER_35", "BTTS_YES")
+            if baseline[(k, "total")]},
         "categories": {cat: {"selections": num, "wins": won_by_cat[cat],
                               "hit_rate": round(won_by_cat[cat] / num, 4)}
                        for cat, num in sorted(by_cat.items())},
