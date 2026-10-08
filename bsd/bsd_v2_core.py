@@ -295,8 +295,12 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
             return None, rejection
     candidates = markets_from_matrix(score_matrix(expected["home"], expected["away"], rho))
     if total_model is not None:
-        from bsd_v2_over_under import adjust_candidates
+        from bsd_v2_over_under import adjust_candidates, uncertainty
         candidates=adjust_candidates(event,index,candidates,total_model)
+        risk=uncertainty(event,index,total_model,expected["home"]+expected["away"])
+        if risk is not None:
+            # Keep other markets eligible; never force a volatile total-goals pick.
+            candidates=[c for c in candidates if c.family!="goals"]
     if btts_model is not None:
         from bsd_v2_btts import btts_candidates
         candidates = btts_candidates(event,index,candidates,btts_model)
