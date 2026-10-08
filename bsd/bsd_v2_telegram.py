@@ -9,6 +9,7 @@ from datetime import datetime,timedelta,timezone
 from pathlib import Path
 import requests
 from bsd_h2h import _utc
+from bsd_v2_card import render as render_card
 
 KIND="bsd_v2_hourly"
 URL="https://mrxpronos.github.io/MrXPRONOS_App/pronos.html"
@@ -60,26 +61,25 @@ def release_failed_claim(session,base,key,match,chat_id):
 
 
 def send_one(session,token,chat_id,match):
-    dt=_utc(match["event_date"])
-    p=match["prediction"]
-    text=(
-        "⚽ PRONOSTIC MR XPRONOS\n\n"
-        f"🏆 {match.get('league') or 'Football'}\n"
-        f"⚽ {match['home_team']} vs {match['away_team']}\n"
-        f"🕒 Début : {dt:%d/%m/%Y %H:%M} UTC\n"
-        f"🎯 Pronostic : {p.get('type') or p.get('label')}\n"
-        f"📊 Probabilité estimée : {p.get('confidence')} %\n\n"
-        "18+ • Pariez avec modération."
-    )
-    data={"chat_id":chat_id,"text":text,"disable_web_page_preview":True,
-          "reply_markup":json.dumps({"inline_keyboard":[[{"text":"Voir les pronostics","url":URL}]]})}
-    r=session.post(f"https://api.telegram.org/bot{token}/sendMessage",
-                   data=data,timeout=40)
+    # Telegram envoie la photo générée depuis le PNG du ballon et des données BSD.
+    # Pas de capture de ticket de bookmaker et aucune cote inventée.
+    from tempfile import TemporaryDirectory
+    with TemporaryDirectory() as directory:
+        image=render_card(match,Path(directory)/"coupon.png")
+        caption=("⚽ Pronostic BSD V2 : "+str(match["home_team"])+" vs "+
+                 str(match["away_team"])+"\n"+
+                 str(match["prediction"].get("type") or "")+
+                 "\nSimulation 500 000 F · aucun pari placé · 18+")
+        markup={"inline_keyboard":[[{"text":"Voir les pronostics","url":URL}]]}
+        with open(image,"rb") as pic:
+            r=session.post(f"https://api.telegram.org/bot{token}/sendPhoto",
+                data={"chat_id":chat_id,"caption":caption,
+                      "reply_markup":json.dumps(markup)},
+                files={"photo":pic},timeout=60)
     r.raise_for_status()
-    payload=r.json()
-    if not payload.get("ok"):raise RuntimeError("Telegram response not ok")
-    return payload["result"]["message_id"]
-
+    data=r.json()
+    if not data.get("ok"):raise RuntimeError("Telegram photo not accepted")
+    return data["result"]["message_id"]
 
 def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
     if data.get("source")!="bsd" or data.get("model_version")!="bsd-v2-isolated":
