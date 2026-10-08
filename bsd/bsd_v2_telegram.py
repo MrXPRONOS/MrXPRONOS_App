@@ -12,6 +12,7 @@ from bsd_h2h import _utc
 from bsd_v2_card import render as render_card
 
 KIND="bsd_v2_hourly"
+COMBO_KIND="bsd_v2_combo_hourly"
 URL="https://mrxpronos.github.io/MrXPRONOS_App/pronos.html"
 BOOKMAKERS_URL="https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html"
 
@@ -38,6 +39,11 @@ def due(matches,now,min_minutes=60,max_minutes=120):
                 and p.get("selection_key") and p["selection_key"]!="UNDER_45"):
             selected.append(m)
     return sorted(selected,key=lambda m:(m["event_date"],str(m["id"])))
+
+
+def combos_due(matches,now):
+    from bsd_v2_combos import build_combos,due_combos
+    return due_combos(build_combos(matches),now)
 
 
 def headers(key):
@@ -94,6 +100,29 @@ def send_one(session,token,chat_id,match):
     if not data.get("ok"):raise RuntimeError("Telegram photo not accepted")
     return data["result"]["message_id"]
 
+def combo_ledger_match(combo):
+    return {"id":combo["id"],"date":combo["date"]}
+
+
+def send_combo(session,token,chat,combo):
+    from tempfile import TemporaryDirectory
+    from bsd_v2_combo_card import render_combo
+    with TemporaryDirectory() as directory:
+        photo=render_combo(combo,Path(directory)/"combine.png",session=session)
+        caption=("⚽ Combiné de deux matchs BSD V2\\n"+
+                 "Cote totale : "+format(combo["combined_odds"],".3f")+
+                 "\\nParier responsablement.")
+        with photo.open("rb") as pic:
+            response=session.post("https://api.telegram.org/bot"+token+"/sendPhoto",
+                data={"chat_id":chat,"caption":caption,
+                      "reply_markup":json.dumps(action_buttons())},
+                files={"photo":pic},timeout=60)
+    response.raise_for_status()
+    body=response.json()
+    if not body.get("ok"):raise RuntimeError("Telegram combo rejected")
+    return body["result"]["message_id"]
+
+
 def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
     if data.get("source")!="bsd" or data.get("model_version")!="bsd-v2-isolated":
         raise ValueError("Production JSON is not BSD V2")
@@ -118,6 +147,42 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
                         release_failed_claim(session,supabase_url,supabase_key,match,chat)
                     except Exception as release_error:
                         print("TELEGRAM_BSD_RELEASE_ERROR:",type(release_error).__name__)
+    combo_picks=combos_due(data["matches"],now)
+    report["combos_due"]=len(combo_picks)
+    report["combos_sent"]=0
+    report["combos_claimed"]=0
+    for combo in combo_picks:
+        ledger=combo_ledger_match(combo)
+        for chat in chat_ids:
+            # Kind is separate from one-event predictions but uses the
+            # existing unique kind+ref_id+date Supabase ledger.
+            claimed=False
+            try:
+                combo_ref={"id":combo["id"],"date":combo["date"]}
+                ref=chat+":"+combo_ref["id"]
+                response=session.post(supabase_url.rstrip("/")+"/rest/v1/telegram_sent",
+                    params={"on_conflict":"kind,ref_id,ref_date"},
+                    headers=headers(supabase_key),
+                    json={"kind":COMBO_KIND,"ref_id":ref,
+                          "ref_date":combo_ref["date"],"validation_sent":True},timeout=30)
+                response.raise_for_status()
+                claimed=isinstance(response.json(),list) and bool(response.json())
+                if not claimed:
+                    report["combos_claimed"]+=1
+                    continue
+                send_combo(session,token,chat,combo)
+                report["combos_sent"]+=1
+            except Exception as exc:
+                report["errors"]+=1
+                print("BSD_COMBO_ERROR",combo["id"],type(exc).__name__,str(exc)[:170])
+                if claimed:
+                    try:
+                        session.delete(supabase_url.rstrip("/")+"/rest/v1/telegram_sent",
+                            params={"kind":"eq."+COMBO_KIND,"ref_id":"eq."+chat+":"+combo["id"],
+                                    "ref_date":"eq."+combo["date"]},
+                            headers=headers(supabase_key),timeout=30).raise_for_status()
+                    except Exception as secondary:
+                        print("BSD_COMBO_RELEASE_ERROR",type(secondary).__name__)
     return report
 
 
@@ -136,6 +201,8 @@ def main():
     if args.dry_run:
         print("BSD_TELEGRAM_DRY_RUN:",json.dumps([{"id":m["id"],"kickoff":m["event_date"]}
           for m in due(data["matches"],now)]))
+        print("BSD_COMBO_DRY_RUN:",json.dumps([{"id":x["id"],"kickoff":x["event_date"]}
+              for x in combos_due(data["matches"],now)]))
         return
     token=os.getenv("TELEGRAM_BOT_TOKEN")
     chat=os.getenv("TELEGRAM_CHAT_ID")
