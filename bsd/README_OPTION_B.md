@@ -63,3 +63,22 @@ Pour chaque date D en heure locale Togo (UTC toute l'année) :
 - Un match classé « Coupons nuit » **n'est plus publié** dans les envois ordinaires une à deux heures avant coup d'envoi. Les mêmes identifiants Supabase empêchent les répétitions entre passages.
 - Un retard de démarrage des GitHub Actions ou un échec réseau peut décaler des messages : l'envoi à exactement 20 h 00 ne peut pas être garanti sur un système à planification GitHub.
 - Vérifications automatisées : `bsd/test_bsd_v2_night.py` (bornes de nuit, passage de minuit, regroupement, exclusion du flux ordinaire et simulation d'envoi).
+
+
+## Barème indicatif des mises Telegram
+
+**Mises des pronostics simples selon la cote BSD :**
+
+| Cote du simple | Mise affichée |
+|---|---:|
+| 1,20 à 1,99 | 500 000 F CFA |
+| 2,00 à 2,49 | 400 000 F CFA |
+| 2,50 à 2,99 | 300 000 F CFA |
+| 3,00 à 3,99 | 200 000 F CFA |
+| 4,00 à 100,00 | 100 000 F CFA |
+
+**Combinés (exactement deux matchs) : 250 000 F CFA**, indépendamment de la cote combinée, dont chaque élément reste compris entre 1,01 et moins de 1,50.
+
+Les montants affichés sur les images Telegram (y compris les images de pronostics gagnants) proviennent du module commun `bsd/bsd_v2_stakes.py`. Les gains affichés sont le **retour potentiel brut théorique** (mise × cote), pas un gain effectivement versé. Sans cote BSD admissible, aucune mise fictive n'est fabriquée.
+
+Tests unitaires : `bsd/test_bsd_v2_stakes.py`, dont les frontières 1,99/2,00, 2,49/2,50, 2,99/3,00 et 3,99/4,00. À vérifier ensuite dans la suite GitHub Actions.
