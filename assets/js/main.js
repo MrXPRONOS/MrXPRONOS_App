@@ -1450,7 +1450,19 @@ function renderMatches(matches) {
   }
 
   const grouped = {};
-  matches.forEach((m) => {
+  // Treat two independent market selections for the same fixture as two
+  // full match cards. Each card keeps its own market, probability and share CTA.
+  const standalone = matches.flatMap((match) => {
+    const selections = Array.isArray(match.predictions) && match.predictions.length
+      ? match.predictions.slice(0, 2) : [match.prediction || {}];
+    return selections.map((pick) => ({
+      ...match,
+      id: String(match.id) + ":" + String(pick.selection_key || "primary"),
+      prediction: pick,
+      predictions: undefined,
+    }));
+  });
+  standalone.forEach((m) => {
     const league = m.league || "Autres ligues";
     if (!grouped[league]) grouped[league] = [];
     grouped[league].push(m);
@@ -1470,20 +1482,7 @@ function renderMatches(matches) {
     grouped[league].forEach((m) => {
       const pred = m.prediction || {};
       const doubleChance = escapeHtml(pred.type || pred.label || pred.double_chance || "N/A");
-      const extraPredictions = Array.isArray(m.predictions)
-        ? m.predictions.slice(1, 2).filter(Boolean)
-        : [];
-      const extraPronosticHtml = extraPredictions.map((selection) => {
-        const label = escapeHtml(selection.type || selection.label || selection.double_chance || "N/A");
-        const odds = Number(selection.odds);
-        const confidence = Number(selection.confidence);
-        const validOdds = Number.isFinite(odds) && odds >= 1.20;
-        const oddsText = validOdds ? " · Cote BSD : " + escapeHtml(odds.toFixed(2)) : "";
-        const reliability = Number.isFinite(confidence)
-          ? " · Fiabilité : " + escapeHtml(confidence.toFixed(1)) + "%"
-          : "";
-        return `<p class="secondary-prediction"><strong>Pronostic 2 :</strong> ${label}${oddsText}${reliability}</p>`;
-      }).join("");
+
 
       let confidence = toFloatSafe(pred.confidence, 0) || 0;
       if (confidence <= 1) confidence = confidence * 100;
@@ -1566,8 +1565,6 @@ function renderMatches(matches) {
             <p><strong>Pronostic :</strong> ${doubleChance} ${
               eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ""
             }</p>
-
-            ${extraPronosticHtml}
 
             <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
             <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
