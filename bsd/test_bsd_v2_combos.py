@@ -41,10 +41,10 @@ class CombosTests(unittest.TestCase):
         self.assertEqual(c["id"],build_combos([a,b])[0]["id"])
 
     def test_due_only_within_hour_before_first_kickoff(self):
-        coupons=build_combos([match(1,40),match(2,55)])
+        coupons=build_combos([match(1,55),match(2,75)])
         self.assertEqual(len(due_combos(coupons,NOW)),1)
-        self.assertEqual(len(due_combos(coupons,NOW-timedelta(minutes=30))),0)
-        self.assertEqual(len(due_combos(coupons,NOW+timedelta(minutes=41))),0)
+        self.assertEqual(len(due_combos(coupons,NOW-timedelta(minutes=15))),0)
+        self.assertEqual(len(due_combos(coupons,NOW+timedelta(minutes=11))),0)
 
     def test_invalid_under45_low_price_and_missing_prices_refused(self):
         a=match(1,40)
