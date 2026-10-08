@@ -11,17 +11,23 @@ from bsd_markets import candidates_from_goals,realized
 from bsd_v2_card import render as render_card
 from bsd_v2_telegram import KIND,URL,headers,action_buttons
 
-def sent_records(session,base,key,limit=750):
+def sent_records(session,base,key,limit=500,max_pages=12):
+    """Page through pending individual selections, including second picks."""
     since=(datetime.now(timezone.utc)-timedelta(days=10)).date().isoformat()
-    r=session.get(base.rstrip("/")+"/rest/v1/telegram_sent",
-        headers=headers(key),params={"select":"id,ref_id,ref_date,validation_sent",
-            "kind":"eq."+KIND,"validation_sent":"eq.false",
-            "ref_date":"gte."+since,"order":"ref_date.asc","limit":limit},timeout=30)
-    r.raise_for_status()
-    rows=r.json()
-    if not isinstance(rows,list) or len(rows)>=limit:
-        raise RuntimeError("Unusable / partial Telegram ledger")
-    return rows
+    all_rows=[]
+    for page in range(max_pages):
+        r=session.get(base.rstrip("/")+"/rest/v1/telegram_sent",
+            headers=headers(key),params={"select":"id,ref_id,ref_date,validation_sent",
+                "kind":"eq."+KIND,"validation_sent":"eq.false",
+                "ref_date":"gte."+since,"order":"ref_date.asc,id.asc",
+                "limit":limit,"offset":page*limit},timeout=30)
+        r.raise_for_status()
+        rows=r.json()
+        if not isinstance(rows,list):raise RuntimeError("Malformed Telegram ledger page")
+        all_rows.extend(rows)
+        if len(rows)<limit:return all_rows
+    raise RuntimeError("Telegram ledger exceeds safe pagination limit")
+
 
 def official_results(client,days):
     records={}
