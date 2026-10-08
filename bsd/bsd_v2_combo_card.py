@@ -4,6 +4,7 @@ from datetime import datetime,timezone
 from pathlib import Path
 from PIL import Image,ImageDraw
 from bsd_h2h import _utc
+from bsd_v2_labels import market_label
 from bsd_v2_card import font,write,paste_asset,team_logo,BALL,BRAND_ONE,BRAND_TWO
 
 INK="#eeeeee";MUTED="#9da2a8";BLUE="#56a7ed";BACK="#191919"
@@ -51,7 +52,8 @@ def render_combo(combo,path,*,now=None,session=None):
         for j,line in enumerate(wrap_name(d,leg.get("away_team"),247,size=29)):
             write(d,line,787,top+131+37*j,size=29,bold=True,color=INK,maximum=246)
         d.line((25,top+240,1055,top+240),fill="#414141",width=2)
-        market=str((leg.get("prediction") or {}).get("type") or "Pronostic")
+        pick=leg.get("prediction") or {}
+        market=market_label(pick.get("selection_key"),pick.get("type") or "Pronostic")
         write(d,market,40,top+256,size=27,color=INK,maximum=765)
         write(d,f'{leg["prediction"]["odds"]:.2f}',1036,top+256,size=30,color=INK,align="right")
         write(d,"Statut:",40,top+304,size=25,color=MUTED)
