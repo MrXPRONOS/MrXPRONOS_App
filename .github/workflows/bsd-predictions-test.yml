@@ -36,6 +36,8 @@ jobs:
         env:
           BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
         run: python bsd/bsd_archive.py restore
+      - name: Fit probability calibration on 2025 only
+        run: python bsd/bsd_calibrate.py --year 2025 --max-fixtures 3000
       - name: Historical backtest (exploratory, no API)
         run: python bsd/bsd_backtest.py --year 2026 --max-fixtures 500
       - name: Generate test BSD predictions only
