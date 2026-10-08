@@ -58,6 +58,9 @@ class V2Tests(unittest.TestCase):
         report = run_evaluation(V2History(self.history), None, 0.0, year=2026, max_matches=10)
         self.assertIn('fixed_baselines_same_fixtures', report)
         self.assertIn('paired_vs_fixed_baselines_on_same_selected_fixtures', report)
+        self.assertIn('by_month', report)
+        self.assertIn('by_league', report)
+        self.assertIn('by_confidence_band', report)
 
     def test_missing_form_refuses(self):
         pred,reason=predict_v2(self.future,V2History([]))
