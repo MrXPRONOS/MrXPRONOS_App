@@ -18,6 +18,26 @@ class TotalsTests(unittest.TestCase):
                "home_score":1+(i%2),"away_score":i%3})
         self.index=V2History(self.games)
 
+    def test_empirical_over_lines_are_monotonic_and_bounded(self):
+        info=features(self.future,self.index)
+        rates=info["empirical_over"]
+        values=[rates[x] for x in (1.5,2.5,3.5,4.5)]
+        self.assertEqual(values,sorted(values,reverse=True))
+        self.assertTrue(all(0<=p<=1 for p in values))
+
+    def test_conservative_odds_rule_blocks_marginal_total(self):
+        from bsd_v2_core import choose_market
+        from dataclasses import replace
+        orig=next(c for c in markets_from_matrix(score_matrix(1.5,1.1)) if c.key=="OVER_25")
+        marginal=replace(orig,probability=.72)
+        candidate,_=choose_market([marginal],odds_by_market={marginal.market_code:1.45},
+                                  require_odds=True,league_samples=5,form_samples=5)
+        self.assertIsNone(candidate)
+        sufficient=replace(orig,probability=.86)
+        candidate,_=choose_market([sufficient],odds_by_market={sufficient.market_code:1.45},
+                                  require_odds=True,league_samples=5,form_samples=5)
+        self.assertIsNotNone(candidate)
+
     def test_normalized_and_monotonic_total_distributions(self):
         for avg,var in ((1.2,1.2),(2.4,5.0),(3.1,10.0)):
             d=total_distribution(avg,var)
