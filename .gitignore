@@ -31,3 +31,4 @@ bsd/*.tmp
 
 # BSD predictions are experimental, never deploy directly
 bsd/data_bsd.json
+bsd/calibration_bsd.json
