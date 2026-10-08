@@ -30,3 +30,31 @@ Les modifications sont sur GitHub main. La présence du code ne prouve pas une a
 ## À exécuter avant validation définitive
 
 `BSD V2 - Validation experimentale` / `bsd-v2-validation.yml`, entrée `max_test=1000`. Examiner `v2_double_chance_backtest.json`, notamment `baseline_calibrated`, `specialized_calibrated`, les ligues et les tranches. Une implémentation complète du code n'est pas synonyme de meilleur taux de réussite ni d'exécution CI confirmée.
+
+
+## Complément de finalisation technique — 8 octobre 2026
+
+La phase de finalisation a corrigé les points demeurés partiels dans l'implémentation d'origine.
+
+1. Le modèle comporte maintenant les éléments de force offensive/défensive et la qualité du résultat face à l'Elo connu à la **date du match historique**, sans examiner les résultats futurs.
+2. La calibration jointe des trois classes 1/X/2 utilise désormais des tranches de probabilité de nul avec un lissage global pour les petits effectifs, avant de dériver 1X, X2 et 12.
+3. Le classement `choose_market` ne recalibre plus séparément la double chance : il conserve la probabilité cohérente du modèle multiclasses déjà corrigée.
+4. Des tests de la cohérence des probabilités, du classement, des tranches de calibration et des signaux d'adversaire ont été ajoutés dans `test_bsd_v2_double_chance.py`.
+5. Le workflow `bsd-v2-validation.yml` vérifie que les trois marchés ont le même effectif dans le rapport de référence calibré et le rapport spécialisé calibré.
+
+| # | Axe | Implémentation dans le code | Preuve d'exécution |
+|---|---|---|---|
+| 1 | Classification 1/X/2 | Présente | CI en attente |
+| 2 | Nuls | Présente : fréquence, modèle 1X2, calibration conditionnelle au nul | Validation statistique en attente |
+| 3 | Domicile/extérieur | Présente : historique séparé et lissage | CI en attente |
+| 4 | Force adverse | Renforcée : Elo historique à l'instant du match passé | Backtest en attente |
+| 5 | Forme pondérée | Présente : 5/15 rencontres et décroissance temporelle | CI en attente |
+| 6 | Attaque/défense | Présente : buts marqués et encaissés pondérés | CI en attente |
+| 7 | Ligue | Présente : prior de taux de nul lissé | Validation par ligue en attente |
+| 8 | Probabilités cohérentes | Renforcée : calibration multiclasses, aucun second calibrage indépendant au classement | CI en attente |
+| 9 | Cote BSD >=1,20 | Présente : prix réel et marge de sécurité sur probabilité prudente | API réelle en attente |
+| 10 | Rejet d'incertitude | Présent : historique insuffisant ou désaccord excessif | Seuils à auditer |
+| 11 | Comparaison modèles | Présente : poids 2024 et fallback Poisson | Résultat hors échantillon en attente |
+| 12 | Backtest 1X/X2/12 | Présent : référence calibrée, modèle calibré, mêmes matchs 2026 | Run GitHub Actions en attente |
+
+Le statut **présent dans le code** ne signifie pas *performance supérieure prouvée*. Aucun résultat CI n'a été obtenu lors de cette intervention. En cas de qualité insuffisante, le poids du spécialiste reste zéro.
