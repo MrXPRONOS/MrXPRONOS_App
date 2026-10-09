@@ -1,0 +1,25 @@
+name: Live Value Engine V2 - Deno Check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/functions/live/**'
+      - 'supabase/migrations/20261009000100_live_value_engine_v2.sql'
+      - '.github/workflows/live-value-engine-v2-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deno-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check live Edge Function
+        run: deno check supabase/functions/live/index.ts
