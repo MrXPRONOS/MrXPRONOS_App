@@ -22,8 +22,8 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           set -euo pipefail
-          for i in $(seq 1 30); do
-            echo "=== Historical backfill batch $i/30 ==="
+          for i in $(seq 1 10); do
+            echo "=== Historical backfill batch $i/10 ==="
             body=$(curl --fail-with-body --silent --show-error --max-time 45 \
               -X POST "$SUPABASE_URL/functions/v1/live/validate" \
               -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
@@ -36,3 +36,5 @@ jobs:
 # retry_after_backlog_fix
 
 # retry_after_espn_fallback
+
+# finalize_pending_history
