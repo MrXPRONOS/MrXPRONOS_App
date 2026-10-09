@@ -1,10 +1,12 @@
 """Rich Messages: inline buttons, media and safe explicit-error fallback."""
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
 from PIL import Image
+sys.path.insert(0,str(Path(__file__).resolve().parent.parent/'scripts'))
 from telegram_rich import rich_buttons,rich_markup,post_photo,post_text
 
 class Reply:
