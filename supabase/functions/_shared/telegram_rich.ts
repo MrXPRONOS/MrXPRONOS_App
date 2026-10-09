@@ -30,7 +30,9 @@ export async function richPhotoOrLegacy(botToken:string,chatId:string,
   const rich=new FormData();
   rich.append("chat_id",chatId);
   rich.append("rich_message",JSON.stringify(richPhotoPayload(caption,rows)));
-  rich.append("coupon_photo",new Blob([bytes],{type:"image/png"}),filename);
+  const copy=new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  rich.append("coupon_photo",new Blob([copy.buffer],{type:"image/png"}),filename);
   const result=await fetch("https://api.telegram.org/bot"+botToken+"/sendRichMessage",
       {method:"POST",body:rich});
   if(result.status===400||result.status===404){
