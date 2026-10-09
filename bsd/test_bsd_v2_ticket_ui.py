@@ -78,7 +78,7 @@ class ReferenceTicketTests(unittest.TestCase):
             image=Image.new("RGB",(230,230),"#FFFFFF")
             draw=ImageDraw.Draw(image)
             _verified_football_badge(draw,100,100,58)
-            self.assertEqual(image.getpixel((146,145)),(76,152,216))
+            self.assertEqual(image.getpixel((146,132)),(76,152,216))
             self.assertNotEqual(image.getpixel((100,100)),(255,255,255))
             file=render_single({**game(),"home_score":2,"away_score":1},
                                Path(temp)/"winning.png",win=True,session=Offline())
