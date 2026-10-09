@@ -1,0 +1,124 @@
+name: Live History Backtest
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-history-backtest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Fetch production history
+        run: |
+          curl --fail-with-body --silent --show-error --retry 3 --max-time 60 \
+            "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live/predictions/history" \
+            -o /tmp/history.json
+
+      - name: Analyze headroom
+        run: |
+          python - <<'PY'
+          import json, statistics
+          from collections import defaultdict, Counter
+
+          data=json.load(open('/tmp/history.json'))
+          rows=data.get('history') or []
+
+          def num(v):
+              try:
+                  if v is None: return None
+                  return float(v)
+              except: return None
+
+          usable=[]
+          missing=[]
+          for r in rows:
+              fv=num(r.get('final_value'))
+              th=num(r.get('threshold'))
+              if fv is None or th is None:
+                  missing.append(r)
+              else:
+                  rr=dict(r)
+                  rr['_final']=fv
+                  rr['_th']=th
+                  rr['_headroom']=fv-th
+                  usable.append(rr)
+
+          print('TOTAL_HISTORY=', len(rows))
+          print('USABLE_FINAL=', len(usable))
+          print('MISSING_FINAL=', len(missing))
+          print('MISSING_BY_OUTCOME=', dict(Counter(str(r.get('outcome')) for r in missing)))
+          print('MISSING_BY_VALIDATION=', dict(Counter(str(r.get('validation_type')) for r in missing)))
+
+          def summarize(sub):
+              n=len(sub)
+              if not n:
+                  return {'n':0}
+              out={'n':n}
+              hrs=[r['_headroom'] for r in sub]
+              out['avg_headroom']=round(sum(hrs)/n,3)
+              out['median_headroom']=round(statistics.median(hrs),3)
+              for shift in [0,1,2,3]:
+                  wins=sum(1 for r in sub if r['_final'] > r['_th']+shift)
+                  out[f'plus_{shift}_wins']=wins
+                  out[f'plus_{shift}_hit']=round(100*wins/n,2)
+              return out
+
+          print('OVERALL=', json.dumps(summarize(usable), ensure_ascii=False, sort_keys=True))
+
+          by_market=defaultdict(list)
+          for r in usable:
+              by_market[str(r.get('type'))].append(r)
+          for market,sub in sorted(by_market.items()):
+              print('MARKET', market, '=', json.dumps(summarize(sub), ensure_ascii=False, sort_keys=True))
+
+          def minute_bucket(m):
+              m=num(m)
+              if m is None: return 'unknown'
+              if m < 30: return '00-29'
+              if m < 45: return '30-44'
+              if m < 60: return '45-59'
+              if m < 75: return '60-74'
+              return '75+'
+
+          by_min=defaultdict(list)
+          for r in usable:
+              by_min[minute_bucket(r.get('signal_minute') if r.get('signal_minute') is not None else r.get('minute'))].append(r)
+          for b,sub in sorted(by_min.items()):
+              print('MINUTE', b, '=', json.dumps(summarize(sub), ensure_ascii=False, sort_keys=True))
+
+          # Headroom distribution in whole-event increments above the published threshold.
+          dist=Counter()
+          for r in usable:
+              h=r['_headroom']
+              if h <= 0:
+                  dist['<=0'] += 1
+              elif h <= 1:
+                  dist['(0,1]'] += 1
+              elif h <= 2:
+                  dist['(1,2]'] += 1
+              elif h <= 3:
+                  dist['(2,3]'] += 1
+              elif h <= 4:
+                  dist['(3,4]'] += 1
+              else:
+                  dist['>4'] += 1
+          print('HEADROOM_DIST=', json.dumps(dict(dist), sort_keys=True))
+
+          # Most common published thresholds by market.
+          for market,sub in sorted(by_market.items()):
+              c=Counter(str(r.get('threshold')) for r in sub)
+              print('THRESHOLDS', market, '=', json.dumps(c.most_common(12)))
+
+          # Old-vs-V2 split.
+          old=[r for r in usable if not r.get('model_version')]
+          v2=[r for r in usable if r.get('model_version')]
+          print('LEGACY=', json.dumps(summarize(old), sort_keys=True))
+          print('V2=', json.dumps(summarize(v2), sort_keys=True))
+          PY
