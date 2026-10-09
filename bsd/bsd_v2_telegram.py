@@ -25,6 +25,36 @@ def action_buttons():
         [{"text":"S’inscrire ou réinitialiser son compte 🎯","url":BOOKMAKERS_URL}],
     ]}
 
+def prediction_action_buttons():
+    """Two colored partner links ONLY for pre-match single/night/combo coupons.
+
+    Use the canonical URLs from config/partners.json to stay in sync with all
+    other bookmaker promotions. The old action_buttons() remains unchanged
+    for published winning-results messages.
+    """
+    from urllib.parse import urlsplit
+    config_path=Path(__file__).resolve().parent.parent/"config/partners.json"
+    try:
+        partners=json.loads(config_path.read_text(encoding="utf-8"))["partners"]
+        def checked_url(key):
+            entry=partners[key]
+            url=str(entry["url"]).strip()
+            parsed=urlsplit(url)
+            if entry.get("enabled") is False or parsed.scheme!="https" or not parsed.netloc:
+                raise ValueError(f"Invalid or disabled affiliate partner: {key}")
+            return url
+        one_xbet=checked_url("1xbet")
+        melbet=checked_url("melbet")
+    except (KeyError,ValueError,OSError,TypeError) as exc:
+        raise RuntimeError("Cannot build bookmaker CTA for prediction posts") from exc
+    return {"inline_keyboard":[
+        [
+            {"text":"PARIEZ SUR 1XBET","url":one_xbet,"style":"primary"},
+            {"text":"PARIEZ SUR MELBET","url":melbet,"style":"success"},
+        ],
+        [{"text":"Voir plus de coupons 🔥","url":URL}],
+    ]}
+
 def due(matches,now,min_minutes=60,max_minutes=120):
     selected=[]
     for m in matches:
@@ -107,7 +137,7 @@ def send_one(session,token,chat_id,match,*,night=False):
     with TemporaryDirectory() as directory:
         image=render_card(match,Path(directory)/"coupon.png")
         caption=single_caption(match,night=night)
-        markup=action_buttons()
+        markup=prediction_action_buttons()
         with open(image,"rb") as pic:
             r=session.post(f"https://api.telegram.org/bot{token}/sendPhoto",
                 data={"chat_id":chat_id,"caption":caption,
@@ -131,7 +161,7 @@ def send_combo(session,token,chat,combo,*,night=False):
         with photo.open("rb") as pic:
             response=session.post("https://api.telegram.org/bot"+token+"/sendPhoto",
                 data={"chat_id":chat,"caption":caption,
-                      "reply_markup":json.dumps(action_buttons()),
+                      "reply_markup":json.dumps(prediction_action_buttons()),
                       "parse_mode":PARSE_MODE},
                 files={"photo":pic},timeout=60)
     response.raise_for_status()
