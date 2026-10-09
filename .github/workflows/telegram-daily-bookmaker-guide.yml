@@ -52,6 +52,12 @@ jobs:
       - name: Install requests
         run: pip install requests
 
+      - name: Validate two promotional channels
+        run: python -c "import os,sys;sys.path.insert(0,'scripts');from telegram_promo_channels import promo_channels;print('Configured channels:',len(promo_channels(os.getenv('TELEGRAM_CHAT_ID'),os.getenv('TELEGRAM_CHAT_ID_SECONDARY'))))"
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+
       - name: Send daily bookmaker guide
         run: python scripts/send_daily_bookmaker_guide.py
         env:
