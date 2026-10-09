@@ -3,10 +3,27 @@ import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent.parent/"scripts"))
-from telegram_premium_templates import bonus,guide,partners,daily_promo,coupon,live,premium_sections
+from telegram_premium_templates import bonus,guide,partners,daily_promo,coupon,live,premium_sections,plain_text_sections
 from telegram_rich import rich_markup,rich_buttons,legacy_caption
 
 class PremiumTelegramTests(unittest.TestCase):
+    def test_plain_text_formatting(self):
+        rendered=plain_text_sections("**Gras** *italique* __souligné__ ~~barré~~")
+        for expected in ("<b>Gras</b>", "<i>italique</i>", "<u>souligné</u>", "<s>barré</s>"):
+            self.assertIn(expected,rendered)
+
+    def test_quote_and_html_escaping(self):
+        rendered=plain_text_sections("Bonjour <script>\n\n> **Citation** & exemple")
+        self.assertIn("&lt;script&gt;",rendered)
+        self.assertIn("<blockquote><b>Citation</b> &amp; exemple</blockquote>",rendered)
+        self.assertNotIn("<script>",rendered)
+
+    def test_promo_dynamic_fields_are_escaped(self):
+        rendered=daily_promo("<script>","<img>","offre")
+        self.assertIn("&lt;script&gt;",rendered)
+        self.assertIn("&lt;img&gt;",rendered)
+        self.assertNotIn("<script>",rendered)
+
     def test_bonus_has_distinct_paragraphs_heading_quote_emphasis(self):
         message=bonus("1Win","Bonus de bienvenue","100 % jusqu'à 500 $",
                       "Offre soumise à disponibilité.")
