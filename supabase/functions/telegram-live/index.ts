@@ -12,6 +12,7 @@ const SUPABASE_SERVICE_ROLE_KEY =
 const CRON_SECRET = Deno.env.get("CRON_SECRET") || "";
 
 import { richPhotoOrLegacy } from "../_shared/telegram_rich.ts";
+import { attachLiveSponsorBanner } from "../_shared/live_sponsor_banner.ts";
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
 const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") || "";
 const TELEGRAM_CHAT_ID_SECONDARY =
@@ -1142,10 +1143,10 @@ async function processOne(
 
   try {
     const match = await getMatch(row);
-    const png = await renderCoupon(
+    const png = await attachLiveSponsorBanner(await renderCoupon(
       match,
       row,
-    );
+    ));
 
     console.log("PNG LIVE genere sans Satori/Resvg", {
       prediction_id: row.id,
