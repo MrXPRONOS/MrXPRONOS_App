@@ -15,6 +15,7 @@ from PIL import Image, ImageDraw, ImageFont
 from bsd_h2h import _utc
 from bsd_v2_stakes import single_stake,gain_potentiel,money
 from bsd_v2_labels import market_label
+from bsd_v2_assets import bsd_logo_url
 
 ROOT=Path(__file__).resolve().parent.parent
 ASSETS=ROOT/"assets/images"
@@ -82,7 +83,7 @@ def _public_https(url):
     except ValueError:pass
     # Explicit host allowlist prevents malicious BSD payloads from reaching
     # GitHub runner metadata/internal addresses.
-    return host in ("media.api-sports.io","cdn.sofascore.com",
+    return host in ("sports.bzzoiro.com","media.api-sports.io","cdn.sofascore.com",
                     "img.sofascore.com","cdn.bzzoiro.com",
                     "sports.bzzoiro.com","media.bzzoiro.com",
                     "www.thesportsdb.com","r2.thesportsdb.com")
@@ -119,10 +120,13 @@ def _lookup_team_badge(name,session):
 
 def _team_image(match,side,*,session=None):
     session=session or requests.Session()
-    sources=[match.get(key) for key in (side+"_logo",side+"_team_logo",side+"_logo_url")]
-    if not any(_public_https(src) for src in sources):
-        sources.append(_lookup_team_badge(match.get(side+"_team") or "",session))
+    sources=[bsd_logo_url("team",match.get(side+"_team_id"))]
+    sources.extend(match.get(key) for key in (side+"_logo",side+"_team_logo",side+"_logo_url"))
+    # A named external fallback is only attempted when official BSD artwork fails.
+    sources.append(None)
     for source in sources:
+        if source is None:
+            source=_lookup_team_badge(match.get(side+"_team") or "",session)
         if _public_https(source):
             try:
                 response=session.get(source,timeout=8,
