@@ -317,21 +317,36 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                 btts_model=btts_model,total_model=total_model,dc_model=dc_model,
                 market_audit=market_audit)
             if shadow is not None:
-                raw=shadow["prediction"]
-                estimate=estimated_quote({
-                    "key":raw["key"],"market_code":raw["internal_market_code"],
-                    "probability":raw["probability"],
-                    "conservative_probability":raw["conservative_probability"],
-                },quotes,now=now)
-                if estimate:
-                    raw["bookmaker_odds"]=estimate["odds"]
-                    raw["odds_source"]=ESTIMATED_SOURCE
-                    raw["odds_updated_at"]=estimate["updated_at"]
-                    raw["odds_method"]=estimate["overround_reference"]
-                    raw["overround_assumption"]=estimate["overround_assumption"]
+                primary=shadow["prediction"]
+                # Examine all calibrated, quality-approved market families if
+                # the top-ranked market has a real quote or invalid indicative price.
+                for option in shadow.get("ranked_candidates", []):
+                    if option.get("passes_quality_policy") is not True:
+                        continue
+                    estimate=estimated_quote(option,quotes,now=now)
+                    if not estimate:
+                        continue
+                    chosen=dict(primary)
+                    chosen.update({
+                        "key":option["key"],"name":option["name"],
+                        "market":option["market"],"outcome":option["outcome"],
+                        "line":option["line"],"internal_market_code":option["market_code"],
+                        "probability":option["probability"],
+                        "conservative_probability":option["conservative_probability"],
+                        "fair_odds":option["fair_odds"],
+                        "calibration_samples":option["calibration_samples"],
+                        "bookmaker_odds":estimate["odds"],
+                        "odds_source":ESTIMATED_SOURCE,
+                        "odds_updated_at":estimate["updated_at"],
+                        "odds_method":estimate["overround_reference"],
+                        "overround_assumption":estimate["overround_assumption"],
+                        "estimated_value":None,
+                    })
+                    shadow["prediction"]=chosen
                     prediction=shadow
                     combo_only=False
                     stats["model_estimated"]+=1
+                    break
             if prediction is None:
                 entry["reason"]=reason if valid_quotes else "no_qualified_bsd_odds_or_model"
                 stats[entry["reason"]]+=1
