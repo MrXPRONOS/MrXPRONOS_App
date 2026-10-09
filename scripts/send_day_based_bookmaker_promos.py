@@ -97,7 +97,7 @@ def keyboard_for(promo: Promo):
     name = str(info.get("name") or promo.bookmaker)
     return {
         "inline_keyboard": [[
-            colorized_button(f"🔥 S’inscrire sur {name}",info["url"],ASSETS_DIR / promo.image)
+            colorized_button(f"🔥 VOIR L’OFFRE SUR {name.upper()}",info["url"],ASSETS_DIR / promo.image)
         ]]
     }
 
