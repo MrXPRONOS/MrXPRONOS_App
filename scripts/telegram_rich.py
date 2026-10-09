@@ -42,9 +42,9 @@ def rich_markup(caption,keyboard,*,picture=True):
 
 def legacy_caption(html):
     """Downgrade rich-only tags without losing Telegram-supported emphasis."""
-    plain=re.sub(r"</?(?:h[1-6]|p)>","\\n",str(html or ""),flags=re.I)
-    plain=re.sub(r"<br\\s*/?>","\\n",plain,flags=re.I)
-    return re.sub(r"\\n{3,}","\\n\\n",plain).strip()
+    plain=re.sub(r"</?(?:h[1-6]|p)>","\n",str(html or ""),flags=re.I)
+    plain=re.sub(r"<br\s*/?>","\n",plain,flags=re.I)
+    return re.sub(r"\n{3,}","\n\n",plain).strip()
 
 
 def post_photo(session,token,chat,image,caption,keyboard,*,timeout=120,mime="image/png"):
