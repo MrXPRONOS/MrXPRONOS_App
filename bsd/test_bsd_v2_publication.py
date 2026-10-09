@@ -16,7 +16,7 @@ class PublicationTests(unittest.TestCase):
             "date":at.date().isoformat(),"event_date":at.isoformat(),
             "home_team":"A","away_team":"B","status":"notstarted",
             "prediction":{"type":"Plus de 1.5 buts","selection_key":"OVER_15",
-                          "confidence":85,"odds":1.25,"odds_source":"bsd_consensus"},
+                          "confidence":85,"odds":1.55,"odds_source":"bsd_consensus"},
         }
 
     def test_hourly_window_and_no_started_games(self):
