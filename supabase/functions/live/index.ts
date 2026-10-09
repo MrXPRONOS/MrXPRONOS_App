@@ -4896,6 +4896,103 @@ async function getLiveOpportunitiesFromDb() {
   return withPred.slice(0, 12);
 }
 
+function oddsBucket(value: number | null) {
+  if (value == null || !Number.isFinite(value)) return null;
+  if (value >= 1.50 && value <= 1.75) return "1.50-1.75";
+  if (value > 1.75 && value <= 2.00) return "1.76-2.00";
+  if (value > 2.00 && value <= 2.50) return "2.01-2.50";
+  if (value > 2.50 && value <= 3.00) return "2.51-3.00";
+  if (value > 3.00 && value <= 3.20) return "3.01-3.20";
+  return null;
+}
+
+function summarizeBacktestRows(rows: any[]) {
+  const shifts = [0, 1, 2, 3];
+  const shiftStats: Record<string, any> = {};
+  for (const shift of shifts) {
+    const eligible = rows.filter((r: any) => Number.isFinite(Number(r.final_value ?? r.current_value)) && Number.isFinite(Number(r.threshold)));
+    const wins = eligible.filter((r: any) => Number(r.final_value ?? r.current_value) > Number(r.threshold) + shift).length;
+    shiftStats["plus_" + shift] = { signals: eligible.length, wins, losses: eligible.length - wins, hit_rate: eligible.length ? Number((wins / eligible.length * 100).toFixed(2)) : 0 };
+  }
+
+  const byMarket: Record<string, any> = {};
+  for (const market of ["total_corners","total_shots","total_fouls"]) {
+    const subset = rows.filter((r: any) => r.prediction_type === market);
+    const usable = subset.filter((r: any) => Number.isFinite(Number(r.final_value ?? r.current_value)) && Number.isFinite(Number(r.threshold)));
+    const headrooms = usable.map((r: any) => Number(r.final_value ?? r.current_value) - Number(r.threshold));
+    const wins = headrooms.filter((h: number) => h > 0).length;
+    byMarket[market] = {
+      signals: usable.length, wins, losses: usable.length - wins,
+      hit_rate: usable.length ? Number((wins / usable.length * 100).toFixed(2)) : 0,
+      average_headroom: headrooms.length ? Number((headrooms.reduce((a: number,b: number)=>a+b,0) / headrooms.length).toFixed(2)) : null,
+      median_headroom: headrooms.length ? Number([...headrooms].sort((a:number,b:number)=>a-b)[Math.floor((headrooms.length-1)/2)].toFixed(2)) : null,
+    };
+  }
+
+  const bucketSummary = (field: "bookmaker_odds" | "model_fair_odds") => {
+    const out: Record<string, any> = {};
+    for (const name of ["1.50-1.75","1.76-2.00","2.01-2.50","2.51-3.00","3.01-3.20"]) {
+      const subset = rows.filter((r: any) => oddsBucket(Number(r?.[field])) === name);
+      const usable = subset.filter((r: any) => Number.isFinite(Number(r.final_value ?? r.current_value)) && Number.isFinite(Number(r.threshold)));
+      const wins = usable.filter((r: any) => Number(r.final_value ?? r.current_value) > Number(r.threshold)).length;
+      const returns = field === "bookmaker_odds"
+        ? usable.reduce((sum: number,r: any) => sum + (Number(r.final_value ?? r.current_value) > Number(r.threshold) ? Number(r.bookmaker_odds) : 0), 0)
+        : null;
+      out[name] = {
+        signals: usable.length, wins, losses: usable.length - wins,
+        hit_rate: usable.length ? Number((wins / usable.length * 100).toFixed(2)) : 0,
+        roi: returns != null && usable.length ? Number(((returns / usable.length - 1) * 100).toFixed(2)) : null,
+      };
+    }
+    return out;
+  };
+
+  const v2Rows = rows.filter((r: any) => r.model_version === LIVE_VALUE_MODEL_VERSION && Array.isArray(r.line_candidates));
+  let medianWins = 0;
+  let medianUsable = 0;
+  for (const r of v2Rows) {
+    const candidates = r.line_candidates || [];
+    const selected = selectMedianCandidate(candidates);
+    const finalValue = Number(r.final_value ?? r.current_value);
+    if (!selected || !Number.isFinite(finalValue)) continue;
+    const threshold = Number((selected.item as any)?.threshold);
+    if (!Number.isFinite(threshold)) continue;
+    medianUsable++;
+    if (finalValue > threshold) medianWins++;
+  }
+
+  return {
+    signals: rows.length,
+    threshold_stress_test: shiftStats,
+    by_market: byMarket,
+    bookmaker_odds_buckets: bucketSummary("bookmaker_odds"),
+    model_odds_buckets: bucketSummary("model_fair_odds"),
+    median_rule_v2: {
+      signals: medianUsable, wins: medianWins, losses: medianUsable - medianWins,
+      hit_rate: medianUsable ? Number((medianWins / medianUsable * 100).toFixed(2)) : 0,
+    },
+    notes: {
+      bookmaker_roi: "ROI calculé uniquement quand bookmaker_odds contient une vraie cote externe.",
+      model_odds: "Les buckets model_fair_odds mesurent la calibration du modèle, pas un ROI bookmaker réel.",
+      legacy_median: "La règle médiane exacte ne peut être rejouée sur les anciens signaux qui ne stockaient pas leurs lignes candidates.",
+    },
+  };
+}
+
+async function getLiveHeadroomBacktest(days = 90) {
+  const boundedDays = Math.max(1, Math.min(365, Math.floor(days)));
+  const since = new Date(Date.now() - boundedDays * 86400 * 1000).toISOString();
+  const { data, error } = await supabase
+    .from("live_predictions")
+    .select("prediction_type, threshold, current_value, final_value, headroom, probability, reliability_score, live_odds, model_fair_odds, bookmaker_odds, odds_source, pricing_mode, signal_tier, line_candidate_count, line_candidate_rank, line_candidates, model_version, outcome, validated, telegram_sent, created_at")
+    .eq("validated", true)
+    .eq("telegram_sent", true)
+    .gte("created_at", since)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return { period_days: boundedDays, since, ...summarizeBacktestRows(data || []) };
+}
+
 // =======================================================
 // ROUTES CORE
 // =======================================================
@@ -5681,9 +5778,28 @@ function enrichPredictionForUi(p: any, raw: any) {
     pronostic: p.threshold,
     threshold: p.threshold,
 
-    signal_value: p.projected_value,
-    projected: p.projected_value,
+    signal_value: p.signal_value ?? p.current_value ?? null,
+    projected: p.projected_value ?? null,
+    projected_value: p.projected_value ?? null,
     current: p.current_value,
+    reliability: safeNumber(p.reliability_score, (Number(p.probability) || 0) * 100),
+    model_fair_odds: p.model_fair_odds ?? null,
+    bookmaker_odds: p.bookmaker_odds ?? null,
+    implied_probability: p.implied_probability ?? null,
+    edge: p.edge ?? null,
+    expected_value: p.expected_value ?? null,
+    value_score: p.value_score ?? null,
+    data_quality_score: p.data_quality_score ?? null,
+    freshness_seconds: p.freshness_seconds ?? null,
+    source_count: p.source_count ?? null,
+    source_confidence: p.source_confidence ?? null,
+    signal_tier: p.signal_tier ?? null,
+    pricing_mode: p.pricing_mode ?? null,
+    line_candidate_count: p.line_candidate_count ?? null,
+    line_candidate_rank: p.line_candidate_rank ?? null,
+    model_version: p.model_version ?? null,
+    final_value: p.final_value ?? null,
+    headroom: p.headroom ?? null,
 
     validated: !!p.validated,
     outcome: p.outcome ?? null,
@@ -7018,6 +7134,13 @@ serve(async (req) => {
       return json({ opportunities });
     }
 
+    if (path === "/backtest/headroom" && req.method === "GET") {
+      requireDebugAuth(url);
+      const days = safeNumber(url.searchParams.get("days"), 90);
+      const backtest = await getLiveHeadroomBacktest(days);
+      return json({ backtest });
+    }
+
     // ===================================================
     // UI: today (BSD direct)
     // ===================================================
@@ -7093,7 +7216,7 @@ serve(async (req) => {
 
       const { data, error } = await supabase
         .from("live_predictions")
-        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source")
+        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source, signal_value, reliability_score, model_fair_odds, bookmaker_odds, implied_probability, edge, expected_value, value_score, data_quality_score, freshness_seconds, source_count, source_confidence, signal_tier, pricing_mode, line_candidate_count, line_candidate_rank, line_candidates, model_version, final_value, headroom")
         .gte("created_at", since)
         .order("created_at", { ascending: false });
 
@@ -7117,7 +7240,7 @@ serve(async (req) => {
 
       const { data: p, error } = await supabase
         .from("live_predictions")
-        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source")
+        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source, signal_value, reliability_score, model_fair_odds, bookmaker_odds, implied_probability, edge, expected_value, value_score, data_quality_score, freshness_seconds, source_count, source_confidence, signal_tier, pricing_mode, line_candidate_count, line_candidate_rank, line_candidates, model_version, final_value, headroom")
         .eq("id", id)
         .maybeSingle();
 
