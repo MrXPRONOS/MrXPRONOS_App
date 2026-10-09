@@ -1,11 +1,18 @@
 name: Telegram - Bookmaker promos selon le jour
+run-name: "Telegram - Bookmaker promos selon le jour (${{ inputs.trigger_source || github.event_name }})"
 
 on:
+  # Planification GitHub provisoire jusqu'à validation des tâches cron-job.org.
   schedule:
     # 05:00 UTC = 05:00 au Togo
     - cron: '0 5 * * *'
   workflow_dispatch:
     inputs:
+      trigger_source:
+        description: "Origine cron-job.org ou manuel"
+        required: false
+        default: "manual"
+        type: string
       weekday:
         description: 'Jour à simuler (0=lundi, 2=mercredi, 3=jeudi, 4=vendredi). Vide = jour actuel.'
         required: false
@@ -16,6 +23,12 @@ jobs:
   send:
     runs-on: ubuntu-latest
     steps:
+      - name: Journaliser la source
+        env:
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || github.event_name }}
+        run: |
+          echo "Déclenchement : ${TRIGGER_SOURCE}"
+          echo "Début UTC : $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
       - name: Checkout
         uses: actions/checkout@v4
 
