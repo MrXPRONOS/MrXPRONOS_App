@@ -74,11 +74,11 @@ class NightScheduleTests(unittest.TestCase):
         self.assertTrue(all(item[2] for item in posted))
 
     def test_independent_tickets_keep_distinct_ids(self):
-        match=fixture(1,when(8,22))
+        match=fixture(1,when(8,22),1.55)
         match["predictions"]=[match["prediction"],{
-            "type":"Plus de 1.5 buts","selection_key":"OVER_15","odds":1.38,
+            "type":"Plus de 1.5 buts","selection_key":"OVER_15","odds":1.58,
             "odds_source":"bsd_consensus"}]
-        self.assertEqual(len(expand_tickets(match)),0)
+        self.assertEqual(len(expand_tickets(match)),2)
 
 if __name__=="__main__":
     unittest.main()
