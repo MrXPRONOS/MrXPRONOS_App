@@ -40,6 +40,7 @@ const CRON_SECRET = Deno.env.get("CRON_SECRET") || "";
 const DEBUG_KEY = Deno.env.get("DEBUG_KEY") || "";
 
 import { richPhotoOrLegacy, richTextOrLegacy } from "../_shared/telegram_rich.ts";
+import { attachLiveSponsorBanner } from "../_shared/live_sponsor_banner.ts";
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
 const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") || "";
 // Deux destinations Telegram voulues : canal principal + canal secondaire.
@@ -2293,9 +2294,9 @@ async function sendTelegramLiveCoupon(
   match:any,pred:any,predictionId?:string|number|null,targetChatIds?:string[]
 ):Promise<TelegramSendResult>{
   try {
-    const png=await buildTelegramCouponPngDirect(match,{
+    const png=await attachLiveSponsorBanner(await buildTelegramCouponPngDirect(match,{
       ...pred,id:predictionId??pred?.id
-    });
+    }));
     return await sendTelegramPhoto(
       png,buildTelegramText(match,pred),
       "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",targetChatIds
