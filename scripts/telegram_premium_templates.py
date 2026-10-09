@@ -17,7 +17,8 @@ def _paras(chunk):
 
 def premium_sections(html):
     """Preserve blockquotes, and make blank-line separated HTML into real blocks."""
-    sections=_BLOCK.split(str(html or "").strip())
+    if str(html or "").lstrip().startswith(("<h3>","<p>","<h2>")):
+        return str(html).strip()\n    sections=_BLOCK.split(str(html or "").strip())
     return "".join(section if section.lstrip().startswith("<blockquote")
                    else _paras(section) for section in sections if section.strip())
 
