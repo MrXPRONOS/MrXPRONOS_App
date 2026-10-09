@@ -7,6 +7,7 @@ from pathlib import Path
 
 import requests
 from telegram_promo_channels import promo_channels, deliver_to_both
+from telegram_promo_colors import colorized_button
 from PIL import Image, ImageOps
 
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -132,7 +133,7 @@ def html_caption(bm: dict) -> str:
 def keyboard(bm: dict):
     return {
         "inline_keyboard": [
-            [{"text": f"🎯 S’inscrire sur {bm['name']}", "url": bm["signup_url"]}],
+            [colorized_button(f"🎯 S’inscrire sur {bm['name']}", bm["signup_url"], bm["image"])],
         ]
     }
 
