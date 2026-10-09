@@ -73,7 +73,12 @@ function pickTopSimpleToday(limit){
     away_team: m.away_team || "Équipe B",
     league: m.league || m.league_name || "Football",
     event_date: m.event_date || m.date || "",
-    prediction: m?.prediction?.double_chance || m?.double_chance || "-",
+    prediction: m?.prediction?.label || m?.prediction?.type || m?.prediction?.double_chance || m?.double_chance || "-",
+    odds: Number(m?.prediction?.odds) > 0 ? Number(m.prediction.odds) : null,
+    odds_source: m?.prediction?.odds_source || "",
+    stake: Number(m?.actual_stake) > 0 ? Number(m.actual_stake) : null,
+    score: m?.home_score != null && m?.away_score != null ? `${m.home_score}:${m.away_score}` : "VS",
+    status: m?.is_finished ? "Terminé" : "Pronostic",
     confidence: m?.prediction?.confidence || m?.confidence || null,
     home_logo: pickLogo(m, "home"),
     away_logo: pickLogo(m, "away"),
@@ -130,6 +135,10 @@ function couponHtml(match){
   const homeLogo = asAssetUrl(match.home_logo);
   const awayLogo = asAssetUrl(match.away_logo);
   const oneXbetLogo = new URL("assets/images/1xbet.png", URL).href;
+  const melbetLogo = new URL("assets/images/melbet.png", URL).href;
+  const oddsText = match.odds ? match.odds.toFixed(2).replace(".", ",") : "—";
+  const stakeText = match.stake ? `${Math.round(match.stake).toLocaleString("fr-FR")} F` : "—";
+  const payoutText = match.stake && match.odds ? `${Math.round(match.stake * match.odds).toLocaleString("fr-FR")} F` : "—";
 
   const homeVisual = homeLogo
     ? `<img class="team-logo" src="${esc(homeLogo)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="team-fallback" style="display:none">${esc(initials(match.home_team))}</div>`
@@ -168,14 +177,15 @@ function couponHtml(match){
 
   .brand-wrap{display:flex;align-items:center;height:100%}
   .brand-wrap img{
-    width:235px;
-    max-height:82px;
+    width:176px;
+    max-height:72px;
     object-fit:contain;
     object-position:left center;
   }
 
+  .brand-or{font-size:22px;color:#eee;margin:0 14px}
   .promo{
-    min-width:410px;
+    min-width:300px;
     height:68px;
     background:#efd338;
     color:#050505;
@@ -183,7 +193,7 @@ function couponHtml(match){
     align-items:center;
     justify-content:center;
     padding:0 26px;
-    font-size:34px;
+    font-size:27px;
     font-weight:900;
     letter-spacing:-1.2px;
     white-space:nowrap;
@@ -256,7 +266,7 @@ function couponHtml(match){
   .teams{
     min-height:190px;
     display:grid;
-    grid-template-columns:1fr 110px 1fr;
+    grid-template-columns:minmax(0,1fr) 86px minmax(0,1fr);
     align-items:center;
     gap:10px;
     padding:10px 24px 22px;
@@ -275,7 +285,8 @@ function couponHtml(match){
     font-weight:600;
     line-height:1.12;
     color:#f5f8fa;
-    max-width:245px;
+    max-width:265px;
+    overflow-wrap:anywhere;
   }
   .home .team-name{text-align:right;margin-right:14px}
   .away .team-name{text-align:left;margin-left:14px}
@@ -335,19 +346,19 @@ function couponHtml(match){
 <body>
   <div id="coupon">
     <div class="topbar">
-      <div class="brand-wrap"><img src="${esc(oneXbetLogo)}" alt="1XBET"></div>
-      <div class="promo">CODE PROMO XPVIP</div>
+      <div class="brand-wrap"><img src="${esc(oneXbetLogo)}" alt="1XBET"><span class="brand-or">ou</span><img src="${esc(melbetLogo)}" alt="MELBET"></div>
+      <div class="promo">Code Promo: XPVIP</div>
     </div>
 
     <div class="summary">
       <div class="summary-row">
-        <div class="events"><span class="events-icon">▰</span>Événements : 1</div>
-        <div class="finished">0 sur 1 terminé</div>
+        <div class="events"><span class="events-icon">⚽</span>Simple · Football</div>
+        <div class="finished">${esc(eventDateLabel(match.event_date))}</div>
       </div>
-      <div class="status-row">
-        <div class="status-label">Statut:</div>
-        <div class="accepted">Accepté</div>
-      </div>
+      <div class="status-row"><div class="status-label">Cotes:</div><div>${esc(oddsText)}</div></div>
+      <div class="status-row"><div class="status-label">Mise:</div><div>${esc(stakeText)}</div></div>
+      <div class="status-row"><div class="status-label">Gains:</div><div>${esc(payoutText)}</div></div>
+      <div class="status-row"><div class="status-label">Statut:</div><div class="accepted">${esc(match.status)}</div></div>
     </div>
 
     <div class="event-card">
@@ -365,7 +376,7 @@ function couponHtml(match){
           ${homeVisual}
         </div>
 
-        <div class="vs">VS</div>
+        <div class="vs">${esc(match.score)}</div>
 
         <div class="team away">
           ${awayVisual}
@@ -380,18 +391,18 @@ function couponHtml(match){
           <div class="pick-caption">Pronostic Mr XPRONOS</div>
           <div class="pick-value">${esc(predictionLabel(match.prediction))}</div>
         </div>
-        <div class="pick-status">Accepté</div>
+        <div class="pick-status">${esc(oddsText)}</div>
       </div>
 
       <div class="separator"></div>
 
       <div class="footer-status">
         <div class="label">Statut:</div>
-        <div class="accepted">Accepté</div>
+        <div class="accepted">${esc(match.status)}</div>
       </div>
     </div>
 
-    <div class="responsible">18+ · Joue responsablement · Mr XPRONOS</div>
+    <div class="responsible">Parier responsablement.</div>
   </div>
 </body>
 </html>`;
