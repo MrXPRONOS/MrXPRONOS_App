@@ -72,7 +72,7 @@ def chat_ids():
 def single_keyboard(partner):
     return {
         "inline_keyboard": [
-            [colorized_button(f"✅ S'inscrire sur {partner['name']}",partner["url"],partner["image"])]
+            [colorized_button(f"✅ OUVRIR L’INSCRIPTION {partner['name'].upper()}",partner["url"],partner["image"])]
         ]
     }
 
