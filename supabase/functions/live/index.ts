@@ -5696,26 +5696,46 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
 
 
 async function validatePredictionsNow() {
-  let { data: pending, error: pendingError } = await supabase
+  // Sépare les prédictions courantes du backlog historique afin qu’un groupe
+  // de matchs récents non terminés ne bloque jamais les anciennes lignes.
+  const backlogCutoff = new Date(Date.now() - 4 * 3600 * 1000).toISOString();
+
+  const currentResult = await supabase
     .from("live_predictions")
     .select("*")
-    .or("validated.eq.false,final_value.is.null")
+    .eq("validated", false)
     .order("created_at", { ascending: false })
-    .limit(20);
+    .limit(10);
 
-  if (pendingError && isUndefinedColumnError(pendingError)) {
-    const legacy = await supabase
-      .from("live_predictions")
-      .select("*")
-      .eq("validated", false)
-      .order("created_at", { ascending: false })
-      .limit(20);
-    pending = legacy.data;
-    pendingError = legacy.error;
+  if (currentResult.error) throw currentResult.error;
+
+  let backlogResult: any = await supabase
+    .from("live_predictions")
+    .select("*")
+    .eq("validated", true)
+    .is("final_value", null)
+    .eq("telegram_sent", true)
+    .lt("created_at", backlogCutoff)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  if (backlogResult.error && isUndefinedColumnError(backlogResult.error)) {
+    backlogResult = { data: [], error: null };
   }
+  if (backlogResult.error) throw backlogResult.error;
 
-  if (pendingError) throw pendingError;
-  if (!pending?.length) return { validated: 0, finalized_existing: 0, skipped: 0, failed: 0 };
+  const seen = new Set<string>();
+  const pending = [
+    ...(currentResult.data || []),
+    ...(backlogResult.data || []),
+  ].filter((row: any) => {
+    const id = String(row?.id ?? "");
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+
+  if (!pending.length) return { validated: 0, finalized_existing: 0, skipped: 0, failed: 0 };
 
   let validated = 0;
   let finalizedExisting = 0;
