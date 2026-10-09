@@ -9,6 +9,7 @@ from pathlib import Path
 
 import requests
 from telegram_rich import post_photo
+from telegram_premium_templates import daily_promo as daily_promo_template
 from telegram_promo_channels import promo_channels, deliver_to_both
 from telegram_promo_colors import colorized_button
 
@@ -87,19 +88,7 @@ def partner(key: str):
 
 
 def caption_for(promo: Promo) -> str:
-    return (
-        f"<b>{promo.title}</b>\n\n"
-        f"{promo.intro}\n\n"
-        f"<blockquote>🎁 <b>OFFRE :</b> {promo.offer}\n"
-        f"🎟 <b>CODE PROMO :</b> <code>{PROMO_CODE}</code></blockquote>\n\n"
-        "<i>Crée un nouveau compte via le bouton ci-dessous, vérifie que le code promo "
-        f"<b>{PROMO_CODE}</b> est bien renseigné lorsqu’un champ promo est proposé, "
-        "puis consulte les conditions de l’offre avant ton dépôt.</i>\n\n"
-        "👇 <b>Inscription :</b> utilise le bouton juste en dessous.\n\n"
-        "⚠️ <b>18+</b> · <i>Offre soumise à conditions. Les montants et l’éligibilité "
-        "peuvent varier selon le pays, la devise et le compte. Joue de façon responsable.</i>"
-    )
-
+    return daily_promo_template(promo.title,promo.intro,promo.offer,PROMO_CODE)
 
 def keyboard_for(promo: Promo):
     info = partner(promo.bookmaker)
