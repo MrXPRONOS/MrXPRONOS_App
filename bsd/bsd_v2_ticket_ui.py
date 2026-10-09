@@ -24,6 +24,7 @@ PALE = "#F2F4F7"
 DIVIDER = "#E8ECF0"
 WHITE = "#FFFFFF"
 MISSING = "#879CAF"
+SUCCESS = "#28A65A"
 
 
 def _draw():
@@ -72,21 +73,38 @@ def competition_line(match):
 
 
 def _soccer_icon(draw, center_x, center_y, r=26, pale=True):
+    """Small football-category badge, matching the supplied verified-ball design."""
+    import math
     col = SECONDARY if pale else NAVY
-    bg = PALE if pale else WHITE
+    bg = "#EAF0F6" if pale else WHITE
     draw.ellipse((center_x-r, center_y-r, center_x+r, center_y+r), fill=bg)
-    edge = r*.67
-    draw.ellipse((center_x-edge, center_y-edge, center_x+edge, center_y+edge),
-                 outline=col, width=3)
-    pts = [(center_x,center_y-r*.30), (center_x+r*.30,center_y-r*.08),
-           (center_x+r*.18,center_y+r*.29), (center_x-r*.18,center_y+r*.29),
-           (center_x-r*.30,center_y-r*.08)]
-    draw.polygon(pts, fill=col)
-    for idx in range(5):
-        x1,y1=pts[idx]
-        x2,y2=(center_x+(x1-center_x)*1.9,center_y+(y1-center_y)*1.9)
-        draw.line((x1,y1,x2,y2),fill=col,width=3)
+    radius = r * 0.72
+    draw.ellipse((center_x-radius, center_y-radius,
+                  center_x+radius, center_y+radius), outline=col,
+                 width=max(2, round(r*.065)))
+    # Regular central pentagon and five adjoining seams at the ball's rim.
+    central = r * .30
+    pentagon = [(center_x + central*math.cos(math.radians(-90+72*i)),
+                 center_y + central*math.sin(math.radians(-90+72*i)))
+                for i in range(5)]
+    draw.polygon(pentagon, fill=col)
+    for i,(x,y) in enumerate(pentagon):
+        direction=math.radians(-90+72*i)
+        tx=center_x+radius*math.cos(direction)
+        ty=center_y+radius*math.sin(direction)
+        draw.line((x,y,tx,ty),fill=col,width=max(2,round(r*.058)))
 
+
+def _verified_football_badge(draw, center_x, center_y, r=58):
+    """Ball + overlapping blue checkmark; icon means verified outcome only."""
+    _soccer_icon(draw,center_x,center_y,r)
+    bx,by=center_x+r*.79,center_y+r*.77
+    cr=r*.30
+    draw.ellipse((bx-cr-4,by-cr-4,bx+cr+4,by+cr+4),fill=WHITE)
+    draw.ellipse((bx-cr,by-cr,bx+cr,by+cr),fill=ACCENT)
+    draw.line([(bx-cr*.50,by),(bx-cr*.12,by+cr*.36),
+               (bx+cr*.57,by-cr*.40)],
+              fill=WHITE,width=max(3,round(r*.09)),joint="curve")
 
 def _header(draw):
     write, _, _, _ = _draw()
@@ -105,10 +123,7 @@ def _header(draw):
 
 def _top_meta(canvas,draw,*,kind,reference,time_text):
     write, _, _, _ = _draw()
-    _soccer_icon(draw,100,212,58)
-    draw.ellipse((123,243,164,284),fill=ACCENT,outline=WHITE,width=4)
-    # Blue circle denotes BSD-verified odds, not bookmaker bet acceptance.
-    draw.line([(132,261),(141,269),(155,253)],fill=WHITE,width=4)
+    _verified_football_badge(draw,100,212,58)
     write(draw,time_text,184,161,size=27,bold=True,color=SECONDARY)
     write(draw,kind,184,202,size=41,bold=True,color=NAVY)
     write(draw,"N° "+reference,184,251,size=26,bold=True,color=NAVY,maximum=760)
@@ -131,7 +146,7 @@ def _summary(draw,*,price,stake,won=False):
         ("Mise:",_money(stake),NAVY),
         ("Versé:","—",NAVY),   # No payment from an unplaced forecast
         ("Gains potentiels:",_money(gross),NAVY),
-        ("Statut:","Pronostic gagnant" if won else "Prévision",ACCENT),
+        ("Statut:","Gagnant" if won else "Prévision",SUCCESS if won else ACCENT),
     ]
     for i,(title,value,col) in enumerate(rows):
         y=342+i*58
@@ -195,8 +210,8 @@ def _fixture_tile(canvas,draw,match,*,top,bottom,winning=False,
     write(draw,market,44,separator+21,size=34,bold=True,color=NAVY,maximum=765)
     write(draw,_quote(price),1037,separator+21,size=33,bold=True,color=NAVY,align="right")
     write(draw,"Statut:",46,separator+81,size=32,bold=True,color=SECONDARY)
-    write(draw,"Gagnant" if winning else "Prévision",1036,separator+81,
-          size=32,bold=True,color=ACCENT,align="right")
+    write(draw,"Gain" if winning else "Prévision",1036,separator+81,
+          size=32,bold=True,color=SUCCESS if winning else ACCENT,align="right")
 
 
 def render_single(match,output,*,win=False,stake=None,now=None,session=None):
