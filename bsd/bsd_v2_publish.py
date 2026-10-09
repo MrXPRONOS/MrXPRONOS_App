@@ -80,6 +80,24 @@ def resolve_league_names(client, fixtures, output, existing):
                 if pending.issubset(names) or len(rows)<100:break
         except Exception as exc:
             print("BSD_LEAGUE_NAME_FALLBACK",type(exc).__name__)
+    # Some BSD catalog pages are incomplete. Fall back to documented
+    # /leagues/{id}/ detail endpoint for the remaining IDs only.
+    from bsd_v2_assets import valid_id
+    for lid in sorted(pending-set(names)):
+        number=valid_id(lid)
+        if number is None:
+            continue
+        try:
+            detail=client.get_json(f"/leagues/{number}/",ttl=3600)
+            if isinstance(detail,dict):
+                label=league_name(detail)
+                if label is None:
+                    name=detail.get("name")
+                    if isinstance(name,str) and name.strip().casefold() not in ("football","soccer"):
+                        label=name.strip()
+                if label:names[lid]=label
+        except Exception as exc:
+            print("BSD_LEAGUE_DETAIL_UNAVAILABLE",lid,type(exc).__name__)
     fixed=0
     for match in output["matches"]:
         if not league_name(match):
