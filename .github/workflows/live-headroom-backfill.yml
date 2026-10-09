@@ -22,8 +22,8 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           set -euo pipefail
-          for i in $(seq 1 18); do
-            echo "=== Backfill batch $i/18 ==="
+          for i in $(seq 1 1); do
+            echo "=== Diagnostic validation batch $i/1 ==="
             body=$(curl --fail-with-body --silent --show-error --max-time 45 \
               -X POST "$SUPABASE_URL/functions/v1/live/validate" \
               -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
