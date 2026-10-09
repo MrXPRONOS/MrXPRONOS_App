@@ -83,7 +83,7 @@ class CaptionTests(unittest.TestCase):
         from bsd_v2_telegram import action_buttons,prediction_action_buttons
         import json
         from pathlib import Path
-        buttons=prediction_action_buttons()["inline_keyboard"]
+        buttons=prediction_action_buttons("1xbet_melbet")["inline_keyboard"]
         partners=json.loads((Path(__file__).resolve().parent.parent /
                             "config/partners.json").read_text(encoding="utf-8"))["partners"]
         self.assertEqual(len(buttons[0]),2)
@@ -92,7 +92,7 @@ class CaptionTests(unittest.TestCase):
             "url":partners["1xbet"]["url"],"style":"primary"})
         self.assertEqual(buttons[0][1],{
             "text":"PARIEZ SUR MELBET",
-            "url":partners["melbet"]["url"],"style":"success"})
+            "url":partners["melbet"]["url"],"style":"primary"})
         self.assertEqual(buttons[1][0]["text"],"Voir plus de coupons 🔥")
         self.assertNotIn("style",action_buttons()["inline_keyboard"][0][0])
 
@@ -100,8 +100,8 @@ class CaptionTests(unittest.TestCase):
         import inspect
         from bsd_v2_telegram import send_one,send_combo
         from bsd_v2_verify_telegram import post_gain
-        self.assertIn("prediction_action_buttons()",inspect.getsource(send_one))
-        self.assertIn("prediction_action_buttons()",inspect.getsource(send_combo))
+        self.assertIn("prediction_action_buttons(pack)",inspect.getsource(send_one))
+        self.assertIn("prediction_action_buttons(pack)",inspect.getsource(send_combo))
         self.assertIn("action_buttons()",inspect.getsource(post_gain))
         self.assertNotIn("prediction_action_buttons()",inspect.getsource(post_gain))
 

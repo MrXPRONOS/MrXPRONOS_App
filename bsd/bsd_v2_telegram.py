@@ -28,7 +28,12 @@ def action_buttons():
         [{"text":"S’inscrire ou réinitialiser son compte 🎯","url":BOOKMAKERS_URL}],
     ]}
 
-def prediction_action_buttons():
+def partner_pack(now=None):
+    """Both image and affiliate buttons use the same UTC day rotation."""
+    now=now or datetime.now(timezone.utc)
+    return "1xbet_melbet" if now.date().toordinal()%2 == 0 else "1win_betwinner"
+
+def prediction_action_buttons(pack=None):
     """Two colored partner links ONLY for pre-match single/night/combo coupons.
 
     Use the canonical URLs from config/partners.json to stay in sync with all
@@ -46,14 +51,16 @@ def prediction_action_buttons():
             if entry.get("enabled") is False or parsed.scheme!="https" or not parsed.netloc:
                 raise ValueError(f"Invalid or disabled affiliate partner: {key}")
             return url
-        one_xbet=checked_url("1xbet")
-        melbet=checked_url("melbet")
+        pack=pack or partner_pack()
+        keys=("1xbet", "melbet") if pack=="1xbet_melbet" else ("1win", "betwinner") if pack=="1win_betwinner" else None
+        if keys is None:raise ValueError("Unknown partner pack")
+        first_url,second_url=(checked_url(key) for key in keys)
     except (KeyError,ValueError,OSError,TypeError) as exc:
         raise RuntimeError("Cannot build bookmaker CTA for prediction posts") from exc
     return {"inline_keyboard":[
         [
-            {"text":"PARIEZ SUR 1XBET","url":one_xbet,"style":"primary"},
-            {"text":"PARIEZ SUR MELBET","url":melbet,"style":"success"},
+            {"text":"PARIEZ SUR "+keys[0].upper(),"url":first_url,"style":"primary"},
+            {"text":"PARIEZ SUR "+keys[1].upper(),"url":second_url,"style":"primary"},
         ],
         [{"text":"Voir plus de coupons 🔥","url":URL}],
     ]}
@@ -140,9 +147,10 @@ def send_one(session,token,chat_id,match,*,night=False):
     with TemporaryDirectory() as directory:
         image=render_card(match,Path(directory)/"coupon.png")
         from bsd_v2_telegram_banner import attach_banner
-        image=attach_banner(image)
+        pack=partner_pack()
+        image=attach_banner(image,pack=pack)
         caption=single_caption(match,night=night)
-        markup=prediction_action_buttons()
+        markup=prediction_action_buttons(pack)
         return post_photo(session,token,chat_id,image,caption,markup,timeout=60)
 
 def combo_ledger_match(combo):
@@ -155,9 +163,10 @@ def send_combo(session,token,chat,combo,*,night=False):
     with TemporaryDirectory() as directory:
         photo=render_combo(combo,Path(directory)/"combine.png",session=session)
         from bsd_v2_telegram_banner import attach_banner
-        photo=attach_banner(photo)
+        pack=partner_pack()
+        photo=attach_banner(photo,pack=pack)
         caption=combo_caption(combo,night=night)
-        return post_photo(session,token,chat,photo,caption,prediction_action_buttons(),timeout=60)
+        return post_photo(session,token,chat,photo,caption,prediction_action_buttons(pack),timeout=60)
 
 def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
     if data.get("source")!="bsd" or data.get("model_version")!="bsd-v2-isolated":

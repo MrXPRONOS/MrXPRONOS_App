@@ -6,9 +6,10 @@ Telegram attachment is composed. Source image is a 3D design asset.
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
-BANNER = Path(__file__).resolve().parent.parent / "assets/images/telegram-xpvip-banner.webp"
+BANNER = Path(__file__).resolve().parent.parent / "assets/images/telegram-xpvip-banner.png"
 
 ROOT = Path(__file__).resolve().parent.parent
+BANNER_SECOND = ROOT / 'assets/images/telegram-xpvip-banner-1win-betwinner.png'
 
 def _font(size, bold=True):
     for name in (
@@ -19,7 +20,7 @@ def _font(size, bold=True):
             return ImageFont.truetype(name,size)
     return ImageFont.load_default()
 
-def _build_embedded_banner():
+def _build_embedded_banner(partners=("1xbet", "melbet")):
     """Bundled fallback constructed from the actual partner logos in the repo.
 
     Prefer the official 3D artwork at BANNER when present.
@@ -28,7 +29,7 @@ def _build_embedded_banner():
     banner=Image.new("RGB",(w,h),"#030508")
     draw=ImageDraw.Draw(banner)
     # Logos and promo code are placed in an independent top strip.
-    for name,box in (("1xbet",(30,36,295,119)),("melbet",(430,36,705,119))):
+    for name,box in zip(partners, ((30,36,295,119),(430,36,705,119))):
         logo_path=ROOT/"assets/images"/(name+".png")
         if logo_path.exists():
             try:
@@ -53,7 +54,7 @@ def _build_embedded_banner():
     return banner
 
 
-def attach_banner(coupon_path):
+def attach_banner(coupon_path, pack="1xbet_melbet"):
     """Replace the temporary outgoing PNG with strip+untouched coupon pixels.
 
     Called exactly once per outgoing message. The original coupon is not
@@ -62,7 +63,12 @@ def attach_banner(coupon_path):
     source = Path(coupon_path)
     with Image.open(source) as original:
         coupon = original.convert("RGB")
-        banner = Image.open(BANNER).convert("RGB") if BANNER.is_file() else _build_embedded_banner()
+        if pack == "1xbet_melbet":
+            banner = Image.open(BANNER).convert("RGB") if BANNER.is_file() else _build_embedded_banner()
+        elif pack == "1win_betwinner":
+            banner = Image.open(BANNER_SECOND).convert("RGB") if BANNER_SECOND.is_file() else _build_embedded_banner(("1win", "betwinner"))
+        else:
+            raise ValueError(f"Pack inconnu: {pack}")
         width = coupon.width
         height = round(banner.height * width / banner.width)
         if height <= 0 or height > width // 3:
