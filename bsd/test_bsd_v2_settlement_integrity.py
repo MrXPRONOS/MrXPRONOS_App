@@ -51,6 +51,20 @@ class IntegrityTests(unittest.TestCase):
         self.assertEqual(result["combos_losses_silent"],1)
         self.assertEqual(finish.call_args.kwargs["status"],"lost")
 
+    def test_cancelled_combo_never_posts_and_is_voided(self):
+        combo={"id":"combo:test","combined_odds":2.56,
+               "legs":[leg(7),leg(8)]}
+        row={"id":9,"ref_id":"-1001:combo:test","selection_snapshot":snapshot(combo,combo=True),
+             "settlement_status":"pending","delivery_status":"sent"}
+        with patch("bsd_v2_verify_telegram.claim_settlement",return_value=True),patch(
+            "bsd_v2_verify_telegram.finalize_settlement"
+        ) as finish:
+            result=validate_combos([row],{
+                "7":{"status":"cancelled"},"8":event(1,1)},NOW,
+                None,"tok","url","key")
+        self.assertEqual(result["combos_void_silent"],1)
+        self.assertEqual(finish.call_args.kwargs["status"],"void")
+
     def test_combo_without_original_snapshot_waits_for_review(self):
         row={"id":5,"ref_id":"-1001:combo:test","delivery_status":"legacy"}
         result=validate_combos([row],{},NOW,None,"tok","url","key")
