@@ -20,15 +20,24 @@ def premium_sections(html):
     if str(html or "").lstrip().startswith(("<h3>","<p>","<h2>")):
         return str(html).strip()
     sections=_BLOCK.split(str(html or "").strip())
-    result="".join(section if section.lstrip().startswith("<blockquote")
-                   else _paras(section) for section in sections if section.strip())
-    # Upgrade the first editorial title to a real heading for rich rendering.
-    result=re.sub(r"^<p><b>(.*?)</b>",r"<h3>\\1</h3>",result,count=1,flags=re.S)
-    # Remove an orphaned paragraph terminator left after promoting the title.
-    result=result.replace("</h3><br/>","</h3><p>",1) if result.startswith("<h3>") else result
-    if result.startswith("<h3>"):
-        result=result.replace("</h3></p>","</h3>",1)
-    return result
+    output=[]
+    first=True
+    for section in sections:
+        if not section.strip():
+            continue
+        if section.lstrip().startswith("<blockquote"):
+            output.append(section.strip())
+            continue
+        part=section.strip()
+        if first:
+            lines=part.splitlines()
+            if lines and lines[0].startswith("<b>") and lines[0].endswith("</b>"):
+                output.append("<h3>"+lines[0][3:-4]+"</h3>")
+                part="\n".join(lines[1:]).strip()
+        first=False
+        if part:
+            output.append(_paras(part))
+    return "".join(output)
 
 def cta_note(label="Choisis ton bookmaker"):
     return f"<p><b>👇 {escape(label)}</b></p>"
