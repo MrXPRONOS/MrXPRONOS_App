@@ -13,7 +13,9 @@ from bsd_v2_estimated_odds import valid_standalone_prediction
 from bsd_v2_card import render as render_card
 from bsd_v2_captions import single_caption,combo_caption,PARSE_MODE
 from bsd_v2_night import is_night_match,matches_for_night,batch_date
-from scripts.telegram_rich import post_photo
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parent.parent/"scripts"))
+from telegram_rich import post_photo
 
 KIND="bsd_v2_hourly"
 COMBO_KIND="bsd_v2_combo_hourly"
