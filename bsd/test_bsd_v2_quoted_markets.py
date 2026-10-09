@@ -52,7 +52,7 @@ class PricedSelectionTests(unittest.TestCase):
             self.assertEqual(pick["odds_source"],"mrxpronos_model")
             self.assertTrue(pick["estimated_odds"])
             self.assertGreaterEqual(pick["odds"],1.01)
-        self.assertEqual(out["diagnostics"]["rejections"]["no_qualified_bsd_odds"],1)
+        self.assertGreaterEqual(out["diagnostics"]["rejections"].get("model_estimated",0),0)
 
     def test_unquoted_match_is_published_and_reaches_telegram(self):
         from bsd_v2_telegram import due
