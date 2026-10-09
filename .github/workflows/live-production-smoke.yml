@@ -1,0 +1,46 @@
+name: Live Production Smoke Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-production-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check live matches endpoint
+        run: |
+          curl --fail-with-body --silent --show-error --retry 3 --max-time 30             "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live/matches"             -o /tmp/matches.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/matches.json'))
+          assert isinstance(data, dict), data
+          assert isinstance(data.get('matches'), list), data
+          print('matches_count=', len(data['matches']))
+          if data['matches']:
+              print('first_match_keys=', sorted(data['matches'][0].keys()))
+          PY
+
+      - name: Check prediction history endpoint and V2 schema
+        run: |
+          curl --fail-with-body --silent --show-error --retry 3 --max-time 30             "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live/predictions/history"             -o /tmp/history.json
+          python - <<'PY'
+          import json
+          data=json.load(open('/tmp/history.json'))
+          assert isinstance(data, dict), data
+          history=data.get('history')
+          assert isinstance(history, list), data
+          print('history_count=', len(history))
+          if history:
+              row=history[0]
+              expected={'signal_value','projected_value','reliability','model_fair_odds','signal_tier','pricing_mode','final_value','headroom'}
+              print('first_history_keys=', sorted(row.keys()))
+              print('v2_fields_present=', sorted(expected.intersection(row.keys())))
+          PY
