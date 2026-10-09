@@ -110,7 +110,7 @@ def html_caption(bm: dict) -> str:
 def keyboard(bm: dict):
     return {
         "inline_keyboard": [
-            [colorized_button(f"🎯 S’inscrire sur {bm['name']}", bm["signup_url"], bm["image"])],
+            [colorized_button(f"🎯 ACCÉDER À L’OFFRE SUR {bm['name'].upper()}", bm["signup_url"], bm["image"])],
         ]
     }
 
