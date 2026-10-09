@@ -930,7 +930,7 @@ function sharePronostic(match) {
 
   const msg = `■ COUPONS GRATUITS
 ■ ${match.home_team} vs ${match.away_team}
-■ Double chance : ${match.prediction.double_chance} – Fiabilité ${match.prediction.confidence}%
+■ Pronostic : ${match.prediction.type || match.prediction.double_chance || "-"} – Fiabilité ${match.prediction.confidence}%
 ■ Plus de Coupons :
 ${BASE_SITE_URL}
 ■ Rejoins les gagnants !`;
@@ -1450,7 +1450,19 @@ function renderMatches(matches) {
   }
 
   const grouped = {};
-  matches.forEach((m) => {
+  // Treat two independent market selections for the same fixture as two
+  // full match cards. Each card keeps its own market, probability and share CTA.
+  const standalone = matches.filter((match) => !match.combo_only).flatMap((match) => {
+    const selections = Array.isArray(match.predictions) && match.predictions.length
+      ? match.predictions.slice(0, 2) : [match.prediction || {}];
+    return selections.map((pick) => ({
+      ...match,
+      id: String(match.id) + ":" + String(pick.selection_key || "primary"),
+      prediction: pick,
+      predictions: undefined,
+    }));
+  });
+  standalone.forEach((m) => {
     const league = m.league || "Autres ligues";
     if (!grouped[league]) grouped[league] = [];
     grouped[league].push(m);
@@ -1469,7 +1481,8 @@ function renderMatches(matches) {
 
     grouped[league].forEach((m) => {
       const pred = m.prediction || {};
-      const doubleChance = escapeHtml(pred.double_chance || "N/A");
+      const doubleChance = escapeHtml(pred.type || pred.label || pred.double_chance || "N/A");
+
 
       let confidence = toFloatSafe(pred.confidence, 0) || 0;
       if (confidence <= 1) confidence = confidence * 100;
@@ -1502,6 +1515,7 @@ function renderMatches(matches) {
         away_team: m.away_team,
         prediction: {
           double_chance: pred.double_chance,
+          type: pred.type || pred.label || pred.double_chance,
           confidence: confidence,
         },
       };
@@ -1548,12 +1562,13 @@ function renderMatches(matches) {
 
           <div class="analysis-panel ticket ${winnerClass}">
             <h4>Pronostic ${xpronosBadge}</h4>
-            <p><strong>Double chance :</strong> ${doubleChance} ${
+            <p><strong>Pronostic :</strong> ${doubleChance} ${
               eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ""
             }</p>
 
             <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
             <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
+            <p><strong>${pred.odds_source === "mrxpronos_model" ? "Cote indicative (non bookmaker)" : "Cote BSD"} :</strong> ${typeof pred.odds === "number" ? pred.odds.toFixed(2).replace(".", ",") : "Non disponible"}</p>
 
             ${premiumBadge}
             <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}">■ Partager ce prono</button>
@@ -1586,9 +1601,37 @@ async function displayHistory() {
   }
 
   const todayStr = getLocalDateString("today");
+  const outcomeForBsdPick = (pick, home, away) => {
+    const key = String(pick?.selection_key || "");
+    const h = Number(home), a = Number(away);
+    if (!Number.isInteger(h) || !Number.isInteger(a) || h < 0 || a < 0) return false;
+    if (key === "1") return h > a;
+    if (key === "X") return h === a;
+    if (key === "2") return a > h;
+    if (key === "1X") return h >= a;
+    if (key === "X2") return a >= h;
+    if (key === "12") return h !== a;
+    if (key === "BTTS_YES") return h > 0 && a > 0;
+    if (key === "BTTS_NO") return h === 0 || a === 0;
+    const goals = key.match(/^(OVER|UNDER)_(15|25|35|45)$/);
+    if (!goals) return false;
+    const line = Number(goals[2]) / 10;
+    return goals[1] === "OVER" ? h + a > line : h + a < line;
+  };
+
   const historyMatches = allData.matches.filter((m) => {
     const d = getLocalDateFromEvent(m.event_date);
-    return d && d < todayStr;
+    return !m.combo_only && d && d < todayStr;
+  }).flatMap((m) => {
+    const choices = Array.isArray(m.predictions) && m.predictions.length
+      ? m.predictions.slice(0, 2) : [m.prediction || {}];
+    return choices.map((selection) => ({
+      ...m,
+      id: String(m.id) + ":" + String(selection.selection_key || "primary"),
+      prediction: selection,
+      verified_double: m.is_finished && m.home_score != null && m.away_score != null
+        ? outcomeForBsdPick(selection, m.home_score, m.away_score) : false,
+    }));
   });
 
   if (!historyMatches.length) {
@@ -1649,7 +1692,7 @@ async function displayHistory() {
 
           <div class="analysis-panel">
             <h4>Pronostic</h4>
-            <p><strong>Double chance :</strong> ${escapeHtml(pred.double_chance || "N/A")}
+            <p><strong>Pronostic :</strong> ${escapeHtml(pred.type || pred.label || pred.double_chance || "N/A")}
               <input type="checkbox" class="prediction-checkbox" ${m.verified_double ? "checked" : ""} disabled>
             </p>
             <p><strong>Fiabilité :</strong> ${escapeHtml(String(Math.round(confidence * 10) / 10))}%</p>
@@ -2310,7 +2353,7 @@ function normalizeConfidence(conf) {
 function renderHomePickCard(m, { winner = false } = {}) {
   const pred = m.prediction || {};
   const conf = normalizeConfidence(pred.confidence);
-  const dc = pred.double_chance || "N/A";
+  const dc = pred.type || pred.label || pred.double_chance || "N/A";
 
   const league = m.league || "Ligue";
   const time = formatMatchTime(m.event_date);
@@ -2356,7 +2399,7 @@ function renderHomePickCard(m, { winner = false } = {}) {
       </div>
 
       <div class="pick-meta">
-        <div class="pick-row"><span>Double chance</span><b>${escapeHtml(dc)}</b></div>
+        <div class="pick-row"><span>Pronostic</span><b>${escapeHtml(dc)}</b></div>
         <div class="pick-row"><span>Fiabilité</span><b>${conf}%</b></div>
         <div class="pick-row"><span>Statut</span><b>${escapeHtml(status)}</b></div>
 
@@ -2434,7 +2477,7 @@ function displayLatestVerified() {
         </div>
         <div class="analysis-panel">
           <h4>Pronostic</h4>
-          <p><strong>Double chance :</strong> ${escapeHtml(m.prediction?.double_chance || "N/A")}
+          <p><strong>Pronostic :</strong> ${escapeHtml(m.prediction?.type || m.prediction?.label || m.prediction?.double_chance || "N/A")}
             <input type="checkbox" class="prediction-checkbox" checked disabled>
           </p>
           <p><strong>Fiabilité :</strong> ${escapeHtml(String(m.prediction?.confidence || 0))}%</p>
@@ -2457,7 +2500,7 @@ function startWinsSlider() {
   const html = wins
     .map((m) => {
       const score = `${m.home_score ?? "-"} - ${m.away_score ?? "-"}`;
-      return `<div class="win-item">■ <span>${escapeHtml(m.home_team)} ${escapeHtml(score)} ${escapeHtml(m.away_team)}</span> • ${escapeHtml(m.prediction?.double_chance || "")}</div>`;
+      return `<div class="win-item">■ <span>${escapeHtml(m.home_team)} ${escapeHtml(score)} ${escapeHtml(m.away_team)}</span> • ${escapeHtml(m.prediction?.type || m.prediction?.label || m.prediction?.double_chance || "")}</div>`;
     })
     .join("");
 

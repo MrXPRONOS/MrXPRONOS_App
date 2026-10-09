@@ -1,0 +1,193 @@
+"""Independent goal-total frequency model. All inputs are pre-kickoff BSD history."""
+from dataclasses import dataclass, replace
+from math import exp, factorial, log, isfinite
+from bsd_h2h import _team_id
+from bsd_v2_core import fixture_datetime, outcome_scores, estimate_goals, score_matrix, markets_from_matrix, league_key
+
+LINES=(1.5,2.5,3.5,4.5)
+
+def _rate(rows,at,team=None,venue=None):
+    weighted=0.;total=0.;sq=0.
+    for event in rows:
+        score=outcome_scores(event)
+        if score is None:continue
+        age=max(0,(at-fixture_datetime(event)).total_seconds()/86400)
+        w=exp(-log(2)*age/100.)
+        goals=sum(score)
+        total+=w;weighted+=w*goals;sq+=w*goals*goals
+    avg=(weighted+8*2.6)/(total+8)
+    variance=max(.2,(sq+8*(2.6**2+2.6))/(total+8)-avg*avg)
+    return avg,variance,total
+
+def _scoring(index,team_id,at,prior,conceded=False):
+    rows=index.team(team_id,at,limit=12)
+    values=[]
+    for e in rows:
+        score=outcome_scores(e)
+        if score is None:continue
+        home=_team_id(e,"home")==team_id
+        value=score[1 if home else 0] if conceded else score[0 if home else 1]
+        values.append(value)
+    return (sum(values)+5*prior)/(len(values)+5)
+
+
+def features(event,index):
+    at=fixture_datetime(event)
+    home=_team_id(event,"home");away=_team_id(event,"away")
+    if not home or not away:return None
+    hg=index.team(home,at,limit=15)
+    ag=index.team(away,at,limit=15)
+    if min(len(hg),len(ag))<5:return None
+    hv=index.team(home,at,limit=12,venue="home")
+    av=index.team(away,at,limit=12,venue="away")
+    lg=index.league(league_key(event),at,limit=300)
+    hm,hvar,_=_rate(hg,at)
+    am,avar,_=_rate(ag,at)
+    lmean,lvar,ln=_rate(lg,at)
+    hvenue,_,hn=_rate(hv,at)
+    avenue,_,an=_rate(av,at)
+    # Moderate venue correction; league prior dominates sparse samples.
+    venue_mean=(hn/(hn+8)*hvenue+8/(hn+8)*hm+
+                an/(an+8)*avenue+8/(an+8)*am)/2
+    baseline=(hm+am)/2
+    # Match-up: each team's scoring rate depends on the other team's defence.
+    league_team_mean=max(.45,lmean/2)
+    home_scoring=_scoring(index,home,at,league_team_mean)
+    away_scoring=_scoring(index,away,at,league_team_mean)
+    home_conceded=_scoring(index,home,at,league_team_mean,conceded=True)
+    away_conceded=_scoring(index,away,at,league_team_mean,conceded=True)
+    paired=(home_scoring*away_conceded+away_scoring*home_conceded)/league_team_mean
+    paired=max(.6,min(5.5,paired))
+    result_mean=.40*baseline+.25*venue_mean+.15*lmean+.20*paired
+    dispersion=max(.4,min(12.,.5*(hvar+avar)))
+    # Per-line empirical Over rates, shrunk to the league and Poisson prior.
+    league_rates={}
+    empirical_over={}
+    groups=((hg[:5],.18),(hg[:10],.13),(hg[:15],.09),
+            (ag[:5],.18),(ag[:10],.13),(ag[:15],.09),
+            (hv,.05),(av,.05),(lg,.10))
+    for line in LINES:
+        poisson_tail=sum(exp(-result_mean)*result_mean**n/factorial(n)
+                         for n in range(int(line)+1,25))
+        league_wins=sum(int(sum(outcome_scores(g))>line) for g in lg
+                        if outcome_scores(g) is not None)
+        league_prior=(league_wins+20*poisson_tail)/(len(lg)+20)
+        league_rates[line]=league_prior
+        value=0.
+        for group,weight in groups:
+            n=len(group)
+            wins=sum(int(sum(outcome_scores(g))>line) for g in group
+                     if outcome_scores(g) is not None)
+            value+=weight*(wins+5*league_prior)/(n+5)
+        empirical_over[line]=max(.00001,min(.99999,value))
+    return {"mean":result_mean,"variance":dispersion,"league_mean":lmean,
+            "empirical_over":empirical_over,"league_over_rates":league_rates,
+            "league_variance":lvar,"home_mean":hm,"away_mean":am,
+            "opponent_adjusted_mean":paired,
+            "league_samples":len(lg),"form_samples":min(len(hg),len(ag)),
+            "venue_samples":min(len(hv),len(av))}
+
+def total_distribution(mean,variance,max_goals=24):
+    if mean<=0 or not isfinite(mean):raise ValueError("Invalid expected total")
+    # Poisson / overdispersed negative binomial (Gamma Poisson).
+    if variance<=mean*1.02:
+        probs=[exp(-mean)*mean**n/factorial(n) for n in range(max_goals+1)]
+    else:
+        shape=mean*mean/(variance-mean)
+        p=shape/(shape+mean)
+        probs=[p**shape]
+        for n in range(1,max_goals+1):
+            probs.append(probs[-1]*(n-1+shape)/n*(1-p))
+    total=sum(probs)
+    return [v/total for v in probs]
+
+@dataclass(frozen=True)
+class TotalGoalsModel:
+    blend:float=0.0
+    variance_scale:float=1.0
+    trained:int=0
+    validated:int=0
+    def predict_over(self,event,index):
+        feat=features(event,index)
+        if feat is None:return None
+        distribution=total_distribution(feat["mean"],max(feat["mean"],feat["variance"]*self.variance_scale))
+        return {line:.80*sum(distribution[int(line)+1:])+
+                     .20*feat["empirical_over"][line] for line in LINES}
+    def to_dict(self):
+        return {"model":"bsd-over-under-1","blend":self.blend,
+                "variance_scale":self.variance_scale,
+                "trained":self.trained,"validated":self.validated}
+
+def uncertainty(event,index,model,baseline_total=None):
+    if model is None or model.blend<=0:return None
+    feat=features(event,index)
+    if feat is None:return "totals_missing_form"
+    if feat["league_samples"]<20:return "totals_insufficient_league"
+    if feat["venue_samples"]<3:return "totals_insufficient_venue"
+    if feat["variance"]/max(.5,feat["mean"])>2.6:return "totals_high_volatility"
+    if baseline_total is not None and abs(feat["mean"]-baseline_total)>1.0:
+        return "totals_models_disagree"
+    return None
+
+
+def adjust_candidates(event,index,candidates,model):
+    if model is None or model.blend<=0:return candidates
+    probabilities=model.predict_over(event,index)
+    if probabilities is None:return candidates
+    out=[]
+    for item in candidates:
+        if item.family!="goals" or item.line not in probabilities:
+            out.append(item);continue
+        before=item.probability
+        estimate=probabilities[item.line]
+        if item.outcome=="under":estimate=1-estimate
+        p=max(.00001,min(.99999,(1-model.blend)*before+model.blend*estimate))
+        out.append(replace(item,probability=p))
+    return out
+
+def fit_total_model(index,rho=0.,max_training=1800,max_validation=450):
+    # Hyperparameter selection on 2024 only, never optimize using 2025/26 outcomes.
+    train=[];valid=[]
+    for _,event in index.global_games:
+        try:
+            at=fixture_datetime(event)
+            if at.year!=2024:continue
+            feat=features(event,index)
+            expected,_=estimate_goals(event,index)
+            if feat is None or expected is None:continue
+            scores=outcome_scores(event);goals=sum(scores)
+            poisson=markets_from_matrix(score_matrix(expected["home"],expected["away"],rho))
+            baseline={c.line:c.probability for c in poisson if c.family=="goals" and c.outcome=="over"}
+            item=(feat,goals,baseline)
+            (train if at.month<=8 else valid).append(item)
+        except (ValueError,TypeError,OverflowError):continue
+    def thin(seq,n):
+        return seq if len(seq)<=n else [seq[int(i*len(seq)/n)] for i in range(n)]
+    train=thin(train,max_training);valid=thin(valid,max_validation)
+    def score(rows,scale,weight):
+        error=0.0
+        for feat,goals,baseline in rows:
+            dist=total_distribution(feat["mean"],max(feat["mean"],feat["variance"]*scale))
+            for line in LINES:
+                special=.80*sum(dist[int(line)+1:])+.20*feat["empirical_over"][line]
+                p=(1-weight)*baseline[line]+weight*special
+                error+=(p-int(goals>line))**2
+        return error/(len(rows)*len(LINES))
+    if len(train)>=100 and len(valid)>=50:
+        # Learn dispersion on training only; reserve 2024 holdout for blending.
+        shape=min((.85,1.0,1.2),key=lambda scale:score(train,scale,1.0))
+        candidates=[(score(valid,shape,w),w) for w in (0.,.25,.50,.75,1.)]
+        best=min(candidates)
+        baseline=score(valid,shape,0.)
+        blend=best[1] if best[0]<baseline-.001 else 0.
+        chosen=score(valid,shape,blend)
+        return TotalGoalsModel(blend,shape,len(train),len(valid)),{
+            "trained":len(train),"validated":len(valid),
+            "baseline_brier":round(baseline,6),
+            "selected_brier":round(chosen,6),
+            "blend":blend,"variance_scale":shape,
+            "train_period":"2024-01 through 2024-08",
+            "validation_period":"2024-09 through 2024-12"}
+    return TotalGoalsModel(0.,1.,len(train),len(valid)),{
+        "trained":len(train),"validated":len(valid),"blend":0.,
+        "reason":"insufficient_2024_data"}

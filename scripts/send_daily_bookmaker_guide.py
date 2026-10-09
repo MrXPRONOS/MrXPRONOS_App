@@ -16,32 +16,32 @@ OVERRIDE = (os.environ.get("BOOKMAKER_OVERRIDE") or "").strip().lower()
 PARTNERS = {
     "melbet": {
         "name": "MelBet",
-        "image": "assets/images/melbet.png",
+        "image": "assets/images/telegram-guides/melbet-xpvip.jpg",
         "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
     },
     "betwinner": {
         "name": "BetWinner",
-        "image": "assets/images/betwinner.png",
+        "image": "assets/images/telegram-guides/betwinner-xpvip.jpg",
         "url": "https://bwredir.com/299Y",
     },
     "1xbet": {
         "name": "1xBet",
-        "image": "assets/images/1xbet.png",
+        "image": "assets/images/telegram-guides/1xbet-xpvip.jpg",
         "url": "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573",
     },
     "linebet": {
         "name": "LineBet",
-        "image": "assets/images/linebet.png",
+        "image": "assets/images/telegram-guides/linebet-xpvip.jpg",
         "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
     },
     "1win": {
         "name": "1Win",
-        "image": "assets/images/1win.png",
+        "image": "assets/images/telegram-guides/1win-xpvip.jpg",
         "url": "https://1wrbgb.com/?open=register&p=qqcw",
     },
     "betclic": {
         "name": "Betclic",
-        "image": "assets/images/betclic.png",
+        "image": "assets/images/telegram-guides/betclic-xpvip.jpg",
         "url": "https://betpari-click.com/2vY0?extid=USD",
     },
 }
@@ -91,23 +91,27 @@ def common_keyboard():
 def caption_for(partner):
     return (
         f"📲 <b>COMMENT CRÉER TON COMPTE {partner['name'].upper()} ?</b>\n\n"
-        "Suis simplement les étapes indiquées sur l'image puis utilise le bouton ci-dessous "
-        "pour passer par le lien partenaire MrXPRONOS.\n\n"
-        "🎁 <b>Code promo : XPVIP</b>\n"
-        "Avant de valider ton inscription, vérifie que <b>XPVIP</b> apparaît bien dans le champ "
-        "« Code promo » lorsque ce champ est proposé.\n\n"
-        "⚠️ <b>18+</b> · Les bonus, montants et conditions peuvent varier selon le pays et le compte. "
-        "Joue de façon responsable."
+        "Suis les étapes affichées sur l’image puis utilise le bouton ci-dessous pour accéder "
+        "au lien partenaire MrXPRONOS.\n\n"
+        "<blockquote>🎁 <b>CODE PROMO : XPVIP</b>\n"
+        "<i>Avant de valider ton inscription, vérifie que XPVIP apparaît bien dans le champ "
+        "« Code promo » lorsqu’il est proposé.</i></blockquote>\n\n"
+        "👇 <b>Inscription :</b> clique sur le bouton juste en dessous.\n\n"
+        "⚠️ <b>18+</b> · <i>Offres et conditions variables selon le pays et le compte. "
+        "Joue de façon responsable.</i>"
     )
 
 
 def common_caption():
     return (
-        "🔥 <b>CODE PROMO XPVIP — PARTENAIRES MrXPRONOS</b>\n\n"
-        "Choisis ton bookmaker avec les boutons ci-dessous et vérifie que le code "
-        "<b>XPVIP</b> est bien renseigné lorsque le champ promo est proposé.\n\n"
-        "⚠️ <b>18+</b> · Les offres et conditions peuvent varier selon le pays. "
-        "Joue de façon responsable."
+        "🔥 <b>XPVIP — PARTENAIRES MrXPRONOS</b>\n\n"
+        "Choisis le bookmaker qui te convient avec les boutons ci-dessous.\n\n"
+        "<blockquote>🎁 <b>CODE PROMO : XPVIP</b>\n"
+        "<i>Vérifie que le code est bien renseigné lorsque le champ promo est proposé "
+        "avant de terminer ton inscription.</i></blockquote>\n\n"
+        "👇 <b>Sélectionne ton bookmaker :</b>\n\n"
+        "⚠️ <b>18+</b> · <i>Les offres et conditions peuvent varier selon le pays. "
+        "Joue de façon responsable.</i>"
     )
 
 
@@ -162,6 +166,9 @@ def main():
     else:
         partner = PARTNERS[today]
         image = partner["image"]
+        if not Path(image).exists():
+            raise SystemExit(f"Affiche XPVIP introuvable pour {partner['name']}: {image}")
+        print(f"🖼️ Affiche XPVIP sélectionnée: {image}")
         caption = caption_for(partner)
         keyboard = single_keyboard(partner)
         label = partner["name"]

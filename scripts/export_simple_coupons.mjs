@@ -69,11 +69,22 @@ function pickTopSimpleToday(limit){
 
   return sorted.slice(0, limit).map(m => ({
     match_id: String(m.id),
+    generated_at: m.generated_at || data.generated_at || "",
+    home_score: m.home_score,
+    away_score: m.away_score,
+    is_finished: Boolean(m.is_finished),
+    paid_amount: Number(m?.paid_amount) > 0 ? Number(m.paid_amount) : null,
+    potential_gain: Number(m?.potential_gain) > 0 ? Number(m.potential_gain) : null,
     home_team: m.home_team || "Équipe A",
     away_team: m.away_team || "Équipe B",
-    league: m.league || m.league_name || "Football",
+    league: m.league || m.league_name || "Compétition non renseignée",
     event_date: m.event_date || m.date || "",
-    prediction: m?.prediction?.double_chance || m?.double_chance || "-",
+    prediction: m?.prediction?.label || m?.prediction?.type || m?.prediction?.double_chance || m?.double_chance || "-",
+    odds: Number(m?.prediction?.odds) > 0 ? Number(m.prediction.odds) : null,
+    odds_source: m?.prediction?.odds_source || "",
+    stake: Number(m?.actual_stake) > 0 ? Number(m.actual_stake) : null,
+    score: m?.home_score != null && m?.away_score != null ? `${m.home_score}:${m.away_score}` : "VS",
+    status: m?.is_finished ? "Terminé" : "Pronostic",
     confidence: m?.prediction?.confidence || m?.confidence || null,
     home_logo: pickLogo(m, "home"),
     away_logo: pickLogo(m, "away"),
@@ -130,6 +141,14 @@ function couponHtml(match){
   const homeLogo = asAssetUrl(match.home_logo);
   const awayLogo = asAssetUrl(match.away_logo);
   const oneXbetLogo = new URL("assets/images/1xbet.png", URL).href;
+  const melbetLogo = new URL("assets/images/melbet.png", URL).href;
+  const oddsText = match.odds ? Number(match.odds).toFixed(3) : "—";
+  const stakeText = match.stake ? `${Math.round(match.stake).toLocaleString("fr-FR")} F` : "—";
+  const paidText = match.paid_amount ? `${match.paid_amount.toLocaleString("fr-FR", {minimumFractionDigits:2,maximumFractionDigits:2})} F` : "—";
+  const possibleGain = match.potential_gain || (match.stake && match.odds ? match.stake * match.odds : null);
+  const gainText = possibleGain ? `${possibleGain.toLocaleString("fr-FR", {minimumFractionDigits:2,maximumFractionDigits:2})} F` : "—";
+  const generatedLabel = match.generated_at ? eventDateLabel(match.generated_at) : "Date indisponible";
+  const fixtureDate = eventDateLabel(match.event_date);
 
   const homeVisual = homeLogo
     ? `<img class="team-logo" src="${esc(homeLogo)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="team-fallback" style="display:none">${esc(initials(match.home_team))}</div>`
@@ -145,253 +164,111 @@ function couponHtml(match){
 <meta charset="utf-8">
 <base href="${esc(URL)}">
 <style>
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:#0f2639;font-family:Arial,Helvetica,sans-serif}
-  body{width:920px;min-height:700px;color:#f4f7fa}
-
-  #coupon{
-    width:920px;
-    background:#173149;
-    color:#f4f7fa;
-    border:1px solid #2a455d;
-    overflow:hidden;
-  }
-
-  .topbar{
-    height:112px;
-    background:#020202;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 24px;
-  }
-
-  .brand-wrap{display:flex;align-items:center;height:100%}
-  .brand-wrap img{
-    width:235px;
-    max-height:82px;
-    object-fit:contain;
-    object-position:left center;
-  }
-
-  .promo{
-    min-width:410px;
-    height:68px;
-    background:#efd338;
-    color:#050505;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:0 26px;
-    font-size:34px;
-    font-weight:900;
-    letter-spacing:-1.2px;
-    white-space:nowrap;
-  }
-
-  .summary{
-    background:#18344f;
-    border-bottom:1px solid #36536d;
-    padding:22px 28px 20px;
-  }
-
-  .summary-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:20px;
-  }
-
-  .events{
-    display:flex;
-    align-items:center;
-    font-size:28px;
-    font-weight:600;
-    color:#dbe6ef;
-  }
-  .events-icon{
-    margin-right:11px;
-    color:#93a8ba;
-    font-size:25px;
-  }
-  .finished{
-    font-size:26px;
-    color:#e2eaf0;
-  }
-
-  .status-row{
-    margin-top:18px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    font-size:27px;
-  }
-  .status-label{color:#8ca2b5}
-  .accepted{color:#4b96df;font-weight:700}
-
-  .event-card{
-    margin:14px 16px 20px;
-    background:#163149;
-    border:1px solid #0e273b;
-    border-radius:24px;
-    overflow:hidden;
-    box-shadow:0 4px 10px rgba(0,0,0,.18);
-  }
-
-  .event-head{
-    display:flex;
-    align-items:center;
-    padding:20px 22px 13px;
-    color:#91a5b7;
-  }
-  .ball{
-    width:38px;height:38px;border:2px solid #7d91a3;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    margin-right:13px;font-size:22px;flex:0 0 auto;
-  }
-  .event-meta{display:flex;flex-direction:column;gap:4px}
-  .league{font-size:21px;color:#93a6b7}
-  .date{font-size:20px;color:#8da1b3}
-
-  .teams{
-    min-height:190px;
-    display:grid;
-    grid-template-columns:1fr 110px 1fr;
-    align-items:center;
-    gap:10px;
-    padding:10px 24px 22px;
-  }
-
-  .team{
-    display:flex;
-    align-items:center;
-    min-width:0;
-  }
+  * {box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#123e64}
+  body{width:430px}
+  #coupon{width:430px;background:#f5f6f8;overflow:hidden}
+  /* Les sponsors restent hors du ticket, comme un bandeau de partenariat. */
+  .sponsor{height:53px;background:#0b0d13;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 10px}
+  .brand-wrap{display:flex;align-items:center;gap:7px;min-width:0}
+  .brand-wrap img{width:82px;height:29px;object-fit:contain}
+  .brand-or{font-size:12px;color:#eee;font-weight:700}
+  .promo{background:#f5d339;border-radius:4px;color:#090909;padding:9px 8px;font-weight:900;font-size:11px;white-space:nowrap}
+  .topbar{height:54px;display:grid;grid-template-columns:44px 1fr 76px;align-items:center;background:#fff;color:#5480a1}
+  .topbar .back{font-size:34px;line-height:1;text-align:center;font-weight:300}
+  .topbar .title{text-align:center;font-size:16px;font-weight:700;white-space:nowrap}
+  .topbar .actions{display:flex;justify-content:space-evenly;align-items:center}
+  .topbar .bell{font-size:20px;line-height:1;font-weight:400}
+  .topbar .more{font-size:21px;letter-spacing:2px;line-height:1}
+  .ticket-meta{height:69px;padding:8px 16px;display:flex;align-items:center;gap:12px;background:#fff;border-bottom:1px solid #e7ebef}
+  .ball-wrap{position:relative;width:48px;height:48px;flex:none;border-radius:50%;background:#e8eff5;display:grid;place-items:center;color:#809eb3}
+  .ball-wrap .ball{font-size:25px;filter:grayscale(1);opacity:.56}
+  .ball-wrap .tick{position:absolute;right:0;bottom:-1px;display:grid;place-items:center;border:2px solid white;border-radius:50%;width:20px;height:20px;background:#4d93d4;color:#fff;font-size:13px;font-weight:700}
+  .head-text{min-width:0;line-height:1.15}
+  .head-time{font-size:12px;color:#5c829e;font-weight:700}
+  .head-type{font-size:17px;line-height:1.15;font-weight:800;color:#15436c}
+  .head-id{font-size:10px;color:#214c71;font-weight:700;margin-top:3px}
+  .summary{background:#fff;padding:9px 15px 9px}
+  .summary-row{min-height:25px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .summary-row .label{font-weight:700;color:#5a83a0;font-size:15.5px}
+  .summary-row .value{font-weight:800;color:#0c3962;font-size:15.5px;white-space:nowrap}
+  .summary-row .value.status{color:#4796d7}
+  .fixture-wrap{padding:5px 4px 0;background:#f0f2f6}
+  .fixture{border-radius:15px 15px 0 0;background:#fff;overflow:hidden;border:5px solid #f0f2f6;border-bottom:0}
+  .fixture-head{height:53px;padding:8px 11px;display:flex;align-items:center;gap:9px}
+  .fixture-head .small-ball{font-size:21px;filter:grayscale(1);opacity:.54;width:27px;flex:none}
+  .fixture-meta{min-width:0}
+  .league{font-size:12px;font-weight:700;color:#5e839f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:348px}
+  .fixture-date{font-size:12px;font-weight:700;color:#6588a4;margin-top:2px}
+  .teams{min-height:52px;display:grid;grid-template-columns:minmax(0,1fr) 40px minmax(0,1fr);align-items:center;padding:1px 12px 9px;column-gap:4px}
+  .team{display:flex;align-items:center;gap:8px;min-width:0}
   .team.home{justify-content:flex-end}
   .team.away{justify-content:flex-start}
-
-  .team-name{
-    font-size:28px;
-    font-weight:600;
-    line-height:1.12;
-    color:#f5f8fa;
-    max-width:245px;
-  }
-  .home .team-name{text-align:right;margin-right:14px}
-  .away .team-name{text-align:left;margin-left:14px}
-
-  .team-logo{
-    width:72px;height:72px;object-fit:contain;flex:0 0 auto;
-  }
-  .team-fallback{
-    width:72px;height:72px;border-radius:50%;
-    border:3px solid #4b96df;color:#4b96df;
-    align-items:center;justify-content:center;
-    font-size:25px;font-weight:900;flex:0 0 auto;
-  }
-
-  .vs{
-    display:flex;align-items:center;justify-content:center;
-    color:#f5f7f9;font-size:34px;font-weight:500;
-  }
-
-  .separator{height:1px;background:#2f4b63;width:100%}
-
-  .pick-row{
-    min-height:105px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:18px 24px;
-  }
-  .pick-left{display:flex;flex-direction:column;gap:8px}
-  .pick-caption{font-size:21px;color:#8fa4b6}
-  .pick-value{font-size:30px;font-weight:700;color:#f8fafc}
-  .pick-status{font-size:26px;color:#4b96df;font-weight:700}
-
-  .footer-status{
-    min-height:70px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 24px;
-    font-size:25px;
-  }
-  .footer-status .label{color:#8fa4b6}
-
-  .responsible{
-    height:64px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:#10273a;
-    border-top:1px solid #29465f;
-    color:#8198aa;
-    font-size:18px;
-    letter-spacing:.1px;
-  }
+  .team-name{min-width:0;max-width:132px;font-size:13px;font-weight:800;line-height:1.17;color:#123e67;overflow-wrap:anywhere}
+  .home .team-name{text-align:right}
+  .away .team-name{text-align:left}
+  .team-logo{height:33px;width:33px;flex:none;object-fit:contain}
+  .team-fallback{height:33px;width:33px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#edf3f8;color:#507896;border:1px solid #dce6ed;font-size:10px;font-weight:800}
+  .vs{font-size:21px;line-height:1;font-weight:900;color:#0d416e;text-align:center}
+  .separator{height:1px;background:#e5ebf0}
+  .market-row{min-height:30px;padding:5px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .market-label{font-size:13px;line-height:1.15;font-weight:800;color:#123c64;min-width:0}
+  .market-odd{font-size:14px;font-weight:800;color:#123c64;white-space:nowrap}
+  .footer-status{min-height:29px;padding:5px 14px;display:flex;justify-content:space-between;align-items:center}
+  .footer-status .label{font-size:13px;font-weight:700;color:#5b829e}
+  .footer-status .value{font-size:14px;font-weight:800;color:#4e99dc}
+  .responsible{height:30px;background:#fff;border-top:1px solid #e9edf1;display:grid;place-items:center;font-size:11px;font-weight:700;color:#7791a6}
 </style>
 </head>
 <body>
   <div id="coupon">
+    <div class="sponsor">
+      <div class="brand-wrap"><img src="${esc(oneXbetLogo)}" alt="1XBET"><span class="brand-or">ou</span><img src="${esc(melbetLogo)}" alt="MELBET"></div>
+      <div class="promo">Code Promo: XPVIP</div>
+    </div>
     <div class="topbar">
-      <div class="brand-wrap"><img src="${esc(oneXbetLogo)}" alt="1XBET"></div>
-      <div class="promo">CODE PROMO XPVIP</div>
+      <span class="back">‹</span>
+      <span class="title">Informations sur le pari</span>
+      <div class="actions"><span class="bell">♧</span><span class="more">•••</span></div>
     </div>
-
+    <div class="ticket-meta">
+      <span class="ball-wrap"><span class="ball">⚽</span><span class="tick">✓</span></span>
+      <div class="head-text">
+        <div class="head-time">${esc(generatedLabel)}</div>
+        <div class="head-type">Simple</div>
+        <div class="head-id">N° ${esc(match.match_id)}</div>
+      </div>
+    </div>
     <div class="summary">
-      <div class="summary-row">
-        <div class="events"><span class="events-icon">▰</span>Événements : 1</div>
-        <div class="finished">0 sur 1 terminé</div>
-      </div>
-      <div class="status-row">
-        <div class="status-label">Statut:</div>
-        <div class="accepted">Accepté</div>
+      <div class="summary-row"><span class="label">Cotes:</span><span class="value">${esc(oddsText)}</span></div>
+      <div class="summary-row"><span class="label">Mise:</span><span class="value">${esc(stakeText)}</span></div>
+      <div class="summary-row"><span class="label">Versé:</span><span class="value">${esc(paidText)}</span></div>
+      <div class="summary-row"><span class="label">Gains potentiels:</span><span class="value">${esc(gainText)}</span></div>
+      <div class="summary-row"><span class="label">Statut:</span><span class="value status">${esc(match.status)}</span></div>
+    </div>
+    <div class="fixture-wrap">
+      <div class="fixture">
+        <div class="fixture-head">
+          <span class="small-ball">⚽</span>
+          <div class="fixture-meta">
+            <div class="league">Football · ${esc(match.league)}</div>
+            <div class="fixture-date">${esc(fixtureDate)}</div>
+          </div>
+        </div>
+        <div class="teams">
+          <div class="team home"><div class="team-name">${esc(match.home_team)}</div>${homeVisual}</div>
+          <div class="vs">${esc(match.score)}</div>
+          <div class="team away">${awayVisual}<div class="team-name">${esc(match.away_team)}</div></div>
+        </div>
+        <div class="separator"></div>
+        <div class="market-row">
+          <span class="market-label">${esc(predictionLabel(match.prediction))}</span>
+          <span class="market-odd">${esc(oddsText)}</span>
+        </div>
+        <div class="footer-status"><span class="label">Statut:</span><span class="value">${esc(match.status)}</span></div>
       </div>
     </div>
-
-    <div class="event-card">
-      <div class="event-head">
-        <div class="ball">⚽</div>
-        <div class="event-meta">
-          <div class="league">Football · ${esc(match.league)}</div>
-          <div class="date">${esc(eventDateLabel(match.event_date))}</div>
-        </div>
-      </div>
-
-      <div class="teams">
-        <div class="team home">
-          <div class="team-name">${esc(match.home_team)}</div>
-          ${homeVisual}
-        </div>
-
-        <div class="vs">VS</div>
-
-        <div class="team away">
-          ${awayVisual}
-          <div class="team-name">${esc(match.away_team)}</div>
-        </div>
-      </div>
-
-      <div class="separator"></div>
-
-      <div class="pick-row">
-        <div class="pick-left">
-          <div class="pick-caption">Pronostic Mr XPRONOS</div>
-          <div class="pick-value">${esc(predictionLabel(match.prediction))}</div>
-        </div>
-        <div class="pick-status">Accepté</div>
-      </div>
-
-      <div class="separator"></div>
-
-      <div class="footer-status">
-        <div class="label">Statut:</div>
-        <div class="accepted">Accepté</div>
-      </div>
-    </div>
-
-    <div class="responsible">18+ · Joue responsablement · Mr XPRONOS</div>
+    <div class="responsible">Parier responsablement.</div>
   </div>
 </body>
 </html>`;
@@ -407,8 +284,8 @@ function couponHtml(match){
 
   const browser = await chromium.launch();
   const page = await browser.newPage({
-    viewport: { width: 980, height: 900 },
-    deviceScaleFactor: 2,
+    viewport: { width: 460, height: 720 },
+    deviceScaleFactor: 3,
   });
 
   let exported = 0;
@@ -421,9 +298,14 @@ function couponHtml(match){
     await page.waitForFunction(() => {
       const images = Array.from(document.images);
       return images.every(img => img.complete);
-    }, { timeout: 10000 }).catch(() => {});
+    }, null, { timeout: 12000 }).catch(() => {});
 
-    await page.waitForTimeout(250);
+    await page.evaluate(() => {
+      document.querySelectorAll("img.team-logo").forEach(img => {
+        if (!img.complete || img.naturalWidth === 0) img.dispatchEvent(new Event("error"));
+      });
+    });
+    await page.waitForTimeout(150);
 
     const coupon = page.locator("#coupon").first();
     const file = path.join(OUT_DIR, `simple_${pad(i+1)}.png`);
@@ -444,6 +326,6 @@ function couponHtml(match){
     "utf-8",
   );
 
-  console.log(`Export terminé: ${exported}/${picked.length} coupons style 1xBet -> ${OUT_DIR}/`);
+  console.log(`Export terminé: ${exported}/${picked.length} coupons fidèles au ticket clair -> ${OUT_DIR}/`);
   await browser.close();
 })();

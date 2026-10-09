@@ -1,0 +1,35 @@
+{
+  "promo_code": "XPVIP",
+  "partners": {
+    "1xbet": {
+      "name": "1xBet",
+      "url": "https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573",
+      "enabled": true
+    },
+    "1win": {
+      "name": "1Win",
+      "url": "https://1wrbgb.com/?open=register&p=qqcw",
+      "enabled": true
+    },
+    "melbet": {
+      "name": "MelBet",
+      "url": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
+      "enabled": true
+    },
+    "linebet": {
+      "name": "LineBet",
+      "url": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
+      "enabled": true
+    },
+    "betclic": {
+      "name": "Betclic",
+      "url": "https://betpari-click.com/2vY0?extid=USD",
+      "enabled": true
+    },
+    "betwinner": {
+      "name": "BetWinner",
+      "url": "https://bwredir.com/299Y",
+      "enabled": true
+    }
+  }
+}
