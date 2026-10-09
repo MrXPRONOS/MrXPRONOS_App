@@ -5,6 +5,7 @@ import json
 import base64
 import textwrap
 import requests
+from telegram_promo_channels import promo_channels, deliver_to_both
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -173,32 +174,19 @@ def main():
     api=f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
     markup=json.dumps(keyboard(),ensure_ascii=False)
 
-    primary_error=None
-    for role,cid in chat_ids():
-        try:
-            with Path(image_path).open("rb") as f:
-                r=requests.post(
-                    api,
-                    data={
-                        "chat_id":cid,
-                        "caption":CAPTION,
-                        "parse_mode":"HTML",
-                        "reply_markup":markup,
-                    },
-                    files={"photo":("xpvip-partners.jpg",f,"image/jpeg")},
-                    timeout=120,
-                )
-            if not r.ok:
-                raise RuntimeError(f"{r.status_code} {r.text}")
-            print(f"✅ Promo XPVIP commune envoyée vers {cid} ({role})")
-        except Exception as e:
-            if role=="primary":
-                primary_error=f"{cid}: {e}"
-            else:
-                print(f"⚠️ Canal secondaire ignoré après erreur: {cid}: {e}")
-
-    if primary_error:
-        raise SystemExit(primary_error)
+    def send_to(cid):
+        with Path(image_path).open("rb") as f:
+            response=requests.post(
+                api,data={
+                    "chat_id":cid,"caption":CAPTION,"parse_mode":"HTML",
+                    "reply_markup":markup,
+                },files={"photo":("xpvip-partners.jpg",f,"image/jpeg")},
+                timeout=120)
+        response.raise_for_status()
+        if not response.json().get("ok",False):
+            raise RuntimeError(f"Telegram rejected promo for {cid}")
+    deliver_to_both(promo_channels(CHAT_ID,SECONDARY_CHAT_ID),
+                    send_to,label="Promo XPVIP commune")
 
 if __name__=="__main__":
     main()
