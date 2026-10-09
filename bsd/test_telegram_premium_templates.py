@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent.parent/"scripts"))
 from telegram_premium_templates import bonus,guide,partners,daily_promo,coupon,live,premium_sections
-from telegram_rich import rich_markup,rich_buttons
+from telegram_rich import rich_markup,rich_buttons,legacy_caption
 
 class PremiumTelegramTests(unittest.TestCase):
     def test_bonus_has_distinct_paragraphs_heading_quote_emphasis(self):
@@ -53,6 +53,16 @@ class PremiumTelegramTests(unittest.TestCase):
         self.assertEqual(markup.count("<tg-button "),1)
         self.assertIn('align="center"',markup)
         self.assertIn('style="success"',markup)
+
+    def test_legacy_fallback_strips_rich_only_blocks(self):
+        html=bonus("1Win","Bienvenue","100%","Conditions")
+        legacy=legacy_caption(html)
+        self.assertNotIn("<h3>",legacy)
+        self.assertNotIn("<p>",legacy)
+        self.assertNotIn("<br/>",legacy)
+        self.assertIn("<blockquote>",legacy)
+        self.assertIn("<b>",legacy)
+        self.assertIn("XPVIP",legacy)
 
     def test_html_escaping_for_dynamic_labels(self):
         output=bonus("<unsafe>","Bonus","100%","<script>")
