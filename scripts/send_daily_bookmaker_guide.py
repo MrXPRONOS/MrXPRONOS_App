@@ -7,10 +7,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
+from telegram_promo_channels import promo_channels, deliver_to_both
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
-SECONDARY_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID_SECONDARY", "@mrxpronosfr")
+SECONDARY_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID_SECONDARY")
 OVERRIDE = (os.environ.get("BOOKMAKER_OVERRIDE") or "").strip().lower()
 
 PARTNERS = {
@@ -149,7 +150,10 @@ def send_photo(chat_id, image_path, caption, keyboard):
 
     if not response.ok:
         raise RuntimeError(f"Telegram {response.status_code}: {response.text}")
-    return response.json()
+    response_data=response.json()
+    if not response_data.get("ok",False):
+        raise RuntimeError(f"Telegram rejected message for {chat_id}")
+    return response_data
 
 
 def main():
@@ -173,16 +177,11 @@ def main():
         keyboard = single_keyboard(partner)
         label = partner["name"]
 
-    errors = []
-    for cid in chat_ids():
-        try:
-            send_photo(cid, image, caption, keyboard)
-            print(f"✅ {label} envoyé vers {cid}")
-        except Exception as exc:
-            errors.append(f"{cid}: {exc}")
-
-    if errors:
-        raise SystemExit(" | ".join(errors))
+    deliver_to_both(
+        promo_channels(CHAT_ID,SECONDARY_CHAT_ID),
+        lambda cid: send_photo(cid,image,caption,keyboard),
+        label=label,
+    )
 
 
 if __name__ == "__main__":
