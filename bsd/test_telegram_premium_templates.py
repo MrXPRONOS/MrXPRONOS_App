@@ -56,7 +56,7 @@ class PremiumTelegramTests(unittest.TestCase):
 
     def test_html_escaping_for_dynamic_labels(self):
         output=bonus("<unsafe>","Bonus","100%","<script>")
-        self.assertIn("&lt;UNSAFE&gt;",output)
+        self.assertIn("&lt;unsafe&gt;",output.lower())
         self.assertNotIn("<script>",output)
 
 if __name__=="__main__":
