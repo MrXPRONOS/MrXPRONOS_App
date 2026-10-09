@@ -55,14 +55,9 @@ jobs:
           assert isinstance(data["matches"],list)
           assert all(m["source"]=="bsd" and m["prediction"]["selection_key"] for m in data["matches"])
           assert all(
-              m["prediction"]["selection_key"] != "UNDER_45"
-              and m["prediction"].get("odds_source") in ("bsd_consensus","bsd_bookmaker")
-              and isinstance(m["prediction"].get("odds"),(int,float))
-              and not isinstance(m["prediction"]["odds"],bool)
-              and 1.01 <= m["prediction"]["odds"] <= 100
-              and (m["prediction"]["odds"]>=1.20 or m.get("combo_only") is True)
+              valid_standalone_prediction(m["prediction"], m.get("combo_only",False))
               for m in data["matches"]
-          ), "Invalid BSD priced selection in published feed"
+          ), "Invalid BSD or estimated priced selection in published feed"
           print("BSD_V2_PRICED_FEED_OK",len(data["matches"]))
           for match in data["matches"]:
               selections=match.get("predictions") or [match["prediction"]]
@@ -71,10 +66,7 @@ jobs:
               assert len({p["selection_key"] for p in selections})==len(selections)
               assert len({p["market"] for p in selections})==len(selections), "Market families must differ"
               for pick in selections:
-                  assert pick["odds_source"] in ("bsd_consensus","bsd_bookmaker")
-                  assert type(pick["odds"]) in (int,float) and 1.01<=pick["odds"]<=100
-                  assert pick["odds"]>=1.20 or match.get("combo_only") is True
-                  assert pick["selection_key"]!="UNDER_45"
+                  assert valid_standalone_prediction(pick,match.get("combo_only",False))
           for match in data["matches"]:
               combo=match.get("combo_prediction")
               if combo:

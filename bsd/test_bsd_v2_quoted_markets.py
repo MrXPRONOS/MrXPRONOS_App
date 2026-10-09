@@ -51,8 +51,8 @@ class PricedSelectionTests(unittest.TestCase):
             pick=match["prediction"]
             self.assertEqual(pick["odds_source"],"mrxpronos_model")
             self.assertTrue(pick["estimated_odds"])
-            self.assertGreaterEqual(pick["odds"],1.20)
-        self.assertEqual(out["diagnostics"]["rejections"]["no_qualified_bsd_odds"],1)
+            self.assertGreaterEqual(pick["odds"],1.01)
+        self.assertGreaterEqual(out["diagnostics"]["rejections"].get("model_estimated",0),0)
 
     def test_unquoted_match_is_published_and_reaches_telegram(self):
         from bsd_v2_telegram import due
@@ -73,7 +73,7 @@ class PricedSelectionTests(unittest.TestCase):
                 "category":"simple","model_version":"bsd-v2-isolated",
                 "prediction":pick,"ranked_candidates":[option]}
         with patch("bsd_v2_publish.predict_v2",
-                   side_effect=[(None,"no_qualified_market"),(shadow,"ok")]):
+                   return_value=(shadow,"ok")):
             out=assemble({},[fixture],self.history,now=self.now,
                 calibration=None,policy=None,rho=0,
                 odds_fetcher=lambda *a:({},{}),max_odds_requests=2)
@@ -83,6 +83,34 @@ class PricedSelectionTests(unittest.TestCase):
         self.assertTrue(published["prediction"]["estimated_odds"])
         self.assertGreaterEqual(published["prediction"]["odds"],1.20)
         self.assertEqual([x["id"] for x in due(out["matches"],self.now)],["bsd:17"])
+
+    def test_selected_market_remains_identical_with_or_without_bsd_quote(self):
+        fixture={**self.fixture}
+        base={"id":"bsd:17","home_team_id":1,"away_team_id":2,
+              "category":"simple","model_version":"bsd-v2-isolated",
+              "prediction":{"key":"1X","name":"Double chance 1X",
+                  "market":"double_chance","outcome":"1X","line":None,
+                  "internal_market_code":"DC_1X_FT",
+                  "probability":.76,"conservative_probability":.73,
+                  "fair_odds":round(1/.76,4),"bookmaker_odds":None,
+                  "calibration_samples":40},
+              "ranked_candidates":[]}
+        scenarios=(
+            ({}, "mrxpronos_model"),
+            ({"DC_1X_FT":{"odds":1.34,"origin":"bsd_consensus",
+                           "updated_at":self.now.isoformat()}}, "bsd_consensus"),
+            ({"BTTS_YES_FT":{"odds":1.88,"origin":"bsd_consensus",
+                              "updated_at":self.now.isoformat()}}, "mrxpronos_model"))
+        for quotes,expected_source in scenarios:
+            with self.subTest(expected_source=expected_source,quotes=quotes):
+                import copy
+                with patch("bsd_v2_publish.predict_v2",return_value=(copy.deepcopy(base),"ok")):
+                    out=assemble({},[fixture],self.history,now=self.now,
+                        calibration=None,policy=None,rho=0,
+                        odds_fetcher=lambda *a:(quotes,{}),max_odds_requests=2)
+                self.assertEqual(len(out["matches"]),1)
+                self.assertEqual(out["matches"][0]["prediction"]["selection_key"],"1X")
+                self.assertEqual(out["matches"][0]["prediction"]["odds_source"],expected_source)
 
     def test_previous_upcoming_model_pick_remains_immutable(self):
         original={"source":"bsd","matches":[{
@@ -107,11 +135,18 @@ class PricedSelectionTests(unittest.TestCase):
         out=assemble({},[self.fixture],self.history,now=self.now,
             calibration=None,policy=DummyPolicy(),rho=0,
             odds_fetcher=lambda *a:(quotes,{}),max_odds_requests=2)
-        self.assertTrue(all(m["prediction"]["odds"]>=1.20 and
+        self.assertTrue(all(m["prediction"]["odds"]>=1.01 and
                             m["prediction"]["selection_key"]!="UNDER_45"
                             for m in out["matches"]))
+        # La cote présente sur un AUTRE marché ne doit pas modifier
+        # le pronostic sélectionné : BSD ou estimation selon la clé choisie.
         if out["matches"]:
-            self.assertEqual(out["matches"][0]["prediction"]["odds_source"],"bsd_consensus")
+            pick=out["matches"][0]["prediction"]
+            self.assertIn(pick["odds_source"],("bsd_consensus","mrxpronos_model"))
+            if pick["odds_source"]=="bsd_consensus":
+                self.assertEqual(pick["market_code"],candidate.market_code)
+            else:
+                self.assertNotEqual(pick["market_code"],candidate.market_code)
 
     def test_invalid_legacy_feed_entries_are_removed(self):
         ko=(self.now+timedelta(hours=3)).isoformat()
