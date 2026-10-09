@@ -1,4 +1,5 @@
 name: BSD V2 - Generation quotidienne
+run-name: "BSD V2 - Generation quotidienne (${{ inputs.trigger_source || github.event_name }})"
 
 on:
   push:
@@ -7,9 +8,16 @@ on:
       - 'bsd/**'
       - 'assets/js/main.js'
       - '.github/workflows/bsd-v2-production.yml'
+  # Planification GitHub provisoire jusqu'à validation des tâches cron-job.org.
   schedule:
     - cron: '5 0 * * *' # 00:05 UTC, une seule generation par jour
   workflow_dispatch:
+    inputs:
+      trigger_source:
+        description: "Origine cron-job.org ou manuel"
+        required: false
+        default: "manual"
+        type: string
 
 permissions:
   contents: write
@@ -23,6 +31,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
+      - name: Journaliser la source
+        env:
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || github.event_name }}
+        run: |
+          echo "Déclenchement : ${TRIGGER_SOURCE}"
+          echo "Début UTC : $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
