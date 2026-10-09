@@ -11,6 +11,7 @@ const SUPABASE_SERVICE_ROLE_KEY =
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") || "";
 
+import { richPhotoOrLegacy } from "../_shared/telegram_rich.ts";
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
 const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") || "";
 const TELEGRAM_CHAT_ID_SECONDARY =
@@ -999,12 +1000,11 @@ async function sendPhoto(
       );
 
       try {
-        const res = await fetch(
-          `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`,
-          {
-            method: "POST",
-            body: form,
-          },
+        const res = await richPhotoOrLegacy(
+          TELEGRAM_BOT_TOKEN,chatId,png,caption,[
+            [{text:"Voir plus de coupons 🔥",url:"https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",style:"primary"}],
+            [{text:"S'inscrire ou reinitialiser son compte 🎯",url:"https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html",style:"success"}]
+          ],form,`coupon-live-${pred.id}.png`
         );
 
         if (res.ok) {
