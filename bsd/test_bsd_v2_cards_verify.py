@@ -43,7 +43,7 @@ class CardAndSettlement(unittest.TestCase):
                     now=datetime(2026,10,8,10,tzinfo=timezone.utc),
                     session=OfflineImageSession())
                 with Image.open(saved) as im:
-                    self.assertEqual(im.size,(1080,1300))
+                    self.assertEqual(im.size,(1080,1080))
                     self.assertEqual(im.format,"PNG")
 
     def test_false_odd_hidden_instead_of_invented(self):
