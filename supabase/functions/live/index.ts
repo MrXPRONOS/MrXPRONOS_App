@@ -4721,7 +4721,7 @@ async function validatePredictionsInPlay(
 
   for (const pred of pending) {
     // Jamais valider avant la publication du coupon initial.
-    if(pred.telegram_sent!==true){skipped++;continue;}
+    if(pred.telegram_sent!==true){ bumpSkip("telegram_not_sent"); continue; }
     const match = liveMap.get(String(pred.match_id));
     if (!match) {
       skipped++;
@@ -5741,6 +5741,11 @@ async function validatePredictionsNow() {
   let finalizedExisting = 0;
   let skipped = 0;
   let failed = 0;
+  const skipReasons: Record<string, number> = {};
+  const bumpSkip = (reason: string) => {
+    skipped++;
+    skipReasons[reason] = (skipReasons[reason] || 0) + 1;
+  };
 
   for (const pred of pending) {
     // Le coupon accepté doit toujours précéder le résultat.
@@ -5749,11 +5754,14 @@ async function validatePredictionsNow() {
     try {
       ev = await fetchBSD(`/events/${pred.match_id}/`);
     } catch {
-      skipped++;
+      bumpSkip("event_fetch_failed");
       continue;
     }
 
-    if (!isFinishedEvent(ev)) continue;
+    if (!isFinishedEvent(ev)) {
+      bumpSkip("event_not_finished");
+      continue;
+    }
 
     let stats = ev.live_stats || null;
     if (!stats) {
@@ -5765,7 +5773,7 @@ async function validatePredictionsNow() {
       }
     }
     if (!stats) stats = await getCachedLiveStats(String(pred.match_id));
-    if (!stats) { skipped++; continue; }
+    if (!stats) { bumpSkip("final_stats_missing"); continue; }
 
     const threshold = safeNumber(pred.threshold, 0);
     let finalValue = 0;
@@ -5781,7 +5789,7 @@ async function validatePredictionsNow() {
       finalValue = safeNumber(stats?.home?.fouls) + safeNumber(stats?.away?.fouls);
       ok = finalValue > threshold;
     } else {
-      skipped++;
+      bumpSkip("unsupported_market");
       continue;
     }
 
@@ -5810,7 +5818,7 @@ async function validatePredictionsNow() {
       });
 
       if (!validation.transitioned) {
-        skipped++;
+        bumpSkip("validation_transition_noop");
         continue;
       }
 
@@ -5848,7 +5856,15 @@ Résultat: ${ok ? "✅ réussi" : "❌ échoué"}`,
     }
   }
 
-  return { validated, finalized_existing: finalizedExisting, skipped, failed };
+  return {
+    validated,
+    finalized_existing: finalizedExisting,
+    skipped,
+    failed,
+    skip_reasons: skipReasons,
+    current_candidates: currentResult.data?.length || 0,
+    backlog_candidates: backlogResult.data?.length || 0,
+  };
 }
 
 // =======================================================
