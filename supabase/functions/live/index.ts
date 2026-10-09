@@ -1218,7 +1218,9 @@ function isValidFontFile(bytes: Uint8Array): boolean {
 }
 
 function toExactArrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy.buffer;
 }
 
 async function fetchRemoteFont(filename: string): Promise<Uint8Array> {
@@ -1552,7 +1554,7 @@ function telegramPeriodScores(match: any) {
   const p2a = select(raw?.sh_away,raw?.away_sh,raw?.second_half_away,raw?.periods?.second?.away,raw?.periods?.[1]?.away);
   let home = safeNumber(match?.home_score,0), away=safeNumber(match?.away_score,0);
   let detail = "";
-  if([p1h,p1a,p2h,p2a].every(x=>x !== null)){
+  if(p1h !== null && p1a !== null && p2h !== null && p2a !== null){
     home=p1h+p2h; away=p1a+p2a;
     detail=home+":"+away+" ("+p1h+":"+p1a+", "+p2h+":"+p2a+")";
   } else if(p1h !== null && p1a !== null && home >= p1h && away >= p1a) {
@@ -2149,7 +2151,7 @@ async function sendTelegramPhoto(
 
       form.append(
         "photo",
-        new Blob([pngBytes], { type: "image/png" }),
+        new Blob([toExactArrayBuffer(pngBytes)], { type: "image/png" }),
         `coupon-live-${Date.now()}-${attempt}.png`,
       );
 
@@ -4488,6 +4490,9 @@ async function savePrediction(
     throw error;
   }
 
+  if (!data?.id) throw new Error("Insertion live_predictions sans id retourné");
+  const predictionId = String(predictionId);
+
   // Une panne de notifications ne doit jamais empêcher la publication Telegram.
   try { await insertNotification({
     user_id: "all",
@@ -4503,36 +4508,36 @@ Cote ${livePricing.pricingMode === "external_live" ? "bookmaker" : "modèle"}: $
 Mise coupon: ${formatReceiptMoney(LIVE_COUPON_STAKE_FCFA)}`,
     priority: pred.probability >= 0.86 ? "urgent" : "normal",
     read: false,
-    related_prediction_id: data.id,
+    related_prediction_id: predictionId,
   }); }catch(e:any){console.warn("Notification LIVE indisponible, Telegram continue:",e?.message||String(e));}
 
   let telegramAttempted = false;
 
   if (options.sendTelegram !== false) {
-    const claimed = await claimTelegramDelivery(data.id);
+    const claimed = await claimTelegramDelivery(predictionId);
 
     if (claimed) {
       telegramAttempted = true;
       const telegramDelivery = await sendTelegramLiveCoupon(
         match,
         pred,
-        data.id,
+        predictionId,
       );
-      await markTelegramDelivery(data.id, telegramDelivery);
+      await markTelegramDelivery(predictionId, telegramDelivery);
     } else {
       console.log("⏭️ Envoi Telegram ignoré: prediction déjà claimée", {
-        prediction_id: data.id,
+        prediction_id: predictionId,
       });
     }
   } else {
     console.log("📥 Coupon LIVE mis en file Telegram", {
-      prediction_id: data.id,
+      prediction_id: predictionId,
     });
   }
 
   return {
     created: true,
-    id: data.id,
+    id: predictionId,
     telegram_attempted: telegramAttempted,
   };
 }
@@ -5853,8 +5858,6 @@ function enrichPredictionForUi(p: any, raw: any) {
 
     home_team: p.home_team ?? raw.home_team ?? null,
     away_team: p.away_team ?? raw.away_team ?? null,
-    home_score: p.home_score ?? raw.home_score ?? 0,
-    away_score: p.away_score ?? raw.away_score ?? 0,
     current_minute: p.minute ?? null, // minute du signal (fixe historique)
 
     league: raw.league ?? { name: p.league_name ?? null },
@@ -5907,8 +5910,8 @@ function enrichPredictionForUi(p: any, raw: any) {
     signal_minute:p.signal_minute,
     signal_half1_home:p.signal_half1_home,signal_half1_away:p.signal_half1_away,
     signal_half2_home:p.signal_half2_home,signal_half2_away:p.signal_half2_away,
-    home_score:p.signal_home_score??p.home_score??0,
-    away_score:p.signal_away_score??p.away_score??0,
+    home_score:p.signal_home_score??p.home_score??raw.home_score??0,
+    away_score:p.signal_away_score??p.away_score??raw.away_score??0,
     minute:p.signal_minute??p.minute??null,
     live_odds:p.live_odds,stake_fcfa:p.stake_fcfa,
     potential_gain_fcfa:p.potential_gain_fcfa,odds_source:p.odds_source
