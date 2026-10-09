@@ -19,6 +19,7 @@ SECONDARY_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID_SECONDARY", "@mrxpronosfr")
 SITE_URL = os.environ.get("SITE_URL", "https://mrxpronos.github.io/MrXPRONOS_App/")
 MORE_URL = os.environ.get("MORE_URL", SITE_URL + "pronos.html")
 HIST_URL = os.environ.get("HIST_URL", SITE_URL + "historique.html")
+BOOKMAKERS_URL = "https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html"
 
 # Fichiers
 OUT_DIR = os.environ.get("OUT_DIR", "telegram_out")
@@ -78,8 +79,8 @@ def send_photo(photo_path: str, caption: str = ""):
     url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
     keyboard = {
         "inline_keyboard": [
-            [{"text": "Voir plus de coupons", "url": MORE_URL}],
-            [{"text": "Ouvrir le site", "url": SITE_URL}],
+            [{"text": "Voir plus de coupons 🔥", "url": MORE_URL}],
+            [{"text": "S’inscrire ou réinitialiser son compte 🎯", "url": BOOKMAKERS_URL}],
         ]
     }
     errors = []
@@ -193,7 +194,7 @@ def send_today():
     n = min(len(files), len(matches))
     for idx in range(n):
         match_id = matches[idx]["match_id"]
-        send_photo(files[idx], caption="")
+        send_photo(files[idx], caption="Parier responsablement.")
         sb_log_sent(match_id, date_str)
         time.sleep(0.7)
 
