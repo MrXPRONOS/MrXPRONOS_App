@@ -26,6 +26,12 @@ jobs:
         run: |
           supabase functions deploy live --project-ref nhwafcpndlufzzxexikh --no-verify-jwt
 
+      - name: Deploy telegram-live
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase functions deploy telegram-live --project-ref nhwafcpndlufzzxexikh --no-verify-jwt
+
       - name: Deploy daily-pronos
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}

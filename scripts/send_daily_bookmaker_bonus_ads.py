@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import requests
+from telegram_rich import post_photo
 from telegram_promo_channels import promo_channels, deliver_to_both
 from telegram_promo_colors import colorized_button
 from PIL import Image, ImageOps
@@ -172,19 +173,10 @@ def send():
     bm = BOOKMAKERS[key]
     img = prepare_telegram_image(Path(bm["image"]))
     caption = html_caption(bm)
-    markup = json.dumps(keyboard(bm), ensure_ascii=False)
-    api = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
-
     channels=promo_channels(CHAT_ID,SECONDARY_CHAT_ID)
     def send_to(cid):
-        with img.open("rb") as f:
-            resp=requests.post(api,data={
-                "chat_id":cid,"caption":caption,"parse_mode":"HTML",
-                "reply_markup":markup,
-            },files={"photo":(img.name,f,"image/jpeg")},timeout=120)
-        resp.raise_for_status()
-        if not resp.json().get("ok",False):
-            raise RuntimeError(f"Telegram rejected image for {cid}")
+        post_photo(requests,BOT_TOKEN,cid,img,caption,keyboard(bm),
+                   timeout=120,mime="image/jpeg")
     deliver_to_both(channels,send_to,label=bm["name"])
 
 

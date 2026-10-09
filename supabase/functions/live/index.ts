@@ -39,6 +39,7 @@ const DEFAULT_TZ = Deno.env.get("BSD_TZ") || "Europe/Paris";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") || "";
 const DEBUG_KEY = Deno.env.get("DEBUG_KEY") || "";
 
+import { richPhotoOrLegacy, richTextOrLegacy } from "../_shared/telegram_rich.ts";
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
 const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") || "";
 // Deux destinations Telegram voulues : canal principal + canal secondaire.
@@ -2165,10 +2166,13 @@ async function sendTelegramPhoto(
       );
 
       try {
-        const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, {
-          method: "POST",
-          body: form,
-        });
+        const res = await richPhotoOrLegacy(
+          TELEGRAM_BOT_TOKEN,chatId,pngBytes,caption,
+          buttonUrl?[
+            [{text:"Voir plus de coupons 🔥",url:"https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",style:"primary"}],
+            [{text:"S’inscrire ou réinitialiser son compte 🎯",url:"https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html",style:"success"}]
+          ]:[],form,`coupon-live-${Date.now()}-${attempt}.png`
+        );
 
         if (res.ok) {
           sent = true;
@@ -2250,10 +2254,13 @@ async function sendTelegramMessage(
     }
 
     try {
-      const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: "POST",
-        body: form,
-      });
+      const res = await richTextOrLegacy(
+        TELEGRAM_BOT_TOKEN,chatId,text,
+        buttonUrl?[
+          [{text:"Voir plus de coupons 🔥",url:"https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",style:"primary"}],
+          [{text:"S’inscrire ou réinitialiser son compte 🎯",url:"https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html",style:"success"}]
+        ]:[],form
+      );
 
       if (!res.ok) {
         const body = await res.text().catch(() => "");

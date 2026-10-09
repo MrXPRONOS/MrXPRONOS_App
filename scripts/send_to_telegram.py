@@ -8,6 +8,7 @@ import time
 import argparse
 import requests
 import subprocess
+from telegram_rich import post_photo, post_text
 from datetime import datetime, timedelta, timezone
 
 UTC = timezone.utc
@@ -53,58 +54,32 @@ def sb_headers():
 
 # --- Helpers Telegram ---
 def send_message(text: str, buttons=None):
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    errors = []
+    errors=[]
     for chat_id in telegram_chat_ids():
-        payload = {
-            "chat_id": chat_id,
-            "text": text,
-            "disable_web_page_preview": True,
-        }
-        if buttons:
-            payload["reply_markup"] = json.dumps({"inline_keyboard": buttons})
         try:
-            r = requests.post(url, data=payload, timeout=60)
-            if not r.ok:
-                print(f"Telegram message error [{chat_id}]:", r.status_code, r.text)
-                r.raise_for_status()
-            print(f"Telegram message envoyé vers {chat_id}")
+            markup={"inline_keyboard":buttons} if buttons else None
+            post_text(requests,TOKEN,chat_id,text,markup,timeout=60)
+            print(f"Telegram message enrichi envoyé vers {chat_id}")
         except Exception as exc:
             errors.append(f"{chat_id}: {exc}")
-
     if errors:
         raise RuntimeError("Échec d'envoi Telegram: " + " | ".join(errors))
 
 def send_photo(photo_path: str, caption: str = ""):
-    url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
-    keyboard = {
-        "inline_keyboard": [
-            [{"text": "Voir plus de coupons 🔥", "url": MORE_URL}],
-            [{"text": "S’inscrire ou réinitialiser son compte 🎯", "url": BOOKMAKERS_URL}],
+    keyboard={
+        "inline_keyboard":[
+            [{"text":"Voir plus de coupons 🔥","url":MORE_URL}],
+            [{"text":"S’inscrire ou réinitialiser son compte 🎯","url":BOOKMAKERS_URL}],
         ]
     }
-    errors = []
+    errors=[]
     for chat_id in telegram_chat_ids():
         try:
-            # Le fichier doit être rouvert pour chaque canal Telegram.
-            with open(photo_path, "rb") as f:
-                r = requests.post(
-                    url,
-                    data={
-                        "chat_id": chat_id,
-                        "caption": caption,
-                        "reply_markup": json.dumps(keyboard),
-                    },
-                    files={"photo": f},
-                    timeout=120
-                )
-            if not r.ok:
-                print(f"Telegram photo error [{chat_id}]:", r.status_code, r.text)
-                r.raise_for_status()
-            print(f"Telegram photo envoyée vers {chat_id}")
+            post_photo(requests,TOKEN,chat_id,photo_path,caption,keyboard,
+                       timeout=120)
+            print(f"Telegram photo enrichie envoyée vers {chat_id}")
         except Exception as exc:
             errors.append(f"{chat_id}: {exc}")
-
     if errors:
         raise RuntimeError("Échec d'envoi Telegram: " + " | ".join(errors))
 

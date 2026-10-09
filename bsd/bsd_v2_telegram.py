@@ -13,6 +13,9 @@ from bsd_v2_estimated_odds import valid_standalone_prediction
 from bsd_v2_card import render as render_card
 from bsd_v2_captions import single_caption,combo_caption,PARSE_MODE
 from bsd_v2_night import is_night_match,matches_for_night,batch_date
+import sys
+sys.path.insert(0,str(Path(__file__).resolve().parent.parent/"scripts"))
+from telegram_rich import post_photo
 
 KIND="bsd_v2_hourly"
 COMBO_KIND="bsd_v2_combo_hourly"
@@ -140,15 +143,7 @@ def send_one(session,token,chat_id,match,*,night=False):
         image=attach_banner(image)
         caption=single_caption(match,night=night)
         markup=prediction_action_buttons()
-        with open(image,"rb") as pic:
-            r=session.post(f"https://api.telegram.org/bot{token}/sendPhoto",
-                data={"chat_id":chat_id,"caption":caption,
-                      "reply_markup":json.dumps(markup),"parse_mode":PARSE_MODE},
-                files={"photo":pic},timeout=60)
-    r.raise_for_status()
-    data=r.json()
-    if not data.get("ok"):raise RuntimeError("Telegram photo not accepted")
-    return data["result"]["message_id"]
+        return post_photo(session,token,chat_id,image,caption,markup,timeout=60)
 
 def combo_ledger_match(combo):
     return {"id":combo["id"],"date":combo["date"]}
@@ -162,17 +157,7 @@ def send_combo(session,token,chat,combo,*,night=False):
         from bsd_v2_telegram_banner import attach_banner
         photo=attach_banner(photo)
         caption=combo_caption(combo,night=night)
-        with photo.open("rb") as pic:
-            response=session.post("https://api.telegram.org/bot"+token+"/sendPhoto",
-                data={"chat_id":chat,"caption":caption,
-                      "reply_markup":json.dumps(prediction_action_buttons()),
-                      "parse_mode":PARSE_MODE},
-                files={"photo":pic},timeout=60)
-    response.raise_for_status()
-    body=response.json()
-    if not body.get("ok"):raise RuntimeError("Telegram combo rejected")
-    return body["result"]["message_id"]
-
+        return post_photo(session,token,chat,photo,caption,prediction_action_buttons(),timeout=60)
 
 def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
     if data.get("source")!="bsd" or data.get("model_version")!="bsd-v2-isolated":
