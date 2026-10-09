@@ -42,6 +42,53 @@ def league_name(item):
     return None
 
 
+def resolve_league_names(client, fixtures, output, existing):
+    """Enrich only missing competitions using authentic BSD names.
+
+    Never invent a competition from team names or an unverified league ID.
+    Uses limited paginated league catalog requests; failure is non-blocking.
+    """
+    names={}
+    for item in (existing.get("matches",[]) if isinstance(existing,dict) else []):
+        if not isinstance(item,dict):continue
+        lid=item.get("league_id")
+        name=league_name(item)
+        if lid is not None and name:names[str(lid)]=name
+    for item in fixtures:
+        if not isinstance(item,dict):continue
+        lid=item.get("league_id")
+        name=league_name(item)
+        if lid is not None and name:names[str(lid)]=name
+    pending={str(m.get("league_id")) for m in output["matches"]
+             if not league_name(m) and m.get("league_id") is not None}
+    if pending-set(names):
+        try:
+            for offset in range(0,800,100):
+                payload=client.get_json("/leagues/",{"limit":100,"offset":offset},ttl=3600)
+                rows=(payload if isinstance(payload,list) else
+                      payload.get("results",[]) if isinstance(payload,dict) else [])
+                if not isinstance(rows,list):break
+                for row in rows:
+                    if not isinstance(row,dict):continue
+                    ident=row.get("id")
+                    label=league_name(row) or (
+                        row.get("name") if isinstance(row.get("name"),str)
+                        and row["name"].strip().casefold() not in ("football","soccer")
+                        else None)
+                    if ident is not None and label:names[str(ident)]=label.strip()
+                if pending.issubset(names) or len(rows)<100:break
+        except Exception as exc:
+            print("BSD_LEAGUE_NAME_FALLBACK",type(exc).__name__)
+    fixed=0
+    for match in output["matches"]:
+        if not league_name(match):
+            label=names.get(str(match.get("league_id")))
+            if label:
+                match["league"]=label
+                fixed+=1
+    return fixed
+
+
 def team_name(item, side):
     value=item.get(side+"_team")
     if isinstance(value,dict): return str(value.get("name") or "Equipe")
@@ -365,6 +412,8 @@ def main():
     output=assemble(existing,fixtures,historic,now=now,calibration=cal,policy=policy,
                     rho=rho,odds_fetcher=odds_fetcher,max_odds_requests=args.max_odds_events,
                     btts_model=btts_model,total_model=total_model,dc_model=dc_model)
+    leagues_resolved=resolve_league_names(client,fixtures,output,existing)
+    output["diagnostics"]["leagues_resolved"]=leagues_resolved
     output["diagnostics"].update({"api_calls":client.requests_made,
                                   "quality_validation":diag,"rho":rho,
                                   "btts_training":btts_info,"totals_training":total_info,"double_chance_training":dc_info,
