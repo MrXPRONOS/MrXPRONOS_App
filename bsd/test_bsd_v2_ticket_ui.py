@@ -71,15 +71,18 @@ class ReferenceTicketTests(unittest.TestCase):
                     self.assertGreater(path.stat().st_size,7000)
 
     def test_verified_football_badge_and_green_gain_rendered(self):
-        from bsd_v2_ticket_ui import _verified_football_badge, SUCCESS
+        from bsd_v2_ticket_ui import _verified_football_badge, SUCCESS, FOOTBALL_PNG
         self.assertEqual(SUCCESS,"#28A65A")
         with tempfile.TemporaryDirectory() as temp:
             from PIL import ImageDraw
             image=Image.new("RGB",(230,230),"#FFFFFF")
             draw=ImageDraw.Draw(image)
-            _verified_football_badge(draw,100,100,58)
+            _verified_football_badge(image,draw,100,100,58)
             self.assertEqual(image.getpixel((146,132)),(76,152,216))
             self.assertNotEqual(image.getpixel((100,100)),(255,255,255))
+            with Image.open(FOOTBALL_PNG) as source:
+                self.assertIn(source.mode,("RGBA","P"))
+                self.assertTrue(source.info.get("transparency") is not None or source.mode=="RGBA")
             file=render_single({**game(),"home_score":2,"away_score":1},
                                Path(temp)/"winning.png",win=True,session=Offline())
             with Image.open(file) as final:
@@ -104,7 +107,7 @@ class ReferenceTicketTests(unittest.TestCase):
             self.assertNotIn("Gagnant",captions)
             captions.clear()
             ui._summary(None,price=1.75,stake=100000,won=False,paid=False)
-            self.assertIn("Prévision",captions)
+            self.assertIn("Accepté",captions)
             self.assertNotIn("Payé",captions)
 
     def test_expected_palette_and_no_bookmaker_acceptance_claim(self):
@@ -112,11 +115,11 @@ class ReferenceTicketTests(unittest.TestCase):
         import bsd_v2_ticket_ui as ui
         source=inspect.getsource(ui)
         self.assertIn("MR XPRONOS · PRONOSTIC",source)
-        self.assertIn("Versé:",source)
+        self.assertNotIn("Versé:",source)
         self.assertIn("Cotes:",source)
         self.assertIn("Gains potentiels:",source)
-        self.assertIn("Prévision",source)
-        self.assertNotIn('"Accepté"',source)
+        self.assertIn("Accepté",source)
+        self.assertIn('"Accepté"',source)
         self.assertIn('"Payé"',source)
         self.assertIn('payment_confirmed',source)
         self.assertEqual(WHITE,"#FFFFFF")
