@@ -29,6 +29,19 @@ MIN_BSD_ODDS = 1.20
 MIN_COMBO_ODDS = 1.01
 EXCLUDED_SELECTIONS = frozenset({'UNDER_45'})
 
+def league_name(item):
+    for key in ("league_name","competition_name","tournament_name"):
+        value=item.get(key)
+        if isinstance(value,dict):value=value.get("name")
+        if isinstance(value,str) and value.strip() and value.strip().casefold() not in ("football","soccer"):
+            return value.strip()
+    league=item.get("league")
+    if isinstance(league,dict):league=league.get("name")
+    if isinstance(league,str) and league.strip() and league.strip().casefold() not in ("football","soccer"):
+        return league.strip()
+    return None
+
+
 def team_name(item, side):
     value=item.get(side+"_team")
     if isinstance(value,dict): return str(value.get("name") or "Equipe")
@@ -58,7 +71,7 @@ def to_site(p, fixture):
         "home_team":team_name(fixture,"home"),"away_team":team_name(fixture,"away"),
         "home_team_id":p["home_team_id"],"away_team_id":p["away_team_id"],
         "home_logo":team_logo(fixture,"home"),"away_logo":team_logo(fixture,"away"),
-        "league":str(p.get("league") or fixture.get("league_name") or "Football"),
+        "league":league_name(fixture) or league_name(p),
         "league_id":p.get("league_id"),
         "category":p["category"],"badge":"BSD V2",
         "status":"notstarted","is_finished":False,"home_score":None,"away_score":None,
