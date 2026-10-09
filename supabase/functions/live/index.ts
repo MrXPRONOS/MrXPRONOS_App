@@ -4547,12 +4547,14 @@ async function validatePredictionWithMerge(params: {
     validated: true,
     outcome: params.outcome,
     current_value: params.currentValue,
-    final_value: params.currentValue,
-    headroom: Number((params.currentValue - threshold).toFixed(2)),
     validated_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     validation_type: params.validation_type,
   };
+  if (params.validation_type === "final") {
+    values.final_value = params.currentValue;
+    values.headroom = Number((params.currentValue - threshold).toFixed(2));
+  }
 
   try {
     // Transition atomique false -> true. Deux workers peuvent lire la même ligne,
@@ -5633,14 +5635,15 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
 async function validatePredictionsNow() {
   const { data: pending, error: pendingError } = await supabase
     .from("live_predictions")
-    .select("id, match_id, match_name, prediction_type, threshold, league_name, validated, created_at, telegram_sent, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa")
-    .eq("validated", false)
+    .select("id, match_id, match_name, prediction_type, threshold, league_name, validated, validation_type, final_value, created_at, telegram_sent, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa")
+    .or("validated.eq.false,final_value.is.null")
     .order("created_at", { ascending: false });
 
   if (pendingError) throw pendingError;
-  if (!pending?.length) return { validated: 0, skipped: 0, failed: 0 };
+  if (!pending?.length) return { validated: 0, finalized_existing: 0, skipped: 0, failed: 0 };
 
   let validated = 0;
+  let finalizedExisting = 0;
   let skipped = 0;
   let failed = 0;
 
@@ -5658,6 +5661,14 @@ async function validatePredictionsNow() {
     if (!isFinishedEvent(ev)) continue;
 
     let stats = ev.live_stats || null;
+    if (!stats) {
+      try {
+        const finalStatsPayload = await fetchBSD(`/events/${pred.match_id}/stats/`);
+        stats = normalizeBsdStatsPayload(finalStatsPayload);
+      } catch (e) {
+        console.warn("Final detailed stats unavailable, cache fallback:", e);
+      }
+    }
     if (!stats) stats = await getCachedLiveStats(String(pred.match_id));
     if (!stats) { skipped++; continue; }
 
@@ -5676,6 +5687,22 @@ async function validatePredictionsNow() {
       ok = finalValue > threshold;
     } else {
       skipped++;
+      continue;
+    }
+
+    if (pred.validated === true) {
+      try {
+        await updatePredictionSafe(String(pred.id), {
+          current_value: finalValue,
+          final_value: finalValue,
+          headroom: Number((finalValue - threshold).toFixed(2)),
+          updated_at: new Date().toISOString(),
+        });
+        finalizedExisting++;
+      } catch (e) {
+        failed++;
+        console.error("Final headroom enrichment failed:", e);
+      }
       continue;
     }
 
@@ -5726,7 +5753,7 @@ Résultat: ${ok ? "✅ réussi" : "❌ échoué"}`,
     }
   }
 
-  return { validated, skipped, failed };
+  return { validated, finalized_existing: finalizedExisting, skipped, failed };
 }
 
 // =======================================================
