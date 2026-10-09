@@ -8,6 +8,7 @@ from pathlib import Path
 
 import requests
 from telegram_rich import post_photo
+from telegram_premium_templates import guide as guide_template, partners as partners_template
 from telegram_promo_channels import promo_channels, deliver_to_both
 from telegram_promo_colors import colorized_button
 
@@ -92,31 +93,10 @@ def common_keyboard():
 
 
 def caption_for(partner):
-    return (
-        f"📲 <b>COMMENT CRÉER TON COMPTE {partner['name'].upper()} ?</b>\n\n"
-        "Suis les étapes affichées sur l’image puis utilise le bouton ci-dessous pour accéder "
-        "au lien partenaire MrXPRONOS.\n\n"
-        "<blockquote>🎁 <b>CODE PROMO : XPVIP</b>\n"
-        "<i>Avant de valider ton inscription, vérifie que XPVIP apparaît bien dans le champ "
-        "« Code promo » lorsqu’il est proposé.</i></blockquote>\n\n"
-        "👇 <b>Inscription :</b> clique sur le bouton juste en dessous.\n\n"
-        "⚠️ <b>18+</b> · <i>Offres et conditions variables selon le pays et le compte. "
-        "Joue de façon responsable.</i>"
-    )
-
+    return guide_template(partner["name"])
 
 def common_caption():
-    return (
-        "🔥 <b>XPVIP — PARTENAIRES MrXPRONOS</b>\n\n"
-        "Choisis le bookmaker qui te convient avec les boutons ci-dessous.\n\n"
-        "<blockquote>🎁 <b>CODE PROMO : XPVIP</b>\n"
-        "<i>Vérifie que le code est bien renseigné lorsque le champ promo est proposé "
-        "avant de terminer ton inscription.</i></blockquote>\n\n"
-        "👇 <b>Sélectionne ton bookmaker :</b>\n\n"
-        "⚠️ <b>18+</b> · <i>Les offres et conditions peuvent varier selon le pays. "
-        "Joue de façon responsable.</i>"
-    )
-
+    return partners_template()
 
 def choose_today():
     if OVERRIDE and OVERRIDE not in ("auto", ""):
