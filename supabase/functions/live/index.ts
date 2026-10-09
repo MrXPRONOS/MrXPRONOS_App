@@ -4491,7 +4491,7 @@ async function savePrediction(
   }
 
   if (!data?.id) throw new Error("Insertion live_predictions sans id retourné");
-  const predictionId = String(predictionId);
+  const predictionId: string = String(data.id);
 
   // Une panne de notifications ne doit jamais empêcher la publication Telegram.
   try { await insertNotification({
