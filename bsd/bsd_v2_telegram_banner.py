@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 BANNER = Path(__file__).resolve().parent.parent / "assets/images/telegram-xpvip-banner.webp"
 
 ROOT = Path(__file__).resolve().parent.parent
+BANNER_SECOND = ROOT / 'assets/images/telegram-xpvip-banner-1win-betwinner.png'
 
 def _font(size, bold=True):
     for name in (
@@ -62,7 +63,12 @@ def attach_banner(coupon_path, pack="1xbet_melbet"):
     source = Path(coupon_path)
     with Image.open(source) as original:
         coupon = original.convert("RGB")
-        banner = (Image.open(BANNER).convert("RGB") if BANNER.is_file() else _build_embedded_banner()) if pack == "1xbet_melbet" else _build_embedded_banner(("1win", "betwinner"))
+        if pack == "1xbet_melbet":
+            banner = Image.open(BANNER).convert("RGB") if BANNER.is_file() else _build_embedded_banner()
+        elif pack == "1win_betwinner":
+            banner = Image.open(BANNER_SECOND).convert("RGB") if BANNER_SECOND.is_file() else _build_embedded_banner(("1win", "betwinner"))
+        else:
+            raise ValueError(f"Pack inconnu: {pack}")
         width = coupon.width
         height = round(banner.height * width / banner.width)
         if height <= 0 or height > width // 3:
