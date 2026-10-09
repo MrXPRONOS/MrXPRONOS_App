@@ -21,6 +21,7 @@ from bsd_v2_over_under import fit_total_model
 from bsd_v2_double_chance import fit_model as fit_dc_model
 from bsd_v2_odds import fetch_event_odds
 from bsd_v2_labels import normalize_match,market_label
+from bsd_v2_assets import image_fields
 
 SITE_FILE = Path("data.json")
 HISTORY_DAYS = 14
@@ -117,7 +118,8 @@ def to_site(p, fixture):
         "event_date":kick.isoformat(),
         "home_team":team_name(fixture,"home"),"away_team":team_name(fixture,"away"),
         "home_team_id":p["home_team_id"],"away_team_id":p["away_team_id"],
-        "home_logo":team_logo(fixture,"home"),"away_logo":team_logo(fixture,"away"),
+        "home_logo":image_fields(fixture)["home_logo"],"away_logo":image_fields(fixture)["away_logo"],
+        "league_logo":image_fields(fixture)["league_logo"],
         "league":league_name(fixture) or league_name(p),
         "league_id":p.get("league_id"),
         "category":p["category"],"badge":"BSD V2",
@@ -361,6 +363,8 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         known.add(eid)
         stats["created"]+=1
     result=[normalize_match(r) for r in result]
+    for row in result:
+        row.update(image_fields(row))
     result.sort(key=lambda r:(str(r.get("event_date","")),str(r.get("id",""))))
     # Un flux BSD vide est préférable au maintien de pronostics SportData périmés.
     output={
