@@ -61,10 +61,10 @@ def chat_ids():
             out.append((role,value.strip()))
     return out
 
-def keyboard():
+def keyboard(image_path):
     buttons=[]
     for name,url,_ in PARTNERS:
-        buttons.append(colorized_button(f"⚽ S’inscrire sur {name}",url,IMAGE_PATH))
+        buttons.append(colorized_button(f"⚽ S’inscrire sur {name}",url,image_path))
     return {"inline_keyboard":[buttons[0:2],buttons[2:4],buttons[4:6]]}
 
 def _fit_logo(path,max_w,max_h):
@@ -173,7 +173,7 @@ def main():
 
     image_path=prepare_telegram_image(IMAGE_PATH)
     api=f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
-    markup=json.dumps(keyboard(),ensure_ascii=False)
+    markup=json.dumps(keyboard(image_path),ensure_ascii=False)
 
     def send_to(cid):
         with Path(image_path).open("rb") as f:
