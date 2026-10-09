@@ -39,6 +39,9 @@ const DEFAULT_TZ = Deno.env.get("BSD_TZ") || "Europe/Paris";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") || "";
 const DEBUG_KEY = Deno.env.get("DEBUG_KEY") || "";
 
+const LIVE_PROP_ODDS_URL = Deno.env.get("LIVE_PROP_ODDS_URL") || "";
+const LIVE_PROP_ODDS_TOKEN = Deno.env.get("LIVE_PROP_ODDS_TOKEN") || "";
+
 import { richPhotoOrLegacy, richTextOrLegacy } from "../_shared/telegram_rich.ts";
 import { attachLiveSponsorBanner } from "../_shared/live_sponsor_banner.ts";
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
@@ -1215,7 +1218,9 @@ function isValidFontFile(bytes: Uint8Array): boolean {
 }
 
 function toExactArrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy.buffer;
 }
 
 async function fetchRemoteFont(filename: string): Promise<Uint8Array> {
@@ -1500,34 +1505,16 @@ function telegramMarketLabel(type: unknown) {
 }
 
 function telegramCalculatedLiveOdds(pred: any) {
-  const explicit = [
-    pred?.odds,
-    pred?.odd,
-    pred?.cote,
-    pred?.live_odds,
-    pred?.bookmaker_odds,
-  ]
-    .map(Number)
-    .find((v) => Number.isFinite(v) && v > 1);
+  const bookmaker = pickTelegramNumber(pred?.bookmaker_odds, pred?.external_live_odds);
+  if (bookmaker !== null && bookmaker > 1) return Number(bookmaker.toFixed(2));
 
-  if (explicit) return Number(explicit.toFixed(2));
-
-  const probability = Math.min(
-    0.95,
-    Math.max(0.20, safeNumber(pred?.probability, 0.78)),
+  const modelOdds = safeNumber(
+    pred?.model_fair_odds,
+    estimatedModelOdds(safeNumber(pred?.probability, 0.50)),
   );
-
-  const type = String(pred?.prediction_type ?? pred?.type ?? "");
-  const range =
-    type === "total_shots"
-      ? [1.08, 2.45]
-      : type === "total_fouls"
-      ? [1.08, 2.35]
-      : [1.08, 2.35];
-
-  return Number(
-    Math.min(range[1], Math.max(range[0], 0.94 / probability)).toFixed(2),
-  );
+  const snap = pickTelegramNumber(pred?.live_odds);
+  const odds = snap !== null && snap > 1 ? snap : modelOdds;
+  return Number(Math.min(3.20, Math.max(1.05, odds)).toFixed(2));
 }
 
 function telegramSvgLogo(
@@ -1567,7 +1554,7 @@ function telegramPeriodScores(match: any) {
   const p2a = select(raw?.sh_away,raw?.away_sh,raw?.second_half_away,raw?.periods?.second?.away,raw?.periods?.[1]?.away);
   let home = safeNumber(match?.home_score,0), away=safeNumber(match?.away_score,0);
   let detail = "";
-  if([p1h,p1a,p2h,p2a].every(x=>x !== null)){
+  if(p1h !== null && p1a !== null && p2h !== null && p2a !== null){
     home=p1h+p2h; away=p1a+p2a;
     detail=home+":"+away+" ("+p1h+":"+p1a+", "+p2h+":"+p2a+")";
   } else if(p1h !== null && p1a !== null && home >= p1h && away >= p1a) {
@@ -1650,6 +1637,7 @@ async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint
     ? (h2 !== null && a2 !== null ? homeScore + ":" + awayScore + " (" + h1 + ":" + a1 + "," + h2 + ":" + a2 + ")" : homeScore + ":" + awayScore + " (" + h1 + ":" + a1 + ")")
     : "";
   const odds = pickTelegramNumber(pred?.live_odds, pred?.odds, pred?.odd, pred?.cote);
+  const oddsLabel = pred?.pricing_mode === "external_live" ? "Cote bookmaker" : "Cote modèle";
   const stake = LIVE_COUPON_STAKE_FCFA;
   const potential = odds !== null && odds > 1 ? Math.round(stake * odds) : null;
   const value = (v: number|null) => v === null ? "—" : v.toFixed(2);
@@ -1677,7 +1665,7 @@ async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint
     tx(80,34,date,12,"#8698a6")+tx(80,55,"Simple",19)+tx(80,72,"N° "+slip,10,"#24313a",600)+
     '<rect x="348" y="24" width="67" height="14" rx="3" fill="#ef4338"/>'+tx(381.5,34,"• En direct",9,"#fff",700,"middle")+
     '<path d="M0 87h429" stroke="#e4e8eb"/>'+
-    tx(16,113,"Cotes:",15,"#8497a5")+tx(16,141,"Mise:",15,"#8497a5")+
+    tx(16,113,oddsLabel+":",15,"#8497a5")+tx(16,141,"Mise:",15,"#8497a5")+
     tx(16,167,"Gains potentiels:",15,"#8497a5")+tx(16,193,"Statut:",15,"#8497a5")+
     tx(414,113,value(odds),15,"#1c3242",700,"end")+tx(414,141,money(stake),15,"#1c3242",700,"end")+
     tx(414,167,money(potential),15,"#4dbb69",700,"end")+tx(414,193,receiptStatus,15,statusColor,700,"end")+
@@ -1709,6 +1697,7 @@ async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array
   const scoreSmall = `${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)} (${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)})`;
   const selectionText = buildTelegramSelectionText(pred);
   const stats = deriveTelegramSlipStats(pred);
+  const oddsLabel = pred?.pricing_mode === "external_live" ? "Cote bookmaker" : "Cote modèle";
   const eventDateText = formatTelegramSlipDateTime(match);
   const elapsed = formatTelegramClock(minute);
   const slipNumber = String(pred?.id ?? pred?.prediction_id ?? match?.id ?? buildCanonicalMatchId(match)).replace(/[^0-9A-Za-z]/g, "").slice(-12) || "87751503787";
@@ -1760,7 +1749,7 @@ async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array
 
           <div style="padding:18px 22px 16px 22px;display:flex;flex-direction:column;box-sizing:border-box;gap:10px;">
             <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
-              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Cote :</div>
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">${escapeHtml(oddsLabel)} :</div>
               <div style="display:flex;font-size:35px;font-weight:900;color:#1D3D56;">${escapeHtml(stats.oddsText)}</div>
             </div>
             <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
@@ -2162,7 +2151,7 @@ async function sendTelegramPhoto(
 
       form.append(
         "photo",
-        new Blob([pngBytes], { type: "image/png" }),
+        new Blob([toExactArrayBuffer(pngBytes)], { type: "image/png" }),
         `coupon-live-${Date.now()}-${attempt}.png`,
       );
 
@@ -2414,6 +2403,7 @@ async function buildTelegramValidationPng(
   const scoreSmall = `${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)} (${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)})`;
   const selectionText = buildTelegramSelectionText(pred);
   const baseStats = deriveTelegramSlipStats(pred);
+  const oddsLabel = pred?.pricing_mode === "external_live" ? "Cote bookmaker" : "Cote modèle";
   const eventDateText = formatTelegramSlipDateTime(match);
   const elapsed = formatTelegramClock(minute);
   const slipNumber = String(pred?.id ?? pred?.prediction_id ?? match?.id ?? buildCanonicalMatchId(match)).replace(/[^0-9A-Za-z]/g, "").slice(-12) || "87751346361";
@@ -2485,7 +2475,7 @@ async function buildTelegramValidationPng(
 
           <div style="padding:18px 22px 16px 22px;display:flex;flex-direction:column;box-sizing:border-box;gap:10px;">
             <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
-              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Cotes:</div>
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">${escapeHtml(oddsLabel)}:</div>
               <div style="display:flex;font-size:35px;font-weight:900;color:#1D3D56;">${escapeHtml(baseStats.oddsText)}</div>
             </div>
             <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
@@ -2903,28 +2893,241 @@ function conservativeProjection(params: {
   return Number(projected.toFixed(1));
 }
 
-/**
- * ✅ Règle :
- * prediction seulement si seuil >= actuel + 2
- */
-function getSafeThreshold(
-  type: "shots" | "corners" | "fouls",
-  current: number,
-  projected: number,
-  minGap = 2,
-) {
-  const thresholds =
-    type === "corners"
-      ? [7.5, 8.5, 9.5, 10.5, 11.5]
-      : type === "shots"
-        ? [17.5, 19.5, 21.5, 23.5, 25.5, 27.5, 29.5]
-        : [19.5, 21.5, 23.5, 24.5, 25.5, 27.5];
 
-  for (const t of thresholds) {
-    const gapOk = (t - current) >= minGap;
-    if (current < t && projected >= t + 0.5 && gapOk) return t;
+const LIVE_VALUE_MODEL_VERSION = "live-value-v2.0";
+
+type LiveMarketKind = "shots" | "corners" | "fouls";
+type LiveSignalTier = "quality" | "value" | "high_value";
+
+const LIVE_MARKET_LINES: Record<LiveMarketKind, number[]> = {
+  corners: [7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5],
+  shots: [15.5, 17.5, 19.5, 21.5, 23.5, 25.5, 27.5, 29.5, 31.5, 33.5],
+  fouls: [17.5, 19.5, 21.5, 23.5, 24.5, 25.5, 27.5, 29.5, 31.5],
+};
+
+function poissonTail(lambda: number, atLeast: number) {
+  if (atLeast <= 0) return 1;
+  if (!(lambda > 0)) return 0;
+
+  let term = Math.exp(-lambda);
+  let cdf = term;
+  for (let k = 1; k < atLeast; k++) {
+    term *= lambda / k;
+    cdf += term;
   }
+  return Math.min(0.995, Math.max(0.005, 1 - cdf));
+}
+
+function marketProjectionBuffer(type: LiveMarketKind) {
+  if (type === "corners") return 1.5;
+  if (type === "shots") return 3.0;
+  return 3.0;
+}
+
+function candidateProbability(params: {
+  current: number;
+  threshold: number;
+  projected: number;
+  heuristicProbability: number;
+  reliability: number;
+}) {
+  const { current, threshold, projected, heuristicProbability, reliability } = params;
+  const futureMean = Math.max(0.05, projected - current);
+  const additionalNeeded = Math.max(0, Math.floor(threshold) + 1 - current);
+  const countProbability = poissonTail(futureMean, additionalNeeded);
+
+  const heuristic = Math.min(0.95, Math.max(0.20, heuristicProbability));
+  const rel = Math.min(1, Math.max(0, reliability / 100));
+  const blended =
+    countProbability * 0.72 +
+    heuristic * 0.18 +
+    0.50 * 0.10;
+
+  const calibrated = 0.50 + (blended - 0.50) * (0.72 + rel * 0.28);
+  return Number(Math.min(0.94, Math.max(0.18, calibrated)).toFixed(4));
+}
+
+function estimatedModelOdds(probability: number) {
+  const p = Math.min(0.95, Math.max(0.05, probability));
+  return Number((1 / p).toFixed(2));
+}
+
+function selectMedianCandidate<T>(items: T[]) {
+  if (!items.length) return null;
+  // 5 éléments -> index 2 (3e). Pour un nombre pair, médiane basse.
+  const index = Math.max(0, Math.floor((items.length - 1) / 2));
+  return { item: items[index], index };
+}
+
+function signalTierFromModelOdds(odds: number): LiveSignalTier | null {
+  if (odds >= 1.45 && odds <= 1.75) return "quality";
+  if (odds > 1.75 && odds <= 2.30) return "value";
+  if (odds > 2.30 && odds <= 3.20) return "high_value";
   return null;
+}
+
+function passesTierQuality(params: {
+  tier: LiveSignalTier | null;
+  probability: number;
+  reliability: number;
+  dataQuality: number;
+}) {
+  const { tier, probability, reliability, dataQuality } = params;
+  if (!tier) return false;
+
+  if (tier === "quality") {
+    return probability >= 0.56 && reliability >= 68 && dataQuality >= 67;
+  }
+  if (tier === "value") {
+    return probability >= 0.43 && reliability >= 72 && dataQuality >= 67;
+  }
+  return probability >= 0.31 && reliability >= 78 && dataQuality >= 100;
+}
+
+function getLineCandidates(params: {
+  type: LiveMarketKind;
+  current: number;
+  projected: number;
+  heuristicProbability: number;
+  reliability: number;
+  minGap?: number;
+}) {
+  const {
+    type,
+    current,
+    projected,
+    heuristicProbability,
+    reliability,
+    minGap = 2,
+  } = params;
+
+  const buffer = marketProjectionBuffer(type);
+  const lines = LIVE_MARKET_LINES[type] || [];
+
+  return lines
+    .filter((threshold) =>
+      current < threshold &&
+      threshold - current >= minGap &&
+      threshold <= projected + buffer
+    )
+    .map((threshold) => {
+      const probability = candidateProbability({
+        current,
+        threshold,
+        projected,
+        heuristicProbability,
+        reliability,
+      });
+      const modelFairOdds = estimatedModelOdds(probability);
+      return {
+        threshold,
+        probability,
+        model_fair_odds: modelFairOdds,
+        signal_tier: signalTierFromModelOdds(modelFairOdds),
+      };
+    });
+}
+
+function predictionDataQuality(stats: any, type: LiveMarketKind) {
+  const completeness = statsCompleteness(stats);
+  if (type === "corners") {
+    return completeness.corners
+      ? (completeness.shots && completeness.shots_on_target ? 100 : 82)
+      : 0;
+  }
+  if (type === "shots") {
+    return completeness.shots
+      ? (completeness.shots_on_target ? 100 : 82)
+      : 0;
+  }
+  return completeness.fouls ? (completeness.corners || completeness.shots ? 100 : 82) : 0;
+}
+
+function buildLivePrediction(params: {
+  type: LiveMarketKind;
+  predictionType: string;
+  titleUnit: string;
+  badge: string;
+  color: string;
+  stats: any;
+  minute: number;
+  current: number;
+  projectedFinal: number;
+  heuristicProbability: number;
+  reliability: number;
+  reasons: string[];
+}) {
+  const {
+    type,
+    predictionType,
+    titleUnit,
+    badge,
+    color,
+    stats,
+    minute,
+    current,
+    projectedFinal,
+    heuristicProbability,
+    reliability,
+    reasons,
+  } = params;
+
+  const dataQuality = predictionDataQuality(stats, type);
+  const allCandidates = getLineCandidates({
+    type,
+    current,
+    projected: projectedFinal,
+    heuristicProbability,
+    reliability,
+    minGap: 2,
+  });
+
+  // La médiane est choisie parmi les lignes correspondant réellement
+  // à la zone de cote recherchée (1.45 à 3.20), pas parmi les micro-cotes.
+  const candidates = allCandidates.filter((c: any) => Boolean(c.signal_tier));
+  if (!candidates.length) return null;
+
+  const selected = selectMedianCandidate(candidates);
+  if (!selected) return null;
+
+  const chosen: any = selected.item;
+  const tier = chosen.signal_tier as LiveSignalTier | null;
+
+  if (!passesTierQuality({
+    tier,
+    probability: chosen.probability,
+    reliability,
+    dataQuality,
+  })) return null;
+
+  return {
+    type: predictionType,
+    title: `Over ${chosen.threshold} ${titleUnit}`,
+    badge,
+    color,
+    probability: chosen.probability,
+    message: `${current} ${titleUnit} actuellement`,
+    threshold: chosen.threshold,
+    current,
+    signal_value: current,
+    projected_value: projectedFinal,
+    reliability,
+    data_quality_score: dataQuality,
+    model_fair_odds: chosen.model_fair_odds,
+    signal_tier: tier,
+    pricing_mode: "model_only",
+    line_candidate_count: candidates.length,
+    line_candidate_rank: selected.index + 1,
+    line_candidates: candidates,
+    model_version: LIVE_VALUE_MODEL_VERSION,
+    minute,
+    reasons: [
+      ...reasons,
+      `Projection finale ${projectedFinal}`,
+      `Ligne médiane ${selected.index + 1}/${candidates.length}`,
+      `Cote modèle ${chosen.model_fair_odds.toFixed(2)}`,
+    ],
+  };
 }
 
 function computeHeatLevel(match: any) {
@@ -2962,9 +3165,6 @@ function predictTotalCorners(stats: any, minute: number, momentum: any) {
     flow: flowData.flow,
   });
 
-  const threshold = getSafeThreshold("corners", current, projectedFinal, 2);
-  if (!threshold) return null;
-
   let probability = 0.58;
   let reliability = 52;
   const reasons: string[] = [];
@@ -2979,21 +3179,22 @@ function predictTotalCorners(stats: any, minute: number, momentum: any) {
   probability = Math.min(0.90, Math.max(0.50, probability));
   reliability = Math.min(92, Math.max(40, reliability));
 
-  if (probability < 0.76 || reliability < 63) return null;
+  if (reliability < 63) return null;
 
-  return {
-    type: "total_corners",
-    title: `Over ${threshold} corners`,
+  return buildLivePrediction({
+    type: "corners",
+    predictionType: "total_corners",
+    titleUnit: "corners",
     badge: "Corners",
     color: "yellow",
-    probability,
-    message: `${current} corners actuellement`,
-    threshold,
+    stats,
+    minute,
     current,
-    signal_value: current,
+    projectedFinal,
+    heuristicProbability: probability,
     reliability,
     reasons,
-  };
+  });
 }
 
 function predictTotalShots(stats: any, minute: number, momentum: any) {
@@ -3006,9 +3207,6 @@ function predictTotalShots(stats: any, minute: number, momentum: any) {
 
   const flowData = getMatchFlow(stats, minute, momentum);
   const projectedFinal = conservativeProjection({ current, minute, type: "shots", flow: flowData.flow });
-
-  const threshold = getSafeThreshold("shots", current, projectedFinal, 2);
-  if (!threshold) return null;
 
   let probability = 0.60;
   let reliability = 55;
@@ -3023,21 +3221,22 @@ function predictTotalShots(stats: any, minute: number, momentum: any) {
   probability = Math.min(0.91, Math.max(0.50, probability));
   reliability = Math.min(93, Math.max(40, reliability));
 
-  if (probability < 0.77 || reliability < 64) return null;
+  if (reliability < 64) return null;
 
-  return {
-    type: "total_shots",
-    title: `Over ${threshold} tirs`,
+  return buildLivePrediction({
+    type: "shots",
+    predictionType: "total_shots",
+    titleUnit: "tirs",
     badge: "Tirs",
     color: "green",
-    probability,
-    message: `${current} tirs actuellement`,
-    threshold,
+    stats,
+    minute,
     current,
-    signal_value: current,
+    projectedFinal,
+    heuristicProbability: probability,
     reliability,
     reasons,
-  };
+  });
 }
 
 function predictTotalFouls(stats: any, minute: number, momentum: any) {
@@ -3056,9 +3255,6 @@ function predictTotalFouls(stats: any, minute: number, momentum: any) {
     flow: flowData.flow === "offensive" ? "neutral" : flowData.flow,
   });
 
-  const threshold = getSafeThreshold("fouls", current, projectedFinal, 2);
-  if (!threshold) return null;
-
   let probability = 0.57;
   let reliability = 54;
   const reasons: string[] = [];
@@ -3068,23 +3264,25 @@ function predictTotalFouls(stats: any, minute: number, momentum: any) {
   if (flowData.flow === "defensive") { probability += 0.03; reliability += 3; reasons.push(`Match fermé`); }
   if (flowData.flow === "offensive") { probability -= 0.03; reliability -= 2; }
 
-  probability = Math.min(0.88, Math.max(0.50, probability));  reliability = Math.min(90, Math.max(40, reliability));
+  probability = Math.min(0.88, Math.max(0.50, probability));
+  reliability = Math.min(90, Math.max(40, reliability));
 
-  if (probability < 0.75 || reliability < 62) return null;
+  if (reliability < 62) return null;
 
-  return {
-    type: "total_fouls",
-    title: `Over ${threshold} fautes`,
+  return buildLivePrediction({
+    type: "fouls",
+    predictionType: "total_fouls",
+    titleUnit: "fautes",
     badge: "Fautes",
     color: "orange",
-    probability,
-    message: `${current} fautes actuellement`,
-    threshold,
+    stats,
+    minute,
     current,
-    signal_value: current,
+    projectedFinal,
+    heuristicProbability: probability,
     reliability,
     reasons,
-  };
+  });
 }
 
 function computeAiScore(match: any, predictions: any[]) {
@@ -3103,16 +3301,17 @@ function computeAiScore(match: any, predictions: any[]) {
 function computeValueScore(match: any, predictions: any[]) {
   const best = predictions?.[0];
   if (!best) return 0;
-
-  const minute = safeNumber(match?.current_minute, 0);
-  let score = 0;
-  score += Math.round((best.probability || 0) * 40);
-  score += Math.round((best.reliability || 0) * 0.25);
-  score += minute >= 25 ? 10 : 0;
-  score += minute >= 45 ? 10 : 0;
-  score += minute >= 60 ? 8 : 0;
-
-  return Math.min(99, score);
+  const reliability = Math.min(100, Math.max(0, safeNumber(best.reliability, 0)));
+  const dataQuality = Math.min(100, Math.max(0, safeNumber(best.data_quality_score, 0)));
+  const probability = Math.min(1, Math.max(0, safeNumber(best.probability, 0)));
+  const modelOdds = safeNumber(best.model_fair_odds, estimatedModelOdds(probability || 0.5));
+  const bookmakerOdds = safeNumber(best.bookmaker_odds, 0);
+  const implied = bookmakerOdds > 1 ? 1 / bookmakerOdds : null;
+  const edge = implied != null ? probability - implied : null;
+  const ev = bookmakerOdds > 1 ? probability * bookmakerOdds - 1 : null;
+  let score = reliability * 0.35 + dataQuality * 0.30 + Math.min(25, Math.max(0, (modelOdds - 1.30) * 20));
+  if (edge != null && ev != null) score = reliability * 0.25 + dataQuality * 0.20 + Math.max(0, Math.min(25, edge * 200)) + Math.max(0, Math.min(30, ev * 120));
+  return Math.max(0, Math.min(99, Math.round(score)));
 }
 
 
@@ -3337,6 +3536,32 @@ async function fetchEspnLiveMatchesForMerge() {
   }
 }
 
+function liveStatsAgreementScore(primaryStats: any, secondaryStats: any, minuteGap: number) {
+  // Si les sources ne sont pas au même instant, un écart cumulatif est normal.
+  if (minuteGap > 2) return null;
+  const a = ensureLiveStatsShape(primaryStats || {});
+  const b = ensureLiveStatsShape(secondaryStats || {});
+  const configs = [
+    { key: "corner_kicks", tolerance: 1 },
+    { key: "total_shots", tolerance: 2 },
+    { key: "shots_on_target", tolerance: 1 },
+    { key: "fouls", tolerance: 2 },
+  ];
+  const scores: number[] = [];
+  for (const cfg of configs) {
+    const ah = nullableNumber(a?.home?.[cfg.key]);
+    const aa = nullableNumber(a?.away?.[cfg.key]);
+    const bh = nullableNumber(b?.home?.[cfg.key]);
+    const ba = nullableNumber(b?.away?.[cfg.key]);
+    if (ah == null || aa == null || bh == null || ba == null) continue;
+    const diff = Math.abs((ah + aa) - (bh + ba));
+    const excess = Math.max(0, diff - cfg.tolerance);
+    scores.push(Math.max(0, 100 - excess * 20));
+  }
+  if (!scores.length) return null;
+  return Math.round(scores.reduce((sum, x) => sum + x, 0) / scores.length);
+}
+
 function mergeOneOriginalWithEspn(original: any, espn: any) {
   const originalStats = getMatchLiveStats(original);
   const espnStats = getMatchLiveStats(espn);
@@ -3344,6 +3569,7 @@ function mergeOneOriginalWithEspn(original: any, espn: any) {
 
   const originalMinute = safeNumber(original?.current_minute ?? original?.minute, 0);
   const espnMinute = safeNumber(espn?.current_minute ?? espn?.minute, 0);
+  const statsAgreementScore = liveStatsAgreementScore(originalStats, espnStats, Math.abs(originalMinute - espnMinute));
 
   const merged: any = {
     ...original,
@@ -3368,6 +3594,7 @@ function mergeOneOriginalWithEspn(original: any, espn: any) {
       canonical_match_id: buildCanonicalMatchId(original),
       sources: ["api_original", "espn"],
       confidence_score: Math.round(sameMatchScore(original, espn) * 100),
+      stats_agreement_score: statsAgreementScore,
       espn_match_id: espn?.source_match_id || espn?.id || null,
       primary_source: "api_original",
       merged_at: nowIso(),
@@ -3495,6 +3722,61 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[])
   };
 }
 
+function applyPredictionQualityContext(match: any, pred: any) {
+  if (!pred) return pred;
+  const mergeMeta = match?.raw_data?.merge_meta || {};
+  const sourceNames = new Set<string>([
+    ...((Array.isArray(mergeMeta?.sources) ? mergeMeta.sources : []) as string[]),
+    ...((Array.isArray(match?.raw_data?.stats_sources) ? match.raw_data.stats_sources : []) as string[]),
+  ]);
+  const sourceCount = sourceNames.size || 1;
+  const sourceConfidence = Math.min(100, Math.max(0, safeNumber(mergeMeta?.confidence_score, sourceCount >= 2 ? 75 : 65)));
+  const sourceAgreementRaw = nullableNumber(mergeMeta?.stats_agreement_score);
+  const sourceAgreement = sourceAgreementRaw == null ? null : Math.min(100, Math.max(0, sourceAgreementRaw));
+  const age = statsAgeSeconds(match);
+  const freshness = Number.isFinite(age) ? age : null;
+
+  let reliability = safeNumber(pred.reliability, 0);
+  let dataQuality = safeNumber(pred.data_quality_score, 0);
+
+  if (sourceCount >= 2 && sourceConfidence >= 72) {
+    reliability += Math.min(4, (sourceConfidence - 70) * 0.10);
+    dataQuality += 4;
+    if (sourceAgreement != null && sourceAgreement >= 80) {
+      reliability += 4;
+      dataQuality += 4;
+    } else if (sourceAgreement != null && sourceAgreement < 60) {
+      reliability -= 10;
+      dataQuality -= 12;
+    }
+  } else if (sourceConfidence < 60) {
+    reliability -= 6;
+    dataQuality -= 8;
+  }
+
+  if (freshness != null && freshness > 180) {
+    reliability -= freshness > 300 ? 12 : 8;
+    dataQuality -= freshness > 300 ? 15 : 10;
+  }
+
+  reliability = Math.min(98, Math.max(35, reliability));
+  dataQuality = Math.min(100, Math.max(0, dataQuality));
+  const tier = pred.signal_tier as LiveSignalTier | null;
+  const qualityOk = passesTierQuality({ tier, probability: safeNumber(pred.probability, 0), reliability, dataQuality });
+
+  return {
+    ...pred,
+    reliability: Number(reliability.toFixed(1)),
+    data_quality_score: Number(dataQuality.toFixed(1)),
+    freshness_seconds: freshness,
+    source_count: sourceCount,
+    source_confidence: sourceConfidence,
+    source_agreement_score: sourceAgreement,
+    signal_tier: qualityOk ? tier : null,
+    value_score: 0,
+  };
+}
+
 function normalizeMatch(match: any, updatedAt?: string) {
   const stats = match?.live_stats || {};
   const minute = safeNumber(match?.current_minute, 0);
@@ -3504,14 +3786,19 @@ function normalizeMatch(match: any, updatedAt?: string) {
     predictTotalShots(stats, minute, momentum),
     predictTotalCorners(stats, minute, momentum),
     predictTotalFouls(stats, minute, momentum),
-  ].filter(Boolean);
+  ].filter(Boolean)
+    .map((p: any) => applyPredictionQualityContext(match, p))
+    .map((p: any) => ({ ...p, value_score: computeValueScore(match, [p]) }));
 
   allPredictions.sort((a: any, b: any) => {
-    if ((b.probability || 0) !== (a.probability || 0)) return (b.probability || 0) - (a.probability || 0);
-    return (b.reliability || 0) - (a.reliability || 0);
+    const av = safeNumber(a?.value_score, 0);
+    const bv = safeNumber(b?.value_score, 0);
+    if (bv !== av) return bv - av;
+    if ((b.reliability || 0) !== (a.reliability || 0)) return (b.reliability || 0) - (a.reliability || 0);
+    return (b.probability || 0) - (a.probability || 0);
   });
 
-  const predictions = allPredictions.filter((p: any) => (p.probability || 0) >= 0.80);
+  const predictions = allPredictions.filter((p: any) => Boolean(p?.signal_tier));
 
   return {
     ...match,
@@ -4003,14 +4290,50 @@ const LIVE_COUPON_STAKE_FCFA = 500_000;
 const formatReceiptOdds = (n:number) => n.toFixed(2);
 const formatReceiptMoney = (n:number) => formatTelegramMoney(n);
 
-// Cote INDICATIVE calculée : ne correspond pas à une cote 1xBet/Melbet vérifiée.
-function computeLiveCouponPricing(match: any, pred: any) {
-  const explicit=pickTelegramNumber(pred?.live_odds,pred?.odds,pred?.odd,pred?.cote);
-  const probability=Math.min(0.95,Math.max(0.20,safeNumber(pred?.probability,0.78)));
-  const upper=String(pred?.prediction_type??pred?.type??"")==="total_shots"?2.45:2.35;
-  const odds=explicit!==null&&explicit>1?Number(explicit.toFixed(2)):
-    Number(Math.min(upper,Math.max(1.08,0.94/probability)).toFixed(2));
-  return {odds,potentialGain:Math.round(LIVE_COUPON_STAKE_FCFA*odds),source:explicit!==null&&explicit>1?"provided":"calculated"};
+// Pricing V2: une cote externe est bookmaker; sinon la cote affichée est la fair odd du modèle.
+async function fetchExternalLivePropOdds(match: any, pred: any) {
+  if (!LIVE_PROP_ODDS_URL) return null;
+  try {
+    const url = new URL(LIVE_PROP_ODDS_URL);
+    url.searchParams.set("match_id", String(match?.id ?? ""));
+    url.searchParams.set("market", String(pred?.type ?? pred?.prediction_type ?? ""));
+    url.searchParams.set("line", String(pred?.threshold ?? ""));
+    url.searchParams.set("minute", String(pred?.minute ?? match?.current_minute ?? 0));
+    const headers: Record<string,string> = { Accept: "application/json" };
+    if (LIVE_PROP_ODDS_TOKEN) headers.Authorization = "Bearer " + LIVE_PROP_ODDS_TOKEN;
+    const res = await fetch(url.toString(), { headers });
+    if (!res.ok) return null;
+    const body = await res.json().catch(() => null);
+    const raw = body?.odds ?? body?.price ?? body?.decimal_odds ?? body?.data?.odds ?? body?.data?.price ?? body?.data?.decimal_odds;
+    const odds = Number(raw);
+    if (!Number.isFinite(odds) || odds <= 1.01 || odds > 25) return null;
+    return { odds: Number(odds.toFixed(2)), source: String(body?.source || body?.bookmaker || "external_live") };
+  } catch (e) {
+    console.warn("LIVE prop odds provider unavailable:", e);
+    return null;
+  }
+}
+
+async function computeLiveCouponPricing(match: any, pred: any) {
+  const probability = Math.min(0.95, Math.max(0.05, safeNumber(pred?.probability, 0.50)));
+  const modelFairOdds = Number(safeNumber(pred?.model_fair_odds, estimatedModelOdds(probability)).toFixed(2));
+  const explicit = pickTelegramNumber(pred?.bookmaker_odds, pred?.external_live_odds);
+  const external = explicit !== null && explicit > 1
+    ? { odds: Number(explicit.toFixed(2)), source: "provided_bookmaker" }
+    : await fetchExternalLivePropOdds(match, pred);
+  const bookmakerOdds = external?.odds ?? null;
+  const rawDisplayOdds = bookmakerOdds ?? modelFairOdds;
+  const receiptOdds = Number(Math.min(3.20, Math.max(1.05, rawDisplayOdds)).toFixed(2));
+  const impliedProbability = bookmakerOdds ? Number((1 / bookmakerOdds).toFixed(6)) : null;
+  const edge = impliedProbability != null ? Number((probability - impliedProbability).toFixed(6)) : null;
+  const expectedValue = bookmakerOdds ? Number((probability * bookmakerOdds - 1).toFixed(6)) : null;
+  return {
+    odds: receiptOdds,
+    potentialGain: Math.round(LIVE_COUPON_STAKE_FCFA * receiptOdds),
+    source: external ? external.source : "model_fair_odds",
+    pricingMode: external ? "external_live" : "model_only",
+    modelFairOdds, bookmakerOdds, impliedProbability, edge, expectedValue,
+  };
 }
 
 function signalPeriodCapture(match:any){
@@ -4044,10 +4367,26 @@ async function savePrediction(
   pred.home_score = pred.home_score ?? match.home_score ?? 0;
   pred.away_score = pred.away_score ?? match.away_score ?? 0;
 
-  const livePricing = computeLiveCouponPricing(match, pred);
+  const livePricing = await computeLiveCouponPricing(match, pred);
   pred.live_odds = livePricing.odds;
+  pred.model_fair_odds = livePricing.modelFairOdds;
+  pred.bookmaker_odds = livePricing.bookmakerOdds;
+  pred.implied_probability = livePricing.impliedProbability;
+  pred.edge = livePricing.edge;
+  pred.expected_value = livePricing.expectedValue;
+  pred.pricing_mode = livePricing.pricingMode;
   pred.stake_fcfa = LIVE_COUPON_STAKE_FCFA;
   pred.potential_gain_fcfa = livePricing.potentialGain;
+
+  if (livePricing.pricingMode === "external_live") {
+    const minEdge = pred.signal_tier === "high_value" ? 0.12 : pred.signal_tier === "value" ? 0.08 : 0.05;
+    const edge = safeNumber(livePricing.edge, -1);
+    const ev = safeNumber(livePricing.expectedValue, -1);
+    if (edge < minEdge || ev <= 0) {
+      console.log("Value gate: signal rejected against bookmaker price", { match_id: matchId, threshold: thresholdNum, edge, ev, minEdge });
+      return { created: false, id: null, skipped: "no_bookmaker_value" };
+    }
+  }
 
   const payload: any = {
     match_id: matchId,
@@ -4073,10 +4412,30 @@ async function savePrediction(
     message: pred.message,
 
     threshold: thresholdNum,
-    projected_value: signalValue,
+    signal_value: signalValue,
+    projected_value: safeNumber(pred.projected_value, signalValue),
     current_value: signalValue,
 
-    confidence: pred.probability >= 0.84 ? "high" : "medium",
+    reliability_score: safeNumber(pred.reliability, 0),
+    model_fair_odds: livePricing.modelFairOdds,
+    bookmaker_odds: livePricing.bookmakerOdds,
+    implied_probability: livePricing.impliedProbability,
+    edge: livePricing.edge,
+    expected_value: livePricing.expectedValue,
+    value_score: computeValueScore(match, [{ ...pred, bookmaker_odds: livePricing.bookmakerOdds }]),
+    data_quality_score: safeNumber(pred.data_quality_score, match?.data_quality_score ?? 0),
+    freshness_seconds: Number.isFinite(safeNumber(pred.freshness_seconds, NaN)) ? safeNumber(pred.freshness_seconds, 0) : null,
+    source_count: safeNumber(pred.source_count, 1),
+    source_confidence: safeNumber(pred.source_confidence, 0),
+    source_agreement_score: pred.source_agreement_score ?? null,
+    signal_tier: pred.signal_tier ?? null,
+    pricing_mode: livePricing.pricingMode,
+    line_candidate_count: safeNumber(pred.line_candidate_count, 0),
+    line_candidate_rank: safeNumber(pred.line_candidate_rank, 0),
+    line_candidates: pred.line_candidates ?? null,
+    model_version: pred.model_version ?? LIVE_VALUE_MODEL_VERSION,
+
+    confidence: safeNumber(pred.reliability, 0) >= 80 ? "high" : "medium",
     validated: false,
     outcome: null,
 
@@ -4097,11 +4456,19 @@ async function savePrediction(
   });
   if (existingRunning) return { created: false, id: existingRunning };
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("live_predictions")
     .insert({ ...payload, created_at: new Date().toISOString() })
     .select("id")
     .single();
+
+  if (error && isUndefinedColumnError(error)) {
+    const legacyPayload = { ...payload };
+    for (const key of ["signal_value","reliability_score","model_fair_odds","bookmaker_odds","implied_probability","edge","expected_value","value_score","data_quality_score","freshness_seconds","source_count","source_confidence","source_agreement_score","signal_tier","pricing_mode","line_candidate_count","line_candidate_rank","line_candidates","model_version","final_value","headroom"]) delete legacyPayload[key];
+    const retry = await supabase.from("live_predictions").insert({ ...legacyPayload, created_at: new Date().toISOString() }).select("id").single();
+    data = retry.data;
+    error = retry.error;
+  }
 
   if (error) {
     if (isDuplicateKeyError(error)) {
@@ -4123,6 +4490,9 @@ async function savePrediction(
     throw error;
   }
 
+  if (!data?.id) throw new Error("Insertion live_predictions sans id retourné");
+  const predictionId: string = String(data.id);
+
   // Une panne de notifications ne doit jamais empêcher la publication Telegram.
   try { await insertNotification({
     user_id: "all",
@@ -4134,40 +4504,40 @@ Pronostic: ${pred.title}
 Minute du signal: ${payload.minute}'
 Pronostic (seuil): ${payload.threshold}
 Au signal: ${signalValue}
-Cote calculée: ${formatReceiptOdds(livePricing.odds)}
+Cote ${livePricing.pricingMode === "external_live" ? "bookmaker" : "modèle"}: ${formatReceiptOdds(livePricing.odds)}
 Mise coupon: ${formatReceiptMoney(LIVE_COUPON_STAKE_FCFA)}`,
     priority: pred.probability >= 0.86 ? "urgent" : "normal",
     read: false,
-    related_prediction_id: data.id,
+    related_prediction_id: predictionId,
   }); }catch(e:any){console.warn("Notification LIVE indisponible, Telegram continue:",e?.message||String(e));}
 
   let telegramAttempted = false;
 
   if (options.sendTelegram !== false) {
-    const claimed = await claimTelegramDelivery(data.id);
+    const claimed = await claimTelegramDelivery(predictionId);
 
     if (claimed) {
       telegramAttempted = true;
       const telegramDelivery = await sendTelegramLiveCoupon(
         match,
         pred,
-        data.id,
+        predictionId,
       );
-      await markTelegramDelivery(data.id, telegramDelivery);
+      await markTelegramDelivery(predictionId, telegramDelivery);
     } else {
       console.log("⏭️ Envoi Telegram ignoré: prediction déjà claimée", {
-        prediction_id: data.id,
+        prediction_id: predictionId,
       });
     }
   } else {
     console.log("📥 Coupon LIVE mis en file Telegram", {
-      prediction_id: data.id,
+      prediction_id: predictionId,
     });
   }
 
   return {
     created: true,
-    id: data.id,
+    id: predictionId,
     telegram_attempted: telegramAttempted,
   };
 }
@@ -4196,6 +4566,8 @@ async function updatePredictionSafe(predId: string, values: any) {
     const cleaned = { ...values };
     delete cleaned.validation_type;
     delete cleaned.validated_at; // if missing
+    delete cleaned.final_value;
+    delete cleaned.headroom;
     const { error: e2 } = await supabase.from("live_predictions").update(cleaned).eq("id", predId);
     if (!e2) return true;
     throw e2;
@@ -4230,6 +4602,10 @@ async function validatePredictionWithMerge(params: {
     updated_at: new Date().toISOString(),
     validation_type: params.validation_type,
   };
+  if (params.validation_type === "final") {
+    values.final_value = params.currentValue;
+    values.headroom = Number((params.currentValue - threshold).toFixed(2));
+  }
 
   try {
     // Transition atomique false -> true. Deux workers peuvent lire la même ligne,
@@ -4247,6 +4623,8 @@ async function validatePredictionWithMerge(params: {
       const cleaned = { ...values };
       delete cleaned.validation_type;
       delete cleaned.validated_at;
+      delete cleaned.final_value;
+      delete cleaned.headroom;
       const retry = await supabase
         .from("live_predictions")
         .update(cleaned)
@@ -4318,7 +4696,7 @@ async function validatePredictionsInPlay(
 
   const { data: pending, error } = await supabase
     .from("live_predictions")
-    .select("id, match_id, match_name, prediction_type, threshold, validated, telegram_sent, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa")
+    .select("id, match_id, match_name, prediction_type, threshold, validated, telegram_sent, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, pricing_mode, model_fair_odds, bookmaker_odds")
     .eq("validated", false);
 
   if (error) throw error;
@@ -4441,8 +4819,8 @@ function predictionRowToUi(p: any) {
   const threshold = safeNumber(p.threshold, 0);
   const meta = predictionMeta(p.prediction_type, threshold);
 
-  const signalValue = p.projected_value ?? null;
-  const reliability = Math.round((Number(p.probability) || 0) * 100);
+  const signalValue = p.signal_value ?? p.current_value ?? null;
+  const reliability = Math.round(safeNumber(p.reliability_score, (Number(p.probability) || 0) * 100));
 
   return {
     id: p.id,
@@ -4459,9 +4837,28 @@ function predictionRowToUi(p: any) {
     current: p.current_value ?? null,
 
     signal_value: signalValue,
-    projected: signalValue, // compat UI
+    projected: p.projected_value ?? null,
+    projected_value: p.projected_value ?? null,
 
     reliability,
+    model_fair_odds: p.model_fair_odds ?? null,
+    bookmaker_odds: p.bookmaker_odds ?? null,
+    implied_probability: p.implied_probability ?? null,
+    edge: p.edge ?? null,
+    expected_value: p.expected_value ?? null,
+    value_score: p.value_score ?? null,
+    data_quality_score: p.data_quality_score ?? null,
+    freshness_seconds: p.freshness_seconds ?? null,
+    source_count: p.source_count ?? null,
+    source_confidence: p.source_confidence ?? null,
+    source_agreement_score: p.source_agreement_score ?? null,
+    signal_tier: p.signal_tier ?? null,
+    pricing_mode: p.pricing_mode ?? null,
+    line_candidate_count: p.line_candidate_count ?? null,
+    line_candidate_rank: p.line_candidate_rank ?? null,
+    model_version: p.model_version ?? null,
+    final_value: p.final_value ?? null,
+    headroom: p.headroom ?? null,
     reasons: [],
 
     confidence: p.confidence ?? null,
@@ -4498,7 +4895,7 @@ async function getLiveMatchesFromDb(maxAgeSeconds = 240) {
 
   const { data: preds, error: predErr } = await supabase
     .from("live_predictions")
-    .select("id, match_id, prediction_type, probability, message, threshold, current_value, projected_value, confidence, validated, outcome, validation_type, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source")
+    .select("*")
     .in("match_id", ids)
     .eq("validated", false)
     .order("created_at", { ascending: false });
@@ -4517,7 +4914,11 @@ async function getLiveMatchesFromDb(maxAgeSeconds = 240) {
     const pRows = byMatch.get(String(r.id)) || [];
     const uiPreds = pRows.map(predictionRowToUi);
 
-    uiPreds.sort((a: any, b: any) => safeNumber(b.probability) - safeNumber(a.probability));
+    uiPreds.sort((a: any, b: any) => {
+      const dv = safeNumber(b.value_score, 0) - safeNumber(a.value_score, 0);
+      if (dv !== 0) return dv;
+      return safeNumber(b.reliability, 0) - safeNumber(a.reliability, 0);
+    });
 
     return {
       ...base,
@@ -4537,13 +4938,124 @@ async function getLiveOpportunitiesFromDb() {
   const withPred = matches.filter((m: any) => Array.isArray(m.predictions) && m.predictions.length > 0);
 
   withPred.sort((a: any, b: any) => {
-    const ap = safeNumber(a?.predictions?.[0]?.probability, 0);
-    const bp = safeNumber(b?.predictions?.[0]?.probability, 0);
-    if (bp !== ap) return bp - ap;
-    return safeNumber(b.value_score) - safeNumber(a.value_score);
+    const av = safeNumber(a?.predictions?.[0]?.value_score, a?.value_score);
+    const bv = safeNumber(b?.predictions?.[0]?.value_score, b?.value_score);
+    if (bv !== av) return bv - av;
+    const ar = safeNumber(a?.predictions?.[0]?.reliability, 0);
+    const br = safeNumber(b?.predictions?.[0]?.reliability, 0);
+    if (br !== ar) return br - ar;
+    return safeNumber(b?.predictions?.[0]?.probability, 0) - safeNumber(a?.predictions?.[0]?.probability, 0);
   });
 
   return withPred.slice(0, 12);
+}
+
+function oddsBucket(value: number | null) {
+  if (value == null || !Number.isFinite(value)) return null;
+  if (value >= 1.50 && value <= 1.75) return "1.50-1.75";
+  if (value > 1.75 && value <= 2.00) return "1.76-2.00";
+  if (value > 2.00 && value <= 2.50) return "2.01-2.50";
+  if (value > 2.50 && value <= 3.00) return "2.51-3.00";
+  if (value > 3.00 && value <= 3.20) return "3.01-3.20";
+  return null;
+}
+
+function summarizeBacktestRows(rows: any[]) {
+  const shifts = [0, 1, 2, 3];
+  const shiftStats: Record<string, any> = {};
+  for (const shift of shifts) {
+    const eligible = rows.filter((r: any) => Number.isFinite(Number(r.final_value ?? r.current_value)) && Number.isFinite(Number(r.threshold)));
+    const wins = eligible.filter((r: any) => Number(r.final_value ?? r.current_value) > Number(r.threshold) + shift).length;
+    shiftStats["plus_" + shift] = { signals: eligible.length, wins, losses: eligible.length - wins, hit_rate: eligible.length ? Number((wins / eligible.length * 100).toFixed(2)) : 0 };
+  }
+
+  const byMarket: Record<string, any> = {};
+  for (const market of ["total_corners","total_shots","total_fouls"]) {
+    const subset = rows.filter((r: any) => r.prediction_type === market);
+    const usable = subset.filter((r: any) => Number.isFinite(Number(r.final_value ?? r.current_value)) && Number.isFinite(Number(r.threshold)));
+    const headrooms = usable.map((r: any) => Number(r.final_value ?? r.current_value) - Number(r.threshold));
+    const wins = headrooms.filter((h: number) => h > 0).length;
+    byMarket[market] = {
+      signals: usable.length, wins, losses: usable.length - wins,
+      hit_rate: usable.length ? Number((wins / usable.length * 100).toFixed(2)) : 0,
+      average_headroom: headrooms.length ? Number((headrooms.reduce((a: number,b: number)=>a+b,0) / headrooms.length).toFixed(2)) : null,
+      median_headroom: headrooms.length ? Number([...headrooms].sort((a:number,b:number)=>a-b)[Math.floor((headrooms.length-1)/2)].toFixed(2)) : null,
+    };
+  }
+
+  const bucketSummary = (field: "bookmaker_odds" | "model_fair_odds") => {
+    const out: Record<string, any> = {};
+    for (const name of ["1.50-1.75","1.76-2.00","2.01-2.50","2.51-3.00","3.01-3.20"]) {
+      const subset = rows.filter((r: any) => oddsBucket(Number(r?.[field])) === name);
+      const usable = subset.filter((r: any) => Number.isFinite(Number(r.final_value ?? r.current_value)) && Number.isFinite(Number(r.threshold)));
+      const wins = usable.filter((r: any) => Number(r.final_value ?? r.current_value) > Number(r.threshold)).length;
+      const returns = field === "bookmaker_odds"
+        ? usable.reduce((sum: number,r: any) => sum + (Number(r.final_value ?? r.current_value) > Number(r.threshold) ? Number(r.bookmaker_odds) : 0), 0)
+        : null;
+      out[name] = {
+        signals: usable.length, wins, losses: usable.length - wins,
+        hit_rate: usable.length ? Number((wins / usable.length * 100).toFixed(2)) : 0,
+        roi: returns != null && usable.length ? Number(((returns / usable.length - 1) * 100).toFixed(2)) : null,
+      };
+    }
+    return out;
+  };
+
+  const v2Rows = rows.filter((r: any) => r.model_version === LIVE_VALUE_MODEL_VERSION && Array.isArray(r.line_candidates));
+  let medianWins = 0;
+  let medianUsable = 0;
+  for (const r of v2Rows) {
+    const candidates = r.line_candidates || [];
+    const selected = selectMedianCandidate(candidates);
+    const finalValue = Number(r.final_value ?? r.current_value);
+    if (!selected || !Number.isFinite(finalValue)) continue;
+    const threshold = Number((selected.item as any)?.threshold);
+    if (!Number.isFinite(threshold)) continue;
+    medianUsable++;
+    if (finalValue > threshold) medianWins++;
+  }
+
+  return {
+    signals: rows.length,
+    threshold_stress_test: shiftStats,
+    by_market: byMarket,
+    bookmaker_odds_buckets: bucketSummary("bookmaker_odds"),
+    model_odds_buckets: bucketSummary("model_fair_odds"),
+    median_rule_v2: {
+      signals: medianUsable, wins: medianWins, losses: medianUsable - medianWins,
+      hit_rate: medianUsable ? Number((medianWins / medianUsable * 100).toFixed(2)) : 0,
+    },
+    notes: {
+      bookmaker_roi: "ROI calculé uniquement quand bookmaker_odds contient une vraie cote externe.",
+      model_odds: "Les buckets model_fair_odds mesurent la calibration du modèle, pas un ROI bookmaker réel.",
+      legacy_median: "La règle médiane exacte ne peut être rejouée sur les anciens signaux qui ne stockaient pas leurs lignes candidates.",
+    },
+  };
+}
+
+async function getLiveHeadroomBacktest(days = 90) {
+  const boundedDays = Math.max(1, Math.min(365, Math.floor(days)));
+  const since = new Date(Date.now() - boundedDays * 86400 * 1000).toISOString();
+  const { data, error } = await supabase
+    .from("live_predictions")
+    .select("prediction_type, threshold, current_value, final_value, headroom, probability, reliability_score, live_odds, model_fair_odds, bookmaker_odds, odds_source, pricing_mode, signal_tier, line_candidate_count, line_candidate_rank, line_candidates, model_version, outcome, validated, telegram_sent, created_at")
+    .eq("validated", true)
+    .eq("telegram_sent", true)
+    .gte("created_at", since)
+    .order("created_at", { ascending: false });
+  if (error) {
+    if (isUndefinedColumnError(error)) {
+      return {
+        period_days: boundedDays,
+        since,
+        migration_required: true,
+        migration: "supabase/migrations/20261009000100_live_value_engine_v2.sql",
+        error: error.message,
+      };
+    }
+    throw error;
+  }
+  return { period_days: boundedDays, since, migration_required: false, ...summarizeBacktestRows(data || []) };
 }
 
 // =======================================================
@@ -5184,16 +5696,29 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
 
 
 async function validatePredictionsNow() {
-  const { data: pending, error: pendingError } = await supabase
+  let { data: pending, error: pendingError } = await supabase
     .from("live_predictions")
-    .select("id, match_id, match_name, prediction_type, threshold, league_name, validated, created_at, telegram_sent, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa")
-    .eq("validated", false)
-    .order("created_at", { ascending: false });
+    .select("*")
+    .or("validated.eq.false,final_value.is.null")
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  if (pendingError && isUndefinedColumnError(pendingError)) {
+    const legacy = await supabase
+      .from("live_predictions")
+      .select("*")
+      .eq("validated", false)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    pending = legacy.data;
+    pendingError = legacy.error;
+  }
 
   if (pendingError) throw pendingError;
-  if (!pending?.length) return { validated: 0, skipped: 0, failed: 0 };
+  if (!pending?.length) return { validated: 0, finalized_existing: 0, skipped: 0, failed: 0 };
 
   let validated = 0;
+  let finalizedExisting = 0;
   let skipped = 0;
   let failed = 0;
 
@@ -5211,6 +5736,14 @@ async function validatePredictionsNow() {
     if (!isFinishedEvent(ev)) continue;
 
     let stats = ev.live_stats || null;
+    if (!stats) {
+      try {
+        const finalStatsPayload = await fetchBSD(`/events/${pred.match_id}/stats/`);
+        stats = normalizeBsdStatsPayload(finalStatsPayload);
+      } catch (e) {
+        console.warn("Final detailed stats unavailable, cache fallback:", e);
+      }
+    }
     if (!stats) stats = await getCachedLiveStats(String(pred.match_id));
     if (!stats) { skipped++; continue; }
 
@@ -5229,6 +5762,22 @@ async function validatePredictionsNow() {
       ok = finalValue > threshold;
     } else {
       skipped++;
+      continue;
+    }
+
+    if (pred.validated === true) {
+      try {
+        await updatePredictionSafe(String(pred.id), {
+          current_value: finalValue,
+          final_value: finalValue,
+          headroom: Number((finalValue - threshold).toFixed(2)),
+          updated_at: new Date().toISOString(),
+        });
+        finalizedExisting++;
+      } catch (e) {
+        failed++;
+        console.error("Final headroom enrichment failed:", e);
+      }
       continue;
     }
 
@@ -5279,7 +5828,7 @@ Résultat: ${ok ? "✅ réussi" : "❌ échoué"}`,
     }
   }
 
-  return { validated, skipped, failed };
+  return { validated, finalized_existing: finalizedExisting, skipped, failed };
 }
 
 // =======================================================
@@ -5311,8 +5860,6 @@ function enrichPredictionForUi(p: any, raw: any) {
 
     home_team: p.home_team ?? raw.home_team ?? null,
     away_team: p.away_team ?? raw.away_team ?? null,
-    home_score: p.home_score ?? raw.home_score ?? 0,
-    away_score: p.away_score ?? raw.away_score ?? 0,
     current_minute: p.minute ?? null, // minute du signal (fixe historique)
 
     league: raw.league ?? { name: p.league_name ?? null },
@@ -5331,9 +5878,28 @@ function enrichPredictionForUi(p: any, raw: any) {
     pronostic: p.threshold,
     threshold: p.threshold,
 
-    signal_value: p.projected_value,
-    projected: p.projected_value,
+    signal_value: p.signal_value ?? p.current_value ?? null,
+    projected: p.projected_value ?? null,
+    projected_value: p.projected_value ?? null,
     current: p.current_value,
+    reliability: safeNumber(p.reliability_score, (Number(p.probability) || 0) * 100),
+    model_fair_odds: p.model_fair_odds ?? null,
+    bookmaker_odds: p.bookmaker_odds ?? null,
+    implied_probability: p.implied_probability ?? null,
+    edge: p.edge ?? null,
+    expected_value: p.expected_value ?? null,
+    value_score: p.value_score ?? null,
+    data_quality_score: p.data_quality_score ?? null,
+    freshness_seconds: p.freshness_seconds ?? null,
+    source_count: p.source_count ?? null,
+    source_confidence: p.source_confidence ?? null,
+    signal_tier: p.signal_tier ?? null,
+    pricing_mode: p.pricing_mode ?? null,
+    line_candidate_count: p.line_candidate_count ?? null,
+    line_candidate_rank: p.line_candidate_rank ?? null,
+    model_version: p.model_version ?? null,
+    final_value: p.final_value ?? null,
+    headroom: p.headroom ?? null,
 
     validated: !!p.validated,
     outcome: p.outcome ?? null,
@@ -5346,8 +5912,8 @@ function enrichPredictionForUi(p: any, raw: any) {
     signal_minute:p.signal_minute,
     signal_half1_home:p.signal_half1_home,signal_half1_away:p.signal_half1_away,
     signal_half2_home:p.signal_half2_home,signal_half2_away:p.signal_half2_away,
-    home_score:p.signal_home_score??p.home_score??0,
-    away_score:p.signal_away_score??p.away_score??0,
+    home_score:p.signal_home_score??p.home_score??raw.home_score??0,
+    away_score:p.signal_away_score??p.away_score??raw.away_score??0,
     minute:p.signal_minute??p.minute??null,
     live_odds:p.live_odds,stake_fcfa:p.stake_fcfa,
     potential_gain_fcfa:p.potential_gain_fcfa,odds_source:p.odds_source
@@ -6668,6 +7234,13 @@ serve(async (req) => {
       return json({ opportunities });
     }
 
+    if (path === "/backtest/headroom" && req.method === "GET") {
+      requireDebugAuth(url);
+      const days = safeNumber(url.searchParams.get("days"), 90);
+      const backtest = await getLiveHeadroomBacktest(days);
+      return json({ backtest });
+    }
+
     // ===================================================
     // UI: today (BSD direct)
     // ===================================================
@@ -6743,7 +7316,7 @@ serve(async (req) => {
 
       const { data, error } = await supabase
         .from("live_predictions")
-        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source")
+        .select("*")
         .gte("created_at", since)
         .order("created_at", { ascending: false });
 
@@ -6767,7 +7340,7 @@ serve(async (req) => {
 
       const { data: p, error } = await supabase
         .from("live_predictions")
-        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source")
+        .select("*")
         .eq("id", id)
         .maybeSingle();
 
