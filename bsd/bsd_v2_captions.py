@@ -65,7 +65,7 @@ def single_caption(match, *, night=False):
     price=pick.get("odds")
     stake=single_stake(price)
     source_label="Cote estimée" if pick.get("odds_source")=="mrxpronos_model" else "Cote"
-    label="🌙 Coupons nuit" if night else "☀️ Coupon du jour"
+    label="🌙 Coupons nuit" if night else "🔥 Coupon du jour"
     intro=("<i>Les sélections de la nuit, de 21h à 05h.</i>"
            if night else "<i>Notre sélection football avant-match.</i>")
     return "\n".join((
@@ -76,7 +76,7 @@ def single_caption(match, *, night=False):
         "<blockquote>"
         f"🎯 {_selection(match)}\n"
         f"📊 {source_label} : <b>{_quote(price)}</b>\n"
-        f"💰 Mise indicative : <b>{money(stake)}</b>"
+        f"💰 Mise : <b>{money(stake)}</b>"
         "</blockquote>",
         f"🕒 <i>{_kickoff(match.get('event_date'))}</i>",
         "",
@@ -102,7 +102,7 @@ def combo_caption(combo, *, night=False):
     return "\n".join(start+[
         "<blockquote>"+"\n".join(details)+"</blockquote>",
         f"📊 Cote combinée : <b>{total}</b>",
-        f"💰 Mise indicative : <b>{money(combination_stake())}</b>",
+        f"💰 Mise : <b>{money(combination_stake())}</b>",
         f"🕒 <i>Premier match : {_kickoff(combo.get('event_date'))}</i>",
         "",
         _closing(),
