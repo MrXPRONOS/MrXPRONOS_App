@@ -110,9 +110,9 @@ def restore_published_matches(data, rows, *, repository=None, max_versions=350):
                                 p.get("selection_key") == pick["selection_key"] for p in picks)):
                         picks.append(pick)
                 original["predictions"] = picks
-            requested.difference_update(
+            requested.difference_update({
                 m for m in requested if _market_present(recovered[key], m)
-            )
+            })
             if not requested:
                 del pending[key]
 
