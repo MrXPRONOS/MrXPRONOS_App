@@ -25,7 +25,7 @@ BRAND_TWO=ASSETS/"melbet.webp"
 TEAM_ICON_CACHE={}
 INK="#12334c"; MUTED="#6a8ba2"; GREEN="#34b466"; BORDER="#dde3e8"
 W,H=1080,1300
-ALLOWED_ODD_SOURCES=("bsd_consensus","bsd_bookmaker")
+ALLOWED_ODD_SOURCES=("bsd_consensus","bsd_bookmaker","mrxpronos_model")
 
 def font(size,bold=False):
     for p in (["/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -183,7 +183,8 @@ def _odds(match):
     odds=p.get("odds")
     try:
         odds=float(odds)
-        if not (1.20<=odds<=100 and p.get("odds_source") in ALLOWED_ODD_SOURCES):
+        if not (1.20<=odds<=100 and p.get("odds_source") in ALLOWED_ODD_SOURCES and
+                (p.get("odds_source")!="mrxpronos_model" or p.get("estimated_odds") is True)):
             return None
         return odds
     except (ValueError,TypeError):return None
