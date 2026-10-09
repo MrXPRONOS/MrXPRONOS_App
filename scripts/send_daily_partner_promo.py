@@ -6,6 +6,7 @@ import base64
 import textwrap
 import requests
 from telegram_rich import post_photo
+from telegram_premium_templates import partners as partners_template
 from telegram_promo_channels import promo_channels, deliver_to_both
 from telegram_promo_colors import colorized_button
 from pathlib import Path
@@ -18,18 +19,7 @@ IMAGE_PATH=os.environ.get("PROMO_IMAGE","assets/images/xpvip-partners-daily.jpg"
 BASE64_IMAGE_DIR=Path("assets/images/xpvip-partners-daily.b64")
 BASE64_IMAGE_PARTS=("01.txt","02.txt","03.txt")
 
-CAPTION=os.environ.get(
-    "PROMO_CAPTION",
-    "🔥 <b>XPVIP — PARTENAIRES MrXPRONOS</b>\n\n"
-    "Retrouve ci-dessous les liens d’inscription de nos bookmakers partenaires.\n\n"
-    "<blockquote>🎁 <b>CODE PROMO : XPVIP</b>\n"
-    "<i>Avant de terminer ton inscription, vérifie que XPVIP est bien renseigné "
-    "lorsque le champ « Code promo » est proposé.</i></blockquote>\n\n"
-    "✨ <b>Un seul code. Plusieurs partenaires.</b>\n"
-    "👇 <i>Choisis simplement ton bookmaker avec l’un des boutons ci-dessous.</i>\n\n"
-    "⚠️ <b>18+</b> · <i>Les offres et conditions peuvent varier selon le pays et le compte. "
-    "Joue de façon responsable.</i>"
-)
+CAPTION=os.environ.get("PROMO_CAPTION") or partners_template()
 
 PARTNERS=[
     ("1xBet","https://reffpa.com/L?tag=d_2054511m_1573c_&site=2054511&ad=1573","assets/images/1xbet.png"),

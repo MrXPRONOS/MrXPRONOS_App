@@ -9,7 +9,21 @@ export function richBody(text:string, rows:InlineRow[], hasPhoto:boolean){
   const escapeHtml=(s:string)=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
     .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   const image=hasPhoto?'<img src="tg://photo?id=coupon"/>':"";
-  const desc=text?'<p>'+escapeHtml(text).replace(/\r?\n/g,"<br/>")+'</p>':"";
+  const lines=String(text||"").split(/\r?\n/).map(x=>x.trim());
+  const groups:string[][]=[];
+  let current:string[]=[];
+  for(const line of lines){
+    if(!line){if(current.length){groups.push(current);current=[];}continue;}
+    current.push(line);
+  }
+  if(current.length)groups.push(current);
+  const desc=groups.map((group,index)=>{
+    const value=group.map(escapeHtml).join("<br/>");
+    return index===0 && groups.length>1
+      ?"<h3>"+value+"</h3>"
+      :"<p>"+value+"</p>";
+  }).join("");
+
   const buttons=rows.map((row)=>{
     const nodes=row.filter(b=>b?.url&&/^https?:\/\//.test(b.url)).map(b=>{
       const style=["primary","success","danger"].includes(b.style||"")?b.style:"primary";
