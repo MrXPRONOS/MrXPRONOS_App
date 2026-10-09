@@ -7,6 +7,7 @@ from pathlib import Path
 
 import requests
 from telegram_rich import post_photo
+from telegram_premium_templates import bonus as bonus_template
 from telegram_promo_channels import promo_channels, deliver_to_both
 from telegram_promo_colors import colorized_button
 from PIL import Image, ImageOps
@@ -103,33 +104,8 @@ def get_today_key():
 
 
 def html_caption(bm: dict) -> str:
-    if bm["name"] == "Betclic":
-        bonus_block = (
-            f"<blockquote>🎁 <b>OFFRE :</b> {bm['offer_limit']}\n"
-            f"🎟 <b>CODE PROMO :</b> <b>{PROMO_CODE}</b></blockquote>"
-        )
-    else:
-        bonus_block = (
-            f"<blockquote>🎁 <b>OFFRE :</b> {bm['offer_value']} — {bm['offer_limit']}\n"
-            f"🎟 <b>CODE PROMO :</b> <b>{PROMO_CODE}</b></blockquote>"
-        )
-
-    return (
-        f"🔥 <b>{bm['name'].upper()} — {bm['offer_title'].upper()}</b>\n\n"
-        f"Crée un <b>nouveau compte</b> avec le code promo <b>{PROMO_CODE}</b>, "
-        f"effectue ton premier dépôt et profite de l’offre de bienvenue du moment.\n\n"
-        f"{bonus_block}\n\n"
-        f"<i>{bm['pitch']}</i>\n\n"
-        f"✨ <b>Étapes rapides :</b>\n"
-        f"• ouvre le lien officiel ci-dessous\n"
-        f"• crée un nouveau compte\n"
-        f"• saisis <b>{PROMO_CODE}</b> si le champ promo apparaît\n"
-        f"• fais ton premier dépôt pour activer l’offre\n\n"
-        f"👇 <b>Lien d’inscription :</b> clique sur le bouton juste en dessous.\n\n"
-        f"⚠️ <b>Important :</b> <i>vérifie toujours que le code promo <b>{PROMO_CODE}</b> est bien appliqué avant de valider ton inscription.</i>\n\n"
-        f"⚠️ <b>18+</b> · <i>Les bonus, montants et conditions peuvent varier selon le pays, la devise et le compte. Joue de façon responsable.</i>"
-    )
-
+    value = bm["offer_limit"] if bm["name"] == "Betclic" else f'{bm["offer_value"]} — {bm["offer_limit"]}'
+    return bonus_template(bm["name"],bm["offer_title"],value,bm["pitch"],code=PROMO_CODE)
 
 def keyboard(bm: dict):
     return {
