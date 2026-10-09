@@ -12,6 +12,8 @@ ALTER TABLE public.live_predictions
   ADD COLUMN IF NOT EXISTS value_score numeric(6,2),
   ADD COLUMN IF NOT EXISTS data_quality_score numeric(6,2),
   ADD COLUMN IF NOT EXISTS freshness_seconds integer,
+  ADD COLUMN IF NOT EXISTS source_count integer,
+  ADD COLUMN IF NOT EXISTS source_confidence numeric(6,2),
   ADD COLUMN IF NOT EXISTS signal_tier text,
   ADD COLUMN IF NOT EXISTS pricing_mode text,
   ADD COLUMN IF NOT EXISTS line_candidate_count integer,
@@ -43,3 +45,22 @@ CREATE INDEX IF NOT EXISTS live_predictions_model_version_idx
 
 CREATE INDEX IF NOT EXISTS live_predictions_backtest_idx
   ON public.live_predictions(telegram_sent, validated, created_at DESC);
+
+
+-- Les anciennes lignes validées contiennent déjà leur valeur observée dans current_value.
+-- On peut donc reconstruire le headroom historique sans inventer de donnée.
+UPDATE public.live_predictions
+SET final_value = COALESCE(final_value, current_value),
+    headroom = COALESCE(headroom, current_value - threshold)
+WHERE validated = true
+  AND current_value IS NOT NULL
+  AND threshold IS NOT NULL
+  AND (final_value IS NULL OR headroom IS NULL);
+
+-- Pour les anciennes lignes, signal_value ne peut être récupéré que si projected_value
+-- représentait encore la valeur au signal dans l'ancien moteur.
+UPDATE public.live_predictions
+SET signal_value = COALESCE(signal_value, projected_value)
+WHERE signal_value IS NULL
+  AND projected_value IS NOT NULL
+  AND model_version IS NULL;
