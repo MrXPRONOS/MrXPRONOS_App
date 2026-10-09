@@ -79,6 +79,32 @@ class CaptionTests(unittest.TestCase):
             parser.feed(caption)
             self.assertTrue(set(("b","i","blockquote")).issubset(set(parser.tags)))
 
+    def test_prediction_buttons_use_color_and_configured_partner_links(self):
+        from bsd_v2_telegram import action_buttons,prediction_action_buttons
+        import json
+        from pathlib import Path
+        buttons=prediction_action_buttons()["inline_keyboard"]
+        partners=json.loads((Path(__file__).resolve().parent.parent /
+                            "config/partners.json").read_text(encoding="utf-8"))["partners"]
+        self.assertEqual(len(buttons[0]),2)
+        self.assertEqual(buttons[0][0],{
+            "text":"PARIEZ SUR 1XBET",
+            "url":partners["1xbet"]["url"],"style":"primary"})
+        self.assertEqual(buttons[0][1],{
+            "text":"PARIEZ SUR MELBET",
+            "url":partners["melbet"]["url"],"style":"success"})
+        self.assertEqual(buttons[1][0]["text"],"Voir plus de coupons 🔥")
+        self.assertNotIn("style",action_buttons()["inline_keyboard"][0][0])
+
+    def test_prediction_send_paths_only_use_colored_buttons(self):
+        import inspect
+        from bsd_v2_telegram import send_one,send_combo
+        from bsd_v2_verify_telegram import post_gain
+        self.assertIn("prediction_action_buttons()",inspect.getsource(send_one))
+        self.assertIn("prediction_action_buttons()",inspect.getsource(send_combo))
+        self.assertIn("action_buttons()",inspect.getsource(post_gain))
+        self.assertNotIn("prediction_action_buttons()",inspect.getsource(post_gain))
+
     def test_image_send_paths_apply_telegram_html_parse_mode(self):
         # Source checks protect against omission on any of the three send paths.
         import inspect
