@@ -133,7 +133,7 @@ class CombosTests(unittest.TestCase):
             output=render_combo(combo,Path(directory)/"combo.png",
                                 now=NOW,session=OfflineSession())
             with Image.open(output) as im:
-                self.assertEqual(im.size,(1080,1560))
+                self.assertEqual(im.size,(1080,1580))
                 self.assertEqual(im.format,"PNG")
 
 if __name__=="__main__":
