@@ -5,6 +5,7 @@ import json
 import base64
 import textwrap
 import requests
+from telegram_rich import post_photo
 from telegram_promo_channels import promo_channels, deliver_to_both
 from telegram_promo_colors import colorized_button
 from pathlib import Path
@@ -172,20 +173,10 @@ def main():
         raise SystemExit("Secrets manquants: TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID")
 
     image_path=prepare_telegram_image(IMAGE_PATH)
-    api=f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
-    markup=json.dumps(keyboard(image_path),ensure_ascii=False)
-
+    markup=keyboard(image_path)
     def send_to(cid):
-        with Path(image_path).open("rb") as f:
-            response=requests.post(
-                api,data={
-                    "chat_id":cid,"caption":CAPTION,"parse_mode":"HTML",
-                    "reply_markup":markup,
-                },files={"photo":("xpvip-partners.jpg",f,"image/jpeg")},
-                timeout=120)
-        response.raise_for_status()
-        if not response.json().get("ok",False):
-            raise RuntimeError(f"Telegram rejected promo for {cid}")
+        post_photo(requests,TOKEN,cid,Path(image_path),CAPTION,markup,
+                   timeout=120,mime="image/jpeg")
     deliver_to_both(promo_channels(CHAT_ID,SECONDARY_CHAT_ID),
                     send_to,label="Promo XPVIP commune")
 
