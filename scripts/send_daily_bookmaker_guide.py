@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
+from telegram_rich import post_photo
 from telegram_promo_channels import promo_channels, deliver_to_both
 from telegram_promo_colors import colorized_button
 
@@ -131,30 +132,11 @@ def choose_today():
 
 
 def send_photo(chat_id, image_path, caption, keyboard):
-    api = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
     image = Path(image_path)
     if not image.exists():
         raise FileNotFoundError(f"Image introuvable: {image}")
-
-    with image.open("rb") as fh:
-        response = requests.post(
-            api,
-            data={
-                "chat_id": chat_id,
-                "caption": caption,
-                "parse_mode": "HTML",
-                "reply_markup": json.dumps(keyboard, ensure_ascii=False),
-            },
-            files={"photo": fh},
-            timeout=120,
-        )
-
-    if not response.ok:
-        raise RuntimeError(f"Telegram {response.status_code}: {response.text}")
-    response_data=response.json()
-    if not response_data.get("ok",False):
-        raise RuntimeError(f"Telegram rejected message for {chat_id}")
-    return response_data
+    post_photo(requests,TOKEN,chat_id,image,caption,keyboard,
+               timeout=120,mime="image/jpeg")
 
 
 def main():
