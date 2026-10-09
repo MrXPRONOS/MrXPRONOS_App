@@ -64,6 +64,7 @@ def single_caption(match, *, night=False):
     pick=match.get("prediction") or {}
     price=pick.get("odds")
     stake=single_stake(price)
+    source_label="Cote indicative Mr XPRONOS (non bookmaker)" if pick.get("odds_source")=="mrxpronos_model" else "Cote BSD"
     label="🌙 Coupons nuit" if night else "☀️ Coupon du jour"
     intro=("<i>Les sélections de la nuit, de 21h à 05h.</i>"
            if night else "<i>Notre sélection football avant-match.</i>")
@@ -74,7 +75,7 @@ def single_caption(match, *, night=False):
         f"<b>⚽ {_fixture(match)}</b>",
         "<blockquote>"
         f"🎯 {_selection(match)}\n"
-        f"📊 Cote BSD : <b>{_quote(price)}</b>\n"
+        f"📊 {source_label} : <b>{_quote(price)}</b>\n"
         f"💰 Mise indicative : <b>{money(stake)}</b>"
         "</blockquote>",
         f"🕒 <i>{_kickoff(match.get('event_date'))}</i>",
@@ -122,7 +123,7 @@ def gain_caption(match):
         "<blockquote>"
         f"🎯 {_selection(match)}\n"
         f"🏁 Score final : <b>{score}</b>\n"
-        f"📊 Cote BSD publiée : <b>{_quote(pick.get('odds'))}</b>"
+        f"📊 {'Cote indicative du modèle' if pick.get('odds_source')=='mrxpronos_model' else 'Cote BSD publiée'} : <b>{_quote(pick.get('odds'))}</b>"
         "</blockquote>",
         "<i>Pronostic réussi, sans attestation de pari encaissé.</i>",
         "",
