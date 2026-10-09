@@ -111,3 +111,19 @@ Ces messages sont un rendu de pronostics, pas des tickets de paris acceptés ni 
 - Tests ajoutés : `bsd/test_bsd_v2_ticket_ui.py`, en complément des tests des images simples et combinées adaptés aux dimensions (1080×1080 et 1080×1580).
 
 **Vérification finale du design :** les fichiers et tests ont été enregistrés sur GitHub, mais les jobs GitHub Actions et un envoi image réel doivent être observés avant de confirmer une reproduction visuelle intégrale.
+
+
+## Audit des endpoints images BSD (9 octobre 2026)
+
+Endpoint public officiel des clubs : `https://sports.bzzoiro.com/img/team/{id}/?bg=transparent`.
+Endpoint public officiel des compétitions : `https://sports.bzzoiro.com/img/league/{id}/?bg=transparent`.
+Catalogue : `GET /api/v2/leagues/` ; détail : `GET /api/v2/leagues/{id}/`.
+
+- `bsd/bsd_v2_assets.py` génère les URL uniquement à partir d'IDs BSD numériques positifs et n'accepte ni chemin arbitraire ni ID nul.
+- `bsd/bsd_v2_publish.py` renseigne désormais `home_logo`, `away_logo`, `league_logo` dans le JSON, y compris pour les matchs archivés. Les noms de ligues manquants sont recherchés dans le catalogue puis dans les détails officiels.
+- `bsd/bsd_v2_card.py` donne priorité au logo BSD officiel, contrôle l'hôte HTTPS, refuse les redirections et les images excessives, et conserve un repli si la ressource échoue.
+- `bsd/bsd_v2_ticket_ui.py` affiche le logo de compétition officiel à la place du pictogramme générique, avec pictogramme neutre en cas d'indisponibilité.
+- Le `data.json` existant a reçu les **84 liens** des images d'équipes/ligues (28 rencontres) et perdu ses faux intitulés `Football`. Ses vrais noms de championnats sont encore absents et seront résolus lors d'une prochaine génération BSD authentifiée.
+- Tests hors ligne : `bsd/test_bsd_v2_assets.py`. Les appels HTTP en direct depuis l'environnement actuel n'ont pas pu établir de connexion ; **la disponibilité HTTP 200 et la compatibilité du contenu doivent encore être confirmées sur GitHub Actions avec le réseau**, avant d'affirmer une vérification intégrale.
+
+Ne jamais interpréter une URL théorique comme la preuve qu'un logo distant existe.
