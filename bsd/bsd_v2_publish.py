@@ -20,6 +20,7 @@ from bsd_v2_btts import fit_btts_model
 from bsd_v2_over_under import fit_total_model
 from bsd_v2_double_chance import fit_model as fit_dc_model
 from bsd_v2_odds import fetch_event_odds
+from bsd_v2_estimated_odds import estimated_quote, ESTIMATED_SOURCE, valid_standalone_prediction
 from bsd_v2_labels import normalize_match,market_label
 from bsd_v2_assets import image_fields
 
@@ -151,6 +152,9 @@ def to_site(p, fixture):
             "fair_odds":pred["fair_odds"],"odds":pred["bookmaker_odds"],
             "model_version":p["model_version"],
             "odds_source":pred.get("odds_source"),
+            "estimated_odds":pred.get("odds_source")==ESTIMATED_SOURCE,
+            "odds_method":pred.get("odds_method"),
+            "overround_assumption":pred.get("overround_assumption"),
             "odds_updated_at":pred.get("odds_updated_at"),
         },
         "model_version":p["model_version"], "final_score":prob,"xpronos_score":prob,
@@ -223,11 +227,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     # les anciens pronostics à venir sans cote ou Under 4,5 sont retirés.
     saved={key:row for key,row in saved.items()
            if str(row.get("status","")).lower()=="finished"
-           and row.get("prediction",{}).get("selection_key") not in EXCLUDED_SELECTIONS
-           and row.get("prediction",{}).get("odds_source") in ("bsd_consensus","bsd_bookmaker")
-           and isinstance(row.get("prediction",{}).get("odds"), (int,float))
-           and not isinstance(row["prediction"]["odds"],bool)
-           and MIN_COMBO_ODDS <= row["prediction"]["odds"] <= 100}
+           and valid_standalone_prediction(row.get("prediction"),row.get("combo_only",False))}
     index=V2History(history)
     stats=Counter()
     by_id={str(f["id"]):f for f in fixtures if isinstance(f,dict) and f.get("id") is not None}
@@ -254,22 +254,16 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         if str(f.get("status") or "").lower() not in ("notstarted","upcoming"):
             entry["reason"]="not_upcoming"
             continue
-        if not odds_fetcher:
-            entry["reason"]="no_odds_provider"
-            stats["no_odds_provider"] += 1
-            continue
-        if stats["odds_attempts"] >= max_odds_requests:
-            entry["reason"]="odds_budget_exhausted"
-            stats["odds_budget_exhausted"] += 1
-            continue
-        stats["odds_attempts"] += 1
-        try:
-            quotes, diagnostics = odds_fetcher(f, now)
-        except Exception as exc:
-            entry["reason"]="odds_api_error"
-            stats["odds_errors"] += 1
-            print("BSD_ODDS_UNAVAILABLE", f["id"], type(exc).__name__)
-            continue
+        quotes = {}
+        if odds_fetcher and stats["odds_attempts"] < max_odds_requests:
+            stats["odds_attempts"] += 1
+            try:
+                quotes, diagnostics = odds_fetcher(f, now)
+            except Exception as exc:
+                stats["odds_errors"] += 1
+                print("BSD_ODDS_UNAVAILABLE", f["id"], type(exc).__name__)
+        else:
+            stats["odds_unavailable_or_budget"] += 1
         entry["quotes"]=[{"market":code,"odds":q.get("odds"),"source":q.get("origin")}
                           for code,q in sorted(quotes.items()) if isinstance(q,dict)]
         valid_quotes = {
@@ -281,9 +275,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             and MIN_COMBO_ODDS <= quote["odds"] <= 100
         }
         if not valid_quotes:
-            entry["reason"]="no_qualified_bsd_odds"
             stats["no_qualified_bsd_odds"] += 1
-            continue
         market_audit=[]
         entry["considered"]=market_audit
         normal_quotes={code:quote for code,quote in valid_quotes.items()
@@ -318,12 +310,38 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                     combo_only=True
                     active_quotes=low_only
         if prediction is None:
-            entry["reason"]=reason
-            stats[reason]+=1
-            continue
+            shadow,shadow_reason=predict_v2(
+                f,index,calibration=calibration,quality_policy=policy,
+                rho=rho,clock=now,mode="reliability",odds_by_market={},
+                require_odds=False,excluded_keys=EXCLUDED_SELECTIONS,
+                btts_model=btts_model,total_model=total_model,dc_model=dc_model,
+                market_audit=market_audit)
+            if shadow is not None:
+                raw=shadow["prediction"]
+                estimate=estimated_quote({
+                    "key":raw["key"],"market_code":raw["internal_market_code"],
+                    "probability":raw["probability"],
+                    "conservative_probability":raw["conservative_probability"],
+                },quotes,now=now)
+                if estimate:
+                    raw["bookmaker_odds"]=estimate["odds"]
+                    raw["odds_source"]=ESTIMATED_SOURCE
+                    raw["odds_updated_at"]=estimate["updated_at"]
+                    raw["odds_method"]=estimate["overround_reference"]
+                    raw["overround_assumption"]=estimate["overround_assumption"]
+                    prediction=shadow
+                    combo_only=False
+                    stats["model_estimated"]+=1
+            if prediction is None:
+                entry["reason"]=reason if valid_quotes else "no_qualified_bsd_odds_or_model"
+                stats[entry["reason"]]+=1
+                continue
         prediction["combo_only"]=combo_only
         selected_code = prediction["prediction"]["internal_market_code"]
-        quote = valid_quotes.get(selected_code)
+        quote = ({"odds":prediction["prediction"]["bookmaker_odds"],
+                  "origin":ESTIMATED_SOURCE,"updated_at":now.isoformat()}
+                 if prediction["prediction"]["odds_source"]==ESTIMATED_SOURCE
+                 else valid_quotes.get(selected_code))
         if quote is None:
             entry["reason"]="selection_without_verified_odds"
             stats["selection_without_verified_odds"] += 1
@@ -336,7 +354,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         # when it belongs to a different market family.
         first_family=prediction["prediction"]["market"]
         additional=[]
-        for candidate in prediction.get("ranked_candidates",[]):
+        for candidate in ([] if prediction["prediction"]["odds_source"]==ESTIMATED_SOURCE else prediction.get("ranked_candidates",[])):
             if candidate["key"]==prediction["prediction"]["key"]:continue
             if candidate["market"]==first_family:continue
             quoted=active_quotes.get(candidate["market_code"])
@@ -354,7 +372,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                                "odds_updated_at":quoted["updated_at"]})
             break
         prediction["secondary_selections"]=additional
-        low_quotes={code:q for code,q in valid_quotes.items() if q["odds"]<1.50}
+        low_quotes={code:q for code,q in valid_quotes.items() if q["odds"]<1.50} if prediction["prediction"]["odds_source"]!=ESTIMATED_SOURCE else {}
         if low_quotes:
             combo_choice,combo_reason=predict_v2(
                 f,index,calibration=calibration,quality_policy=policy,
