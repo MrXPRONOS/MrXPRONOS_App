@@ -1,10 +1,17 @@
 name: BSD - Archive historique 2024-2026
+run-name: "BSD - Archive historique 2024-2026 (${{ inputs.trigger_source || github.event_name }})"
 
 on:
+  # Planification GitHub provisoire jusqu'à validation des tâches cron-job.org.
   schedule:
     - cron: '35 1 * * *' # chaque jour a 01:35 UTC
   workflow_dispatch:
     inputs:
+      trigger_source:
+        description: "Origine cron-job.org ou manuel"
+        required: false
+        default: "manual"
+        type: string
       budget:
         description: "Maximum d appels BSD pour ce lancement (1-500)"
         required: false
@@ -26,6 +33,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
+      - name: Journaliser la source
+        env:
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || github.event_name }}
+        run: |
+          echo "Déclenchement : ${TRIGGER_SOURCE}"
+          echo "Début UTC : $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
