@@ -39,6 +39,9 @@ const DEFAULT_TZ = Deno.env.get("BSD_TZ") || "Europe/Paris";
 const CRON_SECRET = Deno.env.get("CRON_SECRET") || "";
 const DEBUG_KEY = Deno.env.get("DEBUG_KEY") || "";
 
+const LIVE_PROP_ODDS_URL = Deno.env.get("LIVE_PROP_ODDS_URL") || "";
+const LIVE_PROP_ODDS_TOKEN = Deno.env.get("LIVE_PROP_ODDS_TOKEN") || "";
+
 import { richPhotoOrLegacy, richTextOrLegacy } from "../_shared/telegram_rich.ts";
 import { attachLiveSponsorBanner } from "../_shared/live_sponsor_banner.ts";
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
@@ -2903,28 +2906,237 @@ function conservativeProjection(params: {
   return Number(projected.toFixed(1));
 }
 
-/**
- * ✅ Règle :
- * prediction seulement si seuil >= actuel + 2
- */
-function getSafeThreshold(
-  type: "shots" | "corners" | "fouls",
-  current: number,
-  projected: number,
-  minGap = 2,
-) {
-  const thresholds =
-    type === "corners"
-      ? [7.5, 8.5, 9.5, 10.5, 11.5]
-      : type === "shots"
-        ? [17.5, 19.5, 21.5, 23.5, 25.5, 27.5, 29.5]
-        : [19.5, 21.5, 23.5, 24.5, 25.5, 27.5];
 
-  for (const t of thresholds) {
-    const gapOk = (t - current) >= minGap;
-    if (current < t && projected >= t + 0.5 && gapOk) return t;
+const LIVE_VALUE_MODEL_VERSION = "live-value-v2.0";
+
+type LiveMarketKind = "shots" | "corners" | "fouls";
+type LiveSignalTier = "quality" | "value" | "high_value";
+
+const LIVE_MARKET_LINES: Record<LiveMarketKind, number[]> = {
+  corners: [7.5, 8.5, 9.5, 10.5, 11.5, 12.5, 13.5],
+  shots: [15.5, 17.5, 19.5, 21.5, 23.5, 25.5, 27.5, 29.5, 31.5, 33.5],
+  fouls: [17.5, 19.5, 21.5, 23.5, 24.5, 25.5, 27.5, 29.5, 31.5],
+};
+
+function poissonTail(lambda: number, atLeast: number) {
+  if (atLeast <= 0) return 1;
+  if (!(lambda > 0)) return 0;
+
+  let term = Math.exp(-lambda);
+  let cdf = term;
+  for (let k = 1; k < atLeast; k++) {
+    term *= lambda / k;
+    cdf += term;
   }
+  return Math.min(0.995, Math.max(0.005, 1 - cdf));
+}
+
+function marketProjectionBuffer(type: LiveMarketKind) {
+  if (type === "corners") return 1.5;
+  if (type === "shots") return 3.0;
+  return 3.0;
+}
+
+function candidateProbability(params: {
+  current: number;
+  threshold: number;
+  projected: number;
+  heuristicProbability: number;
+  reliability: number;
+}) {
+  const { current, threshold, projected, heuristicProbability, reliability } = params;
+  const futureMean = Math.max(0.05, projected - current);
+  const additionalNeeded = Math.max(0, Math.floor(threshold) + 1 - current);
+  const countProbability = poissonTail(futureMean, additionalNeeded);
+
+  const heuristic = Math.min(0.95, Math.max(0.20, heuristicProbability));
+  const rel = Math.min(1, Math.max(0, reliability / 100));
+  const blended =
+    countProbability * 0.72 +
+    heuristic * 0.18 +
+    0.50 * 0.10;
+
+  const calibrated = 0.50 + (blended - 0.50) * (0.72 + rel * 0.28);
+  return Number(Math.min(0.94, Math.max(0.18, calibrated)).toFixed(4));
+}
+
+function estimatedModelOdds(probability: number) {
+  const p = Math.min(0.95, Math.max(0.05, probability));
+  return Number((1 / p).toFixed(2));
+}
+
+function selectMedianCandidate<T>(items: T[]) {
+  if (!items.length) return null;
+  // 5 éléments -> index 2 (3e). Pour un nombre pair, médiane basse.
+  const index = Math.max(0, Math.floor((items.length - 1) / 2));
+  return { item: items[index], index };
+}
+
+function signalTierFromModelOdds(odds: number): LiveSignalTier | null {
+  if (odds >= 1.45 && odds <= 1.75) return "quality";
+  if (odds > 1.75 && odds <= 2.30) return "value";
+  if (odds > 2.30 && odds <= 3.20) return "high_value";
   return null;
+}
+
+function passesTierQuality(params: {
+  tier: LiveSignalTier | null;
+  probability: number;
+  reliability: number;
+  dataQuality: number;
+}) {
+  const { tier, probability, reliability, dataQuality } = params;
+  if (!tier) return false;
+
+  if (tier === "quality") {
+    return probability >= 0.56 && reliability >= 68 && dataQuality >= 67;
+  }
+  if (tier === "value") {
+    return probability >= 0.43 && reliability >= 72 && dataQuality >= 67;
+  }
+  return probability >= 0.31 && reliability >= 78 && dataQuality >= 100;
+}
+
+function getLineCandidates(params: {
+  type: LiveMarketKind;
+  current: number;
+  projected: number;
+  heuristicProbability: number;
+  reliability: number;
+  minGap?: number;
+}) {
+  const {
+    type,
+    current,
+    projected,
+    heuristicProbability,
+    reliability,
+    minGap = 2,
+  } = params;
+
+  const buffer = marketProjectionBuffer(type);
+  const lines = LIVE_MARKET_LINES[type] || [];
+
+  return lines
+    .filter((threshold) =>
+      current < threshold &&
+      threshold - current >= minGap &&
+      threshold <= projected + buffer
+    )
+    .map((threshold) => {
+      const probability = candidateProbability({
+        current,
+        threshold,
+        projected,
+        heuristicProbability,
+        reliability,
+      });
+      const modelFairOdds = estimatedModelOdds(probability);
+      return {
+        threshold,
+        probability,
+        model_fair_odds: modelFairOdds,
+        signal_tier: signalTierFromModelOdds(modelFairOdds),
+      };
+    });
+}
+
+function predictionDataQuality(stats: any, type: LiveMarketKind) {
+  const completeness = statsCompleteness(stats);
+  if (type === "corners") {
+    return completeness.corners
+      ? (completeness.shots && completeness.shots_on_target ? 100 : 82)
+      : 0;
+  }
+  if (type === "shots") {
+    return completeness.shots
+      ? (completeness.shots_on_target ? 100 : 82)
+      : 0;
+  }
+  return completeness.fouls ? (completeness.corners || completeness.shots ? 100 : 82) : 0;
+}
+
+function buildLivePrediction(params: {
+  type: LiveMarketKind;
+  predictionType: string;
+  titleUnit: string;
+  badge: string;
+  color: string;
+  stats: any;
+  minute: number;
+  current: number;
+  projectedFinal: number;
+  heuristicProbability: number;
+  reliability: number;
+  reasons: string[];
+}) {
+  const {
+    type,
+    predictionType,
+    titleUnit,
+    badge,
+    color,
+    stats,
+    minute,
+    current,
+    projectedFinal,
+    heuristicProbability,
+    reliability,
+    reasons,
+  } = params;
+
+  const dataQuality = predictionDataQuality(stats, type);
+  const candidates = getLineCandidates({
+    type,
+    current,
+    projected: projectedFinal,
+    heuristicProbability,
+    reliability,
+    minGap: 2,
+  });
+  if (!candidates.length) return null;
+
+  const selected = selectMedianCandidate(candidates);
+  if (!selected) return null;
+
+  const chosen: any = selected.item;
+  const tier = chosen.signal_tier as LiveSignalTier | null;
+
+  if (!passesTierQuality({
+    tier,
+    probability: chosen.probability,
+    reliability,
+    dataQuality,
+  })) return null;
+
+  return {
+    type: predictionType,
+    title: `Over ${chosen.threshold} ${titleUnit}`,
+    badge,
+    color,
+    probability: chosen.probability,
+    message: `${current} ${titleUnit} actuellement`,
+    threshold: chosen.threshold,
+    current,
+    signal_value: current,
+    projected_value: projectedFinal,
+    reliability,
+    data_quality_score: dataQuality,
+    model_fair_odds: chosen.model_fair_odds,
+    signal_tier: tier,
+    pricing_mode: "model_only",
+    line_candidate_count: candidates.length,
+    line_candidate_rank: selected.index + 1,
+    line_candidates: candidates,
+    model_version: LIVE_VALUE_MODEL_VERSION,
+    minute,
+    reasons: [
+      ...reasons,
+      `Projection finale ${projectedFinal}`,
+      `Ligne médiane ${selected.index + 1}/${candidates.length}`,
+      `Cote modèle ${chosen.model_fair_odds.toFixed(2)}`,
+    ],
+  };
 }
 
 function computeHeatLevel(match: any) {
@@ -2962,9 +3174,6 @@ function predictTotalCorners(stats: any, minute: number, momentum: any) {
     flow: flowData.flow,
   });
 
-  const threshold = getSafeThreshold("corners", current, projectedFinal, 2);
-  if (!threshold) return null;
-
   let probability = 0.58;
   let reliability = 52;
   const reasons: string[] = [];
@@ -2979,21 +3188,22 @@ function predictTotalCorners(stats: any, minute: number, momentum: any) {
   probability = Math.min(0.90, Math.max(0.50, probability));
   reliability = Math.min(92, Math.max(40, reliability));
 
-  if (probability < 0.76 || reliability < 63) return null;
+  if (reliability < 63) return null;
 
-  return {
-    type: "total_corners",
-    title: `Over ${threshold} corners`,
+  return buildLivePrediction({
+    type: "corners",
+    predictionType: "total_corners",
+    titleUnit: "corners",
     badge: "Corners",
     color: "yellow",
-    probability,
-    message: `${current} corners actuellement`,
-    threshold,
+    stats,
+    minute,
     current,
-    signal_value: current,
+    projectedFinal,
+    heuristicProbability: probability,
     reliability,
     reasons,
-  };
+  });
 }
 
 function predictTotalShots(stats: any, minute: number, momentum: any) {
@@ -3006,9 +3216,6 @@ function predictTotalShots(stats: any, minute: number, momentum: any) {
 
   const flowData = getMatchFlow(stats, minute, momentum);
   const projectedFinal = conservativeProjection({ current, minute, type: "shots", flow: flowData.flow });
-
-  const threshold = getSafeThreshold("shots", current, projectedFinal, 2);
-  if (!threshold) return null;
 
   let probability = 0.60;
   let reliability = 55;
@@ -3023,21 +3230,22 @@ function predictTotalShots(stats: any, minute: number, momentum: any) {
   probability = Math.min(0.91, Math.max(0.50, probability));
   reliability = Math.min(93, Math.max(40, reliability));
 
-  if (probability < 0.77 || reliability < 64) return null;
+  if (reliability < 64) return null;
 
-  return {
-    type: "total_shots",
-    title: `Over ${threshold} tirs`,
+  return buildLivePrediction({
+    type: "shots",
+    predictionType: "total_shots",
+    titleUnit: "tirs",
     badge: "Tirs",
     color: "green",
-    probability,
-    message: `${current} tirs actuellement`,
-    threshold,
+    stats,
+    minute,
     current,
-    signal_value: current,
+    projectedFinal,
+    heuristicProbability: probability,
     reliability,
     reasons,
-  };
+  });
 }
 
 function predictTotalFouls(stats: any, minute: number, momentum: any) {
@@ -3056,9 +3264,6 @@ function predictTotalFouls(stats: any, minute: number, momentum: any) {
     flow: flowData.flow === "offensive" ? "neutral" : flowData.flow,
   });
 
-  const threshold = getSafeThreshold("fouls", current, projectedFinal, 2);
-  if (!threshold) return null;
-
   let probability = 0.57;
   let reliability = 54;
   const reasons: string[] = [];
@@ -3068,23 +3273,25 @@ function predictTotalFouls(stats: any, minute: number, momentum: any) {
   if (flowData.flow === "defensive") { probability += 0.03; reliability += 3; reasons.push(`Match fermé`); }
   if (flowData.flow === "offensive") { probability -= 0.03; reliability -= 2; }
 
-  probability = Math.min(0.88, Math.max(0.50, probability));  reliability = Math.min(90, Math.max(40, reliability));
+  probability = Math.min(0.88, Math.max(0.50, probability));
+  reliability = Math.min(90, Math.max(40, reliability));
 
-  if (probability < 0.75 || reliability < 62) return null;
+  if (reliability < 62) return null;
 
-  return {
-    type: "total_fouls",
-    title: `Over ${threshold} fautes`,
+  return buildLivePrediction({
+    type: "fouls",
+    predictionType: "total_fouls",
+    titleUnit: "fautes",
     badge: "Fautes",
     color: "orange",
-    probability,
-    message: `${current} fautes actuellement`,
-    threshold,
+    stats,
+    minute,
     current,
-    signal_value: current,
+    projectedFinal,
+    heuristicProbability: probability,
     reliability,
     reasons,
-  };
+  });
 }
 
 function computeAiScore(match: any, predictions: any[]) {
@@ -3103,16 +3310,17 @@ function computeAiScore(match: any, predictions: any[]) {
 function computeValueScore(match: any, predictions: any[]) {
   const best = predictions?.[0];
   if (!best) return 0;
-
-  const minute = safeNumber(match?.current_minute, 0);
-  let score = 0;
-  score += Math.round((best.probability || 0) * 40);
-  score += Math.round((best.reliability || 0) * 0.25);
-  score += minute >= 25 ? 10 : 0;
-  score += minute >= 45 ? 10 : 0;
-  score += minute >= 60 ? 8 : 0;
-
-  return Math.min(99, score);
+  const reliability = Math.min(100, Math.max(0, safeNumber(best.reliability, 0)));
+  const dataQuality = Math.min(100, Math.max(0, safeNumber(best.data_quality_score, 0)));
+  const probability = Math.min(1, Math.max(0, safeNumber(best.probability, 0)));
+  const modelOdds = safeNumber(best.model_fair_odds, estimatedModelOdds(probability || 0.5));
+  const bookmakerOdds = safeNumber(best.bookmaker_odds, 0);
+  const implied = bookmakerOdds > 1 ? 1 / bookmakerOdds : null;
+  const edge = implied != null ? probability - implied : null;
+  const ev = bookmakerOdds > 1 ? probability * bookmakerOdds - 1 : null;
+  let score = reliability * 0.35 + dataQuality * 0.30 + Math.min(25, Math.max(0, (modelOdds - 1.30) * 20));
+  if (edge != null && ev != null) score = reliability * 0.25 + dataQuality * 0.20 + Math.max(0, Math.min(25, edge * 200)) + Math.max(0, Math.min(30, ev * 120));
+  return Math.max(0, Math.min(99, Math.round(score)));
 }
 
 
@@ -3504,14 +3712,17 @@ function normalizeMatch(match: any, updatedAt?: string) {
     predictTotalShots(stats, minute, momentum),
     predictTotalCorners(stats, minute, momentum),
     predictTotalFouls(stats, minute, momentum),
-  ].filter(Boolean);
+  ].filter(Boolean).map((p: any) => ({ ...p, value_score: computeValueScore(match, [p]) }));
 
   allPredictions.sort((a: any, b: any) => {
-    if ((b.probability || 0) !== (a.probability || 0)) return (b.probability || 0) - (a.probability || 0);
-    return (b.reliability || 0) - (a.reliability || 0);
+    const av = safeNumber(a?.value_score, 0);
+    const bv = safeNumber(b?.value_score, 0);
+    if (bv !== av) return bv - av;
+    if ((b.reliability || 0) !== (a.reliability || 0)) return (b.reliability || 0) - (a.reliability || 0);
+    return (b.probability || 0) - (a.probability || 0);
   });
 
-  const predictions = allPredictions.filter((p: any) => (p.probability || 0) >= 0.80);
+  const predictions = allPredictions.filter((p: any) => Boolean(p?.signal_tier));
 
   return {
     ...match,
