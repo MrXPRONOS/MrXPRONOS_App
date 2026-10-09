@@ -4843,7 +4843,7 @@ async function getLiveMatchesFromDb(maxAgeSeconds = 240) {
 
   const { data: preds, error: predErr } = await supabase
     .from("live_predictions")
-    .select("id, match_id, prediction_type, probability, message, threshold, current_value, projected_value, confidence, validated, outcome, validation_type, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source, signal_value, reliability_score, model_fair_odds, bookmaker_odds, implied_probability, edge, expected_value, value_score, data_quality_score, freshness_seconds, source_count, source_confidence, signal_tier, pricing_mode, line_candidate_count, line_candidate_rank, model_version, final_value, headroom")
+    .select("*")
     .in("match_id", ids)
     .eq("validated", false)
     .order("created_at", { ascending: false });
@@ -4991,8 +4991,19 @@ async function getLiveHeadroomBacktest(days = 90) {
     .eq("telegram_sent", true)
     .gte("created_at", since)
     .order("created_at", { ascending: false });
-  if (error) throw error;
-  return { period_days: boundedDays, since, ...summarizeBacktestRows(data || []) };
+  if (error) {
+    if (isUndefinedColumnError(error)) {
+      return {
+        period_days: boundedDays,
+        since,
+        migration_required: true,
+        migration: "supabase/migrations/20261009000100_live_value_engine_v2.sql",
+        error: error.message,
+      };
+    }
+    throw error;
+  }
+  return { period_days: boundedDays, since, migration_required: false, ...summarizeBacktestRows(data || []) };
 }
 
 // =======================================================
@@ -5633,11 +5644,21 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
 
 
 async function validatePredictionsNow() {
-  const { data: pending, error: pendingError } = await supabase
+  let { data: pending, error: pendingError } = await supabase
     .from("live_predictions")
-    .select("id, match_id, match_name, prediction_type, threshold, league_name, validated, validation_type, final_value, created_at, telegram_sent, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa")
+    .select("*")
     .or("validated.eq.false,final_value.is.null")
     .order("created_at", { ascending: false });
+
+  if (pendingError && isUndefinedColumnError(pendingError)) {
+    const legacy = await supabase
+      .from("live_predictions")
+      .select("*")
+      .eq("validated", false)
+      .order("created_at", { ascending: false });
+    pending = legacy.data;
+    pendingError = legacy.error;
+  }
 
   if (pendingError) throw pendingError;
   if (!pending?.length) return { validated: 0, finalized_existing: 0, skipped: 0, failed: 0 };
@@ -7243,7 +7264,7 @@ serve(async (req) => {
 
       const { data, error } = await supabase
         .from("live_predictions")
-        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source, signal_value, reliability_score, model_fair_odds, bookmaker_odds, implied_probability, edge, expected_value, value_score, data_quality_score, freshness_seconds, source_count, source_confidence, signal_tier, pricing_mode, line_candidate_count, line_candidate_rank, line_candidates, model_version, final_value, headroom")
+        .select("*")
         .gte("created_at", since)
         .order("created_at", { ascending: false });
 
@@ -7267,7 +7288,7 @@ serve(async (req) => {
 
       const { data: p, error } = await supabase
         .from("live_predictions")
-        .select("id, match_id, match_name, home_team, away_team, home_score, away_score, minute, league_name, prediction_type, probability, message, threshold, projected_value, current_value, validated, outcome, validation_type, validated_at, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source, signal_value, reliability_score, model_fair_odds, bookmaker_odds, implied_probability, edge, expected_value, value_score, data_quality_score, freshness_seconds, source_count, source_confidence, signal_tier, pricing_mode, line_candidate_count, line_candidate_rank, line_candidates, model_version, final_value, headroom")
+        .select("*")
         .eq("id", id)
         .maybeSingle();
 
