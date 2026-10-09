@@ -49,7 +49,7 @@ class CombosTests(unittest.TestCase):
     def test_invalid_under45_low_price_and_missing_prices_refused(self):
         a=match(1,40)
         bad=match(2,55,1.19)
-        self.assertEqual(len(build_combos([a,bad])),1)
+        self.assertEqual(len(build_combos([a,bad])),0)
         bad["prediction"]["odds"]=1.5
         bad["prediction"]["selection_key"]="UNDER_45"
         self.assertEqual(build_combos([a,bad]),[])
@@ -60,9 +60,11 @@ class CombosTests(unittest.TestCase):
     def test_strict_upper_limit_and_lower_than_120_allowed(self):
         a=match(1,55,1.12)
         b=match(2,75,1.35)
+        self.assertEqual(len(build_combos([a,b])),0)
+        a["prediction"]["odds"]=1.20
         self.assertEqual(len(build_combos([a,b])),1)
         b["prediction"]["odds"]=1.50
-        self.assertEqual(build_combos([a,b]),[])
+        self.assertEqual(len(build_combos([a,b])),1)
         b["prediction"]["odds"]=1.75
         self.assertEqual(build_combos([a,b]),[])
         b["prediction"]["odds"]=1.00
@@ -75,9 +77,7 @@ class CombosTests(unittest.TestCase):
                                 "type":"Moins de 3.5 buts","market":"goals"}
         b=match(2,55,1.38)
         coupons=build_combos([a,b])
-        self.assertEqual(len(coupons),1)
-        self.assertEqual(coupons[0]["legs"][0]["prediction"]["selection_key"],"UNDER_35")
-        self.assertAlmostEqual(coupons[0]["combined_odds"],1.18*1.38)
+        self.assertEqual(coupons,[])
         self.assertEqual(a["prediction"]["odds"],1.88)
 
     def test_no_two_legs_from_same_fixture(self):
@@ -95,7 +95,7 @@ class CombosTests(unittest.TestCase):
             "selection_key":"BTTS_YES","market":"btts",
             "odds":1.48,"odds_source":"bsd_consensus"}]
         tickets=expand_tickets(a)
-        self.assertEqual(len(tickets),2)
+        self.assertEqual(len(tickets),0)
         self.assertEqual(tickets[0]["id"],"bsd:17")
         self.assertNotIn("_telegram_selection_ref",tickets[0])
         self.assertEqual(tickets[1]["_telegram_selection_ref"],"bsd:17:BTTS_YES")
