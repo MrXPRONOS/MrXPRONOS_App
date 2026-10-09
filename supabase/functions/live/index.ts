@@ -3068,7 +3068,7 @@ function buildLivePrediction(params: {
   } = params;
 
   const dataQuality = predictionDataQuality(stats, type);
-  const candidates = getLineCandidates({
+  const allCandidates = getLineCandidates({
     type,
     current,
     projected: projectedFinal,
@@ -3076,6 +3076,10 @@ function buildLivePrediction(params: {
     reliability,
     minGap: 2,
   });
+
+  // La médiane est choisie parmi les lignes correspondant réellement
+  // à la zone de cote recherchée (1.45 à 3.20), pas parmi les micro-cotes.
+  const candidates = allCandidates.filter((c: any) => Boolean(c.signal_tier));
   if (!candidates.length) return null;
 
   const selected = selectMedianCandidate(candidates);
