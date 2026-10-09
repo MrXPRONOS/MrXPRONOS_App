@@ -211,6 +211,10 @@ def render_single(match,output,*,win=False,stake=None,now=None,session=None):
     _top_meta(canvas,d,kind="Simple",reference=public_ref(match),
               time_text=now.astimezone(timezone.utc).strftime("%d.%m.%Y (%H:%M)"))
     _summary(d,price=price,stake=stake,won=win)
+    if (match.get("prediction") or {}).get("odds_source")=="mrxpronos_model":
+        from bsd_v2_card import write
+        write(d,"Cote indicative du modèle · non disponible chez un bookmaker",540,621,
+              size=22,bold=True,color=SECONDARY,align="center",maximum=1000)
     _fixture_tile(canvas,d,match,top=658,bottom=1077,winning=win,session=session)
     path=Path(output);path.parent.mkdir(parents=True,exist_ok=True)
     canvas.save(path,"PNG",optimize=True)
