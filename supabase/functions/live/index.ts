@@ -5701,7 +5701,7 @@ async function validatePredictionsNow() {
     .select("*")
     .or("validated.eq.false,final_value.is.null")
     .order("created_at", { ascending: false })
-    .limit(100);
+    .limit(20);
 
   if (pendingError && isUndefinedColumnError(pendingError)) {
     const legacy = await supabase
@@ -5709,7 +5709,7 @@ async function validatePredictionsNow() {
       .select("*")
       .eq("validated", false)
       .order("created_at", { ascending: false })
-      .limit(100);
+      .limit(20);
     pending = legacy.data;
     pendingError = legacy.error;
   }
