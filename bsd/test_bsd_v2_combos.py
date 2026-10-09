@@ -89,13 +89,13 @@ class CombosTests(unittest.TestCase):
         self.assertEqual(len(build_combos([a,b,c])),1)
 
     def test_two_independent_markets_have_separate_delivery_ids(self):
-        a=match(17,75)
+        a=match(17,75,1.55)
         a["predictions"]=[a["prediction"],{
             "type":"Les deux équipes marquent",
             "selection_key":"BTTS_YES","market":"btts",
-            "odds":1.48,"odds_source":"bsd_consensus"}]
+            "odds":1.58,"odds_source":"bsd_consensus"}]
         tickets=expand_tickets(a)
-        self.assertEqual(len(tickets),0)
+        self.assertEqual(len(tickets),2)
         self.assertEqual(tickets[0]["id"],"bsd:17")
         self.assertNotIn("_telegram_selection_ref",tickets[0])
         self.assertEqual(tickets[1]["_telegram_selection_ref"],"bsd:17:BTTS_YES")
