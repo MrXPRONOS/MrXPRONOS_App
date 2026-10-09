@@ -9,6 +9,7 @@ from pathlib import Path
 
 import requests
 from telegram_promo_channels import promo_channels, deliver_to_both
+from telegram_promo_colors import colorized_button
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 ASSETS_DIR = BASE_DIR / "assets" / "images" / "daily-promos"
@@ -106,7 +107,7 @@ def keyboard_for(promo: Promo):
     name = str(info.get("name") or promo.bookmaker)
     return {
         "inline_keyboard": [[
-            {"text": f"🔥 S’inscrire sur {name}", "url": info["url"]}
+            colorized_button(f"🔥 S’inscrire sur {name}",info["url"],ASSETS_DIR / promo.image)
         ]]
     }
 

@@ -8,6 +8,7 @@ from pathlib import Path
 
 import requests
 from telegram_promo_channels import promo_channels, deliver_to_both
+from telegram_promo_colors import colorized_button
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -69,7 +70,7 @@ def chat_ids():
 def single_keyboard(partner):
     return {
         "inline_keyboard": [
-            [{"text": f"✅ S'inscrire sur {partner['name']}", "url": partner["url"]}]
+            [colorized_button(f"✅ S'inscrire sur {partner['name']}",partner["url"],partner["image"])]
         ]
     }
 
@@ -77,7 +78,7 @@ def single_keyboard(partner):
 def common_keyboard():
     order = ["1xbet", "1win", "melbet", "linebet", "betclic", "betwinner"]
     buttons = [
-        {"text": f"S'inscrire sur {PARTNERS[key]['name']}", "url": PARTNERS[key]["url"]}
+        colorized_button(f"S'inscrire sur {PARTNERS[key]['name']}",PARTNERS[key]["url"],COMMON_IMAGE)
         for key in order
     ]
     return {
