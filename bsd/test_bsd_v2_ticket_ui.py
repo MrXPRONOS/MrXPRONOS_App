@@ -74,11 +74,11 @@ class ReferenceTicketTests(unittest.TestCase):
         import inspect
         import bsd_v2_ticket_ui as ui
         source=inspect.getsource(ui)
-        self.assertIn("Informations sur le pari",source)
+        self.assertIn("MR XPRONOS · PRONOSTIC",source)
         self.assertIn("Versé:",source)
         self.assertIn("Cotes:",source)
         self.assertIn("Gains potentiels:",source)
-        self.assertIn("Simulation",source)
+        self.assertIn("Prévision",source)
         self.assertNotIn('"Accepté"',source)
         self.assertNotIn('"Payé"',source)
         self.assertEqual(WHITE,"#FFFFFF")
