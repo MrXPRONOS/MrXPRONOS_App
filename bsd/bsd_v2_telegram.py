@@ -36,7 +36,7 @@ def due(matches,now,min_minutes=60,max_minutes=120):
         delta=(dt-now).total_seconds()/60
         p=m.get("prediction") or {}
         odds=p.get("odds")
-        valid_price=valid_standalone_prediction(p,m.get('combo_only',False)) and not m.get('combo_only',False)
+        valid_price=valid_standalone_prediction(p,False) and type(odds) in (int,float) and odds>1.50
         if (min_minutes<=delta<max_minutes and valid_price
                 and p.get("selection_key") and p["selection_key"]!="UNDER_45"):
             selected.append(m)
@@ -58,7 +58,7 @@ def expand_tickets(match):
     result=[]
     for idx,p in enumerate(picks):
         odds=p.get("odds")
-        if not valid_standalone_prediction(p,False):
+        if not valid_standalone_prediction(p,False) or p["odds"]<=1.50:
             continue
         variant={**match,"prediction":p}
         if idx:
