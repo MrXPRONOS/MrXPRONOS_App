@@ -9,7 +9,7 @@ import re
 from html import escape
 from pathlib import Path
 from urllib.parse import urlsplit
-from telegram_premium_templates import premium_sections
+from telegram_premium_templates import premium_sections, plain_text_sections
 
 class RichFormatUnavailable(Exception): pass
 
@@ -68,7 +68,7 @@ def post_photo(session,token,chat,image,caption,keyboard,*,timeout=120,mime="ima
     return payload["result"]["message_id"]
 
 def post_text(session,token,chat,text,keyboard=None,*,timeout=60,html=False):
-    rm={"html":rich_markup(text if html else escape(str(text)),keyboard,picture=False)}
+    rm={"html":rich_markup(text if html else plain_text_sections(text),keyboard,picture=False)}
     resp=session.post(f"https://api.telegram.org/bot{token}/sendRichMessage",
             data={"chat_id":chat,"rich_message":json.dumps(rm,ensure_ascii=False)},timeout=timeout)
     if resp.status_code in (400,404):
