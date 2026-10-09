@@ -3685,6 +3685,51 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[])
   };
 }
 
+function applyPredictionQualityContext(match: any, pred: any) {
+  if (!pred) return pred;
+  const mergeMeta = match?.raw_data?.merge_meta || {};
+  const sourceNames = new Set<string>([
+    ...((Array.isArray(mergeMeta?.sources) ? mergeMeta.sources : []) as string[]),
+    ...((Array.isArray(match?.raw_data?.stats_sources) ? match.raw_data.stats_sources : []) as string[]),
+  ]);
+  const sourceCount = sourceNames.size || 1;
+  const sourceConfidence = Math.min(100, Math.max(0, safeNumber(mergeMeta?.confidence_score, sourceCount >= 2 ? 75 : 65)));
+  const age = statsAgeSeconds(match);
+  const freshness = Number.isFinite(age) ? age : null;
+
+  let reliability = safeNumber(pred.reliability, 0);
+  let dataQuality = safeNumber(pred.data_quality_score, 0);
+
+  if (sourceCount >= 2 && sourceConfidence >= 72) {
+    reliability += Math.min(5, (sourceConfidence - 70) * 0.12);
+    dataQuality += 5;
+  } else if (sourceConfidence < 60) {
+    reliability -= 6;
+    dataQuality -= 8;
+  }
+
+  if (freshness != null && freshness > 180) {
+    reliability -= freshness > 300 ? 12 : 8;
+    dataQuality -= freshness > 300 ? 15 : 10;
+  }
+
+  reliability = Math.min(98, Math.max(35, reliability));
+  dataQuality = Math.min(100, Math.max(0, dataQuality));
+  const tier = pred.signal_tier as LiveSignalTier | null;
+  const qualityOk = passesTierQuality({ tier, probability: safeNumber(pred.probability, 0), reliability, dataQuality });
+
+  return {
+    ...pred,
+    reliability: Number(reliability.toFixed(1)),
+    data_quality_score: Number(dataQuality.toFixed(1)),
+    freshness_seconds: freshness,
+    source_count: sourceCount,
+    source_confidence: sourceConfidence,
+    signal_tier: qualityOk ? tier : null,
+    value_score: 0,
+  };
+}
+
 function normalizeMatch(match: any, updatedAt?: string) {
   const stats = match?.live_stats || {};
   const minute = safeNumber(match?.current_minute, 0);
@@ -3694,7 +3739,9 @@ function normalizeMatch(match: any, updatedAt?: string) {
     predictTotalShots(stats, minute, momentum),
     predictTotalCorners(stats, minute, momentum),
     predictTotalFouls(stats, minute, momentum),
-  ].filter(Boolean).map((p: any) => ({ ...p, value_score: computeValueScore(match, [p]) }));
+  ].filter(Boolean)
+    .map((p: any) => applyPredictionQualityContext(match, p))
+    .map((p: any) => ({ ...p, value_score: computeValueScore(match, [p]) }));
 
   allPredictions.sort((a: any, b: any) => {
     const av = safeNumber(a?.value_score, 0);
@@ -4331,6 +4378,8 @@ async function savePrediction(
     value_score: computeValueScore(match, [{ ...pred, bookmaker_odds: livePricing.bookmakerOdds }]),
     data_quality_score: safeNumber(pred.data_quality_score, match?.data_quality_score ?? 0),
     freshness_seconds: Number.isFinite(safeNumber(pred.freshness_seconds, NaN)) ? safeNumber(pred.freshness_seconds, 0) : null,
+    source_count: safeNumber(pred.source_count, 1),
+    source_confidence: safeNumber(pred.source_confidence, 0),
     signal_tier: pred.signal_tier ?? null,
     pricing_mode: livePricing.pricingMode,
     line_candidate_count: safeNumber(pred.line_candidate_count, 0),
@@ -4367,7 +4416,7 @@ async function savePrediction(
 
   if (error && isUndefinedColumnError(error)) {
     const legacyPayload = { ...payload };
-    for (const key of ["signal_value","reliability_score","model_fair_odds","bookmaker_odds","implied_probability","edge","expected_value","value_score","data_quality_score","freshness_seconds","signal_tier","pricing_mode","line_candidate_count","line_candidate_rank","line_candidates","model_version","final_value","headroom"]) delete legacyPayload[key];
+    for (const key of ["signal_value","reliability_score","model_fair_odds","bookmaker_odds","implied_probability","edge","expected_value","value_score","data_quality_score","freshness_seconds","source_count","source_confidence","signal_tier","pricing_mode","line_candidate_count","line_candidate_rank","line_candidates","model_version","final_value","headroom"]) delete legacyPayload[key];
     const retry = await supabase.from("live_predictions").insert({ ...legacyPayload, created_at: new Date().toISOString() }).select("id").single();
     data = retry.data;
     error = retry.error;
@@ -4717,8 +4766,8 @@ function predictionRowToUi(p: any) {
   const threshold = safeNumber(p.threshold, 0);
   const meta = predictionMeta(p.prediction_type, threshold);
 
-  const signalValue = p.projected_value ?? null;
-  const reliability = Math.round((Number(p.probability) || 0) * 100);
+  const signalValue = p.signal_value ?? p.current_value ?? null;
+  const reliability = Math.round(safeNumber(p.reliability_score, (Number(p.probability) || 0) * 100));
 
   return {
     id: p.id,
@@ -4735,9 +4784,27 @@ function predictionRowToUi(p: any) {
     current: p.current_value ?? null,
 
     signal_value: signalValue,
-    projected: signalValue, // compat UI
+    projected: p.projected_value ?? null,
+    projected_value: p.projected_value ?? null,
 
     reliability,
+    model_fair_odds: p.model_fair_odds ?? null,
+    bookmaker_odds: p.bookmaker_odds ?? null,
+    implied_probability: p.implied_probability ?? null,
+    edge: p.edge ?? null,
+    expected_value: p.expected_value ?? null,
+    value_score: p.value_score ?? null,
+    data_quality_score: p.data_quality_score ?? null,
+    freshness_seconds: p.freshness_seconds ?? null,
+    source_count: p.source_count ?? null,
+    source_confidence: p.source_confidence ?? null,
+    signal_tier: p.signal_tier ?? null,
+    pricing_mode: p.pricing_mode ?? null,
+    line_candidate_count: p.line_candidate_count ?? null,
+    line_candidate_rank: p.line_candidate_rank ?? null,
+    model_version: p.model_version ?? null,
+    final_value: p.final_value ?? null,
+    headroom: p.headroom ?? null,
     reasons: [],
 
     confidence: p.confidence ?? null,
@@ -4774,7 +4841,7 @@ async function getLiveMatchesFromDb(maxAgeSeconds = 240) {
 
   const { data: preds, error: predErr } = await supabase
     .from("live_predictions")
-    .select("id, match_id, prediction_type, probability, message, threshold, current_value, projected_value, confidence, validated, outcome, validation_type, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source")
+    .select("id, match_id, prediction_type, probability, message, threshold, current_value, projected_value, confidence, validated, outcome, validation_type, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, odds_source, signal_value, reliability_score, model_fair_odds, bookmaker_odds, implied_probability, edge, expected_value, value_score, data_quality_score, freshness_seconds, source_count, source_confidence, signal_tier, pricing_mode, line_candidate_count, line_candidate_rank, model_version, final_value, headroom")
     .in("match_id", ids)
     .eq("validated", false)
     .order("created_at", { ascending: false });
@@ -4793,7 +4860,11 @@ async function getLiveMatchesFromDb(maxAgeSeconds = 240) {
     const pRows = byMatch.get(String(r.id)) || [];
     const uiPreds = pRows.map(predictionRowToUi);
 
-    uiPreds.sort((a: any, b: any) => safeNumber(b.probability) - safeNumber(a.probability));
+    uiPreds.sort((a: any, b: any) => {
+      const dv = safeNumber(b.value_score, 0) - safeNumber(a.value_score, 0);
+      if (dv !== 0) return dv;
+      return safeNumber(b.reliability, 0) - safeNumber(a.reliability, 0);
+    });
 
     return {
       ...base,
@@ -4813,10 +4884,13 @@ async function getLiveOpportunitiesFromDb() {
   const withPred = matches.filter((m: any) => Array.isArray(m.predictions) && m.predictions.length > 0);
 
   withPred.sort((a: any, b: any) => {
-    const ap = safeNumber(a?.predictions?.[0]?.probability, 0);
-    const bp = safeNumber(b?.predictions?.[0]?.probability, 0);
-    if (bp !== ap) return bp - ap;
-    return safeNumber(b.value_score) - safeNumber(a.value_score);
+    const av = safeNumber(a?.predictions?.[0]?.value_score, a?.value_score);
+    const bv = safeNumber(b?.predictions?.[0]?.value_score, b?.value_score);
+    if (bv !== av) return bv - av;
+    const ar = safeNumber(a?.predictions?.[0]?.reliability, 0);
+    const br = safeNumber(b?.predictions?.[0]?.reliability, 0);
+    if (br !== ar) return br - ar;
+    return safeNumber(b?.predictions?.[0]?.probability, 0) - safeNumber(a?.predictions?.[0]?.probability, 0);
   });
 
   return withPred.slice(0, 12);
