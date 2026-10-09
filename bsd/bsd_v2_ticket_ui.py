@@ -10,6 +10,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 import math
 from PIL import Image, ImageDraw
+
+FOOTBALL_PNG = Path(__file__).resolve().parent.parent / "assets/images/bsd-football-blue.png"
 from bsd_h2h import _utc
 from bsd_v2_labels import market_label
 from bsd_v2_stakes import single_stake, combination_stake, gain_potentiel
@@ -72,32 +74,22 @@ def competition_line(match):
     return "Football · " + comp if comp else "Football"
 
 
-def _soccer_icon(draw, center_x, center_y, r=26, pale=True):
-    """Small football-category badge, matching the supplied verified-ball design."""
-    import math
-    col = SECONDARY if pale else NAVY
-    bg = "#EAF0F6" if pale else WHITE
-    draw.ellipse((center_x-r, center_y-r, center_x+r, center_y+r), fill=bg)
-    radius = r * 0.72
-    draw.ellipse((center_x-radius, center_y-radius,
-                  center_x+radius, center_y+radius), outline=col,
-                 width=max(2, round(r*.065)))
-    # Regular central pentagon and five adjoining seams at the ball's rim.
-    central = r * .30
-    pentagon = [(center_x + central*math.cos(math.radians(-90+72*i)),
-                 center_y + central*math.sin(math.radians(-90+72*i)))
-                for i in range(5)]
-    draw.polygon(pentagon, fill=col)
-    for i,(x,y) in enumerate(pentagon):
-        direction=math.radians(-90+72*i)
-        tx=center_x+radius*math.cos(direction)
-        ty=center_y+radius*math.sin(direction)
-        draw.line((x,y,tx,ty),fill=col,width=max(2,round(r*.058)))
+def _soccer_icon(canvas, draw, center_x, center_y, r=26, pale=True):
+    """Transparent football PNG shared by daily/night and fallback league badges."""
+    diameter=max(12,int(2*r*.74))
+    with Image.open(FOOTBALL_PNG) as source:
+        icon=source.convert("RGBA")
+        icon.thumbnail((diameter,diameter),Image.Resampling.LANCZOS)
+    x=int(center_x-icon.width/2)
+    y=int(center_y-icon.height/2)
+    if pale:
+        draw.ellipse((center_x-r,center_y-r,center_x+r,center_y+r),fill="#EAF0F6")
+    canvas.paste(icon,(x,y),icon)
 
 
-def _verified_football_badge(draw, center_x, center_y, r=58):
+def _verified_football_badge(canvas, draw, center_x, center_y, r=58):
     """Ball + overlapping blue checkmark; icon means verified outcome only."""
-    _soccer_icon(draw,center_x,center_y,r)
+    _soccer_icon(canvas,draw,center_x,center_y,r)
     bx,by=center_x+r*.79,center_y+r*.77
     cr=r*.30
     draw.ellipse((bx-cr-4,by-cr-4,bx+cr+4,by+cr+4),fill=WHITE)
@@ -123,7 +115,7 @@ def _header(draw):
 
 def _top_meta(canvas,draw,*,kind,reference,time_text):
     write, _, _, _ = _draw()
-    _verified_football_badge(draw,100,212,58)
+    _verified_football_badge(canvas,draw,100,212,58)
     write(draw,time_text,184,161,size=27,bold=True,color=SECONDARY)
     write(draw,kind,184,202,size=41,bold=True,color=NAVY)
     write(draw,"N° "+reference,184,251,size=26,bold=True,color=NAVY,maximum=760)
@@ -144,12 +136,11 @@ def _summary(draw,*,price,stake,won=False,paid=False):
     rows=[
         ("Cotes:",_quote(price),NAVY),
         ("Mise:",_money(stake),NAVY),
-        ("Versé:","—",NAVY),   # No payment from an unplaced forecast
         ("Gains potentiels:",_money(gross),NAVY),
-        ("Statut:","Payé" if paid else ("Payé" if won else "Prévision"),SUCCESS if won else ACCENT),
+        ("Statut:","Payé" if won else "Accepté",SUCCESS if won else ACCENT),
     ]
     for i,(title,value,col) in enumerate(rows):
-        y=342+i*58
+        y=358+i*75
         write(draw,title,36,y,size=35,bold=True,color=SECONDARY)
         write(draw,value,1041,y,size=35,bold=True,color=col,align="right",maximum=650)
 
@@ -190,7 +181,7 @@ def _fixture_tile(canvas,draw,match,*,top,bottom,winning=False,
     y=top
     from bsd_v2_card import paste_remote_logo
     if not paste_remote_logo(canvas, match.get("league_logo"), 42, y+47, 67, 67, session=session):
-        _soccer_icon(draw,75,y+83,32)
+        _soccer_icon(canvas,draw,75,y+83,32)
     write(draw,competition_line(match),126,y+50,size=30,bold=True,
           color=SECONDARY,maximum=910)
     try:
@@ -210,7 +201,7 @@ def _fixture_tile(canvas,draw,match,*,top,bottom,winning=False,
     write(draw,market,44,separator+21,size=34,bold=True,color=NAVY,maximum=765)
     write(draw,_quote(price),1037,separator+21,size=33,bold=True,color=NAVY,align="right")
     write(draw,"Statut:",46,separator+81,size=32,bold=True,color=SECONDARY)
-    write(draw,"Gain" if winning else "Prévision",1036,separator+81,
+    write(draw,"Gain" if winning else "Accepté",1036,separator+81,
           size=32,bold=True,color=SUCCESS if winning else ACCENT,align="right")
 
 
