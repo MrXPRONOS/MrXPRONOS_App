@@ -1,6 +1,12 @@
 name: BSD V2 - Generation quotidienne
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'bsd/**'
+      - 'assets/js/main.js'
+      - '.github/workflows/bsd-v2-production.yml'
   schedule:
     - cron: '5 0 * * *' # 00:05 UTC, une seule generation par jour
   workflow_dispatch:
