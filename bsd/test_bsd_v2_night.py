@@ -36,7 +36,7 @@ class NightScheduleTests(unittest.TestCase):
 
     def test_night_excluded_from_hourly_dispatch(self):
         night=fixture(1,when(8,21,30))
-        daytime=fixture(2,when(8,20,45))
+        daytime=fixture(2,when(8,20,45),1.65)
         self.assertEqual([m["id"] for m in due([night,daytime],when(8,19,0),0,180)],
                          ["bsd:2"])
 
@@ -68,15 +68,15 @@ class NightScheduleTests(unittest.TestCase):
             report=process(data,when(8,20,5),session=Session(),token="token",
                 chat_ids=["-100123"],supabase_url="https://test.supabase.co",supabase_key="key")
         self.assertEqual(report["night_matches"],3)
-        self.assertEqual(report["night_picks_sent"],3)
+        self.assertEqual(report["night_picks_sent"],0)
         self.assertEqual(report["night_combos_sent"],1)
-        self.assertEqual(len(posted),4)
+        self.assertEqual(len(posted),1)
         self.assertTrue(all(item[2] for item in posted))
 
     def test_independent_tickets_keep_distinct_ids(self):
-        match=fixture(1,when(8,22))
+        match=fixture(1,when(8,22),1.55)
         match["predictions"]=[match["prediction"],{
-            "type":"Plus de 1.5 buts","selection_key":"OVER_15","odds":1.38,
+            "type":"Plus de 1.5 buts","selection_key":"OVER_15","odds":1.58,
             "odds_source":"bsd_consensus"}]
         self.assertEqual(len(expand_tickets(match)),2)
 

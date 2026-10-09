@@ -13,7 +13,7 @@ from statistics import median
 ESTIMATED_SOURCE = "mrxpronos_model"
 VERIFIED_SOURCES = frozenset(("bsd_consensus", "bsd_bookmaker"))
 DEFAULT_OVERROUND = 0.06
-MIN_STANDALONE_ODDS = 1.01
+MIN_STANDALONE_ODDS = 1.20
 
 
 def _real_quote(entry):
@@ -72,7 +72,7 @@ def estimated_quote(candidate_row, quotes, *, now=None):
     # Cote calculée pour le marché CHOISI, sans sélectionner un autre pari.
     # Réduire la marge si 6 % ferait tomber une issue très probable sous 1.01.
     # Ne jamais relever artificiellement un prix au-dessus de sa cote équitable.
-    margin = min(margin, max(0.0, (1.0 / (1.01 * p)) - 1.0))
+    margin = min(margin, max(0.0, (1.0 / (1.20 * p)) - 1.0))
     price = round(1.0 / (p * (1.0 + margin)), 3)
     if not (MIN_STANDALONE_ODDS <= price <= 100 and price <= fair):
         return None
@@ -100,7 +100,7 @@ def valid_standalone_prediction(pick, combo_only=False):
     if source == ESTIMATED_SOURCE:
         return MIN_STANDALONE_ODDS <= val <= 100 and not combo_only and pick.get("estimated_odds") is True
     if source in VERIFIED_SOURCES:
-        return 1.01 <= val <= 100 and (val >= 1.20 or combo_only)
+        return 1.20 <= val <= 100
     return False
 
 

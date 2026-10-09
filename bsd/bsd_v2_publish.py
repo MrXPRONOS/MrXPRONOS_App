@@ -28,7 +28,7 @@ SITE_FILE = Path("data.json")
 HISTORY_DAYS = 14
 FUTURE_DAYS = 2
 MIN_BSD_ODDS = 1.20
-MIN_COMBO_ODDS = 1.01
+MIN_COMBO_ODDS = 1.20
 EXCLUDED_SELECTIONS = frozenset({'UNDER_45'})
 
 def league_name(item):
@@ -294,9 +294,12 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             entry["reason"]="chosen_market_unpriceable"
             stats[entry["reason"]]+=1
             continue
-        # Une option à faible cote réelle reste réservée aux combinés.
-        combo_only=(chosen["odds_source"]!=ESTIMATED_SOURCE
-                    and chosen["bookmaker_odds"]<MIN_BSD_ODDS)
+        # Tous les prix publiés doivent atteindre 1.20, sans exception.
+        if chosen["bookmaker_odds"]<MIN_BSD_ODDS:
+            entry["reason"]="quote_below_120"
+            stats[entry["reason"]]+=1
+            continue
+        combo_only=False
         prediction["prediction"]=chosen
         prediction["combo_only"]=combo_only
         prediction["prediction_generated_at"]=now.isoformat()
@@ -323,7 +326,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         # Les combinés utilisent toujours uniquement des cotes BSD réelles.
         low_quotes={code:q for code,q in quotes.items()
                     if isinstance(q,dict) and q.get("origin") in ("bsd_consensus","bsd_bookmaker")
-                    and type(q.get("odds")) in (int,float) and MIN_COMBO_ODDS<=q["odds"]<1.50}
+                    and type(q.get("odds")) in (int,float) and MIN_COMBO_ODDS<=q["odds"]<=1.50}
         if low_quotes:
             combo_choice,_combo_reason=predict_v2(
                 f,index,calibration=calibration,quality_policy=policy,

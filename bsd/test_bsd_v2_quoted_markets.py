@@ -82,7 +82,7 @@ class PricedSelectionTests(unittest.TestCase):
         self.assertEqual(published["prediction"]["odds_source"],"mrxpronos_model")
         self.assertTrue(published["prediction"]["estimated_odds"])
         self.assertGreaterEqual(published["prediction"]["odds"],1.20)
-        self.assertEqual([x["id"] for x in due(out["matches"],self.now)],["bsd:17"])
+        self.assertEqual([x["id"] for x in due(out["matches"],self.now)],[])
 
     def test_selected_market_remains_identical_with_or_without_bsd_quote(self):
         fixture={**self.fixture}
