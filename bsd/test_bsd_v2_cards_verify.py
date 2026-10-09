@@ -124,6 +124,7 @@ class CardAndSettlement(unittest.TestCase):
                 self.calls.append(("patch",a,kw))
                 class Response:
                     def raise_for_status(self):pass
+                    def json(self):return [{"id":15}]
                 return Response()
             def post(self,*a,**kw):
                 raise AssertionError("Telegram must not receive a loss")
@@ -132,7 +133,7 @@ class CardAndSettlement(unittest.TestCase):
                  datetime(2026,10,9,tzinfo=timezone.utc),
                  client,"x","https://example.supabase.co","secret")
         self.assertEqual(result["losses_silent"],1)
-        self.assertEqual(len(client.calls),1)
+        self.assertEqual(len(client.calls),2)
         self.assertEqual(client.calls[0][0],"patch")
 
     def test_winning_coupon_posts_one_image_then_marks_verified(self):
@@ -147,6 +148,7 @@ class CardAndSettlement(unittest.TestCase):
                 self.patches.append((args,kwargs))
                 class Resp:
                     def raise_for_status(self):pass
+                    def json(self):return [{"id":16}]
                 return Resp()
         http=Stub()
         with patch("bsd_v2_verify_telegram.post_gain", return_value=987) as send:
@@ -155,7 +157,7 @@ class CardAndSettlement(unittest.TestCase):
                 http,"token","https://example.supabase.co","secret")
         self.assertEqual(result["wins_sent"],1)
         self.assertEqual(send.call_count,1)
-        self.assertEqual(len(http.patches),1)
+        self.assertEqual(len(http.patches),2)
 
     def test_unfinished_not_validated(self):
         m=sample_match()

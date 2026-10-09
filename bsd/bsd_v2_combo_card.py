@@ -2,5 +2,5 @@
 from __future__ import annotations
 from bsd_v2_ticket_ui import render_combined
 
-def render_combo(combo,path,*,now=None,session=None):
-    return render_combined(combo,path,now=now,session=session)
+def render_combo(combo,path,*,now=None,session=None,win=False):
+    return render_combined(combo,path,now=now,session=session,win=win)

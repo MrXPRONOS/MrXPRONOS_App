@@ -227,7 +227,7 @@ def render_single(match,output,*,win=False,stake=None,now=None,session=None):
     return path
 
 
-def render_combined(combo,output,*,now=None,session=None):
+def render_combined(combo,output,*,now=None,session=None,win=False):
     now=now or datetime.now(timezone.utc)
     legs=combo.get("legs") or []
     if len(legs)!=2:
@@ -239,11 +239,11 @@ def render_combined(combo,output,*,now=None,session=None):
     _header(d)
     _top_meta(canvas,d,kind="Combiné",reference=public_ref(combo),
               time_text=now.astimezone(timezone.utc).strftime("%d.%m.%Y (%H:%M)"))
-    _summary(d,price=price,stake=stake,won=False)
+    _summary(d,price=price,stake=stake,won=win)
     for i,leg in enumerate(legs):
         top=660+i*456
         _fixture_tile(canvas,d,leg,top=top,bottom=top+443,
-                      session=session,compact=True)
+                      session=session,compact=True,winning=win)
     path=Path(output);path.parent.mkdir(parents=True,exist_ok=True)
     canvas.save(path,"PNG",optimize=True)
     return path
