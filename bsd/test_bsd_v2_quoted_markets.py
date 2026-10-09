@@ -43,11 +43,15 @@ class PricedSelectionTests(unittest.TestCase):
         self.assertEqual(choice["candidate"].key,"OVER_15")
         self.assertEqual(choice["bookmaker_odds"],1.20)
 
-    def test_no_quote_skips_match_before_publication(self):
+    def test_no_quote_never_pretends_to_be_bsd(self):
         out=assemble({},[self.fixture],self.history,now=self.now,
             calibration=None,policy=None,rho=0,
             odds_fetcher=lambda *a: ({},{}),max_odds_requests=2)
-        self.assertEqual(out["matches"],[])
+        for match in out["matches"]:
+            pick=match["prediction"]
+            self.assertEqual(pick["odds_source"],"mrxpronos_model")
+            self.assertTrue(pick["estimated_odds"])
+            self.assertGreaterEqual(pick["odds"],1.20)
         self.assertEqual(out["diagnostics"]["rejections"]["no_qualified_bsd_odds"],1)
 
     def test_market_selection_uses_verifiable_bsd_price(self):
