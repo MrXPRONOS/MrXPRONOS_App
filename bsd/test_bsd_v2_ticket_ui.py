@@ -70,6 +70,23 @@ class ReferenceTicketTests(unittest.TestCase):
                     self.assertEqual(image.getpixel((540,25)),(255,255,255))
                     self.assertGreater(path.stat().st_size,7000)
 
+    def test_verified_football_badge_and_green_gain_rendered(self):
+        from bsd_v2_ticket_ui import _verified_football_badge, SUCCESS
+        self.assertEqual(SUCCESS,"#28A65A")
+        with tempfile.TemporaryDirectory() as temp:
+            from PIL import ImageDraw
+            image=Image.new("RGB",(230,230),"#FFFFFF")
+            draw=ImageDraw.Draw(image)
+            _verified_football_badge(draw,100,100,58)
+            self.assertEqual(image.getpixel((146,132)),(76,152,216))
+            self.assertNotEqual(image.getpixel((100,100)),(255,255,255))
+            file=render_single({**game(),"home_score":2,"away_score":1},
+                               Path(temp)/"winning.png",win=True,session=Offline())
+            with Image.open(file) as final:
+                green=(40,166,90)
+                self.assertIn(green,final.crop((900,540,1080,660)).getdata())
+                self.assertIn(green,final.crop((900,990,1080,1080)).getdata())
+
     def test_expected_palette_and_no_bookmaker_acceptance_claim(self):
         import inspect
         import bsd_v2_ticket_ui as ui
