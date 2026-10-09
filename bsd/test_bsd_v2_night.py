@@ -36,7 +36,7 @@ class NightScheduleTests(unittest.TestCase):
 
     def test_night_excluded_from_hourly_dispatch(self):
         night=fixture(1,when(8,21,30))
-        daytime=fixture(2,when(8,20,45))
+        daytime=fixture(2,when(8,20,45),1.65)
         self.assertEqual([m["id"] for m in due([night,daytime],when(8,19,0),0,180)],
                          ["bsd:2"])
 
