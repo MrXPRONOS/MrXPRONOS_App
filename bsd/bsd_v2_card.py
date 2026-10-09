@@ -141,6 +141,29 @@ def _team_image(match,side,*,session=None):
                 pass
     return None
 
+def paste_remote_logo(canvas,url,x,y,box_w,box_h,*,session=None):
+    """Render verified HTTPS artwork; decline invalid/oversized/broken responses."""
+    if not _public_https(url):
+        return False
+    session=session or requests.Session()
+    try:
+        response=session.get(url,timeout=8,allow_redirects=False,
+                             headers={"Accept":"image/png,image/webp,image/jpeg"})
+        response.raise_for_status()
+        if getattr(response,"status_code",200) != 200 or len(response.content)>1000000:
+            return False
+        with Image.open(BytesIO(response.content)) as opened:
+            if opened.width*opened.height>4000000:
+                return False
+            icon=opened.convert("RGBA")
+        icon.thumbnail((box_w,box_h),Image.Resampling.LANCZOS)
+        canvas.paste(icon,(int(x+(box_w-icon.width)/2),
+                           int(y+(box_h-icon.height)/2)),icon)
+        return True
+    except (requests.RequestException,ValueError,OSError,AttributeError):
+        return False
+
+
 def team_logo(canvas,draw,match,side,x,y,*,size=92,session=None):
     image=_team_image(match,side,session=session)
     if image is not None:
