@@ -54,6 +54,7 @@ class NightScheduleTests(unittest.TestCase):
             def json(self):return [{"id":9}]
         class Session:
             def post(self,*args,**kwargs):return Result()
+            def patch(self,*args,**kwargs):return Result()
         posted=[]
         def send_one(*args,**kwargs):
             posted.append(("single",args[-1]["id"],kwargs.get("night")))
