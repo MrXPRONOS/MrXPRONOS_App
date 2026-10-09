@@ -223,11 +223,12 @@ def update_settlement(row,event):
 def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
              odds_fetcher=None, max_odds_requests=25, btts_model=None, total_model=None, dc_model=None):
     saved=eligible_previous(existing,now)
-    # Conserver uniquement les anciens événements TERMINÉS pour le bilan :
-    # les anciens pronostics à venir sans cote ou Under 4,5 sont retirés.
+    # Ne pas perdre les pronostics déjà publiés : une sélection future reste
+    # immuable pendant les exécutions quotidiennes (site ET Telegram).
+    # On garde aussi les événements passés en attente de score BSD final.
+    # Seuls les coupons invalides / marchés bannis sont supprimés.
     saved={key:row for key,row in saved.items()
-           if str(row.get("status","")).lower()=="finished"
-           and valid_standalone_prediction(row.get("prediction"),row.get("combo_only",False))}
+           if valid_standalone_prediction(row.get("prediction"),row.get("combo_only",False))}
     index=V2History(history)
     stats=Counter()
     by_id={str(f["id"]):f for f in fixtures if isinstance(f,dict) and f.get("id") is not None}
