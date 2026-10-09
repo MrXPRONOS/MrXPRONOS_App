@@ -1,9 +1,17 @@
 name: Telegram - Promo XPVIP commune
+run-name: "Telegram - Promo XPVIP commune (${{ inputs.trigger_source || github.event_name }})"
 
 on:
+  # Planification GitHub provisoire jusqu'à validation des tâches cron-job.org.
   schedule:
     - cron: '0 5 * * *'
   workflow_dispatch:
+    inputs:
+      trigger_source:
+        description: "Origine cron-job.org ou manuel"
+        required: false
+        default: "manual"
+        type: string
   push:
     branches:
       - main
@@ -22,6 +30,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Journaliser la source
+        env:
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || github.event_name }}
+        run: |
+          echo "Déclenchement : ${TRIGGER_SOURCE}"
+          echo "Début UTC : $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
       - name: Checkout main
         uses: actions/checkout@v4
         with:
