@@ -6,6 +6,7 @@ from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import requests
+from telegram_promo_channels import promo_channels, deliver_to_both
 from PIL import Image, ImageOps
 
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -173,31 +174,17 @@ def send():
     markup = json.dumps(keyboard(bm), ensure_ascii=False)
     api = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
 
-    primary_error = None
-    for role, cid in chat_ids():
-        try:
-            with img.open("rb") as f:
-                resp = requests.post(
-                    api,
-                    data={
-                        "chat_id": cid,
-                        "caption": caption,
-                        "parse_mode": "HTML",
-                        "reply_markup": markup,
-                    },
-                    files={"photo": (img.name, f, "image/jpeg")},
-                    timeout=120,
-                )
-            if not resp.ok:
-                raise RuntimeError(f"{resp.status_code} {resp.text}")
-            print(f"✅ {bm['name']} envoyé vers {cid} ({role})")
-        except Exception as exc:
-            if role == "primary":
-                primary_error = f"{cid}: {exc}"
-            else:
-                print(f"⚠️ Canal secondaire ignoré: {cid}: {exc}")
-    if primary_error:
-        raise SystemExit(primary_error)
+    channels=promo_channels(CHAT_ID,SECONDARY_CHAT_ID)
+    def send_to(cid):
+        with img.open("rb") as f:
+            resp=requests.post(api,data={
+                "chat_id":cid,"caption":caption,"parse_mode":"HTML",
+                "reply_markup":markup,
+            },files={"photo":(img.name,f,"image/jpeg")},timeout=120)
+        resp.raise_for_status()
+        if not resp.json().get("ok",False):
+            raise RuntimeError(f"Telegram rejected image for {cid}")
+    deliver_to_both(channels,send_to,label=bm["name"])
 
 
 if __name__ == "__main__":
