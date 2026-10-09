@@ -13,7 +13,7 @@ from statistics import median
 ESTIMATED_SOURCE = "mrxpronos_model"
 VERIFIED_SOURCES = frozenset(("bsd_consensus", "bsd_bookmaker"))
 DEFAULT_OVERROUND = 0.06
-MIN_STANDALONE_ODDS = 1.20
+MIN_STANDALONE_ODDS = 1.01
 
 
 def _real_quote(entry):
@@ -58,7 +58,7 @@ def estimated_quote(candidate_row, quotes, *, now=None):
     if type(p) not in (int, float) or type(conservative) not in (int, float):
         return None
     if not (isfinite(p) and isfinite(conservative) and
-            0.70 <= p < 1 and 0.67 <= conservative <= p):
+            0.70 <= p <= 0.99 and 0.50 <= conservative <= p):
         return None
     if candidate_row.get("key") in ("UNDER_45", None, ""):
         return None
@@ -69,7 +69,10 @@ def estimated_quote(candidate_row, quotes, *, now=None):
         return None
     margin, origin = reference_overround(quotes)
     fair = 1.0 / p
-    # Overround de référence appliqué à la probabilité (pas à un ticket).
+    # Cote calculée pour le marché CHOISI, sans sélectionner un autre pari.
+    # Réduire la marge si 6 % ferait tomber une issue très probable sous 1.01.
+    # Ne jamais relever artificiellement un prix au-dessus de sa cote équitable.
+    margin = min(margin, max(0.0, (1.0 / (1.01 * p)) - 1.0))
     price = round(1.0 / (p * (1.0 + margin)), 3)
     if not (MIN_STANDALONE_ODDS <= price <= 100 and price <= fair):
         return None
@@ -95,7 +98,51 @@ def valid_standalone_prediction(pick, combo_only=False):
     if pick.get("selection_key") in ("UNDER_45", None, ""):
         return False
     if source == ESTIMATED_SOURCE:
-        return 1.20 <= val <= 100 and not combo_only and pick.get("estimated_odds") is True
+        return MIN_STANDALONE_ODDS <= val <= 100 and not combo_only and pick.get("estimated_odds") is True
     if source in VERIFIED_SOURCES:
         return 1.01 <= val <= 100 and (val >= 1.20 or combo_only)
     return False
+
+
+def price_selected_market(selection, quotes, *, now=None):
+    """Ajoute un prix à l'option DEJA sélectionnée, sans changer son identité.
+
+    Le moteur probabiliste et les contrôles qualité doivent être appliqués AVANT
+    cet appel. Une cote BSD réelle est conservée, même sous 1.20 (combo-only).
+    Une cote absente est une estimation explicitement identifiée, jamais BSD.
+    """
+    if not isinstance(selection, dict):
+        return None
+    key = selection.get("key")
+    code = selection.get("internal_market_code") or selection.get("market_code")
+    if not code or key in ("UNDER_45", None, ""):
+        return None
+    source_quote=(quotes or {}).get(code)
+    price=_real_quote(source_quote)
+    result=dict(selection)
+    if price is not None:
+        result.update({
+            "bookmaker_odds":price,"odds":price,
+            "odds_source":source_quote["origin"],
+            "odds_updated_at":source_quote.get("updated_at"),
+            "estimated_odds":False,
+            "odds_method":None,"overround_assumption":None,
+        })
+    else:
+        estimate=estimated_quote({
+            "key":key,"market_code":code,
+            "probability":selection.get("probability"),
+            "conservative_probability":selection.get("conservative_probability"),
+        },quotes,now=now)
+        if estimate is None:
+            return None
+        result.update({
+            "bookmaker_odds":estimate["odds"],"odds":estimate["odds"],
+            "odds_source":ESTIMATED_SOURCE,
+            "odds_updated_at":estimate["updated_at"],
+            "estimated_odds":True,
+            "odds_method":estimate["overround_reference"],
+            "overround_assumption":estimate["overround_assumption"],
+            "estimated_value":None,
+        })
+    return result
