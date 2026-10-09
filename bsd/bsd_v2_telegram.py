@@ -13,6 +13,7 @@ from bsd_v2_estimated_odds import valid_standalone_prediction
 from bsd_v2_card import render as render_card
 from bsd_v2_captions import single_caption,combo_caption,PARSE_MODE
 from bsd_v2_night import is_night_match,matches_for_night,batch_date
+from bsd_v2_telegram_ledger import snapshot
 
 KIND="bsd_v2_hourly"
 COMBO_KIND="bsd_v2_combo_hourly"
@@ -110,13 +111,24 @@ def claim(session,base,key,match,chat_id):
     event_id=str(match.get("_telegram_selection_ref") or match["id"])
     ref=chat_id+":"+event_id
     date=match["date"]
-    payload={"kind":KIND,"ref_id":ref,"ref_date":date,"validation_sent":False}
+    payload={"kind":KIND,"ref_id":ref,"ref_date":date,"validation_sent":False,
+             "selection_snapshot":snapshot(match),"delivery_status":"reserved"}
     r=session.post(base.rstrip("/")+"/rest/v1/telegram_sent",
                    params={"on_conflict":"kind,ref_id,ref_date"},
                    headers=headers(key),json=payload,timeout=30)
     r.raise_for_status()
     rows=r.json()
     return isinstance(rows,list) and len(rows)>0
+
+
+def mark_delivery(session,base,key,match,chat_id,message_id):
+    response=session.patch(base.rstrip("/")+"/rest/v1/telegram_sent",
+        headers=headers(key),params={"kind":"eq."+KIND,
+            "ref_id":"eq."+chat_id+":"+str(match.get("_telegram_selection_ref") or match["id"]),
+            "ref_date":"eq."+match["date"]},
+        json={"delivery_status":"sent","telegram_message_id":message_id,
+              "published_at":datetime.now(timezone.utc).isoformat()},timeout=30)
+    response.raise_for_status()
 
 
 def release_failed_claim(session,base,key,match,chat_id):
@@ -192,7 +204,8 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
                     report["already_claimed"]+=1
                     continue
                 night=is_night_match(match)
-                send_one(session,token,chat,match,night=night)
+                message_id=send_one(session,token,chat,match,night=night)
+                mark_delivery(session,supabase_url,supabase_key,match,chat,message_id)
                 report["sent"]+=1
                 if night:report["night_picks_sent"]+=1
                 time.sleep(.3)
@@ -200,10 +213,9 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
                 report["errors"]+=1
                 print("TELEGRAM_BSD_ERROR:",match["id"],type(e).__name__,str(e)[:180])
                 if claimed:
-                    try:
-                        release_failed_claim(session,supabase_url,supabase_key,match,chat)
-                    except Exception as release_error:
-                        print("TELEGRAM_BSD_RELEASE_ERROR:",type(release_error).__name__)
+                    # Ambiguous delivery: Telegram may have received the photo.
+                    # Do not delete the claim or risk a duplicate publication.
+                    print("TELEGRAM_BSD_REVIEW_REQUIRED:",match["id"],chat)
     combo_picks=combos_due(data["matches"],now)
     from bsd_v2_combos import build_combos
     from bsd_v2_night import night_date
@@ -225,27 +237,29 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
                     params={"on_conflict":"kind,ref_id,ref_date"},
                     headers=headers(supabase_key),
                     json={"kind":COMBO_KIND,"ref_id":ref,
-                          "ref_date":combo_ref["date"],"validation_sent":True},timeout=30)
+                          "ref_date":combo_ref["date"],"validation_sent":False,
+                          "selection_snapshot":snapshot(combo,combo=True),
+                          "delivery_status":"reserved"},timeout=30)
                 response.raise_for_status()
                 claimed=isinstance(response.json(),list) and bool(response.json())
                 if not claimed:
                     report["combos_claimed"]+=1
                     continue
                 night=night_mode and is_night_match(combo["legs"][0])
-                send_combo(session,token,chat,combo,night=night)
+                message_id=send_combo(session,token,chat,combo,night=night)
+                response=session.patch(supabase_url.rstrip("/")+"/rest/v1/telegram_sent",
+                    params={"kind":"eq."+COMBO_KIND,"ref_id":"eq."+ref,
+                            "ref_date":"eq."+combo["date"]},headers=headers(supabase_key),
+                    json={"delivery_status":"sent","telegram_message_id":message_id,
+                          "published_at":datetime.now(timezone.utc).isoformat()},timeout=30)
+                response.raise_for_status()
                 report["combos_sent"]+=1
                 if night:report["night_combos_sent"]+=1
             except Exception as exc:
                 report["errors"]+=1
                 print("BSD_COMBO_ERROR",combo["id"],type(exc).__name__,str(exc)[:170])
                 if claimed:
-                    try:
-                        session.delete(supabase_url.rstrip("/")+"/rest/v1/telegram_sent",
-                            params={"kind":"eq."+COMBO_KIND,"ref_id":"eq."+chat+":"+combo["id"],
-                                    "ref_date":"eq."+combo["date"]},
-                            headers=headers(supabase_key),timeout=30).raise_for_status()
-                    except Exception as secondary:
-                        print("BSD_COMBO_RELEASE_ERROR",type(secondary).__name__)
+                    print("BSD_COMBO_REVIEW_REQUIRED",combo["id"],chat)
     return report
 
 
