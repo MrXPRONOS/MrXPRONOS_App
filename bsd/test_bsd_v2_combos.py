@@ -30,6 +30,34 @@ class OfflineSession:
         raise requests.RequestException("No internet required in CI")
 
 class CombosTests(unittest.TestCase):
+    def test_model_quotes_pair_at_both_boundaries_without_singles(self):
+        from bsd_v2_telegram import due
+        a=match(51,90,1.20)
+        b=match(52,105,1.50)
+        a["prediction"].update({"odds_source":"mrxpronos_model","estimated_odds":True})
+        b["prediction"].update({"odds_source":"mrxpronos_model","estimated_odds":True})
+        self.assertEqual(due([a,b],NOW),[])
+        self.assertEqual(expand_tickets(a),[])
+        coupons=build_combos([a,b])
+        self.assertEqual(len(coupons),1)
+        self.assertEqual([leg["id"] for leg in coupons[0]["legs"]],["bsd:51","bsd:52"])
+        self.assertAlmostEqual(coupons[0]["combined_odds"],1.80)
+
+    def test_under_120_excluded_even_if_model_estimated(self):
+        a=match(51,90,1.199)
+        b=match(52,105,1.40)
+        a["prediction"].update({"odds_source":"mrxpronos_model","estimated_odds":True})
+        self.assertEqual(build_combos([a,b]),[])
+        self.assertEqual(expand_tickets(a),[])
+
+    def test_over_150_only_individual_and_unpaired_low_pick(self):
+        from bsd_v2_telegram import due
+        a=match(51,90,1.51)
+        b=match(52,105,1.40)
+        self.assertEqual([m["id"] for m in due([a,b],NOW)],["bsd:51"])
+        self.assertEqual(len(expand_tickets(a)),1)
+        self.assertEqual(build_combos([a,b]),[])
+
     def test_two_different_fixtures_and_product_odds(self):
         a,b=match(1,30,1.25),match(2,50,1.38)
         coupons=build_combos([b,a])
