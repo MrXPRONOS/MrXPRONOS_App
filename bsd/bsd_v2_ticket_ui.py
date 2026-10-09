@@ -146,7 +146,7 @@ def _summary(draw,*,price,stake,won=False):
         ("Mise:",_money(stake),NAVY),
         ("Versé:","—",NAVY),   # No payment from an unplaced forecast
         ("Gains potentiels:",_money(gross),NAVY),
-        ("Statut:","Gagnant" if won else "Prévision",SUCCESS if won else ACCENT),
+        ("Statut:","Payé" if won else "Prévision",SUCCESS if won else ACCENT),
     ]
     for i,(title,value,col) in enumerate(rows):
         y=342+i*58
