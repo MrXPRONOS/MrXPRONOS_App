@@ -35,6 +35,6 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install test dependencies
-        run: python -m pip install pillow
+        run: python -m pip install pillow requests
       - name: Test Telegram rich layouts and transport
         run: PYTHONPATH=bsd python -m unittest bsd.test_telegram_premium_templates bsd.test_telegram_rich_buttons bsd.test_bsd_v2_telegram_banner -v
