@@ -3534,6 +3534,32 @@ async function fetchEspnLiveMatchesForMerge() {
   }
 }
 
+function liveStatsAgreementScore(primaryStats: any, secondaryStats: any, minuteGap: number) {
+  // Si les sources ne sont pas au même instant, un écart cumulatif est normal.
+  if (minuteGap > 2) return null;
+  const a = ensureLiveStatsShape(primaryStats || {});
+  const b = ensureLiveStatsShape(secondaryStats || {});
+  const configs = [
+    { key: "corner_kicks", tolerance: 1 },
+    { key: "total_shots", tolerance: 2 },
+    { key: "shots_on_target", tolerance: 1 },
+    { key: "fouls", tolerance: 2 },
+  ];
+  const scores: number[] = [];
+  for (const cfg of configs) {
+    const ah = nullableNumber(a?.home?.[cfg.key]);
+    const aa = nullableNumber(a?.away?.[cfg.key]);
+    const bh = nullableNumber(b?.home?.[cfg.key]);
+    const ba = nullableNumber(b?.away?.[cfg.key]);
+    if (ah == null || aa == null || bh == null || ba == null) continue;
+    const diff = Math.abs((ah + aa) - (bh + ba));
+    const excess = Math.max(0, diff - cfg.tolerance);
+    scores.push(Math.max(0, 100 - excess * 20));
+  }
+  if (!scores.length) return null;
+  return Math.round(scores.reduce((sum, x) => sum + x, 0) / scores.length);
+}
+
 function mergeOneOriginalWithEspn(original: any, espn: any) {
   const originalStats = getMatchLiveStats(original);
   const espnStats = getMatchLiveStats(espn);
@@ -3541,6 +3567,7 @@ function mergeOneOriginalWithEspn(original: any, espn: any) {
 
   const originalMinute = safeNumber(original?.current_minute ?? original?.minute, 0);
   const espnMinute = safeNumber(espn?.current_minute ?? espn?.minute, 0);
+  const statsAgreementScore = liveStatsAgreementScore(originalStats, espnStats, Math.abs(originalMinute - espnMinute));
 
   const merged: any = {
     ...original,
@@ -3565,6 +3592,7 @@ function mergeOneOriginalWithEspn(original: any, espn: any) {
       canonical_match_id: buildCanonicalMatchId(original),
       sources: ["api_original", "espn"],
       confidence_score: Math.round(sameMatchScore(original, espn) * 100),
+      stats_agreement_score: statsAgreementScore,
       espn_match_id: espn?.source_match_id || espn?.id || null,
       primary_source: "api_original",
       merged_at: nowIso(),
@@ -3701,6 +3729,8 @@ function applyPredictionQualityContext(match: any, pred: any) {
   ]);
   const sourceCount = sourceNames.size || 1;
   const sourceConfidence = Math.min(100, Math.max(0, safeNumber(mergeMeta?.confidence_score, sourceCount >= 2 ? 75 : 65)));
+  const sourceAgreementRaw = nullableNumber(mergeMeta?.stats_agreement_score);
+  const sourceAgreement = sourceAgreementRaw == null ? null : Math.min(100, Math.max(0, sourceAgreementRaw));
   const age = statsAgeSeconds(match);
   const freshness = Number.isFinite(age) ? age : null;
 
@@ -3708,8 +3738,15 @@ function applyPredictionQualityContext(match: any, pred: any) {
   let dataQuality = safeNumber(pred.data_quality_score, 0);
 
   if (sourceCount >= 2 && sourceConfidence >= 72) {
-    reliability += Math.min(5, (sourceConfidence - 70) * 0.12);
-    dataQuality += 5;
+    reliability += Math.min(4, (sourceConfidence - 70) * 0.10);
+    dataQuality += 4;
+    if (sourceAgreement != null && sourceAgreement >= 80) {
+      reliability += 4;
+      dataQuality += 4;
+    } else if (sourceAgreement != null && sourceAgreement < 60) {
+      reliability -= 10;
+      dataQuality -= 12;
+    }
   } else if (sourceConfidence < 60) {
     reliability -= 6;
     dataQuality -= 8;
@@ -3732,6 +3769,7 @@ function applyPredictionQualityContext(match: any, pred: any) {
     freshness_seconds: freshness,
     source_count: sourceCount,
     source_confidence: sourceConfidence,
+    source_agreement_score: sourceAgreement,
     signal_tier: qualityOk ? tier : null,
     value_score: 0,
   };
@@ -4387,6 +4425,7 @@ async function savePrediction(
     freshness_seconds: Number.isFinite(safeNumber(pred.freshness_seconds, NaN)) ? safeNumber(pred.freshness_seconds, 0) : null,
     source_count: safeNumber(pred.source_count, 1),
     source_confidence: safeNumber(pred.source_confidence, 0),
+    source_agreement_score: pred.source_agreement_score ?? null,
     signal_tier: pred.signal_tier ?? null,
     pricing_mode: livePricing.pricingMode,
     line_candidate_count: safeNumber(pred.line_candidate_count, 0),
@@ -4423,7 +4462,7 @@ async function savePrediction(
 
   if (error && isUndefinedColumnError(error)) {
     const legacyPayload = { ...payload };
-    for (const key of ["signal_value","reliability_score","model_fair_odds","bookmaker_odds","implied_probability","edge","expected_value","value_score","data_quality_score","freshness_seconds","source_count","source_confidence","signal_tier","pricing_mode","line_candidate_count","line_candidate_rank","line_candidates","model_version","final_value","headroom"]) delete legacyPayload[key];
+    for (const key of ["signal_value","reliability_score","model_fair_odds","bookmaker_odds","implied_probability","edge","expected_value","value_score","data_quality_score","freshness_seconds","source_count","source_confidence","source_agreement_score","signal_tier","pricing_mode","line_candidate_count","line_candidate_rank","line_candidates","model_version","final_value","headroom"]) delete legacyPayload[key];
     const retry = await supabase.from("live_predictions").insert({ ...legacyPayload, created_at: new Date().toISOString() }).select("id").single();
     data = retry.data;
     error = retry.error;
@@ -4807,6 +4846,7 @@ function predictionRowToUi(p: any) {
     freshness_seconds: p.freshness_seconds ?? null,
     source_count: p.source_count ?? null,
     source_confidence: p.source_confidence ?? null,
+    source_agreement_score: p.source_agreement_score ?? null,
     signal_tier: p.signal_tier ?? null,
     pricing_mode: p.pricing_mode ?? null,
     line_candidate_count: p.line_candidate_count ?? null,
