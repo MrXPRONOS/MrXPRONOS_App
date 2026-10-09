@@ -6,6 +6,10 @@ on:
       - 'supabase/functions/live/index.ts'
       - 'supabase/functions/telegram-live/index.ts'
       - '.github/workflows/telegram-rich-ci.yml'
+      - 'scripts/telegram_rich.py'
+      - 'scripts/telegram_premium_templates.py'
+      - 'bsd/test_telegram_premium_templates.py'
+      - 'bsd/test_telegram_rich_buttons.py'
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,3 +23,15 @@ jobs:
           deno-version: v2.x
       - name: Type-check rich message transport
         run: deno check --no-config supabase/functions/_shared/telegram_rich.ts
+
+  python-rich-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install test dependencies
+        run: python -m pip install pillow
+      - name: Test Telegram rich layouts and transport
+        run: python -m unittest bsd.test_telegram_premium_templates bsd.test_telegram_rich_buttons -v
