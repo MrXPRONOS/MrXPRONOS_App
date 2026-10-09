@@ -6,6 +6,7 @@ import base64
 import textwrap
 import requests
 from telegram_promo_channels import promo_channels, deliver_to_both
+from telegram_promo_colors import colorized_button
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
@@ -63,7 +64,7 @@ def chat_ids():
 def keyboard():
     buttons=[]
     for name,url,_ in PARTNERS:
-        buttons.append({"text":f"⚽ S’inscrire sur {name}","url":url})
+        buttons.append(colorized_button(f"⚽ S’inscrire sur {name}",url,IMAGE_PATH))
     return {"inline_keyboard":[buttons[0:2],buttons[2:4],buttons[4:6]]}
 
 def _fit_logo(path,max_w,max_h):
