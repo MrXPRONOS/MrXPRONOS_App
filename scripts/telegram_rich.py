@@ -8,6 +8,7 @@ import json
 from html import escape
 from pathlib import Path
 from urllib.parse import urlsplit
+from telegram_premium_templates import premium_sections
 
 class RichFormatUnavailable(Exception): pass
 
@@ -33,7 +34,7 @@ def rich_markup(caption,keyboard,*,picture=True):
     body=str(caption or "").strip()
     parts=[]
     if picture:parts.append('<img src="tg://photo?id=coupon"/>')
-    if body:parts.append(body)
+    if body:parts.append(premium_sections(body))
     buttons=rich_buttons(keyboard)
     if buttons:parts.append(buttons)
     return '\n'.join(parts)
