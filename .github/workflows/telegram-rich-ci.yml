@@ -1,0 +1,21 @@
+name: Telegram rich messages - TypeScript
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/_shared/telegram_rich.ts'
+      - 'supabase/functions/live/index.ts'
+      - 'supabase/functions/telegram-live/index.ts'
+      - '.github/workflows/telegram-rich-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rich-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check rich message transport
+        run: deno check --no-config supabase/functions/_shared/telegram_rich.ts
