@@ -19,6 +19,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
           set -euo pipefail
           for i in $(seq 1 18); do
@@ -26,6 +27,7 @@ jobs:
             body=$(curl --fail-with-body --silent --show-error --max-time 45 \
               -X POST "$SUPABASE_URL/functions/v1/live/validate" \
               -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+              -H "x-cron-secret: $CRON_SECRET" \
               -H "Content-Type: application/json")
             echo "$body"
             sleep 3
