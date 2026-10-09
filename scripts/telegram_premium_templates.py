@@ -117,28 +117,30 @@ def live(text):
             +"<p><i>🔞 18+ · Parier responsablement.</i></p>")
 
 
+
 def plain_text_sections(text):
-    """Safely support simple markdown emphasis, quotes and paragraph breaks."""
-    from html import escape as esc
-    def inline(line):
-        result = esc(line, quote=False)
-        patterns = [
-            (r"\\*\\*([^*\\n]+)\\*\\*", "b"),
-            (r"__([^_\\n]+)__", "u"),
-            (r"~~([^~\\n]+)~~", "s"),
-            (r"\\*([^*\\n]+)\\*", "i"),
-        ]
+    """Escape plain text, then render simple Markdown emphasis and quote blocks."""
+    def inline(value):
+        escaped = escape(str(value), quote=False)
+        patterns = (
+            (r"\*\*([^*\n]+)\*\*", "b"),
+            (r"__([^_\n]+)__", "u"),
+            (r"~~([^~\n]+)~~", "s"),
+            (r"\*([^*\n]+)\*", "i"),
+            (r"(?<!\w)\x60([^\x60\n]+)\x60(?!\w)", "code"),
+        )
         for pattern, tag in patterns:
-            result = re.sub(pattern, lambda m: f"<{tag}>{m.group(1)}</{tag}>", result)
-        return result
+            escaped = re.sub(pattern, lambda m: f"<{tag}>{m.group(1)}</{tag}>", escaped)
+        return escaped
+
     blocks, paragraph, quote = [], [], []
     def flush_paragraph():
         if paragraph:
-            blocks.append("<p>" + "<br/>".join(inline(t) for t in paragraph) + "</p>")
+            blocks.append("<p>" + "<br/>".join(inline(s) for s in paragraph) + "</p>")
             paragraph.clear()
     def flush_quote():
         if quote:
-            blocks.append("<blockquote>" + "<br/>".join(inline(t) for t in quote) + "</blockquote>")
+            blocks.append("<blockquote>" + "<br/>".join(inline(s) for s in quote) + "</blockquote>")
             quote.clear()
     for line in str(text or "").splitlines():
         if line.lstrip().startswith("> "):
@@ -146,10 +148,10 @@ def plain_text_sections(text):
             quote.append(line.lstrip()[2:].strip())
         else:
             flush_quote()
-            if not line.strip():
-                flush_paragraph()
-            else:
+            if line.strip():
                 paragraph.append(line.strip())
+            else:
+                flush_paragraph()
     flush_paragraph()
     flush_quote()
     return "".join(blocks)
