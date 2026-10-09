@@ -11,6 +11,7 @@ jobs:
     steps:
       - name: Appel Edge Function validate
         run: |
-          curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/live/validate" \
+          curl --fail-with-body --silent --show-error --max-time 60 -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/live/validate" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
             -H "Content-Type: application/json"
