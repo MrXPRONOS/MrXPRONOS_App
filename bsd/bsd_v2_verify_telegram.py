@@ -12,6 +12,7 @@ from bsd_v2_card import render as render_card
 from bsd_v2_captions import gain_caption,PARSE_MODE
 from bsd_v2_telegram import KIND,URL,headers,action_buttons
 from bsd_v2_verify_history import restore_published_matches
+from telegram_rich import post_photo
 
 def sent_records(session,base,key,limit=500,max_pages=12):
     """Page through pending individual selections, including second picks."""
@@ -60,16 +61,7 @@ def post_gain(session,token,chat,match):
         from bsd_v2_telegram_banner import attach_banner
         image=attach_banner(image)
         keyboard=action_buttons()
-        with image.open("rb") as pic:
-            resp=session.post("https://api.telegram.org/bot"+token+"/sendPhoto",
-                data={"chat_id":chat,"caption":gain_caption(match),
-                      "reply_markup":json.dumps(keyboard),
-                      "parse_mode":PARSE_MODE},
-                files={"photo":pic},timeout=60)
-    resp.raise_for_status()
-    j=resp.json()
-    if not j.get("ok"):raise RuntimeError("Telegram gain rejected")
-    return j["result"]["message_id"]
+        return post_photo(session,token,chat,image,gain_caption(match),keyboard,timeout=60)
 
 def mark_verified(session,base,key,row_id):
     resp=session.patch(base.rstrip("/")+"/rest/v1/telegram_sent",
