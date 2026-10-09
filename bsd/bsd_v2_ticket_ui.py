@@ -173,7 +173,9 @@ def _fixture_tile(canvas,draw,match,*,top,bottom,winning=False,
     draw.rounded_rectangle((8,top,1072,bottom),radius=25,fill=PALE)
     draw.rounded_rectangle((21,top+12,1059,bottom-10),radius=22,fill=WHITE)
     y=top
-    _soccer_icon(draw,75,y+83,32)
+    from bsd_v2_card import paste_remote_logo
+    if not paste_remote_logo(canvas, match.get("league_logo"), 42, y+47, 67, 67, session=session):
+        _soccer_icon(draw,75,y+83,32)
     write(draw,competition_line(match),126,y+50,size=30,bold=True,
           color=SECONDARY,maximum=910)
     try:
