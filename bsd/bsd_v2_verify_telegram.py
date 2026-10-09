@@ -218,7 +218,7 @@ def validate_combos(rows,events,now,session,token,base,key,dry_run=False):
                 with tempfile.TemporaryDirectory() as directory:
                     from bsd_v2_combo_card import render_combo
                     from bsd_v2_telegram_banner import attach_banner
-                    image=attach_banner(render_combo(combo,Path(directory)/"win_combo.png"))
+                    image=attach_banner(render_combo(combo,Path(directory)/"win_combo.png",win=True))
                     with image.open("rb") as pic:
                         resp=session.post("https://api.telegram.org/bot"+token+"/sendPhoto",
                             data={"chat_id":chat,
