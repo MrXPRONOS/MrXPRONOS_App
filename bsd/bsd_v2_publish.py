@@ -182,6 +182,9 @@ def to_site(p, fixture):
            "confidence":round(m["probability"]*100,1),
            "fair_odds":round(1/m["probability"],4),
            "odds":m["odds"],"odds_source":m["odds_source"],
+           "estimated_odds":m["odds_source"]==ESTIMATED_SOURCE,
+           "odds_method":m.get("odds_method"),
+           "overround_assumption":m.get("overround_assumption"),
            "odds_updated_at":m.get("odds_updated_at"),
            "model_version":p["model_version"]}
           for m in extras]

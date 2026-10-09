@@ -78,6 +78,29 @@ class MarketCapacityTests(unittest.TestCase):
             require_odds=True,min_odds=1.01,allow_combo_prices=True)
         self.assertIsNone(unsafe)
 
+    def test_second_estimated_selection_keeps_source_marker(self):
+        from bsd_v2_estimated_odds import valid_standalone_prediction
+        fixture={"id":78,"home_team":"Alpha","away_team":"Beta",
+                 "event_date":(NOW+timedelta(hours=5)).isoformat(),"league_id":3}
+        base={"id":"bsd:78","home_team_id":1,"away_team_id":2,
+              "category":"simple","model_version":"bsd-v2-isolated",
+              "prediction":{"key":"1X","name":"1X","market":"double_chance",
+                  "outcome":"1X","line":None,"internal_market_code":"DC_1X_FT",
+                  "probability":.82,"fair_odds":1.2195,
+                  "bookmaker_odds":1.26,"odds_source":"bsd_consensus"},
+              "secondary_selections":[{
+                  "key":"OVER_15","name":"Over 1.5","market":"goals",
+                  "outcome":"over","line":1.5,"market_code":"OU_1.5_OVER_FT",
+                  "probability":.76,"odds":1.24,
+                  "odds_source":"mrxpronos_model",
+                  "odds_method":"hypothese_6pct",
+                  "overround_assumption":.06}]}
+        output=to_site(base,fixture)
+        self.assertEqual(output["predictions"][1]["odds_source"],"mrxpronos_model")
+        self.assertTrue(output["predictions"][1]["estimated_odds"])
+        self.assertTrue(valid_standalone_prediction(output["predictions"][1]))
+        self.assertEqual(output["predictions"][1]["odds_method"],"hypothese_6pct")
+
     def test_two_selections_serialize_to_site(self):
         fixture={"id":77,"home_team":"Alpha","away_team":"Beta",
                  "event_date":(NOW+timedelta(hours=5)).isoformat(),"league_id":3}
