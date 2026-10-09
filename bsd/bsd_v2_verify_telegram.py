@@ -57,6 +57,8 @@ def verdict(match,event,now):
 def post_gain(session,token,chat,match):
     with tempfile.TemporaryDirectory() as directory:
         image=render_card(match,Path(directory)/"gain.png",win=True)
+        from bsd_v2_telegram_banner import attach_banner
+        image=attach_banner(image)
         keyboard=action_buttons()
         with image.open("rb") as pic:
             resp=session.post("https://api.telegram.org/bot"+token+"/sendPhoto",

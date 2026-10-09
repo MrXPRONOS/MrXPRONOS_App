@@ -136,6 +136,8 @@ def send_one(session,token,chat_id,match,*,night=False):
     from tempfile import TemporaryDirectory
     with TemporaryDirectory() as directory:
         image=render_card(match,Path(directory)/"coupon.png")
+        from bsd_v2_telegram_banner import attach_banner
+        image=attach_banner(image)
         caption=single_caption(match,night=night)
         markup=prediction_action_buttons()
         with open(image,"rb") as pic:
@@ -157,6 +159,8 @@ def send_combo(session,token,chat,combo,*,night=False):
     from bsd_v2_combo_card import render_combo
     with TemporaryDirectory() as directory:
         photo=render_combo(combo,Path(directory)/"combine.png",session=session)
+        from bsd_v2_telegram_banner import attach_banner
+        photo=attach_banner(photo)
         caption=combo_caption(combo,night=night)
         with photo.open("rb") as pic:
             response=session.post("https://api.telegram.org/bot"+token+"/sendPhoto",
