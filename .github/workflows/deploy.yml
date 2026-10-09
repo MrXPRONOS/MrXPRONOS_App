@@ -26,6 +26,7 @@ jobs:
             echo "Secrets ADMIN_USER and ADMIN_PASSWORD not set, skipping admin config generation."
           fi
 
+      # Re-publish after repairing a stale file/directory collision on gh-pages.
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
