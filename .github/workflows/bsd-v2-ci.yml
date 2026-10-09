@@ -7,6 +7,12 @@ on:
       - 'bsd/**'
       - 'assets/js/main.js'
       - '.github/workflows/bsd-v2-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bsd/**'
+      - 'assets/js/main.js'
+      - '.github/workflows/bsd-v2-ci.yml'
   workflow_dispatch:
 
 permissions:
