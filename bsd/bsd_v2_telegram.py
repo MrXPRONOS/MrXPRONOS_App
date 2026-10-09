@@ -131,6 +131,15 @@ def mark_delivery(session,base,key,match,chat_id,message_id):
     response.raise_for_status()
 
 
+def flag_uncertain_delivery(session,base,key,kind,ref_id,date,reason):
+    """Mark uncertain delivery for operator review; never auto-resend."""
+    response=session.patch(base.rstrip("/")+"/rest/v1/telegram_sent",
+        params={"kind":"eq."+kind,"ref_id":"eq."+ref_id,"ref_date":"eq."+date},
+        headers=headers(key),json={"delivery_status":"manual_review",
+                                  "validation_details":str(reason)[:180]},timeout=30)
+    response.raise_for_status()
+
+
 def release_failed_claim(session,base,key,match,chat_id):
     # Autorise le réessai lors du prochain cron si Telegram a rejeté l'envoi.
     # Un timeout après acceptation par Telegram reste intrinsèquement ambigu.
@@ -213,9 +222,15 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
                 report["errors"]+=1
                 print("TELEGRAM_BSD_ERROR:",match["id"],type(e).__name__,str(e)[:180])
                 if claimed:
-                    # Ambiguous delivery: Telegram may have received the photo.
-                    # Do not delete the claim or risk a duplicate publication.
+                    # Telegram may have accepted a photo despite client failure.
+                    # Preserve the claim and put it on an explicit review queue.
                     print("TELEGRAM_BSD_REVIEW_REQUIRED:",match["id"],chat)
+                    try:
+                        ref=chat+":"+str(match.get("_telegram_selection_ref") or match["id"])
+                        flag_uncertain_delivery(session,supabase_url,supabase_key,
+                                                KIND,ref,match["date"],e)
+                    except Exception as save_error:
+                        print("TELEGRAM_BSD_REVIEW_SAVE_ERROR:",type(save_error).__name__)
     combo_picks=combos_due(data["matches"],now)
     from bsd_v2_combos import build_combos
     from bsd_v2_night import night_date
@@ -260,6 +275,11 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
                 print("BSD_COMBO_ERROR",combo["id"],type(exc).__name__,str(exc)[:170])
                 if claimed:
                     print("BSD_COMBO_REVIEW_REQUIRED",combo["id"],chat)
+                    try:
+                        flag_uncertain_delivery(session,supabase_url,supabase_key,
+                                                COMBO_KIND,ref,combo["date"],exc)
+                    except Exception as save_error:
+                        print("BSD_COMBO_REVIEW_SAVE_ERROR",type(save_error).__name__)
     return report
 
 
