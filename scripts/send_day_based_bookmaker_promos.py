@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import requests
+from telegram_promo_channels import promo_channels, deliver_to_both
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 ASSETS_DIR = BASE_DIR / "assets" / "images" / "daily-promos"
@@ -150,34 +151,20 @@ def send_photo(promo: Promo):
         raise SystemExit("Secrets manquants: TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID")
 
     api = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
-    primary_error = None
-
-    for role, cid in targets():
-        try:
-            data = {
-                "chat_id": cid,
-                "caption": caption,
-                "parse_mode": "HTML",
-                "reply_markup": json.dumps(markup, ensure_ascii=False),
-            }
-            with image.open("rb") as fh:
-                response = requests.post(
-                    api,
-                    data=data,
-                    files={"photo": (image.name, fh, "image/jpeg")},
-                    timeout=120,
-                )
-            if not response.ok:
-                raise RuntimeError(f"{response.status_code} {response.text}")
-            print(f"✅ {promo.title} envoyé vers {cid} ({role})")
-        except Exception as exc:
-            if role == "primary":
-                primary_error = f"{cid}: {exc}"
-            else:
-                print(f"⚠️ Canal secondaire ignoré après erreur: {cid}: {exc}")
-
-    if primary_error:
-        raise SystemExit(primary_error)
+    def send_to(cid):
+        data={
+            "chat_id":cid,"caption":caption,"parse_mode":"HTML",
+            "reply_markup":json.dumps(markup,ensure_ascii=False),
+        }
+        with image.open("rb") as fh:
+            response=requests.post(
+                api,data=data,files={"photo":(image.name,fh,"image/jpeg")},
+                timeout=120)
+        response.raise_for_status()
+        if not response.json().get("ok",False):
+            raise RuntimeError(f"Telegram rejected promo for {cid}")
+    deliver_to_both(promo_channels(CHAT_ID,SECONDARY_CHAT_ID),
+                    send_to,label=promo.title)
 
 
 def weekday_today() -> int:
