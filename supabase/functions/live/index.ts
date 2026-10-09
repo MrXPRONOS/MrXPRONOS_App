@@ -5871,11 +5871,22 @@ async function validatePredictionsNow() {
     .from("live_predictions")
     .select("*")
     .eq("validated", false)
+    .gte("created_at", backlogCutoff)
     .order("created_at", { ascending: false })
     .limit(10);
 
   if (currentResult.error) throw currentResult.error;
 
+  const historicalPendingResult = await supabase
+    .from("live_predictions")
+    .select("*")
+    .eq("validated", false)
+    .eq("telegram_sent", true)
+    .lt("created_at", backlogCutoff)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  if (historicalPendingResult.error) throw historicalPendingResult.error;
   let backlogResult: any = await supabase
     .from("live_predictions")
     .select("*")
@@ -5894,6 +5905,7 @@ async function validatePredictionsNow() {
   const seen = new Set<string>();
   const pending = [
     ...(currentResult.data || []),
+    ...(historicalPendingResult.data || []),
     ...(backlogResult.data || []),
   ].filter((row: any) => {
     const id = String(row?.id ?? "");
@@ -5916,7 +5928,10 @@ async function validatePredictionsNow() {
 
   for (const pred of pending) {
     // Le coupon accepté doit toujours précéder le résultat.
-    if(pred.telegram_sent!==true){skipped++;continue;}
+    if(pred.telegram_sent!==true){ bumpSkip("telegram_not_sent"); continue; }
+    const isHistoricalPending =
+      pred.validated !== true &&
+      String(pred.created_at || "") < backlogCutoff;
     const resolvedFinal = await resolveFinalEventAndStats(pred);
     if (!resolvedFinal) {
       bumpSkip("final_source_unavailable");
@@ -5974,6 +5989,13 @@ async function validatePredictionsNow() {
 
       const keptId = validation.id;
 
+      // Rattrapage historique : on enregistre le résultat sans renvoyer
+      // des notifications/Telegram plusieurs heures après le match.
+      if (isHistoricalPending) {
+        validated++;
+        continue;
+      }
+
       await insertNotification({
         user_id: "all",        type: "prediction_validated",
         title: "Prédiction validée",
@@ -6013,6 +6035,7 @@ Résultat: ${ok ? "✅ réussi" : "❌ échoué"}`,
     failed,
     skip_reasons: skipReasons,
     current_candidates: currentResult.data?.length || 0,
+    historical_pending_candidates: historicalPendingResult.data?.length || 0,
     backlog_candidates: backlogResult.data?.length || 0,
   };
 }
