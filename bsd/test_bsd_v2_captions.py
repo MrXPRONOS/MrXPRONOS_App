@@ -105,12 +105,15 @@ class CaptionTests(unittest.TestCase):
         self.assertIn("action_buttons()",inspect.getsource(post_gain))
         self.assertNotIn("prediction_action_buttons()",inspect.getsource(post_gain))
 
-    def test_image_send_paths_apply_telegram_html_parse_mode(self):
-        # Source checks protect against omission on any of the three send paths.
+    def test_image_send_paths_use_rich_embedded_buttons(self):
+        # Each image sender delegates to the rich API preserving the HTML caption.
         import inspect
+        from telegram_rich import post_photo as rich_photo
         for action in (send_one,send_combo,post_gain):
-            source=inspect.getsource(action)
-            self.assertIn('"parse_mode":PARSE_MODE',source)
+            self.assertIn("post_photo(",inspect.getsource(action))
+        transport=inspect.getsource(rich_photo)
+        self.assertIn("sendRichMessage",transport)
+        self.assertIn("parse_mode",transport)  # only for explicit legacy fallback
 
 
 if __name__=="__main__":

@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import requests
+from telegram_rich import post_photo
 from telegram_promo_channels import promo_channels, deliver_to_both
 from telegram_promo_colors import colorized_button
 
@@ -151,19 +152,9 @@ def send_photo(promo: Promo):
     if not TOKEN or not CHAT_ID:
         raise SystemExit("Secrets manquants: TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID")
 
-    api = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"
     def send_to(cid):
-        data={
-            "chat_id":cid,"caption":caption,"parse_mode":"HTML",
-            "reply_markup":json.dumps(markup,ensure_ascii=False),
-        }
-        with image.open("rb") as fh:
-            response=requests.post(
-                api,data=data,files={"photo":(image.name,fh,"image/jpeg")},
-                timeout=120)
-        response.raise_for_status()
-        if not response.json().get("ok",False):
-            raise RuntimeError(f"Telegram rejected promo for {cid}")
+        post_photo(requests,TOKEN,cid,image,caption,markup,
+                   timeout=120,mime="image/jpeg")
     deliver_to_both(promo_channels(CHAT_ID,SECONDARY_CHAT_ID),
                     send_to,label=promo.title)
 
