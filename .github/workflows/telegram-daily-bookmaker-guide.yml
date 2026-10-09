@@ -50,7 +50,7 @@ jobs:
           python-version: "3.10"
 
       - name: Install requests
-        run: pip install requests
+        run: pip install requests pillow
 
       - name: Validate two promotional channels
         run: python -c "import os,sys;sys.path.insert(0,'scripts');from telegram_promo_channels import promo_channels;print('Configured channels:',len(promo_channels(os.getenv('TELEGRAM_CHAT_ID'),os.getenv('TELEGRAM_CHAT_ID_SECONDARY'))))"
