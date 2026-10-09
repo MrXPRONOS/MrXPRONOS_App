@@ -100,7 +100,7 @@ def combo_caption(combo, *, night=False):
         ))
     total=_quote(combo.get("combined_odds"))
     return "\n".join(start+[
-        "<blockquote>"+"\n".join(details)+"</blockquote>",
+        "<blockquote>"+"<br/>".join(details[:2])+"<br/><br/>"+"<br/>".join(details[2:])+"</blockquote>",
         f"📊 Cote combinée : <b>{total}</b>",
         f"💰 Mise : <b>{money(combination_stake())}</b>",
         f"🕒 <i>Premier match : {_kickoff(combo.get('event_date'))}</i>",
