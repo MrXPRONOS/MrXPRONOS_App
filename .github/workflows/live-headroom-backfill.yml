@@ -1,0 +1,32 @@
+name: Live Headroom Backfill
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-headroom-backfill.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Backfill historical final values
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 18); do
+            echo "=== Backfill batch $i/18 ==="
+            body=$(curl --fail-with-body --silent --show-error --max-time 45 \
+              -X POST "$SUPABASE_URL/functions/v1/live/validate" \
+              -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+              -H "Content-Type: application/json")
+            echo "$body"
+            sleep 3
+          done
