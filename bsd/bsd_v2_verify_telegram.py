@@ -117,6 +117,11 @@ def _selected_match(row,matches):
         return {**match,"prediction":pick} if pick else None
     return match
 
+VOID_STATES=frozenset(("cancelled","canceled","abandoned","void","annulled"))
+
+def is_void(event):
+    return isinstance(event,dict) and str(event.get("status") or "").lower() in VOID_STATES
+
 def _reason(match,event,now):
     if not event:return "official_result_unavailable"
     if str(event.get("status") or "").lower()!="finished":
@@ -145,6 +150,14 @@ def validate(data,rows,events,now,session,token,base,key,dry_run=False):
             report["delivery_not_confirmed"]+=1;continue
         if row.get("settlement_status") not in ("pending",None):
             report["manual_review_or_in_progress"]+=1;continue
+        if is_void(events.get(ident)):
+            if dry_run:report["would_void"]+=1
+            elif claim_settlement(session,base,key,row,kind=KIND):
+                finalize_settlement(session,base,key,row,kind=KIND,status="void",
+                                    details="Official event cancelled/abandoned")
+                report["voids_silent"]+=1
+            else:report["already_claimed"]+=1
+            continue
         result=verdict(match,events.get(ident),now)
         if result is None:
             report[_reason(match,events.get(ident),now)]+=1
@@ -190,6 +203,15 @@ def validate_combos(rows,events,now,session,token,base,key,dry_run=False):
             report["delivery_not_confirmed"]+=1;continue
         if row.get("settlement_status") not in ("pending",None):
             report["manual_review_or_in_progress"]+=1;continue
+        if any(is_void(events.get(str(leg.get("id","")).removeprefix("bsd:")))
+               for leg in stored["legs"]):
+            if dry_run:report["would_void"]+=1
+            elif claim_settlement(session,base,key,row,kind=COMBO):
+                finalize_settlement(session,base,key,row,kind=COMBO,status="void",
+                                    details="At least one leg cancelled/abandoned")
+                report["combos_void_silent"]+=1
+            else:report["already_claimed"]+=1
+            continue
         results=[]
         reasons=[]
         for leg in stored["legs"]:
