@@ -138,7 +138,7 @@ def _quote(price, digits=3):
     return f"{price:.{digits}f}"
 
 
-def _summary(draw,*,price,stake,won=False):
+def _summary(draw,*,price,stake,won=False,paid=False):
     write, _, _, _ = _draw()
     gross=gain_potentiel(stake,price)
     rows=[
@@ -146,7 +146,7 @@ def _summary(draw,*,price,stake,won=False):
         ("Mise:",_money(stake),NAVY),
         ("Versé:","—",NAVY),   # No payment from an unplaced forecast
         ("Gains potentiels:",_money(gross),NAVY),
-        ("Statut:","Gagnant" if won else "Prévision",SUCCESS if won else ACCENT),
+        ("Statut:","Payé" if paid else ("Gagnant" if won else "Prévision"),SUCCESS if won else ACCENT),
     ]
     for i,(title,value,col) in enumerate(rows):
         y=342+i*58
@@ -225,7 +225,7 @@ def render_single(match,output,*,win=False,stake=None,now=None,session=None):
     _header(d)
     _top_meta(canvas,d,kind="Simple",reference=public_ref(match),
               time_text=now.astimezone(timezone.utc).strftime("%d.%m.%Y (%H:%M)"))
-    _summary(d,price=price,stake=stake,won=win)
+    _summary(d,price=price,stake=stake,won=win,paid=bool(win and match.get("payment_confirmed") is True))
     if (match.get("prediction") or {}).get("odds_source")=="mrxpronos_model":
         from bsd_v2_card import write
         write(d,"Cote estimée · non proposée par un bookmaker",540,621,

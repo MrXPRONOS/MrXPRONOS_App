@@ -87,6 +87,26 @@ class ReferenceTicketTests(unittest.TestCase):
                 self.assertIn(green,final.crop((900,540,1080,660)).getdata())
                 self.assertIn(green,final.crop((900,990,1080,1080)).getdata())
 
+    def test_paid_label_requires_verified_payment_flag(self):
+        from unittest.mock import patch
+        import bsd_v2_ticket_ui as ui
+
+        captions=[]
+        def fake_write(_draw,text,_x,_y,**kwargs):
+            captions.append(str(text))
+        with patch.object(ui,"_draw",return_value=(fake_write,None,None,None)):
+            ui._summary(None,price=1.75,stake=100000,won=True,paid=False)
+            self.assertIn("Gagnant",captions)
+            self.assertNotIn("Payé",captions)
+            captions.clear()
+            ui._summary(None,price=1.75,stake=100000,won=True,paid=True)
+            self.assertIn("Payé",captions)
+            self.assertNotIn("Gagnant",captions)
+            captions.clear()
+            ui._summary(None,price=1.75,stake=100000,won=False,paid=False)
+            self.assertIn("Prévision",captions)
+            self.assertNotIn("Payé",captions)
+
     def test_expected_palette_and_no_bookmaker_acceptance_claim(self):
         import inspect
         import bsd_v2_ticket_ui as ui
@@ -97,7 +117,8 @@ class ReferenceTicketTests(unittest.TestCase):
         self.assertIn("Gains potentiels:",source)
         self.assertIn("Prévision",source)
         self.assertNotIn('"Accepté"',source)
-        self.assertNotIn('"Payé"',source)
+        self.assertIn('"Payé"',source)
+        self.assertIn('payment_confirmed',source)
         self.assertEqual(WHITE,"#FFFFFF")
         self.assertEqual(NAVY,"#12375A")
         self.assertEqual(ACCENT,"#4C98D8")
