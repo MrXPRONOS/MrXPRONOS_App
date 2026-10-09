@@ -1,7 +1,7 @@
 {
   "source": "bsd",
   "model_version": "bsd-v2-isolated",
-  "generated_at": "2026-10-09T14:51:07.723160+00:00",
+  "generated_at": "2026-10-09T15:07:57.727284+00:00",
   "matches": [
     {
       "id": "bsd:7282",
@@ -24466,17 +24466,630 @@
           "model_version": "bsd-v2-isolated"
         }
       ]
+    },
+    {
+      "id": "bsd:603790",
+      "source": "bsd",
+      "source_event_id": 603790,
+      "date": "2026-10-11",
+      "event_date": "2026-10-11T15:00:00+00:00",
+      "home_team": "LASK",
+      "away_team": "SK Rapid Wien",
+      "home_team_id": 1404,
+      "away_team_id": 1411,
+      "home_logo": "https://sports.bzzoiro.com/img/team/1404/?bg=transparent",
+      "away_logo": "https://sports.bzzoiro.com/img/team/1411/?bg=transparent",
+      "league_logo": "https://sports.bzzoiro.com/img/league/96/?bg=transparent",
+      "league": "Austrian Bundesliga",
+      "league_id": 96,
+      "category": "pro",
+      "badge": "BSD V2",
+      "status": "notstarted",
+      "is_finished": false,
+      "home_score": null,
+      "away_score": null,
+      "verified_prediction": false,
+      "verified_double": false,
+      "prediction": {
+        "type": "Total buts : Over 1,5",
+        "label": "Total buts : Over 1,5",
+        "market": "over_under_15",
+        "selection_key": "OVER_15",
+        "market_code": "OU_1.5_OVER_FT",
+        "outcome": "over",
+        "line": 1.5,
+        "confidence": 80.8,
+        "double_chance": null,
+        "fair_odds": 1.2374,
+        "odds": 1.2,
+        "model_version": "bsd-v2-isolated",
+        "odds_source": "mrxpronos_model",
+        "estimated_odds": true,
+        "odds_method": "hypothese_6pct",
+        "overround_assumption": 0.03115,
+        "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+      },
+      "model_version": "bsd-v2-isolated",
+      "final_score": 80.8,
+      "xpronos_score": 80.8,
+      "generated_at": "2026-10-09T15:07:57.727284+00:00",
+      "combo_only": false,
+      "predictions": [
+        {
+          "type": "Total buts : Over 1,5",
+          "label": "Total buts : Over 1,5",
+          "market": "over_under_15",
+          "selection_key": "OVER_15",
+          "market_code": "OU_1.5_OVER_FT",
+          "outcome": "over",
+          "line": 1.5,
+          "confidence": 80.8,
+          "double_chance": null,
+          "fair_odds": 1.2374,
+          "odds": 1.2,
+          "model_version": "bsd-v2-isolated",
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.03115,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+        },
+        {
+          "type": "12",
+          "label": "12",
+          "market": "double_chance",
+          "selection_key": "12",
+          "market_code": "DC_12_FT",
+          "outcome": "12",
+          "line": null,
+          "confidence": 73.8,
+          "fair_odds": 1.3551,
+          "odds": 1.278,
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00",
+          "model_version": "bsd-v2-isolated"
+        }
+      ]
+    },
+    {
+      "id": "bsd:604564",
+      "source": "bsd",
+      "source_event_id": 604564,
+      "date": "2026-10-11",
+      "event_date": "2026-10-11T15:00:00+00:00",
+      "home_team": "Abia Warriors",
+      "away_team": "Rivers United",
+      "home_team_id": 565,
+      "away_team_id": 564,
+      "home_logo": "https://sports.bzzoiro.com/img/team/565/?bg=transparent",
+      "away_logo": "https://sports.bzzoiro.com/img/team/564/?bg=transparent",
+      "league_logo": "https://sports.bzzoiro.com/img/league/28/?bg=transparent",
+      "league": "Nigeria Premier Football League",
+      "league_id": 28,
+      "category": "simple",
+      "badge": "BSD V2",
+      "status": "notstarted",
+      "is_finished": false,
+      "home_score": null,
+      "away_score": null,
+      "verified_prediction": false,
+      "verified_double": false,
+      "prediction": {
+        "type": "12",
+        "label": "12",
+        "market": "double_chance",
+        "selection_key": "12",
+        "market_code": "DC_12_FT",
+        "outcome": "12",
+        "line": null,
+        "confidence": 75.6,
+        "double_chance": "12",
+        "fair_odds": 1.3223,
+        "odds": 1.247,
+        "model_version": "bsd-v2-isolated",
+        "odds_source": "mrxpronos_model",
+        "estimated_odds": true,
+        "odds_method": "hypothese_6pct",
+        "overround_assumption": 0.06,
+        "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+      },
+      "model_version": "bsd-v2-isolated",
+      "final_score": 75.6,
+      "xpronos_score": 75.6,
+      "generated_at": "2026-10-09T15:07:57.727284+00:00",
+      "combo_only": false,
+      "predictions": [
+        {
+          "type": "12",
+          "label": "12",
+          "market": "double_chance",
+          "selection_key": "12",
+          "market_code": "DC_12_FT",
+          "outcome": "12",
+          "line": null,
+          "confidence": 75.6,
+          "double_chance": "12",
+          "fair_odds": 1.3223,
+          "odds": 1.247,
+          "model_version": "bsd-v2-isolated",
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+        },
+        {
+          "type": "Total buts : Under 3,5",
+          "label": "Total buts : Under 3,5",
+          "market": "over_under_35",
+          "selection_key": "UNDER_35",
+          "market_code": "OU_3.5_UNDER_FT",
+          "outcome": "under",
+          "line": 3.5,
+          "confidence": 75.1,
+          "fair_odds": 1.3311,
+          "odds": 1.256,
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00",
+          "model_version": "bsd-v2-isolated"
+        }
+      ]
+    },
+    {
+      "id": "bsd:604566",
+      "source": "bsd",
+      "source_event_id": 604566,
+      "date": "2026-10-11",
+      "event_date": "2026-10-11T15:00:00+00:00",
+      "home_team": "Barau FC",
+      "away_team": "Enugu Rangers International",
+      "home_team_id": 567,
+      "away_team_id": 571,
+      "home_logo": "https://sports.bzzoiro.com/img/team/567/?bg=transparent",
+      "away_logo": "https://sports.bzzoiro.com/img/team/571/?bg=transparent",
+      "league_logo": "https://sports.bzzoiro.com/img/league/28/?bg=transparent",
+      "league": "Nigeria Premier Football League",
+      "league_id": 28,
+      "category": "simple",
+      "badge": "BSD V2",
+      "status": "notstarted",
+      "is_finished": false,
+      "home_score": null,
+      "away_score": null,
+      "verified_prediction": false,
+      "verified_double": false,
+      "prediction": {
+        "type": "Total buts : Under 3,5",
+        "label": "Total buts : Under 3,5",
+        "market": "over_under_35",
+        "selection_key": "UNDER_35",
+        "market_code": "OU_3.5_UNDER_FT",
+        "outcome": "under",
+        "line": 3.5,
+        "confidence": 76.8,
+        "double_chance": null,
+        "fair_odds": 1.3015,
+        "odds": 1.228,
+        "model_version": "bsd-v2-isolated",
+        "odds_source": "mrxpronos_model",
+        "estimated_odds": true,
+        "odds_method": "hypothese_6pct",
+        "overround_assumption": 0.06,
+        "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+      },
+      "model_version": "bsd-v2-isolated",
+      "final_score": 76.8,
+      "xpronos_score": 76.8,
+      "generated_at": "2026-10-09T15:07:57.727284+00:00",
+      "combo_only": false,
+      "predictions": [
+        {
+          "type": "Total buts : Under 3,5",
+          "label": "Total buts : Under 3,5",
+          "market": "over_under_35",
+          "selection_key": "UNDER_35",
+          "market_code": "OU_3.5_UNDER_FT",
+          "outcome": "under",
+          "line": 3.5,
+          "confidence": 76.8,
+          "double_chance": null,
+          "fair_odds": 1.3015,
+          "odds": 1.228,
+          "model_version": "bsd-v2-isolated",
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+        },
+        {
+          "type": "12",
+          "label": "12",
+          "market": "double_chance",
+          "selection_key": "12",
+          "market_code": "DC_12_FT",
+          "outcome": "12",
+          "line": null,
+          "confidence": 72.3,
+          "fair_odds": 1.384,
+          "odds": 1.306,
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00",
+          "model_version": "bsd-v2-isolated"
+        }
+      ]
+    },
+    {
+      "id": "bsd:604567",
+      "source": "bsd",
+      "source_event_id": 604567,
+      "date": "2026-10-11",
+      "event_date": "2026-10-11T15:00:00+00:00",
+      "home_team": "Kun Khalifat FC",
+      "away_team": "Shooting Stars",
+      "home_team_id": 572,
+      "away_team_id": 577,
+      "home_logo": "https://sports.bzzoiro.com/img/team/572/?bg=transparent",
+      "away_logo": "https://sports.bzzoiro.com/img/team/577/?bg=transparent",
+      "league_logo": "https://sports.bzzoiro.com/img/league/28/?bg=transparent",
+      "league": "Nigeria Premier Football League",
+      "league_id": 28,
+      "category": "simple",
+      "badge": "BSD V2",
+      "status": "notstarted",
+      "is_finished": false,
+      "home_score": null,
+      "away_score": null,
+      "verified_prediction": false,
+      "verified_double": false,
+      "prediction": {
+        "type": "Total buts : Under 3,5",
+        "label": "Total buts : Under 3,5",
+        "market": "over_under_35",
+        "selection_key": "UNDER_35",
+        "market_code": "OU_3.5_UNDER_FT",
+        "outcome": "under",
+        "line": 3.5,
+        "confidence": 74.2,
+        "double_chance": null,
+        "fair_odds": 1.3471,
+        "odds": 1.271,
+        "model_version": "bsd-v2-isolated",
+        "odds_source": "mrxpronos_model",
+        "estimated_odds": true,
+        "odds_method": "hypothese_6pct",
+        "overround_assumption": 0.06,
+        "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+      },
+      "model_version": "bsd-v2-isolated",
+      "final_score": 74.2,
+      "xpronos_score": 74.2,
+      "generated_at": "2026-10-09T15:07:57.727284+00:00",
+      "combo_only": false,
+      "predictions": [
+        {
+          "type": "Total buts : Under 3,5",
+          "label": "Total buts : Under 3,5",
+          "market": "over_under_35",
+          "selection_key": "UNDER_35",
+          "market_code": "OU_3.5_UNDER_FT",
+          "outcome": "under",
+          "line": 3.5,
+          "confidence": 74.2,
+          "double_chance": null,
+          "fair_odds": 1.3471,
+          "odds": 1.271,
+          "model_version": "bsd-v2-isolated",
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+        },
+        {
+          "type": "12",
+          "label": "12",
+          "market": "double_chance",
+          "selection_key": "12",
+          "market_code": "DC_12_FT",
+          "outcome": "12",
+          "line": null,
+          "confidence": 72.7,
+          "fair_odds": 1.3764,
+          "odds": 1.299,
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00",
+          "model_version": "bsd-v2-isolated"
+        }
+      ]
+    },
+    {
+      "id": "bsd:604568",
+      "source": "bsd",
+      "source_event_id": 604568,
+      "date": "2026-10-11",
+      "event_date": "2026-10-11T15:00:00+00:00",
+      "home_team": "Plateau United",
+      "away_team": "Kano Pillars",
+      "home_team_id": 580,
+      "away_team_id": 566,
+      "home_logo": "https://sports.bzzoiro.com/img/team/580/?bg=transparent",
+      "away_logo": "https://sports.bzzoiro.com/img/team/566/?bg=transparent",
+      "league_logo": "https://sports.bzzoiro.com/img/league/28/?bg=transparent",
+      "league": "Nigeria Premier Football League",
+      "league_id": 28,
+      "category": "simple",
+      "badge": "BSD V2",
+      "status": "notstarted",
+      "is_finished": false,
+      "home_score": null,
+      "away_score": null,
+      "verified_prediction": false,
+      "verified_double": false,
+      "prediction": {
+        "type": "Total buts : Under 3,5",
+        "label": "Total buts : Under 3,5",
+        "market": "over_under_35",
+        "selection_key": "UNDER_35",
+        "market_code": "OU_3.5_UNDER_FT",
+        "outcome": "under",
+        "line": 3.5,
+        "confidence": 78.2,
+        "double_chance": null,
+        "fair_odds": 1.278,
+        "odds": 1.206,
+        "model_version": "bsd-v2-isolated",
+        "odds_source": "mrxpronos_model",
+        "estimated_odds": true,
+        "odds_method": "hypothese_6pct",
+        "overround_assumption": 0.06,
+        "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+      },
+      "model_version": "bsd-v2-isolated",
+      "final_score": 78.2,
+      "xpronos_score": 78.2,
+      "generated_at": "2026-10-09T15:07:57.727284+00:00",
+      "combo_only": false,
+      "predictions": [
+        {
+          "type": "Total buts : Under 3,5",
+          "label": "Total buts : Under 3,5",
+          "market": "over_under_35",
+          "selection_key": "UNDER_35",
+          "market_code": "OU_3.5_UNDER_FT",
+          "outcome": "under",
+          "line": 3.5,
+          "confidence": 78.2,
+          "double_chance": null,
+          "fair_odds": 1.278,
+          "odds": 1.206,
+          "model_version": "bsd-v2-isolated",
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+        },
+        {
+          "type": "1X",
+          "label": "1X",
+          "market": "double_chance",
+          "selection_key": "1X",
+          "market_code": "DC_1X_FT",
+          "outcome": "1X",
+          "line": null,
+          "confidence": 72.1,
+          "fair_odds": 1.3876,
+          "odds": 1.309,
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00",
+          "model_version": "bsd-v2-isolated"
+        }
+      ]
+    },
+    {
+      "id": "bsd:604569",
+      "source": "bsd",
+      "source_event_id": 604569,
+      "date": "2026-10-11",
+      "event_date": "2026-10-11T15:00:00+00:00",
+      "home_team": "Sporting Lagos FC",
+      "away_team": "Bendel Insurance FC",
+      "home_team_id": 5649,
+      "away_team_id": 570,
+      "home_logo": "https://sports.bzzoiro.com/img/team/5649/?bg=transparent",
+      "away_logo": "https://sports.bzzoiro.com/img/team/570/?bg=transparent",
+      "league_logo": "https://sports.bzzoiro.com/img/league/28/?bg=transparent",
+      "league": "Nigeria Premier Football League",
+      "league_id": 28,
+      "category": "simple",
+      "badge": "BSD V2",
+      "status": "notstarted",
+      "is_finished": false,
+      "home_score": null,
+      "away_score": null,
+      "verified_prediction": false,
+      "verified_double": false,
+      "prediction": {
+        "type": "Total buts : Over 1,5",
+        "label": "Total buts : Over 1,5",
+        "market": "over_under_15",
+        "selection_key": "OVER_15",
+        "market_code": "OU_1.5_OVER_FT",
+        "outcome": "over",
+        "line": 1.5,
+        "confidence": 75.1,
+        "double_chance": null,
+        "fair_odds": 1.3321,
+        "odds": 1.257,
+        "model_version": "bsd-v2-isolated",
+        "odds_source": "mrxpronos_model",
+        "estimated_odds": true,
+        "odds_method": "hypothese_6pct",
+        "overround_assumption": 0.06,
+        "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+      },
+      "model_version": "bsd-v2-isolated",
+      "final_score": 75.1,
+      "xpronos_score": 75.1,
+      "generated_at": "2026-10-09T15:07:57.727284+00:00",
+      "combo_only": false,
+      "predictions": [
+        {
+          "type": "Total buts : Over 1,5",
+          "label": "Total buts : Over 1,5",
+          "market": "over_under_15",
+          "selection_key": "OVER_15",
+          "market_code": "OU_1.5_OVER_FT",
+          "outcome": "over",
+          "line": 1.5,
+          "confidence": 75.1,
+          "double_chance": null,
+          "fair_odds": 1.3321,
+          "odds": 1.257,
+          "model_version": "bsd-v2-isolated",
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+        },
+        {
+          "type": "Total buts : Under 3,5",
+          "label": "Total buts : Under 3,5",
+          "market": "over_under_35",
+          "selection_key": "UNDER_35",
+          "market_code": "OU_3.5_UNDER_FT",
+          "outcome": "under",
+          "line": 3.5,
+          "confidence": 74.8,
+          "fair_odds": 1.3371,
+          "odds": 1.261,
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00",
+          "model_version": "bsd-v2-isolated"
+        }
+      ]
+    },
+    {
+      "id": "bsd:604570",
+      "source": "bsd",
+      "source_event_id": 604570,
+      "date": "2026-10-11",
+      "event_date": "2026-10-11T15:00:00+00:00",
+      "home_team": "Nasarawa United",
+      "away_team": "Doma United FC",
+      "home_team_id": 582,
+      "away_team_id": 5648,
+      "home_logo": "https://sports.bzzoiro.com/img/team/582/?bg=transparent",
+      "away_logo": "https://sports.bzzoiro.com/img/team/5648/?bg=transparent",
+      "league_logo": "https://sports.bzzoiro.com/img/league/28/?bg=transparent",
+      "league": "Nigeria Premier Football League",
+      "league_id": 28,
+      "category": "simple",
+      "badge": "BSD V2",
+      "status": "notstarted",
+      "is_finished": false,
+      "home_score": null,
+      "away_score": null,
+      "verified_prediction": false,
+      "verified_double": false,
+      "prediction": {
+        "type": "Total buts : Under 3,5",
+        "label": "Total buts : Under 3,5",
+        "market": "over_under_35",
+        "selection_key": "UNDER_35",
+        "market_code": "OU_3.5_UNDER_FT",
+        "outcome": "under",
+        "line": 3.5,
+        "confidence": 78.2,
+        "double_chance": null,
+        "fair_odds": 1.2785,
+        "odds": 1.206,
+        "model_version": "bsd-v2-isolated",
+        "odds_source": "mrxpronos_model",
+        "estimated_odds": true,
+        "odds_method": "hypothese_6pct",
+        "overround_assumption": 0.06,
+        "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+      },
+      "model_version": "bsd-v2-isolated",
+      "final_score": 78.2,
+      "xpronos_score": 78.2,
+      "generated_at": "2026-10-09T15:07:57.727284+00:00",
+      "combo_only": false,
+      "predictions": [
+        {
+          "type": "Total buts : Under 3,5",
+          "label": "Total buts : Under 3,5",
+          "market": "over_under_35",
+          "selection_key": "UNDER_35",
+          "market_code": "OU_3.5_UNDER_FT",
+          "outcome": "under",
+          "line": 3.5,
+          "confidence": 78.2,
+          "double_chance": null,
+          "fair_odds": 1.2785,
+          "odds": 1.206,
+          "model_version": "bsd-v2-isolated",
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00"
+        },
+        {
+          "type": "12",
+          "label": "12",
+          "market": "double_chance",
+          "selection_key": "12",
+          "market_code": "DC_12_FT",
+          "outcome": "12",
+          "line": null,
+          "confidence": 72.3,
+          "fair_odds": 1.3831,
+          "odds": 1.305,
+          "odds_source": "mrxpronos_model",
+          "estimated_odds": true,
+          "odds_method": "hypothese_6pct",
+          "overround_assumption": 0.06,
+          "odds_updated_at": "2026-10-09T15:07:57.727284+00:00",
+          "model_version": "bsd-v2-isolated"
+        }
+      ]
     }
   ],
   "bookmakers": [],
   "diagnostics": {
-    "total": 297,
+    "total": 304,
     "rejections": {
-      "odds_attempts": 33,
-      "chosen_market_unpriceable": 15,
-      "quote_below_120": 18,
+      "odds_attempts": 44,
+      "chosen_market_unpriceable": 16,
+      "quote_below_120": 21,
       "quality_short_form": 2,
-      "no_qualified_market": 19
+      "no_qualified_market": 19,
+      "model_estimated": 7,
+      "priced_selected": 7,
+      "created": 7,
+      "insufficient_form": 1
     },
     "fixture_details": [
       {
@@ -36869,9 +37482,154 @@
         "away_team": "Inter Lagos FC",
         "event_date": "2026-10-11T15:00:00+00:00",
         "quotes": [],
-        "considered": [],
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.46455671393073394,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.3057004979173012,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.22974278815196486,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.7702572118480351,
+            "odds": null,
+            "conservative_probability": 0.7452572118480351,
+            "result": "qualified"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": 0.6942995020826987,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.5354432860692661,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.4421706665628684,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.5578293334371318,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.6116912198337898,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.38830878016620984,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.3813501336534888,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.6186498663465112,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.1432853050680813,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.8567146949319182,
+            "odds": null,
+            "conservative_probability": 0.8247146949319182,
+            "result": "qualified"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.07162936997580574,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
         "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "reason": "chosen_market_unpriceable"
       },
       {
         "event_id": "604570",
@@ -36879,9 +37637,158 @@
         "away_team": "Doma United FC",
         "event_date": "2026-10-11T15:00:00+00:00",
         "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.39926362111201796,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.27698410720286903,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.323752271685113,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.676247728314887,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": 0.723015892797131,
+            "odds": null,
+            "conservative_probability": 0.6980158927971309,
+            "result": "qualified"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.600736378887982,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.5206958194163468,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.4793041805836532,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.6923378354920363,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.30766216450796335,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.45243739973268315,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.5475626002673167,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.21782782817184387,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.7821721718281569,
+            "odds": null,
+            "conservative_probability": 0.7501721718281569,
+            "result": "qualified"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.10611194179255827,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
+        "status": "published",
+        "reason": null,
+        "selections": [
+          "UNDER_35",
+          "12"
+        ]
       },
       {
         "event_id": "604569",
@@ -36889,9 +37796,158 @@
         "away_team": "Bendel Insurance FC",
         "event_date": "2026-10-11T15:00:00+00:00",
         "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.41165338328207945,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.28039536494117423,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.3079512517767463,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.6920487482232537,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": 0.7196046350588258,
+            "odds": null,
+            "conservative_probability": 0.6946046350588257,
+            "result": "qualified"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.5883466167179205,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.5316635233626678,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.46833647663733224,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.7507045441671576,
+            "odds": null,
+            "conservative_probability": 0.7187045441671576,
+            "result": "qualified"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.24929545583284382,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.500681730072858,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.4993182699271419,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.2521231873107576,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.7478768126892431,
+            "odds": null,
+            "conservative_probability": 0.7158768126892431,
+            "result": "qualified"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.13448605968815633,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
+        "status": "published",
+        "reason": null,
+        "selections": [
+          "OVER_15",
+          "UNDER_35"
+        ]
       },
       {
         "event_id": "604568",
@@ -36899,9 +37955,158 @@
         "away_team": "Kano Pillars",
         "event_date": "2026-10-11T15:00:00+00:00",
         "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.44121876604623333,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.27945712028454717,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.27932411366921944,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.7206758863307805,
+            "odds": null,
+            "conservative_probability": 0.7106758863307805,
+            "result": "qualified"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": 0.7205428797154527,
+            "odds": null,
+            "conservative_probability": 0.7105428797154527,
+            "result": "qualified"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.5587812339537666,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.5022951021147157,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.49770489788528444,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.6812966692685267,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.31870333073147294,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.42516598834598396,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.5748340116540159,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.2175232585249437,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.7824767414750571,
+            "odds": null,
+            "conservative_probability": 0.7684767414750571,
+            "result": "qualified"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.1113388763942985,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
+        "status": "published",
+        "reason": null,
+        "selections": [
+          "UNDER_35",
+          "1X"
+        ]
       },
       {
         "event_id": "604567",
@@ -36909,9 +38114,158 @@
         "away_team": "Shooting Stars",
         "event_date": "2026-10-11T15:00:00+00:00",
         "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.4189253427151429,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.2734804869677421,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.3075941703171149,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.692405829682885,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": 0.7265195130322578,
+            "odds": null,
+            "conservative_probability": 0.7165195130322578,
+            "result": "qualified"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.581074657284857,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.49044906052588866,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.5095509394741116,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.6458948280370508,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.3541051719629489,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.4443610647695163,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.5556389352304836,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.257685441137806,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.7423145588621948,
+            "odds": null,
+            "conservative_probability": 0.7283145588621948,
+            "result": "qualified"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.1579244583667252,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
+        "status": "published",
+        "reason": null,
+        "selections": [
+          "UNDER_35",
+          "12"
+        ]
       },
       {
         "event_id": "604566",
@@ -36919,9 +38273,158 @@
         "away_team": "Enugu Rangers International",
         "event_date": "2026-10-11T15:00:00+00:00",
         "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.4018624762076808,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.2774387055794361,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.3206988182128832,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.6793011817871168,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": 0.7225612944205639,
+            "odds": null,
+            "conservative_probability": 0.7125612944205639,
+            "result": "qualified"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.5981375237923193,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.5264576937677398,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.47354230623226023,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.6953000065398812,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.30469999346011845,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.4513184386595561,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.5486815613404439,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.23165211266682398,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.7683478873331768,
+            "odds": null,
+            "conservative_probability": 0.7543478873331768,
+            "result": "qualified"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.11407570320839362,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
+        "status": "published",
+        "reason": null,
+        "selections": [
+          "UNDER_35",
+          "12"
+        ]
       },
       {
         "event_id": "604564",
@@ -36929,9 +38432,158 @@
         "away_team": "Rivers United",
         "event_date": "2026-10-11T15:00:00+00:00",
         "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.28385166430472264,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.24373376921632123,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.472414566478956,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.5275854335210439,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": 0.7562662307836787,
+            "odds": null,
+            "conservative_probability": 0.7462662307836787,
+            "result": "qualified"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.7161483356952772,
+            "odds": null,
+            "conservative_probability": 0.7061483356952772,
+            "result": "qualified"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.50590434066957,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.49409565933043015,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.7488417085064705,
+            "odds": null,
+            "conservative_probability": 0.7348417085064705,
+            "result": "qualified"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.2511582914935309,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.4832300041317713,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.5167699958682286,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.24875109322530928,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.7512489067746916,
+            "odds": null,
+            "conservative_probability": 0.7372489067746916,
+            "result": "qualified"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.11885818310698804,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
+        "status": "published",
+        "reason": null,
+        "selections": [
+          "12",
+          "UNDER_35"
+        ]
       },
       {
         "event_id": "604510",
@@ -36941,7 +38593,7 @@
         "quotes": [],
         "considered": [],
         "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "reason": "not_upcoming"
       },
       {
         "event_id": "603790",
@@ -36949,9 +38601,158 @@
         "away_team": "SK Rapid Wien",
         "event_date": "2026-10-11T15:00:00+00:00",
         "quotes": [],
-        "considered": [],
-        "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.40339052183456947,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.2620697617838007,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.3345397163816298,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.6654602836183702,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": 0.7379302382161993,
+            "odds": null,
+            "conservative_probability": 0.7279302382161993,
+            "result": "qualified"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.5966094781654305,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.5836664742467449,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.4163335257532551,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.8081561484419427,
+            "odds": null,
+            "conservative_probability": 0.7941561484419427,
+            "result": "qualified"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.19184385155805672,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.6031082562716804,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.3968917437283198,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.3985853551078139,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.6014146448921862,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.23205556754211218,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
+        "status": "published",
+        "reason": null,
+        "selections": [
+          "OVER_15",
+          "12"
+        ]
       },
       {
         "event_id": "603072",
@@ -36961,37 +38762,685 @@
         "quotes": [],
         "considered": [],
         "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "reason": "insufficient_form"
       },
       {
         "event_id": "214612",
         "home_team": "FK Csíkszereda Miercurea Ciuc",
         "away_team": "Universitatea Craiova",
         "event_date": "2026-10-11T15:00:00+00:00",
-        "quotes": [],
-        "considered": [],
+        "quotes": [
+          {
+            "market": "1X2_AWAY_FT",
+            "odds": 1.278,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "1X2_DRAW_FT",
+            "odds": 5.089,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "1X2_HOME_FT",
+            "odds": 8.183,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "BTTS_NO_FT",
+            "odds": 1.765,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "BTTS_YES_FT",
+            "odds": 1.952,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "DC_12_FT",
+            "odds": 1.114,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "DC_1X_FT",
+            "odds": 3.452,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "DC_X2_FT",
+            "odds": 1.036,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_1.5_OVER_FT",
+            "odds": 1.16,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_1.5_UNDER_FT",
+            "odds": 4.56,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_2.5_OVER_FT",
+            "odds": 1.558,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_2.5_UNDER_FT",
+            "odds": 2.344,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_3.5_OVER_FT",
+            "odds": 2.357,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_3.5_UNDER_FT",
+            "odds": 1.517,
+            "source": "bsd_consensus"
+          }
+        ],
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.19486600264643208,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.21923472215160192,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.585899275201966,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.414100724798034,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": 0.7807652778483981,
+            "odds": null,
+            "conservative_probability": 0.7707652778483981,
+            "result": "qualified"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.8051339973535679,
+            "odds": null,
+            "conservative_probability": 0.7951339973535679,
+            "result": "qualified"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.5056131474883616,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.49438685251163855,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.775632918007225,
+            "odds": null,
+            "conservative_probability": 0.761632918007225,
+            "result": "qualified"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.2243670819927764,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.5268061937968119,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.4731938062031874,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.3475641018905132,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.652435898109487,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.16604858674549752,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
         "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "reason": "quote_below_120"
       },
       {
         "event_id": "207087",
         "home_team": "IK Start",
         "away_team": "HamKam",
         "event_date": "2026-10-11T15:00:00+00:00",
-        "quotes": [],
-        "considered": [],
+        "quotes": [
+          {
+            "market": "1X2_AWAY_FT",
+            "odds": 3.494,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "1X2_DRAW_FT",
+            "odds": 3.627,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "1X2_HOME_FT",
+            "odds": 1.921,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "BTTS_NO_FT",
+            "odds": 2.308,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "BTTS_YES_FT",
+            "odds": 1.542,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "DC_12_FT",
+            "odds": 1.236,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "DC_1X_FT",
+            "odds": 1.266,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "DC_X2_FT",
+            "odds": 1.838,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_1.5_OVER_FT",
+            "odds": 1.167,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_1.5_UNDER_FT",
+            "odds": 4.553,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_2.5_OVER_FT",
+            "odds": 1.61,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_2.5_UNDER_FT",
+            "odds": 2.266,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_3.5_OVER_FT",
+            "odds": 2.46,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_3.5_UNDER_FT",
+            "odds": 1.483,
+            "source": "bsd_consensus"
+          }
+        ],
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.5135258708225225,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.2505945599073409,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.23587956927013667,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.7641204307298635,
+            "odds": null,
+            "conservative_probability": 0.7541204307298635,
+            "result": "qualified"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": 0.7494054400926592,
+            "odds": null,
+            "conservative_probability": 0.7394054400926592,
+            "result": "qualified"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.48647412917747757,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.558805146097339,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.441194853902661,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.802982462934241,
+            "odds": null,
+            "conservative_probability": 0.788982462934241,
+            "result": "qualified"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.19701753706575842,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.5958582033149271,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.4041417966850722,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.3791766035008283,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.6208233964991718,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.19572198808740188,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
         "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "reason": "quote_below_120"
       },
       {
         "event_id": "207084",
         "home_team": "Aalesunds FK",
         "away_team": "Sarpsborg 08",
         "event_date": "2026-10-11T15:00:00+00:00",
-        "quotes": [],
-        "considered": [],
+        "quotes": [
+          {
+            "market": "1X2_AWAY_FT",
+            "odds": 2.472,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "1X2_DRAW_FT",
+            "odds": 3.693,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "1X2_HOME_FT",
+            "odds": 2.455,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "BTTS_NO_FT",
+            "odds": 2.873,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "BTTS_YES_FT",
+            "odds": 1.37,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "DC_12_FT",
+            "odds": 1.244,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "DC_1X_FT",
+            "odds": 1.504,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "DC_X2_FT",
+            "odds": 1.48,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_1.5_OVER_FT",
+            "odds": 1.09,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_1.5_UNDER_FT",
+            "odds": 6.243,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_2.5_OVER_FT",
+            "odds": 1.4,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_2.5_UNDER_FT",
+            "odds": 2.81,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_3.5_OVER_FT",
+            "odds": 2.038,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_3.5_UNDER_FT",
+            "odds": 1.76,
+            "source": "bsd_consensus"
+          }
+        ],
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.45641607121251404,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.25120234682155496,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.292381581965931,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.707618418034069,
+            "odds": null,
+            "conservative_probability": 0.697618418034069,
+            "result": "qualified"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": 0.748797653178445,
+            "odds": null,
+            "conservative_probability": 0.738797653178445,
+            "result": "qualified"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.543583928787486,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.5901565179581636,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.4098434820418364,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.7819343706494015,
+            "odds": null,
+            "conservative_probability": 0.7679343706494015,
+            "result": "qualified"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.21806562935059792,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.5926791118714516,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.4073208881285477,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.39629467192944284,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.6037053280705573,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.23897172833065286,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
         "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "reason": "quote_below_120"
       },
       {
         "event_id": "210870",
@@ -41219,8 +43668,8 @@
         "reason": "chosen_market_unpriceable"
       }
     ],
-    "leagues_resolved": 0,
-    "api_calls": 50,
+    "leagues_resolved": 7,
+    "api_calls": 61,
     "quality_validation": {
       "train_period": "2025-01-01 to 2025-08-31",
       "validation_period": "2025-09-01 to 2025-12-31",
