@@ -66,7 +66,10 @@ jobs:
               assert len({p["selection_key"] for p in selections})==len(selections)
               assert len({p["market"] for p in selections})==len(selections), "Market families must differ"
               for pick in selections:
-                  assert valid_standalone_prediction(pick,match.get("combo_only",False))
+                  assert valid_standalone_prediction(pick,match.get("combo_only",False)), (
+                      f"Invalid pick: match={match.get('id')} selection={pick.get('selection_key')} "
+                      f"source={pick.get('odds_source')} odds={pick.get('odds')} "
+                      f"estimated={pick.get('estimated_odds')}")
           for match in data["matches"]:
               combo=match.get("combo_prediction")
               if combo:
@@ -117,6 +120,5 @@ jobs:
           github_token: '${{ secrets.GITHUB_TOKEN }}'
           publish_dir: ./
           destination_dir: ./
-          keep_files: true           assert all(valid_standalone_prediction(m["prediction"],m.get("combo_only",False)) for m in data["matches"]), "Invalid priced selection"
-                   assert valid_standalone_prediction(pick,match.get("combo_only",False))
+          keep_files: true
 
