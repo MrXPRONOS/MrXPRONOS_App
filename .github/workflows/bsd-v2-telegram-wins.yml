@@ -1,9 +1,17 @@
 name: BSD V2 - Validation des coupons Telegram
+run-name: "BSD V2 - Validation Telegram (${{ inputs.trigger_source || github.event_name }})"
 
 on:
+  # Maintenir ce cron provisoire jusqu'à confirmation de cron-job.org.
   schedule:
     - cron: '40 * * * *'
   workflow_dispatch:
+    inputs:
+      trigger_source:
+        description: "Origine : cron-job.org ou manuel"
+        required: false
+        default: "manual"
+        type: string
 
 permissions:
   contents: read
@@ -17,6 +25,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - name: Journaliser le déclenchement
+        env:
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || github.event_name }}
+        run: |
+          echo "Déclenchement : ${TRIGGER_SOURCE}"
+          echo "Début UTC : $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
       - uses: actions/checkout@v4
         with:
           ref: main
