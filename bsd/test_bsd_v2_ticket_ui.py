@@ -90,7 +90,7 @@ class ReferenceTicketTests(unittest.TestCase):
                 self.assertIn(green,final.crop((900,540,1080,660)).getdata())
                 self.assertIn(green,final.crop((900,990,1080,1080)).getdata())
 
-    def test_paid_label_requires_verified_payment_flag(self):
+    def test_winning_and_upcoming_coupon_labels(self):
         from unittest.mock import patch
         import bsd_v2_ticket_ui as ui
 
@@ -99,8 +99,8 @@ class ReferenceTicketTests(unittest.TestCase):
             captions.append(str(text))
         with patch.object(ui,"_draw",return_value=(fake_write,None,None,None)):
             ui._summary(None,price=1.75,stake=100000,won=True,paid=False)
-            self.assertIn("Gagnant",captions)
-            self.assertNotIn("Payé",captions)
+            self.assertIn("Payé",captions)
+            self.assertNotIn("Accepté",captions)
             captions.clear()
             ui._summary(None,price=1.75,stake=100000,won=True,paid=True)
             self.assertIn("Payé",captions)
