@@ -93,8 +93,8 @@ def partners(code="XPVIP"):
 def daily_promo(title,intro,offer,code="XPVIP"):
     e=lambda x:escape(str(x),quote=False)
     return (
-        f"<h3>{title}</h3>"
-        f"<p>{intro}</p>"
+        f"<h3>{e(title)}</h3>"
+        f"<p>{e(intro)}</p>"
         f"<blockquote><b>🎁 OFFRE</b><br/>{e(offer)}<br/>"
         f"<b>🏷 CODE PROMO : <code>{e(code)}</code></b></blockquote>"
         "<p><b>ℹ️ Avant de t’inscrire</b><br/>"
@@ -115,3 +115,41 @@ def live(text):
     return ("<h3>"+lines[0]+"</h3>"
             +"".join(f"<p>{line}</p>" for line in lines[1:])
             +"<p><i>🔞 18+ · Parier responsablement.</i></p>")
+
+
+def plain_text_sections(text):
+    """Safely support simple markdown emphasis, quotes and paragraph breaks."""
+    from html import escape as esc
+    def inline(line):
+        result = esc(line, quote=False)
+        patterns = [
+            (r"\\*\\*([^*\\n]+)\\*\\*", "b"),
+            (r"__([^_\\n]+)__", "u"),
+            (r"~~([^~\\n]+)~~", "s"),
+            (r"\\*([^*\\n]+)\\*", "i"),
+        ]
+        for pattern, tag in patterns:
+            result = re.sub(pattern, lambda m: f"<{tag}>{m.group(1)}</{tag}>", result)
+        return result
+    blocks, paragraph, quote = [], [], []
+    def flush_paragraph():
+        if paragraph:
+            blocks.append("<p>" + "<br/>".join(inline(t) for t in paragraph) + "</p>")
+            paragraph.clear()
+    def flush_quote():
+        if quote:
+            blocks.append("<blockquote>" + "<br/>".join(inline(t) for t in quote) + "</blockquote>")
+            quote.clear()
+    for line in str(text or "").splitlines():
+        if line.lstrip().startswith("> "):
+            flush_paragraph()
+            quote.append(line.lstrip()[2:].strip())
+        else:
+            flush_quote()
+            if not line.strip():
+                flush_paragraph()
+            else:
+                paragraph.append(line.strip())
+    flush_paragraph()
+    flush_quote()
+    return "".join(blocks)
