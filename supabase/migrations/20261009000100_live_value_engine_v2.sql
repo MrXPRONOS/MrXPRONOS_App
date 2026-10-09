@@ -14,6 +14,7 @@ ALTER TABLE public.live_predictions
   ADD COLUMN IF NOT EXISTS freshness_seconds integer,
   ADD COLUMN IF NOT EXISTS source_count integer,
   ADD COLUMN IF NOT EXISTS source_confidence numeric(6,2),
+  ADD COLUMN IF NOT EXISTS source_agreement_score numeric(6,2),
   ADD COLUMN IF NOT EXISTS signal_tier text,
   ADD COLUMN IF NOT EXISTS pricing_mode text,
   ADD COLUMN IF NOT EXISTS line_candidate_count integer,
