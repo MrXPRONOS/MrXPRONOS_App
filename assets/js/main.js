@@ -1568,6 +1568,7 @@ function renderMatches(matches) {
 
             <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
             <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
+            <p><strong>${pred.odds_source === "mrxpronos_model" ? "Cote indicative (non bookmaker)" : "Cote BSD"} :</strong> ${typeof pred.odds === "number" ? pred.odds.toFixed(2).replace(".", ",") : "Non disponible"}</p>
 
             ${premiumBadge}
             <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}">■ Partager ce prono</button>

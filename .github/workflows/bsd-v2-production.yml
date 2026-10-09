@@ -43,6 +43,7 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          from bsd.bsd_v2_estimated_odds import valid_standalone_prediction
           data=json.load(open("data.json",encoding="utf-8"))
           assert data["source"]=="bsd" and data["model_version"]=="bsd-v2-isolated"
           assert isinstance(data["matches"],list)
@@ -118,4 +119,6 @@ jobs:
           github_token: '${{ secrets.GITHUB_TOKEN }}'
           publish_dir: ./
           destination_dir: ./
-          keep_files: true
+          keep_files: true           assert all(valid_standalone_prediction(m["prediction"],m.get("combo_only",False)) for m in data["matches"]), "Invalid priced selection"
+                   assert valid_standalone_prediction(pick,match.get("combo_only",False))
+

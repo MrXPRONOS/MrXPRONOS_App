@@ -9,6 +9,7 @@ from datetime import datetime,timedelta,timezone
 from pathlib import Path
 import requests
 from bsd_h2h import _utc
+from bsd_v2_estimated_odds import valid_standalone_prediction
 from bsd_v2_card import render as render_card
 from bsd_v2_captions import single_caption,combo_caption,PARSE_MODE
 from bsd_v2_night import is_night_match,matches_for_night,batch_date
@@ -35,9 +36,7 @@ def due(matches,now,min_minutes=60,max_minutes=120):
         delta=(dt-now).total_seconds()/60
         p=m.get("prediction") or {}
         odds=p.get("odds")
-        valid_price=(isinstance(odds,(int,float)) and not isinstance(odds,bool)
-                     and 1.20<=odds<=100 and p.get("odds_source") in
-                     ("bsd_consensus","bsd_bookmaker"))
+        valid_price=valid_standalone_prediction(p,m.get('combo_only',False)) and not m.get('combo_only',False)
         if (min_minutes<=delta<max_minutes and valid_price
                 and p.get("selection_key") and p["selection_key"]!="UNDER_45"):
             selected.append(m)
@@ -59,9 +58,7 @@ def expand_tickets(match):
     result=[]
     for idx,p in enumerate(picks):
         odds=p.get("odds")
-        if (type(odds) not in (int,float) or not 1.20<=odds<=100 or
-            p.get("odds_source") not in ("bsd_consensus","bsd_bookmaker") or
-            p.get("selection_key") in ("UNDER_45",None)):
+        if not valid_standalone_prediction(p,False):
             continue
         variant={**match,"prediction":p}
         if idx:

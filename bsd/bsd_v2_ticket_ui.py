@@ -93,7 +93,7 @@ def _header(draw):
     # Navigation iconography reproduces the size and alignment of the sample,
     # but these pixels are a visual mockup, not functioning bookmaker controls.
     draw.line([(94,44),(76,65),(94,86)],fill=SECONDARY,width=5,joint="curve")
-    write(draw,"Informations sur le pari",540,40,
+    write(draw,"MR XPRONOS · PRONOSTIC",540,40,
           size=33,bold=True,color=SECONDARY,align="center",maximum=630)
     # Bell outline + notification dot
     draw.arc((861,43,896,82),190,355,fill=SECONDARY,width=4)
@@ -112,7 +112,7 @@ def _top_meta(canvas,draw,*,kind,reference,time_text):
     write(draw,time_text,184,161,size=27,bold=True,color=SECONDARY)
     write(draw,kind,184,202,size=41,bold=True,color=NAVY)
     write(draw,"N° "+reference,184,251,size=26,bold=True,color=NAVY,maximum=760)
-    write(draw,"Simulation · Non placé",1055,274,size=20,
+    write(draw,"Analyse avant-match",1055,274,size=20,
           color=SECONDARY,align="right")
     draw.line((0,309,WIDTH,309),fill=DIVIDER,width=2)
 
@@ -131,7 +131,7 @@ def _summary(draw,*,price,stake,won=False):
         ("Mise:",_money(stake),NAVY),
         ("Versé:","—",NAVY),   # No payment from an unplaced forecast
         ("Gains potentiels:",_money(gross),NAVY),
-        ("Statut:","Pronostic gagnant" if won else "Simulation",ACCENT),
+        ("Statut:","Pronostic gagnant" if won else "Prévision",ACCENT),
     ]
     for i,(title,value,col) in enumerate(rows):
         y=342+i*58
@@ -195,7 +195,7 @@ def _fixture_tile(canvas,draw,match,*,top,bottom,winning=False,
     write(draw,market,44,separator+21,size=34,bold=True,color=NAVY,maximum=765)
     write(draw,_quote(price),1037,separator+21,size=33,bold=True,color=NAVY,align="right")
     write(draw,"Statut:",46,separator+81,size=32,bold=True,color=SECONDARY)
-    write(draw,"Gagnant" if winning else "Simulation",1036,separator+81,
+    write(draw,"Gagnant" if winning else "Prévision",1036,separator+81,
           size=32,bold=True,color=ACCENT,align="right")
 
 
@@ -211,6 +211,10 @@ def render_single(match,output,*,win=False,stake=None,now=None,session=None):
     _top_meta(canvas,d,kind="Simple",reference=public_ref(match),
               time_text=now.astimezone(timezone.utc).strftime("%d.%m.%Y (%H:%M)"))
     _summary(d,price=price,stake=stake,won=win)
+    if (match.get("prediction") or {}).get("odds_source")=="mrxpronos_model":
+        from bsd_v2_card import write
+        write(d,"Cote estimée · non proposée par un bookmaker",540,621,
+              size=22,bold=True,color=SECONDARY,align="center",maximum=1000)
     _fixture_tile(canvas,d,match,top=658,bottom=1077,winning=win,session=session)
     path=Path(output);path.parent.mkdir(parents=True,exist_ok=True)
     canvas.save(path,"PNG",optimize=True)

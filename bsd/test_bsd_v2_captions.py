@@ -62,7 +62,8 @@ class CaptionTests(unittest.TestCase):
         self.assertIn("PRONOSTIC GAGNANT",caption)
         self.assertIn("2–0",caption)
         self.assertIn("<blockquote>",caption)
-        self.assertIn("sans attestation de pari encaissé",caption)
+        self.assertIn("Pronostic réussi",caption)
+        self.assertNotIn("pari encaissé",caption)
 
     def test_all_captions_handle_long_escaped_team_names(self):
         match=fixture(home="<Hello>&"*25,away="A & B"*20,market="Over &"*30)

@@ -43,12 +43,58 @@ class PricedSelectionTests(unittest.TestCase):
         self.assertEqual(choice["candidate"].key,"OVER_15")
         self.assertEqual(choice["bookmaker_odds"],1.20)
 
-    def test_no_quote_skips_match_before_publication(self):
+    def test_no_quote_never_pretends_to_be_bsd(self):
         out=assemble({},[self.fixture],self.history,now=self.now,
             calibration=None,policy=None,rho=0,
             odds_fetcher=lambda *a: ({},{}),max_odds_requests=2)
-        self.assertEqual(out["matches"],[])
+        for match in out["matches"]:
+            pick=match["prediction"]
+            self.assertEqual(pick["odds_source"],"mrxpronos_model")
+            self.assertTrue(pick["estimated_odds"])
+            self.assertGreaterEqual(pick["odds"],1.20)
         self.assertEqual(out["diagnostics"]["rejections"]["no_qualified_bsd_odds"],1)
+
+    def test_unquoted_match_is_published_and_reaches_telegram(self):
+        from bsd_v2_telegram import due
+        fixture={**self.fixture,
+                 "event_date":(self.now+timedelta(minutes=90)).isoformat()}
+        pick={"key":"1X","name":"Double chance 1X","market":"double_chance",
+              "outcome":"1X","line":None,"internal_market_code":"DC_1X_FT",
+              "probability":.76,"conservative_probability":.73,
+              "fair_odds":round(1/.76,4),"bookmaker_odds":None,
+              "odds_source":None,"calibration_samples":30}
+        option={"key":"1X","name":pick["name"],"market":pick["market"],
+                "outcome":pick["outcome"],"line":None,
+                "market_code":"DC_1X_FT","probability":.76,
+                "conservative_probability":.73,
+                "fair_odds":round(1/.76,4),"calibration_samples":30,
+                "passes_quality_policy":True}
+        shadow={"id":"bsd:17","home_team_id":1,"away_team_id":2,
+                "category":"simple","model_version":"bsd-v2-isolated",
+                "prediction":pick,"ranked_candidates":[option]}
+        with patch("bsd_v2_publish.predict_v2",
+                   side_effect=[(None,"no_qualified_market"),(shadow,"ok")]):
+            out=assemble({},[fixture],self.history,now=self.now,
+                calibration=None,policy=None,rho=0,
+                odds_fetcher=lambda *a:({},{}),max_odds_requests=2)
+        self.assertEqual(len(out["matches"]),1)
+        published=out["matches"][0]
+        self.assertEqual(published["prediction"]["odds_source"],"mrxpronos_model")
+        self.assertTrue(published["prediction"]["estimated_odds"])
+        self.assertGreaterEqual(published["prediction"]["odds"],1.20)
+        self.assertEqual([x["id"] for x in due(out["matches"],self.now)],["bsd:17"])
+
+    def test_previous_upcoming_model_pick_remains_immutable(self):
+        original={"source":"bsd","matches":[{
+            "id":"bsd:17","source":"bsd","source_event_id":17,
+            "event_date":self.fixture["event_date"],"status":"notstarted",
+            "prediction":{"selection_key":"1X","odds":1.24,
+                          "odds_source":"mrxpronos_model","estimated_odds":True}}]}
+        out=assemble(original,[self.fixture],self.history,now=self.now,
+            calibration=None,policy=None,rho=0,
+            odds_fetcher=lambda *a:({},{}),max_odds_requests=2)
+        self.assertEqual(len(out["matches"]),1)
+        self.assertEqual(out["matches"][0]["prediction"],original["matches"][0]["prediction"])
 
     def test_market_selection_uses_verifiable_bsd_price(self):
         from bsd_v2_core import markets_from_matrix
