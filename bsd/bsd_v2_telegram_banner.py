@@ -6,7 +6,7 @@ Telegram attachment is composed. Source image is a 3D design asset.
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
-BANNER = Path(__file__).resolve().parent.parent / "assets/images/telegram-xpvip-banner.webp"
+BANNER = Path(__file__).resolve().parent.parent / "assets/images/telegram-xpvip-banner.png"
 
 ROOT = Path(__file__).resolve().parent.parent
 BANNER_SECOND = ROOT / 'assets/images/telegram-xpvip-banner-1win-betwinner.png'
