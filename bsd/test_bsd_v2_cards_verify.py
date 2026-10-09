@@ -124,6 +124,7 @@ class CardAndSettlement(unittest.TestCase):
                 self.calls.append(("patch",a,kw))
                 class Response:
                     def raise_for_status(self):pass
+                    def json(self):return [{"id":15}]
                 return Response()
             def post(self,*a,**kw):
                 raise AssertionError("Telegram must not receive a loss")
@@ -147,6 +148,7 @@ class CardAndSettlement(unittest.TestCase):
                 self.patches.append((args,kwargs))
                 class Resp:
                     def raise_for_status(self):pass
+                    def json(self):return [{"id":16}]
                 return Resp()
         http=Stub()
         with patch("bsd_v2_verify_telegram.post_gain", return_value=987) as send:
