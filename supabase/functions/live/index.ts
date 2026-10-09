@@ -1635,6 +1635,7 @@ async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint
     ? (h2 !== null && a2 !== null ? homeScore + ":" + awayScore + " (" + h1 + ":" + a1 + "," + h2 + ":" + a2 + ")" : homeScore + ":" + awayScore + " (" + h1 + ":" + a1 + ")")
     : "";
   const odds = pickTelegramNumber(pred?.live_odds, pred?.odds, pred?.odd, pred?.cote);
+  const oddsLabel = pred?.pricing_mode === "external_live" ? "Cote bookmaker" : "Cote modèle";
   const stake = LIVE_COUPON_STAKE_FCFA;
   const potential = odds !== null && odds > 1 ? Math.round(stake * odds) : null;
   const value = (v: number|null) => v === null ? "—" : v.toFixed(2);
@@ -1662,7 +1663,7 @@ async function buildTelegramCouponPngDirect(match: any, pred: any): Promise<Uint
     tx(80,34,date,12,"#8698a6")+tx(80,55,"Simple",19)+tx(80,72,"N° "+slip,10,"#24313a",600)+
     '<rect x="348" y="24" width="67" height="14" rx="3" fill="#ef4338"/>'+tx(381.5,34,"• En direct",9,"#fff",700,"middle")+
     '<path d="M0 87h429" stroke="#e4e8eb"/>'+
-    tx(16,113,"Cotes:",15,"#8497a5")+tx(16,141,"Mise:",15,"#8497a5")+
+    tx(16,113,oddsLabel+":",15,"#8497a5")+tx(16,141,"Mise:",15,"#8497a5")+
     tx(16,167,"Gains potentiels:",15,"#8497a5")+tx(16,193,"Statut:",15,"#8497a5")+
     tx(414,113,value(odds),15,"#1c3242",700,"end")+tx(414,141,money(stake),15,"#1c3242",700,"end")+
     tx(414,167,money(potential),15,"#4dbb69",700,"end")+tx(414,193,receiptStatus,15,statusColor,700,"end")+
@@ -1694,6 +1695,7 @@ async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array
   const scoreSmall = `${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)} (${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)})`;
   const selectionText = buildTelegramSelectionText(pred);
   const stats = deriveTelegramSlipStats(pred);
+  const oddsLabel = pred?.pricing_mode === "external_live" ? "Cote bookmaker" : "Cote modèle";
   const eventDateText = formatTelegramSlipDateTime(match);
   const elapsed = formatTelegramClock(minute);
   const slipNumber = String(pred?.id ?? pred?.prediction_id ?? match?.id ?? buildCanonicalMatchId(match)).replace(/[^0-9A-Za-z]/g, "").slice(-12) || "87751503787";
@@ -1745,7 +1747,7 @@ async function buildTelegramCouponPng(match: any, pred: any): Promise<Uint8Array
 
           <div style="padding:18px 22px 16px 22px;display:flex;flex-direction:column;box-sizing:border-box;gap:10px;">
             <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
-              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Cote :</div>
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">${escapeHtml(oddsLabel)} :</div>
               <div style="display:flex;font-size:35px;font-weight:900;color:#1D3D56;">${escapeHtml(stats.oddsText)}</div>
             </div>
             <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
@@ -2399,6 +2401,7 @@ async function buildTelegramValidationPng(
   const scoreSmall = `${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)} (${safeNumber(match?.home_score, 0)}:${safeNumber(match?.away_score, 0)})`;
   const selectionText = buildTelegramSelectionText(pred);
   const baseStats = deriveTelegramSlipStats(pred);
+  const oddsLabel = pred?.pricing_mode === "external_live" ? "Cote bookmaker" : "Cote modèle";
   const eventDateText = formatTelegramSlipDateTime(match);
   const elapsed = formatTelegramClock(minute);
   const slipNumber = String(pred?.id ?? pred?.prediction_id ?? match?.id ?? buildCanonicalMatchId(match)).replace(/[^0-9A-Za-z]/g, "").slice(-12) || "87751346361";
@@ -2470,7 +2473,7 @@ async function buildTelegramValidationPng(
 
           <div style="padding:18px 22px 16px 22px;display:flex;flex-direction:column;box-sizing:border-box;gap:10px;">
             <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
-              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">Cotes:</div>
+              <div style="display:flex;font-size:33px;font-weight:700;color:#8296A7;">${escapeHtml(oddsLabel)}:</div>
               <div style="display:flex;font-size:35px;font-weight:900;color:#1D3D56;">${escapeHtml(baseStats.oddsText)}</div>
             </div>
             <div style="display:flex;flex-direction:row;justify-content:space-between;align-items:center;">
@@ -4649,7 +4652,7 @@ async function validatePredictionsInPlay(
 
   const { data: pending, error } = await supabase
     .from("live_predictions")
-    .select("id, match_id, match_name, prediction_type, threshold, validated, telegram_sent, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa")
+    .select("id, match_id, match_name, prediction_type, threshold, validated, telegram_sent, created_at, signal_home_score, signal_away_score, signal_minute, signal_half1_home, signal_half1_away, signal_half2_home, signal_half2_away, live_odds, stake_fcfa, potential_gain_fcfa, pricing_mode, model_fair_odds, bookmaker_odds")
     .eq("validated", false);
 
   if (error) throw error;
