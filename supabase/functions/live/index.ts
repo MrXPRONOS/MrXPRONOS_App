@@ -1503,34 +1503,16 @@ function telegramMarketLabel(type: unknown) {
 }
 
 function telegramCalculatedLiveOdds(pred: any) {
-  const explicit = [
-    pred?.odds,
-    pred?.odd,
-    pred?.cote,
-    pred?.live_odds,
-    pred?.bookmaker_odds,
-  ]
-    .map(Number)
-    .find((v) => Number.isFinite(v) && v > 1);
+  const bookmaker = pickTelegramNumber(pred?.bookmaker_odds, pred?.external_live_odds);
+  if (bookmaker !== null && bookmaker > 1) return Number(bookmaker.toFixed(2));
 
-  if (explicit) return Number(explicit.toFixed(2));
-
-  const probability = Math.min(
-    0.95,
-    Math.max(0.20, safeNumber(pred?.probability, 0.78)),
+  const modelOdds = safeNumber(
+    pred?.model_fair_odds,
+    estimatedModelOdds(safeNumber(pred?.probability, 0.50)),
   );
-
-  const type = String(pred?.prediction_type ?? pred?.type ?? "");
-  const range =
-    type === "total_shots"
-      ? [1.08, 2.45]
-      : type === "total_fouls"
-      ? [1.08, 2.35]
-      : [1.08, 2.35];
-
-  return Number(
-    Math.min(range[1], Math.max(range[0], 0.94 / probability)).toFixed(2),
-  );
+  const snap = pickTelegramNumber(pred?.live_odds);
+  const odds = snap !== null && snap > 1 ? snap : modelOdds;
+  return Number(Math.min(3.20, Math.max(1.05, odds)).toFixed(2));
 }
 
 function telegramSvgLogo(
@@ -4214,14 +4196,50 @@ const LIVE_COUPON_STAKE_FCFA = 500_000;
 const formatReceiptOdds = (n:number) => n.toFixed(2);
 const formatReceiptMoney = (n:number) => formatTelegramMoney(n);
 
-// Cote INDICATIVE calculée : ne correspond pas à une cote 1xBet/Melbet vérifiée.
-function computeLiveCouponPricing(match: any, pred: any) {
-  const explicit=pickTelegramNumber(pred?.live_odds,pred?.odds,pred?.odd,pred?.cote);
-  const probability=Math.min(0.95,Math.max(0.20,safeNumber(pred?.probability,0.78)));
-  const upper=String(pred?.prediction_type??pred?.type??"")==="total_shots"?2.45:2.35;
-  const odds=explicit!==null&&explicit>1?Number(explicit.toFixed(2)):
-    Number(Math.min(upper,Math.max(1.08,0.94/probability)).toFixed(2));
-  return {odds,potentialGain:Math.round(LIVE_COUPON_STAKE_FCFA*odds),source:explicit!==null&&explicit>1?"provided":"calculated"};
+// Pricing V2: une cote externe est bookmaker; sinon la cote affichée est la fair odd du modèle.
+async function fetchExternalLivePropOdds(match: any, pred: any) {
+  if (!LIVE_PROP_ODDS_URL) return null;
+  try {
+    const url = new URL(LIVE_PROP_ODDS_URL);
+    url.searchParams.set("match_id", String(match?.id ?? ""));
+    url.searchParams.set("market", String(pred?.type ?? pred?.prediction_type ?? ""));
+    url.searchParams.set("line", String(pred?.threshold ?? ""));
+    url.searchParams.set("minute", String(pred?.minute ?? match?.current_minute ?? 0));
+    const headers: Record<string,string> = { Accept: "application/json" };
+    if (LIVE_PROP_ODDS_TOKEN) headers.Authorization = "Bearer " + LIVE_PROP_ODDS_TOKEN;
+    const res = await fetch(url.toString(), { headers });
+    if (!res.ok) return null;
+    const body = await res.json().catch(() => null);
+    const raw = body?.odds ?? body?.price ?? body?.decimal_odds ?? body?.data?.odds ?? body?.data?.price ?? body?.data?.decimal_odds;
+    const odds = Number(raw);
+    if (!Number.isFinite(odds) || odds <= 1.01 || odds > 25) return null;
+    return { odds: Number(odds.toFixed(2)), source: String(body?.source || body?.bookmaker || "external_live") };
+  } catch (e) {
+    console.warn("LIVE prop odds provider unavailable:", e);
+    return null;
+  }
+}
+
+async function computeLiveCouponPricing(match: any, pred: any) {
+  const probability = Math.min(0.95, Math.max(0.05, safeNumber(pred?.probability, 0.50)));
+  const modelFairOdds = Number(safeNumber(pred?.model_fair_odds, estimatedModelOdds(probability)).toFixed(2));
+  const explicit = pickTelegramNumber(pred?.bookmaker_odds, pred?.external_live_odds);
+  const external = explicit !== null && explicit > 1
+    ? { odds: Number(explicit.toFixed(2)), source: "provided_bookmaker" }
+    : await fetchExternalLivePropOdds(match, pred);
+  const bookmakerOdds = external?.odds ?? null;
+  const rawDisplayOdds = bookmakerOdds ?? modelFairOdds;
+  const receiptOdds = Number(Math.min(3.20, Math.max(1.05, rawDisplayOdds)).toFixed(2));
+  const impliedProbability = bookmakerOdds ? Number((1 / bookmakerOdds).toFixed(6)) : null;
+  const edge = impliedProbability != null ? Number((probability - impliedProbability).toFixed(6)) : null;
+  const expectedValue = bookmakerOdds ? Number((probability * bookmakerOdds - 1).toFixed(6)) : null;
+  return {
+    odds: receiptOdds,
+    potentialGain: Math.round(LIVE_COUPON_STAKE_FCFA * receiptOdds),
+    source: external ? external.source : "model_fair_odds",
+    pricingMode: external ? "external_live" : "model_only",
+    modelFairOdds, bookmakerOdds, impliedProbability, edge, expectedValue,
+  };
 }
 
 function signalPeriodCapture(match:any){
@@ -4255,10 +4273,26 @@ async function savePrediction(
   pred.home_score = pred.home_score ?? match.home_score ?? 0;
   pred.away_score = pred.away_score ?? match.away_score ?? 0;
 
-  const livePricing = computeLiveCouponPricing(match, pred);
+  const livePricing = await computeLiveCouponPricing(match, pred);
   pred.live_odds = livePricing.odds;
+  pred.model_fair_odds = livePricing.modelFairOdds;
+  pred.bookmaker_odds = livePricing.bookmakerOdds;
+  pred.implied_probability = livePricing.impliedProbability;
+  pred.edge = livePricing.edge;
+  pred.expected_value = livePricing.expectedValue;
+  pred.pricing_mode = livePricing.pricingMode;
   pred.stake_fcfa = LIVE_COUPON_STAKE_FCFA;
   pred.potential_gain_fcfa = livePricing.potentialGain;
+
+  if (livePricing.pricingMode === "external_live") {
+    const minEdge = pred.signal_tier === "high_value" ? 0.12 : pred.signal_tier === "value" ? 0.08 : 0.05;
+    const edge = safeNumber(livePricing.edge, -1);
+    const ev = safeNumber(livePricing.expectedValue, -1);
+    if (edge < minEdge || ev <= 0) {
+      console.log("Value gate: signal rejected against bookmaker price", { match_id: matchId, threshold: thresholdNum, edge, ev, minEdge });
+      return { created: false, id: null, skipped: "no_bookmaker_value" };
+    }
+  }
 
   const payload: any = {
     match_id: matchId,
@@ -4284,10 +4318,27 @@ async function savePrediction(
     message: pred.message,
 
     threshold: thresholdNum,
-    projected_value: signalValue,
+    signal_value: signalValue,
+    projected_value: safeNumber(pred.projected_value, signalValue),
     current_value: signalValue,
 
-    confidence: pred.probability >= 0.84 ? "high" : "medium",
+    reliability_score: safeNumber(pred.reliability, 0),
+    model_fair_odds: livePricing.modelFairOdds,
+    bookmaker_odds: livePricing.bookmakerOdds,
+    implied_probability: livePricing.impliedProbability,
+    edge: livePricing.edge,
+    expected_value: livePricing.expectedValue,
+    value_score: computeValueScore(match, [{ ...pred, bookmaker_odds: livePricing.bookmakerOdds }]),
+    data_quality_score: safeNumber(pred.data_quality_score, match?.data_quality_score ?? 0),
+    freshness_seconds: Number.isFinite(safeNumber(pred.freshness_seconds, NaN)) ? safeNumber(pred.freshness_seconds, 0) : null,
+    signal_tier: pred.signal_tier ?? null,
+    pricing_mode: livePricing.pricingMode,
+    line_candidate_count: safeNumber(pred.line_candidate_count, 0),
+    line_candidate_rank: safeNumber(pred.line_candidate_rank, 0),
+    line_candidates: pred.line_candidates ?? null,
+    model_version: pred.model_version ?? LIVE_VALUE_MODEL_VERSION,
+
+    confidence: safeNumber(pred.reliability, 0) >= 80 ? "high" : "medium",
     validated: false,
     outcome: null,
 
@@ -4308,11 +4359,19 @@ async function savePrediction(
   });
   if (existingRunning) return { created: false, id: existingRunning };
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("live_predictions")
     .insert({ ...payload, created_at: new Date().toISOString() })
     .select("id")
     .single();
+
+  if (error && isUndefinedColumnError(error)) {
+    const legacyPayload = { ...payload };
+    for (const key of ["signal_value","reliability_score","model_fair_odds","bookmaker_odds","implied_probability","edge","expected_value","value_score","data_quality_score","freshness_seconds","signal_tier","pricing_mode","line_candidate_count","line_candidate_rank","line_candidates","model_version","final_value","headroom"]) delete legacyPayload[key];
+    const retry = await supabase.from("live_predictions").insert({ ...legacyPayload, created_at: new Date().toISOString() }).select("id").single();
+    data = retry.data;
+    error = retry.error;
+  }
 
   if (error) {
     if (isDuplicateKeyError(error)) {
@@ -4345,7 +4404,7 @@ Pronostic: ${pred.title}
 Minute du signal: ${payload.minute}'
 Pronostic (seuil): ${payload.threshold}
 Au signal: ${signalValue}
-Cote calculée: ${formatReceiptOdds(livePricing.odds)}
+Cote ${livePricing.pricingMode === "external_live" ? "bookmaker" : "modèle"}: ${formatReceiptOdds(livePricing.odds)}
 Mise coupon: ${formatReceiptMoney(LIVE_COUPON_STAKE_FCFA)}`,
     priority: pred.probability >= 0.86 ? "urgent" : "normal",
     read: false,
@@ -4407,6 +4466,8 @@ async function updatePredictionSafe(predId: string, values: any) {
     const cleaned = { ...values };
     delete cleaned.validation_type;
     delete cleaned.validated_at; // if missing
+    delete cleaned.final_value;
+    delete cleaned.headroom;
     const { error: e2 } = await supabase.from("live_predictions").update(cleaned).eq("id", predId);
     if (!e2) return true;
     throw e2;
@@ -4437,6 +4498,8 @@ async function validatePredictionWithMerge(params: {
     validated: true,
     outcome: params.outcome,
     current_value: params.currentValue,
+    final_value: params.currentValue,
+    headroom: Number((params.currentValue - threshold).toFixed(2)),
     validated_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     validation_type: params.validation_type,
@@ -4458,6 +4521,8 @@ async function validatePredictionWithMerge(params: {
       const cleaned = { ...values };
       delete cleaned.validation_type;
       delete cleaned.validated_at;
+      delete cleaned.final_value;
+      delete cleaned.headroom;
       const retry = await supabase
         .from("live_predictions")
         .update(cleaned)
