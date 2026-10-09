@@ -56,6 +56,9 @@ SET final_value = COALESCE(final_value, current_value),
 WHERE validated = true
   AND current_value IS NOT NULL
   AND threshold IS NOT NULL
+  -- Une perte ne peut être connue qu'à la fin; validation_type=final aussi.
+  -- Les succès instantanés restent NULL pour être enrichis avec la vraie valeur FT.
+  AND (validation_type = 'final' OR outcome = 'failure')
   AND (final_value IS NULL OR headroom IS NULL);
 
 -- Pour les anciennes lignes, signal_value ne peut être récupéré que si projected_value
