@@ -11,24 +11,25 @@ from math import isfinite
 from bsd_h2h import _utc
 from bsd_v2_stakes import combination_stake,gain_potentiel
 
-COMBO_MIN_ODDS=1.01
+COMBO_MIN_ODDS=1.20
 COMBO_MAX_ODDS=1.50
-SOURCES=frozenset(("bsd_consensus","bsd_bookmaker"))
+SOURCES=frozenset(("bsd_consensus","bsd_bookmaker","mrxpronos_model"))
 
 def priced_prediction(p):
     if not isinstance(p,dict):return False
     price=p.get("odds")
     return (type(price) in (int,float) and isfinite(price)
-            and COMBO_MIN_ODDS <= price < COMBO_MAX_ODDS
+            and COMBO_MIN_ODDS <= price <= COMBO_MAX_ODDS
             and p.get("selection_key") not in ("UNDER_45",None,"")
-            and p.get("odds_source") in SOURCES)
+            and p.get("odds_source") in SOURCES
+            and (p.get("odds_source")!="mrxpronos_model" or p.get("estimated_odds") is True))
 
 def match_selections(match):
     primary=match.get("prediction") or {}
     all_picks=match.get("predictions") or [primary]
     if not isinstance(all_picks,list):all_picks=[primary]
     unique={}
-    for pick in [match.get("combo_prediction"),primary,*all_picks]:
+    for pick in [primary,*all_picks]:
         if isinstance(pick,dict) and pick.get("selection_key"):
             unique.setdefault(pick["selection_key"],pick)
     return list(unique.values())

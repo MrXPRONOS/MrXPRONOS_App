@@ -34,11 +34,11 @@ def due(matches,now,min_minutes=60,max_minutes=120):
         try:dt=_utc(str(m.get("event_date") or ""))
         except (ValueError,TypeError):continue
         delta=(dt-now).total_seconds()/60
-        p=m.get("prediction") or {}
-        odds=p.get("odds")
-        valid_price=valid_standalone_prediction(p,m.get('combo_only',False)) and not m.get('combo_only',False)
+        picks=[m.get("prediction") or {},*((m.get("predictions") or [])[1:2])]
+        valid_price=any(valid_standalone_prediction(p,False) and p.get("odds",0)>1.50
+                        for p in picks if isinstance(p,dict))
         if (min_minutes<=delta<max_minutes and valid_price
-                and p.get("selection_key") and p["selection_key"]!="UNDER_45"):
+                ):
             selected.append(m)
     return sorted(selected,key=lambda m:(m["event_date"],str(m["id"])))
 
@@ -58,7 +58,7 @@ def expand_tickets(match):
     result=[]
     for idx,p in enumerate(picks):
         odds=p.get("odds")
-        if not valid_standalone_prediction(p,False):
+        if not valid_standalone_prediction(p,False) or p["odds"]<=1.50:
             continue
         variant={**match,"prediction":p}
         if idx:
