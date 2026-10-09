@@ -11,6 +11,7 @@ from bsd_markets import candidates_from_goals,realized
 from bsd_v2_card import render as render_card
 from bsd_v2_captions import gain_caption,PARSE_MODE
 from bsd_v2_telegram import KIND,URL,headers,action_buttons
+from bsd_v2_verify_history import restore_published_matches
 
 def sent_records(session,base,key,limit=500,max_pages=12):
     """Page through pending individual selections, including second picks."""
@@ -132,6 +133,7 @@ def main():
     rows=sent_records(session,base,key)
     if not rows:
         print("BSD_V2_VERIFY: no pending published coupons");return
+    data,recovered=restore_published_matches(data,rows)
     match_index={str(m.get("id")):m for m in data.get("matches",[]) if isinstance(m,dict)}
     now=datetime.now(timezone.utc)
     days=set()
@@ -148,7 +150,7 @@ def main():
     events=official_results(client,days) if client else {}
     summary=validate(data,rows,events,now,session,token,base,key,args.dry_run)
     print("BSD_V2_VERIFY:",json.dumps({**summary,"api_calls":client.requests_made if client else 0,
-                                         "ledger_items":len(rows)}))
+                                         "ledger_items":len(rows),"historical_recovered":recovered}))
     if summary.get("delivery_errors"):raise SystemExit("Winning card delivery failed")
 
 if __name__=="__main__":
