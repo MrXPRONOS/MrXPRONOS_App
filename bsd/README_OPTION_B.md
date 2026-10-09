@@ -96,3 +96,18 @@ Toutes les légendes des images BSD V2 sont désormais construites dans `bsd/bsd
 Les variables d'équipes, les noms des marchés et autres champs BSD sont échappés avec `html.escape`. Les deux boutons Telegram restent inchangés. Tests : `bsd/test_bsd_v2_captions.py`.
 
 Ces messages sont un rendu de pronostics, pas des tickets de paris acceptés ni des garanties de gains.
+
+
+## Refonte visuelle des coupons : écran clair de référence (9 octobre 2026)
+
+- Le rendu graphique pour **Simple / Journée, Coupons nuit, Gagnant, Combiné** partage les fonctions du nouveau module `bsd/bsd_v2_ticket_ui.py`.
+- Palette blanche et gris pâle, bleus de la référence, barre supérieure, informations du coupon, cinq lignes de synthèse, sous-carte par match, noms/logos/VS/noms et séparateurs fins.
+- Les logos des deux équipes sont récupérés de sources BSD autorisées ; si le vrai logo n'est pas disponible, un rond neutre avec les initiales remplace le logo (il est interdit d'inventer un écusson).
+- Les identifiants visuels enlèvent les préfixes techniques `bsd:` / `combo:` ; la référence complète reste identique pour les traitements internes.
+- En raison du caractère **prévisionnel** des coupons MR XPRONOS, la disposition visuelle est celle de la référence mais le statut indique **Simulation** ou **Pronostic gagnant**, pas « Accepté/Payé » : ces derniers prétendraient à tort qu'un bookmaker a réellement validé ou réglé un pari. La ligne « Versé » reste à « — » car aucun dépôt ni règlement n'est vérifié.
+- Les mises et gains sont donnés à titre théorique selon `bsd_v2_stakes.py`. Le rappel 18+ reste dans la légende Telegram.
+- Nom de ligue : ne jamais répéter `Football. Football`. Les ligues sont reprises directement des événements BSD, de l'ancien feed ou recherchées dans le catalogue officiel `/leagues/` avec pagination limitée. En dernier recours, « Football · Compétition n° … » est affiché si seul un identifiant est connu.
+- **Aucune modification** de la sélection du marché, des cotes réelles BSD, des règles de combiné, des seuils de confiance ni des horaires Telegram.
+- Tests ajoutés : `bsd/test_bsd_v2_ticket_ui.py`, en complément des tests des images simples et combinées adaptés aux dimensions (1080×1080 et 1080×1580).
+
+**Vérification finale du design :** les fichiers et tests ont été enregistrés sur GitHub, mais les jobs GitHub Actions et un envoi image réel doivent être observés avant de confirmer une reproduction visuelle intégrale.
