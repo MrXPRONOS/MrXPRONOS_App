@@ -61,6 +61,8 @@ const BSD_IMG_BASE = "https://sports.bzzoiro.com/img";
 
 const ESPN_SCOREBOARD_URL =
   "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard";
+const ESPN_SUMMARY_URL =
+  "https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary";
 
 // Active/désactive l’agrégation ESPN sans toucher au code.
 // Par défaut : activé.
@@ -5695,6 +5697,171 @@ async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
 }
 
 
+async function getStoredMergedContextForPrediction(pred: any) {
+  try {
+    const { data, error } = await supabase
+      .from(T_STATS_MERGED)
+      .select("primary_match_id, event_date, home_team, away_team, is_finished, minute, merged_stats, merged_match_json, updated_at")
+      .eq("primary_match_id", String(pred?.match_id ?? ""))
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) return null;
+    return data || null;
+  } catch {
+    return null;
+  }
+}
+
+function requiredMarketStatKey(predictionType: string) {
+  if (predictionType === "total_corners") return "corner_kicks";
+  if (predictionType === "total_shots") return "total_shots";
+  if (predictionType === "total_fouls") return "fouls";
+  return null;
+}
+
+function hasRequiredFinalStats(stats: any, predictionType: string) {
+  const key = requiredMarketStatKey(predictionType);
+  return key ? hasCompleteStatPair(stats, key) : false;
+}
+
+async function fetchEspnSummary(eventId: string) {
+  const url = new URL(ESPN_SUMMARY_URL);
+  url.searchParams.set("event", eventId);
+  const res = await fetch(url.toString(), {
+    headers: {
+      "User-Agent": "Mozilla/5.0 MrXPRONOS-ESPN-Final/1.0",
+      "Accept": "application/json,text/plain,*/*",
+    },
+  });
+  if (!res.ok) return null;
+  return res.json().catch(() => null);
+}
+
+function mergeEspnSummaryStatsIntoEvent(event: any, summary: any) {
+  if (!event || !summary) return event;
+  const competition = event?.competitions?.[0];
+  if (!competition) return event;
+  const boxTeams = Array.isArray(summary?.boxscore?.teams) ? summary.boxscore.teams : [];
+  if (!boxTeams.length) return event;
+
+  const competitors = (competition?.competitors || []).map((competitor: any) => {
+    const teamId = String(competitor?.team?.id || "");
+    const box = boxTeams.find((x: any) => String(x?.team?.id || "") === teamId);
+    if (!box) return competitor;
+    return { ...competitor, statistics: box?.statistics || competitor?.statistics || [] };
+  });
+
+  return {
+    ...event,
+    competitions: [{ ...competition, competitors }],
+  };
+}
+
+async function fetchEspnFinalForPrediction(pred: any, stored: any) {
+  const reference = stored?.merged_match_json || {
+    home_team: pred?.home_team,
+    away_team: pred?.away_team,
+    league_name: pred?.league_name,
+    event_date: stored?.event_date || pred?.created_at,
+  };
+  const dateKey = toDateKey(stored?.event_date || pred?.created_at);
+
+  try {
+    const scoreboard = await fetchEspnScoreboard(dateKey, false);
+    const events = Array.isArray(scoreboard?.events) ? scoreboard.events : [];
+    const knownEspnId = String(
+      stored?.merged_match_json?.raw_data?.merge_meta?.espn_match_id ||
+      stored?.merged_match_json?.raw_data?.event_id ||
+      "",
+    );
+
+    let rawEvent: any = null;
+    if (knownEspnId) rawEvent = events.find((e: any) => String(e?.id || "") === knownEspnId) || null;
+
+    if (!rawEvent) {
+      let bestScore = 0;
+      for (const event of events) {
+        const normalized = normalizeEspnEventToOriginalMatch(event);
+        if (!normalized) continue;
+        const score = sameMatchScore(reference, normalized);
+        if (score > bestScore) {
+          bestScore = score;
+          rawEvent = event;
+        }
+      }
+      if (bestScore < 0.65) rawEvent = null;
+    }
+
+    if (!rawEvent) return null;
+    let normalized = normalizeEspnEventToOriginalMatch(rawEvent);
+    if (!normalized?.is_finished) return null;
+
+    if (!hasRequiredFinalStats(normalized?.live_stats, String(pred?.prediction_type || ""))) {
+      const summary = await fetchEspnSummary(String(rawEvent?.id || ""));
+      if (summary) {
+        rawEvent = mergeEspnSummaryStatsIntoEvent(rawEvent, summary);
+        normalized = normalizeEspnEventToOriginalMatch(rawEvent);
+      }
+    }
+
+    if (!normalized?.is_finished) return null;
+    if (!hasRequiredFinalStats(normalized?.live_stats, String(pred?.prediction_type || ""))) return null;
+    return normalized;
+  } catch (e) {
+    console.warn("ESPN final lookup failed:", e);
+    return null;
+  }
+}
+
+async function resolveFinalEventAndStats(pred: any) {
+  const predictionType = String(pred?.prediction_type || "");
+  const isHistoricalValidated = pred?.validated === true;
+  const stored = await getStoredMergedContextForPrediction(pred);
+
+  // Pour l’historique déjà validé, ESPN est plus fiable que BSD pour retrouver
+  // un match qui a disparu du catalogue événementiel BSD.
+  if (isHistoricalValidated) {
+    const espn = await fetchEspnFinalForPrediction(pred, stored);
+    if (espn) return { event: espn, stats: espn.live_stats, source: "espn_final" };
+  }
+
+  try {
+    const bsdEvent = await fetchBSD(`/events/${pred.match_id}/`);
+    if (isFinishedEvent(bsdEvent)) {
+      let stats = bsdEvent?.live_stats || null;
+      if (!hasRequiredFinalStats(stats, predictionType)) {
+        try {
+          const finalStatsPayload = await fetchBSD(`/events/${pred.match_id}/stats/`);
+          stats = normalizeBsdStatsPayload(finalStatsPayload);
+        } catch {}
+      }
+      if (hasRequiredFinalStats(stats, predictionType)) {
+        return { event: bsdEvent, stats, source: "bsd_final" };
+      }
+    }
+  } catch {}
+
+  if (!isHistoricalValidated) {
+    const espn = await fetchEspnFinalForPrediction(pred, stored);
+    if (espn) return { event: espn, stats: espn.live_stats, source: "espn_final" };
+  }
+
+  // Dernier recours uniquement si notre snapshot fusionné est explicitement FT.
+  if (stored?.is_finished === true && hasRequiredFinalStats(stored?.merged_stats, predictionType)) {
+    const event = stored?.merged_match_json || {
+      id: pred?.match_id,
+      home_team: pred?.home_team,
+      away_team: pred?.away_team,
+      is_finished: true,
+      live_stats: stored?.merged_stats,
+    };
+    return { event, stats: stored.merged_stats, source: "stored_final" };
+  }
+
+  return null;
+}
+
 async function validatePredictionsNow() {
   // Sépare les prédictions courantes du backlog historique afin qu’un groupe
   // de matchs récents non terminés ne bloque jamais les anciennes lignes.
@@ -5750,30 +5917,13 @@ async function validatePredictionsNow() {
   for (const pred of pending) {
     // Le coupon accepté doit toujours précéder le résultat.
     if(pred.telegram_sent!==true){skipped++;continue;}
-    let ev: any = null;
-    try {
-      ev = await fetchBSD(`/events/${pred.match_id}/`);
-    } catch {
-      bumpSkip("event_fetch_failed");
+    const resolvedFinal = await resolveFinalEventAndStats(pred);
+    if (!resolvedFinal) {
+      bumpSkip("final_source_unavailable");
       continue;
     }
-
-    if (!isFinishedEvent(ev)) {
-      bumpSkip("event_not_finished");
-      continue;
-    }
-
-    let stats = ev.live_stats || null;
-    if (!stats) {
-      try {
-        const finalStatsPayload = await fetchBSD(`/events/${pred.match_id}/stats/`);
-        stats = normalizeBsdStatsPayload(finalStatsPayload);
-      } catch (e) {
-        console.warn("Final detailed stats unavailable, cache fallback:", e);
-      }
-    }
-    if (!stats) stats = await getCachedLiveStats(String(pred.match_id));
-    if (!stats) { bumpSkip("final_stats_missing"); continue; }
+    const ev: any = resolvedFinal.event;
+    const stats: any = resolvedFinal.stats;
 
     const threshold = safeNumber(pred.threshold, 0);
     let finalValue = 0;
