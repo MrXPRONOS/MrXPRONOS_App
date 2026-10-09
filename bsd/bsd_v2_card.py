@@ -184,6 +184,7 @@ def _odds(match):
     try:
         odds=float(odds)
         if not (1.01<=odds<=100 and p.get("odds_source") in ALLOWED_ODD_SOURCES and
+                (odds>=1.20 or p.get("odds_source")=="mrxpronos_model") and
                 (p.get("odds_source")!="mrxpronos_model" or p.get("estimated_odds") is True)):
             return None
         return odds
