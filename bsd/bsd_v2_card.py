@@ -162,63 +162,6 @@ def _odds(match):
     except (ValueError,TypeError):return None
 
 def render(match,output,*,win=False,stake=None,now=None,session=None):
-    now=now or datetime.now(timezone.utc)
-    kickoff=_utc(match["event_date"])
-    pred=match.get("prediction") or {}
-    odds=_odds(match)
-    price=f"{odds:.2f}" if odds is not None else "Indisponible"
-    if stake is None:
-        stake=single_stake(odds)
-    gross=money(gain_potentiel(stake,odds))
-    image=Image.new("RGB",(W,H),"#f0f2f5")
-    d=ImageDraw.Draw(image)
-    d.rectangle((0,0,W,128),fill="#070707")
-    # Use the brand's original image files already committed to the site.
-    paste_asset(image,BRAND_ONE,28,32,224,65,required=True)
-    write(d,"ou",280,52,size=30,color="#dfdfdf")
-    paste_asset(image,BRAND_TWO,336,32,244,65,required=True)
-    d.rounded_rectangle((630,28,1050,101),radius=9,fill="#ffda34")
-    write(d,"Code Promo: XPVIP",839,47,size=31,bold=True,color="#121212",align="center")
-    d.rounded_rectangle((18,145,1062,1270),radius=26,fill="#ffffff",outline="#dce3e8",width=2)
-    paste_asset(image,BALL,50,181,104,104,required=True)
-    write(d,now.strftime("%d.%m.%Y (%H:%M)"),181,181,size=31,color=MUTED)
-    write(d,"Simple",181,226,size=51,bold=True)
-    write(d,"N° "+str(match.get("id") or "—"),181,297,size=28,maximum=815)
-    d.line((34,376,1046,376),fill=BORDER,width=3)
-    # Aligned left/right financial summary; "gain" is projected, not confirmed payment.
-    rows=(("Cotes:",price),("Mise indicative:",money(stake)),
-          ("Gains potentiels:",gross),
-          ("Statut:","Pronostic gagnant" if win else "Pronostic"))
-    for i,(key,value) in enumerate(rows):
-        y=408+i*64
-        write(d,key,56,y,size=31,color=MUTED)
-        write(d,value,1018,y,size=31,bold=i<3,color=GREEN if win and i==3 else INK,align="right")
-    d.rounded_rectangle((18,690,1062,1210),radius=24,fill="#ffffff",outline=BORDER,width=2)
-    paste_asset(image,BALL,54,727,70,70,required=True)
-    write(d,"Football. "+str(match.get("league") or "Compétition"),136,722,
-          size=29,color=MUTED,maximum=840)
-    write(d,kickoff.strftime("%d.%m.%Y (%H:%M UTC)"),136,764,size=25,color=MUTED)
-    # Ticket arrangement: left name -> left crest -> VS/score -> right crest -> right name.
-    left=str(match.get("home_team") or "Équipe domicile")
-    right=str(match.get("away_team") or "Équipe extérieur")
-    y_center=908
-    for line_index,line in enumerate(wrap_name(d,left,264,size=33)):
-        write(d,line,281,y_center-52+line_index*43,size=33,bold=True,align="right",maximum=255)
-    team_logo(image,d,match,"home",302,y_center-50,session=session)
-    middle=(str(match.get("home_score"))+":"+str(match.get("away_score"))) if win else "VS"
-    write(d,middle,540,y_center-39,size=52,bold=True,align="center",maximum=175)
-    team_logo(image,d,match,"away",686,y_center-50,session=session)
-    for line_index,line in enumerate(wrap_name(d,right,255,size=33)):
-        write(d,line,795,y_center-52+line_index*43,size=33,bold=True,maximum=255)
-    d.line((56,1019,1022,1019),fill=BORDER,width=2)
-    write(d,market_label(pred.get("selection_key"),pred.get("type") or pred.get("label") or "Pronostic"),58,1044,
-          size=31,bold=True,maximum=740)
-    write(d,price,1020,1044,size=31,bold=True,align="right")
-    write(d,"Statut:",58,1125,size=29,color=MUTED)
-    write(d,"Gain" if win else "Pronostic",1017,1125,size=32,
-          color=GREEN if win else INK,bold=win,align="right")
-    write(d,"Parier responsablement.",540,1234,size=23,color=MUTED,align="center")
-    destination=Path(output)
-    destination.parent.mkdir(parents=True,exist_ok=True)
-    image.save(destination,"PNG",optimize=True)
-    return destination
+    """All simple/day/night/winning cards share the reference-style layout."""
+    from bsd_v2_ticket_ui import render_single
+    return render_single(match,output,win=win,stake=stake,now=now,session=session)
