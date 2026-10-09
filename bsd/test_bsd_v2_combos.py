@@ -145,6 +145,7 @@ class CombosTests(unittest.TestCase):
                 self.patches.append(kwargs)
                 class Response:
                     def raise_for_status(self):pass
+                    def json(self):return [{"id":10}]
                 return Response()
         session=FakeHTTP()
         with patch("bsd_v2_verify_telegram.post_gain",return_value=411) as post:
@@ -153,7 +154,7 @@ class CombosTests(unittest.TestCase):
         self.assertEqual(counts["wins_sent"],1)
         self.assertEqual(counts["losses_silent"],1)
         self.assertEqual(post.call_count,1)
-        self.assertEqual(len(session.patches),2)
+        self.assertEqual(len(session.patches),4)
 
     def test_combo_dark_image_generated_offline(self):
         combo=build_combos([match(1,40),match(2,50)])[0]
