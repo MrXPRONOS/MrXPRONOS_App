@@ -29,6 +29,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "bsd"))
 sys.path.insert(0, str(ROOT / "scripts"))
 from bsd_api import BSDClient, BSDAPIError  # noqa: E402
+from telegram_rich import post_photo, post_text  # noqa: E402
 
 TZ = ZoneInfo("Africa/Lome")
 STATE_PATH = Path(os.getenv("FOOTBALL_NEWS_STATE", ".state/mrxpronos-football.json"))
@@ -258,6 +259,7 @@ class Publication:
     text: str
     poll: tuple[str, list[str]] | None = None
     card: dict[str, Any] | None = None
+    keyboard: dict[str, Any] | None = None
 
 
 class Sender:
@@ -305,56 +307,54 @@ class Sender:
             print("COMMENTAIRES_NON_LIES publication autorisee car FOOTBALL_REQUIRE_COMMENTS=0")
         return self.linked_chat_id
 
-    def send(self, item: Publication) -> None:
+    def send(self, item: Publication) -> int | None:
         if self.dry_run:
-            print("DRY_RUN", item.category, item.key, item.text[:500])
+            print("DRY_RUN", item.category, item.key, plain(item.text, 900))
             if item.poll:
                 print("DRY_RUN_POLL", item.poll)
-            return
+            if item.keyboard:
+                print("DRY_RUN_BUTTONS", json.dumps(item.keyboard, ensure_ascii=False))
+            return None
         self.verify_discussion()
-        method = "sendPoll" if item.poll else "sendMessage"
-        data: dict[str, Any] = {"chat_id": self.chat}
-        files = None
-        card_dir = None
-        if item.card and not item.poll:
-            from football_cards import render_card
-            card_dir = tempfile.TemporaryDirectory(prefix="xpronos-news-")
-            try:
-                graphic = render_card(item.category, item.card,
-                                      Path(card_dir.name) / "publication.png")
-                # Telegram limite la légende des photos à 1024 caractères :
-                # un résumé court en texte brut évite toute balise HTML coupée.
-                caption = plain(item.text.replace("<br>", " "), 840)
-                data.update(caption=caption)
-                method = "sendPhoto"
-                files = {"photo": ("mrxpronos.png", graphic.open("rb"), "image/png")}
-            except Exception:
-                card_dir.cleanup()
-                raise
+
         if item.poll:
             question, options = item.poll
-            data.update(question=question[:300],
-                        options=json.dumps(options, ensure_ascii=False),
-                        is_anonymous="true", allows_multiple_answers="false")
-        elif not item.card:
-            data.update(text=item.text[:3900], parse_mode="HTML",
-                        disable_web_page_preview="false")
-        # Aucun retry automatique ambigu : Telegram peut avoir reçu le message.
-        try:
             response = self.session.post(
-                "https://api.telegram.org/bot" + self.token + "/" + method,
-                data=data, files=files, timeout=(12, 55),
+                "https://api.telegram.org/bot" + self.token + "/sendPoll",
+                data={
+                    "chat_id": self.chat,
+                    "question": question[:300],
+                    "options": json.dumps(options, ensure_ascii=False),
+                    "is_anonymous": "true",
+                    "allows_multiple_answers": "false",
+                },
+                timeout=(12, 55),
             )
             response.raise_for_status()
             payload = response.json()
-        finally:
-            if files:
-                files["photo"][1].close()
-            if card_dir:
-                card_dir.cleanup()
-        if payload.get("ok") is not True:
-            raise RuntimeError("Telegram n'a pas confirmé l'envoi: " + str(payload.get("description", ""))[:180])
-        identifier = payload.get("result", {}).get("message_id")
+            if payload.get("ok") is not True:
+                raise RuntimeError("Telegram n'a pas confirmé le sondage")
+            identifier = payload.get("result", {}).get("message_id")
+            print("ENVOYE", item.category, item.key, "message_id", identifier)
+            return identifier
+
+        if item.card:
+            from football_cards import render_card
+            with tempfile.TemporaryDirectory(prefix="xpronos-news-") as tmp:
+                graphic = render_card(
+                    item.category, item.card, Path(tmp) / "publication.png"
+                )
+                identifier = post_photo(
+                    self.session, self.token, self.chat, graphic,
+                    item.text[:3500], item.keyboard or {},
+                    timeout=70, mime="image/png",
+                )
+        else:
+            identifier = post_text(
+                self.session, self.token, self.chat,
+                item.text[:3900], item.keyboard,
+                timeout=60, html=True,
+            )
         print("ENVOYE", item.category, item.key, "message_id", identifier)
         return identifier
 
@@ -404,11 +404,15 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
         msg = (
             "<b>📰 FLASH FOOT • MR XPRONOS</b>\n\n"
             "<b>" + esc(a["title"]) + "</b>\n\n"
-            + (esc(a["summary"]) + "\n\n" if a["summary"] else "")
-            + "🗞️ Source : Foot Mercato\n"
-            + '🔗 <a href="' + html.escape(a["url"], quote=True) + '">Lire l’article complet</a>'
+            + ("<i>" + esc(a["summary"]) + "</i>\n\n" if a["summary"] else "")
+            + "<blockquote><b>🗞️ SOURCE</b><br/>Foot Mercato</blockquote>\n"
+            + "<b>💬 Votre avis ?</b> <i>Réagissez dans les commentaires.</i>\n"
+            + "<i>⚽ Mr XPRONOS • L'actualité du football</i>"
         )
-        return Publication("flash", key, post_label(msg))
+        buttons = {"inline_keyboard": [[
+            {"text": "Lire sur Foot Mercato ↗", "url": a["url"], "style": "primary"}
+        ]]}
+        return Publication("flash", key, msg, keyboard=buttons)
     return None
 
 
@@ -420,14 +424,18 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
     if not future:
         return None
     chosen = future[:7]
-    lines = ["<b>📅 MATCHS DU JOUR — MR XPRONOS</b>",
-             "🕒 Heures du Togo (GMT)\n"]
-    for event in chosen:
-        label = (" • " + esc(league(event))) if league(event) else ""
-        lines.append("⚽ <b>" + esc(team(event, "home")) + " – " +
-                     esc(team(event, "away")) + "</b>\n" +
-                     "   🕒 " + time_label(kick(event)) + label)
-    lines.append("\n💬 Quel match attendez-vous le plus ?")
+    lead = chosen[0]
+    lead_league = esc(league(lead) or "Football")
+    lines = [
+        "<b>📅 MATCHS DU JOUR • MR XPRONOS</b>",
+        "<i>Les affiches phares sélectionnées parmi les rencontres BSD du jour.</i>",
+        "<blockquote><b>🔥 À L'AFFICHE</b><br/>"
+        + esc(team(lead, "home")) + " – " + esc(team(lead, "away"))
+        + "<br/><b>🕒 " + time_label(kick(lead)) + "</b> • " + lead_league
+        + "</blockquote>",
+        "<b>💬 Quel match attendez-vous le plus ?</b>",
+        "<i>Heure du Togo (GMT) • Retrouvez le programme complet sur l'image.</i>",
+    ]
     card = {"day": today.strftime("%d/%m/%Y"), "matches": [
         {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
          "league": league(e), "importance": importance(e),
@@ -435,7 +443,7 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
          "away_logo": team_visual_url(e, "away")}
         for e in chosen]}
     return Publication("programme", "programme:" + today.isoformat(),
-                       post_label("\n\n".join(lines)), card=card)
+                       "\n\n".join(lines), card=card)
 
 
 def finished_recent(events: list[dict], now: datetime) -> list[dict]:
@@ -450,17 +458,20 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
         if history.seen(key):
             continue
         a, b = final_score(e)
-        text = ("<b>🏁 RÉSULTAT FINAL • MR XPRONOS</b>\n\n"
-                + "🏆 " + esc(league(e) or "Football") + "\n\n"
-                + "⚽ <b>" + esc(team(e, "home")) + "  " + str(a) +
-                " – " + str(b) + "  " + esc(team(e, "away")) + "</b>\n\n"
-                + ("🤝 Match nul." if a == b else
-                   "🏅 Victoire de " + esc(team(e, "home") if a > b else team(e, "away")) + ".")
-                + "\n💬 Votre réaction ?")
+        outcome = ("🤝 Match nul" if a == b else
+                   "🏅 Victoire de " + esc(team(e, "home") if a > b else team(e, "away")))
+        text = (
+            "<b>🏁 RÉSULTAT FINAL • MR XPRONOS</b>\n\n"
+            "<i>" + esc(league(e) or "Football") + "</i>\n\n"
+            "<blockquote><b>⚽ " + esc(team(e, "home")) + "  " + str(a)
+            + " – " + str(b) + "  " + esc(team(e, "away")) + "</b><br/>"
+            + outcome + "</blockquote>\n"
+            "<b>💬 Votre réaction ?</b> <i>Les commentaires sont ouverts.</i>"
+        )
         card = {"day": now.astimezone(TZ).strftime("%d/%m/%Y"),
                 "league": league(e), "home": team(e, "home"),
                 "away": team(e, "away"), "scores": (a, b)}
-        return Publication("resultat", key, post_label(text), card=card)
+        return Publication("resultat", key, text, card=card)
     return None
 
 
@@ -514,7 +525,7 @@ def avant_match(events: list[dict], history: History, now: datetime,
         "• " + esc(a) + " : " + esc(form(team_id("away"), a, history_events, kick(e))),
         "\n💬 Quel scénario imaginez-vous pour cette rencontre ?",
     ]
-    return Publication("avant_match", "avant_match:" + str(e["id"]), post_label("\n".join(lines)))
+    return Publication("avant_match", "avant_match:" + str(e["id"]), "\n".join(lines))
 
 
 def statistique(events: list[dict], yesterday: date) -> Publication | None:
@@ -522,20 +533,32 @@ def statistique(events: list[dict], yesterday: date) -> Publication | None:
                 kick(e) and kick(e).astimezone(TZ).date() == yesterday]
     if not finished:
         return None
-    e = sorted(finished, key=lambda x: (-(sum(final_score(x))), -importance(x), str(x.get("id"))))[0]
+    # Privilégier une affiche pertinente plutôt que le seul total de buts.
+    # Les buts restent importants, mais la notoriété de la compétition/équipes pèse davantage.
+    e = max(
+        finished,
+        key=lambda x: (
+            importance(x) * 3 + min(sum(final_score(x)), 8) * 7,
+            importance(x),
+            sum(final_score(x)),
+            str(x.get("id")),
+        ),
+    )
     h, a = final_score(e)
+    total = h + a
     message = (
         "<b>📊 LE CHIFFRE DU JOUR • MR XPRONOS</b>\n\n"
-        + "🔢 <b>" + str(h + a) + " buts</b> dans cette rencontre d'hier :\n"
-        + "⚽ " + esc(team(e, "home")) + " <b>" + str(h) + " – " + str(a) +
-        "</b> " + esc(team(e, "away")) + "\n"
-        + "🏆 " + esc(league(e) or "Football") + "\n\n"
-        + "💬 Quel autre match d'hier vous a marqué ?"
+        "<i>La statistique marquante sélectionnée dans les résultats BSD d'hier.</i>\n\n"
+        "<blockquote><b>🔥 " + str(total) + " BUTS</b><br/>"
+        + esc(team(e, "home")) + " <b>" + str(h) + " – " + str(a) + "</b> "
+        + esc(team(e, "away")) + "<br/>"
+        + "<i>" + esc(league(e) or "Football") + "</i></blockquote>\n"
+        "<b>💬 Quel autre match d'hier vous a marqué ?</b>"
     )
     card = {"day": yesterday.strftime("%d/%m/%Y"), "league": league(e),
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a)}
     return Publication("statistique", "statistique:" + yesterday.isoformat(),
-                       post_label(message), card=card)
+                       message, card=card)
 
 
 def sondage(events: list[dict], history: History, now: datetime) -> Publication:
