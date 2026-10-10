@@ -95,7 +95,7 @@ STAT_DATE_BOX = (486, 892, 648, 942)
 FLASH_PHOTO_BOX = (79, 234, 1001, 606)  # 922 x 372
 FLASH_TITLE_BOX = (125, 644, 792, 699)
 FLASH_SOURCE_BOX = (125, 704, 603, 736)
-FLASH_DATE_BOX = (650, 704, 790, 738)
+FLASH_DATE_BOX = (884, 704, 992, 738)
 FLASH_SUMMARY_BOX = (267, 797, 956, 868)
 FLASH_CTA_BOX = (336, 932, 810, 980)
 
@@ -798,7 +798,7 @@ def render_prematch(payload: dict[str, Any]) -> Image.Image:
         PREMATCH_DATE_BOX,
         preferred_size=21,
         min_size=18,
-        bold=False,
+        bold=True,
         fill=GREY,
         max_chars=10,
     )
@@ -866,7 +866,7 @@ def render_result(payload: dict[str, Any]) -> Image.Image:
         RESULT_DATE_BOX,
         preferred_size=21,
         min_size=18,
-        bold=False,
+        bold=True,
         fill=GREY,
         max_chars=10,
     )
@@ -974,7 +974,7 @@ def render_stat(payload: dict[str, Any]) -> Image.Image:
         STAT_DATE_BOX,
         preferred_size=20,
         min_size=18,
-        bold=False,
+        bold=True,
         fill=GREY,
         max_chars=10,
     )
@@ -1024,10 +1024,10 @@ def render_flash(payload: dict[str, Any]) -> Image.Image:
         FLASH_DATE_BOX,
         preferred_size=17,
         min_size=15,
-        bold=False,
-        fill=GREY,
+        bold=True,
+        fill=WHITE,
         max_chars=10,
-        align="right",
+        align="left",
     )
 
     summary = clean(payload.get("summary"))
@@ -1038,7 +1038,7 @@ def render_flash(payload: dict[str, Any]) -> Image.Image:
         preferred_size=19,
         min_size=16,
         max_lines=3,
-        bold=False,
+        bold=True,
         fill=WHITE,
         max_chars=170,
         align="left",
@@ -1083,19 +1083,19 @@ def render_poll(payload: dict[str, Any]) -> Image.Image:
         for value in list(payload.get("image_options") or payload.get("options") or [])[:3]
     ]
 
-    question_preferred = 30 if len(question) <= 52 else 26
+    question_preferred = 36 if len(question) <= 52 else 31
     draw_multiline(
         draw,
         question,
         POLL_QUESTION_BOX,
         preferred_size=question_preferred,
-        min_size=24,
+        min_size=27,
         max_lines=2,
         bold=True,
         fill=WHITE,
         max_chars=100,
         align="center",
-        line_gap=3,
+        line_gap=4,
     )
 
     home_logo = clean(payload.get("home_logo"))
@@ -1105,13 +1105,13 @@ def render_poll(payload: dict[str, Any]) -> Image.Image:
         if index >= len(options):
             continue
         option = options[index]
-        preferred = 24 if len(option) <= 32 else 20
+        preferred = 31 if len(option) <= 24 else (27 if len(option) <= 32 else 23)
         draw_single_line(
             draw,
             option,
             box,
             preferred_size=preferred,
-            min_size=17,
+            min_size=20,
             bold=True,
             fill=WHITE,
             max_chars=45,
@@ -1119,9 +1119,9 @@ def render_poll(payload: dict[str, Any]) -> Image.Image:
 
         center = POLL_ICON_CENTERS[index]
         if index == 0 and home_logo:
-            paste_logo(image, home_logo, center, 52)
+            paste_logo(image, home_logo, center, 56)
         elif index == 2 and away_logo:
-            paste_logo(image, away_logo, center, 52)
+            paste_logo(image, away_logo, center, 56)
         elif index == 1 and option.casefold() == "match nul":
             draw.text(center, "=", font=_font(26, True), fill=GOLD, anchor="mm")
         else:
@@ -1133,7 +1133,7 @@ def render_poll(payload: dict[str, Any]) -> Image.Image:
         POLL_DATE_BOX,
         preferred_size=20,
         min_size=18,
-        bold=False,
+        bold=True,
         fill=GREY,
         max_chars=10,
     )
