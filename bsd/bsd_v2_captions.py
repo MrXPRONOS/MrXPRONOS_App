@@ -125,12 +125,12 @@ def combo_gain_caption(combo):
             f"🎯 {_selection(leg)} · 🏁 <b>{score}</b>",
         ))
     return "\n".join((
-        "<b>✅ COMBINÉ GAGNANT · MR XPRONOS</b>",
-        "<i>Les deux sélections ont été vérifiées gagnantes.</i>",
+        "<b>✅ COUPON VALIDÉ · MR XPRONOS</b>",
+        "<i>Les deux sélections ont été vérifiées et validées.</i>",
         "",
         "<blockquote>"+"\n".join(details)+"</blockquote>",
         f"📊 Cote combinée : <b>{_quote(combo.get('combined_odds'))}</b>",
-        "<i>Coupon combiné réussi.</i>",
+        "<i>Coupon combiné validé.</i>",
         "",
         _closing(),
     ))
