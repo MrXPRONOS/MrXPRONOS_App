@@ -27,6 +27,9 @@ def reference(row):
 def _market_present(match, market):
     if not market:
         return True
+    primary=match.get("prediction")
+    if isinstance(primary,dict) and primary.get("selection_key")==market:
+        return True
     return any(
         isinstance(pick, dict) and pick.get("selection_key") == market
         for pick in match.get("predictions", [])
