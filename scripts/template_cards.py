@@ -567,7 +567,6 @@ def render_programme(payload: dict[str, Any]) -> Image.Image:
         raise ValueError("Programme sans matchs")
 
     image = template("programme")
-    _prepare_programme_placeholders(image)
     draw = ImageDraw.Draw(image)
 
     draw_single_line(
@@ -621,7 +620,6 @@ def render_programme(payload: dict[str, Any]) -> Image.Image:
 
 def render_prematch(payload: dict[str, Any]) -> Image.Image:
     image = template("avant_match")
-    _prepare_prematch_placeholders(image)
     draw = ImageDraw.Draw(image)
 
     home = clean(payload.get("home"))
@@ -678,7 +676,6 @@ def render_prematch(payload: dict[str, Any]) -> Image.Image:
 
 def render_result(payload: dict[str, Any]) -> Image.Image:
     image = template("resultat")
-    _prepare_result_placeholders(image)
     draw = ImageDraw.Draw(image)
 
     home = clean(payload.get("home"))
@@ -855,7 +852,6 @@ def render_stat(payload: dict[str, Any]) -> Image.Image:
 
 def render_flash(payload: dict[str, Any]) -> Image.Image:
     image = template("flash")
-    _prepare_flash_placeholders(image)
     draw = ImageDraw.Draw(image)
 
     photo = remote_photo(payload.get("image_url", ""), _box_size(FLASH_PHOTO_BOX))
@@ -948,7 +944,6 @@ def _clean_poll_question(value: Any) -> str:
 
 def render_poll(payload: dict[str, Any]) -> Image.Image:
     image = template("sondage")
-    _prepare_poll_placeholders(image)
     draw = ImageDraw.Draw(image)
 
     question = clean(payload.get("image_question")) or _clean_poll_question(payload.get("question"))
