@@ -259,8 +259,8 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
     away_logo = clean(payload.get("away_logo", ""))
     if not home_logo or not away_logo:
         raise ValueError("Statistique sans deux logos")
-    paste_required_logo(image, home_logo, (175, 649), 115)
-    paste_required_logo(image, away_logo, (905, 649), 115)
+    paste_required_logo(image, home_logo, (175, 649), 92)
+    paste_required_logo(image, away_logo, (905, 649), 92)
 
     txt(d, home, 340, 647, size=31, bold=True, color=WHITE, anchor="mm",
         max_width=250, min_size=19)
@@ -445,11 +445,11 @@ def demo(out_dir: str | Path) -> list[Path]:
     day = date(2026, 10, 10).strftime("%d/%m/%Y")
     examples = [
         ("programme", {"day": day, "matches": [
-            {"home": "Arsenal", "away": "Chelsea", "time": "17h30"},
-            {"home": "Real Madrid", "away": "FC Barcelona", "time": "20h00"},
-            {"home": "Paris Saint-Germain", "away": "Olympique de Marseille", "time": "21h00"},
-            {"home": "Bayern Munich", "away": "Borussia Dortmund", "time": "15h30"},
-            {"home": "Inter Milan", "away": "AC Milan", "time": "19h45"},
+            {"home": "Arsenal", "away": "Chelsea", "time": "17h30", "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png", "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"},
+            {"home": "Real Madrid", "away": "FC Barcelona", "time": "20h00", "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png", "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"},
+            {"home": "Paris Saint-Germain", "away": "Olympique de Marseille", "time": "21h00", "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png", "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"},
+            {"home": "Bayern Munich", "away": "Borussia Dortmund", "time": "15h30", "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png", "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"},
+            {"home": "Inter Milan", "away": "AC Milan", "time": "19h45", "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png", "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"},
         ]}),
         ("resultat", {"day": day, "league": "Premier League", "home": "Leeds United",
                       "away": "Sunderland", "scores": [2, 1],
@@ -474,11 +474,11 @@ if __name__ == "__main__":
         from programme_styles import render_programme
         dest = Path(args.out_dir)
         payload = {"day": "10/10/2026", "matches": [
-            {"home": "Arsenal", "away": "Chelsea", "time": "17h30"},
-            {"home": "Real Madrid", "away": "FC Barcelona", "time": "20h00"},
-            {"home": "PSG", "away": "Marseille", "time": "21h00"},
-            {"home": "Bayern Munich", "away": "Borussia Dortmund", "time": "15h30"},
-            {"home": "Inter Milan", "away": "AC Milan", "time": "19h45"},
+            {"home": "Arsenal", "away": "Chelsea", "time": "17h30", "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png", "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"},
+            {"home": "Real Madrid", "away": "FC Barcelona", "time": "20h00", "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png", "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"},
+            {"home": "PSG", "away": "Marseille", "time": "21h00", "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png", "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"},
+            {"home": "Bayern Munich", "away": "Borussia Dortmund", "time": "15h30", "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png", "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"},
+            {"home": "Inter Milan", "away": "AC Milan", "time": "19h45", "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png", "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"},
         ]}
         dest.mkdir(parents=True, exist_ok=True)
         for style in range(1,8):
