@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/football_channel.py'
+      - 'scripts/football_cards.py'
       - 'tests_football_channel/**'
       - '.github/workflows/football-channel.yml'
   schedule:
@@ -46,8 +47,24 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Installer requests
-        run: python -m pip install requests
+      - name: Installer requests et Pillow
+        run: python -m pip install requests Pillow
+      - name: Previsualiser les trois cartes
+        run: python scripts/football_cards.py --demo --out-dir /tmp/mrxpronos-cards
+      - name: Verifier les dimensions des cartes
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          pictures=list(Path('/tmp/mrxpronos-cards').glob('*.png'))
+          assert len(pictures)==3, f'Expected 3 cards, got {len(pictures)}'
+          for path in pictures:
+              with Image.open(path) as image:
+                  assert image.size == (1080,1080), (path,image.size)
+                  assert image.format == 'PNG'
+                  assert path.stat().st_size < 9_000_000
+                  print('CARD_OK',path.name,image.size,path.stat().st_size)
+          PY
       - name: Tests du canal
         run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
       - name: Restaurer historique Telegram
