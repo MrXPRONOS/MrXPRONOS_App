@@ -725,10 +725,18 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true", help="Simulation sans Telegram, ni historique")
     parser.add_argument("--live-test", action="store_true",
                         help="Envoie les six rubriques TEST au vrai canal, sans historique")
+    parser.add_argument("--check-comments", action="store_true",
+                        help="Verifie le groupe de discussion lie, sans publier")
     parser.add_argument("--force", action="store_true", help="Ignorer les limites et l'historique (test manuel)")
     args = parser.parse_args()
     now = datetime.now(timezone.utc)
-    if args.live_test:
+    if args.check_comments:
+        if args.dry_run or args.force or args.live_test:
+            parser.error("--check-comments doit etre utilise seul")
+        sender = Sender(dry_run=False)
+        linked = sender.verify_discussion()
+        print("XPRONOS_COMMENTS_OK", linked)
+    elif args.live_test:
         if args.dry_run or args.force:
             parser.error("--live-test ne peut pas etre combine avec --dry-run/--force")
         run_live_test(now)
