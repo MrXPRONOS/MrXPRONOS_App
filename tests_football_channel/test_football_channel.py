@@ -142,5 +142,47 @@ class FootballChannelTests(unittest.TestCase):
                 m.run_live_test(NOW)
 
 
+    def test_commentaires_exigent_linked_chat_id(self):
+        import os
+        from unittest.mock import Mock
+        fake = Mock()
+        fake.status_code = 200
+        fake.json.return_value = {"ok": True, "result": {"id": -1001, "title": "Canal"}}
+        with patch.dict(os.environ, {
+            "FOOTBALL_NEWS_CHAT_ID": "-1001",
+            "FOOTBALL_NEWS_BOT_TOKEN": "123:fake",
+            "FOOTBALL_REQUIRE_COMMENTS": "1",
+        }):
+            sender = m.Sender()
+            sender.session.post = Mock(return_value=fake)
+            with self.assertRaises(RuntimeError):
+                sender.verify_discussion()
+
+    def test_commentaires_detectent_le_groupe_lie(self):
+        import os
+        from unittest.mock import Mock
+        fake = Mock()
+        fake.status_code = 200
+        fake.json.return_value = {"ok": True, "result": {
+            "id": -1001, "linked_chat_id": -100999
+        }}
+        with patch.dict(os.environ, {
+            "FOOTBALL_NEWS_CHAT_ID": "-1001",
+            "FOOTBALL_NEWS_BOT_TOKEN": "123:fake",
+            "FOOTBALL_REQUIRE_COMMENTS": "1",
+        }):
+            sender = m.Sender()
+            sender.session.post = Mock(return_value=fake)
+            self.assertEqual(sender.verify_discussion(), -100999)
+            self.assertEqual(sender.verify_discussion(), -100999)
+            self.assertEqual(sender.session.post.call_count, 1)
+
+    def test_appel_aux_commentaires_dans_les_posts(self):
+        post = m.programme([event(31, NOW + timedelta(hours=2))], NOW.date(), as_of=NOW)
+        self.assertIn("Donne ton avis dans les commentaires", post.text)
+        poll = m.sondage([event(32, NOW + timedelta(hours=3))], self.history, NOW)
+        self.assertIn("commente", poll.poll[0].lower())
+
+
 if __name__ == "__main__":
     unittest.main()
