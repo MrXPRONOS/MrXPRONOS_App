@@ -1228,11 +1228,11 @@
         }
       ],
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-10T10:38:00.904690+00:00",
+      "settlement_checked_at": "2026-10-10T17:21:27.576071+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-10T14:38:00.904690+00:00"
+        "next_retry_after": "2026-10-10T21:21:27.576071+00:00"
       }
     },
     {
@@ -5393,7 +5393,7 @@
       "league_id": 3,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
+      "status": "settlement_pending",
       "is_finished": false,
       "home_score": null,
       "away_score": null,
@@ -5464,7 +5464,14 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_pending": true,
+      "settlement_checked_at": "2026-10-10T17:21:27.576071+00:00",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "pending": true,
+        "next_retry_after": "2026-10-10T21:21:27.576071+00:00"
+      }
     },
     {
       "id": "bsd:580533",
@@ -28967,8 +28974,8 @@
         "average_predicted": 0.7655
       }
     },
-    "last_added": 79,
-    "updated_at": "2026-10-10T16:22:26.629619+00:00",
+    "last_added": 0,
+    "updated_at": "2026-10-10T17:21:27.576071+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08
@@ -47724,5 +47731,15 @@
       "btts": 0.0,
       "goals": 0.0
     }
+  },
+  "settlement_watchdog": {
+    "updated_at": "2026-10-10T17:21:27.576071+00:00",
+    "checked": 2,
+    "settled": 0,
+    "pending": 2,
+    "h4": 1,
+    "h8": 0,
+    "fallback": 1,
+    "detail_hits": 0
   }
 }
