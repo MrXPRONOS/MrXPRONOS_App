@@ -49,50 +49,67 @@ async def visible_controls(page, regex):
     return out
 
 async def click_target(page):
-    # Enter the Football section first so esports counters like "LoL 12"
-    # cannot be mistaken for the football market "12".
-    nav=page.locator("button,[role=button],a")
-    for i in range(min(await nav.count(),1200)):
-        n=nav.nth(i)
-        try:
-            if not await n.is_visible(timeout=60):
-                continue
-            label=(await txt(n,120)).strip()
-            if re.fullmatch(r"Football(?:\\s+\\d+)?", label, re.I):
-                await n.click(timeout=1200)
-                await page.wait_for_timeout(1800)
-                break
-        except:
+    contexts=[("main",page)]
+    for idx,fr in enumerate(page.frames):
+        if fr == page.main_frame:
             continue
+        contexts.append((f"frame_{idx}",fr))
 
-    nodes=page.locator("button,[role=button],a")
-    samples=[]
-    for i in range(min(await nodes.count(),2200)):
-        n=nodes.nth(i)
+    diagnostics=[]
+    for ctx_name,ctx in contexts:
         try:
-            if not await n.is_visible(timeout=60):
-                continue
-            label=await txt(n,120)
-            parent=await txt(n.locator("xpath=.."),320)
-            local=" | ".join([label,parent])
-            if DANGER.search(local):
-                continue
-            odds=ODD.findall(local)
-            # Prefer a pure decimal-odd button after entering Football.
-            pure_odd = bool(re.fullmatch(r"\\s*\\d{1,2}[.,]\\d{2,3}\\s*", label))
-            football_market = bool(TARGET.search(local) or re.search(r"\\b(?:1x2|winner|total|goals?|double chance|handicap)\\b", local, re.I))
-            if not odds or not (pure_odd or football_market):
-                continue
-            samples.append({"label":label,"context":parent[:250],"odds":odds[:4]})
-            if not odds:
-                continue
-            await n.click(timeout=1000)
-            await page.wait_for_timeout(1200)
-            return {"clicked":True,"label":label,"odd":odds[0],"context":parent[:320]},samples[:50]
+            body=(await ctx.locator("body").inner_text(timeout=2500))[:25000]
         except:
-            continue
-    return {"clicked":False},samples[:50]
+            body=""
+        diagnostics.append({"context":ctx_name,"url":getattr(ctx,"url","")[:500],"text_excerpt":re.sub(r"\\s+"," ",body)[:500]})
 
+        # Enter Football explicitly inside the current context.
+        nav=ctx.locator("button,[role=button],a")
+        for i in range(min(await nav.count(),1600)):
+            n=nav.nth(i)
+            try:
+                if not await n.is_visible(timeout=80):
+                    continue
+                label=(await txt(n,160)).strip()
+                if re.fullmatch(r"Football(?:\\s+\\d+)?", label, re.I):
+                    await n.click(timeout=1500)
+                    await page.wait_for_timeout(2200)
+                    break
+            except:
+                continue
+
+        nodes=ctx.locator("button,[role=button],a")
+        samples=[]
+        for i in range(min(await nodes.count(),2600)):
+            n=nodes.nth(i)
+            try:
+                if not await n.is_visible(timeout=80):
+                    continue
+                label=await txt(n,160)
+                parent=await txt(n.locator("xpath=.."),360)
+                local=" | ".join([label,parent])
+                if DANGER.search(local):
+                    continue
+                odds=ODD.findall(local)
+                pure_odd=bool(re.fullmatch(r"\\s*\\d{1,2}[.,]\\d{2,3}\\s*",label))
+                football_market=bool(TARGET.search(local) or re.search(r"\\b(?:1x2|winner|total|goals?|double chance|handicap)\\b",local,re.I))
+                # Avoid obvious esports contexts.
+                if re.search(r"\\b(?:LoL|CS2|Valorant|Dota|NRG|T1|G2|100 Thieves)\\b",local,re.I):
+                    continue
+                if not odds or not (pure_odd or football_market):
+                    continue
+                samples.append({"context_name":ctx_name,"label":label,"context":parent[:280],"odds":odds[:6]})
+                try:
+                    await n.click(timeout=1500)
+                    await page.wait_for_timeout(1600)
+                    return {"clicked":True,"context_name":ctx_name,"label":label,"odd":odds[0],"context":parent[:340],"diagnostics":diagnostics},samples[:60]
+                except:
+                    continue
+            except:
+                continue
+        if samples:
+            return {"clicked":False,"context_name":ctx_name,"diagnostics":diagnostics},samples[:60]
+    return {"clicked":False,"diagnostics":diagnostics},[]
 async def share_code(page):
     q=parse_qs(urlsplit(page.url).query)
     for key in ("sharebet","shareBet","shareCode","sharecode","bookingCode","code"):
@@ -150,6 +167,7 @@ async def main():
         "share_code_source":None,
         "network_candidates":[],
         "document_state":{},
+        "frames":[],
         "status":"not_started",
         "no_proxy_or_location_spoofing":True,
         "no_login_no_stake_no_wager":True
@@ -211,6 +229,24 @@ async def main():
             except Exception as exc:
                 rep["document_state"]={"error":type(exc).__name__}
             rep["network_candidates"]=network_candidates[:80]
+            frame_info=[]
+            for idx,fr in enumerate(page.frames):
+                try:
+                    text_sample=(await fr.locator("body").inner_text(timeout=2500))[:1000]
+                except:
+                    text_sample=""
+                try:
+                    html_len=await fr.evaluate("document.documentElement.outerHTML.length")
+                except:
+                    html_len=None
+                frame_info.append({
+                    "index":idx,
+                    "url":fr.url[:500],
+                    "is_main":fr==page.main_frame,
+                    "html_length":html_len,
+                    "text_excerpt":re.sub(r"\\s+"," ",text_sample).strip()[:700] or None,
+                })
+            rep["frames"]=frame_info
             rep["football_visible"]="football" in body.lower()
             if not rep["football_visible"]:
                 try:
@@ -233,7 +269,13 @@ async def main():
                 rep["market_samples"]=samples
                 if sel.get("clicked"):
                     await page.wait_for_timeout(1400)
-                    rep["share_controls"]=list(dict.fromkeys(rep["share_controls"]+await visible_controls(page,SHARE)))[:100]
+                    all_share=list(rep["share_controls"])
+                    for fr in page.frames:
+                        try:
+                            all_share += await visible_controls(fr,SHARE)
+                        except:
+                            pass
+                    rep["share_controls"]=list(dict.fromkeys(all_share))[:100]
                     code,src=await share_code(page)
                     rep["share_code"]=code
                     rep["share_code_source"]=src
