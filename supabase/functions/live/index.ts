@@ -3183,6 +3183,11 @@ function buildLivePrediction(params: {
     line_candidate_count: candidates.length,
     line_candidate_rank: selected.index + 1,
     line_candidates: candidates,
+    baseline_threshold: baseline,
+    historical_uplift_cap: upliftCap,
+    selected_uplift: baseline != null
+      ? Number((chosen.threshold - baseline).toFixed(2))
+      : null,
     model_version: LIVE_VALUE_MODEL_VERSION,
     minute,
     reasons: [
@@ -4502,6 +4507,9 @@ async function savePrediction(
     line_candidate_count: safeNumber(pred.line_candidate_count, 0),
     line_candidate_rank: safeNumber(pred.line_candidate_rank, 0),
     line_candidates: pred.line_candidates ?? null,
+    baseline_threshold: pred.baseline_threshold ?? null,
+    historical_uplift_cap: pred.historical_uplift_cap ?? null,
+    selected_uplift: pred.selected_uplift ?? null,
     model_version: pred.model_version ?? LIVE_VALUE_MODEL_VERSION,
 
     confidence: safeNumber(pred.reliability, 0) >= 80 ? "high" : "medium",
@@ -4533,7 +4541,7 @@ async function savePrediction(
 
   if (error && isUndefinedColumnError(error)) {
     const legacyPayload = { ...payload };
-    for (const key of ["signal_value","reliability_score","model_fair_odds","bookmaker_odds","implied_probability","edge","expected_value","value_score","data_quality_score","freshness_seconds","source_count","source_confidence","source_agreement_score","signal_tier","pricing_mode","line_candidate_count","line_candidate_rank","line_candidates","model_version","final_value","headroom"]) delete legacyPayload[key];
+    for (const key of ["signal_value","reliability_score","model_fair_odds","bookmaker_odds","implied_probability","edge","expected_value","value_score","data_quality_score","freshness_seconds","source_count","source_confidence","source_agreement_score","signal_tier","pricing_mode","line_candidate_count","line_candidate_rank","line_candidates","baseline_threshold","historical_uplift_cap","selected_uplift","model_version","final_value","headroom"]) delete legacyPayload[key];
     const retry = await supabase.from("live_predictions").insert({ ...legacyPayload, created_at: new Date().toISOString() }).select("id").single();
     data = retry.data;
     error = retry.error;
@@ -4925,6 +4933,9 @@ function predictionRowToUi(p: any) {
     pricing_mode: p.pricing_mode ?? null,
     line_candidate_count: p.line_candidate_count ?? null,
     line_candidate_rank: p.line_candidate_rank ?? null,
+    baseline_threshold: p.baseline_threshold ?? null,
+    historical_uplift_cap: p.historical_uplift_cap ?? null,
+    selected_uplift: p.selected_uplift ?? null,
     model_version: p.model_version ?? null,
     final_value: p.final_value ?? null,
     headroom: p.headroom ?? null,
@@ -5107,7 +5118,7 @@ async function getLiveHeadroomBacktest(days = 90) {
   const since = new Date(Date.now() - boundedDays * 86400 * 1000).toISOString();
   const { data, error } = await supabase
     .from("live_predictions")
-    .select("prediction_type, threshold, current_value, final_value, headroom, probability, reliability_score, live_odds, model_fair_odds, bookmaker_odds, odds_source, pricing_mode, signal_tier, line_candidate_count, line_candidate_rank, line_candidates, model_version, outcome, validated, telegram_sent, created_at")
+    .select("prediction_type, threshold, current_value, final_value, headroom, probability, reliability_score, live_odds, model_fair_odds, bookmaker_odds, odds_source, pricing_mode, signal_tier, line_candidate_count, line_candidate_rank, line_candidates, baseline_threshold, historical_uplift_cap, selected_uplift, model_version, outcome, validated, telegram_sent, created_at")
     .eq("validated", true)
     .eq("telegram_sent", true)
     .gte("created_at", since)
@@ -6173,6 +6184,9 @@ function enrichPredictionForUi(p: any, raw: any) {
     pricing_mode: p.pricing_mode ?? null,
     line_candidate_count: p.line_candidate_count ?? null,
     line_candidate_rank: p.line_candidate_rank ?? null,
+    baseline_threshold: p.baseline_threshold ?? null,
+    historical_uplift_cap: p.historical_uplift_cap ?? null,
+    selected_uplift: p.selected_uplift ?? null,
     model_version: p.model_version ?? null,
     final_value: p.final_value ?? null,
     headroom: p.headroom ?? null,
