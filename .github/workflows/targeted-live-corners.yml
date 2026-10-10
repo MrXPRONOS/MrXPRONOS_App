@@ -33,5 +33,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: targeted-live-corners
-          path: odds_diagnostic_results/targeted_match_probe.json
+          path: |
+            odds_diagnostic_results/targeted_match_probe.json
+            odds_diagnostic_results/*.png
           if-no-files-found: warn
