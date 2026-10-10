@@ -81,7 +81,7 @@ RESULT_HOME_NAME = (99, 594, 336, 642)
 RESULT_AWAY_NAME = (745, 594, 982, 642)
 RESULT_SCORE_BOX = (394, 437, 687, 576)
 RESULT_WINNER_BOX = (310, 663, 771, 711)
-RESULT_DATE_BOX = (508, 831, 663, 874)
+RESULT_DATE_BOX = (486, 828, 652, 878)
 
 STAT_VALUE_BOX = (356, 405, 723, 574)
 STAT_LABEL_BOX = (370, 577, 711, 613)
@@ -90,12 +90,12 @@ STAT_AWAY_LOGO = (915, 691)
 STAT_HOME_NAME = (215, 667, 431, 715)
 STAT_AWAY_NAME = (655, 667, 870, 715)
 STAT_SCORE_BOX = (463, 658, 617, 724)
-STAT_DATE_BOX = (508, 896, 655, 939)
+STAT_DATE_BOX = (486, 892, 648, 942)
 
 FLASH_PHOTO_BOX = (79, 234, 1001, 606)  # 922 x 372
 FLASH_TITLE_BOX = (125, 644, 792, 699)
 FLASH_SOURCE_BOX = (125, 704, 603, 736)
-FLASH_DATE_BOX = (736, 699, 818, 734)
+FLASH_DATE_BOX = (728, 704, 825, 738)
 FLASH_SUMMARY_BOX = (267, 797, 956, 868)
 FLASH_CTA_BOX = (336, 932, 810, 980)
 
@@ -106,7 +106,7 @@ POLL_OPTION_BOXES = (
     (293, 760, 861, 812),
 )
 POLL_ICON_CENTERS = ((155, 534), (155, 660), (155, 786))
-POLL_DATE_BOX = (491, 868, 680, 909)
+POLL_DATE_BOX = (470, 864, 670, 912)
 
 
 def clean(value: Any) -> str:
@@ -432,6 +432,60 @@ def _local_dark_patch(
     ImageDraw.Draw(image).rounded_rectangle(box, radius=radius, fill=fill)
 
 
+def _blend_erase_text(
+    image: Image.Image,
+    box: tuple[int, int, int, int],
+    *,
+    sample_px: int = 10,
+    feather: int = 6,
+) -> None:
+    """Efface un texte imprimé en reconstruisant le fond depuis les bords.
+
+    Évite les rectangles plats visibles sur le template Stat.
+    """
+    x1, y1, x2, y2 = box
+    width, height = x2 - x1, y2 - y1
+    if width <= 0 or height <= 0:
+        return
+
+    src = image.convert("RGB")
+    patch = Image.new("RGB", (width, height))
+    pd = ImageDraw.Draw(patch)
+
+    for row in range(height):
+        yy = min(max(y1 + row, 0), H - 1)
+        left_x1 = max(0, x1 - sample_px)
+        left_x2 = max(left_x1 + 1, x1 - 2)
+        right_x1 = min(W - 1, x2 + 2)
+        right_x2 = min(W, x2 + sample_px)
+        if right_x2 <= right_x1:
+            right_x1, right_x2 = min(W - 2, x2), min(W, x2 + 2)
+
+        left_crop = src.crop((left_x1, yy, left_x2, yy + 1))
+        right_crop = src.crop((right_x1, yy, right_x2, yy + 1))
+
+        def avg_color(crop: Image.Image) -> tuple[int, int, int]:
+            pixels = list(crop.getdata())
+            if not pixels:
+                return (10, 32, 50)
+            return tuple(sum(px[i] for px in pixels) // len(pixels) for i in range(3))
+
+        lc = avg_color(left_crop)
+        rc = avg_color(right_crop)
+        for col in range(width):
+            t = col / max(1, width - 1)
+            color = tuple(int(lc[i] * (1 - t) + rc[i] * t) for i in range(3))
+            pd.point((col, row), fill=color)
+
+    mask = Image.new("L", (width, height), 255)
+    md = ImageDraw.Draw(mask)
+    for i in range(min(feather, width // 2, height // 2)):
+        alpha = int(255 * (i + 1) / max(1, feather))
+        md.rectangle((i, i, width - 1 - i, height - 1 - i), outline=alpha)
+
+    image.paste(patch, (x1, y1), mask)
+
+
 def _clear_logo_placeholder(
     image: Image.Image,
     center: tuple[int, int],
@@ -748,8 +802,8 @@ def render_result(payload: dict[str, Any]) -> Image.Image:
         draw,
         payload.get("day", ""),
         RESULT_DATE_BOX,
-        preferred_size=18,
-        min_size=16,
+        preferred_size=21,
+        min_size=18,
         bold=False,
         fill=GREY,
         max_chars=10,
@@ -762,24 +816,23 @@ def _prepare_stat_placeholder_zones(image: Image.Image) -> None:
     # X dans la grande capsule.
     _gold_capsule(image, (365, 414, 714, 565), radius=26)
 
-    # BUTS / TIRS / PASSES.
-    _local_dark_patch(image, (385, 578, 700, 614), radius=4, fill="#0A2032")
+    # BUTS / TIRS / PASSES : effacement fondu, sans rectangle visible.
+    _blend_erase_text(image, (385, 578, 700, 614), sample_px=12, feather=7)
 
     # Boucliers d'exemple dans les deux cercles: préserver l'anneau gold.
     draw = ImageDraw.Draw(image)
     for cx, cy in (STAT_HOME_LOGO, STAT_AWAY_LOGO):
         draw.ellipse((cx - 31, cy - 31, cx + 31, cy + 31), fill="#0A2032")
 
-    # ÉQUIPE A / ÉQUIPE B.
-    _local_dark_patch(image, (220, 669, 432, 715), radius=4, fill="#0A2032")
-    _local_dark_patch(image, (650, 669, 861, 715), radius=4, fill="#0A2032")
+    # ÉQUIPE A / ÉQUIPE B : masquer uniquement les mots imprimés.
+    _blend_erase_text(image, (255, 676, 410, 706), sample_px=10, feather=6)
+    _blend_erase_text(image, (675, 676, 830, 706), sample_px=10, feather=6)
 
     # 0 - 0.
     _gold_capsule(image, (467, 662, 613, 720), radius=13)
 
-    # DATE, sans toucher à l'icône calendrier. La zone couvre tout le mot
-    # placeholder mais reste à droite de l'icône.
-    _local_dark_patch(image, (548, 900, 662, 941), radius=4, fill="#071A29")
+    # DATE : effacer tout le placeholder sans toucher au calendrier.
+    _blend_erase_text(image, (530, 900, 625, 936), sample_px=12, feather=6)
 
 
 def render_stat(payload: dict[str, Any]) -> Image.Image:
@@ -857,8 +910,8 @@ def render_stat(payload: dict[str, Any]) -> Image.Image:
         draw,
         payload.get("day", ""),
         STAT_DATE_BOX,
-        preferred_size=18,
-        min_size=16,
+        preferred_size=20,
+        min_size=18,
         bold=False,
         fill=GREY,
         max_chars=10,
@@ -907,12 +960,12 @@ def render_flash(payload: dict[str, Any]) -> Image.Image:
         draw,
         payload.get("day", ""),
         FLASH_DATE_BOX,
-        preferred_size=15,
-        min_size=13,
+        preferred_size=17,
+        min_size=15,
         bold=False,
         fill=GREY,
         max_chars=10,
-        align="center",
+        align="right",
     )
 
     summary = clean(payload.get("summary"))
@@ -1016,8 +1069,8 @@ def render_poll(payload: dict[str, Any]) -> Image.Image:
         draw,
         payload.get("day", ""),
         POLL_DATE_BOX,
-        preferred_size=18,
-        min_size=16,
+        preferred_size=20,
+        min_size=18,
         bold=False,
         fill=GREY,
         max_chars=10,
