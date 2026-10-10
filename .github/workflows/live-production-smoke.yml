@@ -38,6 +38,10 @@ jobs:
           history=data.get('history')
           assert isinstance(history, list), data
           print('history_count=', len(history))
+          v2=[r for r in history if r.get('model_version') == 'live-value-v2.0']
+          print('v2_history_count=', len(v2))
+          if v2:
+              print('latest_v2=', {k:v2[0].get(k) for k in ['id','type','threshold','probability','model_fair_odds','signal_tier','selected_uplift','signal_minute','final_value','headroom']})
           if history:
               row=history[0]
               expected={'signal_value','projected_value','reliability','model_fair_odds','signal_tier','pricing_mode','final_value','headroom'}
