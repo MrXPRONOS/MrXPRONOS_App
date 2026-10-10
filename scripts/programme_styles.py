@@ -229,14 +229,14 @@ def load_logo(url: str, max_px: int = 82) -> Image.Image | None:
 def team_visual(image: Image.Image, draw: ImageDraw.ImageDraw, cx: int, cy: int,
                 item: dict[str, Any], side: str, *, scale: float = .75,
                 circle: bool = False) -> None:
-    logo = load_logo(clean(item.get(side + "_logo", "")), int(92 * scale))
-    if logo:
-        if circle:
-            r = int(48 * scale)
-            draw.ellipse((cx-r, cy-r, cx+r, cy+r), fill="#071723", outline=GOLD, width=2)
-        image.paste(logo, (cx-logo.width//2, cy-logo.height//2), logo)
-    else:
-        jersey(draw, cx, cy, item.get(side, ""), scale=scale, circle=circle)
+    """Affiche uniquement un vrai logo. Aucun maillot de secours en production."""
+    logo = load_logo(clean(item.get(side + "_logo", "")), int(88 * scale))
+    if logo is None:
+        raise ValueError("Logo manquant pour " + clean(item.get(side, side)))
+    if circle:
+        r = int(46 * scale)
+        draw.ellipse((cx-r, cy-r, cx+r, cy+r), fill="#071723", outline=GOLD, width=2)
+    image.paste(logo, (cx-logo.width//2, cy-logo.height//2), logo)
 
 def background(style: int):
     image = Image.new("RGB", (W, H), NAVY)
@@ -270,8 +270,7 @@ def background(style: int):
         d.polygon([(1080,0),(900,0),(1018,355),(1080,420)], fill="#0A3159")
         d.polygon([(0,720),(110,820),(60,1080),(0,1080)], fill="#082746")
         d.polygon([(1080,720),(970,820),(1020,1080),(1080,1080)], fill="#082746")
-        d.rounded_rectangle((38, 315, 1042, 908), radius=34,
-                            fill="#071A29", outline="#6F5420", width=2)
+        # Pas de grand panneau commun ici : chaque carte dessine son propre contenu.
     elif style == 7:
         d.polygon([(0,0),(1080,0),(980,310),(100,310)], fill="#081B2A")
         d.polygon([(0,900),(1080,900),(1080,1080),(0,1080)], fill="#081C2B")
@@ -346,23 +345,23 @@ def match_texts(image, d, item, y, *, home_x=338, away_x=742, center=540, name_w
 
 def rows_style_1(image, d, rows):
     """Broadcast luxury: long rounded capsules."""
-    y0=370
+    y0=388
     for i,item in enumerate(rows[:5]):
         y=y0+i*105
         d.rounded_rectangle((64,y-43,1016,y+43), radius=32, fill="#0A2234", outline=GOLD, width=2)
-        team_visual(image, d, 112, y, item, "home", scale=.83)
-        team_visual(image, d, 968, y, item, "away", scale=.83)
+        team_visual(image, d, 112, y, item, "home", scale=.640)
+        team_visual(image, d, 968, y, item, "away", scale=.640)
         match_texts(image,d,item,y,home_x=330,away_x=750,name_width=275)
 
 
 def rows_style_2(image, d, rows):
     """Editorial minimal: circular kit badges, thin separators, lots of breathing room."""
-    y0=365
+    y0=386
     for i,item in enumerate(rows[:5]):
         y=y0+i*108
         d.rounded_rectangle((82,y-45,998,y+45), radius=28, fill="#081B28", outline="#4B6575", width=1)
-        team_visual(image, d, 130, y, item, "home", scale=.72, circle=True)
-        team_visual(image, d, 950, y, item, "away", scale=.72, circle=True)
+        team_visual(image, d, 130, y, item, "home", scale=.68, circle=True)
+        team_visual(image, d, 950, y, item, "away", scale=.68, circle=True)
         d.line((480,y-28,480,y+28),fill=GOLD2,width=1)
         d.line((600,y-28,600,y+28),fill=GOLD2,width=1)
         match_texts(image,d,item,y,home_x=325,away_x=755,name_width=270)
@@ -373,28 +372,28 @@ def rows_style_3(image, d, rows):
     # fake glass on RGB: layered blue panels + highlights
     d.rounded_rectangle((60,330,1020,894),radius=34,fill="#132D3D",outline="#718896",width=2)
     d.rounded_rectangle((75,345,1005,879),radius=28,outline="#2E556C",width=1)
-    y0=382
+    y0=398
     for i,item in enumerate(rows[:5]):
         y=y0+i*101
         if i:
             d.line((95,y-51,985,y-51),fill="#486474",width=1)
-        team_visual(image, d, 125, y, item, "home", scale=.72)
-        team_visual(image, d, 955, y, item, "away", scale=.72)
+        team_visual(image, d, 125, y, item, "home", scale=.68)
+        team_visual(image, d, 955, y, item, "away", scale=.68)
         match_texts(image,d,item,y,home_x=335,away_x=745,name_width=270,
                     time_fill="#E8B84E")
 
 
 def rows_style_4(image, d, rows):
     """Futuristic dashboard: angled tech rows."""
-    y0=370
+    y0=388
     for i,item in enumerate(rows[:5]):
         y=y0+i*104
         pts=[(65,y-42),(95,y-50),(985,y-50),(1015,y-42),(990,y+44),(90,y+44)]
         d.polygon(pts,fill="#0A2233",outline=GOLD)
         d.line((65,y-42,130,y-42),fill="#22A7F0",width=3)
         d.line((950,y+44,1015,y+44),fill="#22A7F0",width=3)
-        team_visual(image, d, 115, y, item, "home", scale=.7)
-        team_visual(image, d, 965, y, item, "away", scale=.7)
+        team_visual(image, d, 115, y, item, "home", scale=.64)
+        team_visual(image, d, 965, y, item, "away", scale=.64)
         # Hexagonal time module
         t=[(500,y-29),(580,y-29),(595,y-4),(580,y+21),(500,y+21),(485,y-4)]
         d.polygon(t,fill=GOLD)
@@ -406,14 +405,14 @@ def rows_style_4(image, d, rows):
 
 def rows_style_5(image, d, rows):
     """Magazine: stronger central spine and numbered fixtures."""
-    y0=360
-    d.line((540,330,540,875),fill=GOLD2,width=2)
+    y0=382
+    d.line((540,350,540,890),fill=GOLD2,width=2)
     for i,item in enumerate(rows[:5]):
         y=y0+i*106
         d.rounded_rectangle((70,y-42,1010,y+42),radius=18,fill="#0A1E2E",outline="#3E596B",width=1)
         text(d,str(i+1).zfill(2),(94,y),size=20,bold=True,fill=GOLD,anchor="mm")
-        team_visual(image, d, 145, y, item, "home", scale=.66)
-        team_visual(image, d, 935, y, item, "away", scale=.66)
+        team_visual(image, d, 145, y, item, "home", scale=.64)
+        team_visual(image, d, 935, y, item, "away", scale=.64)
         text(d,item.get("home",""),(330,y),size=26,bold=True,anchor="mm",width=255,min_size=17)
         text(d,item.get("away",""),(750,y),size=26,bold=True,anchor="mm",width=255,min_size=17)
         d.rounded_rectangle((486,y-25,594,y+22),radius=8,fill=GOLD)
@@ -422,7 +421,7 @@ def rows_style_5(image, d, rows):
 
 def rows_style_6(image, d, rows):
     """Saturday premium card stack, close to the approved visual mockup."""
-    y0=365
+    y0=390
     for i,item in enumerate(rows[:5]):
         y=y0+i*106
         d.rounded_rectangle((74,y-38,1016,y+52),radius=30,fill="#020B13")
@@ -431,21 +430,21 @@ def rows_style_6(image, d, rows):
         d.line((95,y-42,968,y-42),fill="#FFF0BE",width=1)
         d.line((472,y-29,472,y+24),fill="#A87523",width=1)
         d.line((608,y-29,608,y+24),fill="#A87523",width=1)
-        team_visual(image, d, 116, y-3, item, "home", scale=.82)
-        team_visual(image, d, 948, y-3, item, "away", scale=.82)
+        team_visual(image, d, 116, y-3, item, "home", scale=.640)
+        team_visual(image, d, 948, y-3, item, "away", scale=.640)
         match_texts(image,d,item,y-3,home_x=330,away_x=750,name_width=268)
 
 
 def rows_style_7(image, d, rows):
     """Split-panel: left/right team fields meet at a strong central time block."""
-    y0=370
+    y0=388
     for i,item in enumerate(rows[:5]):
         y=y0+i*104
         d.rounded_rectangle((66,y-43,1014,y+43),radius=28,fill="#091E2C",outline=GOLD,width=2)
         d.polygon([(470,y-42),(540,y-42),(515,y+42),(445,y+42)],fill="#103752")
         d.polygon([(540,y-42),(610,y-42),(635,y+42),(565,y+42)],fill="#103752")
-        team_visual(image, d, 112, y, item, "home", scale=.7)
-        team_visual(image, d, 968, y, item, "away", scale=.7)
+        team_visual(image, d, 112, y, item, "home", scale=.64)
+        team_visual(image, d, 968, y, item, "away", scale=.64)
         text(d,item.get("home",""),(318,y),size=26,bold=True,anchor="mm",width=270,min_size=17)
         text(d,item.get("away",""),(762,y),size=26,bold=True,anchor="mm",width=270,min_size=17)
         d.rounded_rectangle((490,y-27,590,y+17),radius=10,fill=GOLD)
