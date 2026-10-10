@@ -1,4 +1,5 @@
 name: Mr XPRONOS - Test reel des 6 rubriques
+# Deuxieme execution : import du moteur de cartes corrige.
 on:
   push:
     branches: [main]
