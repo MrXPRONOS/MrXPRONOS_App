@@ -1,12 +1,14 @@
-const CACHE='prono-live-v11';
+const CACHE='prono-live-v12-mx';
 const ASSETS=[
   './',
   './index.html',
   './bonus.html',
-  './assets/styles.css?v=20261006-bonus5',
+  './assets/styles.css?v=20261010-mx2',
   './assets/app.js?v=20261006-fix2',
-  './assets/favicon.svg',
+  '../assets/images/mrxpronos-mark.svg',
   './assets/og-prono-live.webp',
+  '../assets/images/icon-192x192.png',
+  '../assets/images/icon-512x512.png',
   './manifest.webmanifest'
 ];
 
@@ -54,8 +56,8 @@ self.addEventListener('push',event=>{
   try{d=event.data?.json()||{}}catch{}
   event.waitUntil(self.registration.showNotification(d.title||'Prono Live',{
     body:d.body||'Nouveau pronostic disponible',
-    icon:'./assets/favicon.svg',
-    badge:'./assets/favicon.svg',
+    icon:'../assets/images/icon-192x192.png',
+    badge:'../assets/images/favicon.png',
     tag:d.tag||'prono-live',
     requireInteraction:true,
     data:{url:d.url||'./'},
