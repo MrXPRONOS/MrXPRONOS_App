@@ -913,11 +913,14 @@ def run_live_test(now: datetime) -> dict[str, Any]:
             future = [e for e in candidates(today_events + tomorrow_events)
                       if kick(e) > now + timedelta(minutes=20)
                       and final_score(e) is None]
-            if not future:
+            match = next(
+                (e for e in future[:20]
+                 if has_two_team_logos(e, allow_remote=True)),
+                None,
+            )
+            if match is None:
                 return None
-            # Emulate a 2h-before-kickoff publication (the fixture time
-            # displayed is genuine). It is clearly identified as a TEST.
-            match = future[0]
+            # Emulate a 2h-before-kickoff publication with real fixture/logos.
             virtual_now = kick(match) - timedelta(hours=2)
             return avant_match([match], empty_history, virtual_now, [])
 
