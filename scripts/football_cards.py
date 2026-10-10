@@ -104,27 +104,10 @@ def panel(draw: ImageDraw.ImageDraw, bounds: tuple[int, int, int, int], *,
 
 
 def programme_card(payload: dict[str, Any]) -> Image.Image:
-    rows = payload.get("matches") or []
-    if not rows:
-        raise ValueError("Programme sans matchs")
-    rows = rows[:7]
-    image, d = base("MATCHS DU JOUR", "LE PROGRAMME", clean(payload.get("day", "")))
-    txt(d, "LES RENDEZ-VOUS A NE PAS MANQUER", 56, 337,
-        size=23, bold=True, color=GREY, max_width=960)
-    y0 = 394
-    for idx, item in enumerate(rows):
-        y = y0 + idx * 84
-        panel(d, (54, y, 1026, y + 76), accent=(idx == 0))
-        txt(d, str(idx + 1).zfill(2), 83, y + 37, size=24, bold=True,
-            color=GOLD, anchor="lm")
-        txt(d, item.get("home", ""), 143, y + 21, size=28, bold=True, max_width=320, min_size=20)
-        txt(d, "VS", 515, y + 36, size=18, bold=True, anchor="mm", color=GOLD)
-        txt(d, item.get("away", ""), 559, y + 21, size=28, bold=True, max_width=301, min_size=20)
-        d.rounded_rectangle((892, y + 13, 1008, y + 63), radius=14, fill="#284457")
-        txt(d, item.get("time", "--:--"), 950, y + 38,
-            size=22, bold=True, anchor="mm", color=WHITE, max_width=108)
-    txt(d, "HORAIRES GMT  •  HEURE DU TOGO", 55, 984, size=20, bold=True, color=GREY, anchor="lb")
-    return image
+    # Les 7 variantes sont isolées dans programme_styles pour conserver
+    # ce fichier compatible avec les autres rubriques.
+    from programme_styles import render_programme
+    return render_programme(payload)
 
 
 def result_card(payload: dict[str, Any]) -> Image.Image:
@@ -217,9 +200,27 @@ def demo(out_dir: str | Path) -> list[Path]:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--demo", action="store_true")
+    parser.add_argument("--programme-styles", action="store_true",
+                        help="Genere les sept variantes Matchs du jour")
     parser.add_argument("--out-dir", default="/tmp/mrxpronos-football-cards")
     args = parser.parse_args()
-    if not args.demo:
-        parser.error("Utilisez --demo pour générer trois exemples sans connexion réseau")
-    for path in demo(args.out_dir):
-        print("PREVIEW", path)
+    if args.programme_styles:
+        from programme_styles import render_programme
+        dest = Path(args.out_dir)
+        payload = {"day": "10/10/2026", "matches": [
+            {"home": "Arsenal", "away": "Chelsea", "time": "17h30"},
+            {"home": "Real Madrid", "away": "FC Barcelona", "time": "20h00"},
+            {"home": "PSG", "away": "Marseille", "time": "21h00"},
+            {"home": "Bayern Munich", "away": "Borussia Dortmund", "time": "15h30"},
+            {"home": "Inter Milan", "away": "AC Milan", "time": "19h45"},
+        ]}
+        dest.mkdir(parents=True, exist_ok=True)
+        for style in range(1,8):
+            out = dest / ("programme-style-" + str(style) + ".png")
+            render_programme(payload, style=style).save(out, "PNG", optimize=True)
+            print("PREVIEW_STYLE", style, out)
+    elif args.demo:
+        for path in demo(args.out_dir):
+            print("PREVIEW", path)
+    else:
+        parser.error("Utilisez --demo ou --programme-styles")
