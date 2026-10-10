@@ -137,7 +137,9 @@ def time_label(dt: datetime) -> str:
 
 
 def post_label(text: str) -> str:
-    return text + "\n\n<i>⚽ Mr XPRONOS • L'actualité du football</i>"
+    return (text
+            + "\n\n<b>💬 Donne ton avis dans les commentaires.</b>"
+            + "\n<i>⚽ Mr XPRONOS • L'actualité du football</i>")
 
 
 class History:
@@ -201,9 +203,44 @@ class Sender:
         self.token = (os.getenv("FOOTBALL_NEWS_BOT_TOKEN") or
                       os.getenv("TELEGRAM_BOT_TOKEN") or "").strip()
         self.chat = os.getenv(NEWS_CHAT_ENV, "").strip()
+        self.require_comments = os.getenv("FOOTBALL_REQUIRE_COMMENTS", "1").strip() != "0"
+        self.linked_chat_id: int | str | None = None
+        self._discussion_checked = False
         if not dry_run and (not self.chat or not self.token):
             raise RuntimeError("Secrets manquants: FOOTBALL_NEWS_CHAT_ID et FOOTBALL_NEWS_BOT_TOKEN (ou TELEGRAM_BOT_TOKEN). Aucune publication vers le canal des pronostics.")
         self.session = requests.Session()
+
+    def verify_discussion(self) -> int | str | None:
+        """Vérifie le groupe de discussion Telegram lié au canal.
+
+        Telegram crée nativement le fil de commentaires des posts d'un canal
+        lorsqu'un supergroupe est lié. Le Bot API expose ce lien via
+        getChat.result.linked_chat_id.
+        """
+        if self.dry_run:
+            return None
+        if self._discussion_checked:
+            return self.linked_chat_id
+        response = self.session.post(
+            "https://api.telegram.org/bot" + self.token + "/getChat",
+            data={"chat_id": self.chat}, timeout=(12, 30),
+        )
+        response.raise_for_status()
+        payload = response.json()
+        if payload.get("ok") is not True or not isinstance(payload.get("result"), dict):
+            raise RuntimeError("Telegram getChat n'a pas confirmé le canal")
+        self.linked_chat_id = payload["result"].get("linked_chat_id")
+        self._discussion_checked = True
+        if self.require_comments and self.linked_chat_id is None:
+            raise RuntimeError(
+                "Commentaires requis mais aucun linked_chat_id détecté. "
+                "Lier un groupe de discussion au canal Telegram."
+            )
+        if self.linked_chat_id is not None:
+            print("COMMENTAIRES_ACTIFS linked_chat_id", self.linked_chat_id)
+        else:
+            print("COMMENTAIRES_NON_LIES publication autorisee car FOOTBALL_REQUIRE_COMMENTS=0")
+        return self.linked_chat_id
 
     def send(self, item: Publication) -> None:
         if self.dry_run:
@@ -211,6 +248,7 @@ class Sender:
             if item.poll:
                 print("DRY_RUN_POLL", item.poll)
             return
+        self.verify_discussion()
         method = "sendPoll" if item.poll else "sendMessage"
         data: dict[str, Any] = {"chat_id": self.chat}
         files = None
@@ -441,7 +479,7 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
     if future:
         e = future[0]
         h, a = team(e, "home"), team(e, "away")
-        question = ("⚽ " + h + " - " + a + " : votre favori ?")[:300]
+        question = ("⚽ " + h + " - " + a + " : votre favori ? 💬 Vote puis commente.")[:300]
         options = ["Victoire " + h, "Match nul", "Victoire " + a]
         if max(map(len, options)) <= 100:
             return Publication("sondage", "sondage:" + today.isoformat(),
@@ -453,6 +491,7 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
         ("Quel contenu souhaitez-vous davantage ?", ["Mercato", "Football africain", "Quiz", "Débats"]),
     ]
     question, options = topics[today.toordinal() % len(topics)]
+    question = (question + " 💬 Vote puis commente.")[:300]
     return Publication("sondage", "sondage:" + today.isoformat(), "🗳️ Sondage Mr XPRONOS",
                        (question, options))
 
