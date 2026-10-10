@@ -1,0 +1,23 @@
+name: Mr XPRONOS - Diagnostic visuels BSD
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bsd-visual-diagnostic.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install requests
+      - name: Inspecter les champs visuels BSD
+        run: python scripts/bsd_visual_diagnostic.py
