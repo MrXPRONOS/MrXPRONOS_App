@@ -239,7 +239,7 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
 
     txt(d, "LA STAT", 530, 118, size=65, bold=True, color=WHITE, anchor="ra")
     gradient_text(image, "DU JOUR", (550, 118), size=65, anchor="la")
-    txt(d, "LE FAIT MARQUANT D’HIER", 540, 202, size=21, bold=True, color=GREY, anchor="ma")
+    txt(d, "LE FAIT MARQUANT RÉCENT", 540, 202, size=21, bold=True, color=GREY, anchor="ma")
 
     # Main content frame
     d.rounded_rectangle((62, 272, 1018, 876), radius=34, fill="#061827")
@@ -274,7 +274,7 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
     league_name = payload.get("league") or "Football"
     txt(d, league_name.upper(), 540, 772, size=24, bold=True, color=WHITE,
         anchor="ma", max_width=760, min_size=17)
-    txt(d, "SÉLECTIONNÉE PARMI LES MATCHS BSD D’HIER",
+    txt(d, "SÉLECTIONNÉE PARMI LES MATCHS BSD RÉCENTS",
         540, 820, size=17, color=GREY, anchor="ma", max_width=860, min_size=14)
 
     # Footer
@@ -284,7 +284,7 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
 
     d.rounded_rectangle((165, 960, 915, 1035), radius=34, fill="#071927")
     gradient_outline_round_rect(image, (165, 960, 915, 1035), 34, width=2, glow=True)
-    txt(d, "💬 QUEL AUTRE MATCH VOUS A MARQUÉ ?", 540, 998,
+    txt(d, "QUELLE AUTRE STAT VOUS A MARQUÉ ?", 540, 998,
         size=21, bold=True, color=WHITE, anchor="mm", max_width=680, min_size=16)
     return image
 
