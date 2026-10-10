@@ -117,16 +117,24 @@ header .container {
 }
 .logo { flex-shrink: 0; white-space: nowrap; }
 .logo a {
- color: var(--or);
- font-size: 1.8rem;
- font-weight: 700;
+ display: inline-flex;
+ align-items: center;
  text-decoration: none;
- letter-spacing: 1px;
- transition: color 0.3s;
- white-space: nowrap;
+ line-height: 0;
 }
-.logo a:hover { color: var(--or-clair); }
-.logo span { color: #fff; font-weight: 700; }
+.logo img {
+ width: clamp(150px, 18vw, 230px);
+ height: 54px;
+ object-fit: contain;
+ object-position: left center;
+ display: block;
+ filter: drop-shadow(0 0 8px rgba(212,175,55,.18));
+ transition: transform .2s ease, filter .2s ease;
+}
+.logo a:hover img {
+ transform: translateY(-1px);
+ filter: drop-shadow(0 0 12px rgba(255,215,0,.28));
+}
 .header-actions {
  display: flex;
  align-items: center;
@@ -2182,4 +2190,9 @@ header .container{
   header .container{ padding: 0.45rem 10px; }
   .burger-btn{ width: 34px; height: 34px; border-radius: 11px; }
   .burger-btn i{ font-size: 1rem; }
+}
+
+/* Nouveau logo Mr XPRONOS */
+@media (max-width: 600px) {
+  .logo img { width: 136px; height: 42px; }
 }
