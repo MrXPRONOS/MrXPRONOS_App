@@ -51,7 +51,11 @@ async def visit(browser, provider, url):
     page.on("response",lambda response:tasks.append(asyncio.create_task(observe(response))))
     try:
         resp=await page.goto(url,wait_until="domcontentloaded",timeout=25000)
-        result["status"]="page_loaded" if resp else "navigation_without_response"
+        result["status"]="page_loaded" if resp and resp.status<400 else ("http_blocked" if resp and resp.status in (401,403,429) else "http_error" if resp else "navigation_without_response")
+        result["main_http_status"]=resp.status if resp else None
+        if result["status"]!="page_loaded":
+            result["limitations"].append("Page non accessible: pas de navigation supplémentaire ni de contournement.")
+            return result
         await page.wait_for_timeout(4500)
         result["public_live_links_seen"]=0
         result["detail_navigation"]="not_attempted"
@@ -91,7 +95,8 @@ async def main():
         await browser.close()
     report={"generated_utc":datetime.datetime.now(datetime.timezone.utc).isoformat(),
        "method":"public_browser_observation_once_no_login_no_bypass",
-       "results":results}
+       "results":results,
+       "outcome":"LIVE_CORNER_ODDS_VERIFIED" if any(r.get("corner_slip_probe",{}).get("quote_observed") and r.get("detail_navigation")=="loaded" for r in results) else "NO_VERIFIED_LIVE_CORNER_ODDS"}
     OUT.write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
     print(json.dumps(report,indent=2,ensure_ascii=False))
 if __name__=="__main__":asyncio.run(main())
