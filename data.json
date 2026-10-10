@@ -1,7 +1,7 @@
 {
   "source": "bsd",
   "model_version": "bsd-v2-isolated",
-  "generated_at": "2026-10-10T03:35:39.721661+00:00",
+  "generated_at": "2026-10-10T03:51:19.759894+00:00",
   "policy_version": "bsd-v2-policy-2026-10-10-r1",
   "matches": [
     {
@@ -3899,7 +3899,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -3989,7 +3989,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4079,7 +4079,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4169,7 +4169,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4259,7 +4259,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4349,7 +4349,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4439,7 +4439,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4490,7 +4490,7 @@
       "generated_at": "2026-10-09T01:44:56.876550+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4541,7 +4541,7 @@
       "generated_at": "2026-10-09T01:44:56.876550+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4631,7 +4631,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4721,7 +4721,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4811,7 +4811,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4901,7 +4901,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -4991,7 +4991,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -5081,7 +5081,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -5171,7 +5171,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -5261,7 +5261,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -5351,7 +5351,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -5441,7 +5441,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -5531,7 +5531,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -5621,7 +5621,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -5711,7 +5711,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -5801,7 +5801,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -5891,7 +5891,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -5981,7 +5981,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6071,7 +6071,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6161,7 +6161,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6251,7 +6251,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6341,7 +6341,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6431,7 +6431,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6482,7 +6482,7 @@
       "generated_at": "2026-10-09T01:44:56.876550+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6572,7 +6572,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6675,7 +6675,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6765,7 +6765,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6855,7 +6855,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6906,7 +6906,7 @@
       "generated_at": "2026-10-09T13:03:04.686070+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -6996,7 +6996,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -7086,7 +7086,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -7176,7 +7176,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -7266,7 +7266,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -7356,7 +7356,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -7446,7 +7446,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -7536,7 +7536,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -7626,7 +7626,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -7716,7 +7716,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -7806,7 +7806,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -7896,7 +7896,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -7986,7 +7986,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -8076,7 +8076,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -8166,7 +8166,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -8256,7 +8256,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -8346,7 +8346,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -8436,7 +8436,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -8526,7 +8526,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -8616,7 +8616,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -8706,7 +8706,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -8796,7 +8796,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -8886,7 +8886,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -8976,7 +8976,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -9066,7 +9066,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -9156,7 +9156,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -9246,7 +9246,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -9297,7 +9297,7 @@
       "generated_at": "2026-10-09T01:44:56.876550+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -9400,7 +9400,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -9503,7 +9503,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -9593,7 +9593,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -9683,7 +9683,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -9773,7 +9773,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -9863,7 +9863,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -9953,7 +9953,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -10043,7 +10043,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -10133,7 +10133,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -10223,7 +10223,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -10313,7 +10313,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -10403,7 +10403,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -10493,7 +10493,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -10557,7 +10557,7 @@
         "odds_updated_at": "2026-10-09T01:35:06+00:00"
       },
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -10647,7 +10647,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -10737,7 +10737,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -10827,7 +10827,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -10917,7 +10917,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -11007,7 +11007,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -11097,7 +11097,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -11148,7 +11148,7 @@
       "generated_at": "2026-10-09T01:44:56.876550+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -11238,7 +11238,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -11328,7 +11328,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -11379,7 +11379,7 @@
       "generated_at": "2026-10-09T01:44:56.876550+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -11462,7 +11462,9 @@
       "final_score": 77.3,
       "xpronos_score": 77.3,
       "generated_at": "2026-10-10T03:35:39.721661+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
       "id": "bsd:604563",
@@ -11551,7 +11553,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -11641,7 +11643,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -11731,7 +11733,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -11821,7 +11823,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -11911,7 +11913,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12001,7 +12003,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12091,7 +12093,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12138,7 +12140,7 @@
       "generated_at": "2026-10-08T16:47:34.434921+00:00",
       "league_logo": "https://sports.bzzoiro.com/img/league/4/?bg=transparent",
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12228,7 +12230,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12308,7 +12310,7 @@
       ],
       "league_logo": "https://sports.bzzoiro.com/img/league/11/?bg=transparent",
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12355,7 +12357,7 @@
       "generated_at": "2026-10-08T16:47:34.434921+00:00",
       "league_logo": "https://sports.bzzoiro.com/img/league/55/?bg=transparent",
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12445,7 +12447,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12535,7 +12537,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12625,7 +12627,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12672,7 +12674,7 @@
       "generated_at": "2026-10-08T16:47:34.434921+00:00",
       "league_logo": "https://sports.bzzoiro.com/img/league/24/?bg=transparent",
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12762,7 +12764,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12852,7 +12854,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -12942,7 +12944,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -13032,7 +13034,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -13122,7 +13124,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -13173,7 +13175,7 @@
       "generated_at": "2026-10-09T01:44:56.876550+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -13263,7 +13265,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -13353,7 +13355,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -13443,7 +13445,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -13533,7 +13535,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -13623,7 +13625,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -13713,7 +13715,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -13797,7 +13799,7 @@
       "xpronos_score": 80.3,
       "generated_at": "2026-10-10T03:04:15.611148+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -13880,7 +13882,9 @@
       "final_score": 76.9,
       "xpronos_score": 76.9,
       "generated_at": "2026-10-10T03:35:39.721661+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
       "id": "bsd:211915",
@@ -13969,7 +13973,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -14059,7 +14063,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -14149,7 +14153,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -14239,7 +14243,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -14329,7 +14333,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -14419,7 +14423,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -14509,7 +14513,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -14599,7 +14603,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -14689,7 +14693,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -14779,7 +14783,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -14869,7 +14873,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -14972,7 +14976,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -15062,7 +15066,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -15152,7 +15156,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -15242,7 +15246,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -15332,7 +15336,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -15422,7 +15426,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -15512,7 +15516,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -15602,7 +15606,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -15692,7 +15696,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -15782,7 +15786,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -15833,7 +15837,7 @@
       "generated_at": "2026-10-09T13:03:04.686070+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -15936,7 +15940,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -16026,7 +16030,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -16116,7 +16120,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -16206,7 +16210,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -16296,7 +16300,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -16386,7 +16390,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -16476,7 +16480,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -16566,7 +16570,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -16656,7 +16660,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -16746,7 +16750,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -16836,7 +16840,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -16926,7 +16930,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -17016,7 +17020,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -17106,7 +17110,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -17196,7 +17200,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -17286,7 +17290,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -17389,7 +17393,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -17479,7 +17483,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -17569,7 +17573,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -17659,7 +17663,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -17749,7 +17753,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -17839,7 +17843,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -17929,7 +17933,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -18019,7 +18023,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -18109,7 +18113,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -18173,7 +18177,7 @@
         "odds_updated_at": "2026-10-09T12:20:10+00:00"
       },
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -18263,7 +18267,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -18353,7 +18357,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -18456,7 +18460,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -18546,7 +18550,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -18636,7 +18640,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -18726,7 +18730,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -18816,7 +18820,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -18899,7 +18903,9 @@
       "final_score": 71.6,
       "xpronos_score": 71.6,
       "generated_at": "2026-10-10T03:35:39.721661+00:00",
-      "combo_only": false
+      "combo_only": false,
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
       "id": "bsd:212789",
@@ -18988,7 +18994,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -19078,7 +19084,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -19168,7 +19174,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -19258,7 +19264,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -19348,7 +19354,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -19438,7 +19444,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -19528,7 +19534,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -19658,7 +19664,9 @@
           "model_version": "bsd-v2-isolated",
           "policy_version": "bsd-v2-policy-2026-10-10-r1"
         }
-      ]
+      ],
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
       "id": "bsd:221532",
@@ -19747,7 +19755,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -19837,7 +19845,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -19888,7 +19896,7 @@
       "generated_at": "2026-10-09T12:24:53.229310+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -19978,7 +19986,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -20068,7 +20076,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -20158,7 +20166,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -20248,7 +20256,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -20338,7 +20346,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -20428,7 +20436,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -20518,7 +20526,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -20608,7 +20616,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -20659,7 +20667,7 @@
       "generated_at": "2026-10-09T13:03:04.686070+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -20749,7 +20757,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -20839,7 +20847,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -20929,7 +20937,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -21019,7 +21027,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -21109,7 +21117,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -21199,7 +21207,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -21289,7 +21297,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -21379,7 +21387,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -21469,7 +21477,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -21559,7 +21567,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -21649,7 +21657,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -21739,7 +21747,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -21829,7 +21837,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -21919,7 +21927,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22009,7 +22017,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22099,7 +22107,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22189,7 +22197,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22279,7 +22287,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22330,7 +22338,7 @@
       "generated_at": "2026-10-09T14:03:30.813904+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22420,7 +22428,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22510,7 +22518,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22600,7 +22608,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22690,7 +22698,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22780,7 +22788,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22870,7 +22878,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -22960,7 +22968,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -23050,7 +23058,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -23140,7 +23148,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -23230,7 +23238,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -23320,7 +23328,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -23410,7 +23418,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -23500,7 +23508,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -23630,7 +23638,9 @@
           "model_version": "bsd-v2-isolated",
           "policy_version": "bsd-v2-policy-2026-10-10-r1"
         }
-      ]
+      ],
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
       "id": "bsd:604566",
@@ -23719,7 +23729,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -23809,7 +23819,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -23899,7 +23909,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -23989,7 +23999,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -24079,7 +24089,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -24169,7 +24179,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -24259,7 +24269,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -24349,7 +24359,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -24452,7 +24462,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -24542,7 +24552,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -24632,7 +24642,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -24722,7 +24732,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -24812,7 +24822,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -24902,7 +24912,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -24992,7 +25002,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -25082,7 +25092,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -25172,7 +25182,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -25262,7 +25272,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -25352,7 +25362,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -25442,7 +25452,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -25532,7 +25542,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -25622,7 +25632,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -25712,7 +25722,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -25802,7 +25812,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -25892,7 +25902,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -25982,7 +25992,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -26072,7 +26082,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -26123,7 +26133,7 @@
       "generated_at": "2026-10-09T19:02:25.091258+00:00",
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -26213,7 +26223,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -26303,7 +26313,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -26393,7 +26403,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -26483,7 +26493,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -26573,7 +26583,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -26663,7 +26673,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -26753,7 +26763,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -26843,7 +26853,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -26933,7 +26943,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -27023,7 +27033,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -27113,7 +27123,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -27203,7 +27213,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -27293,7 +27303,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -27383,7 +27393,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -27473,7 +27483,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -27604,7 +27614,7 @@
           "policy_version": "bsd-v2-policy-2026-10-10-r1"
         }
       ],
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -27694,7 +27704,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -27784,7 +27794,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -27915,7 +27925,7 @@
           "policy_version": "bsd-v2-policy-2026-10-10-r1"
         }
       ],
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -27999,7 +28009,7 @@
       "xpronos_score": 77.6,
       "generated_at": "2026-10-10T03:04:15.611148+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -28089,7 +28099,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -28220,7 +28230,7 @@
           "policy_version": "bsd-v2-policy-2026-10-10-r1"
         }
       ],
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -28310,7 +28320,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -28394,7 +28404,7 @@
       "xpronos_score": 77.7,
       "generated_at": "2026-10-10T03:04:15.611148+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -28478,7 +28488,7 @@
       "xpronos_score": 77.7,
       "generated_at": "2026-10-10T03:04:15.611148+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     },
     {
@@ -28609,7 +28619,7 @@
           "policy_version": "bsd-v2-policy-2026-10-10-r1"
         }
       ],
-      "revalidated_at": "2026-10-10T03:35:39.721661+00:00",
+      "revalidated_at": "2026-10-10T03:51:19.759894+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
     }
   ],
@@ -28743,8 +28753,8 @@
         "average_predicted": 0.748387
       }
     },
-    "last_added": 1,
-    "updated_at": "2026-10-10T03:35:39.721661+00:00",
+    "last_added": 0,
+    "updated_at": "2026-10-10T03:51:19.759894+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08
@@ -28753,14 +28763,11 @@
   "diagnostics": {
     "total": 331,
     "rejections": {
-      "saved_future_revalidated": 275,
-      "odds_attempts": 55,
+      "saved_future_revalidated": 280,
+      "odds_attempts": 50,
       "chosen_market_unpriceable": 16,
       "quality_short_form": 2,
       "conservative_probability_below_real_price_edge": 34,
-      "model_estimated": 5,
-      "priced_selected": 5,
-      "created": 5,
       "no_qualified_market": 32,
       "insufficient_form": 1
     },
@@ -38197,178 +38204,6 @@
         }
       },
       {
-        "event_id": "603923",
-        "home_team": "K. Beerschot V.A.",
-        "away_team": "RFC Liège",
-        "event_date": "2026-10-10T18:00:00+00:00",
-        "quotes": [
-          {
-            "market": "BTTS_NO_FT",
-            "odds": 2.224,
-            "source": "bsd_consensus"
-          },
-          {
-            "market": "BTTS_YES_FT",
-            "odds": 1.58,
-            "source": "bsd_consensus"
-          }
-        ],
-        "considered": [
-          {
-            "key": "OVER_15",
-            "family": "goals",
-            "result": "over15_models_disagree",
-            "probability_gap": 0.085795
-          },
-          {
-            "key": "1",
-            "family": "result",
-            "market_code": "1X2_HOME_FT",
-            "probability": 0.5312817270310467,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "X",
-            "family": "result",
-            "market_code": "1X2_DRAW_FT",
-            "probability": 0.23773674447654822,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "2",
-            "family": "result",
-            "market_code": "1X2_AWAY_FT",
-            "probability": 0.2309815284924051,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "1X",
-            "family": "double_chance",
-            "market_code": "DC_1X_FT",
-            "probability": 0.769018471507595,
-            "odds": null,
-            "conservative_probability": 0.7590184715075949,
-            "result": "qualified"
-          },
-          {
-            "key": "12",
-            "family": "double_chance",
-            "market_code": "DC_12_FT",
-            "probability": 0.7622632555234519,
-            "odds": null,
-            "conservative_probability": 0.7522632555234519,
-            "result": "qualified"
-          },
-          {
-            "key": "X2",
-            "family": "double_chance",
-            "market_code": "DC_X2_FT",
-            "probability": 0.4687182729689533,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "BTTS_YES",
-            "family": "btts",
-            "market_code": "BTTS_YES_FT",
-            "probability": 0.5794060685640876,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "BTTS_NO",
-            "family": "btts",
-            "market_code": "BTTS_NO_FT",
-            "probability": 0.4205939314359124,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_UNDER_FT",
-            "probability": 0.20153948488700088,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_OVER_FT",
-            "probability": 0.5925863755690781,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_UNDER_FT",
-            "probability": 0.4074136244309212,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_OVER_FT",
-            "probability": 0.41545688052332086,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_UNDER_FT",
-            "probability": 0.5845431194766793,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_OVER_FT",
-            "probability": 0.24961667967013934,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_UNDER_FT",
-            "probability": null,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "excluded_market"
-          }
-        ],
-        "status": "published",
-        "reason": null,
-        "post_price_value_guard": {
-          "checked": false,
-          "passed": true,
-          "reason": "estimated_price_not_independent",
-          "source": "mrxpronos_model"
-        },
-        "selections": [
-          "1X"
-        ]
-      },
-      {
         "event_id": "213709",
         "home_team": "RB Leipzig",
         "away_team": "Eintracht Frankfurt",
@@ -39762,178 +39597,6 @@
         ],
         "status": "rejected",
         "reason": "no_qualified_market"
-      },
-      {
-        "event_id": "603785",
-        "home_team": "Grazer AK 1902",
-        "away_team": "Red Bull Salzburg",
-        "event_date": "2026-10-10T15:00:00+00:00",
-        "quotes": [
-          {
-            "market": "BTTS_NO_FT",
-            "odds": 2.227,
-            "source": "bsd_consensus"
-          },
-          {
-            "market": "BTTS_YES_FT",
-            "odds": 1.597,
-            "source": "bsd_consensus"
-          }
-        ],
-        "considered": [
-          {
-            "key": "OVER_15",
-            "family": "goals",
-            "result": "over15_models_disagree",
-            "probability_gap": 0.080337
-          },
-          {
-            "key": "1",
-            "family": "result",
-            "market_code": "1X2_HOME_FT",
-            "probability": 0.2682777551707848,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "X",
-            "family": "result",
-            "market_code": "1X2_DRAW_FT",
-            "probability": 0.22704598988152075,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "2",
-            "family": "result",
-            "market_code": "1X2_AWAY_FT",
-            "probability": 0.5046762549476944,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "1X",
-            "family": "double_chance",
-            "market_code": "DC_1X_FT",
-            "probability": 0.49532374505230553,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "12",
-            "family": "double_chance",
-            "market_code": "DC_12_FT",
-            "probability": 0.7729540101184792,
-            "odds": null,
-            "conservative_probability": 0.7629540101184792,
-            "result": "qualified"
-          },
-          {
-            "key": "X2",
-            "family": "double_chance",
-            "market_code": "DC_X2_FT",
-            "probability": 0.7317222448292151,
-            "odds": null,
-            "conservative_probability": 0.7217222448292151,
-            "result": "below_family_conservative_floor"
-          },
-          {
-            "key": "BTTS_YES",
-            "family": "btts",
-            "market_code": "BTTS_YES_FT",
-            "probability": 0.5543700928171492,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "BTTS_NO",
-            "family": "btts",
-            "market_code": "BTTS_NO_FT",
-            "probability": 0.4456299071828508,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_UNDER_FT",
-            "probability": 0.20204324597875076,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_OVER_FT",
-            "probability": 0.5813699485102248,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_UNDER_FT",
-            "probability": 0.4186300514897745,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_OVER_FT",
-            "probability": 0.3741779591906773,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_UNDER_FT",
-            "probability": 0.6258220408093229,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_OVER_FT",
-            "probability": 0.22735383930013495,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_UNDER_FT",
-            "probability": null,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "excluded_market"
-          }
-        ],
-        "status": "published",
-        "reason": null,
-        "post_price_value_guard": {
-          "checked": false,
-          "passed": true,
-          "reason": "estimated_price_not_independent",
-          "source": "mrxpronos_model"
-        },
-        "selections": [
-          "12"
-        ]
       },
       {
         "event_id": "375048",
@@ -45934,171 +45597,6 @@
         "reason": "chosen_market_unpriceable"
       },
       {
-        "event_id": "604564",
-        "home_team": "Abia Warriors",
-        "away_team": "Rivers United",
-        "event_date": "2026-10-11T15:00:00+00:00",
-        "quotes": [],
-        "considered": [
-          {
-            "key": "1",
-            "family": "result",
-            "market_code": "1X2_HOME_FT",
-            "probability": 0.28397249728659113,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "X",
-            "family": "result",
-            "market_code": "1X2_DRAW_FT",
-            "probability": 0.24382591522597244,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "2",
-            "family": "result",
-            "market_code": "1X2_AWAY_FT",
-            "probability": 0.4722015874874364,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "1X",
-            "family": "double_chance",
-            "market_code": "DC_1X_FT",
-            "probability": 0.5277984125125635,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "12",
-            "family": "double_chance",
-            "market_code": "DC_12_FT",
-            "probability": 0.7561740847740275,
-            "odds": null,
-            "conservative_probability": 0.7461740847740275,
-            "result": "below_family_conservative_floor"
-          },
-          {
-            "key": "X2",
-            "family": "double_chance",
-            "market_code": "DC_X2_FT",
-            "probability": 0.7160275027134089,
-            "odds": null,
-            "conservative_probability": 0.7060275027134089,
-            "result": "below_family_conservative_floor"
-          },
-          {
-            "key": "BTTS_YES",
-            "family": "btts",
-            "market_code": "BTTS_YES_FT",
-            "probability": 0.5058666807973285,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "BTTS_NO",
-            "family": "btts",
-            "market_code": "BTTS_NO_FT",
-            "probability": 0.4941333192026716,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_OVER_FT",
-            "probability": 0.7489458341111243,
-            "odds": null,
-            "conservative_probability": 0.7349458341111242,
-            "result": "qualified"
-          },
-          {
-            "key": "UNDER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_UNDER_FT",
-            "probability": 0.25105416588887713,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_OVER_FT",
-            "probability": 0.4833656352364478,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_UNDER_FT",
-            "probability": 0.5166343647635521,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_OVER_FT",
-            "probability": 0.24914864513232263,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_UNDER_FT",
-            "probability": 0.7508513548676782,
-            "odds": null,
-            "conservative_probability": 0.7368513548676782,
-            "result": "qualified"
-          },
-          {
-            "key": "OVER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_OVER_FT",
-            "probability": 0.11921466364924466,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_UNDER_FT",
-            "probability": null,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "excluded_market"
-          }
-        ],
-        "status": "published",
-        "reason": null,
-        "post_price_value_guard": {
-          "checked": false,
-          "passed": true,
-          "reason": "estimated_price_not_independent",
-          "source": "mrxpronos_model"
-        },
-        "selections": [
-          "UNDER_35",
-          "OVER_15"
-        ]
-      },
-      {
         "event_id": "604510",
         "home_team": "AE Prat",
         "away_team": "CF Sant Rafel",
@@ -50082,171 +49580,6 @@
         }
       },
       {
-        "event_id": "214861",
-        "home_team": "FC Andorra",
-        "away_team": "CD Castellón",
-        "event_date": "2026-10-11T12:00:00+00:00",
-        "quotes": [],
-        "considered": [
-          {
-            "key": "1",
-            "family": "result",
-            "market_code": "1X2_HOME_FT",
-            "probability": 0.2995488922058245,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "X",
-            "family": "result",
-            "market_code": "1X2_DRAW_FT",
-            "probability": 0.26400362513165443,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "2",
-            "family": "result",
-            "market_code": "1X2_AWAY_FT",
-            "probability": 0.4364474826625212,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "1X",
-            "family": "double_chance",
-            "market_code": "DC_1X_FT",
-            "probability": 0.5635525173374789,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "12",
-            "family": "double_chance",
-            "market_code": "DC_12_FT",
-            "probability": 0.7359963748683457,
-            "odds": null,
-            "conservative_probability": 0.7259963748683457,
-            "result": "below_family_conservative_floor"
-          },
-          {
-            "key": "X2",
-            "family": "double_chance",
-            "market_code": "DC_X2_FT",
-            "probability": 0.7004511077941756,
-            "odds": null,
-            "conservative_probability": 0.6904511077941756,
-            "result": "below_family_conservative_floor"
-          },
-          {
-            "key": "BTTS_YES",
-            "family": "btts",
-            "market_code": "BTTS_YES_FT",
-            "probability": 0.5185607933110684,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "BTTS_NO",
-            "family": "btts",
-            "market_code": "BTTS_NO_FT",
-            "probability": 0.4814392066889316,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_OVER_FT",
-            "probability": 0.7158324101882654,
-            "odds": null,
-            "conservative_probability": 0.7018324101882654,
-            "result": "qualified"
-          },
-          {
-            "key": "UNDER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_UNDER_FT",
-            "probability": 0.284167589811736,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_OVER_FT",
-            "probability": 0.494022080837455,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_UNDER_FT",
-            "probability": 0.5059779191625449,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_OVER_FT",
-            "probability": 0.29231148675243557,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_UNDER_FT",
-            "probability": 0.7076885132475652,
-            "odds": null,
-            "conservative_probability": 0.6936885132475652,
-            "result": "qualified"
-          },
-          {
-            "key": "OVER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_OVER_FT",
-            "probability": 0.16676353876660757,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_UNDER_FT",
-            "probability": null,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "excluded_market"
-          }
-        ],
-        "status": "published",
-        "reason": null,
-        "post_price_value_guard": {
-          "checked": false,
-          "passed": true,
-          "reason": "estimated_price_not_independent",
-          "source": "mrxpronos_model"
-        },
-        "selections": [
-          "OVER_15",
-          "UNDER_35"
-        ]
-      },
-      {
         "event_id": "211423",
         "home_team": "Grasshopper Club Zürich",
         "away_team": "BSC Young Boys",
@@ -50737,170 +50070,6 @@
         "considered": [],
         "status": "rejected",
         "reason": "not_upcoming"
-      },
-      {
-        "event_id": "603046",
-        "home_team": "JD Lajense",
-        "away_team": "1º Dezembro",
-        "event_date": "2026-10-11T11:00:00+00:00",
-        "quotes": [],
-        "considered": [
-          {
-            "key": "1",
-            "family": "result",
-            "market_code": "1X2_HOME_FT",
-            "probability": 0.4246525567991897,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "X",
-            "family": "result",
-            "market_code": "1X2_DRAW_FT",
-            "probability": 0.26878043686230013,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "2",
-            "family": "result",
-            "market_code": "1X2_AWAY_FT",
-            "probability": 0.3065670063385101,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "1X",
-            "family": "double_chance",
-            "market_code": "DC_1X_FT",
-            "probability": 0.6934329936614898,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "12",
-            "family": "double_chance",
-            "market_code": "DC_12_FT",
-            "probability": 0.7312195631376998,
-            "odds": null,
-            "conservative_probability": 0.7062195631376997,
-            "result": "below_family_conservative_floor"
-          },
-          {
-            "key": "X2",
-            "family": "double_chance",
-            "market_code": "DC_X2_FT",
-            "probability": 0.5753474432008102,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "BTTS_YES",
-            "family": "btts",
-            "market_code": "BTTS_YES_FT",
-            "probability": 0.5351511632281203,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "BTTS_NO",
-            "family": "btts",
-            "market_code": "BTTS_NO_FT",
-            "probability": 0.4648488367718797,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_OVER_FT",
-            "probability": 0.7155370116553504,
-            "odds": null,
-            "conservative_probability": 0.6835370116553504,
-            "result": "qualified"
-          },
-          {
-            "key": "UNDER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_UNDER_FT",
-            "probability": 0.28446298834465095,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_OVER_FT",
-            "probability": 0.49070650456681175,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_UNDER_FT",
-            "probability": 0.5092934954331881,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_OVER_FT",
-            "probability": 0.32213807355147456,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_UNDER_FT",
-            "probability": 0.6778619264485256,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_OVER_FT",
-            "probability": 0.17752181107669232,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_UNDER_FT",
-            "probability": null,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "excluded_market"
-          }
-        ],
-        "status": "published",
-        "reason": null,
-        "post_price_value_guard": {
-          "checked": false,
-          "passed": true,
-          "reason": "estimated_price_not_independent",
-          "source": "mrxpronos_model"
-        },
-        "selections": [
-          "OVER_15"
-        ]
       },
       {
         "event_id": "210867",
@@ -51886,8 +51055,8 @@
       "goals": 0.0
     },
     "retired_predictions_count": 0,
-    "leagues_resolved": 5,
-    "api_calls": 72,
+    "leagues_resolved": 0,
+    "api_calls": 67,
     "quality_validation": {
       "train_period": "2025-01-01 to 2025-08-31",
       "validation_period": "2025-09-01 to 2025-12-31",
