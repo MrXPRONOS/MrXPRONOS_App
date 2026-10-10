@@ -304,23 +304,23 @@ def header(image: Image.Image, d: ImageDraw.ImageDraw, style: int, day: str):
         pts = [(327,235),(753,235),(783,269),(753,303),(327,303),(297,269)]
         d.polygon(pts, fill="#0B2436", outline=GOLD)
     else:
-        d.rounded_rectangle((310, 235, 770, 303), radius=30, fill="#0A2030", outline=GOLD, width=2)
-    # Calendar icon
-    d.rounded_rectangle((345, 250, 382, 287), radius=5, outline=GOLD, width=2)
-    d.line((345,260,382,260), fill=GOLD, width=2)
-    d.line((354,244,354,255), fill=GOLD, width=3)
-    d.line((373,244,373,255), fill=GOLD, width=3)
-    text(d, day.upper(), (410, 269), size=26, bold=True, anchor="lm", width=325)
+        d.rounded_rectangle((325, 235, 755, 303), radius=30, fill="#0A2030", outline=GOLD, width=2)
+    # Calendar icon + date are centered as a single group.
+    d.rounded_rectangle((392, 250, 429, 287), radius=5, outline=GOLD, width=2)
+    d.line((392,260,429,260), fill=GOLD, width=2)
+    d.line((401,244,401,255), fill=GOLD, width=3)
+    d.line((420,244,420,255), fill=GOLD, width=3)
+    text(d, day.upper(), (565, 269), size=25, bold=True, anchor="mm", width=250)
 
 
 def footer(d: ImageDraw.ImageDraw, style: int):
     y = 930 if style != 5 else 916
-    d.line((310, y, 430, y), fill=GOLD2, width=2)
-    d.ellipse((465, y-17, 499, y+17), outline=GOLD, width=2)
-    d.line((482,y,482,y-9), fill=GOLD, width=2)
-    d.line((482,y,491,y+4), fill=GOLD, width=2)
-    text(d, "Heure du Togo (GMT)", (520, y), size=20, fill=GREY, anchor="lm")
-    d.line((760, y, 875, y), fill=GOLD2, width=2)
+    d.line((275, y, 405, y), fill=GOLD2, width=2)
+    d.ellipse((425, y-17, 459, y+17), outline=GOLD, width=2)
+    d.line((442,y,442,y-9), fill=GOLD, width=2)
+    d.line((442,y,451,y+4), fill=GOLD, width=2)
+    text(d, "Heure du Togo (GMT)", (565, y), size=20, fill=GREY, anchor="mm")
+    d.line((720, y, 850, y), fill=GOLD2, width=2)
     if style == 4:
         box = [(230,964),(850,964),(880,1003),(850,1042),(230,1042),(200,1003)]
         d.polygon(box, fill="#0A2030", outline=GOLD)
@@ -339,9 +339,9 @@ def match_texts(image, d, item, y, *, home_x=338, away_x=742, center=540, name_w
          width=name_width, min_size=17)
     text(d, item.get("away",""), (away_x,y), size=27, bold=True, anchor="mm",
          width=name_width, min_size=17)
-    gradient_round_rect(image, (center-72,y-26,center+72,y+20), 12)
-    text(d, item.get("time","--h--"), (center,y-3), size=25, bold=True, fill=time_text, anchor="mm")
-    text(d, "VS", (center,y+31), size=15, bold=True, fill=GOLD, anchor="mm")
+    gradient_round_rect(image, (center-58,y-22,center+58,y+16), 10)
+    text(d, item.get("time","--h--"), (center,y-3), size=21, bold=True, fill=time_text, anchor="mm")
+    text(d, "VS", (center,y+31), size=19, bold=True, fill=GOLD, anchor="mm")
 
 
 def rows_style_1(image, d, rows):
