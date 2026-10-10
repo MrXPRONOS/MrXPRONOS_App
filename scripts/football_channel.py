@@ -68,7 +68,7 @@ CATEGORY_LABELS = {
     "programme": "📅 MATCHS DU JOUR",
     "avant_match": "🔎 AVANT-MATCH",
     "resultat": "🏁 RÉSULTAT FINAL",
-    "statistique": "📊 LE CHIFFRE DU JOUR",
+    "statistique": "📊 LA STAT DU JOUR",
     "sondage": "🗳️ LE DÉBAT XPRONOS",
 }
 
@@ -188,6 +188,11 @@ def team_visual_url(event: dict, side: str) -> str:
             if isinstance(value, str) and value.startswith(("https://", "http://")):
                 return value
     return _load_logo_cache().get(_norm_team(team(event, side)), "")
+
+def has_two_team_logos(event: dict) -> bool:
+    """A result/stat card is eligible only when both team logos are known."""
+    return bool(team_visual_url(event, "home") and team_visual_url(event, "away"))
+
 
 
 def candidates(events: list[dict]) -> list[dict]:
@@ -368,6 +373,17 @@ def parse_rss(xml_data: bytes) -> list[dict]:
         if not title or not link.startswith(("http://", "https://")):
             continue
         description = plain(node.findtext("description"), 320)
+        image_url = ""
+        for child in node.iter():
+            tag = str(child.tag).lower()
+            candidate = child.attrib.get("url") or child.attrib.get("href")
+            kind = str(child.attrib.get("type") or "").lower()
+            if candidate and candidate.startswith(("http://", "https://")) and (
+                tag.endswith("thumbnail") or tag.endswith("content") or
+                ("enclosure" in tag and kind.startswith("image/"))
+            ):
+                image_url = candidate
+                break
         stamp = node.findtext("pubDate")
         dt = None
         if stamp:
@@ -378,6 +394,7 @@ def parse_rss(xml_data: bytes) -> list[dict]:
             except (TypeError, ValueError, IndexError):
                 pass
         out.append({"title": title, "url": link, "summary": description,
+                    "image": image_url,
                     "date": dt.astimezone(timezone.utc) if dt else None})
     return sorted(out, key=lambda r: r["date"] or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
 
@@ -388,8 +405,35 @@ def fetch_rss(session: requests.Session) -> list[dict]:
     response.raise_for_status()
     return parse_rss(response.content)
 
+def fetch_article_image(session: requests.Session, url: str) -> str:
+    """Extract the article's own social image without scraping article text."""
+    try:
+        response = session.get(
+            url, timeout=(10, 25),
+            headers={"User-Agent": "Mozilla/5.0 MrXPRONOS-football-news/1.0"},
+        )
+        response.raise_for_status()
+    except requests.RequestException:
+        return ""
+    page = response.text[:1_500_000]
+    patterns = (
+        r'<meta[^>]+property=["\']og:image(?::secure_url)?["\'][^>]+content=["\']([^"\']+)["\']',
+        r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image(?::secure_url)?["\']',
+        r'<meta[^>]+name=["\']twitter:image(?::src)?["\'][^>]+content=["\']([^"\']+)["\']',
+        r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+name=["\']twitter:image(?::src)?["\']',
+    )
+    for pattern in patterns:
+        match = re.search(pattern, page, flags=re.I)
+        if match:
+            image = html.unescape(match.group(1)).strip()
+            if image.startswith(("https://", "http://")):
+                return image
+    return ""
 
-def flash(articles: list[dict], history: History, now: datetime) -> Publication | None:
+
+
+def flash(articles: list[dict], history: History, now: datetime,
+          session: requests.Session | None = None) -> Publication | None:
     last = history.newest("flash")
     if last and now - last < timedelta(hours=3):
         return None
@@ -412,7 +456,17 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
         buttons = {"inline_keyboard": [[
             {"text": "Lire sur Foot Mercato ↗", "url": a["url"], "style": "primary"}
         ]]}
-        return Publication("flash", key, msg, keyboard=buttons)
+        image_url = a.get("image") or ""
+        if not image_url and session is not None:
+            image_url = fetch_article_image(session, a["url"])
+        card = {
+            "day": now.astimezone(TZ).strftime("%d/%m/%Y"),
+            "title": a["title"],
+            "summary": a["summary"],
+            "source": "Foot Mercato",
+            "image_url": image_url,
+        }
+        return Publication("flash", key, msg, card=card, keyboard=buttons)
     return None
 
 
@@ -454,6 +508,8 @@ def finished_recent(events: list[dict], now: datetime) -> list[dict]:
 
 def resultat(events: list[dict], history: History, now: datetime) -> Publication | None:
     for e in finished_recent(events, now):
+        if not has_two_team_logos(e):
+            continue
         key = "resultat:" + str(e["id"])
         if history.seen(key):
             continue
@@ -517,22 +573,33 @@ def avant_match(events: list[dict], history: History, now: datetime,
         obj = e.get(side + "_team")
         return obj.get("id") if isinstance(obj, dict) else e.get(side + "_team_id")
     h, a = team(e, "home"), team(e, "away")
-    lines = [
-        "<b>🔎 AVANT-MATCH • MR XPRONOS</b>\n",
-        "🏆 " + esc(league(e) or "Football"),
-        "⚽ <b>" + esc(h) + " – " + esc(a) + "</b>",
-        "🕒 Coup d'envoi : <b>" + time_label(kick(e)) + "</b> (Togo)",
-        "\n📈 <b>Forme récente connue (7 derniers jours)</b>",
-        "• " + esc(h) + " : " + esc(form(team_id("home"), h, history_events, kick(e))),
-        "• " + esc(a) + " : " + esc(form(team_id("away"), a, history_events, kick(e))),
-        "\n💬 Quel scénario imaginez-vous pour cette rencontre ?",
-    ]
-    return Publication("avant_match", "avant_match:" + str(e["id"]), "\n".join(lines))
+    home_form = form(team_id("home"), h, history_events, kick(e))
+    away_form = form(team_id("away"), a, history_events, kick(e))
+    message = (
+        "<h3>🔎 AVANT-MATCH • MR XPRONOS</h3>"
+        "<p><i>" + esc(league(e) or "Football") + "</i></p>"
+        "<blockquote><b>⚽ " + esc(h) + " – " + esc(a) + "</b><br/>"
+        "<b>🕒 " + time_label(kick(e)) + "</b> • Heure du Togo</blockquote>"
+        "<p><b>📈 Forme récente connue</b><br/>"
+        + esc(h) + " : " + esc(home_form) + "<br/>"
+        + esc(a) + " : " + esc(away_form) + "</p>"
+        "<p><b>💬 Quel scénario imaginez-vous ?</b></p>"
+    )
+    card = {
+        "day": kick(e).astimezone(TZ).strftime("%d/%m/%Y"),
+        "league": league(e) or "Football",
+        "home": h, "away": a, "time": time_label(kick(e)),
+        "home_form": home_form, "away_form": away_form,
+        "home_logo": team_visual_url(e, "home"),
+        "away_logo": team_visual_url(e, "away"),
+    }
+    return Publication("avant_match", "avant_match:" + str(e["id"]), message, card=card)
 
 
 def statistique(events: list[dict], yesterday: date) -> Publication | None:
     finished = [e for e in events if final_score(e) is not None and
-                kick(e) and kick(e).astimezone(TZ).date() == yesterday]
+                kick(e) and kick(e).astimezone(TZ).date() == yesterday
+                and has_two_team_logos(e)]
     if not finished:
         return None
     # Privilégier une affiche pertinente plutôt que le seul total de buts.
@@ -549,8 +616,8 @@ def statistique(events: list[dict], yesterday: date) -> Publication | None:
     h, a = final_score(e)
     total = h + a
     message = (
-        "<b>📊 LE CHIFFRE DU JOUR • MR XPRONOS</b>\n\n"
-        "<i>La statistique marquante sélectionnée dans les résultats BSD d'hier.</i>\n\n"
+        "<b>📊 LA STAT DU JOUR • MR XPRONOS</b>\n\n"
+        "<i>Une statistique marquante issue d'un match BSD d'hier avec logos vérifiés.</i>\n\n"
         "<blockquote><b>🔥 " + str(total) + " BUTS</b><br/>"
         + esc(team(e, "home")) + " <b>" + str(h) + " – " + str(a) + "</b> "
         + esc(team(e, "away")) + "<br/>"
@@ -572,8 +639,12 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
     if future:
         e = future[0]
         h, a = team(e, "home"), team(e, "away")
-        question = ("⚽ " + h + " - " + a + " : votre favori ? 💬 Vote puis commente.")[:300]
-        options = ["Victoire " + h, "Match nul", "Victoire " + a]
+        question = (
+            "🗳️ MR XPRONOS • LE DÉBAT DU JOUR\n\n"
+            "🔥 " + h + " vs " + a + "\n"
+            "Qui prend les 3 points ?"
+        )[:300]
+        options = ["🏠 " + h, "🤝 Match nul", "✈️ " + a]
         if max(map(len, options)) <= 100:
             return Publication("sondage", "sondage:" + today.isoformat(),
                                "🗳️ Sondage Mr XPRONOS", (question, options))
@@ -688,7 +759,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
 
         if 8 <= hour <= 23 and counter["sent"] < max_send and (force or enough(state, "flash", now)):
             try:
-                publish(flash(fetch_rss(sender.session), state, now))
+                publish(flash(fetch_rss(sender.session), state, now, sender.session))
             except (ET.ParseError, requests.RequestException, ValueError) as exc:
                 counter["errors"] += 1
                 print("ERREUR_RSS", type(exc).__name__, str(exc)[:160])
@@ -793,7 +864,7 @@ def run_live_test(now: datetime) -> dict[str, Any]:
             return statistique(day_events(yesterday), yesterday)
 
         def actual_flash() -> Publication | None:
-            return flash(fetch_rss(sender.session), empty_history, now)
+            return flash(fetch_rss(sender.session), empty_history, now, sender.session)
 
         def actual_poll() -> Publication:
             return sondage(day_events(today), empty_history, now)
