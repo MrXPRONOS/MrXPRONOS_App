@@ -1,0 +1,72 @@
+name: Live V2.1 Production Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-v21-production-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check production V2.1
+        run: |
+          set -euo pipefail
+
+          curl --fail-with-body --silent --show-error --retry 3 --max-time 30             "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live/matches"             -o /tmp/matches.json
+
+          curl --fail-with-body --silent --show-error --retry 3 --max-time 30             "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live/predictions/history"             -o /tmp/history.json
+
+          python - <<'PY'
+          import json
+          from collections import Counter
+
+          matches=json.load(open('/tmp/matches.json')).get('matches') or []
+          history=json.load(open('/tmp/history.json')).get('history') or []
+
+          print('MATCHES=', len(matches))
+          print('HISTORY=', len(history))
+
+          versions=Counter(str(r.get('model_version')) for r in history)
+          print('MODEL_VERSIONS=', dict(versions))
+
+          required={
+              'baseline_threshold',
+              'historical_uplift_cap',
+              'selected_uplift',
+              'model_version',
+              'model_fair_odds',
+              'signal_tier',
+              'projected_value',
+              'final_value',
+              'headroom',
+          }
+
+          if history:
+              print('V21_SCHEMA_FIELDS=', sorted(required.intersection(history[0].keys())))
+
+          v21=[r for r in history if r.get('model_version')=='live-value-v2.1-history-calibrated']
+          print('V21_SIGNALS=', len(v21))
+
+          for r in v21[:10]:
+              print('V21_SAMPLE=', {
+                  'match': r.get('match'),
+                  'type': r.get('type'),
+                  'minute': r.get('signal_minute') or r.get('minute'),
+                  'signal_value': r.get('signal_value'),
+                  'baseline': r.get('baseline_threshold'),
+                  'uplift_cap': r.get('historical_uplift_cap'),
+                  'selected_uplift': r.get('selected_uplift'),
+                  'threshold': r.get('threshold'),
+                  'model_odds': r.get('model_fair_odds'),
+                  'tier': r.get('signal_tier'),
+                  'validated': r.get('validated'),
+                  'outcome': r.get('outcome'),
+              })
+          PY
