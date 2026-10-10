@@ -156,8 +156,7 @@ def combo_verdict(combo,events):
         won,h,a=result
         scored={**leg,"home_score":h,"away_score":a,"status":"finished","is_finished":True}
         if not won:
-            return False,[scored if i==len(checked) else old for i,old in enumerate(
-                [*([x for x in legs[:len(checked)]]),scored])]
+            return False,legs
         checked.append(scored)
     if any(row is None for row in checked):
         return None
