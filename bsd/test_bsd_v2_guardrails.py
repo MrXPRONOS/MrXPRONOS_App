@@ -7,7 +7,8 @@ from unittest.mock import patch
 from bsd_markets import candidates_from_goals
 from bsd_v2_core import V2History, choose_market, markets_from_matrix, score_matrix, predict_v2
 from bsd_v2_guardrails import (
-    POLICY_VERSION, post_price_value_guard, update_performance_tracker, tracker_penalties,
+    POLICY_VERSION, MIN_CONSERVATIVE_BY_FAMILY, post_price_value_guard,
+    update_performance_tracker, tracker_penalties,
 )
 from bsd_v2_publish import assemble
 from bsd_v2_settlement_watchdog import apply_watchdog
@@ -39,10 +40,12 @@ class GuardrailTests(unittest.TestCase):
     def test_double_chance_has_75pct_conservative_floor(self):
         original=next(x for x in markets_from_matrix(score_matrix(1.6,1.0)) if x.key=="1X")
         marginal=replace(original,probability=.755)
-        choice,_=choose_market([marginal],min_probability=.70,league_samples=100,form_samples=10)
+        choice,_=choose_market([marginal],min_probability=.70,league_samples=100,form_samples=10,
+                               family_minimums=MIN_CONSERVATIVE_BY_FAMILY)
         self.assertIsNone(choice)
         strong=replace(original,probability=.78)
-        choice,_=choose_market([strong],min_probability=.70,league_samples=100,form_samples=10)
+        choice,_=choose_market([strong],min_probability=.70,league_samples=100,form_samples=10,
+                               family_minimums=MIN_CONSERVATIVE_BY_FAMILY)
         self.assertIsNotNone(choice)
 
     def test_drift_penalty_stays_zero_before_minimum_sample(self):
