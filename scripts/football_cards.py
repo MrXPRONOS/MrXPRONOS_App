@@ -334,13 +334,22 @@ def prematch_card(payload: dict[str, Any]) -> Image.Image:
     txt(d, "COUP D’ENVOI • HEURE DU TOGO", 540, 520, size=17,
         bold=True, color=GOLD, anchor="ma")
 
-    d.rounded_rectangle((125, 625, 955, 735), radius=25,
-                        fill="#0A2234", outline="#5C4A24", width=2)
-    txt(d, "FORME RÉCENTE", 540, 650, size=18, bold=True, color=GREY, anchor="ma")
-    txt(d, home + " : " + clean(payload.get("home_form", "")),
-        155, 690, size=18, color=WHITE, anchor="lm", max_width=365, min_size=14)
-    txt(d, away + " : " + clean(payload.get("away_form", "")),
-        560, 690, size=18, color=WHITE, anchor="lm", max_width=365, min_size=14)
+    home_form = clean(payload.get("home_form", ""))
+    away_form = clean(payload.get("away_form", ""))
+    if home_form or away_form:
+        d.rounded_rectangle((125, 625, 955, 745), radius=25,
+                            fill="#0A2234", outline="#5C4A24", width=2)
+        txt(d, "FORME RÉCENTE", 540, 650, size=18, bold=True, color=GREY, anchor="ma")
+        if home_form:
+            txt(d, home, 155, 687, size=16, bold=True, color=WHITE,
+                anchor="lm", max_width=245, min_size=13)
+            txt(d, home_form, 155, 716, size=17, bold=True, color=GOLD,
+                anchor="lm", max_width=340, min_size=13)
+        if away_form:
+            txt(d, away, 565, 687, size=16, bold=True, color=WHITE,
+                anchor="lm", max_width=245, min_size=13)
+            txt(d, away_form, 565, 716, size=17, bold=True, color=GOLD,
+                anchor="lm", max_width=340, min_size=13)
 
     txt(d, clean(payload.get("day", "")), 540, 860, size=19,
         color=GREY, anchor="mm")
