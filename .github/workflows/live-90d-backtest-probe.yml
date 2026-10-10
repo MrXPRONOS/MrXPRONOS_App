@@ -1,0 +1,24 @@
+name: Live 90d Backtest Probe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/live-90d-backtest-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Query aggregate backtest
+        run: |
+          set -euo pipefail
+          status=$(curl --silent --show-error --max-time 60             -o /tmp/backtest.json             -w "%{http_code}"             "https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/live/backtest/headroom?days=90")
+          echo "HTTP_STATUS=$status"
+          cat /tmp/backtest.json
+          test "$status" = "200"
