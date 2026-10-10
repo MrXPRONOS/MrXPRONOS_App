@@ -44,11 +44,23 @@ LEAGUE_TERMS = (
     "can 202", "eredivisie", "liga portugal", "ligue 1 togolaise",
 )
 TEAM_TERMS = (
-    "real madrid", "barcelona", "barcelone", "manchester", "liverpool",
-    "arsenal", "chelsea", "psg", "paris saint-germain", "bayern",
-    "inter milan", "juventus", "ac milan", "napoli", "marseille",
-    "atletico", "borussia dortmund", "al ahly", "wydad", "esperance",
-    "senegal", "sénégal", "togo", "côte d'ivoire", "nigeria", "maroc",
+    "real madrid", "barcelona", "barcelone", "manchester city", "manchester united",
+    "liverpool", "arsenal", "chelsea", "tottenham", "newcastle", "psg",
+    "paris saint-germain", "bayern", "inter milan", "juventus", "ac milan",
+    "napoli", "marseille", "atletico", "borussia dortmund", "leverkusen",
+    "benfica", "porto", "sporting", "ajax", "inter miami", "al ahly",
+    "wydad", "esperance", "senegal", "sénégal", "togo", "côte d'ivoire",
+    "nigeria", "maroc",
+)
+ELITE_TEAM_TERMS = (
+    "real madrid", "barcelona", "manchester city", "manchester united",
+    "liverpool", "arsenal", "chelsea", "psg", "paris saint-germain",
+    "bayern", "inter milan", "juventus", "ac milan", "atletico",
+    "borussia dortmund",
+)
+ELITE_LEAGUE_TERMS = (
+    "champions league", "ligue des champions", "premier league", "la liga",
+    "laliga", "serie a", "bundesliga", "ligue 1", "europa league",
 )
 CATEGORY_LABELS = {
     "flash": "📰 FLASH FOOT",
@@ -121,9 +133,60 @@ def league(event: dict) -> str:
 
 def importance(event: dict) -> int:
     combined = " ".join((league(event), team(event, "home"), team(event, "away"))).lower()
-    points = sum(12 for term in LEAGUE_TERMS if term in combined)
+    points = sum(10 for term in LEAGUE_TERMS if term in combined)
     points += sum(5 for term in TEAM_TERMS if term in combined)
+    points += sum(18 for term in ELITE_LEAGUE_TERMS if term in combined)
+    points += sum(14 for term in ELITE_TEAM_TERMS if term in combined)
+    # Une affiche entre deux équipes fortes doit naturellement remonter.
+    elite_count = sum(1 for term in ELITE_TEAM_TERMS if term in combined)
+    if elite_count >= 2:
+        points += 24
     return points
+
+_TSDB_LOGOS: dict[str, str] | None = None
+
+def _norm_team(value: Any) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", plain(value, 90).casefold()).strip()
+
+def _load_logo_cache() -> dict[str, str]:
+    global _TSDB_LOGOS
+    if _TSDB_LOGOS is not None:
+        return _TSDB_LOGOS
+    out: dict[str, str] = {}
+    path = ROOT / "cache" / "tsdb_cache.json"
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        payload = {}
+    if isinstance(payload, dict):
+        for item in payload.values():
+            if not isinstance(item, dict):
+                continue
+            for side in ("Home", "Away"):
+                name = item.get("str" + side + "Team")
+                badge = item.get("str" + side + "TeamBadge")
+                if name and isinstance(badge, str) and badge.startswith(("https://", "http://")):
+                    out[_norm_team(name)] = badge
+    _TSDB_LOGOS = out
+    return out
+
+def team_visual_url(event: dict, side: str) -> str:
+    """BSD en priorité; cache local de badges en secours."""
+    candidates_keys = (
+        side + "_team_logo", side + "_logo", side + "_team_badge",
+        side + "_badge", side + "_team_image", side + "_image",
+    )
+    for key in candidates_keys:
+        value = event.get(key)
+        if isinstance(value, str) and value.startswith(("https://", "http://")):
+            return value
+    obj = event.get(side + "_team")
+    if isinstance(obj, dict):
+        for key in ("logo", "logo_url", "badge", "badge_url", "crest", "image", "image_url"):
+            value = obj.get(key)
+            if isinstance(value, str) and value.startswith(("https://", "http://")):
+                return value
+    return _load_logo_cache().get(_norm_team(team(event, side)), "")
 
 
 def candidates(events: list[dict]) -> list[dict]:
@@ -366,7 +429,10 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
                      "   🕒 " + time_label(kick(event)) + label)
     lines.append("\n💬 Quel match attendez-vous le plus ?")
     card = {"day": today.strftime("%d/%m/%Y"), "matches": [
-        {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e))}
+        {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
+         "league": league(e), "importance": importance(e),
+         "home_logo": team_visual_url(e, "home"),
+         "away_logo": team_visual_url(e, "away")}
         for e in chosen]}
     return Publication("programme", "programme:" + today.isoformat(),
                        post_label("\n\n".join(lines)), card=card)
