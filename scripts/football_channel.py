@@ -421,7 +421,7 @@ def parse_rss(xml_data: bytes) -> list[dict]:
         link = (node.findtext("link") or "").strip()
         if not title or not link.startswith(("http://", "https://")):
             continue
-        description = plain(node.findtext("description"), 320)
+        description = clean_news_summary(plain(node.findtext("description"), 420))
         image_url = ""
         for child in node.iter():
             tag = str(child.tag).lower()
@@ -447,6 +447,16 @@ def parse_rss(xml_data: bytes) -> list[dict]:
                     "date": dt.astimezone(timezone.utc) if dt else None})
     return sorted(out, key=lambda r: r["date"] or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
 
+
+def clean_news_summary(value: str) -> str:
+    """Retire URLs, Markdown et résidus de lien des résumés RSS."""
+    text = html.unescape(value or "")
+    text = re.sub(r'\[([^\]]+)\]\((?:https?://)[^)]+\)', r'\1', text)
+    text = re.sub(r'\[([^\]]+)\]\[(?:[^\]]+)\]', r'\1', text)
+    text = re.sub(r'https?://\S+', '', text)
+    text = re.sub(r'[\*_~]+', '', text)
+    text = re.sub(r'\s+', ' ', text).strip(" -–—|[]()")
+    return plain(text, 260)
 
 def fetch_rss(session: requests.Session) -> list[dict]:
     response = session.get(RSS_URL, timeout=(10, 25),
@@ -526,7 +536,14 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
               and str(e.get("status", "")).lower() not in ("cancelled", "postponed", "finished", "live")]
     if not future:
         return None
-    chosen = future[:5]
+    chosen = []
+    for event in future[:14]:
+        if has_two_team_logos(event, allow_remote=True):
+            chosen.append(event)
+        if len(chosen) >= 5:
+            break
+    if not chosen:
+        return None
     lead = chosen[0]
     lead_league = esc(league(lead) or "Football")
     message = (
@@ -542,8 +559,8 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
     card = {"day": today.strftime("%d/%m/%Y"), "matches": [
         {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
          "league": league(e), "importance": importance(e),
-         "home_logo": team_visual_url(e, "home"),
-         "away_logo": team_visual_url(e, "away")}
+         "home_logo": team_visual_url(e, "home", allow_remote=True),
+         "away_logo": team_visual_url(e, "away", allow_remote=True)}
         for e in chosen]}
     return Publication("programme", "programme:" + today.isoformat(),
                        message, card=card)
@@ -615,6 +632,7 @@ def avant_match(events: list[dict], history: History, now: datetime,
     selected = [e for e in candidates(events)
                 if timedelta(minutes=65) <= kick(e) - now <= timedelta(minutes=170)
                 and final_score(e) is None and not history.seen("avant_match:" + str(e["id"]))]
+    selected = [e for e in selected[:10] if has_two_team_logos(e, allow_remote=True)]
     if not selected:
         return None
     e = selected[0]
@@ -639,8 +657,8 @@ def avant_match(events: list[dict], history: History, now: datetime,
         "league": league(e) or "Football",
         "home": h, "away": a, "time": time_label(kick(e)),
         "home_form": home_form, "away_form": away_form,
-        "home_logo": team_visual_url(e, "home"),
-        "away_logo": team_visual_url(e, "away"),
+        "home_logo": team_visual_url(e, "home", allow_remote=True),
+        "away_logo": team_visual_url(e, "away", allow_remote=True),
     }
     return Publication("avant_match", "avant_match:" + str(e["id"]), message, card=card)
 
