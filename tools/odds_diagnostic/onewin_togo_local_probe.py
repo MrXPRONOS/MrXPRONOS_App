@@ -250,6 +250,7 @@ async def main():
         "region_blocked":False,
         "body_region_excerpt":None,
         "football_visible":False,
+        "football_nav_links":[],
         "selection":None,
         "market_samples":[],
         "share_controls":[],
@@ -338,6 +339,29 @@ async def main():
                     "text_excerpt":re.sub(r"\\s+"," ",text_sample).strip()[:700] or None,
                 })
             rep["frames"]=frame_info
+            try:
+                navs=page.locator("a[href],button,[role=button]")
+                found=[]
+                for i in range(min(await navs.count(),1600)):
+                    el=navs.nth(i)
+                    try:
+                        label=(await txt(el,180)).strip()
+                        if "football" not in label.lower():
+                            continue
+                        found.append({
+                            "label":label[:180],
+                            "href":str(await el.get_attribute("href") or "")[:400],
+                            "role":str(await el.get_attribute("role") or "")[:80],
+                            "aria_label":str(await el.get_attribute("aria-label") or "")[:180],
+                            "class":str(await el.get_attribute("class") or "")[:260],
+                        })
+                        if len(found)>=30:
+                            break
+                    except:
+                        continue
+                rep["football_nav_links"]=found
+            except:
+                rep["football_nav_links"]=[]
             rep["football_visible"]="football" in body.lower()
             if not rep["football_visible"]:
                 try:
