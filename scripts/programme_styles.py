@@ -201,13 +201,14 @@ def team_visual(image: Image.Image, draw: ImageDraw.ImageDraw, cx: int, cy: int,
 def background(style: int):
     image = Image.new("RGB", (W, H), NAVY)
     d = ImageDraw.Draw(image)
-    # Shared geometric stadium atmosphere; every primitive is code-reproducible.
+    # Deep navy/blue gradient, richer than a flat fill but still deterministic.
     for y in range(H):
         t = y / H
+        glow = max(0.0, 1.0 - abs(t - 0.42) * 2.3)
         c = (
-            int(6 + 6*t),
-            int(19 + 16*t),
-            int(31 + 23*t),
+            int(3 + 6*t),
+            int(16 + 28*t + 5*glow),
+            int(34 + 50*t + 16*glow),
         )
         d.line((0, y, W, y), fill=c)
     if style in (1, 5):
@@ -225,7 +226,12 @@ def background(style: int):
         for y in range(130, 960, 90):
             d.line((55, y, 1025, y), fill="#0B3049", width=1)
     elif style == 6:
-        d.rounded_rectangle((36, 320, 1044, 910), radius=34, fill="#0A1C29", outline="#466273", width=2)
+        d.polygon([(0,0),(180,0),(62,355),(0,420)], fill="#0A3159")
+        d.polygon([(1080,0),(900,0),(1018,355),(1080,420)], fill="#0A3159")
+        d.polygon([(0,720),(110,820),(60,1080),(0,1080)], fill="#082746")
+        d.polygon([(1080,720),(970,820),(1020,1080),(1080,1080)], fill="#082746")
+        d.rounded_rectangle((38, 315, 1042, 908), radius=34,
+                            fill="#071A29", outline="#6F5420", width=2)
     elif style == 7:
         d.polygon([(0,0),(1080,0),(980,310),(100,310)], fill="#081B2A")
         d.polygon([(0,900),(1080,900),(1080,1080),(0,1080)], fill="#081C2B")
@@ -241,15 +247,16 @@ def background(style: int):
     return image, d
 
 
-def header(d: ImageDraw.ImageDraw, style: int, day: str):
+def header(image: Image.Image, d: ImageDraw.ImageDraw, style: int, day: str):
     # Brand
     text(d, "♛", (540, 34), size=30, bold=True, fill=GOLD, anchor="ma")
-    text(d, "MR XPRONOS", (540, 62), size=30, bold=True, fill=WHITE, anchor="ma")
+    text(d, "MR", (495, 62), size=30, bold=True, fill=WHITE, anchor="ra")
+    gradient_text(image, "XPRONOS", (505, 62), size=30, anchor="la")
     d.line((315, 75, 410, 75), fill=GOLD2, width=2)
     d.line((670, 75, 765, 75), fill=GOLD2, width=2)
     # Title
     text(d, "MATCHS", (530, 112), size=74, bold=True, fill=WHITE, anchor="ra")
-    text(d, "DU JOUR", (550, 112), size=74, bold=True, fill=GOLD, anchor="la")
+    gradient_text(image, "DU JOUR", (550, 112), size=74, anchor="la")
     text(d, "LES RENDEZ-VOUS A NE PAS MANQUER", (540, 202), size=21, bold=True,
          fill=GREY, anchor="ma")
     # Date module varies slightly by style but stays componentized.
