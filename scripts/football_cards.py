@@ -255,10 +255,12 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
     d.rounded_rectangle((112, 566, 968, 731), radius=28, fill="#081D2E")
     gradient_outline_round_rect(image, (112, 566, 968, 731), 28, width=2, glow=False)
 
-    home_item = {"home": home, "home_logo": payload.get("home_logo", "")}
-    away_item = {"away": away, "away_logo": payload.get("away_logo", "")}
-    team_visual(image, d, 175, 649, home_item, "home", scale=.95)
-    team_visual(image, d, 905, 649, away_item, "away", scale=.95)
+    home_logo = clean(payload.get("home_logo", ""))
+    away_logo = clean(payload.get("away_logo", ""))
+    if not home_logo or not away_logo:
+        raise ValueError("Statistique sans deux logos")
+    paste_required_logo(image, home_logo, (175, 649), 115)
+    paste_required_logo(image, away_logo, (905, 649), 115)
 
     txt(d, home, 340, 647, size=31, bold=True, color=WHITE, anchor="mm",
         max_width=250, min_size=19)
@@ -449,10 +451,14 @@ def demo(out_dir: str | Path) -> list[Path]:
             {"home": "Bayern Munich", "away": "Borussia Dortmund", "time": "15h30"},
             {"home": "Inter Milan", "away": "AC Milan", "time": "19h45"},
         ]}),
-        ("resultat", {"day": day, "league": "Premier League", "home": "Arsenal",
-                      "away": "Chelsea", "scores": [2, 1]}),
-        ("statistique", {"day": day, "league": "Ligue des Champions", "home": "Real Madrid",
-                         "away": "Borussia Dortmund", "scores": [4, 3]}),
+        ("resultat", {"day": day, "league": "Premier League", "home": "Leeds United",
+                      "away": "Sunderland", "scores": [2, 1],
+                      "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png",
+                      "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"}),
+        ("statistique", {"day": day, "league": "Premier League", "home": "Leeds United",
+                         "away": "Sunderland", "scores": [3, 2],
+                         "home_logo": "https://r2.thesportsdb.com/images/media/team/badge/jcgrml1756649030.png",
+                         "away_logo": "https://r2.thesportsdb.com/images/media/team/badge/tprtus1448813498.png"}),
     ]
     return [render_card(kind, payload, dest / (kind + "-demo.png")) for kind, payload in examples]
 
