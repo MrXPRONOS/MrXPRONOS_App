@@ -184,5 +184,44 @@ class FootballChannelTests(unittest.TestCase):
         self.assertIn("commente", poll.poll[0].lower())
 
 
+    def test_rotation_programme_lundi_dimanche(self):
+        import importlib.util
+        cards = Path(__file__).resolve().parents[1] / "scripts" / "programme_styles.py"
+        spec2 = importlib.util.spec_from_file_location("programme_styles", cards)
+        mod = importlib.util.module_from_spec(spec2)
+        spec2.loader.exec_module(mod)
+        self.assertEqual(mod.style_for_day("12/10/2026"), 1)  # lundi
+        self.assertEqual(mod.style_for_day("18/10/2026"), 7)  # dimanche
+
+    def test_les_sept_styles_programme_se_generent(self):
+        import importlib.util
+        cards = Path(__file__).resolve().parents[1] / "scripts" / "programme_styles.py"
+        spec2 = importlib.util.spec_from_file_location("programme_styles", cards)
+        mod = importlib.util.module_from_spec(spec2)
+        spec2.loader.exec_module(mod)
+        payload = {"day": "10/10/2026", "matches": [
+            {"home": "Club Sportif International de Test", "away": "Olympique Exemple", "time": "17h30"},
+            {"home": "Real Madrid", "away": "FC Barcelona", "time": "20h00"},
+            {"home": "PSG", "away": "Marseille", "time": "21h00"},
+            {"home": "Bayern Munich", "away": "Borussia Dortmund", "time": "15h30"},
+            {"home": "Inter Milan", "away": "AC Milan", "time": "19h45"},
+        ]}
+        for style in range(1, 8):
+            image = mod.render_programme(payload, style=style)
+            self.assertEqual(image.size, (1080, 1080))
+            self.assertEqual(image.mode, "RGB")
+
+    def test_style_programme_invalide_refuse(self):
+        import importlib.util
+        cards = Path(__file__).resolve().parents[1] / "scripts" / "programme_styles.py"
+        spec2 = importlib.util.spec_from_file_location("programme_styles", cards)
+        mod = importlib.util.module_from_spec(spec2)
+        spec2.loader.exec_module(mod)
+        with self.assertRaises(ValueError):
+            mod.render_programme({"day": "10/10/2026", "matches": [
+                {"home": "A", "away": "B", "time": "12h00"}
+            ]}, style=8)
+
+
 if __name__ == "__main__":
     unittest.main()
