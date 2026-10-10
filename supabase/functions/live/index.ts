@@ -2896,7 +2896,7 @@ function conservativeProjection(params: {
 }
 
 
-const LIVE_VALUE_MODEL_VERSION = "live-value-v2.0";
+const LIVE_VALUE_MODEL_VERSION = "live-value-v2.1-history-calibrated";
 
 type LiveMarketKind = "shots" | "corners" | "fouls";
 type LiveSignalTier = "quality" | "value" | "high_value";
@@ -2906,6 +2906,49 @@ const LIVE_MARKET_LINES: Record<LiveMarketKind, number[]> = {
   shots: [15.5, 17.5, 19.5, 21.5, 23.5, 25.5, 27.5, 29.5, 31.5, 33.5],
   fouls: [17.5, 19.5, 21.5, 23.5, 24.5, 25.5, 27.5, 29.5, 31.5],
 };
+
+// Lignes utilisées par l'ancien moteur. Elles servent de référence historique
+// pour empêcher V2 d'aller trop loin simplement parce qu'une cote paraît attractive.
+const LEGACY_BASELINE_LINES: Record<LiveMarketKind, number[]> = {
+  corners: [7.5, 8.5, 9.5, 10.5, 11.5],
+  shots: [17.5, 19.5, 21.5, 23.5, 25.5, 27.5, 29.5],
+  fouls: [19.5, 21.5, 23.5, 24.5, 25.5, 27.5],
+};
+
+function legacyBaselineThreshold(
+  type: LiveMarketKind,
+  current: number,
+  projected: number,
+  minGap = 2,
+) {
+  const lines = LEGACY_BASELINE_LINES[type] || [];
+  return lines.find((threshold) =>
+    current < threshold &&
+    threshold - current >= minGap &&
+    projected >= threshold + 0.5
+  ) ?? null;
+}
+
+// Plafonds issus du backtest historique du 10/10/2026.
+// Objectif : conserver ~80-85% de réussite historique sur les hausses de ligne
+// quand l'échantillon est suffisamment grand.
+function historicalUpliftCap(type: LiveMarketKind, minute: number): number | null {
+  if (type === "shots") {
+    if (minute < 30) return 6;
+    if (minute < 45) return 5;
+    if (minute < 60) return 2;
+    if (minute < 75) return 1;
+    return 0;
+  }
+
+  if (type === "corners") {
+    if (minute >= 30 && minute < 45) return 1;
+    return 0;
+  }
+
+  // Pas encore assez d'historique exploitable sur les fautes.
+  return null;
+}
 
 function poissonTail(lambda: number, atLeast: number) {
   if (atLeast <= 0) return 1;
@@ -2922,7 +2965,9 @@ function poissonTail(lambda: number, atLeast: number) {
 
 function marketProjectionBuffer(type: LiveMarketKind) {
   if (type === "corners") return 1.5;
-  if (type === "shots") return 3.0;
+  // Le backtest montre une marge très importante sur les tirs, surtout avant 45'.
+  // Le plafond historique par minute empêche malgré tout les excès.
+  if (type === "shots") return 6.0;
   return 3.0;
 }
 
@@ -3084,9 +3129,26 @@ function buildLivePrediction(params: {
     minGap: 2,
   });
 
-  // La médiane est choisie parmi les lignes correspondant réellement
-  // à la zone de cote recherchée (1.45 à 3.20), pas parmi les micro-cotes.
-  const candidates = allCandidates.filter((c: any) => Boolean(c.signal_tier));
+  // La médiane reste la règle de sélection demandée, mais uniquement
+  // à l'intérieur d'une fenêtre historiquement admissible.
+  const baseline = legacyBaselineThreshold(type, current, projectedFinal, 2);
+  const upliftCap = historicalUpliftCap(type, minute);
+
+  let candidates = allCandidates.filter((c: any) => Boolean(c.signal_tier));
+
+  if (type === "shots" || type === "corners") {
+    if (baseline == null || upliftCap == null) return null;
+    candidates = candidates.filter((c: any) =>
+      c.threshold >= baseline &&
+      c.threshold <= baseline + upliftCap + 1e-9
+    );
+  }
+
+  // Pas de High Value sur corners/fautes tant qu'on n'a pas de calibration V2 suffisante.
+  if (type === "corners" || type === "fouls") {
+    candidates = candidates.filter((c: any) => c.signal_tier !== "high_value");
+  }
+
   if (!candidates.length) return null;
 
   const selected = selectMedianCandidate(candidates);
@@ -3126,6 +3188,8 @@ function buildLivePrediction(params: {
     reasons: [
       ...reasons,
       `Projection finale ${projectedFinal}`,
+      ...(baseline != null ? [`Ligne de référence historique ${baseline}`] : []),
+      ...(upliftCap != null ? [`Plafond historique +${upliftCap}`] : []),
       `Ligne médiane ${selected.index + 1}/${candidates.length}`,
       `Cote modèle ${chosen.model_fair_odds.toFixed(2)}`,
     ],
@@ -3182,6 +3246,9 @@ function predictTotalCorners(stats: any, minute: number, momentum: any) {
   reliability = Math.min(92, Math.max(40, reliability));
 
   if (reliability < 63) return null;
+  // Historiquement, les corners 45'-59' étaient la fenêtre la plus faible.
+  // On ne conserve ici que les signaux dont les données/momentum poussent la fiabilité haut.
+  if (minute >= 45 && minute < 60 && reliability < 78) return null;
 
   return buildLivePrediction({
     type: "corners",
