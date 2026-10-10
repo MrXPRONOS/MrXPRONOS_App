@@ -600,6 +600,7 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
 
 
 def form(team_id: Any, name: str, events: list[dict], before: datetime) -> str:
+    """Forme sur les cinq derniers matchs terminés réellement retrouvés."""
     recent = []
     for e in events:
         when = kick(e)
@@ -607,28 +608,54 @@ def form(team_id: Any, name: str, events: list[dict], before: datetime) -> str:
         if not when or not result or when >= before:
             continue
         side = None
-        for s in ("home", "away"):
-            current = e.get(s + "_team")
+        for side_name in ("home", "away"):
+            current = e.get(side_name + "_team")
             current_id = (current.get("id") if isinstance(current, dict) else
-                          e.get(s + "_team_id"))
+                          e.get(side_name + "_team_id"))
             if team_id is not None and str(current_id) == str(team_id):
-                side = s
+                side = side_name
                 break
-            if team_id is None and team(e, s).casefold() == name.casefold():
-                side = s
+            if team_id is None and team(e, side_name).casefold() == name.casefold():
+                side = side_name
                 break
         if side:
-            x, y = result if side == "home" else result[::-1]
-            recent.append((when, "V" if x > y else "N" if x == y else "D"))
+            scored, conceded = result if side == "home" else result[::-1]
+            verdict = "V" if scored > conceded else "N" if scored == conceded else "D"
+            recent.append((when, verdict))
     recent.sort(reverse=True)
-    vals = [x[1] for x in recent[:5]]
+    vals = [item[1] for item in recent[:5]]
     if not vals:
-        return "forme récente non disponible"
-    return str(len(vals)) + " match(s) retrouvés : " + ", ".join(vals)
+        return ""
+    points = sum(3 if value == "V" else 1 if value == "N" else 0 for value in vals)
+    return " • ".join(vals) + "  |  " + str(points) + "/" + str(len(vals) * 3) + " pts"
+
+
+def fetch_prematch_forms(client: BSDClient, event: dict) -> dict[str, str]:
+    """Charge les derniers matchs de chaque équipe directement via BSD."""
+    before = kick(event)
+    if before is None:
+        return {"home": "", "away": ""}
+    values: dict[str, str] = {"home": "", "away": ""}
+    for side in ("home", "away"):
+        obj = event.get(side + "_team")
+        team_id = obj.get("id") if isinstance(obj, dict) else event.get(side + "_team_id")
+        name = team(event, side)
+        try:
+            rows = client.list_team_recent_events(
+                team_id=int(team_id) if team_id is not None else None,
+                team_name=name,
+                before=before.astimezone(TZ).date(),
+                limit=8,
+                ttl=900,
+            )
+            values[side] = form(team_id, name, rows, before)
+        except (BSDAPIError, ValueError, TypeError, requests.RequestException) as exc:
+            print("INFO_FORME_EQUIPE", side, name, type(exc).__name__)
+    return values
 
 
 def avant_match(events: list[dict], history: History, now: datetime,
-                history_events: list[dict]) -> Publication | None:
+                history_events: list[dict], form_values: dict[str, str] | None = None) -> Publication | None:
     selected = [e for e in candidates(events)
                 if timedelta(minutes=65) <= kick(e) - now <= timedelta(minutes=170)
                 and final_score(e) is None and not history.seen("avant_match:" + str(e["id"]))]
@@ -640,16 +667,23 @@ def avant_match(events: list[dict], history: History, now: datetime,
         obj = e.get(side + "_team")
         return obj.get("id") if isinstance(obj, dict) else e.get(side + "_team_id")
     h, a = team(e, "home"), team(e, "away")
-    home_form = form(team_id("home"), h, history_events, kick(e))
-    away_form = form(team_id("away"), a, history_events, kick(e))
+    form_values = form_values or {}
+    home_form = form_values.get("home") or form(team_id("home"), h, history_events, kick(e))
+    away_form = form_values.get("away") or form(team_id("away"), a, history_events, kick(e))
+    form_block = ""
+    if home_form or away_form:
+        rows = []
+        if home_form:
+            rows.append("<b>" + esc(h) + "</b> : " + esc(home_form))
+        if away_form:
+            rows.append("<b>" + esc(a) + "</b> : " + esc(away_form))
+        form_block = "<p><b>📈 Forme récente</b><br/>" + "<br/>".join(rows) + "</p>"
     message = (
         "<h3>🔎 AVANT-MATCH • MR XPRONOS</h3>"
         "<p><i>" + esc(league(e) or "Football") + "</i></p>"
         "<blockquote><b>⚽ " + esc(h) + " – " + esc(a) + "</b><br/>"
         "<b>🕒 " + time_label(kick(e)) + "</b> • Heure du Togo</blockquote>"
-        "<p><b>📈 Forme récente connue</b><br/>"
-        + esc(h) + " : " + esc(home_form) + "<br/>"
-        + esc(a) + " : " + esc(away_form) + "</p>"
+        + form_block +
         "<p><b>💬 Quel scénario imaginez-vous ?</b></p>"
     )
     card = {
@@ -815,18 +849,16 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                             and final_score(e) is None
                             and not state.seen("avant_match:" + str(e["id"]))]
                 if upcoming and (force or enough(state, "avant_match", now)):
-                    past: list[dict] = []
-                    try:
-                        # Fenêtre de forme récente : ne jamais inventer les résultats manquants.
-                        if client is None:
-                            client = BSDClient(max_requests=18)
-                        page = client.list_events(today - timedelta(days=7),
-                                                  today - timedelta(days=1),
-                                                  max_pages=5, ttl=0)
-                        past = page.events
-                    except (BSDAPIError, requests.RequestException, ValueError) as exc:
-                        print("INFO_FORME_INDISPONIBLE", type(exc).__name__)
-                    publish(avant_match(matches, state, now, past))
+                    if client is None:
+                        client = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
+                                           max_retries=1)
+                    selected_for_form = next(
+                        (item for item in upcoming[:10]
+                         if has_two_team_logos(item, allow_remote=True)),
+                        None,
+                    )
+                    forms = fetch_prematch_forms(client, selected_for_form) if selected_for_form else {}
+                    publish(avant_match(matches, state, now, [], forms))
                 if counter["sent"] < max_send and (force or enough(state, "resultat", now)):
                     publish(resultat(get_day(today), state, now))
             except (BSDAPIError, requests.RequestException, ValueError) as exc:
@@ -920,9 +952,10 @@ def run_live_test(now: datetime) -> dict[str, Any]:
             )
             if match is None:
                 return None
-            # Emulate a 2h-before-kickoff publication with real fixture/logos.
+            # Emulate a 2h-before-kickoff publication with real fixture/logos/forms.
             virtual_now = kick(match) - timedelta(hours=2)
-            return avant_match([match], empty_history, virtual_now, [])
+            forms = fetch_prematch_forms(api, match)
+            return avant_match([match], empty_history, virtual_now, [], forms)
 
         def actual_result() -> Publication | None:
             yesterday = day_events(today - timedelta(days=1))
