@@ -114,6 +114,7 @@ class FootballChannelTests(unittest.TestCase):
         with patch.dict(os.environ, {
             "FOOTBALL_NEWS_CHAT_ID": "-10010000222",
             "FOOTBALL_NEWS_BOT_TOKEN": "123:fake",
+            "FOOTBALL_REQUIRE_COMMENTS": "0",
         }):
             sender = m.Sender()
             sender.session.post = Mock(return_value=fake)
