@@ -73,6 +73,37 @@ CATEGORY_LABELS = {
 }
 
 
+# Fenêtres éditoriales de production, heure du Togo (GMT).
+# GitHub Actions peut démarrer quelques minutes en retard; les fenêtres sont
+# volontairement tolérantes et l'historique empêche tout doublon.
+EDITORIAL_WINDOWS = {
+    "programme": ((6, 45), (7, 45)),      # cible 07h00
+    "flash_morning": ((8, 45), (10, 0)),  # cible 09h00
+    "statistique": ((12, 15), (13, 15)),  # cible 12h30
+    "sondage": ((14, 45), (15, 45)),      # cible 15h00
+}
+PRODUCTION_START_HOUR = 7
+PRODUCTION_END_HOUR = 23
+
+
+def _minutes_since_midnight(dt: datetime) -> int:
+    local = dt.astimezone(TZ)
+    return local.hour * 60 + local.minute
+
+
+def in_editorial_window(name: str, now: datetime) -> bool:
+    start, end = EDITORIAL_WINDOWS[name]
+    minute = _minutes_since_midnight(now)
+    start_minute = start[0] * 60 + start[1]
+    end_minute = end[0] * 60 + end[1]
+    return start_minute <= minute <= end_minute
+
+
+def production_active(now: datetime) -> bool:
+    hour = now.astimezone(TZ).hour
+    return PRODUCTION_START_HOUR <= hour <= PRODUCTION_END_HOUR
+
+
 def esc(value: Any) -> str:
     return html.escape(str(value or ""), quote=False)
 
@@ -845,50 +876,70 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             state.mark(item.key, item.category, now)
             state.save(now)
 
-    # Ordre : rendez-vous fixes, contenu événementiel, flash RSS.
+    # Ordre de production :
+    # 07h Matchs du jour, 09h Flash, 12h30 Stat, 15h Débat,
+    # puis Avant-match / Résultats selon les événements réels.
     try:
-        if hour == 7 and (force or enough(state, "programme", now)):
-            try:
-                publish(programme(get_day(today), today, as_of=now))
-            except (BSDAPIError, requests.RequestException, ValueError) as exc:
-                counter["errors"] += 1
-                print("ERREUR_PROGRAMME", type(exc).__name__, str(exc)[:160])
+        if force or in_editorial_window("programme", now):
+            if force or enough(state, "programme", now):
+                try:
+                    publish(programme(get_day(today), today, as_of=now))
+                except (BSDAPIError, requests.RequestException, ValueError) as exc:
+                    counter["errors"] += 1
+                    print("ERREUR_PROGRAMME", type(exc).__name__, str(exc)[:160])
 
-        if hour == 12 and (force or enough(state, "statistique", now)):
-            try:
-                reference = today - timedelta(days=1)
-                recent = get_day(reference) + get_day(today)
-                post = statistique(recent, reference)
-                if post is None:
-                    older = reference - timedelta(days=1)
-                    post = statistique(get_day(older), reference)
-                publish(post)
-            except (BSDAPIError, requests.RequestException, ValueError) as exc:
-                counter["errors"] += 1
-                print("ERREUR_STAT", type(exc).__name__, str(exc)[:160])
+        if force or in_editorial_window("flash_morning", now):
+            if counter["sent"] < max_send and (force or enough(state, "flash", now)):
+                try:
+                    publish(flash(fetch_rss(sender.session), state, now, sender.session))
+                except (ET.ParseError, requests.RequestException, ValueError) as exc:
+                    counter["errors"] += 1
+                    print("ERREUR_RSS_MATIN", type(exc).__name__, str(exc)[:160])
 
-        if hour == 15 and (force or enough(state, "sondage", now)):
-            try:
-                publish(sondage(get_day(today), state, now))
-            except (BSDAPIError, requests.RequestException, ValueError) as exc:
-                # Le sondage éditorial reste disponible si BSD est indisponible.
-                counter["errors"] += 1
-                print("ERREUR_BSD_SONDAGE", type(exc).__name__, str(exc)[:160])
-                publish(sondage([], state, now))
+        if force or in_editorial_window("statistique", now):
+            if counter["sent"] < max_send and (force or enough(state, "statistique", now)):
+                try:
+                    reference = today - timedelta(days=1)
+                    recent = get_day(reference) + get_day(today)
+                    post = statistique(recent, reference)
+                    if post is None:
+                        older = reference - timedelta(days=1)
+                        post = statistique(get_day(older), reference)
+                    publish(post)
+                except (BSDAPIError, requests.RequestException, ValueError) as exc:
+                    counter["errors"] += 1
+                    print("ERREUR_STAT", type(exc).__name__, str(exc)[:160])
 
-        if 8 <= hour <= 23 and counter["sent"] < max_send:
+        if force or in_editorial_window("sondage", now):
+            if counter["sent"] < max_send and (force or enough(state, "sondage", now)):
+                try:
+                    publish(sondage(get_day(today), state, now))
+                except (BSDAPIError, requests.RequestException, ValueError) as exc:
+                    # Le sondage éditorial reste disponible si BSD est indisponible.
+                    counter["errors"] += 1
+                    print("ERREUR_BSD_SONDAGE", type(exc).__name__, str(exc)[:160])
+                    publish(sondage([], state, now))
+
+        if production_active(now) and counter["sent"] < max_send:
             try:
                 matches = get_day(today)
+                # En soirée on prépare aussi les matchs du lendemain.
                 if hour >= 20:
                     matches = matches + get_day(today + timedelta(days=1))
-                upcoming = [e for e in candidates(matches)
-                            if timedelta(minutes=65) <= kick(e) - now <= timedelta(minutes=170)
-                            and final_score(e) is None
-                            and not state.seen("avant_match:" + str(e["id"]))]
+
+                # Avant-match événementiel : publication 65 à 170 min avant le coup d'envoi.
+                upcoming = [
+                    e for e in candidates(matches)
+                    if timedelta(minutes=65) <= kick(e) - now <= timedelta(minutes=170)
+                    and final_score(e) is None
+                    and not state.seen("avant_match:" + str(e["id"]))
+                ]
                 if upcoming and (force or enough(state, "avant_match", now)):
                     if client is None:
-                        client = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                                           max_retries=1)
+                        client = BSDClient(
+                            max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
+                            max_retries=1,
+                        )
                     selected_for_form = next(
                         (item for item in upcoming[:10]
                          if has_two_team_logos(item, allow_remote=True)),
@@ -896,18 +947,24 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                     )
                     forms = fetch_prematch_forms(client, selected_for_form) if selected_for_form else {}
                     publish(avant_match(matches, state, now, [], forms))
+
+                # Résultat final dès qu'un match terminé vérifié devient disponible.
                 if counter["sent"] < max_send and (force or enough(state, "resultat", now)):
                     publish(resultat(get_day(today), state, now))
             except (BSDAPIError, requests.RequestException, ValueError) as exc:
                 counter["errors"] += 1
                 print("ERREUR_BSD_MATCH", type(exc).__name__, str(exc)[:160])
 
-        if 8 <= hour <= 23 and counter["sent"] < max_send and (force or enough(state, "flash", now)):
+        # Deuxième Flash possible plus tard dans la journée si une nouvelle actu
+        # est disponible et que l'espacement minimum de 3h est respecté.
+        local_hour = now.astimezone(TZ).hour
+        if (17 <= local_hour <= 23 and counter["sent"] < max_send
+                and (force or enough(state, "flash", now))):
             try:
                 publish(flash(fetch_rss(sender.session), state, now, sender.session))
             except (ET.ParseError, requests.RequestException, ValueError) as exc:
                 counter["errors"] += 1
-                print("ERREUR_RSS", type(exc).__name__, str(exc)[:160])
+                print("ERREUR_RSS_SOIR", type(exc).__name__, str(exc)[:160])
     finally:
         if not dry_run:
             state.save(now)
