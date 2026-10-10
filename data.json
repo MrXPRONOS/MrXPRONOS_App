@@ -1228,11 +1228,11 @@
         }
       ],
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-10T17:21:27.576071+00:00",
+      "settlement_checked_at": "2026-10-10T23:35:12.285916+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-10T21:21:27.576071+00:00"
+        "next_retry_after": "2026-10-11T03:35:12.285916+00:00"
       }
     },
     {
@@ -5466,11 +5466,11 @@
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-10T17:21:27.576071+00:00",
+      "settlement_checked_at": "2026-10-10T23:35:12.285916+00:00",
       "settlement_watchdog": {
-        "stage": "h4",
+        "stage": "h8",
         "pending": true,
-        "next_retry_after": "2026-10-10T21:21:27.576071+00:00"
+        "next_retry_after": "2026-10-11T03:35:12.285916+00:00"
       }
     },
     {
@@ -11146,12 +11146,12 @@
       "league_id": 10,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 3,
+      "away_score": 3,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -11178,7 +11178,12 @@
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:211726",
@@ -11197,12 +11202,12 @@
       "league_id": 22,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -11268,7 +11273,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:215540",
@@ -11287,7 +11297,7 @@
       "league_id": 2,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
+      "status": "settlement_pending",
       "is_finished": false,
       "home_score": null,
       "away_score": null,
@@ -11358,7 +11368,14 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_pending": true,
+      "settlement_checked_at": "2026-10-10T23:35:12.285916+00:00",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "pending": true,
+        "next_retry_after": "2026-10-11T03:35:12.285916+00:00"
+      }
     },
     {
       "id": "bsd:222831",
@@ -11377,12 +11394,12 @@
       "league_id": 17,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -11409,7 +11426,12 @@
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:603785",
@@ -11428,10 +11450,10 @@
       "league_id": 96,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 0,
       "verified_prediction": false,
       "verified_double": false,
       "prediction": {
@@ -11493,7 +11515,12 @@
       "generated_at": "2026-10-10T03:35:39.721661+00:00",
       "combo_only": false,
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:604563",
@@ -11512,12 +11539,12 @@
       "league_id": 28,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -11583,7 +11610,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:604571",
@@ -11602,12 +11634,12 @@
       "league_id": 28,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -11673,7 +11705,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:210483",
@@ -11692,12 +11729,12 @@
       "league_id": 6,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -11763,7 +11800,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:605655",
@@ -11782,12 +11824,12 @@
       "league_id": 100,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 3,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -11853,7 +11895,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:211922",
@@ -11872,12 +11919,12 @@
       "league_id": 25,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 4,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -11943,7 +11990,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:46487",
@@ -11962,12 +12014,12 @@
       "league_id": 26,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -12033,7 +12085,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h8",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:207090",
@@ -12052,12 +12109,12 @@
       "league_id": 54,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -12123,7 +12180,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:210111",
@@ -12141,12 +12203,12 @@
       "league_id": 4,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 3,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -12170,7 +12232,12 @@
       "league_logo": "https://sports.bzzoiro.com/img/league/4/?bg=transparent",
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:211421",
@@ -12189,12 +12256,12 @@
       "league_id": 15,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 3,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -12260,7 +12327,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:216014",
@@ -12278,12 +12350,12 @@
       "league_id": 11,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 3,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -12340,7 +12412,12 @@
       "league_logo": "https://sports.bzzoiro.com/img/league/11/?bg=transparent",
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:601976",
@@ -12358,12 +12435,12 @@
       "league_id": 55,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -12387,7 +12464,12 @@
       "league_logo": "https://sports.bzzoiro.com/img/league/55/?bg=transparent",
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:605274",
@@ -12406,12 +12488,12 @@
       "league_id": 99,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -12477,7 +12559,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:209593",
@@ -12496,12 +12583,12 @@
       "league_id": 1,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -12567,7 +12654,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:214857",
@@ -12586,12 +12678,12 @@
       "league_id": 38,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -12657,7 +12749,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:219775",
@@ -12675,12 +12772,12 @@
       "league_id": 24,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 3,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -12704,7 +12801,12 @@
       "league_logo": "https://sports.bzzoiro.com/img/league/24/?bg=transparent",
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:219777",
@@ -12723,12 +12825,12 @@
       "league_id": 24,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -12794,7 +12896,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:220875",
@@ -12813,12 +12920,12 @@
       "league_id": 82,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -12884,7 +12991,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:588255",
@@ -12903,10 +13015,10 @@
       "league_id": 91,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 4,
       "verified_prediction": false,
       "verified_double": false,
       "prediction": {
@@ -12974,7 +13086,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:210863",
@@ -12993,12 +13110,12 @@
       "league_id": 10,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -13064,7 +13181,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:211721",
@@ -13083,12 +13205,12 @@
       "league_id": 22,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -13154,7 +13276,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:215539",
@@ -13173,12 +13300,12 @@
       "league_id": 2,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 2,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -13205,7 +13332,12 @@
       "combo_only": false,
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:5320",
@@ -13224,12 +13356,12 @@
       "league_id": 18,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -13295,7 +13427,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:606054",
@@ -13314,12 +13451,12 @@
       "league_id": 53,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -13385,7 +13522,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:603787",
@@ -13404,12 +13546,12 @@
       "league_id": 96,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 2,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -13475,7 +13617,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:605656",
@@ -13494,10 +13641,10 @@
       "league_id": 100,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 0,
       "verified_prediction": false,
       "verified_double": false,
       "prediction": {
@@ -13565,7 +13712,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:210866",
@@ -13584,12 +13736,12 @@
       "league_id": 10,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -13655,7 +13807,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:222835",
@@ -13674,12 +13831,12 @@
       "league_id": 17,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 3,
+      "away_score": 2,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -13745,7 +13902,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:580539",
@@ -13764,12 +13926,12 @@
       "league_id": 89,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -13829,7 +13991,12 @@
       "generated_at": "2026-10-10T03:04:15.611148+00:00",
       "combo_only": false,
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:603923",
@@ -13848,12 +14015,12 @@
       "league_id": 97,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 5,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -13913,7 +14080,12 @@
       "generated_at": "2026-10-10T03:35:39.721661+00:00",
       "combo_only": false,
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:211915",
@@ -13932,12 +14104,12 @@
       "league_id": 25,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 3,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -14003,7 +14175,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:214611",
@@ -14022,10 +14199,10 @@
       "league_id": 23,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 0,
       "verified_prediction": false,
       "verified_double": false,
       "prediction": {
@@ -14093,7 +14270,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:5319",
@@ -14112,12 +14294,12 @@
       "league_id": 18,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -14183,7 +14365,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:210114",
@@ -14202,12 +14389,12 @@
       "league_id": 4,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 3,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -14273,7 +14460,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:210484",
@@ -14292,10 +14484,10 @@
       "league_id": 6,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 0,
       "verified_prediction": false,
       "verified_double": false,
       "prediction": {
@@ -14363,7 +14555,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:210486",
@@ -14382,12 +14579,12 @@
       "league_id": 6,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 3,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -14453,7 +14650,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:210488",
@@ -14472,12 +14674,12 @@
       "league_id": 6,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 5,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -14543,7 +14745,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:212782",
@@ -14562,12 +14769,12 @@
       "league_id": 14,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 3,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -14633,7 +14840,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:212788",
@@ -14652,12 +14864,12 @@
       "league_id": 14,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 2,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -14723,7 +14935,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:213597",
@@ -14742,12 +14959,12 @@
       "league_id": 3,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 0,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -14813,7 +15030,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:214859",
@@ -14832,12 +15054,12 @@
       "league_id": 38,
       "category": "simple",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 4,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Over 1,5",
         "label": "Total buts : Over 1,5",
@@ -14903,7 +15125,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:215537",
@@ -14922,12 +15149,12 @@
       "league_id": 2,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "1X",
         "label": "1X",
@@ -15006,7 +15233,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:375055",
@@ -15025,12 +15257,12 @@
       "league_id": 88,
       "category": "pro",
       "badge": "BSD V2",
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 2,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -15096,7 +15328,12 @@
       ],
       "policy_version": "bsd-v2-isolated",
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-10T23:35:12.285916+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:223787",
@@ -28888,16 +29125,62 @@
       "bsd:603921:OVER_15:2026-10-10T14:00:00+00:00",
       "bsd:603922:OVER_15:2026-10-10T14:00:00+00:00",
       "bsd:213590:OVER_15:2026-10-10T14:15:00+00:00",
-      "bsd:214854:UNDER_35:2026-10-10T14:15:00+00:00"
+      "bsd:214854:UNDER_35:2026-10-10T14:15:00+00:00",
+      "bsd:210864:1X:2026-10-10T14:30:00+00:00",
+      "bsd:211726:UNDER_35:2026-10-10T14:30:00+00:00",
+      "bsd:222831:1X:2026-10-10T14:55:00+00:00",
+      "bsd:603785:12:2026-10-10T15:00:00+00:00",
+      "bsd:604563:UNDER_35:2026-10-10T15:00:00+00:00",
+      "bsd:604571:UNDER_35:2026-10-10T15:00:00+00:00",
+      "bsd:210483:1X:2026-10-10T15:15:00+00:00",
+      "bsd:605655:OVER_15:2026-10-10T15:15:00+00:00",
+      "bsd:211922:OVER_15:2026-10-10T15:30:00+00:00",
+      "bsd:46487:UNDER_35:2026-10-10T15:30:00+00:00",
+      "bsd:207090:1X:2026-10-10T16:00:00+00:00",
+      "bsd:210111:UNDER_35:2026-10-10T16:00:00+00:00",
+      "bsd:211421:OVER_15:2026-10-10T16:00:00+00:00",
+      "bsd:216014:UNDER_35:2026-10-10T16:00:00+00:00",
+      "bsd:601976:UNDER_35:2026-10-10T16:00:00+00:00",
+      "bsd:605274:1X:2026-10-10T16:00:00+00:00",
+      "bsd:209593:OVER_15:2026-10-10T16:30:00+00:00",
+      "bsd:214857:OVER_15:2026-10-10T16:30:00+00:00",
+      "bsd:219775:UNDER_35:2026-10-10T16:30:00+00:00",
+      "bsd:219777:UNDER_35:2026-10-10T16:30:00+00:00",
+      "bsd:220875:UNDER_35:2026-10-10T16:30:00+00:00",
+      "bsd:588255:1X:2026-10-10T16:30:00+00:00",
+      "bsd:210863:OVER_15:2026-10-10T16:45:00+00:00",
+      "bsd:211721:UNDER_35:2026-10-10T17:00:00+00:00",
+      "bsd:215539:OVER_15:2026-10-10T17:00:00+00:00",
+      "bsd:5320:OVER_15:2026-10-10T17:00:00+00:00",
+      "bsd:606054:UNDER_35:2026-10-10T17:00:00+00:00",
+      "bsd:603787:OVER_15:2026-10-10T17:30:00+00:00",
+      "bsd:605656:OVER_15:2026-10-10T17:30:00+00:00",
+      "bsd:210866:OVER_15:2026-10-10T18:00:00+00:00",
+      "bsd:222835:OVER_15:2026-10-10T18:00:00+00:00",
+      "bsd:580539:1X:2026-10-10T18:00:00+00:00",
+      "bsd:603923:1X:2026-10-10T18:00:00+00:00",
+      "bsd:211915:OVER_15:2026-10-10T18:15:00+00:00",
+      "bsd:214611:OVER_15:2026-10-10T18:30:00+00:00",
+      "bsd:5319:OVER_15:2026-10-10T18:30:00+00:00",
+      "bsd:210114:OVER_15:2026-10-10T18:45:00+00:00",
+      "bsd:210484:OVER_15:2026-10-10T18:45:00+00:00",
+      "bsd:210486:OVER_15:2026-10-10T18:45:00+00:00",
+      "bsd:210488:OVER_15:2026-10-10T18:45:00+00:00",
+      "bsd:212782:OVER_15:2026-10-10T18:45:00+00:00",
+      "bsd:212788:OVER_15:2026-10-10T18:45:00+00:00",
+      "bsd:213597:1X:2026-10-10T19:00:00+00:00",
+      "bsd:214859:OVER_15:2026-10-10T19:00:00+00:00",
+      "bsd:215537:1X:2026-10-10T19:30:00+00:00",
+      "bsd:375055:UNDER_35:2026-10-10T19:30:00+00:00"
     ],
     "by_selection": {
       "1X": {
-        "n": 29,
-        "wins": 22,
-        "sum_pred": 22.243999999999996,
+        "n": 39,
+        "wins": 31,
+        "sum_pred": 30.178999999999995,
         "penalty": 0.0,
-        "hit_rate": 0.758621,
-        "average_predicted": 0.767034
+        "hit_rate": 0.794872,
+        "average_predicted": 0.773821
       },
       "BTTS_YES": {
         "n": 1,
@@ -28908,20 +29191,20 @@
         "average_predicted": 0.561
       },
       "UNDER_35": {
-        "n": 29,
-        "wins": 22,
-        "sum_pred": 21.750000000000004,
+        "n": 42,
+        "wins": 35,
+        "sum_pred": 31.695,
         "penalty": 0.0,
-        "hit_rate": 0.758621,
-        "average_predicted": 0.75
+        "hit_rate": 0.833333,
+        "average_predicted": 0.754643
       },
       "OVER_15": {
-        "n": 66,
-        "wins": 46,
-        "sum_pred": 51.168,
+        "n": 88,
+        "wins": 65,
+        "sum_pred": 68.56399999999998,
         "penalty": 0.0,
-        "hit_rate": 0.69697,
-        "average_predicted": 0.775273
+        "hit_rate": 0.738636,
+        "average_predicted": 0.779136
       },
       "X2": {
         "n": 4,
@@ -28940,22 +29223,22 @@
         "average_predicted": 0.57
       },
       "12": {
-        "n": 2,
+        "n": 3,
         "wins": 1,
-        "sum_pred": 1.544,
+        "sum_pred": 2.317,
         "penalty": 0.0,
-        "hit_rate": 0.5,
-        "average_predicted": 0.772
+        "hit_rate": 0.333333,
+        "average_predicted": 0.772333
       }
     },
     "by_family": {
       "double_chance": {
-        "n": 35,
-        "wins": 25,
-        "sum_pred": 26.362,
+        "n": 46,
+        "wins": 34,
+        "sum_pred": 35.07,
         "penalty": 0.0,
-        "hit_rate": 0.714286,
-        "average_predicted": 0.7532
+        "hit_rate": 0.73913,
+        "average_predicted": 0.762391
       },
       "btts": {
         "n": 1,
@@ -28966,16 +29249,16 @@
         "average_predicted": 0.561
       },
       "goals": {
-        "n": 96,
-        "wins": 68,
-        "sum_pred": 73.48800000000003,
-        "penalty": 0.0,
-        "hit_rate": 0.708333,
-        "average_predicted": 0.7655
+        "n": 131,
+        "wins": 100,
+        "sum_pred": 100.82900000000001,
+        "penalty": 0.002505,
+        "hit_rate": 0.763359,
+        "average_predicted": 0.769687
       }
     },
-    "last_added": 0,
-    "updated_at": "2026-10-10T17:21:27.576071+00:00",
+    "last_added": 46,
+    "updated_at": "2026-10-10T23:35:12.285916+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08
@@ -47733,12 +48016,12 @@
     }
   },
   "settlement_watchdog": {
-    "updated_at": "2026-10-10T17:21:27.576071+00:00",
-    "checked": 2,
-    "settled": 0,
-    "pending": 2,
-    "h4": 1,
-    "h8": 0,
+    "updated_at": "2026-10-10T23:35:12.285916+00:00",
+    "checked": 49,
+    "settled": 46,
+    "pending": 3,
+    "h4": 36,
+    "h8": 12,
     "fallback": 1,
     "detail_hits": 0
   }
