@@ -96,18 +96,25 @@ class PricedSelectionTests(unittest.TestCase):
                   "calibration_samples":40},
               "ranked_candidates":[]}
         scenarios=(
-            ({}, "mrxpronos_model"),
+            ({}, "mrxpronos_model", True),
+            # 1.34 implique ~74.6 % ; avec la marge DC le 73 % conservateur
+            # échoue. La cote peut supprimer le pari, jamais choisir un autre marché.
             ({"DC_1X_FT":{"odds":1.34,"origin":"bsd_consensus",
-                           "updated_at":self.now.isoformat()}}, "bsd_consensus"),
+                           "updated_at":self.now.isoformat()}}, "bsd_consensus", False),
             ({"BTTS_YES_FT":{"odds":1.88,"origin":"bsd_consensus",
-                              "updated_at":self.now.isoformat()}}, "mrxpronos_model"))
-        for quotes,expected_source in scenarios:
+                              "updated_at":self.now.isoformat()}}, "mrxpronos_model", True))
+        for quotes,expected_source,should_publish in scenarios:
             with self.subTest(expected_source=expected_source,quotes=quotes):
                 import copy
                 with patch("bsd_v2_publish.predict_v2",return_value=(copy.deepcopy(base),"ok")):
                     out=assemble({},[fixture],self.history,now=self.now,
                         calibration=None,policy=None,rho=0,
                         odds_fetcher=lambda *a:(quotes,{}),max_odds_requests=2)
+                if not should_publish:
+                    self.assertEqual(out["matches"],[])
+                    self.assertEqual(out["diagnostics"]["rejections"].get(
+                        "conservative_probability_below_real_price_edge"),1)
+                    continue
                 self.assertEqual(len(out["matches"]),1)
                 self.assertEqual(out["matches"][0]["prediction"]["selection_key"],"1X")
                 self.assertEqual(out["matches"][0]["prediction"]["odds_source"],expected_source)

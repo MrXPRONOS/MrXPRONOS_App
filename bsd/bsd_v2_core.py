@@ -16,6 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from bsd_h2h import _team_id, _utc, _valid_score
 from bsd_markets import Candidate, MarketCalibrator, candidates_from_goals, realized
+from bsd_v2_guardrails import MIN_CONSERVATIVE_BY_FAMILY, POLICY_VERSION
 
 SETTLEMENT_DELAY = 4 * 3600
 HALF_LIFE_DAYS = 120
@@ -227,7 +228,8 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
                   mode="reliability", min_probability=MIN_PROBABILITY, league_samples=100,
                   form_samples=10, require_odds=False, min_odds=1.20,
                   excluded_keys=None, market_audit=None,
-                  family_adjustments=None, allow_combo_prices=False):
+                  family_adjustments=None, selection_adjustments=None,
+                  family_minimums=None, allow_combo_prices=False):
     """Fiabilité = meilleure probabilité calibrée (PAS meilleure cote).
 
     Mode value explicit : exige des cotes fournies et retourne le meilleur EV.
@@ -279,8 +281,13 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
         base, league_penalty, form_penalty, edge = profiles.get(c.family, profiles["result"])
         uncertainty = (base + (league_penalty if league_samples < 30 else 0)
                        + (form_penalty if form_samples < 8 else 0)
-                       + (family_adjustments or {}).get(c.family,0.))
+                       + (family_adjustments or {}).get(c.family,0.)
+                       + (selection_adjustments or {}).get(c.key,0.))
         ranking_confidence = max(0, p - uncertainty)
+        family_floor = (family_minimums or {}).get(c.family)
+        if family_floor is not None and ranking_confidence < family_floor:
+            audit(c,"below_family_conservative_floor",p,price,ranking_confidence)
+            continue
         if require_odds and c.family in ("goals","btts","double_chance","result"):
             # Odds below 1.20 are only eligible as high-confidence combo legs.
             threshold = .90 if allow_combo_prices and price < 1.20 else max(.50,1.0/price+edge)
@@ -310,7 +317,8 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
                mode="reliability", odds_by_market=None, quality_policy=None,
                require_odds=False, min_odds=1.20, excluded_keys=None,
                btts_model=None, total_model=None, dc_model=None,
-               market_audit=None, allow_combo_prices=False):
+               market_audit=None, allow_combo_prices=False,
+               selection_adjustments=None, prospective_family_adjustments=None):
     if str(event.get("status") or "").lower() not in ("notstarted", "upcoming"):
         return None, "not_upcoming"
     if event.get("id") is None:
@@ -329,9 +337,28 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         if rejection:
             return None, rejection
     candidates = markets_from_matrix(score_matrix(expected["home"], expected["away"], rho))
+    total_model_agreement = None
     if total_model is not None:
         from bsd_v2_over_under import adjust_candidates, uncertainty
+        baseline_probabilities={c.key:c.probability for c in candidates}
         candidates=adjust_candidates(event,index,candidates,total_model)
+        specialist_probabilities={c.key:c.probability for c in candidates}
+        base_over15=baseline_probabilities.get("OVER_15")
+        specialist_over15=specialist_probabilities.get("OVER_15")
+        if base_over15 is not None and specialist_over15 is not None:
+            gap=abs(specialist_over15-base_over15)
+            total_model_agreement={
+                "over_15_baseline_probability":round(base_over15,6),
+                "over_15_specialist_probability":round(specialist_over15,6),
+                "over_15_probability_gap":round(gap,6),
+                "over_15_max_gap":.07,
+                "over_15_passed":gap<=.07,
+            }
+            if gap>.07:
+                candidates=[c for c in candidates if c.key!="OVER_15"]
+                if market_audit is not None:
+                    market_audit.append({"key":"OVER_15","family":"goals",
+                        "result":"over15_models_disagree","probability_gap":round(gap,6)})
         risk=uncertainty(event,index,total_model,expected["home"]+expected["away"])
         if risk is not None:
             # Keep other markets eligible; never force a volatile total-goals pick.
@@ -355,9 +382,14 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         require_odds=require_odds, min_odds=min_odds, excluded_keys=excluded_keys,
         market_audit=market_audit,
         allow_combo_prices=allow_combo_prices,
-        family_adjustments=(quality_policy.family_uncertainty_adjustments()
-                            if quality_policy is not None and
-                            hasattr(quality_policy,"family_uncertainty_adjustments") else None),
+        family_adjustments={
+            family: (quality_policy.family_uncertainty_adjustments().get(family,0.)
+                     if quality_policy is not None and hasattr(quality_policy,"family_uncertainty_adjustments") else 0.)
+                    + (prospective_family_adjustments or {}).get(family,0.)
+            for family in ("double_chance","btts","goals","result")
+        },
+        selection_adjustments=selection_adjustments,
+        family_minimums=MIN_CONSERVATIVE_BY_FAMILY,
     )
     if choice is None:
         return None, "no_qualified_market"
@@ -401,7 +433,20 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         "away_team": event.get("away_team"), "prediction": market,
         "estimated_goals": expected, "score_model": "Dixon-Coles" if rho else "Poisson",
         "rho": rho, "selection_mode": mode, "category": "pro" if pro else "simple",
-        "model_version": "bsd-v2-isolated", "experimental": True, "published": False,
+        "model_version": "bsd-v2-isolated", "policy_version": POLICY_VERSION,
+        "experimental": True, "published": False,
+        "model_audit": {
+            "expected_goals_home": expected["home"],
+            "expected_goals_away": expected["away"],
+            "expected_goals_total": round(expected["home"]+expected["away"],5),
+            "league_samples": expected["league_samples"],
+            "home_recent_matches": expected["home_recent_matches"],
+            "away_recent_matches": expected["away_recent_matches"],
+            "home_venue_matches": expected["home_venue_matches"],
+            "away_venue_matches": expected["away_venue_matches"],
+            "total_model_agreement": total_model_agreement,
+            "policy_version": POLICY_VERSION,
+        },
         "ranked_candidates": [{"key":row["candidate"].key,
                                "name":row["candidate"].label,
                                "market":row["candidate"].market,
