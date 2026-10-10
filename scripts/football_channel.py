@@ -680,7 +680,7 @@ def statistique(events: list[dict], yesterday: date) -> Publication | None:
     card = {"day": yesterday.strftime("%d/%m/%Y"), "league": league(e),
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
             "home_logo": team_visual_url(e, "home", allow_remote=True),
-            "away_logo": team_visual_url(e, "away", allow_remote=True)
+            "away_logo": team_visual_url(e, "away", allow_remote=True)}
     return Publication("statistique", "statistique:" + yesterday.isoformat(),
                        message, card=card)
 
