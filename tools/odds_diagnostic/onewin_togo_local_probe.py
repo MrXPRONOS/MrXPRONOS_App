@@ -71,7 +71,7 @@ async def click_target(page):
                 if not await n.is_visible(timeout=80):
                     continue
                 label=(await txt(n,160)).strip()
-                if re.fullmatch(r"Football(?:\\s+\\d+)?", label, re.I):
+                if re.fullmatch(r"Football(?:\s+\d+)?", label, re.I):
                     await n.click(timeout=1500)
                     await page.wait_for_timeout(2200)
                     break
@@ -91,10 +91,10 @@ async def click_target(page):
                 if DANGER.search(local):
                     continue
                 odds=ODD.findall(local)
-                pure_odd=bool(re.fullmatch(r"\\s*\\d{1,2}[.,]\\d{2,3}\\s*",label))
-                football_market=bool(TARGET.search(local) or re.search(r"\\b(?:1x2|winner|total|goals?|double chance|handicap)\\b",local,re.I))
+                pure_odd=bool(re.fullmatch(r"\s*\d{1,2}[.,]\d{2,3}\s*",label))
+                football_market=bool(TARGET.search(local) or re.search(r"\b(?:1x2|winner|total|goals?|double chance|handicap)\b",local,re.I))
                 # Avoid obvious esports contexts.
-                if re.search(r"\\b(?:LoL|CS2|Valorant|Dota|NRG|T1|G2|100 Thieves)\\b",local,re.I):
+                if re.search(r"\b(?:LoL|CS2|Valorant|Dota|NRG|T1|G2|100 Thieves)\b",local,re.I):
                     continue
                 if not odds or not (pure_odd or football_market):
                     continue
