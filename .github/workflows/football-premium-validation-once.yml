@@ -1,4 +1,5 @@
 name: Mr XPRONOS - Validation premium canal
+# relance après corrections design/logos/news
 on:
   push:
     branches: [main]
