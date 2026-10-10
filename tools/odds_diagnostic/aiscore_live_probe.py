@@ -99,7 +99,7 @@ async def inspect_match(browser,name,url,source):
     result={"match":name[:120],"page_url":url,"discovery_source":source,
             "http_status":None,"page_status":"unknown","match_status":"unverified",
             "odds_tab_clicked":False,"waited_seconds":0,
-            "corners_heading_visible":False,"displayed_corner_odds":[],"corner_odds_by_phase":[],
+            "corners_heading_visible":False,"displayed_corner_odds":[],"corner_odds_by_phase":[],"unclassified_corner_odds":[],
             "verified_live_match":False,"verified_inplay_odds":False,
             "note":"Values are only displayed table quotes; AiScore may show prematch prices during a live match."}
     page=await browser.new_page(viewport={"width":1300,"height":850})
@@ -132,23 +132,32 @@ async def inspect_match(browser,name,url,source):
             elif result["match_status"]=="unverified":
                 result["match_status"]="not_confirmed_live"
             result["corners_heading_visible"]=bool(re.search(r"\bcorners?\b",body,re.I))
+            # Only an explicit 'in_play' AiScore row may populate live-labelled odds.
+            # Generic table/grid readers are useful diagnostics but cannot prove phase.
             phase_quotes=extract_corner_odds_from_html(await page.content())
             if phase_quotes:
                 result["corner_odds_by_phase"]=phase_quotes
-            quotes=[{"total_corners":q["total_corners"],"over":q["over"],"under":q["under"]} for q in phase_quotes if q["phase"]=="in_play"]
-            if not quotes:
-                quotes=parse_tables(await tables_from_dom(page))
-            if not quotes:
-                quotes=extract_corner_grid(await nodes_from_dom(page))
-            if quotes:
-                result["displayed_corner_odds"]=quotes
+            live_labelled=[{"total_corners":q["total_corners"],"over":q["over"],"under":q["under"]} for q in phase_quotes if q["phase"]=="in_play"]
+            if live_labelled:
+                result["displayed_corner_odds"]=live_labelled
+            if not phase_quotes:
+                unknown_quotes=parse_tables(await tables_from_dom(page))
+                if not unknown_quotes:
+                    unknown_quotes=extract_corner_grid(await nodes_from_dom(page))
+                if unknown_quotes:
+                    result["unclassified_corner_odds"]=unknown_quotes
+            if phase_quotes or result["unclassified_corner_odds"]:
                 result["odds_observed_at_utc"]=dt.datetime.now(dt.timezone.utc).isoformat()
                 break
         result["verified_live_match"]=source=="live_listing_with_minute" and result["match_status"]=="potentially_live"
         # No claim of an actual in-play market from the static AiScore table.
         result["verified_inplay_odds"]=bool(result["verified_live_match"] and any(q["phase"]=="in_play" for q in result["corner_odds_by_phase"]))
         if result["displayed_corner_odds"]:
-            result["page_status"]="displayed_odds_found"
+            result["page_status"]="labelled_inplay_odds_found"
+        elif result["corner_odds_by_phase"]:
+            result["page_status"]="only_opening_or_prematch_odds_found"
+        elif result["unclassified_corner_odds"]:
+            result["page_status"]="unclassified_odds_found_not_live"
         else:
             result["page_status"]="no_displayed_corners_after_wait"
     except Exception as exc:
@@ -177,7 +186,8 @@ async def main():
             "mode":"one_shot_public_browser_delay_28_seconds",
             "listing":discovery,
             "candidate_count":len(results),
-            "pages_with_displayed_corner_odds":sum(bool(r["displayed_corner_odds"]) for r in results),
+            "pages_with_displayed_corner_odds":sum(bool(r["corner_odds_by_phase"]) or bool(r["unclassified_corner_odds"]) for r in results),
+            "pages_with_explicit_inplay_rows":sum(bool(r["displayed_corner_odds"]) for r in results),
             "live_match_with_displayed_quotes":sum(bool(r["displayed_corner_odds"]) and r["verified_live_match"] for r in results),
             "verified_inplay_corner_market_count":sum(r["verified_inplay_odds"] for r in results),
             "matches":results}
