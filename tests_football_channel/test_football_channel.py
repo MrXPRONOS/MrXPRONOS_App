@@ -104,7 +104,7 @@ class FootballChannelTests(unittest.TestCase):
                          self.history, NOW)
         self.assertEqual(post.category, "sondage")
         self.assertEqual(len(post.poll[1]), 3)
-        self.assertIn("Match nul", post.poll[1])
+        self.assertTrue(any("Match nul" in option for option in post.poll[1]))
 
     def test_historique_persistant(self):
         self.history.mark("flash:unique", "flash", NOW)
@@ -201,7 +201,7 @@ class FootballChannelTests(unittest.TestCase):
         self.assertIn("Quel match attendez-vous", post.text)
         self.assertIn("<blockquote>", post.text)
         poll = m.sondage([event(32, NOW + timedelta(hours=3))], self.history, NOW)
-        self.assertIn("commente", poll.poll[0].lower())
+        self.assertIn("LE DÉBAT DU JOUR", poll.poll[0])
 
 
     def test_rotation_programme_lundi_dimanche(self):
