@@ -1,0 +1,7 @@
+Place these files in your GitHub repository under assets/images/ with the exact same filenames:
+- template_programme_matchs_du_jour.png
+- template_avant_match.png
+- template_resultat_final.png
+- template_stat_du_jour.png
+- template_flash_foot.png
+- template_sondage.png
