@@ -83,13 +83,29 @@ class FootballChannelTests(unittest.TestCase):
             self.assertIsNone(m.resultat([sample], self.history, NOW))
 
 
-    def test_avant_match_sans_inventer_forme(self):
+    def test_avant_match_masque_forme_si_aucune_donnee(self):
         post = m.avant_match([event(4, NOW + timedelta(hours=2))],
                              self.history, NOW, [])
-        self.assertIn("forme récente non disponible", post.text)
+        self.assertNotIn("indisponible", post.text.lower())
+        self.assertNotIn("Forme récente", post.text)
         self.assertEqual(post.key, "avant_match:4")
         self.assertIsNotNone(post.card)
         self.assertEqual(post.card["home"], "Arsenal")
+        self.assertEqual(post.card["home_form"], "")
+        self.assertEqual(post.card["away_form"], "")
+
+    def test_forme_calcule_les_cinq_derniers_matchs_et_points(self):
+        before = NOW + timedelta(hours=2)
+        history = [
+            event(101, NOW - timedelta(days=1), "finished", 2, 0),
+            event(102, NOW - timedelta(days=2), "finished", 1, 1),
+            event(103, NOW - timedelta(days=3), "finished", 0, 1),
+            event(104, NOW - timedelta(days=4), "finished", 3, 1),
+            event(105, NOW - timedelta(days=5), "finished", 2, 2),
+            event(106, NOW - timedelta(days=6), "finished", 5, 0),
+        ]
+        value = m.form(1, "Arsenal", history, before)
+        self.assertEqual(value, "V • N • D • V • N  |  8/15 pts")
 
     def test_statistique_issue_de_scores_termines(self):
         old = NOW - timedelta(days=1, hours=4)
