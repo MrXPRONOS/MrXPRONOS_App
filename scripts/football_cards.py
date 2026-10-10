@@ -426,6 +426,8 @@ def render_card(category: str, payload: dict[str, Any], output: str | Path) -> P
         "programme": programme_card,
         "resultat": result_card,
         "statistique": statistic_card,
+        "avant_match": prematch_card,
+        "flash": flash_card,
     }
     if category not in factories:
         raise ValueError("Rubrique sans modèle graphique: " + str(category))
