@@ -64,7 +64,7 @@ jobs:
               hrs=[r['_headroom'] for r in sub]
               out['avg_headroom']=round(sum(hrs)/n,3)
               out['median_headroom']=round(statistics.median(hrs),3)
-              for shift in [0,1,2,3]:
+              for shift in range(0,9):
                   wins=sum(1 for r in sub if r['_final'] > r['_th']+shift)
                   out[f'plus_{shift}_wins']=wins
                   out[f'plus_{shift}_hit']=round(100*wins/n,2)
@@ -122,6 +122,16 @@ jobs:
               by_market_min[(str(r.get('type')), minute_bucket(r.get('signal_minute') if r.get('signal_minute') is not None else r.get('minute')))].append(r)
           for (market,bucket),sub in sorted(by_market_min.items()):
               print('MATRIX', market, bucket, '=', json.dumps(summarize(sub), ensure_ascii=False, sort_keys=True))
+              rec={}
+              for target in [95,90,85,80,75,70,65,60]:
+                  best=None
+                  for shift in range(0,13):
+                      n=len(sub)
+                      hit=(100*sum(1 for r in sub if r['_final'] > r['_th']+shift)/n) if n else 0
+                      if hit >= target:
+                          best=shift
+                  rec[str(target)]=best
+              print('MATRIX_RETENTION', market, bucket, '=', json.dumps(rec, sort_keys=True))
 
           # Maximum static uplift that still retains target historical hit rates.
           for market,sub in sorted(by_market.items()):
