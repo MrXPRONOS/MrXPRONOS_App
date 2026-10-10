@@ -1,132 +1,111 @@
 #!/usr/bin/env python3
 import asyncio,datetime as dt,json,pathlib,re
-from urllib.parse import urlsplit
 from playwright.async_api import async_playwright
 
 ROOT=pathlib.Path("odds_diagnostic_results")
 OUT=ROOT/"premierbet_togo_deep_probe.json"
-ENTRY="https://sports2.premierbet.com/en/mini/Fixture/Category/143"
+MATCH="https://sports2.premierbet.com/en/mini/Fixture/Match/7474403"
+BETSLIP="https://sports2.premierbet.com/en/mini/BetSlip"
 
-ODD=re.compile(r"(?<!\d)(?:1|2|3|4|5|6|7|8|9|[1-9]\d)[.,]\d{2,3}(?!\d)")
-MARKET=re.compile(r"(?:double chance|over\s*[1234][.,]5|under\s*[1234][.,]5|total(?: goals?)?)",re.I)
+TARGETS=[
+    ("total_goals_over_2_5", re.compile(r"^Over\s*\(2\.5\)\s*1\.55$",re.I)),
+    ("double_chance_x2", re.compile(r"^X2\s*1\.39$",re.I)),
+]
+CODEISH=re.compile(r"(?:book|booking|reserve|reservation|share|save|code|coupon|ticket|load)",re.I)
 DANGER=re.compile(r"(?:place bet|bet now|confirm|stake|deposit|withdraw|cash out|one.?click|parier|miser|valider)",re.I)
-CODE_ACTION=re.compile(r"(?:book|booking|reserve|reservation|share|save|code|coupon|ticket)",re.I)
-MATCH_PATH=re.compile(r"/mini/Fixture/Match/\d+",re.I)
 
-async def txt(el,limit=300):
-    try:return re.sub(r"\s+"," ",(await el.inner_text(timeout=500)).strip())[:limit]
+async def norm_text(el,limit=400):
+    try:return re.sub(r"\s+"," ",(await el.inner_text(timeout=700)).strip())[:limit]
     except:return ""
 
-async def first_match(page):
-    links=page.locator('a[href]')
-    for i in range(min(await links.count(),800)):
-        a=links.nth(i)
-        try:
-            if not await a.is_visible(timeout=80):continue
-            href=await a.get_attribute("href")
-            if not href:continue
-            if MATCH_PATH.search(href):
-                return await a.get_attribute("href"),await txt(a,160)
-        except:continue
-    return None,None
-
-async def find_market_click(page):
-    nodes=page.locator('button,[role="button"],a,div,span')
-    for i in range(min(await nodes.count(),1800)):
-        n=nodes.nth(i)
-        try:
-            if not await n.is_visible(timeout=70):continue
-            t=await txt(n,110)
-            if not t or DANGER.search(t) or not MARKET.search(t):continue
-            context=await txt(n.locator("xpath=.."),260)
-            odds=ODD.findall(context)
-            if not odds:continue
-            await n.click(timeout=1100)
-            await page.wait_for_timeout(900)
-            return {"label":t,"odd":odds[0],"context":context}
-        except:continue
+async def click_exact_market(page):
+    links=page.locator("a[href*='BetSlip/SelectMatchOdd'],a")
+    for name,pat in TARGETS:
+        for i in range(min(await links.count(),1200)):
+            a=links.nth(i)
+            try:
+                if not await a.is_visible(timeout=100):continue
+                t=await norm_text(a,120)
+                if not pat.fullmatch(t):continue
+                href=await a.get_attribute("href")
+                await a.click(timeout=1500)
+                await page.wait_for_timeout(1200)
+                return {"target":name,"label":t,"href":href,"after_click_url":page.url}
+            except:continue
     return None
 
-async def find_betslip(page):
-    sels='[class*="betslip" i],[class*="bet-slip" i],[class*="coupon" i],[class*="ticket" i],[data-testid*="betslip" i]'
-    loc=page.locator(sels)
-    for i in range(min(await loc.count(),20)):
-        n=loc.nth(i)
-        try:
-            if not await n.is_visible(timeout=100):continue
-            t=await txt(n,1800)
-            if ODD.search(t):return n,t
-        except:continue
-    # fallback: page section containing literal Betslip + an odd
-    candidates=page.get_by_text(re.compile(r"\bBetslip\b",re.I))
-    for i in range(min(await candidates.count(),20)):
-        h=candidates.nth(i)
-        try:
-            if not await h.is_visible(timeout=100):continue
-            cur=h
-            for _ in range(4):
-                cur=cur.locator("xpath=..")
-                t=await txt(cur,1800)
-                if ODD.search(t):return cur,t
-        except:continue
-    return None,None
-
-async def actions(scope):
+async def collect_actions(page):
     out=[]
-    els=scope.locator('button,[role="button"],a,[aria-label],[title]')
-    for i in range(min(await els.count(),250)):
-        e=els.nth(i)
+    nodes=page.locator("button,[role='button'],a,input[type='button'],input[type='submit'],[aria-label],[title]")
+    for i in range(min(await nodes.count(),600)):
+        n=nodes.nth(i)
         try:
-            if not await e.is_visible(timeout=80):continue
-            label=await txt(e,100)
-            if not label:
-                label=str(await e.get_attribute("aria-label") or await e.get_attribute("title") or "")
-            label=re.sub(r"\s+"," ",label).strip()[:100]
-            if label and CODE_ACTION.search(label) and not DANGER.search(label) and label not in out:
-                out.append(label)
+            if not await n.is_visible(timeout=80):continue
+            vals=[
+                await norm_text(n,120),
+                str(await n.get_attribute("value") or "")[:120],
+                str(await n.get_attribute("aria-label") or "")[:120],
+                str(await n.get_attribute("title") or "")[:120],
+            ]
+            label=" | ".join(dict.fromkeys(x.strip() for x in vals if x and x.strip()))
+            if label and CODEISH.search(label) and label not in [x["label"] for x in out]:
+                out.append({"label":label,"dangerous":bool(DANGER.search(label))})
+        except:continue
+    return out[:80]
+
+async def collect_fields(page):
+    out=[]
+    nodes=page.locator("input,textarea")
+    for i in range(min(await nodes.count(),100)):
+        n=nodes.nth(i)
+        try:
+            if not await n.is_visible(timeout=80):continue
+            out.append({
+              "name":await n.get_attribute("name"),
+              "id":await n.get_attribute("id"),
+              "placeholder":await n.get_attribute("placeholder"),
+              "value":(await n.input_value(timeout=300))[:120]
+            })
         except:continue
     return out[:60]
 
 async def main():
     ROOT.mkdir(parents=True,exist_ok=True)
-    rep={"run_at_utc":dt.datetime.now(dt.timezone.utc).isoformat(),"entry":ENTRY,"http_status":None,
-         "match_url":None,"match_text":None,"market":None,"betslip_verified":False,
-         "betslip_text":None,"candidate_actions":[],"status":"not_started"}
+    rep={"run_at_utc":dt.datetime.now(dt.timezone.utc).isoformat(),"match_url":MATCH,
+         "match_http":None,"selection":None,"betslip_http":None,"betslip_url":None,
+         "betslip_text":None,"selection_visible_in_betslip":False,
+         "candidate_actions":[],"fields":[],"status":"not_started"}
     async with async_playwright() as p:
         browser=await p.chromium.launch(headless=True)
         ctx=await browser.new_context(service_workers="block")
         page=await ctx.new_page()
         try:
-            r=await page.goto(ENTRY,wait_until="domcontentloaded",timeout=25000)
-            rep["http_status"]=r.status if r else None
-            await page.wait_for_timeout(3500)
-            href,mtext=await first_match(page)
-            rep["match_text"]=mtext
-            if not href:
-                rep["status"]="no_public_match_link"
+            r=await page.goto(MATCH,wait_until="domcontentloaded",timeout=25000)
+            rep["match_http"]=r.status if r else None
+            await page.wait_for_timeout(2500)
+            rep["selection"]=await click_exact_market(page)
+            if not rep["selection"]:
+                rep["status"]="target_market_not_found"
             else:
-                url=href if href.startswith("http") else "https://sports2.premierbet.com"+href
-                rep["match_url"]=url
-                rr=await page.goto(url,wait_until="domcontentloaded",timeout=25000)
-                rep["match_http"]=rr.status if rr else None
-                await page.wait_for_timeout(3500)
-                market=await find_market_click(page)
-                rep["market"]=market
-                if not market:
-                    rep["status"]="no_clickable_double_chance_or_total"
-                else:
-                    slip,st=await find_betslip(page)
-                    if not slip:
-                        rep["status"]="selection_clicked_betslip_not_verified"
-                    else:
-                        rep["betslip_verified"]=True
-                        rep["betslip_text"]=st[:1000]
-                        rep["candidate_actions"]=await actions(slip)
-                        rep["status"]="betslip_verified_actions_enumerated"
-            try:await page.screenshot(path=str(ROOT/"premierbet_togo_deep_probe.png"),timeout=4000)
+                br=await page.goto(BETSLIP,wait_until="domcontentloaded",timeout=25000)
+                rep["betslip_http"]=br.status if br else None
+                rep["betslip_url"]=page.url
+                await page.wait_for_timeout(1200)
+                body=(await page.locator("body").inner_text(timeout=5000))
+                rep["betslip_text"]=re.sub(r"\s+"," ",body).strip()[:4000]
+                label=rep["selection"]["label"]
+                # Match names and/or market should survive in the slip if session selection worked.
+                rep["selection_visible_in_betslip"]=(
+                    "Liverpool" in body and "Manchester City" in body and
+                    (("Over" in body and "2.5" in body) or "X2" in body)
+                )
+                rep["candidate_actions"]=await collect_actions(page)
+                rep["fields"]=await collect_fields(page)
+                rep["status"]="BETSLIP_SELECTION_VERIFIED" if rep["selection_visible_in_betslip"] else "BETSLIP_OPEN_BUT_SELECTION_NOT_VERIFIED"
+            try:await page.screenshot(path=str(ROOT/"premierbet_togo_deep_probe.png"),full_page=True,timeout=5000)
             except:pass
         except Exception as e:
-            rep["status"]="browser_error";rep["error_type"]=type(e).__name__;rep["error"]=str(e)[:250]
+            rep["status"]="browser_error";rep["error_type"]=type(e).__name__;rep["error"]=str(e)[:350]
         await ctx.close();await browser.close()
     OUT.write_text(json.dumps(rep,indent=2,ensure_ascii=False),encoding="utf-8")
     print(json.dumps(rep,indent=2,ensure_ascii=False))
