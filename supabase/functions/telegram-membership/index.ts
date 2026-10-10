@@ -112,7 +112,14 @@ serve(async (req) => {
   }
 
   const label = channelLabel(request);
-  const name = displayName(request);
+  const name = displayName(request)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+  const safeLabel = String(label)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 
   // Telegram permet au bot d'écrire au user_chat_id pendant quelques minutes
   // tant que la demande n'a pas encore été traitée.
@@ -123,11 +130,16 @@ serve(async (req) => {
         parse_mode: "HTML",
         disable_web_page_preview: true,
         text:
-          `👋 <b>Bienvenue ${name} !</b>\n\n` +
-          `Ta demande pour <b>${label}</b> est bien reçue. ✅\n` +
-          "Je valide ton accès maintenant.\n\n" +
-          "🔔 Une fois dans le canal, pense à <b>activer la cloche</b> " +
-          "pour recevoir les nouvelles publications Mr XPRONOS.",
+          "👑 <b>BIENVENUE CHEZ MR XPRONOS</b>\n\n" +
+          `<i>Salut <b>${name}</b> 👋</i>\n\n` +
+          `<blockquote>✅ Ta demande pour <b>${safeLabel}</b> a bien été reçue.</blockquote>\n\n` +
+          "<b>Ton accès est en cours de validation.</b>\n\n" +
+          "Une fois dans le canal :\n" +
+          "• <b>active la cloche 🔔</b>\n" +
+          "• consulte les dernières publications\n" +
+          "• reste attentif aux nouvelles alertes\n\n" +
+          "<blockquote>⚡ Le bon contenu, au bon moment.</blockquote>\n\n" +
+          "<i>Merci de rejoindre la communauté Mr XPRONOS.</i>",
       });
     } catch (error) {
       // Une erreur de DM ne doit pas empêcher l'adhésion.
