@@ -145,6 +145,9 @@ def importance(event: dict) -> int:
     return points
 
 _TSDB_LOGOS: dict[str, str] | None = None
+_REMOTE_TEAM_LOGOS: dict[str, str] = {}
+_REMOTE_LOGO_REQUESTS = 0
+_REMOTE_LOGO_BUDGET = 12
 
 def _norm_team(value: Any) -> str:
     return re.sub(r"[^a-z0-9]+", " ", plain(value, 90).casefold()).strip()
@@ -171,8 +174,46 @@ def _load_logo_cache() -> dict[str, str]:
     _TSDB_LOGOS = out
     return out
 
-def team_visual_url(event: dict, side: str) -> str:
-    """BSD en priorité; cache local de badges en secours."""
+def _remote_team_logo(name: str) -> str:
+    """Resolve a missing badge sparingly via TheSportsDB v1."""
+    global _REMOTE_LOGO_REQUESTS
+    key = _norm_team(name)
+    if not key:
+        return ""
+    if key in _REMOTE_TEAM_LOGOS:
+        return _REMOTE_TEAM_LOGOS[key]
+    if _REMOTE_LOGO_REQUESTS >= _REMOTE_LOGO_BUDGET:
+        return ""
+    _REMOTE_LOGO_REQUESTS += 1
+    try:
+        response = requests.get(
+            "https://www.thesportsdb.com/api/v1/json/123/searchteams.php",
+            params={"t": name},
+            headers={"User-Agent": "MrXPRONOS-logo-resolver/1.0"},
+            timeout=(5, 12),
+        )
+        response.raise_for_status()
+        payload = response.json()
+        teams = payload.get("teams") if isinstance(payload, dict) else None
+        if isinstance(teams, list):
+            for item in teams:
+                if not isinstance(item, dict):
+                    continue
+                candidate_name = item.get("strTeam") or ""
+                if _norm_team(candidate_name) != key:
+                    continue
+                badge = item.get("strBadge") or item.get("strTeamBadge") or ""
+                if isinstance(badge, str) and badge.startswith(("https://", "http://")):
+                    _REMOTE_TEAM_LOGOS[key] = badge
+                    return badge
+    except (requests.RequestException, ValueError, TypeError):
+        pass
+    _REMOTE_TEAM_LOGOS[key] = ""
+    return ""
+
+
+def team_visual_url(event: dict, side: str, *, allow_remote: bool = False) -> str:
+    """BSD first, then project cache, then optional sparse external lookup."""
     candidates_keys = (
         side + "_team_logo", side + "_logo", side + "_team_badge",
         side + "_badge", side + "_team_image", side + "_image",
@@ -187,11 +228,19 @@ def team_visual_url(event: dict, side: str) -> str:
             value = obj.get(key)
             if isinstance(value, str) and value.startswith(("https://", "http://")):
                 return value
-    return _load_logo_cache().get(_norm_team(team(event, side)), "")
+    name = team(event, side)
+    local = _load_logo_cache().get(_norm_team(name), "")
+    if local:
+        return local
+    return _remote_team_logo(name) if allow_remote else ""
 
-def has_two_team_logos(event: dict) -> bool:
+
+def has_two_team_logos(event: dict, *, allow_remote: bool = False) -> bool:
     """A result/stat card is eligible only when both team logos are known."""
-    return bool(team_visual_url(event, "home") and team_visual_url(event, "away"))
+    return bool(
+        team_visual_url(event, "home", allow_remote=allow_remote)
+        and team_visual_url(event, "away", allow_remote=allow_remote)
+    )
 
 
 
@@ -508,7 +557,7 @@ def finished_recent(events: list[dict], now: datetime) -> list[dict]:
 
 def resultat(events: list[dict], history: History, now: datetime) -> Publication | None:
     for e in finished_recent(events, now):
-        if not has_two_team_logos(e):
+        if not has_two_team_logos(e, allow_remote=True):
             continue
         key = "resultat:" + str(e["id"])
         if history.seen(key):
@@ -527,8 +576,8 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
         card = {"day": now.astimezone(TZ).strftime("%d/%m/%Y"),
                 "league": league(e), "home": team(e, "home"),
                 "away": team(e, "away"), "scores": (a, b),
-                "home_logo": team_visual_url(e, "home"),
-                "away_logo": team_visual_url(e, "away")}
+                "home_logo": team_visual_url(e, "home", allow_remote=True),
+                "away_logo": team_visual_url(e, "away", allow_remote=True)}
         return Publication("resultat", key, text, card=card)
     return None
 
@@ -598,21 +647,25 @@ def avant_match(events: list[dict], history: History, now: datetime,
 
 def statistique(events: list[dict], yesterday: date) -> Publication | None:
     finished = [e for e in events if final_score(e) is not None and
-                kick(e) and kick(e).astimezone(TZ).date() == yesterday
-                and has_two_team_logos(e)]
+                kick(e) and kick(e).astimezone(TZ).date() == yesterday]
     if not finished:
         return None
-    # Privilégier une affiche pertinente plutôt que le seul total de buts.
-    # Les buts restent importants, mais la notoriété de la compétition/équipes pèse davantage.
-    e = max(
+    ranked = sorted(
         finished,
         key=lambda x: (
-            importance(x) * 3 + min(sum(final_score(x)), 8) * 7,
-            importance(x),
-            sum(final_score(x)),
+            -(importance(x) * 3 + min(sum(final_score(x)), 8) * 7),
+            -importance(x),
+            -sum(final_score(x)),
             str(x.get("id")),
         ),
     )
+    e = next(
+        (item for item in ranked[:8]
+         if has_two_team_logos(item, allow_remote=True)),
+        None,
+    )
+    if e is None:
+        return None
     h, a = final_score(e)
     total = h + a
     message = (
@@ -626,8 +679,8 @@ def statistique(events: list[dict], yesterday: date) -> Publication | None:
     )
     card = {"day": yesterday.strftime("%d/%m/%Y"), "league": league(e),
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
-            "home_logo": team_visual_url(e, "home"),
-            "away_logo": team_visual_url(e, "away")}
+            "home_logo": team_visual_url(e, "home", allow_remote=True),
+            "away_logo": team_visual_url(e, "away", allow_remote=True)
     return Publication("statistique", "statistique:" + yesterday.isoformat(),
                        message, card=card)
 
