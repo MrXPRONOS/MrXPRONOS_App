@@ -44,3 +44,5 @@ jobs:
               print('first_history_keys=', sorted(row.keys()))
               print('v2_fields_present=', sorted(expected.intersection(row.keys())))
           PY
+
+# inspect_v2_live
