@@ -1,10 +1,6 @@
 name: Mr XPRONOS - Setup adhésion Telegram
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/telegram-membership-setup.yml'
   workflow_dispatch:
     inputs:
       check_only:
