@@ -1,0 +1,42 @@
+name: Mr XPRONOS - Validation premium canal
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/football-premium-validation-once.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrxpronos-premium-validation
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
+      FOOTBALL_RSS_FEED: https://www.footmercato.net/flux-rss
+      FOOTBALL_BSD_REQUEST_BUDGET: '18'
+      FOOTBALL_REQUIRE_COMMENTS: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Dépendances
+        run: python -m pip install requests Pillow
+      - name: Tests complets
+        run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
+      - name: Prévisualiser les cartes premium
+        run: |
+          python scripts/football_cards.py --demo --out-dir /tmp/premium
+          python scripts/football_cards.py --programme-styles --out-dir /tmp/styles
+      - name: Envoyer les six formats premium
+        run: python scripts/football_channel.py --live-test
