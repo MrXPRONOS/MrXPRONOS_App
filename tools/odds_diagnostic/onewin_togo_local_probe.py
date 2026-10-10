@@ -111,6 +111,7 @@ async def click_target(page):
                         "odd":label,
                         "context":parent[:420],
                         "football_clicked":football_clicked,
+                        "football_nav":football_nav,
                         "diagnostics":diagnostics
                     },all_samples[:80]
                 except:
@@ -163,6 +164,7 @@ async def click_target(page):
                     "tag":fallback.get("tag"),
                     "class_name":fallback.get("class_name"),
                     "football_clicked":football_clicked,
+                    "football_nav":football_nav,
                     "diagnostics":diagnostics
                 },all_samples[:80]
         except:
@@ -188,7 +190,8 @@ async def click_target(page):
                         "label":label[:180],
                         "context":parent[:360],
                         "odds":odds[:6],
-                        "football_clicked":football_clicked
+                        "football_clicked":football_clicked,
+                        "football_nav":football_nav
                     })
                     if len(all_samples)>=80:
                         break
