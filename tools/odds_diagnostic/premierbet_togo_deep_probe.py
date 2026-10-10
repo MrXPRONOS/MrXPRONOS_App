@@ -19,39 +19,44 @@ async def norm_text(el,limit=400):
     except:return ""
 
 async def click_exact_market(page):
-    # PremierBet often renders the market name next to the clickable odd, so
-    # inspect the selection link plus up to 3 ancestors instead of requiring
-    # an exact "label + price" string.
-    links=page.locator("a[href*='SelectMatchOdd']")
-    candidates=[]
-    for i in range(min(await links.count(),1500)):
-        a=links.nth(i)
-        try:
-            if not await a.is_visible(timeout=120):
+    # Build a DOM map of every clickable odd. We only click when the target
+    # market label is in the link's *small local container*, not in a huge
+    # ancestor containing unrelated markets.
+    rows = await page.locator("a[href*='BetSlip/SelectMatchOdd']").evaluate_all("""els => els.map((a,idx) => {
+      const clean = s => (s||'').replace(/\\s+/g,' ').trim();
+      let p=a;
+      const scopes=[];
+      for(let k=0;k<3 && p;k++,p=p.parentElement){
+        scopes.push(clean(p.innerText).slice(0,260));
+      }
+      const prev=clean(a.previousElementSibling && a.previousElementSibling.innerText).slice(0,120);
+      const next=clean(a.nextElementSibling && a.nextElementSibling.innerText).slice(0,120);
+      return {idx, text:clean(a.innerText).slice(0,100), href:a.getAttribute('href'),
+              parent:scopes[1]||'', grandparent:scopes[2]||'', prev, next};
+    })""")
+    page._mrx_candidates=rows[:140]
+
+    # Prefer containers that explicitly bind the target label and the link odd.
+    for target_name, pat in TARGETS:
+        for row in rows:
+            local=" | ".join([row.get("prev",""),row.get("text",""),row.get("next",""),row.get("parent","")])
+            if len(local)>520:
+                local=" | ".join([row.get("prev",""),row.get("text",""),row.get("next","")])
+            if not pat.search(local):
                 continue
-            link_text=await norm_text(a,140)
-            href=await a.get_attribute("href")
-            contexts=[link_text]
-            cur=a
-            for _ in range(3):
-                cur=cur.locator("xpath=..")
-                t=await norm_text(cur,420)
-                if t and t not in contexts:
-                    contexts.append(t)
-            combined=" | ".join(contexts)
-            candidates.append({"text":link_text,"href":href,"context":combined[:900]})
-            for name,pat in TARGETS:
-                if not pat.search(combined):
-                    continue
-                odd_match=re.search(r"(?<!\d)(?:1|2|3|4|5|6|7|8|9|[1-9]\d)[.,]\d{2,3}(?!\d)",combined)
-                odd=odd_match.group(0) if odd_match else None
-                await a.click(timeout=1600)
-                await page.wait_for_timeout(1500)
-                return {"target":name,"label":combined[:500],"odd":odd,"href":href,"after_click_url":page.url,"candidate_count":len(candidates)}
-        except Exception:
-            continue
-    # Keep a compact sample in the caller by attaching to page for debugging.
-    page._mrx_candidates=candidates[:80]
+            href=row.get("href") or ""
+            oddm=re.search(r"[?&]Odd=([^&]+)",href)
+            odd=oddm.group(1) if oddm else None
+            # Click the exact mapped anchor by href.
+            a=page.locator("a[href="+json.dumps(href)+"]").first
+            try:
+                if await a.is_visible(timeout=300):
+                    await a.click(timeout=1600)
+                    await page.wait_for_timeout(1500)
+                    return {"target":target_name,"label":local[:500],"odd":odd,"href":href,
+                            "after_click_url":page.url,"mapping":"local_dom"}
+            except Exception:
+                continue
     return None
 
 async def collect_actions(page):
@@ -105,7 +110,7 @@ async def main():
             await page.wait_for_timeout(7000)
             rep["selection"]=await click_exact_market(page)
             if not rep["selection"]:
-                rep["market_link_sample"]=getattr(page,"_mrx_candidates",[])[:40]
+                rep["market_link_sample"]=getattr(page,"_mrx_candidates",[])[:80]
                 rep["status"]="target_market_not_found"
             else:
                 br=await page.goto(BETSLIP,wait_until="domcontentloaded",timeout=25000)
