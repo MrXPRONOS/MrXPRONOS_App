@@ -720,6 +720,65 @@ def run_live_test(now: datetime) -> dict[str, Any]:
         return report
 
 
+def run_visual_live_test(now: datetime) -> dict[str, Any]:
+    """Envoie uniquement Matchs du jour + Statistique dans le vrai canal.
+
+    Destine aux validations visuelles. Les donnees viennent de BSD V2, les
+    messages sont clairement marques TEST et aucun historique n'est modifie.
+    """
+    now = now.astimezone(timezone.utc)
+    today = now.astimezone(TZ).date()
+    sender = Sender(dry_run=False)
+    api = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
+                    max_retries=1)
+    cache: dict[str, list[dict]] = {}
+    report: dict[str, Any] = {"mode": "visual-live-test", "sent": {},
+                              "skipped": {}, "errors": {}}
+
+    def day_events(day: date) -> list[dict]:
+        key = day.isoformat()
+        if key not in cache:
+            page = api.list_events(day, day, max_pages=8, ttl=0)
+            if not page.complete:
+                raise BSDAPIError("Liste BSD incomplete " + key)
+            cache[key] = page.events
+            print("VISUAL_TEST_BSD", key, "rencontres", len(page.events))
+        return cache[key]
+
+    def deliver(category: str, item: Publication | None) -> None:
+        if item is None:
+            report["skipped"][category] = "Pas de donnees verifiees"
+            print("VISUAL_TEST_INDISPONIBLE", category)
+            return
+        item.text = "<b>🧪 TEST VISUEL — MR XPRONOS</b>\n\n" + item.text
+        mid = sender.send(item)
+        report["sent"][category] = mid
+
+    try:
+        post = programme(day_events(today), today, as_of=now)
+        if post is None:
+            tomorrow = today + timedelta(days=1)
+            post = programme(day_events(tomorrow), tomorrow, as_of=now)
+            if post:
+                post.text = post.text.replace("MATCHS DU JOUR", "MATCHS DE DEMAIN")
+        deliver("programme", post)
+    except Exception as exc:
+        report["errors"]["programme"] = type(exc).__name__ + ": " + str(exc)[:180]
+        print("VISUAL_TEST_ECHEC programme", report["errors"]["programme"])
+
+    try:
+        yesterday = today - timedelta(days=1)
+        deliver("statistique", statistique(day_events(yesterday), yesterday))
+    except Exception as exc:
+        report["errors"]["statistique"] = type(exc).__name__ + ": " + str(exc)[:180]
+        print("VISUAL_TEST_ECHEC statistique", report["errors"]["statistique"])
+
+    print("XPRONOS_VISUAL_TEST_LIVE", json.dumps(report, ensure_ascii=False))
+    if report["errors"] or report["skipped"]:
+        raise RuntimeError("Verification visuelle partielle")
+    return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="6 publications automatiques Mr XPRONOS")
     parser.add_argument("--dry-run", action="store_true", help="Simulation sans Telegram, ni historique")
@@ -727,15 +786,21 @@ def main() -> None:
                         help="Envoie les six rubriques TEST au vrai canal, sans historique")
     parser.add_argument("--check-comments", action="store_true",
                         help="Verifie le groupe de discussion lie, sans publier")
+    parser.add_argument("--visual-test", action="store_true",
+                        help="Envoie Matchs du jour + Statistique au vrai canal")
     parser.add_argument("--force", action="store_true", help="Ignorer les limites et l'historique (test manuel)")
     args = parser.parse_args()
     now = datetime.now(timezone.utc)
     if args.check_comments:
-        if args.dry_run or args.force or args.live_test:
+        if args.dry_run or args.force or args.live_test or args.visual_test:
             parser.error("--check-comments doit etre utilise seul")
         sender = Sender(dry_run=False)
         linked = sender.verify_discussion()
         print("XPRONOS_COMMENTS_OK", linked)
+    elif args.visual_test:
+        if args.dry_run or args.force or args.live_test:
+            parser.error("--visual-test doit etre utilise seul")
+        run_visual_live_test(now)
     elif args.live_test:
         if args.dry_run or args.force:
             parser.error("--live-test ne peut pas etre combine avec --dry-run/--force")
