@@ -1,6 +1,13 @@
 name: Mr XPRONOS - Media football Telegram
 
 on:
+  # Verification CI sans envoi Telegram lors des modifications du diffuseur.
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/football_channel.py'
+      - 'tests_football_channel/**'
+      - '.github/workflows/football-channel.yml'
   schedule:
     - cron: '7,37 7-23 * * *'
   workflow_dispatch:
@@ -52,7 +59,7 @@ jobs:
             football-news-
       - name: Publier ou simuler
         env:
-          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          DRY_RUN: ${{ github.event_name == 'push' && 'true' || inputs.dry_run || 'false' }}
           FORCE: ${{ inputs.force || 'false' }}
         run: |
           ARGS=()
