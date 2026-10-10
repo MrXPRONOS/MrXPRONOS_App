@@ -446,12 +446,12 @@ def flash(articles: list[dict], history: History, now: datetime,
         if history.seen(key):
             continue
         msg = (
-            "<b>📰 FLASH FOOT • MR XPRONOS</b>\n\n"
-            "<b>" + esc(a["title"]) + "</b>\n\n"
-            + ("<i>" + esc(a["summary"]) + "</i>\n\n" if a["summary"] else "")
-            + "<blockquote><b>🗞️ SOURCE</b><br/>Foot Mercato</blockquote>\n"
-            + "<b>💬 Votre avis ?</b> <i>Réagissez dans les commentaires.</i>\n"
-            + "<i>⚽ Mr XPRONOS • L'actualité du football</i>"
+            "<h3>📰 FLASH FOOT • MR XPRONOS</h3>"
+            "<p><b>" + esc(a["title"]) + "</b></p>"
+            + ("<p><i>" + esc(a["summary"]) + "</i></p>" if a["summary"] else "")
+            + "<blockquote><b>🗞️ SOURCE</b><br/>Foot Mercato</blockquote>"
+            + "<p><b>💬 Votre avis ?</b><br/><i>Réagissez dans les commentaires.</i></p>"
+            + "<p><i>⚽ Mr XPRONOS • L'actualité du football</i></p>"
         )
         buttons = {"inline_keyboard": [[
             {"text": "Lire sur Foot Mercato ↗", "url": a["url"], "style": "primary"}
@@ -480,16 +480,16 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
     chosen = future[:5]
     lead = chosen[0]
     lead_league = esc(league(lead) or "Football")
-    lines = [
-        "<b>📅 MATCHS DU JOUR • MR XPRONOS</b>",
-        "<i>Les affiches phares sélectionnées parmi les rencontres BSD du jour.</i>",
+    message = (
+        "<h3>📅 MATCHS DU JOUR • MR XPRONOS</h3>"
+        "<p><i>Les affiches phares sélectionnées parmi les rencontres BSD du jour.</i></p>"
         "<blockquote><b>🔥 À L'AFFICHE</b><br/>"
         + esc(team(lead, "home")) + " – " + esc(team(lead, "away"))
         + "<br/><b>🕒 " + time_label(kick(lead)) + "</b> • " + lead_league
-        + "</blockquote>",
-        "<b>💬 Quel match attendez-vous le plus ?</b>",
-        "<i>Heure du Togo (GMT) • Retrouvez le programme complet sur l'image.</i>",
-    ]
+        + "</blockquote>"
+        "<p><b>💬 Quel match attendez-vous le plus ?</b></p>"
+        "<p><i>Heure du Togo (GMT) • Le programme complet est sur l'image.</i></p>"
+    )
     card = {"day": today.strftime("%d/%m/%Y"), "matches": [
         {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
          "league": league(e), "importance": importance(e),
@@ -497,7 +497,7 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
          "away_logo": team_visual_url(e, "away")}
         for e in chosen]}
     return Publication("programme", "programme:" + today.isoformat(),
-                       "\n\n".join(lines), card=card)
+                       message, card=card)
 
 
 def finished_recent(events: list[dict], now: datetime) -> list[dict]:
@@ -517,12 +517,12 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
         outcome = ("🤝 Match nul" if a == b else
                    "🏅 Victoire de " + esc(team(e, "home") if a > b else team(e, "away")))
         text = (
-            "<b>🏁 RÉSULTAT FINAL • MR XPRONOS</b>\n\n"
-            "<i>" + esc(league(e) or "Football") + "</i>\n\n"
+            "<h3>🏁 RÉSULTAT FINAL • MR XPRONOS</h3>"
+            "<p><i>" + esc(league(e) or "Football") + "</i></p>"
             "<blockquote><b>⚽ " + esc(team(e, "home")) + "  " + str(a)
             + " – " + str(b) + "  " + esc(team(e, "away")) + "</b><br/>"
-            + outcome + "</blockquote>\n"
-            "<b>💬 Votre réaction ?</b> <i>Les commentaires sont ouverts.</i>"
+            + outcome + "</blockquote>"
+            "<p><b>💬 Votre réaction ?</b><br/><i>Les commentaires sont ouverts.</i></p>"
         )
         card = {"day": now.astimezone(TZ).strftime("%d/%m/%Y"),
                 "league": league(e), "home": team(e, "home"),
@@ -616,13 +616,13 @@ def statistique(events: list[dict], yesterday: date) -> Publication | None:
     h, a = final_score(e)
     total = h + a
     message = (
-        "<b>📊 LA STAT DU JOUR • MR XPRONOS</b>\n\n"
-        "<i>Une statistique marquante issue d'un match BSD d'hier avec logos vérifiés.</i>\n\n"
+        "<h3>📊 LA STAT DU JOUR • MR XPRONOS</h3>"
+        "<p><i>Une statistique marquante issue d'un match BSD d'hier avec logos vérifiés.</i></p>"
         "<blockquote><b>🔥 " + str(total) + " BUTS</b><br/>"
         + esc(team(e, "home")) + " <b>" + str(h) + " – " + str(a) + "</b> "
         + esc(team(e, "away")) + "<br/>"
-        + "<i>" + esc(league(e) or "Football") + "</i></blockquote>\n"
-        "<b>💬 Quel autre match d'hier vous a marqué ?</b>"
+        + "<i>" + esc(league(e) or "Football") + "</i></blockquote>"
+        "<p><b>💬 Quel autre match d'hier vous a marqué ?</b></p>"
     )
     card = {"day": yesterday.strftime("%d/%m/%Y"), "league": league(e),
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
