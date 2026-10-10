@@ -8,6 +8,7 @@ import pathlib
 import re
 import unicodedata
 from urllib.parse import urlsplit
+from aiscore_grid_parser import extract_corner_grid
 
 OUT = pathlib.Path("odds_diagnostic_results/aiscore_live_report.json")
 SEEDS = [
@@ -54,6 +55,15 @@ async def tables_from_dom(page):
       rows:Array.from(t.querySelectorAll('tr')).slice(0,45).map(r =>
         Array.from(r.querySelectorAll('td,th')).map(c => (c.innerText||'').trim().slice(0,70)))
     }))""")
+
+async def nodes_from_dom(page):
+    return await page.evaluate("""() => {
+      const els=Array.from(document.querySelectorAll('body *')).filter(e =>
+        e.children.length===0 && e.getClientRects().length && (e.innerText||'').trim().length < 30);
+      return els.slice(0,4000).map(e=>{const r=e.getBoundingClientRect(); return {
+        text:(e.innerText||'').trim(), x:r.left+r.width/2, y:r.top+r.height/2
+      }}).filter(n=>n.x>=0 && n.y>=0);
+    }""")
 
 async def discover(page):
     result={"url":"https://www.aiscore.com/","http_status":None,"status":"unknown","candidate_count":0}
@@ -122,6 +132,8 @@ async def inspect_match(browser,name,url,source):
                 result["match_status"]="not_confirmed_live"
             result["corners_heading_visible"]=bool(re.search(r"\bcorners?\b",body,re.I))
             quotes=parse_tables(await tables_from_dom(page))
+            if not quotes:
+                quotes=extract_corner_grid(await nodes_from_dom(page))
             if quotes:
                 result["displayed_corner_odds"]=quotes
                 result["odds_observed_at_utc"]=dt.datetime.now(dt.timezone.utc).isoformat()
