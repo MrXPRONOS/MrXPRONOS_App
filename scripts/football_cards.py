@@ -433,16 +433,10 @@ def flash_card(payload: dict[str, Any]) -> Image.Image:
     return image
 
 def render_card(category: str, payload: dict[str, Any], output: str | Path) -> Path:
-    factories = {
-        "programme": programme_card,
-        "resultat": result_card,
-        "statistique": statistic_card,
-        "avant_match": prematch_card,
-        "flash": flash_card,
-    }
-    if category not in factories:
-        raise ValueError("Rubrique sans modèle graphique: " + str(category))
-    image = factories[category](payload)
+    # Nouveau système: les six PNG premium déposés dans assets/images/ servent
+    # de fonds fixes. Seules les zones variables sont nettoyées puis réécrites.
+    from template_cards import render as render_template
+    image = render_template(category, payload)
     destination = Path(output)
     destination.parent.mkdir(parents=True, exist_ok=True)
     image.save(destination, format="PNG", optimize=True)
