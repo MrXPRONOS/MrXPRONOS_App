@@ -5,6 +5,8 @@ on:
     paths:
       - "tools/odds_diagnostic/aiscore_live_probe.py"
       - "tools/odds_diagnostic/test_aiscore_live_probe.py"
+      - "tools/odds_diagnostic/fixtures/**"
+      - "tools/odds_diagnostic/test_aiscore_real_fixture.py"
       - "tools/odds_diagnostic/aiscore_markup_parser.py"
       - "tools/odds_diagnostic/test_aiscore_markup_parser.py"
       - "tools/odds_diagnostic/aiscore_grid_parser.py"
