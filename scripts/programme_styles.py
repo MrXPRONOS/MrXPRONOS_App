@@ -293,42 +293,42 @@ def footer(d: ImageDraw.ImageDraw, style: int):
          width=560, anchor="lm")
 
 
-def match_texts(d, item, y, *, home_x=338, away_x=742, center=540, name_width=255,
+def match_texts(image, d, item, y, *, home_x=338, away_x=742, center=540, name_width=255,
                 time_fill=GOLD, time_text=NAVY):
     text(d, item.get("home",""), (home_x,y), size=27, bold=True, anchor="mm",
          width=name_width, min_size=17)
     text(d, item.get("away",""), (away_x,y), size=27, bold=True, anchor="mm",
          width=name_width, min_size=17)
-    d.rounded_rectangle((center-72,y-26,center+72,y+20), radius=12, fill=time_fill)
+    gradient_round_rect(image, (center-72,y-26,center+72,y+20), 12)
     text(d, item.get("time","--h--"), (center,y-3), size=25, bold=True, fill=time_text, anchor="mm")
     text(d, "VS", (center,y+31), size=15, bold=True, fill=GOLD, anchor="mm")
 
 
-def rows_style_1(d, rows):
+def rows_style_1(image, d, rows):
     """Broadcast luxury: long rounded capsules."""
     y0=370
     for i,item in enumerate(rows[:5]):
         y=y0+i*105
         d.rounded_rectangle((64,y-43,1016,y+43), radius=32, fill="#0A2234", outline=GOLD, width=2)
-        jersey(d, 112, y, item.get("home",""), scale=.83)
-        jersey(d, 968, y, item.get("away",""), scale=.83)
-        match_texts(d,item,y,home_x=330,away_x=750,name_width=275)
+        team_visual(image, d, 112, y, item, "home", scale=.83)
+        team_visual(image, d, 968, y, item, "away", scale=.83)
+        match_texts(image,d,item,y,home_x=330,away_x=750,name_width=275)
 
 
-def rows_style_2(d, rows):
+def rows_style_2(image, d, rows):
     """Editorial minimal: circular kit badges, thin separators, lots of breathing room."""
     y0=365
     for i,item in enumerate(rows[:5]):
         y=y0+i*108
         d.rounded_rectangle((82,y-45,998,y+45), radius=28, fill="#081B28", outline="#4B6575", width=1)
-        jersey(d, 130,y,item.get("home",""),scale=.72,circle=True)
-        jersey(d, 950,y,item.get("away",""),scale=.72,circle=True)
+        team_visual(image, d, 130, y, item, "home", scale=.72, circle=True)
+        team_visual(image, d, 950, y, item, "away", scale=.72, circle=True)
         d.line((480,y-28,480,y+28),fill=GOLD2,width=1)
         d.line((600,y-28,600,y+28),fill=GOLD2,width=1)
-        match_texts(d,item,y,home_x=325,away_x=755,name_width=270)
+        match_texts(image,d,item,y,home_x=325,away_x=755,name_width=270)
 
 
-def rows_style_3(d, rows):
+def rows_style_3(image, d, rows):
     """Glass: one translucent-looking container with separated rows."""
     # fake glass on RGB: layered blue panels + highlights
     d.rounded_rectangle((60,330,1020,894),radius=34,fill="#132D3D",outline="#718896",width=2)
@@ -338,13 +338,13 @@ def rows_style_3(d, rows):
         y=y0+i*101
         if i:
             d.line((95,y-51,985,y-51),fill="#486474",width=1)
-        jersey(d,125,y,item.get("home",""),scale=.72)
-        jersey(d,955,y,item.get("away",""),scale=.72)
-        match_texts(d,item,y,home_x=335,away_x=745,name_width=270,
+        team_visual(image, d, 125, y, item, "home", scale=.72)
+        team_visual(image, d, 955, y, item, "away", scale=.72)
+        match_texts(image,d,item,y,home_x=335,away_x=745,name_width=270,
                     time_fill="#E8B84E")
 
 
-def rows_style_4(d, rows):
+def rows_style_4(image, d, rows):
     """Futuristic dashboard: angled tech rows."""
     y0=370
     for i,item in enumerate(rows[:5]):
@@ -353,8 +353,8 @@ def rows_style_4(d, rows):
         d.polygon(pts,fill="#0A2233",outline=GOLD)
         d.line((65,y-42,130,y-42),fill="#22A7F0",width=3)
         d.line((950,y+44,1015,y+44),fill="#22A7F0",width=3)
-        jersey(d,115,y,item.get("home",""),scale=.7)
-        jersey(d,965,y,item.get("away",""),scale=.7)
+        team_visual(image, d, 115, y, item, "home", scale=.7)
+        team_visual(image, d, 965, y, item, "away", scale=.7)
         # Hexagonal time module
         t=[(500,y-29),(580,y-29),(595,y-4),(580,y+21),(500,y+21),(485,y-4)]
         d.polygon(t,fill=GOLD)
@@ -364,7 +364,7 @@ def rows_style_4(d, rows):
         text(d,item.get("away",""),(750,y),size=26,bold=True,anchor="mm",width=260,min_size=17)
 
 
-def rows_style_5(d, rows):
+def rows_style_5(image, d, rows):
     """Magazine: stronger central spine and numbered fixtures."""
     y0=360
     d.line((540,330,540,875),fill=GOLD2,width=2)
@@ -372,27 +372,27 @@ def rows_style_5(d, rows):
         y=y0+i*106
         d.rounded_rectangle((70,y-42,1010,y+42),radius=18,fill="#0A1E2E",outline="#3E596B",width=1)
         text(d,str(i+1).zfill(2),(94,y),size=20,bold=True,fill=GOLD,anchor="mm")
-        jersey(d,145,y,item.get("home",""),scale=.66)
-        jersey(d,935,y,item.get("away",""),scale=.66)
+        team_visual(image, d, 145, y, item, "home", scale=.66)
+        team_visual(image, d, 935, y, item, "away", scale=.66)
         text(d,item.get("home",""),(330,y),size=26,bold=True,anchor="mm",width=255,min_size=17)
         text(d,item.get("away",""),(750,y),size=26,bold=True,anchor="mm",width=255,min_size=17)
         d.rounded_rectangle((486,y-25,594,y+22),radius=8,fill=GOLD)
         text(d,item.get("time",""),(540,y-2),size=23,bold=True,fill=NAVY,anchor="mm")
 
 
-def rows_style_6(d, rows):
+def rows_style_6(image, d, rows):
     """Luxury card stack: thicker shadows and individual elevated cards."""
     y0=365
     for i,item in enumerate(rows[:5]):
         y=y0+i*106
         d.rounded_rectangle((75,y-39,1017,y+51),radius=28,fill="#031019")
         d.rounded_rectangle((63,y-47,1005,y+43),radius=28,fill="#0D2A3C",outline=GOLD,width=2)
-        jersey(d,120,y-2,item.get("home",""),scale=.74)
-        jersey(d,948,y-2,item.get("away",""),scale=.74)
-        match_texts(d,item,y-2,home_x=325,away_x=750,name_width=275)
+        team_visual(image, d, 120, y-2, item, "home", scale=.74)
+        team_visual(image, d, 948, y-2, item, "away", scale=.74)
+        match_texts(image,d,item,y-2,home_x=325,away_x=750,name_width=275)
 
 
-def rows_style_7(d, rows):
+def rows_style_7(image, d, rows):
     """Split-panel: left/right team fields meet at a strong central time block."""
     y0=370
     for i,item in enumerate(rows[:5]):
@@ -400,8 +400,8 @@ def rows_style_7(d, rows):
         d.rounded_rectangle((66,y-43,1014,y+43),radius=28,fill="#091E2C",outline=GOLD,width=2)
         d.polygon([(470,y-42),(540,y-42),(515,y+42),(445,y+42)],fill="#103752")
         d.polygon([(540,y-42),(610,y-42),(635,y+42),(565,y+42)],fill="#103752")
-        jersey(d,112,y,item.get("home",""),scale=.7)
-        jersey(d,968,y,item.get("away",""),scale=.7)
+        team_visual(image, d, 112, y, item, "home", scale=.7)
+        team_visual(image, d, 968, y, item, "away", scale=.7)
         text(d,item.get("home",""),(318,y),size=26,bold=True,anchor="mm",width=270,min_size=17)
         text(d,item.get("away",""),(762,y),size=26,bold=True,anchor="mm",width=270,min_size=17)
         d.rounded_rectangle((490,y-27,590,y+17),radius=10,fill=GOLD)
@@ -440,8 +440,8 @@ def render_programme(payload: dict[str, Any], *, style: int | None = None) -> Im
     if style not in ROW_RENDERERS:
         raise ValueError("Style programme invalide: "+str(style))
     image,d=background(style)
-    header(d,style,clean(payload.get("day","")))
-    ROW_RENDERERS[style](d,rows)
+    header(image,d,style,clean(payload.get("day","")))
+    ROW_RENDERERS[style](image,d,rows)
     footer(d,style)
     # Discreet style marker only in metadata-like footer, useful in QA.
     text(d,"STYLE "+str(style),(1018,1056),size=13,fill="#5D7585",anchor="ra")
