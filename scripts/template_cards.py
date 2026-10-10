@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 import requests
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets" / "images"
@@ -95,7 +95,7 @@ STAT_DATE_BOX = (486, 892, 648, 942)
 FLASH_PHOTO_BOX = (79, 234, 1001, 606)  # 922 x 372
 FLASH_TITLE_BOX = (125, 644, 792, 699)
 FLASH_SOURCE_BOX = (125, 704, 603, 736)
-FLASH_DATE_BOX = (728, 704, 825, 738)
+FLASH_DATE_BOX = (650, 704, 790, 738)
 FLASH_SUMMARY_BOX = (267, 797, 956, 868)
 FLASH_CTA_BOX = (336, 932, 810, 980)
 
@@ -349,26 +349,89 @@ def paste_logo(
 
 
 def remote_photo(url: str, size: tuple[int, int]) -> Image.Image | None:
+    """Télécharge la photo brute.
+
+    Le cadrage est volontairement fait ensuite par _safe_article_frame afin
+    d'éviter de couper automatiquement les visages/sujets lorsque le ratio de
+    la photo source est très différent du cadre Flash Foot.
+    """
     if not clean(url).startswith(("https://", "http://")):
         return None
     try:
         response = requests.get(
             clean(url),
             timeout=(6, 18),
-            headers={"User-Agent": "Mozilla/5.0 MrXPRONOS-template/2.0"},
+            headers={"User-Agent": "Mozilla/5.0 MrXPRONOS-template/3.0"},
         )
         response.raise_for_status()
         if len(response.content) > 7_000_000:
             return None
-        source = Image.open(io.BytesIO(response.content)).convert("RGB")
+        return Image.open(io.BytesIO(response.content)).convert("RGB")
+    except Exception:
+        return None
+
+
+def _safe_article_frame(photo: Image.Image, size: tuple[int, int]) -> Image.Image:
+    """Construit une photo de news sans crop agressif.
+
+    - ratios proches du cadre: crop léger, avec priorité au haut de l'image;
+    - ratios 16:9 / portrait: fond flouté plein cadre + sujet principal presque
+      entier au centre. Cela évite de couper les têtes comme sur les premières
+      cartes Telegram.
+    """
+    width, height = size
+    source = photo.convert("RGB")
+    sw, sh = source.size
+    if sw <= 0 or sh <= 0:
+        return Image.new("RGB", size, (7, 24, 38))
+
+    target_ratio = width / height
+    source_ratio = sw / sh
+    ratio_gap = abs(source_ratio - target_ratio) / target_ratio
+
+    # Une source déjà très panoramique peut remplir le cadre sans perte forte.
+    if ratio_gap <= 0.14:
         return ImageOps.fit(
             source,
             size,
             method=Image.Resampling.LANCZOS,
-            centering=(0.5, 0.44),
+            centering=(0.5, 0.34),
         )
-    except Exception:
-        return None
+
+    # Fond de remplissage: même photo, cropée et floutée.
+    background = ImageOps.fit(
+        source,
+        size,
+        method=Image.Resampling.LANCZOS,
+        centering=(0.5, 0.36),
+    )
+    background = background.filter(ImageFilter.GaussianBlur(radius=18))
+    background = ImageEnhance.Brightness(background).enhance(0.72)
+
+    # Premier plan: conserver environ 90-94% de la hauteur de la source
+    # visible dans la fenêtre. Pour une image 16:9 cela crée seulement de
+    # petites bandes latérales floutées mais évite de couper les visages.
+    if source_ratio < target_ratio:
+        desired_h = int(height * 1.10)
+        desired_w = max(1, int(desired_h * source_ratio))
+        foreground = source.resize((desired_w, desired_h), Image.Resampling.LANCZOS)
+
+        crop_h = max(0, desired_h - height)
+        # Favoriser le haut: seulement ~20% du crop retiré en haut.
+        top = min(crop_h, int(crop_h * 0.20))
+        foreground = foreground.crop((0, top, desired_w, top + height))
+
+        x = (width - foreground.width) // 2
+        background.paste(foreground, (x, 0))
+        return background
+
+    # Source plus large que le cadre: crop horizontal classique.
+    return ImageOps.fit(
+        source,
+        size,
+        method=Image.Resampling.LANCZOS,
+        centering=(0.5, 0.36),
+    )
 
 
 def paste_rounded_photo(
@@ -378,12 +441,11 @@ def paste_rounded_photo(
     radius: int,
 ) -> None:
     width, height = _box_size(box)
-    if photo.size != (width, height):
-        photo = ImageOps.fit(photo, (width, height), method=Image.Resampling.LANCZOS)
+    framed = _safe_article_frame(photo, (width, height))
     mask = Image.new("L", (width, height), 0)
     md = ImageDraw.Draw(mask)
     md.rounded_rectangle((0, 0, width - 1, height - 1), radius=radius, fill=255)
-    image.paste(photo, (box[0], box[1]), mask)
+    image.paste(framed, (box[0], box[1]), mask)
 
 
 def _gold_capsule(
@@ -973,14 +1035,14 @@ def render_flash(payload: dict[str, Any]) -> Image.Image:
         draw,
         summary,
         FLASH_SUMMARY_BOX,
-        preferred_size=17,
-        min_size=14,
+        preferred_size=19,
+        min_size=16,
         max_lines=3,
         bold=False,
         fill=WHITE,
-        max_chars=180,
+        max_chars=170,
         align="left",
-        line_gap=2,
+        line_gap=3,
     )
 
     draw_single_line(
