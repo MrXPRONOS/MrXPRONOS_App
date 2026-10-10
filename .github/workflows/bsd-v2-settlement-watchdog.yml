@@ -1,0 +1,64 @@
+name: BSD V2 - Settlement watchdog
+run-name: "BSD V2 - Settlement watchdog (${{ inputs.trigger_source || github.event_name }})"
+
+on:
+  schedule:
+    - cron: '20 */4 * * *'
+  workflow_dispatch:
+    inputs:
+      trigger_source:
+        description: "Origine cron-job.org ou manuel"
+        required: false
+        default: "manual"
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bsd-v2-settlement-watchdog
+  cancel-in-progress: false
+
+jobs:
+  settle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: python -m pip install requests cryptography pillow
+      - name: Compile and run BSD regression tests
+        run: |
+          python -m compileall -q bsd
+          python -m unittest discover -s bsd -p 'test_*.py' -v
+      - name: Retry unresolved BSD settlements
+        env:
+          BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+        run: python bsd/bsd_v2_settlement_watchdog.py --data data.json --max-requests 120
+      - name: Validate and commit settlement-only changes
+        run: |
+          python - <<'PY'
+          import json
+          data=json.load(open("data.json",encoding="utf-8"))
+          assert data["source"]=="bsd"
+          assert data["model_version"]=="bsd-v2-isolated"
+          for row in data.get("matches",[]):
+              if row.get("settlement_pending"):
+                  assert not row.get("is_finished")
+                  assert row.get("status")=="settlement_pending"
+          print("BSD_SETTLEMENT_WATCHDOG_OK",data.get("settlement_watchdog",{}))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data(bsd): refresh pending settlements"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
