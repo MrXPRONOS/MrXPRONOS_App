@@ -762,8 +762,9 @@ def _prepare_stat_placeholder_zones(image: Image.Image) -> None:
     # 0 - 0.
     _gold_capsule(image, (467, 662, 613, 720), radius=13)
 
-    # DATE, sans toucher à l'icône calendrier.
-    _local_dark_patch(image, (520, 901, 620, 941), radius=4, fill="#071A29")
+    # DATE, sans toucher à l'icône calendrier. La zone couvre tout le mot
+    # placeholder mais reste à droite de l'icône.
+    _local_dark_patch(image, (548, 900, 662, 941), radius=4, fill="#071A29")
 
 
 def render_stat(payload: dict[str, Any]) -> Image.Image:
