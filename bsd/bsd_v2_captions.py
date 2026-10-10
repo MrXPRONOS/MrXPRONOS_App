@@ -109,6 +109,32 @@ def combo_caption(combo, *, night=False):
     ])
 
 
+
+def combo_gain_caption(combo):
+    """Verified victory only after both frozen selections are settled as wins."""
+    legs=combo.get("legs") or []
+    if len(legs)!=2:
+        raise ValueError("Un combiné vérifié doit contenir exactement deux matchs")
+    details=[]
+    for idx,leg in enumerate(legs,1):
+        score=(f"{int(leg['home_score'])}–{int(leg['away_score'])}"
+               if type(leg.get("home_score")) is int and
+                  type(leg.get("away_score")) is int else "Score à confirmer")
+        details.extend((
+            f"<b>{idx}.</b> ⚽ {_fixture(leg)}",
+            f"🎯 {_selection(leg)} · 🏁 <b>{score}</b>",
+        ))
+    return "\n".join((
+        "<b>✅ COMBINÉ GAGNANT · MR XPRONOS</b>",
+        "<i>Les deux sélections ont été vérifiées gagnantes.</i>",
+        "",
+        "<blockquote>"+"\n".join(details)+"</blockquote>",
+        f"📊 Cote combinée : <b>{_quote(combo.get('combined_odds'))}</b>",
+        "<i>Coupon combiné réussi.</i>",
+        "",
+        _closing(),
+    ))
+
 def gain_caption(match):
     """Report verified selection victory, never a fictional paid bookmaker win."""
     pick=match.get("prediction") or {}
