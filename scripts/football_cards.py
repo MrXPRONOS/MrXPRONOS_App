@@ -146,20 +146,71 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
     h, a = int(scores[0]), int(scores[1])
     if min(h, a) < 0:
         raise ValueError("Score négatif")
-    image, d = base("LE CHIFFRE DU JOUR", "STATISTIQUE BSD", clean(payload.get("day", "")))
-    panel(d, (54, 374, 1026, 867), accent=True)
-    txt(d, "B U T S", 540, 425, size=28, bold=True, color=GREY, anchor="mt")
-    txt(d, str(h + a), 540, 591, size=195, bold=True, color=GOLD, anchor="mm")
-    d.line((355, 727, 725, 727), fill="#527184", width=2)
-    txt(d, home, 284, 767, size=31, bold=True, color=WHITE, anchor="mt",
-        max_width=383, min_size=22)
-    txt(d, str(h) + " - " + str(a), 540, 766, size=37, bold=True, color=GOLD, anchor="mt")
-    txt(d, away, 799, 767, size=31, bold=True, color=WHITE, anchor="mt",
-        max_width=383, min_size=22)
-    txt(d, payload.get("league") or "FOOTBALL", 540, 914, size=27, color=GREY,
-        anchor="mt", max_width=860)
-    txt(d, "UNE RENCONTRE D'HIER, PARMI LES MATCHS RECUPERES",
-        540, 961, size=19, color=GREY, anchor="mt", max_width=968)
+
+    from programme_styles import (
+        background as premium_background,
+        gradient_text,
+        gradient_round_rect,
+        gradient_outline_round_rect,
+        team_visual,
+    )
+
+    image, d = premium_background(6)
+
+    # Header brand
+    txt(d, "♛", 540, 35, size=28, bold=True, color=GOLD, anchor="ma")
+    txt(d, "MR", 495, 62, size=29, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "XPRONOS", (505, 62), size=29, anchor="la")
+    d.line((315, 75, 410, 75), fill="#D99D2B", width=2)
+    d.line((670, 75, 765, 75), fill="#D99D2B", width=2)
+
+    txt(d, "LE CHIFFRE", 532, 118, size=65, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "DU JOUR", (548, 118), size=65, anchor="la")
+    txt(d, "STATISTIQUE BSD", 540, 202, size=21, bold=True, color=GREY, anchor="ma")
+
+    # Main content frame
+    d.rounded_rectangle((62, 272, 1018, 876), radius=34, fill="#061827")
+    gradient_outline_round_rect(image, (62, 272, 1018, 876), 34, width=3, glow=True)
+
+    # Number no longer dominates everything: concise gold badge
+    txt(d, "TOTAL DE BUTS", 540, 324, size=22, bold=True, color=GREY, anchor="ma")
+    gradient_round_rect(image, (405, 355, 675, 493), 28)
+    txt(d, str(h + a), 540, 424, size=104, bold=True, color="#071521", anchor="mm")
+    txt(d, "BUTS", 540, 514, size=25, bold=True, color="#F5D576", anchor="ma")
+
+    # Score becomes the real focus
+    d.rounded_rectangle((112, 566, 968, 731), radius=28, fill="#081D2E")
+    gradient_outline_round_rect(image, (112, 566, 968, 731), 28, width=2, glow=False)
+
+    home_item = {"home": home, "home_logo": payload.get("home_logo", "")}
+    away_item = {"away": away, "away_logo": payload.get("away_logo", "")}
+    team_visual(image, d, 175, 649, home_item, "home", scale=.95)
+    team_visual(image, d, 905, 649, away_item, "away", scale=.95)
+
+    txt(d, home, 340, 647, size=31, bold=True, color=WHITE, anchor="mm",
+        max_width=250, min_size=19)
+    txt(d, away, 740, 647, size=31, bold=True, color=WHITE, anchor="mm",
+        max_width=250, min_size=19)
+
+    gradient_round_rect(image, (465, 600, 615, 690), 18)
+    txt(d, str(h) + " - " + str(a), 540, 645, size=38, bold=True,
+        color="#061521", anchor="mm")
+
+    league_name = payload.get("league") or "Football"
+    txt(d, league_name.upper(), 540, 772, size=24, bold=True, color=WHITE,
+        anchor="ma", max_width=760, min_size=17)
+    txt(d, "UNE STATISTIQUE MARQUANTE PARMI LES MATCHS BSD D'HIER",
+        540, 820, size=17, color=GREY, anchor="ma", max_width=860, min_size=14)
+
+    # Footer
+    d.line((270, 920, 430, 920), fill="#D99D2B", width=2)
+    d.line((650, 920, 810, 920), fill="#D99D2B", width=2)
+    txt(d, clean(payload.get("day", "")), 540, 920, size=19, color=GREY, anchor="mm")
+
+    d.rounded_rectangle((165, 960, 915, 1035), radius=34, fill="#071927")
+    gradient_outline_round_rect(image, (165, 960, 915, 1035), 34, width=2, glow=True)
+    txt(d, "💬 QUEL AUTRE MATCH VOUS A MARQUÉ ?", 540, 998,
+        size=21, bold=True, color=WHITE, anchor="mm", max_width=680, min_size=16)
     return image
 
 

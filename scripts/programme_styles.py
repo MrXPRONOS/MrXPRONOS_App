@@ -487,6 +487,4 @@ def render_programme(payload: dict[str, Any], *, style: int | None = None) -> Im
     header(image,d,style,clean(payload.get("day","")))
     ROW_RENDERERS[style](image,d,rows)
     footer(d,style)
-    # Discreet style marker only in metadata-like footer, useful in QA.
-    text(d,"STYLE "+str(style),(1018,1056),size=13,fill="#5D7585",anchor="ra")
     return image
