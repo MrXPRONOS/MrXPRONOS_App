@@ -1,4 +1,4 @@
-name: Mr XPRONOS - Media football Telegram
+name: Mr XPRONOS - CI media football
 
 on:
   # Verification CI sans envoi Telegram lors des modifications du diffuseur.
@@ -17,18 +17,7 @@ on:
       - 'assets/images/template_sondage.png'
       - 'tests_football_channel/**'
       - '.github/workflows/football-channel.yml'
-  schedule:
-    - cron: '7,37 7-23 * * *'
   workflow_dispatch:
-    inputs:
-      dry_run:
-        description: "Simuler les contenus sans publier"
-        type: boolean
-        default: true
-      force:
-        description: "Forcer une publication hors limites"
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -104,25 +93,5 @@ jobs:
           retention-days: 7
       - name: Tests du canal
         run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
-      - name: Restaurer historique Telegram
-        uses: actions/cache/restore@v4
-        with:
-          path: .state/mrxpronos-football.json
-          key: football-news-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: |
-            football-news-
-      - name: Publier ou simuler
-        env:
-          DRY_RUN: ${{ github.event_name == 'push' && 'true' || inputs.dry_run || 'false' }}
-          FORCE: ${{ inputs.force || 'false' }}
-        run: |
-          ARGS=()
-          if [ "$DRY_RUN" = "true" ]; then ARGS+=(--dry-run); fi
-          if [ "$FORCE" = "true" ]; then ARGS+=(--force); fi
-          python scripts/football_channel.py "${ARGS[@]}"
-      - name: Sauvegarder historique Telegram
-        if: ${{ always() && (github.event_name == 'schedule' || inputs.dry_run == false) }}
-        uses: actions/cache/save@v4
-        with:
-          path: .state/mrxpronos-football.json
-          key: football-news-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Simulation editoriale sans publication
+        run: python scripts/football_channel.py --dry-run
