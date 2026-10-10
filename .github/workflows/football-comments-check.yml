@@ -1,0 +1,27 @@
+name: Mr XPRONOS - Verification commentaires Telegram
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/football-comments-check.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  comments:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
+      FOOTBALL_REQUIRE_COMMENTS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install requests
+      - name: Verifier linked_chat_id sans publier
+        run: python scripts/football_channel.py --check-comments
