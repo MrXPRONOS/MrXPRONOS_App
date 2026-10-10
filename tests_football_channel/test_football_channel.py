@@ -58,6 +58,34 @@ class FootballChannelTests(unittest.TestCase):
         self.history.mark(post.key, post.category, NOW)
         self.assertIsNone(m.flash(articles, self.history, NOW))
 
+    def test_fenetres_editoriales_production(self):
+        self.assertTrue(m.in_editorial_window(
+            "programme", datetime(2026, 10, 10, 7, 0, tzinfo=timezone.utc)
+        ))
+        self.assertFalse(m.in_editorial_window(
+            "programme", datetime(2026, 10, 10, 8, 0, tzinfo=timezone.utc)
+        ))
+        self.assertTrue(m.in_editorial_window(
+            "flash_morning", datetime(2026, 10, 10, 9, 0, tzinfo=timezone.utc)
+        ))
+        self.assertTrue(m.in_editorial_window(
+            "statistique", datetime(2026, 10, 10, 12, 30, tzinfo=timezone.utc)
+        ))
+        self.assertTrue(m.in_editorial_window(
+            "sondage", datetime(2026, 10, 10, 15, 0, tzinfo=timezone.utc)
+        ))
+
+    def test_plage_active_production(self):
+        self.assertTrue(m.production_active(
+            datetime(2026, 10, 10, 7, 0, tzinfo=timezone.utc)
+        ))
+        self.assertTrue(m.production_active(
+            datetime(2026, 10, 10, 23, 30, tzinfo=timezone.utc)
+        ))
+        self.assertFalse(m.production_active(
+            datetime(2026, 10, 10, 6, 30, tzinfo=timezone.utc)
+        ))
+
     def test_programme_et_horaires_togo(self):
         post = m.programme([event(1, NOW + timedelta(hours=4))], NOW.date())
         self.assertIsNotNone(post)
