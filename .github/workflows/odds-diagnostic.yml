@@ -28,6 +28,10 @@ jobs:
         run: python -m unittest discover -s tools/odds_diagnostic -p 'test_*.py' -v
       - name: Run offline diagnostic
         run: python tools/odds_diagnostic/diagnostic.py
+      - name: Probe official live odds API (optional)
+        env:
+          API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+        run: python tools/odds_diagnostic/live_api_probe.py
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
