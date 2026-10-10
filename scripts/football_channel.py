@@ -903,6 +903,10 @@ def run_live_test(now: datetime) -> dict[str, Any]:
             today_events = day_events(today)
             finished = [e for e in candidates(today_events + yesterday)
                         if final_score(e) is not None and kick(e) < now]
+            finished = [
+                e for e in finished[:8]
+                if has_two_team_logos(e, allow_remote=True)
+            ]
             if not finished:
                 return None
             match = sorted(finished, key=lambda e: (-importance(e),
