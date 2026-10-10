@@ -7,10 +7,10 @@ from unittest.mock import patch
 import requests
 from PIL import Image
 
-from bsd_v2_combos import build_combos,due_combos
+from bsd_v2_combos import build_combos,due_combos,combo_ledger_ref,parse_combo_ledger_ref
 from bsd_v2_combo_card import render_combo
 from bsd_v2_telegram import expand_tickets,combos_due
-from bsd_v2_verify_telegram import validate
+from bsd_v2_verify_telegram import validate,validate_combos,combo_verdict,COMBO_VALIDATION_KIND
 
 NOW=datetime(2026,10,8,12,0,tzinfo=timezone.utc)
 
@@ -154,6 +154,92 @@ class CombosTests(unittest.TestCase):
         self.assertEqual(counts["losses_silent"],1)
         self.assertEqual(post.call_count,1)
         self.assertEqual(len(session.patches),2)
+
+
+    def test_combo_ledger_ref_contains_both_frozen_legs_and_roundtrips(self):
+        combo=build_combos([match(1,40),match(2,50)])[0]
+        ref=combo_ledger_ref("-10012",combo)
+        parsed=parse_combo_ledger_ref(ref)
+        self.assertIsNotNone(parsed)
+        self.assertFalse(parsed["legacy"])
+        self.assertEqual(parsed["chat"],"-10012")
+        self.assertEqual(parsed["combo_id"],combo["id"])
+        self.assertEqual([x["event_id"] for x in parsed["legs"]],["1","2"])
+        self.assertEqual([x["selection_key"] for x in parsed["legs"]],["OVER_15","OVER_15"])
+
+    def test_combo_verdict_waits_for_both_winners(self):
+        combo=build_combos([match(1,-120),match(2,-60)])[0]
+        first=combo["legs"][0]
+        second=combo["legs"][1]
+        events={
+            "1":{"status":"finished","event_date":first["event_date"],"home_score":1,"away_score":1},
+            "2":{"status":"notstarted","event_date":second["event_date"]},
+        }
+        self.assertIsNone(combo_verdict(combo,events))
+        events["2"]={"status":"finished","event_date":second["event_date"],"home_score":2,"away_score":0}
+        result=combo_verdict(combo,events)
+        self.assertIsNotNone(result)
+        self.assertTrue(result[0])
+        self.assertTrue(all(type(x.get("home_score")) is int for x in result[1]))
+
+    def test_combo_loss_settles_silently_as_soon_as_one_leg_fails(self):
+        combo=build_combos([match(1,-120),match(2,-60)])[0]
+        first=combo["legs"][0]
+        events={
+            "1":{"status":"finished","event_date":first["event_date"],"home_score":0,"away_score":0},
+        }
+        result=combo_verdict(combo,events)
+        self.assertIsNotNone(result)
+        self.assertFalse(result[0])
+
+    def test_two_winning_legs_send_one_verified_combo_and_mark_completion(self):
+        combo=build_combos([match(1,-120),match(2,-60)])[0]
+        ref=combo_ledger_ref("-10012",combo)
+        row={"id":55,"ref_id":ref,"ref_date":combo["date"],"validation_sent":False}
+        data={"source":"bsd","matches":combo["legs"]}
+        events={}
+        for leg in combo["legs"]:
+            ident=str(leg["source_event_id"])
+            events[ident]={"status":"finished","event_date":leg["event_date"],
+                           "home_score":2,"away_score":0}
+        class Response:
+            def __init__(self,payload=None):self.payload=[] if payload is None else payload
+            def raise_for_status(self):pass
+            def json(self):return self.payload
+        class FakeHTTP:
+            def __init__(self):self.posts=[];self.patches=[]
+            def post(self,*args,**kwargs):
+                self.posts.append(kwargs)
+                return Response([{"id":99}])
+            def patch(self,*args,**kwargs):
+                self.patches.append(kwargs)
+                return Response([])
+        session=FakeHTTP()
+        with patch("bsd_v2_verify_telegram.post_combo_gain",return_value=777) as send:
+            result=validate_combos(data,[row],events,session,"token",
+                                   "https://test.supabase.co","key")
+        self.assertEqual(result["combo_wins_sent"],1)
+        self.assertEqual(send.call_count,1)
+        self.assertEqual(len(session.posts),1)
+        self.assertEqual(session.posts[0]["json"]["kind"],COMBO_VALIDATION_KIND)
+        self.assertEqual(len(session.patches),1)
+
+    def test_combo_with_one_pending_leg_does_not_send_or_complete(self):
+        combo=build_combos([match(1,-120),match(2,-60)])[0]
+        row={"id":55,"ref_id":combo_ledger_ref("-10012",combo),
+             "ref_date":combo["date"],"validation_sent":False}
+        data={"source":"bsd","matches":combo["legs"]}
+        first=combo["legs"][0]
+        events={"1":{"status":"finished","event_date":first["event_date"],
+                     "home_score":2,"away_score":0}}
+        class FakeHTTP:
+            def post(self,*a,**kw):raise AssertionError("must not complete pending combo")
+            def patch(self,*a,**kw):raise AssertionError("must not patch pending combo")
+        with patch("bsd_v2_verify_telegram.post_combo_gain") as send:
+            result=validate_combos(data,[row],events,FakeHTTP(),"token",
+                                   "https://test.supabase.co","key")
+        self.assertEqual(result["combo_pending"],1)
+        send.assert_not_called()
 
     def test_combo_dark_image_generated_offline(self):
         combo=build_combos([match(1,40),match(2,50)])[0]

@@ -8,12 +8,92 @@
 from __future__ import annotations
 from hashlib import sha256
 from math import isfinite
+import re
 from bsd_h2h import _utc
 from bsd_v2_stakes import combination_stake,gain_potentiel
 
 COMBO_MIN_ODDS=1.20
 COMBO_MAX_ODDS=1.50
 SOURCES=frozenset(("bsd_consensus","bsd_bookmaker","mrxpronos_model"))
+COMBO_REF_RE=re.compile(r"^[0-9a-f]{18}$")
+
+
+def _event_ident(match):
+    raw=str(match.get("source_event_id") or match.get("id") or "")
+    if raw.startswith("bsd:"):
+        raw=raw[4:]
+    return raw
+
+def combo_id_for_legs(legs):
+    """Stable identity from the two frozen fixture+market selections."""
+    if not isinstance(legs,(list,tuple)) or len(legs)!=2:
+        raise ValueError("Exactly two combo legs required")
+    parts=[]
+    for leg in legs:
+        ident=_event_ident(leg)
+        key=str((leg.get("prediction") or {}).get("selection_key") or "")
+        if not ident.isdigit() or not key:
+            raise ValueError("Invalid combo leg identity")
+        parts.extend(("bsd:"+ident,key))
+    identity="|".join(parts)
+    return "combo:"+sha256(identity.encode("utf-8")).hexdigest()[:18]
+
+def combo_ledger_ref(chat,combo):
+    """Self-contained Supabase reference so a sent combo can be settled later."""
+    legs=combo.get("legs") or []
+    if len(legs)!=2:
+        raise ValueError("Exactly two combo legs required")
+    combo_id=str(combo.get("id") or combo_id_for_legs(legs))
+    if combo_id!=combo_id_for_legs(legs):
+        raise ValueError("Combo id does not match its legs")
+    encoded=[]
+    for leg in legs:
+        ident=_event_ident(leg)
+        key=str((leg.get("prediction") or {}).get("selection_key") or "")
+        date=str(leg.get("date") or _utc(leg["event_date"]).date().isoformat())
+        if not ident.isdigit() or not key or len(date)!=10:
+            raise ValueError("Invalid combo ledger leg")
+        if any(ch in key for ch in "|,@"):
+            raise ValueError("Unsafe selection key")
+        encoded.append(",".join((ident,key,date)))
+    return str(chat)+":"+combo_id+"|"+"|".join(encoded)
+
+def parse_combo_ledger_ref(raw):
+    """Parse current refs; identify legacy hash-only refs without guessing legs."""
+    text=str(raw or "")
+    chat,sep,suffix=text.partition(":combo:")
+    if not sep or not chat:
+        return None
+    parts=suffix.split("|")
+    tag=parts[0]
+    if not COMBO_REF_RE.match(tag):
+        return None
+    combo_id="combo:"+tag
+    if len(parts)==1:
+        return {"chat":chat,"combo_id":combo_id,"legs":[],"legacy":True}
+    if len(parts)!=3:
+        return None
+    legs=[]
+    for item in parts[1:]:
+        fields=item.split(",")
+        if len(fields)!=3:
+            return None
+        ident,key,date=fields
+        if not ident.isdigit() or not key or len(date)!=10:
+            return None
+        legs.append({"id":"bsd:"+ident,"event_id":ident,
+                     "selection_key":key,"date":date})
+    frozen=[
+        {"id":leg["id"],"source_event_id":int(leg["event_id"]),
+         "prediction":{"selection_key":leg["selection_key"]}}
+        for leg in legs
+    ]
+    try:
+        if combo_id_for_legs(frozen)!=combo_id:
+            return None
+    except ValueError:
+        return None
+    return {"chat":chat,"combo_id":combo_id,"legs":legs,"legacy":False}
 
 def priced_prediction(p):
     if not isinstance(p,dict):return False
@@ -70,11 +150,10 @@ def build_combos(matches,*,max_kickoff_gap_hours=24):
             delta=(_utc(b["event_date"])-_utc(a["event_date"])).total_seconds()
             if delta>max_kickoff_gap_hours*3600:break
             k1,k2=a["prediction"]["selection_key"],b["prediction"]["selection_key"]
-            identity="|".join((str(a["id"]),k1,str(b["id"]),k2))
-            tag=sha256(identity.encode("utf-8")).hexdigest()[:18]
+            combo_id=combo_id_for_legs((a,b))
             odd1,odd2=float(a["prediction"]["odds"]),float(b["prediction"]["odds"])
             combos.append({
-                "id":"combo:"+tag,"type":"combiné","status":"upcoming",
+                "id":combo_id,"type":"combiné","status":"upcoming",
                 "event_date":a["event_date"],"date":_utc(a["event_date"]).date().isoformat(),
                 "legs":[a,b],"combined_odds":round(odd1*odd2,5),
                 "stake":combination_stake(),
