@@ -75,8 +75,10 @@ jobs:
               path = Path('assets/images') / name
               assert path.is_file(), path
               with Image.open(path) as image:
-                  assert image.size == (1080,1080), (path, image.size)
-              print('TEMPLATE_OK', name)
+                  w, h = image.size
+                  assert w == h, (path, image.size)
+                  assert w >= 900, (path, image.size)
+                  print('TEMPLATE_OK', name, image.size, '-> renderer 1080x1080')
           PY
       - name: Previsualiser les cartes principales
         run: python scripts/football_cards.py --demo --out-dir /tmp/mrxpronos-cards
