@@ -80,15 +80,15 @@ jobs:
                   assert w >= 900, (path, image.size)
                   print('TEMPLATE_OK', name, image.size, '-> renderer 1080x1080')
           PY
-      - name: Previsualiser les cartes principales
-        run: python scripts/football_cards.py --demo --out-dir /tmp/mrxpronos-cards
-      - name: Verifier les rendus
+      - name: Previsualiser les 6 templates premium
+        run: python scripts/render_template_previews.py /tmp/mrxpronos-template-previews
+      - name: Verifier les 6 rendus
         run: |
           python - <<'PY'
           from PIL import Image
           from pathlib import Path
-          pictures=list(Path('/tmp/mrxpronos-cards').glob('*.png'))
-          assert len(pictures)==3, len(pictures)
+          pictures=sorted(Path('/tmp/mrxpronos-template-previews').glob('*.png'))
+          assert len(pictures)==6, len(pictures)
           for path in pictures:
               with Image.open(path) as image:
                   assert image.size == (1080,1080), (path,image.size)
@@ -96,6 +96,12 @@ jobs:
                   assert path.stat().st_size < 9_000_000
                   print('CARD_OK',path.name,image.size,path.stat().st_size)
           PY
+      - name: Conserver les 6 apercus comme artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mrxpronos-six-template-previews
+          path: /tmp/mrxpronos-template-previews/*.png
+          retention-days: 7
       - name: Tests du canal
         run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
       - name: Restaurer historique Telegram
