@@ -128,11 +128,14 @@ class FootballChannelTests(unittest.TestCase):
         fake.json.return_value = {"ok": True, "result": {"message_id": 201}}
         sample = m.programme([event(17, NOW + timedelta(hours=3))], NOW.date(),
                              as_of=NOW)
+        from PIL import Image
+        import programme_styles as ps
+        fake_logo = Image.new("RGBA", (48, 48), (255, 255, 255, 255))
         with patch.dict(os.environ, {
             "FOOTBALL_NEWS_CHAT_ID": "-10010000222",
             "FOOTBALL_NEWS_BOT_TOKEN": "123:fake",
             "FOOTBALL_REQUIRE_COMMENTS": "0",
-        }):
+        }), patch.object(ps, "load_logo", return_value=fake_logo):
             sender = m.Sender()
             sender.session.post = Mock(return_value=fake)
             result = sender.send(sample)
@@ -150,6 +153,18 @@ class FootballChannelTests(unittest.TestCase):
                   event(2, NOW + timedelta(hours=2))]
         post = m.programme(sample, NOW.date(), as_of=NOW)
         self.assertEqual(len(post.card["matches"]), 1)
+
+    def test_programme_ignore_match_sans_deux_logos(self):
+        bad = event(41, NOW + timedelta(hours=2))
+        bad["home_team"].pop("logo", None)
+        bad["away_team"].pop("logo", None)
+        good = event(42, NOW + timedelta(hours=3))
+        with patch.object(m, "_remote_team_logo", return_value=""):
+            post = m.programme([bad, good], NOW.date(), as_of=NOW)
+        self.assertIsNotNone(post)
+        self.assertEqual(len(post.card["matches"]), 1)
+        self.assertEqual(post.card["matches"][0]["home"], "Arsenal")
+
 
     def test_live_test_exige_un_canal(self):
         import os
@@ -220,16 +235,24 @@ class FootballChannelTests(unittest.TestCase):
         mod = importlib.util.module_from_spec(spec2)
         spec2.loader.exec_module(mod)
         payload = {"day": "10/10/2026", "matches": [
-            {"home": "Club Sportif International de Test", "away": "Olympique Exemple", "time": "17h30"},
-            {"home": "Real Madrid", "away": "FC Barcelona", "time": "20h00"},
-            {"home": "PSG", "away": "Marseille", "time": "21h00"},
-            {"home": "Bayern Munich", "away": "Borussia Dortmund", "time": "15h30"},
-            {"home": "Inter Milan", "away": "AC Milan", "time": "19h45"},
+            {"home": "Club Sportif International de Test", "away": "Olympique Exemple", "time": "17h30",
+             "home_logo": "https://test/logo1.png", "away_logo": "https://test/logo2.png"},
+            {"home": "Real Madrid", "away": "FC Barcelona", "time": "20h00",
+             "home_logo": "https://test/logo1.png", "away_logo": "https://test/logo2.png"},
+            {"home": "PSG", "away": "Marseille", "time": "21h00",
+             "home_logo": "https://test/logo1.png", "away_logo": "https://test/logo2.png"},
+            {"home": "Bayern Munich", "away": "Borussia Dortmund", "time": "15h30",
+             "home_logo": "https://test/logo1.png", "away_logo": "https://test/logo2.png"},
+            {"home": "Inter Milan", "away": "AC Milan", "time": "19h45",
+             "home_logo": "https://test/logo1.png", "away_logo": "https://test/logo2.png"},
         ]}
-        for style in range(1, 8):
-            image = mod.render_programme(payload, style=style)
-            self.assertEqual(image.size, (1080, 1080))
-            self.assertEqual(image.mode, "RGB")
+        from PIL import Image
+        fake_logo = Image.new("RGBA", (52, 52), (255, 255, 255, 255))
+        with patch.object(mod, "load_logo", return_value=fake_logo):
+            for style in range(1, 8):
+                image = mod.render_programme(payload, style=style)
+                self.assertEqual(image.size, (1080, 1080))
+                self.assertEqual(image.mode, "RGB")
 
     def test_style_programme_invalide_refuse(self):
         import importlib.util
