@@ -1,6 +1,13 @@
 name: Mr XPRONOS - Production Telegram football
 
 on:
+  # Toute modification critique valide le workflow en dry-run.
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/football_channel.py'
+      - 'scripts/template_cards.py'
+      - '.github/workflows/football-production.yml'
   schedule:
     # Togo = UTC/GMT. Contrôle toutes les 30 min de 07h00 à 23h30.
     - cron: '0,30 7-23 * * *'
@@ -100,9 +107,11 @@ jobs:
           set -euo pipefail
           ARGS=()
 
-          # Les runs planifiés publient réellement.
-          # Un lancement manuel reste en simulation par défaut.
-          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_DRY_RUN" = "true" ]; then
+          # Seuls les runs planifiés publient automatiquement.
+          # Un push valide toute la chaîne en dry-run.
+          if [ "$EVENT_NAME" = "push" ]; then
+            ARGS+=(--dry-run)
+          elif [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$MANUAL_DRY_RUN" = "true" ]; then
             ARGS+=(--dry-run)
           fi
 
@@ -113,7 +122,7 @@ jobs:
           python scripts/football_channel.py "${ARGS[@]}"
 
       - name: Sauvegarder historique anti-doublon
-        if: ${{ always() && (github.event_name == 'schedule' || inputs.dry_run == false) }}
+        if: ${{ always() && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == false)) }}
         uses: actions/cache/save@v4
         with:
           path: .state/mrxpronos-football.json
