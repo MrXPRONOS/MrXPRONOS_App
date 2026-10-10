@@ -155,6 +155,8 @@ def to_site(p, fixture):
             "conservative_probability":round(pred.get("conservative_probability",pred.get("probability",0))*100,1),
             "double_chance":pred["outcome"] if pred["market"]=="double_chance" else None,
             "fair_odds":pred["fair_odds"],"odds":pred["bookmaker_odds"],
+            "calibration_samples":pred.get("calibration_samples"),
+            "estimated_value":pred.get("estimated_value"),
             "model_version":p["model_version"],
             "policy_version":p.get("policy_version",POLICY_VERSION),
             "odds_source":pred.get("odds_source"),
@@ -165,6 +167,7 @@ def to_site(p, fixture):
         },
         "model_version":p["model_version"],"policy_version":p.get("policy_version",POLICY_VERSION),
         "model_audit":p.get("model_audit"),
+        "publication_audit":p.get("publication_audit"),
         "final_score":prob,"xpronos_score":prob,
         "generated_at":p.get("prediction_generated_at") or datetime.now(timezone.utc).isoformat(),
         "combo_only":bool(p.get("combo_only",False)),
@@ -377,6 +380,11 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             continue
         combo_only=False
         prediction["prediction"]=chosen
+        prediction["publication_audit"]={
+            "selection_reason":"highest_reliability_after_quality_and_guardrails",
+            "post_price_value_guard":value_guard,
+            "policy_version":POLICY_VERSION,
+        }
         prediction["combo_only"]=combo_only
         prediction["prediction_generated_at"]=now.isoformat()
         if chosen["odds_source"]==ESTIMATED_SOURCE:
