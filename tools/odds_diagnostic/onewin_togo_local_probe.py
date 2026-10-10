@@ -56,60 +56,147 @@ async def click_target(page):
         contexts.append((f"frame_{idx}",fr))
 
     diagnostics=[]
+    all_samples=[]
     for ctx_name,ctx in contexts:
         try:
-            body=(await ctx.locator("body").inner_text(timeout=2500))[:25000]
+            body=(await ctx.locator("body").inner_text(timeout=2500))[:30000]
         except:
             body=""
-        diagnostics.append({"context":ctx_name,"url":getattr(ctx,"url","")[:500],"text_excerpt":re.sub(r"\\s+"," ",body)[:500]})
+        diagnostics.append({
+            "context":ctx_name,
+            "url":getattr(ctx,"url","")[:500],
+            "text_excerpt":re.sub(r"\\s+"," ",body)[:700]
+        })
 
-        # Enter Football explicitly inside the current context.
-        nav=ctx.locator("button,[role=button],a")
-        for i in range(min(await nav.count(),1600)):
-            n=nav.nth(i)
-            try:
-                if not await n.is_visible(timeout=80):
-                    continue
-                label=(await txt(n,160)).strip()
-                if re.fullmatch(r"Football(?:\s+\d+)?", label, re.I):
-                    await n.click(timeout=1500)
-                    await page.wait_for_timeout(2200)
-                    break
-            except:
-                continue
+        # Enter Football explicitly.
+        football_clicked=False
+        try:
+            football=ctx.get_by_text(re.compile(r"^Football(?:\\s+\\d+)?$",re.I)).first
+            if await football.is_visible(timeout=800):
+                await football.click(timeout=1800)
+                football_clicked=True
+                await page.wait_for_timeout(2500)
+        except:
+            pass
 
+        # First try true clickable controls whose own label is a decimal odd.
         nodes=ctx.locator("button,[role=button],a")
-        samples=[]
-        for i in range(min(await nodes.count(),2600)):
+        for i in range(min(await nodes.count(),3200)):
             n=nodes.nth(i)
             try:
-                if not await n.is_visible(timeout=80):
+                if not await n.is_visible(timeout=70):
                     continue
-                label=await txt(n,160)
-                parent=await txt(n.locator("xpath=.."),360)
+                label=(await txt(n,180)).strip()
+                if not re.fullmatch(r"\\d{1,2}[.,]\\d{2,3}",label):
+                    continue
+                parent=await txt(n.locator("xpath=.."),500)
                 local=" | ".join([label,parent])
-                if DANGER.search(local):
+                if DANGER.search(local) or re.search(r"\\b(?:LoL|CS2|Valorant|Dota|NRG|T1|G2|100 Thieves)\\b",local,re.I):
                     continue
-                odds=ODD.findall(local)
-                pure_odd=bool(re.fullmatch(r"\s*\d{1,2}[.,]\d{2,3}\s*",label))
-                football_market=bool(TARGET.search(local) or re.search(r"\b(?:1x2|winner|total|goals?|double chance|handicap)\b",local,re.I))
-                # Avoid obvious esports contexts.
-                if re.search(r"\b(?:LoL|CS2|Valorant|Dota|NRG|T1|G2|100 Thieves)\b",local,re.I):
-                    continue
-                if not odds or not (pure_odd or football_market):
-                    continue
-                samples.append({"context_name":ctx_name,"label":label,"context":parent[:280],"odds":odds[:6]})
+                all_samples.append({
+                    "context_name":ctx_name,
+                    "label":label,
+                    "context":parent[:360],
+                    "odds":[label],
+                    "football_clicked":football_clicked
+                })
                 try:
-                    await n.click(timeout=1500)
-                    await page.wait_for_timeout(1600)
-                    return {"clicked":True,"context_name":ctx_name,"label":label,"odd":odds[0],"context":parent[:340],"diagnostics":diagnostics},samples[:60]
+                    await n.click(timeout=1800)
+                    await page.wait_for_timeout(1800)
+                    return {
+                        "clicked":True,
+                        "method":"direct_clickable_decimal",
+                        "context_name":ctx_name,
+                        "label":label,
+                        "odd":label,
+                        "context":parent[:420],
+                        "football_clicked":football_clicked,
+                        "diagnostics":diagnostics
+                    },all_samples[:80]
                 except:
                     continue
             except:
                 continue
-        if samples:
-            return {"clicked":False,"context_name":ctx_name,"diagnostics":diagnostics},samples[:60]
-    return {"clicked":False,"diagnostics":diagnostics},[]
+
+        # Fallback: 1win sometimes renders the decimal value in a child span/div
+        # while the actual click handler lives on an ancestor container.
+        try:
+            fallback=await ctx.evaluate("""() => {
+                const odd=/^\\d{1,2}[.,]\\d{2,3}$/;
+                const banned=/\\b(?:LoL|CS2|Valorant|Dota|NRG|T1|G2|100 Thieves|deposit|withdraw|cash out)\\b/i;
+                const els=[...document.querySelectorAll('button,[role="button"],a,span,div')];
+                for (const el of els) {
+                    const t=(el.innerText||'').trim();
+                    if (!odd.test(t)) continue;
+                    const r=el.getBoundingClientRect();
+                    if (!r.width || !r.height) continue;
+                    let clickEl=el.closest('button,[role="button"],a,[class*="odd" i],[class*="coef" i],[class*="outcome" i],[class*="market" i]') || el;
+                    const ctxText=((clickEl.parentElement && clickEl.parentElement.innerText)||'').trim().slice(0,700);
+                    if (banned.test(ctxText)) continue;
+                    clickEl.click();
+                    return {
+                        clicked:true,
+                        label:t,
+                        context:ctxText,
+                        tag:clickEl.tagName,
+                        class_name:String(clickEl.className||'').slice(0,250)
+                    };
+                }
+                return {clicked:false};
+            }""")
+            if fallback and fallback.get("clicked"):
+                await page.wait_for_timeout(1800)
+                all_samples.append({
+                    "context_name":ctx_name,
+                    "label":fallback.get("label"),
+                    "context":fallback.get("context","")[:360],
+                    "odds":[fallback.get("label")],
+                    "football_clicked":football_clicked
+                })
+                return {
+                    "clicked":True,
+                    "method":"dom_decimal_fallback",
+                    "context_name":ctx_name,
+                    "label":fallback.get("label"),
+                    "odd":fallback.get("label"),
+                    "context":fallback.get("context","")[:420],
+                    "tag":fallback.get("tag"),
+                    "class_name":fallback.get("class_name"),
+                    "football_clicked":football_clicked,
+                    "diagnostics":diagnostics
+                },all_samples[:80]
+        except:
+            pass
+
+        # Diagnostic scan of market containers if no decimal control was clickable.
+        for i in range(min(await nodes.count(),2400)):
+            n=nodes.nth(i)
+            try:
+                if not await n.is_visible(timeout=60):
+                    continue
+                label=await txt(n,180)
+                parent=await txt(n.locator("xpath=.."),420)
+                local=" | ".join([label,parent])
+                odds=ODD.findall(local)
+                if not odds:
+                    continue
+                if DANGER.search(local) or re.search(r"\\b(?:LoL|CS2|Valorant|Dota|NRG|T1|G2|100 Thieves)\\b",local,re.I):
+                    continue
+                if re.search(r"\\b(?:winner|1x2|total|goals?|double chance|handicap)\\b",local,re.I):
+                    all_samples.append({
+                        "context_name":ctx_name,
+                        "label":label[:180],
+                        "context":parent[:360],
+                        "odds":odds[:6],
+                        "football_clicked":football_clicked
+                    })
+                    if len(all_samples)>=80:
+                        break
+            except:
+                continue
+
+    return {"clicked":False,"diagnostics":diagnostics},all_samples[:80]
+
 async def share_code(page):
     q=parse_qs(urlsplit(page.url).query)
     for key in ("sharebet","shareBet","shareCode","sharecode","bookingCode","code"):
@@ -162,7 +249,7 @@ async def main():
         "football_visible":False,
         "selection":None,
         "market_samples":[],
-        "share_controls":[],
+        "share_controls":[],\n        "betslip_excerpt":None,
         "share_code":None,
         "share_code_source":None,
         "network_candidates":[],
@@ -268,7 +355,14 @@ async def main():
                 rep["selection"]=sel
                 rep["market_samples"]=samples
                 if sel.get("clicked"):
-                    await page.wait_for_timeout(1400)
+                    await page.wait_for_timeout(1800)
+                    try:
+                        page_text=(await page.locator("body").inner_text(timeout=4000))[:60000]
+                    except:
+                        page_text=""
+                    lines=[ln.strip() for ln in page_text.splitlines() if ln.strip()]
+                    focus=[ln for ln in lines if re.search(r"(?:bet\\s*slip|betslip|coupon|ticket|share|booking|my bets|single|express)",ln,re.I)]
+                    rep["betslip_excerpt"]=" | ".join(focus[:40])[:2500] or None
                     all_share=list(rep["share_controls"])
                     for fr in page.frames:
                         try:
