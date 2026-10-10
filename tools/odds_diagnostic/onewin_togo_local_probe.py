@@ -49,6 +49,22 @@ async def visible_controls(page, regex):
     return out
 
 async def click_target(page):
+    # Enter the Football section first so esports counters like "LoL 12"
+    # cannot be mistaken for the football market "12".
+    nav=page.locator("button,[role=button],a")
+    for i in range(min(await nav.count(),1200)):
+        n=nav.nth(i)
+        try:
+            if not await n.is_visible(timeout=60):
+                continue
+            label=(await txt(n,120)).strip()
+            if re.fullmatch(r"Football(?:\\s+\\d+)?", label, re.I):
+                await n.click(timeout=1200)
+                await page.wait_for_timeout(1800)
+                break
+        except:
+            continue
+
     nodes=page.locator("button,[role=button],a")
     samples=[]
     for i in range(min(await nodes.count(),2200)):
@@ -59,9 +75,14 @@ async def click_target(page):
             label=await txt(n,120)
             parent=await txt(n.locator("xpath=.."),320)
             local=" | ".join([label,parent])
-            if DANGER.search(local) or not TARGET.search(local):
+            if DANGER.search(local):
                 continue
             odds=ODD.findall(local)
+            # Prefer a pure decimal-odd button after entering Football.
+            pure_odd = bool(re.fullmatch(r"\\s*\\d{1,2}[.,]\\d{2,3}\\s*", label))
+            football_market = bool(TARGET.search(local) or re.search(r"\\b(?:1x2|winner|total|goals?|double chance|handicap)\\b", local, re.I))
+            if not odds or not (pure_odd or football_market):
+                continue
             samples.append({"label":label,"context":parent[:250],"odds":odds[:4]})
             if not odds:
                 continue
@@ -133,6 +154,11 @@ async def main():
                 body=""
             rep["body_excerpt"]=re.sub(r"\s+"," ",body).strip()[:1200] or None
             rep["football_visible"]="football" in body.lower()
+            if not rep["football_visible"]:
+                try:
+                    rep["football_visible"] = bool(await page.get_by_text("Football", exact=False).count())
+                except:
+                    pass
 
             m=REGION_BLOCK.search(body)
             if m:
