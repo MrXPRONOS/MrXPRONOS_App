@@ -1,0 +1,33 @@
+name: BangBet deep coupon probe
+on:
+  push:
+    branches: [diagnostic/bookmaker-odds]
+    paths:
+      - "tools/odds_diagnostic/bangbet_deep_probe.py"
+      - ".github/workflows/bangbet-deep-probe.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Run strict BangBet probe
+        run: python tools/odds_diagnostic/bangbet_deep_probe.py
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bangbet-deep-probe
+          path: |
+            odds_diagnostic_results/bangbet_deep_probe.json
+            odds_diagnostic_results/bangbet_deep_probe.png
+          if-no-files-found: warn
