@@ -381,15 +381,20 @@ def rows_style_5(image, d, rows):
 
 
 def rows_style_6(image, d, rows):
-    """Luxury card stack: thicker shadows and individual elevated cards."""
+    """Saturday premium card stack, close to the approved visual mockup."""
     y0=365
     for i,item in enumerate(rows[:5]):
         y=y0+i*106
-        d.rounded_rectangle((75,y-39,1017,y+51),radius=28,fill="#031019")
-        d.rounded_rectangle((63,y-47,1005,y+43),radius=28,fill="#0D2A3C",outline=GOLD,width=2)
-        team_visual(image, d, 120, y-2, item, "home", scale=.74)
-        team_visual(image, d, 948, y-2, item, "away", scale=.74)
-        match_texts(image,d,item,y-2,home_x=325,away_x=750,name_width=275)
+        d.rounded_rectangle((74,y-39,1016,y+51),radius=29,fill="#020C14")
+        d.rounded_rectangle((61,y-48,1003,y+42),radius=29,fill="#071A2A",
+                            outline="#D5A43D",width=2)
+        d.line((92,y-45,972,y-45),fill="#FFE8A9",width=1)
+        d.line((92,y+39,972,y+39),fill="#8B611D",width=1)
+        d.line((472,y-29,472,y+24),fill="#9B7025",width=1)
+        d.line((608,y-29,608,y+24),fill="#9B7025",width=1)
+        team_visual(image, d, 116, y-3, item, "home", scale=.78)
+        team_visual(image, d, 948, y-3, item, "away", scale=.78)
+        match_texts(image,d,item,y-3,home_x=330,away_x=750,name_width=268)
 
 
 def rows_style_7(image, d, rows):
