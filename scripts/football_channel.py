@@ -752,8 +752,13 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
     today = now.astimezone(TZ).date()
     future = [e for e in candidates(events) if kick(e) > now + timedelta(minutes=20)
               and kick(e) < now + timedelta(hours=34) and final_score(e) is None]
-    if future:
-        e = future[0]
+    # Un sondage match n'est créé que si les deux vrais logos sont disponibles.
+    # Sinon, on bascule sur un sondage générique plutôt que d'afficher 1 / 3.
+    future_with_logos = [
+        e for e in future if has_two_team_logos(e, allow_remote=True)
+    ]
+    if future_with_logos:
+        e = future_with_logos[0]
         h, a = team(e, "home"), team(e, "away")
         question = (
             "🗳️ MR XPRONOS • LE DÉBAT DU JOUR\n\n"
