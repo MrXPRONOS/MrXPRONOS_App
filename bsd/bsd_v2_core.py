@@ -229,7 +229,7 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
                   form_samples=10, require_odds=False, min_odds=1.20,
                   excluded_keys=None, market_audit=None,
                   family_adjustments=None, selection_adjustments=None,
-                  allow_combo_prices=False):
+                  family_minimums=None, allow_combo_prices=False):
     """Fiabilité = meilleure probabilité calibrée (PAS meilleure cote).
 
     Mode value explicit : exige des cotes fournies et retourne le meilleur EV.
@@ -284,7 +284,7 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
                        + (family_adjustments or {}).get(c.family,0.)
                        + (selection_adjustments or {}).get(c.key,0.))
         ranking_confidence = max(0, p - uncertainty)
-        family_floor = (MIN_CONSERVATIVE_BY_FAMILY or {}).get(c.family)
+        family_floor = (family_minimums or {}).get(c.family)
         if family_floor is not None and ranking_confidence < family_floor:
             audit(c,"below_family_conservative_floor",p,price,ranking_confidence)
             continue
@@ -389,6 +389,7 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
             for family in ("double_chance","btts","goals","result")
         },
         selection_adjustments=selection_adjustments,
+        family_minimums=MIN_CONSERVATIVE_BY_FAMILY,
     )
     if choice is None:
         return None, "no_qualified_market"
