@@ -38,7 +38,23 @@ async def visit(browser, provider, url):
     try:
         resp=await page.goto(url,wait_until="domcontentloaded",timeout=25000)
         result["status"]="page_loaded" if resp else "navigation_without_response"
-        await page.wait_for_timeout(9000)
+        await page.wait_for_timeout(4500)
+        result["public_live_links_seen"]=0
+        result["detail_navigation"]="not_attempted"
+        links=await page.locator("a[href]").evaluate_all("""nodes => nodes.map(a => ({href:a.href,text:(a.innerText||'').trim().slice(0,80)})).filter(x=>x.href && x.href.startsWith('http')).slice(0,350)""")
+        public_links=[x for x in links if provider_for(x["href"])==provider]
+        live_links=[x for x in public_links if re.search(r"live|in.play|en.direct",x["href"]+" "+x["text"],re.I)]
+        result["public_live_links_seen"]=len(live_links)
+        next_link=next((x for x in live_links if urlsplit(x["href"]).path.rstrip("/")!=urlsplit(url).path.rstrip("/")),None)
+        if next_link:
+            result["detail_navigation"]="attempted"
+            try:
+                await page.goto(next_link["href"],wait_until="domcontentloaded",timeout=20000)
+                result["detail_navigation"]="loaded"
+                await page.wait_for_timeout(5000)
+            except Exception as exc:
+                result["detail_navigation"]="failed"
+                result["detail_error_type"]=type(exc).__name__
         await asyncio.gather(*tasks,return_exceptions=True)
     except Exception as exc:
         result["status"]="navigation_failed"
@@ -46,7 +62,7 @@ async def visit(browser, provider, url):
     finally:
         await page.close()
     result["verified_bookmaker_live_odds"]=False
-    result["limitations"].append("Aucun clic de marché ni authentification; absence de cote ne prouve pas absence du marché.")
+    result["limitations"].append("Seules les pages publiques accessibles via liens ont été examinées. Aucun marché ou match précis garanti.")
     return result
 async def main():
     OUT.parent.mkdir(parents=True,exist_ok=True)
