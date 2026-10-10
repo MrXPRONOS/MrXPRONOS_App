@@ -1,0 +1,36 @@
+name: Mr XPRONOS - Test reel des 6 rubriques
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/football-live-test-once.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mrxpronos-media-football
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
+      FOOTBALL_BSD_REQUEST_BUDGET: '18'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Dependances
+        run: python -m pip install requests Pillow
+      - name: Tests locaux sans Telegram
+        run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
+      - name: Envoyer les 6 vrais tests etiquetes
+        run: python scripts/football_channel.py --live-test
