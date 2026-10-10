@@ -45,6 +45,17 @@ class TemplateCardsTests(unittest.TestCase):
         self.assertLessEqual(tc._text_width(draw, value, face), (box[2]-box[0]) - 8)
         self.assertGreaterEqual(size, 17)
 
+
+    def test_safe_article_frame_preserve_un_ratio_16_9(self):
+        source = Image.new("RGB", (1600, 900), (120, 80, 50))
+        framed = tc._safe_article_frame(source, (922, 372))
+        self.assertEqual(framed.size, (922, 372))
+
+    def test_safe_article_frame_preserve_un_ratio_portrait(self):
+        source = Image.new("RGB", (800, 1200), (90, 110, 140))
+        framed = tc._safe_article_frame(source, (922, 372))
+        self.assertEqual(framed.size, (922, 372))
+
     def test_flash_titre_max_deux_lignes(self):
         image = Image.new("RGB", (1080, 1080))
         draw = ImageDraw.Draw(image)
