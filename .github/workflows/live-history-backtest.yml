@@ -146,11 +146,16 @@ jobs:
                   rec[str(target)]=best
               print('RETENTION', market, '=', json.dumps(rec, sort_keys=True))
 
-          # Old-vs-V2 split.
+          # Split by exact model version so pre/post calibration are never mixed.
           old=[r for r in usable if not r.get('model_version')]
-          v2=[r for r in usable if r.get('model_version')]
           print('LEGACY=', json.dumps(summarize(old), sort_keys=True))
-          print('V2=', json.dumps(summarize(v2), sort_keys=True))
+          versions=defaultdict(list)
+          for r in usable:
+              version=r.get('model_version')
+              if version:
+                  versions[str(version)].append(r)
+          for version,sub in sorted(versions.items()):
+              print('MODEL_VERSION', version, '=', json.dumps(summarize(sub), sort_keys=True))
           PY
 
 # rerun_after_historical_backfill
