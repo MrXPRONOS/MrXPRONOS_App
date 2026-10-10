@@ -1,219 +1,240 @@
 #!/usr/bin/env python3
-"""Anonymous bookmaker coupon probe: prepare a bet slip, never place a wager.
+"""Public pre-match betslip/share-code diagnostic for Mr XPRONOS.
 
-Uses a brand-new empty browser context for each bookmaker. No cookies, account,
-deposit, stake, 'place bet', API credentials, CAPTCHA or access-control bypass.
-A successful process run DOES NOT imply successful coupon creation: see JSON.
+The probe uses anonymous browser contexts, never signs in, never enters a stake,
+never deposits, and never clicks a button whose label indicates placing/confirming
+a wager. It may click a public market selection and a public Book/Save/Share
+control in order to read a bookmaker-generated share/booking code.
 """
-import asyncio
-import datetime as dt
-import json
-import pathlib
-import re
-import sys
-from urllib.parse import urlsplit
+import asyncio, datetime as dt, json, pathlib, re
+from urllib.parse import urlsplit, parse_qs
 from playwright.async_api import async_playwright
 
-ROOT = pathlib.Path("odds_diagnostic_results")
-REPORT = ROOT / "bookmaker_coupon_report.json"
-SITES = [
-    {"name": "1xBet", "url": "https://1xbet.com/en/live/football", "host": "1xbet.com"},
-    {"name": "1win", "url": "https://www.1win.global/en/sportsbook/", "host": "1win.global"},
-    {"name": "Betwinner", "url": "https://betwinner.com/en/live/football", "host": "betwinner.com"},
-    {"name": "Melbet", "url": "https://melbet.com/en/live/football", "host": "melbet.com"},
-    {"name": "Linebet", "url": "https://linebet.com/en/live/football", "host": "linebet.com"},
-    {"name": "BetClic", "url": "https://www.betclic.fr/football-s1", "host": "betclic.fr"},
+ROOT=pathlib.Path("odds_diagnostic_results")
+REPORT=ROOT/"bookmaker_coupon_report.json"
+
+SITES=[
+ {"name":"1xBet","url":"https://1xbet.com/en/line/football","hosts":["1xbet.com"]},
+ {"name":"1win","url":"https://www.1win.global/en/sportsbook/","hosts":["1win.global"]},
+ {"name":"Betwinner","url":"https://betwinner.com/en/line/football","hosts":["betwinner.com"]},
+ {"name":"Melbet","url":"https://melbet.com/en/line/football","hosts":["melbet.com"]},
+ {"name":"Linebet","url":"https://linebet.com/en/line/football","hosts":["linebet.com"]},
+ {"name":"BetClic","url":"https://www.betclic.fr/football-s1","hosts":["betclic.fr"]},
+ {"name":"SportyBet","url":"https://www.sportybet.com/gh/","hosts":["sportybet.com"]},
+ {"name":"Bet9ja","url":"https://web.bet9ja.com/","hosts":["bet9ja.com"]},
+ {"name":"BetKing","url":"https://www.betking.com/","hosts":["betking.com"]},
+ {"name":"Betika","url":"https://www.betika.com/en-ke/","hosts":["betika.com"]},
+ {"name":"MSport","url":"https://www.msport.com/gh/","hosts":["msport.com"]},
+ {"name":"MozzartBet","url":"https://www.mozzartbet.com/en/kladjenje/sport/1","hosts":["mozzartbet.com"]},
+ {"name":"betPawa","url":"https://www.betpawa.com/","hosts":["betpawa.com"]},
+ {"name":"PremierBet","url":"https://www.premierbet.com/","hosts":["premierbet.com"]},
+ {"name":"Hollywoodbets","url":"https://www.hollywoodbets.net/","hosts":["hollywoodbets.net"]},
+ {"name":"BangBet","url":"https://grey.bangbet.com/","hosts":["bangbet.com"]},
 ]
-CORNER = re.compile(r"\b(?:corners?|corner kicks?|corners totaux|total de corners)\b", re.I)
-CHOICE = re.compile(r"\b(?:over|under|plus de|moins de)\s*(?:\(?\s*)?\d{1,2}[.,]5\b", re.I)
-ODD = re.compile(r"(?<!\d)(?:[1-9]|[1-9]\d)[.,]\d{2,3}(?!\d)")
-STOP_WORDS = re.compile(r"\b(?:place bet|bet now|confirm bet|one.click bet|quick bet|parier maintenant|mise rapide|placer un pari|confirmer le pari)\b", re.I)
-BLOCK = re.compile(r"(?:access denied|forbidden|restricted in your|not available in your|captcha|verify you are human)", re.I)
-SLIP_SELECTOR = '[data-testid*="betslip" i], [data-testid*="bet-slip" i], [class*="betslip" i], [class*="bet-slip" i], [class*="betSlip"], [class*="coupon" i]'
-MATCH_URL = re.compile(r"/(?:live|line|prematch|sports?)/football/[^/?#]+/[^/?#]+", re.I)
 
-def allowed_match_url(url, host):
-    p = urlsplit(url)
-    if p.scheme != "https" or not p.hostname:
-        return False
-    if p.hostname != host and not p.hostname.endswith("." + host):
-        return False
-    return bool(MATCH_URL.search(p.path))
+BLOCK=re.compile(r"(?:access denied|forbidden|verify you are human|captcha|restricted in your|not available in your country|cloudflare)",re.I)
+AUTH=re.compile(r"\b(?:log out|logout|sign out|déconnexion|se déconnecter)\b",re.I)
+DANGEROUS=re.compile(r"\b(?:place bet|bet now|confirm bet|quick bet|one.?click bet|parier|miser|placer le pari|confirmer le pari|deposit|déposer|cash out|withdraw)\b",re.I)
+MARKET=re.compile(r"(?:double chance|1x\b|x2\b|12\b|over\s*2[.,]5|under\s*2[.,]5|over\s*1[.,]5|under\s*1[.,]5|plus de\s*2[.,]5|moins de\s*2[.,]5|total(?: goals?)?)",re.I)
+ODD=re.compile(r"(?<!\d)(?:1|2|3|4|5|6|7|8|9|[1-9]\d)[.,]\d{2,3}(?!\d)")
+SLIP='[data-testid*="betslip" i],[data-testid*="bet-slip" i],[class*="betslip" i],[class*="bet-slip" i],[class*="coupon" i],[class*="ticket" i]'
+BOOK_ACTION=re.compile(r"^(?:book(?: bet| betslip| ticket)?|save(?: bet| betslip| ticket)?|share(?: bet| betslip| ticket| coupon)?|booking(?: code)?|get(?: booking| bet| coupon)? code|reserve(?: ticket)?|reservation code|sharecode)$",re.I)
+COPY_ACTION=re.compile(r"^(?:copy(?: code| booking code| coupon code| share code)?|copier(?: le)? code|copy)$",re.I)
+CODE_LABEL=re.compile(r"(?:booking|bet(?:slip)?|coupon|ticket|reservation|share)\s*(?:code|number|id)|(?:code|sharecode)\s*[:#-]?",re.I)
+PLAIN_CODE=re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{4,31}$")
 
-def visible_odds(text):
-    return ODD.findall(text or "")[:4]
+def plausible_code(v):
+    s=str(v or "").strip().strip("'\"")
+    if not PLAIN_CODE.fullmatch(s): return None
+    if re.fullmatch(r"\d{1,3}(?:\.\d{1,3})?",s): return None
+    if s.lower() in {"xpvip","football","coupon","booking","sharecode","betslip"}: return None
+    return s
 
-async def betslip_status(page, choice):
-    """Confirm on a specific betslip panel, not just the price somewhere on a page."""
-    matching = page.locator(SLIP_SELECTOR)
-    for i in range(min(await matching.count(), 18)):
-        item = matching.nth(i)
+async def safe_body(page,limit=16000):
+    return (await page.locator("body").inner_text(timeout=5000))[:limit]
+
+async def find_slip(page):
+    loc=page.locator(SLIP)
+    for i in range(min(await loc.count(),20)):
+        n=loc.nth(i)
         try:
-            if not await item.is_visible(timeout=350):
-                continue
-            txt=(await item.inner_text(timeout=850)).strip()[:1100]
-            if len(txt)>750:
-                continue
-            if CHOICE.search(txt) and visible_odds(txt):
-                return True, txt[:240]
-        except Exception:
-            continue
-    return False, None
+            if not await n.is_visible(timeout=300): continue
+            txt=(await n.inner_text(timeout=700)).strip()
+            if 5<len(txt)<1400 and ODD.search(txt):
+                return n,txt[:350]
+        except Exception: pass
+    return None,None
 
-async def pick_match(page, hostname):
-    links = await page.locator('a[href]').evaluate_all("""els => els.slice(0,650).map(el=>({
-      url:el.href, text:(el.innerText||'').trim().slice(0,150),
-      visible:!!(el.getClientRects().length)
-    }))""")
-    candidates = [x for x in links if x["visible"] and allowed_match_url(x["url"], hostname)]
-    unique=[]
-    for x in candidates:
-        if x["url"] not in [t["url"] for t in unique]:
-            unique.append(x)
-    return unique
-
-async def click_corner_option(page):
-    out={"corner_label_seen":False,"corner_market_opened":False,
-         "selection_text":None,"price_seen":None,"selection_clicked":False,
-         "betslip_confirmed":False,"betslip_excerpt":None}
-    headings=page.get_by_text(CORNER)
-    for i in range(min(await headings.count(), 24)):
+async def click_market(page):
+    """Try a harmless pre-match selection. Never click a wager-submit action."""
+    nodes=page.locator("button,[role=button],a,div,span")
+    for i in range(min(await nodes.count(),1600)):
+        n=nodes.nth(i)
         try:
-            h=headings.nth(i)
-            if not await h.is_visible(timeout=500):
-                continue
-            out["corner_label_seen"]=True
-            # Opening a category is not placing a bet.
-            await h.click(timeout=1600)
-            out["corner_market_opened"]=True
-            await page.wait_for_timeout(1200)
-            break
-        except Exception:
-            continue
-    if not out["corner_label_seen"]:
+            if not await n.is_visible(timeout=120): continue
+            txt=re.sub(r"\s+"," ",(await n.inner_text(timeout=250)).strip())[:130]
+            if not txt or DANGEROUS.search(txt) or not MARKET.search(txt): continue
+            parent=(await n.locator("xpath=..").inner_text(timeout=350))[:260]
+            odds=ODD.findall(parent)
+            if not odds: continue
+            await n.click(timeout=900)
+            await page.wait_for_timeout(850)
+            slip,excerpt=await find_slip(page)
+            if slip:
+                return {"clicked":True,"selection":txt,"odd":odds[0],"slip_excerpt":excerpt}
+        except Exception: continue
+    return {"clicked":False,"selection":None,"odd":None,"slip_excerpt":None}
+
+async def read_code_from_scope(scope):
+    # readonly inputs first
+    inputs=scope.locator('input,textarea')
+    for i in range(min(await inputs.count(),25)):
+        el=inputs.nth(i)
+        try:
+            if not await el.is_visible(timeout=200): continue
+            meta=" ".join(str(await el.get_attribute(k) or "") for k in ("placeholder","aria-label","name","id"))
+            val=await el.input_value(timeout=350)
+            if CODE_LABEL.search(meta):
+                c=plausible_code(val)
+                if c:return c,"field"
+        except Exception: pass
+    # explicitly labelled text
+    txt=(await scope.inner_text(timeout=650))[:2500]
+    for line in txt.splitlines():
+        if not CODE_LABEL.search(line): continue
+        m=re.search(r"([A-Za-z0-9_-]{5,32})\s*$",line.strip())
+        if m:
+            c=plausible_code(m.group(1))
+            if c:return c,"labelled_text"
+    return None,None
+
+async def click_named_action(scope,regex):
+    els=scope.locator('button,[role=button],a')
+    for i in range(min(await els.count(),120)):
+        el=els.nth(i)
+        try:
+            if not await el.is_visible(timeout=220): continue
+            label=re.sub(r"\s+"," ",(await el.inner_text(timeout=300)).strip())[:90]
+            if not label:
+                label=str(await el.get_attribute("aria-label") or await el.get_attribute("title") or "")[:90]
+            if DANGEROUS.search(label): continue
+            if regex.fullmatch(label):
+                await el.click(timeout=1000)
+                return label
+        except Exception: continue
+    return None
+
+async def extract_generated_code(page,slip):
+    out={"action_clicked":None,"code":None,"code_source":None}
+    c,src=await read_code_from_scope(slip)
+    if c:
+        out.update(code=c,code_source=src)
         return out
-    option_nodes=page.get_by_text(CHOICE)
-    for i in range(min(await option_nodes.count(), 25)):
+    label=await click_named_action(slip,BOOK_ACTION)
+    if not label:
+        label=await click_named_action(page,BOOK_ACTION)
+    if not label:return out
+    out["action_clicked"]=label
+    await page.wait_for_timeout(900)
+    # inspect slip + dialogs/popovers
+    scopes=[slip]
+    dialogs=page.locator('[role=dialog],[class*="modal" i],[class*="popover" i],[class*="share" i]')
+    for i in range(min(await dialogs.count(),10)):
+        scopes.append(dialogs.nth(i))
+    for scope in scopes:
         try:
-            o=option_nodes.nth(i)
-            if not await o.is_visible(timeout=450):
-                continue
-            label=(await o.inner_text(timeout=700)).strip()[:95]
-            if not CHOICE.search(label) or STOP_WORDS.search(label):
-                continue
-            ancestor=(await o.locator("xpath=..").inner_text(timeout=700)).strip()[:250]
-            odds=visible_odds(ancestor)
-            if not odds:
-                continue
-            # Zero stored credentials/cookies and only a selection click.
-            out["selection_text"]=label
-            out["price_seen"]=odds[0]
-            await o.click(timeout=1400)
-            out["selection_clicked"]=True
-            await page.wait_for_timeout(1500)
-            confirmed, excerpt=await betslip_status(page, label)
-            out["betslip_confirmed"]=confirmed
-            out["betslip_excerpt"]=excerpt
-            break
-        except Exception:
-            continue
+            if hasattr(scope,"is_visible") and not await scope.is_visible(timeout=200): continue
+            c,src=await read_code_from_scope(scope)
+            if c:
+                out.update(code=c,code_source=src)
+                return out
+            copied=await click_named_action(scope,COPY_ACTION)
+            if copied:
+                await page.wait_for_timeout(250)
+                # Some sites place code in URL after share
+                q=parse_qs(urlsplit(page.url).query)
+                for key in ("shareCode","sharecode","bookingCode","booking","code"):
+                    for val in q.get(key,[]):
+                        c=plausible_code(val)
+                        if c:
+                            out.update(code=c,code_source="url_after_copy")
+                            return out
+        except Exception: continue
+    # URL may change immediately after Book/Share
+    q=parse_qs(urlsplit(page.url).query)
+    for key in ("shareCode","sharecode","bookingCode","booking","code"):
+        for val in q.get(key,[]):
+            c=plausible_code(val)
+            if c:
+                out.update(code=c,code_source="url_after_share")
+                return out
     return out
 
-async def test_site(browser, site):
-    out={"provider":site["name"],"entry":site["url"],"http_status":None,
-        "final_host":None,"status":"not_tested","market_found":False,
-        "event_url":None,"match_links_found":0,"coupon_prepared":False,
-        "clicked_selection":False,"odds":None,"notes":[]}
-    ctx=await browser.new_context(accept_downloads=False, service_workers="block")
+async def test_site(browser,site):
+    out={"provider":site["name"],"entry":site["url"],"http_status":None,"final_url":None,
+         "status":"not_tested","selection_clicked":False,"coupon_prepared":False,
+         "selection":None,"odds":None,"booking_action":None,"coupon_code":None,
+         "code_source":None,"notes":[]}
+    ctx=await browser.new_context(service_workers="block",accept_downloads=False)
     page=await ctx.new_page()
-    # Forbid external navigation to payment/registration domains only by choosing known public entry URLs;
-    # no authentication is attempted and no credentials are supplied.
     try:
-        response=await page.goto(site["url"],wait_until="domcontentloaded",timeout=21000)
-        out["http_status"]=response.status if response else None
-        out["final_host"]=urlsplit(page.url).hostname
-        if not response or response.status in (203,204,401,403,429) or response.status>=400:
-            out["status"]="access_restricted_or_http_error"
-            return out
-        await page.wait_for_timeout(3500)
-        body=(await page.locator("body").inner_text(timeout=4500))[:15000]
-        if BLOCK.search(body[:1800]):
-            out["status"]="blocked_or_challenge"
-            return out
-        if re.search(r"\b(?:log out|sign out|se déconnecter)\b",body[:1600],re.I):
-            out["status"]="unexpected_authenticated_session"
-            return out
-        if re.search(r"one.click bet\s*(?:on|enabled)|pari en un clic activé",body[:1800],re.I):
-            out["status"]="one_click_betting_enabled_unsafe"
-            return out
-        candidates=await pick_match(page,site["host"])
-        out["match_links_found"]=len(candidates)
-        if not candidates:
-            out["status"]="no_public_football_event_link"
-            out["notes"].append("Accessible landing page is not evidence of an available bet.")
-            return out
-        target=candidates[0]
-        out["event_url"]=target["url"]
-        resp=await page.goto(target["url"],wait_until="domcontentloaded",timeout=19000)
-        if not resp or resp.status>=400:
-            out["status"]="event_page_unavailable"
-            return out
+        r=await page.goto(site["url"],wait_until="domcontentloaded",timeout=22000)
+        out["http_status"]=r.status if r else None
+        out["final_url"]=page.url
+        if not r or r.status in (203,204,401,403,429) or r.status>=400:
+            out["status"]="access_restricted_or_http_error"; return out
         await page.wait_for_timeout(3000)
-        b=(await page.locator("body").inner_text(timeout=5000))[:14000]
-        if BLOCK.search(b[:1500]):
-            out["status"]="event_page_restricted"
-            return out
-        if re.search(r"one.click bet\s*(?:on|enabled)|pari en un clic activé",b[:1500],re.I):
-            out["status"]="one_click_betting_enabled_unsafe"
-            return out
-        probe=await click_corner_option(page)
-        out["market_found"]=probe["corner_label_seen"]
-        out["clicked_selection"]=probe["selection_clicked"]
-        out["odds"]=probe["price_seen"]
-        out["selection"]=probe["selection_text"]
-        out["coupon_prepared"]=probe["betslip_confirmed"]
-        out["bet_slip_excerpt"]=probe["betslip_excerpt"]
-        out["status"]=("confirmed_coupon_prepared_no_wager" if probe["betslip_confirmed"] else
-                       "selection_clicked_but_coupon_not_verified" if probe["selection_clicked"] else
-                       "corner_market_no_clickable_total" if probe["corner_label_seen"] else
-                       "no_corner_market_found")
-        if not out["coupon_prepared"]:
-            out["notes"].append("No coupon claim without visible selection inside an identified slip container.")
+        body=await safe_body(page)
+        if BLOCK.search(body[:2500]):
+            out["status"]="blocked_or_challenge"; return out
+        if AUTH.search(body[:1800]):
+            out["status"]="unexpected_authenticated_session"; return out
+        probe=await click_market(page)
+        out["selection_clicked"]=probe["clicked"]
+        out["selection"]=probe["selection"]
+        out["odds"]=probe["odd"]
+        if not probe["clicked"]:
+            out["status"]="no_clickable_double_chance_or_total"; return out
+        slip,_=await find_slip(page)
+        if not slip:
+            out["status"]="selection_clicked_but_betslip_not_verified"; return out
+        out["coupon_prepared"]=True
+        generated=await extract_generated_code(page,slip)
+        out["booking_action"]=generated["action_clicked"]
+        out["coupon_code"]=generated["code"]
+        out["code_source"]=generated["code_source"]
+        out["status"]="CODE_GENERATED" if generated["code"] else "betslip_ready_no_code_exposed"
         return out
     except Exception as exc:
-        out["status"]="browser_error"
-        out["error_type"]=type(exc).__name__
-        return out
+        out["status"]="browser_error"; out["error_type"]=type(exc).__name__; return out
     finally:
         try:
             ROOT.mkdir(exist_ok=True,parents=True)
-            await page.screenshot(path=str(ROOT / (site["name"].lower()+ "_coupon_probe.png")), timeout=3000)
-        except Exception:
-            pass
+            await page.screenshot(path=str(ROOT/(re.sub(r"[^a-z0-9]+","_",site["name"].lower())+"_coupon.png")),timeout=3000)
+        except Exception: pass
         await ctx.close()
 
 async def main():
     ROOT.mkdir(exist_ok=True,parents=True)
     async with async_playwright() as pw:
         browser=await pw.chromium.launch(headless=True)
-        result=[]
+        results=[]
         for site in SITES:
             item=await test_site(browser,site)
-            result.append(item)
-            print(f'{item["provider"]}: {item["status"]} (HTTP {item["http_status"]})',flush=True)
+            results.append(item)
+            print(f'{item["provider"]}: {item["status"]} code={item["coupon_code"]}',flush=True)
         await browser.close()
-    confirmed=[r for r in result if r["coupon_prepared"]]
-    output={"run_at_utc":dt.datetime.now(dt.timezone.utc).isoformat(),
-            "mode":"anonymous_public_betslip_only",
-            "no_account_or_bet_placement":True,
-            "providers_count":len(result),
-            "coupons_verified":len(confirmed),
-            "conclusion":"COUPON_CONFIRMED" if confirmed else "NO_COUPON_CONFIRMED",
-            "results":result}
-    REPORT.write_text(json.dumps(output,indent=2,ensure_ascii=False),encoding="utf-8")
-    print(json.dumps(output,indent=2,ensure_ascii=False),flush=True)
-    # Exit nonzero when user-facing goal isn't met so Actions isn't misleadingly green.
-    return 0 if confirmed else 2
+    codes={r["provider"]:r["coupon_code"] for r in results if r["coupon_code"]}
+    report={"run_at_utc":dt.datetime.now(dt.timezone.utc).isoformat(),
+            "mode":"anonymous_prematch_booking_code_probe",
+            "no_login_no_stake_no_wager_submission":True,
+            "providers_count":len(results),
+            "generated_code_count":len(codes),
+            "generated_codes":codes,
+            "results":results}
+    REPORT.write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
+    print(json.dumps(report,indent=2,ensure_ascii=False),flush=True)
+    return 0 if codes else 2
 
 if __name__=="__main__":
     raise SystemExit(asyncio.run(main()))
