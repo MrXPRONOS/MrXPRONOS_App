@@ -304,7 +304,9 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         kept.append(row)
         stats["saved_future_revalidated"]+=1
     result=kept
-    known={str(r.get("source_event_id",str(r.get("id","")).removeprefix("bsd:"))) for r in result}
+    # Tous les événements déjà exposés restent connus, y compris ceux retirés :
+    # ne jamais substituer un autre marché après publication initiale.
+    known=set(saved)
     for f in fixtures:
         if not isinstance(f,dict) or f.get("id") is None:continue
         eid=str(f["id"])
