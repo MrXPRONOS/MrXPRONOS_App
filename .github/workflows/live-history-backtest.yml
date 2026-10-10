@@ -116,6 +116,26 @@ jobs:
               c=Counter(str(r.get('threshold')) for r in sub)
               print('THRESHOLDS', market, '=', json.dumps(c.most_common(12)))
 
+          # Market x minute matrix.
+          by_market_min=defaultdict(list)
+          for r in usable:
+              by_market_min[(str(r.get('type')), minute_bucket(r.get('signal_minute') if r.get('signal_minute') is not None else r.get('minute')))].append(r)
+          for (market,bucket),sub in sorted(by_market_min.items()):
+              print('MATRIX', market, bucket, '=', json.dumps(summarize(sub), ensure_ascii=False, sort_keys=True))
+
+          # Maximum static uplift that still retains target historical hit rates.
+          for market,sub in sorted(by_market.items()):
+              rec={}
+              for target in [95,90,85,80,75,70,65,60]:
+                  best=None
+                  for shift in range(0,9):
+                      n=len(sub)
+                      hit=(100*sum(1 for r in sub if r['_final'] > r['_th']+shift)/n) if n else 0
+                      if hit >= target:
+                          best=shift
+                  rec[str(target)]=best
+              print('RETENTION', market, '=', json.dumps(rec, sort_keys=True))
+
           # Old-vs-V2 split.
           old=[r for r in usable if not r.get('model_version')]
           v2=[r for r in usable if r.get('model_version')]
