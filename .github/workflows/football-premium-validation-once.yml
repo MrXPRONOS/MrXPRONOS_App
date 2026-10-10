@@ -1,5 +1,5 @@
 name: Mr XPRONOS - Validation premium canal
-# relance finale après stat récente, centrage et templates enrichis
+# relance logos-only, fond nettoyé et espacement corrigé
 on:
   push:
     branches: [main]
