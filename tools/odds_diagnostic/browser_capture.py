@@ -8,6 +8,7 @@ from playwright.async_api import async_playwright
 from har_audit import provider_for
 from validation import validate
 from schema_probe import inspect_json
+from corner_slip_probe import inspect_corner_selection
 
 TARGETS=[("sportybet","https://www.sportybet.com/ng/"),("1xbet","https://1xbet.com/en")]
 OUT=pathlib.Path("odds_diagnostic_results/browser_capture.json")
@@ -68,6 +69,9 @@ async def visit(browser, provider, url):
             except Exception as exc:
                 result["detail_navigation"]="failed"
                 result["detail_error_type"]=type(exc).__name__
+        result["corner_slip_probe"]={"stage":"not_attempted"}
+        if result["detail_navigation"]=="loaded":
+            result["corner_slip_probe"]=await inspect_corner_selection(page)
         await asyncio.gather(*tasks,return_exceptions=True)
     except Exception as exc:
         result["status"]="navigation_failed"
