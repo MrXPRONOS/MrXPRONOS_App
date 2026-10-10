@@ -2,7 +2,10 @@ name: BSD V2 - Validation des coupons Telegram
 run-name: "BSD V2 - Validation Telegram (${{ inputs.trigger_source || github.event_name }})"
 
 on:
-  # Déclenché par cron-job.org, avec lancement manuel de secours.
+  # Filet de sécurité GitHub : vérifie régulièrement les coupons terminés.
+  # cron-job.org peut continuer à déclencher le workflow entre-temps.
+  schedule:
+    - cron: '*/10 * * * *'
   workflow_dispatch:
     inputs:
       trigger_source:
@@ -39,7 +42,7 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: python -m pip install requests pillow
-      - name: Validate published picks; post winner cards only
+      - name: Validate singles and 2-leg combos; post verified winners only
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
           TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
