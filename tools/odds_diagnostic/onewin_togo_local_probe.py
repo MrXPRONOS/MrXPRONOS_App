@@ -148,6 +148,8 @@ async def main():
         "share_controls":[],
         "share_code":None,
         "share_code_source":None,
+        "network_candidates":[],
+        "document_state":{},
         "status":"not_started",
         "no_proxy_or_location_spoofing":True,
         "no_login_no_stake_no_wager":True
@@ -156,6 +158,29 @@ async def main():
         browser=await p.chromium.launch(headless=True)
         ctx=await browser.new_context(service_workers="block")
         page=await ctx.new_page()
+        network_candidates=[]
+        async def record_response(resp):
+            try:
+                rt=resp.request.resource_type
+                url=resp.url
+                ct=(await resp.all_headers()).get("content-type","")
+                if rt not in ("xhr","fetch") and "json" not in ct.lower():
+                    return
+                low=url.lower()
+                if not any(k in low for k in ("bet","sport","event","match","prematch","line","odd","coef")):
+                    return
+                item={"status":resp.status,"resource_type":rt,"url":url[:500],"content_type":ct[:120]}
+                if "json" in ct.lower():
+                    try:
+                        raw=await resp.text()
+                        item["body_excerpt"]=re.sub(r"\\s+"," ",raw)[:900]
+                    except:
+                        pass
+                if len(network_candidates)<80:
+                    network_candidates.append(item)
+            except:
+                pass
+        page.on("response", record_response)
         try:
             r=await page.goto(URL,wait_until="domcontentloaded",timeout=30000)
             rep["http_status"]=r.status if r else None
@@ -175,6 +200,17 @@ async def main():
             except:
                 body=""
             rep["body_excerpt"]=re.sub(r"\s+"," ",body).strip()[:1200] or None
+            try:
+                rep["document_state"]={
+                    "ready_state":await page.evaluate("document.readyState"),
+                    "html_length":await page.evaluate("document.documentElement.outerHTML.length"),
+                    "body_text_length":await page.evaluate("(document.body && document.body.innerText || '').length"),
+                    "script_count":await page.locator("script").count(),
+                    "iframe_count":await page.locator("iframe").count(),
+                }
+            except Exception as exc:
+                rep["document_state"]={"error":type(exc).__name__}
+            rep["network_candidates"]=network_candidates[:80]
             rep["football_visible"]="football" in body.lower()
             if not rep["football_visible"]:
                 try:
