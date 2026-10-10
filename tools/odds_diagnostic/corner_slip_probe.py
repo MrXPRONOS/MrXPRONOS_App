@@ -4,7 +4,7 @@ ODD=re.compile(r"(?<!\d)(?:[1-9]\d?|[1-9])\.\d{2,3}(?!\d)")
 CORNER=re.compile(r"corners?|corner kicks?|corners totaux|total.*corners",re.I)
 CHOICE=re.compile(r"(over|under|plus de|moins de|supérieur|inférieur)\s*\d{1,2}[.,]5?",re.I)
 async def inspect_corner_selection(page):
-    result={"market_opened":False,"selection_clicked":False,"quote_observed":False,
+    result={"corner_label_clicked":False,"market_opened":False,"selection_clicked":False,"quote_observed":False,
             "visible_selection":None,"displayed_odds":None,"stage":"not_found"}
     # First inspect visible text, no account/login/bet submission.
     labels=page.get_by_text(CORNER)
@@ -14,11 +14,11 @@ async def inspect_corner_selection(page):
         try:
             if await node.is_visible(timeout=700):
                 await node.click(timeout=1500)
-                result["market_opened"]=True
-                result["stage"]="corner_market_opened"
+                result["corner_label_clicked"]=True
+                result["stage"]="corner_label_clicked_not_verified"
                 break
         except Exception:pass
-    if not result["market_opened"]:return result
+    if not result["corner_label_clicked"]:return result
     await page.wait_for_timeout(900)
     options=page.get_by_text(CHOICE)
     for i in range(min(await options.count(),35)):
@@ -30,6 +30,7 @@ async def inspect_corner_selection(page):
             if re.search(r"place bet|parier|confirmer|bet now|valider|deposit|déposer",txt,re.I):continue
             context=(await node.locator("xpath=..").inner_text(timeout=900))[:350]
             odds=ODD.findall(context)
+            result["market_opened"]=True
             result["visible_selection"]=txt
             if odds:
                 result["displayed_odds"]=odds[0]
@@ -40,5 +41,5 @@ async def inspect_corner_selection(page):
             await page.wait_for_timeout(650)
             break
         except Exception:continue
-    if not result["selection_clicked"]:result["stage"]="corner_market_without_clickable_total"
+    if not result["selection_clicked"]:result["stage"]="corner_label_without_verified_total_selection"
     return result
