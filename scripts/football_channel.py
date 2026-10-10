@@ -423,7 +423,7 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
               and str(e.get("status", "")).lower() not in ("cancelled", "postponed", "finished", "live")]
     if not future:
         return None
-    chosen = future[:7]
+    chosen = future[:5]
     lead = chosen[0]
     lead_league = esc(league(lead) or "Football")
     lines = [
@@ -470,7 +470,9 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
         )
         card = {"day": now.astimezone(TZ).strftime("%d/%m/%Y"),
                 "league": league(e), "home": team(e, "home"),
-                "away": team(e, "away"), "scores": (a, b)}
+                "away": team(e, "away"), "scores": (a, b),
+                "home_logo": team_visual_url(e, "home"),
+                "away_logo": team_visual_url(e, "away")}
         return Publication("resultat", key, text, card=card)
     return None
 
@@ -556,7 +558,9 @@ def statistique(events: list[dict], yesterday: date) -> Publication | None:
         "<b>💬 Quel autre match d'hier vous a marqué ?</b>"
     )
     card = {"day": yesterday.strftime("%d/%m/%Y"), "league": league(e),
-            "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a)}
+            "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
+            "home_logo": team_visual_url(e, "home"),
+            "away_logo": team_visual_url(e, "away")}
     return Publication("statistique", "statistique:" + yesterday.isoformat(),
                        message, card=card)
 
