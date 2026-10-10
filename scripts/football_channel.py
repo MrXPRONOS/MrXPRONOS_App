@@ -234,7 +234,7 @@ class Sender:
             data.update(question=question[:300],
                         options=json.dumps(options, ensure_ascii=False),
                         is_anonymous="true", allows_multiple_answers="false")
-        else:
+        elif not item.card:
             data.update(text=item.text[:3900], parse_mode="HTML",
                         disable_web_page_preview="false")
         # Aucun retry automatique ambigu : Telegram peut avoir reçu le message.
@@ -252,7 +252,9 @@ class Sender:
                 card_dir.cleanup()
         if payload.get("ok") is not True:
             raise RuntimeError("Telegram n'a pas confirmé l'envoi: " + str(payload.get("description", ""))[:180])
-        print("ENVOYE", item.category, item.key, "message_id", payload.get("result", {}).get("message_id"))
+        identifier = payload.get("result", {}).get("message_id")
+        print("ENVOYE", item.category, item.key, "message_id", identifier)
+        return identifier
 
 
 def parse_rss(xml_data: bytes) -> list[dict]:
@@ -308,9 +310,11 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
     return None
 
 
-def programme(events: list[dict], today: date) -> Publication | None:
+def programme(events: list[dict], today: date, *, as_of: datetime | None = None) -> Publication | None:
     future = [e for e in candidates(events) if kick(e).astimezone(TZ).date() == today
-              and final_score(e) is None and str(e.get("status", "")).lower() not in ("cancelled", "postponed")]
+              and (as_of is None or kick(e) > as_of)
+              and final_score(e) is None
+              and str(e.get("status", "")).lower() not in ("cancelled", "postponed", "finished", "live")]
     if not future:
         return None
     chosen = future[:7]
@@ -499,7 +503,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     try:
         if hour == 7 and (force or enough(state, "programme", now)):
             try:
-                publish(programme(get_day(today), today))
+                publish(programme(get_day(today), today, as_of=now))
             except (BSDAPIError, requests.RequestException, ValueError) as exc:
                 counter["errors"] += 1
                 print("ERREUR_PROGRAMME", type(exc).__name__, str(exc)[:160])
@@ -562,13 +566,134 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     return counter
 
 
+
+
+def run_live_test(now: datetime) -> dict[str, Any]:
+    """Envoie une fois six publications de verification reelles, marquees TEST.
+
+    Les scores, les rencontres et les titres RSS restent authentiques. Les tests
+    ne consomment PAS les quotas editoriaux et ne modifient PAS l'historique.
+    Une erreur sur une rubrique n'empeche pas d'examiner les cinq autres.
+    """
+    now = now.astimezone(timezone.utc)
+    today = now.astimezone(TZ).date()
+    sender = Sender(dry_run=False)
+    with tempfile.TemporaryDirectory(prefix="xpronos-test-historique-") as tmp:
+        empty_history = History(Path(tmp) / "none.json")
+        api = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
+                        max_retries=1)
+        cache: dict[str, list[dict]] = {}
+        report: dict[str, Any] = {"mode": "live-test", "sent": {}, "skipped": {},
+                                  "errors": {}}
+
+        def day_events(day: date) -> list[dict]:
+            key = day.isoformat()
+            if key not in cache:
+                page = api.list_events(day, day, max_pages=8, ttl=0)
+                if not page.complete:
+                    raise BSDAPIError("Liste BSD incomplete " + key)
+                cache[key] = page.events
+                print("TEST_BSD", key, "rencontres", len(page.events))
+            return cache[key]
+
+        def deliver(category: str, make) -> None:
+            try:
+                post = make()
+                if not post:
+                    report["skipped"][category] = "Pas de donnees verifiees"
+                    print("TEST_INDISPONIBLE", category)
+                    return
+                # Les tests sont identifiables dans le canal pour permettre
+                # de les effacer ensuite sans confusion avec l'edition normale.
+                if post.poll:
+                    question, choices = post.poll
+                    post.poll = ("[TEST] " + question, choices)
+                else:
+                    post.text = "<b>🧪 TEST DE PUBLICATION — MR XPRONOS</b>\n\n" + post.text
+                mid = sender.send(post)
+                report["sent"][category] = mid
+            except Exception as exc:
+                report["errors"][category] = type(exc).__name__ + ": " + str(exc)[:180]
+                print("TEST_ECHEC", category, report["errors"][category])
+
+        def actual_programme() -> Publication | None:
+            post = programme(day_events(today), today, as_of=now)
+            # Si tous les matchs de ce jour sont deja commences, prendre demain,
+            # sans falsifier les horaires ou scores.
+            if not post:
+                post = programme(day_events(today + timedelta(days=1)),
+                                 today + timedelta(days=1), as_of=now)
+                if post:
+                    post.text = post.text.replace("MATCHS DU JOUR", "MATCHS DE DEMAIN")
+            return post
+
+        def actual_before() -> Publication | None:
+            today_events = day_events(today)
+            tomorrow_events = day_events(today + timedelta(days=1))
+            future = [e for e in candidates(today_events + tomorrow_events)
+                      if kick(e) > now + timedelta(minutes=20)
+                      and final_score(e) is None]
+            if not future:
+                return None
+            # Emulate a 2h-before-kickoff publication (the fixture time
+            # displayed is genuine). It is clearly identified as a TEST.
+            match = future[0]
+            virtual_now = kick(match) - timedelta(hours=2)
+            return avant_match([match], empty_history, virtual_now, [])
+
+        def actual_result() -> Publication | None:
+            yesterday = day_events(today - timedelta(days=1))
+            today_events = day_events(today)
+            finished = [e for e in candidates(today_events + yesterday)
+                        if final_score(e) is not None and kick(e) < now]
+            if not finished:
+                return None
+            match = sorted(finished, key=lambda e: (-importance(e),
+                            -kick(e).timestamp()))[0]
+            # For a verified finished match, result() needs a 2h-old kickoff
+            # for its 'recent' editorial window.
+            virtual_now = kick(match) + timedelta(hours=2)
+            return resultat([match], empty_history, virtual_now)
+
+        def actual_stat() -> Publication | None:
+            yesterday = today - timedelta(days=1)
+            return statistique(day_events(yesterday), yesterday)
+
+        def actual_flash() -> Publication | None:
+            return flash(fetch_rss(sender.session), empty_history, now)
+
+        def actual_poll() -> Publication:
+            return sondage(day_events(today), empty_history, now)
+
+        for category, maker in [
+            ("programme", actual_programme),
+            ("avant_match", actual_before),
+            ("resultat", actual_result),
+            ("statistique", actual_stat),
+            ("flash", actual_flash),
+            ("sondage", actual_poll),
+        ]:
+            deliver(category, maker)
+        print("XPRONOS_TEST_LIVE", json.dumps(report, ensure_ascii=False))
+        if report["errors"] or report["skipped"]:
+            raise RuntimeError("Verification partielle: consulter XPRONOS_TEST_LIVE")
+        return report
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="6 publications automatiques Mr XPRONOS")
     parser.add_argument("--dry-run", action="store_true", help="Simulation sans Telegram, ni historique")
+    parser.add_argument("--live-test", action="store_true",
+                        help="Envoie les six rubriques TEST au vrai canal, sans historique")
     parser.add_argument("--force", action="store_true", help="Ignorer les limites et l'historique (test manuel)")
     args = parser.parse_args()
     now = datetime.now(timezone.utc)
-    run(now, dry_run=args.dry_run, force=args.force)
+    if args.live_test:
+        if args.dry_run or args.force:
+            parser.error("--live-test ne peut pas etre combine avec --dry-run/--force")
+        run_live_test(now)
+    else:
+        run(now, dry_run=args.dry_run, force=args.force)
 
 
 if __name__ == "__main__":
