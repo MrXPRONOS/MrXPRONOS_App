@@ -8,12 +8,14 @@ Les vrais chiffres et rencontres proviennent de BSD V2 via football_channel.py.
 from __future__ import annotations
 
 import argparse
+import io
 import re
 from datetime import date
 from pathlib import Path
 from typing import Any
 
-from PIL import Image, ImageDraw, ImageFont
+import requests
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 W = H = 1080
 NAVY = "#071521"
@@ -101,6 +103,38 @@ def panel(draw: ImageDraw.ImageDraw, bounds: tuple[int, int, int, int], *,
     if accent:
         draw.rounded_rectangle((bounds[0], bounds[1]+8, bounds[0]+6, bounds[3]-8),
                                radius=3, fill=GOLD)
+
+
+def remote_image(url: str, size: tuple[int, int]) -> Image.Image | None:
+    if not isinstance(url, str) or not url.startswith(("https://", "http://")):
+        return None
+    try:
+        response = requests.get(
+            url, timeout=(6, 15),
+            headers={"User-Agent": "Mozilla/5.0 MrXPRONOS-card/1.0"},
+        )
+        response.raise_for_status()
+        if len(response.content) > 6_000_000:
+            return None
+        source = Image.open(io.BytesIO(response.content)).convert("RGB")
+        return ImageOps.fit(
+            source, size, method=Image.Resampling.LANCZOS, centering=(0.5, 0.45)
+        )
+    except Exception:
+        return None
+
+
+def paste_required_logo(image: Image.Image, url: str, center: tuple[int, int],
+                        max_px: int = 130) -> None:
+    from programme_styles import load_logo
+    logo = load_logo(url, max_px)
+    if logo is None:
+        raise ValueError("Logo d'équipe introuvable au rendu")
+    image.paste(
+        logo,
+        (center[0] - logo.width // 2, center[1] - logo.height // 2),
+        logo,
+    )
 
 
 def programme_card(payload: dict[str, Any]) -> Image.Image:
