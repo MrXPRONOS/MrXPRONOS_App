@@ -5,6 +5,11 @@ on:
     paths:
       - "tools/odds_diagnostic/bookmaker_coupon_probe.py"
       - ".github/workflows/bookmaker-coupon-probe.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/odds_diagnostic/bookmaker_coupon_probe.py"
+      - ".github/workflows/bookmaker-coupon-probe.yml"
   workflow_dispatch:
 permissions:
   contents: read
