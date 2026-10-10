@@ -8,8 +8,8 @@ MATCH="https://sports2.premierbet.com/en/mini/Fixture/Match/7474403"
 BETSLIP="https://sports2.premierbet.com/en/mini/BetSlip"
 
 TARGETS=[
-    ("total_goals_over_2_5", re.compile(r"^Over\s*\(2\.5\)\s*1\.55$",re.I)),
-    ("double_chance_x2", re.compile(r"^X2\s*1\.39$",re.I)),
+    ("total_goals_over_2_5", re.compile(r"\bOver\s*\(?\s*2[.,]5\s*\)?\b",re.I)),
+    ("double_chance_x2", re.compile(r"\bX2\b",re.I)),
 ]
 CODEISH=re.compile(r"(?:book|booking|reserve|reservation|share|save|code|coupon|ticket|load)",re.I)
 DANGER=re.compile(r"(?:place bet|bet now|confirm|stake|deposit|withdraw|cash out|one.?click|parier|miser|valider)",re.I)
@@ -19,19 +19,39 @@ async def norm_text(el,limit=400):
     except:return ""
 
 async def click_exact_market(page):
-    links=page.locator("a[href*='BetSlip/SelectMatchOdd'],a")
-    for name,pat in TARGETS:
-        for i in range(min(await links.count(),1200)):
-            a=links.nth(i)
-            try:
-                if not await a.is_visible(timeout=100):continue
-                t=await norm_text(a,120)
-                if not pat.fullmatch(t):continue
-                href=await a.get_attribute("href")
-                await a.click(timeout=1500)
-                await page.wait_for_timeout(1200)
-                return {"target":name,"label":t,"href":href,"after_click_url":page.url}
-            except:continue
+    # PremierBet often renders the market name next to the clickable odd, so
+    # inspect the selection link plus up to 3 ancestors instead of requiring
+    # an exact "label + price" string.
+    links=page.locator("a[href*='SelectMatchOdd']")
+    candidates=[]
+    for i in range(min(await links.count(),1500)):
+        a=links.nth(i)
+        try:
+            if not await a.is_visible(timeout=120):
+                continue
+            link_text=await norm_text(a,140)
+            href=await a.get_attribute("href")
+            contexts=[link_text]
+            cur=a
+            for _ in range(3):
+                cur=cur.locator("xpath=..")
+                t=await norm_text(cur,420)
+                if t and t not in contexts:
+                    contexts.append(t)
+            combined=" | ".join(contexts)
+            candidates.append({"text":link_text,"href":href,"context":combined[:900]})
+            for name,pat in TARGETS:
+                if not pat.search(combined):
+                    continue
+                odd_match=re.search(r"(?<!\d)(?:1|2|3|4|5|6|7|8|9|[1-9]\d)[.,]\d{2,3}(?!\d)",combined)
+                odd=odd_match.group(0) if odd_match else None
+                await a.click(timeout=1600)
+                await page.wait_for_timeout(1500)
+                return {"target":name,"label":combined[:500],"odd":odd,"href":href,"after_click_url":page.url,"candidate_count":len(candidates)}
+        except Exception:
+            continue
+    # Keep a compact sample in the caller by attaching to page for debugging.
+    page._mrx_candidates=candidates[:80]
     return None
 
 async def collect_actions(page):
@@ -72,7 +92,7 @@ async def collect_fields(page):
 async def main():
     ROOT.mkdir(parents=True,exist_ok=True)
     rep={"run_at_utc":dt.datetime.now(dt.timezone.utc).isoformat(),"match_url":MATCH,
-         "match_http":None,"selection":None,"betslip_http":None,"betslip_url":None,
+         "match_http":None,"selection":None,"market_link_sample":[],"betslip_http":None,"betslip_url":None,
          "betslip_text":None,"selection_visible_in_betslip":False,
          "candidate_actions":[],"fields":[],"status":"not_started"}
     async with async_playwright() as p:
@@ -82,9 +102,10 @@ async def main():
         try:
             r=await page.goto(MATCH,wait_until="domcontentloaded",timeout=25000)
             rep["match_http"]=r.status if r else None
-            await page.wait_for_timeout(2500)
+            await page.wait_for_timeout(7000)
             rep["selection"]=await click_exact_market(page)
             if not rep["selection"]:
+                rep["market_link_sample"]=getattr(page,"_mrx_candidates",[])[:40]
                 rep["status"]="target_market_not_found"
             else:
                 br=await page.goto(BETSLIP,wait_until="domcontentloaded",timeout=25000)
