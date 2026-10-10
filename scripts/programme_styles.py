@@ -40,10 +40,23 @@ FONT_REG = (
 TEAM_COLORS = {
     "arsenal": ("#D71920", "#F4F4F4"),
     "chelsea": ("#034694", "#0E68C7"),
+    "manchester united": ("#DA291C", "#111111"),
+    "tottenham": ("#F7F7F7", "#132257"),
     "real madrid": ("#F7F7F3", "#D7B56D"),
     "barcelona": ("#143C8C", "#A5163A"),
+    "getafe": ("#0A4AA1", "#66A7E8"),
     "psg": ("#0B1F5B", "#D81E36"),
+    "paris saint-germain": ("#0B1F5B", "#D81E36"),
     "marseille": ("#F6F8F8", "#43A9D6"),
+    "le mans": ("#F2C500", "#D71920"),
+    "villarreal": ("#F4D500", "#2458A6"),
+    "porto": ("#F6F7F8", "#1650A8"),
+    "maritimo": ("#16713C", "#D3212D"),
+    "marítimo": ("#16713C", "#D3212D"),
+    "napoli": ("#4AA8DF", "#FFFFFF"),
+    "ajax": ("#F7F7F7", "#D2122E"),
+    "nijmegen": ("#D71920", "#151515"),
+    "nec": ("#D71920", "#151515"),
     "bayern": ("#D0021B", "#9E071C"),
     "dortmund": ("#F6D400", "#171717"),
     "inter": ("#071A42", "#0F76CB"),
@@ -147,6 +160,33 @@ def gradient_round_rect(image: Image.Image, box: tuple[int, int, int, int],
     md.rounded_rectangle((0, 0, x2-x1-1, y2-y1-1), radius=radius, fill=255)
     image.paste(gold_gradient((x2-x1, y2-y1)), (x1, y1), mask)
     ImageDraw.Draw(image).rounded_rectangle(box, radius=radius, outline=outline, width=width)
+
+
+def gradient_outline_round_rect(image: Image.Image, box: tuple[int, int, int, int],
+                                radius: int, width: int = 3, glow: bool = False) -> None:
+    x1, y1, x2, y2 = box
+    bw, bh = x2-x1, y2-y1
+    outer = Image.new("L", (bw, bh), 0)
+    od = ImageDraw.Draw(outer)
+    od.rounded_rectangle((0, 0, bw-1, bh-1), radius=radius, fill=255)
+    inner = Image.new("L", (bw, bh), 0)
+    idr = ImageDraw.Draw(inner)
+    inset = max(1, width)
+    idr.rounded_rectangle((inset, inset, bw-1-inset, bh-1-inset),
+                          radius=max(1, radius-inset), fill=255)
+    # Border mask = outer - inner.
+    border = Image.new("L", (bw, bh), 0)
+    bp = border.load(); op = outer.load(); ip = inner.load()
+    for yy in range(bh):
+        for xx in range(bw):
+            bp[xx, yy] = max(0, op[xx, yy] - ip[xx, yy])
+    if glow:
+        glow_mask = border.filter(ImageFilter.GaussianBlur(8))
+        glow_layer = Image.new("RGBA", image.size, (0,0,0,0))
+        glow_color = Image.new("RGBA", (bw,bh), (247,190,63,100))
+        glow_layer.paste(glow_color, (x1,y1), glow_mask)
+        image.paste(glow_layer, (0,0), glow_layer)
+    image.paste(gold_gradient((bw,bh)), (x1,y1), border)
 
 
 def gradient_text(image: Image.Image, value: Any, xy: tuple[int, int], *,
@@ -385,15 +425,14 @@ def rows_style_6(image, d, rows):
     y0=365
     for i,item in enumerate(rows[:5]):
         y=y0+i*106
-        d.rounded_rectangle((74,y-39,1016,y+51),radius=29,fill="#020C14")
-        d.rounded_rectangle((61,y-48,1003,y+42),radius=29,fill="#071A2A",
-                            outline="#D5A43D",width=2)
-        d.line((92,y-45,972,y-45),fill="#FFE8A9",width=1)
-        d.line((92,y+39,972,y+39),fill="#8B611D",width=1)
-        d.line((472,y-29,472,y+24),fill="#9B7025",width=1)
-        d.line((608,y-29,608,y+24),fill="#9B7025",width=1)
-        team_visual(image, d, 116, y-3, item, "home", scale=.78)
-        team_visual(image, d, 948, y-3, item, "away", scale=.78)
+        d.rounded_rectangle((74,y-38,1016,y+52),radius=30,fill="#020B13")
+        d.rounded_rectangle((61,y-48,1003,y+42),radius=30,fill="#06192A")
+        gradient_outline_round_rect(image,(61,y-48,1003,y+42),30,width=3,glow=True)
+        d.line((95,y-42,968,y-42),fill="#FFF0BE",width=1)
+        d.line((472,y-29,472,y+24),fill="#A87523",width=1)
+        d.line((608,y-29,608,y+24),fill="#A87523",width=1)
+        team_visual(image, d, 116, y-3, item, "home", scale=.82)
+        team_visual(image, d, 948, y-3, item, "away", scale=.82)
         match_texts(image,d,item,y-3,home_x=330,away_x=750,name_width=268)
 
 
