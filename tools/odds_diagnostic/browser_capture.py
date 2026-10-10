@@ -14,7 +14,7 @@ async def visit(browser, provider, url):
     page=await browser.new_page()
     result={"provider":provider,"site":urlsplit(url).hostname,"status":"not_started","responses_observed":0,
             "json_responses":0,"markets":{"corners":0,"shots":0,"fouls":0},
-            "unmapped_numeric_markets":0,"status_codes":{},"limitations":[]}
+            "unmapped_numeric_markets":0,"status_codes":{},"json_shapes":{},"limitations":[]}
     tasks=[]
     async def observe(response):
         try:
@@ -28,6 +28,13 @@ async def visit(browser, provider, url):
             if len(body)>1_000_000:return
             obj=json.loads(body)
             result["json_responses"]+=1
+            if isinstance(obj,dict):
+                shape=",".join(sorted(str(k) for k in obj.keys() if isinstance(k,str) and not re.search(r"token|secret|auth|key|session|cookie",k,re.I))[:12])
+            elif isinstance(obj,list):
+                shape="list"
+            else:
+                shape=type(obj).__name__
+            result["json_shapes"][shape]=result["json_shapes"].get(shape,0)+1
             v=validate(obj,provider)
             if v["analysis"]:
                 for kind,n in v["analysis"]["counts"].items():result["markets"][kind]+=n
