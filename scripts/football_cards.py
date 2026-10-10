@@ -349,6 +349,78 @@ def prematch_card(payload: dict[str, Any]) -> Image.Image:
         size=22, bold=True, anchor="mm", max_width=650, min_size=17)
     return image
 
+
+def flash_card(payload: dict[str, Any]) -> Image.Image:
+    from programme_styles import (
+        background as premium_background,
+        gradient_text,
+        gradient_outline_round_rect,
+    )
+
+    image, d = premium_background(6)
+    photo = remote_image(clean(payload.get("image_url", "")), (940, 520))
+
+    txt(d, "♛", 540, 34, size=27, bold=True, color=GOLD, anchor="ma")
+    txt(d, "MR", 495, 61, size=28, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "XPRONOS", (505, 61), size=28, anchor="la")
+
+    txt(d, "FLASH", 530, 116, size=62, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "FOOT", (550, 116), size=62, anchor="la")
+
+    frame = (70, 230, 1010, 750)
+    d.rounded_rectangle(frame, radius=34, fill="#071A29")
+    gradient_outline_round_rect(image, frame, 34, width=3, glow=True)
+
+    if photo:
+        mask = Image.new("L", (940, 520), 0)
+        md = ImageDraw.Draw(mask)
+        md.rounded_rectangle((0, 0, 939, 519), radius=30, fill=255)
+        image.paste(photo, (70, 230), mask)
+
+        overlay = Image.new("RGBA", (940, 520), (4, 15, 28, 0))
+        od = ImageDraw.Draw(overlay)
+        for y in range(520):
+            alpha = int(18 + 185 * (y / 519) ** 1.7)
+            od.line((0, y, 940, y), fill=(2, 10, 20, alpha))
+        image.paste(overlay, (70, 230), overlay)
+
+    title = clean(payload.get("title", "Actualité football"))
+    words = title.split()
+    lines = []
+    current = ""
+    for word in words:
+        trial = (current + " " + word).strip()
+        if len(trial) > 46 and current:
+            lines.append(current)
+            current = word
+        else:
+            current = trial
+        if len(lines) >= 2:
+            break
+    if current and len(lines) < 2:
+        lines.append(current)
+
+    y = 590
+    for line in lines[:2]:
+        txt(d, line, 110, y, size=31, bold=True, color=WHITE,
+            anchor="la", max_width=860, min_size=22)
+        y += 45
+
+    txt(d, "SOURCE • " + clean(payload.get("source", "Foot Mercato")).upper(),
+        110, 705, size=18, bold=True, color=GOLD, anchor="la")
+    txt(d, clean(payload.get("day", "")), 970, 705,
+        size=17, color=GREY, anchor="ra")
+
+    d.rounded_rectangle((110, 815, 970, 940), radius=28, fill="#081D2E")
+    summary = clean(payload.get("summary", ""))
+    txt(d, summary, 540, 850, size=19, color=WHITE, anchor="ma",
+        max_width=790, min_size=15)
+    txt(d, "LIRE L’ARTICLE COMPLET VIA LE BOUTON TELEGRAM", 540, 907,
+        size=16, bold=True, color=GREY, anchor="ma")
+    txt(d, "MR XPRONOS • L’ACTUALITÉ DU FOOTBALL", 540, 1010,
+        size=18, bold=True, color=GOLD, anchor="mm")
+    return image
+
 def render_card(category: str, payload: dict[str, Any], output: str | Path) -> Path:
     factories = {
         "programme": programme_card,
