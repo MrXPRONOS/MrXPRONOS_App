@@ -107,6 +107,28 @@ async def share_code(page):
                 return m.group(1),"labelled_text"
     return None,None
 
+async def wait_for_sportsbook(page, attempts=8, delay_ms=2500):
+    """Wait for the JS sportsbook UI instead of trusting only domcontentloaded."""
+    last_body=""
+    for attempt in range(1, attempts+1):
+        try:
+            body=(await page.locator("body").inner_text(timeout=5000))[:50000]
+        except:
+            body=""
+        last_body=body or last_body
+        low=body.lower()
+        if REGION_BLOCK.search(body):
+            return body, attempt
+        if "football" in low and (ODD.search(body) or "betting" in low or "prematch" in low):
+            return body, attempt
+        await page.wait_for_timeout(delay_ms)
+        if attempt in (3,6) and not body.strip():
+            try:
+                await page.reload(wait_until="domcontentloaded", timeout=30000)
+            except:
+                pass
+    return last_body, attempts
+
 async def main():
     ROOT.mkdir(parents=True,exist_ok=True)
     rep={
