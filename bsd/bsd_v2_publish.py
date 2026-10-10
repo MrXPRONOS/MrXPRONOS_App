@@ -299,11 +299,9 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             stats["saved_future_retired_by_policy"]+=1
             continue
         row=dict(row)
-        row["policy_version"]=POLICY_VERSION
+        row["policy_version"]=row.get("policy_version") or row.get("model_version")
         row["revalidated_at"]=now.isoformat()
         row["revalidated_policy_version"]=POLICY_VERSION
-        row["prediction"]=dict(row.get("prediction") or {})
-        row["prediction"]["policy_version"]=POLICY_VERSION
         kept.append(row)
         stats["saved_future_revalidated"]+=1
     result=kept
