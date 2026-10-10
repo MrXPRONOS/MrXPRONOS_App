@@ -5,12 +5,17 @@ on:
     paths:
       - "tools/odds_diagnostic/aiscore_live_probe.py"
       - "tools/odds_diagnostic/test_aiscore_live_probe.py"
+      - "tools/odds_diagnostic/aiscore_markup_parser.py"
+      - "tools/odds_diagnostic/test_aiscore_markup_parser.py"
+      - "tools/odds_diagnostic/aiscore_grid_parser.py"
       - ".github/workflows/aiscore-live-corners.yml"
   pull_request:
     branches: [main]
     paths:
       - "tools/odds_diagnostic/aiscore_live_probe.py"
       - "tools/odds_diagnostic/test_aiscore_live_probe.py"
+      - "tools/odds_diagnostic/aiscore_markup_parser.py"
+      - "tools/odds_diagnostic/test_aiscore_markup_parser.py"
       - ".github/workflows/aiscore-live-corners.yml"
   workflow_dispatch:
 permissions:
@@ -29,7 +34,7 @@ jobs:
           python -m pip install playwright
           python -m playwright install --with-deps chromium
       - name: Run extraction unit tests
-        run: python -m unittest discover -s tools/odds_diagnostic -p 'test_aiscore_live_probe.py' -v
+        run: python -m unittest discover -s tools/odds_diagnostic -p 'test_aiscore*.py' -v
       - name: Probe live listing and wait for AiScore corners
         run: python tools/odds_diagnostic/aiscore_live_probe.py
       - name: Upload diagnostic report
