@@ -152,25 +152,64 @@ def result_card(payload: dict[str, Any]) -> Image.Image:
     h, a = int(scores[0]), int(scores[1])
     if min(h, a) < 0:
         raise ValueError("Score négatif")
-    image, d = base("RESULTAT FINAL", "COUP DE SIFFLET FINAL", clean(payload.get("day", "")))
-    txt(d, payload.get("league") or "FOOTBALL", 540, 368, size=30, bold=True,
-        color=GREY, anchor="mt", max_width=900)
-    panel(d, (54, 428, 1026, 824), accent=True)
-    txt(d, home, 270, 503, size=39, bold=True, anchor="mt", max_width=375, min_size=25)
-    txt(d, away, 815, 503, size=39, bold=True, anchor="mt", max_width=375, min_size=25)
-    txt(d, str(h), 397, 651, size=145, bold=True, anchor="mm", color=GOLD)
-    txt(d, ":", 540, 641, size=112, bold=True, anchor="mm", color=GREY)
-    txt(d, str(a), 683, 651, size=145, bold=True, anchor="mm", color=GOLD)
+    home_logo = clean(payload.get("home_logo"))
+    away_logo = clean(payload.get("away_logo"))
+    if not home_logo or not away_logo:
+        raise ValueError("Résultat sans deux logos")
+
+    from programme_styles import (
+        background as premium_background,
+        gradient_text,
+        gradient_round_rect,
+        gradient_outline_round_rect,
+    )
+
+    image, d = premium_background(6)
+
+    txt(d, "♛", 540, 35, size=28, bold=True, color=GOLD, anchor="ma")
+    txt(d, "MR", 495, 62, size=29, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "XPRONOS", (505, 62), size=29, anchor="la")
+    d.line((315, 75, 410, 75), fill="#D99D2B", width=2)
+    d.line((670, 75, 765, 75), fill="#D99D2B", width=2)
+
+    txt(d, "RÉSULTAT", 530, 120, size=64, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "FINAL", (550, 120), size=64, anchor="la")
+    txt(d, (payload.get("league") or "FOOTBALL").upper(), 540, 207,
+        size=22, bold=True, color=GREY, anchor="ma", max_width=800)
+
+    d.rounded_rectangle((62, 285, 1018, 825), radius=34, fill="#061827")
+    gradient_outline_round_rect(image, (62, 285, 1018, 825), 34, width=3, glow=True)
+
+    paste_required_logo(image, home_logo, (245, 470), 150)
+    paste_required_logo(image, away_logo, (835, 470), 150)
+
+    txt(d, home, 245, 585, size=32, bold=True, anchor="ma",
+        max_width=300, min_size=20)
+    txt(d, away, 835, 585, size=32, bold=True, anchor="ma",
+        max_width=300, min_size=20)
+
+    gradient_round_rect(image, (410, 420, 670, 590), 28)
+    txt(d, str(h) + "  –  " + str(a), 540, 505, size=72, bold=True,
+        color="#061521", anchor="mm")
+
     if h == a:
         headline = "MATCH NUL"
     else:
-        headline = "VICTOIRE  •  " + (home if h > a else away)
-    txt(d, headline, 540, 882, size=29, bold=True, anchor="mt",
-        color=GOLD, max_width=870)
-    txt(d, "SCORE CONFIRME PAR BSD V2", 540, 942, size=21, bold=True,
-        anchor="mt", color=GREY)
-    return image
+        headline = "VICTOIRE • " + (home if h > a else away)
+    txt(d, headline, 540, 700, size=32, bold=True, color=GOLD, anchor="ma",
+        max_width=820, min_size=21)
+    txt(d, "SCORE CONFIRMÉ PAR BSD V2", 540, 757, size=19,
+        color=GREY, anchor="ma")
 
+    d.line((280, 900, 430, 900), fill="#D99D2B", width=2)
+    d.line((650, 900, 800, 900), fill="#D99D2B", width=2)
+    txt(d, clean(payload.get("day", "")), 540, 900, size=19, color=GREY, anchor="mm")
+
+    d.rounded_rectangle((190, 952, 890, 1032), radius=35, fill="#071927")
+    gradient_outline_round_rect(image, (190, 952, 890, 1032), 35, width=2, glow=True)
+    txt(d, "VOTRE RÉACTION DANS LES COMMENTAIRES", 540, 992,
+        size=20, bold=True, anchor="mm", max_width=620, min_size=16)
+    return image
 
 def statistic_card(payload: dict[str, Any]) -> Image.Image:
     home, away = clean(payload.get("home")), clean(payload.get("away"))
@@ -198,16 +237,16 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
     d.line((315, 75, 410, 75), fill="#D99D2B", width=2)
     d.line((670, 75, 765, 75), fill="#D99D2B", width=2)
 
-    txt(d, "LE CHIFFRE", 532, 118, size=65, bold=True, color=WHITE, anchor="ra")
-    gradient_text(image, "DU JOUR", (548, 118), size=65, anchor="la")
-    txt(d, "STATISTIQUE BSD", 540, 202, size=21, bold=True, color=GREY, anchor="ma")
+    txt(d, "LA STAT", 530, 118, size=65, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "DU JOUR", (550, 118), size=65, anchor="la")
+    txt(d, "LE FAIT MARQUANT D’HIER", 540, 202, size=21, bold=True, color=GREY, anchor="ma")
 
     # Main content frame
     d.rounded_rectangle((62, 272, 1018, 876), radius=34, fill="#061827")
     gradient_outline_round_rect(image, (62, 272, 1018, 876), 34, width=3, glow=True)
 
     # Number no longer dominates everything: concise gold badge
-    txt(d, "TOTAL DE BUTS", 540, 324, size=22, bold=True, color=GREY, anchor="ma")
+    txt(d, "STATISTIQUE MARQUANTE", 540, 324, size=22, bold=True, color=GREY, anchor="ma")
     gradient_round_rect(image, (405, 355, 675, 493), 28)
     txt(d, str(h + a), 540, 424, size=104, bold=True, color="#071521", anchor="mm")
     txt(d, "BUTS", 540, 514, size=25, bold=True, color="#F5D576", anchor="ma")
@@ -233,7 +272,7 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
     league_name = payload.get("league") or "Football"
     txt(d, league_name.upper(), 540, 772, size=24, bold=True, color=WHITE,
         anchor="ma", max_width=760, min_size=17)
-    txt(d, "UNE STATISTIQUE MARQUANTE PARMI LES MATCHS BSD D'HIER",
+    txt(d, "SÉLECTIONNÉE PARMI LES MATCHS BSD D’HIER",
         540, 820, size=17, color=GREY, anchor="ma", max_width=860, min_size=14)
 
     # Footer
@@ -247,6 +286,68 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
         size=21, bold=True, color=WHITE, anchor="mm", max_width=680, min_size=16)
     return image
 
+
+
+def prematch_card(payload: dict[str, Any]) -> Image.Image:
+    from programme_styles import (
+        background as premium_background,
+        gradient_text,
+        gradient_round_rect,
+        gradient_outline_round_rect,
+        team_visual,
+    )
+
+    home = clean(payload.get("home"))
+    away = clean(payload.get("away"))
+    if not home or not away:
+        raise ValueError("Avant-match incomplet")
+
+    image, d = premium_background(6)
+
+    txt(d, "♛", 540, 35, size=28, bold=True, color=GOLD, anchor="ma")
+    txt(d, "MR", 495, 62, size=29, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "XPRONOS", (505, 62), size=29, anchor="la")
+
+    txt(d, "AVANT", 530, 120, size=64, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "MATCH", (550, 120), size=64, anchor="la")
+    txt(d, (payload.get("league") or "FOOTBALL").upper(), 540, 205,
+        size=21, bold=True, color=GREY, anchor="ma", max_width=820)
+
+    d.rounded_rectangle((65, 285, 1015, 790), radius=34, fill="#061827")
+    gradient_outline_round_rect(image, (65, 285, 1015, 790), 34, width=3, glow=True)
+
+    home_item = {"home": home, "home_logo": payload.get("home_logo", "")}
+    away_item = {"away": away, "away_logo": payload.get("away_logo", "")}
+    team_visual(image, d, 190, 455, home_item, "home", scale=1.15, circle=True)
+    team_visual(image, d, 890, 455, away_item, "away", scale=1.15, circle=True)
+
+    txt(d, home, 260, 570, size=31, bold=True, anchor="ma",
+        max_width=330, min_size=19)
+    txt(d, away, 820, 570, size=31, bold=True, anchor="ma",
+        max_width=330, min_size=19)
+
+    gradient_round_rect(image, (455, 398, 625, 480), 18)
+    txt(d, payload.get("time", "--h--"), 540, 439, size=33, bold=True,
+        color="#061521", anchor="mm")
+    txt(d, "COUP D’ENVOI • HEURE DU TOGO", 540, 520, size=17,
+        bold=True, color=GOLD, anchor="ma")
+
+    d.rounded_rectangle((125, 625, 955, 735), radius=25,
+                        fill="#0A2234", outline="#5C4A24", width=2)
+    txt(d, "FORME RÉCENTE", 540, 650, size=18, bold=True, color=GREY, anchor="ma")
+    txt(d, home + " : " + clean(payload.get("home_form", "")),
+        155, 690, size=18, color=WHITE, anchor="lm", max_width=365, min_size=14)
+    txt(d, away + " : " + clean(payload.get("away_form", "")),
+        560, 690, size=18, color=WHITE, anchor="lm", max_width=365, min_size=14)
+
+    txt(d, clean(payload.get("day", "")), 540, 860, size=19,
+        color=GREY, anchor="mm")
+
+    d.rounded_rectangle((175, 930, 905, 1015), radius=36, fill="#071927")
+    gradient_outline_round_rect(image, (175, 930, 905, 1015), 36, width=2, glow=True)
+    txt(d, "QUEL SCÉNARIO IMAGINEZ-VOUS ?", 540, 972,
+        size=22, bold=True, anchor="mm", max_width=650, min_size=17)
+    return image
 
 def render_card(category: str, payload: dict[str, Any], output: str | Path) -> Path:
     factories = {
