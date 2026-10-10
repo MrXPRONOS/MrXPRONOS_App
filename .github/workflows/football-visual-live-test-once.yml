@@ -1,4 +1,5 @@
 name: Mr XPRONOS - Test visuel Telegram programme et statistique
+# v2 premium gradients + marquee BSD fixtures + badge resolver
 on:
   push:
     branches: [main]
