@@ -9,8 +9,10 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+import io
 import re
 
+import requests
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 W = H = 1080
@@ -110,6 +112,91 @@ def jersey(draw: ImageDraw.ImageDraw, cx: int, cy: int, team: str, *, scale=1.0,
     draw.arc((int(cx-11*s), int(cy-27*s), int(cx+11*s), int(cy-11*s)), 0, 180,
              fill="#E7EDF2", width=max(1,int(2*s)))
 
+
+
+_LOGO_CACHE: dict[str, Image.Image | None] = {}
+
+def gold_gradient(size: tuple[int, int]) -> Image.Image:
+    w, h = size
+    image = Image.new("RGB", size)
+    draw = ImageDraw.Draw(image)
+    stops = (
+        (255, 244, 174),
+        (249, 213, 98),
+        (225, 163, 44),
+        (255, 232, 135),
+    )
+    for y in range(h):
+        t = y / max(1, h - 1)
+        if t < 0.34:
+            a, b, u = stops[0], stops[1], t / 0.34
+        elif t < 0.72:
+            a, b, u = stops[1], stops[2], (t - 0.34) / 0.38
+        else:
+            a, b, u = stops[2], stops[3], (t - 0.72) / 0.28
+        color = tuple(int(a[i] * (1-u) + b[i] * u) for i in range(3))
+        draw.line((0, y, w, y), fill=color)
+    return image
+
+
+def gradient_round_rect(image: Image.Image, box: tuple[int, int, int, int],
+                        radius: int, outline: str = "#FFE19A", width: int = 1) -> None:
+    x1, y1, x2, y2 = box
+    mask = Image.new("L", (x2-x1, y2-y1), 0)
+    md = ImageDraw.Draw(mask)
+    md.rounded_rectangle((0, 0, x2-x1-1, y2-y1-1), radius=radius, fill=255)
+    image.paste(gold_gradient((x2-x1, y2-y1)), (x1, y1), mask)
+    ImageDraw.Draw(image).rounded_rectangle(box, radius=radius, outline=outline, width=width)
+
+
+def gradient_text(image: Image.Image, value: Any, xy: tuple[int, int], *,
+                  size: int, anchor: str = "la") -> None:
+    value = clean(value)
+    face = font(size, True)
+    base = ImageDraw.Draw(image)
+    bbox = base.textbbox(xy, value, font=face, anchor=anchor)
+    x1, y1, x2, y2 = bbox
+    pad = 4
+    mask = Image.new("L", (max(1, x2-x1+pad*2), max(1, y2-y1+pad*2)), 0)
+    md = ImageDraw.Draw(mask)
+    md.text((pad-x1+xy[0], pad-y1+xy[1]), value, font=face, fill=255, anchor=anchor)
+    image.paste(gold_gradient(mask.size), (x1-pad, y1-pad), mask)
+
+
+def load_logo(url: str, max_px: int = 82) -> Image.Image | None:
+    if not isinstance(url, str) or not url.startswith(("https://", "http://")):
+        return None
+    if url in _LOGO_CACHE:
+        cached = _LOGO_CACHE[url]
+        return cached.copy() if cached else None
+    try:
+        response = requests.get(
+            url, timeout=(5, 10),
+            headers={"User-Agent": "MrXPRONOS-card/1.0"},
+        )
+        response.raise_for_status()
+        if len(response.content) > 3_000_000:
+            raise ValueError("logo too large")
+        logo = Image.open(io.BytesIO(response.content)).convert("RGBA")
+        logo.thumbnail((max_px, max_px), Image.Resampling.LANCZOS)
+        _LOGO_CACHE[url] = logo.copy()
+        return logo
+    except Exception:
+        _LOGO_CACHE[url] = None
+        return None
+
+
+def team_visual(image: Image.Image, draw: ImageDraw.ImageDraw, cx: int, cy: int,
+                item: dict[str, Any], side: str, *, scale: float = .75,
+                circle: bool = False) -> None:
+    logo = load_logo(clean(item.get(side + "_logo", "")), int(92 * scale))
+    if logo:
+        if circle:
+            r = int(48 * scale)
+            draw.ellipse((cx-r, cy-r, cx+r, cy+r), fill="#071723", outline=GOLD, width=2)
+        image.paste(logo, (cx-logo.width//2, cy-logo.height//2), logo)
+    else:
+        jersey(draw, cx, cy, item.get(side, ""), scale=scale, circle=circle)
 
 def background(style: int):
     image = Image.new("RGB", (W, H), NAVY)
