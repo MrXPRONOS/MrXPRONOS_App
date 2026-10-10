@@ -9,6 +9,7 @@ import re
 import unicodedata
 from urllib.parse import urlsplit
 from aiscore_grid_parser import extract_corner_grid
+from aiscore_markup_parser import extract_corner_odds_from_html
 
 OUT = pathlib.Path("odds_diagnostic_results/aiscore_live_report.json")
 SEEDS = [
@@ -98,7 +99,7 @@ async def inspect_match(browser,name,url,source):
     result={"match":name[:120],"page_url":url,"discovery_source":source,
             "http_status":None,"page_status":"unknown","match_status":"unverified",
             "odds_tab_clicked":False,"waited_seconds":0,
-            "corners_heading_visible":False,"displayed_corner_odds":[],
+            "corners_heading_visible":False,"displayed_corner_odds":[],"corner_odds_by_phase":[],
             "verified_live_match":False,"verified_inplay_odds":False,
             "note":"Values are only displayed table quotes; AiScore may show prematch prices during a live match."}
     page=await browser.new_page(viewport={"width":1300,"height":850})
@@ -131,7 +132,12 @@ async def inspect_match(browser,name,url,source):
             elif result["match_status"]=="unverified":
                 result["match_status"]="not_confirmed_live"
             result["corners_heading_visible"]=bool(re.search(r"\bcorners?\b",body,re.I))
-            quotes=parse_tables(await tables_from_dom(page))
+            phase_quotes=extract_corner_odds_from_html(await page.content())
+            if phase_quotes:
+                result["corner_odds_by_phase"]=phase_quotes
+            quotes=[{"total_corners":q["total_corners"],"over":q["over"],"under":q["under"]} for q in phase_quotes if q["phase"]=="in_play"]
+            if not quotes:
+                quotes=parse_tables(await tables_from_dom(page))
             if not quotes:
                 quotes=extract_corner_grid(await nodes_from_dom(page))
             if quotes:
@@ -140,7 +146,7 @@ async def inspect_match(browser,name,url,source):
                 break
         result["verified_live_match"]=source=="live_listing_with_minute" and result["match_status"]=="potentially_live"
         # No claim of an actual in-play market from the static AiScore table.
-        result["verified_inplay_odds"]=False
+        result["verified_inplay_odds"]=bool(result["verified_live_match"] and any(q["phase"]=="in_play" for q in result["corner_odds_by_phase"]))
         if result["displayed_corner_odds"]:
             result["page_status"]="displayed_odds_found"
         else:
@@ -173,7 +179,7 @@ async def main():
             "candidate_count":len(results),
             "pages_with_displayed_corner_odds":sum(bool(r["displayed_corner_odds"]) for r in results),
             "live_match_with_displayed_quotes":sum(bool(r["displayed_corner_odds"]) and r["verified_live_match"] for r in results),
-            "verified_inplay_corner_market_count":0,
+            "verified_inplay_corner_market_count":sum(r["verified_inplay_odds"] for r in results),
             "matches":results}
     report["outcome"] = ("SOURCE_RESTRICTED_403" if discovery.get("http_status")==403 and all(r.get("http_status")==403 for r in results) else
                          "PUBLIC_ODDS_OBSERVED_NOT_INPLAY_VERIFIED" if report["pages_with_displayed_corner_odds"] else
