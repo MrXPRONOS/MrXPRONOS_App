@@ -63,13 +63,15 @@ PROGRAMME_ROWS = (
 PROGRAMME_HOME_LOGO_X = 140
 PROGRAMME_AWAY_LOGO_X = 941
 PROGRAMME_TIME_X = 540
+PROGRAMME_LOGO_Y_OFFSET = 7
+PROGRAMME_TIME_Y_OFFSET = -6
 
 PREMATCH_HOME_LOGO = (237, 431)
 PREMATCH_AWAY_LOGO = (842, 431)
 PREMATCH_HOME_NAME = (112, 521, 362, 564)
 PREMATCH_AWAY_NAME = (719, 521, 969, 564)
 PREMATCH_TIME_BOX = (455, 405, 625, 462)
-PREMATCH_DATE_BOX = (482, 840, 689, 883)
+PREMATCH_DATE_BOX = (465, 837, 686, 886)
 PREMATCH_FORM_LEFT = ((227, 699), (282, 699), (336, 699), (391, 699), (445, 699))
 PREMATCH_FORM_RIGHT = ((624, 699), (679, 699), (734, 699), (789, 699), (843, 699))
 
@@ -585,8 +587,16 @@ def render_programme(payload: dict[str, Any]) -> Image.Image:
         if not home_logo or not away_logo:
             raise ValueError("Programme: les deux logos sont obligatoires")
 
-        paste_logo(image, home_logo, (PROGRAMME_HOME_LOGO_X, meta["y"]), 60)
-        paste_logo(image, away_logo, (PROGRAMME_AWAY_LOGO_X, meta["y"]), 60)
+        paste_logo(
+            image, home_logo,
+            (PROGRAMME_HOME_LOGO_X, meta["y"] + PROGRAMME_LOGO_Y_OFFSET),
+            60,
+        )
+        paste_logo(
+            image, away_logo,
+            (PROGRAMME_AWAY_LOGO_X, meta["y"] + PROGRAMME_LOGO_Y_OFFSET),
+            60,
+        )
 
         home = clean(item.get("home"))
         away = clean(item.get("away"))
@@ -606,9 +616,14 @@ def render_programme(payload: dict[str, Any]) -> Image.Image:
         draw_single_line(
             draw,
             item.get("time", ""),
-            (484, meta["y"] - 22, 596, meta["y"] + 18),
-            preferred_size=21,
-            min_size=18,
+            (
+                484,
+                meta["y"] - 22 + PROGRAMME_TIME_Y_OFFSET,
+                596,
+                meta["y"] + 18 + PROGRAMME_TIME_Y_OFFSET,
+            ),
+            preferred_size=23,
+            min_size=20,
             bold=True,
             fill=NAVY,
             max_chars=5,
@@ -665,8 +680,8 @@ def render_prematch(payload: dict[str, Any]) -> Image.Image:
         draw,
         payload.get("day", ""),
         PREMATCH_DATE_BOX,
-        preferred_size=18,
-        min_size=16,
+        preferred_size=21,
+        min_size=18,
         bold=False,
         fill=GREY,
         max_chars=10,
