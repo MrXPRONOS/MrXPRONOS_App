@@ -15,4 +15,4 @@ ENV PORT=10000
 
 EXPOSE 10000
 
-CMD ["gunicorn", "--workers", "1", "--threads", "2", "--timeout", "180", "--bind", "0.0.0.0:10000", "tools.odds_diagnostic.onewin_render_server:app"]
+CMD ["sh", "-c", "python tools/odds_diagnostic/onewin_togo_local_probe.py || true; exec gunicorn --workers 1 --threads 2 --timeout 180 --bind 0.0.0.0:10000 tools.odds_diagnostic.onewin_render_server:app"]
