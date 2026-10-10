@@ -12,6 +12,7 @@ from bsd_h2h import _utc
 from bsd_v2_estimated_odds import valid_standalone_prediction
 from bsd_v2_card import render as render_card
 from bsd_v2_captions import single_caption,combo_caption,PARSE_MODE
+from bsd_v2_combos import combo_ledger_ref
 from bsd_v2_night import is_night_match,matches_for_night,batch_date
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parent.parent/"scripts"))
@@ -214,12 +215,12 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
             claimed=False
             try:
                 combo_ref={"id":combo["id"],"date":combo["date"]}
-                ref=chat+":"+combo_ref["id"]
+                ref=combo_ledger_ref(chat,combo)
                 response=session.post(supabase_url.rstrip("/")+"/rest/v1/telegram_sent",
                     params={"on_conflict":"kind,ref_id,ref_date"},
                     headers=headers(supabase_key),
                     json={"kind":COMBO_KIND,"ref_id":ref,
-                          "ref_date":combo_ref["date"],"validation_sent":True},timeout=30)
+                          "ref_date":combo_ref["date"],"validation_sent":False},timeout=30)
                 response.raise_for_status()
                 claimed=isinstance(response.json(),list) and bool(response.json())
                 if not claimed:
@@ -235,7 +236,7 @@ def process(data,now,*,session,token,chat_ids,supabase_url,supabase_key):
                 if claimed:
                     try:
                         session.delete(supabase_url.rstrip("/")+"/rest/v1/telegram_sent",
-                            params={"kind":"eq."+COMBO_KIND,"ref_id":"eq."+chat+":"+combo["id"],
+                            params={"kind":"eq."+COMBO_KIND,"ref_id":"eq."+ref,
                                     "ref_date":"eq."+combo["date"]},
                             headers=headers(supabase_key),timeout=30).raise_for_status()
                     except Exception as secondary:
