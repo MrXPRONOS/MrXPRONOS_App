@@ -373,6 +373,17 @@ class Sender:
 
         if item.poll:
             question, options = item.poll
+            if item.card:
+                from football_cards import render_card
+                with tempfile.TemporaryDirectory(prefix="xpronos-poll-") as tmp:
+                    graphic = render_card(
+                        "sondage", item.card, Path(tmp) / "sondage.png"
+                    )
+                    post_photo(
+                        self.session, self.token, self.chat, graphic,
+                        "<h3>🗳️ LE DÉBAT DU JOUR • MR XPRONOS</h3><p><i>Votez dans le sondage ci-dessous.</i></p>",
+                        {}, timeout=70, mime="image/png",
+                    )
             response = self.session.post(
                 "https://api.telegram.org/bot" + self.token + "/sendPoll",
                 data={
@@ -751,8 +762,12 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
         )[:300]
         options = ["🏠 " + h, "🤝 Match nul", "✈️ " + a]
         if max(map(len, options)) <= 100:
-            return Publication("sondage", "sondage:" + today.isoformat(),
-                               "🗳️ Sondage Mr XPRONOS", (question, options))
+            return Publication(
+                "sondage", "sondage:" + today.isoformat(),
+                "🗳️ Sondage Mr XPRONOS", (question, options),
+                card={"day": today.strftime("%d/%m/%Y"),
+                      "question": question, "options": options},
+            )
     topics = [
         ("Quel championnat aimez-vous suivre ?", ["Premier League", "Liga", "Ligue 1", "Autre"]),
         ("Vous préférez quel type de match ?", ["Festival de buts", "Duel tactique", "Derby intense"]),
@@ -761,8 +776,12 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
     ]
     question, options = topics[today.toordinal() % len(topics)]
     question = (question + " 💬 Vote puis commente.")[:300]
-    return Publication("sondage", "sondage:" + today.isoformat(), "🗳️ Sondage Mr XPRONOS",
-                       (question, options))
+    return Publication(
+        "sondage", "sondage:" + today.isoformat(), "🗳️ Sondage Mr XPRONOS",
+        (question, options),
+        card={"day": today.strftime("%d/%m/%Y"),
+              "question": question, "options": options[:3]},
+    )
 
 
 def enough(history: History, cat: str, now: datetime) -> bool:
