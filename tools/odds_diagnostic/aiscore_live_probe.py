@@ -8,7 +8,6 @@ import pathlib
 import re
 import unicodedata
 from urllib.parse import urlsplit
-from playwright.async_api import async_playwright
 
 OUT = pathlib.Path("odds_diagnostic_results/aiscore_live_report.json")
 SEEDS = [
@@ -142,6 +141,7 @@ async def inspect_match(browser,name,url,source):
     return result
 
 async def main():
+    from playwright.async_api import async_playwright
     OUT.parent.mkdir(exist_ok=True,parents=True)
     async with async_playwright() as p:
         browser=await p.chromium.launch(headless=True)
@@ -163,6 +163,11 @@ async def main():
             "live_match_with_displayed_quotes":sum(bool(r["displayed_corner_odds"]) and r["verified_live_match"] for r in results),
             "verified_inplay_corner_market_count":0,
             "matches":results}
+    report["outcome"] = ("SOURCE_RESTRICTED_403" if discovery.get("http_status")==403 and all(r.get("http_status")==403 for r in results) else
+                         "PUBLIC_ODDS_OBSERVED_NOT_INPLAY_VERIFIED" if report["pages_with_displayed_corner_odds"] else
+                         "NO_PUBLIC_CORNER_ODDS_OBSERVED")
+    if report["outcome"]=="SOURCE_RESTRICTED_403":
+        print("::warning::AiScore returned HTTP 403 to GitHub runner; no odds were verified. Do not bypass access restrictions.")
     OUT.write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
     print(json.dumps(report,indent=2,ensure_ascii=False))
 if __name__=="__main__":asyncio.run(main())
