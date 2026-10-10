@@ -23,6 +23,8 @@ from bsd_v2_odds import fetch_event_odds
 from bsd_v2_estimated_odds import ESTIMATED_SOURCE, valid_standalone_prediction, price_selected_market
 from bsd_v2_labels import normalize_match,market_label
 from bsd_v2_assets import image_fields
+from bsd_v2_guardrails import (POLICY_VERSION, post_price_value_guard,
+    update_performance_tracker, tracker_penalties)
 
 SITE_FILE = Path("data.json")
 HISTORY_DAYS = 14
@@ -148,16 +150,22 @@ def to_site(p, fixture):
             "type":market_label(pred["key"],pred["name"]),"label":market_label(pred["key"],pred["name"]),"market":pred["market"],
             "selection_key":pred["key"],"market_code":pred["internal_market_code"],
             "outcome":pred["outcome"],"line":pred["line"],
-            "confidence":prob,"double_chance":pred["outcome"] if pred["market"]=="double_chance" else None,
+            "confidence":prob,
+            "model_probability":round(pred.get("probability",0)*100,1),
+            "conservative_probability":round(pred.get("conservative_probability",pred.get("probability",0))*100,1),
+            "double_chance":pred["outcome"] if pred["market"]=="double_chance" else None,
             "fair_odds":pred["fair_odds"],"odds":pred["bookmaker_odds"],
             "model_version":p["model_version"],
+            "policy_version":p.get("policy_version",POLICY_VERSION),
             "odds_source":pred.get("odds_source"),
             "estimated_odds":pred.get("odds_source")==ESTIMATED_SOURCE,
             "odds_method":pred.get("odds_method"),
             "overround_assumption":pred.get("overround_assumption"),
             "odds_updated_at":pred.get("odds_updated_at"),
         },
-        "model_version":p["model_version"], "final_score":prob,"xpronos_score":prob,
+        "model_version":p["model_version"],"policy_version":p.get("policy_version",POLICY_VERSION),
+        "model_audit":p.get("model_audit"),
+        "final_score":prob,"xpronos_score":prob,
         "generated_at":p.get("prediction_generated_at") or datetime.now(timezone.utc).isoformat(),
         "combo_only":bool(p.get("combo_only",False)),
     }
@@ -180,13 +188,15 @@ def to_site(p, fixture):
            "selection_key":m["key"],"market_code":m["market_code"],
            "outcome":m["outcome"],"line":m["line"],
            "confidence":round(m["probability"]*100,1),
+           "model_probability":round(m["probability"]*100,1),
+           "conservative_probability":round(m.get("conservative_probability",m["probability"])*100,1),
            "fair_odds":round(1/m["probability"],4),
            "odds":m["odds"],"odds_source":m["odds_source"],
            "estimated_odds":m["odds_source"]==ESTIMATED_SOURCE,
            "odds_method":m.get("odds_method"),
            "overround_assumption":m.get("overround_assumption"),
            "odds_updated_at":m.get("odds_updated_at"),
-           "model_version":p["model_version"]}
+           "model_version":p["model_version"],"policy_version":p.get("policy_version",POLICY_VERSION)}
           for m in extras]
     return result
 
@@ -237,10 +247,64 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     by_id={str(f["id"]):f for f in fixtures if isinstance(f,dict) and f.get("id") is not None}
     result=[]
     detailed=[]
+    retired=[]
+    # 1) Régler les anciens pronostics sans jamais modifier leur sélection.
     for event_id,row in saved.items():
         event=by_id.get(event_id)
         result.append(update_settlement(row,event) if event else row)
-    known=set(saved)
+
+    # 2) Les résultats réellement publiés alimentent un suivi prospectif lent.
+    # Une correction ne s'active qu'après 100 observations ; aucune journée
+    # isolée ne peut donc reconfigurer brutalement le moteur.
+    performance_tracker=update_performance_tracker(
+        existing.get("performance_tracker") if isinstance(existing,dict) else None,
+        result,now=now)
+    selection_penalties,prospective_family_penalties=tracker_penalties(performance_tracker)
+
+    # 3) Revalider uniquement les coupons FUTURS sauvegardés. Leur choix ne
+    # change jamais : soit la sélection originale passe encore la politique
+    # courante, soit elle sort du flux public et reste dans retired_predictions.
+    kept=[]
+    for row in result:
+        event_id=str(row.get("source_event_id",str(row.get("id","")).removeprefix("bsd:")))
+        event=by_id.get(event_id)
+        try: kickoff=_utc(row["event_date"])
+        except (ValueError,TypeError,KeyError):
+            kept.append(row);continue
+        if (event is None or kickoff<=now or row.get("is_finished") or
+                str(row.get("status","")).lower() not in ("notstarted","upcoming")):
+            kept.append(row);continue
+        recheck,audit_reason=predict_v2(
+            event,index,calibration=calibration,quality_policy=policy,
+            rho=rho,clock=now,mode="reliability",odds_by_market={},require_odds=False,
+            excluded_keys=EXCLUDED_SELECTIONS,btts_model=btts_model,total_model=total_model,
+            dc_model=dc_model,selection_adjustments=selection_penalties,
+            prospective_family_adjustments=prospective_family_penalties)
+        original_key=(row.get("prediction") or {}).get("selection_key")
+        allowed={x.get("key") for x in ((recheck or {}).get("ranked_candidates") or [])
+                 if x.get("passes_quality_policy") is True}
+        if recheck is None or original_key not in allowed:
+            retired.append({
+                "id":row.get("id"),"source_event_id":row.get("source_event_id"),
+                "event_date":row.get("event_date"),"selection_key":original_key,
+                "original_model_version":row.get("model_version"),
+                "original_policy_version":row.get("policy_version"),
+                "retired_by_policy":True,"retired_at":now.isoformat(),
+                "retired_policy_version":POLICY_VERSION,
+                "reason":audit_reason if recheck is None else "original_selection_no_longer_qualified",
+            })
+            stats["saved_future_retired_by_policy"]+=1
+            continue
+        row=dict(row)
+        row["policy_version"]=POLICY_VERSION
+        row["revalidated_at"]=now.isoformat()
+        row["revalidated_policy_version"]=POLICY_VERSION
+        row["prediction"]=dict(row.get("prediction") or {})
+        row["prediction"]["policy_version"]=POLICY_VERSION
+        kept.append(row)
+        stats["saved_future_revalidated"]+=1
+    result=kept
+    known={str(r.get("source_event_id",str(r.get("id","")).removeprefix("bsd:"))) for r in result}
     for f in fixtures:
         if not isinstance(f,dict) or f.get("id") is None:continue
         eid=str(f["id"])
@@ -269,7 +333,8 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             odds_by_market={},require_odds=False,
             excluded_keys=EXCLUDED_SELECTIONS,
             btts_model=btts_model,total_model=total_model,dc_model=dc_model,
-            market_audit=market_audit)
+            market_audit=market_audit,selection_adjustments=selection_penalties,
+            prospective_family_adjustments=prospective_family_penalties)
         if prediction is None:
             entry["reason"]=reason
             stats[reason]+=1
@@ -292,6 +357,15 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         chosen=price_selected_market(prediction["prediction"],quotes,now=now)
         if chosen is None:
             entry["reason"]="chosen_market_unpriceable"
+            stats[entry["reason"]]+=1
+            continue
+        # Une cote BSD réelle intervient uniquement comme VETO après que le
+        # marché est figé par le football. Elle ne peut jamais sélectionner
+        # un autre pari. Les prix modèle restent explicitement non indépendants.
+        value_guard=post_price_value_guard(chosen)
+        entry["post_price_value_guard"]=value_guard
+        if not value_guard["passed"]:
+            entry["reason"]=value_guard["reason"]
             stats[entry["reason"]]+=1
             continue
         # Tous les prix publiés doivent atteindre 1.20, sans exception.
@@ -334,7 +408,9 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                 odds_by_market={code:q["odds"] for code,q in low_quotes.items()},
                 require_odds=True,min_odds=MIN_COMBO_ODDS,
                 allow_combo_prices=True,excluded_keys=EXCLUDED_SELECTIONS,
-                btts_model=btts_model,total_model=total_model,dc_model=dc_model)
+                btts_model=btts_model,total_model=total_model,dc_model=dc_model,
+                selection_adjustments=selection_penalties,
+                prospective_family_adjustments=prospective_family_penalties)
             if combo_choice:
                 leg=combo_choice["prediction"]
                 verified=low_quotes[leg["internal_market_code"]]
@@ -359,10 +435,15 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     # Un flux BSD vide est préférable au maintien de pronostics SportData périmés.
     output={
         "source":"bsd","model_version":"bsd-v2-isolated",
-        "generated_at":now.isoformat(),"matches":result,
+        "generated_at":now.isoformat(),"policy_version":POLICY_VERSION,"matches":result,
+        "retired_predictions":retired,
+        "performance_tracker":performance_tracker,
         "bookmakers":existing.get("bookmakers",[]) if isinstance(existing,dict) else [],
         "diagnostics":{"total":len(result),"rejections":dict(stats),
-                       "fixture_details":detailed},
+                       "fixture_details":detailed,
+                       "prospective_selection_penalties":selection_penalties,
+                       "prospective_family_penalties":prospective_family_penalties,
+                       "retired_predictions_count":len(retired)},
     }
     return output
 
