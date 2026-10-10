@@ -8,6 +8,13 @@ on:
       - 'scripts/football_channel.py'
       - 'scripts/football_cards.py'
       - 'scripts/programme_styles.py'
+      - 'scripts/template_cards.py'
+      - 'assets/images/template_programme_matchs_du_jour.png'
+      - 'assets/images/template_avant_match.png'
+      - 'assets/images/template_resultat_final.png'
+      - 'assets/images/template_stat_du_jour.png'
+      - 'assets/images/template_flash_foot.png'
+      - 'assets/images/template_sondage.png'
       - 'tests_football_channel/**'
       - '.github/workflows/football-channel.yml'
   schedule:
@@ -51,35 +58,42 @@ jobs:
           python-version: '3.11'
       - name: Installer requests et Pillow
         run: python -m pip install requests Pillow
+      - name: Verifier la presence des 6 templates premium
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          names = [
+            'template_programme_matchs_du_jour.png',
+            'template_avant_match.png',
+            'template_resultat_final.png',
+            'template_stat_du_jour.png',
+            'template_flash_foot.png',
+            'template_sondage.png',
+          ]
+          for name in names:
+              path = Path('assets/images') / name
+              assert path.is_file(), path
+              with Image.open(path) as image:
+                  assert image.size == (1080,1080), (path, image.size)
+              print('TEMPLATE_OK', name)
+          PY
       - name: Previsualiser les cartes principales
         run: python scripts/football_cards.py --demo --out-dir /tmp/mrxpronos-cards
-      - name: Generer les 7 styles Matchs du jour
-        run: python scripts/football_cards.py --programme-styles --out-dir /tmp/mrxpronos-programme-styles
-      - name: Verifier toutes les images
+      - name: Verifier les rendus
         run: |
           python - <<'PY'
           from PIL import Image
           from pathlib import Path
-          groups = {
-              'principales': list(Path('/tmp/mrxpronos-cards').glob('*.png')),
-              'programme': list(Path('/tmp/mrxpronos-programme-styles').glob('*.png')),
-          }
-          assert len(groups['principales']) == 3, len(groups['principales'])
-          assert len(groups['programme']) == 7, len(groups['programme'])
-          for group, pictures in groups.items():
-              for path in pictures:
-                  with Image.open(path) as image:
-                      assert image.size == (1080,1080), (path,image.size)
-                      assert image.format == 'PNG'
-                      assert path.stat().st_size < 9_000_000
-                      print('CARD_OK',group,path.name,image.size,path.stat().st_size)
+          pictures=list(Path('/tmp/mrxpronos-cards').glob('*.png'))
+          assert len(pictures)==3, len(pictures)
+          for path in pictures:
+              with Image.open(path) as image:
+                  assert image.size == (1080,1080), (path,image.size)
+                  assert image.format == 'PNG'
+                  assert path.stat().st_size < 9_000_000
+                  print('CARD_OK',path.name,image.size,path.stat().st_size)
           PY
-      - name: Conserver les 7 apercus comme artefact
-        uses: actions/upload-artifact@v4
-        with:
-          name: mrxpronos-programme-styles
-          path: /tmp/mrxpronos-programme-styles/*.png
-          retention-days: 7
       - name: Tests du canal
         run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
       - name: Restaurer historique Telegram
