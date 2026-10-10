@@ -237,16 +237,16 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
     d.line((315, 75, 410, 75), fill="#D99D2B", width=2)
     d.line((670, 75, 765, 75), fill="#D99D2B", width=2)
 
-    txt(d, "LE CHIFFRE", 532, 118, size=65, bold=True, color=WHITE, anchor="ra")
-    gradient_text(image, "DU JOUR", (548, 118), size=65, anchor="la")
-    txt(d, "STATISTIQUE BSD", 540, 202, size=21, bold=True, color=GREY, anchor="ma")
+    txt(d, "LA STAT", 530, 118, size=65, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "DU JOUR", (550, 118), size=65, anchor="la")
+    txt(d, "LE FAIT MARQUANT D’HIER", 540, 202, size=21, bold=True, color=GREY, anchor="ma")
 
     # Main content frame
     d.rounded_rectangle((62, 272, 1018, 876), radius=34, fill="#061827")
     gradient_outline_round_rect(image, (62, 272, 1018, 876), 34, width=3, glow=True)
 
     # Number no longer dominates everything: concise gold badge
-    txt(d, "TOTAL DE BUTS", 540, 324, size=22, bold=True, color=GREY, anchor="ma")
+    txt(d, "STATISTIQUE MARQUANTE", 540, 324, size=22, bold=True, color=GREY, anchor="ma")
     gradient_round_rect(image, (405, 355, 675, 493), 28)
     txt(d, str(h + a), 540, 424, size=104, bold=True, color="#071521", anchor="mm")
     txt(d, "BUTS", 540, 514, size=25, bold=True, color="#F5D576", anchor="ma")
@@ -272,7 +272,7 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
     league_name = payload.get("league") or "Football"
     txt(d, league_name.upper(), 540, 772, size=24, bold=True, color=WHITE,
         anchor="ma", max_width=760, min_size=17)
-    txt(d, "UNE STATISTIQUE MARQUANTE PARMI LES MATCHS BSD D'HIER",
+    txt(d, "SÉLECTIONNÉE PARMI LES MATCHS BSD D’HIER",
         540, 820, size=17, color=GREY, anchor="ma", max_width=860, min_size=14)
 
     # Footer
