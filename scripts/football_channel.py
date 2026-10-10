@@ -761,12 +761,20 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
             "Qui prend les 3 points ?"
         )[:300]
         options = ["🏠 " + h, "🤝 Match nul", "✈️ " + a]
+        image_question = (h + " vs " + a + " : qui va gagner ?")[:100]
         if max(map(len, options)) <= 100:
             return Publication(
                 "sondage", "sondage:" + today.isoformat(),
                 "🗳️ Sondage Mr XPRONOS", (question, options),
-                card={"day": today.strftime("%d/%m/%Y"),
-                      "question": question, "options": options},
+                card={
+                    "day": today.strftime("%d/%m/%Y"),
+                    "question": question,
+                    "options": options,
+                    "image_question": image_question,
+                    "image_options": [h, "Match nul", a],
+                    "home_logo": team_visual_url(e, "home", allow_remote=True),
+                    "away_logo": team_visual_url(e, "away", allow_remote=True),
+                },
             )
     topics = [
         ("Quel championnat aimez-vous suivre ?", ["Premier League", "Liga", "Ligue 1", "Autre"]),
@@ -779,8 +787,13 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
     return Publication(
         "sondage", "sondage:" + today.isoformat(), "🗳️ Sondage Mr XPRONOS",
         (question, options),
-        card={"day": today.strftime("%d/%m/%Y"),
-              "question": question, "options": options[:3]},
+        card={
+            "day": today.strftime("%d/%m/%Y"),
+            "question": question,
+            "options": options[:3],
+            "image_question": re.sub(r"\s*💬.*$", "", question).strip(),
+            "image_options": options[:3],
+        },
     )
 
 
