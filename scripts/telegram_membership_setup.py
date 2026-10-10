@@ -200,12 +200,15 @@ def public_message(channel: Channel, request_link: str) -> str:
     label = html.escape(channel.label)
     description = html.escape(channel.description)
     return (
-        f"🔔 <b>REJOINS {label.upper()} • MR XPRONOS</b>\n\n"
-        f"Abonne-toi pour recevoir nos {description}.\n\n"
-        "✅ Appuie sur le bouton ci-dessous pour envoyer ta demande d’adhésion.\n"
-        "🔔 Après validation, active la cloche du canal pour ne rien manquer.\n\n"
-        "<i>18+ • Joue responsablement.</i>\n"
-        "<code>#MX_ADHESION</code>"
+        f"👑 <b>{label.upper()} • MR XPRONOS</b>\n\n"
+        "<i>Rejoins la communauté et reste connecté aux publications importantes.</i>\n\n"
+        f"<blockquote>⚡ Retrouve nos {description}.</blockquote>\n\n"
+        "<b>👉 Comment rejoindre ?</b>\n\n"
+        "1️⃣ Appuie sur le bouton ci-dessous.\n"
+        "2️⃣ Envoie ta demande d’adhésion.\n"
+        "3️⃣ Après validation, <b>active la cloche 🔔</b>.\n\n"
+        "<blockquote>🔥 Ne rate aucune nouvelle publication Mr XPRONOS.</blockquote>\n\n"
+        "<i>18+ • Joue responsablement.</i>"
     )
 
 
@@ -248,6 +251,58 @@ def publish_and_pin(
     except RuntimeError as exc:
         # Le message reste publié et le diagnostic est explicite.
         print("PIN_WARNING", channel.key, str(exc))
+    return message_id
+
+
+def refresh_pinned_message(
+    tg: Telegram,
+    channel: Channel,
+    actual_chat_id: int | str,
+) -> int:
+    chat = tg.call("getChat", json_body={"chat_id": actual_chat_id})
+    pinned = chat.get("pinned_message") if isinstance(chat, dict) else None
+    if not isinstance(pinned, dict):
+        raise RuntimeError(f"{channel.label}: aucun message épinglé trouvé.")
+
+    message_id = int(pinned["message_id"])
+    markup = pinned.get("reply_markup") or {}
+    buttons = markup.get("inline_keyboard") or []
+
+    request_link = ""
+    for row in buttons:
+        if not isinstance(row, list):
+            continue
+        for button in row:
+            if isinstance(button, dict) and clean(button.get("url")).startswith("https://t.me/"):
+                request_link = clean(button.get("url"))
+                break
+        if request_link:
+            break
+
+    if not request_link:
+        raise RuntimeError(
+            f"{channel.label}: le message épinglé ne contient pas le lien d’adhésion."
+        )
+
+    tg.call(
+        "editMessageText",
+        json_body={
+            "chat_id": actual_chat_id,
+            "message_id": message_id,
+            "text": public_message(channel, request_link),
+            "parse_mode": "HTML",
+            "disable_web_page_preview": True,
+            "reply_markup": {
+                "inline_keyboard": [[
+                    {
+                        "text": "✅ DEMANDER À REJOINDRE",
+                        "url": request_link,
+                    }
+                ]]
+            },
+        },
+    )
+    print("PIN_REFRESH_OK", channel.key, message_id)
     return message_id
 
 
@@ -302,6 +357,11 @@ def main() -> None:
         action="store_true",
         help="Autorise le remplacement d'un webhook existant différent.",
     )
+    parser.add_argument(
+        "--refresh-pinned-messages",
+        action="store_true",
+        help="Met à jour les messages déjà épinglés sans recréer de liens.",
+    )
     args = parser.parse_args()
 
     token = bot_token()
@@ -326,6 +386,18 @@ def main() -> None:
 
     if args.check_only:
         print("MEMBERSHIP_CHECK_OK", len(resolved))
+        return
+
+    if args.refresh_pinned_messages:
+        refreshed = []
+        for channel, chat in resolved:
+            refreshed.append({
+                "key": channel.key,
+                "message_id": refresh_pinned_message(
+                    tg, channel, chat["id"]
+                ),
+            })
+        print("MEMBERSHIP_PINNED_REFRESH_OK", json.dumps(refreshed, ensure_ascii=False))
         return
 
     report = []
