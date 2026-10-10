@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Mr XPRONOS — symbole MX</title>
+  <desc id="desc">Couronne dorée au-dessus d'un monogramme MX métallique.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff3a6"/>
+      <stop offset=".18" stop-color="#ffd85a"/>
+      <stop offset=".48" stop-color="#d89b1b"/>
+      <stop offset=".72" stop-color="#ffdf68"/>
+      <stop offset="1" stop-color="#9a5d05"/>
+    </linearGradient>
+    <linearGradient id="gold2" x1=".15" y1="0" x2=".85" y2="1">
+      <stop offset="0" stop-color="#fff8c9"/>
+      <stop offset=".22" stop-color="#ffcb37"/>
+      <stop offset=".58" stop-color="#b66f08"/>
+      <stop offset=".8" stop-color="#ffd75a"/>
+      <stop offset="1" stop-color="#754000"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <g fill="url(#gold)" stroke="#ffdf6b" stroke-width="3" stroke-linejoin="round" filter="url(#glow)">
+    <path d="M126 164 L84 86 L190 142 L256 42 L322 142 L428 86 L386 164 Q256 133 126 164 Z"/>
+  </g>
+  <g fill="url(#gold2)" stroke="#ffdf6b" stroke-width="4" stroke-linejoin="round">
+    <path d="M92 218 H151 L256 322 L361 218 H420 V422 H352 V311 L256 407 L160 311 V422 H92 Z"/>
+    <path d="M286 218 H361 L277 302 L420 422 H331 L233 337 L286 284 Z"/>
+  </g>
+  <path d="M111 430 H401" stroke="#ffcf43" stroke-width="3" opacity=".55"/>
+</svg>
