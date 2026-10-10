@@ -1,18 +1,13 @@
 name: Mr XPRONOS - Setup adhésion Telegram
 
 on:
-  # Déclenchement one-shot pour l'installation initiale.
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/telegram-membership-setup.yml'
   workflow_dispatch:
     inputs:
       check_only:
         description: "Vérifier seulement les droits/canaux"
         required: true
         type: boolean
-        default: false
+        default: true
       replace_webhook:
         description: "Remplacer un webhook Telegram existant différent"
         required: true
