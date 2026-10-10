@@ -191,6 +191,7 @@ class Publication:
     key: str
     text: str
     poll: tuple[str, list[str]] | None = None
+    card: dict[str, Any] | None = None
 
 
 class Sender:
@@ -211,6 +212,23 @@ class Sender:
             return
         method = "sendPoll" if item.poll else "sendMessage"
         data: dict[str, Any] = {"chat_id": self.chat}
+        files = None
+        card_dir = None
+        if item.card and not item.poll:
+            from football_cards import render_card
+            card_dir = tempfile.TemporaryDirectory(prefix="xpronos-news-")
+            try:
+                graphic = render_card(item.category, item.card,
+                                      Path(card_dir.name) / "publication.png")
+                # Telegram limite la légende des photos à 1024 caractères :
+                # un résumé court en texte brut évite toute balise HTML coupée.
+                caption = plain(item.text.replace("<br>", " "), 840)
+                data.update(caption=caption)
+                method = "sendPhoto"
+                files = {"photo": ("mrxpronos.png", graphic.open("rb"), "image/png")}
+            except Exception:
+                card_dir.cleanup()
+                raise
         if item.poll:
             question, options = item.poll
             data.update(question=question[:300],
@@ -220,12 +238,18 @@ class Sender:
             data.update(text=item.text[:3900], parse_mode="HTML",
                         disable_web_page_preview="false")
         # Aucun retry automatique ambigu : Telegram peut avoir reçu le message.
-        response = self.session.post(
-            "https://api.telegram.org/bot" + self.token + "/" + method,
-            data=data, timeout=(12, 40),
-        )
-        response.raise_for_status()
-        payload = response.json()
+        try:
+            response = self.session.post(
+                "https://api.telegram.org/bot" + self.token + "/" + method,
+                data=data, files=files, timeout=(12, 55),
+            )
+            response.raise_for_status()
+            payload = response.json()
+        finally:
+            if files:
+                files["photo"][1].close()
+            if card_dir:
+                card_dir.cleanup()
         if payload.get("ok") is not True:
             raise RuntimeError("Telegram n'a pas confirmé l'envoi: " + str(payload.get("description", ""))[:180])
         print("ENVOYE", item.category, item.key, "message_id", payload.get("result", {}).get("message_id"))
@@ -298,7 +322,11 @@ def programme(events: list[dict], today: date) -> Publication | None:
                      esc(team(event, "away")) + "</b>\n" +
                      "   🕒 " + time_label(kick(event)) + label)
     lines.append("\n💬 Quel match attendez-vous le plus ?")
-    return Publication("programme", "programme:" + today.isoformat(), post_label("\n\n".join(lines)))
+    card = {"day": today.strftime("%d/%m/%Y"), "matches": [
+        {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e))}
+        for e in chosen]}
+    return Publication("programme", "programme:" + today.isoformat(),
+                       post_label("\n\n".join(lines)), card=card)
 
 
 def finished_recent(events: list[dict], now: datetime) -> list[dict]:
@@ -320,7 +348,10 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
                 + ("🤝 Match nul." if a == b else
                    "🏅 Victoire de " + esc(team(e, "home") if a > b else team(e, "away")) + ".")
                 + "\n💬 Votre réaction ?")
-        return Publication("resultat", key, post_label(text))
+        card = {"day": now.astimezone(TZ).strftime("%d/%m/%Y"),
+                "league": league(e), "home": team(e, "home"),
+                "away": team(e, "away"), "scores": (a, b)}
+        return Publication("resultat", key, post_label(text), card=card)
     return None
 
 
@@ -392,7 +423,10 @@ def statistique(events: list[dict], yesterday: date) -> Publication | None:
         + "🏆 " + esc(league(e) or "Football") + "\n\n"
         + "💬 Quel autre match d'hier vous a marqué ?"
     )
-    return Publication("statistique", "statistique:" + yesterday.isoformat(), post_label(message))
+    card = {"day": yesterday.strftime("%d/%m/%Y"), "league": league(e),
+            "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a)}
+    return Publication("statistique", "statistique:" + yesterday.isoformat(),
+                       post_label(message), card=card)
 
 
 def sondage(events: list[dict], history: History, now: datetime) -> Publication:
