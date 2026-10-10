@@ -47,8 +47,10 @@ class FootballChannelTests(unittest.TestCase):
         self.assertEqual(articles[0]["summary"], "Une nouvelle & des reactions.")
         post = m.flash(articles, self.history, NOW)
         self.assertIsNotNone(post)
-        self.assertIn("Source : Foot Mercato", post.text)
-        self.assertIn("Lire l’article complet", post.text)
+        self.assertIn("Foot Mercato", post.text)
+        self.assertIn("<blockquote>", post.text)
+        self.assertTrue(post.keyboard)
+        self.assertEqual(post.keyboard["inline_keyboard"][0][0]["url"], "https://example.com/a")
         self.history.mark(post.key, post.category, NOW)
         self.assertIsNone(m.flash(articles, self.history, NOW))
 
@@ -79,8 +81,9 @@ class FootballChannelTests(unittest.TestCase):
         old = NOW - timedelta(days=1, hours=4)
         post = m.statistique([event(1, old, "finished", 4, 3),
                               event(2, old, "notstarted", 9, 8)], old.date())
-        self.assertIn("7 buts", post.text)
-        self.assertNotIn("17 buts", post.text)
+        self.assertIn("7 BUTS", post.text)
+        self.assertNotIn("17 BUTS", post.text)
+        self.assertIn("<blockquote>", post.text)
 
     def test_sondage_fournit_options(self):
         post = m.sondage([event(12, NOW + timedelta(hours=3))],
@@ -120,12 +123,13 @@ class FootballChannelTests(unittest.TestCase):
             sender.session.post = Mock(return_value=fake)
             result = sender.send(sample)
         self.assertEqual(result, 201)
-        kwargs = sender.session.post.call_args.kwargs
-        self.assertIn("photo", kwargs["files"])
-        self.assertIn("caption", kwargs["data"])
+        calls = sender.session.post.call_args_list
+        self.assertGreaterEqual(len(calls), 1)
+        kwargs = calls[-1].kwargs
+        self.assertIn("coupon_photo", kwargs["files"])
+        self.assertIn("rich_message", kwargs["data"])
+        self.assertIn("MATCHS DU JOUR", kwargs["data"]["rich_message"])
         self.assertNotIn("text", kwargs["data"])
-        self.assertNotIn("parse_mode", kwargs["data"])
-        self.assertLessEqual(len(kwargs["data"]["caption"]), 1024)
 
     def test_programme_exclut_un_match_deja_commence(self):
         sample = [event(1, NOW - timedelta(hours=1)),
@@ -180,7 +184,8 @@ class FootballChannelTests(unittest.TestCase):
 
     def test_appel_aux_commentaires_dans_les_posts(self):
         post = m.programme([event(31, NOW + timedelta(hours=2))], NOW.date(), as_of=NOW)
-        self.assertIn("Donne ton avis dans les commentaires", post.text)
+        self.assertIn("Quel match attendez-vous", post.text)
+        self.assertIn("<blockquote>", post.text)
         poll = m.sondage([event(32, NOW + timedelta(hours=3))], self.history, NOW)
         self.assertIn("commente", poll.poll[0].lower())
 
