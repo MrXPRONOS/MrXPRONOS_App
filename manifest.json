@@ -12,6 +12,12 @@
     "dir": "ltr",
     "icons": [
         {
+            "src": "assets/images/mrxpronos-mark.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
             "src": "assets/images/icon-72x72.png",
             "sizes": "72x72",
             "type": "image/png",
@@ -66,14 +72,24 @@
             "short_name": "Pronostics",
             "description": "Voir les pronostics du jour",
             "url": "./pronos.html",
-            "icons": [{ "src": "assets/images/icon-96x96.png", "sizes": "96x96" }]
+            "icons": [
+                {
+                    "src": "assets/images/icon-96x96.png",
+                    "sizes": "96x96"
+                }
+            ]
         },
         {
             "name": "Historique",
             "short_name": "Historique",
             "description": "Voir l'historique des pronostics",
             "url": "./historique.html",
-            "icons": [{ "src": "assets/images/icon-96x96.png", "sizes": "96x96" }]
+            "icons": [
+                {
+                    "src": "assets/images/icon-96x96.png",
+                    "sizes": "96x96"
+                }
+            ]
         }
     ]
 }
