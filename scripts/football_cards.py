@@ -287,6 +287,68 @@ def statistic_card(payload: dict[str, Any]) -> Image.Image:
     return image
 
 
+
+def prematch_card(payload: dict[str, Any]) -> Image.Image:
+    from programme_styles import (
+        background as premium_background,
+        gradient_text,
+        gradient_round_rect,
+        gradient_outline_round_rect,
+        team_visual,
+    )
+
+    home = clean(payload.get("home"))
+    away = clean(payload.get("away"))
+    if not home or not away:
+        raise ValueError("Avant-match incomplet")
+
+    image, d = premium_background(6)
+
+    txt(d, "♛", 540, 35, size=28, bold=True, color=GOLD, anchor="ma")
+    txt(d, "MR", 495, 62, size=29, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "XPRONOS", (505, 62), size=29, anchor="la")
+
+    txt(d, "AVANT", 530, 120, size=64, bold=True, color=WHITE, anchor="ra")
+    gradient_text(image, "MATCH", (550, 120), size=64, anchor="la")
+    txt(d, (payload.get("league") or "FOOTBALL").upper(), 540, 205,
+        size=21, bold=True, color=GREY, anchor="ma", max_width=820)
+
+    d.rounded_rectangle((65, 285, 1015, 790), radius=34, fill="#061827")
+    gradient_outline_round_rect(image, (65, 285, 1015, 790), 34, width=3, glow=True)
+
+    home_item = {"home": home, "home_logo": payload.get("home_logo", "")}
+    away_item = {"away": away, "away_logo": payload.get("away_logo", "")}
+    team_visual(image, d, 190, 455, home_item, "home", scale=1.15, circle=True)
+    team_visual(image, d, 890, 455, away_item, "away", scale=1.15, circle=True)
+
+    txt(d, home, 260, 570, size=31, bold=True, anchor="ma",
+        max_width=330, min_size=19)
+    txt(d, away, 820, 570, size=31, bold=True, anchor="ma",
+        max_width=330, min_size=19)
+
+    gradient_round_rect(image, (455, 398, 625, 480), 18)
+    txt(d, payload.get("time", "--h--"), 540, 439, size=33, bold=True,
+        color="#061521", anchor="mm")
+    txt(d, "COUP D’ENVOI • HEURE DU TOGO", 540, 520, size=17,
+        bold=True, color=GOLD, anchor="ma")
+
+    d.rounded_rectangle((125, 625, 955, 735), radius=25,
+                        fill="#0A2234", outline="#5C4A24", width=2)
+    txt(d, "FORME RÉCENTE", 540, 650, size=18, bold=True, color=GREY, anchor="ma")
+    txt(d, home + " : " + clean(payload.get("home_form", "")),
+        155, 690, size=18, color=WHITE, anchor="lm", max_width=365, min_size=14)
+    txt(d, away + " : " + clean(payload.get("away_form", "")),
+        560, 690, size=18, color=WHITE, anchor="lm", max_width=365, min_size=14)
+
+    txt(d, clean(payload.get("day", "")), 540, 860, size=19,
+        color=GREY, anchor="mm")
+
+    d.rounded_rectangle((175, 930, 905, 1015), radius=36, fill="#071927")
+    gradient_outline_round_rect(image, (175, 930, 905, 1015), 36, width=2, glow=True)
+    txt(d, "QUEL SCÉNARIO IMAGINEZ-VOUS ?", 540, 972,
+        size=22, bold=True, anchor="mm", max_width=650, min_size=17)
+    return image
+
 def render_card(category: str, payload: dict[str, Any], output: str | Path) -> Path:
     factories = {
         "programme": programme_card,
