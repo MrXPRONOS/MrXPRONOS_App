@@ -22,3 +22,7 @@ verify_jwt = false
 
 [functions.telegram-live]
 verify_jwt = false
+
+
+[functions.telegram-membership]
+verify_jwt = false
