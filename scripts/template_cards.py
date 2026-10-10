@@ -430,6 +430,70 @@ def _local_dark_patch(
     ImageDraw.Draw(image).rounded_rectangle(box, radius=radius, fill=fill)
 
 
+def _clear_logo_placeholder(
+    image: Image.Image,
+    center: tuple[int, int],
+    radius: int,
+    *,
+    fill: str = "#0A2032",
+) -> None:
+    """Efface seulement le faux blason imprimé, sans toucher à l'anneau du template."""
+    draw = ImageDraw.Draw(image)
+    cx, cy = center
+    draw.ellipse((cx-radius, cy-radius, cx+radius, cy+radius), fill=fill)
+
+
+def _prepare_programme_placeholders(image: Image.Image) -> None:
+    # Date placeholder.
+    _local_dark_patch(image, (500, 255, 660, 296), radius=8, fill="#071A29")
+    for meta in PROGRAMME_ROWS:
+        y = meta["y"]
+        _clear_logo_placeholder(image, (PROGRAMME_HOME_LOGO_X, y), 29)
+        _clear_logo_placeholder(image, (PROGRAMME_AWAY_LOGO_X, y), 29)
+        _local_dark_patch(image, meta["home_box"], radius=5, fill="#0A2032")
+        _local_dark_patch(image, meta["away_box"], radius=5, fill="#0A2032")
+        _gold_capsule(image, (486, y-21, 594, y+17), radius=10)
+
+
+def _prepare_prematch_placeholders(image: Image.Image) -> None:
+    _clear_logo_placeholder(image, PREMATCH_HOME_LOGO, 58)
+    _clear_logo_placeholder(image, PREMATCH_AWAY_LOGO, 58)
+    _local_dark_patch(image, PREMATCH_HOME_NAME, radius=5, fill="#0A2032")
+    _local_dark_patch(image, PREMATCH_AWAY_NAME, radius=5, fill="#0A2032")
+    _gold_capsule(image, (465, 407, 615, 460), radius=14)
+    # Les 10 cercles de forme sont réutilisés; effacer seulement les lettres d'exemple.
+    for center in PREMATCH_FORM_LEFT + PREMATCH_FORM_RIGHT:
+        _clear_logo_placeholder(image, center, 18, fill="#071A29")
+    _local_dark_patch(image, (500, 843, 672, 880), radius=4, fill="#071A29")
+
+
+def _prepare_result_placeholders(image: Image.Image) -> None:
+    _clear_logo_placeholder(image, RESULT_HOME_LOGO, 72)
+    _clear_logo_placeholder(image, RESULT_AWAY_LOGO, 72)
+    _local_dark_patch(image, RESULT_HOME_NAME, radius=5, fill="#0A2032")
+    _local_dark_patch(image, RESULT_AWAY_NAME, radius=5, fill="#0A2032")
+    _gold_capsule(image, (407, 442, 674, 570), radius=24)
+    _local_dark_patch(image, RESULT_WINNER_BOX, radius=5, fill="#0A2032")
+    _local_dark_patch(image, (525, 837, 648, 871), radius=4, fill="#071A29")
+
+
+def _prepare_flash_placeholders(image: Image.Image) -> None:
+    # La photo recouvre le placeholder image entier.
+    _local_dark_patch(image, FLASH_TITLE_BOX, radius=3, fill="#0A2032")
+    _local_dark_patch(image, FLASH_SOURCE_BOX, radius=3, fill="#0A2032")
+    _local_dark_patch(image, FLASH_DATE_BOX, radius=3, fill="#0A2032")
+    _local_dark_patch(image, FLASH_SUMMARY_BOX, radius=5, fill="#0A2032")
+    _local_dark_patch(image, FLASH_CTA_BOX, radius=4, fill="#081A29")
+
+
+def _prepare_poll_placeholders(image: Image.Image) -> None:
+    _local_dark_patch(image, POLL_QUESTION_BOX, radius=5, fill="#0A2032")
+    for center, box in zip(POLL_ICON_CENTERS, POLL_OPTION_BOXES):
+        _clear_logo_placeholder(image, center, 27)
+        _local_dark_patch(image, box, radius=5, fill="#0A2032")
+    _local_dark_patch(image, (515, 873, 660, 904), radius=4, fill="#071A29")
+
+
 def _team_name_size(value: str, context: str) -> tuple[int, int, int]:
     value = clean(value)
     if context == "programme":
@@ -503,6 +567,7 @@ def render_programme(payload: dict[str, Any]) -> Image.Image:
         raise ValueError("Programme sans matchs")
 
     image = template("programme")
+    _prepare_programme_placeholders(image)
     draw = ImageDraw.Draw(image)
 
     draw_single_line(
@@ -556,6 +621,7 @@ def render_programme(payload: dict[str, Any]) -> Image.Image:
 
 def render_prematch(payload: dict[str, Any]) -> Image.Image:
     image = template("avant_match")
+    _prepare_prematch_placeholders(image)
     draw = ImageDraw.Draw(image)
 
     home = clean(payload.get("home"))
@@ -612,6 +678,7 @@ def render_prematch(payload: dict[str, Any]) -> Image.Image:
 
 def render_result(payload: dict[str, Any]) -> Image.Image:
     image = template("resultat")
+    _prepare_result_placeholders(image)
     draw = ImageDraw.Draw(image)
 
     home = clean(payload.get("home"))
@@ -788,6 +855,7 @@ def render_stat(payload: dict[str, Any]) -> Image.Image:
 
 def render_flash(payload: dict[str, Any]) -> Image.Image:
     image = template("flash")
+    _prepare_flash_placeholders(image)
     draw = ImageDraw.Draw(image)
 
     photo = remote_photo(payload.get("image_url", ""), _box_size(FLASH_PHOTO_BOX))
@@ -880,6 +948,7 @@ def _clean_poll_question(value: Any) -> str:
 
 def render_poll(payload: dict[str, Any]) -> Image.Image:
     image = template("sondage")
+    _prepare_poll_placeholders(image)
     draw = ImageDraw.Draw(image)
 
     question = clean(payload.get("image_question")) or _clean_poll_question(payload.get("question"))
