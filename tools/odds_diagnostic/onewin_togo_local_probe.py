@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """1win Togo local/self-hosted probe.
 
-Run this from a machine/network genuinely located in Togo.
+Run this from a machine/network genuinely located in Togo, or from an explicitly
+chosen infrastructure location such as Render Frankfurt for diagnostics.
 No proxy/VPN bypass is configured by this script.
 No registration, credentials, stake, deposit, or wager submission.
 """
-import asyncio, datetime as dt, json, pathlib, re, sys
+import asyncio, datetime as dt, json, pathlib, re
 from urllib.parse import urlsplit, parse_qs
 from playwright.async_api import async_playwright
 
@@ -48,7 +49,6 @@ async def visible_controls(page, regex):
     return out
 
 async def click_target(page):
-    # Prefer actual interactive elements, then inspect a small local context.
     nodes=page.locator("button,[role=button],a")
     samples=[]
     for i in range(min(await nodes.count(),2200)):
@@ -90,10 +90,13 @@ async def main():
     ROOT.mkdir(parents=True,exist_ok=True)
     rep={
         "run_at_utc":dt.datetime.now(dt.timezone.utc).isoformat(),
-        "mode":"genuine_location_local_probe",
+        "mode":"infrastructure_location_probe",
         "url":URL,
         "http_status":None,
         "final_url":None,
+        "page_title":None,
+        "response_headers":{},
+        "body_excerpt":None,
         "region_blocked":False,
         "body_region_excerpt":None,
         "football_visible":False,
@@ -114,15 +117,31 @@ async def main():
             r=await page.goto(URL,wait_until="domcontentloaded",timeout=30000)
             rep["http_status"]=r.status if r else None
             rep["final_url"]=page.url
-            await page.wait_for_timeout(8000)
-            body=(await page.locator("body").inner_text(timeout=6000))[:50000]
+            if r:
+                h=await r.all_headers()
+                for k in ("server","content-type","cf-ray","cf-cache-status","location","x-request-id"):
+                    if h.get(k):
+                        rep["response_headers"][k]=h.get(k)
+            try:
+                rep["page_title"]=(await page.title())[:300]
+            except:
+                pass
+            await page.wait_for_timeout(5000)
+            try:
+                body=(await page.locator("body").inner_text(timeout=6000))[:50000]
+            except:
+                body=""
+            rep["body_excerpt"]=re.sub(r"\s+"," ",body).strip()[:1200] or None
             rep["football_visible"]="football" in body.lower()
+
             m=REGION_BLOCK.search(body)
             if m:
                 rep["region_blocked"]=True
                 start=max(0,m.start()-180); end=min(len(body),m.end()+260)
                 rep["body_region_excerpt"]=re.sub(r"\s+"," ",body[start:end])
                 rep["status"]="REGION_BLOCKED_STOPPED"
+            elif rep["http_status"] is not None and rep["http_status"] >= 400:
+                rep["status"]=f"HTTP_{rep['http_status']}_ACCESS_BLOCKED"
             else:
                 rep["share_controls"]=await visible_controls(page,SHARE)
                 sel,samples=await click_target(page)
