@@ -257,6 +257,42 @@ class BSDClient:
             complete=len(events) >= (total if total is not None else 0),
         )
 
+    def list_team_recent_events(
+        self,
+        *,
+        team_id: Optional[int] = None,
+        team_name: str = "",
+        before: Optional[date] = None,
+        limit: int = 6,
+        ttl: int = 900,
+    ) -> List[Dict[str, Any]]:
+        """Derniers matchs terminés d'une équipe pour calculer sa forme.
+
+        Utilise le filtre natif team_id de BSD (team_name en secours), plutôt
+        qu'une fenêtre globale de quelques jours qui peut être vide.
+        """
+        if team_id is None and not str(team_name or "").strip():
+            raise ValueError("team_id ou team_name requis")
+        if not 1 <= int(limit) <= 50:
+            raise ValueError("limit doit être compris entre 1 et 50")
+        params: Dict[str, Any] = {
+            "status": "finished",
+            "limit": int(limit),
+            "offset": 0,
+        }
+        if team_id is not None:
+            params["team_id"] = int(team_id)
+        else:
+            params["team_name"] = str(team_name).strip()
+        if before is not None:
+            params["date_to"] = before.isoformat()
+        payload = self.get_json("/events/", params, ttl=ttl)
+        if not isinstance(payload, dict) or not isinstance(payload.get("results"), list):
+            raise BSDAPIError("Schéma événements équipe BSD inattendu")
+        rows = [item for item in payload["results"] if isinstance(item, dict)]
+        return rows[:int(limit)]
+
+
     def list_season_events(
         self,
         league_id: int,
