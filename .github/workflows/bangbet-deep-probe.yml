@@ -5,6 +5,11 @@ on:
     paths:
       - "tools/odds_diagnostic/bangbet_deep_probe.py"
       - ".github/workflows/bangbet-deep-probe.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/odds_diagnostic/bangbet_deep_probe.py"
+      - ".github/workflows/bangbet-deep-probe.yml"
   workflow_dispatch:
 permissions:
   contents: read
