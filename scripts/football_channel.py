@@ -147,7 +147,7 @@ def importance(event: dict) -> int:
 _TSDB_LOGOS: dict[str, str] | None = None
 _REMOTE_TEAM_LOGOS: dict[str, str] = {}
 _REMOTE_LOGO_REQUESTS = 0
-_REMOTE_LOGO_BUDGET = 12
+_REMOTE_LOGO_BUDGET = 28
 
 def _norm_team(value: Any) -> str:
     return re.sub(r"[^a-z0-9]+", " ", plain(value, 90).casefold()).strip()
@@ -645,9 +645,8 @@ def avant_match(events: list[dict], history: History, now: datetime,
     return Publication("avant_match", "avant_match:" + str(e["id"]), message, card=card)
 
 
-def statistique(events: list[dict], yesterday: date) -> Publication | None:
-    finished = [e for e in events if final_score(e) is not None and
-                kick(e) and kick(e).astimezone(TZ).date() == yesterday]
+def statistique(events: list[dict], reference_day: date) -> Publication | None:
+    finished = [e for e in events if final_score(e) is not None and kick(e)]
     if not finished:
         return None
     ranked = sorted(
@@ -660,7 +659,7 @@ def statistique(events: list[dict], yesterday: date) -> Publication | None:
         ),
     )
     e = next(
-        (item for item in ranked[:8]
+        (item for item in ranked[:12]
          if has_two_team_logos(item, allow_remote=True)),
         None,
     )
@@ -670,18 +669,19 @@ def statistique(events: list[dict], yesterday: date) -> Publication | None:
     total = h + a
     message = (
         "<h3>📊 LA STAT DU JOUR • MR XPRONOS</h3>"
-        "<p><i>Une statistique marquante issue d'un match BSD d'hier avec logos vérifiés.</i></p>"
+        "<p><i>Une statistique marquante issue des dernières rencontres BSD avec logos vérifiés.</i></p>"
         "<blockquote><b>🔥 " + str(total) + " BUTS</b><br/>"
         + esc(team(e, "home")) + " <b>" + str(h) + " – " + str(a) + "</b> "
         + esc(team(e, "away")) + "<br/>"
         + "<i>" + esc(league(e) or "Football") + "</i></blockquote>"
-        "<p><b>💬 Quel autre match d'hier vous a marqué ?</b></p>"
+        "<p><b>💬 Quelle autre statistique récente vous a marqué ?</b></p>"
     )
-    card = {"day": yesterday.strftime("%d/%m/%Y"), "league": league(e),
+    selected_day = kick(e).astimezone(TZ).date()
+    card = {"day": selected_day.strftime("%d/%m/%Y"), "league": league(e),
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
             "home_logo": team_visual_url(e, "home", allow_remote=True),
             "away_logo": team_visual_url(e, "away", allow_remote=True)}
-    return Publication("statistique", "statistique:" + yesterday.isoformat(),
+    return Publication("statistique", "statistique:" + reference_day.isoformat(),
                        message, card=card)
 
 
@@ -767,8 +767,13 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
 
         if hour == 12 and (force or enough(state, "statistique", now)):
             try:
-                publish(statistique(get_day(today - timedelta(days=1)),
-                                    today - timedelta(days=1)))
+                reference = today - timedelta(days=1)
+                recent = get_day(reference) + get_day(today)
+                post = statistique(recent, reference)
+                if post is None:
+                    older = reference - timedelta(days=1)
+                    post = statistique(get_day(older), reference)
+                publish(post)
             except (BSDAPIError, requests.RequestException, ValueError) as exc:
                 counter["errors"] += 1
                 print("ERREUR_STAT", type(exc).__name__, str(exc)[:160])
@@ -918,7 +923,11 @@ def run_live_test(now: datetime) -> dict[str, Any]:
 
         def actual_stat() -> Publication | None:
             yesterday = today - timedelta(days=1)
-            return statistique(day_events(yesterday), yesterday)
+            recent = day_events(yesterday) + day_events(today)
+            post = statistique(recent, yesterday)
+            if post:
+                return post
+            return statistique(day_events(yesterday - timedelta(days=1)), yesterday)
 
         def actual_flash() -> Publication | None:
             return flash(fetch_rss(sender.session), empty_history, now, sender.session)
@@ -989,7 +998,11 @@ def run_visual_live_test(now: datetime) -> dict[str, Any]:
 
     try:
         yesterday = today - timedelta(days=1)
-        deliver("statistique", statistique(day_events(yesterday), yesterday))
+        recent = day_events(yesterday) + day_events(today)
+        post = statistique(recent, yesterday)
+        if post is None:
+            post = statistique(day_events(yesterday - timedelta(days=1)), yesterday)
+        deliver("statistique", post)
     except Exception as exc:
         report["errors"]["statistique"] = type(exc).__name__ + ": " + str(exc)[:180]
         print("VISUAL_TEST_ECHEC statistique", report["errors"]["statistique"])
