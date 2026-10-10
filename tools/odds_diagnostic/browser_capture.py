@@ -7,6 +7,7 @@ from urllib.parse import urlsplit
 from playwright.async_api import async_playwright
 from har_audit import provider_for
 from validation import validate
+from schema_probe import inspect_json
 
 TARGETS=[("sportybet","https://www.sportybet.com/ng/"),("1xbet","https://1xbet.com/en")]
 OUT=pathlib.Path("odds_diagnostic_results/browser_capture.json")
@@ -14,7 +15,7 @@ async def visit(browser, provider, url):
     page=await browser.new_page()
     result={"provider":provider,"site":urlsplit(url).hostname,"status":"not_started","responses_observed":0,
             "json_responses":0,"markets":{"corners":0,"shots":0,"fouls":0},
-            "unmapped_numeric_markets":0,"status_codes":{},"json_shapes":{},"limitations":[]}
+            "unmapped_numeric_markets":0,"status_codes":{},"json_shapes":{},"nested_market_labels":{"corners":0,"shots":0,"fouls":0},"example_market_labels":[],"limitations":[]}
     tasks=[]
     async def observe(response):
         try:
@@ -35,6 +36,11 @@ async def visit(browser, provider, url):
             else:
                 shape=type(obj).__name__
             result["json_shapes"][shape]=result["json_shapes"].get(shape,0)+1
+            deep=inspect_json(obj)
+            for kind,n in deep["label_hits"].items():result["nested_market_labels"][kind]+=n
+            for label in deep["sample_market_labels"]:
+                if label not in result["example_market_labels"] and len(result["example_market_labels"])<15:
+                    result["example_market_labels"].append(label)
             v=validate(obj,provider)
             if v["analysis"]:
                 for kind,n in v["analysis"]["counts"].items():result["markets"][kind]+=n
