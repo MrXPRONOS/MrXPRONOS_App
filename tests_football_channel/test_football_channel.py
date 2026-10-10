@@ -20,8 +20,10 @@ NOW = datetime(2026, 10, 10, 15, 0, tzinfo=timezone.utc)
 def event(ident, start=NOW, status="notstarted", hs=None, a_s=None):
     return {
         "id": ident, "event_date": start.isoformat(), "status": status,
-        "home_team": {"id": 1, "name": "Arsenal"},
-        "away_team": {"id": 2, "name": "Chelsea"},
+        "home_team": {"id": 1, "name": "Arsenal",
+                      "logo": "https://example.com/arsenal.png"},
+        "away_team": {"id": 2, "name": "Chelsea",
+                      "logo": "https://example.com/chelsea.png"},
         "league_name": "Premier League",
         "home_score": hs, "away_score": a_s,
     }
@@ -51,6 +53,8 @@ class FootballChannelTests(unittest.TestCase):
         self.assertIn("<blockquote>", post.text)
         self.assertTrue(post.keyboard)
         self.assertEqual(post.keyboard["inline_keyboard"][0][0]["url"], "https://example.com/a")
+        self.assertIsNotNone(post.card)
+        self.assertEqual(post.card["source"], "Foot Mercato")
         self.history.mark(post.key, post.category, NOW)
         self.assertIsNone(m.flash(articles, self.history, NOW))
 
@@ -71,11 +75,21 @@ class FootballChannelTests(unittest.TestCase):
         self.history.mark(post.key, post.category, NOW)
         self.assertIsNone(m.resultat(sample, self.history, NOW))
 
+    def test_resultat_sans_deux_logos_est_ignore(self):
+        sample = event(9, NOW - timedelta(hours=3), "finished", 1, 0)
+        sample["home_team"].pop("logo", None)
+        sample["away_team"].pop("logo", None)
+        with patch.object(m, "_remote_team_logo", return_value=""):
+            self.assertIsNone(m.resultat([sample], self.history, NOW))
+
+
     def test_avant_match_sans_inventer_forme(self):
         post = m.avant_match([event(4, NOW + timedelta(hours=2))],
                              self.history, NOW, [])
         self.assertIn("forme récente non disponible", post.text)
         self.assertEqual(post.key, "avant_match:4")
+        self.assertIsNotNone(post.card)
+        self.assertEqual(post.card["home"], "Arsenal")
 
     def test_statistique_issue_de_scores_termines(self):
         old = NOW - timedelta(days=1, hours=4)
