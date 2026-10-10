@@ -103,6 +103,44 @@ class FootballChannelTests(unittest.TestCase):
                 m.Sender()
             m.Sender(dry_run=True)
 
+    def test_photo_payload_ne_contient_pas_text(self):
+        import os
+        from unittest.mock import Mock
+        fake = Mock()
+        fake.status_code = 200
+        fake.json.return_value = {"ok": True, "result": {"message_id": 201}}
+        sample = m.programme([event(17, NOW + timedelta(hours=3))], NOW.date(),
+                             as_of=NOW)
+        with patch.dict(os.environ, {
+            "FOOTBALL_NEWS_CHAT_ID": "-10010000222",
+            "FOOTBALL_NEWS_BOT_TOKEN": "123:fake",
+        }):
+            sender = m.Sender()
+            sender.session.post = Mock(return_value=fake)
+            result = sender.send(sample)
+        self.assertEqual(result, 201)
+        kwargs = sender.session.post.call_args.kwargs
+        self.assertIn("photo", kwargs["files"])
+        self.assertIn("caption", kwargs["data"])
+        self.assertNotIn("text", kwargs["data"])
+        self.assertNotIn("parse_mode", kwargs["data"])
+        self.assertLessEqual(len(kwargs["data"]["caption"]), 1024)
+
+    def test_programme_exclut_un_match_deja_commence(self):
+        sample = [event(1, NOW - timedelta(hours=1)),
+                  event(2, NOW + timedelta(hours=2))]
+        post = m.programme(sample, NOW.date(), as_of=NOW)
+        self.assertEqual(len(post.card["matches"]), 1)
+
+    def test_live_test_exige_un_canal(self):
+        import os
+        with patch.dict(os.environ, {
+            "FOOTBALL_NEWS_CHAT_ID": "",
+            "FOOTBALL_NEWS_BOT_TOKEN": "123:fake",
+        }):
+            with self.assertRaises(RuntimeError):
+                m.run_live_test(NOW)
+
 
 if __name__ == "__main__":
     unittest.main()
