@@ -2196,3 +2196,5 @@ header .container{
 @media (max-width: 600px) {
   .logo img { width: 136px; height: 42px; }
 }
+
+@media(max-width:380px){header .container{gap:6px;padding-left:7px;padding-right:7px}.logo img{width:110px;height:36px}.header-actions{gap:5px;min-width:0}.promo-code{font-size:.76rem;padding:.34rem .5rem}}

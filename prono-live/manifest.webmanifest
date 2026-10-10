@@ -1,1 +1,30 @@
-{"name":"Prono Live par MrXPRONOS","short_name":"Prono Live","start_url":"./","scope":"./","display":"standalone","background_color":"#030b18","theme_color":"#071a3a","description":"Pronostics et statistiques football en direct par MrXPRONOS","icons":[{"src":"../assets/images/mrxpronos-mark.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{
+  "name": "Prono Live par MrXPRONOS",
+  "short_name": "Prono Live",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#030b18",
+  "theme_color": "#071a3a",
+  "description": "Pronostics et statistiques football en direct par MrXPRONOS",
+  "icons": [
+    {
+      "src": "../assets/images/mrxpronos-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../assets/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "../assets/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

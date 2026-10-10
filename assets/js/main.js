@@ -1061,7 +1061,7 @@ function createSharePopup() {
  LIVE VIP MENU CLICK (PAYANT SUPPRIMÉ)
 ======================================================= */
 window.handleVipMenuClick = function () {
-  // Le verrouillage LIVE VIP doit être géré dans live.html (ShareGate)
+  // Accès direct au LIVE : aucune obligation de partage.
   window.location.href = `${BASE_SITE_URL}live.html`;
 };
 window.handleVipClick = window.handleVipMenuClick;

@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v12-pronos-fix';
+const VERSION = 'v14-live-direct-20261010';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -39,7 +39,10 @@ const STATIC_ASSETS = [
     './assets/images/facebook.webp',
     './assets/images/youtube.webp',
     './assets/images/threads.webp',
-    './assets/images/favicon.webp',
+    './assets/images/mrxpronos-mark.svg',
+    './assets/images/mrxpronos-logo.svg',
+    './assets/images/favicon.png',
+    './assets/images/apple-touch-icon.png',
     './assets/images/icon-72x72.png',
     './assets/images/icon-96x96.png',
     './assets/images/icon-128x128.png',
@@ -260,7 +263,7 @@ self.addEventListener('push', (event) => {
     const options = {
         body: data.body || 'Nouveau pronostic disponible !',
         icon: './assets/images/icon-192x192.png',
-        badge: './assets/images/icon-72x72.png',
+        badge: './assets/images/favicon.png',
         tag: data.tag || 'pronostic',
         requireInteraction: true,
         data: { url: data.url || './pronos.html' },

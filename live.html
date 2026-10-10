@@ -336,82 +336,6 @@
     }
 
     // =======================================================
-    // PARTAGE / JOUR
-    // =======================================================
-    function getTodayString() {
-      return new Date().toDateString();
-    }
-
-    function getDailyShareCount() {
-      const lastReset = localStorage.getItem("shareLastReset");
-      const todayKey = getTodayString();
-      if (lastReset !== todayKey) {
-        localStorage.setItem("shareLastReset", todayKey);
-        localStorage.setItem("shareCount", "0");
-        return 0;
-      }
-      return parseInt(localStorage.getItem("shareCount") || "0", 10);
-    }
-
-    function incrementShareCount() {
-      const current = getDailyShareCount();
-      const next = current + 1;
-      localStorage.setItem("shareCount", String(next));
-      return next;
-    }
-
-    function openExternal(url) {
-      window.open(url, "_blank", "noopener,noreferrer");
-    }
-
-    // Validation partage après ~5s
-    let pendingShare = null;
-
-    function startShareTracking(platform, onUnlocked) {
-      pendingShare = {
-        startedAt: Date.now(),
-        finalized: false,
-        platform,
-        onUnlocked
-      };
-      setTimeout(() => finalizePendingShare(true), 5500);
-    }
-
-    async function recordShareEvent(platform) {
-      if (!supabaseClient) return;
-      const userId = getUserId();
-      const eventType = platform === "whatsapp" ? "share_whatsapp" : "share_telegram";
-      try {
-        await supabaseClient.from("analytics").insert({
-          event_type: eventType,
-          user_id: userId,
-          page: "live.html",
-        });
-      } catch (_) {}
-      try { await supabaseClient.rpc("increment_counter", { counter_name: "total_shares" }); } catch (_) {}
-    }
-
-    function finalizePendingShare(force = false) {
-      if (!pendingShare || pendingShare.finalized) return;
-
-      const elapsed = Date.now() - pendingShare.startedAt;
-      if (!force && elapsed < 5000) return;
-
-      pendingShare.finalized = true;
-      const ctx = pendingShare;
-      pendingShare = null;
-
-      const newCount = incrementShareCount();
-      recordShareEvent(ctx.platform);
-
-      if (newCount >= 1) ctx.onUnlocked?.();
-    }
-
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) finalizePendingShare(false);
-    });
-
-    // =======================================================
     // UTILS
     // =======================================================
     function safeNumber(value, fallback = 0) {
@@ -509,134 +433,6 @@
       if (!apiId) return null;
       return `${EDGE_FUNCTION_URL}/img/league/${apiId}`;
     }
-
-    // =======================================================
-    // SHARE GATE (LIVE) : 1 partage / jour
-    // =======================================================
-    const ShareAccessScreen = ({ onActivated }) => {
-      const [count, setCount] = useState(() => getDailyShareCount());
-
-      const shareMessage = useMemo(() => {
-        return `Salut frère,
-
-Avec ce site, on ne va plus perdre les coupons : il propose des coupons plutôt fiables, même pour les matchs en live.
-
-Je viens de le découvrir et, pour l’instant, c’est totalement gratuit… autant en profiter maintenant.
-
-Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
-      }, []);
-
-      useEffect(() => {
-        const t = setInterval(() => setCount(getDailyShareCount()), 900);
-        return () => clearInterval(t);
-      }, []);
-
-      const doShare = (platform) => {
-        const url = platform === "whatsapp"
-          ? `https://wa.me/?text=${encodeURIComponent(shareMessage)}`
-          : `https://t.me/share/url?url=${encodeURIComponent("https://mrxpronos.github.io/MrXPRONOS_App/")}&text=${encodeURIComponent(shareMessage)}`;
-
-        openExternal(url);
-
-        startShareTracking(platform, () => {
-          setCount(getDailyShareCount());
-          onActivated?.();
-        });
-      };
-
-      return (
-        <div className="min-h-screen flex items-center justify-center px-4 py-10">
-          <div
-            className="w-full max-w-md rounded-[28px] p-6 md:p-7 border border-[#D4AF37]/35 bg-black/50"
-            style={{
-              boxShadow: "0 0 0 1px rgba(212,175,55,.10), 0 25px 70px rgba(0,0,0,.7)",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <div className="flex justify-center mb-5">
-              <div className="w-16 h-16 rounded-2xl border border-[#D4AF37]/30 bg-[#0b0b0b] flex items-center justify-center">
-                <i className="fas fa-bolt text-[#22C55E] text-2xl"></i>
-              </div>
-            </div>
-
-            <h1 className="text-center text-3xl font-extrabold text-[#D4AF37] mb-2">
-              Accès LIVE VIP
-            </h1>
-
-            <div className="text-center text-gray-300 text-sm mb-5">
-              Partagez 1 fois par jour pour accéder au LIVE.
-            </div>
-
-            <div className="text-center text-gray-400 text-sm mb-5">
-              Partages aujourd’hui : <b className="text-white">{count}/1</b>
-            </div>
-
-            <div className="flex gap-3 justify-center mb-5">
-              <button
-                className="px-6 py-3 rounded-full font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white w-1/2"
-                onClick={() => doShare("whatsapp")}
-                type="button"
-              >
-                WhatsApp
-              </button>
-              <button
-                className="px-6 py-3 rounded-full font-extrabold bg-sky-600 hover:bg-sky-500 text-white w-1/2"
-                onClick={() => doShare("telegram")}
-                type="button"
-              >
-                Telegram
-              </button>
-            </div>
-
-            <button
-              onClick={() => {
-                if (getDailyShareCount() >= 1) onActivated?.();
-                else alert("Partage requis (1 par jour).");
-              }}
-              className="mt-2 w-full py-4 rounded-full font-extrabold text-black"
-              style={{ background: "linear-gradient(135deg, #D4AF37 0%, #f5e7a3 100%)" }}
-              type="button"
-            >
-              Continuer
-            </button>
-
-            <button
-              onClick={() => (window.location.href = "index.html")}
-              className="mt-3 w-full py-3 rounded-full font-bold border border-white/10 text-gray-300 hover:bg-white/5"
-              type="button"
-            >
-              Retour
-            </button>
-          </div>
-        </div>
-      );
-    };
-
-    const ShareGate = ({ children }) => {
-      const [status, setStatus] = useState("checking");
-
-      useEffect(() => {
-        const c = getDailyShareCount();
-        setStatus(c >= 1 ? "allowed" : "denied");
-      }, []);
-
-      if (status === "checking") {
-        return (
-          <div className="min-h-screen flex items-center justify-center px-4">
-            <div className="text-center text-gray-400">
-              <div className="w-12 h-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              Vérification accès...
-            </div>
-          </div>
-        );
-      }
-
-      if (status === "denied") {
-        return <ShareAccessScreen onActivated={() => setStatus("allowed")} />;
-      }
-
-      return children;
-    };
 
     // =======================================================
     // UI COMPONENTS
@@ -1935,7 +1731,7 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
     };
 
     // =======================================================
-    // RENDER (Share Gate)
+    // RENDER (accès LIVE direct, sans partage)
     // =======================================================
     class LiveErrorBoundary extends React.Component {
       constructor(props) {
@@ -1986,9 +1782,7 @@ Voici le lien : https://mrxpronos.github.io/MrXPRONOS_App/`;
 
       ReactDOM.createRoot(rootElement).render(
         <LiveErrorBoundary>
-          <ShareGate>
-            <App />
-          </ShareGate>
+          <App />
         </LiveErrorBoundary>
       );
     } catch (error) {
