@@ -14,7 +14,7 @@ ROOT=pathlib.Path("odds_diagnostic_results")
 OUT=ROOT/"onewin_togo_local_probe.json"
 URL="https://1win.com/betting/prematch/99"
 
-REGION_BLOCK=re.compile(r"(?:site is not available in your region|not available in your region|restricted in your region)",re.I)
+REGION_BLOCK=re.compile(r"(?:site is not available in your region|not available in your region|restricted in your region|service in your region is restricted|regional restrictions)",re.I)
 TARGET=re.compile(r"(?:double chance|\b1x\b|\bx2\b|\b12\b|over\s*2[.,]5|under\s*2[.,]5|total(?: goals?)?)",re.I)
 ODD=re.compile(r"(?<!\d)(?:1|2|3|4|5|6|7|8|9|[1-9]\d)[.,]\d{2,3}(?!\d)")
 SHARE=re.compile(r"(?:share\s*bet|sharebet|booking\s*code|bet\s*code|copy\s*(?:code|link)|share\s*link)",re.I)
