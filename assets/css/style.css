@@ -2228,3 +2228,97 @@ body:not(.mx-premium-home) header .logo img[src*="mrxpronos-horizontal"]{display
 .mx-site-footer-brand a{display:inline-flex;justify-content:center;align-items:center;line-height:0;max-width:100%}
 .mx-site-footer-brand img{display:block;width:auto;height:66px;max-width:min(230px,75vw);object-fit:contain}
 @media(max-width:600px){body:not(.mx-premium-home) header .logo img[src*="mrxpronos-horizontal"]{height:48px;max-width:clamp(110px,35vw,158px)}.mx-site-footer-brand img{height:58px}}
+
+
+/* =======================================================
+   VIBRANCE / CONTRASTE GLOBAL — 2026-10-11
+   Palette plus profonde et plus saturée, sans toucher aux
+   coupons snapshot blancs utilisés comme références.
+======================================================= */
+:root{
+ --noir:#03070c;
+ --noir-secondaire:#08121c;
+ --or:#f0b93e;
+ --or-clair:#ffd75a;
+ --vert:#00e98a;
+ --vert-fonce:#00a96c;
+ --blanc:#ffffff;
+ --gris:#18242e;
+ --gris-clair:#60707d;
+ --rouge:#ff4f61;
+ --orange:#ff9f24;
+ --shadow:0 12px 28px rgba(0,0,0,.52);
+ --shadow-hover:0 18px 38px rgba(240,185,62,.24);
+ --vip-glow:0 0 26px rgba(240,185,62,.58);
+}
+body:not(.mx-premium-home){
+ background:
+   radial-gradient(circle at 50% -12%,rgba(0,83,139,.22),transparent 33%),
+   linear-gradient(180deg,#030a11 0%,#02070c 58%,#010407 100%);
+ color:#fff;
+}
+body:not(.mx-premium-home) header{
+ background:linear-gradient(180deg,rgba(8,18,29,.985),rgba(3,9,15,.985));
+ border-bottom-color:#f0b93e;
+ box-shadow:0 12px 34px rgba(0,0,0,.62),0 1px 0 rgba(240,185,62,.18);
+}
+body:not(.mx-premium-home) footer{
+ background:linear-gradient(180deg,#08131d,#03080e);
+ border-top-color:rgba(240,185,62,.72);
+}
+body:not(.mx-premium-home) .promo-code{
+ background:linear-gradient(135deg,#ffe58f 0%,#f5bd44 46%,#d9971f 100%);
+ color:#090b0e;
+ box-shadow:0 7px 22px rgba(240,185,62,.23),inset 0 1px 0 rgba(255,255,255,.58);
+}
+body:not(.mx-premium-home) .btn-primary,
+body:not(.mx-premium-home) .day-btn.active,
+body:not(.mx-premium-home) .tab-btn.active{
+ background:linear-gradient(135deg,#ffd96b,#efa91f);
+ border-color:#ffd65c;
+ color:#07090b;
+ box-shadow:0 8px 24px rgba(240,169,31,.22);
+}
+body:not(.mx-premium-home) .btn-secondary{
+ background:linear-gradient(145deg,#0b2234,#07141f);
+ border-color:#28749f;
+ color:#f7fbff;
+}
+body:not(.mx-premium-home) .card,
+body:not(.mx-premium-home) .match-card,
+body:not(.mx-premium-home) .analysis-panel,
+body:not(.mx-premium-home) .pronostic-switcher{
+ background:linear-gradient(145deg,rgba(12,29,43,.97),rgba(4,12,20,.985));
+ border-color:rgba(48,116,157,.52);
+ box-shadow:0 12px 30px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.025);
+}
+body:not(.mx-premium-home) .card:hover,
+body:not(.mx-premium-home) .match-card:hover{
+ border-color:rgba(240,185,62,.72);
+ box-shadow:0 17px 38px rgba(0,0,0,.46),0 0 22px rgba(240,185,62,.08);
+}
+body:not(.mx-premium-home) h1,
+body:not(.mx-premium-home) h2,
+body:not(.mx-premium-home) h3{color:#fff}
+body:not(.mx-premium-home) .meta,
+body:not(.mx-premium-home) .category-summary,
+body:not(.mx-premium-home) .analysis-text{color:#c9d5dd}
+body:not(.mx-premium-home) .success-fill{
+ background:linear-gradient(90deg,#00b96d,#00f199);
+ box-shadow:0 0 18px rgba(0,241,153,.28);
+}
+body:not(.mx-premium-home) .social-links img,
+body:not(.mx-premium-home) .bookmakers img{
+ filter:saturate(1.12) contrast(1.06);
+}
+body:not(.mx-premium-home) .logo img[src*="mrxpronos"]{
+ filter:saturate(1.13) contrast(1.08) drop-shadow(0 0 7px rgba(241,185,62,.18));
+}
+.bottom-nav{
+ background:rgba(2,8,14,.97);
+ border-top-color:rgba(36,102,139,.52);
+ box-shadow:0 -8px 26px rgba(0,0,0,.5);
+}
+.bottom-nav a{color:#d6e1e8;background:rgba(10,29,42,.56);border-color:rgba(88,131,157,.18)}
+.bottom-nav a.active{border-color:rgba(240,185,62,.85);background:rgba(240,185,62,.16);color:#fff5d7}
+.bottom-nav a.live{color:#19ef91;border-color:rgba(25,239,145,.58)}
