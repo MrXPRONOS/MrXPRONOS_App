@@ -1,0 +1,51 @@
+name: Import blog premium assets
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-blog-assets.yml'
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install WebP tools
+        run: sudo apt-get update -y && sudo apt-get install -y webp
+      - name: Download and optimize generated blog assets
+        run: |
+          set -euxo pipefail
+          mkdir -p assets/images/blog-premium /tmp/blog-assets
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:a8ecef31-48b8-4459-bdfb-589180f85d76" -o /tmp/blog-assets/hero.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:0cde4b66-71e9-402a-a890-62556fdc20c7" -o /tmp/blog-assets/news.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:79476cd7-a60b-4148-b5fa-0afb0a73cd80" -o /tmp/blog-assets/analysis.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:6cc54690-f4b5-4ffb-b358-16a586683fbf" -o /tmp/blog-assets/tips.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:d473b0f4-2d06-4276-8406-dff04c2b7d25" -o /tmp/blog-assets/trending.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:0f0445a9-36b1-44eb-9758-cb157cb7b1ae" -o /tmp/blog-assets/schedule.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:22a01d93-8898-4e69-8158-22e5a83ba763" -o /tmp/blog-assets/transfers.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:d4cd9c4b-3ef3-4e32-adcb-026f1794750d" -o /tmp/blog-assets/competitions.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:0a0caecb-51bf-4b19-bfcc-8b72cb576907" -o /tmp/blog-assets/rules.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:eb4aec90-916a-46bc-9b69-60760910f753" -o /tmp/blog-assets/search.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:fd66443a-7f50-4d32-aaa0-8b6351a6b9ce" -o /tmp/blog-assets/category.png
+
+          cwebp -quiet -q 82 -resize 1920 0 /tmp/blog-assets/hero.png -o assets/images/blog-premium/hero-blog.webp
+          cwebp -quiet -q 84 -resize 512 512 /tmp/blog-assets/news.png -o assets/images/blog-premium/icon-blog-news.webp
+          cwebp -quiet -q 84 -resize 512 512 /tmp/blog-assets/analysis.png -o assets/images/blog-premium/icon-blog-analysis.webp
+          cwebp -quiet -q 84 -resize 512 512 /tmp/blog-assets/tips.png -o assets/images/blog-premium/icon-blog-tips.webp
+          cwebp -quiet -q 84 -resize 512 512 /tmp/blog-assets/trending.png -o assets/images/blog-premium/icon-blog-trending.webp
+          cwebp -quiet -q 84 -resize 512 512 /tmp/blog-assets/schedule.png -o assets/images/blog-premium/icon-blog-schedule.webp
+          cwebp -quiet -q 84 -resize 512 512 /tmp/blog-assets/transfers.png -o assets/images/blog-premium/icon-blog-transfers.webp
+          cwebp -quiet -q 84 -resize 512 512 /tmp/blog-assets/competitions.png -o assets/images/blog-premium/icon-blog-competitions.webp
+          cwebp -quiet -q 84 -resize 512 512 /tmp/blog-assets/rules.png -o assets/images/blog-premium/icon-blog-rules.webp
+          cwebp -quiet -q 84 -resize 512 512 /tmp/blog-assets/search.png -o assets/images/blog-premium/icon-blog-search.webp
+          cwebp -quiet -q 84 -resize 512 512 /tmp/blog-assets/category.png -o assets/images/blog-premium/icon-blog-category.webp
+      - name: Commit blog assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/images/blog-premium
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "assets(blog): add generated premium blog visuals"
+          git push
