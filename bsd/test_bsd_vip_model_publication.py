@@ -73,6 +73,29 @@ class VIPModelPublicationTests(unittest.TestCase):
         self.assertGreaterEqual(match["prediction"]["odds"], 1.20)
         self.assertEqual(out["diagnostics"]["vip_funnel"]["newly_published_by_category"]["vip"], 1)
 
+    def test_model_pro_at_80pct_can_publish_without_changing_vip_classification(self):
+        self.football["category"] = "pro"
+        self.football["prediction"]["probability"] = .815
+        self.football["prediction"]["conservative_probability"] = .805
+        self.football["prediction"]["fair_odds"] = round(1 / .815, 4)
+        out = self.publish({})
+        self.assertEqual(len(out["matches"]), 1)
+        self.assertEqual(out["matches"][0]["category"], "pro")
+        self.assertEqual(out["matches"][0]["prediction"]["odds_source"], "mrxpronos_model")
+        self.assertEqual(out["matches"][0]["signal_tier"], "INDICATIF")
+        self.assertEqual(out["diagnostics"]["vip_funnel"]["newly_published_by_category"]["vip"], 0)
+        self.assertEqual(out["diagnostics"]["vip_funnel"]["newly_published_by_category"]["pro"], 1)
+
+    def test_model_below_80pct_is_rejected(self):
+        self.football["category"] = "pro"
+        self.football["prediction"]["probability"] = .805
+        self.football["prediction"]["conservative_probability"] = .795
+        out = self.publish({})
+        self.assertEqual(out["matches"], [])
+        self.assertEqual(
+            out["diagnostics"]["rejections"]["v21_model_confidence_or_price_below_floor"], 1
+        )
+
     def test_bsd_real_odds_cannot_bypass_independent_value_gate(self):
         out = self.publish({"DC_1X_FT": {"odds": 1.20, "origin": "bsd_consensus"}})
         self.assertEqual(out["matches"], [])
