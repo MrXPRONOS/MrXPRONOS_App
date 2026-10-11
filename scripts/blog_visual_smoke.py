@@ -29,7 +29,8 @@ def install_routes(page):
     page.route("**/data.json*", lambda route: route.fulfill(status=200, content_type="application/json", body=json.dumps({"matches":[],"blog":[]})))
 
 def run_view(browser, width, height, label):
-    page = browser.new_page(viewport={"width":width,"height":height})
+    context = browser.new_context(viewport={"width":width,"height":height}, service_workers="block")
+    page = context.new_page()
     install_routes(page)
     page_errors=[]
     page.on("pageerror", lambda exc: page_errors.append(str(exc)))
@@ -98,7 +99,7 @@ def run_view(browser, width, height, label):
         raise AssertionError(f"{label}: page errors {page_errors}")
 
     print(f"PASS {label}: viewport={width}x{height}, cards={cards}, filters/search/modal/assets/overflow OK")
-    page.close()
+    context.close()
 
 with sync_playwright() as p:
     browser=p.chromium.launch(headless=True)
