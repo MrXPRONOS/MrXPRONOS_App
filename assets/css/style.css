@@ -2198,3 +2198,26 @@ header .container{
 }
 
 @media(max-width:380px){header .container{gap:6px;padding-left:7px;padding-right:7px}.logo img{width:110px;height:36px}.header-actions{gap:5px;min-width:0}.promo-code{font-size:.76rem;padding:.34rem .5rem}}
+
+
+/* Prono page — separate Simple / Pro / VIP with equal, touch-friendly tabs */
+.pronostic-switcher{margin:22px 0 12px;padding:18px;border:1px solid rgba(212,175,55,.25);border-radius:20px;background:linear-gradient(145deg,rgba(212,175,55,.065),rgba(14,14,14,.9))}
+.category-topline{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.category-topline h2{font-size:clamp(1.05rem,2.4vw,1.35rem);margin:0;color:var(--blanc)}
+.category-access-note{font-size:.74rem;font-weight:700;color:#ebd594}
+.pronostic-category-tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 10px}
+.pronostic-category-tabs .tab-btn{display:flex;align-items:center;justify-content:center;gap:9px;min-height:50px;padding:10px 12px;border:1px solid rgba(212,175,55,.38);border-radius:13px;transition:background .15s,border-color .15s,box-shadow .15s}
+.pronostic-category-tabs .tab-btn.active{background:var(--or);border-color:var(--or);color:#101010;box-shadow:0 5px 20px rgba(212,175,55,.14)}
+.pronostic-category-tabs .tab-btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.pronostic-category-tabs .category-label{font-weight:800;letter-spacing:.015em;white-space:nowrap}
+.pronostic-category-tabs .tab-count{display:inline-flex;align-items:center;justify-content:center;min-width:27px;height:25px;padding:0 6px;border-radius:8px;background:rgba(255,255,255,.1);font-size:.78rem;line-height:1;font-weight:800}
+.pronostic-category-tabs .tab-btn.active .tab-count{background:rgba(0,0,0,.16)}
+.category-summary{font-size:.82rem;color:#c8c8c8;margin:0;min-height:1.2em}
+@media(max-width:480px){
+ .pronostic-switcher{padding:13px 11px;border-radius:15px}
+ .category-topline{gap:5px}
+ .category-access-note{font-size:.67rem}
+ .pronostic-category-tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .pronostic-category-tabs .tab-btn{min-height:45px;padding:8px 4px;gap:5px;font-size:.8rem}
+ .pronostic-category-tabs .tab-count{height:22px;min-width:20px;padding:0 4px;font-size:.7rem}
+}

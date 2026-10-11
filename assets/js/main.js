@@ -1106,115 +1106,79 @@ function getTeamLogoPath(teamName, isHome = true) {
   return `assets/images/${normalized}.webp`;
 }
 
-function hideEmptyTabs() {
-  const vipEnabled = localStorage.getItem("vipEnabled") !== "false";
-  const counts = { simple: 0, pro: 0, vip: 0 };
+const CATEGORY_LABELS = { simple: "Simple", pro: "Pro", vip: "VIP" };
 
-  if (allData?.matches) {
-    allData.matches.forEach((m) => {
-      if (counts[m.category] !== undefined) counts[m.category]++;
-    });
-  }
-
-  qsa(".tab-btn").forEach((btn) => {
-    const cat = btn.dataset.cat;
-    if (cat === "vip" && !vipEnabled) btn.style.display = "none";
-    else if (cat === "pro" || cat === "vip") btn.style.display = "inline-block";
-    else btn.style.display = counts[cat] > 0 ? "inline-block" : "none";
-  });
-
-  if (DOM.vipSubtabs) DOM.vipSubtabs.style.display = vipEnabled ? "flex" : "none";
+function readInitialCategory() {
+  const cat = new URLSearchParams(window.location.search).get("cat");
+  return CATEGORY_LABELS[String(cat || "").toLowerCase()] ? cat.toLowerCase() : "simple";
 }
 
-function maybeHideTabBar() {
-  const tabBar = qs(".category-tabs");
-  if (!tabBar) return;
-  const visibleTabs = qsa(".tab-btn", tabBar).filter((btn) => btn.style.display !== "none");
-  tabBar.style.display = visibleTabs.length === 0 ? "none" : "grid";
+function syncCategoryTabs(counts = null) {
+  qsa(".pronostic-category-tabs .tab-btn").forEach((btn) => {
+    const cat = btn.dataset.cat;
+    const active = cat === currentCategory;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-selected", String(active));
+    btn.tabIndex = active ? 0 : -1;
+    const count = document.getElementById(`count-${cat}`);
+    if (count && counts) count.textContent = String(counts[cat] || 0);
+  });
+  DOM.matches?.setAttribute("aria-labelledby", `tab-${currentCategory}`);
+}
+
+function updateCategorySummary(shown, searchActive = false) {
+  const node = document.getElementById("category-summary");
+  if (!node) return;
+  const label = CATEGORY_LABELS[currentCategory] || "Simple";
+  const dayLabel = { today: "aujourd’hui", tomorrow: "demain", yesterday: "hier" }[currentDay] || "ce jour";
+  const suffix = searchActive ? " correspondant à la recherche" : "";
+  node.textContent = `Pronostics ${label} • ${dayLabel} — ${shown} match${shown > 1 ? "s" : ""}${suffix}`;
 }
 
 function filterAndDisplay() {
-  if (!allData || !Array.isArray(allData.matches) || !DOM.matches) {
-    if (DOM.matches) DOM.matches.innerHTML = '<div class="no-events">Aucun match disponible.</div>';
+  if (!DOM.matches) return;
+  if (!allData || !Array.isArray(allData.matches)) {
+    DOM.matches.innerHTML = '<div class="no-events">Aucune donnée de pronostics disponible.</div>';
     return;
   }
-
-  // Tous les pronostics publiés sont visibles sans partage.
 
   const targetDate = getLocalDateString(currentDay);
-
-  const filtered = allData.matches.filter((m) => {
-    const eventLocalDate = getMatchDate(m);
-    const category = String(m.category || "").toLowerCase();
-
-    return (
-      eventLocalDate === targetDate &&
-      ["simple", "pro", "vip"].includes(category)
-    );
+  const counts = { simple: 0, pro: 0, vip: 0 };
+  const currentDayMatches = allData.matches.filter((m) => {
+    const category = String(m.category || "").trim().toLowerCase();
+    if (!(category in counts) || m.combo_only || getMatchDate(m) !== targetDate) return false;
+    counts[category] += 1;
+    return true;
   });
 
-  // Ordre voulu : Simple d’abord, ensuite Pro, ensuite VIP
-  const categoryOrder = {
-    simple: 1,
-    pro: 2,
-    vip: 3
-  };
+  syncCategoryTabs(counts);
 
-  filtered.sort((a, b) => {
-    const catA = categoryOrder[String(a.category || "").toLowerCase()] || 99;
-    const catB = categoryOrder[String(b.category || "").toLowerCase()] || 99;
-
-    if (catA !== catB) return catA - catB;
-
-    // À l’intérieur de chaque catégorie, on garde les meilleurs scores en haut
-    const scoreA = Number(a.final_score || a.xpronos_score || 0);
-    const scoreB = Number(b.final_score || b.xpronos_score || 0);
-
-    return scoreB - scoreA;
-  });
-
-  filteredMatchesWithoutSearch = filtered;
-
-  if (filtered.length === 0) {
-    const totalLoaded = allData.matches.length;
-    const availableByDate = allData.matches.reduce((acc, match) => {
-      const date = getMatchDate(match) || "date-inconnue";
-      acc[date] = (acc[date] || 0) + 1;
-      return acc;
-    }, {});
-    const availableSummary = Object.entries(availableByDate)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, count]) => `${date}: ${count}`)
-      .join(" • ");
-
-    DOM.matches.innerHTML = `
-      <div class="no-events">
-        Aucun match pour le ${escapeHtml(targetDate)}.<br>
-        <small>${totalLoaded} match(s) chargé(s) au total${availableSummary ? ` — ${escapeHtml(availableSummary)}` : ""}.</small>
-      </div>
-    `;
-    return;
-  }
+  filteredMatchesWithoutSearch = currentDayMatches
+    .filter((m) => String(m.category || "").trim().toLowerCase() === currentCategory)
+    .sort((a, b) => Number(b.final_score || b.xpronos_score || 0) - Number(a.final_score || a.xpronos_score || 0));
 
   applySearchFilter();
 }
 
 function applySearchFilter() {
   if (!DOM.matches) return;
-  if (!filteredMatchesWithoutSearch) return;
-
-  if (!searchTerm.trim()) {
-    renderMatches(filteredMatchesWithoutSearch);
+  const term = searchTerm.toLowerCase().trim();
+  const filtered = !term
+    ? filteredMatchesWithoutSearch
+    : filteredMatchesWithoutSearch.filter((m) =>
+        String(m.home_team || "").toLowerCase().includes(term) ||
+        String(m.away_team || "").toLowerCase().includes(term) ||
+        String(m.league || "").toLowerCase().includes(term)
+      );
+  updateCategorySummary(filtered.length, Boolean(term));
+  if (!filtered.length) {
+    const label = CATEGORY_LABELS[currentCategory] || "Simple";
+    const message = term
+      ? `Aucun pronostic ${label} ne correspond à cette recherche.`
+      : `Aucun pronostic ${label} disponible pour cette date.`;
+    DOM.matches.innerHTML = `<div class="no-events">${message}</div>`;
     return;
   }
-
-  const term = searchTerm.toLowerCase().trim();
-  const filtered = filteredMatchesWithoutSearch.filter(
-    (m) =>
-      String(m.home_team || "").toLowerCase().includes(term) ||
-      String(m.away_team || "").toLowerCase().includes(term) ||
-      String(m.league || "").toLowerCase().includes(term)
-  );
   renderMatches(filtered);
 }
 
@@ -1281,7 +1245,10 @@ function renderMatches(matches) {
       const yesterdayStr = getLocalDateString("yesterday");
       const verifiedDouble = eventDate === yesterdayStr && m.verified_double ? "checked" : "";
 
-      const premiumBadge = m.category !== "simple" ? '<span class="badge-premium">■ Premium</span>' : "";
+      const category = String(m.category || "").toLowerCase();
+      const premiumBadge = category === "pro" || category === "vip"
+        ? `<span class="badge-premium">${category === "vip" ? "VIP" : "PRO"}</span>`
+        : "";
 
       const homeDefault = "assets/images/home.webp";
       const awayDefault = "assets/images/away.webp";
@@ -2442,13 +2409,28 @@ function setupGlobalButtons() {
 }
 
 function setupPronosticPageListeners() {
-  qsa(".tab-btn").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      qsa(".tab-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
+  const tabs = qsa(".pronostic-category-tabs .tab-btn");
+  tabs.forEach((btn, index) => {
+    btn.addEventListener("click", () => {
       currentCategory = btn.dataset.cat;
-      if (currentCategory !== "vip") currentSubcat = "pronostics";
-      await handleCategoryChange();
+      currentSubcat = "pronostics";
+      syncCategoryTabs();
+      // Un lien direct vers une catégorie peut ainsi être partagé sans verrou d'accès.
+      const url = new URL(window.location.href);
+      url.searchParams.set("cat", currentCategory);
+      window.history.replaceState(null, "", url.toString());
+      handleCategoryChange();
+    });
+    btn.addEventListener("keydown", (event) => {
+      const nextIndex = event.key === "ArrowRight" ? (index + 1) % tabs.length
+        : event.key === "ArrowLeft" ? (index + tabs.length - 1) % tabs.length
+        : event.key === "Home" ? 0
+        : event.key === "End" ? tabs.length - 1
+        : -1;
+      if (nextIndex < 0) return;
+      event.preventDefault();
+      tabs[nextIndex].focus();
+      tabs[nextIndex].click();
     });
   });
 
@@ -2501,6 +2483,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   initPromoCopy();
 
   const page = detectPage();
+  if (page === "pronos") {
+    currentCategory = readInitialCategory();
+    syncCategoryTabs();
+  }
 
   try {
     // Priorité absolue : afficher les pronostics avant toute dépendance Supabase.

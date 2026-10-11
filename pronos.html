@@ -22,7 +22,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20261010-mx2">
+    <link rel="stylesheet" href="assets/css/style.css?v=20261011-categories1">
     <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png"></head>
 <body>
@@ -44,6 +44,25 @@
 
     <main class="container">
         <h1 style="color: var(--or); margin: 2rem 0 1rem;">📊 Pronostics football — buts et résultats</h1>
+        <section class="pronostic-switcher" aria-labelledby="categories-title">
+            <div class="category-topline">
+                <h2 id="categories-title">Choisis ta catégorie</h2>
+                <span class="category-access-note">Accès gratuit • Sans partage</span>
+            </div>
+            <div class="category-tabs pronostic-category-tabs" role="tablist" aria-label="Catégories de pronostics">
+                <button id="tab-simple" class="tab-btn active" data-cat="simple" role="tab" type="button" aria-selected="true" aria-controls="matches-container" tabindex="0">
+                    <span class="category-label">Simple</span><span class="tab-count" id="count-simple">0</span>
+                </button>
+                <button id="tab-pro" class="tab-btn" data-cat="pro" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
+                    <span class="category-label">Pro</span><span class="tab-count" id="count-pro">0</span>
+                </button>
+                <button id="tab-vip" class="tab-btn" data-cat="vip" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
+                    <span class="category-label">VIP</span><span class="tab-count" id="count-vip">0</span>
+                </button>
+            </div>
+            <p class="category-summary" id="category-summary" role="status" aria-live="polite">Pronostics Simple — aujourd’hui</p>
+        </section>
+
         <div class="search-container">
             <input
                 type="text"
@@ -61,7 +80,7 @@
             <button class="day-btn" data-day="yesterday" type="button">Hier</button>
         </div>
 
-        <div id="matches-container" class="matches-grid" aria-live="polite">
+        <div id="matches-container" class="matches-grid" role="tabpanel" aria-labelledby="tab-simple" tabindex="0" aria-live="polite">
             <div class="loading">Chargement des matchs...</div>
         </div>
     </main>
@@ -115,7 +134,7 @@
         });
       }
     </script>
-    <script type="module" src="assets/js/main.js?v=20261010-open-access1"></script>
+    <script type="module" src="assets/js/main.js?v=20261011-categories1"></script>
     <script defer src="assets/js/pwa.js?v=20260806-pronos-fix"></script>
     <script defer src="assets/js/assistant.js"></script>
     <script defer src="assets/js/menu.js"></script>
