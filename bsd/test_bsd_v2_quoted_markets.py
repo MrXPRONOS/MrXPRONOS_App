@@ -99,7 +99,7 @@ class PricedSelectionTests(unittest.TestCase):
             ({"DC_1X_FT":{"odds":1.34,"origin":"bsd_consensus",
                            "updated_at":self.now.isoformat()}}, "bsd_consensus", False),
             ({"BTTS_YES_FT":{"odds":1.88,"origin":"bsd_consensus",
-                              "updated_at":self.now.isoformat()}}, "mrxpronos_model", True))
+                              "updated_at":self.now.isoformat()}}, "mrxpronos_model", False))
         for quotes,expected_source,should_publish in scenarios:
             with self.subTest(expected_source=expected_source,quotes=quotes):
                 import copy
