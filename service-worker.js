@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v31-bonus-premium-20261011';
+const VERSION = 'v29-pronostics-generated-assets-20261011';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -53,12 +53,14 @@ const STATIC_ASSETS = [
     './assets/images/pronostics-premium/hero-stadium.webp',
     './assets/images/bonus-premium/bonus-gift.webp',
     './assets/images/pronostics-premium/card-stadium.webp',
-    './assets/images/pronostics-premium/icon-simple.svg',
-    './assets/images/pronostics-premium/icon-pro.svg',
-    './assets/images/pronostics-premium/icon-vip.svg',
-    './assets/images/pronostics-premium/icon-share.svg',
-    './assets/images/pronostics-premium/icon-search.svg',
-    './assets/images/pronostics-premium/icon-chevron.svg',
+    './assets/images/pronostics-premium/icon-simple.webp',
+    './assets/images/pronostics-premium/icon-pro.webp',
+    './assets/images/pronostics-premium/icon-vip.webp',
+    './assets/images/pronostics-premium/icon-share.webp',
+    './assets/images/pronostics-premium/icon-search.webp',
+    './assets/images/pronostics-premium/icon-calendar.webp',
+    './assets/images/pronostics-premium/icon-chevron.webp',
+    './assets/images/pronostics-premium/icon-ball.webp',
     './assets/images/mrxpronos-horizontal.webp',
     './assets/images/mrxpronos-logo-maquette.png',
     './assets/images/mrxpronos-horizontal.webp',

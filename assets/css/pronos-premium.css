@@ -71,7 +71,7 @@
   background-image:
     linear-gradient(90deg,rgba(1,8,15,.96) 0%,rgba(1,10,20,.82) 38%,rgba(1,12,24,.33) 69%,rgba(0,8,18,.19) 100%),
     linear-gradient(180deg,rgba(0,3,9,.08),transparent 62%,rgba(0,7,13,.56)),
-    url('../images/pronostics-premium/hero-stadium.webp');
+    url('../images/pronostics-premium/hero-stadium.webp?v=20261011-gen2');
   background-size:cover;background-position:center,center,center 52%;
   filter:saturate(1.05) contrast(1.04);
 }
@@ -151,7 +151,7 @@
     linear-gradient(90deg,#2e789f,#17394d) border-box;
   color:#fff;font-size:12px;outline:0;
   background-image:
-    url('../images/pronostics-premium/icon-search.svg'),
+    url('../images/pronostics-premium/icon-search.webp?v=20261011-gen2'),
     linear-gradient(#071a28,#071a28);
   background-repeat:no-repeat,no-repeat;background-position:15px center,0 0;background-size:18px,100% 100%;
 }
@@ -195,7 +195,7 @@
   content:"";position:absolute;inset:0;z-index:-2;
   background-image:
     linear-gradient(180deg,rgba(3,18,29,.89),rgba(4,18,28,.94)),
-    url('../images/home-premium/hero-stadium.webp');
+    url('../images/pronostics-premium/card-stadium.webp?v=20261011-gen2');
   background-size:cover;background-position:center 46%;opacity:.96;
 }
 .mx-pronos-page .match-card::after{
@@ -373,6 +373,26 @@
 /* Pronostics assets polish — generated for the reference capture */
 .mx-pronos-page .mx-pronos-hero-atmosphere{background-position:center,center,center 45%;filter:saturate(1.02) contrast(1.05)}
 .mx-pronos-page .mx-pronos-quote{flex-basis:170px;margin-top:22px;font-size:clamp(21px,2.2vw,31px)}
-.mx-pronos-page .match-card::before{background-image:linear-gradient(180deg,rgba(3,18,29,.82),rgba(4,18,28,.91)),url('../images/pronostics-premium/card-stadium.webp');background-position:center 51%;opacity:1}
+.mx-pronos-page .match-card::before{background-image:linear-gradient(180deg,rgba(3,18,29,.82),rgba(4,18,28,.91)),url('../images/pronostics-premium/card-stadium.webp?v=20261011-gen2');background-position:center 51%;opacity:1}
 .mx-pronos-page .search-input{background-size:18px 18px,100% 100%}
 @media(max-width:590px){.mx-pronos-page .category-icon{width:25px;height:25px}.mx-pronos-page .category-icon img{width:22px;height:22px}}
+
+
+/* ===== Assets générés depuis la maquette Pronostics — 2026-10-11 ===== */
+.mx-pronos-page .category-icon img{
+  width:29px;height:29px;
+  object-fit:contain;
+  filter:drop-shadow(0 2px 5px rgba(0,0,0,.34));
+}
+.mx-pronos-page .tab-btn[data-cat="vip"] .category-icon img{width:31px;height:31px}
+.mx-pronos-page .tab-btn.active .category-icon img{
+  filter:brightness(.10) saturate(.15) contrast(1.35);
+}
+.mx-pronos-page .search-input{
+  padding-left:46px;
+  background-position:14px center,0 0;
+  background-size:21px 21px,100% 100%;
+}
+.mx-pronos-page .share-glyph{display:grid;place-items:center;width:20px;height:20px}
+.mx-pronos-page .share-glyph img{width:18px;height:18px;object-fit:contain}
+.mx-pronos-page .league-chevron img{width:15px;height:15px;object-fit:contain}
