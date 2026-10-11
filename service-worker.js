@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v29-pronos-scorebadge-20261011';
+const VERSION = 'v30-live-premium-20261011';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -12,6 +12,7 @@ const STATIC_ASSETS = [
     './',
     './index.html',
     './pronos.html',
+    './live.html',
     './historique.html',
     './blog.html',
     './conseils.html',
@@ -30,6 +31,7 @@ const STATIC_ASSETS = [
     './assets/css/conseils-premium.css',
     './assets/css/infos-premium.css',
     './assets/css/bonus-premium.css',
+    './assets/css/live-premium.css',
     './assets/js/main.js',
     './assets/js/home-premium.js',
     './assets/js/pwa.js',
@@ -61,6 +63,16 @@ const STATIC_ASSETS = [
     './assets/images/pronostics-premium/icon-calendar.webp',
     './assets/images/pronostics-premium/icon-chevron.webp',
     './assets/images/pronostics-premium/icon-ball.webp',
+    './assets/images/live-premium/hero-live.webp',
+    './assets/images/live-premium/hero-stadium.webp',
+    './assets/images/live-premium/icon-stopwatch.webp',
+    './assets/images/live-premium/icon-ball.webp',
+    './assets/images/live-premium/icon-corner.webp',
+    './assets/images/live-premium/icon-cards.webp',
+    './assets/images/live-premium/icon-whistle.webp',
+    './assets/images/live-premium/icon-target.webp',
+    './assets/images/live-premium/icon-pie.webp',
+    './assets/images/live-premium/icon-bars.webp',
     './assets/images/mrxpronos-horizontal.webp',
     './assets/images/mrxpronos-logo-maquette.png',
     './assets/images/mrxpronos-horizontal.webp',
