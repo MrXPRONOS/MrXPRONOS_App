@@ -167,6 +167,8 @@ def to_site(p, fixture):
             "odds_method":pred.get("odds_method"),
             "overround_assumption":pred.get("overround_assumption"),
             "odds_updated_at":pred.get("odds_updated_at"),
+            "signal_tier":p.get("signal_tier","OBSERVATION"),
+            "recommendation_eligible":p.get("recommendation_eligible",False),
         },
         "model_version":p["model_version"],"policy_version":p.get("policy_version",POLICY_VERSION),
         "model_audit":p.get("model_audit"),
@@ -266,7 +268,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         existing.get("performance_tracker") if isinstance(existing,dict) else None,
         result,now=now)
     selection_penalties,prospective_family_penalties=tracker_penalties(performance_tracker)
-    league_market_performance=v21_league_market_performance(result)
+    league_market_performance=performance_tracker.get('by_league_market',{})
 
     # 3) Revalider uniquement les coupons FUTURS sauvegardés. Leur choix ne
     # change jamais : soit la sélection originale passe encore la politique
@@ -437,6 +439,10 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                 secondary=price_selected_market(candidate,quotes,now=now)
                 if secondary is None or secondary["odds"]<MIN_BSD_ODDS:
                     continue
+                secondary_bucket=league_market_performance.get(str(league_name(f) or "")+"|"+str(secondary.get("key") or ""))
+                secondary_ok,_=v21_accept_priced(secondary,performance_tracker,secondary_bucket)
+                if not secondary_ok:
+                    continue
                 additional.append(secondary)
                 break
         prediction["secondary_selections"]=additional
@@ -490,6 +496,11 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                        "prospective_family_penalties":prospective_family_penalties,
                        "retired_predictions_count":len(retired),
                        "v21_league_market_monitor":league_market_performance,
+                       "v21_circuit_breakers":{
+                            "selection":[k for k in performance_tracker.get("by_selection",{})
+                                if __import__("bsd_v2_guardrails").v21_market_shadow(performance_tracker,k)],
+                            "league_market":[k for k,v in league_market_performance.items()
+                                if __import__("bsd_v2_guardrails").v21_bucket_gap(v)>.06]},
                        "v21_new_picks":new_picks,
                        "v21_daily_cap":V21_DAILY_NEW_PICKS},
     }
