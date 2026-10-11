@@ -56,7 +56,7 @@ body.mx-live-page{
 .mx-live-page .mx-live-hero{
   position:relative;overflow:hidden;min-height:350px;margin:0 0 15px;
   border:1px solid #195477;border-radius:17px;
-  background:#04111b url('../images/live-premium/hero-live.webp') center/cover no-repeat;
+  background:#04111b url('../images/live-premium/hero-stadium.webp') center/cover no-repeat;
   box-shadow:0 18px 42px rgba(0,0,0,.34);
 }
 .mx-live-page .mx-live-hero::before{
@@ -66,8 +66,20 @@ body.mx-live-page{
     linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,6,11,.40));
 }
 .mx-live-page .mx-live-hero__content{
-  position:relative;z-index:2;min-height:350px;width:58%;max-width:690px;
+  position:relative;z-index:3;min-height:350px;width:58%;max-width:690px;
   padding:34px 38px 30px;display:flex;flex-direction:column;justify-content:center;
+}
+.mx-live-page .mx-live-hero-player{
+  position:absolute;z-index:2;right:12%;bottom:-125px;height:470px;width:auto;max-width:45%;
+  object-fit:contain;filter:drop-shadow(-14px 7px 22px rgba(0,0,0,.58));
+}
+.mx-live-page .mx-live-hero-quote{
+  position:absolute;z-index:3;right:2.2%;top:52%;max-width:170px;text-align:center;
+  color:#f4c45d;font-family:'Segoe Print','Comic Sans MS',cursive;font-size:23px;line-height:1.08;
+  font-weight:700;transform:rotate(-8deg);text-shadow:0 4px 12px #000;
+}
+.mx-live-page .mx-live-hero-quote::after{
+  content:"";display:block;width:82%;height:2px;margin:12px 0 0 auto;background:#e2ad3d;transform:rotate(-4deg);
 }
 .mx-live-page .mx-live-eyebrow{
   display:inline-flex;align-items:center;gap:8px;width:max-content;
@@ -209,8 +221,10 @@ body.mx-live-page{
   .mx-live-page .mx-live-header__inner{width:calc(100% - 26px)}
   .mx-live-page .mx-live-brand img{height:48px;max-width:210px}
   .mx-live-page .mx-live-brand__title{font-size:17px}
-  .mx-live-page .mx-live-hero{min-height:315px;background-position:58% center}
-  .mx-live-page .mx-live-hero__content{width:67%;min-height:315px;padding:27px 28px}
+  .mx-live-page .mx-live-hero{min-height:315px;background-position:center}
+  .mx-live-page .mx-live-hero__content{width:64%;min-height:315px;padding:27px 28px}
+  .mx-live-page .mx-live-hero-player{right:5%;height:400px;bottom:-100px;opacity:.9}
+  .mx-live-page .mx-live-hero-quote{display:none}
   .mx-live-page .mx-live-hero h1{font-size:49px}
   .mx-live-page .mx-live-benefits{grid-template-columns:1fr}
   .mx-live-page .mx-live-benefit{width:max-content;max-width:100%}
@@ -224,7 +238,8 @@ body.mx-live-page{
   .mx-live-page .mx-live-brand img{height:39px;max-width:155px}
   .mx-live-page .mx-live-brand__meta{display:none}
   .mx-live-page .mx-live-hero{min-height:355px;background-image:url('../images/live-premium/hero-stadium.webp');background-position:center}
-  .mx-live-page .mx-live-hero::before{background:linear-gradient(180deg,rgba(1,7,12,.76),rgba(1,9,15,.91) 60%,rgba(1,7,12,.96))}
+  .mx-live-page .mx-live-hero::before{background:linear-gradient(180deg,rgba(1,7,12,.55),rgba(1,9,15,.83) 55%,rgba(1,7,12,.96))}
+  .mx-live-page .mx-live-hero-player{right:-7%;height:300px;bottom:-72px;opacity:.38}
   .mx-live-page .mx-live-hero__content{width:100%;min-height:355px;padding:24px 19px 20px;justify-content:flex-end}
   .mx-live-page .mx-live-hero h1{font-size:43px}
   .mx-live-page .mx-live-hero__lead{font-size:12px;max-width:410px}
