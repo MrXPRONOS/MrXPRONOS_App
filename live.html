@@ -548,10 +548,13 @@
       return <Badge color={colorMap[pred?.color] || "gold"}>{pred?.badge || pred?.title || "Prédiction"}</Badge>;
     };
 
-    const StatChip = ({ label, value, valueColor = "text-white", compact = false }) => (
-      <div className={`bg-[#0b0b0b] border border-[#202020] rounded-xl text-center ${compact ? "px-2 py-2" : "px-3 py-3"}`}>
-        <div className={`${compact ? "text-[10px]" : "text-[11px]"} text-gray-500`}>{label}</div>
-        <div className={`${compact ? "text-lg" : "text-2xl"} font-extrabold mt-1 ${valueColor}`}>{value}</div>
+    const StatChip = ({ label, value, valueColor = "text-white", compact = false, icon = null }) => (
+      <div className={`mx-stat-chip bg-[#0b0b0b] border border-[#202020] rounded-xl ${compact ? "px-2 py-2" : "px-3 py-3"}`}>
+        {icon && <LiveAssetIcon name={icon} size={compact ? 27 : 34} />}
+        <div className="mx-stat-chip__copy">
+          <small>{label}</small>
+          <strong className={valueColor}>{value}</strong>
+        </div>
       </div>
     );
 
@@ -769,9 +772,9 @@
           </div>
 
           <div className="grid grid-cols-3 gap-2 mb-4">
-            <StatChip compact label="Corners" value={totalCorners} />
-            <StatChip compact label="Fautes" value={totalFouls} />
-            <StatChip compact label="Tirs" value={totalShots} />
+            <StatChip compact label="Corners" value={totalCorners} icon="corner" />
+            <StatChip compact label="Fautes" value={totalFouls} icon="whistle" />
+            <StatChip compact label="Tirs" value={totalShots} icon="ball" />
           </div>
 
           {best ? (
