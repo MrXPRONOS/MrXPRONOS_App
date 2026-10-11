@@ -16,7 +16,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from math import isfinite
 
-POLICY_VERSION = "bsd-v2-policy-2026-10-11-v21"
+POLICY_VERSION = "bsd-v2-policy-2026-10-11-v21-vip81-model"
 PERFORMANCE_FORMAT = "bsd-v2-performance-v1"
 
 VERIFIED_ODDS_SOURCES = frozenset(("bsd_consensus", "bsd_bookmaker"))
