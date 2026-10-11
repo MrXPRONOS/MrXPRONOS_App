@@ -40,7 +40,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" onerror="showBootError('Babel ne peut pas être chargé depuis unpkg.com')"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="showBootError('Supabase JS ne peut pas être chargé depuis jsDelivr')"></script>
   <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
-  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium6">
+  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium7">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -1472,6 +1472,44 @@
       );
     };
 
+    const LiveFooter = () => (
+      <footer className="mx-live-footer">
+        <div className="mx-live-footer__inner">
+          <div className="mx-live-footer__top">
+            <div className="mx-live-footer__brand">
+              <a href="index.html" aria-label="Mr XPRONOS — Accueil">
+                <img src="assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1" alt="Mr XPRONOS" />
+              </a>
+              <small>Pronostics football pour les passionnés.</small>
+            </div>
+
+            <nav className="mx-live-footer__nav" aria-label="Liens du pied de page">
+              <a href="index.html">Accueil</a>
+              <a href="pronos.html">Pronostics</a>
+              <a href="historique.html">Historique</a>
+              <a href="blog.html">Blog</a>
+              <a href="conseils.html">Conseils</a>
+              <a href="infos.html">Infos sport</a>
+              <a href="bonus.html">Bonus &amp; Promo</a>
+              <a href="contact.html">Contact</a>
+            </nav>
+
+            <div className="mx-live-footer__social">
+              <a href="https://www.facebook.com/share/1DsG6H6gf1/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="assets/images/facebook.webp" alt="" /></a>
+              <a href="https://www.threads.com/@mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Threads"><img src="assets/images/threads.webp" alt="" /></a>
+              <a href="https://www.instagram.com/mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="assets/images/instagram.webp" alt="" /></a>
+              <a href="https://youtube.com/@mrxpronos" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="assets/images/youtube.webp" alt="" /></a>
+              <a href="https://t.me/mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><img src="assets/images/telegram.webp" alt="" /></a>
+            </div>
+          </div>
+          <div className="mx-live-footer__bottom">
+            <span>© {new Date().getFullYear()} Mr XPRONOS. Tous droits réservés.</span>
+            <span>18+ · Jouez responsablement · <a href="contact.html">Nous contacter</a></span>
+          </div>
+        </div>
+      </footer>
+    );
+
     // =======================================================
     // APP
     // =======================================================
@@ -1911,6 +1949,8 @@
               />
             )}
           </main>
+
+          <LiveFooter />
 
           <MobileBottomTabs
             selectedTab={selectedTab}
