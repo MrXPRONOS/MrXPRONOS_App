@@ -1,0 +1,30 @@
+name: Replace blog hero asset
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/replace-blog-hero.yml'
+permissions:
+  contents: write
+jobs:
+  replace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install WebP tools
+        run: sudo apt-get update -y && sudo apt-get install -y webp
+      - name: Replace clean Blog hero
+        run: |
+          set -euxo pipefail
+          mkdir -p assets/images/blog-premium /tmp/blog-hero
+          curl -L --fail --retry 3 "https://at.adobe.com/y5zczXZT7mT369Zd" -o /tmp/blog-hero/hero.png
+          cwebp -quiet -q 84 -resize 1920 0 /tmp/blog-hero/hero.png -o assets/images/blog-premium/hero-blog.webp
+      - name: Commit clean hero
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/images/blog-premium/hero-blog.webp
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "assets(blog): replace hero with clean premium banner"
+          git push
