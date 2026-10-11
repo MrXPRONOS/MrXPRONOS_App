@@ -2006,14 +2006,27 @@ function updateConseilSeo(conseil, resolvedSlug) {
   ensureCanonical(canonicalUrl);
 }
 
-function conseilVisualIcon(conseil = {}) {
-  const haystack = [conseil.title, conseil.keywords, conseil.slug].filter(Boolean).join(" ").toLowerCase();
-  if (/bankroll|budget|mise/.test(haystack)) return "◉";
-  if (/cote|value|valeur/.test(haystack)) return "↗";
-  if (/erreur|piège|danger|tilt/.test(haystack)) return "⚠";
-  if (/responsable|discipline|limite/.test(haystack)) return "✓";
-  if (/analyse|match|statistique|h2h/.test(haystack)) return "▥";
-  return "✓";
+function conseilVisualMeta(conseil = {}) {
+  const haystack = [conseil.title, conseil.keywords, conseil.slug, conseil.category]
+    .filter(Boolean).join(" ").toLowerCase();
+  const base = "assets/images/conseils-premium/";
+
+  if (/bankroll|budget|mise/.test(haystack)) {
+    return { label: "Gestion", icon: base + "icon-conseils-bankroll.webp" };
+  }
+  if (/cote|value|valeur/.test(haystack)) {
+    return { label: "Value", icon: base + "icon-conseils-value.webp" };
+  }
+  if (/erreur|piège|piege|danger|tilt/.test(haystack)) {
+    return { label: "Pièges", icon: base + "icon-conseils-danger.webp" };
+  }
+  if (/responsable|discipline|limite/.test(haystack)) {
+    return { label: "Discipline", icon: base + "icon-conseils-discipline.webp" };
+  }
+  if (/analyse|match|statistique|h2h|xg/.test(haystack)) {
+    return { label: "Analyse", icon: base + "icon-conseils-analysis.webp" };
+  }
+  return { label: "Guide", icon: base + "icon-conseils-guide.webp" };
 }
 
 async function displayConseils() {
@@ -2051,23 +2064,28 @@ async function displayConseils() {
         const excerpt = stripMarkdown(
           conseil.excerpt || conseil.meta_description || conseil.content || ""
         ).replace(title, "").trim().slice(0, 180);
-        const icon = conseilVisualIcon(conseil);
+        const visual = conseilVisualMeta(conseil);
         const slug = escapeAttribute(conseil.slug || "");
+        const cover = conseil.image_url || "assets/images/conseils-premium/hero-conseils.webp";
 
         return `
           <article class="conseil-premium-card" role="link" tabindex="0"
+            data-conseil-type="${escapeAttribute(visual.label)}"
             aria-label="Lire le conseil ${escapeAttribute(title)}"
             onclick="openConseilPage('${slug}')"
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openConseilPage('${slug}')}">
             <div class="conseil-card-media">
-              <img src="${escapeAttribute(conseil.image_url || "assets/images/default-logo.png")}"
-                alt="${escapeAttribute(title)}" loading="lazy">
-              <span class="conseil-card-icon" aria-hidden="true">${icon}</span>
+              <img src="${escapeAttribute(cover)}"
+                alt="${escapeAttribute(title)}" loading="lazy"
+                onerror="this.onerror=null;this.src='assets/images/conseils-premium/hero-conseils.webp';">
+              <span class="conseil-card-icon" aria-hidden="true"><img src="${visual.icon}" alt=""></span>
+              <span class="conseil-card-type"><img src="${visual.icon}" alt="" aria-hidden="true">${escapeHtml(visual.label)}</span>
             </div>
             <div class="conseil-card-body">
+              <span class="conseil-card-kicker">CONSEIL MR XPRONOS</span>
               <h3>${escapeHtml(title)}</h3>
               <p>${escapeHtml(excerpt)}${excerpt.length >= 180 ? "…" : ""}</p>
-              <span class="conseil-card-cta">Lire le conseil <span aria-hidden="true">→</span></span>
+              <span class="conseil-card-cta">Lire le guide <span aria-hidden="true">›</span></span>
             </div>
           </article>
         `;
