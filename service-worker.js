@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v17-home-polish-20261011';
+const VERSION = 'v18-maquette-logo-20261011';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -44,6 +44,7 @@ const STATIC_ASSETS = [
     './assets/images/threads.webp',
     './assets/images/mrxpronos-mark.svg',
     './assets/images/mrxpronos-logo.svg',
+    './assets/images/mrxpronos-logo-maquette.png',
     './assets/images/favicon.png',
     './assets/images/apple-touch-icon.png',
     './assets/images/icon-72x72.png',
