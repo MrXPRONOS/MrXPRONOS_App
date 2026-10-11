@@ -16,7 +16,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from math import isfinite
 
-POLICY_VERSION = "bsd-v2-policy-2026-10-11-v21-vip81-model"
+POLICY_VERSION = "bsd-v2-policy-2026-10-11-v21-vip81-model80"
 PERFORMANCE_FORMAT = "bsd-v2-performance-v1"
 
 VERIFIED_ODDS_SOURCES = frozenset(("bsd_consensus", "bsd_bookmaker"))
@@ -251,7 +251,7 @@ def tracker_penalties(tracker):
 V21_EXCLUDED_KEYS = frozenset(("12",))
 V21_MIN_OVER15_CONSERVATIVE = .85
 V21_MIN_VALUE_EDGE = .022
-V21_MODEL_MIN_CONSERVATIVE = .81  # No independently verified price edge is implied
+V21_MODEL_MIN_CONSERVATIVE = .80  # Only model-indicative picks; VIP remains >= .81
 V21_SHADOW_MIN_SAMPLES = 50
 V21_SHADOW_MAX_OVERCONFIDENCE = .06
 V21_SHADOW_MIN_LEAGUE_MARKET_SAMPLES = 50
