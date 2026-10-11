@@ -2034,6 +2034,36 @@ async function displayInfos() {
     : '<div class="no-events">Aucune info disponible.</div>';
 }
 
+function footballNewsCategory(item = {}) {
+  if (item.category) return String(item.category);
+  const text = [item.title, item.summary].filter(Boolean).join(" ").toLowerCase();
+  if (/champions league|uefa/.test(text)) return "Champions League";
+  if (/transfer|sign|loan|gossip|mercato/.test(text)) return "Mercato";
+  if (/injur|blessur|fitness/.test(text)) return "Blessures";
+  if (/premier league|england|arsenal|city|united|liverpool|chelsea/.test(text)) return "Premier League";
+  if (/ligue 1|psg|france|french/.test(text)) return "Ligue 1";
+  if (/laliga|real madrid|barcelona|spain/.test(text)) return "Liga";
+  if (/ital|serie a/.test(text)) return "Serie A";
+  return "Football";
+}
+
+function formatFootballNewsDate(value) {
+  const date = new Date(value || "");
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })
+    + " à "
+    + date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function featuredNewsTitleHtml(title = "") {
+  const words = String(title).trim().split(/\s+/).filter(Boolean);
+  if (words.length < 6) return escapeHtml(title);
+  const pivot = Math.max(3, Math.floor(words.length * 0.56));
+  const first = escapeHtml(words.slice(0, pivot).join(" "));
+  const second = escapeHtml(words.slice(pivot).join(" "));
+  return `${first} <span>${second}</span>`;
+}
+
 async function displayFootNews() {
   if (!DOM.footNewsContainer) return;
   try {
@@ -2048,10 +2078,11 @@ async function displayFootNews() {
         image: i.image_url || null,
         link: null,
         published: i.date || i.published_at || new Date().toISOString(),
+        category: i.category || i.tag || null,
         manual: true,
       })),
       ...(Array.isArray(rssNews) ? rssNews : []).map((n) => ({ ...n, manual: false })),
-    ];
+    ].sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
 
     if (!merged.length) {
       DOM.footNewsContainer.innerHTML = '<div class="no-events">Aucune actualité pour le moment.</div>';
@@ -2061,22 +2092,34 @@ async function displayFootNews() {
     window.newsData = merged;
 
     DOM.footNewsContainer.innerHTML = merged
-      .map(
-        (item, index) => `
-      <div class="news-card card" onclick="showNewsDetail(${index})">
-        ${
-          item.image
-            ? `<img src="${escapeAttribute(item.image)}" alt="${escapeAttribute(item.title || "Actualité")}" class="news-image" loading="lazy">`
-            : ""
-        }
-        <h3>${escapeHtml(item.title || "Actualité")}</h3>
-        <p>${escapeHtml((item.summary || "").slice(0, 180))}${(item.summary || "").length > 180 ? "..." : ""}</p>
-        <button class="btn btn-secondary" style="margin-top:10px;">
-          ${item.manual ? "Voir le contenu" : "Lire la suite"}
-        </button>
-      </div>
-    `
-      )
+      .map((item, index) => {
+        const title = item.title || "Actualité";
+        const summary = String(item.summary || "").slice(0, index === 0 ? 320 : 190);
+        const category = footballNewsCategory(item);
+        const date = formatFootballNewsDate(item.published);
+        const featured = index === 0;
+        const titleHtml = featured ? featuredNewsTitleHtml(title) : escapeHtml(title);
+
+        return `
+          <article class="news-premium-card${featured ? " featured" : ""}" role="button" tabindex="0"
+            aria-label="Lire l'actualité ${escapeAttribute(title)}"
+            onclick="showNewsDetail(${index})"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showNewsDetail(${index})}">
+            <div class="news-media">
+              ${item.image
+                ? `<img src="${escapeAttribute(item.image)}" alt="${escapeAttribute(title)}" loading="lazy">`
+                : `<img src="assets/images/blog-hero-ball.webp" alt="" loading="lazy">`}
+              <span class="news-category">${escapeHtml(category)}</span>
+            </div>
+            <div class="news-premium-body">
+              <div class="news-date"><span aria-hidden="true">◷</span> ${escapeHtml(date)}</div>
+              <h3>${titleHtml}</h3>
+              <p>${escapeHtml(summary)}${String(item.summary || "").length > summary.length ? "…" : ""}</p>
+              <span class="news-card-cta">${item.manual ? "Voir le contenu" : "Lire la suite"} <span aria-hidden="true">→</span></span>
+            </div>
+          </article>
+        `;
+      })
       .join("");
   } catch (error) {
     console.error("Erreur actualités:", error);
