@@ -1353,6 +1353,38 @@
       );
     };
 
+    const LiveMarketFilters = ({ value, onChange, counts }) => {
+      const items = [
+        { key: "all", label: "Tous", icon: "ball", count: counts.all },
+        { key: "corners", label: "Corners", icon: "corner", count: counts.corners },
+        { key: "shots", label: "Tirs", icon: "target", count: counts.shots },
+        { key: "fouls", label: "Fautes", icon: "cards", count: counts.fouls },
+        { key: "best", label: "Meilleurs signaux", icon: "bars", count: counts.best },
+      ];
+
+      return (
+        <div className="mx-market-filters" role="tablist" aria-label="Filtrer les pronostics live">
+          {items.map((item) => {
+            const active = value === item.key;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => onChange(item.key)}
+                className={`mx-market-filter ${active ? "is-active" : ""}`}
+              >
+                <LiveAssetIcon name={item.icon} size={22} />
+                <span>{item.label}</span>
+                <b>({item.count || 0})</b>
+              </button>
+            );
+          })}
+        </div>
+      );
+    };
+
     // =======================================================
     // APP
     // =======================================================
@@ -1372,6 +1404,7 @@
       const [error, setError] = useState(null);
 
       const [selectedTab, setSelectedTab] = useState("live"); // live | upcoming | history | notifications
+      const [liveMarketFilter, setLiveMarketFilter] = useState("all"); // all | corners | shots | fouls | best
       const [selectedMatch, setSelectedMatch] = useState(null);
       const [selectedPrediction, setSelectedPrediction] = useState(null);
       const [toast, setToast] = useState(null);
@@ -1480,18 +1513,62 @@
 
       const unreadCount = notifications.filter((n) => !n.read).length;
 
-      const bestOpportunity = useMemo(() => opportunities?.[0] || null, [opportunities]);
+      const marketCategoryFor = useCallback((match) => {
+        const pred = match?.predictions?.[0] || null;
+        const text = String(pred?.type || pred?.badge || pred?.title || "").toLowerCase();
+        if (text.includes("corner")) return "corners";
+        if (text.includes("shot") || text.includes("tir")) return "shots";
+        if (text.includes("foul") || text.includes("faute")) return "fouls";
+        return "other";
+      }, []);
+
+      const isBestSignal = useCallback((match) => {
+        const pred = match?.predictions?.[0] || null;
+        const probability = safeNumber(pred?.probability, 0);
+        const reliability = safeNumber(pred?.reliability, 0);
+        const valueScore = safeNumber(match?.value_score, 0);
+        return probability >= 0.7 || reliability >= 70 || valueScore >= 70;
+      }, []);
+
+      const filterLiveItem = useCallback((match) => {
+        if (liveMarketFilter === "all") return true;
+        if (liveMarketFilter === "best") return isBestSignal(match);
+        return marketCategoryFor(match) === liveMarketFilter;
+      }, [liveMarketFilter, marketCategoryFor, isBestSignal]);
+
+      const filteredOpportunities = useMemo(
+        () => (opportunities || []).filter(filterLiveItem),
+        [opportunities, filterLiveItem]
+      );
+
+      const bestOpportunity = useMemo(
+        () => filteredOpportunities?.[0] || null,
+        [filteredOpportunities]
+      );
 
       const otherOpportunities = useMemo(() => {
-        if (!bestOpportunity) return opportunities || [];
+        if (!bestOpportunity) return filteredOpportunities || [];
         const bestId = String(bestOpportunity.id);
-        return (opportunities || []).filter((o) => String(o.id) !== bestId);
-      }, [opportunities, bestOpportunity]);
+        return (filteredOpportunities || []).filter((o) => String(o.id) !== bestId);
+      }, [filteredOpportunities, bestOpportunity]);
 
       const liveMatchesWithoutOpportunities = useMemo(() => {
-        const oppIds = new Set((opportunities || []).map((o) => String(o.id)));
-        return (liveMatches || []).filter((m) => !oppIds.has(String(m.id)));
-      }, [liveMatches, opportunities]);
+        const allOppIds = new Set((opportunities || []).map((o) => String(o.id)));
+        return (liveMatches || [])
+          .filter((m) => !allOppIds.has(String(m.id)))
+          .filter(filterLiveItem);
+      }, [liveMatches, opportunities, filterLiveItem]);
+
+      const marketCounts = useMemo(() => {
+        const source = [...(opportunities || []), ...(liveMatches || []).filter((m) => !(opportunities || []).some((o) => String(o.id) === String(m.id)))];
+        return {
+          all: source.length,
+          corners: source.filter((m) => marketCategoryFor(m) === "corners").length,
+          shots: source.filter((m) => marketCategoryFor(m) === "shots").length,
+          fouls: source.filter((m) => marketCategoryFor(m) === "fouls").length,
+          best: source.filter(isBestSignal).length,
+        };
+      }, [opportunities, liveMatches, marketCategoryFor, isBestSignal]);
 
       const clearNotifications = async () => {
         try {
@@ -1595,6 +1672,14 @@
                 />
 
                 <DesktopTabs />
+
+                {selectedTab === "live" && (
+                  <LiveMarketFilters
+                    value={liveMarketFilter}
+                    onChange={setLiveMarketFilter}
+                    counts={marketCounts}
+                  />
+                )}
 
                 {loading ? (
                   <div className="py-20 text-center">
