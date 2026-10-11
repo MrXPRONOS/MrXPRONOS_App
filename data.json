@@ -1,7 +1,7 @@
 {
   "source": "bsd",
   "model_version": "bsd-v2-isolated",
-  "generated_at": "2026-10-11T07:09:57.051615+00:00",
+  "generated_at": "2026-10-11T07:22:06.842743+00:00",
   "policy_version": "bsd-v2-policy-2026-10-11-v21",
   "matches": [
     {
@@ -18375,7 +18375,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-11T07:09:57.051615+00:00",
+      "revalidated_at": "2026-10-11T07:22:06.842743+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true
@@ -18467,7 +18467,7 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-11T07:09:57.051615+00:00",
+      "revalidated_at": "2026-10-11T07:22:06.842743+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21",
       "signal_tier": "QUALIFIE",
       "recommendation_eligible": true
@@ -18576,7 +18576,7 @@
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-11T05:50:09+00:00"
       },
-      "revalidated_at": "2026-10-11T07:09:57.051615+00:00",
+      "revalidated_at": "2026-10-11T07:22:06.842743+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21"
     }
   ],
@@ -18878,8 +18878,8 @@
         "average_predicted": 0.772113
       }
     },
-    "last_added": 2,
-    "updated_at": "2026-10-11T07:09:57.051615+00:00",
+    "last_added": 0,
+    "updated_at": "2026-10-11T07:22:06.842743+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -26615,6 +26615,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.742333,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.225
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -26852,6 +26866,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.782462,
+          "league_samples": 432,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.174
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -27095,6 +27123,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.761514,
+          "league_samples": 432,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.183
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -27278,6 +27320,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.820794,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -27515,6 +27571,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.752085,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.19
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -27698,6 +27768,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.77857,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -27935,6 +28019,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.748051,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.22
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -28178,6 +28276,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.809082,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.128
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -28421,6 +28533,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.760422,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.258
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -28664,6 +28790,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.785898,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.228
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -28907,6 +29047,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "1X",
+          "conservative_probability": 0.852576,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.118
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -29090,6 +29244,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.751861,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.212
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -29267,6 +29435,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.772353,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -29444,6 +29626,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.730206,
+          "league_samples": 509,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.24
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -29621,6 +29817,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.782133,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -29798,6 +30008,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.799625,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -30035,6 +30259,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.763998,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.245
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -30278,6 +30516,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.752195,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.31
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -30461,6 +30713,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.793136,
+          "league_samples": 218,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -30698,6 +30964,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.747065,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.337
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -30941,6 +31221,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.774216,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.197
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -31121,6 +31415,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.811967,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -31358,6 +31666,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.761012,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.285
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -31601,6 +31923,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.768677,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.16
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -31844,6 +32180,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.803757,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.185
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -32087,6 +32437,20 @@
         ],
         "status": "rejected",
         "reason": "v21_observation_not_recommended",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "1X",
+          "conservative_probability": 0.763631,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.363
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": true,
@@ -32330,6 +32694,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.747644,
+          "league_samples": 509,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.235
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -32573,6 +32951,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.737021,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.232
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -32752,7 +33144,17 @@
           }
         ],
         "status": "rejected",
-        "reason": "chosen_market_unpriceable"
+        "reason": "chosen_market_unpriceable",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.852392,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        }
       },
       {
         "event_id": "605659",
@@ -32976,6 +33378,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.781158,
+          "league_samples": 57,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 6,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.236
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -33148,6 +33564,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.75401,
+          "league_samples": 47,
+          "home_recent_matches": 7,
+          "away_recent_matches": 12,
+          "home_venue_matches": 3,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -33385,6 +33815,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.746808,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.188
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -33628,6 +34072,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.815845,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.077
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -33871,6 +34329,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.773048,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.248
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -34042,7 +34514,17 @@
           }
         ],
         "status": "rejected",
-        "reason": "chosen_market_unpriceable"
+        "reason": "chosen_market_unpriceable",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "1X",
+          "conservative_probability": 0.846231,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        }
       },
       {
         "event_id": "211724",
@@ -34269,6 +34751,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.734367,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.28
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -34512,6 +35008,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.793641,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.134
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -34755,6 +35265,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.823624,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.12
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -34998,6 +35522,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.776031,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.133
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -35181,6 +35719,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.796996,
+          "league_samples": 76,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -35418,6 +35970,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.789511,
+          "league_samples": 441,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.177
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -35661,6 +36227,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.787578,
+          "league_samples": 509,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.11
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -35904,6 +36484,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.815644,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.04
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -36019,17 +36613,17 @@
         "quotes": [
           {
             "market": "1X2_AWAY_FT",
-            "odds": 5.694,
+            "odds": 5.564,
             "source": "bsd_consensus"
           },
           {
             "market": "1X2_DRAW_FT",
-            "odds": 3.591,
+            "odds": 3.618,
             "source": "bsd_consensus"
           },
           {
             "market": "1X2_HOME_FT",
-            "odds": 1.553,
+            "odds": 1.543,
             "source": "bsd_consensus"
           },
           {
@@ -36236,6 +36830,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "1X",
+          "conservative_probability": 0.868192,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.087
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -36262,72 +36870,72 @@
         "quotes": [
           {
             "market": "1X2_AWAY_FT",
-            "odds": 4.985,
+            "odds": 5.106,
             "source": "bsd_consensus"
           },
           {
             "market": "1X2_DRAW_FT",
-            "odds": 4.009,
+            "odds": 3.995,
             "source": "bsd_consensus"
           },
           {
             "market": "1X2_HOME_FT",
-            "odds": 1.623,
+            "odds": 1.617,
             "source": "bsd_consensus"
           },
           {
             "market": "BTTS_NO_FT",
-            "odds": 2.19,
+            "odds": 2.187,
             "source": "bsd_consensus"
           },
           {
             "market": "BTTS_YES_FT",
-            "odds": 1.626,
+            "odds": 1.629,
             "source": "bsd_consensus"
           },
           {
             "market": "DC_12_FT",
-            "odds": 1.22,
+            "odds": 1.216,
             "source": "bsd_consensus"
           },
           {
             "market": "DC_1X_FT",
-            "odds": 1.16,
+            "odds": 1.154,
             "source": "bsd_consensus"
           },
           {
             "market": "DC_X2_FT",
-            "odds": 2.234,
+            "odds": 2.258,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_1.5_OVER_FT",
-            "odds": 1.173,
+            "odds": 1.177,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_1.5_UNDER_FT",
-            "odds": 4.5,
+            "odds": 4.583,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_2.5_OVER_FT",
-            "odds": 1.622,
+            "odds": 1.632,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_2.5_UNDER_FT",
-            "odds": 2.306,
+            "odds": 2.285,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_3.5_OVER_FT",
-            "odds": 2.505,
+            "odds": 2.52,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_3.5_UNDER_FT",
-            "odds": 1.518,
+            "odds": 1.508,
             "source": "bsd_consensus"
           }
         ],
@@ -36479,16 +37087,30 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.792121,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.177
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
           "reason": "conservative_probability_below_real_price_edge",
           "source": "bsd_consensus",
           "family": "goals",
-          "odds": 1.173,
-          "implied_probability": 0.852515,
+          "odds": 1.177,
+          "implied_probability": 0.849618,
           "safety_edge": 0.022,
-          "required_probability": 0.874515,
+          "required_probability": 0.871618,
           "conservative_probability": 0.792121
         },
         "v21_policy": {
@@ -36722,6 +37344,20 @@
         ],
         "status": "rejected",
         "reason": "v21_observation_not_recommended",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.749392,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.387
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": true,
@@ -36965,6 +37601,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.74312,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.15
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -37208,6 +37858,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.711676,
+          "league_samples": 600,
+          "home_recent_matches": 9,
+          "away_recent_matches": 8,
+          "home_venue_matches": 3,
+          "away_venue_matches": 4
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.28
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -37528,7 +38192,17 @@
           }
         ],
         "status": "rejected",
-        "reason": "chosen_market_unpriceable"
+        "reason": "chosen_market_unpriceable",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.824612,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 7,
+          "home_venue_matches": 8,
+          "away_venue_matches": 3
+        }
       },
       {
         "event_id": "604570",
@@ -37695,6 +38369,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.750098,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 7,
+          "home_venue_matches": 8,
+          "away_venue_matches": 3
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -37872,6 +38560,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.718451,
+          "league_samples": 600,
+          "home_recent_matches": 7,
+          "away_recent_matches": 12,
+          "home_venue_matches": 3,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.219
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -38049,6 +38751,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.768417,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -38212,6 +38928,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.728274,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.271
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -38389,6 +39119,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.754304,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -38566,6 +39310,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.73723,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.221
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -38753,6 +39511,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.792753,
+          "league_samples": 45,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -39000,6 +39772,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "X2",
+          "conservative_probability": 0.795387,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.04
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -39243,6 +40029,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.788801,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.177
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -39486,6 +40286,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.767751,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.095
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -39729,6 +40543,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.824908,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.137
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -40080,6 +40908,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.78154,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -40317,6 +41159,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.715053,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.395
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -40560,6 +41416,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.830597,
+          "league_samples": 517,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.073
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -40803,6 +41673,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.787579,
+          "league_samples": 517,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.087
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -41046,6 +41930,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.816166,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.07
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -41289,6 +42187,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "1X",
+          "conservative_probability": 0.842671,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.158
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -41472,6 +42384,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.752654,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.218
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -41761,6 +42687,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.793285,
+          "league_samples": 47,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 7
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -42213,6 +43153,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.737267,
+          "league_samples": 113,
+          "home_recent_matches": 8,
+          "away_recent_matches": 12,
+          "home_venue_matches": 4,
+          "away_venue_matches": 6
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -42395,6 +43349,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.716936,
+          "league_samples": 113,
+          "home_recent_matches": 12,
+          "away_recent_matches": 6,
+          "home_venue_matches": 8,
+          "away_venue_matches": 4
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -42739,6 +43707,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.754863,
+          "league_samples": 113,
+          "home_recent_matches": 8,
+          "away_recent_matches": 7,
+          "home_venue_matches": 3,
+          "away_venue_matches": 5
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -42894,6 +43876,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.750176,
+          "league_samples": 113,
+          "home_recent_matches": 10,
+          "away_recent_matches": 5,
+          "home_venue_matches": 3,
+          "away_venue_matches": 3
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -43161,6 +44157,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.746089,
+          "league_samples": 113,
+          "home_recent_matches": 5,
+          "away_recent_matches": 8,
+          "home_venue_matches": 3,
+          "away_venue_matches": 4
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -43399,6 +44409,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.725594,
+          "league_samples": 113,
+          "home_recent_matches": 11,
+          "away_recent_matches": 8,
+          "home_venue_matches": 6,
+          "away_venue_matches": 4
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.207
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -43581,6 +44605,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.745479,
+          "league_samples": 113,
+          "home_recent_matches": 8,
+          "away_recent_matches": 8,
+          "home_venue_matches": 6,
+          "away_venue_matches": 3
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -43881,6 +44919,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.731001,
+          "league_samples": 113,
+          "home_recent_matches": 12,
+          "away_recent_matches": 10,
+          "home_venue_matches": 8,
+          "away_venue_matches": 5
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.205
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -44063,6 +45115,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "1X",
+          "conservative_probability": 0.792804,
+          "league_samples": 113,
+          "home_recent_matches": 8,
+          "away_recent_matches": 7,
+          "home_venue_matches": 4,
+          "away_venue_matches": 3
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -44301,6 +45367,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.75794,
+          "league_samples": 113,
+          "home_recent_matches": 6,
+          "away_recent_matches": 8,
+          "home_venue_matches": 3,
+          "away_venue_matches": 4
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -44483,6 +45563,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.739948,
+          "league_samples": 113,
+          "home_recent_matches": 8,
+          "away_recent_matches": 7,
+          "home_venue_matches": 5,
+          "away_venue_matches": 3
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -44721,6 +45815,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.746682,
+          "league_samples": 113,
+          "home_recent_matches": 6,
+          "away_recent_matches": 8,
+          "home_venue_matches": 3,
+          "away_venue_matches": 4
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -44958,6 +46066,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.773113,
+          "league_samples": 441,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.157
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -45166,6 +46288,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.800189,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -45343,6 +46479,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.782789,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -45642,6 +46792,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.74046,
+          "league_samples": 509,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.343
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -45821,7 +46985,17 @@
           }
         ],
         "status": "rejected",
-        "reason": "chosen_market_unpriceable"
+        "reason": "chosen_market_unpriceable",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "1X",
+          "conservative_probability": 0.9204,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        }
       },
       {
         "event_id": "222833",
@@ -46048,6 +47222,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.713943,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.285
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -46291,6 +47479,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.823274,
+          "league_samples": 516,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.12
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -46534,6 +47736,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "1X",
+          "conservative_probability": 0.786973,
+          "league_samples": 516,
+          "home_recent_matches": 12,
+          "away_recent_matches": 8,
+          "home_venue_matches": 8,
+          "away_venue_matches": 4
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.045
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -46777,6 +47993,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.808476,
+          "league_samples": 516,
+          "home_recent_matches": 12,
+          "away_recent_matches": 7,
+          "home_venue_matches": 8,
+          "away_venue_matches": 4
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.085
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -46959,7 +48189,17 @@
           }
         ],
         "status": "rejected",
-        "reason": "chosen_market_unpriceable"
+        "reason": "chosen_market_unpriceable",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.823212,
+          "league_samples": 516,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        }
       },
       {
         "event_id": "213704",
@@ -47186,6 +48426,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.850777,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.123
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -47429,6 +48683,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.778487,
+          "league_samples": 57,
+          "home_recent_matches": 10,
+          "away_recent_matches": 12,
+          "home_venue_matches": 4,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.218
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -47612,6 +48880,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.796182,
+          "league_samples": 76,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -47849,6 +49131,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "1X",
+          "conservative_probability": 0.842127,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.146
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -48092,6 +49388,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.760192,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.23
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -48335,6 +49645,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.756567,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 6,
+          "home_venue_matches": 8,
+          "away_venue_matches": 3
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.258
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -48578,6 +49902,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.745137,
+          "league_samples": 514,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.282
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -48821,6 +50159,20 @@
         ],
         "status": "rejected",
         "reason": "v21_observation_not_recommended",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "1X",
+          "conservative_probability": 0.767438,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.386
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": true,
@@ -49064,6 +50416,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.719431,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.258
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -49307,6 +50673,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.829184,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.152
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -49547,6 +50927,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.782781,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.28
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -49790,6 +51184,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.739899,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.252
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -50033,6 +51441,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.791254,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.202
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -50216,6 +51638,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "1X",
+          "conservative_probability": 0.750534,
+          "league_samples": 45,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 7
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.22
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -50393,6 +51829,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.768014,
+          "league_samples": 45,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 7,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -50630,6 +52080,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.774609,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.135
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -50873,6 +52337,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.806965,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 6
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.133
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -50899,17 +52377,17 @@
         "quotes": [
           {
             "market": "1X2_AWAY_FT",
-            "odds": 2.383,
+            "odds": 2.394,
             "source": "bsd_consensus"
           },
           {
             "market": "1X2_DRAW_FT",
-            "odds": 3.341,
+            "odds": 3.348,
             "source": "bsd_consensus"
           },
           {
             "market": "1X2_HOME_FT",
-            "odds": 2.764,
+            "odds": 2.746,
             "source": "bsd_consensus"
           },
           {
@@ -50939,32 +52417,32 @@
           },
           {
             "market": "OU_1.5_OVER_FT",
-            "odds": 1.25,
+            "odds": 1.248,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_1.5_UNDER_FT",
-            "odds": 3.667,
+            "odds": 3.697,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_2.5_OVER_FT",
-            "odds": 1.868,
+            "odds": 1.863,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_2.5_UNDER_FT",
-            "odds": 1.923,
+            "odds": 1.93,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_3.5_OVER_FT",
-            "odds": 3.103,
+            "odds": 3.075,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_3.5_UNDER_FT",
-            "odds": 1.333,
+            "odds": 1.337,
             "source": "bsd_consensus"
           }
         ],
@@ -51116,16 +52594,30 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.761169,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.248
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
           "reason": "conservative_probability_below_real_price_edge",
           "source": "bsd_consensus",
           "family": "goals",
-          "odds": 1.25,
-          "implied_probability": 0.8,
+          "odds": 1.248,
+          "implied_probability": 0.801282,
           "safety_edge": 0.022,
-          "required_probability": 0.822,
+          "required_probability": 0.823282,
           "conservative_probability": 0.761169
         },
         "v21_policy": {
@@ -51359,6 +52851,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.801586,
+          "league_samples": 504,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.215
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -51602,6 +53108,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.773167,
+          "league_samples": 441,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.232
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -51845,6 +53365,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.783218,
+          "league_samples": 441,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.185
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -52028,6 +53562,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.702345,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.296
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -52265,6 +53813,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.763456,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.305
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -52508,6 +54070,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.746144,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.198
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -52751,6 +54327,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.890075,
+          "league_samples": 517,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.03
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -52994,6 +54584,20 @@
         ],
         "status": "rejected",
         "reason": "v21_observation_not_recommended",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.746261,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.552
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": true,
@@ -53237,6 +54841,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.766989,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.127
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -53480,6 +55098,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.770819,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.198
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -53723,6 +55355,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.778459,
+          "league_samples": 60,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 7
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.19
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -53963,6 +55609,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.824729,
+          "league_samples": 60,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.158
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -54295,6 +55955,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.789056,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.228
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -54464,6 +56138,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.780887,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -54640,7 +56328,17 @@
           }
         ],
         "status": "rejected",
-        "reason": "chosen_market_unpriceable"
+        "reason": "chosen_market_unpriceable",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.887141,
+          "league_samples": 76,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 7,
+          "away_venue_matches": 7
+        }
       },
       {
         "event_id": "604509",
@@ -54806,6 +56504,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.683148,
+          "league_samples": 113,
+          "home_recent_matches": 7,
+          "away_recent_matches": 12,
+          "home_venue_matches": 3,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.319
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -55043,6 +56755,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.806618,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.134
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -55286,6 +57012,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.782742,
+          "league_samples": 514,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.117
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -55529,6 +57269,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.763077,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.218
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -55772,6 +57526,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.780694,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.18
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -55949,6 +57717,21 @@
         "event_date": "2026-10-11T10:00:00+00:00",
         "quotes": [
           {
+            "market": "1X2_AWAY_FT",
+            "odds": 2.2,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "1X2_DRAW_FT",
+            "odds": 3.2,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "1X2_HOME_FT",
+            "odds": 2.87,
+            "source": "bsd_consensus"
+          },
+          {
             "market": "BTTS_NO_FT",
             "odds": 1.905,
             "source": "bsd_consensus"
@@ -55956,6 +57739,16 @@
           {
             "market": "BTTS_YES_FT",
             "odds": 1.776,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_2.5_OVER_FT",
+            "odds": 2.05,
+            "source": "bsd_consensus"
+          },
+          {
+            "market": "OU_2.5_UNDER_FT",
+            "odds": 1.75,
             "source": "bsd_consensus"
           }
         ],
@@ -56107,6 +57900,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.748574,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.205
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -56284,6 +58091,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "1X",
+          "conservative_probability": 0.756274,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.207
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -56497,6 +58318,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.819252,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -56663,6 +58498,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.768105,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.206
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -56828,7 +58677,17 @@
           }
         ],
         "status": "rejected",
-        "reason": "chosen_market_unpriceable"
+        "reason": "chosen_market_unpriceable",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "1X",
+          "conservative_probability": 0.944505,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        }
       },
       {
         "event_id": "223791",
@@ -56984,6 +58843,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.796207,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -57150,6 +59023,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.733738,
+          "league_samples": 509,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.262
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -57384,6 +59271,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.773648,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.266
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -57556,6 +59457,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.777699,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -57793,6 +59708,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.7693,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.33
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -58036,6 +59965,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.736414,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.323
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -58279,6 +60222,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.778563,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.177
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -58451,6 +60408,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.780244,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -58688,6 +60659,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.768367,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.218
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -58931,6 +60916,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.788565,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.202
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -59174,6 +61173,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.726682,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.233
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -59362,6 +61375,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.811453,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -59599,6 +61626,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.72688,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.288
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -59839,6 +61880,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.813412,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.242
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -60082,6 +62137,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.790091,
+          "league_samples": 441,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.127
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -60325,6 +62394,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.789804,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.202
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -60568,6 +62651,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.817963,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.115
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -60811,6 +62908,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.81048,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.137
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -61054,6 +63165,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "vip",
+          "selection_key": "1X",
+          "conservative_probability": 0.846552,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.186
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -61297,6 +63422,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.808169,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.066
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -61540,6 +63679,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.730545,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.363
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -61783,6 +63936,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.763702,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.143
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -62026,6 +64193,20 @@
         ],
         "status": "rejected",
         "reason": "v21_observation_not_recommended",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.766849,
+          "league_samples": 504,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.41
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": true,
@@ -62269,6 +64450,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.766676,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.133
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -62295,27 +64490,27 @@
         "quotes": [
           {
             "market": "1X2_AWAY_FT",
-            "odds": 2.781,
+            "odds": 2.804,
             "source": "bsd_consensus"
           },
           {
             "market": "1X2_DRAW_FT",
-            "odds": 3.392,
+            "odds": 3.388,
             "source": "bsd_consensus"
           },
           {
             "market": "1X2_HOME_FT",
-            "odds": 2.292,
+            "odds": 2.301,
             "source": "bsd_consensus"
           },
           {
             "market": "BTTS_NO_FT",
-            "odds": 2.158,
+            "odds": 2.196,
             "source": "bsd_consensus"
           },
           {
             "market": "BTTS_YES_FT",
-            "odds": 1.623,
+            "odds": 1.602,
             "source": "bsd_consensus"
           },
           {
@@ -62325,7 +64520,7 @@
           },
           {
             "market": "DC_1X_FT",
-            "odds": 1.386,
+            "odds": 1.394,
             "source": "bsd_consensus"
           },
           {
@@ -62335,12 +64530,12 @@
           },
           {
             "market": "OU_1.5_OVER_FT",
-            "odds": 1.223,
+            "odds": 1.225,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_1.5_UNDER_FT",
-            "odds": 3.787,
+            "odds": 3.875,
             "source": "bsd_consensus"
           },
           {
@@ -62350,7 +64545,7 @@
           },
           {
             "market": "OU_2.5_UNDER_FT",
-            "odds": 2.007,
+            "odds": 2.008,
             "source": "bsd_consensus"
           },
           {
@@ -62360,7 +64555,7 @@
           },
           {
             "market": "OU_3.5_UNDER_FT",
-            "odds": 1.363,
+            "odds": 1.375,
             "source": "bsd_consensus"
           }
         ],
@@ -62512,16 +64707,30 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.727335,
+          "league_samples": 504,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.225
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
           "reason": "conservative_probability_below_real_price_edge",
           "source": "bsd_consensus",
           "family": "goals",
-          "odds": 1.223,
-          "implied_probability": 0.817661,
+          "odds": 1.225,
+          "implied_probability": 0.816327,
           "safety_edge": 0.022,
-          "required_probability": 0.839661,
+          "required_probability": 0.838327,
           "conservative_probability": 0.727335
         },
         "v21_policy": {
@@ -62538,12 +64747,12 @@
         "quotes": [
           {
             "market": "1X2_AWAY_FT",
-            "odds": 11.739,
+            "odds": 11.59,
             "source": "bsd_consensus"
           },
           {
             "market": "1X2_DRAW_FT",
-            "odds": 6.465,
+            "odds": 6.517,
             "source": "bsd_consensus"
           },
           {
@@ -62553,12 +64762,12 @@
           },
           {
             "market": "BTTS_NO_FT",
-            "odds": 1.728,
+            "odds": 1.7,
             "source": "bsd_consensus"
           },
           {
             "market": "BTTS_YES_FT",
-            "odds": 2.026,
+            "odds": 2.066,
             "source": "bsd_consensus"
           },
           {
@@ -62578,32 +64787,32 @@
           },
           {
             "market": "OU_1.5_OVER_FT",
-            "odds": 1.133,
+            "odds": 1.135,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_1.5_UNDER_FT",
-            "odds": 5.412,
+            "odds": 5.278,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_2.5_OVER_FT",
-            "odds": 1.46,
+            "odds": 1.474,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_2.5_UNDER_FT",
-            "odds": 2.578,
+            "odds": 2.54,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_3.5_OVER_FT",
-            "odds": 2.22,
+            "odds": 2.248,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_3.5_UNDER_FT",
-            "odds": 1.61,
+            "odds": 1.596,
             "source": "bsd_consensus"
           }
         ],
@@ -62755,16 +64964,30 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.768554,
+          "league_samples": 509,
+          "home_recent_matches": 12,
+          "away_recent_matches": 7,
+          "home_venue_matches": 8,
+          "away_venue_matches": 4
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.135
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
           "reason": "conservative_probability_below_real_price_edge",
           "source": "bsd_consensus",
           "family": "goals",
-          "odds": 1.133,
-          "implied_probability": 0.882613,
+          "odds": 1.135,
+          "implied_probability": 0.881057,
           "safety_edge": 0.022,
-          "required_probability": 0.904613,
+          "required_probability": 0.903057,
           "conservative_probability": 0.768554
         },
         "v21_policy": {
@@ -62781,27 +65004,27 @@
         "quotes": [
           {
             "market": "1X2_AWAY_FT",
-            "odds": 2.659,
+            "odds": 2.662,
             "source": "bsd_consensus"
           },
           {
             "market": "1X2_DRAW_FT",
-            "odds": 3.016,
+            "odds": 3.021,
             "source": "bsd_consensus"
           },
           {
             "market": "1X2_HOME_FT",
-            "odds": 2.564,
+            "odds": 2.562,
             "source": "bsd_consensus"
           },
           {
             "market": "BTTS_NO_FT",
-            "odds": 1.758,
+            "odds": 1.766,
             "source": "bsd_consensus"
           },
           {
             "market": "BTTS_YES_FT",
-            "odds": 1.952,
+            "odds": 1.962,
             "source": "bsd_consensus"
           },
           {
@@ -62821,32 +65044,32 @@
           },
           {
             "market": "OU_1.5_OVER_FT",
-            "odds": 1.43,
+            "odds": 1.423,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_1.5_UNDER_FT",
-            "odds": 2.597,
+            "odds": 2.675,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_2.5_OVER_FT",
-            "odds": 2.366,
+            "odds": 2.35,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_2.5_UNDER_FT",
-            "odds": 1.546,
+            "odds": 1.556,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_3.5_OVER_FT",
-            "odds": 4.553,
+            "odds": 4.525,
             "source": "bsd_consensus"
           },
           {
             "market": "OU_3.5_UNDER_FT",
-            "odds": 1.157,
+            "odds": 1.17,
             "source": "bsd_consensus"
           }
         ],
@@ -62998,16 +65221,30 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.725287,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.17
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
           "reason": "conservative_probability_below_real_price_edge",
           "source": "bsd_consensus",
           "family": "goals",
-          "odds": 1.157,
-          "implied_probability": 0.864304,
+          "odds": 1.17,
+          "implied_probability": 0.854701,
           "safety_edge": 0.022,
-          "required_probability": 0.886304,
+          "required_probability": 0.876701,
           "conservative_probability": 0.725287
         },
         "v21_policy": {
@@ -63241,6 +65478,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.729469,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.347
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -63484,6 +65735,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.813586,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.248
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -63727,6 +65992,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "pro",
+          "selection_key": "1X",
+          "conservative_probability": 0.803412,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.186
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -63970,6 +66249,20 @@
         ],
         "status": "rejected",
         "reason": "v21_over15_conservative_too_low",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.763391,
+          "league_samples": 432,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.183
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -64153,6 +66446,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.762537,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.2
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -64600,6 +66907,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_real_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.760728,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "bsd_consensus",
+          "odds": 1.188
+        },
         "post_price_value_guard": {
           "checked": true,
           "passed": false,
@@ -64772,6 +67093,20 @@
         ],
         "status": "rejected",
         "reason": "v21_insufficient_indicative_price_edge",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.740224,
+          "league_samples": 600,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.251
+        },
         "post_price_value_guard": {
           "checked": false,
           "passed": true,
@@ -64785,6 +67120,188 @@
         }
       }
     ],
+    "vip_funnel": {
+      "scope": "fixtures_not_previously_published_in_this_generation",
+      "examined_fixture_count": 964,
+      "without_football_qualified_market_or_out_of_scope": 797,
+      "preprice_classified_total": 167,
+      "preprice_category_counts": {
+        "simple": 84,
+        "pro": 71,
+        "vip": 12
+      },
+      "vip_thresholds": {
+        "minimum_conservative_probability": 0.83,
+        "minimum_league_samples": 80,
+        "minimum_recent_matches_per_team": 12,
+        "minimum_home_away_matches_per_team": 5
+      },
+      "progressive_vip_threshold_counts": {
+        "football_market_qualified": 167,
+        "conservative_probability_at_least_83pct": 13,
+        "plus_league_history_at_least_80": 12,
+        "plus_recent_history_at_least_12_each": 12,
+        "plus_home_away_history_at_least_5_each": 12
+      },
+      "vip_before_price_and_v21": 12,
+      "vip_rejected_after_football_selection": 12,
+      "vip_rejection_reasons": {
+        "chosen_market_unpriceable": 4,
+        "v21_insufficient_real_price_edge": 5,
+        "v21_over15_conservative_too_low": 3
+      },
+      "newly_published_by_category": {
+        "simple": 0,
+        "pro": 0,
+        "vip": 0
+      },
+      "all_published_by_category_including_history": {
+        "simple": 132,
+        "pro": 85,
+        "vip": 0
+      },
+      "not_classified_reason_counts": {
+        "insufficient_form": 1,
+        "no_qualified_market": 21,
+        "not_upcoming": 2,
+        "outside_upcoming_window": 772,
+        "quality_short_form": 1
+      },
+      "vip_candidates": [
+        {
+          "event_id": "7290",
+          "event_date": "2026-10-11T20:30:00+00:00",
+          "home_team": "Palmeiras",
+          "away_team": "Corinthians",
+          "selection_key": "1X",
+          "conservative_probability": 0.852576,
+          "odds_source": "bsd_consensus",
+          "status": "rejected",
+          "reason": "v21_insufficient_real_price_edge"
+        },
+        {
+          "event_id": "223796",
+          "event_date": "2026-10-11T17:45:00+00:00",
+          "home_team": "San Lorenzo",
+          "away_team": "Deportivo Riestra",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.852392,
+          "odds_source": null,
+          "status": "rejected",
+          "reason": "chosen_market_unpriceable"
+        },
+        {
+          "event_id": "215538",
+          "event_date": "2026-10-11T17:00:00+00:00",
+          "home_team": "Benfica",
+          "away_team": "Vitória SC",
+          "selection_key": "1X",
+          "conservative_probability": 0.846231,
+          "odds_source": null,
+          "status": "rejected",
+          "reason": "chosen_market_unpriceable"
+        },
+        {
+          "event_id": "220867",
+          "event_date": "2026-10-11T15:30:00+00:00",
+          "home_team": "AD Fafe",
+          "away_team": "CD Trofense",
+          "selection_key": "1X",
+          "conservative_probability": 0.868192,
+          "odds_source": "bsd_consensus",
+          "status": "rejected",
+          "reason": "v21_insufficient_real_price_edge"
+        },
+        {
+          "event_id": "211425",
+          "event_date": "2026-10-11T14:30:00+00:00",
+          "home_team": "FC Vaduz",
+          "away_team": "Basel",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.830597,
+          "odds_source": "bsd_consensus",
+          "status": "rejected",
+          "reason": "v21_over15_conservative_too_low"
+        },
+        {
+          "event_id": "214855",
+          "event_date": "2026-10-11T14:15:00+00:00",
+          "home_team": "Almería",
+          "away_team": "Leganés",
+          "selection_key": "1X",
+          "conservative_probability": 0.842671,
+          "odds_source": "bsd_consensus",
+          "status": "rejected",
+          "reason": "v21_insufficient_real_price_edge"
+        },
+        {
+          "event_id": "212786",
+          "event_date": "2026-10-11T14:00:00+00:00",
+          "home_team": "Royale Union Saint-Gilloise",
+          "away_team": "Oud-Heverlee Leuven",
+          "selection_key": "1X",
+          "conservative_probability": 0.9204,
+          "odds_source": null,
+          "status": "rejected",
+          "reason": "chosen_market_unpriceable"
+        },
+        {
+          "event_id": "213704",
+          "event_date": "2026-10-11T13:30:00+00:00",
+          "home_team": "1. FC Köln",
+          "away_team": "Borussia M'gladbach",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.850777,
+          "odds_source": "bsd_consensus",
+          "status": "rejected",
+          "reason": "v21_over15_conservative_too_low"
+        },
+        {
+          "event_id": "375051",
+          "event_date": "2026-10-11T13:00:00+00:00",
+          "home_team": "SC Farense",
+          "away_team": "Feirense",
+          "selection_key": "1X",
+          "conservative_probability": 0.842127,
+          "odds_source": "bsd_consensus",
+          "status": "rejected",
+          "reason": "v21_insufficient_real_price_edge"
+        },
+        {
+          "event_id": "211423",
+          "event_date": "2026-10-11T12:00:00+00:00",
+          "home_team": "Grasshopper Club Zürich",
+          "away_team": "BSC Young Boys",
+          "selection_key": "OVER_15",
+          "conservative_probability": 0.890075,
+          "odds_source": "bsd_consensus",
+          "status": "rejected",
+          "reason": "v21_over15_conservative_too_low"
+        },
+        {
+          "event_id": "10180",
+          "event_date": "2026-10-12T22:00:00+00:00",
+          "home_team": "Grêmio Novorizontino",
+          "away_team": "Ponte Preta",
+          "selection_key": "1X",
+          "conservative_probability": 0.944505,
+          "odds_source": null,
+          "status": "rejected",
+          "reason": "chosen_market_unpriceable"
+        },
+        {
+          "event_id": "46486",
+          "event_date": "2026-10-12T17:00:00+00:00",
+          "home_team": "Malmö FF",
+          "away_team": "Kalmar FF",
+          "selection_key": "1X",
+          "conservative_probability": 0.846552,
+          "odds_source": "bsd_consensus",
+          "status": "rejected",
+          "reason": "v21_insufficient_real_price_edge"
+        }
+      ]
+    },
     "prospective_selection_penalties": {
       "1X": 0.0,
       "BTTS_YES": 0.0,
