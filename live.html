@@ -42,7 +42,7 @@
   <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
   <link rel="preload" as="image" href="assets/images/live-premium/hero-stadium.webp">
   <link rel="preload" as="image" href="assets/images/live-premium/player-back.webp">
-  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium13">
+  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium14">
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -1037,8 +1037,14 @@
       return (
         <Card
           onClick={() => onOpen?.(h)}
-          className={`mx-history-live-card relative border-[#D4AF37]/15 pb-16 ${cardOutcomeClass}`}
+          className={`mx-history-live-card mx-history-premium relative border-[#D4AF37]/15 pb-16 ${cardOutcomeClass}`}
         >
+          <div className="mx-history-premium__heading">
+            <span><LiveAssetIcon name="pie" size={24} /> HISTORIQUE LIVE</span>
+            <span className={`mx-history-premium__result ${isValidated ? (isSuccess ? "is-success" : "is-failure") : "is-pending"}`}>
+              {isValidated ? (isSuccess ? "GAGNÉ" : "PERDU") : "EN ATTENTE"}
+            </span>
+          </div>
           <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
             <div className="flex items-center gap-2 min-w-0">
               <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
@@ -1062,18 +1068,19 @@
             </div>
           </div>
 
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 mb-4">
+          <div className="mx-history-premium__scoreboard">
             <TeamRow name={h?.home_team || "Home"} logo={homeLogo} align="right" />
-            <div className="px-2 py-2 rounded-xl bg-[#0a0a0a] border border-[#252525] font-bold text-center min-w-[78px]">
-              <div className="text-base">{safeNumber(h?.home_score, 0)}-{safeNumber(h?.away_score, 0)}</div>
+            <div className="mx-history-premium__score">
+              <small>SCORE</small>
+              <strong>{safeNumber(h?.home_score, 0)} <span>–</span> {safeNumber(h?.away_score, 0)}</strong>
             </div>
             <TeamRow name={h?.away_team || "Away"} logo={awayLogo} align="left" />
           </div>
 
-          <div className="pt-4 border-t border-[#222]">
+          <div className="mx-history-premium__prediction">
             <div className="flex items-center gap-2 flex-wrap mb-2">
               <PredictionBadge pred={predUi} />
-              <Badge color="blue">Fiabilité {predUi.reliability || 0}</Badge>
+              <Badge color="blue"><LiveAssetIcon name="target" size={16} /> Probabilité {formatPercent(h?.probability)}</Badge>
             </div>
 
             <PronosticBox
@@ -1372,16 +1379,19 @@
     // ✅ label VALIDÉ/ÉCHOUÉ uniquement pour notifs de prédiction validée/atteinte
     // =======================================================
     const NotificationsPanel = ({ notifications, unreadCount, onClear, onOpenPrediction }) => (
-      <div>
-        <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-          <div className="text-lg font-bold flex items-center gap-2">
-            <LiveAssetIcon name="target" size={29} />
-            Notifications
+      <section className="mx-notifications-premium">
+        <div className="mx-notifications-premium__heading">
+          <div className="mx-notifications-premium__heading-title">
+            <LiveAssetIcon name="target" size={34} />
+            <div>
+              <h2>Centre de notifications</h2>
+              <p>Alertes Live, validations et informations sur vos pronostics.</p>
+            </div>
             {unreadCount > 0 && <Badge color="red">{unreadCount} non lues</Badge>}
           </div>
           <button
             onClick={onClear}
-            className="px-3 py-2 rounded-xl bg-[#151515] text-gray-300 border border-[#252525] hover:bg-[#1a1a1a] text-sm font-semibold"
+            className="mx-notifications-premium__clear"
             type="button"
           >
             Tout lire
@@ -1394,7 +1404,7 @@
             subtitle="Les notifications (validations, alertes…) apparaîtront ici."
           />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="mx-notifications-premium__grid">
             {notifications.map((n, i) => {
               // ✅ seulement les validations (atteint en live = succès instant)
               const isPredValidatedNotif = ["prediction_validated", "prediction_reached"].includes(n.type);
@@ -1418,16 +1428,20 @@
                   hover={!isPredValidatedNotif} /* évite conflit transform avec animation */
                   onClick={() => canOpen && onOpenPrediction?.(n.related_prediction_id)}
                   className={`
-                    mx-notification-card
+                    mx-notification-card mx-notification-premium
                     ${isPredValidatedNotif ? "relative pb-16" : ""}
                     ${!n.read ? "is-unread" : ""}
                     ${attractiveClass}
                     ${canOpen ? "cursor-pointer" : ""}
                   `}
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold text-white safe-wrap">
+                  <div className="mx-notification-premium__layout">
+                    <div className="mx-notification-premium__symbol">
+                      <LiveAssetIcon name={isPredValidatedNotif ? "target" : "bars"} size={30} />
+                    </div>
+                    <div className="mx-notification-premium__body">
+                      <div className="mx-notification-premium__eyebrow">{isPredValidatedNotif ? "RÉSULTAT LIVE" : "INFORMATION LIVE"}</div>
+                      <div className="mx-notification-premium__title">
                         {n.title || "Notification"}
                       </div>
 
@@ -1455,7 +1469,7 @@
             })}
           </div>
         )}
-      </div>
+      </section>
     );
 
     // =======================================================

@@ -749,3 +749,53 @@ body.mx-live-page{
   .mx-live-page .mx-live-benefit span{overflow-wrap:normal}
   .mx-live-page .mx-live-benefit b{white-space:normal;overflow-wrap:normal}
 }
+
+/* Historique Live — dark navy stadium cards / premium result hierarchy */
+.mx-live-page .mx-history-premium{
+  background:linear-gradient(135deg,rgba(4,17,27,.93),rgba(2,11,18,.97)),url('../images/live-premium/hero-stadium.webp') center/cover no-repeat!important;
+  padding:16px 18px 56px!important;border-radius:16px!important;
+}
+.mx-live-page .mx-history-premium__heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-3px 0 14px;padding-bottom:12px;border-bottom:1px solid rgba(49,102,127,.43)}
+.mx-live-page .mx-history-premium__heading>span:first-child{display:flex;align-items:center;gap:9px;color:#ecc367;font-size:10px;letter-spacing:.13em;font-weight:900}
+.mx-live-page .mx-history-premium__result{padding:6px 12px;border-radius:7px;font-size:10px;font-weight:950;letter-spacing:.1em;background:rgba(218,163,60,.13);color:#f2c45d;border:1px solid rgba(218,163,60,.36)}
+.mx-live-page .mx-history-premium__result.is-success{background:rgba(33,153,86,.13);color:#57e59d;border-color:rgba(40,197,116,.45)}
+.mx-live-page .mx-history-premium__result.is-failure{background:rgba(200,47,63,.13);color:#ff8690;border-color:rgba(221,73,83,.45)}
+.mx-live-page .mx-history-premium__scoreboard{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:9px;margin-bottom:15px}
+.mx-live-page .mx-history-premium__score{min-width:86px;border:1px solid #37627b;border-radius:12px;background:rgba(3,15,25,.94);padding:8px 12px;text-align:center}
+.mx-live-page .mx-history-premium__score small{display:block;color:#9eafbe;font-size:8px;letter-spacing:.12em;font-weight:900}
+.mx-live-page .mx-history-premium__score strong{display:block;white-space:nowrap;color:#fff;font-family:Georgia,serif;font-size:21px}
+.mx-live-page .mx-history-premium__score strong span{color:#f0bf5b}
+.mx-live-page .mx-history-premium__prediction{padding:13px 0 0;border-top:1px solid rgba(42,93,119,.58)}
+.mx-live-page .mx-history-premium__prediction .pronostic-pop{background:rgba(5,19,30,.9)!important}
+.mx-live-page .mx-history-premium .mx-status-stamp{bottom:12px;right:14px}
+/* Notifications Live — premium compact editorial layout */
+.mx-live-page .mx-notifications-premium__heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;padding:17px 20px;background:linear-gradient(135deg,#071d2b,#04131e);border:1px solid #245a77;border-radius:15px}
+.mx-live-page .mx-notifications-premium__heading-title{display:flex;align-items:center;gap:12px;min-width:0;flex-wrap:wrap}
+.mx-live-page .mx-notifications-premium__heading-title h2{font-family:Georgia,serif;font-size:23px;color:white;font-weight:bold;margin:0}
+.mx-live-page .mx-notifications-premium__heading-title p{font-size:11px;color:#acbcc7;margin:4px 0 0}
+.mx-live-page .mx-notifications-premium__clear{flex:0 0 auto;padding:10px 15px;border:1px solid #c59b45;border-radius:10px;background:rgba(194,147,46,.12);color:#f5cb70;font-size:11px;font-weight:850}
+.mx-live-page .mx-notifications-premium__clear:hover{background:rgba(194,147,46,.22)}
+.mx-live-page .mx-notifications-premium__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.mx-live-page .mx-notification-premium{min-height:155px;padding:17px 18px!important;border-radius:15px!important;background:linear-gradient(130deg,rgba(6,26,40,.95),rgba(3,12,20,.98)),url('../images/live-premium/hero-stadium.webp') center/cover no-repeat!important}
+.mx-live-page .mx-notification-premium__layout{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:start;gap:13px}
+.mx-live-page .mx-notification-premium__symbol{display:grid;place-items:center;width:44px;height:44px;border:1px solid rgba(208,156,56,.47);border-radius:11px;background:rgba(25,35,34,.43)}
+.mx-live-page .mx-notification-premium__symbol img{width:30px;height:30px}
+.mx-live-page .mx-notification-premium__body{min-width:0}
+.mx-live-page .mx-notification-premium__eyebrow{color:#ebb858;font-weight:900;letter-spacing:.13em;font-size:9px;margin-bottom:7px}
+.mx-live-page .mx-notification-premium__title{color:#fff;font-family:Georgia,serif;font-size:17px;font-weight:800;line-height:1.25;overflow-wrap:anywhere}
+.mx-live-page .mx-notification-premium.is-unread{border-color:rgba(230,177,67,.84)!important}
+@media(max-width:700px){
+ .mx-live-page .mx-notifications-premium__grid{grid-template-columns:1fr}
+ .mx-live-page .mx-notifications-premium__heading{padding:13px;align-items:flex-start}
+ .mx-live-page .mx-notifications-premium__heading-title h2{font-size:18px}
+ .mx-live-page .mx-notifications-premium__clear{padding:9px 11px}
+}
+@media(max-width:400px){
+ .mx-live-page .mx-history-premium{padding:13px 11px 55px!important}
+ .mx-live-page .mx-history-premium__scoreboard{gap:4px}
+ .mx-live-page .mx-history-premium__score{min-width:71px;padding:7px 6px}
+ .mx-live-page .mx-history-premium__score strong{font-size:17px}
+ .mx-live-page .mx-history-premium__scoreboard .font-semibold{font-size:11px}
+ .mx-live-page .mx-notifications-premium__heading{flex-wrap:wrap}
+ .mx-live-page .mx-notification-premium{padding:13px!important}
+}

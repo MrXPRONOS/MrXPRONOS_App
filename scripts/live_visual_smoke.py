@@ -137,6 +137,18 @@ def run_view(browser, width, height, name):
     page.locator(".mx-market-filter").filter(has_text="Tous").click()
 
     check_tabs(page, mobile=width <= 640)
+    tabs = page.locator(".mx-mobile-tabs" if width <= 640 else ".mx-live-tabs")
+    tabs.get_by_role("button", name="Historique", exact=False).click()
+    page.locator(".mx-history-premium__score").first.wait_for(state="visible")
+    page.locator(".mx-history-live-card").first.click()
+    page.locator(".mx-live-modal").first.wait_for(state="visible")
+    page.locator(".mx-live-modal button").first.click()
+    tabs.get_by_role("button", name="Notifs" if width <= 640 else "Notifications", exact=False).click()
+    page.locator(".mx-notification-premium__title").first.wait_for(state="visible")
+    page.locator(".mx-notification-card").first.click()
+    page.locator(".mx-live-modal").first.wait_for(state="visible")
+    page.locator(".mx-live-modal button").first.click()
+    tabs.get_by_role("button", name="Live", exact=False).click()
     assert_no_overflow(page, name)
     page.screenshot(path=str(OUT / f"live-{width}.png"), full_page=True)
 
