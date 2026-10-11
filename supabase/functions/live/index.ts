@@ -41,7 +41,7 @@ const DEBUG_KEY = Deno.env.get("DEBUG_KEY") || "";
 
 const LIVE_PROP_ODDS_URL = Deno.env.get("LIVE_PROP_ODDS_URL") || "";
 const LIVE_PROP_ODDS_TOKEN = Deno.env.get("LIVE_PROP_ODDS_TOKEN") || "";
-const LIVE_REQUIRE_BOOKMAKER_LINE = (Deno.env.get("LIVE_REQUIRE_BOOKMAKER_LINE") || "1") !== "0";
+const LIVE_REQUIRE_BOOKMAKER_LINE = (Deno.env.get("LIVE_REQUIRE_BOOKMAKER_LINE") || "0") === "1";
 
 import { richPhotoOrLegacy, richTextOrLegacy } from "../_shared/telegram_rich.ts";
 import { attachLiveSponsorBanner } from "../_shared/live_sponsor_banner.ts";
@@ -2897,7 +2897,7 @@ function conservativeProjection(params: {
 }
 
 
-const LIVE_VALUE_MODEL_VERSION = "live-value-v2.2-bookmaker-line-aware";
+const LIVE_VALUE_MODEL_VERSION = "live-value-v2.3-playability-envelope";
 
 type LiveMarketKind = "shots" | "corners" | "fouls";
 type LiveSignalTier = "quality" | "value" | "high_value";
@@ -3032,6 +3032,98 @@ function passesTierQuality(params: {
   return probability >= 0.31 && reliability >= 78 && dataQuality >= 100;
 }
 
+function playabilityUpliftCap(type: LiveMarketKind, minute: number) {
+  // Ce plafond est volontairement plus large que le plafond historique V2.1 :
+  // il sert à rapprocher le seuil du marché, sans jamais sortir de la zone
+  // que le modèle considère encore comme suffisamment probable.
+  if (type === "corners") {
+    if (minute < 45) return 3;
+    if (minute < 60) return 2;
+    if (minute < 75) return 1;
+    return 1;
+  }
+  if (type === "shots") {
+    if (minute < 45) return 6;
+    if (minute < 60) return 4;
+    if (minute < 75) return 2;
+    return 1;
+  }
+  if (minute < 45) return 4;
+  if (minute < 60) return 3;
+  if (minute < 75) return 2;
+  return 1;
+}
+
+function minimumPlayableProbability(type: LiveMarketKind, minute: number) {
+  // Plus le match avance, moins on accepte de relever la ligne avec une
+  // probabilité marginale.
+  if (type === "corners") return minute >= 75 ? 0.55 : 0.52;
+  if (type === "shots") return minute >= 75 ? 0.54 : 0.50;
+  return minute >= 75 ? 0.54 : 0.50;
+}
+
+function minimumPlayableHeadroom(type: LiveMarketKind, minute: number) {
+  // Marge entre la projection finale et la ligne retenue.
+  if (type === "corners") return minute >= 75 ? 0.5 : 1.0;
+  if (type === "shots") return minute >= 60 ? 1.5 : 2.0;
+  return minute >= 60 ? 1.5 : 2.0;
+}
+
+function buildPlayabilityEnvelope(params: {
+  type: LiveMarketKind;
+  minute: number;
+  baseline: number | null;
+  projectedFinal: number;
+  reliability: number;
+  dataQuality: number;
+  candidates: any[];
+}) {
+  const {
+    type,
+    minute,
+    baseline,
+    projectedFinal,
+    reliability,
+    dataQuality,
+    candidates,
+  } = params;
+
+  const upliftCap = playabilityUpliftCap(type, minute);
+  const probabilityFloor = minimumPlayableProbability(type, minute);
+  const minHeadroom = minimumPlayableHeadroom(type, minute);
+
+  return candidates
+    .filter((c: any) => {
+      const threshold = Number(c?.threshold);
+      const probability = safeNumber(c?.probability, 0);
+      const tier = (c?.signal_tier ?? null) as LiveSignalTier | null;
+      const headroom = projectedFinal - threshold;
+
+      if (!Number.isFinite(threshold)) return false;
+      if (baseline != null && threshold < baseline - 1e-9) return false;
+      if (baseline != null && threshold > baseline + upliftCap + 1e-9) return false;
+      if (probability < probabilityFloor) return false;
+      if (headroom < minHeadroom) return false;
+      if (!passesTierQuality({ tier, probability, reliability, dataQuality })) return false;
+      return true;
+    })
+    .map((c: any) => ({
+      ...c,
+      headroom: Number((projectedFinal - Number(c.threshold)).toFixed(2)),
+      playable: true,
+    }))
+    .sort((a: any, b: any) => Number(a.threshold) - Number(b.threshold));
+}
+
+function selectMarketFacingCandidate(candidates: any[]) {
+  if (!candidates.length) return null;
+  // Sans flux de lignes bookmaker, on retient la ligne la plus haute encore
+  // suffisamment sûre. Elle est généralement plus proche de la ligne principale
+  // qu'un bookmaker affiche en direct qu'une ligne très conservatrice.
+  const index = candidates.length - 1;
+  return { item: candidates[index], index };
+}
+
 function getLineCandidates(params: {
   type: LiveMarketKind;
   current: number;
@@ -3130,40 +3222,40 @@ function buildLivePrediction(params: {
     minGap: 2,
   });
 
-  // La médiane reste la règle de sélection demandée, mais uniquement
-  // à l'intérieur d'une fenêtre historiquement admissible.
   const baseline = legacyBaselineThreshold(type, current, projectedFinal, 2);
-  const upliftCap = historicalUpliftCap(type, minute);
+  const historicalCap = historicalUpliftCap(type, minute);
 
   let candidates = allCandidates.filter((c: any) => Boolean(c.signal_tier));
 
+  // Le baseline reste obligatoire pour les marchés qui disposent d'une
+  // calibration historique exploitable.
   if (type === "shots" || type === "corners") {
-    if (baseline == null || upliftCap == null) return null;
-    candidates = candidates.filter((c: any) =>
-      c.threshold >= baseline &&
-      c.threshold <= baseline + upliftCap + 1e-9
-    );
+    if (baseline == null) return null;
   }
 
-  // Pas de High Value sur corners/fautes tant qu'on n'a pas de calibration V2 suffisante.
+  // Pas de High Value sur corners/fautes tant qu'on n'a pas de calibration
+  // suffisamment robuste.
   if (type === "corners" || type === "fouls") {
     candidates = candidates.filter((c: any) => c.signal_tier !== "high_value");
   }
 
-  if (!candidates.length) return null;
+  const playableCandidates = buildPlayabilityEnvelope({
+    type,
+    minute,
+    baseline,
+    projectedFinal,
+    reliability,
+    dataQuality,
+    candidates,
+  });
 
-  const selected = selectMedianCandidate(candidates);
+  if (!playableCandidates.length) return null;
+
+  const selected = selectMarketFacingCandidate(playableCandidates);
   if (!selected) return null;
 
   const chosen: any = selected.item;
   const tier = chosen.signal_tier as LiveSignalTier | null;
-
-  if (!passesTierQuality({
-    tier,
-    probability: chosen.probability,
-    reliability,
-    dataQuality,
-  })) return null;
 
   return {
     type: predictionType,
@@ -3181,11 +3273,11 @@ function buildLivePrediction(params: {
     model_fair_odds: chosen.model_fair_odds,
     signal_tier: tier,
     pricing_mode: "model_only",
-    line_candidate_count: candidates.length,
+    line_candidate_count: playableCandidates.length,
     line_candidate_rank: selected.index + 1,
-    line_candidates: candidates,
+    line_candidates: playableCandidates,
     baseline_threshold: baseline,
-    historical_uplift_cap: upliftCap,
+    historical_uplift_cap: historicalCap,
     selected_uplift: baseline != null
       ? Number((chosen.threshold - baseline).toFixed(2))
       : null,
@@ -3195,8 +3287,9 @@ function buildLivePrediction(params: {
       ...reasons,
       `Projection finale ${projectedFinal}`,
       ...(baseline != null ? [`Ligne de référence historique ${baseline}`] : []),
-      ...(upliftCap != null ? [`Plafond historique +${upliftCap}`] : []),
-      `Ligne médiane ${selected.index + 1}/${candidates.length}`,
+      ...(historicalCap != null ? [`Plafond historique +${historicalCap}`] : []),
+      `Zone jouable ${playableCandidates[0].threshold}-${playableCandidates[playableCandidates.length - 1].threshold}`,
+      `Ligne marché ${selected.index + 1}/${playableCandidates.length}`,
       `Cote modèle ${chosen.model_fair_odds.toFixed(2)}`,
     ],
   };
@@ -4599,7 +4692,15 @@ async function savePrediction(
   pred.home_score = pred.home_score ?? match.home_score ?? 0;
   pred.away_score = pred.away_score ?? match.away_score ?? 0;
 
-  const bookmakerAlignment = await alignPredictionToAvailableBookmakerLine(match, pred);
+  const bookmakerAlignment = LIVE_PROP_ODDS_URL
+    ? await alignPredictionToAvailableBookmakerLine(match, pred)
+    : {
+        verified: false,
+        external: null,
+        candidate: null,
+        reason: "bookmaker_line_source_unavailable",
+      };
+
   if (LIVE_REQUIRE_BOOKMAKER_LINE && !bookmakerAlignment.verified) {
     console.log("Signal rejected: no playable bookmaker line", {
       match_id: matchId,
