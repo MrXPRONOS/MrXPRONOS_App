@@ -167,6 +167,7 @@ def update_performance_tracker(existing, matches, *, now=None):
             "settled_ids": [],
             "by_selection": {},
             "by_family": {},
+            "by_league_market": {},
         }
     settled_ids = [str(x) for x in tracker.get("settled_ids", []) if x]
     seen = set(settled_ids)
@@ -174,6 +175,8 @@ def update_performance_tracker(existing, matches, *, now=None):
                     for k, v in (tracker.get("by_selection") or {}).items()}
     by_family = {str(k): _sanitize_bucket(v)
                  for k, v in (tracker.get("by_family") or {}).items()}
+    by_league_market = {str(k): _sanitize_bucket(v) for k,v in
+                        (tracker.get("by_league_market") or {}).items()}
     added = 0
     for match in matches or []:
         if not isinstance(match, dict) or not match.get("is_finished"):
@@ -194,7 +197,11 @@ def update_performance_tracker(existing, matches, *, now=None):
             continue
         win = int(_won(match))
         family = market_family(pred)
-        for mapping, bucket_key in ((by_selection, key), (by_family, family)):
+        league = str(match.get("league") or "").strip()
+        buckets = [(by_selection, key), (by_family, family)]
+        if league:
+            buckets.append((by_league_market, league + "|" + key))
+        for mapping, bucket_key in buckets:
             row = mapping.setdefault(bucket_key, _empty_bucket())
             row["n"] += 1
             row["wins"] += win
@@ -203,7 +210,7 @@ def update_performance_tracker(existing, matches, *, now=None):
         settled_ids.append(ref)
         added += 1
 
-    for mapping in (by_selection, by_family):
+    for mapping in (by_selection, by_family, by_league_market):
         for row in mapping.values():
             row["penalty"] = _penalty(row)
             n = row["n"]
@@ -215,6 +222,7 @@ def update_performance_tracker(existing, matches, *, now=None):
         "settled_ids": settled_ids[-MAX_TRACKED_SETTLED_IDS:],
         "by_selection": by_selection,
         "by_family": by_family,
+        "by_league_market": by_league_market,
         "last_added": added,
         "updated_at": (now or datetime.now(timezone.utc)).isoformat(),
         "min_samples_for_penalty": MIN_DRIFT_SAMPLES,
