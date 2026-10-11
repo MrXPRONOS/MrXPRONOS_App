@@ -1271,7 +1271,7 @@ function renderMatches(matches) {
         </div>
         <div class="league-header__meta">
           <span>${leagueCount} pronostic${leagueCount > 1 ? "s" : ""}</span>
-          <span class="league-chevron" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-chevron.svg?v=20261011-p1" alt=""></span>
+          <span class="league-chevron" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-chevron.webp?v=20261011-gen2" alt=""></span>
         </div>
       </div>`;
 
@@ -1395,7 +1395,7 @@ function renderMatches(matches) {
             </div>
 
             ${premiumBadge}
-            <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}"><span class="share-glyph" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-share.svg?v=20261011-p1" alt=""></span> Partager ce prono</button>
+            <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}"><span class="share-glyph" aria-hidden="true"><img src="assets/images/pronostics-premium/icon-share.webp?v=20261011-gen2" alt=""></span> Partager ce prono</button>
           </div>
         </div>
       `;    });
