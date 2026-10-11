@@ -1,0 +1,354 @@
+/* =========================================================
+   Mr XPRONOS — Pronostics premium
+   Référence visuelle : maquette Pronostics noir / bleu nuit / or.
+   Toutes les règles sont limitées à .mx-pronos-page.
+========================================================= */
+.mx-pronos-page{
+  --pp-bg:#020a11;
+  --pp-bg-2:#06131e;
+  --pp-panel:#071824;
+  --pp-panel-2:#0a1d2c;
+  --pp-line:#183b52;
+  --pp-line-soft:rgba(54,114,151,.36);
+  --pp-gold:#e9b650;
+  --pp-gold-light:#ffd477;
+  --pp-text:#f7f8fa;
+  --pp-muted:#aab8c5;
+  --pp-green:#37db7e;
+  background:
+    radial-gradient(circle at 50% -10%,rgba(0,72,119,.18),transparent 31%),
+    linear-gradient(180deg,#020a11 0%,#03101a 48%,#02080e 100%);
+  color:var(--pp-text);
+  padding-top:76px;
+}
+.mx-pronos-page .container{width:min(calc(100% - 56px),1290px);max-width:none;padding-left:0;padding-right:0}
+
+/* Header partagé avec la nouvelle identité */
+.mx-pronos-page .mx-site-header{
+  position:fixed;inset:0 0 auto 0;height:76px;z-index:1000;
+  background:rgba(1,6,10,.975);
+  border-bottom:1px solid rgba(25,116,169,.52);
+  box-shadow:0 10px 28px rgba(0,0,0,.46);
+  backdrop-filter:blur(14px);
+}
+.mx-pronos-page .mx-header-container{height:100%;display:flex;align-items:center;gap:18px}
+.mx-pronos-page .mx-site-header .logo{flex:0 0 auto}
+.mx-pronos-page .mx-site-header .logo a{display:flex;align-items:center;width:clamp(158px,17vw,220px);height:67px;line-height:0}
+.mx-pronos-page .mx-site-header .logo img{display:block;width:auto;height:74px;max-height:74px;max-width:100%;object-fit:contain;object-position:left center;filter:drop-shadow(0 0 5px rgba(237,189,84,.12))}
+.mx-pronos-page .mx-desktop-nav{display:flex;align-items:center;justify-content:center;gap:clamp(10px,1.15vw,19px);margin-left:auto}
+.mx-pronos-page .mx-desktop-nav a{
+  position:relative;color:#eef1f4;text-decoration:none;font-size:clamp(11px,.8vw,12px);
+  line-height:2.6;font-weight:600;white-space:nowrap;transition:color .18s ease;
+}
+.mx-pronos-page .mx-desktop-nav a:hover,.mx-pronos-page .mx-desktop-nav a.active{color:var(--pp-gold-light)}
+.mx-pronos-page .mx-desktop-nav a.active::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:3px;background:var(--pp-gold);
+}
+.mx-pronos-page .mx-header-actions{display:flex;align-items:center;gap:10px;margin-left:5px}
+.mx-pronos-page .mx-code-button{
+  flex:0 0 auto;min-height:42px;padding:10px 18px;border-radius:24px;border:1px solid #f4ce77;
+  background:linear-gradient(145deg,#ffe8ad 0%,#e5b85b 55%,#c98e2d 100%);
+  color:#0a0e12;font-size:12px;font-weight:800;box-shadow:0 4px 14px rgba(230,176,72,.18);
+  animation:none;
+}
+.mx-pronos-page .mx-install{
+  display:none;align-items:center;gap:8px;min-height:42px;padding:9px 15px;border-radius:13px;
+  background:#061522;color:#f5c96d;border:1px solid #b78c35;font-size:12px;font-weight:700;
+}
+.mx-pronos-page .mx-install img{width:18px;height:18px}
+.mx-pronos-page #burger-btn{display:none!important}
+
+/* Hero */
+.mx-pronos-page main{width:100%}
+.mx-pronos-page .mx-pronos-hero{
+  position:relative;min-height:278px;overflow:hidden;border-bottom:1px solid rgba(26,98,139,.62);
+  background:#03101a;
+}
+.mx-pronos-page .mx-pronos-hero-atmosphere{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(90deg,rgba(1,8,15,.96) 0%,rgba(1,10,20,.82) 38%,rgba(1,12,24,.33) 69%,rgba(0,8,18,.19) 100%),
+    linear-gradient(180deg,rgba(0,3,9,.08),transparent 62%,rgba(0,7,13,.56)),
+    url('../images/home-premium/hero-stadium.webp');
+  background-size:cover;background-position:center,center,center 52%;
+  filter:saturate(1.05) contrast(1.04);
+}
+.mx-pronos-page .mx-pronos-hero-inner{
+  position:relative;z-index:2;min-height:278px;display:flex;align-items:center;justify-content:space-between;
+  gap:40px;padding:33px 0 35px;
+}
+.mx-pronos-page .mx-pronos-hero-copy{width:min(690px,70%)}
+.mx-pronos-page .pronos-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;color:#ead4ab;font-size:10px;font-weight:800;
+  letter-spacing:.46em;text-transform:uppercase;
+}
+.mx-pronos-page .mx-pronos-hero h1{
+  margin:12px 0 10px;color:#fff;font-family:Georgia,'Times New Roman',serif;
+  font-size:clamp(38px,4.5vw,61px);line-height:1.06;font-weight:700;letter-spacing:-.035em;
+  text-shadow:0 3px 18px rgba(0,0,0,.72);
+}
+.mx-pronos-page .mx-pronos-hero h1 span{color:var(--pp-gold)}
+.mx-pronos-page .mx-pronos-hero-copy p{
+  max-width:650px;margin:0;color:#f0f3f5;font-size:clamp(13px,1.1vw,16px);line-height:1.55;
+}
+.mx-pronos-page .mx-pronos-quote{
+  flex:0 0 190px;margin:33px 10px 0 auto;color:#f6c85f;text-align:center;
+  font-family:'Caveat','Segoe Print','Comic Sans MS',cursive;font-size:clamp(24px,2.4vw,34px);
+  line-height:1.04;font-weight:600;transform:rotate(-8deg);text-shadow:0 4px 12px #000;
+}
+.mx-pronos-page .mx-pronos-quote::after{
+  content:"";display:block;width:82%;height:2px;margin:14px 0 0 auto;background:#e6b750;transform:rotate(-4deg);
+}
+
+/* Zone catégories + filtres */
+.mx-pronos-page .mx-pronos-content{padding-top:0;padding-bottom:64px}
+.mx-pronos-page .pronostic-switcher{
+  margin:0 0 0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;
+  transform:translateY(-1px);
+}
+.mx-pronos-page .pronostic-category-tabs{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0;
+  border:1px solid #1a587c;border-radius:15px;overflow:hidden;background:rgba(3,22,36,.96);
+}
+.mx-pronos-page .pronostic-category-tabs .tab-btn{
+  position:relative;display:flex;align-items:center;justify-content:center;gap:13px;
+  min-height:60px;border:0;border-right:1px solid #1a587c;border-radius:0;
+  background:linear-gradient(180deg,#071d2c,#041521);color:#f2f3f5;
+  font-size:15px;font-weight:800;box-shadow:none;transition:background .18s ease,color .18s ease;
+}
+.mx-pronos-page .pronostic-category-tabs .tab-btn:last-child{border-right:0}
+.mx-pronos-page .pronostic-category-tabs .tab-btn:hover{background:#0b2638;transform:none}
+.mx-pronos-page .pronostic-category-tabs .tab-btn.active{
+  color:#0c1117;background:linear-gradient(135deg,#ffe198 0%,#e7b652 55%,#c98d29 100%);
+  border-color:transparent;box-shadow:inset 0 1px 0 rgba(255,255,255,.58);
+}
+.mx-pronos-page .category-icon{font-size:24px;line-height:1;color:var(--pp-gold)}
+.mx-pronos-page .tab-btn.active .category-icon{color:#0b1116}
+.mx-pronos-page .pronostic-category-tabs .tab-count{
+  display:grid;place-items:center;min-width:30px;height:30px;padding:0 7px;border-radius:50%;
+  background:#0b2030;border:1px solid #31566e;color:#edf3f7;font-size:11px;font-weight:800;
+}
+.mx-pronos-page .tab-btn.active .tab-count{background:#17212a;border-color:#17212a;color:#f4c35e}
+.mx-pronos-page .category-copy{padding:16px 1px 7px}
+.mx-pronos-page .category-summary{
+  min-height:0;margin:0;color:#f7f8fa;font-size:clamp(16px,1.5vw,20px);font-weight:800;line-height:1.3;
+}
+.mx-pronos-page .category-description{margin:4px 0 0;color:#aab8c5;font-size:12px;line-height:1.5}
+.mx-pronos-page .category-access-note{display:none}
+
+.mx-pronos-page .pronos-filter-shell{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:26px;
+  margin:6px 0 18px;padding:0;background:transparent;border:0;border-radius:0;
+}
+.mx-pronos-page .search-container{margin:0}
+.mx-pronos-page .search-input{
+  min-height:44px;width:100%;padding:11px 17px 11px 43px;border-radius:11px;
+  border:1px solid #245a7a;background:
+    linear-gradient(#071a28,#071a28) padding-box,
+    linear-gradient(90deg,#2e789f,#17394d) border-box;
+  color:#fff;font-size:12px;outline:0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23d9e4ec' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E"),
+    linear-gradient(#071a28,#071a28);
+  background-repeat:no-repeat,no-repeat;background-position:15px center,0 0;background-size:18px,100% 100%;
+}
+.mx-pronos-page .search-input::placeholder{color:#9dacb8}
+.mx-pronos-page .search-input:focus{border-color:#d5a743;box-shadow:0 0 0 3px rgba(221,171,67,.09)}
+.mx-pronos-page .day-filters{display:grid;grid-template-columns:repeat(3,minmax(80px,1fr));gap:10px;margin:0}
+.mx-pronos-page .day-filters .day-btn{
+  min-height:42px;padding:8px 17px;border-radius:11px;border:1px solid #24506b;
+  background:#071a28;color:#dce3e9;font-size:11px;font-weight:700;white-space:nowrap;
+}
+.mx-pronos-page .day-filters .day-btn:hover{border-color:#4d7690;transform:none}
+.mx-pronos-page .day-filters .day-btn.active{
+  background:linear-gradient(135deg,#f7d985,#e7b54e);border-color:#f1c867;color:#0a1117;
+}
+.mx-pronos-page .success-rate{margin-bottom:13px}
+.mx-pronos-page .pronos-results-heading{display:none}
+
+/* Ligues */
+.mx-pronos-page .matches-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0;min-width:0;
+}
+.mx-pronos-page .league-header{
+  grid-column:1/-1!important;display:flex;align-items:center;justify-content:space-between;gap:16px;
+  margin:8px 0 -1px!important;padding:10px 1px 10px;border-bottom:1px solid rgba(32,83,113,.7);
+  color:#fff!important;
+}
+.mx-pronos-page .league-header__title{display:flex;align-items:center;gap:10px;min-width:0}
+.mx-pronos-page .league-flag{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#0a2030;font-size:19px}
+.mx-pronos-page .league-header h2{margin:0;color:#f7f7f7;font-family:Georgia,'Times New Roman',serif;font-size:18px;font-weight:700}
+.mx-pronos-page .league-header__meta{display:flex;align-items:center;gap:9px;color:#d5dce2;font-size:11px;white-space:nowrap}
+.mx-pronos-page .league-chevron{display:grid;place-items:center;width:24px;height:24px;border:1px solid #315a72;border-radius:50%;color:#c9d7e1}
+
+/* Cartes */
+.mx-pronos-page .match-card{
+  position:relative;isolation:isolate;display:flex;flex-direction:column!important;overflow:hidden;min-width:0;
+  border:1px solid #1d536f;border-radius:13px;background:#071723;
+  box-shadow:0 10px 27px rgba(0,0,0,.24);animation:none;
+}
+.mx-pronos-page .match-card::before{
+  content:"";position:absolute;inset:0;z-index:-2;
+  background-image:
+    linear-gradient(180deg,rgba(3,18,29,.89),rgba(4,18,28,.94)),
+    url('../images/home-premium/hero-stadium.webp');
+  background-size:cover;background-position:center 46%;opacity:.96;
+}
+.mx-pronos-page .match-card::after{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.025),transparent 35%,rgba(0,103,160,.045));
+}
+.mx-pronos-page .match-card:hover{transform:translateY(-2px);border-color:#2c789f;box-shadow:0 14px 34px rgba(0,0,0,.34)}
+.mx-pronos-page .match-info{display:flex;flex-direction:column;min-width:0;padding:11px 14px 8px}
+.mx-pronos-page .match-meta{
+  order:-1;display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 11px;
+  min-height:20px;color:#b6c4cf;font-size:9.5px;
+}
+.mx-pronos-page .league-badge{
+  max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0;background:transparent;
+  color:#aebdca;border:0;border-radius:0;font-weight:600;
+}
+.mx-pronos-page .match-schedule{display:flex;align-items:center;gap:5px;color:#c9d5dd;white-space:nowrap}
+.mx-pronos-page .status{
+  padding:0;background:transparent;border:0;color:#aebcc7;font-size:9px;
+}
+.mx-pronos-page .status.live{color:#45df8b}
+.mx-pronos-page .status.finished{color:#e9b650;background:transparent}
+.mx-pronos-page .match-time{font-size:10px;color:#f3f5f7;font-weight:700}
+.mx-pronos-page .match-venue{display:none}
+.mx-pronos-page .teams{display:grid;grid-template-columns:minmax(0,1fr) 32px minmax(0,1fr);align-items:center;gap:7px;margin:0}
+.mx-pronos-page .team{width:auto;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center}
+.mx-pronos-page .team-logo{
+  width:50px;height:50px;margin:0 auto 5px;padding:3px;border:0;border-radius:50%;background:rgba(255,255,255,.035);
+  object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));
+}
+.mx-pronos-page .team-name{
+  width:100%;min-height:28px;color:#f8f9fa;font-size:10.5px;font-weight:700;line-height:1.25;
+  overflow-wrap:anywhere;
+}
+.mx-pronos-page .team-score{display:none}
+.mx-pronos-page .vs{
+  align-self:center;padding:0;background:transparent;border:0;color:#e2e8ed;font-size:10px;font-weight:800;
+}
+.mx-pronos-page .analysis-panel{
+  display:flex;flex-direction:column;gap:8px;min-width:0;margin-top:auto;padding:7px 14px 12px;
+  border:0!important;background:transparent!important;
+}
+.mx-pronos-page .analysis-panel h4,.mx-pronos-page .analysis-panel>p{display:none}
+.mx-pronos-page .prediction-market{
+  display:grid;grid-template-columns:minmax(0,1fr) 58px;border:1px solid #2a5f7d;border-radius:7px;overflow:hidden;background:rgba(4,20,32,.82);
+}
+.mx-pronos-page .prediction-market__pick{min-width:0;padding:7px 10px}
+.mx-pronos-page .prediction-market__label{display:block;color:#aebdca;font-size:9px;line-height:1.2;margin-bottom:2px}
+.mx-pronos-page .prediction-market__value{
+  display:block;color:#f3ba4c;font-size:12.5px;line-height:1.2;font-weight:800;overflow-wrap:anywhere;
+}
+.mx-pronos-page .prediction-market__odds{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;border-left:1px solid #2a5f7d;padding:5px 4px;
+}
+.mx-pronos-page .prediction-market__odds span{color:#aebdca;font-size:8.5px}
+.mx-pronos-page .prediction-market__odds strong{color:#f5be50;font-size:15px;line-height:1.15}
+.mx-pronos-page .confidence-line{display:grid;grid-template-columns:auto minmax(80px,1fr);align-items:center;gap:9px}
+.mx-pronos-page .confidence-label{color:#d9e0e5;font-size:10px;white-space:nowrap}
+.mx-pronos-page .confidence-label strong{color:#f1f3f5}
+.mx-pronos-page .confidence-bar{height:8px;margin:0;background:#263844;border-radius:99px;overflow:hidden}
+.mx-pronos-page .confidence-fill{height:100%;background:linear-gradient(90deg,#33c96d,#55e790);border-radius:99px}
+.mx-pronos-page .badge-premium,.mx-pronos-page .v21-signal-tier{align-self:flex-start;font-size:8px;margin:0}
+.mx-pronos-page .analysis-panel .btn-share{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:36px;margin:1px 0 0;
+  padding:7px 10px;border:2px solid #e4ad3f;border-radius:8px;background:rgba(8,19,26,.5);
+  color:#f1bf55;font-size:10px;font-weight:800;letter-spacing:.01em;box-shadow:none;
+}
+.mx-pronos-page .analysis-panel .btn-share:hover{background:#e4ad3f;color:#091018;transform:none}
+.mx-pronos-page .share-glyph{font-size:14px;line-height:1}
+.mx-pronos-page .no-events{grid-column:1/-1;border:1px dashed #31566f;border-radius:14px;padding:27px;background:#071925;color:#c8d3dc}
+
+/* Footer */
+.mx-pronos-page .mx-premium-footer{
+  margin:0;background:linear-gradient(180deg,#02080d,#010509);border-top:1px solid #12364a;text-align:left;padding:0;
+}
+.mx-pronos-page .mx-footer-line{
+  min-height:101px;display:grid;grid-template-columns:minmax(200px,235px) 1fr auto;align-items:center;gap:16px;
+}
+.mx-pronos-page .mx-footer-brand a{display:flex;align-items:center;text-decoration:none;line-height:0}
+.mx-pronos-page .mx-footer-brand img{display:block;width:auto;height:68px;max-height:68px;max-width:100%;object-fit:contain}
+.mx-pronos-page .mx-footer-brand small{display:block;margin:-9px 0 0 3px;color:#aeb7c0;font-size:10px;line-height:1.3}
+.mx-pronos-page .mx-premium-footer .footer-links{display:flex;justify-content:center;gap:clamp(9px,1.15vw,18px);margin:0;flex-wrap:wrap}
+.mx-pronos-page .mx-premium-footer .footer-links a{font-size:11px;text-decoration:none;color:#e7e8e9;white-space:nowrap}
+.mx-pronos-page .mx-premium-footer .footer-links a:hover{color:#f5c769}
+.mx-pronos-page .mx-premium-footer .social-links{display:flex;gap:7px;align-items:center;margin:0}
+.mx-pronos-page .mx-premium-footer .social-links a{width:29px;height:29px;border:1px solid #244057;border-radius:8px;display:grid;place-items:center;background:#071520}
+.mx-pronos-page .mx-premium-footer .social-links img{width:19px;height:19px;object-fit:contain}
+.mx-pronos-page .mx-footer-bottom{display:flex;justify-content:space-between;gap:20px;padding:12px 0 20px;border-top:1px solid #102b3c;font-size:11px;color:#afb8c1}
+.mx-pronos-page .mx-footer-bottom a{color:#d7dde2;text-decoration:none}
+.mx-pronos-page .bookmakers[hidden]{display:none!important}
+
+/* Responsive */
+@media(max-width:1160px){
+  .mx-pronos-page .mx-desktop-nav{display:none}
+  .mx-pronos-page #burger-btn{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;padding:8px;margin:0;border:1px solid #577183;border-radius:10px;background:#091b29;color:#f5d080}
+  .mx-pronos-page .mx-header-container{justify-content:space-between}
+  .mx-pronos-page .mx-header-actions{margin-left:auto}
+  .mx-pronos-page .matches-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mx-pronos-page .mx-footer-line{grid-template-columns:1fr auto}
+  .mx-pronos-page .mx-footer-line .footer-links{grid-column:1/-1;grid-row:2;justify-content:flex-start;padding-bottom:13px}
+}
+@media(max-width:800px){
+  .mx-pronos-page{padding-top:65px}
+  .mx-pronos-page .container{width:calc(100% - 30px)}
+  .mx-pronos-page .mx-site-header{height:65px}
+  .mx-pronos-page .mx-header-container{gap:8px}
+  .mx-pronos-page .mx-site-header .logo a{width:clamp(135px,26vw,185px);height:54px}
+  .mx-pronos-page .mx-site-header .logo img{height:54px;max-height:54px}
+  .mx-pronos-page .mx-code-button{min-height:37px;padding:9px 11px;font-size:10px}
+  .mx-pronos-page .mx-install{height:37px;min-height:37px;width:37px;padding:7px}
+  .mx-pronos-page .mx-install span,.mx-pronos-page .mx-install-text{display:none}
+  .mx-pronos-page .mx-pronos-hero,.mx-pronos-page .mx-pronos-hero-inner{min-height:244px}
+  .mx-pronos-page .mx-pronos-hero-inner{padding:26px 0}
+  .mx-pronos-page .mx-pronos-hero-copy{width:78%}
+  .mx-pronos-page .mx-pronos-hero h1{font-size:clamp(34px,6vw,47px)}
+  .mx-pronos-page .mx-pronos-quote{flex-basis:130px;font-size:23px;margin-right:0}
+  .mx-pronos-page .pronos-filter-shell{grid-template-columns:1fr;gap:10px}
+  .mx-pronos-page .day-filters{width:min(100%,350px);margin-left:auto}
+  .mx-pronos-page .mx-footer-line{grid-template-columns:1fr}
+  .mx-pronos-page .mx-footer-line .social-links,.mx-pronos-page .mx-footer-line .footer-links{grid-column:1;grid-row:auto}
+  .mx-pronos-page .mx-premium-footer .social-links{justify-content:flex-start}
+  .mx-pronos-page .mx-footer-bottom{flex-direction:column;gap:5px}
+}
+@media(max-width:590px){
+  .mx-pronos-page .container{width:calc(100% - 24px)}
+  .mx-pronos-page .mx-code-label{display:none}
+  .mx-pronos-page .mx-pronos-hero,.mx-pronos-page .mx-pronos-hero-inner{min-height:265px}
+  .mx-pronos-page .mx-pronos-hero-atmosphere{background-position:center,center,65% center}
+  .mx-pronos-page .mx-pronos-hero-copy{width:100%;padding-right:0}
+  .mx-pronos-page .pronos-eyebrow{font-size:8px;letter-spacing:.36em}
+  .mx-pronos-page .mx-pronos-hero h1{font-size:clamp(32px,9vw,39px);max-width:380px;margin-top:10px}
+  .mx-pronos-page .mx-pronos-hero-copy p{max-width:360px;font-size:12px;line-height:1.48}
+  .mx-pronos-page .mx-pronos-quote{display:none}
+  .mx-pronos-page .pronostic-category-tabs .tab-btn{min-height:54px;gap:7px;font-size:12px}
+  .mx-pronos-page .category-icon{font-size:18px}
+  .mx-pronos-page .pronostic-category-tabs .tab-count{min-width:24px;height:24px;font-size:9px}
+  .mx-pronos-page .category-copy{padding-top:13px}
+  .mx-pronos-page .category-summary{font-size:15px}
+  .mx-pronos-page .category-description{font-size:11px}
+  .mx-pronos-page .day-filters{width:100%;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .mx-pronos-page .day-filters .day-btn{min-width:0;padding:8px 5px;font-size:10px}
+  .mx-pronos-page .matches-grid{grid-template-columns:1fr;gap:10px}
+  .mx-pronos-page .league-header{margin-top:10px!important}
+  .mx-pronos-page .league-header h2{font-size:17px}
+  .mx-pronos-page .match-card{max-width:100%}
+  .mx-pronos-page .team-logo{width:55px;height:55px}
+  .mx-pronos-page .team-name{font-size:11px}
+  .mx-pronos-page .prediction-market__value{font-size:13px}
+  .mx-pronos-page .analysis-panel .btn-share{min-height:39px;font-size:11px}
+}
+@media(max-width:390px){
+  .mx-pronos-page .mx-site-header .logo a{width:138px;height:49px}
+  .mx-pronos-page .mx-site-header .logo img{height:50px;max-height:50px}
+  .mx-pronos-page .mx-code-button{padding:8px 9px}
+  .mx-pronos-page .pronostic-category-tabs .tab-btn{gap:5px;font-size:11px}
+  .mx-pronos-page .league-header__meta{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  .mx-pronos-page *{transition:none!important;animation:none!important}
+}
