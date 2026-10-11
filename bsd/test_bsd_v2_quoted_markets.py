@@ -54,7 +54,7 @@ class PricedSelectionTests(unittest.TestCase):
             self.assertGreaterEqual(pick["odds"],1.01)
         self.assertGreaterEqual(out["diagnostics"]["rejections"].get("model_estimated",0),0)
 
-    def test_unquoted_match_is_published_and_reaches_telegram(self):
+    def test_unquoted_match_is_blocked_from_telegram(self):
         from bsd_v2_telegram import due
         fixture={**self.fixture,
                  "event_date":(self.now+timedelta(minutes=90)).isoformat()}
@@ -77,11 +77,8 @@ class PricedSelectionTests(unittest.TestCase):
             out=assemble({},[fixture],self.history,now=self.now,
                 calibration=None,policy=None,rho=0,
                 odds_fetcher=lambda *a:({},{}),max_odds_requests=2)
-        self.assertEqual(len(out["matches"]),1)
-        published=out["matches"][0]
-        self.assertEqual(published["prediction"]["odds_source"],"mrxpronos_model")
-        self.assertTrue(published["prediction"]["estimated_odds"])
-        self.assertGreaterEqual(published["prediction"]["odds"],1.20)
+        self.assertEqual(out["matches"],[])
+        self.assertEqual(out["diagnostics"]["rejections"].get("v21_no_real_bookmaker_quote"),1)
         self.assertEqual([x["id"] for x in due(out["matches"],self.now)],[])
 
     def test_selected_market_remains_identical_with_or_without_bsd_quote(self):
@@ -96,13 +93,13 @@ class PricedSelectionTests(unittest.TestCase):
                   "calibration_samples":40},
               "ranked_candidates":[]}
         scenarios=(
-            ({}, "mrxpronos_model", True),
+            ({}, "mrxpronos_model", False),
             # 1.34 implique ~74.6 % ; avec la marge DC le 73 % conservateur
             # échoue. La cote peut supprimer le pari, jamais choisir un autre marché.
             ({"DC_1X_FT":{"odds":1.34,"origin":"bsd_consensus",
                            "updated_at":self.now.isoformat()}}, "bsd_consensus", False),
             ({"BTTS_YES_FT":{"odds":1.88,"origin":"bsd_consensus",
-                              "updated_at":self.now.isoformat()}}, "mrxpronos_model", True))
+                              "updated_at":self.now.isoformat()}}, "mrxpronos_model", False))
         for quotes,expected_source,should_publish in scenarios:
             with self.subTest(expected_source=expected_source,quotes=quotes):
                 import copy
@@ -112,14 +109,15 @@ class PricedSelectionTests(unittest.TestCase):
                         odds_fetcher=lambda *a:(quotes,{}),max_odds_requests=2)
                 if not should_publish:
                     self.assertEqual(out["matches"],[])
-                    self.assertEqual(out["diagnostics"]["rejections"].get(
-                        "conservative_probability_below_real_price_edge"),1)
+                    self.assertTrue(any(out["diagnostics"]["rejections"].get(reason,0)==1 for reason in
+                        ("v21_no_real_bookmaker_quote","v21_insufficient_real_price_edge",
+                         "conservative_probability_below_real_price_edge")))
                     continue
                 self.assertEqual(len(out["matches"]),1)
                 self.assertEqual(out["matches"][0]["prediction"]["selection_key"],"1X")
                 self.assertEqual(out["matches"][0]["prediction"]["odds_source"],expected_source)
 
-    def test_previous_upcoming_model_pick_remains_immutable(self):
+    def test_previous_upcoming_model_pick_is_retired_by_new_policy(self):
         original={"source":"bsd","matches":[{
             "id":"bsd:17","source":"bsd","source_event_id":17,
             "event_date":self.fixture["event_date"],"status":"notstarted",
@@ -128,8 +126,9 @@ class PricedSelectionTests(unittest.TestCase):
         out=assemble(original,[self.fixture],self.history,now=self.now,
             calibration=None,policy=None,rho=0,
             odds_fetcher=lambda *a:({},{}),max_odds_requests=2)
-        self.assertEqual(len(out["matches"]),1)
-        self.assertEqual(out["matches"][0]["prediction"],original["matches"][0]["prediction"])
+        self.assertEqual(out["matches"],[])
+        self.assertEqual(len(out["retired_predictions"]),1)
+        self.assertEqual(out["retired_predictions"][0]["reason"],"v21_no_real_bookmaker_quote")
 
     def test_market_selection_uses_verifiable_bsd_price(self):
         from bsd_v2_core import markets_from_matrix

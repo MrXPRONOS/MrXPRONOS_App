@@ -24,14 +24,15 @@ from bsd_v2_estimated_odds import ESTIMATED_SOURCE, valid_standalone_prediction,
 from bsd_v2_labels import normalize_match,market_label
 from bsd_v2_assets import image_fields
 from bsd_v2_guardrails import (POLICY_VERSION, post_price_value_guard,
-    update_performance_tracker, tracker_penalties)
+    update_performance_tracker, tracker_penalties, v21_accept_priced, v21_signal_tier,
+    v21_league_market_performance, V21_DAILY_NEW_PICKS, V21_EXCLUDED_KEYS)
 
 SITE_FILE = Path("data.json")
 HISTORY_DAYS = 14
 FUTURE_DAYS = 2
 MIN_BSD_ODDS = 1.20
 MIN_COMBO_ODDS = 1.20
-EXCLUDED_SELECTIONS = frozenset({'UNDER_45'})
+EXCLUDED_SELECTIONS = frozenset({'UNDER_45', '12'})
 
 def league_name(item):
     for key in ("league_name","competition_name","tournament_name"):
@@ -144,6 +145,8 @@ def to_site(p, fixture):
         "league":league_name(fixture) or league_name(p),
         "league_id":p.get("league_id"),
         "category":p["category"],"badge":"BSD V2",
+        "signal_tier":p.get("signal_tier","OBSERVATION"),
+        "recommendation_eligible":p.get("recommendation_eligible",False),
         "status":"notstarted","is_finished":False,"home_score":None,"away_score":None,
         "verified_prediction":False,"verified_double":False,
         "prediction":{
@@ -164,6 +167,8 @@ def to_site(p, fixture):
             "odds_method":pred.get("odds_method"),
             "overround_assumption":pred.get("overround_assumption"),
             "odds_updated_at":pred.get("odds_updated_at"),
+            "signal_tier":p.get("signal_tier","OBSERVATION"),
+            "recommendation_eligible":p.get("recommendation_eligible",False),
         },
         "model_version":p["model_version"],"policy_version":p.get("policy_version",POLICY_VERSION),
         "model_audit":p.get("model_audit"),
@@ -263,6 +268,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         existing.get("performance_tracker") if isinstance(existing,dict) else None,
         result,now=now)
     selection_penalties,prospective_family_penalties=tracker_penalties(performance_tracker)
+    league_market_performance=performance_tracker.get('by_league_market',{})
 
     # 3) Revalider uniquement les coupons FUTURS sauvegardés. Leur choix ne
     # change jamais : soit la sélection originale passe encore la politique
@@ -284,9 +290,17 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             dc_model=dc_model,selection_adjustments=selection_penalties,
             prospective_family_adjustments=prospective_family_penalties)
         original_key=(row.get("prediction") or {}).get("selection_key")
+        # Legacy future picks cannot bypass the new V2.1 publication policy.
+        legacy_pred=row.get("prediction") or {}
+        legacy_choice={"key":original_key,
+            "odds_source":legacy_pred.get("odds_source"),
+            "bookmaker_odds":legacy_pred.get("odds"),
+            "conservative_probability":float(legacy_pred.get("conservative_probability") or legacy_pred.get("confidence") or 0)/100.0}
+        league_bucket=league_market_performance.get(str(row.get("league") or "")+"|"+str(original_key))
+        legacy_ok,legacy_reason=v21_accept_priced(legacy_choice,performance_tracker,league_bucket)
         allowed={x.get("key") for x in ((recheck or {}).get("ranked_candidates") or [])
                  if x.get("passes_quality_policy") is True}
-        if recheck is None or original_key not in allowed:
+        if not legacy_ok or recheck is None or original_key not in allowed:
             retired.append({
                 "id":row.get("id"),"source_event_id":row.get("source_event_id"),
                 "event_date":row.get("event_date"),"selection_key":original_key,
@@ -294,11 +308,13 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                 "original_policy_version":row.get("policy_version"),
                 "retired_by_policy":True,"retired_at":now.isoformat(),
                 "retired_policy_version":POLICY_VERSION,
-                "reason":audit_reason if recheck is None else "original_selection_no_longer_qualified",
+                "reason":legacy_reason if not legacy_ok else (audit_reason if recheck is None else "original_selection_no_longer_qualified"),
             })
             stats["saved_future_retired_by_policy"]+=1
             continue
         row=dict(row)
+        row["signal_tier"]=v21_signal_tier(legacy_choice)
+        row["recommendation_eligible"]=True
         row["policy_version"]=row.get("policy_version") or row.get("model_version")
         row["revalidated_at"]=now.isoformat()
         row["revalidated_policy_version"]=POLICY_VERSION
@@ -308,6 +324,14 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     # Tous les événements déjà exposés restent connus, y compris ceux retirés :
     # ne jamais substituer un autre marché après publication initiale.
     known=set(saved)
+    new_picks=0
+    # Limit counts existing future publications for each fixture DATE,
+    # not merely the current GitHub Actions run.
+    published_by_day=Counter(
+        str(row.get("date") or str(row.get("event_date") or "")[:10])
+        for row in result
+        if str(row.get("status") or "") in ("notstarted","upcoming")
+    )
     for f in fixtures:
         if not isinstance(f,dict) or f.get("id") is None:continue
         eid=str(f["id"])
@@ -318,6 +342,10 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         try: kickoff=fixture_datetime(f)
         except (ValueError,TypeError):
             entry["reason"]="invalid_kickoff"
+            continue
+        if published_by_day[kickoff.date().isoformat()] >= V21_DAILY_NEW_PICKS:
+            entry["reason"]="daily_publication_cap"
+            stats["daily_publication_cap"]+=1
             continue
         if kickoff<=now or kickoff>now+timedelta(days=FUTURE_DAYS):
             entry["reason"]="outside_upcoming_window"
@@ -367,6 +395,13 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         # un autre pari. Les prix modèle restent explicitement non indépendants.
         value_guard=post_price_value_guard(chosen)
         entry["post_price_value_guard"]=value_guard
+        league_bucket=league_market_performance.get(str(league_name(f) or "")+"|"+str(chosen.get("key") or ""))
+        v21_ok,v21_reason=v21_accept_priced(chosen,performance_tracker,league_bucket)
+        entry["v21_policy"]={"passed":v21_ok,"reason":v21_reason,"tier":v21_signal_tier(chosen)}
+        if not v21_ok:
+            entry["reason"]=v21_reason
+            stats[entry["reason"]]+=1
+            continue
         if not value_guard["passed"]:
             entry["reason"]=value_guard["reason"]
             stats[entry["reason"]]+=1
@@ -383,6 +418,8 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             "post_price_value_guard":value_guard,
             "policy_version":POLICY_VERSION,
         }
+        prediction["signal_tier"]=v21_signal_tier(chosen)
+        prediction["recommendation_eligible"]=True
         prediction["combo_only"]=combo_only
         prediction["prediction_generated_at"]=now.isoformat()
         if chosen["odds_source"]==ESTIMATED_SOURCE:
@@ -401,6 +438,10 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                     continue
                 secondary=price_selected_market(candidate,quotes,now=now)
                 if secondary is None or secondary["odds"]<MIN_BSD_ODDS:
+                    continue
+                secondary_bucket=league_market_performance.get(str(league_name(f) or "")+"|"+str(secondary.get("key") or ""))
+                secondary_ok,_=v21_accept_priced(secondary,performance_tracker,secondary_bucket)
+                if not secondary_ok:
                     continue
                 additional.append(secondary)
                 break
@@ -434,6 +475,8 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         entry["selections"]=[prediction["prediction"]["key"]]+[v["key"] for v in additional]
         stats["priced_selected"] += 1
         result.append(to_site(prediction,f))
+        new_picks+=1
+        published_by_day[kickoff.date().isoformat()]+=1
         known.add(eid)
         stats["created"]+=1
     result=[normalize_match(r) for r in result]
@@ -451,7 +494,15 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
                        "fixture_details":detailed,
                        "prospective_selection_penalties":selection_penalties,
                        "prospective_family_penalties":prospective_family_penalties,
-                       "retired_predictions_count":len(retired)},
+                       "retired_predictions_count":len(retired),
+                       "v21_league_market_monitor":league_market_performance,
+                       "v21_circuit_breakers":{
+                            "selection":[k for k in performance_tracker.get("by_selection",{})
+                                if __import__("bsd_v2_guardrails").v21_market_shadow(performance_tracker,k)],
+                            "league_market":[k for k,v in league_market_performance.items()
+                                if __import__("bsd_v2_guardrails").v21_bucket_gap(v)>.06]},
+                       "v21_new_picks":new_picks,
+                       "v21_daily_cap":V21_DAILY_NEW_PICKS},
     }
     return output
 

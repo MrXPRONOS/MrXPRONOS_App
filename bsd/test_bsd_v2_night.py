@@ -12,8 +12,10 @@ def fixture(num,dt,odd=1.35):
     return {"id":f"bsd:{num}","source":"bsd","source_event_id":num,
             "date":dt.date().isoformat(),"event_date":dt.isoformat(),
             "status":"notstarted","home_team":"A","away_team":"B",
+            "recommendation_eligible":True,
             "prediction":{"type":"Double chance 1X","selection_key":"1X",
-                          "odds":odd,"odds_source":"bsd_consensus"}}
+                          "odds":odd,"odds_source":"bsd_consensus",
+                           "recommendation_eligible":True}}
 
 class NightScheduleTests(unittest.TestCase):
     def test_cross_midnight_and_boundaries(self):
@@ -77,7 +79,7 @@ class NightScheduleTests(unittest.TestCase):
         match=fixture(1,when(8,22),1.55)
         match["predictions"]=[match["prediction"],{
             "type":"Plus de 1.5 buts","selection_key":"OVER_15","odds":1.58,
-            "odds_source":"bsd_consensus"}]
+            "odds_source":"bsd_consensus","recommendation_eligible":True}]
         self.assertEqual(len(expand_tickets(match)),2)
 
 if __name__=="__main__":
