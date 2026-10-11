@@ -16,7 +16,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from math import isfinite
 
-POLICY_VERSION = "bsd-v2-policy-2026-10-10-r1"
+POLICY_VERSION = "bsd-v2-policy-2026-10-11-v21"
 PERFORMANCE_FORMAT = "bsd-v2-performance-v1"
 
 VERIFIED_ODDS_SOURCES = frozenset(("bsd_consensus", "bsd_bookmaker"))
@@ -34,6 +34,7 @@ FAMILY_PRICE_EDGE = {
 # peut pas être publiée comme sélection principale.
 MIN_CONSERVATIVE_BY_FAMILY = {
     "double_chance": .75,
+    "goals": .00,
 }
 
 MIN_DRIFT_SAMPLES = 100
@@ -237,3 +238,84 @@ def tracker_penalties(tracker):
         if isinstance(v, dict)
     }
     return by_key, by_family
+
+# V2.1 prospective publication controls. No revision of probability training.
+V21_EXCLUDED_KEYS = frozenset(("12",))
+V21_MIN_OVER15_CONSERVATIVE = .85
+V21_MIN_VALUE_EDGE = .022
+V21_SHADOW_MIN_SAMPLES = 50
+V21_SHADOW_MAX_OVERCONFIDENCE = .06
+V21_SHADOW_MIN_LEAGUE_MARKET_SAMPLES = 50
+V21_DAILY_NEW_PICKS = 10
+V21_POLICY_ID = "bsd-v21-2026-10-11"
+
+def v21_bucket_gap(bucket):
+    if not isinstance(bucket, dict) or int(bucket.get("n") or 0) < V21_SHADOW_MIN_SAMPLES:
+        return 0.0
+    n = int(bucket["n"])
+    return float(bucket.get("sum_pred") or 0.0)/n - float(bucket.get("wins") or 0.0)/n
+
+def v21_market_shadow(tracker, selection_key):
+    bucket = (tracker or {}).get("by_selection", {}).get(str(selection_key), {})
+    return v21_bucket_gap(bucket) > V21_SHADOW_MAX_OVERCONFIDENCE
+
+def v21_signal_tier(choice):
+    p = float(choice.get("conservative_probability", choice.get("probability") or 0))
+    price = float(choice.get("bookmaker_odds") or 0)
+    if price <= 1:
+        return "OBSERVATION"
+    edge = p - 1.0/price
+    if p >= .80 and edge >= .025:
+        return "PREMIUM"
+    if p >= .78 and edge >= V21_MIN_VALUE_EDGE:
+        return "QUALIFIE"
+    return "OBSERVATION"
+
+def v21_accept_priced(choice, tracker=None, league_market=None):
+    """Independent real quote + risk checks; never overwrite the underlying pick."""
+    if not isinstance(choice, dict):
+        return False, "invalid_choice"
+    key = str(choice.get("key") or choice.get("selection_key") or "")
+    if key in V21_EXCLUDED_KEYS:
+        return False, "v21_excluded_12"
+    if choice.get("odds_source") not in VERIFIED_ODDS_SOURCES:
+        return False, "v21_no_real_bookmaker_quote"
+    if v21_market_shadow(tracker, key):
+        return False, "v21_market_circuit_breaker"
+    if isinstance(league_market, dict) and v21_bucket_gap(league_market) > V21_SHADOW_MAX_OVERCONFIDENCE:
+        return False, "v21_league_market_circuit_breaker"
+    p = choice.get("conservative_probability", choice.get("probability"))
+    price = choice.get("bookmaker_odds", choice.get("odds"))
+    if not isinstance(p, (float, int)) or not isinstance(price, (float, int)) or price <= 1:
+        return False, "v21_missing_probability_or_price"
+    p = float(p)
+    if key == "OVER_15" and p < max(V21_MIN_OVER15_CONSERVATIVE, 1/price + V21_MIN_VALUE_EDGE):
+        return False, "v21_over15_conservative_too_low"
+    if p < 1/price + V21_MIN_VALUE_EDGE:
+        return False, "v21_insufficient_real_price_edge"
+    if v21_signal_tier(choice) == "OBSERVATION":
+        return False, "v21_observation_not_recommended"
+    return True, "ok"
+
+def v21_league_market_performance(matches):
+    """Retrospective settled groups for monitoring; protect tiny samples."""
+    groups = {}
+    for match in matches or ():
+        if not isinstance(match, dict) or not match.get("is_finished"):
+            continue
+        pred = match.get("prediction") or {}
+        league = str(match.get("league") or "").strip()
+        key = str(pred.get("selection_key") or "")
+        if not league or not key or "verified_prediction" not in match:
+            continue
+        p = pred.get("conservative_probability", pred.get("confidence"))
+        if not isinstance(p, (int, float)):
+            continue
+        prob = float(p)
+        if prob > 1:
+            prob /= 100
+        group = groups.setdefault(league + "|" + key, {"n": 0, "wins": 0, "sum_pred": 0.0})
+        group["n"] += 1
+        group["wins"] += int(bool(match["verified_prediction"]))
+        group["sum_pred"] += prob
+    return groups
