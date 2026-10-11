@@ -1889,13 +1889,28 @@ function updateConseilSeo(conseil, resolvedSlug) {
   ensureCanonical(canonicalUrl);
 }
 
+function conseilVisualIcon(conseil = {}) {
+  const haystack = [conseil.title, conseil.keywords, conseil.slug].filter(Boolean).join(" ").toLowerCase();
+  if (/bankroll|budget|mise/.test(haystack)) return "◉";
+  if (/cote|value|valeur/.test(haystack)) return "↗";
+  if (/erreur|piège|danger|tilt/.test(haystack)) return "⚠";
+  if (/responsable|discipline|limite/.test(haystack)) return "✓";
+  if (/analyse|match|statistique|h2h/.test(haystack)) return "▥";
+  return "✓";
+}
+
 async function displayConseils() {
   if (!DOM.conseilsList) return;
   await loadGeneratedContent();
   const data = await loadDataGeneric();
 
-  const allConseils = window.generatedConseils && window.generatedConseils.length ? window.generatedConseils : (data?.conseils) || [];
-  window.conseilsData = allConseils.filter((c) => c?.active !== false);
+  const allConseils = window.generatedConseils && window.generatedConseils.length
+    ? window.generatedConseils
+    : (data?.conseils) || [];
+
+  window.conseilsData = allConseils
+    .filter((c) => c?.active !== false)
+    .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
   const horizontalContainer = document.getElementById("conseils-horizontal-list");
   if (horizontalContainer) {
@@ -1914,16 +1929,32 @@ async function displayConseils() {
 
   DOM.conseilsList.innerHTML =
     window.conseilsData
-      .map(
-        (conseil) => `
-    <div class="news-card card" onclick="openConseilPage('${escapeAttribute(conseil.slug || "")}')">
-      <img src="${escapeAttribute(conseil.image_url || "assets/images/default-logo.png")}" alt="${escapeAttribute(stripMarkdown(conseil.title || "Conseil"))}" loading="lazy" class="news-image">
-      <h3>${escapeHtml(stripMarkdown(conseil.title || "Conseil"))}</h3>
-      <p>${escapeHtml(stripMarkdown((conseil.content || "").slice(0, 120)))}...</p>
-      <button class="btn btn-secondary" style="margin-top:10px;">Lire le conseil</button>
-    </div>
-  `
-      )
+      .map((conseil) => {
+        const title = stripMarkdown(conseil.title || "Conseil");
+        const excerpt = stripMarkdown(
+          conseil.excerpt || conseil.meta_description || conseil.content || ""
+        ).replace(title, "").trim().slice(0, 180);
+        const icon = conseilVisualIcon(conseil);
+        const slug = escapeAttribute(conseil.slug || "");
+
+        return `
+          <article class="conseil-premium-card" role="link" tabindex="0"
+            aria-label="Lire le conseil ${escapeAttribute(title)}"
+            onclick="openConseilPage('${slug}')"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openConseilPage('${slug}')}">
+            <div class="conseil-card-media">
+              <img src="${escapeAttribute(conseil.image_url || "assets/images/default-logo.png")}"
+                alt="${escapeAttribute(title)}" loading="lazy">
+              <span class="conseil-card-icon" aria-hidden="true">${icon}</span>
+            </div>
+            <div class="conseil-card-body">
+              <h3>${escapeHtml(title)}</h3>
+              <p>${escapeHtml(excerpt)}${excerpt.length >= 180 ? "…" : ""}</p>
+              <span class="conseil-card-cta">Lire le conseil <span aria-hidden="true">→</span></span>
+            </div>
+          </article>
+        `;
+      })
       .join("") || '<div class="no-events">Aucun conseil disponible pour le moment.</div>';
 }
 
