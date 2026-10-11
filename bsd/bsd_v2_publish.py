@@ -323,10 +323,14 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
     # ne jamais substituer un autre marché après publication initiale.
     known=set(saved)
     new_picks=0
+    # Limit counts existing future publications for each fixture DATE,
+    # not merely the current GitHub Actions run.
+    published_by_day=Counter(
+        str(row.get("date") or str(row.get("event_date") or "")[:10])
+        for row in result
+        if str(row.get("status") or "") in ("notstarted","upcoming")
+    )
     for f in fixtures:
-        if new_picks >= V21_DAILY_NEW_PICKS:
-            stats["daily_publication_cap"]+=1
-            continue
         if not isinstance(f,dict) or f.get("id") is None:continue
         eid=str(f["id"])
         if eid in known:continue
@@ -336,6 +340,10 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         try: kickoff=fixture_datetime(f)
         except (ValueError,TypeError):
             entry["reason"]="invalid_kickoff"
+            continue
+        if published_by_day[kickoff.date().isoformat()] >= V21_DAILY_NEW_PICKS:
+            entry["reason"]="daily_publication_cap"
+            stats["daily_publication_cap"]+=1
             continue
         if kickoff<=now or kickoff>now+timedelta(days=FUTURE_DAYS):
             entry["reason"]="outside_upcoming_window"
@@ -462,6 +470,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         stats["priced_selected"] += 1
         result.append(to_site(prediction,f))
         new_picks+=1
+        published_by_day[kickoff.date().isoformat()]+=1
         known.add(eid)
         stats["created"]+=1
     result=[normalize_match(r) for r in result]
