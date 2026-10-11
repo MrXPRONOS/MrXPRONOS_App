@@ -40,7 +40,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" onerror="showBootError('Babel ne peut pas être chargé depuis unpkg.com')"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="showBootError('Supabase JS ne peut pas être chargé depuis jsDelivr')"></script>
   <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
-  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium7">
+  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium8">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -486,9 +486,10 @@
     function assetForPrediction(pred) {
       const type = String(pred?.type || pred?.badge || pred?.title || "").toLowerCase();
       if (type.includes("corner")) return "corner";
-      if (type.includes("shot") || type.includes("tir")) return "ball";
-      if (type.includes("foul") || type.includes("faute")) return "cards";
-      return "target";
+      if (type.includes("shot") || type.includes("tir")) return "target";
+      if (type.includes("foul") || type.includes("faute")) return "whistle";
+      if (type.includes("card") || type.includes("booking") || type.includes("carton")) return "cards";
+      return "ball";
     }
 
     function currentValueForPrediction(match, pred) {
@@ -894,7 +895,7 @@
             <>
               <section className="mx-live-row__market mx-live-row__market--stats">
                 <div className="mx-live-row__mini-stat"><LiveAssetIcon name="corner" size={25} /><span>Corners</span><strong>{totalCorners}</strong></div>
-                <div className="mx-live-row__mini-stat"><LiveAssetIcon name="cards" size={25} /><span>Fautes</span><strong>{totalFouls}</strong></div>
+                <div className="mx-live-row__mini-stat"><LiveAssetIcon name="whistle" size={25} /><span>Fautes</span><strong>{totalFouls}</strong></div>
                 <div className="mx-live-row__mini-stat"><LiveAssetIcon name="ball" size={25} /><span>Tirs</span><strong>{totalShots}</strong></div>
               </section>
               <section className="mx-live-row__pick mx-live-row__pick--empty">
@@ -912,29 +913,39 @@
       const leagueLogo = getLeagueLogo(match);
       const homeLogo = getTeamLogo(match, "home");
       const awayLogo = getTeamLogo(match, "away");
+      const dateLabel = match.event_date
+        ? new Date(match.event_date).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })
+        : "À venir";
 
       return (
-        <Card className="bg-[#101010]">
-          <div className="flex items-center justify-between mb-3 gap-2">
-            <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
+        <Card className="mx-upcoming-card">
+          <div className="mx-upcoming-card__meta">
+            <span className="mx-upcoming-card__league">
               <LogoImg src={leagueLogo} alt={match?.league?.name} size={20} />
-              <span className="truncate">{match?.league?.name || "Ligue"}</span>
-            </div>
-            <Badge color="gray">
-              <Icon name="clock" size={11} /> {match.event_date ? formatTime(match.event_date) : "Heure inconnue"}
-            </Badge>
+              <span>{match?.league?.name || "Ligue"}</span>
+            </span>
+            <span className="mx-upcoming-card__time">
+              <LiveAssetIcon name="stopwatch" size={20} />
+              <b>{match.event_date ? formatTime(match.event_date) : "—"}</b>
+              <small>{dateLabel}</small>
+            </span>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 min-w-0">
-              <LogoImg src={homeLogo} alt={match.home_team} size={28} />
-              <span className="font-semibold text-sm truncate">{match.home_team}</span>
+          <div className="mx-upcoming-card__teams">
+            <div>
+              <LogoImg src={homeLogo} alt={match.home_team} size={42} />
+              <strong>{match.home_team}</strong>
             </div>
-            <div className="text-xs text-gray-500 text-center">vs</div>
-            <div className="flex items-center gap-2 min-w-0">
-              <LogoImg src={awayLogo} alt={match.away_team} size={28} />
-              <span className="font-semibold text-sm truncate">{match.away_team}</span>
+            <span className="mx-upcoming-card__vs">VS</span>
+            <div>
+              <LogoImg src={awayLogo} alt={match.away_team} size={42} />
+              <strong>{match.away_team}</strong>
             </div>
+          </div>
+
+          <div className="mx-upcoming-card__foot">
+            <LiveAssetIcon name="ball" size={22} />
+            <span>Match programmé · surveillance automatique à l'approche du coup d'envoi</span>
           </div>
         </Card>
       );
@@ -972,7 +983,7 @@
       return (
         <Card
           onClick={() => onOpen?.(h)}
-          className={`relative border-[#D4AF37]/15 pb-16 ${cardOutcomeClass}`}
+          className={`mx-history-live-card relative border-[#D4AF37]/15 pb-16 ${cardOutcomeClass}`}
         >
           <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
             <div className="flex items-center gap-2 min-w-0">
@@ -1353,8 +1364,9 @@
                   hover={!isPredValidatedNotif} /* évite conflit transform avec animation */
                   onClick={() => canOpen && onOpenPrediction?.(n.related_prediction_id)}
                   className={`
+                    mx-notification-card
                     ${isPredValidatedNotif ? "relative pb-16" : ""}
-                    ${!n.read ? "border-[#D4AF37]/35 bg-[#141414]" : ""}
+                    ${!n.read ? "is-unread" : ""}
                     ${attractiveClass}
                     ${canOpen ? "cursor-pointer" : ""}
                   `}
@@ -1445,7 +1457,7 @@
         { key: "all", label: "Tous", icon: "ball", count: counts.all },
         { key: "corners", label: "Corners", icon: "corner", count: counts.corners },
         { key: "shots", label: "Tirs", icon: "target", count: counts.shots },
-        { key: "fouls", label: "Fautes", icon: "cards", count: counts.fouls },
+        { key: "fouls", label: "Fautes", icon: "whistle", count: counts.fouls },
         { key: "best", label: "Meilleurs signaux", icon: "bars", count: counts.best },
       ];
 
