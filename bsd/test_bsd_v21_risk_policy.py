@@ -26,7 +26,8 @@ class V21SafetyTests(unittest.TestCase):
         self.assertEqual(v21_signal_tier(model),"INDICATIF")
         self.assertTrue(v21_accept_priced(pick(probability=.80, odds=1.20, source="mrxpronos_model"))[0])
         self.assertEqual(v21_signal_tier(pick(probability=.80, odds=1.20, source="mrxpronos_model")), "INDICATIF")
-        self.assertFalse(v21_accept_priced(pick(probability=.799, odds=1.20, source="mrxpronos_model"))[0])
+        self.assertTrue(v21_accept_priced(pick(probability=.775, odds=1.20, source="mrxpronos_model"))[0])
+        self.assertFalse(v21_accept_priced(pick(probability=.774, odds=1.20, source="mrxpronos_model"))[0])
         self.assertFalse(v21_accept_priced(pick(probability=.82, odds=1.19, source="mrxpronos_model"))[0])
         self.assertFalse(v21_accept_priced(pick(probability=.82, odds=1.35, source="mrxpronos_model"))[0])
         self.assertFalse(v21_accept_priced(pick("OVER_15", .82, 1.20, source="mrxpronos_model"))[0])
@@ -39,6 +40,12 @@ class V21SafetyTests(unittest.TestCase):
     def test_real_price_edge(self):
         self.assertFalse(v21_accept_priced(pick(probability=.80, odds=1.2))[0])
         self.assertTrue(v21_accept_priced(pick(probability=.84, odds=1.5))[0])
+
+    def test_lower_real_tier_still_requires_independent_positive_edge(self):
+        self.assertTrue(v21_accept_priced(pick("UNDER_35", probability=.767, odds=1.41))[0])
+        self.assertEqual(v21_signal_tier(pick("UNDER_35", probability=.767, odds=1.41)), "QUALIFIE")
+        self.assertFalse(v21_accept_priced(pick("UNDER_35", probability=.759, odds=1.41))[0])
+        self.assertFalse(v21_accept_priced(pick("UNDER_35", probability=.767, odds=1.20))[0])
 
     def test_tiers(self):
         self.assertEqual(v21_signal_tier(pick(probability=.84)), "PREMIUM")
