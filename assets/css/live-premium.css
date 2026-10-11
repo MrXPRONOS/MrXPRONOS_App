@@ -723,3 +723,29 @@ body.mx-live-page{
   .mx-live-page .mx-live-stat small{line-height:1.3}
   .mx-live-page .mx-live-row__scoreboard{width:100%}
 }
+
+/* New exported WebP assets — keep their original texture and legibility */
+.mx-live-page .mx-live-hero{
+  background-color:#030c15;
+  background-position:50% 54%;
+}
+.mx-live-page .mx-live-hero-player{
+  object-fit:contain;
+  object-position:bottom;
+  image-rendering:auto;
+  -webkit-backface-visibility:hidden;
+}
+.mx-live-page .mx-live-benefit img,.mx-live-page .mx-live-stat img{
+  flex-shrink:0;
+  object-fit:contain;
+  filter:drop-shadow(0 3px 5px rgba(0,0,0,.3));
+}
+.mx-live-page .mx-live-row__market-badge img,.mx-live-page .mx-live-row__mini-stat img{
+  object-fit:contain;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.22));
+}
+@media(max-width:640px){
+  .mx-live-page .mx-live-hero{background-position:55% center}
+  .mx-live-page .mx-live-benefit span{overflow-wrap:normal}
+  .mx-live-page .mx-live-benefit b{white-space:normal;overflow-wrap:normal}
+}

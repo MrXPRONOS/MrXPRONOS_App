@@ -114,6 +114,19 @@ def run_view(browser, width, height, name):
     if missing:
         raise AssertionError(f"{name}: premium assets missing from rendered interface: {missing}")
 
+    image_health = page.locator("img[src*='live-premium/']").evaluate_all("""imgs => imgs.map(img => ({
+        src: img.getAttribute('src'), loaded: img.complete && img.naturalWidth > 0,
+        width: img.naturalWidth, height: img.naturalHeight
+    }))""")
+    broken = [item for item in image_health if not item["loaded"]]
+    if broken:
+        raise AssertionError(f"{name}: missing or broken premium WebP images: {broken}")
+    if not any("player-back.webp" in item["src"] for item in image_health):
+        raise AssertionError(f"{name}: hero player asset missing")
+    hero_background = page.locator(".mx-live-hero").evaluate("(el) => getComputedStyle(el).backgroundImage")
+    if "hero-stadium.webp" not in hero_background:
+        raise AssertionError(f"{name}: premium stadium background missing")
+
     score = page.locator(".mx-live-row__score-center").first
     score.wait_for(state="visible")
     if not score.inner_text().strip():
