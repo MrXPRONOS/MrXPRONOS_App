@@ -1665,12 +1665,35 @@ window.closeArticleModal = function () {
   if (DOM.articleModal) DOM.articleModal.style.display = "none";
 };
 
+function blogArticleCategory(article = {}) {
+  const haystack = [
+    article.title,
+    article.keywords,
+    article.type,
+    article.topic_id,
+  ].filter(Boolean).join(" ").toLowerCase();
+
+  if (/bankroll|gestion|mise|discipline|budget/.test(haystack)) return "Stratégie";
+  if (/erreur|début|conseil|guide|psychologie/.test(haystack)) return "Conseils";
+  if (/statistique|xg|donnée|forme|décod|décrypt/.test(haystack)) return "Décryptage";
+  if (/championnat|tendance|saison|ligue/.test(haystack)) return "Tendances";
+  return "Analyses";
+}
+
+function formatBlogDate(value) {
+  const date = new Date(value || "");
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+}
+
 async function displayBlogList() {
   if (!DOM.blogList) return;
   await loadGeneratedContent();
   const data = await loadDataGeneric();
 
-  const allArticles = [...(window.generatedArticles || []), ...((data?.blog) || [])].filter((a) => a?.active !== false);
+  const allArticles = [...(window.generatedArticles || []), ...((data?.blog) || [])]
+    .filter((a) => a?.active !== false)
+    .sort((a, b) => new Date(b.date || b.published_at || 0) - new Date(a.date || a.published_at || 0));
   window.articlesData = allArticles;
 
   const horizontalContainer = document.getElementById("blog-horizontal-list");
@@ -1690,16 +1713,33 @@ async function displayBlogList() {
 
   DOM.blogList.innerHTML =
     allArticles
-      .map(
-        (article, index) => `
-    <div class="news-card card" onclick="showArticleDetail(${index})">
-      <img src="${escapeAttribute(article.image_url || "assets/images/default-logo.png")}" alt="${escapeAttribute(stripMarkdown(article.title || "Article"))}" loading="lazy" class="news-image">
-      <h3>${escapeHtml(stripMarkdown(article.title || "Article"))}</h3>
-      <p>${escapeHtml(stripMarkdown((article.excerpt || article.content || "").slice(0, 120)))}...</p>
-      <button class="btn btn-secondary" style="margin-top:10px;">Lire la suite</button>
-    </div>
-  `
-      )
+      .map((article, index) => {
+        const title = stripMarkdown(article.title || "Article");
+        const excerpt = stripMarkdown(
+          article.meta_description || article.excerpt || article.content || ""
+        ).replace(title, "").trim().slice(0, 175);
+        const category = blogArticleCategory(article);
+        const date = formatBlogDate(article.date || article.published_at);
+
+        return `
+          <article class="blog-premium-card" role="button" tabindex="0"
+            aria-label="Lire l'article ${escapeAttribute(title)}"
+            onclick="showArticleDetail(${index})"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showArticleDetail(${index})}">
+            <div class="blog-card-media">
+              <img src="${escapeAttribute(article.image_url || "assets/images/default-logo.png")}"
+                alt="${escapeAttribute(title)}" loading="lazy">
+              <span class="blog-card-category">${escapeHtml(category)}</span>
+              <span class="blog-card-date">${escapeHtml(date)}</span>
+            </div>
+            <div class="blog-card-body">
+              <h3>${escapeHtml(title)}</h3>
+              <p>${escapeHtml(excerpt)}${excerpt.length >= 175 ? "…" : ""}</p>
+              <span class="blog-card-cta">Lire l'article <span aria-hidden="true">›</span></span>
+            </div>
+          </article>
+        `;
+      })
       .join("") || '<div class="no-events">Aucun article pour le moment.</div>';
 }
 
