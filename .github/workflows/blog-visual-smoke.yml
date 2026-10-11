@@ -1,0 +1,51 @@
+name: Blog responsive browser smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'blog.html'
+      - 'assets/css/blog-premium.css'
+      - 'assets/js/main.js'
+      - 'assets/images/blog-premium/**'
+      - 'scripts/blog_visual_smoke.py'
+      - '.github/workflows/blog-visual-smoke.yml'
+  pull_request:
+    paths:
+      - 'blog.html'
+      - 'assets/css/blog-premium.css'
+      - 'assets/js/main.js'
+      - 'assets/images/blog-premium/**'
+      - 'scripts/blog_visual_smoke.py'
+      - '.github/workflows/blog-visual-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium automation
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local website
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/blog-http.log 2>&1 &
+          sleep 2
+      - name: Verify Blog at 1024px and 390px
+        run: python scripts/blog_visual_smoke.py
+      - name: Save responsive screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blog-responsive-1024-390
+          path: artifacts/blog-responsive/
+          if-no-files-found: warn
