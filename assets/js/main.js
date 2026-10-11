@@ -2,8 +2,7 @@
  * main.js - Mr XPRONOS
  * Version stable + SEO amélioré (slug articles + conseils + metas dynamiques)
  * + Cookies (mx_user_id)
- * + PRO = 1 partage / jour
- * + VIP = 1 partage / jour
+ * + Accès libre aux pronostics Simple, Pro et VIP
  *
  * (VIP PAYANT SUPPRIMÉ)
  */
@@ -25,12 +24,9 @@ let searchTerm = "";
 let usingCachedData = false;
 
 let onlineChannel = null;
-let pendingShare = null;
 let generatedContentPromise = null;
 const activeChannels = new Set();
 
-// ■ PRO = 1 partage/jour, VIP = 1 partage/jour
-const shareLimits = { pro: 1, vip: 1 };
 
 const BASE_SITE_URL = "https://mrxpronos.github.io/MrXPRONOS_App/";
 
@@ -56,8 +52,6 @@ const POPULAR_LEAGUES = [
 
 const DOM = {
   matches: null,
-  sharePopup: null,
-  vipLockedOverlay: null,
   bookmakersFooter: null,
   bookmakersBonus: null,
   vipSubtabs: null,
@@ -67,7 +61,6 @@ const DOM = {
   winsCount: null,
   successFill: null,
   successPercent: null,
-  shareCounter: null,
   winsTrack: null,
   testimonials: null,
 
@@ -116,8 +109,6 @@ function qsa(sel, root = document) {
 
 function initDOM() {
   DOM.matches = document.getElementById("matches-container");
-  DOM.sharePopup = document.getElementById("share-popup");
-  DOM.vipLockedOverlay = document.getElementById("vip-locked-overlay");
 
   DOM.bookmakersFooter = document.getElementById("bookmakers-footer");
   DOM.bookmakersBonus = document.getElementById("bookmakers-bonus");
@@ -130,7 +121,6 @@ function initDOM() {
   DOM.winsCount = document.getElementById("wins-count");
   DOM.successFill = document.getElementById("success-fill");
   DOM.successPercent = document.getElementById("success-percent");
-  DOM.shareCounter = document.getElementById("share-counter");
   DOM.winsTrack = document.getElementById("wins-track");
   DOM.testimonials = document.getElementById("testimonials-container");
 
@@ -831,230 +821,26 @@ function closeIosGuide() {
 }
 
 /* =======================================================
- PARTAGES (compteur journalier)
+ PARTAGE FACULTATIF — aucun accès n'est conditionné au partage
 ======================================================= */
-function getDailyShareCount() {
-  const lastReset = localStorage.getItem("shareLastReset");
-  const todayKey = getTodayString();
-  if (lastReset !== todayKey) {
-    localStorage.setItem("shareLastReset", todayKey);
-    localStorage.setItem("shareCount", "0");
-    return 0;
-  }
-  return parseInt(localStorage.getItem("shareCount") || "0", 10);
-}
-
-function incrementShareCount() {
-  const current = getDailyShareCount();
-  const next = current + 1;
-  localStorage.setItem("shareCount", String(next));
-  return next;
-}
-
-function updateShareCounter() {
-  if (DOM.shareCounter) {
-    DOM.shareCounter.textContent = `■ ${getDailyShareCount()} partages aujourd'hui`;
-  }
-}
-
-function startShareTracking({ countForUnlock = true, category = currentCategory } = {}) {
-  pendingShare = {
-    startedAt: Date.now(),
-    countForUnlock,
-    category,
-    finalized: false,
-  };
-  setTimeout(() => finalizePendingShare(true), 5500);
-}
-
-function finalizePendingShare(force = false) {
-  if (!pendingShare || pendingShare.finalized) return;
-  const elapsed = Date.now() - pendingShare.startedAt;
-  if (!force && elapsed < 5000) return;
-
-  pendingShare.finalized = true;
-  const ctx = pendingShare;
-  pendingShare = null;
-
-  if (ctx.countForUnlock) {
-    const newCount = incrementShareCount();
-    updateShareCounter();
-    updateLockedStateForCategory(ctx.category, newCount);
-  }
-
-  incrementCounter("total_shares");
-  recordEvent("share", window.location.pathname);
-}
-
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) finalizePendingShare(false);
-});
-
-function updateLockedStateForCategory(category, newCount) {
-  const target = shareLimits[category];
-  if (!target) return;
-
-  if (newCount >= target) {
-    hideVipLocked();
-    filterAndDisplay();
-  } else {
-    if (DOM.vipLockedOverlay && DOM.vipLockedOverlay.style.display === "flex") {
-      showVipLocked(category);
-    } else {
-      showSharePopup(category, target - newCount);
-    }
-  }
-}
-
 function openShareWindow(url) {
-  return !!window.open(url, "_blank", "noopener,noreferrer");
-}
-
-function share(platform) {
-  const message = `Salut frère ■■,
-Avec ce site, on ne va plus perdre les coupons : il propose des coupons plutôt fiables, même pour les matchs en live ■■■
-Je viens de le découvrir ■ et, pour l’instant, c’est totalement gratuit ■… autant en profiter maintenant avant que ça devienne payant ■■
-Voici le lien ■ : https://mrxpronos.github.io/MrXPRONOS_App/`;
-
-  const url =
-    platform === "whatsapp"
-      ? `https://wa.me/?text=${encodeURIComponent(message)}`
-      : `https://t.me/share/url?url=${encodeURIComponent(BASE_SITE_URL)}&text=${encodeURIComponent(message)}`;
-
-  openShareWindow(url);
-  startShareTracking({ countForUnlock: true, category: currentCategory });
+  window.open(url, "_blank", "noopener,noreferrer");
 }
 
 function sharePronostic(match) {
   if (!match || !match.prediction) return;
-
-  const msg = `■ COUPONS GRATUITS
-■ ${match.home_team} vs ${match.away_team}
-■ Pronostic : ${match.prediction.type || match.prediction.double_chance || "-"} – Fiabilité ${match.prediction.confidence}%
-■ Plus de Coupons :
-${BASE_SITE_URL}
-■ Rejoins les gagnants !`;
-
+  const msg = `⚽ COUPONS GRATUITS
+${match.home_team} vs ${match.away_team}
+Pronostic : ${match.prediction.type || match.prediction.double_chance || "-"} – Fiabilité ${match.prediction.confidence}%
+Plus de coupons : ${BASE_SITE_URL}`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
   const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(BASE_SITE_URL)}&text=${encodeURIComponent(msg)}`;
-
   const useWhatsapp = confirm("Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)");
   openShareWindow(useWhatsapp ? whatsappUrl : telegramUrl);
-
+  // Mesure uniquement une intention volontaire de partage, jamais une condition d'accès.
+  incrementCounter("total_shares");
+  recordEvent("share", window.location.pathname);
   recordEvent("click_pronostic", window.location.pathname);
-  startShareTracking({ countForUnlock: false, category: currentCategory });
-}
-
-/* =======================================================
- OVERLAY (verrouillage PRO/VIP par partage)
-======================================================= */
-function ensureVipOverlayStructure() {
-  if (!DOM.vipLockedOverlay) return;
-
-  if (DOM.vipLockedOverlay.children.length === 0) {
-    DOM.vipLockedOverlay.innerHTML = `
-      <div class="vip-locked-content">
-        <div class="lock-icon">■</div>
-        <h3></h3>
-        <p></p>
-        <div class="share-buttons vip-contact-buttons" style="display:flex; gap:10px; justify-content:center; margin:20px 0;">
-          <button id="share-wa-locked" class="btn btn-primary">WhatsApp</button>
-          <button id="share-tg-locked" class="btn btn-primary">Telegram</button>
-        </div>
-        <p>Partages actuels : <span id="share-count-locked">0</span>/<span id="share-target-locked">1</span></p>
-        <button id="close-locked" class="btn btn-secondary">Fermer</button>
-      </div>
-    `;
-
-    document.getElementById("share-wa-locked")?.addEventListener("click", () => share("whatsapp"));
-    document.getElementById("share-tg-locked")?.addEventListener("click", () => share("telegram"));
-
-    document.getElementById("close-locked")?.addEventListener("click", () => {
-      DOM.vipLockedOverlay.style.display = "none";
-      if (DOM.matches) DOM.matches.style.display = "grid";
-    });
-  }
-}
-
-function showVipLocked(category) {
-  const target = shareLimits[category];
-  if (!target) return;
-
-  const shareCount = getDailyShareCount();
-  const remaining = Math.max(0, target - shareCount);
-
-  const label = category === "pro" ? "Pro" : category === "vip" ? "VIP" : "Premium";
-
-  if (DOM.vipLockedOverlay) {
-    ensureVipOverlayStructure();
-
-    const titleEl = DOM.vipLockedOverlay.querySelector("h3");
-    const textEl = DOM.vipLockedOverlay.querySelector("p");
-    const shareCountEl = document.getElementById("share-count-locked");
-    const shareTargetEl = document.getElementById("share-target-locked");
-
-    if (titleEl) titleEl.textContent = `■ Pronostics ${label} verrouillés`;
-    if (textEl) textEl.innerHTML = `Partagez ce lien à <strong>${remaining}</strong> ami(s) pour débloquer.`;
-    if (shareCountEl) shareCountEl.textContent = String(shareCount);
-    if (shareTargetEl) shareTargetEl.textContent = String(target);
-
-    DOM.vipLockedOverlay.style.display = "flex";
-    if (DOM.matches) DOM.matches.style.display = "none";
-  } else {
-    showSharePopup(category, remaining);
-  }
-}
-
-function hideVipLocked() {
-  if (DOM.vipLockedOverlay) {
-    DOM.vipLockedOverlay.style.display = "none";
-    if (DOM.matches) DOM.matches.style.display = "grid";
-  }
-}
-
-function showSharePopup(category, remaining) {
-  if (!DOM.sharePopup) createSharePopup();
-
-  const shareCount = getDailyShareCount();
-  const target = shareLimits[category] || 0;
-  const label = category === "pro" ? "Pro" : category === "vip" ? "VIP" : "Premium";
-
-  const currentEl = document.getElementById("share-current");
-  const targetEl = document.getElementById("share-target");
-  const messageEl = document.getElementById("share-message");
-
-  if (currentEl) currentEl.textContent = String(shareCount);
-  if (targetEl) targetEl.textContent = String(target);
-  if (messageEl) {
-    messageEl.innerHTML = `Pour accéder aux pronostics <strong>${label}</strong>, partagez ce lien à <span id="share-remaining">${remaining}</span> ami(s) sur WhatsApp ou Telegram.`;
-  }
-  DOM.sharePopup.classList.add("active");
-}
-
-function createSharePopup() {
-  const popup = document.createElement("div");
-  popup.id = "share-popup";
-  popup.className = "popup";
-  popup.innerHTML = `
-    <div class="popup-content">
-      <h3>■ Contenu premium</h3>
-      <p id="share-message">
-        Pour débloquer, partagez ce lien à <span id="share-remaining">1</span> ami sur WhatsApp ou Telegram.
-      </p>
-      <div class="share-buttons">
-        <button id="share-wa" class="btn btn-primary">WhatsApp</button>
-        <button id="share-tg" class="btn btn-primary">Telegram</button>
-      </div>
-      <p>Partages actuels : <span id="share-current">0</span>/<span id="share-target">1</span></p>
-      <button id="close-popup" class="btn btn-secondary">Fermer</button>
-    </div>
-  `;
-  document.body.appendChild(popup);
-  DOM.sharePopup = popup;
-
-  document.getElementById("share-wa")?.addEventListener("click", () => share("whatsapp"));
-  document.getElementById("share-tg")?.addEventListener("click", () => share("telegram"));
-  document.getElementById("close-popup")?.addEventListener("click", () => DOM.sharePopup?.classList.remove("active"));
 }
 
 /* =======================================================
@@ -1137,7 +923,6 @@ async function loadData() {
   }
 
   renderBookmakers(allData.bookmakers);
-  hideVipLocked();
   filterAndDisplay();
   updatePronosticsSuccessRate();
 }
@@ -1354,8 +1139,7 @@ function filterAndDisplay() {
     return;
   }
 
-  // On cache le verrouillage : les pronos simple, pro et vip s’affichent directement
-  hideVipLocked();
+  // Tous les pronostics publiés sont visibles sans partage.
 
   const targetDate = getLocalDateString(currentDay);
 
@@ -2417,7 +2201,7 @@ function displayTopTodayCoupons() {
   if (!DOM.topTodayPicks || !allData?.matches) return;
   const todayStr = getLocalDateString("today");
 
-  // Choix UX : afficher les "simple" uniquement (accessible sans déblocage)
+  // Choix UX : mettre en avant les pronostics simples, les autres sont accessibles sur la page Pronostics.
   const picks = allData.matches
     .filter((m) => m.category === "simple")
     .filter((m) => getLocalDateFromEvent(m.event_date) === todayStr)
@@ -2655,17 +2439,6 @@ function setupGlobalButtons() {
   document.getElementById("close-ios-guide")?.addEventListener("click", closeIosGuide);
   document.getElementById("close-ios-guide-btn")?.addEventListener("click", closeIosGuide);
 
-  // Bouton accueil : Débloquer maintenant
-  document.getElementById("unlock-now")?.addEventListener("click", () => {
-    const shareCount = getDailyShareCount();
-    const target = shareLimits.vip; // 1/jour
-    if (shareCount >= target) {
-      showToast("Déjà débloqué aujourd'hui.", "success");
-      return;
-    }
-    const remaining = Math.max(0, target - shareCount);
-    showSharePopup("vip", remaining);
-  });
 }
 
 function setupPronosticPageListeners() {
@@ -2715,45 +2488,8 @@ function setupPronosticPageListeners() {
 }
 
 async function handleCategoryChange() {
-  const vipEnabled = localStorage.getItem("vipEnabled") !== "false";
-
-  // VIP = partage/jour (plus de code)
-  if (currentCategory === "vip") {
-    if (!vipEnabled) {
-      alert("Les pronostics VIP sont temporairement désactivés.");
-      currentCategory = "simple";
-      qsa(".tab-btn").forEach((b) => b.classList.remove("active"));
-      qs('.tab-btn[data-cat="simple"]')?.classList.add("active");
-      filterAndDisplay();
-      return;
-    }
-
-    const target = shareLimits.vip;
-    const shareCount = getDailyShareCount();
-    if (shareCount >= target) {
-      hideVipLocked();
-      filterAndDisplay();
-    } else {
-      showVipLocked("vip");
-    }
-    return;
-  }
-
-  if (currentCategory === "simple") {
-    hideVipLocked();
-    filterAndDisplay();
-    return;
-  }
-
-  // PRO par partage (1/jour)
-  const target = shareLimits[currentCategory];
-  const shareCount = getDailyShareCount();
-  if (shareCount >= target) {
-    hideVipLocked();
-    filterAndDisplay();
-  } else {
-    showVipLocked(currentCategory);
-  }
+  // Simple, Pro et VIP sont accessibles sans action de partage.
+  filterAndDisplay();
 }
 
 /* =======================================================
@@ -2763,7 +2499,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   initDOM();
   setupGlobalButtons();
   initPromoCopy();
-  updateShareCounter();
 
   const page = detectPage();
 
