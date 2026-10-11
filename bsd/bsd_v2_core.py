@@ -410,6 +410,12 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
     # "PRO" based on data coverage; this label is not a measured hit-rate promise.
     pro = (choice["ranking_confidence"] >= .77 and expected["league_samples"] >= 40
            and min(expected["home_recent_matches"],expected["away_recent_matches"]) >= 10)
+    # VIP is a stricter subset of Pro based on confidence and data coverage.
+    # Market choice, odds sources and model training are unchanged.
+    vip = (pro and choice["ranking_confidence"] >= .83
+           and expected["league_samples"] >= 80
+           and min(expected["home_recent_matches"],expected["away_recent_matches"]) >= 15
+           and min(expected["home_venue_matches"],expected["away_venue_matches"]) >= 5)
     market = {
         "key": c.key, "name": c.label, "market": c.market,
         "outcome": c.outcome, "line": c.line,
@@ -432,7 +438,7 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         "away_team_id": _team_id(event,"away"), "home_team": event.get("home_team"),
         "away_team": event.get("away_team"), "prediction": market,
         "estimated_goals": expected, "score_model": "Dixon-Coles" if rho else "Poisson",
-        "rho": rho, "selection_mode": mode, "category": "pro" if pro else "simple",
+        "rho": rho, "selection_mode": mode, "category": "vip" if vip else ("pro" if pro else "simple"),
         "model_version": "bsd-v2-isolated", "policy_version": POLICY_VERSION,
         "experimental": True, "published": False,
         "model_audit": {
