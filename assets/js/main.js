@@ -1710,13 +1710,119 @@ function blogArticleCategory(article = {}) {
     article.keywords,
     article.type,
     article.topic_id,
+    article.category,
   ].filter(Boolean).join(" ").toLowerCase();
 
-  if (/bankroll|gestion|mise|discipline|budget/.test(haystack)) return "Stratégie";
-  if (/erreur|début|conseil|guide|psychologie/.test(haystack)) return "Conseils";
-  if (/statistique|xg|donnée|forme|décod|décrypt/.test(haystack)) return "Décryptage";
-  if (/championnat|tendance|saison|ligue/.test(haystack)) return "Tendances";
+  if (/transfert|mercato|recrutement|signature|prêt|pret/.test(haystack)) return "Transferts";
+  if (/règlement|reglement|règle|regle|var|arbitrage|fair.?play/.test(haystack)) return "Règlement";
+  if (/calendrier|programme|programmation|horaire|journée|journee/.test(haystack)) return "Calendrier";
+  if (/championnat|compétition|competition|coupe|ligue|tournoi/.test(haystack)) return "Compétitions";
+  if (/actualité|actualite|news|annonce|officiel|breaking/.test(haystack)) return "Actualités";
+  if (/erreur|début|debut|conseil|guide|psychologie|astuce/.test(haystack)) return "Conseils";
+  if (/tendance|saison|forme|serie|série/.test(haystack)) return "Tendances";
+  if (/statistique|xg|donnée|donnee|décrypt|decrypt|analyse|tactique/.test(haystack)) return "Analyses";
+  if (/bankroll|gestion|mise|discipline|budget|stratégie|strategie/.test(haystack)) return "Conseils";
   return "Analyses";
+}
+
+function blogCategoryIcon(category = "") {
+  const base = "assets/images/blog-premium/";
+  const icons = {
+    "Actualités": "icon-blog-news.webp",
+    "Analyses": "icon-blog-analysis.webp",
+    "Conseils": "icon-blog-tips.webp",
+    "Tendances": "icon-blog-trending.webp",
+    "Calendrier": "icon-blog-schedule.webp",
+    "Transferts": "icon-blog-transfers.webp",
+    "Compétitions": "icon-blog-competitions.webp",
+    "Règlement": "icon-blog-rules.webp",
+  };
+  return base + (icons[category] || "icon-blog-category.webp");
+}
+
+const blogViewState = { category: "Tous", query: "" };
+
+function renderBlogPremiumCards() {
+  if (!DOM.blogList) return;
+  const allArticles = Array.isArray(window.articlesData) ? window.articlesData : [];
+  const query = blogViewState.query.trim().toLowerCase();
+
+  const visible = allArticles
+    .map((article, originalIndex) => ({ article, originalIndex }))
+    .filter(({ article }) => {
+      const category = blogArticleCategory(article);
+      if (blogViewState.category !== "Tous" && category !== blogViewState.category) return false;
+      if (!query) return true;
+      const haystack = [
+        article.title,
+        article.meta_description,
+        article.excerpt,
+        article.content,
+        article.keywords,
+        category,
+      ].filter(Boolean).join(" ").toLowerCase();
+      return haystack.includes(query);
+    });
+
+  const countNode = document.getElementById("blog-visible-count");
+  if (countNode) countNode.textContent = `${visible.length} article${visible.length > 1 ? "s" : ""}`;
+
+  DOM.blogList.innerHTML =
+    visible.map(({ article, originalIndex }) => {
+      const title = stripMarkdown(article.title || "Article");
+      const excerpt = stripMarkdown(
+        article.meta_description || article.excerpt || article.content || ""
+      ).replace(title, "").trim().slice(0, 175);
+      const category = blogArticleCategory(article);
+      const date = formatBlogDate(article.date || article.published_at);
+      const categoryIcon = blogCategoryIcon(category);
+      const image = article.image_url || "assets/images/blog-premium/hero-blog.webp";
+
+      return `
+        <article class="blog-premium-card" role="button" tabindex="0"
+          data-blog-category="${escapeAttribute(category)}"
+          aria-label="Lire l'article ${escapeAttribute(title)}"
+          onclick="showArticleDetail(${originalIndex})"
+          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showArticleDetail(${originalIndex})}">
+          <div class="blog-card-media">
+            <img src="${escapeAttribute(image)}" alt="${escapeAttribute(title)}" loading="lazy"
+              onerror="this.onerror=null;this.src='assets/images/blog-premium/hero-blog.webp';">
+            <span class="blog-card-category"><img src="${categoryIcon}" alt="" aria-hidden="true">${escapeHtml(category)}</span>
+            <span class="blog-card-date">${escapeHtml(date)}</span>
+          </div>
+          <div class="blog-card-body">
+            <div class="blog-card-meta"><img src="${categoryIcon}" alt="" aria-hidden="true"><span>${escapeHtml(category)}</span></div>
+            <h3>${escapeHtml(title)}</h3>
+            <p>${escapeHtml(excerpt)}${excerpt.length >= 175 ? "…" : ""}</p>
+            <span class="blog-card-cta">Lire l'article <span aria-hidden="true">›</span></span>
+          </div>
+        </article>
+      `;
+    }).join("") ||
+    '<div class="no-events">Aucun article ne correspond à votre recherche.</div>';
+}
+
+function setupBlogPremiumControls() {
+  const search = document.getElementById("blog-search");
+  const filters = Array.from(document.querySelectorAll("[data-blog-filter]"));
+
+  if (search && search.dataset.blogReady !== "1") {
+    search.dataset.blogReady = "1";
+    search.addEventListener("input", () => {
+      blogViewState.query = search.value || "";
+      renderBlogPremiumCards();
+    });
+  }
+
+  filters.forEach((button) => {
+    if (button.dataset.blogReady === "1") return;
+    button.dataset.blogReady = "1";
+    button.addEventListener("click", () => {
+      blogViewState.category = button.dataset.blogFilter || "Tous";
+      filters.forEach((node) => node.classList.toggle("is-active", node === button));
+      renderBlogPremiumCards();
+    });
+  });
 }
 
 function formatBlogDate(value) {
@@ -1750,36 +1856,8 @@ async function displayBlogList() {
       .join("");
   }
 
-  DOM.blogList.innerHTML =
-    allArticles
-      .map((article, index) => {
-        const title = stripMarkdown(article.title || "Article");
-        const excerpt = stripMarkdown(
-          article.meta_description || article.excerpt || article.content || ""
-        ).replace(title, "").trim().slice(0, 175);
-        const category = blogArticleCategory(article);
-        const date = formatBlogDate(article.date || article.published_at);
-
-        return `
-          <article class="blog-premium-card" role="button" tabindex="0"
-            aria-label="Lire l'article ${escapeAttribute(title)}"
-            onclick="showArticleDetail(${index})"
-            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showArticleDetail(${index})}">
-            <div class="blog-card-media">
-              <img src="${escapeAttribute(article.image_url || "assets/images/default-logo.png")}"
-                alt="${escapeAttribute(title)}" loading="lazy">
-              <span class="blog-card-category">${escapeHtml(category)}</span>
-              <span class="blog-card-date">${escapeHtml(date)}</span>
-            </div>
-            <div class="blog-card-body">
-              <h3>${escapeHtml(title)}</h3>
-              <p>${escapeHtml(excerpt)}${excerpt.length >= 175 ? "…" : ""}</p>
-              <span class="blog-card-cta">Lire l'article <span aria-hidden="true">›</span></span>
-            </div>
-          </article>
-        `;
-      })
-      .join("") || '<div class="no-events">Aucun article pour le moment.</div>';
+  setupBlogPremiumControls();
+  renderBlogPremiumCards();
 }
 
 function setMetaContent(id, value) {

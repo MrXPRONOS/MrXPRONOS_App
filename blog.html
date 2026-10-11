@@ -37,8 +37,10 @@
     </script>
 
     <link rel="icon" href="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" type="image/svg+xml">
+    <link rel="preload" as="image" href="assets/images/blog-premium/hero-blog.webp">
+    <link rel="preload" as="image" href="assets/images/blog-premium/icon-blog-news.webp">
     <link rel="stylesheet" href="assets/css/style.css?v=20261011-blog-premium1">
-    <link rel="stylesheet" href="assets/css/blog-premium.css?v=20261011-blog-premium2">
+    <link rel="stylesheet" href="assets/css/blog-premium.css?v=20261011-blog-premium3">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
 
@@ -67,17 +69,56 @@
             <div class="mx-blog-hero-bg" aria-hidden="true"></div>
             <div class="container mx-blog-hero-inner">
                 <div class="mx-blog-copy">
-                    <span class="mx-blog-eyebrow">BLOG MR XPRONOS</span>
-                    <h1 id="blog-title">Le <span>blog</span></h1>
-                    <p>Analyses, conseils et décryptages autour des paris sportifs et du football. Nos contenus vous aident à mieux comprendre, mieux parier et progresser.</p>
+                    <span class="mx-blog-eyebrow"><i aria-hidden="true"></i> MR XPRONOS · ÉDITORIAL FOOTBALL</span>
+                    <h1 id="blog-title">BLOG</h1>
+                    <h2>ACTUALITÉS <span>&amp; ANALYSES</span></h2>
+                    <p>Toute l'actualité du football, des analyses, des conseils et des tendances pour mieux comprendre le jeu et mieux préparer vos paris.</p>
+                    <div class="mx-blog-hero-pillars" aria-label="Thèmes principaux du blog">
+                        <span><img src="assets/images/blog-premium/icon-blog-news.webp" alt="" aria-hidden="true"><b>Actualités</b><small>Football</small></span>
+                        <span><img src="assets/images/blog-premium/icon-blog-analysis.webp" alt="" aria-hidden="true"><b>Analyses</b><small>Expertes</small></span>
+                        <span><img src="assets/images/blog-premium/icon-blog-tips.webp" alt="" aria-hidden="true"><b>Conseils</b><small>&amp; astuces</small></span>
+                    </div>
                 </div>
-                <img class="mx-blog-ball-mark" src="assets/images/mrxpronos-mark.png?v=20261011-approved-mx1" alt="" aria-hidden="true">
             </div>
         </section>
 
         <div class="container mx-blog-content">
             <div id="vip-locked-overlay" class="vip-locked-overlay" style="display:none;"></div>
             <div id="blog-horizontal-list" class="horizontal-scroll" aria-hidden="true"></div>
+
+            <section class="mx-blog-explorer" aria-labelledby="blog-explorer-title">
+                <div class="mx-blog-explorer-head">
+                    <div>
+                        <span class="mx-blog-section-kicker"><img src="assets/images/blog-premium/icon-blog-category.webp" alt="" aria-hidden="true"> EXPLORER</span>
+                        <h2 id="blog-explorer-title">Choisissez votre sujet</h2>
+                    </div>
+                    <label class="mx-blog-search" for="blog-search">
+                        <img src="assets/images/blog-premium/icon-blog-search.webp" alt="" aria-hidden="true">
+                        <input id="blog-search" type="search" placeholder="Rechercher un article..." autocomplete="off">
+                    </label>
+                </div>
+
+                <div class="mx-blog-filters" role="group" aria-label="Filtrer les articles par catégorie">
+                    <button class="mx-blog-filter is-active" type="button" data-blog-filter="Tous"><img src="assets/images/blog-premium/icon-blog-category.webp" alt="">Tous</button>
+                    <button class="mx-blog-filter" type="button" data-blog-filter="Actualités"><img src="assets/images/blog-premium/icon-blog-news.webp" alt="">Actualités</button>
+                    <button class="mx-blog-filter" type="button" data-blog-filter="Analyses"><img src="assets/images/blog-premium/icon-blog-analysis.webp" alt="">Analyses</button>
+                    <button class="mx-blog-filter" type="button" data-blog-filter="Conseils"><img src="assets/images/blog-premium/icon-blog-tips.webp" alt="">Conseils</button>
+                    <button class="mx-blog-filter" type="button" data-blog-filter="Tendances"><img src="assets/images/blog-premium/icon-blog-trending.webp" alt="">Tendances</button>
+                    <button class="mx-blog-filter" type="button" data-blog-filter="Calendrier"><img src="assets/images/blog-premium/icon-blog-schedule.webp" alt="">Calendrier</button>
+                    <button class="mx-blog-filter" type="button" data-blog-filter="Transferts"><img src="assets/images/blog-premium/icon-blog-transfers.webp" alt="">Transferts</button>
+                    <button class="mx-blog-filter" type="button" data-blog-filter="Compétitions"><img src="assets/images/blog-premium/icon-blog-competitions.webp" alt="">Compétitions</button>
+                    <button class="mx-blog-filter" type="button" data-blog-filter="Règlement"><img src="assets/images/blog-premium/icon-blog-rules.webp" alt="">Règlement</button>
+                </div>
+            </section>
+
+            <div class="mx-blog-list-head">
+                <div>
+                    <span class="mx-blog-section-kicker"><img src="assets/images/blog-premium/icon-blog-news.webp" alt="" aria-hidden="true"> À LA UNE</span>
+                    <h2>Derniers articles</h2>
+                </div>
+                <span id="blog-visible-count" class="mx-blog-count" aria-live="polite">0 article</span>
+            </div>
+
             <div id="blog-list" class="blog-grid" aria-live="polite"></div>
         </div>
     </main>
@@ -120,11 +161,11 @@
         </div>
     </footer>
 
-    <script type="module" src="assets/js/main.js?v=20261011-blog-premium2"></script>
+    <script type="module" src="assets/js/main.js?v=20261011-blog-premium3"></script>
     <script defer src="assets/js/pwa.js"></script>
     <script defer src="assets/js/assistant.js"></script>
     <script defer src="assets/js/menu.js"></script>
     <script defer src="assets/js/back-to-top.js"></script>
-    <script defer src="assets/js/home-premium.js?v=20261011-blog-premium2"></script>
+    <script defer src="assets/js/home-premium.js?v=20261011-blog-premium3"></script>
 </body>
 </html>
