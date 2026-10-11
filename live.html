@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>MrXPRONOS LIVE</title>
+  <meta property="og:title" content="Mr XPRONOS — Prono Live">
+  <meta property="og:description" content="Des opportunités football en temps réel : corners, tirs et fautes.">
+  <meta property="og:image" content="assets/images/live-premium/hero-live.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="assets/images/live-premium/hero-live.webp">
 
   <script>
     function showBootError(message) {
@@ -482,7 +487,7 @@
       const type = String(pred?.type || pred?.badge || pred?.title || "").toLowerCase();
       if (type.includes("corner")) return "corner";
       if (type.includes("shot") || type.includes("tir")) return "ball";
-      if (type.includes("foul") || type.includes("faute")) return "whistle";
+      if (type.includes("foul") || type.includes("faute")) return "cards";
       return "target";
     }
 
@@ -782,7 +787,7 @@
 
           <div className="grid grid-cols-3 gap-2 mb-4">
             <StatChip compact label="Corners" value={totalCorners} icon="corner" />
-            <StatChip compact label="Fautes" value={totalFouls} icon="whistle" />
+            <StatChip compact label="Fautes" value={totalFouls} icon="cards" />
             <StatChip compact label="Tirs" value={totalShots} icon="ball" />
           </div>
 
@@ -1626,7 +1631,7 @@
 
                         <div className="mb-8">
                           <div className="mx-live-section-title">
-                            <LiveAssetIcon name="stopwatch" size={31} />
+                            <LiveAssetIcon name="whistle" size={31} />
                             <span className="mx-live-red">Tous les matchs live</span>
                           </div>
 
@@ -1643,6 +1648,30 @@
                             </div>
                           )}
                         </div>
+
+                        <section className="mx-live-how">
+                          <div className="mx-live-how__heading">
+                            <LiveAssetIcon name="target" size={40} />
+                            <div>
+                              <h2>Comment fonctionnent nos sélections LIVE ?</h2>
+                              <p>Le moteur suit les statistiques du match et ne retient que les situations qui dépassent nos critères de fiabilité.</p>
+                            </div>
+                          </div>
+                          <div className="mx-live-how__grid">
+                            <article>
+                              <LiveAssetIcon name="bars" size={38} />
+                              <div><strong>Analyse en temps réel</strong><span>Suivi des corners, tirs, fautes et du rythme du match.</span></div>
+                            </article>
+                            <article>
+                              <LiveAssetIcon name="target" size={38} />
+                              <div><strong>Sélection des opportunités</strong><span>Seules les lignes qui gardent suffisamment de valeur sont proposées.</span></div>
+                            </article>
+                            <article>
+                              <LiveAssetIcon name="stopwatch" size={38} />
+                              <div><strong>Mise à jour continue</strong><span>Les données et signaux sont réévalués tout au long du match.</span></div>
+                            </article>
+                          </div>
+                        </section>
                       </>
                     )}
 
