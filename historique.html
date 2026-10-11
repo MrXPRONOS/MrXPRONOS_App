@@ -20,7 +20,9 @@
 
     <link rel="icon" href="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" type="image/svg+xml">
     <link rel="stylesheet" href="assets/css/style.css?v=20261011-history-premium1">
-    <link rel="stylesheet" href="assets/css/history-premium.css?v=20261011-history-premium2">
+    <link rel="preload" as="image" href="assets/images/history-premium/hero-history-stadium.webp">
+    <link rel="preload" as="image" href="assets/images/history-premium/icon-history-published.webp">
+    <link rel="stylesheet" href="assets/css/history-premium.css?v=20261011-history-premium3">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
 
@@ -61,9 +63,14 @@
             <div class="mx-history-hero-atmosphere" aria-hidden="true"></div>
             <div class="container mx-history-hero-inner">
                 <div class="mx-history-copy">
-                    <span class="mx-history-eyebrow">HISTORIQUE PRONOSTICS</span>
+                    <span class="mx-history-eyebrow"><i aria-hidden="true"></i> HISTORIQUE PRONOSTICS</span>
                     <h1 id="history-title">Nos résultats parlent <span>mieux que les promesses.</span></h1>
-                    <p>Découvrez tous nos pronostics passés : résultats, performances et fiabilité. Une transparence totale pour suivre les sélections réellement terminées.</p>
+                    <p>Découvrez nos pronostics passés, les scores finaux et leur niveau de fiabilité. Une lecture claire et transparente des sélections réellement terminées.</p>
+                    <div class="mx-history-proof" aria-label="Engagements de transparence">
+                        <span><img src="assets/images/history-premium/icon-history-published.webp" alt="" aria-hidden="true"> Résultats publiés</span>
+                        <span><img src="assets/images/history-premium/icon-history-wins.webp" alt="" aria-hidden="true"> Victoires vérifiées</span>
+                        <span><img src="assets/images/history-premium/icon-history-rate.webp" alt="" aria-hidden="true"> Performance suivie</span>
+                    </div>
                 </div>
                 <img class="mx-history-player" src="assets/images/home-premium/hero-player.webp" alt="" width="840" height="1120" aria-hidden="true">
                 <p class="mx-history-quote">Des résultats<br>concrets pour<br>des parieurs<br>passionnés !</p>
@@ -73,7 +80,7 @@
         <div class="container mx-history-content">
             <section class="mx-history-stats" aria-label="Statistiques de l'historique">
                 <article class="mx-history-stat">
-                    <div class="mx-history-stat-icon" aria-hidden="true">▤</div>
+                    <div class="mx-history-stat-icon" aria-hidden="true"><img src="assets/images/history-premium/icon-history-published.webp" alt=""></div>
                     <div class="mx-history-stat-copy">
                         <strong id="history-total-count">—</strong>
                         <b>Pronostics publiés</b>
@@ -81,7 +88,7 @@
                     </div>
                 </article>
                 <article class="mx-history-stat">
-                    <div class="mx-history-stat-icon" aria-hidden="true">♛</div>
+                    <div class="mx-history-stat-icon" aria-hidden="true"><img src="assets/images/history-premium/icon-history-wins.webp" alt=""></div>
                     <div class="mx-history-stat-copy">
                         <strong id="history-win-count">—</strong>
                         <b>Pronostics validés</b>
@@ -89,6 +96,7 @@
                     </div>
                 </article>
                 <article class="mx-history-stat mx-history-rate-card">
+                    <div class="mx-history-stat-icon mx-history-rate-icon" aria-hidden="true"><img src="assets/images/history-premium/icon-history-rate.webp" alt=""></div>
                     <div id="history-rate-ring" class="mx-history-rate-ring" style="--rate:0"><strong id="history-success-rate">—</strong></div>
                     <div class="mx-history-rate-info">
                         <b>Taux de réussite</b>
@@ -98,7 +106,7 @@
             </section>
 
             <div class="mx-history-toolbar">
-                <div class="mx-history-toolbar-title"><span aria-hidden="true">✓</span> Résultats vérifiés</div>
+                <div class="mx-history-toolbar-title"><span aria-hidden="true"><img src="assets/images/history-premium/icon-history-published.webp" alt=""></span> Résultats vérifiés</div>
                 <div class="mx-history-toolbar-note">Classement du plus récent au plus ancien · Scores finaux et fiabilité</div>
             </div>
 
@@ -151,11 +159,11 @@
         </div>
     </footer>
 
-    <script type="module" src="assets/js/main.js?v=20261011-history-premium2"></script>
+    <script type="module" src="assets/js/main.js?v=20261011-history-premium3"></script>
     <script defer src="assets/js/pwa.js"></script>
     <script defer src="assets/js/assistant.js"></script>
     <script defer src="assets/js/menu.js"></script>
     <script defer src="assets/js/back-to-top.js"></script>
-    <script defer src="assets/js/home-premium.js?v=20261011-history-premium2"></script>
+    <script defer src="assets/js/home-premium.js?v=20261011-history-premium3"></script>
 </body>
 </html>
