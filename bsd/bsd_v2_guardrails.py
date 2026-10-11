@@ -280,14 +280,14 @@ def v21_signal_tier(choice):
     return "OBSERVATION"
 
 def v21_accept_priced(choice, tracker=None, league_market=None):
-    """Independent real quote + risk checks; never overwrite the underlying pick."""
+    """Accept BSD or labelled model quotes with risk checks; model odds are indicative, not independently verified."""
     if not isinstance(choice, dict):
         return False, "invalid_choice"
     key = str(choice.get("key") or choice.get("selection_key") or "")
     if key in V21_EXCLUDED_KEYS:
         return False, "v21_excluded_12"
-    if choice.get("odds_source") not in VERIFIED_ODDS_SOURCES:
-        return False, "v21_no_real_bookmaker_quote"
+    if choice.get("odds_source") not in VERIFIED_ODDS_SOURCES | frozenset(("mrxpronos_model",)):
+        return False, "v21_unknown_quote_source"
     if v21_market_shadow(tracker, key):
         return False, "v21_market_circuit_breaker"
     if isinstance(league_market, dict) and v21_bucket_gap(league_market) > V21_SHADOW_MAX_OVERCONFIDENCE:
@@ -300,7 +300,7 @@ def v21_accept_priced(choice, tracker=None, league_market=None):
     if key == "OVER_15" and p < max(V21_MIN_OVER15_CONSERVATIVE, 1/price + V21_MIN_VALUE_EDGE):
         return False, "v21_over15_conservative_too_low"
     if p < 1/price + V21_MIN_VALUE_EDGE:
-        return False, "v21_insufficient_real_price_edge"
+        return False, "v21_insufficient_indicative_price_edge" if choice.get("odds_source") == "mrxpronos_model" else "v21_insufficient_real_price_edge"
     if v21_signal_tier(choice) == "OBSERVATION":
         return False, "v21_observation_not_recommended"
     return True, "ok"
