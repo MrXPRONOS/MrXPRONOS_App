@@ -799,3 +799,16 @@ body.mx-live-page{
  .mx-live-page .mx-notifications-premium__heading{flex-wrap:wrap}
  .mx-live-page .mx-notification-premium{padding:13px!important}
 }
+
+/* Interactive notification cards remain stationary so clicking details works reliably. */
+.mx-live-page .mx-notification-premium.notif-attractive{
+  animation:none!important;
+  transform:none!important;
+}
+.mx-live-page .mx-notification-premium.notif-attractive:hover{
+  transform:translateY(-2px)!important;
+  transition:transform .16s ease, border-color .16s ease!important;
+}
+@media(prefers-reduced-motion:reduce){
+  .mx-live-page .mx-notification-premium.notif-attractive:hover{transform:none!important}
+}
