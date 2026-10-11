@@ -21,6 +21,7 @@ from bsd_v2_over_under import fit_total_model
 from bsd_v2_double_chance import fit_model as fit_dc_model
 from bsd_v2_odds import fetch_event_odds
 from bsd_v2_estimated_odds import ESTIMATED_SOURCE, valid_standalone_prediction, price_selected_market
+from bsd_vip_diagnostics import summarize_vip_funnel
 from bsd_v2_labels import normalize_match,market_label
 from bsd_v2_assets import image_fields
 from bsd_v2_guardrails import (POLICY_VERSION, post_price_value_guard,
@@ -370,6 +371,19 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
             entry["reason"]=reason
             stats[reason]+=1
             continue
+        # Diagnostic only: grade football selections before the odds/V2.1 veto.
+        model_audit = prediction.get("model_audit") or {}
+        selected_football_market = prediction.get("prediction") or {}
+        entry["preprice"] = {
+            "category": prediction.get("category"),
+            "selection_key": selected_football_market.get("key"),
+            "conservative_probability": selected_football_market.get("conservative_probability"),
+            "league_samples": model_audit.get("league_samples"),
+            "home_recent_matches": model_audit.get("home_recent_matches"),
+            "away_recent_matches": model_audit.get("away_recent_matches"),
+            "home_venue_matches": model_audit.get("home_venue_matches"),
+            "away_venue_matches": model_audit.get("away_venue_matches"),
+        }
         # Phase 2 : enrichir les choix figés par une cote BSD ou estimée.
         quotes={}
         if odds_fetcher and stats["odds_attempts"] < max_odds_requests:
@@ -393,6 +407,10 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         # Une cote BSD réelle intervient uniquement comme VETO après que le
         # marché est figé par le football. Elle ne peut jamais sélectionner
         # un autre pari. Les prix modèle restent explicitement non indépendants.
+        entry["pricing"] = {
+            "odds_source": chosen.get("odds_source"),
+            "odds": chosen.get("bookmaker_odds"),
+        }
         value_guard=post_price_value_guard(chosen)
         entry["post_price_value_guard"]=value_guard
         league_bucket=league_market_performance.get(str(league_name(f) or "")+"|"+str(chosen.get("key") or ""))
@@ -492,6 +510,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         "bookmakers":existing.get("bookmakers",[]) if isinstance(existing,dict) else [],
         "diagnostics":{"total":len(result),"rejections":dict(stats),
                        "fixture_details":detailed,
+                       "vip_funnel":summarize_vip_funnel(detailed,result),
                        "prospective_selection_penalties":selection_penalties,
                        "prospective_family_penalties":prospective_family_penalties,
                        "retired_predictions_count":len(retired),
@@ -561,7 +580,9 @@ def main():
     report.parent.mkdir(parents=True,exist_ok=True)
     report.write_text(json.dumps({"generated_at":now.isoformat(),
       "summary":output["diagnostics"]["rejections"],
+      "vip_funnel":output["diagnostics"]["vip_funnel"],
       "rows":output["diagnostics"]["fixture_details"]},ensure_ascii=False,indent=2),encoding="utf-8")
+    print("BSD_VIP_FUNNEL:",json.dumps(output["diagnostics"]["vip_funnel"],ensure_ascii=False))
     print("BSD_V2_SITE:",json.dumps({"matches":len(output["matches"]),
          "new":output["diagnostics"]["rejections"].get("created",0),
          "http_calls":client.requests_made,"output":str(dest)}))
