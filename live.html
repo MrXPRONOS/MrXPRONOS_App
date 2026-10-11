@@ -42,7 +42,7 @@
   <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
   <link rel="preload" as="image" href="assets/images/live-premium/hero-stadium.webp">
   <link rel="preload" as="image" href="assets/images/live-premium/player-back.webp">
-  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium11">
+  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium12">
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -532,8 +532,10 @@
     }
 
     function reliabilityForPrediction(match, pred) {
-      const raw = pred?.reliability ?? match?.reliability_score ?? match?.data_quality_score ?? 0;
-      const value = safeNumber(raw, 0);
+      const raw = pred?.reliability ?? match?.reliability_score ?? match?.data_quality_score;
+      if (raw === undefined || raw === null || raw === "") return null;
+      const value = Number(raw);
+      if (!Number.isFinite(value)) return null;
       const normalized = value <= 1 ? value * 100 : value;
       return Math.max(0, Math.min(100, Math.round(normalized)));
     }
@@ -669,10 +671,14 @@
     // HEADER
     // =======================================================
     const Header = ({ stats, onBack, onRefresh, refreshing }) => {
+      const [promoCopied, setPromoCopied] = React.useState(false);
       const copyPromo = async () => {
         try {
           await navigator.clipboard.writeText("XPVIP");
-        } catch (_) {}
+          setPromoCopied(true);
+        } catch (_) {
+          window.prompt("Copier le code promo :", "XPVIP");
+        }
       };
 
       return (
@@ -698,8 +704,20 @@
             </nav>
 
             <div className="mx-live-header-actions">
+              <button
+                onClick={onRefresh}
+                className="mx-live-navbutton mx-live-desktop-refresh"
+                type="button"
+                disabled={refreshing}
+                aria-label="Actualiser les matchs en direct"
+                title="Actualiser le Live"
+              >
+                <UiIcon name="refresh" size={16} className={refreshing ? "animate-spin" : ""} />
+              </button>
               <a href="index.html" className="mx-live-install">Installer l'app</a>
-              <button onClick={copyPromo} className="mx-live-promo" type="button">Code Promo : <strong>XPVIP</strong></button>
+              <button onClick={copyPromo} className="mx-live-promo" type="button" aria-label="Copier le code promo XPVIP">
+                {promoCopied ? "Code copié !" : <>Code Promo : <strong>XPVIP</strong></>}
+              </button>
             </div>
 
             <button onClick={onRefresh} className="mx-live-navbutton mx-mobile-only" type="button" aria-label="Actualiser">
@@ -839,7 +857,7 @@
               </div>
               <div className="mx-live-row__reliability">
                 <span><LiveAssetIcon name="target" size={16} /> Fiabilité</span>
-                <strong>{reliability}%</strong>
+                <strong>{reliability === null ? "—" : `${reliability}%`}</strong>
               </div>
             </div>
             <span className="mx-live-row__chevron" aria-hidden="true">›</span>
@@ -921,7 +939,7 @@
               </div>
               <div className="mx-live-row__reliability">
                 <span><LiveAssetIcon name="target" size={16} /> Fiabilité</span>
-                <strong>{reliability}%</strong>
+                <strong>{reliability === null ? "—" : `${reliability}%`}</strong>
               </div>
             </div>
                 <span className="mx-live-row__chevron" aria-hidden="true">›</span>
