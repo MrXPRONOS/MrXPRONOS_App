@@ -1442,87 +1442,132 @@ async function displayHistory() {
     return goals[1] === "OVER" ? h + a > line : h + a < line;
   };
 
-  const historyMatches = allData.matches.filter((m) => {
-    const d = getLocalDateFromEvent(m.event_date);
-    return !m.combo_only && d && d < todayStr;
-  }).flatMap((m) => {
-    const choices = Array.isArray(m.predictions) && m.predictions.length
-      ? m.predictions.slice(0, 2) : [m.prediction || {}];
-    return choices.map((selection) => ({
-      ...m,
-      id: String(m.id) + ":" + String(selection.selection_key || "primary"),
-      prediction: selection,
-      verified_double: m.is_finished && m.home_score != null && m.away_score != null
-        ? outcomeForBsdPick(selection, m.home_score, m.away_score) : false,
-    }));
-  });
+  const historyMatches = allData.matches
+    .filter((m) => {
+      const d = getLocalDateFromEvent(m.event_date);
+      return !m.combo_only && d && d < todayStr;
+    })
+    .flatMap((m) => {
+      const choices = Array.isArray(m.predictions) && m.predictions.length
+        ? m.predictions.slice(0, 2)
+        : [m.prediction || {}];
+
+      return choices.map((selection) => {
+        const scoreKnown =
+          Number.isInteger(Number(m.home_score)) &&
+          Number.isInteger(Number(m.away_score)) &&
+          Number(m.home_score) >= 0 &&
+          Number(m.away_score) >= 0;
+        const finished = Boolean(m.is_finished && scoreKnown);
+        return {
+          ...m,
+          id: String(m.id) + ":" + String(selection.selection_key || "primary"),
+          prediction: selection,
+          history_finished: finished,
+          verified_double: finished
+            ? outcomeForBsdPick(selection, m.home_score, m.away_score)
+            : false,
+        };
+      });
+    })
+    .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0));
 
   if (!historyMatches.length) {
     DOM.historyContainer.innerHTML = '<div class="no-events">Aucun match dans cette période.</div>';
     return;
   }
 
-  const groupedByDay = {};
-  historyMatches.forEach((m) => {
-    const dateStr = getLocalDateFromEvent(m.event_date);
-    if (!groupedByDay[dateStr]) groupedByDay[dateStr] = [];
-    groupedByDay[dateStr].push(m);
-  });
+  const finished = historyMatches.filter((m) => m.history_finished);
+  const winCount = finished.filter((m) => m.verified_double).length;
+  const successRate = finished.length ? Math.round((winCount / finished.length) * 100) : 0;
+
+  const totalNode = document.getElementById("history-total-count");
+  const winNode = document.getElementById("history-win-count");
+  const rateNode = document.getElementById("history-success-rate");
+  const rateRing = document.getElementById("history-rate-ring");
+  if (totalNode) totalNode.textContent = String(historyMatches.length);
+  if (winNode) winNode.textContent = String(winCount);
+  if (rateNode) rateNode.textContent = finished.length ? `${successRate}%` : "—";
+  if (rateRing) rateRing.style.setProperty("--rate", String(successRate));
 
   let html = "";
-  const sortedDays = Object.keys(groupedByDay).sort((a, b) => new Date(b) - new Date(a));
 
-  sortedDays.forEach((day) => {
-    const dayDate = new Date(day + "T12:00:00");
-    const formattedDate = dayDate.toLocaleDateString("fr-FR", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  historyMatches.forEach((m) => {
+    const pred = m.prediction || {};
+    let confidence = toFloatSafe(pred.confidence, 0) || 0;
+    if (confidence <= 1) confidence *= 100;
+    else if (confidence > 100) confidence /= 100;
+    confidence = Math.min(100, Math.max(0, Math.round(confidence)));
 
-    html += `<h2 class="day-header">${escapeHtml(formattedDate)}</h2>`;
+    const dateObj = new Date(m.event_date || "");
+    const formattedDate = Number.isNaN(dateObj.getTime())
+      ? "Date inconnue"
+      : dateObj.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
 
-    groupedByDay[day].forEach((m) => {
-      const pred = m.prediction || {};
+    const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
+    const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
+    const prediction = escapeHtml(pred.type || pred.label || pred.double_chance || "N/A");
+    const odds = typeof pred.odds === "number"
+      ? pred.odds.toFixed(2).replace(".", ",")
+      : "—";
+    const filledStars = Math.min(5, Math.max(0, Math.round(confidence / 20)));
+    const stars = "★".repeat(filledStars) + "☆".repeat(5 - filledStars);
 
-      let confidence = toFloatSafe(pred.confidence, 0) || 0;
-      if (confidence <= 1) confidence = confidence * 100;
-      else if (confidence > 100) confidence = confidence / 100;
+    const resultClass = !m.history_finished
+      ? "pending"
+      : (m.verified_double ? "won" : "lost");
+    const resultLabel = !m.history_finished
+      ? "En attente"
+      : (m.verified_double ? "Validé" : "Perdu");
+    const resultIcon = !m.history_finished
+      ? "•"
+      : (m.verified_double ? "✓" : "×");
 
-      const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
-      const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
-
-      html += `
-        <div class="match-card ${m.verified_double ? "winner" : ""}">
-          <div class="match-info">
-            <div class="teams">
-              <div class="team">
-                <img src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" class="team-logo" loading="lazy">
-                <span class="team-name">${escapeHtml(m.home_team)}</span>
-                <span class="team-score">${m.home_score ?? "-"}</span>
-              </div>
-
-              <div class="vs">VS</div>
-
-              <div class="team">
-                <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" class="team-logo" loading="lazy">
-                <span class="team-name">${escapeHtml(m.away_team)}</span>
-                <span class="team-score">${m.away_score ?? "-"}</span>
-              </div>
-            </div>
+    html += `
+      <article class="history-row">
+        <div class="history-competition">
+          <div class="history-league">
+            <span class="history-league-icon" aria-hidden="true">${getLeagueFlag(m.league || "")}</span>
+            <span>${escapeHtml(m.league || "Compétition")}</span>
           </div>
+          <span class="history-date">${escapeHtml(formattedDate)}</span>
+        </div>
 
-          <div class="analysis-panel">
-            <h4>Pronostic</h4>
-            <p><strong>Pronostic :</strong> ${escapeHtml(pred.type || pred.label || pred.double_chance || "N/A")}
-              <input type="checkbox" class="prediction-checkbox" ${m.verified_double ? "checked" : ""} disabled>
-            </p>
-            <p><strong>Fiabilité :</strong> ${escapeHtml(String(Math.round(confidence * 10) / 10))}%</p>
+        <div class="history-match">
+          <div class="history-team">
+            <img src="${homeLogo}" alt="${escapeAttribute(m.home_team)}" loading="lazy"
+              onerror="this.onerror=null;this.src='assets/images/home.webp';">
+            <span>${escapeHtml(m.home_team)}</span>
+          </div>
+          <div class="history-score">
+            <strong>${m.home_score ?? "—"} - ${m.away_score ?? "—"}</strong>
+            <span>Score final</span>
+          </div>
+          <div class="history-team">
+            <img src="${awayLogo}" alt="${escapeAttribute(m.away_team)}" loading="lazy"
+              onerror="this.onerror=null;this.src='assets/images/away.webp';">
+            <span>${escapeHtml(m.away_team)}</span>
           </div>
         </div>
-      `;
-    });
+
+        <div class="history-pick">
+          <small>Notre pronostic</small>
+          <strong>${prediction}</strong>
+          <span>Cote : ${odds}</span>
+        </div>
+
+        <div class="history-confidence">
+          <small>Fiabilité</small>
+          <span class="history-stars" aria-label="${filledStars} étoiles sur 5">${stars}</span>
+          <strong>${confidence}%</strong>
+        </div>
+
+        <div class="history-result">
+          <div class="history-result-badge ${resultClass}"><span aria-hidden="true">${resultIcon}</span> ${resultLabel}</div>
+          <small>${m.history_finished ? "Terminé" : "Non vérifié"}</small>
+        </div>
+      </article>
+    `;
   });
 
   DOM.historyContainer.innerHTML = html;
