@@ -49,7 +49,7 @@
                 <h1 id="pronos-page-title">Les <span>pronostics</span> du jour</h1>
                 <p>Retrouve les sélections Simple, Pro et VIP, leurs probabilités et les cotes disponibles. Chaque pronostic reste une estimation, jamais une garantie.</p>
             </div>
-            <div class="pronos-page-heading__mark" aria-hidden="true"><span>MX</span><small>PRONOSTICS</small></div>
+            <div class="pronos-page-heading__mark" aria-hidden="true"><img src="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" alt="" loading="lazy"></div>
         </section>
         <section class="pronostic-switcher" aria-labelledby="categories-title">
             <div class="category-topline">
@@ -70,7 +70,8 @@
             <p class="category-summary" id="category-summary" role="status" aria-live="polite">Pronostics Simple — aujourd’hui</p>
         </section>
 
-        <div class="pronos-filter-shell" aria-label="Recherche et navigation par date"><div class="search-container">
+        <div class="pronos-filter-shell" role="group" aria-label="Recherche et navigation par date">
+            <div class="search-container">
             <input
                 type="text"
                 id="search-input"
@@ -80,7 +81,6 @@
             >
         </div>
 
-        <div id="success-rate-container" class="success-rate" style="display: none;"></div>
         <div class="day-filters">
             <button class="day-btn active" data-day="today" type="button">Aujourd'hui</button>
             <button class="day-btn" data-day="tomorrow" type="button">Demain</button>
@@ -88,8 +88,9 @@
         </div>
 
         </div>
+        <div id="success-rate-container" class="success-rate" style="display: none;"></div>
 
-        <div class="pronos-results-heading"><div><span class="pronos-eyebrow">SÉLECTIONS</span><h2>Matchs & analyses</h2></div><span class="pronos-results-hint">Les résultats évoluent avec les matchs</span></div>
+        <div class="pronos-results-heading"><div><span class="pronos-eyebrow">SÉLECTIONS</span><h2>Matchs &amp; analyses</h2></div><span class="pronos-results-hint">Les résultats évoluent avec les matchs</span></div>
         <div id="matches-container" class="matches-grid" role="tabpanel" aria-labelledby="tab-simple" tabindex="0" aria-live="polite">
             <div class="loading">Chargement des matchs...</div>
         </div>
