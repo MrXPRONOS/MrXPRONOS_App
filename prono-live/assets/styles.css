@@ -267,3 +267,9 @@ body{background:#020d20}
 @media(max-width:720px){.bonus-section{padding:40px 14px}.bonus-grid{grid-template-columns:1fr}.bonus-card-top{min-height:68px}.bonus-card-top img{width:96px;height:38px}.bonus-value{font-size:21px}.bonus-title .promo-copy{margin-top:10px}}
 
 .site-header .brand-logo,.topbar .brand-logo{width:44px;height:44px;flex:0 0 44px;object-fit:contain;display:block}footer .brand-logo{width:46px;height:46px;flex:0 0 46px;object-fit:contain;display:block}@media(max-width:580px){.site-header .brand-logo,.topbar .brand-logo{width:38px;height:38px;flex-basis:38px}footer .brand-logo{width:40px;height:40px;flex-basis:40px}}
+
+/* Nouveau monogramme MX approuvé, également sur les guides légaux sans topbar. */
+.brand-logo{filter:drop-shadow(0 0 8px rgba(243,185,57,.17));object-fit:contain}
+.mx-legal-mark{display:inline-flex;align-items:center;justify-content:center;width:68px;height:68px;padding:8px;margin:0 0 15px;border-radius:15px;border:1px solid rgba(232,184,80,.3);background:rgba(8,23,42,.66)}
+.mx-legal-mark img{width:54px;height:54px;object-fit:contain}
+@media(max-width:580px){.mx-legal-mark{width:56px;height:56px;padding:6px}.mx-legal-mark img{width:44px;height:44px}}

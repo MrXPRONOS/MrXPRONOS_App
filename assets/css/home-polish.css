@@ -239,3 +239,10 @@
   .mx-premium-home .mx-site-header .logo a {width:120px;height:42px;}
   .mx-premium-home .mx-site-header .logo img.mx-reference-logo {max-height:42px;}
 }
+/* Final validated identity: horizontal gold MX logo used in both header and footer. */
+.mx-premium-home .mx-site-header .logo a{width:clamp(158px,17vw,220px);height:67px;display:flex;align-items:center;justify-content:flex-start}
+.mx-premium-home .mx-site-header .logo img.mx-reference-logo{width:auto;height:74px;max-height:74px;max-width:100%;object-fit:contain;object-position:left center;filter:drop-shadow(0 0 5px rgba(237,189,84,.12))}
+.mx-premium-home .mx-footer-brand img.mx-reference-logo{width:auto;height:68px;max-height:68px;max-width:100%;object-fit:contain}
+@media(max-width:768px){.mx-premium-home .mx-site-header .logo a{width:clamp(135px,26vw,185px);height:54px}.mx-premium-home .mx-site-header .logo img.mx-reference-logo{height:54px;max-height:54px}.mx-premium-home .mx-footer-brand img.mx-reference-logo{height:62px;max-height:62px}}
+@media(max-width:390px){.mx-premium-home .mx-site-header .logo a{width:138px;height:49px}.mx-premium-home .mx-site-header .logo img.mx-reference-logo{height:50px;max-height:50px}}
+@media(max-width:345px){.mx-premium-home .mx-site-header .logo a{width:113px;height:44px}.mx-premium-home .mx-site-header .logo img.mx-reference-logo{height:44px;max-height:44px}}

@@ -1,4 +1,4 @@
-const CACHE='prono-live-v12-mx';
+const CACHE='prono-live-v13-approved-mx';;
 const ASSETS=[
   './',
   './index.html',
