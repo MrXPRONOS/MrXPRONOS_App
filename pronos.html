@@ -21,54 +21,71 @@
     <meta name="theme-color" content="#0D0D0D">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=20261011-pronosdesign1">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css?v=20261011-pronos-premium2">
+    <link rel="stylesheet" href="assets/css/pronos-premium.css?v=20261011-pronos-premium2">
     <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png?v=20261011-approved-mx1"></head>
 <body class="mx-pronos-page">
-    <header>
-        <div class="container">
+    <header class="mx-site-header mx-pronos-header">
+        <div class="container mx-header-container">
             <div class="logo">
                 <a href="index.html" aria-label="Mr XPRONOS — Accueil">
-                    <img src="assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1" alt="Mr XPRONOS">
+                    <img src="assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1" alt="Mr XPRONOS" width="1104" height="481">
                 </a>
             </div>
-            <div class="header-actions">
-                <button id="install-app" class="btn btn-secondary" type="button" style="display:none;">
-                    Installer l'app
+            <nav class="mx-desktop-nav" aria-label="Menu principal">
+                <a href="index.html">Accueil</a>
+                <a class="active" aria-current="page" href="pronos.html">Pronostics</a>
+                <a href="historique.html">Historique</a>
+                <a href="blog.html">Blog</a>
+                <a href="conseils.html">Conseils</a>
+                <a href="infos.html">Infos sport</a>
+                <a href="bonus.html">Bonus &amp; Promo</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+            <div class="header-actions mx-header-actions">
+                <button id="install-app" class="btn btn-secondary mx-install" type="button" style="display:none;">
+                    <img src="assets/images/home-premium/icons/installation_application.svg" width="18" height="18" alt="" aria-hidden="true">
+                    <span class="mx-install-text">Installer l'app</span>
                 </button>
-                <div class="promo-code">Code Promo : XPVIP</div>
+                <button class="promo-code mx-code-button" type="button" aria-label="Code promo XPVIP"><span class="mx-code-label">Code Promo : </span><strong>XPVIP</strong></button>
             </div>
         </div>
     </header>
 
-    <main class="container">
-        <section class="pronos-page-heading" aria-labelledby="pronos-page-title">
-            <div class="pronos-page-heading__copy">
-                <span class="pronos-eyebrow"><span class="pronos-live-dot" aria-hidden="true"></span> ANALYSES FOOTBALL</span>
-                <h1 id="pronos-page-title">Les <span>pronostics</span> du jour</h1>
-                <p>Retrouve les sélections Simple, Pro et VIP, leurs probabilités et les cotes disponibles. Chaque pronostic reste une estimation, jamais une garantie.</p>
+    <main>
+        <section class="mx-pronos-hero" aria-labelledby="pronos-page-title">
+            <div class="mx-pronos-hero-atmosphere" aria-hidden="true"></div>
+            <div class="container mx-pronos-hero-inner">
+                <div class="mx-pronos-hero-copy">
+                    <span class="pronos-eyebrow">PRONOSTICS FOOTBALL</span>
+                    <h1 id="pronos-page-title">Nos pronostics <span>football</span></h1>
+                    <p>Des analyses claires, des pronostics fiables et des conseils chaque jour sur les plus grands championnats. Simple, Pro et VIP : choisissez la formule qui vous correspond.</p>
+                </div>
+                <p class="mx-pronos-quote">Le football<br>notre passion,<br>vos pronostics !</p>
             </div>
-            <div class="pronos-page-heading__mark" aria-hidden="true"><img src="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" alt="" loading="lazy"></div>
         </section>
-        <section class="pronostic-switcher" aria-labelledby="categories-title">
-            <div class="category-topline">
-                <h2 id="categories-title">Choisis ta catégorie</h2>
-                <span class="category-access-note">Accès gratuit • Sans partage</span>
-            </div>
-            <div class="category-tabs pronostic-category-tabs" role="tablist" aria-label="Catégories de pronostics">
-                <button id="tab-simple" class="tab-btn active" data-cat="simple" role="tab" type="button" aria-selected="true" aria-controls="matches-container" tabindex="0">
-                    <span class="category-label">Simple</span><span class="tab-count" id="count-simple">0</span>
-                </button>
-                <button id="tab-pro" class="tab-btn" data-cat="pro" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
-                    <span class="category-label">Pro</span><span class="tab-count" id="count-pro">0</span>
-                </button>
-                <button id="tab-vip" class="tab-btn" data-cat="vip" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
-                    <span class="category-label">VIP</span><span class="tab-count" id="count-vip">0</span>
-                </button>
-            </div>
-            <p class="category-summary" id="category-summary" role="status" aria-live="polite">Pronostics Simple — aujourd’hui</p>
-        </section>
+
+        <div class="container mx-pronos-content">
+            <section class="pronostic-switcher" aria-labelledby="categories-title">
+                <h2 id="categories-title" class="visually-hidden">Catégories de pronostics</h2>
+                <div class="category-tabs pronostic-category-tabs" role="tablist" aria-label="Catégories de pronostics">
+                    <button id="tab-simple" class="tab-btn active" data-cat="simple" role="tab" type="button" aria-selected="true" aria-controls="matches-container" tabindex="0">
+                        <span class="category-icon" aria-hidden="true">▥</span><span class="category-label">Simple</span><span class="tab-count" id="count-simple">0</span>
+                    </button>
+                    <button id="tab-pro" class="tab-btn" data-cat="pro" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
+                        <span class="category-icon" aria-hidden="true">★</span><span class="category-label">Pro</span><span class="tab-count" id="count-pro">0</span>
+                    </button>
+                    <button id="tab-vip" class="tab-btn" data-cat="vip" role="tab" type="button" aria-selected="false" aria-controls="matches-container" tabindex="-1">
+                        <span class="category-icon" aria-hidden="true">♛</span><span class="category-label">VIP</span><span class="tab-count" id="count-vip">0</span>
+                    </button>
+                </div>
+                <div class="category-copy">
+                    <p class="category-summary" id="category-summary" role="status" aria-live="polite">Pronostics Simple — aujourd’hui</p>
+                    <p class="category-description" id="category-description">Des pronostics fiables et accessibles pour tous, basés sur les statistiques et la forme actuelle des équipes.</p>
+                </div>
+            </section>
 
         <div class="pronos-filter-shell" role="group" aria-label="Recherche et navigation par date">
             <div class="search-container">
@@ -89,12 +106,13 @@
 
         </div>
         <div id="success-rate-container" class="success-rate" style="display: none;"></div>
-
-        <div class="pronos-results-heading"><div><span class="pronos-eyebrow">SÉLECTIONS</span><h2>Matchs &amp; analyses</h2></div><span class="pronos-results-hint">Les résultats évoluent avec les matchs</span></div>
         <div id="matches-container" class="matches-grid" role="tabpanel" aria-labelledby="tab-simple" tabindex="0" aria-live="polite">
             <div class="loading">Chargement des matchs...</div>
         </div>
+        </div>
     </main>
+
+
 
     <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;" role="dialog" aria-modal="true">
         <div class="ios-guide-content">
@@ -112,29 +130,31 @@
         </div>
     </div>
 
-    <footer>
+    <footer class="mx-premium-footer">
         <div class="container">
-            <div class="mx-site-footer-brand"><a href="index.html" aria-label="Mr XPRONOS, accueil"><img src="assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1" alt="Mr XPRONOS" width="235" height="102" loading="lazy"></a></div>
-            <div class="footer-links">
-                <a href="index.html">Accueil</a>
-                <a href="pronos.html">Pronostics</a>
-                <a href="historique.html">Historique</a>
-                <a href="blog.html">Blog</a>
-                <a href="conseils.html">Conseils</a>
-                <a href="infos.html">Infos sport</a>
-                <a href="bonus.html">Bonus & Promo</a>
-                <a href="contact.html">Contact</a>
+            <div class="mx-footer-line">
+                <div class="mx-footer-brand">
+                    <a href="index.html" aria-label="Mr XPRONOS — Accueil">
+                        <img src="assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1" width="1104" height="481" alt="Mr XPRONOS" loading="lazy">
+                    </a>
+                    <small>Pronostics football pour les passionnés.</small>
+                </div>
+                <nav class="footer-links" aria-label="Liens du pied de page">
+                    <a href="index.html">Accueil</a><a href="pronos.html">Pronostics</a><a href="historique.html">Historique</a><a href="blog.html">Blog</a><a href="conseils.html">Conseils</a><a href="infos.html">Infos sport</a><a href="bonus.html">Bonus &amp; Promo</a><a href="contact.html">Contact</a>
+                </nav>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/share/1DsG6H6gf1/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><img src="assets/images/facebook.webp" alt="" loading="lazy"></a>
+                    <a href="https://www.threads.com/@mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Threads"><img src="assets/images/threads.webp" alt="" loading="lazy"></a>
+                    <a href="https://www.instagram.com/mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><img src="assets/images/instagram.webp" alt="" loading="lazy"></a>
+                    <a href="https://youtube.com/@mrxpronos" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><img src="assets/images/youtube.webp" alt="" loading="lazy"></a>
+                    <a href="https://t.me/mr_xpronos" target="_blank" rel="noopener noreferrer" aria-label="Telegram"><img src="assets/images/telegram.webp" alt="" loading="lazy"></a>
+                </div>
             </div>
-            <div class="social-links">
-                <a href="https://wa.me/22899201444" target="_blank" rel="noopener noreferrer"><img src="assets/images/whatsapp.webp" alt="WhatsApp" loading="lazy"></a>
-                <a href="https://t.me/mr_xpronos" target="_blank" rel="noopener noreferrer"><img src="assets/images/telegram.webp" alt="Telegram" loading="lazy"></a>
-                <a href="https://www.instagram.com/mr_xpronos?igsh=MXVpNjJydWdzM3FjMQ==" target="_blank" rel="noopener noreferrer"><img src="assets/images/instagram.webp" alt="Instagram" loading="lazy"></a>
-                <a href="https://www.facebook.com/share/1DsG6H6gf1/" target="_blank" rel="noopener noreferrer"><img src="assets/images/facebook.webp" alt="Facebook" loading="lazy"></a>
-                <a href="https://youtube.com/@mrxpronos?si=f6Z66923Lx9KF3ri" target="_blank" rel="noopener noreferrer"><img src="assets/images/youtube.webp" alt="YouTube" loading="lazy"></a>
-                <a href="https://www.threads.com/@mr_xpronos" target="_blank" rel="noopener noreferrer"><img src="assets/images/threads.webp" alt="Threads" loading="lazy"></a>
+            <div class="mx-footer-bottom">
+                <span>© <span id="mx-current-year">2026</span> Mr XPRONOS. Tous droits réservés.</span>
+                <span>18+ · Jouez responsablement · <a href="contact.html">Nous contacter</a></span>
             </div>
-            <div class="bookmakers" id="bookmakers-footer"></div>
-            <p>&copy; 2025 Mr XPRONOS. Tous droits réservés. <span style="font-size:0.7rem; opacity:0.7;">18+ • Divertissement seulement</span></p>
+            <div class="bookmakers" id="bookmakers-footer" hidden></div>
         </div>
     </footer>
 
@@ -146,10 +166,11 @@
         });
       }
     </script>
-    <script type="module" src="assets/js/main.js?v=20261011-categories1"></script>
+    <script type="module" src="assets/js/main.js?v=20261011-pronos-premium2"></script>
     <script defer src="assets/js/pwa.js?v=20260806-pronos-fix"></script>
     <script defer src="assets/js/assistant.js"></script>
     <script defer src="assets/js/menu.js"></script>
     <script defer src="assets/js/back-to-top.js"></script>
+    <script defer src="assets/js/home-premium.js?v=20261011-pronos-premium2"></script>
 </body>
 </html>
