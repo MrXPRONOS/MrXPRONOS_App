@@ -40,7 +40,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" onerror="showBootError('Babel ne peut pas être chargé depuis unpkg.com')"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="showBootError('Supabase JS ne peut pas être chargé depuis jsDelivr')"></script>
   <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
-  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium4">
+  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium5">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -671,6 +671,21 @@
                 Nos sélections LIVE, basées sur des analyses statistiques avancées et en temps réel.
                 Des opportunités sur les corners, tirs, fautes et plus encore, pour les vrais passionnés.
               </p>
+
+              <div className="mx-live-benefits" aria-label="Marchés suivis en direct">
+                <div className="mx-live-benefit">
+                  <LiveAssetIcon name="corner" size={31} />
+                  <span>Corners<br/><b>Rythme du match</b></span>
+                </div>
+                <div className="mx-live-benefit">
+                  <LiveAssetIcon name="target" size={31} />
+                  <span>Tirs<br/><b>Pression offensive</b></span>
+                </div>
+                <div className="mx-live-benefit">
+                  <LiveAssetIcon name="whistle" size={31} />
+                  <span>Fautes<br/><b>Intensité du jeu</b></span>
+                </div>
+              </div>
             </div>
 
             <img className="mx-live-hero-player" src="assets/images/live-premium/player-back.webp" alt="" aria-hidden="true" />
@@ -1091,11 +1106,25 @@
                   <ScoreBar value={match.data_quality_score || 0} label="Qualité données" color="#8B5CF6" />
 
                   <div className="grid gap-4 mt-4">
-                    <Card className="bg-[#0d0d0d]">
-                      <div className="text-xs text-gray-400 mb-2">Stats clés</div>
-                      <div className="text-sm">Corners: {totalCorners}</div>
-                      <div className="text-sm">Fautes: {totalFouls}</div>
-                      <div className="text-sm">Tirs: {totalShots}</div>
+                    <Card className="mx-detail-stats-card bg-[#0d0d0d]">
+                      <div className="text-xs text-gray-400 mb-3">Stats clés du match</div>
+                      <div className="mx-detail-stat-grid">
+                        <div className="mx-detail-stat">
+                          <LiveAssetIcon name="corner" size={34} />
+                          <span>Corners</span>
+                          <strong>{totalCorners}</strong>
+                        </div>
+                        <div className="mx-detail-stat">
+                          <LiveAssetIcon name="cards" size={34} />
+                          <span>Fautes</span>
+                          <strong>{totalFouls}</strong>
+                        </div>
+                        <div className="mx-detail-stat">
+                          <LiveAssetIcon name="ball" size={34} />
+                          <span>Tirs</span>
+                          <strong>{totalShots}</strong>
+                        </div>
+                      </div>
                     </Card>
                   </div>
                 </div>
@@ -1223,7 +1252,7 @@
       <div>
         <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
           <div className="text-lg font-bold flex items-center gap-2">
-            <Icon name="bell" className="text-[#D4AF37]" />
+            <LiveAssetIcon name="target" size={29} />
             Notifications
             {unreadCount > 0 && <Badge color="red">{unreadCount} non lues</Badge>}
           </div>
