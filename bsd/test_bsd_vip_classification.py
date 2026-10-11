@@ -2,7 +2,7 @@
 import unittest
 from bsd_v2_core import classify_quality_category
 
-def features(league=100, recent=20, venue=8):
+def features(league=100, recent=12, venue=8):
     return {"league_samples":league,"home_recent_matches":recent,
             "away_recent_matches":recent,"home_venue_matches":venue,
             "away_venue_matches":venue}
@@ -14,8 +14,10 @@ class VIPClassificationTests(unittest.TestCase):
         self.assertEqual(classify_quality_category(.80,features()),"pro")
     def test_not_enough_league_data(self):
         self.assertEqual(classify_quality_category(.90,features(league=50)),"pro")
+    def test_vip_at_maximum_history_depth(self):
+        self.assertEqual(classify_quality_category(.90,features(recent=12)),"vip")
     def test_not_enough_recent_data(self):
-        self.assertEqual(classify_quality_category(.90,features(recent=12)),"pro")
+        self.assertEqual(classify_quality_category(.90,features(recent=11)),"pro")
     def test_not_enough_venue_data(self):
         self.assertEqual(classify_quality_category(.90,features(venue=4)),"pro")
     def test_simple(self):

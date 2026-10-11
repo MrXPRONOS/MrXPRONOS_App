@@ -326,7 +326,9 @@ def classify_quality_category(conservative_probability, expected):
     venue = min(int(expected.get("home_venue_matches") or 0),
                 int(expected.get("away_venue_matches") or 0))
     pro = conservative_probability >= .77 and league >= 40 and recent >= 10
-    vip = pro and conservative_probability >= .83 and league >= 80 and recent >= 15 and venue >= 5
+    # estimate_goals() uses at most 12 recent fixtures per team.
+    # Requiring 15 made VIP mathematically unreachable.
+    vip = pro and conservative_probability >= .83 and league >= 80 and recent >= 12 and venue >= 5
     return "vip" if vip else ("pro" if pro else "simple")
 
 def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
