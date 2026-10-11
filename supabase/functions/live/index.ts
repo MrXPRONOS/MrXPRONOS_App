@@ -41,6 +41,7 @@ const DEBUG_KEY = Deno.env.get("DEBUG_KEY") || "";
 
 const LIVE_PROP_ODDS_URL = Deno.env.get("LIVE_PROP_ODDS_URL") || "";
 const LIVE_PROP_ODDS_TOKEN = Deno.env.get("LIVE_PROP_ODDS_TOKEN") || "";
+const LIVE_REQUIRE_BOOKMAKER_LINE = (Deno.env.get("LIVE_REQUIRE_BOOKMAKER_LINE") || "1") !== "0";
 
 import { richPhotoOrLegacy, richTextOrLegacy } from "../_shared/telegram_rich.ts";
 import { attachLiveSponsorBanner } from "../_shared/live_sponsor_banner.ts";
@@ -2896,7 +2897,7 @@ function conservativeProjection(params: {
 }
 
 
-const LIVE_VALUE_MODEL_VERSION = "live-value-v2.1-history-calibrated";
+const LIVE_VALUE_MODEL_VERSION = "live-value-v2.2-bookmaker-line-aware";
 
 type LiveMarketKind = "shots" | "corners" | "fouls";
 type LiveSignalTier = "quality" | "value" | "high_value";
@@ -4368,6 +4369,7 @@ const formatReceiptMoney = (n:number) => formatTelegramMoney(n);
 async function fetchExternalLivePropOdds(match: any, pred: any) {
   if (!LIVE_PROP_ODDS_URL) return null;
   try {
+    const requestedLine = Number(pred?.threshold);
     const url = new URL(LIVE_PROP_ODDS_URL);
     url.searchParams.set("match_id", String(match?.id ?? ""));
     url.searchParams.set("market", String(pred?.type ?? pred?.prediction_type ?? ""));
@@ -4377,24 +4379,181 @@ async function fetchExternalLivePropOdds(match: any, pred: any) {
     if (LIVE_PROP_ODDS_TOKEN) headers.Authorization = "Bearer " + LIVE_PROP_ODDS_TOKEN;
     const res = await fetch(url.toString(), { headers });
     if (!res.ok) return null;
+
     const body = await res.json().catch(() => null);
-    const raw = body?.odds ?? body?.price ?? body?.decimal_odds ?? body?.data?.odds ?? body?.data?.price ?? body?.data?.decimal_odds;
+    const raw = body?.odds ?? body?.price ?? body?.decimal_odds ??
+      body?.data?.odds ?? body?.data?.price ?? body?.data?.decimal_odds;
     const odds = Number(raw);
     if (!Number.isFinite(odds) || odds <= 1.01 || odds > 25) return null;
-    return { odds: Number(odds.toFixed(2)), source: String(body?.source || body?.bookmaker || "external_live") };
+
+    // Certains fournisseurs renvoient leur ligne réellement disponible même lorsqu'on
+    // demande une autre ligne. Ne jamais associer cette cote à un mauvais seuil.
+    const returnedLineRaw =
+      body?.line ?? body?.threshold ?? body?.market_line ?? body?.point ??
+      body?.data?.line ?? body?.data?.threshold ?? body?.data?.market_line ?? body?.data?.point;
+    const returnedLine = Number(returnedLineRaw);
+    if (
+      Number.isFinite(returnedLine) &&
+      Number.isFinite(requestedLine) &&
+      Math.abs(returnedLine - requestedLine) > 0.01
+    ) {
+      console.log("Bookmaker line mismatch", {
+        match_id: match?.id,
+        market: pred?.type ?? pred?.prediction_type,
+        requested_line: requestedLine,
+        returned_line: returnedLine,
+      });
+      return null;
+    }
+
+    return {
+      odds: Number(odds.toFixed(2)),
+      source: String(body?.source || body?.bookmaker || "external_live"),
+      line: Number.isFinite(returnedLine)
+        ? Number(returnedLine.toFixed(1))
+        : (Number.isFinite(requestedLine) ? Number(requestedLine.toFixed(1)) : null),
+    };
   } catch (e) {
     console.warn("LIVE prop odds provider unavailable:", e);
     return null;
   }
 }
 
-async function computeLiveCouponPricing(match: any, pred: any) {
+function minimumBookmakerEdge(tier: LiveSignalTier | null | undefined) {
+  return tier === "high_value" ? 0.12 : tier === "value" ? 0.08 : 0.05;
+}
+
+function bookmakerCandidateList(pred: any) {
+  const selectedThreshold = Number(pred?.threshold);
+  const raw = Array.isArray(pred?.line_candidates) ? pred.line_candidates : [];
+  const unique = new Map<number, any>();
+
+  for (const item of raw) {
+    const threshold = Number(item?.threshold);
+    if (!Number.isFinite(threshold)) continue;
+    unique.set(Number(threshold.toFixed(1)), {
+      ...item,
+      threshold: Number(threshold.toFixed(1)),
+    });
+  }
+
+  if (Number.isFinite(selectedThreshold) && !unique.has(Number(selectedThreshold.toFixed(1)))) {
+    unique.set(Number(selectedThreshold.toFixed(1)), {
+      threshold: Number(selectedThreshold.toFixed(1)),
+      probability: safeNumber(pred?.probability, 0.5),
+      model_fair_odds: safeNumber(
+        pred?.model_fair_odds,
+        estimatedModelOdds(safeNumber(pred?.probability, 0.5)),
+      ),
+      signal_tier: pred?.signal_tier ?? null,
+    });
+  }
+
+  // On commence par la ligne choisie par le modèle, puis les autres lignes admissibles
+  // les plus proches. On ne monte jamais vers une ligne que le modèle avait éliminée.
+  return [...unique.values()].sort((a: any, b: any) => {
+    const da = Math.abs(Number(a.threshold) - selectedThreshold);
+    const db = Math.abs(Number(b.threshold) - selectedThreshold);
+    if (Math.abs(da - db) > 1e-9) return da - db;
+    return Number(a.threshold) - Number(b.threshold);
+  });
+}
+
+function applyBookmakerCandidate(pred: any, candidate: any) {
+  const threshold = Number(candidate.threshold.toFixed(1));
+  pred.threshold = threshold;
+  pred.probability = Number(safeNumber(candidate.probability, pred.probability).toFixed(4));
+  pred.model_fair_odds = Number(
+    safeNumber(candidate.model_fair_odds, estimatedModelOdds(pred.probability)).toFixed(2),
+  );
+  pred.signal_tier = candidate.signal_tier ?? signalTierFromModelOdds(pred.model_fair_odds);
+
+  const unit =
+    pred?.type === "total_corners" ? "corners" :
+    pred?.type === "total_shots" ? "tirs" :
+    pred?.type === "total_fouls" ? "fautes" : "";
+  pred.title = unit ? `Over ${threshold} ${unit}` : `Over ${threshold}`;
+
+  if (Array.isArray(pred?.line_candidates)) {
+    const rank = pred.line_candidates.findIndex(
+      (c: any) => Math.abs(Number(c?.threshold) - threshold) < 0.01,
+    );
+    if (rank >= 0) pred.line_candidate_rank = rank + 1;
+  }
+  if (pred?.baseline_threshold != null) {
+    pred.selected_uplift = Number((threshold - Number(pred.baseline_threshold)).toFixed(2));
+  }
+  if (!Array.isArray(pred.reasons)) pred.reasons = [];
+  pred.reasons.push(`Ligne bookmaker vérifiée ${threshold}`);
+}
+
+async function alignPredictionToAvailableBookmakerLine(match: any, pred: any) {
+  const explicit = pickTelegramNumber(pred?.bookmaker_odds, pred?.external_live_odds);
+  if (explicit !== null && explicit > 1) {
+    return {
+      verified: true,
+      external: {
+        odds: Number(explicit.toFixed(2)),
+        source: "provided_bookmaker",
+        line: Number(safeNumber(pred?.threshold, 0).toFixed(1)),
+      },
+      candidate: null,
+    };
+  }
+
+  if (!LIVE_PROP_ODDS_URL) {
+    return {
+      verified: false,
+      external: null,
+      candidate: null,
+      reason: "bookmaker_line_source_unavailable",
+    };
+  }
+
+  for (const candidate of bookmakerCandidateList(pred)) {
+    const probePred = { ...pred, threshold: candidate.threshold };
+    const external = await fetchExternalLivePropOdds(match, probePred);
+    if (!external) continue;
+
+    const probability = Math.min(
+      0.95,
+      Math.max(0.05, safeNumber(candidate?.probability, pred?.probability ?? 0.5)),
+    );
+    const implied = 1 / external.odds;
+    const edge = probability - implied;
+    const ev = probability * external.odds - 1;
+    const tier = (candidate?.signal_tier ?? pred?.signal_tier ?? null) as LiveSignalTier | null;
+
+    if (edge < minimumBookmakerEdge(tier) || ev <= 0) {
+      console.log("Bookmaker line available but rejected on value", {
+        match_id: match?.id,
+        market: pred?.type,
+        threshold: candidate.threshold,
+        odds: external.odds,
+        edge: Number(edge.toFixed(4)),
+        ev: Number(ev.toFixed(4)),
+      });
+      continue;
+    }
+
+    return { verified: true, external, candidate };
+  }
+
+  return {
+    verified: false,
+    external: null,
+    candidate: null,
+    reason: "no_model_bookmaker_line_intersection",
+  };
+}
+
+async function computeLiveCouponPricing(match: any, pred: any, forcedExternal: any = null) {
   const probability = Math.min(0.95, Math.max(0.05, safeNumber(pred?.probability, 0.50)));
   const modelFairOdds = Number(safeNumber(pred?.model_fair_odds, estimatedModelOdds(probability)).toFixed(2));
   const explicit = pickTelegramNumber(pred?.bookmaker_odds, pred?.external_live_odds);
   const external = explicit !== null && explicit > 1
-    ? { odds: Number(explicit.toFixed(2)), source: "provided_bookmaker" }
-    : await fetchExternalLivePropOdds(match, pred);
+    ? { odds: Number(explicit.toFixed(2)), source: "provided_bookmaker", line: Number(pred?.threshold) }
+    : (forcedExternal ?? await fetchExternalLivePropOdds(match, pred));
   const bookmakerOdds = external?.odds ?? null;
   const rawDisplayOdds = bookmakerOdds ?? modelFairOdds;
   const receiptOdds = Number(Math.min(3.20, Math.max(1.05, rawDisplayOdds)).toFixed(2));
@@ -4431,7 +4590,6 @@ async function savePrediction(
   options: { sendTelegram?: boolean } = {},
 ) {
   const matchId = String(match.id);
-  const thresholdNum = Number(safeNumber(pred.threshold, 0).toFixed(1));
   const signalValue = safeNumber(pred.signal_value ?? pred.current, 0);
 
   // Snapshot du signal pour garder exactement la même cote au retry/à la validation.
@@ -4441,7 +4599,31 @@ async function savePrediction(
   pred.home_score = pred.home_score ?? match.home_score ?? 0;
   pred.away_score = pred.away_score ?? match.away_score ?? 0;
 
-  const livePricing = await computeLiveCouponPricing(match, pred);
+  const bookmakerAlignment = await alignPredictionToAvailableBookmakerLine(match, pred);
+  if (LIVE_REQUIRE_BOOKMAKER_LINE && !bookmakerAlignment.verified) {
+    console.log("Signal rejected: no playable bookmaker line", {
+      match_id: matchId,
+      market: pred?.type,
+      model_line: pred?.threshold,
+      reason: bookmakerAlignment.reason,
+    });
+    return {
+      created: false,
+      id: null,
+      skipped: bookmakerAlignment.reason || "bookmaker_line_unavailable",
+    };
+  }
+
+  if (bookmakerAlignment.candidate) {
+    applyBookmakerCandidate(pred, bookmakerAlignment.candidate);
+  }
+
+  const thresholdNum = Number(safeNumber(pred.threshold, 0).toFixed(1));
+  const livePricing = await computeLiveCouponPricing(
+    match,
+    pred,
+    bookmakerAlignment.external,
+  );
   pred.live_odds = livePricing.odds;
   pred.model_fair_odds = livePricing.modelFairOdds;
   pred.bookmaker_odds = livePricing.bookmakerOdds;
@@ -4453,7 +4635,7 @@ async function savePrediction(
   pred.potential_gain_fcfa = livePricing.potentialGain;
 
   if (livePricing.pricingMode === "external_live") {
-    const minEdge = pred.signal_tier === "high_value" ? 0.12 : pred.signal_tier === "value" ? 0.08 : 0.05;
+    const minEdge = minimumBookmakerEdge(pred.signal_tier);
     const edge = safeNumber(livePricing.edge, -1);
     const ev = safeNumber(livePricing.expectedValue, -1);
     if (edge < minEdge || ev <= 0) {
