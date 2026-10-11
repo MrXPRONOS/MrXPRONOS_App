@@ -313,6 +313,22 @@ def choose_market(candidates, *, calibration=None, odds_by_market=None,
     return (rows[0] if rows else None), rows
 
 
+
+def classify_quality_category(conservative_probability, expected):
+    """Simple/Pro/VIP from football confidence and available historical coverage.
+
+    This classification does not imply a guaranteed return and never selects
+    markets or changes the published price.
+    """
+    league = int(expected.get("league_samples") or 0)
+    recent = min(int(expected.get("home_recent_matches") or 0),
+                 int(expected.get("away_recent_matches") or 0))
+    venue = min(int(expected.get("home_venue_matches") or 0),
+                int(expected.get("away_venue_matches") or 0))
+    pro = conservative_probability >= .77 and league >= 40 and recent >= 10
+    vip = pro and conservative_probability >= .83 and league >= 80 and recent >= 15 and venue >= 5
+    return "vip" if vip else ("pro" if pro else "simple")
+
 def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
                mode="reliability", odds_by_market=None, quality_policy=None,
                require_odds=False, min_odds=1.20, excluded_keys=None,
@@ -408,14 +424,8 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
             return None, "quality_all_quoted_markets_rejected"
     c = choice["candidate"]
     # "PRO" based on data coverage; this label is not a measured hit-rate promise.
-    pro = (choice["ranking_confidence"] >= .77 and expected["league_samples"] >= 40
-           and min(expected["home_recent_matches"],expected["away_recent_matches"]) >= 10)
-    # VIP is a stricter subset of Pro based on confidence and data coverage.
-    # Market choice, odds sources and model training are unchanged.
-    vip = (pro and choice["ranking_confidence"] >= .83
-           and expected["league_samples"] >= 80
-           and min(expected["home_recent_matches"],expected["away_recent_matches"]) >= 15
-           and min(expected["home_venue_matches"],expected["away_venue_matches"]) >= 5)
+    # Category is fixed by calibrated quality and data coverage before pricing.
+    category = classify_quality_category(choice["ranking_confidence"], expected)
     market = {
         "key": c.key, "name": c.label, "market": c.market,
         "outcome": c.outcome, "line": c.line,
@@ -438,7 +448,7 @@ def predict_v2(event, index, *, calibration=None, rho=0.0, clock=None,
         "away_team_id": _team_id(event,"away"), "home_team": event.get("home_team"),
         "away_team": event.get("away_team"), "prediction": market,
         "estimated_goals": expected, "score_model": "Dixon-Coles" if rho else "Poisson",
-        "rho": rho, "selection_mode": mode, "category": "vip" if vip else ("pro" if pro else "simple"),
+        "rho": rho, "selection_mode": mode, "category": category,
         "model_version": "bsd-v2-isolated", "policy_version": POLICY_VERSION,
         "experimental": True, "published": False,
         "model_audit": {
