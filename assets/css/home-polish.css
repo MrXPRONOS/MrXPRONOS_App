@@ -199,3 +199,43 @@
 @media(max-width:345px){
  .mx-premium-home .mx-hero-quote {left:9px;bottom:70px;font-size:18px;max-width:106px;}
 }
+
+
+/* Identite conforme a la maquette originale : UN SEUL logo visuel, aucune superposition texte/mark. */
+.mx-premium-home .mx-site-header .logo a {
+  display:flex; align-items:center; width:clamp(216px,19vw,246px);
+  height:65px; gap:0; line-height:0; white-space:nowrap; text-decoration:none;
+}
+.mx-premium-home .mx-site-header .logo img.mx-reference-logo {
+  display:block; width:100%; max-width:100%; height:auto; max-height:65px;
+  object-fit:contain; object-position:left center; filter:none; transform:none;
+  image-rendering:auto;
+}
+.mx-premium-home .mx-site-header .logo a:hover img.mx-reference-logo {
+  filter:drop-shadow(0 0 9px rgba(235,178,67,.22)); transform:none;
+}
+.mx-premium-home .mx-footer-brand a {
+  display:inline-flex; width:auto; max-width:100%; align-items:center;
+  gap:0; line-height:0; text-decoration:none;
+}
+.mx-premium-home .mx-footer-brand img.mx-reference-logo {
+  display:block; width:205px; height:auto; max-height:58px; max-width:100%;
+  object-fit:contain; object-position:left center; filter:none;
+}
+.mx-premium-home .mx-footer-brand small {display:block;margin:0 0 0 2px;}
+@media(max-width:1160px) {
+  .mx-premium-home .mx-site-header .logo a {width:213px;}
+}
+@media(max-width:768px) {
+  .mx-premium-home .mx-site-header .logo a {width:clamp(148px,29vw,196px);height:54px;}
+  .mx-premium-home .mx-site-header .logo img.mx-reference-logo {max-height:54px;}
+  .mx-premium-home .mx-footer-brand img.mx-reference-logo {width:194px;max-height:54px;}
+}
+@media(max-width:390px) {
+  .mx-premium-home .mx-site-header .logo a {width:147px;height:47px;}
+  .mx-premium-home .mx-site-header .logo img.mx-reference-logo {max-height:47px;}
+}
+@media(max-width:345px) {
+  .mx-premium-home .mx-site-header .logo a {width:120px;height:42px;}
+  .mx-premium-home .mx-site-header .logo img.mx-reference-logo {max-height:42px;}
+}
