@@ -1147,6 +1147,7 @@ function filterAndDisplay() {
   const currentDayMatches = allData.matches.filter((m) => {
     const category = String(m.category || "").trim().toLowerCase();
     if (!(category in counts) || m.combo_only || getMatchDate(m) !== targetDate) return false;
+    if (m.source === "bsd" && !m.is_finished && m.recommendation_eligible !== true) return false;
     counts[category] += 1;
     return true;
   });
@@ -1203,13 +1204,17 @@ function renderMatches(matches) {
   const standalone = matches.filter((match) => !match.combo_only).flatMap((match) => {
     const selections = Array.isArray(match.predictions) && match.predictions.length
       ? match.predictions.slice(0, 2) : [match.prediction || {}];
-    return selections.filter((pick) => match.source !== "bsd" || pick.recommendation_eligible === true).map((pick) => ({
+    return selections.filter((pick) => match.source !== "bsd" || match.is_finished || (match.recommendation_eligible === true && pick.recommendation_eligible === true)).map((pick) => ({
       ...match,
       id: String(match.id) + ":" + String(pick.selection_key || "primary"),
       prediction: pick,
       predictions: undefined,
     }));
   });
+  if (standalone.length === 0) {
+    DOM.matches.innerHTML = `${offlineBanner}<div class="no-events">Aucune sélection admissible disponible pour le moment.</div>`;
+    return;
+  }
   standalone.forEach((m) => {
     const league = m.league || "Autres ligues";
     if (!grouped[league]) grouped[league] = [];
