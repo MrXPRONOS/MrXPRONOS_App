@@ -28,7 +28,7 @@ class V21SafetyTests(unittest.TestCase):
         self.assertFalse(v21_accept_priced(pick(probability=.82, odds=1.19, source="mrxpronos_model"))[0])
         self.assertFalse(v21_accept_priced(pick(probability=.82, odds=1.35, source="mrxpronos_model"))[0])
         self.assertFalse(v21_accept_priced(pick("OVER_15", .82, 1.20, source="mrxpronos_model"))[0])
-        self.assertFalse(v21_accept_priced(pick(probability=.82, odds=1.2, source="other"))[0]
+        self.assertFalse(v21_accept_priced(pick(probability=.82, odds=1.2, source="other"))[0])
 
     def test_over15_strict_floor(self):
         self.assertFalse(v21_accept_priced(pick("OVER_15", .84, 1.4))[0])
