@@ -1203,7 +1203,7 @@ function renderMatches(matches) {
   const standalone = matches.filter((match) => !match.combo_only).flatMap((match) => {
     const selections = Array.isArray(match.predictions) && match.predictions.length
       ? match.predictions.slice(0, 2) : [match.prediction || {}];
-    return selections.map((pick) => ({
+    return selections.filter((pick) => match.source !== "bsd" || pick.recommendation_eligible === true).map((pick) => ({
       ...match,
       id: String(match.id) + ":" + String(pick.selection_key || "primary"),
       prediction: pick,
@@ -1246,6 +1246,9 @@ function renderMatches(matches) {
       const verifiedDouble = eventDate === yesterdayStr && m.verified_double ? "checked" : "";
 
       const category = String(m.category || "").toLowerCase();
+      const signalTier = String(pred.signal_tier || m.signal_tier || "").toUpperCase();
+      const signalBadge = ["PREMIUM","QUALIFIE","OBSERVATION"].includes(signalTier)
+        ? `<span class="v21-signal-tier v21-tier-${signalTier.toLowerCase()}">${escapeHtml(signalTier === "QUALIFIE" ? "QUALIFIÉ" : signalTier)}</span>` : "";
       const premiumBadge = category === "pro" || category === "vip"
         ? `<span class="badge-premium">${category === "vip" ? "VIP" : "PRO"}</span>`
         : "";
@@ -1312,7 +1315,7 @@ function renderMatches(matches) {
           </div>
 
           <div class="analysis-panel ticket ${winnerClass}">
-            <h4>Pronostic ${xpronosBadge}</h4>
+            <h4>Pronostic ${xpronosBadge} ${signalBadge}</h4>
             <p><strong>Pronostic :</strong> ${doubleChance} ${
               eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ""
             }</p>
