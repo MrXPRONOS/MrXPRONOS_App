@@ -251,6 +251,7 @@ def tracker_penalties(tracker):
 V21_EXCLUDED_KEYS = frozenset(("12",))
 V21_MIN_OVER15_CONSERVATIVE = .85
 V21_MIN_VALUE_EDGE = .022
+V21_MODEL_MIN_CONSERVATIVE = .81  # No independently verified price edge is implied
 V21_SHADOW_MIN_SAMPLES = 50
 V21_SHADOW_MAX_OVERCONFIDENCE = .06
 V21_SHADOW_MIN_LEAGUE_MARKET_SAMPLES = 50
@@ -272,6 +273,10 @@ def v21_signal_tier(choice):
     price = float(choice.get("bookmaker_odds") or 0)
     if price <= 1:
         return "OBSERVATION"
+    # A model price is derived from its own probability, not a bookmaker quote.
+    # Do not describe that self-referential comparison as a verified edge.
+    if choice.get("odds_source") == "mrxpronos_model":
+        return "INDICATIF" if p >= V21_MODEL_MIN_CONSERVATIVE and price >= 1.20 else "OBSERVATION"
     edge = p - 1.0/price
     if p >= .80 and edge >= .025:
         return "PREMIUM"
@@ -280,7 +285,7 @@ def v21_signal_tier(choice):
     return "OBSERVATION"
 
 def v21_accept_priced(choice, tracker=None, league_market=None):
-    """Accept BSD or labelled model quotes with risk checks; model odds are indicative, not independently verified."""
+    """Check observed BSD value or confidence-only model quotes, without claiming independent edge."""
     if not isinstance(choice, dict):
         return False, "invalid_choice"
     key = str(choice.get("key") or choice.get("selection_key") or "")
@@ -297,6 +302,22 @@ def v21_accept_priced(choice, tracker=None, league_market=None):
     if not isinstance(p, (float, int)) or not isinstance(price, (float, int)) or price <= 1:
         return False, "v21_missing_probability_or_price"
     p = float(p)
+    price = float(price)
+    if not isfinite(p) or not isfinite(price) or not 0 < p < 1 or not 1 < price <= 100:
+        return False, "v21_invalid_probability_or_price"
+    if choice.get("odds_source") == "mrxpronos_model":
+        # This price is calculated FROM the probability, so comparing it to
+        # the same probability with a positive bookmaker edge is circular
+        # and always fails for correctly priced conservative estimates.
+        # Retain the minimum odds, strong model confidence, drift protection
+        # and extra safeguards for Over 1.5. Never claim bookmaker value.
+        if key == "OVER_15" and p < V21_MIN_OVER15_CONSERVATIVE:
+            return False, "v21_over15_conservative_too_low"
+        if price < 1.20 or p < V21_MODEL_MIN_CONSERVATIVE:
+            return False, "v21_model_confidence_or_price_below_floor"
+        if price > 1.0 / p + 0.001:
+            return False, "v21_model_quote_above_conservative_fair_odds"
+        return True, "ok_model_indicative"
     if key == "OVER_15" and p < max(V21_MIN_OVER15_CONSERVATIVE, 1/price + V21_MIN_VALUE_EDGE):
         return False, "v21_over15_conservative_too_low"
     if p < 1/price + V21_MIN_VALUE_EDGE:
