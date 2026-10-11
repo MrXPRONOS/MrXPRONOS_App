@@ -40,7 +40,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" onerror="showBootError('Babel ne peut pas être chargé depuis unpkg.com')"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="showBootError('Supabase JS ne peut pas être chargé depuis jsDelivr')"></script>
   <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
-  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium5">
+  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium6">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -491,6 +491,42 @@
       return "target";
     }
 
+    function currentValueForPrediction(match, pred) {
+      const explicit = pred?.current ?? pred?.current_value;
+      if (explicit !== null && explicit !== undefined && explicit !== "" && Number.isFinite(Number(explicit))) {
+        return Number(explicit);
+      }
+
+      const type = String(pred?.type || pred?.badge || pred?.title || "").toLowerCase();
+      if (type.includes("corner")) {
+        return safeNumber(match?.live_stats?.home?.corner_kicks, 0) + safeNumber(match?.live_stats?.away?.corner_kicks, 0);
+      }
+      if (type.includes("shot") || type.includes("tir")) {
+        return safeNumber(match?.live_stats?.home?.total_shots, 0) + safeNumber(match?.live_stats?.away?.total_shots, 0);
+      }
+      if (type.includes("foul") || type.includes("faute")) {
+        return safeNumber(match?.live_stats?.home?.fouls, 0) + safeNumber(match?.live_stats?.away?.fouls, 0);
+      }
+      return 0;
+    }
+
+    function thresholdForPrediction(pred) {
+      const raw = pred?.pronostic ?? pred?.threshold;
+      return Number.isFinite(Number(raw)) ? Number(raw) : 0;
+    }
+
+    function confidenceForPrediction(pred) {
+      const p = safeNumber(pred?.probability, 0);
+      return Math.max(0, Math.min(100, Math.round(p <= 1 ? p * 100 : p)));
+    }
+
+    function marketProgress(match, pred) {
+      const current = currentValueForPrediction(match, pred);
+      const line = thresholdForPrediction(pred);
+      if (line <= 0) return confidenceForPrediction(pred);
+      return Math.max(0, Math.min(100, Math.round((current / line) * 100)));
+    }
+
     const Card = ({ children, className = "", onClick, hover = true }) => (
       <div
         onClick={onClick}
@@ -717,134 +753,156 @@
     // =======================================================
     // CARDS (LIVE)
     // =======================================================
-    const OpportunityCard = ({ item, onOpen }) => {
+    const OpportunityCard = ({ item, onOpen, featured = false }) => {
       const best = item?.predictions?.[0];
       if (!best) return null;
 
       const homeLogo = getTeamLogo(item, "home");
       const awayLogo = getTeamLogo(item, "away");
       const leagueLogo = getLeagueLogo(item);
+      const currentValue = currentValueForPrediction(item, best);
+      const lineValue = thresholdForPrediction(best);
+      const confidence = confidenceForPrediction(best);
+      const progress = marketProgress(item, best);
 
       return (
-        <Card onClick={() => onOpen(item)} className="mx-opportunity-card">
-          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-            <div className="flex items-center gap-2 flex-wrap">
-              <HeatBadge level={item.heat_level} />
-              <FreshnessBadge seconds={item.freshness_seconds} />
-              <Badge color="gold">TOP {item.value_score || 0}</Badge>
+        <Card onClick={() => onOpen(item)} className={`mx-live-row mx-opportunity-card ${featured ? "is-featured" : ""}`}>
+          <section className="mx-live-row__match">
+            <div className="mx-live-row__meta">
+              <span className="mx-live-row__live"><i></i> LIVE</span>
+              <span className="mx-live-row__minute">{item.current_minute || 0}'</span>
+              <span className="mx-live-row__league">
+                <LogoImg src={leagueLogo} alt={item?.league?.name} size={18} />
+                {item?.league?.name || "Ligue"}
+              </span>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-gray-400">
-              <LogoImg src={leagueLogo} alt={item?.league?.name} size={22} />
-              <span className="truncate max-w-[160px]">{item?.league?.name || "Ligue"}</span>
+            <div className="mx-live-row__teams">
+              <div className="mx-live-row__team">
+                <LogoImg src={homeLogo} alt={item.home_team} size={26} />
+                <strong>{item.home_team}</strong>
+                <b>{item.home_score ?? 0}</b>
+              </div>
+              <div className="mx-live-row__team">
+                <LogoImg src={awayLogo} alt={item.away_team} size={26} />
+                <strong>{item.away_team}</strong>
+                <b>{item.away_score ?? 0}</b>
+              </div>
             </div>
-          </div>
+          </section>
 
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 mb-4">
-            <TeamRow name={item.home_team} logo={homeLogo} align="right" />
-            <div className="mx-score-box">
-              <strong>{item.home_score}-{item.away_score}</strong>
-              <span>Live {item.current_minute || 0}'</span>
+          <section className="mx-live-row__market">
+            <div className="mx-live-row__market-head">
+              <span className="mx-live-row__market-badge">
+                <LiveAssetIcon name={assetForPrediction(best)} size={21} />
+                {best?.badge || "Marché"}
+              </span>
+              <span className="mx-live-row__signal"><LiveAssetIcon name="bars" size={20} /></span>
             </div>
-            <TeamRow name={item.away_team} logo={awayLogo} align="left" />
-          </div>
+            <div className="mx-live-row__market-label">{best?.badge || best?.type || "Statistique"} · Total</div>
+            <div className="mx-live-row__numbers">
+              <div><strong>{formatNumberFR(currentValue)}</strong><small>Actuel</small></div>
+              <div><strong>{lineValue ? formatNumberFR(lineValue) : "—"}</strong><small>Ligne</small></div>
+            </div>
+            <div className="mx-live-row__progress"><span style={{ width: `${progress}%` }}></span></div>
+          </section>
 
-          <div className="flex items-center gap-2 flex-wrap mb-2">
-            <LiveAssetIcon name={assetForPrediction(best)} size={22} className="mx-live-pred-icon" />
-            <PredictionBadge pred={best} />
-            <Badge color="green">{formatPercent(best.probability)}</Badge>
-            <Badge color="blue">Fiabilité {best.reliability || 0}</Badge>
-          </div>
-
-          <PronosticBox pred={best} />
-
-          <div className="text-xs text-gray-300 mt-2 safe-wrap">
-            {formatPredSubtitle(best)}
-          </div>
-
-          <div className="text-[11px] text-gray-500 mt-3">
-            Cliquez pour plus de détails
-          </div>
+          <section className="mx-live-row__pick">
+            <div className="mx-live-row__pick-kicker"><span>★</span> {featured ? "Meilleure opportunité" : "Opportunité LIVE"}</div>
+            <div className="mx-live-row__pick-title">{formatPredTitleSimple(best)}</div>
+            <div className="mx-live-row__confidence">
+              <span>Confiance</span>
+              <div><i style={{ width: `${confidence}%` }}></i></div>
+              <strong>{confidence}%</strong>
+            </div>
+            <span className="mx-live-row__chevron" aria-hidden="true">›</span>
+          </section>
         </Card>
       );
     };
 
     const MatchCard = ({ match, onOpen }) => {
       const best = match?.predictions?.[0] || null;
-
-      const totalCorners =
-        safeNumber(match?.live_stats?.home?.corner_kicks, 0) +
-        safeNumber(match?.live_stats?.away?.corner_kicks, 0);
-
-      const totalFouls =
-        safeNumber(match?.live_stats?.home?.fouls, 0) +
-        safeNumber(match?.live_stats?.away?.fouls, 0);
-
-      const totalShots =
-        safeNumber(match?.live_stats?.home?.total_shots, 0) +
-        safeNumber(match?.live_stats?.away?.total_shots, 0);
-
       const homeLogo = getTeamLogo(match, "home");
       const awayLogo = getTeamLogo(match, "away");
       const leagueLogo = getLeagueLogo(match);
 
+      const totalCorners = safeNumber(match?.live_stats?.home?.corner_kicks, 0) + safeNumber(match?.live_stats?.away?.corner_kicks, 0);
+      const totalFouls = safeNumber(match?.live_stats?.home?.fouls, 0) + safeNumber(match?.live_stats?.away?.fouls, 0);
+      const totalShots = safeNumber(match?.live_stats?.home?.total_shots, 0) + safeNumber(match?.live_stats?.away?.total_shots, 0);
+
+      const currentValue = best ? currentValueForPrediction(match, best) : 0;
+      const lineValue = best ? thresholdForPrediction(best) : 0;
+      const confidence = best ? confidenceForPrediction(best) : 0;
+      const progress = best ? marketProgress(match, best) : 0;
+
       return (
-        <Card onClick={() => onOpen(match)}>
-          <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="w-2 h-2 bg-red-500 rounded-full live-pulse"></span>
-              <span className="text-red-500 text-xs font-bold whitespace-nowrap">LIVE {match.current_minute || 0}'</span>
-              <span className="text-gray-600">•</span>
-              <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
-                <LogoImg src={leagueLogo} alt={match?.league?.name} size={20} />
-                <span className="truncate">{match?.league?.name || "Ligue"}</span>
+        <Card onClick={() => onOpen(match)} className="mx-live-row">
+          <section className="mx-live-row__match">
+            <div className="mx-live-row__meta">
+              <span className="mx-live-row__live"><i></i> LIVE</span>
+              <span className="mx-live-row__minute">{match.current_minute || 0}'</span>
+              <span className="mx-live-row__league">
+                <LogoImg src={leagueLogo} alt={match?.league?.name} size={18} />
+                {match?.league?.name || "Ligue"}
+              </span>
+            </div>
+            <div className="mx-live-row__teams">
+              <div className="mx-live-row__team">
+                <LogoImg src={homeLogo} alt={match.home_team} size={26} />
+                <strong>{match.home_team}</strong>
+                <b>{match.home_score ?? 0}</b>
+              </div>
+              <div className="mx-live-row__team">
+                <LogoImg src={awayLogo} alt={match.away_team} size={26} />
+                <strong>{match.away_team}</strong>
+                <b>{match.away_score ?? 0}</b>
               </div>
             </div>
-
-            <div className="flex items-center gap-2 flex-wrap justify-end">
-              <HeatBadge level={match.heat_level} />
-              <FreshnessBadge seconds={match.freshness_seconds} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 mb-4">
-            <TeamRow name={match.home_team} logo={homeLogo} align="right" />
-            <div className="mx-score-box">
-              <strong>{match.home_score}-{match.away_score}</strong>
-              <span>Live {match.current_minute || 0}'</span>
-            </div>
-            <TeamRow name={match.away_team} logo={awayLogo} align="left" />
-          </div>
-
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            <StatChip compact label="Corners" value={totalCorners} icon="corner" />
-            <StatChip compact label="Fautes" value={totalFouls} icon="cards" />
-            <StatChip compact label="Tirs" value={totalShots} icon="ball" />
-          </div>
+          </section>
 
           {best ? (
-            <div className="pt-4 border-t border-[#222]">
-              <div className="flex items-center gap-2 flex-wrap mb-2">
-                <LiveAssetIcon name={assetForPrediction(best)} size={22} className="mx-live-pred-icon" />
-                <PredictionBadge pred={best} />
-                <Badge color="green">{formatPercent(best.probability)}</Badge>
-                <Badge color="blue">Fiabilité {best.reliability || 0}</Badge>
-              </div>
+            <>
+              <section className="mx-live-row__market">
+                <div className="mx-live-row__market-head">
+                  <span className="mx-live-row__market-badge">
+                    <LiveAssetIcon name={assetForPrediction(best)} size={21} />
+                    {best?.badge || "Marché"}
+                  </span>
+                  <span className="mx-live-row__signal"><LiveAssetIcon name="bars" size={20} /></span>
+                </div>
+                <div className="mx-live-row__market-label">{best?.badge || best?.type || "Statistique"} · Total</div>
+                <div className="mx-live-row__numbers">
+                  <div><strong>{formatNumberFR(currentValue)}</strong><small>Actuel</small></div>
+                  <div><strong>{lineValue ? formatNumberFR(lineValue) : "—"}</strong><small>Ligne</small></div>
+                </div>
+                <div className="mx-live-row__progress"><span style={{ width: `${progress}%` }}></span></div>
+              </section>
 
-              <PronosticBox pred={best} />
-
-              <div className="text-xs text-gray-300 mt-2 safe-wrap">
-                {formatPredSubtitle(best)}
-              </div>
-
-              <div className="text-[11px] text-gray-500 mt-3">
-                Cliquez pour plus de détails
-              </div>
-            </div>
+              <section className="mx-live-row__pick">
+                <div className="mx-live-row__pick-kicker"><span>★</span> Opportunité LIVE</div>
+                <div className="mx-live-row__pick-title">{formatPredTitleSimple(best)}</div>
+                <div className="mx-live-row__confidence">
+                  <span>Confiance</span>
+                  <div><i style={{ width: `${confidence}%` }}></i></div>
+                  <strong>{confidence}%</strong>
+                </div>
+                <span className="mx-live-row__chevron" aria-hidden="true">›</span>
+              </section>
+            </>
           ) : (
-            <div className="pt-4 border-t border-[#222] text-xs text-gray-500">
-              Aucun pronostic fiable actuellement — cliquez pour voir les détails
-            </div>
+            <>
+              <section className="mx-live-row__market mx-live-row__market--stats">
+                <div className="mx-live-row__mini-stat"><LiveAssetIcon name="corner" size={25} /><span>Corners</span><strong>{totalCorners}</strong></div>
+                <div className="mx-live-row__mini-stat"><LiveAssetIcon name="cards" size={25} /><span>Fautes</span><strong>{totalFouls}</strong></div>
+                <div className="mx-live-row__mini-stat"><LiveAssetIcon name="ball" size={25} /><span>Tirs</span><strong>{totalShots}</strong></div>
+              </section>
+              <section className="mx-live-row__pick mx-live-row__pick--empty">
+                <LiveAssetIcon name="target" size={30} />
+                <div><strong>Analyse en cours</strong><span>Aucun signal assez fiable pour le moment.</span></div>
+                <span className="mx-live-row__chevron" aria-hidden="true">›</span>
+              </section>
+            </>
           )}
         </Card>
       );
@@ -1722,60 +1780,28 @@
                        =========================== */}
                     {selectedTab === "live" && (
                       <>
-                        {bestOpportunity && (
-                          <div className="mb-8">
-                            <div className="mx-live-section-title">
-                              <LiveAssetIcon name="bars" size={31} />
-                              Top opportunité
-                            </div>
-                            <OpportunityCard item={bestOpportunity} onOpen={setSelectedMatch} />
-                          </div>
-                        )}
-
-                        <div className="mb-8">
-                          <div className="mx-live-section-title">
-                            <LiveAssetIcon name="target" size={31} />
-                            Pronostics live
-                          </div>
-
-                          {(otherOpportunities || []).length === 0 ? (
-                            <EmptyState
-                              title={bestOpportunity ? "Aucune autre opportunité" : "Aucun pronostic premium"}
-                              subtitle={bestOpportunity
-                                ? "L'opportunité principale est affichée en haut."
-                                : "Le moteur live attend un contexte suffisamment fiable."
-                              }
-                            />
-                          ) : (
-                            <div className="grid gap-4 md:grid-cols-2">
-                              {otherOpportunities.map((item) => (
-                                <OpportunityCard
-                                  key={item.id || `${item.home_team}-${item.away_team}-${item.current_minute}`}
-                                  item={item}
-                                  onOpen={setSelectedMatch}
-                                />
-                              ))}
-                            </div>
+                        <div className="mx-live-list mb-8">
+                          {bestOpportunity && (
+                            <OpportunityCard item={bestOpportunity} onOpen={setSelectedMatch} featured />
                           )}
-                        </div>
 
-                        <div className="mb-8">
-                          <div className="mx-live-section-title">
-                            <LiveAssetIcon name="whistle" size={31} />
-                            <span className="mx-live-red">Tous les matchs live</span>
-                          </div>
-
-                          {(liveMatchesWithoutOpportunities || []).length === 0 ? (
-                            <EmptyState
-                              title="Aucun autre match live"
-                              subtitle="Tous les matchs live ont déjà une opportunité affichée plus haut."
+                          {(otherOpportunities || []).map((item) => (
+                            <OpportunityCard
+                              key={item.id || `${item.home_team}-${item.away_team}-${item.current_minute}`}
+                              item={item}
+                              onOpen={setSelectedMatch}
                             />
-                          ) : (
-                            <div className="grid gap-4 md:grid-cols-2">
-                              {liveMatchesWithoutOpportunities.map((m) => (
-                                <MatchCard key={m.id} match={m} onOpen={setSelectedMatch} />
-                              ))}
-                            </div>
+                          ))}
+
+                          {(liveMatchesWithoutOpportunities || []).map((m) => (
+                            <MatchCard key={m.id} match={m} onOpen={setSelectedMatch} />
+                          ))}
+
+                          {!bestOpportunity && (otherOpportunities || []).length === 0 && (liveMatchesWithoutOpportunities || []).length === 0 && (
+                            <EmptyState
+                              title="Aucun match LIVE disponible"
+                              subtitle="Le moteur attend des données suffisamment fiables avant d'afficher une opportunité."
+                            />
                           )}
                         </div>
 
