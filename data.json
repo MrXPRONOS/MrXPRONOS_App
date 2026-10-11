@@ -1,8 +1,8 @@
 {
   "source": "bsd",
   "model_version": "bsd-v2-isolated",
-  "generated_at": "2026-10-11T08:42:43.784109+00:00",
-  "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model",
+  "generated_at": "2026-10-11T08:53:59.050808+00:00",
+  "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80",
   "matches": [
     {
       "id": "bsd:7282",
@@ -18375,10 +18375,96 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-11T08:42:43.784109+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model",
+      "revalidated_at": "2026-10-11T08:53:59.050808+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true
+    },
+    {
+      "id": "bsd:220872",
+      "source": "bsd",
+      "source_event_id": 220872,
+      "date": "2026-10-11",
+      "event_date": "2026-10-11T14:00:00+00:00",
+      "home_team": "Atletico CP",
+      "away_team": "Caldas SC",
+      "home_team_id": 4124,
+      "away_team_id": 4821,
+      "home_logo": "https://sports.bzzoiro.com/img/team/4124/?bg=transparent",
+      "away_logo": "https://sports.bzzoiro.com/img/team/4821/?bg=transparent",
+      "league_logo": "https://sports.bzzoiro.com/img/league/82/?bg=transparent",
+      "league": "Liga 3",
+      "league_id": 82,
+      "category": "pro",
+      "badge": "BSD V2",
+      "signal_tier": "INDICATIF",
+      "recommendation_eligible": true,
+      "status": "notstarted",
+      "is_finished": false,
+      "home_score": null,
+      "away_score": null,
+      "verified_prediction": false,
+      "verified_double": false,
+      "prediction": {
+        "type": "1X",
+        "label": "1X",
+        "market": "double_chance",
+        "selection_key": "1X",
+        "market_code": "DC_1X_FT",
+        "outcome": "1X",
+        "line": null,
+        "confidence": 81.0,
+        "model_probability": 81.0,
+        "conservative_probability": 80.0,
+        "double_chance": "1X",
+        "fair_odds": 1.2343,
+        "odds": 1.2,
+        "calibration_samples": 2780,
+        "estimated_value": null,
+        "model_version": "bsd-v2-isolated",
+        "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80",
+        "odds_source": "mrxpronos_model",
+        "estimated_odds": true,
+        "odds_method": "bsd_marches_complets",
+        "overround_assumption": 0.02858,
+        "odds_updated_at": "2026-10-11T08:53:59.050808+00:00",
+        "signal_tier": "INDICATIF",
+        "recommendation_eligible": true
+      },
+      "model_version": "bsd-v2-isolated",
+      "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80",
+      "model_audit": {
+        "expected_goals_home": 1.67744,
+        "expected_goals_away": 0.92291,
+        "expected_goals_total": 2.60035,
+        "league_samples": 600,
+        "home_recent_matches": 12,
+        "away_recent_matches": 12,
+        "home_venue_matches": 8,
+        "away_venue_matches": 8,
+        "total_model_agreement": {
+          "over_15_baseline_probability": 0.732683,
+          "over_15_specialist_probability": 0.715277,
+          "over_15_probability_gap": 0.017406,
+          "over_15_max_gap": 0.07,
+          "over_15_passed": true
+        },
+        "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80"
+      },
+      "publication_audit": {
+        "selection_reason": "highest_reliability_after_quality_and_guardrails",
+        "post_price_value_guard": {
+          "checked": false,
+          "passed": true,
+          "reason": "estimated_price_not_independent",
+          "source": "mrxpronos_model"
+        },
+        "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80"
+      },
+      "final_score": 81.0,
+      "xpronos_score": 81.0,
+      "generated_at": "2026-10-11T08:53:59.050808+00:00",
+      "combo_only": false
     },
     {
       "id": "bsd:46481",
@@ -18465,8 +18551,8 @@
       "xpronos_score": 82.6,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-11T08:42:43.784109+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model"
+      "revalidated_at": "2026-10-11T08:53:59.050808+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80"
     },
     {
       "id": "bsd:605658",
@@ -18555,8 +18641,8 @@
         }
       ],
       "policy_version": "bsd-v2-isolated",
-      "revalidated_at": "2026-10-11T08:42:43.784109+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model",
+      "revalidated_at": "2026-10-11T08:53:59.050808+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80",
       "signal_tier": "QUALIFIE",
       "recommendation_eligible": true
     },
@@ -18664,8 +18750,8 @@
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-11T05:50:09+00:00"
       },
-      "revalidated_at": "2026-10-11T08:42:43.784109+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model"
+      "revalidated_at": "2026-10-11T08:53:59.050808+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80"
     },
     {
       "id": "bsd:10181",
@@ -18752,8 +18838,8 @@
       "xpronos_score": 82.6,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-11T08:42:43.784109+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model"
+      "revalidated_at": "2026-10-11T08:53:59.050808+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80"
     },
     {
       "id": "bsd:5333",
@@ -18840,8 +18926,8 @@
       "xpronos_score": 83.0,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-11T08:42:43.784109+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model"
+      "revalidated_at": "2026-10-11T08:53:59.050808+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80"
     },
     {
       "id": "bsd:214864",
@@ -18928,8 +19014,8 @@
       "xpronos_score": 82.4,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-11T08:42:43.784109+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model"
+      "revalidated_at": "2026-10-11T08:53:59.050808+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80"
     },
     {
       "id": "bsd:211727",
@@ -19016,8 +19102,8 @@
       "xpronos_score": 82.8,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-11T08:42:43.784109+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model"
+      "revalidated_at": "2026-10-11T08:53:59.050808+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80"
     },
     {
       "id": "bsd:604489",
@@ -19104,8 +19190,8 @@
       "xpronos_score": 82.7,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-11T08:42:43.784109+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model"
+      "revalidated_at": "2026-10-11T08:53:59.050808+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80"
     },
     {
       "id": "bsd:10177",
@@ -19192,8 +19278,8 @@
       "xpronos_score": 82.9,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-11T08:42:43.784109+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model"
+      "revalidated_at": "2026-10-11T08:53:59.050808+00:00",
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model80"
     }
   ],
   "retired_predictions": [],
@@ -19495,7 +19581,7 @@
       }
     },
     "last_added": 0,
-    "updated_at": "2026-10-11T08:42:43.784109+00:00",
+    "updated_at": "2026-10-11T08:53:59.050808+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -19592,18 +19678,21 @@
   },
   "bookmakers": [],
   "diagnostics": {
-    "total": 224,
+    "total": 225,
     "rejections": {
       "saved_future_revalidated": 10,
       "odds_attempts": 160,
-      "v21_model_confidence_or_price_below_floor": 30,
+      "v21_model_confidence_or_price_below_floor": 29,
       "v21_insufficient_real_price_edge": 36,
       "v21_over15_conservative_too_low": 82,
       "v21_observation_not_recommended": 5,
       "chosen_market_unpriceable": 7,
       "no_qualified_market": 21,
       "insufficient_form": 1,
-      "quality_short_form": 1
+      "quality_short_form": 1,
+      "model_estimated": 1,
+      "priced_selected": 1,
+      "created": 1
     },
     "fixture_details": [
       {
@@ -46266,8 +46355,8 @@
             "result": "excluded_market"
           }
         ],
-        "status": "rejected",
-        "reason": "v21_model_confidence_or_price_below_floor",
+        "status": "published",
+        "reason": null,
         "preprice": {
           "category": "pro",
           "selection_key": "1X",
@@ -46289,10 +46378,13 @@
           "source": "mrxpronos_model"
         },
         "v21_policy": {
-          "passed": false,
-          "reason": "v21_model_confidence_or_price_below_floor",
-          "tier": "OBSERVATION"
-        }
+          "passed": true,
+          "reason": "ok_model_indicative",
+          "tier": "INDICATIF"
+        },
+        "selections": [
+          "1X"
+        ]
       },
       {
         "event_id": "220869",
@@ -66187,12 +66279,12 @@
       },
       "newly_published_by_category": {
         "simple": 0,
-        "pro": 0,
+        "pro": 1,
         "vip": 0
       },
       "all_published_by_category_including_history": {
         "simple": 132,
-        "pro": 85,
+        "pro": 86,
         "vip": 7
       },
       "not_classified_reason_counts": {
@@ -66545,9 +66637,9 @@
       "selection": [],
       "league_market": []
     },
-    "v21_new_picks": 0,
+    "v21_new_picks": 1,
     "v21_daily_cap": 10,
-    "leagues_resolved": 0,
+    "leagues_resolved": 1,
     "api_calls": 177,
     "quality_validation": {
       "train_period": "2025-01-01 to 2025-08-31",
