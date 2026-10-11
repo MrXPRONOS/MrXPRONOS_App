@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v19-approved-goldmx-20261011';
+const VERSION = 'v20-approved-goldmx-20261011';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -42,8 +42,8 @@ const STATIC_ASSETS = [
     './assets/images/facebook.webp',
     './assets/images/youtube.webp',
     './assets/images/threads.webp',
-    './assets/images/mrxpronos-mark.svg',
-    './assets/images/mrxpronos-logo.svg',
+    './assets/images/mrxpronos-mark.png',
+    './assets/images/mrxpronos-horizontal.webp',
     './assets/images/mrxpronos-logo-maquette.png',
     './assets/images/mrxpronos-horizontal.webp',
     './assets/images/mrxpronos-stacked.webp',
