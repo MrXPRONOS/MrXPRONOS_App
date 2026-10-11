@@ -35,7 +35,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" onerror="showBootError('Babel ne peut pas être chargé depuis unpkg.com')"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="showBootError('Supabase JS ne peut pas être chargé depuis jsDelivr')"></script>
   <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
-  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium1">
+  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium2">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -959,7 +959,7 @@
 
       return (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-[#121212] border border-[#262626] rounded-3xl w-full max-w-5xl max-h-[92vh] overflow-hidden shadow-2xl">
+          <div className="mx-live-modal w-full max-w-5xl max-h-[92vh] overflow-hidden">
             <div className="p-4 border-b border-[#2a2a2a]">
               <div className="flex justify-between items-start gap-3">
                 <div className="min-w-0">
@@ -1016,7 +1016,7 @@
                       const actuel = p?.current ?? "-";
 
                       return (
-                        <div key={p.id || i} className="bg-[#0a0a0a] rounded-2xl p-4 border border-[#222]">
+                        <div key={p.id || i} className="mx-detail-signal rounded-2xl p-4 border">
                           <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
                             <div className="flex gap-2 items-center flex-wrap">
                               <PredictionBadge pred={p} />
@@ -1108,7 +1108,7 @@
 
       return (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3">
-          <div className="bg-[#121212] border border-[#262626] rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-hidden shadow-2xl">
+          <div className="mx-live-modal w-full max-w-4xl max-h-[92vh] overflow-hidden">
             <div className="p-4 border-b border-[#2a2a2a]">
               <div className="flex justify-between items-start gap-3">
                 <div className="min-w-0">
@@ -1180,12 +1180,10 @@
     };
 
     const EmptyState = ({ title, subtitle }) => (
-      <Card className="text-center py-12 bg-[#101010]">
-        <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[#161616] border border-[#232323] flex items-center justify-center">
-          <Icon name="chartBar" className="text-[#D4AF37]" />
-        </div>
-        <div className="text-lg font-semibold text-gray-300 mb-2">{title}</div>
-        <div className="text-sm text-gray-500 safe-wrap">{subtitle}</div>
+      <Card className="mx-empty-premium">
+        <LiveAssetIcon name="bars" size={64} />
+        <div className="text-lg font-semibold text-gray-200 mb-2">{title}</div>
+        <div className="text-sm text-gray-400 safe-wrap">{subtitle}</div>
       </Card>
     );
 
@@ -1291,7 +1289,7 @@
       ];
 
       return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden glass border-t border-[#1e1e1e]">
+        <nav className="mx-mobile-tabs fixed bottom-0 left-0 right-0 z-50 md:hidden">
           <div className="max-w-7xl mx-auto px-2 py-2" style={{ paddingBottom: "calc(0.5rem + env(safe-area-inset-bottom))" }}>
             <div className="grid grid-cols-4 gap-2">
               {items.map((it) => {
@@ -1300,15 +1298,12 @@
                   <button
                     key={it.key}
                     onClick={() => setSelectedTab(it.key)}
-                    className={`relative flex flex-col items-center justify-center gap-1 py-2 rounded-2xl transition-colors ${
-                      active ? "bg-[#D4AF37] text-black" : "text-gray-300 hover:bg-white/5"
-                    }`}
+                    className={`mx-mobile-tab relative flex flex-col items-center justify-center gap-1 py-2 rounded-2xl transition-colors ${active ? "is-active" : ""}`}
                     type="button"
                   >
-                    <Icon
-                      name={it.icon}
-                      size={16}
-                      className={active ? "" : "text-[#D4AF37]"}
+                    <LiveAssetIcon
+                      name={it.key === "live" ? "stopwatch" : it.key === "upcoming" ? "ball" : it.key === "history" ? "pie" : "target"}
+                      size={20}
                     />
                     <span className="text-[10px] font-extrabold">{it.label}</span>
 
