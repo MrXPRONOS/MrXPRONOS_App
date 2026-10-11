@@ -2228,3 +2228,10 @@ body:not(.mx-premium-home) header .logo img[src*="mrxpronos-horizontal"]{display
 .mx-site-footer-brand a{display:inline-flex;justify-content:center;align-items:center;line-height:0;max-width:100%}
 .mx-site-footer-brand img{display:block;width:auto;height:66px;max-width:min(230px,75vw);object-fit:contain}
 @media(max-width:600px){body:not(.mx-premium-home) header .logo img[src*="mrxpronos-horizontal"]{height:48px;max-width:clamp(110px,35vw,158px)}.mx-site-footer-brand img{height:58px}}
+
+/* BSD V2.1: neutral, readable signal qualification indicators */
+.v21-signal-tier{display:inline-flex;align-items:center;font-size:.68rem;font-weight:800;letter-spacing:.035em;line-height:1.25;padding:.27rem .48rem;border-radius:.4rem;border:1px solid currentColor;vertical-align:middle;white-space:nowrap}
+.v21-tier-premium{color:#ffd276;background:rgba(255,210,118,.1)}
+.v21-tier-qualifie{color:#83d7c2;background:rgba(131,215,194,.1)}
+.v21-tier-observation{color:#b8bdc8;background:rgba(184,189,200,.09)}
+@media(max-width:480px){.v21-signal-tier{font-size:.62rem;padding:.2rem .32rem;letter-spacing:0}}

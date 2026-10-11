@@ -20,9 +20,10 @@ def match(num,minutes,odd=1.25,market="OVER_15"):
         "id":"bsd:"+str(num),"source_event_id":num,"source":"bsd",
         "date":dt.date().isoformat(),"event_date":dt.isoformat(),
         "status":"notstarted","home_team":"Alpha United","away_team":"Beta City",
-        "league":"Example League",
+        "league":"Example League","recommendation_eligible":True,
         "prediction":{"type":"Plus de 1.5 buts","selection_key":market,
-            "odds":odd,"odds_source":"bsd_consensus","market":"goals"},
+            "odds":odd,"odds_source":"bsd_consensus","market":"goals",
+             "recommendation_eligible":True},
     }
 
 class OfflineSession:
@@ -121,7 +122,8 @@ class CombosTests(unittest.TestCase):
         a["predictions"]=[a["prediction"],{
             "type":"Les deux équipes marquent",
             "selection_key":"BTTS_YES","market":"btts",
-            "odds":1.58,"odds_source":"bsd_consensus"}]
+            "odds":1.58,"odds_source":"bsd_consensus",
+            "recommendation_eligible":True}]
         tickets=expand_tickets(a)
         self.assertEqual(len(tickets),2)
         self.assertEqual(tickets[0]["id"],"bsd:17")
