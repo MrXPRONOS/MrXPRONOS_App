@@ -683,7 +683,7 @@
       const leagueLogo = getLeagueLogo(item);
 
       return (
-        <Card onClick={() => onOpen(item)} className="border-[#D4AF37]/20">
+        <Card onClick={() => onOpen(item)} className="mx-opportunity-card">
           <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
               <HeatBadge level={item.heat_level} />
@@ -699,14 +699,15 @@
 
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 mb-4">
             <TeamRow name={item.home_team} logo={homeLogo} align="right" />
-            <div className="px-2 py-2 rounded-xl bg-[#0a0a0a] border border-[#D4AF37]/30 text-center min-w-[82px]">
-              <div className="text-base font-extrabold text-[#D4AF37]">{item.home_score}-{item.away_score}</div>
-              <div className="text-[11px] text-gray-400">{item.current_minute}'</div>
+            <div className="mx-score-box">
+              <strong>{item.home_score}-{item.away_score}</strong>
+              <span>Live {item.current_minute || 0}'</span>
             </div>
             <TeamRow name={item.away_team} logo={awayLogo} align="left" />
           </div>
 
           <div className="flex items-center gap-2 flex-wrap mb-2">
+            <LiveAssetIcon name={assetForPrediction(best)} size={22} className="mx-live-pred-icon" />
             <PredictionBadge pred={best} />
             <Badge color="green">{formatPercent(best.probability)}</Badge>
             <Badge color="blue">Fiabilité {best.reliability || 0}</Badge>
@@ -765,8 +766,9 @@
 
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 mb-4">
             <TeamRow name={match.home_team} logo={homeLogo} align="right" />
-            <div className="px-2 py-2 rounded-xl bg-[#0a0a0a] border border-[#252525] font-bold text-center min-w-[78px]">
-              <div className="text-base">{match.home_score}-{match.away_score}</div>
+            <div className="mx-score-box">
+              <strong>{match.home_score}-{match.away_score}</strong>
+              <span>Live {match.current_minute || 0}'</span>
             </div>
             <TeamRow name={match.away_team} logo={awayLogo} align="left" />
           </div>
@@ -780,6 +782,7 @@
           {best ? (
             <div className="pt-4 border-t border-[#222]">
               <div className="flex items-center gap-2 flex-wrap mb-2">
+                <LiveAssetIcon name={assetForPrediction(best)} size={22} className="mx-live-pred-icon" />
                 <PredictionBadge pred={best} />
                 <Badge color="green">{formatPercent(best.probability)}</Badge>
                 <Badge color="blue">Fiabilité {best.reliability || 0}</Badge>
