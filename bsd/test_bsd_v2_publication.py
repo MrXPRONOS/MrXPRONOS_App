@@ -15,8 +15,10 @@ class PublicationTests(unittest.TestCase):
             "id":"bsd:"+str(n),"source":"bsd","source_event_id":n,
             "date":at.date().isoformat(),"event_date":at.isoformat(),
             "home_team":"A","away_team":"B","status":"notstarted",
+            "recommendation_eligible":True,
             "prediction":{"type":"Plus de 1.5 buts","selection_key":"OVER_15",
-                          "confidence":85,"odds":1.55,"odds_source":"bsd_consensus"},
+                          "confidence":85,"odds":1.55,"odds_source":"bsd_consensus",
+                          "recommendation_eligible":True},
         }
 
     def test_hourly_window_and_no_started_games(self):
