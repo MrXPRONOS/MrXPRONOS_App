@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Coupons du jour">
+<title>Mr XPRONOS - Coupons du jour</title>
+<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF5C9"/><stop offset=".22" stop-color="#FFE080"/><stop offset=".56" stop-color="#D69A32"/><stop offset=".8" stop-color="#FFCD59"/><stop offset="1" stop-color="#A26312"/></linearGradient><filter id="softGlow" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<g fill="none" stroke="url(#gold)" stroke-width="23" stroke-linejoin="round" stroke-linecap="round" filter="url(#softGlow)"><path d="M111 130h290v84q-43 0-43 41t43 42v85H111v-85q43 0 43-42t-43-41z"/><path d="M256 151v40m0 49v31m0 44v43" stroke-dasharray="16 30"/></g></svg>

@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Football">
+<title>Mr XPRONOS - Football</title>
+<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF5C9"/><stop offset=".22" stop-color="#FFE080"/><stop offset=".56" stop-color="#D69A32"/><stop offset=".8" stop-color="#FFCD59"/><stop offset="1" stop-color="#A26312"/></linearGradient><filter id="softGlow" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<g fill="none" stroke="url(#gold)" stroke-width="23" stroke-linejoin="round" stroke-linecap="round" filter="url(#softGlow)"><circle cx="256" cy="256" r="161"/><path d="m256 168 71 52-27 85h-88l-27-85zM256 168v-72m71 124 65-24m-92 109 39 91m-127-91-39 91m12-176-65-24"/></g></svg>

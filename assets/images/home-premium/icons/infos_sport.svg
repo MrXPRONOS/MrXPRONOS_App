@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Informations">
+<title>Mr XPRONOS - Informations</title>
+<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF5C9"/><stop offset=".22" stop-color="#FFE080"/><stop offset=".56" stop-color="#D69A32"/><stop offset=".8" stop-color="#FFCD59"/><stop offset="1" stop-color="#A26312"/></linearGradient><filter id="softGlow" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<g fill="none" stroke="url(#gold)" stroke-width="23" stroke-linejoin="round" stroke-linecap="round" filter="url(#softGlow)"><circle cx="256" cy="256" r="174"/><circle cx="256" cy="167" r="11" fill="url(#gold)" stroke="none"/><path d="M256 234v118"/></g></svg>
