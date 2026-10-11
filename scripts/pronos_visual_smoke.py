@@ -23,6 +23,7 @@ def main():
             try:
                 page.goto(args.url, wait_until="domcontentloaded", timeout=30000)
                 page.locator("#pronos-page-title").wait_for(timeout=12000)
+                page.locator("#matches-container .match-card, #matches-container .no-events, #matches-container .error").first.wait_for(timeout=25000)
                 page.screenshot(path=str(out / f"pronos-{width}.png"), full_page=True, animations="disabled")
                 measurements = page.evaluate("""() => ({
                     viewport: document.documentElement.clientWidth,
@@ -35,6 +36,8 @@ def main():
                 print(width, measurements)
                 if measurements["full"] > measurements["viewport"] + 2:
                     failures.append(f"{width}px: horizontal overflow {measurements['full']} > {measurements['viewport']}")
+                if measurements["cards"] == 0 and page.locator("#matches-container .no-events, #matches-container .error").count() == 0:
+                    failures.append(f"{width}px: blank match results despite ready page")
                 if not measurements["logo"] or not measurements["heading"] or measurements["tabs"] != 3:
                     failures.append(f"{width}px: missing essential component")
                 if width == 390:
