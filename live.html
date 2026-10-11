@@ -40,7 +40,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" onerror="showBootError('Babel ne peut pas être chargé depuis unpkg.com')"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="showBootError('Supabase JS ne peut pas être chargé depuis jsDelivr')"></script>
   <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
-  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium8">
+  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium9">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -492,6 +492,15 @@
       return "ball";
     }
 
+    function marketToneForPrediction(pred) {
+      const type = String(pred?.type || pred?.badge || pred?.title || "").toLowerCase();
+      if (type.includes("corner")) return "corners";
+      if (type.includes("shot") || type.includes("tir")) return "shots";
+      if (type.includes("foul") || type.includes("faute")) return "fouls";
+      if (type.includes("card") || type.includes("booking") || type.includes("carton")) return "cards";
+      return "generic";
+    }
+
     function currentValueForPrediction(match, pred) {
       const explicit = pred?.current ?? pred?.current_value;
       if (explicit !== null && explicit !== undefined && explicit !== "" && Number.isFinite(Number(explicit))) {
@@ -765,6 +774,7 @@
       const lineValue = thresholdForPrediction(best);
       const confidence = confidenceForPrediction(best);
       const progress = marketProgress(item, best);
+      const marketTone = marketToneForPrediction(best);
 
       return (
         <Card onClick={() => onOpen(item)} className={`mx-live-row mx-opportunity-card ${featured ? "is-featured" : ""}`}>
@@ -792,7 +802,7 @@
             </div>
           </section>
 
-          <section className="mx-live-row__market">
+          <section className={`mx-live-row__market mx-market-${marketTone}`}>
             <div className="mx-live-row__market-head">
               <span className="mx-live-row__market-badge">
                 <LiveAssetIcon name={assetForPrediction(best)} size={21} />
@@ -836,6 +846,7 @@
       const lineValue = best ? thresholdForPrediction(best) : 0;
       const confidence = best ? confidenceForPrediction(best) : 0;
       const progress = best ? marketProgress(match, best) : 0;
+      const marketTone = best ? marketToneForPrediction(best) : "generic";
 
       return (
         <Card onClick={() => onOpen(match)} className="mx-live-row">
@@ -864,7 +875,7 @@
 
           {best ? (
             <>
-              <section className="mx-live-row__market">
+              <section className={`mx-live-row__market mx-market-${marketTone}`}>
                 <div className="mx-live-row__market-head">
                   <span className="mx-live-row__market-badge">
                     <LiveAssetIcon name={assetForPrediction(best)} size={21} />

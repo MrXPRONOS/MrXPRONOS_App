@@ -516,3 +516,50 @@ body.mx-live-page{
   .mx-live-page .mx-upcoming-card__teams strong{font-size:11px}
   .mx-live-page .mx-upcoming-card__foot{margin:0 10px 10px}
 }
+
+
+/* ===== Live reference fidelity : unified stats band + market colors ===== */
+.mx-live-page .mx-live-overview{
+  position:relative;z-index:5;gap:0!important;margin:-8px 0 20px!important;
+  overflow:hidden;border:1px solid #17618e;border-radius:13px;
+  background:linear-gradient(145deg,#071a27,#04121c);
+  box-shadow:0 13px 30px rgba(0,0,0,.28);
+}
+.mx-live-page .mx-live-stat{
+  min-height:86px!important;justify-content:center!important;
+  padding:13px 18px!important;border:0!important;border-right:1px solid #17415a!important;
+  border-radius:0!important;background:transparent!important;box-shadow:none!important;
+}
+.mx-live-page .mx-live-stat:last-child{border-right:0!important}
+
+.mx-live-page .mx-market-corners .mx-live-row__market-badge{
+  border-color:#148ed1!important;background:rgba(0,106,164,.16)!important;color:#56ceff!important;
+}
+.mx-live-page .mx-market-corners .mx-live-row__progress span{background:linear-gradient(90deg,#149ce7,#43caff)!important}
+
+.mx-live-page .mx-market-shots .mx-live-row__market-badge{
+  border-color:#159d68!important;background:rgba(7,120,78,.15)!important;color:#55eaa5!important;
+}
+.mx-live-page .mx-market-shots .mx-live-row__progress span{background:linear-gradient(90deg,#25bf70,#52e49b)!important}
+
+.mx-live-page .mx-market-fouls .mx-live-row__market-badge{
+  border-color:#c8942f!important;background:rgba(142,97,13,.16)!important;color:#f3c45c!important;
+}
+.mx-live-page .mx-market-fouls .mx-live-row__progress span{background:linear-gradient(90deg,#e4a936,#ffc85c)!important}
+
+.mx-live-page .mx-market-cards .mx-live-row__market-badge{
+  border-color:#cf4650!important;background:rgba(154,31,42,.15)!important;color:#ff7b83!important;
+}
+.mx-live-page .mx-market-cards .mx-live-row__progress span{background:linear-gradient(90deg,#e54b55,#ff7f87)!important}
+
+.mx-live-page .mx-market-generic .mx-live-row__market-badge{
+  border-color:#94722c!important;background:rgba(112,82,20,.14)!important;color:#e7bd62!important;
+}
+.mx-live-page .mx-market-generic .mx-live-row__progress span{background:linear-gradient(90deg,#c99633,#efc15d)!important}
+
+@media(max-width:640px){
+  .mx-live-page .mx-live-overview{margin:-5px 0 14px!important}
+  .mx-live-page .mx-live-stat{min-height:72px!important;border-right:1px solid #17415a!important;border-bottom:1px solid #17415a!important}
+  .mx-live-page .mx-live-stat:nth-child(2n){border-right:0!important}
+  .mx-live-page .mx-live-stat:nth-child(n+3){border-bottom:0!important}
+}
