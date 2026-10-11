@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v30-pronos-reference-assets-20261011';
+const VERSION = 'v31-bonus-premium-20261011';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -29,6 +29,7 @@ const STATIC_ASSETS = [
     './assets/css/blog-premium.css',
     './assets/css/conseils-premium.css',
     './assets/css/infos-premium.css',
+    './assets/css/bonus-premium.css',
     './assets/js/main.js',
     './assets/js/home-premium.js',
     './assets/js/pwa.js',
@@ -50,6 +51,7 @@ const STATIC_ASSETS = [
     './assets/images/mrxpronos-mark.png',
     './assets/images/blog-hero-ball.webp',
     './assets/images/pronostics-premium/hero-stadium.webp',
+    './assets/images/bonus-premium/bonus-gift.webp',
     './assets/images/pronostics-premium/card-stadium.webp',
     './assets/images/pronostics-premium/icon-simple.svg',
     './assets/images/pronostics-premium/icon-pro.svg',
