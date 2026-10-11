@@ -1516,30 +1516,21 @@
         ];
 
         return (
-          <div className="hidden md:flex gap-3 mb-6 flex-wrap">
-            {tabs.map(t => (
-              <button
-                key={t.key}
-                onClick={() => setSelectedTab(t.key)}
-                className={`relative px-4 py-2 rounded-xl font-semibold transition-colors ${
-                  selectedTab === t.key
-                    ? "bg-[#D4AF37] text-black"
-                    : "bg-[#151515] text-gray-300 border border-[#252525]"
-                }`}
-                type="button"
-              >
-                {t.label}
-                {safeNumber(t.count, 0) > 0 && (
-                  <span
-                    className={`ml-2 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-white text-[10px] font-bold align-middle ${
-                      t.danger ? "bg-red-500" : "bg-[#D4AF37]"
-                    }`}
-                  >
-                    {t.count}
-                  </span>
-                )}
-              </button>
-            ))}
+          <div className="mx-live-tabs hidden md:grid">
+            {tabs.map(t => {
+              const active = selectedTab === t.key;
+              return (
+                <button
+                  key={t.key}
+                  onClick={() => setSelectedTab(t.key)}
+                  className={`mx-live-tab ${active ? "is-active" : ""}`}
+                  type="button"
+                >
+                  {t.label}
+                  {safeNumber(t.count, 0) > 0 && <span className="mx-live-tab-count">{t.count}</span>}
+                </button>
+              );
+            })}
           </div>
         );
       };
@@ -1563,7 +1554,7 @@
       }
 
       return (
-        <div className="min-h-screen bg-[#0a0a0a]">
+        <div className="mx-live-shell min-h-screen">
           <Header
             stats={stats}
             onBack={() => window.location.href = "index.html"}
@@ -1571,7 +1562,7 @@
             refreshing={refreshing}
           />
 
-          <main className="max-w-7xl mx-auto px-4 py-6 pb-28 md:pb-6">
+          <main className="mx-live-main">
             {!selectedMatch && !selectedPrediction && (
               <>
                 <CompactHero
@@ -1596,17 +1587,17 @@
                       <>
                         {bestOpportunity && (
                           <div className="mb-8">
-                            <div className="text-lg font-bold mb-4 flex items-center gap-2">
-                              <Icon name="star" className="text-[#D4AF37]" />
-                              Top opportunity
+                            <div className="mx-live-section-title">
+                              <LiveAssetIcon name="bars" size={31} />
+                              Top opportunité
                             </div>
                             <OpportunityCard item={bestOpportunity} onOpen={setSelectedMatch} />
                           </div>
                         )}
 
                         <div className="mb-8">
-                          <div className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <Icon name="target" className="text-[#D4AF37]" />
+                          <div className="mx-live-section-title">
+                            <LiveAssetIcon name="target" size={31} />
                             Pronostics live
                           </div>
 
@@ -1632,9 +1623,9 @@
                         </div>
 
                         <div className="mb-8">
-                          <div className="text-lg font-bold mb-4 flex items-center gap-2">
-                            <Icon name="radio" className="text-red-500" />
-                            Tous les matchs live
+                          <div className="mx-live-section-title">
+                            <LiveAssetIcon name="stopwatch" size={31} />
+                            <span className="mx-live-red">Tous les matchs live</span>
                           </div>
 
                           {(liveMatchesWithoutOpportunities || []).length === 0 ? (
@@ -1658,8 +1649,8 @@
                        =========================== */}
                     {selectedTab === "upcoming" && (
                       <div className="mb-8">
-                        <div className="text-lg font-bold mb-4 flex items-center gap-2">
-                          <Icon name="calendar" className="text-blue-400" />
+                        <div className="mx-live-section-title">
+                          <LiveAssetIcon name="ball" size={31} />
                           Matchs à venir
                         </div>
 
@@ -1683,8 +1674,8 @@
                        =========================== */}
                     {selectedTab === "history" && (
                       <div>
-                        <div className="text-lg font-bold mb-4 flex items-center gap-2">
-                          <Icon name="history" className="text-[#D4AF37]" />
+                        <div className="mx-live-section-title">
+                          <LiveAssetIcon name="pie" size={31} />
                           Historique des pronostics
                         </div>
 
