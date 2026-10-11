@@ -116,6 +116,7 @@
 .mx-history-page .history-result-badge{display:flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:800}
 .mx-history-page .history-result-badge.won{border:1px solid #259c55;background:linear-gradient(180deg,#167f46,#0c6135);color:#e8fff0}
 .mx-history-page .history-result-badge.lost{border:1px solid #d73e45;background:linear-gradient(180deg,#b92e35,#8d2026);color:#fff0f1}
+.mx-history-page .history-result-badge.pending{border:1px solid #47697f;background:linear-gradient(180deg,#173145,#102535);color:#d7e4ec}
 .mx-history-page .history-result small{display:block;margin-top:5px;color:#99aab6;font-size:8.5px}
 .mx-history-page .no-events{border:1px dashed #31566f;border-radius:14px;padding:27px;background:#071925;color:#c8d3dc}
 
