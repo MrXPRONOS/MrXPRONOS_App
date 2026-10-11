@@ -706,3 +706,20 @@ body.mx-live-page{
  .mx-live-page .mx-live-benefit b{font-size:7.7px}
  .mx-live-page .mx-live-benefit img{width:25px!important;height:25px!important}
 }
+
+/* Live controls, balanced hero on phone and verified availability indicators */
+.mx-live-page .mx-live-desktop-refresh{display:grid;width:38px;height:38px;flex:0 0 38px}
+.mx-live-page .mx-live-navbutton:disabled{opacity:.6;cursor:wait}
+.mx-live-page .mx-live-header-actions .mx-live-promo{min-width:122px}
+.mx-live-page .mx-live-row__reliability strong{font-variant-numeric:tabular-nums}
+.mx-live-page .mx-live-hero__lead{position:relative;z-index:2}
+.mx-live-page .mx-live-benefits{position:relative;z-index:3}
+.mx-live-page .mx-live-hero-player{pointer-events:none}
+@media(max-width:900px){.mx-live-page .mx-live-desktop-refresh{display:none}}
+@media(max-width:640px){
+  .mx-live-page .mx-live-hero__content{justify-content:flex-end}
+  .mx-live-page .mx-live-hero-player{right:-10%;bottom:-55px;opacity:.31}
+  .mx-live-page .mx-live-hero h1{letter-spacing:-.055em}
+  .mx-live-page .mx-live-stat small{line-height:1.3}
+  .mx-live-page .mx-live-row__scoreboard{width:100%}
+}
