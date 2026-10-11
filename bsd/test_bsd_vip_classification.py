@@ -12,6 +12,9 @@ class VIPClassificationTests(unittest.TestCase):
         self.assertEqual(classify_quality_category(.87,features()),"vip")
     def test_pro_but_not_vip(self):
         self.assertEqual(classify_quality_category(.80,features()),"pro")
+        self.assertEqual(classify_quality_category(.809,features()),"pro")
+    def test_new_vip_confidence_floor(self):
+        self.assertEqual(classify_quality_category(.81,features()),"vip")
     def test_not_enough_league_data(self):
         self.assertEqual(classify_quality_category(.90,features(league=50)),"pro")
     def test_vip_at_maximum_history_depth(self):
