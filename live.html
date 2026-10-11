@@ -42,7 +42,7 @@
   <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
   <link rel="preload" as="image" href="assets/images/live-premium/hero-stadium.webp">
   <link rel="preload" as="image" href="assets/images/live-premium/player-back.webp">
-  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium15">
+  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium16">
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -972,11 +972,15 @@
         : "À venir";
 
       return (
-        <Card className="mx-upcoming-card">
+        <Card className="mx-upcoming-card mx-upcoming-premium">
+          <div className="mx-upcoming-premium__topline">
+            <span><LiveAssetIcon name="stopwatch" size={19} /> PROCHAINEMENT</span>
+            <span className="mx-upcoming-premium__scheduled">MATCH PROGRAMMÉ</span>
+          </div>
           <div className="mx-upcoming-card__meta">
             <span className="mx-upcoming-card__league">
-              <LogoImg src={leagueLogo} alt={match?.league?.name} size={20} />
-              <span>{match?.league?.name || "Ligue"}</span>
+              <LogoImg src={leagueLogo} alt={match?.league?.name || "Compétition"} size={23} />
+              <span>{match?.league?.name || "Compétition"}</span>
             </span>
             <span className="mx-upcoming-card__time">
               <LiveAssetIcon name="stopwatch" size={20} />
@@ -987,19 +991,23 @@
 
           <div className="mx-upcoming-card__teams">
             <div>
-              <LogoImg src={homeLogo} alt={match.home_team} size={42} />
+              <LogoImg src={homeLogo} alt={match.home_team} size={48} />
               <strong>{match.home_team}</strong>
             </div>
             <span className="mx-upcoming-card__vs">VS</span>
             <div>
-              <LogoImg src={awayLogo} alt={match.away_team} size={42} />
+              <LogoImg src={awayLogo} alt={match.away_team} size={48} />
               <strong>{match.away_team}</strong>
             </div>
           </div>
-
+          <div className="mx-upcoming-premium__kickoff">
+            <LiveAssetIcon name="stopwatch" size={25} />
+            <div><small>COUP D'ENVOI</small><strong>{match.event_date ? formatTime(match.event_date) : "Horaire à confirmer"}</strong></div>
+            <span>{dateLabel}</span>
+          </div>
           <div className="mx-upcoming-card__foot">
-            <LiveAssetIcon name="ball" size={22} />
-            <span>Match programmé · surveillance automatique à l'approche du coup d'envoi</span>
+            <LiveAssetIcon name="target" size={22} />
+            <span>Surveillance des signaux Live à l'approche du coup d'envoi.</span>
           </div>
         </Card>
       );
