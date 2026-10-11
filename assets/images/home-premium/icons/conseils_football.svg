@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Conseils">
+<title>Mr XPRONOS - Conseils</title>
+<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFF5C9"/><stop offset=".22" stop-color="#FFE080"/><stop offset=".56" stop-color="#D69A32"/><stop offset=".8" stop-color="#FFCD59"/><stop offset="1" stop-color="#A26312"/></linearGradient><filter id="softGlow" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<g fill="none" stroke="url(#gold)" stroke-width="23" stroke-linejoin="round" stroke-linecap="round" filter="url(#softGlow)"><path d="M170 220a86 86 0 1 1 170 0c0 45-34 54-47 91h-77c-13-37-46-46-46-91z"/><path d="M211 344h90m-79 41h68m-51 39h33"/></g></svg>
