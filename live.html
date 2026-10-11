@@ -40,9 +40,9 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" onerror="showBootError('Babel ne peut pas être chargé depuis unpkg.com')"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="showBootError('Supabase JS ne peut pas être chargé depuis jsDelivr')"></script>
   <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
-  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium9">
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="preload" as="image" href="assets/images/live-premium/hero-stadium.webp">
+  <link rel="preload" as="image" href="assets/images/live-premium/player-back.webp">
+  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261011-live-premium10">
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -443,23 +443,24 @@
     // =======================================================
     // UI COMPONENTS
     // =======================================================
-    const Icon = ({ name, size = 18, className = "" }) => {
-      const map = {
-        bell: "fa-bell",
-        x: "fa-times",
-        target: "fa-bullseye",
-        radio: "fa-broadcast-tower",
-        history: "fa-history",
-        star: "fa-star",
-        arrowLeft: "fa-arrow-left",
-        chartBar: "fa-chart-bar",
-        clock: "fa-clock",
-        activity: "fa-bolt",
-        refresh: "fa-rotate-right",
-        calendar: "fa-calendar-alt",
-        bolt: "fa-bolt"
+    const UiIcon = ({ name, size = 18, className = "" }) => {
+      const common = {
+        width: size,
+        height: size,
+        viewBox: "0 0 24 24",
+        fill: "none",
+        stroke: "currentColor",
+        strokeWidth: 2,
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        className,
+        "aria-hidden": "true"
       };
-      return <i className={`fas ${map[name] || "fa-circle"} ${className}`} style={{ fontSize: size }} />;
+      if (name === "arrowLeft") return <svg {...common}><path d="M19 12H5" /><path d="m12 19-7-7 7-7" /></svg>;
+      if (name === "x") return <svg {...common}><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>;
+      if (name === "refresh") return <svg {...common}><path d="M20 11a8 8 0 1 0 2 5" /><path d="M20 4v7h-7" /></svg>;
+      if (name === "bell") return <svg {...common}><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" /><path d="M10 21h4" /></svg>;
+      return <svg {...common}><circle cx="12" cy="12" r="8" /></svg>;
     };
 
     const LIVE_ASSETS = {
@@ -486,7 +487,7 @@
     function assetForPrediction(pred) {
       const type = String(pred?.type || pred?.badge || pred?.title || "").toLowerCase();
       if (type.includes("corner")) return "corner";
-      if (type.includes("shot") || type.includes("tir")) return "target";
+      if (type.includes("shot") || type.includes("tir")) return "ball";
       if (type.includes("foul") || type.includes("faute")) return "whistle";
       if (type.includes("card") || type.includes("booking") || type.includes("carton")) return "cards";
       return "ball";
@@ -528,6 +529,13 @@
     function confidenceForPrediction(pred) {
       const p = safeNumber(pred?.probability, 0);
       return Math.max(0, Math.min(100, Math.round(p <= 1 ? p * 100 : p)));
+    }
+
+    function reliabilityForPrediction(match, pred) {
+      const raw = pred?.reliability ?? match?.reliability_score ?? match?.data_quality_score ?? 0;
+      const value = safeNumber(raw, 0);
+      const normalized = value <= 1 ? value * 100 : value;
+      return Math.max(0, Math.min(100, Math.round(normalized)));
     }
 
     function marketProgress(match, pred) {
@@ -617,7 +625,7 @@
             className={`logo-ring rounded-full flex items-center justify-center text-gray-500 ${className}`}
             style={{ width: size, height: size }}
           >
-            <i className="fas fa-shield-alt text-xs"></i>
+            <LiveAssetIcon name="ball" size={Math.max(16, Math.round(size * 0.55))} />
           </div>
         );
       }
@@ -671,7 +679,7 @@
         <header className="mx-live-header">
           <div className="mx-live-header__inner">
             <button onClick={onBack} className="mx-live-navbutton mx-mobile-only" type="button" aria-label="Retour">
-              <Icon name="arrowLeft" size={16} />
+              <UiIcon name="arrowLeft" size={16} />
             </button>
 
             <a href="index.html" className="mx-live-brand" aria-label="Mr XPRONOS — Accueil">
@@ -695,23 +703,22 @@
             </div>
 
             <button onClick={onRefresh} className="mx-live-navbutton mx-mobile-only" type="button" aria-label="Actualiser">
-              <Icon name="refresh" size={15} className={refreshing ? "animate-spin" : ""} />
+              <UiIcon name="refresh" size={15} className={refreshing ? "animate-spin" : ""} />
             </button>
           </div>
         </header>
       );
     };
 
-    const CompactHero = ({ stats, topPredictionCount, upcomingCount }) => {
-      const now = new Date();
-      const currentTime = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-      const currentDate = now.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
-
+    const CompactHero = ({ stats, bestSignalCount, upcomingCount }) => {
       return (
         <>
           <section className="mx-live-hero">
             <div className="mx-live-hero__content">
-              <div className="mx-live-kicker">PRONOSTICS FOOTBALL</div>
+              <div className="mx-live-hero-badges">
+                <span className="mx-live-eyebrow"><i className="mx-live-eyebrow-dot" aria-hidden="true"></i> LIVE</span>
+                <span className="mx-live-kicker">PRONOSTICS FOOTBALL</span>
+              </div>
               <h1><span className="mx-live-word">LIVE</span><i className="mx-live-big-dot" aria-hidden="true"></i><br/>Les meilleures <em>opportunités</em><br/>en temps réel</h1>
               <p className="mx-live-hero__lead">
                 Nos sélections LIVE, basées sur des analyses statistiques avancées et en temps réel.
@@ -724,7 +731,7 @@
                   <span>Corners<br/><b>Rythme du match</b></span>
                 </div>
                 <div className="mx-live-benefit">
-                  <LiveAssetIcon name="target" size={31} />
+                  <LiveAssetIcon name="ball" size={31} />
                   <span>Tirs<br/><b>Pression offensive</b></span>
                 </div>
                 <div className="mx-live-benefit">
@@ -738,22 +745,22 @@
             <p className="mx-live-hero-quote">Le football<br/>en temps réel,<br/>notre passion !</p>
           </section>
 
-          <section className="mx-live-overview" aria-label="Aperçu Live">
+          <section className="mx-live-overview" aria-label="Statistiques Live">
             <div className="mx-live-stat is-live">
               <LiveAssetIcon name="stopwatch" size={45} />
               <div><strong>{stats.matches_live || 0} <b>LIVE</b></strong><small>Matchs en direct</small></div>
             </div>
             <div className="mx-live-stat is-gold">
               <LiveAssetIcon name="target" size={45} />
-              <div><strong>{topPredictionCount || 0}</strong><small>Opportunités LIVE</small></div>
+              <div><strong>{bestSignalCount || 0}</strong><small>Meilleurs signaux</small></div>
             </div>
-            <div className="mx-live-stat">
-              <LiveAssetIcon name="bars" size={45} />
-              <div><strong className="mx-live-realtime">Mise à jour</strong><small>Temps réel <span className="mx-online-dot"></span></small></div>
+            <div className="mx-live-stat is-green">
+              <LiveAssetIcon name="pie" size={45} />
+              <div><strong>{stats.predictions || 0}</strong><small>Pronostics actifs</small></div>
             </div>
             <div className="mx-live-stat is-gold">
-              <LiveAssetIcon name="stopwatch" size={45} />
-              <div><strong>{currentTime}</strong><small>{currentDate}</small></div>
+              <LiveAssetIcon name="ball" size={45} />
+              <div><strong>{upcomingCount || 0}</strong><small>Matchs à venir</small></div>
             </div>
           </section>
         </>
@@ -773,6 +780,7 @@
       const currentValue = currentValueForPrediction(item, best);
       const lineValue = thresholdForPrediction(best);
       const confidence = confidenceForPrediction(best);
+      const reliability = reliabilityForPrediction(item, best);
       const progress = marketProgress(item, best);
       const marketTone = marketToneForPrediction(best);
 
@@ -788,16 +796,18 @@
               </span>
             </div>
 
-            <div className="mx-live-row__teams">
-              <div className="mx-live-row__team">
-                <LogoImg src={homeLogo} alt={item.home_team} size={26} />
+            <div className="mx-live-row__scoreboard">
+              <div className="mx-live-row__score-team">
+                <LogoImg src={homeLogo} alt={item.home_team} size={30} />
                 <strong>{item.home_team}</strong>
-                <b>{item.home_score ?? 0}</b>
               </div>
-              <div className="mx-live-row__team">
-                <LogoImg src={awayLogo} alt={item.away_team} size={26} />
+              <div className="mx-live-row__score-center">
+                <span>Score</span>
+                <strong>{item.home_score ?? 0}<i>–</i>{item.away_score ?? 0}</strong>
+              </div>
+              <div className="mx-live-row__score-team is-away">
                 <strong>{item.away_team}</strong>
-                <b>{item.away_score ?? 0}</b>
+                <LogoImg src={awayLogo} alt={item.away_team} size={30} />
               </div>
             </div>
           </section>
@@ -821,10 +831,16 @@
           <section className="mx-live-row__pick">
             <div className="mx-live-row__pick-kicker"><span>★</span> {featured ? "Meilleure opportunité" : "Opportunité LIVE"}</div>
             <div className="mx-live-row__pick-title">{formatPredTitleSimple(best)}</div>
-            <div className="mx-live-row__confidence">
-              <span>Confiance</span>
-              <div><i style={{ width: `${confidence}%` }}></i></div>
-              <strong>{confidence}%</strong>
+            <div className="mx-live-row__quality">
+              <div className="mx-live-row__confidence">
+                <span>Probabilité</span>
+                <div><i style={{ width: `${confidence}%` }}></i></div>
+                <strong>{confidence}%</strong>
+              </div>
+              <div className="mx-live-row__reliability">
+                <span><LiveAssetIcon name="target" size={16} /> Fiabilité</span>
+                <strong>{reliability}%</strong>
+              </div>
             </div>
             <span className="mx-live-row__chevron" aria-hidden="true">›</span>
           </section>
@@ -845,6 +861,7 @@
       const currentValue = best ? currentValueForPrediction(match, best) : 0;
       const lineValue = best ? thresholdForPrediction(best) : 0;
       const confidence = best ? confidenceForPrediction(best) : 0;
+      const reliability = best ? reliabilityForPrediction(match, best) : 0;
       const progress = best ? marketProgress(match, best) : 0;
       const marketTone = best ? marketToneForPrediction(best) : "generic";
 
@@ -859,16 +876,18 @@
                 {match?.league?.name || "Ligue"}
               </span>
             </div>
-            <div className="mx-live-row__teams">
-              <div className="mx-live-row__team">
-                <LogoImg src={homeLogo} alt={match.home_team} size={26} />
+            <div className="mx-live-row__scoreboard">
+              <div className="mx-live-row__score-team">
+                <LogoImg src={homeLogo} alt={match.home_team} size={30} />
                 <strong>{match.home_team}</strong>
-                <b>{match.home_score ?? 0}</b>
               </div>
-              <div className="mx-live-row__team">
-                <LogoImg src={awayLogo} alt={match.away_team} size={26} />
+              <div className="mx-live-row__score-center">
+                <span>Score</span>
+                <strong>{match.home_score ?? 0}<i>–</i>{match.away_score ?? 0}</strong>
+              </div>
+              <div className="mx-live-row__score-team is-away">
                 <strong>{match.away_team}</strong>
-                <b>{match.away_score ?? 0}</b>
+                <LogoImg src={awayLogo} alt={match.away_team} size={30} />
               </div>
             </div>
           </section>
@@ -894,11 +913,17 @@
               <section className="mx-live-row__pick">
                 <div className="mx-live-row__pick-kicker"><span>★</span> Opportunité LIVE</div>
                 <div className="mx-live-row__pick-title">{formatPredTitleSimple(best)}</div>
-                <div className="mx-live-row__confidence">
-                  <span>Confiance</span>
-                  <div><i style={{ width: `${confidence}%` }}></i></div>
-                  <strong>{confidence}%</strong>
-                </div>
+                <div className="mx-live-row__quality">
+              <div className="mx-live-row__confidence">
+                <span>Probabilité</span>
+                <div><i style={{ width: `${confidence}%` }}></i></div>
+                <strong>{confidence}%</strong>
+              </div>
+              <div className="mx-live-row__reliability">
+                <span><LiveAssetIcon name="target" size={16} /> Fiabilité</span>
+                <strong>{reliability}%</strong>
+              </div>
+            </div>
                 <span className="mx-live-row__chevron" aria-hidden="true">›</span>
               </section>
             </>
@@ -1004,7 +1029,7 @@
               </div>
               <span className="text-gray-600">•</span>
               <Badge color="gray">
-                <Icon name="clock" size={11} /> signal {h?.current_minute ?? h?.minute ?? "-"}'
+                <LiveAssetIcon name="stopwatch" size={15} /> signal {h?.current_minute ?? h?.minute ?? "-"}'
               </Badge>
             </div>
 
@@ -1107,7 +1132,7 @@
                 </div>
 
                 <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#1a1a1a] shrink-0" type="button">
-                  <Icon name="x" />
+                  <UiIcon name="x" />
                 </button>
               </div>
             </div>
@@ -1195,7 +1220,7 @@
                           <strong>{totalCorners}</strong>
                         </div>
                         <div className="mx-detail-stat">
-                          <LiveAssetIcon name="cards" size={34} />
+                          <LiveAssetIcon name="whistle" size={34} />
                           <span>Fautes</span>
                           <strong>{totalFouls}</strong>
                         </div>
@@ -1256,7 +1281,7 @@
                     </div>
                     <span className="text-gray-600">•</span>
                     <Badge color="gray">
-                      <Icon name="clock" size={11} /> signal {item?.current_minute ?? item?.minute ?? "-"}'
+                      <LiveAssetIcon name="stopwatch" size={15} /> signal {item?.current_minute ?? item?.minute ?? "-"}'
                     </Badge>
 
                     {isValidated ? (
@@ -1278,7 +1303,7 @@
                 </div>
 
                 <button onClick={onClose} className="p-2 rounded-lg hover:bg-[#1a1a1a] shrink-0" type="button">
-                  <Icon name="x" />
+                  <UiIcon name="x" />
                 </button>
               </div>
             </div>
@@ -1467,7 +1492,7 @@
       const items = [
         { key: "all", label: "Tous", icon: "ball", count: counts.all },
         { key: "corners", label: "Corners", icon: "corner", count: counts.corners },
-        { key: "shots", label: "Tirs", icon: "target", count: counts.shots },
+        { key: "shots", label: "Tirs", icon: "ball", count: counts.shots },
         { key: "fouls", label: "Fautes", icon: "whistle", count: counts.fouls },
         { key: "best", label: "Meilleurs signaux", icon: "bars", count: counts.best },
       ];
@@ -1607,7 +1632,7 @@
           setScheduledMatches(scheduled);
 
           const predictionsCount = matches.reduce(
-            (acc, m) => acc + ((m.predictions || []).length > 0 ? 1 : 0),
+            (acc, m) => acc + (m.predictions || []).length,
             0
           );
 
@@ -1815,7 +1840,7 @@
               <>
                 <CompactHero
                   stats={stats}
-                  topPredictionCount={opportunities.length || 0}
+                  bestSignalCount={marketCounts.best || 0}
                   upcomingCount={scheduledMatches.length || 0}
                 />
 
@@ -1987,14 +2012,14 @@
             <div className="fixed top-4 right-3 left-3 md:left-auto md:right-4 z-50 md:w-full md:max-w-sm bg-[#121212] border border-[#2b2b2b] border-l-4 border-[#D4AF37] rounded-2xl shadow-2xl p-4">
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-xl bg-[#D4AF37]/12 border border-[#D4AF37]/25 flex items-center justify-center shrink-0">
-                  <Icon name="bell" className="text-[#D4AF37]" />
+                  <UiIcon name="bell" className="text-[#D4AF37]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-sm">{toast.title}</div>
                   <div className="text-xs text-gray-300 mt-1 whitespace-pre-line safe-wrap">{toast.message}</div>
                 </div>
                 <button onClick={() => setToast(null)} className="text-gray-500 hover:text-white shrink-0" type="button">
-                  <Icon name="x" />
+                  <UiIcon name="x" />
                 </button>
               </div>
             </div>
