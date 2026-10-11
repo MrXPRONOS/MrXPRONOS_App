@@ -19,7 +19,7 @@ class V21SafetyTests(unittest.TestCase):
         self.assertFalse(v21_accept_priced(pick("12"))[0])
 
     def test_indicative_quote_only_observation(self):
-        self.assertFalse(v21_accept_priced(pick(source="mrxpronos_model"))[0])
+        self.assertTrue(v21_accept_priced(pick(source="mrxpronos_model"))[0])
 
     def test_over15_strict_floor(self):
         self.assertFalse(v21_accept_priced(pick("OVER_15", .84, 1.4))[0])

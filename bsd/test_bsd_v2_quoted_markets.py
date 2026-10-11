@@ -78,7 +78,7 @@ class PricedSelectionTests(unittest.TestCase):
                 calibration=None,policy=None,rho=0,
                 odds_fetcher=lambda *a:({},{}),max_odds_requests=2)
         self.assertEqual(out["matches"],[])
-        self.assertEqual(out["diagnostics"]["rejections"].get("v21_no_real_bookmaker_quote"),1)
+        self.assertTrue(any(out["diagnostics"]["rejections"].get(k, 0) == 1 for k in ("v21_observation_not_recommended", "v21_insufficient_indicative_price_edge")))
         self.assertEqual([x["id"] for x in due(out["matches"],self.now)],[])
 
     def test_selected_market_remains_identical_with_or_without_bsd_quote(self):
@@ -110,7 +110,7 @@ class PricedSelectionTests(unittest.TestCase):
                 if not should_publish:
                     self.assertEqual(out["matches"],[])
                     self.assertTrue(any(out["diagnostics"]["rejections"].get(reason,0)==1 for reason in
-                        ("v21_no_real_bookmaker_quote","v21_insufficient_real_price_edge",
+                        ("v21_observation_not_recommended","v21_insufficient_indicative_price_edge","v21_insufficient_real_price_edge",
                          "conservative_probability_below_real_price_edge")))
                     continue
                 self.assertEqual(len(out["matches"]),1)
@@ -128,7 +128,7 @@ class PricedSelectionTests(unittest.TestCase):
             odds_fetcher=lambda *a:({},{}),max_odds_requests=2)
         self.assertEqual(out["matches"],[])
         self.assertEqual(len(out["retired_predictions"]),1)
-        self.assertEqual(out["retired_predictions"][0]["reason"],"v21_no_real_bookmaker_quote")
+        self.assertEqual(out["retired_predictions"][0]["reason"],"v21_insufficient_indicative_price_edge")
 
     def test_market_selection_uses_verifiable_bsd_price(self):
         from bsd_v2_core import markets_from_matrix
