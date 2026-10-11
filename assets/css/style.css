@@ -2235,3 +2235,55 @@ body:not(.mx-premium-home) header .logo img[src*="mrxpronos-horizontal"]{display
 .v21-tier-qualifie{color:#83d7c2;background:rgba(131,215,194,.1)}
 .v21-tier-observation{color:#b8bdc8;background:rgba(184,189,200,.09)}
 @media(max-width:480px){.v21-signal-tier{font-size:.62rem;padding:.2rem .32rem;letter-spacing:0}}
+
+/* === Mr XPRONOS / Pronostics visual system — scoped, non-invasive === */
+.mx-pronos-page {background:#030b13;color:#f7f9fd}
+.mx-pronos-page main.container {max-width:1240px;padding-top:clamp(20px,4vw,52px);padding-bottom:80px}
+.mx-pronos-page .pronos-page-heading{display:flex;align-items:center;justify-content:space-between;gap:28px;position:relative;overflow:hidden;padding:clamp(24px,5vw,54px);border-radius:24px;border:1px solid rgba(243,184,64,.22);background:radial-gradient(circle at 87% 15%,rgba(223,151,32,.15),transparent 40%),linear-gradient(145deg,#0d1e2d 0%,#07121f 68%,#09121d 100%);box-shadow:0 18px 55px rgba(0,0,0,.25)}
+.mx-pronos-page .pronos-page-heading:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(125deg,rgba(255,255,255,.025),transparent 45%)}
+.mx-pronos-page .pronos-page-heading__copy{position:relative;z-index:1;max-width:680px}
+.mx-pronos-page .pronos-eyebrow{display:inline-flex;gap:9px;align-items:center;color:#f3b840;font-size:.74rem;font-weight:800;letter-spacing:.16em}
+.mx-pronos-page .pronos-live-dot{width:7px;height:7px;border-radius:50%;background:#f3b840;box-shadow:0 0 0 5px rgba(243,184,64,.1)}
+.mx-pronos-page .pronos-page-heading h1{font-size:clamp(1.9rem,4.4vw,3.7rem);line-height:1.08;font-weight:800;letter-spacing:-.045em;margin:16px 0 14px;color:#fff}
+.mx-pronos-page .pronos-page-heading h1 span{color:#f3b840}
+.mx-pronos-page .pronos-page-heading p{color:#b9c6d4;line-height:1.75;max-width:610px;margin:0;font-size:clamp(.85rem,1.2vw,1rem)}
+.mx-pronos-page .pronos-page-heading__mark{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;flex-direction:column;flex:0 0 185px;width:185px;height:185px;border-radius:27px;border:1px solid rgba(243,184,64,.24);background:linear-gradient(160deg,rgba(243,184,64,.15),rgba(2,13,23,.35));transform:rotate(-7deg)}
+.mx-pronos-page .pronos-page-heading__mark span{font-size:4rem;font-weight:900;color:#f3b840;letter-spacing:-.09em;line-height:1}
+.mx-pronos-page .pronos-page-heading__mark small{font-size:.68rem;letter-spacing:.18em;font-weight:800;color:#fff;margin-top:7px}
+.mx-pronos-page .pronostic-switcher{margin-top:24px;border:1px solid rgba(243,184,64,.17);background:#0a1724;border-radius:19px;box-shadow:none;padding:clamp(16px,2.5vw,25px)}
+.mx-pronos-page .pronostic-switcher .category-topline h2{color:#fff;letter-spacing:-.02em}
+.mx-pronos-page .pronostic-category-tabs{gap:11px}
+.mx-pronos-page .pronostic-category-tabs .tab-btn{min-width:0;background:#0e2130;color:#d7e0e8;border:1px solid #243948;border-radius:13px;box-shadow:none;transition:background .18s,border-color .18s,transform .18s}
+.mx-pronos-page .pronostic-category-tabs .tab-btn:hover{background:#192f40;transform:translateY(-1px)}
+.mx-pronos-page .pronostic-category-tabs .tab-btn.active{background:#f3b840;color:#071421;border-color:#f3b840;box-shadow:0 5px 18px rgba(243,184,64,.16)}
+.mx-pronos-page .pronos-filter-shell{margin:17px 0 0;padding:17px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;background:#091824;border:1px solid rgba(177,200,220,.14);border-radius:17px}
+.mx-pronos-page .search-container{margin:0;min-width:0}
+.mx-pronos-page .search-input{width:100%;min-height:46px;background:#101f2d;border:1px solid #314454;color:#fff;border-radius:11px;padding:12px 15px;outline:none}
+.mx-pronos-page .search-input:focus-visible{border-color:#f3b840;box-shadow:0 0 0 3px rgba(243,184,64,.12)}
+.mx-pronos-page .day-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0}
+.mx-pronos-page .day-filters .day-btn{min-height:44px;padding:8px 15px;border:1px solid #314454;border-radius:10px;background:#101f2d;color:#c9d4df;font-weight:700;white-space:nowrap}
+.mx-pronos-page .day-filters .day-btn.active{background:#f3b840;color:#071421;border-color:#f3b840}
+.mx-pronos-page .pronos-results-heading{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:35px 0 16px}
+.mx-pronos-page .pronos-results-heading h2{font-size:clamp(1.25rem,2.4vw,1.7rem);color:#fff;margin:5px 0 0;letter-spacing:-.035em}
+.mx-pronos-page .pronos-results-hint{color:#8194a6;font-size:.77rem;text-align:right}
+.mx-pronos-page .matches-grid{gap:17px;margin-top:0;min-width:0}
+.mx-pronos-page .league-header{grid-column:1/-1!important;margin:23px 0 1px!important;padding:0 0 10px;border-bottom:1px solid rgba(243,184,64,.25);font-size:1rem;letter-spacing:.015em}
+.mx-pronos-page .match-card{background:linear-gradient(160deg,#0c1b29,#0a1521);border:1px solid #2b3b48;border-radius:17px;box-shadow:0 9px 26px rgba(0,0,0,.19);min-width:0;animation:none}
+.mx-pronos-page .match-card:hover{transform:translateY(-2px);border-color:rgba(243,184,64,.48);box-shadow:0 12px 35px rgba(0,0,0,.27)}
+.mx-pronos-page .match-info{min-width:0;padding:clamp(14px,2vw,21px)}
+.mx-pronos-page .teams{min-width:0;gap:9px}
+.mx-pronos-page .team{min-width:0}
+.mx-pronos-page .team-name{overflow-wrap:anywhere}
+.mx-pronos-page .team-logo{object-fit:contain}
+.mx-pronos-page .match-meta{min-width:0;flex-wrap:wrap;gap:6px}
+.mx-pronos-page .analysis-panel{min-width:0;border-color:rgba(243,184,64,.25);background:rgba(4,12,20,.4);padding:clamp(14px,1.7vw,20px)}
+.mx-pronos-page .analysis-panel h4{display:flex;align-items:center;flex-wrap:wrap;gap:7px;color:#f3b840}
+.mx-pronos-page .analysis-panel p{overflow-wrap:anywhere}
+.mx-pronos-page .confidence-bar{background:#213443;overflow:hidden;border-radius:99px}
+.mx-pronos-page .analysis-panel .btn-share{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.mx-pronos-page .no-events{grid-column:1/-1;border:1px dashed #334758;border-radius:15px;padding:25px;background:#0b1926}
+@media(max-width:1050px){.mx-pronos-page .pronos-filter-shell{grid-template-columns:minmax(0,1fr)}}
+@media(min-width:768px) and (max-width:1100px){.mx-pronos-page .match-card{flex-direction:column}.mx-pronos-page .analysis-panel{border-left:none;border-top:1px solid rgba(243,184,64,.25)}}
+@media(max-width:767px){.mx-pronos-page .pronos-page-heading__mark{display:none}.mx-pronos-page .match-card{flex-direction:column}.mx-pronos-page .analysis-panel{border-left:none;border-top:1px solid rgba(243,184,64,.25)}}
+@media(max-width:480px){.mx-pronos-page main.container{padding-left:12px;padding-right:12px}.mx-pronos-page .pronos-page-heading{border-radius:17px;padding:22px 18px}.mx-pronos-page .pronostic-switcher{padding:13px 11px;margin-top:13px}.mx-pronos-page .pronostic-category-tabs{gap:6px}.mx-pronos-page .pronostic-category-tabs .tab-btn{padding:9px 3px;font-size:.78rem;min-height:46px}.mx-pronos-page .pronos-filter-shell{padding:11px;gap:11px;margin-top:12px}.mx-pronos-page .day-filters .day-btn{padding:8px 4px;font-size:.75rem}.mx-pronos-page .pronos-results-hint{display:none}.mx-pronos-page .pronos-results-heading{margin:25px 0 13px}.mx-pronos-page .matches-grid{gap:12px}.mx-pronos-page .match-info,.mx-pronos-page .analysis-panel{padding:13px}}
+@media(prefers-reduced-motion:reduce){.mx-pronos-page .match-card,.mx-pronos-page .pronostic-category-tabs .tab-btn{transition:none!important;transform:none!important}}
