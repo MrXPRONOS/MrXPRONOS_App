@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v16-categories-20261011';
+const VERSION = 'v17-home-polish-20261011';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -22,7 +22,10 @@ const STATIC_ASSETS = [
     './offline.html',
     './manifest.json',
     './assets/css/style.css',
+    './assets/css/home-premium.css',
+    './assets/css/home-polish.css',
     './assets/js/main.js',
+    './assets/js/home-premium.js',
     './assets/js/pwa.js',
     './assets/js/menu.js',
     './assets/js/back-to-top.js',
