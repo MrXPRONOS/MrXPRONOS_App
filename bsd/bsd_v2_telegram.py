@@ -75,8 +75,9 @@ def due(matches,now,min_minutes=60,max_minutes=120):
         try:dt=_utc(str(m.get("event_date") or ""))
         except (ValueError,TypeError):continue
         delta=(dt-now).total_seconds()/60
+        if m.get("recommendation_eligible") is not True:continue
         picks=[m.get("prediction") or {},*((m.get("predictions") or [])[1:2])]
-        valid_price=any(valid_standalone_prediction(p,False) and p.get("odds",0)>1.50
+        valid_price=any(p.get("recommendation_eligible") is True and valid_standalone_prediction(p,False) and p.get("odds",0)>1.50
                         for p in picks if isinstance(p,dict))
         if (min_minutes<=delta<max_minutes and valid_price
                 ):
@@ -99,7 +100,9 @@ def expand_tickets(match):
     result=[]
     for idx,p in enumerate(picks):
         odds=p.get("odds")
-        if not valid_standalone_prediction(p,False) or p["odds"]<=1.50:
+        if (match.get("recommendation_eligible") is not True or
+                p.get("recommendation_eligible") is not True or
+                not valid_standalone_prediction(p,False) or p["odds"]<=1.50):
             continue
         variant={**match,"prediction":p}
         if idx:
@@ -150,7 +153,8 @@ def send_one(session,token,chat_id,match,*,night=False):
         from bsd_v2_telegram_banner import attach_banner
         pack=partner_pack()
         image=attach_banner(image,pack=pack)
-        caption=single_caption(match,night=night)
+        tier=str((match.get("prediction") or {}).get("signal_tier") or match.get("signal_tier") or "QUALIFIE")
+        caption=("🏅 " + tier + "\n" + single_caption(match,night=night))
         markup=prediction_action_buttons(pack)
         return post_photo(session,token,chat_id,image,caption,markup,timeout=60)
 
