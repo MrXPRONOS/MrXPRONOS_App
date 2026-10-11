@@ -44,9 +44,19 @@ def main():
     parser.add_argument("--output",default="bsd-v21-audit.json")
     args=parser.parse_args()
     data=json.loads(Path(args.data).read_text(encoding="utf-8"))
+    matches=data.get("matches",[])
+    v21_settled=[m for m in matches if m.get("is_finished") and
+        str(m.get("policy_version","")).endswith("-v21")]
+    v21_n=len(v21_settled)
     report={"note":"Retrospective non-causal subset; not a prospective 100-200-pick validation",
+            "prospective_v21":{"settled_count":v21_n,
+                "minimum_target":100,"full_target":200,
+                "ready_for_minimum_review":v21_n>=100,
+                "ready_for_full_review":v21_n>=200,
+                "wins":sum(bool(m.get("verified_prediction")) for m in v21_settled),
+                "note":"Use only post-activation settled predictions; do not reinterpret pre-policy results as prospective."},
             "source":args.data,"model_version":data.get("model_version"),
-            "comparison":simulate(data.get("matches",[]))}
+            "comparison":simulate(matches)}
     Path(args.output).write_text(json.dumps(report,indent=2,ensure_ascii=False),encoding="utf-8")
     print(json.dumps(report,indent=2,ensure_ascii=False))
 
