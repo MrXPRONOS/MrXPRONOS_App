@@ -1228,11 +1228,11 @@
         }
       ],
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-11T20:19:00.232742+00:00",
+      "settlement_checked_at": "2026-10-11T23:44:19.774655+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-12T00:19:00.232742+00:00"
+        "next_retry_after": "2026-10-12T03:44:19.774655+00:00"
       }
     },
     {
@@ -5466,11 +5466,11 @@
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-11T20:19:00.232742+00:00",
+      "settlement_checked_at": "2026-10-11T23:44:19.774655+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-12T00:19:00.232742+00:00"
+        "next_retry_after": "2026-10-12T03:44:19.774655+00:00"
       }
     },
     {
@@ -11370,11 +11370,11 @@
       "revalidated_at": "2026-10-10T05:38:28.093926+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-11T20:19:00.232742+00:00",
+      "settlement_checked_at": "2026-10-11T23:44:19.774655+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-12T00:19:00.232742+00:00"
+        "next_retry_after": "2026-10-12T03:44:19.774655+00:00"
       }
     },
     {
@@ -15605,11 +15605,11 @@
       "revalidated_at": "2026-10-10T16:22:26.629619+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-10-r1",
       "settlement_pending": true,
-      "settlement_checked_at": "2026-10-11T20:19:00.232742+00:00",
+      "settlement_checked_at": "2026-10-11T23:44:19.774655+00:00",
       "settlement_watchdog": {
         "stage": "fallback",
         "pending": true,
-        "next_retry_after": "2026-10-12T00:19:00.232742+00:00"
+        "next_retry_after": "2026-10-12T03:44:19.774655+00:00"
       }
     },
     {
@@ -18672,12 +18672,12 @@
       "badge": "BSD V2",
       "signal_tier": "PREMIUM",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 1,
+      "away_score": 1,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -18758,7 +18758,12 @@
         "odds_updated_at": "2026-10-11T05:50:09+00:00"
       },
       "revalidated_at": "2026-10-11T09:04:21.232401+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-11T23:44:19.774655+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:10181",
@@ -18779,10 +18784,10 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 2,
+      "away_score": 2,
       "verified_prediction": false,
       "verified_double": false,
       "prediction": {
@@ -18846,7 +18851,12 @@
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
       "revalidated_at": "2026-10-11T18:51:01.953437+00:00",
-      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
+      "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
+      "settlement_watchdog": {
+        "stage": "h4",
+        "settled_at": "2026-10-11T23:44:19.774655+00:00",
+        "pending": false
+      }
     },
     {
       "id": "bsd:223788",
@@ -20884,7 +20894,9 @@
       "bsd:375049:1X:2026-10-11T10:00:00+00:00",
       "bsd:220872:1X:2026-10-11T14:00:00+00:00",
       "bsd:46481:1X:2026-10-11T14:30:00+00:00",
-      "bsd:605658:UNDER_35:2026-10-11T15:15:00+00:00"
+      "bsd:605658:UNDER_35:2026-10-11T15:15:00+00:00",
+      "bsd:210108:UNDER_35:2026-10-11T18:45:00+00:00",
+      "bsd:10181:UNDER_35:2026-10-11T19:00:00+00:00"
     ],
     "by_selection": {
       "1X": {
@@ -20904,12 +20916,12 @@
         "average_predicted": 0.561
       },
       "UNDER_35": {
-        "n": 50,
-        "wins": 42,
-        "sum_pred": 37.99799999999999,
+        "n": 52,
+        "wins": 43,
+        "sum_pred": 39.64799999999999,
         "penalty": 0.0,
-        "hit_rate": 0.84,
-        "average_predicted": 0.75996
+        "hit_rate": 0.826923,
+        "average_predicted": 0.762462
       },
       "OVER_15": {
         "n": 109,
@@ -20962,16 +20974,16 @@
         "average_predicted": 0.561
       },
       "goals": {
-        "n": 160,
-        "wins": 128,
-        "sum_pred": 123.551,
+        "n": 162,
+        "wins": 129,
+        "sum_pred": 125.201,
         "penalty": 0.0,
-        "hit_rate": 0.8,
-        "average_predicted": 0.772194
+        "hit_rate": 0.796296,
+        "average_predicted": 0.772846
       }
     },
-    "last_added": 0,
-    "updated_at": "2026-10-11T20:19:00.232742+00:00",
+    "last_added": 2,
+    "updated_at": "2026-10-11T23:44:19.774655+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -21103,6 +21115,22 @@
         "penalty": 0.0,
         "hit_rate": 1.0,
         "average_predicted": 0.785
+      },
+      "Serie A|UNDER_35": {
+        "n": 1,
+        "wins": 1,
+        "sum_pred": 0.8240000000000001,
+        "penalty": 0.0,
+        "hit_rate": 1.0,
+        "average_predicted": 0.824
+      },
+      "Brasileirão Serie B|UNDER_35": {
+        "n": 1,
+        "wins": 0,
+        "sum_pred": 0.826,
+        "penalty": 0.0,
+        "hit_rate": 0.0,
+        "average_predicted": 0.826
       }
     }
   },
@@ -35845,11 +35873,11 @@
     }
   },
   "settlement_watchdog": {
-    "updated_at": "2026-10-11T20:19:00.232742+00:00",
-    "checked": 4,
-    "settled": 0,
+    "updated_at": "2026-10-11T23:44:19.774655+00:00",
+    "checked": 6,
+    "settled": 2,
     "pending": 4,
-    "h4": 0,
+    "h4": 2,
     "h8": 0,
     "fallback": 4,
     "detail_hits": 2
