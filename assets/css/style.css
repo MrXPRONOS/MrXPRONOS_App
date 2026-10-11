@@ -2221,3 +2221,10 @@ header .container{
  .pronostic-category-tabs .tab-btn{min-height:45px;padding:8px 4px;gap:5px;font-size:.8rem}
  .pronostic-category-tabs .tab-count{height:22px;min-width:20px;padding:0 4px;font-size:.7rem}
 }
+
+/* Identité MX officielle, 11 octobre 2026. Les logos sont des images, jamais reconstitués en texte. */
+body:not(.mx-premium-home) header .logo img[src*="mrxpronos-horizontal"]{display:block;width:auto;height:64px;max-width:min(210px,43vw);object-fit:contain;object-position:left center;filter:drop-shadow(0 2px 8px rgba(243,184,64,.12))}
+.mx-site-footer-brand{text-align:center;margin:0 auto 18px}
+.mx-site-footer-brand a{display:inline-flex;justify-content:center;align-items:center;line-height:0;max-width:100%}
+.mx-site-footer-brand img{display:block;width:auto;height:66px;max-width:min(230px,75vw);object-fit:contain}
+@media(max-width:600px){body:not(.mx-premium-home) header .logo img[src*="mrxpronos-horizontal"]{height:48px;max-width:clamp(110px,35vw,158px)}.mx-site-footer-brand img{height:58px}}

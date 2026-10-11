@@ -1,95 +1,96 @@
 {
-    "name": "Mr XPRONOS - Pronostics sportifs VIP",
-    "short_name": "Mr XPRONOS",
-    "description": "Pronostics sportifs, analyses, conseils et code promo XPVIP",
-    "start_url": "./",
-    "display": "standalone",
-    "background_color": "#0D0D0D",
-    "theme_color": "#0D0D0D",
-    "orientation": "portrait",
-    "scope": "./",
-    "lang": "fr",
-    "dir": "ltr",
-    "icons": [
+  "name": "Mr XPRONOS - Pronostics sportifs VIP",
+  "short_name": "Mr XPRONOS",
+  "description": "Pronostics sportifs, analyses, conseils et code promo XPVIP",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0D0D0D",
+  "theme_color": "#0D0D0D",
+  "orientation": "portrait",
+  "scope": "./",
+  "lang": "fr",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "assets/images/mrxpronos-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/images/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/images/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/images/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/images/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/images/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/images/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/images/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Pronostics du jour",
+      "short_name": "Pronostics",
+      "description": "Voir les pronostics du jour",
+      "url": "./pronos.html",
+      "icons": [
         {
-            "src": "assets/images/mrxpronos-mark.svg",
-            "sizes": "any",
-            "type": "image/svg+xml",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "assets/images/icon-72x72.png",
-            "sizes": "72x72",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "assets/images/icon-96x96.png",
-            "sizes": "96x96",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "assets/images/icon-128x128.png",
-            "sizes": "128x128",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "assets/images/icon-144x144.png",
-            "sizes": "144x144",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "assets/images/icon-152x152.png",
-            "sizes": "152x152",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "assets/images/icon-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "assets/images/icon-384x384.png",
-            "sizes": "384x384",
-            "type": "image/png",
-            "purpose": "any maskable"
-        },
-        {
-            "src": "assets/images/icon-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any maskable"
+          "src": "assets/images/icon-96x96.png",
+          "sizes": "96x96"
         }
-    ],
-    "shortcuts": [
+      ]
+    },
+    {
+      "name": "Historique",
+      "short_name": "Historique",
+      "description": "Voir l'historique des pronostics",
+      "url": "./historique.html",
+      "icons": [
         {
-            "name": "Pronostics du jour",
-            "short_name": "Pronostics",
-            "description": "Voir les pronostics du jour",
-            "url": "./pronos.html",
-            "icons": [
-                {
-                    "src": "assets/images/icon-96x96.png",
-                    "sizes": "96x96"
-                }
-            ]
-        },
-        {
-            "name": "Historique",
-            "short_name": "Historique",
-            "description": "Voir l'historique des pronostics",
-            "url": "./historique.html",
-            "icons": [
-                {
-                    "src": "assets/images/icon-96x96.png",
-                    "sizes": "96x96"
-                }
-            ]
+          "src": "assets/images/icon-96x96.png",
+          "sizes": "96x96"
         }
-    ]
+      ]
+    }
+  ],
+  "version": "2026.10.11.mx-official"
 }
