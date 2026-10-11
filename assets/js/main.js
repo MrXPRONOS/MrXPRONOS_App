@@ -1288,6 +1288,9 @@ function renderMatches(matches) {
       const matchTime = formatMatchTime(m.event_date);
       const statusFr = translateStatus(m.status);
       const statusClass = getStatusClass(m.status);
+      const displayStatus = statusFr === "À venir"
+        ? ({ today: "Aujourd’hui", tomorrow: "Demain", yesterday: "Hier" }[currentDay] || statusFr)
+        : statusFr;
 
       const eventDate = m.event_date ? String(m.event_date).split("T")[0] : "";
       const yesterdayStr = getLocalDateString("yesterday");
@@ -1338,7 +1341,7 @@ function renderMatches(matches) {
             <div class="match-meta">
               <span class="league-badge">${escapeHtml(m.league || "Ligue")}</span>
               <span class="match-schedule">
-                <span class="status ${statusClass}">${statusFr}</span>
+                <span class="status ${statusClass}">${displayStatus}</span>
                 <span class="match-time">${matchTime}</span>
               </span>
               ${m.venue ? `<span class="match-venue">${escapeHtml(m.venue)}</span>` : ""}
