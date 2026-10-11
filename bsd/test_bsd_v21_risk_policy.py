@@ -18,8 +18,17 @@ class V21SafetyTests(unittest.TestCase):
     def test_no_draw_market(self):
         self.assertFalse(v21_accept_priced(pick("12"))[0])
 
-    def test_indicative_quote_only_observation(self):
-        self.assertTrue(v21_accept_priced(pick(source="mrxpronos_model"))[0])
+    def test_model_quotes_have_separate_confidence_gate_without_fake_value(self):
+        model=pick(probability=.82, odds=1.20, source="mrxpronos_model")
+        passed,reason=v21_accept_priced(model)
+        self.assertTrue(passed)
+        self.assertEqual(reason,"ok_model_indicative")
+        self.assertEqual(v21_signal_tier(model),"INDICATIF")
+        self.assertFalse(v21_accept_priced(pick(probability=.80, odds=1.24, source="mrxpronos_model"))[0])
+        self.assertFalse(v21_accept_priced(pick(probability=.82, odds=1.19, source="mrxpronos_model"))[0])
+        self.assertFalse(v21_accept_priced(pick(probability=.82, odds=1.35, source="mrxpronos_model"))[0])
+        self.assertFalse(v21_accept_priced(pick("OVER_15", .82, 1.20, source="mrxpronos_model"))[0])
+        self.assertFalse(v21_accept_priced(pick(probability=.82, odds=1.2, source="other"))[0])
 
     def test_over15_strict_floor(self):
         self.assertFalse(v21_accept_priced(pick("OVER_15", .84, 1.4))[0])
