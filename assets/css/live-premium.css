@@ -642,3 +642,67 @@ body.mx-live-page{
   .mx-live-page .mx-live-stat strong{font-size:19px}
   .mx-live-page .mx-live-row__score-team strong{font-size:10px}
 }
+
+
+/* Mr XPRONOS — hero direction inspired by the premium approved mockup.
+   Existing transparent WebP and functional controls are preserved. */
+.mx-live-page .mx-live-hero{
+  border-color:rgba(238,186,73,.47);
+  background-position:center 57%;
+  box-shadow:0 18px 52px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,221,140,.12);
+}
+.mx-live-page .mx-live-hero::before{
+  background:linear-gradient(90deg,rgba(1,5,11,.99) 0%,rgba(1,9,16,.97) 35%,rgba(2,12,19,.82) 52%,rgba(2,9,15,.12) 87%),linear-gradient(0deg,rgba(0,0,0,.36),transparent 60%);
+}
+.mx-live-page .mx-live-hero__content{width:58%;padding-top:28px;padding-bottom:25px}
+.mx-live-page .mx-live-hero h1{
+  margin:12px 0;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-weight:950;font-size:clamp(48px,5.7vw,82px);line-height:.91;
+  letter-spacing:-.052em;text-transform:none;text-shadow:0 7px 19px rgba(0,0,0,.55)
+}
+.mx-live-page .mx-live-hero h1 .mx-hero-prono{color:#f7f8fb}
+.mx-live-page .mx-live-hero h1 em{
+  color:#f1c666;background:linear-gradient(180deg,#fff0ac 2%,#f8cf68 44%,#bd812b 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 3px 10px rgba(246,175,50,.18))
+}
+.mx-live-page .mx-live-hero__lead{font-size:15px;line-height:1.48;max-width:475px}
+.mx-live-page .mx-live-hero__lead strong{color:#f4c764;font-weight:900}
+.mx-live-page .mx-live-benefits{gap:8px;margin-top:18px}
+.mx-live-page .mx-live-benefit{
+  min-height:53px;border:1px solid rgba(229,174,69,.66);border-radius:13px;
+  background:rgba(2,9,15,.82);box-shadow:inset 0 1px 0 rgba(246,203,112,.06);
+  font-size:11px;line-height:1.25;padding:7px 10px
+}
+.mx-live-page .mx-live-benefit b{font-size:10px;color:#ffcf6e}
+.mx-live-page .mx-live-benefit img{width:33px!important;height:33px!important;object-fit:contain}
+.mx-live-page .mx-live-hero-player{right:9%;bottom:-105px;height:445px;max-width:46%;z-index:2}
+.mx-live-page .mx-live-hero-quote{right:2%;max-width:150px;font-size:19px;opacity:.85}
+.mx-live-page .mx-live-row:focus-visible,
+.mx-live-page .mx-market-filter:focus-visible,
+.mx-live-page .mx-live-tab:focus-visible,
+.mx-live-page .mx-mobile-tab:focus-visible{
+  outline:2px solid #ffd77b!important;outline-offset:3px
+}
+.mx-live-page .mx-live-row__market,
+.mx-live-page .mx-live-row__pick{background-image:linear-gradient(125deg,rgba(6,20,31,.93),rgba(2,11,17,.93)),url('../images/live-premium/hero-stadium.webp')!important;background-position:center;background-size:cover}
+.mx-live-page .mx-live-row__pick{background-image:linear-gradient(120deg,rgba(24,20,8,.92),rgba(6,17,24,.92)),url('../images/live-premium/hero-stadium.webp')!important}
+.mx-live-page .mx-live-row__pick-title{font-size:16px}
+@media(max-width:900px){
+ .mx-live-page .mx-live-hero__content{width:66%}
+ .mx-live-page .mx-live-hero-player{right:0}
+ .mx-live-page .mx-live-benefit{font-size:10px}
+}
+@media(max-width:640px){
+ .mx-live-page .mx-live-hero{min-height:350px}
+ .mx-live-page .mx-live-hero::before{background:linear-gradient(180deg,rgba(1,7,12,.43),rgba(1,7,12,.80) 37%,rgba(1,7,12,.98) 100%)}
+ .mx-live-page .mx-live-hero__content{width:100%;min-height:350px;padding:20px 16px 16px}
+ .mx-live-page .mx-live-hero h1{font-size:clamp(41px,12vw,53px);margin:7px 0}
+ .mx-live-page .mx-live-hero__lead{font-size:11.5px;max-width:360px}
+ .mx-live-page .mx-live-hero-player{height:290px;right:-11%;bottom:-61px;opacity:.33;max-width:none}
+ .mx-live-page .mx-live-benefits{margin-top:12px;gap:5px}
+ .mx-live-page .mx-live-benefit{padding:6px 3px;font-size:8px;min-height:71px;line-height:1.2}
+ .mx-live-page .mx-live-benefit b{font-size:7.7px}
+ .mx-live-page .mx-live-benefit img{width:25px!important;height:25px!important}
+}
