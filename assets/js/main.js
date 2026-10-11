@@ -1129,10 +1129,28 @@ function syncCategoryTabs(counts = null) {
 function updateCategorySummary(shown, searchActive = false) {
   const node = document.getElementById("category-summary");
   if (!node) return;
+
   const label = CATEGORY_LABELS[currentCategory] || "Simple";
-  const dayLabel = { today: "aujourd’hui", tomorrow: "demain", yesterday: "hier" }[currentDay] || "ce jour";
-  const suffix = searchActive ? " correspondant à la recherche" : "";
-  node.textContent = `Pronostics ${label} • ${dayLabel} — ${shown} match${shown > 1 ? "s" : ""}${suffix}`;
+  const target = getLocalDateString(currentDay);
+  const parsed = new Date(target + "T12:00:00");
+  const dayPrefix = { today: "Aujourd’hui", tomorrow: "Demain", yesterday: "Hier" }[currentDay] || "Ce jour";
+  const formattedDate = Number.isNaN(parsed.getTime())
+    ? ""
+    : parsed.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+
+  node.textContent = `Pronostics ${label} — ${dayPrefix}${formattedDate ? ", " + formattedDate : ""}`;
+
+  const description = document.getElementById("category-description");
+  if (description) {
+    const descriptions = {
+      simple: "Des pronostics fiables et accessibles pour tous. Analyses basées sur les statistiques et la forme actuelle des équipes.",
+      pro: "Des sélections plus exigeantes, avec une lecture approfondie des données et des scénarios de match.",
+      vip: "Nos sélections les plus strictes, retenues parmi les meilleures opportunités détectées par le système.",
+    };
+    description.textContent = searchActive
+      ? `${shown} résultat${shown > 1 ? "s" : ""} correspondant à votre recherche.`
+      : (descriptions[currentCategory] || descriptions.simple);
+  }
 }
 
 function filterAndDisplay() {
@@ -1183,6 +1201,20 @@ function applySearchFilter() {
   renderMatches(filtered);
 }
 
+function getLeagueFlag(leagueName = "") {
+  const name = String(leagueName).toLowerCase();
+  if (name.includes("premier league") || name.includes("championship") || name.includes("fa cup")) return "🏴";
+  if (name.includes("ligue 1") || name.includes("coupe de france")) return "🇫🇷";
+  if (name.includes("laliga") || name.includes("la liga") || name.includes("copa del rey")) return "🇪🇸";
+  if (name.includes("serie a") || name.includes("coppa")) return "🇮🇹";
+  if (name.includes("bundesliga") || name.includes("dfb")) return "🇩🇪";
+  if (name.includes("champions") || name.includes("europa") || name.includes("conference")) return "🇪🇺";
+  if (name.includes("eredivisie")) return "🇳🇱";
+  if (name.includes("primeira") || name.includes("liga portugal")) return "🇵🇹";
+  if (name.includes("pro league") && name.includes("saudi")) return "🇸🇦";
+  return "⚽";
+}
+
 function renderMatches(matches) {
   if (!DOM.matches) return;
 
@@ -1230,7 +1262,18 @@ function renderMatches(matches) {
   });
 
   sortedLeagues.forEach((league) => {
-    html += `<h2 class="league-header" style="color: var(--or); margin-top: 2rem;">${escapeHtml(league)}</h2>`;
+    const leagueCount = grouped[league].length;
+    html += `
+      <div class="league-header">
+        <div class="league-header__title">
+          <span class="league-flag" aria-hidden="true">${getLeagueFlag(league)}</span>
+          <h2>${escapeHtml(league)}</h2>
+        </div>
+        <div class="league-header__meta">
+          <span>${leagueCount} pronostic${leagueCount > 1 ? "s" : ""}</span>
+          <span class="league-chevron" aria-hidden="true">⌄</span>
+        </div>
+      </div>`;
 
     grouped[league].forEach((m) => {
       const pred = m.prediction || {};
@@ -1280,11 +1323,27 @@ function renderMatches(matches) {
       };
       const matchDataEncoded = encodeURIComponent(JSON.stringify(matchDataForSharing));
 
+      const oddsValue = typeof pred.odds === "number"
+        ? pred.odds.toFixed(2).replace(".", ",")
+        : "—";
+      const marketLabel = escapeHtml(
+        pred.market_label || pred.market || pred.category_label || "Pronostic"
+      );
+
       html += `
         <div class="match-card ${winnerClass}" data-matchid="${escapeAttribute(m.id)}">
           <div class="win-effect"></div>
 
           <div class="match-info">
+            <div class="match-meta">
+              <span class="league-badge">${escapeHtml(m.league || "Ligue")}</span>
+              <span class="match-schedule">
+                <span class="status ${statusClass}">${statusFr}</span>
+                <span class="match-time">${matchTime}</span>
+              </span>
+              ${m.venue ? `<span class="match-venue">${escapeHtml(m.venue)}</span>` : ""}
+            </div>
+
             <div class="teams">
               <div class="team">
                 <img src="${homeLogo}"
@@ -1310,31 +1369,33 @@ function renderMatches(matches) {
                 <span class="team-score">${m.away_score ?? "-"}</span>
               </div>
             </div>
-
-            <div class="match-meta">
-              <span class="league-badge">${escapeHtml(m.league || "Ligue")}</span>
-              <span class="status ${statusClass}">${statusFr}</span>
-              <span class="match-time"><i>■</i> ${matchTime}</span>
-              ${m.venue ? `<span class="match-venue"><i>■</i> ${escapeHtml(m.venue)}</span>` : ""}
-            </div>
           </div>
 
           <div class="analysis-panel ticket ${winnerClass}">
             <h4>Pronostic ${xpronosBadge} ${signalBadge}</h4>
-            <p><strong>Pronostic :</strong> ${doubleChance} ${
-              eventDate === yesterdayStr ? `<input type="checkbox" class="prediction-checkbox" ${verifiedDouble} disabled>` : ""
-            }</p>
+            <p><strong>Pronostic :</strong> ${doubleChance}</p>
 
-            <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
-            <p><strong>Fiabilité :</strong> <span class="confidence-text">${confidence}%</span></p>
-            <p><strong>${pred.odds_source === "mrxpronos_model" ? "Cote indicative (non bookmaker)" : "Cote BSD"} :</strong> ${typeof pred.odds === "number" ? pred.odds.toFixed(2).replace(".", ",") : "Non disponible"}</p>
+            <div class="prediction-market">
+              <div class="prediction-market__pick">
+                <span class="prediction-market__label">${marketLabel}</span>
+                <strong class="prediction-market__value">${doubleChance}</strong>
+              </div>
+              <div class="prediction-market__odds">
+                <span>Cote</span>
+                <strong>${oddsValue}</strong>
+              </div>
+            </div>
+
+            <div class="confidence-line">
+              <span class="confidence-label">Fiabilité : <strong>${confidence}%</strong></span>
+              <div class="confidence-bar"><div class="confidence-fill" data-value="${confidence}"></div></div>
+            </div>
 
             ${premiumBadge}
-            <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}">■ Partager ce prono</button>
+            <button class="btn btn-secondary btn-share" data-match="${matchDataEncoded}"><span class="share-glyph" aria-hidden="true">↗</span> Partager ce prono</button>
           </div>
         </div>
-      `;
-    });
+      `;    });
   });
 
   DOM.matches.innerHTML = html;
