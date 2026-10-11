@@ -1,0 +1,97 @@
+/* Mr XPRONOS — Conseils premium */
+.mx-conseils-page{
+ --cx-bg:#020a11;--cx-panel:#061724;--cx-line:#174765;--cx-gold:#e9b650;--cx-gold-light:#ffd477;--cx-text:#f7f8fa;--cx-muted:#a9b7c4;
+ background:radial-gradient(circle at 50% -10%,rgba(0,72,119,.16),transparent 31%),linear-gradient(180deg,#020a11,#03101a 48%,#02080e);
+ color:var(--cx-text);padding-top:76px;
+}
+.mx-conseils-page .container{width:min(calc(100% - 56px),1290px);max-width:none;padding-left:0;padding-right:0}
+.mx-conseils-page .mx-site-header{position:fixed;inset:0 0 auto 0;height:76px;z-index:1000;background:rgba(1,6,10,.975);border-bottom:1px solid rgba(25,116,169,.52);box-shadow:0 10px 28px rgba(0,0,0,.46);backdrop-filter:blur(14px)}
+.mx-conseils-page .mx-header-container{height:100%;display:flex;align-items:center;gap:18px}
+.mx-conseils-page .mx-site-header .logo a{display:flex;align-items:center;width:clamp(158px,17vw,220px);height:67px;line-height:0}
+.mx-conseils-page .mx-site-header .logo img{display:block;width:auto;height:74px;max-height:74px;max-width:100%;object-fit:contain}
+.mx-conseils-page .mx-desktop-nav{display:flex;align-items:center;justify-content:center;gap:clamp(10px,1.15vw,19px);margin-left:auto}
+.mx-conseils-page .mx-desktop-nav a{position:relative;color:#eef1f4;text-decoration:none;font-size:clamp(11px,.8vw,12px);line-height:2.6;font-weight:600;white-space:nowrap}
+.mx-conseils-page .mx-desktop-nav a:hover,.mx-conseils-page .mx-desktop-nav a.active{color:var(--cx-gold-light)}
+.mx-conseils-page .mx-desktop-nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:3px;background:var(--cx-gold)}
+.mx-conseils-page .mx-header-actions{display:flex;align-items:center;gap:10px;margin-left:5px}
+.mx-conseils-page .mx-code-button{flex:0 0 auto;min-height:42px;padding:10px 18px;border-radius:24px;border:1px solid #f4ce77;background:linear-gradient(145deg,#ffe8ad,#e5b85b 55%,#c98e2d);color:#0a0e12;font-size:12px;font-weight:800;box-shadow:0 4px 14px rgba(230,176,72,.18);animation:none}
+.mx-conseils-page .mx-install{display:none;align-items:center;gap:8px;min-height:42px;padding:9px 15px;border-radius:13px;background:#061522;color:#f5c96d;border:1px solid #b78c35;font-size:12px;font-weight:700}
+.mx-conseils-page #burger-btn{display:none!important}
+
+/* Hero */
+.mx-conseils-page .mx-conseils-hero{position:relative;min-height:316px;overflow:hidden;border-bottom:1px solid rgba(26,98,139,.62);background:#03101a}
+.mx-conseils-page .mx-conseils-hero-bg{position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(1,8,15,.96),rgba(1,10,20,.83) 35%,rgba(1,12,24,.28) 68%,rgba(0,8,18,.18)),linear-gradient(180deg,transparent 60%,rgba(0,7,13,.54)),url('../images/home-premium/hero-stadium.webp');background-size:cover;background-position:center,center,center 52%}
+.mx-conseils-page .mx-conseils-hero-inner{position:relative;z-index:2;min-height:316px;display:flex;align-items:center;padding:34px 0 42px}
+.mx-conseils-page .mx-conseils-copy{position:relative;z-index:3;width:61%;max-width:720px}
+.mx-conseils-page .mx-conseils-eyebrow{color:#ead4ab;font-size:10px;font-weight:800;letter-spacing:.46em;text-transform:uppercase}
+.mx-conseils-page .mx-conseils-copy h1{margin:12px 0 13px;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(40px,4.5vw,61px);line-height:1.03;font-weight:700;letter-spacing:-.035em;text-shadow:0 3px 18px rgba(0,0,0,.72)}
+.mx-conseils-page .mx-conseils-copy h1 span{display:block;color:var(--cx-gold)}
+.mx-conseils-page .mx-conseils-copy p{max-width:630px;margin:0;color:#f0f3f5;font-size:clamp(13px,1.08vw,16px);line-height:1.56}
+.mx-conseils-page .mx-conseils-player{position:absolute;right:13%;bottom:-126px;height:430px;width:auto;max-width:45%;object-fit:contain;filter:drop-shadow(-12px 5px 18px rgba(0,0,0,.62));z-index:2}
+.mx-conseils-page .mx-conseils-quote{position:absolute;right:1%;top:46%;max-width:172px;color:#f6c85f;text-align:center;font-family:'Caveat','Segoe Print','Comic Sans MS',cursive;font-size:clamp(23px,2.2vw,31px);line-height:1.03;font-weight:600;transform:rotate(-8deg);text-shadow:0 4px 12px #000;z-index:3}
+
+/* Content */
+.mx-conseils-page .mx-conseils-content{padding:18px 0 58px}
+.mx-conseils-page #conseils-horizontal-list{display:none!important}
+.mx-conseils-page .mx-conseils-heading{display:flex;align-items:center;gap:14px;margin:0 0 16px}
+.mx-conseils-page .mx-conseils-heading-icon{display:grid;place-items:center;width:48px;height:48px;color:#f6c24e;font-size:34px}
+.mx-conseils-page .mx-conseils-heading h2{margin:0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(27px,2.6vw,36px)}
+.mx-conseils-page .mx-conseils-heading p{margin:2px 0 0;color:#b6c2cb;font-size:12px}
+.mx-conseils-page .conseils-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:13px;margin:0}
+.mx-conseils-page .conseil-premium-card{grid-column:span 2;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:324px;border:1px solid #185375;border-radius:10px;background:#061723;box-shadow:0 10px 25px rgba(0,0,0,.2);cursor:pointer;transition:transform .18s,border-color .18s}
+.mx-conseils-page .conseil-premium-card:nth-child(4),.mx-conseils-page .conseil-premium-card:nth-child(5){grid-column:span 3}
+.mx-conseils-page .conseil-premium-card:hover{transform:translateY(-3px);border-color:#2c789f}
+.mx-conseils-page .conseil-card-media{position:relative;height:166px;overflow:hidden;background:#07141e}
+.mx-conseils-page .conseil-premium-card:nth-child(4) .conseil-card-media,.mx-conseils-page .conseil-premium-card:nth-child(5) .conseil-card-media{height:152px}
+.mx-conseils-page .conseil-card-media img{width:100%;height:100%;object-fit:cover}
+.mx-conseils-page .conseil-card-media::after{content:"";position:absolute;inset:auto 0 0;height:58%;background:linear-gradient(180deg,transparent,rgba(3,11,17,.88))}
+.mx-conseils-page .conseil-card-icon{position:absolute;z-index:2;left:20px;top:20px;display:grid;place-items:center;width:56px;height:56px;border:2px solid #e0a936;border-radius:11px;background:rgba(4,16,24,.82);color:#f1b943;font-size:27px}
+.mx-conseils-page .conseil-card-body{display:flex;flex-direction:column;flex:1;padding:14px 20px 18px}
+.mx-conseils-page .conseil-card-body h3{margin:0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(19px,1.75vw,24px);line-height:1.08}
+.mx-conseils-page .conseil-card-body p{margin:10px 0 13px;color:#c3ccd3;font-size:12.5px;line-height:1.46;flex:1}
+.mx-conseils-page .conseil-card-cta{display:inline-flex;align-items:center;gap:10px;color:#f0b947;font-size:12px;font-weight:800}
+.mx-conseils-page .conseil-card-cta span{font-size:19px}
+.mx-conseils-page .mx-conseils-bottom{display:grid;grid-template-columns:58px 1fr auto;align-items:center;gap:17px;margin-top:24px;padding:17px 20px;border:1px solid #163e55;border-radius:11px;background:linear-gradient(110deg,#071a27,#05121c)}
+.mx-conseils-page .mx-conseils-bottom-icon{font-size:38px;color:#efbd55}
+.mx-conseils-page .mx-conseils-bottom h3{margin:0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:20px}
+.mx-conseils-page .mx-conseils-bottom p{margin:4px 0 0;color:#adb9c2;font-size:11px}
+.mx-conseils-page .mx-conseils-bottom a{display:inline-flex;align-items:center;gap:12px;min-height:46px;padding:0 27px;border-radius:24px;background:linear-gradient(135deg,#ffe095,#e3af46);color:#091018;text-decoration:none;font-size:12px;font-weight:800}
+.mx-conseils-page .no-events{grid-column:1/-1;border:1px dashed #31566f;border-radius:14px;padding:27px;background:#071925;color:#c8d3dc}
+
+/* Footer */
+.mx-conseils-page .mx-premium-footer{margin:0;background:linear-gradient(180deg,#02080d,#010509);border-top:1px solid #12364a;text-align:left;padding:0}
+.mx-conseils-page .mx-footer-line{min-height:101px;display:grid;grid-template-columns:minmax(200px,235px) 1fr auto;align-items:center;gap:16px}
+.mx-conseils-page .mx-footer-brand a{display:flex;align-items:center;text-decoration:none;line-height:0}
+.mx-conseils-page .mx-footer-brand img{display:block;width:auto;height:68px;max-height:68px;max-width:100%;object-fit:contain}
+.mx-conseils-page .mx-footer-brand small{display:block;margin:-9px 0 0 3px;color:#aeb7c0;font-size:10px;line-height:1.3}
+.mx-conseils-page .mx-premium-footer .footer-links{display:flex;justify-content:center;gap:clamp(9px,1.15vw,18px);margin:0;flex-wrap:wrap}
+.mx-conseils-page .mx-premium-footer .footer-links a{font-size:11px;text-decoration:none;color:#e7e8e9;white-space:nowrap}
+.mx-conseils-page .mx-premium-footer .social-links{display:flex;gap:7px;align-items:center;margin:0}
+.mx-conseils-page .mx-premium-footer .social-links a{width:29px;height:29px;border:1px solid #244057;border-radius:8px;display:grid;place-items:center;background:#071520}
+.mx-conseils-page .mx-premium-footer .social-links img{width:19px;height:19px;object-fit:contain}
+.mx-conseils-page .mx-footer-bottom{display:flex;justify-content:space-between;gap:20px;padding:12px 0 20px;border-top:1px solid #102b3c;font-size:11px;color:#afb8c1}
+.mx-conseils-page .bookmakers[hidden]{display:none!important}
+
+@media(min-width:901px) and (max-width:1160px){
+ .mx-conseils-page .container{width:calc(100% - 30px)}.mx-conseils-page .mx-header-container{gap:9px}.mx-conseils-page .mx-site-header .logo a{width:150px;height:64px}.mx-conseils-page .mx-site-header .logo img{height:62px;max-height:62px}
+ .mx-conseils-page .mx-desktop-nav{gap:8px}.mx-conseils-page .mx-desktop-nav a{font-size:10px}.mx-conseils-page .mx-code-button{min-height:38px;padding:8px 11px;font-size:10px}
+}
+@media(max-width:900px){
+ .mx-conseils-page .mx-desktop-nav{display:none}.mx-conseils-page #burger-btn{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;padding:8px;margin:0;border:1px solid #577183;border-radius:10px;background:#091b29;color:#f5d080}
+ .mx-conseils-page .mx-header-container{justify-content:space-between}.mx-conseils-page .mx-header-actions{margin-left:auto}
+ .mx-conseils-page .mx-conseils-player{right:4%;opacity:.72}.mx-conseils-page .mx-conseils-quote{display:none}.mx-conseils-page .mx-conseils-copy{width:72%}
+ .mx-conseils-page .conseils-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mx-conseils-page .conseil-premium-card,.mx-conseils-page .conseil-premium-card:nth-child(4),.mx-conseils-page .conseil-premium-card:nth-child(5){grid-column:span 1}
+ .mx-conseils-page .mx-footer-line{grid-template-columns:1fr auto}.mx-conseils-page .mx-footer-line .footer-links{grid-column:1/-1;grid-row:2;justify-content:flex-start;padding-bottom:13px}
+}
+@media(max-width:700px){
+ .mx-conseils-page{padding-top:65px}.mx-conseils-page .container{width:calc(100% - 26px)}.mx-conseils-page .mx-site-header{height:65px}.mx-conseils-page .mx-site-header .logo a{width:clamp(135px,26vw,185px);height:54px}.mx-conseils-page .mx-site-header .logo img{height:54px;max-height:54px}.mx-conseils-page .mx-code-button{min-height:37px;padding:9px 11px;font-size:10px}
+ .mx-conseils-page .mx-conseils-hero,.mx-conseils-page .mx-conseils-hero-inner{min-height:290px}.mx-conseils-page .mx-conseils-copy{width:100%}.mx-conseils-page .mx-conseils-copy h1{font-size:clamp(34px,8vw,44px)}.mx-conseils-page .mx-conseils-copy p{max-width:430px;font-size:12px}.mx-conseils-page .mx-conseils-player{height:270px;right:-8%;bottom:-85px;opacity:.30}
+ .mx-conseils-page .mx-conseils-bottom{grid-template-columns:46px 1fr}.mx-conseils-page .mx-conseils-bottom a{grid-column:1/-1;justify-content:center}
+ .mx-conseils-page .mx-footer-line{grid-template-columns:1fr}.mx-conseils-page .mx-footer-line .social-links,.mx-conseils-page .mx-footer-line .footer-links{grid-column:1;grid-row:auto}.mx-conseils-page .mx-premium-footer .social-links{justify-content:flex-start}.mx-conseils-page .mx-footer-bottom{flex-direction:column;gap:5px}
+}
+@media(max-width:520px){
+ .mx-conseils-page .conseils-grid{grid-template-columns:1fr;gap:10px}.mx-conseils-page .conseil-premium-card{grid-column:1;min-height:0}.mx-conseils-page .conseil-card-media{height:180px}
+ .mx-conseils-page .mx-conseils-heading-icon{width:38px;height:38px;font-size:29px}.mx-conseils-page .mx-conseils-heading h2{font-size:28px}
+}
+@media(max-width:390px){.mx-conseils-page .mx-site-header .logo a{width:138px;height:49px}.mx-conseils-page .mx-site-header .logo img{height:50px;max-height:50px}.mx-conseils-page .mx-code-label{display:none}}
+@media(prefers-reduced-motion:reduce){.mx-conseils-page *{transition:none!important;animation:none!important}}
