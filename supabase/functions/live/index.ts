@@ -2138,7 +2138,7 @@ async function sendTelegramPhoto(
               [
                 {
                   text: "Voir plus de coupons 🔥",
-                  url: "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",
+                  url: "https://mrxpronos.github.io/MrXPRONOS_App/live.html",
                 },
               ],
               [
@@ -2162,7 +2162,7 @@ async function sendTelegramPhoto(
         const res = await richPhotoOrLegacy(
           TELEGRAM_BOT_TOKEN,chatId,pngBytes,caption,
           buttonUrl?[
-            [{text:"Voir plus de coupons 🔥",url:"https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",style:"primary"}],
+            [{text:"Voir plus de coupons 🔥",url:"https://mrxpronos.github.io/MrXPRONOS_App/live.html",style:"primary"}],
             [{text:"S’inscrire ou réinitialiser son compte 🎯",url:"https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html",style:"success"}]
           ]:[],form,`coupon-live-${Date.now()}-${attempt}.png`
         );
@@ -2232,7 +2232,7 @@ async function sendTelegramMessage(
             [
               {
                 text: "Voir plus de coupons 🔥",
-                url: "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",
+                url: "https://mrxpronos.github.io/MrXPRONOS_App/live.html",
               },
             ],
             [
@@ -2250,7 +2250,7 @@ async function sendTelegramMessage(
       const res = await richTextOrLegacy(
         TELEGRAM_BOT_TOKEN,chatId,text,
         buttonUrl?[
-          [{text:"Voir plus de coupons 🔥",url:"https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",style:"primary"}],
+          [{text:"Voir plus de coupons 🔥",url:"https://mrxpronos.github.io/MrXPRONOS_App/live.html",style:"primary"}],
           [{text:"S’inscrire ou réinitialiser son compte 🎯",url:"https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html",style:"success"}]
         ]:[],form
       );
@@ -2291,7 +2291,7 @@ async function sendTelegramLiveCoupon(
     }));
     return await sendTelegramPhoto(
       png,buildTelegramText(match,pred),
-      "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",targetChatIds
+      "https://mrxpronos.github.io/MrXPRONOS_App/live.html",targetChatIds
     );
   } catch(e:any){
     const err=e?.stack||e?.message||String(e);
@@ -2782,7 +2782,7 @@ async function sendTelegramValidationResult(
       snapshotPred
     );
     const result=await sendTelegramPhoto(png,buildTelegramValidationText(pred,outcome,currentValue),
-      "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/");
+      "https://mrxpronos.github.io/MrXPRONOS_App/live.html");
     if(!result.ok)console.error("TELEGRAM_VALIDATION_IMAGE_SEND_FAILED",result.error);
     return result.ok;
   }catch(e:any){

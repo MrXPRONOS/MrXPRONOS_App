@@ -979,7 +979,7 @@ async function sendPhoto(
               {
                 text: "Voir plus de coupons 🔥",
                 url:
-                  "https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",
+                  "https://mrxpronos.github.io/MrXPRONOS_App/live.html",
               },
             ],
             [
@@ -1003,7 +1003,7 @@ async function sendPhoto(
       try {
         const res = await richPhotoOrLegacy(
           TELEGRAM_BOT_TOKEN,chatId,png,caption,[
-            [{text:"Voir plus de coupons 🔥",url:"https://mrxpronos.github.io/MrXPRONOS_App/prono-live/",style:"primary"}],
+            [{text:"Voir plus de coupons 🔥",url:"https://mrxpronos.github.io/MrXPRONOS_App/live.html",style:"primary"}],
             [{text:"S'inscrire ou reinitialiser son compte 🎯",url:"https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html",style:"success"}]
           ],form,`coupon-live-${pred.id}.png`
         );
