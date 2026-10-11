@@ -465,3 +465,54 @@ body.mx-live-page{
   .mx-live-page .mx-live-footer__social{justify-content:flex-start}
   .mx-live-page .mx-live-footer__bottom{flex-direction:column;gap:4px;padding-bottom:14px}
 }
+
+
+/* ===== Live premium — upcoming / history / notifications polish ===== */
+.mx-live-page .mx-upcoming-card{
+  min-height:210px!important;padding:0!important;overflow:hidden!important;
+  background:
+    linear-gradient(145deg,rgba(5,23,35,.94),rgba(3,14,22,.98)),
+    url('../images/live-premium/hero-stadium.webp') center/cover no-repeat!important;
+}
+.mx-live-page .mx-upcoming-card__meta{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;
+  border-bottom:1px solid #163f57;background:rgba(3,17,27,.66);
+}
+.mx-live-page .mx-upcoming-card__league{display:flex;align-items:center;gap:7px;min-width:0;color:#b8c5ce;font-size:9.5px;font-weight:700}
+.mx-live-page .mx-upcoming-card__league span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mx-live-page .mx-upcoming-card__time{display:flex;align-items:center;gap:5px;flex:0 0 auto}
+.mx-live-page .mx-upcoming-card__time img{width:20px!important;height:20px!important}
+.mx-live-page .mx-upcoming-card__time b{color:#f2c05b;font-family:Georgia,'Times New Roman',serif;font-size:13px}
+.mx-live-page .mx-upcoming-card__time small{color:#8fa1ae;font-size:8px;text-transform:uppercase}
+.mx-live-page .mx-upcoming-card__teams{
+  display:grid;grid-template-columns:minmax(0,1fr) 36px minmax(0,1fr);align-items:center;gap:7px;
+  padding:19px 14px 14px;
+}
+.mx-live-page .mx-upcoming-card__teams>div{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0}
+.mx-live-page .mx-upcoming-card__teams strong{margin-top:7px;max-width:100%;color:#f4f6f7;font-family:Georgia,'Times New Roman',serif;font-size:12px;line-height:1.14;overflow-wrap:anywhere}
+.mx-live-page .mx-upcoming-card__vs{display:grid;place-items:center;width:34px;height:34px;border:1px solid #315a72;border-radius:50%;color:#e7edf1;font-size:9px;font-weight:900}
+.mx-live-page .mx-upcoming-card__foot{display:flex;align-items:center;gap:8px;margin:0 13px 13px;padding:8px 10px;border:1px solid #194661;border-radius:9px;background:rgba(3,17,26,.72);color:#94a7b4;font-size:8.5px;line-height:1.35}
+.mx-live-page .mx-upcoming-card__foot img{width:22px!important;height:22px!important;flex:0 0 22px}
+
+.mx-live-page .mx-history-live-card{
+  border-color:#18506e!important;background:linear-gradient(145deg,#071a27,#04121c)!important;
+}
+.mx-live-page .mx-history-live-card .pronostic-pop{margin-top:2px}
+.mx-live-page .mx-history-live-card.mx-outline-success{border-color:rgba(51,205,116,.68)!important;box-shadow:0 10px 27px rgba(0,0,0,.26),0 0 17px rgba(51,205,116,.07)!important}
+.mx-live-page .mx-history-live-card.mx-outline-failure{border-color:rgba(229,71,78,.62)!important;box-shadow:0 10px 27px rgba(0,0,0,.26),0 0 17px rgba(229,71,78,.06)!important}
+
+.mx-live-page .mx-notification-card{
+  border-color:#194c68!important;background:linear-gradient(145deg,#071925,#04121c)!important;
+}
+.mx-live-page .mx-notification-card.is-unread{
+  border-color:#b4882f!important;background:linear-gradient(145deg,rgba(42,32,8,.62),#061621 52%,#04121c)!important;
+  box-shadow:0 10px 27px rgba(0,0,0,.27),0 0 16px rgba(226,175,66,.06)!important;
+}
+.mx-live-page .mx-notification-card .mx-status-stamp{font-size:10px}
+
+@media(max-width:520px){
+  .mx-live-page .mx-upcoming-card__meta{padding:10px 11px}
+  .mx-live-page .mx-upcoming-card__teams{padding:16px 10px 12px}
+  .mx-live-page .mx-upcoming-card__teams strong{font-size:11px}
+  .mx-live-page .mx-upcoming-card__foot{margin:0 10px 10px}
+}
