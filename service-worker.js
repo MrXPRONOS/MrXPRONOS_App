@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v24-pronos-premium-20261011';
+const VERSION = 'v25-history-premium-20261011';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -25,6 +25,7 @@ const STATIC_ASSETS = [
     './assets/css/home-premium.css',
     './assets/css/home-polish.css',
     './assets/css/pronos-premium.css',
+    './assets/css/history-premium.css',
     './assets/js/main.js',
     './assets/js/home-premium.js',
     './assets/js/pwa.js',
