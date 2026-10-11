@@ -19,8 +19,10 @@
     <meta name="twitter:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
 
     <link rel="icon" href="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" type="image/svg+xml">
+    <link rel="preload" as="image" href="assets/images/conseils-premium/hero-conseils.webp">
+    <link rel="preload" as="image" href="assets/images/conseils-premium/icon-conseils-guide.webp">
     <link rel="stylesheet" href="assets/css/style.css?v=20261011-conseils-premium1">
-    <link rel="stylesheet" href="assets/css/conseils-premium.css?v=20261011-conseils-premium2">
+    <link rel="stylesheet" href="assets/css/conseils-premium.css?v=20261011-conseils-premium3">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
 
@@ -47,28 +49,40 @@
             <div class="mx-conseils-hero-bg" aria-hidden="true"></div>
             <div class="container mx-conseils-hero-inner">
                 <div class="mx-conseils-copy">
-                    <span class="mx-conseils-eyebrow">CONSEILS &amp; GUIDES</span>
-                    <h1 id="conseils-title">Des conseils concrets <span>pour parier plus intelligemment.</span></h1>
-                    <p>Découvrez nos guides et conseils pour mieux comprendre les paris sportifs, affiner votre analyse et adopter une approche plus sérieuse et responsable.</p>
+                    <img class="mx-conseils-mark" src="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" alt="" aria-hidden="true">
+                    <span class="mx-conseils-eyebrow"><i aria-hidden="true"></i> CONSEILS &amp; GUIDES</span>
+                    <h1 id="conseils-title">Mieux comprendre. <span>Mieux décider.</span></h1>
+                    <p>Gestion de bankroll, analyse, discipline, value et erreurs à éviter : des guides concrets pour adopter une approche plus sérieuse, structurée et responsable.</p>
+                    <div class="mx-conseils-pillars" aria-label="Principes de la rubrique Conseils">
+                        <span><img src="assets/images/conseils-premium/icon-conseils-bankroll.webp" alt="" aria-hidden="true"><b>Gestion</b><small>Bankroll</small></span>
+                        <span><img src="assets/images/conseils-premium/icon-conseils-analysis.webp" alt="" aria-hidden="true"><b>Analyse</b><small>Matchs &amp; stats</small></span>
+                        <span><img src="assets/images/conseils-premium/icon-conseils-discipline.webp" alt="" aria-hidden="true"><b>Discipline</b><small>Jeu responsable</small></span>
+                    </div>
                 </div>
-                <img class="mx-conseils-player" src="assets/images/home-premium/hero-player.webp" width="840" height="1120" alt="" aria-hidden="true">
-                <p class="mx-conseils-quote">Plus de connaissances,<br>meilleures décisions !</p>
             </div>
         </section>
 
         <div class="container mx-conseils-content">
             <div class="mx-conseils-heading">
-                <div class="mx-conseils-heading-icon" aria-hidden="true">💡</div>
-                <div><h2>Nos derniers conseils</h2><p>Des guides pratiques pour vous aider à progresser et à parier plus sereinement.</p></div>
+                <div class="mx-conseils-heading-icon" aria-hidden="true"><img src="assets/images/conseils-premium/icon-conseils-guide.webp" alt=""></div>
+                <div><span class="mx-conseils-section-kicker">APPRENDRE · PROGRESSER</span><h2>Nos derniers conseils</h2><p>Des guides pratiques pour développer votre méthode et prendre de meilleures décisions.</p></div>
+            </div>
+
+            <div class="mx-conseils-topics" aria-label="Thèmes des conseils">
+                <span><img src="assets/images/conseils-premium/icon-conseils-bankroll.webp" alt="">Gestion de bankroll</span>
+                <span><img src="assets/images/conseils-premium/icon-conseils-value.webp" alt="">Cotes &amp; value</span>
+                <span><img src="assets/images/conseils-premium/icon-conseils-danger.webp" alt="">Erreurs à éviter</span>
+                <span><img src="assets/images/conseils-premium/icon-conseils-discipline.webp" alt="">Discipline</span>
+                <span><img src="assets/images/conseils-premium/icon-conseils-analysis.webp" alt="">Analyse de match</span>
             </div>
             <div id="vip-locked-overlay" class="vip-locked-overlay" style="display:none;"></div>
             <div id="conseils-horizontal-list" class="horizontal-scroll" aria-hidden="true"></div>
             <div id="conseils-list" class="conseils-grid" aria-live="polite"></div>
 
             <section class="mx-conseils-bottom">
-                <div class="mx-conseils-bottom-icon" aria-hidden="true">🎓</div>
-                <div><h3>Un parieur informé est un parieur plus serein</h3><p>Nos conseils sont là pour développer vos connaissances et garder une approche responsable.</p></div>
-                <a href="#conseils-list">Voir tous les conseils <span aria-hidden="true">→</span></a>
+                <div class="mx-conseils-bottom-icon" aria-hidden="true"><img src="assets/images/conseils-premium/icon-conseils-academy.webp" alt=""></div>
+                <div><span class="mx-conseils-section-kicker">MÉTHODE &amp; RESPONSABILITÉ</span><h3>Un parieur informé est un parieur plus serein</h3><p>Nos conseils servent à développer vos connaissances, structurer votre méthode et conserver une approche responsable.</p></div>
+                <a href="#conseils-list">Explorer les guides <span aria-hidden="true">→</span></a>
             </section>
         </div>
     </main>
@@ -105,11 +119,11 @@
         <div class="mx-footer-bottom"><span>© <span id="mx-current-year">2026</span> Mr XPRONOS. Tous droits réservés.</span><span>18+ · Jouez responsablement · <a href="contact.html">Nous contacter</a></span></div><div class="bookmakers" id="bookmakers-footer" hidden></div>
     </div></footer>
 
-    <script type="module" src="assets/js/main.js?v=20261011-conseils-premium2"></script>
+    <script type="module" src="assets/js/main.js?v=20261011-conseils-premium3"></script>
     <script defer src="assets/js/pwa.js"></script>
     <script defer src="assets/js/assistant.js"></script>
     <script defer src="assets/js/menu.js"></script>
     <script defer src="assets/js/back-to-top.js"></script>
-    <script defer src="assets/js/home-premium.js?v=20261011-conseils-premium2"></script>
+    <script defer src="assets/js/home-premium.js?v=20261011-conseils-premium3"></script>
 </body>
 </html>
