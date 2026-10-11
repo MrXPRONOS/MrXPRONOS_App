@@ -1,0 +1,89 @@
+/* =========================================================
+   Mr XPRONOS — Bonus & Promo premium
+   Référence : maquette Bonus noir / bleu nuit / or.
+========================================================= */
+.mx-bonus-page{
+  --bp-bg:#020a11;--bp-panel:#061724;--bp-line:#174765;--bp-gold:#e9b650;--bp-gold-light:#ffd477;
+  --bp-text:#f7f8fa;--bp-muted:#a9b7c4;
+  background:radial-gradient(circle at 50% -10%,rgba(0,72,119,.16),transparent 31%),linear-gradient(180deg,#020a11,#03101a 48%,#02080e);
+  color:var(--bp-text);padding-top:76px;
+}
+.mx-bonus-page .container{width:min(calc(100% - 56px),1290px);max-width:none;padding-left:0;padding-right:0}
+.mx-bonus-page .mx-site-header{position:fixed;inset:0 0 auto 0;height:76px;z-index:1000;background:rgba(1,6,10,.975);border-bottom:1px solid rgba(25,116,169,.52);box-shadow:0 10px 28px rgba(0,0,0,.46);backdrop-filter:blur(14px)}
+.mx-bonus-page .mx-header-container{height:100%;display:flex;align-items:center;gap:18px}
+.mx-bonus-page .mx-site-header .logo a{display:flex;align-items:center;width:clamp(158px,17vw,220px);height:67px;line-height:0}
+.mx-bonus-page .mx-site-header .logo img{display:block;width:auto;height:74px;max-height:74px;max-width:100%;object-fit:contain}
+.mx-bonus-page .mx-desktop-nav{display:flex;align-items:center;justify-content:center;gap:clamp(10px,1.15vw,19px);margin-left:auto}
+.mx-bonus-page .mx-desktop-nav a{position:relative;color:#eef1f4;text-decoration:none;font-size:clamp(11px,.8vw,12px);line-height:2.6;font-weight:600;white-space:nowrap}
+.mx-bonus-page .mx-desktop-nav a:hover,.mx-bonus-page .mx-desktop-nav a.active{color:var(--bp-gold-light)}
+.mx-bonus-page .mx-desktop-nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:3px;background:var(--bp-gold)}
+.mx-bonus-page .mx-header-actions{display:flex;align-items:center;gap:10px;margin-left:5px}
+.mx-bonus-page .mx-code-button{flex:0 0 auto;min-height:42px;padding:10px 18px;border-radius:24px;border:1px solid #f4ce77;background:linear-gradient(145deg,#ffe8ad,#e5b85b 55%,#c98e2d);color:#0a0e12;font-size:12px;font-weight:800;animation:none}
+.mx-bonus-page .mx-install{display:none;align-items:center;gap:8px;min-height:42px;padding:9px 15px;border-radius:13px;background:#061522;color:#f5c96d;border:1px solid #b78c35;font-size:12px;font-weight:700}
+.mx-bonus-page #burger-btn{display:none!important}
+
+/* Hero */
+.mx-bonus-page .mx-bonus-hero{position:relative;min-height:300px;overflow:hidden;border-bottom:1px solid rgba(26,98,139,.62)}
+.mx-bonus-page .mx-bonus-hero-bg{position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(1,8,15,.96),rgba(1,10,20,.82) 38%,rgba(1,12,24,.30) 70%,rgba(0,8,18,.18)),linear-gradient(180deg,transparent 60%,rgba(0,7,13,.55)),url('../images/pronostics-premium/hero-stadium.webp');background-size:cover;background-position:center,center,center 46%}
+.mx-bonus-page .mx-bonus-hero-inner{position:relative;z-index:2;min-height:300px;display:flex;align-items:center;padding:30px 0 35px}
+.mx-bonus-page .mx-bonus-copy{position:relative;z-index:3;width:58%;max-width:680px}
+.mx-bonus-page .mx-bonus-eyebrow{color:#ead4ab;font-size:10px;font-weight:800;letter-spacing:.46em;text-transform:uppercase}
+.mx-bonus-page .mx-bonus-copy h1{margin:10px 0 12px;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(38px,4.3vw,57px);line-height:1.03;font-weight:700;letter-spacing:-.03em;text-shadow:0 3px 18px rgba(0,0,0,.72)}
+.mx-bonus-page .mx-bonus-copy h1 span{display:block;color:var(--bp-gold)}
+.mx-bonus-page .mx-bonus-copy p{max-width:610px;margin:0;color:#f0f3f5;font-size:clamp(13px,1.08vw,16px);line-height:1.55}
+.mx-bonus-page .mx-bonus-player{position:absolute;right:11%;bottom:-112px;height:405px;width:auto;max-width:45%;object-fit:contain;filter:drop-shadow(-12px 5px 18px rgba(0,0,0,.62));z-index:2}
+.mx-bonus-page .mx-bonus-quote{position:absolute;right:1%;top:45%;max-width:175px;color:#f6c85f;text-align:center;font-family:'Caveat','Segoe Print','Comic Sans MS',cursive;font-size:clamp(22px,2.1vw,30px);line-height:1.04;font-weight:600;transform:rotate(-8deg);text-shadow:0 4px 12px #000;z-index:3}
+
+/* Content */
+.mx-bonus-page .mx-bonus-content{padding:0 0 58px}
+.mx-bonus-page .mx-promo-banner{display:grid;grid-template-columns:230px minmax(0,1fr) 250px;align-items:center;gap:24px;margin-top:-1px;padding:18px 22px;border:1px solid #b8872f;border-radius:14px;background:linear-gradient(110deg,#061925,#09131a 50%,#06141f);box-shadow:0 12px 28px rgba(0,0,0,.28);overflow:hidden}
+.mx-bonus-page .mx-promo-gift{width:210px;height:150px;object-fit:cover;border-radius:11px;filter:drop-shadow(0 9px 18px rgba(0,0,0,.35))}
+.mx-bonus-page .mx-promo-copy small{display:block;color:#ddd2b8;font-size:9px;font-weight:900;letter-spacing:.42em;text-transform:uppercase}
+.mx-bonus-page .mx-promo-copy h2{margin:7px 0 4px;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:clamp(27px,2.8vw,39px);line-height:1}
+.mx-bonus-page .mx-promo-copy h2 strong{color:#efbd54}
+.mx-bonus-page .mx-promo-copy p{margin:0;color:#c7d0d6;font-size:12px;line-height:1.45}
+.mx-bonus-page .mx-promo-action{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+.mx-bonus-page .mx-promo-action button{min-height:48px;border:1px solid #f0c86a;border-radius:25px;background:linear-gradient(135deg,#ffe29a,#e1aa42);color:#081018;font-weight:900;font-size:12px;cursor:pointer}
+.mx-bonus-page .mx-promo-action span{color:#a9b7c2;font-size:9px;text-align:center}
+
+.mx-bonus-page .bonus-selector{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:17px 0 13px;padding:0;background:transparent;border:0}
+.mx-bonus-page .bonus-selector label{color:#f0f3f5;font-size:12px;font-weight:800}
+.mx-bonus-page .bonus-select{min-width:230px;min-height:42px;border:1px solid #315a72;border-radius:11px;background:#071a28;color:#f1f4f6;padding:8px 36px 8px 13px;font-size:11px}
+.mx-bonus-page .bookmakers-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0}
+.mx-bonus-page .bonus-premium-card{position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:310px;border:1px solid #185375;border-radius:12px;background:#061724;box-shadow:0 10px 25px rgba(0,0,0,.22)}
+.mx-bonus-page .bonus-premium-card::before{content:"";position:absolute;inset:0;background-image:linear-gradient(180deg,rgba(4,14,22,.18),rgba(3,12,19,.95) 76%),url('../images/pronostics-premium/card-stadium.webp');background-size:cover;background-position:center;z-index:0}
+.mx-bonus-page .bonus-premium-card>*{position:relative;z-index:1}
+.mx-bonus-page .bonus-card-head{min-height:130px;display:flex;align-items:flex-start;justify-content:space-between;padding:20px 19px 10px}
+.mx-bonus-page .bonus-card-head img{width:145px;height:60px;object-fit:contain;object-position:left center;filter:drop-shadow(0 3px 8px rgba(0,0,0,.5))}
+.mx-bonus-page .bonus-card-badge{padding:5px 8px;border-radius:7px;background:#e5b449;color:#091017;font-size:8px;font-weight:900}
+.mx-bonus-page .bonus-card-body{display:flex;flex-direction:column;flex:1;padding:10px 18px 16px}
+.mx-bonus-page .bonus-card-body h3{margin:0 0 7px;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:22px}
+.mx-bonus-page .bonus-card-body p{margin:0 0 15px;color:#d0d7dc;font-size:12px;line-height:1.45;flex:1}
+.mx-bonus-page .bonus-actions{display:grid;grid-template-columns:1fr auto;gap:8px}
+.mx-bonus-page .bonus-actions .btn{min-height:39px;padding:9px 12px;border-radius:9px;font-size:10px;font-weight:800}
+.mx-bonus-page .bonus-actions .btn-primary{background:linear-gradient(135deg,#ffe094,#d9a43f);color:#091018;border:1px solid #efc66b}
+.mx-bonus-page .bonus-actions .btn-secondary{border:1px solid #3a6177;color:#d5e1e8;background:#071923}
+.mx-bonus-page .active-bonus-card{border-color:#e6b84e!important;box-shadow:0 0 0 1px rgba(230,184,78,.2),0 14px 30px rgba(0,0,0,.34)!important}
+
+.mx-bonus-page .mx-bonus-values{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:20px;border:1px solid #163d55;border-radius:12px;background:#06151f;overflow:hidden}
+.mx-bonus-page .mx-bonus-value{display:flex;gap:12px;align-items:flex-start;padding:18px 16px;border-right:1px solid #173e54}
+.mx-bonus-page .mx-bonus-value:last-child{border-right:0}
+.mx-bonus-page .mx-bonus-value-icon{display:grid;place-items:center;flex:0 0 46px;width:46px;height:46px;border:1px solid #a77a28;border-radius:10px;background:#0a1a24;color:#efbc51;font-size:23px}
+.mx-bonus-page .mx-bonus-value h3{margin:0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:15px}
+.mx-bonus-page .mx-bonus-value p{margin:4px 0 0;color:#acbac4;font-size:10px;line-height:1.4}
+.mx-bonus-page .modal-content{background:#071723;border:1px solid #1e5877;color:#e9edf0;border-radius:14px}
+
+/* Footer */
+.mx-bonus-page .mx-premium-footer{margin:0;background:linear-gradient(180deg,#02080d,#010509);border-top:1px solid #12364a;text-align:left;padding:0}
+.mx-bonus-page .mx-footer-line{min-height:101px;display:grid;grid-template-columns:minmax(200px,235px) 1fr auto;align-items:center;gap:16px}
+.mx-bonus-page .mx-footer-brand a{display:flex;align-items:center;text-decoration:none;line-height:0}.mx-bonus-page .mx-footer-brand img{display:block;width:auto;height:68px;max-height:68px;max-width:100%;object-fit:contain}.mx-bonus-page .mx-footer-brand small{display:block;margin:-9px 0 0 3px;color:#aeb7c0;font-size:10px}
+.mx-bonus-page .mx-premium-footer .footer-links{display:flex;justify-content:center;gap:clamp(9px,1.15vw,18px);margin:0;flex-wrap:wrap}.mx-bonus-page .mx-premium-footer .footer-links a{font-size:11px;text-decoration:none;color:#e7e8e9;white-space:nowrap}
+.mx-bonus-page .mx-premium-footer .social-links{display:flex;gap:7px;align-items:center;margin:0}.mx-bonus-page .mx-premium-footer .social-links a{width:29px;height:29px;border:1px solid #244057;border-radius:8px;display:grid;place-items:center;background:#071520}.mx-bonus-page .mx-premium-footer .social-links img{width:19px;height:19px;object-fit:contain}
+.mx-bonus-page .mx-footer-bottom{display:flex;justify-content:space-between;gap:20px;padding:12px 0 20px;border-top:1px solid #102b3c;font-size:11px;color:#afb8c1}.mx-bonus-page .bookmakers[hidden]{display:none!important}
+
+@media(min-width:901px) and (max-width:1160px){.mx-bonus-page .container{width:calc(100% - 30px)}.mx-bonus-page .mx-header-container{gap:9px}.mx-bonus-page .mx-site-header .logo a{width:150px;height:64px}.mx-bonus-page .mx-site-header .logo img{height:62px;max-height:62px}.mx-bonus-page .mx-desktop-nav{gap:8px}.mx-bonus-page .mx-desktop-nav a{font-size:10px}.mx-bonus-page .mx-code-button{min-height:38px;padding:8px 11px;font-size:10px}.mx-bonus-page .mx-promo-banner{grid-template-columns:190px 1fr 220px}.mx-bonus-page .mx-promo-gift{width:180px;height:130px}}
+@media(max-width:900px){.mx-bonus-page .mx-desktop-nav{display:none}.mx-bonus-page #burger-btn{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;padding:8px;margin:0;border:1px solid #577183;border-radius:10px;background:#091b29;color:#f5d080}.mx-bonus-page .mx-header-container{justify-content:space-between}.mx-bonus-page .mx-header-actions{margin-left:auto}.mx-bonus-page .mx-bonus-player{right:2%;opacity:.72}.mx-bonus-page .mx-bonus-quote{display:none}.mx-bonus-page .mx-bonus-copy{width:72%}.mx-bonus-page .mx-promo-banner{grid-template-columns:160px 1fr}.mx-bonus-page .mx-promo-action{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;align-items:center}.mx-bonus-page .bookmakers-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mx-bonus-page .mx-bonus-values{grid-template-columns:repeat(2,1fr)}.mx-bonus-page .mx-bonus-value:nth-child(2){border-right:0}.mx-bonus-page .mx-bonus-value:nth-child(-n+2){border-bottom:1px solid #173e54}.mx-bonus-page .mx-footer-line{grid-template-columns:1fr auto}.mx-bonus-page .mx-footer-line .footer-links{grid-column:1/-1;grid-row:2;justify-content:flex-start;padding-bottom:13px}}
+@media(max-width:700px){.mx-bonus-page{padding-top:65px}.mx-bonus-page .container{width:calc(100% - 26px)}.mx-bonus-page .mx-site-header{height:65px}.mx-bonus-page .mx-site-header .logo a{width:clamp(135px,26vw,185px);height:54px}.mx-bonus-page .mx-site-header .logo img{height:54px;max-height:54px}.mx-bonus-page .mx-code-button{min-height:37px;padding:9px 11px;font-size:10px}.mx-bonus-page .mx-bonus-hero,.mx-bonus-page .mx-bonus-hero-inner{min-height:285px}.mx-bonus-page .mx-bonus-copy{width:100%}.mx-bonus-page .mx-bonus-copy h1{font-size:clamp(34px,8vw,44px)}.mx-bonus-page .mx-bonus-copy p{max-width:420px;font-size:12px}.mx-bonus-page .mx-bonus-player{height:270px;right:-10%;bottom:-84px;opacity:.28}.mx-bonus-page .mx-promo-banner{grid-template-columns:1fr;text-align:left;padding:16px}.mx-bonus-page .mx-promo-gift{width:100%;height:170px;object-fit:cover}.mx-bonus-page .mx-promo-action{grid-column:1;display:flex}.mx-bonus-page .bonus-selector{align-items:flex-start;flex-direction:column}.mx-bonus-page .bonus-select{width:100%}.mx-bonus-page .mx-footer-line{grid-template-columns:1fr}.mx-bonus-page .mx-footer-line .social-links,.mx-bonus-page .mx-footer-line .footer-links{grid-column:1;grid-row:auto}.mx-bonus-page .mx-premium-footer .social-links{justify-content:flex-start}.mx-bonus-page .mx-footer-bottom{flex-direction:column;gap:5px}}
+@media(max-width:520px){.mx-bonus-page .bookmakers-grid{grid-template-columns:1fr}.mx-bonus-page .mx-bonus-values{grid-template-columns:1fr}.mx-bonus-page .mx-bonus-value{border-right:0!important;border-bottom:1px solid #173e54}.mx-bonus-page .mx-bonus-value:last-child{border-bottom:0}.mx-bonus-page .mx-promo-copy h2{font-size:30px}}
+@media(max-width:390px){.mx-bonus-page .mx-site-header .logo a{width:138px;height:49px}.mx-bonus-page .mx-site-header .logo img{height:50px;max-height:50px}.mx-bonus-page .mx-code-label{display:none}}
+@media(prefers-reduced-motion:reduce){.mx-bonus-page *{transition:none!important;animation:none!important}}
