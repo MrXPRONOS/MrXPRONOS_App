@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v30-live-premium-20261011';
+const VERSION = 'v31-live-player-20261011';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -65,6 +65,7 @@ const STATIC_ASSETS = [
     './assets/images/pronostics-premium/icon-ball.webp',
     './assets/images/live-premium/hero-live.webp',
     './assets/images/live-premium/hero-stadium.webp',
+    './assets/images/live-premium/player-back.webp',
     './assets/images/live-premium/icon-stopwatch.webp',
     './assets/images/live-premium/icon-ball.webp',
     './assets/images/live-premium/icon-corner.webp',
