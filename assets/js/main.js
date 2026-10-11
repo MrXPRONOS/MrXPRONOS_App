@@ -2164,6 +2164,17 @@ window.closeNewsModal = function () {
  BONUS
 ======================================================= */
 function initBonusPage() {
+  const copyBonusCodeButton = document.getElementById("bonus-copy-code");
+  if (copyBonusCodeButton && !copyBonusCodeButton.dataset.ready) {
+    copyBonusCodeButton.dataset.ready = "1";
+    copyBonusCodeButton.addEventListener("click", async () => {
+      const ok = await copyText("XPVIP");
+      const original = copyBonusCodeButton.textContent;
+      copyBonusCodeButton.textContent = ok ? "Code copié ✓" : "Copiez : XPVIP";
+      setTimeout(() => { copyBonusCodeButton.textContent = original; }, 1800);
+    });
+  }
+
   const publishedBonus = Array.isArray(window.publishedBonus) ? window.publishedBonus : [];
   const publishedBookmakers = Array.isArray(window.publishedBookmakers) ? window.publishedBookmakers : [];
 
@@ -2190,18 +2201,22 @@ function initBonusPage() {
         list
           .map(
             (b) => `
-        <div class="bookmaker-card bonus-bookmaker-card">
-          <img src="${escapeAttribute(b.image || "assets/images/default-logo.webp")}"
-               alt="${escapeAttribute(b.title || "Bonus")}"
-               loading="lazy"
-               onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
-          <h3>${escapeHtml(b.title || "Bonus")}</h3>
-          <p>${escapeHtml(b.description || "")}</p>
-          ${b.footer ? `<div class="muted" style="margin:8px 0;">${escapeHtml(b.footer)}</div>` : ""}
-          <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-            ${b.link ? `<a href="${escapeAttribute(b.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter</a>` : ""}
+        <article class="bonus-premium-card bonus-bookmaker-card">
+          <div class="bonus-card-head">
+            <img src="${escapeAttribute(b.image || "assets/images/default-logo.webp")}"
+                 alt="${escapeAttribute(b.title || "Bonus")}"
+                 loading="lazy"
+                 onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+            <span class="bonus-card-badge">OFFRE</span>
           </div>
-        </div>
+          <div class="bonus-card-body">
+            <h3>${escapeHtml(b.title || "Bonus")}</h3>
+            <p>${escapeHtml(b.description || "")}${b.footer ? ` · ${escapeHtml(b.footer)}` : ""}</p>
+            <div class="bonus-actions">
+              ${b.link ? `<a href="${escapeAttribute(b.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter de l'offre</a>` : ""}
+            </div>
+          </div>
+        </article>
       `
           )
           .join("") || '<div class="no-events">Aucune offre active.</div>';
@@ -2252,18 +2267,23 @@ function renderBonusGrid(bookmakers) {
   DOM.bonusGrid.innerHTML = bookmakers
     .map(
       (b, i) => `
-    <div class="bookmaker-card bonus-bookmaker-card" data-index="${i}">
-      <img src="${escapeAttribute(b.logo || "assets/images/default-logo.webp")}"
-           alt="${escapeAttribute(b.name || "Bookmaker")}"
-           loading="lazy"
-           onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
-      <h3>${escapeHtml(b.name || "Bookmaker")}</h3>
-      <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
-      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-        <button class="btn btn-secondary" onclick="openBonusModal(${i})">Détails</button>
-        <a href="${escapeAttribute(b.url || "#")}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter</a>
+    <article class="bonus-premium-card bonus-bookmaker-card" data-index="${i}">
+      <div class="bonus-card-head">
+        <img src="${escapeAttribute(b.logo || "assets/images/default-logo.webp")}"
+             alt="${escapeAttribute(b.name || "Bookmaker")}"
+             loading="lazy"
+             onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+        ${i === 0 ? '<span class="bonus-card-badge">SÉLECTION</span>' : ""}
       </div>
-    </div>
+      <div class="bonus-card-body">
+        <h3>${escapeHtml(b.name || "Bookmaker")}</h3>
+        <p>${escapeHtml(b.desc || b.description || "Bonus exclusif bookmaker")}</p>
+        <div class="bonus-actions">
+          <a href="${escapeAttribute(b.url || "#")}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Voir l'offre</a>
+          <button class="btn btn-secondary" type="button" onclick="openBonusModal(${i})">Détails</button>
+        </div>
+      </div>
+    </article>
   `
     )
     .join("");
