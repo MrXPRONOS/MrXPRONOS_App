@@ -324,3 +324,8 @@
   }
   .mx-blog-page .mx-blog-hero-mark{width:43px;height:43px;margin-bottom:2px}
 }
+
+
+/* Final Blog verification pass — clean generated hero is now the active binary. */
+.mx-blog-page .mx-blog-copy{z-index:3}
+.mx-blog-page .mx-blog-copy h1,.mx-blog-page .mx-blog-copy h2{text-shadow:0 5px 18px rgba(0,0,0,.46)}
