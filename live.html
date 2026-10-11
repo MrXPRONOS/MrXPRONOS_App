@@ -608,68 +608,64 @@
     // =======================================================
     const Header = ({ stats, onBack, onRefresh, refreshing }) => {
       return (
-        <header className="sticky top-0 z-40 glass border-b border-[#1e1e1e]">
-          <div className="max-w-7xl mx-auto px-3 py-3">
-            <div className="grid grid-cols-[44px_minmax(0,1fr)_44px] gap-2 items-start">
-              <div className="flex items-start">
-                <button
-                  onClick={onBack}
-                  className="w-11 h-11 rounded-2xl hover:bg-[#1a1a1a] soft-border flex items-center justify-center shrink-0"
-                  type="button"
-                >
-                  <Icon name="arrowLeft" size={17} />
-                </button>
-              </div>
+        <header className="mx-live-header">
+          <div className="mx-live-header__inner">
+            <button onClick={onBack} className="mx-live-navbutton" type="button" aria-label="Retour">
+              <Icon name="arrowLeft" size={16} />
+            </button>
 
-              <div className="min-w-0 flex items-start justify-center gap-2">
-                <div className="w-11 h-11 rounded-2xl bg-[#D4AF37]/12 border border-[#D4AF37]/25 flex items-center justify-center shrink-0 mt-0.5">
-                  <img src="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" alt="MX" className="w-9 h-9 object-contain" />
+            <div className="mx-live-brand">
+              <img src="assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1" alt="Mr XPRONOS" />
+              <div className="mx-live-brand__meta">
+                <div className="mx-live-brand__title">PRONO <span>LIVE</span></div>
+                <div className="mx-live-brand__sub">
+                  {stats.matches_live || 0} matchs live • {stats.predictions || 0} signaux • mise à jour automatique
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-[20px] sm:text-[22px] md:text-[26px] leading-none font-extrabold gold-gradient truncate">
-                    MrXPRONOS LIVE
-                  </div>
-                  <div className="text-[10px] sm:text-[11px] text-gray-400 mt-1 leading-tight truncate">
-                    {stats.matches_live || 0} live • {stats.predictions || 0} pronos • {stats.upcoming || 0} à venir
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-start justify-end">
-                <button
-                  onClick={onRefresh}
-                  className="w-11 h-11 rounded-2xl hover:bg-[#1a1a1a] soft-border flex items-center justify-center shrink-0"
-                  type="button"
-                >
-                  <Icon name="refresh" size={16} className={refreshing ? "animate-spin text-[#D4AF37]" : ""} />
-                </button>
               </div>
             </div>
+
+            <button
+              onClick={onRefresh}
+              className="mx-live-navbutton"
+              type="button"
+              aria-label="Actualiser"
+            >
+              <Icon name="refresh" size={15} className={refreshing ? "animate-spin" : ""} />
+            </button>
           </div>
         </header>
       );
     };
 
     const CompactHero = ({ stats, topPredictionCount, upcomingCount }) => (
-      <div className="mb-8">
-        <Card className="hero-card">
-          <div className="flex items-center gap-2 mb-4 flex-wrap">
-            <Badge color="gold"><Icon name="activity" size={11} /> LIVE STATS</Badge>
-            <Badge color="red"><span className="mini-dot bg-red-500 live-pulse"></span> En direct</Badge>
-          </div>
+      <>
+        <section className="mx-live-hero">
+          <div className="mx-live-hero__content">
+            <div className="mx-live-eyebrow">
+              <span className="mx-live-eyebrow-dot live-pulse"></span>
+              LIVE · TEMPS RÉEL
+            </div>
+            <h1>Prono <span>Live</span></h1>
+            <p className="mx-live-hero__lead">
+              Des opportunités en temps réel sur les matchs en cours. Le moteur surveille les
+              corners, tirs et fautes pour ne retenir que les signaux suffisamment fiables.
+            </p>
 
-          <div className="text-sm md:text-base text-gray-300 mb-5">
-            Pronostics live (corners • tirs • fautes). Cliquez sur un match pour les détails.
+            <div className="mx-live-benefits">
+              <div className="mx-live-benefit"><LiveAssetIcon name="bars" size={31} /><span>Analyse en direct</span></div>
+              <div className="mx-live-benefit"><LiveAssetIcon name="target" size={31} /><span>Signaux fiables</span></div>
+              <div className="mx-live-benefit"><LiveAssetIcon name="stopwatch" size={31} /><span>Mises à jour instantanées</span></div>
+            </div>
           </div>
+        </section>
 
-          <div className="grid grid-cols-4 gap-2">
-            <StatChip compact label="Live" value={stats.matches_live || 0} valueColor="text-red-500" />
-            <StatChip compact label="Top" value={topPredictionCount || 0} valueColor="text-[#D4AF37]" />
-            <StatChip compact label="Pronos" value={stats.predictions || 0} valueColor="text-blue-400" />
-            <StatChip compact label="À venir" value={upcomingCount || 0} valueColor="text-green-400" />
-          </div>
-        </Card>
-      </div>
+        <section className="mx-live-overview" aria-label="Aperçu Live">
+          <div className="mx-live-stat is-live"><LiveAssetIcon name="stopwatch" size={45} /><div><small>Matchs en direct</small><strong>{stats.matches_live || 0}</strong></div></div>
+          <div className="mx-live-stat is-gold"><LiveAssetIcon name="target" size={45} /><div><small>Top opportunités</small><strong>{topPredictionCount || 0}</strong></div></div>
+          <div className="mx-live-stat"><LiveAssetIcon name="bars" size={45} /><div><small>Pronostics actifs</small><strong>{stats.predictions || 0}</strong></div></div>
+          <div className="mx-live-stat is-green"><LiveAssetIcon name="ball" size={45} /><div><small>Matchs à venir</small><strong>{upcomingCount || 0}</strong></div></div>
+        </section>
+      </>
     );
 
     // =======================================================
