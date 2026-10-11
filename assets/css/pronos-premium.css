@@ -396,3 +396,59 @@
 .mx-pronos-page .share-glyph{display:grid;place-items:center;width:20px;height:20px}
 .mx-pronos-page .share-glyph img{width:18px;height:18px;object-fit:contain}
 .mx-pronos-page .league-chevron img{width:15px;height:15px;object-fit:contain}
+
+
+/* ===== Pronostics : score Live/Final + badge premium gagnant ===== */
+.mx-pronos-page .match-card.has-result-badge .match-meta{padding-right:92px}
+.mx-pronos-page .prediction-validation-badge{
+  position:absolute;top:9px;right:9px;z-index:8;
+  display:inline-flex;align-items:center;gap:6px;
+  min-height:28px;padding:5px 10px 5px 6px;
+  border:1px solid rgba(245,197,86,.92);border-radius:999px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.10),transparent 35%),
+    linear-gradient(135deg,#116341 0%,#0a7a4a 58%,#075735 100%);
+  color:#fff8df;font-size:9.5px;font-weight:900;letter-spacing:.07em;
+  text-transform:uppercase;
+  box-shadow:0 6px 18px rgba(0,0,0,.36),0 0 12px rgba(223,177,66,.14),inset 0 1px 0 rgba(255,255,255,.16);
+}
+.mx-pronos-page .prediction-validation-badge.validated{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.10),transparent 35%),
+    linear-gradient(135deg,#775d17,#a77c1c 60%,#644b12);
+}
+.mx-pronos-page .prediction-validation-badge__check{
+  display:grid;place-items:center;width:17px;height:17px;flex:0 0 17px;
+  border-radius:50%;background:linear-gradient(145deg,#ffe49b,#d9a63b);color:#07351f;
+  font-size:11px;font-weight:1000;box-shadow:inset 0 1px 0 rgba(255,255,255,.72);
+}
+.mx-pronos-page .teams{
+  grid-template-columns:minmax(0,1fr) 64px minmax(0,1fr);
+}
+.mx-pronos-page .match-score-center{
+  align-self:center;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:58px;min-height:48px;padding:5px 6px;
+  border:1px solid #2b607e;border-radius:9px;
+  background:linear-gradient(180deg,rgba(9,34,51,.94),rgba(4,19,30,.96));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 4px 12px rgba(0,0,0,.22);
+}
+.mx-pronos-page .match-score-center strong{
+  color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1;font-weight:800;white-space:nowrap;
+}
+.mx-pronos-page .match-score-center span{
+  margin-top:4px;color:#aebdca;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+}
+.mx-pronos-page .match-score-center.is-live{border-color:rgba(51,219,126,.74);box-shadow:0 0 0 1px rgba(51,219,126,.07),0 4px 12px rgba(0,0,0,.25)}
+.mx-pronos-page .match-score-center.is-live strong{color:#54e891}
+.mx-pronos-page .match-score-center.is-live span{color:#45db84}
+.mx-pronos-page .match-score-center.is-final{border-color:rgba(233,182,80,.58)}
+.mx-pronos-page .match-score-center.is-final strong{color:#f5c866}
+.mx-pronos-page .team-score{display:none!important}
+@media(max-width:590px){
+  .mx-pronos-page .match-card.has-result-badge .match-meta{padding-right:82px}
+  .mx-pronos-page .prediction-validation-badge{top:8px;right:8px;min-height:25px;padding:4px 8px 4px 5px;font-size:8.5px}
+  .mx-pronos-page .prediction-validation-badge__check{width:15px;height:15px;flex-basis:15px;font-size:10px}
+  .mx-pronos-page .teams{grid-template-columns:minmax(0,1fr) 58px minmax(0,1fr)}
+  .mx-pronos-page .match-score-center{min-width:54px;min-height:44px}
+  .mx-pronos-page .match-score-center strong{font-size:15px}
+}

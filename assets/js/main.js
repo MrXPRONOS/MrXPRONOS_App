@@ -1085,9 +1085,36 @@ function translateStatus(status) {
 function getStatusClass(status) {
   if (!status) return "";
   const s = String(status).toLowerCase();
-  if (s.includes("finished") || s.includes("terminé") || s.includes("ended")) return "finished";
-  if (s.includes("inprogress") || s.includes("live") || s.includes("en cours")) return "live";
+  if (
+    s.includes("finished") || s.includes("terminé") || s.includes("ended") ||
+    s === "ft" || s.includes("after extra time") || s.includes("after penalties")
+  ) return "finished";
+  if (
+    s.includes("inprogress") || s.includes("live") || s.includes("en cours") ||
+    s.includes("1st half") || s.includes("2nd half") || s.includes("first half") ||
+    s.includes("second half") || s.includes("halftime") || s === "ht" ||
+    s.includes("extra time") || s.includes("penalties")
+  ) return "live";
   return "";
+}
+
+function isLiveMatch(match) {
+  if (!match || isFinishedMatch(match)) return false;
+  return getStatusClass(match.status) === "live";
+}
+
+function getVisibleMatchScore(match) {
+  if (!match) return null;
+  const home = Number(match.home_score);
+  const away = Number(match.away_score);
+  const scoreKnown = Number.isFinite(home) && Number.isFinite(away) && home >= 0 && away >= 0;
+  if (!scoreKnown) return null;
+  if (!isLiveMatch(match) && !isFinishedMatch(match)) return null;
+  return {
+    home: Math.trunc(home),
+    away: Math.trunc(away),
+    finished: isFinishedMatch(match),
+  };
 }
 
 function formatMatchTime(isoString) {
@@ -1312,6 +1339,17 @@ function renderMatches(matches) {
 
       const isWinner = !!m.verified_double;
       const winnerClass = isWinner ? "winner" : "";
+      const visibleScore = getVisibleMatchScore(m);
+      const matchFinished = isFinishedMatch(m);
+      const resultBadge = isWinner
+        ? `<span class="prediction-validation-badge ${matchFinished ? "won" : "validated"}"><span class="prediction-validation-badge__check" aria-hidden="true">✓</span>${matchFinished ? "GAGNÉ" : "VALIDÉ"}</span>`
+        : "";
+      const centerScore = visibleScore
+        ? `<div class="match-score-center ${visibleScore.finished ? "is-final" : "is-live"}" aria-label="Score ${visibleScore.home} à ${visibleScore.away}">
+            <strong>${visibleScore.home} - ${visibleScore.away}</strong>
+            <span>${visibleScore.finished ? "Final" : "Live"}</span>
+          </div>`
+        : `<div class="vs">VS</div>`;
 
       const xpronosBadge = m.badge ? `<span class="xpronos-badge">${escapeHtml(m.badge)}</span>` : "";
 
@@ -1334,8 +1372,9 @@ function renderMatches(matches) {
       );
 
       html += `
-        <div class="match-card ${winnerClass}" data-matchid="${escapeAttribute(m.id)}">
+        <div class="match-card ${winnerClass}${isWinner ? " has-result-badge" : ""}" data-matchid="${escapeAttribute(m.id)}">
           <div class="win-effect"></div>
+          ${resultBadge}
 
           <div class="match-info">
             <div class="match-meta">
@@ -1359,7 +1398,7 @@ function renderMatches(matches) {
                 <span class="team-score">${m.home_score ?? "-"}</span>
               </div>
 
-              <div class="vs">VS</div>
+              ${centerScore}
 
               <div class="team">
                 <img src="${awayLogo}"
