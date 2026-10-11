@@ -1,11 +1,11 @@
-const CACHE='prono-live-v13-approved-mx';;
+const CACHE='prono-live-v15-vibrance';
 const ASSETS=[
   './',
   './index.html',
   './bonus.html',
-  './assets/styles.css?v=20261010-mx2',
+  './assets/styles.css?v=20261011-vibrance1',
   './assets/app.js?v=20261006-fix2',
-  '../assets/images/mrxpronos-mark.svg',
+  '../assets/images/mrxpronos-mark.png',
   './assets/og-prono-live.webp',
   '../assets/images/icon-192x192.png',
   '../assets/images/icon-512x512.png',

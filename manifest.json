@@ -12,9 +12,9 @@
   "dir": "ltr",
   "icons": [
     {
-      "src": "assets/images/mrxpronos-mark.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "assets/images/mrxpronos-mark.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
@@ -92,5 +92,5 @@
       ]
     }
   ],
-  "version": "2026.10.11.mx-official"
+  "version": "2026.10.11.mx-official-2"
 }
