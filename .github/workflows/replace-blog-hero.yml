@@ -27,4 +27,6 @@ jobs:
           git add assets/images/blog-premium/hero-blog.webp
           if git diff --cached --quiet; then exit 0; fi
           git commit -m "assets(blog): replace hero with clean premium banner"
+          git fetch origin main
+          git rebase origin/main
           git push
