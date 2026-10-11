@@ -263,3 +263,27 @@ body.mx-live-page{
 @media(prefers-reduced-motion:reduce){
   .mx-live-page *{animation:none!important;transition:none!important}
 }
+
+
+/* Explication du moteur Live */
+.mx-live-page .mx-live-how{
+  margin:18px 0 8px;padding:18px 20px;border:1px solid #174b67;border-radius:14px;
+  background:linear-gradient(145deg,#071925,#04121c);box-shadow:0 10px 27px rgba(0,0,0,.20);
+}
+.mx-live-page .mx-live-how__heading{display:flex;align-items:center;gap:14px;margin-bottom:15px}
+.mx-live-page .mx-live-how__heading img{flex:0 0 40px}
+.mx-live-page .mx-live-how__heading h2{margin:0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:21px;line-height:1.08}
+.mx-live-page .mx-live-how__heading p{margin:4px 0 0;color:#a9b7c2;font-size:11px;line-height:1.45}
+.mx-live-page .mx-live-how__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+.mx-live-page .mx-live-how__grid article{display:flex;align-items:center;gap:12px;min-width:0;padding:8px 18px;border-right:1px solid #173f56}
+.mx-live-page .mx-live-how__grid article:first-child{padding-left:0}
+.mx-live-page .mx-live-how__grid article:last-child{border-right:0;padding-right:0}
+.mx-live-page .mx-live-how__grid img{flex:0 0 38px}
+.mx-live-page .mx-live-how__grid strong{display:block;color:#f4f6f7;font-family:Georgia,'Times New Roman',serif;font-size:13px}
+.mx-live-page .mx-live-how__grid span{display:block;margin-top:3px;color:#9dabb6;font-size:9.5px;line-height:1.4}
+@media(max-width:700px){
+  .mx-live-page .mx-live-how{padding:15px}
+  .mx-live-page .mx-live-how__grid{grid-template-columns:1fr}
+  .mx-live-page .mx-live-how__grid article{padding:10px 0;border-right:0;border-bottom:1px solid #173f56}
+  .mx-live-page .mx-live-how__grid article:last-child{border-bottom:0}
+}
