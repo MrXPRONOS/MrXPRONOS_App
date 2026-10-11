@@ -286,7 +286,19 @@
 .mx-pronos-page .bookmakers[hidden]{display:none!important}
 
 /* Responsive */
-@media(max-width:1160px){
+@media(min-width:901px) and (max-width:1160px){
+  .mx-pronos-page .container{width:calc(100% - 30px)}
+  .mx-pronos-page .mx-header-container{gap:9px;padding-left:0;padding-right:0}
+  .mx-pronos-page .mx-site-header .logo a{width:150px;height:64px}
+  .mx-pronos-page .mx-site-header .logo img{height:62px;max-height:62px}
+  .mx-pronos-page .mx-desktop-nav{gap:8px;margin-left:auto}
+  .mx-pronos-page .mx-desktop-nav a{font-size:10px}
+  .mx-pronos-page .mx-header-actions{gap:6px;margin-left:2px}
+  .mx-pronos-page .mx-code-button{min-height:38px;padding:8px 11px;font-size:10px}
+  .mx-pronos-page .mx-install{min-height:38px;padding:8px 10px;font-size:10px}
+  .mx-pronos-page .mx-install img{width:16px;height:16px}
+}
+@media(max-width:900px){
   .mx-pronos-page .mx-desktop-nav{display:none}
   .mx-pronos-page #burger-btn{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;padding:8px;margin:0;border:1px solid #577183;border-radius:10px;background:#091b29;color:#f5d080}
   .mx-pronos-page .mx-header-container{justify-content:space-between}
