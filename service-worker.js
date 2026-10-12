@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v55-offline-stable-assets-20261012';
+const VERSION = 'v56-mobile-nav-icons-20261012';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -63,6 +63,16 @@ const STATIC_ASSETS = [
     './assets/images/blog-premium/hero-blog.webp',
     './assets/images/conseils-premium/hero-conseils.webp',
     './assets/images/infos-premium/hero-infos.webp',
+    './assets/images/mobile-premium/icon-home.webp',
+    './assets/images/mobile-premium/icon-pronostics.webp',
+    './assets/images/mobile-premium/icon-live.webp',
+    './assets/images/mobile-premium/icon-history.webp',
+    './assets/images/mobile-premium/icon-blog.webp',
+    './assets/images/mobile-premium/icon-conseils.webp',
+    './assets/images/mobile-premium/icon-infos.webp',
+    './assets/images/mobile-premium/icon-bonus.webp',
+    './assets/images/mobile-premium/icon-contact.webp',
+    './assets/images/mobile-premium/icon-menu.webp',
     './assets/images/pronostics-premium/card-stadium.webp',
     './assets/images/pronostics-premium/icon-simple.webp',
     './assets/images/pronostics-premium/icon-pro.webp',
