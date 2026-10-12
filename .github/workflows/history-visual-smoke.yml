@@ -38,12 +38,12 @@ jobs:
         run: |
           python -m http.server 8000 --bind 127.0.0.1 > /tmp/history-http.log 2>&1 &
           sleep 2
-      - name: Verify Historique at 1024px and 390px
+      - name: Verify Historique at 1024px, 390px and 320px
         run: python scripts/history_visual_smoke.py
       - name: Save responsive screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: history-responsive-1024-390
+          name: history-responsive-1024-390-320
           path: artifacts/history-responsive/
           if-no-files-found: warn
