@@ -1,338 +1,288 @@
 // assets/js/menu.js
-// Menu burger premium + mise en valeur LIVE VIP (vert) + COUPONS (vert)
-// + Bottom nav sticky (mobile-first)
+// Navigation mobile premium Mr XPRONOS — icônes locales, bottom bar + drawer.
 (function () {
   'use strict';
 
+  const ICON_BASE = 'assets/images/mobile-premium/';
+  const LOGO = 'assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1';
+
   const menuItems = [
-    { name: 'Accueil', icon: 'fa-home', url: 'index.html' },
-    // Mis en valeur (vert)
-    { name: 'COUPONS', icon: 'fa-ticket', url: 'pronos.html', featured: 'coupons', badge: 'TOP' },
-    // Très mis en valeur (vert premium)
-    { name: 'LIVE VIP', icon: 'fa-bolt', url: 'live.html', vip: true, featured: 'vip', badge: 'LIVE' },
-    { name: 'Historique', icon: 'fa-clock-rotate-left', url: 'historique.html' },
-    { name: 'Bonus', icon: 'fa-gift', url: 'bonus.html' },
-    { name: 'Blog', icon: 'fa-newspaper', url: 'blog.html' },
-    { name: 'Conseils', icon: 'fa-lightbulb', url: 'conseils.html' },
-    { name: 'Actus Foot', icon: 'fa-futbol', url: 'infos.html' },
-    { name: 'Contact', icon: 'fa-envelope', url: 'contact.html' }
+    { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html' },
+    { name: 'Pronostics', icon: 'icon-pronostics.webp', url: 'pronos.html', featured: 'coupons', badge: 'TOP' },
+    { name: 'LIVE', icon: 'icon-live.webp', url: 'live.html', vip: true, featured: 'vip', badge: 'LIVE' },
+    { name: 'Historique', icon: 'icon-history.webp', url: 'historique.html' },
+    { name: 'Blog', icon: 'icon-blog.webp', url: 'blog.html' },
+    { name: 'Conseils', icon: 'icon-conseils.webp', url: 'conseils.html' },
+    { name: 'Infos sport', icon: 'icon-infos.webp', url: 'infos.html' },
+    { name: 'Bonus & Promo', icon: 'icon-bonus.webp', url: 'bonus.html' },
+    { name: 'Contact', icon: 'icon-contact.webp', url: 'contact.html' }
   ];
 
-  function ensureFontAwesome() {
-    const already =
-      document.querySelector('link[href*="font-awesome"]') ||
-      document.querySelector('link[href*="fontawesome"]') ||
-      document.querySelector('link[data-fa-global="true"]');
-    if (already) return;
+  const bottomItems = [
+    { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html' },
+    { name: 'Pronostics', icon: 'icon-pronostics.webp', url: 'pronos.html' },
+    { name: 'LIVE', icon: 'icon-live.webp', url: 'live.html', live: true },
+    { name: 'Bonus', icon: 'icon-bonus.webp', url: 'bonus.html' },
+    { name: 'Menu', icon: 'icon-menu.webp', action: 'menu' }
+  ];
 
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css';
-    link.crossOrigin = 'anonymous';
-    link.referrerPolicy = 'no-referrer';
-    link.dataset.faGlobal = 'true';
-    document.head.appendChild(link);
+  function currentFile() {
+    const path = (window.location.pathname || '').replace(/\/+$/, '');
+    return path.split('/').pop() || 'index.html';
   }
 
-  function injectMenuHighlightStyles() {
-    if (document.getElementById('mx-menu-featured-style')) return;
-
-    const style = document.createElement('style');
-    style.id = 'mx-menu-featured-style';
-    style.textContent = `
-      :root{
-        --mx-green:#22C55E;
-        --mx-green-strong:#16A34A;
-      }
-      @keyframes mxFeaturedPulse {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-1px); }
-      }
-      @keyframes mxLiveDot {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: .35; transform: scale(.78); }
-      }
-      /* Base featured */
-      .burger-menu-item.featured{
-        position: relative;
-        overflow: hidden;
-        animation: mxFeaturedPulse 2.2s ease-in-out infinite;
-      }
-      /* COUPONS : vert */
-      .burger-menu-item.featured-coupons{
-        border: 1px solid rgba(34,197,94,0.55) !important;
-        background: linear-gradient(180deg, rgba(34,197,94,0.10), rgba(255,255,255,0.03)) !important;
-        box-shadow: 0 14px 35px rgba(0,0,0,0.45), 0 0 0 3px rgba(34,197,94,0.07);
-      }
-      .burger-menu-item.featured-coupons:hover{
-        border-color: rgba(34,197,94,0.85) !important;
-        box-shadow: 0 18px 45px rgba(0,0,0,0.55), 0 0 28px rgba(34,197,94,0.18);
-      }
-      .burger-menu-item.featured-coupons .menu-icon{ color: var(--mx-green) !important; }
-      .burger-menu-item.featured-coupons .menu-label{ font-weight: 900 !important; letter-spacing: .3px; }
-
-      /* LIVE VIP : vert premium */
-      .burger-menu-item.featured-vip{
-        border: 1px solid rgba(34,197,94,0.75) !important;
-        background:
-          radial-gradient(circle at top left, rgba(34,197,94,0.20), transparent 55%),
-          radial-gradient(circle at bottom right, rgba(34,197,94,0.12), transparent 60%),
-          linear-gradient(180deg, rgba(34,197,94,0.14), rgba(255,255,255,0.03)) !important;
-        box-shadow:
-          0 18px 60px rgba(0,0,0,0.62),
-          0 0 0 3px rgba(34,197,94,0.10),
-          0 0 40px rgba(34,197,94,0.22);
-      }
-      .burger-menu-item.featured-vip:hover{
-        border-color: rgba(34,197,94,0.95) !important;
-        box-shadow:
-          0 22px 70px rgba(0,0,0,0.72),
-          0 0 0 3px rgba(34,197,94,0.14),
-          0 0 55px rgba(34,197,94,0.28);
-      }
-      .burger-menu-item.featured-vip .menu-icon{ color: var(--mx-green) !important; }
-      .burger-menu-item.featured-vip .menu-label{
-        font-weight: 950 !important;
-        letter-spacing: .45px;
-      }
-
-      /* point LIVE */
-      .burger-menu-item.featured-vip .menu-live-dot{
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        width: 8px;
-        height: 8px;
-        border-radius: 999px;
-        background: var(--mx-green);
-        box-shadow: 0 0 16px rgba(34,197,94,0.75);
-        animation: mxLiveDot 1.3s infinite;
-      }
-
-      /* badge */
-      .burger-menu-item .menu-badge{
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        padding: 2px 8px;
-        font-size: 10px;
-        font-weight: 900;
-        border-radius: 999px;
-        background: rgba(0,0,0,0.55);
-        text-transform: uppercase;
-      }
-      .burger-menu-item.featured-coupons .menu-badge{
-        border: 1px solid rgba(34,197,94,0.55);
-        color: var(--mx-green);
-      }
-      .burger-menu-item.featured-vip .menu-badge{
-        border: 1px solid rgba(34,197,94,0.75);
-        color: var(--mx-green);
-      }
-    `;
-    document.head.appendChild(style);
+  function currentSectionFile() {
+    const file = currentFile();
+    if (file === 'article.html') return 'blog.html';
+    if (file === 'conseil.html') return 'conseils.html';
+    if (file === 'bookmakers.html') return 'bonus.html';
+    return file || 'index.html';
   }
 
   function isCurrentPage(url) {
-    const currentPath = window.location.pathname;
-    return (
-      currentPath.endsWith(url) ||
-      (url === 'index.html' && (currentPath === '/' || currentPath.endsWith('/')))
-    );
+    return currentSectionFile() === url;
+  }
+
+  function iconMarkup(file, className, alt = '') {
+    return `<img class="${className}" src="${ICON_BASE}${file}" alt="${alt}" loading="eager" decoding="async">`;
   }
 
   function createBurgerButton() {
-    if (document.getElementById('burger-btn')) return null;
+    if (document.getElementById('burger-btn')) return document.getElementById('burger-btn');
+
     const btn = document.createElement('button');
     btn.id = 'burger-btn';
     btn.className = 'burger-btn';
     btn.type = 'button';
     btn.setAttribute('aria-label', 'Ouvrir le menu');
     btn.setAttribute('aria-expanded', 'false');
-    btn.innerHTML = '<i class="fas fa-bars"></i>';
+    btn.setAttribute('aria-controls', 'burger-overlay');
+    btn.innerHTML = iconMarkup('icon-menu.webp', 'mx-burger-icon');
     return btn;
   }
 
   function createBurgerOverlay() {
-    if (document.getElementById('burger-overlay')) return null;
+    const existing = document.getElementById('burger-overlay');
+    if (existing) return existing;
 
     const overlay = document.createElement('div');
     overlay.id = 'burger-overlay';
     overlay.className = 'burger-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
 
     overlay.innerHTML = `
-      <div class="burger-drawer" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="burger-drawer" role="dialog" aria-modal="true" aria-label="Navigation Mr XPRONOS">
         <div class="burger-menu-header">
-          <div class="burger-menu-title">Menu</div>
-          <button type="button" class="burger-close" aria-label="Fermer le menu">&times;</button>
+          <a class="burger-menu-brand" href="index.html" aria-label="Mr XPRONOS — Accueil">
+            <img src="${LOGO}" alt="Mr XPRONOS">
+          </a>
+          <button type="button" class="burger-close" aria-label="Fermer le menu"><span aria-hidden="true">×</span></button>
         </div>
 
         <div class="burger-menu-content">
+          <div class="burger-menu-intro">
+            <span>Navigation</span>
+            <strong>Tout Mr XPRONOS</strong>
+          </div>
+
           <div class="burger-menu-grid">
             ${menuItems.map(item => {
               const featuredClass = item.featured ? `featured featured-${item.featured}` : '';
               const activeClass = isCurrentPage(item.url) ? 'active' : '';
               const badge = item.badge ? `<span class="menu-badge">${item.badge}</span>` : '';
-              const liveDot = item.featured === 'vip' ? `<span class="menu-live-dot"></span>` : '';
+              const liveDot = item.featured === 'vip' ? '<span class="menu-live-dot" aria-hidden="true"></span>' : '';
 
               return `
                 <a class="burger-menu-item ${activeClass} ${featuredClass}"
                    href="${item.url}"
+                   ${activeClass ? 'aria-current="page"' : ''}
                    data-vip="${item.vip ? 'true' : 'false'}">
                   ${liveDot}
                   ${badge}
-                  <span class="menu-icon"><i class="fas ${item.icon}"></i></span>
+                  <span class="menu-icon">${iconMarkup(item.icon, 'menu-icon-img')}</span>
                   <span class="menu-label">${item.name}</span>
                 </a>
               `;
             }).join('')}
           </div>
+
+          <div class="burger-menu-foot">
+            <span>Code promo</span>
+            <button type="button" class="burger-promo-copy promo-copy" data-copy="XPVIP" aria-label="Copier le code promo XPVIP">
+              <strong>XPVIP</strong><small>Toucher pour copier</small>
+            </button>
+          </div>
         </div>
       </div>
     `;
+
+    document.body.appendChild(overlay);
     return overlay;
   }
 
-  function openMenu(btn, overlay) {
-    overlay.classList.add('open');
-    document.body.classList.add('menu-open');
-    btn.setAttribute('aria-expanded', 'true');
-  }
-
-  function closeMenu(btn, overlay) {
-    overlay.classList.remove('open');
-    document.body.classList.remove('menu-open');
-    btn.setAttribute('aria-expanded', 'false');
-  }
-
-  // =======================================================
-  // Bottom nav (mobile)
-  // =======================================================
   function createBottomNav() {
-    // évite sur admin
-    const p = (location.pathname || '').toLowerCase();
-    if (p.includes('admin')) return;
+    const path = (location.pathname || '').toLowerCase();
+    if (path.includes('admin') || path.endsWith('offline.html')) return null;
 
-    if (document.getElementById('bottom-nav')) return;
+    const existing = document.getElementById('bottom-nav');
+    if (existing) return existing;
 
     const nav = document.createElement('nav');
     nav.id = 'bottom-nav';
     nav.className = 'bottom-nav';
     nav.setAttribute('aria-label', 'Navigation rapide');
 
-    const items = [
-      { name: 'Accueil', icon: 'fa-house', url: 'index.html' },
-      { name: 'Coupons', icon: 'fa-ticket', url: 'pronos.html' },
-      { name: 'LIVE', icon: 'fa-bolt', url: 'live.html', live: true },
-      { name: 'Bonus', icon: 'fa-gift', url: 'bonus.html' },
-      { name: 'Blog', icon: 'fa-newspaper', url: 'blog.html' },
-    ];
-
     const inner = document.createElement('div');
     inner.className = 'inner';
 
-    const currentPath = window.location.pathname.replace(/\/+$/, '');
-    const currentFile = currentPath.split('/').pop() || '';
+    const section = currentSectionFile();
+    const primaryFiles = new Set(['index.html', 'pronos.html', 'live.html', 'bonus.html']);
+    const secondaryPage = !primaryFiles.has(section);
 
-    inner.innerHTML = items.map(it => {
-      const targetPath = new URL(it.url, window.location.href).pathname.replace(/\/+$/, '');
-      const targetFile = targetPath.split('/').pop() || '';
+    inner.innerHTML = bottomItems.map(item => {
+      const isMenu = item.action === 'menu';
+      const isActive = isMenu ? secondaryPage : isCurrentPage(item.url);
+      const common = `class="bottom-nav-item ${isActive ? 'active' : ''} ${item.live ? 'live' : ''} ${isMenu ? 'bottom-nav-menu' : ''}"`;
 
-      const isHome = it.url === 'index.html';
-      const isActive =
-        (!isHome && currentFile === targetFile) ||
-        (isHome && (currentFile === '' || currentFile === 'index.html'));
-
-      return `
-        <a href="${it.url}"
-           class="${isActive ? 'active' : ''} ${it.live ? 'live' : ''}"
-           ${isActive ? 'aria-current="page"' : ''}>
-          <i class="fas ${it.icon}" aria-hidden="true"></i>
-          <span>${it.name}</span>
-        </a>
+      const content = `
+        <span class="bottom-nav-icon-wrap">
+          ${iconMarkup(item.icon, 'bottom-nav-icon')}
+          ${item.live ? '<span class="bottom-live-dot" aria-hidden="true"></span>' : ''}
+        </span>
+        <span class="bottom-nav-label">${item.name}</span>
       `;
+
+      if (isMenu) {
+        return `<button type="button" id="bottom-nav-menu" ${common} aria-label="Ouvrir le menu" aria-controls="burger-overlay" aria-expanded="false">${content}</button>`;
+      }
+
+      return `<a href="${item.url}" ${common} ${isActive ? 'aria-current="page"' : ''}>${content}</a>`;
     }).join('');
 
     nav.appendChild(inner);
     document.body.appendChild(nav);
-
     document.body.classList.add('has-bottom-nav');
+    return nav;
   }
 
-  function createMenu() {
-    ensureFontAwesome();
-    injectMenuHighlightStyles();
+  function setExpanded(expanded) {
+    const value = String(expanded);
+    document.getElementById('burger-btn')?.setAttribute('aria-expanded', value);
+    document.getElementById('bottom-nav-menu')?.setAttribute('aria-expanded', value);
+  }
 
-    // Bottom nav (mobile)
-    createBottomNav();
+  function openMenu(overlay) {
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('menu-open');
+    document.getElementById('bottom-nav-menu')?.classList.add('is-open');
+    setExpanded(true);
+  }
 
-    const header = document.querySelector('header');
-    if (!header) return;
+  function closeMenu(overlay) {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('menu-open');
+    document.getElementById('bottom-nav-menu')?.classList.remove('is-open');
+    setExpanded(false);
+  }
 
-    // Supprime l'ancien menu horizontal si présent
-    header.querySelector('.icon-nav')?.remove();
+  function wirePromoCopy(root) {
+    root.querySelectorAll('.promo-copy[data-copy]').forEach((button) => {
+      if (button.dataset.copyReady === '1') return;
+      button.dataset.copyReady = '1';
 
-    const btn = createBurgerButton();
-    const overlay = createBurgerOverlay();
-    if (!btn || !overlay) return;
-
-    // Placement du bouton dans header-actions
-    const actions = header.querySelector('.header-actions');
-    if (actions) {
-      actions.appendChild(btn);
-    } else {
-      const container = header.querySelector('.container') || header;
-      container.appendChild(btn);
-    }
-
-    document.body.appendChild(overlay);
-
-    const drawer = overlay.querySelector('.burger-drawer');
-    const closeBtn = overlay.querySelector('.burger-close');
-
-    btn.addEventListener('click', () => {
-      const isOpen = overlay.classList.contains('open');
-      if (isOpen) closeMenu(btn, overlay);
-      else openMenu(btn, overlay);
-    });
-
-    closeBtn.addEventListener('click', () => closeMenu(btn, overlay));
-
-    overlay.addEventListener('click', (e) => {
-      if (drawer && drawer.contains(e.target)) return;
-      closeMenu(btn, overlay);
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && overlay.classList.contains('open')) {
-        closeMenu(btn, overlay);
-      }
-    });
-
-    // LIVE VIP item : conserve la logique existante (handleVipClick)
-    overlay.querySelectorAll('.burger-menu-item').forEach((a) => {
-      const isVip = a.getAttribute('data-vip') === 'true';
-
-      // ferme le menu sur tous les clics
-      a.addEventListener('click', () => closeMenu(btn, overlay), { passive: true });
-
-      if (!isVip) return;
-
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-        closeMenu(btn, overlay);
-
-        if (typeof window.handleVipClick === 'function') {
-          window.handleVipClick();
-        } else {
-          window.location.href = a.getAttribute('href');
+      button.addEventListener('click', async () => {
+        const value = button.dataset.copy || '';
+        if (!value) return;
+        try {
+          await navigator.clipboard.writeText(value);
+          button.classList.add('copied');
+          const small = button.querySelector('small');
+          if (small) small.textContent = 'Copié !';
+          setTimeout(() => {
+            button.classList.remove('copied');
+            if (small) small.textContent = 'Toucher pour copier';
+          }, 1400);
+        } catch (_) {
+          // Le code reste visible même si le presse-papiers est refusé.
         }
       });
     });
   }
 
+  function createMenu() {
+    const overlay = createBurgerOverlay();
+    const bottomNav = createBottomNav();
+    const bottomMenu = bottomNav?.querySelector('#bottom-nav-menu');
+
+    const header = document.querySelector('header');
+    let burgerBtn = null;
+
+    // Live possède déjà ses contrôles mobiles dédiés. Le menu reste accessible
+    // via la barre inférieure, sans ajouter un quatrième bouton dans son header.
+    if (header && !document.body.classList.contains('mx-live-page')) {
+      burgerBtn = createBurgerButton();
+      if (!burgerBtn.isConnected) {
+        const actions = header.querySelector('.header-actions');
+        if (actions) actions.appendChild(burgerBtn);
+        else (header.querySelector('.container') || header).appendChild(burgerBtn);
+      }
+    }
+
+    const drawer = overlay.querySelector('.burger-drawer');
+    const closeBtn = overlay.querySelector('.burger-close');
+
+    if (burgerBtn && burgerBtn.dataset.menuReady !== '1') {
+      burgerBtn.dataset.menuReady = '1';
+      burgerBtn.addEventListener('click', () => {
+        overlay.classList.contains('open') ? closeMenu(overlay) : openMenu(overlay);
+      });
+    }
+
+    if (bottomMenu && bottomMenu.dataset.menuReady !== '1') {
+      bottomMenu.dataset.menuReady = '1';
+      bottomMenu.addEventListener('click', () => {
+        overlay.classList.contains('open') ? closeMenu(overlay) : openMenu(overlay);
+      });
+    }
+
+    if (closeBtn && closeBtn.dataset.menuReady !== '1') {
+      closeBtn.dataset.menuReady = '1';
+      closeBtn.addEventListener('click', () => closeMenu(overlay));
+    }
+
+    if (overlay.dataset.menuReady !== '1') {
+      overlay.dataset.menuReady = '1';
+      overlay.addEventListener('click', (event) => {
+        if (drawer && drawer.contains(event.target)) return;
+        closeMenu(overlay);
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && overlay.classList.contains('open')) closeMenu(overlay);
+      });
+    }
+
+    overlay.querySelectorAll('.burger-menu-item').forEach((link) => {
+      if (link.dataset.itemReady === '1') return;
+      link.dataset.itemReady = '1';
+      link.addEventListener('click', (event) => {
+        const isVip = link.getAttribute('data-vip') === 'true';
+        closeMenu(overlay);
+        if (!isVip) return;
+
+        event.preventDefault();
+        if (typeof window.handleVipClick === 'function') window.handleVipClick();
+        else window.location.href = link.getAttribute('href');
+      });
+    });
+
+    wirePromoCopy(overlay);
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', createMenu);
+    document.addEventListener('DOMContentLoaded', createMenu, { once: true });
   } else {
     createMenu();
   }
