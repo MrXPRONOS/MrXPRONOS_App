@@ -34,6 +34,70 @@ def no_overflow(page, label):
     if max(size["d"], size["b"]) > size["v"] + 1:
         raise AssertionError(f"{label}: horizontal overflow {size}")
 
+def assert_mobile_layout(page, width, label):
+    if width > 700:
+        return
+
+    hero_h = page.locator(".mx-history-hero").evaluate("(el) => el.getBoundingClientRect().height")
+    if hero_h > 252:
+        raise AssertionError(f"{label}: hero too tall ({hero_h}px)")
+
+    stats = page.locator(".mx-history-stat")
+    if stats.count() != 3:
+        raise AssertionError(f"{label}: expected 3 stat cards, got {stats.count()}")
+    tops = stats.evaluate_all("(nodes) => nodes.map(n => Math.round(n.getBoundingClientRect().top))")
+    if max(tops) - min(tops) > 2:
+        raise AssertionError(f"{label}: stat cards are not on one compact row: {tops}")
+
+    toolbar_h = page.locator(".mx-history-toolbar").evaluate("(el) => el.getBoundingClientRect().height")
+    if toolbar_h > 56:
+        raise AssertionError(f"{label}: results toolbar too tall ({toolbar_h}px)")
+
+    rows = page.locator(".history-row")
+    geometry = rows.evaluate_all("""(nodes) => nodes.map(row => {
+      const rr = row.getBoundingClientRect();
+      const badge = row.querySelector('.history-result-badge')?.getBoundingClientRect();
+      const meta = row.querySelector('.history-competition')?.getBoundingClientRect();
+      return {
+        row:{left:rr.left,right:rr.right,top:rr.top,bottom:rr.bottom},
+        badge: badge && {left:badge.left,right:badge.right,top:badge.top,bottom:badge.bottom},
+        meta: meta && {left:meta.left,right:meta.right,top:meta.top,bottom:meta.bottom}
+      };
+    })""")
+    for g in geometry:
+        if not g["badge"] or not g["meta"]:
+            raise AssertionError(f"{label}: missing badge/meta geometry")
+        if g["badge"]["left"] < g["row"]["left"] - 1 or g["badge"]["right"] > g["row"]["right"] + 1:
+            raise AssertionError(f"{label}: result badge escapes card bounds: {g}")
+        overlaps_meta = not (
+            g["badge"]["bottom"] <= g["meta"]["top"] or
+            g["badge"]["top"] >= g["meta"]["bottom"] or
+            g["badge"]["right"] <= g["meta"]["left"] or
+            g["badge"]["left"] >= g["meta"]["right"]
+        )
+        if overlaps_meta:
+            raise AssertionError(f"{label}: result badge overlaps metadata: {g}")
+
+    nav = page.locator("#bottom-nav")
+    nav.wait_for(state="visible", timeout=10000)
+    items = page.locator("#bottom-nav .bottom-nav-item")
+    if items.count() != 5:
+        raise AssertionError(f"{label}: expected 5 bottom-nav items, got {items.count()}")
+    widths = items.evaluate_all("(nodes) => nodes.map(n => n.getBoundingClientRect().width)")
+    if max(widths) - min(widths) > 1.5:
+        raise AssertionError(f"{label}: bottom-nav cells are not equal: {widths}")
+
+    assistant = page.locator(".assistant-button")
+    if assistant.count() and assistant.is_visible():
+        overlap = page.evaluate("""() => {
+          const a=document.querySelector('.assistant-button')?.getBoundingClientRect();
+          const n=document.querySelector('#bottom-nav')?.getBoundingClientRect();
+          if(!a || !n) return false;
+          return !(a.bottom <= n.top || a.top >= n.bottom || a.right <= n.left || a.left >= n.right);
+        }""")
+        if overlap:
+            raise AssertionError(f"{label}: assistant overlaps bottom navigation")
+
 def run_view(browser, width, height, label):
     page = browser.new_page(viewport={"width":width,"height":height})
     page.route("**/data.json*", lambda route: route.fulfill(status=200, content_type="application/json", body=json.dumps(DATA)))
@@ -42,6 +106,7 @@ def run_view(browser, width, height, label):
     page.wait_for_timeout(900)
 
     no_overflow(page, label)
+    assert_mobile_layout(page, width, label)
 
     row_count = page.locator(".history-row").count()
     if row_count < 1:
@@ -74,7 +139,7 @@ def run_view(browser, width, height, label):
         raise AssertionError(f"{label}: generated stadium background not active")
 
     page.screenshot(path=str(OUT/f"history-{width}.png"), full_page=True)
-    print(f"PASS {label}: {width}x{height}, data, assets and overflow OK")
+    print(f"PASS {label}: {width}x{height}, data, assets, mobile geometry and overflow OK")
     page.close()
 
 with sync_playwright() as p:
