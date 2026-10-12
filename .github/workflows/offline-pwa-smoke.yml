@@ -1,0 +1,35 @@
+name: Offline PWA resilience
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'offline.html'
+      - 'service-worker.js'
+      - 'manifest.json'
+      - 'scripts/offline_pwa_smoke.py'
+      - '.github/workflows/offline-pwa-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium automation
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local site
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/offline-http.log 2>&1 &
+          sleep 2
+      - name: Verify real offline behavior
+        run: python scripts/offline_pwa_smoke.py
