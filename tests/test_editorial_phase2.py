@@ -4,10 +4,23 @@ from pathlib import Path
 from datetime import datetime,timedelta,timezone
 from unittest.mock import patch
 from PIL import Image
-from scripts import editorial_bsd_bridge,editorial_queue,editorial_telegram,editorial_facebook,editorial_metrics,editorial_cleanup_audit
+from scripts import editorial_bsd_bridge,editorial_queue,editorial_telegram,editorial_facebook,editorial_metrics,editorial_cleanup_audit,editorial_dedup_slugs
 import fetch_foot_news
 
 class EditorialPhase2Tests(unittest.TestCase):
+    def test_slug_repair_keeps_first_and_makes_later_unique(self):
+        records=[
+            {"slug":"gestion-bankroll","title":"Gestion de base","content":"1"},
+            {"slug":"gestion-bankroll","title":"Gestion avancée","content":"2"},
+            {"slug":"conseil invalide","title":"Conseil invalide","content":"3"},
+        ]
+        changes=editorial_dedup_slugs.fix_records(records)
+        self.assertEqual(changes["duplicates_fixed"],1)
+        self.assertEqual(changes["invalid_fixed"],1)
+        self.assertEqual(records[0]["slug"],"gestion-bankroll")
+        self.assertEqual(len({x["slug"] for x in records}),3)
+        self.assertEqual(editorial_dedup_slugs.fix_records(records)["duplicates_fixed"],0)
+
     def test_bsd_filters_only_authentic_source(self):
         now=datetime(2026,10,12,12,tzinfo=timezone.utc)
         fixture={"id":"bsd:123","source":"bsd","event_date":"2026-10-13T18:30:00Z",
