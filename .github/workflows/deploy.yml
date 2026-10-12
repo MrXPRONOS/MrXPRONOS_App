@@ -8,12 +8,16 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+concurrency:
+  group: github-pages-deploy
+  cancel-in-progress: true
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Generate config.js from template
         run: |
@@ -46,7 +50,7 @@ jobs:
 
       # Re-publish after repairing a stale file/directory collision on gh-pages.
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4.1.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./
