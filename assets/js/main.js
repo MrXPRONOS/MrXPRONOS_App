@@ -2848,25 +2848,26 @@ async function displayTestimonials() {
 }
 
 function startWinNotifications() {
-  if (!DOM.winPopup) return;
+  if (!DOM.winPopup || !Array.isArray(allData?.matches)) return;
 
-  const firstNames = ["Jean", "Michel", "David", "Lucas", "Thomas", "Patrick", "Samuel", "Kevin"];
-  const lastNames = ["Martin", "Bernard", "Dubois", "Thomas", "Robert", "Richard", "Petit", "Durand"];
+  const verified = allData.matches
+    .filter((m) => isFinishedMatch(m) && m.verified_double)
+    .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0))
+    .slice(0, 5);
 
-  // gains FCFA (ex : 10 000 à 150 000)
-  const notifications = Array.from({ length: 5 }).map(() => ({
-    name: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,
-    gain: Math.floor(Math.random() * (150000 - 10000 + 1)) + 10000,
-  }));
+  if (!verified.length) return;
 
   let index = 0;
   function showPopup() {
-    const { name, gain } = notifications[index];
-    DOM.winPopup.innerHTML = `■ <b>${escapeHtml(name)}</b> a gagné <b>${escapeHtml(gain.toLocaleString("fr-FR"))} FCFA</b> aujourd'hui.`;
+    const m = verified[index];
+    const pick = m.prediction?.type || m.prediction?.label || m.prediction?.double_chance || "Pronostic validé";
+    const score = `${m.home_score ?? "-"}-${m.away_score ?? "-"}`;
+    DOM.winPopup.innerHTML = `✅ <b>Résultat validé</b> · ${escapeHtml(m.home_team)} ${escapeHtml(score)} ${escapeHtml(m.away_team)} · <b>${escapeHtml(pick)}</b>`;
     DOM.winPopup.classList.add("show");
-    setTimeout(() => DOM.winPopup.classList.remove("show"), 4000);
-    index = (index + 1) % notifications.length;
+    setTimeout(() => DOM.winPopup.classList.remove("show"), 3800);
+    index = (index + 1) % verified.length;
   }
+
   setTimeout(showPopup, 5000);
 }
 
