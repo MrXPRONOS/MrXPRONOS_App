@@ -1,0 +1,55 @@
+name: Detail pages mobile smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'article.html'
+      - 'conseil.html'
+      - 'bookmakers.html'
+      - 'assets/css/article-detail-premium.css'
+      - 'assets/css/conseil-detail-premium.css'
+      - 'assets/css/bookmakers-premium.css'
+      - 'scripts/detail_pages_mobile_smoke.py'
+      - '.github/workflows/detail-pages-mobile-smoke.yml'
+  pull_request:
+    paths:
+      - 'article.html'
+      - 'conseil.html'
+      - 'bookmakers.html'
+      - 'assets/css/article-detail-premium.css'
+      - 'assets/css/conseil-detail-premium.css'
+      - 'assets/css/bookmakers-premium.css'
+      - 'scripts/detail_pages_mobile_smoke.py'
+      - '.github/workflows/detail-pages-mobile-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start site
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/detail-http.log 2>&1 &
+          sleep 2
+      - name: Verify detail pages at 390px and 320px
+        run: python scripts/detail_pages_mobile_smoke.py
+      - name: Save screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: detail-mobile-390-320
+          path: artifacts/detail-mobile/
+          if-no-files-found: warn
