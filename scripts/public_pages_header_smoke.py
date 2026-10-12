@@ -90,6 +90,14 @@ def check_standard(browser, path, active_label, width, height):
     if promo.count()!=1:
         raise AssertionError(f"{label}: promo button missing")
 
+    if width<=700:
+        logo_box=page.locator(".mx-site-header .logo a").bounding_box()
+        promo_box=promo.bounding_box()
+        if not logo_box or not promo_box:
+            raise AssertionError(f"{label}: missing mobile header geometry")
+        if logo_box["x"] + logo_box["width"] > promo_box["x"] + 2:
+            raise AssertionError(f"{label}: logo overlaps promo button")
+
     if width<=900:
         # menu.js injects the burger after DOM load.
         burger=page.locator("#burger-btn")
@@ -136,7 +144,7 @@ def check_live(browser,width,height):
 
 with sync_playwright() as p:
     browser=p.chromium.launch(headless=True)
-    for width,height in [(1024,900),(390,844)]:
+    for width,height in [(1024,900),(390,844),(320,720)]:
         for path,label in STANDARD:
             check_standard(browser,path,label,width,height)
         check_live(browser,width,height)
