@@ -83,6 +83,10 @@ def run_view(browser, width, height, label):
         if card_desc.count() and card_desc.is_visible():
             raise AssertionError(f"{label}: primary action descriptions should be hidden")
 
+        showcase_top = showcase.evaluate("(el)=>el.getBoundingClientRect().top")
+        if showcase_top > 475:
+            raise AssertionError(f"{label}: selections/results showcase starts too low ({showcase_top}px)")
+
         details = page.locator(".mx-home-detail")
         if details.count() != 2:
             raise AssertionError(f"{label}: expected two secondary detail sections")
