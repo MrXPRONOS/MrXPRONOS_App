@@ -1,0 +1,45 @@
+name: Public pages header audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'pronos.html'
+      - 'live.html'
+      - 'historique.html'
+      - 'blog.html'
+      - 'conseils.html'
+      - 'conseil.html'
+      - 'article.html'
+      - 'infos.html'
+      - 'bonus.html'
+      - 'contact.html'
+      - 'bookmakers.html'
+      - 'assets/css/**'
+      - 'scripts/public_pages_header_smoke.py'
+      - '.github/workflows/public-pages-header-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium automation
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local site
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/public-pages-http.log 2>&1 &
+          sleep 2
+      - name: Audit public pages
+        run: python scripts/public_pages_header_smoke.py
