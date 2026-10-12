@@ -35,7 +35,7 @@ jobs:
       - name: Run offline unit tests
         run: python -m unittest discover -s tests -p 'test_editorial_free.py'
       - name: Build branded media (3 aspect ratios)
-        run: python scripts/content_studio.py --limit 12 --news-limit 20
+        run: python scripts/content_studio.py --limit 100 --news-limit 20
       - name: Build shareable OG pages
         run: python scripts/editorial_pages.py
       - name: Refresh sitemap for shareable pages
@@ -59,7 +59,7 @@ jobs:
             # Fresh checkout of the latest production state; never force-push.
             git fetch origin main
             git reset --hard origin/main
-            python scripts/content_studio.py --limit 12 --news-limit 20
+            python scripts/content_studio.py --limit 100 --news-limit 20
             python scripts/editorial_pages.py
             python generate_sitemap.py
             python scripts/editorial_queue.py
