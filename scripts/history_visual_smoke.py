@@ -162,6 +162,7 @@ def run_view(browser, width, height, label):
 with sync_playwright() as p:
     browser=p.chromium.launch(headless=True)
     run_view(browser,1024,900,"desktop")
+    run_view(browser,768,1024,"tablet")
     run_view(browser,390,844,"mobile")
     run_view(browser,320,720,"small-mobile")
     browser.close()
