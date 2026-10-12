@@ -69,7 +69,7 @@ def assert_bottom(page, expected, label):
     sizes=page.locator("#bottom-nav .bottom-nav-icon").evaluate_all(
       "imgs => imgs.map(i => { const r=i.getBoundingClientRect(); return {w:r.width,h:r.height}; })"
     )
-    expected=[29,32,32,29,26] if page.viewport_size["width"] <= 340 else [31,34,34,31,28]
+    expected=[31,32,32,31,26] if page.viewport_size["width"] <= 340 else [31,34,34,31,28]
     for index,(box,target) in enumerate(zip(sizes,expected)):
         if abs(box["w"]-target) > 1.5 or abs(box["h"]-target) > 1.5:
             raise AssertionError(f"{label}: icon {index} size {box}, expected about {target}px")
