@@ -44,3 +44,11 @@ python scripts/editorial_quality.py --strict
 2. Dans Actions, ouvrir \`Editorial - Telegram diffusion contrôlée\` et exécuter avec l'option \`publish=false\` pour vérifier la sélection, ou \`true\` pour un envoi réel.
 3. Une tâche planifiée à 08h12 UTC (heure de Lomé) traite au maximum un article/conseil récent ; elle garde une trace \`platform_status.telegram=sent\` et \`message_id\` en cas de confirmation de Telegram.
 4. Le comportement est anti-doublon au niveau du registre GitHub, sous réserve qu'un envoi réussi puisse effectivement être enregistré (comme toute intégration distante, pas de garantie exactement-une-fois après panne réseau ou conflit Git).
+
+
+### Publication Facebook (facultative, gratuite)
+- \`scripts/editorial_facebook.py\` diffuse une **publication avec lien** (aperçu Open Graph généré côté Meta), pas un téléchargement de photographie protégée.
+- Les Secrets existants \`META_PAGE_ID\` et \`META_PAGE_ACCESS_TOKEN\` doivent être valides et permettre \`pages_manage_posts\`.
+- Le workflow \`Editorial - Facebook Page liens du site\` permet un test manuel \`publish=false\` ou une publication autorisée \`publish=true\`.
+- L'automatisation quotidienne de 09h12 (heure de Lomé) est inactive **tant que la variable GitHub Actions \`EDITORIAL_FACEBOOK_ENABLED=true\` n'a pas été activée**.
+- Chaque publication reçoit un \`post_id\` et des UTM \`utm_source=facebook\`. Les autres plateformes ne sont pas annoncées comme actives sans leurs autorisations de publication.
