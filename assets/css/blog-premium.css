@@ -587,3 +587,29 @@
     font-size:14.5px!important;
   }
 }
+
+
+/* Blog mobile v8 — CI measured explorer correction */
+@media(max-width:700px){
+  .mx-blog-page .mx-blog-explorer{
+    padding:5px!important;
+    margin-bottom:5px!important;
+  }
+  .mx-blog-page .mx-blog-explorer-head{
+    margin-bottom:4px!important;
+  }
+  .mx-blog-page .mx-blog-search{
+    min-height:32px!important;
+    height:32px!important;
+  }
+  .mx-blog-page .mx-blog-filter{
+    min-height:29px!important;
+    height:29px!important;
+    padding-top:2px!important;
+    padding-bottom:2px!important;
+  }
+  .mx-blog-page .mx-blog-filter img{
+    width:16px!important;
+    height:16px!important;
+  }
+}
