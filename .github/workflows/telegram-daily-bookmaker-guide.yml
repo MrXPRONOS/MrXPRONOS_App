@@ -2,10 +2,7 @@ name: Telegram - Guide bookmaker quotidien
 run-name: "Telegram - Guide bookmaker quotidien (${{ inputs.trigger_source || github.event_name }})"
 
 on:
-  # Planification GitHub provisoire jusqu'à validation des tâches cron-job.org.
-  schedule:
-    # 09:00 UTC = 09:00 au Togo.
-    - cron: '0 9 * * *'
+
   workflow_dispatch:
     inputs:
       trigger_source:
@@ -27,12 +24,6 @@ on:
           - 1win
           - betclic
           - common
-  # Permet un test immédiat contrôlé en modifiant uniquement ce fichier marqueur.
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/telegram-bookmaker-send-now.txt'
 
 permissions:
   contents: read
