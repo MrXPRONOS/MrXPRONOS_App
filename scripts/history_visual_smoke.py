@@ -39,8 +39,13 @@ def assert_mobile_layout(page, width, label):
         return
 
     hero_h = page.locator(".mx-history-hero").evaluate("(el) => el.getBoundingClientRect().height")
-    if hero_h > 170:
-        raise AssertionError(f"{label}: hero too tall for content-first mobile UX ({hero_h}px)")
+    hero_limit = 118 if width >= 390 else 108
+    if hero_h > hero_limit:
+        raise AssertionError(f"{label}: hero too tall for content-first mobile UX ({hero_h}px > {hero_limit}px)")
+
+    hero_desc = page.locator(".mx-history-copy p")
+    if hero_desc.count() and hero_desc.is_visible():
+        raise AssertionError(f"{label}: secondary history hero description should be hidden")
 
     stats = page.locator(".mx-history-stat")
     if stats.count() != 3:
@@ -58,7 +63,7 @@ def assert_mobile_layout(page, width, label):
         raise AssertionError(f"{label}: summary cards consume too much vertical space: {stat_heights}")
 
     first_row_top = page.locator(".history-row").first.evaluate("(el) => el.getBoundingClientRect().top")
-    max_first_row_top = 335 if width >= 390 else 330
+    max_first_row_top = 290 if width >= 390 else 282
     if first_row_top > max_first_row_top:
         raise AssertionError(
             f"{label}: first match starts too low ({first_row_top}px > {max_first_row_top}px); "
