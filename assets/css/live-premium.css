@@ -896,3 +896,83 @@ body.mx-live-page{
   .mx-live-page .mx-live-brand{height:49px}
   .mx-live-page .mx-live-brand img{height:50px;max-height:50px;max-width:138px}
 }
+
+
+/* =========================================================
+   LIVE mobile refinement v17 — compact dedicated navigation
+========================================================= */
+@media(max-width:640px){
+  .mx-live-page .mx-live-main{
+    width:calc(100% - 20px)!important;
+    padding-top:12px!important;
+    padding-bottom:calc(76px + env(safe-area-inset-bottom))!important;
+  }
+  .mx-live-page .mx-live-hero{min-height:322px!important}
+  .mx-live-page .mx-live-hero__content{
+    min-height:322px!important;padding:17px 14px 14px!important
+  }
+  .mx-live-page .mx-live-hero h1{
+    font-size:clamp(37px,11vw,46px)!important;line-height:.96!important;margin:6px 0!important
+  }
+  .mx-live-page .mx-live-hero__lead{
+    max-width:345px!important;font-size:10.8px!important;line-height:1.42!important
+  }
+  .mx-live-page .mx-live-hero-player{
+    height:255px!important;right:-10%!important;bottom:-45px!important;opacity:.28!important
+  }
+  .mx-live-page .mx-live-benefits{gap:5px!important;margin-top:8px!important}
+  .mx-live-page .mx-live-benefit{
+    min-height:34px!important;padding:4px 7px!important;gap:5px!important;border-radius:8px!important
+  }
+  .mx-live-page .mx-live-benefit img{width:22px!important;height:22px!important}
+  .mx-live-page .mx-live-benefit span{font-size:7.5px!important}
+
+  .mx-live-page .mx-market-filters{gap:5px!important;margin-top:9px!important}
+  .mx-live-page .mx-market-filter{
+    min-width:96px!important;min-height:40px!important;padding:5px 7px!important;gap:5px!important;
+    border-radius:9px!important;font-size:8.8px!important
+  }
+  .mx-live-page .mx-market-filter img{width:19px!important;height:19px!important}
+  .mx-live-page .mx-market-filter b{font-size:7.4px!important}
+
+  .mx-live-page .mx-live-section{margin-bottom:15px!important}
+  .mx-live-page .mx-live-section-title{
+    gap:7px!important;margin-bottom:8px!important;font-size:16px!important
+  }
+  .mx-live-page .mx-live-section-title img{width:23px!important;height:23px!important}
+
+  .mx-live-page .mx-live-row{border-radius:12px!important}
+  .mx-live-page .mx-live-row > section{padding:9px 10px!important}
+  .mx-live-page .mx-live-row__score-center{min-width:58px!important}
+  .mx-live-page .mx-live-row__signal img{width:18px!important;height:18px!important}
+
+  .mx-live-page .mx-mobile-tabs>div{
+    padding:4px 6px calc(4px + env(safe-area-inset-bottom))!important
+  }
+  .mx-live-page .mx-mobile-tabs .grid{
+    gap:4px!important
+  }
+  .mx-live-page .mx-mobile-tab{
+    min-height:54px!important;padding:4px 2px!important;gap:2px!important;border-radius:10px!important
+  }
+  .mx-live-page .mx-mobile-tab img{width:18px!important;height:18px!important}
+  .mx-live-page .mx-mobile-tab>span:not(.absolute){
+    font-size:9px!important;line-height:1!important
+  }
+  .mx-live-page .mx-mobile-tab .absolute{
+    top:2px!important;right:5px!important;min-width:16px!important;height:16px!important;font-size:8px!important
+  }
+
+  .mx-live-page .mx-live-footer{margin-bottom:calc(66px + env(safe-area-inset-bottom))!important}
+}
+
+@media(max-width:345px){
+  .mx-live-page .mx-live-main{width:calc(100% - 14px)!important}
+  .mx-live-page .mx-live-hero{min-height:330px!important}
+  .mx-live-page .mx-live-hero__content{min-height:330px!important;padding-left:10px!important;padding-right:10px!important}
+  .mx-live-page .mx-live-hero h1{font-size:35px!important}
+  .mx-live-page .mx-live-hero__lead{font-size:10.2px!important}
+  .mx-live-page .mx-market-filter{min-width:90px!important}
+  .mx-live-page .mx-mobile-tab{min-height:52px!important}
+  .mx-live-page .mx-mobile-tab>span:not(.absolute){font-size:8.4px!important}
+}
