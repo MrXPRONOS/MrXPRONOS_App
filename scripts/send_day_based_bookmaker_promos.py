@@ -10,7 +10,7 @@ from pathlib import Path
 import requests
 from telegram_rich import post_photo
 from telegram_premium_templates import daily_promo as daily_promo_template
-from telegram_promo_channels import promo_channels, deliver_to_both
+from telegram_promo_channels import promo_channels, deliver_once_to_both
 from telegram_promo_colors import colorized_button
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -146,8 +146,8 @@ def send_photo(promo: Promo):
     def send_to(cid):
         post_photo(requests,TOKEN,cid,image,caption,markup,
                    timeout=120,mime="image/jpeg")
-    deliver_to_both(promo_channels(CHAT_ID,SECONDARY_CHAT_ID),
-                    send_to,label=promo.title)
+    deliver_once_to_both(promo_channels(CHAT_ID,SECONDARY_CHAT_ID),
+                    send_to,campaign="day-"+promo.image,label=promo.title)
 
 
 def weekday_today() -> int:
