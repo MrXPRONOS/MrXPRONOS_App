@@ -253,3 +253,52 @@
   .mx-premium-home .mx-desktop-nav{display:flex!important}
   .mx-premium-home #burger-btn{display:none!important}
 }
+
+
+/* =========================================================
+   Home mobile refinement v3 — real-phone pass
+========================================================= */
+@media(max-width:540px){
+  .mx-premium-home .mx-hero,
+  .mx-premium-home .mx-hero-inner{min-height:452px!important}
+  .mx-premium-home .mx-hero-atmosphere{
+    background-image:linear-gradient(180deg,rgba(0,7,16,.72) 0%,rgba(1,11,21,.50) 40%,rgba(2,11,18,.94) 100%),url('../images/home-premium/hero-stadium.webp')!important;
+    background-position:center,center 48%!important
+  }
+  .mx-premium-home .mx-hero-copy{padding-top:17px!important;max-width:100%!important}
+  .mx-premium-home .mx-eyebrow{margin-bottom:10px!important;font-size:9px!important;letter-spacing:.24em!important}
+  .mx-premium-home .mx-hero h1{max-width:370px!important;margin-bottom:10px!important;font-size:clamp(31px,8vw,35px)!important;line-height:1.04!important;letter-spacing:-.025em!important}
+  .mx-premium-home .mx-hero-copy p{max-width:355px!important;margin-bottom:13px!important;font-size:11.6px!important;line-height:1.48!important}
+  .mx-premium-home .mx-hero-actions{width:min(100%,360px)!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:8px!important}
+  .mx-premium-home .mx-hero-actions .mx-pill{width:100%!important;min-width:0!important;min-height:40px!important;padding:0 10px!important;gap:6px!important;font-size:10.3px!important;white-space:nowrap!important}
+  .mx-premium-home .mx-hero-actions .mx-pill img{width:16px!important;height:16px!important}
+  .mx-premium-home .mx-hero-actions .mx-pill span{margin-left:auto!important;font-size:16px!important}
+  .mx-premium-home .mx-hero-player{height:232px!important;right:-7%!important;bottom:-22px!important;opacity:.96!important}
+  .mx-premium-home .mx-hero-quote{left:13px!important;right:auto!important;bottom:69px!important;max-width:105px!important;font-size:17px!important;line-height:1.02!important;text-align:left!important;transform:rotate(-7deg)!important}
+  .mx-premium-home .mx-hero-quote::after{width:74%!important;margin:10px auto 0 0!important}
+  .mx-premium-home .mx-home-sections{padding-bottom:10px!important}
+  .mx-premium-home .mx-feature-grid{gap:9px!important;margin-top:-7px!important}
+  .mx-premium-home .mx-feature-card{min-height:150px!important;padding:14px 16px!important;border-radius:13px!important}
+  .mx-premium-home .mx-feature-icon{width:42px!important;height:42px!important;margin-bottom:8px!important;border-radius:10px!important}
+  .mx-premium-home .mx-feature-icon img{width:27px!important;height:27px!important}
+  .mx-premium-home .mx-feature-card h2{margin-bottom:6px!important;font-size:21px!important;line-height:1.08!important}
+  .mx-premium-home .mx-feature-card h2 span{width:20px!important;height:20px!important;font-size:13px!important}
+  .mx-premium-home .mx-feature-card p{max-width:220px!important;font-size:11.4px!important;line-height:1.42!important}
+  .mx-premium-home .mx-feature-live .mx-live-badge{margin:7px 0 0 4px!important;padding:3px 5px!important;font-size:8px!important}
+  .mx-premium-home .mx-data-updated{margin-top:11px!important;font-size:9px!important}
+  .mx-premium-home .mx-info-panel{margin-top:12px!important;padding:17px!important;border-radius:14px!important}
+  .mx-premium-home .mx-panel-heading{gap:10px!important;margin-bottom:13px!important}
+  .mx-premium-home .mx-panel-heading>img{width:38px!important;height:38px!important}
+  .mx-premium-home .mx-panel-heading h2{font-size:21px!important}
+  .mx-premium-home .mx-panel-heading p{font-size:10.5px!important;line-height:1.4!important}
+}
+@media(max-width:345px){
+  .mx-premium-home .mx-hero,.mx-premium-home .mx-hero-inner{min-height:468px!important}
+  .mx-premium-home .mx-hero h1{font-size:30px!important}
+  .mx-premium-home .mx-hero-copy p{font-size:11px!important}
+  .mx-premium-home .mx-hero-actions{gap:6px!important}
+  .mx-premium-home .mx-hero-actions .mx-pill{padding:0 7px!important;font-size:9.3px!important}
+  .mx-premium-home .mx-hero-player{height:218px!important;right:-12%!important}
+  .mx-premium-home .mx-hero-quote{left:9px!important;bottom:64px!important;font-size:16px!important}
+  .mx-premium-home .mx-feature-card{min-height:145px!important;padding:13px 14px!important}
+}
