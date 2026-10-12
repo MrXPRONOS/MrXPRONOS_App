@@ -42,7 +42,7 @@
   <script src="https://cdn.tailwindcss.com" onerror="console.warn('Tailwind CDN indisponible')"></script>
   <link rel="preload" as="image" href="assets/images/live-premium/hero-stadium.webp">
   <link rel="preload" as="image" href="assets/images/live-premium/player-back.webp">
-  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261012-live-mobile18">
+  <link rel="stylesheet" href="assets/css/live-premium.css?v=20261012-live-mobile19">
   <link rel="stylesheet" href="assets/css/loading-ui.css?v=20261012-4">
 
   <style>
@@ -1052,7 +1052,7 @@
               {isValidated ? (isSuccess ? "GAGNÉ" : "PERDU") : "EN ATTENTE"}
             </span>
           </div>
-          <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+          <div className="mx-history-premium__meta flex items-center justify-between mb-4 gap-3 flex-wrap">
             <div className="flex items-center gap-2 min-w-0">
               <div className="flex items-center gap-2 text-xs text-gray-400 min-w-0">
                 <LogoImg src={leagueLogo} alt={h?.league?.name} size={20} />
@@ -1085,7 +1085,7 @@
           </div>
 
           <div className="mx-history-premium__prediction">
-            <div className="flex items-center gap-2 flex-wrap mb-2">
+            <div className="mx-history-premium__prediction-head flex items-center gap-2 flex-wrap mb-2">
               <PredictionBadge pred={predUi} />
               <Badge color="blue"><LiveAssetIcon name="target" size={16} /> Probabilité {formatPercent(h?.probability)}</Badge>
             </div>
@@ -1095,11 +1095,11 @@
               tone={isValidated ? (isSuccess ? "success" : "failure") : "neutral"}
             />
 
-            <div className="text-xs text-gray-300 mt-2 safe-wrap">
+            <div className="mx-history-premium__subtitle text-xs text-gray-300 mt-2 safe-wrap">
               {formatPredSubtitle(predUi)}
             </div>
 
-            <div className="text-[11px] text-gray-500 mt-3">
+            <div className="mx-history-premium__hint text-[11px] text-gray-500 mt-3">
               Cliquez pour voir le détail
             </div>
           </div>
@@ -1452,11 +1452,11 @@
                         {n.title || "Notification"}
                       </div>
 
-                      <div className="text-xs text-gray-300 mt-2 whitespace-pre-line safe-wrap">
+                      <div className="mx-notification-premium__message text-xs text-gray-300 mt-2 whitespace-pre-line safe-wrap">
                         {n.message || ""}
                       </div>
 
-                      <div className="text-[11px] text-gray-500 mt-3 flex items-center gap-2 flex-wrap">
+                      <div className="mx-notification-premium__meta text-[11px] text-gray-500 mt-3 flex items-center gap-2 flex-wrap">
                         <span>{formatDateTime(n.timestamp || n.created_at)}</span>
                         {canOpen && <Badge color="gold">Voir détails</Badge>}
                       </div>
@@ -1877,7 +1877,7 @@
       }
 
       return (
-        <div className="mx-live-shell min-h-screen">
+        <div className={`mx-live-shell min-h-screen mx-live-tab-${selectedTab}`}>
           <Header
             stats={stats}
             onBack={() => window.location.href = "index.html"}
