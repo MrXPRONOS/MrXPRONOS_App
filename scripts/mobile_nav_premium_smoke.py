@@ -128,7 +128,20 @@ with sync_playwright() as p:
     check_page(browser,"bonus.html",390,844,"Bonus","Bonus & Promo")
     check_page(browser,"historique.html",390,844,"Menu","Historique",True)
     check_page(browser,"contact.html",390,844,"Menu","Contact")
-    check_page(browser,"live.html",390,844,"LIVE","LIVE",True)
+    # Live intentionally keeps its own functional four-tab mobile navigation.
+    ctx=browser.new_context(viewport={"width":390,"height":844},service_workers="block")
+    page=ctx.new_page()
+    page.goto("http://127.0.0.1:8000/live.html",wait_until="domcontentloaded",timeout=60000)
+    page.locator(".mx-mobile-tabs").wait_for(state="visible",timeout=60000)
+    page.wait_for_timeout(700)
+    if page.locator("#bottom-nav").count()!=0:
+        raise AssertionError("live.html@390: duplicate global bottom navigation should not be injected")
+    if page.locator(".mx-mobile-tab").count()!=4:
+        raise AssertionError("live.html@390: dedicated Live mobile tabs missing")
+    no_overflow(page,"live.html@390")
+    page.screenshot(path=str(OUT/"live-390.png"),full_page=False)
+    ctx.close()
+    print("PASS live.html@390 dedicated tabs")
 
     # Narrow phone stress-test
     check_page(browser,"index.html",320,720,"Accueil","Accueil",True)
