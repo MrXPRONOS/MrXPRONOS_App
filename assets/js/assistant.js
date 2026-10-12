@@ -16,6 +16,8 @@
   const API_BASE = 'https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/assistant';
   const DEFAULT_SUGGESTIONS = [];
   const CACHE_TTL = 24 * 60 * 60 * 1000;
+  const DYNAMIC_QUESTION = /\b(aujourd.?hui|demain|hier|live|direct|score|résultat|resultat|prono|pronostic|match|cote|signal|vip|bonus|promo|prix|tarif|disponible)\b/i;
+  let requestInFlight = false;
 
   let responseCache = new Map();
 
@@ -829,6 +831,33 @@
     return cleaned.trim();
   }
 
+  function sanitizeAssistantHtml(inputHtml) {
+    const allowed=new Set(['P','H3','H4','UL','OL','LI','A','TABLE','THEAD','TBODY','TR','TH','TD','STRONG','EM','BR','DIV','SPAN']);
+    const doc=new DOMParser().parseFromString(String(inputHtml || ''),'text/html');
+    const clean=(node)=>{
+      if(node.nodeType===Node.TEXT_NODE)return document.createTextNode(node.textContent||'');
+      if(node.nodeType!==Node.ELEMENT_NODE)return document.createDocumentFragment();
+      const tag=node.tagName;
+      if(['SCRIPT','STYLE','SVG','IFRAME','OBJECT','FORM','INPUT','BUTTON','IMG','META','LINK','TEMPLATE'].includes(tag))return document.createDocumentFragment();
+      const fragment=document.createDocumentFragment();
+      const safe=allowed.has(tag)?document.createElement(tag.toLowerCase()):fragment;
+      if(tag==='A'&&safe!==fragment){
+        try{
+          const url=new URL(node.getAttribute('href')||'',location.origin);
+          if(url.protocol==='https:'||url.protocol==='http:'){
+            safe.setAttribute('href',url.href);safe.setAttribute('target','_blank');safe.setAttribute('rel','noopener noreferrer');
+          }
+        }catch(_){}
+      }
+      if(tag==='DIV'&&node.classList.contains('table-container'))safe.className='table-container';
+      for(const child of Array.from(node.childNodes))safe.appendChild(clean(child));
+      return safe;
+    };
+    const out=document.createElement('div');
+    for(const node of Array.from(doc.body.childNodes))out.appendChild(clean(node));
+    return out.innerHTML;
+  }
+
   function wrapTablesInContainer(html) {
     if (!html) return '';
     return html.replace(/<table([\s\S]*?)<\/table>/gi, function(match) {
@@ -921,7 +950,7 @@
 
     if (isHTML || sender === 'assistant') {
       const cleaned = wrapTablesInContainer(cleanAssistantHtmlResponse(text));
-      contentDiv.innerHTML = cleaned;
+      contentDiv.innerHTML = sanitizeAssistantHtml(cleaned);
     } else {
       contentDiv.textContent = text;
     }
@@ -957,6 +986,8 @@
                 action: 'feedback',
                 conversation_id: convId,
                 user_id: userId,
+                question: msgDiv.previousElementSibling?.classList.contains('user') ? msgDiv.previousElementSibling.querySelector('.message-content')?.textContent : '',
+                reponse: contentDiv.innerHTML,
                 feedback: isLike
               })
             });
@@ -1017,40 +1048,42 @@
   }
 
   function renderQuickActions() {
-    quickActionsDiv.innerHTML = '';
-
-    const actions = [
-      { label: '📊 Pronostics du jour', value: 'Quels sont les pronostics du jour ?' },
-      { label: '🎁 Bonus 1xBet', value: 'Quel est le bonus 1xBet avec XPVIP ?' },
-      { label: '🎬 LIVE VIP', value: 'Comment accéder au LIVE VIP ?' },
-      { label: '📞 Support', value: 'Comment contacter le support ?' }
+    quickActionsDiv.innerHTML='';
+    const path=location.pathname.toLowerCase();
+    const actions=path.includes('live.html')?[
+      {label:'🔴 LIVE',value:'Comment fonctionne le LIVE VIP ?'},
+      {label:'📊 Signaux',value:'Que signifie un signal live ?'},
+      {label:'🛟 Support',value:'Comment contacter le support ?'}
+    ]:path.includes('historique.html')?[
+      {label:'📈 Historique',value:'Comment interpréter le taux de réussite des pronostics ?'},
+      {label:'🎯 Risques',value:'Pourquoi un pronostic peut échouer ?'}
+    ]:path.includes('pronos.html')?[
+      {label:'⚽ Pronostics',value:'Quels sont les pronostics du jour ?'},
+      {label:'📊 Score xPronos',value:'Comment lire le score xPronos ?'},
+      {label:'📋 Marchés',value:'Comment comprendre les différents marchés ?'}
+    ]:[
+      {label:'📊 Pronostics du jour',value:'Quels sont les pronostics du jour ?'},
+      {label:'🎁 Code promo',value:'Comment utiliser le code XPVIP ?'},
+      {label:'🔴 LIVE VIP',value:'Comment accéder au LIVE VIP ?'},
+      {label:'📞 Support',value:'Comment contacter le support ?'}
     ];
-
-    actions.forEach(a => {
-      const btn = document.createElement('button');
-      btn.className = 'btn';
-      btn.textContent = a.label;
-      btn.addEventListener('click', () => {
-        input.value = a.value;
-        sendMessage();
-      });
-      quickActionsDiv.appendChild(btn);
-    });
+    for(const a of actions){
+      const btn=document.createElement('button');btn.className='btn';btn.textContent=a.label;
+      btn.addEventListener('click',()=>{input.value=a.value;sendMessage();});quickActionsDiv.appendChild(btn);
+    }
   }
 
   function buildHistoryPayload() {
-    const messages = [];
-    const msgElements = messagesDiv.querySelectorAll('.message');
-    const recent = Array.from(msgElements).slice(-10);
-
-    recent.forEach(el => {
-      const role = el.classList.contains('user') ? 'user' : 'assistant';
-      const contentEl = el.querySelector('.message-content');
-      const contenu = role === 'assistant' ? contentEl.innerHTML : contentEl.textContent;
-      messages.push({ role, contenu });
-    });
-
-    return messages;
+    const history=[];
+    let seenUser=false;
+    for(const el of Array.from(messagesDiv.querySelectorAll('.message'))){
+      const role=el.classList.contains('user')?'user':'assistant';
+      if(role==='user')seenUser=true;
+      if(!seenUser)continue;
+      const content=el.querySelector('.message-content');
+      if(content && content.textContent?.trim())history.push({role,contenu:content.textContent.trim().slice(0,1500)});
+    }
+    return history.slice(-8);
   }
 
   // ============================================================
@@ -1058,19 +1091,19 @@
   // ============================================================
   async function sendMessage() {
     const question = input.value.trim();
-    if (!question) return;
-
+    if (!question || requestInFlight) return;
+    const historique = buildHistoryPayload();
+    requestInFlight = true;
     addMessage(question, 'user', false, null, true);
     input.value = '';
     showTyping();
-
-    const historique = buildHistoryPayload();
     const cachedAnswer = getFromCache(question);
-    const useCache = historique.length === 0 && cachedAnswer && !isNoPronoMessage(cachedAnswer);
+    const useCache = historique.length === 0 && !DYNAMIC_QUESTION.test(question) && cachedAnswer && !isNoPronoMessage(cachedAnswer);
 
     if (useCache) {
       hideTyping();
       addMessage(cachedAnswer, 'assistant', true, null, true);
+      requestInFlight = false;
       return;
     }
 
@@ -1084,7 +1117,8 @@
         body: JSON.stringify({
           question,
           user_id: userId,
-          historique: historique
+          historique: historique,
+          page_context: { pathname: location.pathname }
         })
       });
 
@@ -1098,7 +1132,7 @@
 
       const cleanedAnswer = cleanAssistantHtmlResponse(data.answer);
 
-      if (historique.length === 0 && !isNoPronoMessage(cleanedAnswer)) {
+      if (historique.length === 0 && !DYNAMIC_QUESTION.test(question) && !isNoPronoMessage(cleanedAnswer)) {
         addToCache(question, cleanedAnswer);
       }
 
@@ -1115,6 +1149,8 @@
         true
       );
       console.error('Assistant Error:', error);
+    } finally {
+      requestInFlight = false;
     }
   }
 
