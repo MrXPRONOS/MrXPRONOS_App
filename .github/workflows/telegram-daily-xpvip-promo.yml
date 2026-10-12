@@ -2,9 +2,7 @@ name: Telegram - Promo XPVIP commune
 run-name: "Telegram - Promo XPVIP commune (${{ inputs.trigger_source || github.event_name }})"
 
 on:
-  # Planification GitHub provisoire jusqu'à validation des tâches cron-job.org.
-  schedule:
-    - cron: '0 5 * * *'
+
   workflow_dispatch:
     inputs:
       trigger_source:
@@ -12,11 +10,6 @@ on:
         required: false
         default: "manual"
         type: string
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/telegram-xpvip-common-send-now.txt'
 
 permissions:
   contents: read
