@@ -1,0 +1,54 @@
+name: Import infos premium assets
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-infos-assets.yml'
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install WebP tools
+        run: sudo apt-get update -y && sudo apt-get install -y webp
+      - name: Download and optimize Infos assets
+        run: |
+          set -euxo pipefail
+          mkdir -p assets/images/infos-premium /tmp/infos-assets
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:196fb5a6-4408-400d-9d93-d5418d71735d" -o /tmp/infos-assets/hero.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:9bb933da-6aac-4c26-a18c-0166e71ed546" -o /tmp/infos-assets/latest.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:59852ecc-e20c-4128-9310-4faa21713791" -o /tmp/infos-assets/football.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:2c83e880-cfec-4dcc-b936-5ffaa5e019e9" -o /tmp/infos-assets/champions.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:1761b483-2775-49b5-b7ad-542b3f9656b0" -o /tmp/infos-assets/mercato.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:881eb0a8-1b19-4adf-a41f-b57723c35cab" -o /tmp/infos-assets/injuries.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:10d01e84-7f2e-42c5-a769-b0d33e7927e9" -o /tmp/infos-assets/premierleague.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:81f60034-54c9-4df4-81be-46a636665ca4" -o /tmp/infos-assets/ligue1.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:6132bbfe-0b26-4eb9-a3d8-8c7b414325f3" -o /tmp/infos-assets/liga.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:7257a7b6-dbc5-426e-bae9-f3ca683f4a98" -o /tmp/infos-assets/seriea.png
+          curl -L --fail --retry 3 "https://photoshop-api.adobe.io/v2/short-url/urn:aaid:ps:US:3016926c-6c27-4509-a1f1-07b395283a69" -o /tmp/infos-assets/clock.png
+
+          cwebp -quiet -q 84 -resize 1920 0 /tmp/infos-assets/hero.png -o assets/images/infos-premium/hero-infos.webp
+          cwebp -quiet -q 86 -resize 512 512 /tmp/infos-assets/latest.png -o assets/images/infos-premium/icon-infos-latest.webp
+          cwebp -quiet -q 86 -resize 512 512 /tmp/infos-assets/football.png -o assets/images/infos-premium/icon-infos-football.webp
+          cwebp -quiet -q 86 -resize 512 512 /tmp/infos-assets/champions.png -o assets/images/infos-premium/icon-infos-champions.webp
+          cwebp -quiet -q 86 -resize 512 512 /tmp/infos-assets/mercato.png -o assets/images/infos-premium/icon-infos-mercato.webp
+          cwebp -quiet -q 86 -resize 512 512 /tmp/infos-assets/injuries.png -o assets/images/infos-premium/icon-infos-injuries.webp
+          cwebp -quiet -q 86 -resize 512 512 /tmp/infos-assets/premierleague.png -o assets/images/infos-premium/icon-infos-premierleague.webp
+          cwebp -quiet -q 86 -resize 512 512 /tmp/infos-assets/ligue1.png -o assets/images/infos-premium/icon-infos-ligue1.webp
+          cwebp -quiet -q 86 -resize 512 512 /tmp/infos-assets/liga.png -o assets/images/infos-premium/icon-infos-liga.webp
+          cwebp -quiet -q 86 -resize 512 512 /tmp/infos-assets/seriea.png -o assets/images/infos-premium/icon-infos-seriea.webp
+          cwebp -quiet -q 86 -resize 512 512 /tmp/infos-assets/clock.png -o assets/images/infos-premium/icon-infos-clock.webp
+
+      - name: Commit Infos assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/images/infos-premium
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "assets(infos): add generated premium news visuals"
+          git fetch origin main
+          git rebase origin/main
+          git push
