@@ -5,6 +5,16 @@
 
   const ICON_BASE = 'assets/images/mobile-premium/';
   const LOGO = 'assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1';
+  const MOBILE_NAV_CSS = 'assets/css/mobile-nav-premium.css?v=20261012-mobile-nav1';
+
+  function ensureMobileNavStyles() {
+    if (document.querySelector('link[data-mx-mobile-nav="true"]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = MOBILE_NAV_CSS;
+    link.dataset.mxMobileNav = 'true';
+    document.head.appendChild(link);
+  }
 
   const menuItems = [
     { name: 'Accueil', icon: 'icon-home.webp', url: 'index.html' },
@@ -214,6 +224,7 @@
   }
 
   function createMenu() {
+    ensureMobileNavStyles();
     const overlay = createBurgerOverlay();
     const bottomNav = createBottomNav();
     const bottomMenu = bottomNav?.querySelector('#bottom-nav-menu');
