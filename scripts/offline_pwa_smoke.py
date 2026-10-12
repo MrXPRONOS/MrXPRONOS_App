@@ -87,8 +87,8 @@ def run_case(browser, width, height, label):
 
     assert_no_overflow(page, label + "-pronos")
 
-    # 3. Return to fallback and verify automatic recovery when network comes back.
-    page.goto(BASE + "/another-missing-offline-probe.html", wait_until="domcontentloaded", timeout=60000)
+    # 3. Open the cached offline shell directly and verify automatic recovery.
+    page.goto(BASE + "/offline.html", wait_until="domcontentloaded", timeout=60000)
     page.wait_for_selector("#offline-title", timeout=10000)
     context.set_offline(False)
     page.wait_for_url("**/index.html", timeout=6000)
