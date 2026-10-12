@@ -25,4 +25,5 @@ jobs:
       - name: Ensure Actu Foot cron-job.org scheduler
         env:
           CRONJOB_API_KEY: ${{ secrets.CRONJOB_API_KEY }}
+          ACTUFOOT_TEST_DISPATCH: '1'
         run: python scripts/ensure_actufoot_cronjob.py
