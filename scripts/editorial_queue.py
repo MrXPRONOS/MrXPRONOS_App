@@ -50,6 +50,7 @@ def build(root=ROOT, queue_path=QUEUE,limit=20):
             lookup[ident] = obj
     for ident,item in previous.items():
         obj=lookup.get(ident)
+        item["retired"] = obj is None
         if obj:
             item["source_date"]=str(obj.get("date") or obj.get("published") or obj.get("published_at") or item.get("source_date") or "")
             item["visual_variant"]=str(obj.get("visual_variant") or item.get("visual_variant") or "legacy")
