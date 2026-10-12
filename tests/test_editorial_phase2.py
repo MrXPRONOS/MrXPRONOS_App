@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import datetime,timedelta,timezone
 from unittest.mock import patch
 from PIL import Image
-from scripts import editorial_bsd_bridge,editorial_queue,editorial_telegram,editorial_metrics,editorial_cleanup_audit
+from scripts import editorial_bsd_bridge,editorial_queue,editorial_telegram,editorial_facebook,editorial_metrics,editorial_cleanup_audit
 import fetch_foot_news
 
 class EditorialPhase2Tests(unittest.TestCase):
@@ -71,6 +71,29 @@ class EditorialPhase2Tests(unittest.TestCase):
                 result=editorial_telegram.publish(q,root,True,now=now,request_post=lambda *a,**k:Response())
             self.assertEqual(result["sent"],1)
             self.assertEqual(json.loads(q.read_text())[0]["platform_status"]["telegram"],"sent")
+    def test_facebook_requires_fresh_and_not_sent(self):
+        now=datetime(2026,10,12,12,tzinfo=timezone.utc)
+        item={"id":"test","kind":"conseil","title":"Conseil","source_date":now.isoformat(),
+              "url":editorial_telegram.BASE+"conseils/test/","platform_status":{"facebook":"not_requested"}}
+        self.assertTrue(editorial_facebook.eligible(item,now))
+        self.assertFalse(editorial_facebook.eligible({**item,"platform_status":{"facebook":"sent"}},now))
+    def test_facebook_post_ack_and_dedup(self):
+        now=datetime(2026,10,12,12,tzinfo=timezone.utc)
+        class Response:
+            def raise_for_status(self):return None
+            def json(self):return {"id":"page_123"}
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);queue=root/"queue.json"
+            queue.write_text(json.dumps([{"id":"test","title":"Nouvel article","kind":"article",
+                "url":editorial_telegram.BASE+"articles/test/",
+                "source_date":now.isoformat(),"platform_status":{"facebook":"not_requested"}}]))
+            with patch.dict(os.environ,{"META_PAGE_ID":"1","META_PAGE_ACCESS_TOKEN":"token"}):
+                sent=editorial_facebook.publish(queue,True,now,request_post=lambda *a,**k:Response())
+            self.assertEqual(sent["sent"],1)
+            self.assertEqual(json.loads(queue.read_text())[0]["platform_status"]["facebook"],"sent")
+            second=editorial_facebook.publish(queue,False,now)
+            self.assertEqual(second["sent"],0)
+
     def test_metrics_no_fictitious_traffic(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);(root/"articles.json").write_text('[{"title":"Test"}]')
