@@ -1,0 +1,47 @@
+name: Contact responsive browser smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'contact.html'
+      - 'assets/css/contact-premium.css'
+      - 'scripts/contact_visual_smoke.py'
+      - '.github/workflows/contact-visual-smoke.yml'
+  pull_request:
+    paths:
+      - 'contact.html'
+      - 'assets/css/contact-premium.css'
+      - 'scripts/contact_visual_smoke.py'
+      - '.github/workflows/contact-visual-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium automation
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local website
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/contact-http.log 2>&1 &
+          sleep 2
+      - name: Verify Contact at 390px and 320px
+        run: python scripts/contact_visual_smoke.py
+      - name: Save responsive screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contact-responsive-390-320
+          path: artifacts/contact-responsive/
+          if-no-files-found: warn
