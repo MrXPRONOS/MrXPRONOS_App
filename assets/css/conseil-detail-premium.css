@@ -27,3 +27,39 @@
 @media(max-width:900px){.mx-conseil-detail-page .mx-desktop-nav{display:none}.mx-conseil-detail-page #burger-btn{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;padding:8px;margin:0;border:1px solid #577183;border-radius:10px;background:#091b29;color:#f5d080}.mx-conseil-detail-page .mx-header-container{justify-content:space-between}.mx-conseil-detail-page .mx-header-actions{margin-left:auto}}
 @media(max-width:700px){.mx-conseil-detail-page{padding-top:65px}.mx-conseil-detail-page .container{width:calc(100% - 26px)}.mx-conseil-detail-page .mx-site-header{height:65px}.mx-conseil-detail-page .logo a{width:clamp(135px,26vw,185px);height:54px}.mx-conseil-detail-page .logo img{height:54px;max-height:54px}.mx-conseil-detail-page .mx-code-button{min-height:37px;padding:9px 11px;font-size:10px}.mx-conseil-detail-page .article-page-card h1{padding:22px 20px 10px}.mx-conseil-detail-page .article-content{padding:0 20px 24px;font-size:13px}}
 @media(max-width:390px){.mx-conseil-detail-page .logo a{width:138px;height:49px}.mx-conseil-detail-page .logo img{height:50px;max-height:50px}.mx-conseil-detail-page .mx-code-label{display:none}}
+
+
+/* =========================================================
+   Conseil detail mobile refinement v2
+========================================================= */
+@media(max-width:700px){
+  .mx-conseil-detail-main{padding-top:18px!important;padding-bottom:42px!important}
+  .mx-conseil-detail-page .mx-detail-back{
+    min-height:34px!important;align-items:center!important;margin-bottom:10px!important;font-size:9.5px!important
+  }
+  .mx-conseil-detail-page .article-page-card{
+    border-radius:14px!important;box-shadow:0 13px 35px rgba(0,0,0,.28)!important
+  }
+  .mx-conseil-detail-page .article-page-card .news-image{
+    height:205px!important;max-height:205px!important;object-fit:cover!important
+  }
+  .mx-conseil-detail-page .article-page-card h1{
+    padding:17px 16px 8px!important;font-size:clamp(27px,7.8vw,34px)!important;line-height:1.04!important
+  }
+  .mx-conseil-detail-page .article-content{
+    padding:0 16px 22px!important;font-size:12px!important;line-height:1.66!important
+  }
+  .mx-conseil-detail-page .article-content h2{
+    margin:22px 0 8px!important;font-size:20px!important;line-height:1.15!important
+  }
+  .mx-conseil-detail-page .article-content h3{
+    margin:18px 0 7px!important;font-size:16px!important;line-height:1.2!important
+  }
+  .mx-conseil-detail-page .article-content p{margin:9px 0!important}
+}
+@media(max-width:345px){
+  .mx-conseil-detail-page .container{width:calc(100% - 18px)!important}
+  .mx-conseil-detail-page .article-page-card .news-image{height:180px!important;max-height:180px!important}
+  .mx-conseil-detail-page .article-page-card h1{font-size:25px!important;padding:15px 14px 7px!important}
+  .mx-conseil-detail-page .article-content{padding:0 14px 20px!important;font-size:11.5px!important}
+}
