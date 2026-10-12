@@ -8,7 +8,7 @@ from pathlib import Path
 import requests
 from telegram_rich import post_photo
 from telegram_premium_templates import bonus as bonus_template
-from telegram_promo_channels import promo_channels, deliver_to_both
+from telegram_promo_channels import promo_channels, deliver_once_to_both
 from telegram_promo_colors import colorized_button
 from PIL import Image, ImageOps
 
@@ -153,7 +153,7 @@ def send():
     def send_to(cid):
         post_photo(requests,BOT_TOKEN,cid,img,caption,keyboard(bm),
                    timeout=120,mime="image/jpeg")
-    deliver_to_both(channels,send_to,label=bm["name"])
+    deliver_once_to_both(channels,send_to,campaign="bonus-"+key,label=bm["name"])
 
 
 if __name__ == "__main__":
