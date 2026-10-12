@@ -1309,17 +1309,50 @@ footer {
  font-size: 1rem;
  margin: 2rem 0;
 }
-.loading { position: relative; }
+/* Chargement traditionnel de secours : plus aucun spinner circulaire.
+   Les pages principales utilisent les Skeletons présents dans leur HTML. */
+.loading {
+ position: relative;
+ overflow: hidden;
+ padding-bottom: 3.4rem;
+ border-color: rgba(212, 175, 55, .25);
+ background: linear-gradient(145deg, #1a1a1a, #111);
+ color: #e6dcc1;
+}
+.loading::before {
+ content: '●';
+ display: block;
+ width: fit-content;
+ margin: 0 auto .5rem;
+ color: var(--or);
+ font-size: 14px;
+ animation: mx-fallback-glow 1.7s ease-in-out infinite;
+}
 .loading::after {
  content: '';
- display: inline-block;
- width: 30px;
- height: 30px;
- border: 3px solid var(--gris-clair);
- border-top-color: var(--or);
- border-radius: 50%;
- animation: spinner 1s linear infinite;
- margin-top: 1rem;
+ display: block;
+ position: absolute;
+ left: 18%;
+ right: 18%;
+ bottom: 1.35rem;
+ height: 4px;
+ border: 0;
+ border-radius: 999px;
+ margin: 0;
+ background: linear-gradient(90deg, transparent 0%, #8b702e 25%, #f2d477 50%, #8b702e 75%, transparent 100%);
+ background-size: 200% 100%;
+ animation: mx-loading-line 1.45s ease-in-out infinite;
+}
+@keyframes mx-loading-line {
+ 0% { background-position: 110% 50%; opacity: .45; }
+ 50% { opacity: 1; }
+ 100% { background-position: -110% 50%; opacity: .45; }
+}
+@keyframes mx-fallback-glow {
+ 50% { opacity: .4; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .loading::before, .loading::after { animation: none; }
 }
 .error { color: var(--rouge); border-color: var(--rouge); }
 .warning { color: var(--orange); border-color: var(--orange); }
