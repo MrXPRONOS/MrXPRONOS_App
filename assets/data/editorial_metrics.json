@@ -40,29 +40,28 @@
         "v3": 4
       },
       "source_types": {
-        "Football : info, vidéos, reportages et analyses - France 24": 5,
-        "LFP - Flux RSS": 2,
-        "MadeInFOOT.com": 13
+        "Foot Mercato : Info Transferts Football - Actu Foot Transfert": 8,
+        "MadeInFOOT.com": 12
       },
       "with_social_image": 20
     }
   },
   "delivery": {
-    "items": 134,
+    "items": 142,
     "platform_states": {
-      "facebook:not_requested": 134,
-      "instagram:not_requested": 134,
-      "telegram:not_requested": 134,
-      "threads:not_requested": 134,
-      "tiktok:not_requested": 134,
-      "youtube:not_requested": 134
+      "facebook:not_requested": 142,
+      "instagram:not_requested": 142,
+      "telegram:not_requested": 142,
+      "threads:not_requested": 142,
+      "tiktok:not_requested": 142,
+      "youtube:not_requested": 142
     }
   },
   "assets": {
-    "files": 462,
-    "size_mb": 25.75,
+    "files": 492,
+    "size_mb": 27.46,
     "by_format": {
-      ".webp": 462
+      ".webp": 492
     }
   },
   "real_clicks": null,
