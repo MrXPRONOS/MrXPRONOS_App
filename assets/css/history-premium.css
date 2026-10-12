@@ -343,3 +343,94 @@
   .mx-history-page .mx-history-proof span{flex:1 1 calc(50% - 5px)}
   .mx-history-page .mx-history-proof span:last-child{flex-basis:100%}
 }
+
+
+/* =========================================================
+   History mobile refinement v5 — compact results-first layout
+========================================================= */
+@media(max-width:700px){
+  .mx-history-page .mx-history-hero,
+  .mx-history-page .mx-history-hero-inner{min-height:265px!important}
+  .mx-history-page .mx-history-hero-inner{padding:18px 0 20px!important}
+  .mx-history-page .mx-history-copy h1{
+    max-width:385px!important;margin:9px 0 9px!important;
+    font-size:clamp(31px,8.4vw,38px)!important;line-height:1.03!important
+  }
+  .mx-history-page .mx-history-copy p{max-width:375px!important;font-size:11.4px!important;line-height:1.43!important}
+  .mx-history-page .mx-history-proof{margin-top:10px!important;gap:5px!important}
+  .mx-history-page .mx-history-proof span{
+    min-height:31px!important;padding:4px 6px!important;font-size:7.2px!important;border-radius:8px!important
+  }
+  .mx-history-page .mx-history-proof img{width:18px!important;height:18px!important}
+  .mx-history-page .mx-history-player{height:238px!important;right:-18%!important;bottom:-67px!important;opacity:.17!important}
+
+  .mx-history-page .mx-history-content{padding-top:9px!important;padding-bottom:35px!important}
+  .mx-history-page .mx-history-stats{gap:7px!important}
+  .mx-history-page .mx-history-stat{
+    min-height:78px!important;padding:10px 12px!important;gap:10px!important;border-radius:11px!important
+  }
+  .mx-history-page .mx-history-stat-icon{
+    width:42px!important;height:42px!important;flex-basis:42px!important;border-radius:10px!important
+  }
+  .mx-history-page .mx-history-stat-icon img{width:35px!important;height:35px!important}
+  .mx-history-page .mx-history-stat-copy strong{font-size:26px!important}
+  .mx-history-page .mx-history-stat-copy b{margin-top:3px!important;font-size:13px!important}
+  .mx-history-page .mx-history-stat-copy span{margin-top:2px!important;font-size:9px!important;line-height:1.3!important}
+
+  .mx-history-page .mx-history-rate-card{gap:9px!important}
+  .mx-history-page .mx-history-rate-ring{width:58px!important;height:58px!important;flex-basis:58px!important}
+  .mx-history-page .mx-history-rate-ring::before{inset:6px!important}
+  .mx-history-page .mx-history-rate-ring strong{font-size:18px!important}
+  .mx-history-page .mx-history-rate-info b{font-size:13px!important}
+  .mx-history-page .mx-history-rate-info span{margin-top:3px!important;font-size:9px!important;line-height:1.3!important}
+
+  .mx-history-page .mx-history-toolbar{
+    margin:11px 0 9px!important;padding:8px 10px!important;gap:3px!important;border-radius:9px!important
+  }
+  .mx-history-page .mx-history-toolbar-title{gap:7px!important;font-size:10px!important}
+  .mx-history-page .mx-history-toolbar-title span{width:25px!important;height:25px!important;border-radius:7px!important}
+  .mx-history-page .mx-history-toolbar-title img{width:19px!important;height:19px!important}
+  .mx-history-page .mx-history-toolbar-note{font-size:8.5px!important;line-height:1.3!important}
+
+  .mx-history-page #history-container{gap:7px!important}
+  .mx-history-page .history-row{grid-template-columns:1fr 82px!important;border-radius:10px!important}
+  .mx-history-page .history-row>div{padding:9px 10px!important}
+  .mx-history-page .history-competition{padding-bottom:7px!important}
+  .mx-history-page .history-league{gap:7px!important;font-size:9.5px!important}
+  .mx-history-page .history-league-icon{width:24px!important;height:24px!important;flex-basis:24px!important;font-size:14px!important}
+  .mx-history-page .history-date{margin:3px 0 0 31px!important;font-size:8px!important}
+
+  .mx-history-page .history-match{padding:10px!important;gap:6px!important;grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr)!important}
+  .mx-history-page .history-team img{width:39px!important;height:39px!important}
+  .mx-history-page .history-team span{margin-top:3px!important;font-size:9px!important;line-height:1.08!important}
+  .mx-history-page .history-score strong{padding:5px 4px!important;font-size:17px!important;border-radius:6px!important}
+  .mx-history-page .history-score span{margin-top:3px!important;font-size:7.5px!important}
+
+  .mx-history-page .history-pick small,
+  .mx-history-page .history-confidence small{font-size:8px!important}
+  .mx-history-page .history-pick strong{margin-top:3px!important;font-size:11.5px!important}
+  .mx-history-page .history-pick span{margin-top:3px!important;font-size:8px!important}
+  .mx-history-page .history-stars{margin-top:3px!important;font-size:12px!important;letter-spacing:.5px!important}
+  .mx-history-page .history-confidence strong{font-size:10px!important}
+
+  .mx-history-page .history-result{
+    padding:6px 9px!important;gap:7px!important;justify-content:space-between!important
+  }
+  .mx-history-page .history-result-badge{
+    min-width:94px!important;min-height:31px!important;padding:5px 7px!important;
+    gap:5px!important;border-radius:7px!important;font-size:9.5px!important
+  }
+  .mx-history-page .history-result small{font-size:7.5px!important}
+}
+
+@media(max-width:345px){
+  .mx-history-page .container{width:calc(100% - 18px)!important}
+  .mx-history-page .mx-history-hero,
+  .mx-history-page .mx-history-hero-inner{min-height:272px!important}
+  .mx-history-page .mx-history-copy h1{font-size:29px!important}
+  .mx-history-page .mx-history-copy p{font-size:10.8px!important}
+  .mx-history-page .mx-history-proof span{font-size:6.7px!important}
+  .mx-history-page .history-row{grid-template-columns:1fr 76px!important}
+  .mx-history-page .history-match{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)!important}
+  .mx-history-page .history-team img{width:35px!important;height:35px!important}
+}
