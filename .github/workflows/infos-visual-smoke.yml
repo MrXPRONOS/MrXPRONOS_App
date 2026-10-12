@@ -40,12 +40,12 @@ jobs:
         run: |
           python -m http.server 8000 --bind 127.0.0.1 > /tmp/infos-http.log 2>&1 &
           sleep 2
-      - name: Verify Infos at 1024px and 390px
+      - name: Verify Infos at 1024px, 390px and 320px
         run: python scripts/infos_visual_smoke.py
       - name: Save responsive screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: infos-responsive-1024-390
+          name: infos-responsive-1024-390-320
           path: artifacts/infos-responsive/
           if-no-files-found: warn
