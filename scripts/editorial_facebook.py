@@ -16,7 +16,7 @@ ROOT=Path(__file__).resolve().parents[1]
 QUEUE=ROOT/"assets/data/editorial_share_queue.json"
 
 def eligible(item,now):
-    if item.get("kind") not in ("article","conseil"):return False
+    if item.get("retired") or item.get("kind") not in ("article","conseil"):return False
     if item.get("platform_status",{}).get("facebook") in ("sent","sending"):return False
     if not str(item.get("url","")).startswith(BASE):return False
     when=parsed_dt(item.get("source_date"))
