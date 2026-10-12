@@ -1,0 +1,28 @@
+name: Migrate all GitHub schedules to cron-job.org
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/cronjob-migrate-all-trigger.txt"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cronjob-migrate-all
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Provision all remaining schedules on cron-job.org
+        env:
+          CRONJOB_API_KEY: ${{ secrets.CRONJOB_API_KEY }}
+        run: python scripts/migrate_all_github_schedules_to_cronjob.py
