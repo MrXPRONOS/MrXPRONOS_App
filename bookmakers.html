@@ -14,7 +14,10 @@
   <meta property="og:url" content="https://mrxpronos.github.io/MrXPRONOS_App/bookmakers.html">
   <meta property="og:type" content="website">
 
-  <link rel="icon" href="assets/images/favicon.webp">
+  <link rel="icon" href="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261011-vibrance1">
+  <link rel="stylesheet" href="assets/css/bookmakers-premium.css?v=20261012-bookmakers-premium1">
+  <link rel="manifest" href="manifest.json">
 
   <style>
     :root{
@@ -334,7 +337,27 @@
   </style>
 </head>
 
-<body>
+<body class="mx-bookmakers-page">
+  <header class="mx-site-header">
+    <div class="container mx-header-container">
+      <div class="logo"><a href="index.html" aria-label="Mr XPRONOS — Accueil"><img src="assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1" alt="Mr XPRONOS" width="1104" height="481"></a></div>
+      <nav class="mx-desktop-nav" aria-label="Menu principal">
+        <a href="index.html">Accueil</a>
+        <a href="pronos.html">Pronostics</a>
+        <a href="historique.html">Historique</a>
+        <a href="blog.html">Blog</a>
+        <a href="conseils.html">Conseils</a>
+        <a href="infos.html">Infos sport</a>
+        <a class="active" aria-current="page" href="bonus.html">Bonus &amp; Promo</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="header-actions mx-header-actions">
+        <button id="install-app" class="btn btn-secondary mx-install" type="button" style="display:none;"><img src="assets/images/home-premium/icons/installation_application.svg" width="18" height="18" alt="" aria-hidden="true"><span>Installer l'app</span></button>
+        <button class="promo-code promo-copy mx-code-button" type="button" data-copy="XPVIP" aria-label="Copier le code promo XPVIP"><span class="mx-code-label">Code Promo : </span><strong>XPVIP</strong></button>
+      </div>
+    </div>
+  </header>
+
   <main class="page">
     <p class="eyebrow">Partenaires</p>
 
@@ -498,5 +521,8 @@
       button.addEventListener("click", copyCode);
     })();
   </script>
+  <script defer src="assets/js/pwa.js"></script>
+  <script defer src="assets/js/menu.js"></script>
+  <script defer src="assets/js/back-to-top.js"></script>
 </body>
 </html>
