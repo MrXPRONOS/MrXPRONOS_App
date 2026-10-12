@@ -23,6 +23,28 @@ def run_view(browser, width, height, label):
 
     no_overflow(page, label)
 
+    showcase = page.locator(".mx-home-showcase")
+    if showcase.count() != 1 or not showcase.is_visible():
+        raise AssertionError(f"{label}: home showcase missing")
+
+    page.wait_for_function("""() => {
+      const top=document.querySelector('#top-today-picks');
+      const verified=document.querySelector('#verified-picks');
+      const settled=(el)=>el && (el.querySelector('.pick-card') || el.querySelector('.no-events'));
+      return settled(top) && settled(verified);
+    }""", timeout=10000)
+
+    top_cards = page.locator("#top-today-picks .pick-card")
+    verified_cards = page.locator("#verified-picks .pick-card")
+    if top_cards.count() > 3:
+        raise AssertionError(f"{label}: too many highlighted daily selections ({top_cards.count()})")
+    if verified_cards.count() > 3:
+        raise AssertionError(f"{label}: too many verified result cards ({verified_cards.count()})")
+
+    proofbar = page.locator(".mx-home-proofbar")
+    if proofbar.count() != 1 or not proofbar.is_visible():
+        raise AssertionError(f"{label}: performance proof bar missing")
+
     cards = page.locator(".mx-feature-card")
     if cards.count() != 3:
         raise AssertionError(f"{label}: expected 3 primary action cards, got {cards.count()}")
@@ -71,6 +93,17 @@ def run_view(browser, width, height, label):
         details.first.locator("summary").click()
         if details.first.get_attribute("open") is None:
             raise AssertionError(f"{label}: collapsed secondary section cannot be opened")
+        details.first.locator("summary").click()
+
+        for group_name, group in [("daily", top_cards), ("verified", verified_cards)]:
+            if group.count():
+                heights = group.evaluate_all("(nodes)=>nodes.map(n=>n.getBoundingClientRect().height)")
+                if max(heights) > 138:
+                    raise AssertionError(f"{label}: {group_name} home card too tall: {heights}")
+
+        proof_h = proofbar.evaluate("(el)=>el.getBoundingClientRect().height")
+        if proof_h > 52:
+            raise AssertionError(f"{label}: performance proof bar too tall ({proof_h}px)")
 
         support_desc = page.locator(".mx-support p")
         if support_desc.count() and support_desc.is_visible():
@@ -95,7 +128,7 @@ def run_view(browser, width, height, label):
     if page_errors:
         raise AssertionError(f"{label}: page errors {page_errors}")
 
-    print(f"PASS {label}: {width}x{height}, content-first/actions/details/assets/navigation/overflow OK")
+    print(f"PASS {label}: {width}x{height}, content-first/actions/selections/results/proof/details/navigation/overflow OK")
     context.close()
 
 with sync_playwright() as p:
