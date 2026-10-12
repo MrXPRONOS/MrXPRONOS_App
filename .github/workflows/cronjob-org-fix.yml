@@ -1,0 +1,28 @@
+name: Fix cron-job.org Telegram schedules
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/cronjob-org-fix-trigger.txt"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cronjob-org-fix
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Apply verified cron-job.org corrections
+        env:
+          CRONJOB_API_KEY: ${{ secrets.CRONJOB_API_KEY }}
+        run: python scripts/fix_cronjob_org_telegram.py
