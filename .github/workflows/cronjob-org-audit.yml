@@ -1,0 +1,36 @@
+name: Audit cron-job.org Mr XPRONOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/cronjob-org-audit-trigger.txt"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cronjob-org-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Audit cron-job.org without modifying jobs
+        env:
+          CRONJOB_API_KEY: ${{ secrets.CRONJOB_API_KEY }}
+        run: python scripts/audit_cronjob_org.py
+      - name: Upload sanitized audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cronjob-org-audit
+          path: audit/cronjob_org_audit.json
+          if-no-files-found: ignore
+          retention-days: 3
