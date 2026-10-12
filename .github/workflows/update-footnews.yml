@@ -48,6 +48,11 @@ jobs:
       - name: Generate new Flash Foot visuals immediately
         run: python scripts/content_studio.py --limit 0 --news-limit 20
 
+      - name: Refresh editorial queue and report for the newest news
+        run: |
+          python scripts/editorial_queue.py --limit 100
+          python scripts/editorial_metrics.py
+
       - name: Validate news visuals and French output
         run: python scripts/editorial_quality.py --strict
 
@@ -91,8 +96,10 @@ jobs:
             git reset --hard origin/main
             python fetch_foot_news.py
             python scripts/content_studio.py --limit 0 --news-limit 20
+            python scripts/editorial_queue.py --limit 100
+            python scripts/editorial_metrics.py
             python scripts/editorial_quality.py --strict
-            git add footnews.json assets/images/editorial/
+            git add footnews.json assets/images/editorial/ assets/data/editorial_share_queue.json assets/data/editorial_metrics.json
             if git diff --cached --quiet; then
               echo "Aucune nouvelle actualité ou image."
               exit 0
