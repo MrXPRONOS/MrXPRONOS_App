@@ -124,6 +124,7 @@ function detectIntent(question: string) {
   if (LIVE_KEYWORDS.some(k => q.includes(k))) return "live";
   if (BONUS_KEYWORDS.some(k => q.includes(k))) return "bonus";
   if (SUPPORT_KEYWORDS.some(k => q.includes(k))) return "support";
+  if (/^(qu['’]est[- ]ce que|que signifie|c['’]est quoi|définition de|definition de|comment lire|quelle est la différence entre|quelle est la difference entre)\b/.test(q)) return "generic";
   if (RESULT_KEYWORDS.some(k => q.includes(k))) return "results";
   if (PRONO_KEYWORDS.some(k => q.includes(k))) return "prono";
   return "generic";
@@ -1121,7 +1122,13 @@ serve(async (req) => {
       resultatsText,
       isFrustrated,
       hasPronos
-    });
+    }) + (page_context === "/live.html"
+      ? "\nContexte de navigation : l'utilisateur consulte le LIVE. Les informations de match doivent venir exclusivement des données fournies dans le prompt, jamais du chemin de page."
+      : page_context === "/historique.html"
+      ? "\nContexte de navigation : l'utilisateur consulte l'Historique. Ne pas inventer les résultats ou leur validation."
+      : page_context === "/pronos.html"
+      ? "\nContexte de navigation : l'utilisateur consulte la page Pronostics. Ne pas inventer de coupons."
+      : "");
 
     const messages = buildConversationMessages(systemPrompt, historique, question);
     const model = chooseModel(question, intent);
@@ -1168,7 +1175,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       answer: fallbackAnswer,
       from_cache: false,
-      error: String((error as Error)?.message || error)
+      degraded: true
     }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
