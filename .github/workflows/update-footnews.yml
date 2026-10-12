@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: update-footnews
@@ -106,6 +107,7 @@ jobs:
             fi
             git commit -m "data(infos): refresh verified French football news and cards"
             if git push origin HEAD:main; then
+              echo "NEWS_COMMITTED=true" >> "$GITHUB_ENV"
               echo "RSS publication committed successfully"
               exit 0
             fi
@@ -113,3 +115,9 @@ jobs:
           done
           echo "RSS commit failed without any forced push"
           exit 1
+
+      - name: Deploy refreshed news on GitHub Pages
+        if: env.NEWS_COMMITTED == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
