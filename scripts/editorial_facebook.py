@@ -5,10 +5,11 @@ Utilise les Open Graph du site: ne réhéberge pas les médias sur Meta.
 Aucun envoi sans --publish + META_PAGE_ID + META_PAGE_ACCESS_TOKEN.
 """
 from __future__ import annotations
-import argparse,json,os
+import argparse,json,os,sys
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
 import requests
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from scripts.editorial_telegram import parsed_dt,tagged_url,BASE
 
 ROOT=Path(__file__).resolve().parents[1]
