@@ -9,7 +9,7 @@ from pathlib import Path
 import requests
 from telegram_rich import post_photo
 from telegram_premium_templates import guide as guide_template, partners as partners_template
-from telegram_promo_channels import promo_channels, deliver_to_both
+from telegram_promo_channels import promo_channels, deliver_once_to_both
 from telegram_promo_colors import colorized_button
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -140,9 +140,10 @@ def main():
         keyboard = single_keyboard(partner)
         label = partner["name"]
 
-    deliver_to_both(
+    deliver_once_to_both(
         promo_channels(CHAT_ID,SECONDARY_CHAT_ID),
         lambda cid: send_photo(cid,image,caption,keyboard),
+        campaign="guide-"+today,
         label=label,
     )
 
