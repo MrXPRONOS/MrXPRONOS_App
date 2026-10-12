@@ -31,6 +31,8 @@ function browserFixture(matches, search = "") {
     "count-" + cat, { textContent: "" },
   ]));
   const doc = {
+    // The shared script checks the site header at module startup.
+    querySelector() { return null; },
     querySelectorAll(selector) {
       return selector === ".pronostic-category-tabs .tab-btn" ? tabs : [];
     },
