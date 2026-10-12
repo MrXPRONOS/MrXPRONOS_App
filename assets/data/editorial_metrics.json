@@ -48,6 +48,8 @@
   },
   "delivery": {
     "items": 164,
+    "active_items": 154,
+    "retired_items": 10,
     "platform_states": {
       "facebook:not_requested": 164,
       "instagram:not_requested": 164,
