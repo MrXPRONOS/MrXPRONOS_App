@@ -134,7 +134,11 @@
 
   function createBottomNav() {
     const path = (location.pathname || '').toLowerCase();
-    if (path.includes('admin') || path.endsWith('offline.html')) return null;
+    if (
+      path.includes('admin') ||
+      path.endsWith('offline.html') ||
+      document.body.classList.contains('mx-live-page')
+    ) return null;
 
     const existing = document.getElementById('bottom-nav');
     if (existing) return existing;
