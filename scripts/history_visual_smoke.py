@@ -39,8 +39,8 @@ def assert_mobile_layout(page, width, label):
         return
 
     hero_h = page.locator(".mx-history-hero").evaluate("(el) => el.getBoundingClientRect().height")
-    if hero_h > 252:
-        raise AssertionError(f"{label}: hero too tall ({hero_h}px)")
+    if hero_h > 170:
+        raise AssertionError(f"{label}: hero too tall for content-first mobile UX ({hero_h}px)")
 
     stats = page.locator(".mx-history-stat")
     if stats.count() != 3:
@@ -50,8 +50,20 @@ def assert_mobile_layout(page, width, label):
         raise AssertionError(f"{label}: stat cards are not on one compact row: {tops}")
 
     toolbar_h = page.locator(".mx-history-toolbar").evaluate("(el) => el.getBoundingClientRect().height")
-    if toolbar_h > 56:
+    if toolbar_h > 34:
         raise AssertionError(f"{label}: results toolbar too tall ({toolbar_h}px)")
+
+    stat_heights = stats.evaluate_all("(nodes) => nodes.map(n => n.getBoundingClientRect().height)")
+    if max(stat_heights) > 60:
+        raise AssertionError(f"{label}: summary cards consume too much vertical space: {stat_heights}")
+
+    first_row_top = page.locator(".history-row").first.evaluate("(el) => el.getBoundingClientRect().top")
+    max_first_row_top = 335 if width >= 390 else 330
+    if first_row_top > max_first_row_top:
+        raise AssertionError(
+            f"{label}: first match starts too low ({first_row_top}px > {max_first_row_top}px); "
+            "mobile pages must surface primary content before excessive scrolling"
+        )
 
     rows = page.locator(".history-row")
     geometry = rows.evaluate_all("""(nodes) => nodes.map(row => {
