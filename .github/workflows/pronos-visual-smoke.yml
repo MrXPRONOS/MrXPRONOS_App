@@ -14,6 +14,7 @@ on:
   pull_request:
     paths:
       - 'pronos.html'
+      - 'assets/css/pronos-premium.css'
       - 'assets/css/style.css'
       - 'assets/css/mobile-nav-premium.css'
       - 'assets/js/main.js'
