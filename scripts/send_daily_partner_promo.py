@@ -7,7 +7,7 @@ import textwrap
 import requests
 from telegram_rich import post_photo
 from telegram_premium_templates import partners as partners_template
-from telegram_promo_channels import promo_channels, deliver_to_both
+from telegram_promo_channels import promo_channels, deliver_once_to_both
 from telegram_promo_colors import colorized_button
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageOps
@@ -167,8 +167,8 @@ def main():
     def send_to(cid):
         post_photo(requests,TOKEN,cid,Path(image_path),CAPTION,markup,
                    timeout=120,mime="image/jpeg")
-    deliver_to_both(promo_channels(CHAT_ID,SECONDARY_CHAT_ID),
-                    send_to,label="Promo XPVIP commune")
+    deliver_once_to_both(promo_channels(CHAT_ID,SECONDARY_CHAT_ID),
+                    send_to,campaign="xpvip-common",label="Promo XPVIP commune")
 
 if __name__=="__main__":
     main()
