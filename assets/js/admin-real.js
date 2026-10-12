@@ -1,4 +1,14 @@
 import { supabaseUrl, supabaseAnonKey } from "./config.js";
+import "./loading-ui.js";
+
+
+// Charger la feuille de style sans modifier la page de connexion administrateur.
+if (!document.querySelector('link[href*="loading-ui.css"]')) {
+  const mxLoadingSheet = document.createElement("link");
+  mxLoadingSheet.rel = "stylesheet";
+  mxLoadingSheet.href = "assets/css/loading-ui.css?v=20261012-3";
+  document.head.appendChild(mxLoadingSheet);
+}
 
 const sb = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
 const $ = (id) => document.getElementById(id);
