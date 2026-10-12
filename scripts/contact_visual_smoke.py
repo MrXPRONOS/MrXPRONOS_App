@@ -51,13 +51,14 @@ def run_view(browser, width, height, label):
             raise AssertionError(f"{label}: invalid contact href {href!r}")
 
     columns=page.locator(".contact-grid").evaluate("(el)=>getComputedStyle(el).gridTemplateColumns.split(' ').length")
-    expected=2
+    expected = 3 if width >= 901 else 2
     if columns!=expected:
         raise AssertionError(f"{label}: expected {expected} contact columns, got {columns}")
 
     first_h=cards.first.bounding_box()["height"]
-    if first_h>90:
-        raise AssertionError(f"{label}: contact card remains too tall ({first_h})")
+    max_card_h = 200 if width > 700 else 90
+    if first_h>max_card_h:
+        raise AssertionError(f"{label}: contact card remains too tall ({first_h} > {max_card_h})")
 
     page.evaluate("window.scrollTo(0,0)")
     page.screenshot(path=str(OUT/f"contact-{width}.png"),full_page=True)
@@ -66,6 +67,8 @@ def run_view(browser, width, height, label):
 
 with sync_playwright() as p:
     browser=p.chromium.launch(headless=True)
+    run_view(browser,1024,900,"desktop")
+    run_view(browser,768,1024,"tablet")
     run_view(browser,390,844,"mobile")
     run_view(browser,320,720,"small-mobile")
     browser.close()
