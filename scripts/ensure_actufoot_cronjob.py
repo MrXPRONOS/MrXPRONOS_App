@@ -97,3 +97,27 @@ assert safe["targetWorkflow"]==TARGET_WF
 assert safe["schedule"]["minutes"]==[0,30]
 assert safe["schedule"]["hours"]==list(range(7,24))
 print(json.dumps(safe,ensure_ascii=False,indent=2))
+
+# Validation non destructive : même authentification que cron-job.org, mais workflow en dry-run.
+if os.environ.get("ACTUFOOT_TEST_DISPATCH","").strip()=="1":
+    test_body=json.dumps({
+        "ref":"main",
+        "inputs":{
+            "trigger_source":"cron-job.org-test",
+            "dry_run":True,
+            "force":False,
+        }
+    }).encode("utf-8")
+    test_headers={str(k):str(v) for k,v in source_headers.items()}
+    test_headers.setdefault("Content-Type","application/json")
+    test_req=urllib.request.Request(TARGET_URL,data=test_body,headers=test_headers,method="POST")
+    try:
+        with urllib.request.urlopen(test_req,timeout=30) as resp:
+            resp.read()
+            code=resp.status
+    except urllib.error.HTTPError as e:
+        body=e.read().decode("utf-8","replace")
+        raise RuntimeError(f"GitHub dry-run dispatch HTTP {e.code}: {body[:400]}")
+    if code not in (200,204):
+        raise RuntimeError(f"GitHub dry-run dispatch inattendu: HTTP {code}")
+    print(json.dumps({"dry_run_dispatch":"ok","httpStatus":code},ensure_ascii=False))
