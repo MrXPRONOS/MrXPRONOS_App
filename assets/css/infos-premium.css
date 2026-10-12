@@ -212,3 +212,7 @@
  .mx-infos-page .featured .news-premium-body{padding:18px}
  .mx-infos-page .mx-infos-list-head{align-items:center}
 }
+
+
+/* Infos v4 — remove duplicated category identity inside news cards */
+.mx-infos-page .news-premium-body .news-card-kicker{display:none!important}

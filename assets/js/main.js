@@ -2243,7 +2243,6 @@ function renderFootNewsCards() {
         </div>
         <div class="news-premium-body">
           <div class="news-date"><img src="assets/images/infos-premium/icon-infos-clock.webp" alt="" aria-hidden="true"><span>${escapeHtml(date)}</span></div>
-          <div class="news-card-kicker"><img src="${categoryIcon}" alt="" aria-hidden="true"><span>${escapeHtml(category)}</span></div>
           <h3>${titleHtml}</h3>
           <p>${escapeHtml(summary)}${String(item.summary || "").length > summary.length ? "…" : ""}</p>
           <span class="news-card-cta">${item.manual ? "Voir le contenu" : "Lire la suite"} <span aria-hidden="true">›</span></span>
