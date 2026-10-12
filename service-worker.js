@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v59-mobile-nav-crisp-retina-20261012';
+const VERSION = 'v60-regenerated-brand-assets-20261012';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -95,6 +95,8 @@ const STATIC_ASSETS = [
     './assets/images/live-premium/icon-pie.webp',
     './assets/images/live-premium/icon-bars.webp',
     './assets/images/mrxpronos-horizontal.webp',
+    './assets/images/mrxpronos-horizontal-compact.webp',
+    './assets/images/mrxpronos-mark.webp',
     './assets/images/mrxpronos-logo-maquette.png',
     './assets/images/mrxpronos-horizontal.webp',
     './assets/images/mrxpronos-stacked.webp',
