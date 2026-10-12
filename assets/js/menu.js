@@ -4,7 +4,7 @@
   'use strict';
 
   const ICON_BASE = 'assets/images/mobile-premium/';
-  const LOGO = 'assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1';
+  const LOGO = 'assets/images/mrxpronos-horizontal-compact.webp?v=20261012-brand2';
   const MOBILE_NAV_CSS = 'assets/css/mobile-nav-premium.css?v=20261012-mobile-nav3';
   const ICON_REV = '?v=20261012-crisp-retina3';
 
