@@ -38,6 +38,43 @@ def main():
                     failures.append(f"{width}px: horizontal overflow {measurements['full']} > {measurements['viewport']}")
                 if measurements["cards"] == 0 and page.locator("#matches-container .no-events, #matches-container .error").count() == 0:
                     failures.append(f"{width}px: blank match results despite ready page")
+
+                # matches-first mobile layout: remove reading load before the actual picks.
+                if width <= 590:
+                    hero_h = page.locator(".mx-pronos-hero").evaluate("(el) => el.getBoundingClientRect().height")
+                    hero_limit = 135 if width >= 390 else 122
+                    if hero_h > hero_limit:
+                        failures.append(f"{width}px: hero too tall for matches-first mobile layout ({hero_h}px)")
+
+                    hero_desc = page.locator(".mx-pronos-hero-copy p")
+                    if hero_desc.count() and hero_desc.is_visible():
+                        failures.append(f"{width}px: secondary hero description should be hidden")
+
+                    category_copy = page.locator(".category-copy")
+                    if category_copy.count() and category_copy.is_visible():
+                        failures.append(f"{width}px: redundant category copy should be hidden")
+
+                    tabs_h = page.locator(".pronostic-category-tabs").evaluate("(el) => el.getBoundingClientRect().height")
+                    if tabs_h > 42:
+                        failures.append(f"{width}px: category tabs too tall ({tabs_h}px)")
+
+                    filter_h = page.locator(".pronos-filter-shell").evaluate("(el) => el.getBoundingClientRect().height")
+                    if filter_h > 70:
+                        failures.append(f"{width}px: search/date controls too tall ({filter_h}px)")
+
+                    if measurements["cards"] > 0:
+                        first_card_top = page.locator("#matches-container .match-card").first.evaluate("(el) => el.getBoundingClientRect().top")
+                        max_top = 355 if width >= 390 else 340
+                        if first_card_top > max_top:
+                            failures.append(
+                                f"{width}px: first match starts too low ({first_card_top}px > {max_top}px)"
+                            )
+
+                    nav = page.locator("#bottom-nav")
+                    nav.wait_for(state="visible", timeout=10000)
+                    nav_items = page.locator("#bottom-nav .bottom-nav-item")
+                    if nav_items.count() != 5:
+                        failures.append(f"{width}px: expected 5 mobile nav items, got {nav_items.count()}")
                 if not measurements["logo"] or not measurements["heading"] or measurements["tabs"] != 3:
                     failures.append(f"{width}px: missing essential component")
                 if width == 390:
@@ -63,7 +100,7 @@ def main():
         for failure in failures:
             print(" -", failure)
         raise SystemExit(1)
-    print("PASS: 5 viewport screenshots, no overflow, tabs and date filters responsive")
+    print("PASS: 5 viewport screenshots, matches-first mobile density, no overflow, tabs/date filters/navigation responsive")
 
 if __name__ == "__main__":
     main()

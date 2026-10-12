@@ -573,3 +573,334 @@
   .mx-pronos-page .success-rate-value{font-size:25px!important;line-height:1!important}
   .mx-pronos-page .success-rate-label{margin-top:4px!important;font-size:9.5px!important}
 }
+
+
+/* =========================================================
+   Pronostics mobile refinement v5 — matches-first / low-reading-load
+   Mobile flow: title -> category -> search/date -> matches.
+========================================================= */
+@media(max-width:590px){
+  .mx-pronos-page .mx-pronos-hero,
+  .mx-pronos-page .mx-pronos-hero-inner{
+    min-height:126px!important;
+    height:126px!important;
+  }
+  .mx-pronos-page .mx-pronos-hero-inner{
+    align-items:center!important;
+    padding:8px 0!important;
+  }
+  .mx-pronos-page .mx-pronos-hero-atmosphere{
+    background-image:
+      linear-gradient(90deg,rgba(1,8,15,.96) 0%,rgba(1,10,20,.72) 58%,rgba(1,12,24,.25) 100%),
+      url('../images/pronostics-premium/hero-stadium.webp?v=20261011-gen2')!important;
+    background-position:center,68% center!important;
+  }
+  .mx-pronos-page .mx-pronos-hero-copy{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .mx-pronos-page .pronos-eyebrow,
+  .mx-pronos-page .mx-pronos-hero-copy p,
+  .mx-pronos-page .mx-pronos-quote{
+    display:none!important;
+  }
+  .mx-pronos-page .mx-pronos-hero h1{
+    max-width:330px!important;
+    margin:0!important;
+    font-size:29px!important;
+    line-height:.98!important;
+    letter-spacing:-.035em!important;
+  }
+
+  .mx-pronos-page .mx-pronos-content{
+    padding-top:5px!important;
+    padding-bottom:28px!important;
+  }
+  .mx-pronos-page .pronostic-switcher{
+    padding:0!important;
+    margin:0!important;
+    transform:none!important;
+  }
+  .mx-pronos-page .pronostic-category-tabs{
+    border-radius:9px!important;
+  }
+  .mx-pronos-page .pronostic-category-tabs .tab-btn{
+    min-height:38px!important;
+    height:38px!important;
+    padding:3px 4px!important;
+    gap:4px!important;
+    border-radius:0!important;
+    font-size:9.5px!important;
+  }
+  .mx-pronos-page .category-icon{
+    width:19px!important;
+    height:19px!important;
+  }
+  .mx-pronos-page .category-icon img{
+    width:17px!important;
+    height:17px!important;
+  }
+  .mx-pronos-page .tab-btn[data-cat="vip"] .category-icon img{
+    width:18px!important;
+    height:18px!important;
+  }
+  .mx-pronos-page .pronostic-category-tabs .tab-count{
+    min-width:17px!important;
+    height:17px!important;
+    padding:0 3px!important;
+    border-radius:5px!important;
+    font-size:7px!important;
+  }
+  .mx-pronos-page .category-copy{
+    display:none!important;
+  }
+
+  .mx-pronos-page .pronos-filter-shell{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:4px!important;
+    margin:5px 0 5px!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+  }
+  .mx-pronos-page .search-input{
+    min-height:32px!important;
+    height:32px!important;
+    padding:5px 8px 5px 32px!important;
+    background-position:9px center,0 0!important;
+    background-size:15px 15px,100% 100%!important;
+    border-radius:8px!important;
+    font-size:9.3px!important;
+  }
+  .mx-pronos-page .day-filters{
+    width:100%!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:4px!important;
+  }
+  .mx-pronos-page .day-filters .day-btn{
+    min-height:29px!important;
+    height:29px!important;
+    padding:3px 4px!important;
+    border-radius:7px!important;
+    font-size:8px!important;
+  }
+
+  .mx-pronos-page .success-rate{
+    min-height:42px!important;
+    margin:5px 0!important;
+    padding:6px 8px!important;
+    gap:5px!important;
+    border-radius:8px!important;
+  }
+  .mx-pronos-page .success-rate-value{
+    font-size:18px!important;
+  }
+  .mx-pronos-page .success-rate-label{
+    margin-top:2px!important;
+    font-size:7.5px!important;
+  }
+
+  .mx-pronos-page .matches-grid{
+    gap:6px!important;
+  }
+  .mx-pronos-page .league-header{
+    min-height:28px!important;
+    margin:4px 0 0!important;
+    padding:4px 1px!important;
+    gap:7px!important;
+  }
+  .mx-pronos-page .league-header__title{
+    gap:6px!important;
+  }
+  .mx-pronos-page .league-flag{
+    width:22px!important;
+    height:22px!important;
+    font-size:14px!important;
+  }
+  .mx-pronos-page .league-header h2{
+    font-size:12.5px!important;
+    line-height:1!important;
+  }
+  .mx-pronos-page .league-header__meta{
+    gap:4px!important;
+    font-size:7.5px!important;
+  }
+  .mx-pronos-page .league-chevron{
+    width:18px!important;
+    height:18px!important;
+  }
+  .mx-pronos-page .league-chevron img{
+    width:11px!important;
+    height:11px!important;
+  }
+
+  .mx-pronos-page .match-card{
+    border-radius:10px!important;
+  }
+  .mx-pronos-page .match-info{
+    padding:7px 8px 5px!important;
+  }
+  .mx-pronos-page .match-meta{
+    min-height:16px!important;
+    margin-bottom:5px!important;
+    gap:3px!important;
+    font-size:7.8px!important;
+    line-height:1.1!important;
+  }
+  .mx-pronos-page .match-card.has-result-badge .match-meta{
+    padding-right:64px!important;
+  }
+  .mx-pronos-page .match-time{
+    font-size:8.5px!important;
+  }
+  .mx-pronos-page .status{
+    font-size:7.5px!important;
+  }
+  .mx-pronos-page .teams{
+    grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr)!important;
+    gap:4px!important;
+    margin-top:4px!important;
+  }
+  .mx-pronos-page .team-logo{
+    width:40px!important;
+    height:40px!important;
+    margin-bottom:3px!important;
+  }
+  .mx-pronos-page .team-name{
+    min-height:22px!important;
+    font-size:8.8px!important;
+    line-height:1.12!important;
+  }
+  .mx-pronos-page .match-score-center{
+    min-width:42px!important;
+    min-height:34px!important;
+    padding:3px!important;
+    border-radius:7px!important;
+  }
+  .mx-pronos-page .match-score-center strong{
+    font-size:12.5px!important;
+  }
+  .mx-pronos-page .match-score-center span{
+    margin-top:2px!important;
+    font-size:6px!important;
+  }
+
+  .mx-pronos-page .analysis-panel{
+    gap:5px!important;
+    padding:4px 8px 8px!important;
+  }
+  .mx-pronos-page .prediction-market{
+    grid-template-columns:minmax(0,1fr) 48px!important;
+    margin-top:4px!important;
+    border-radius:7px!important;
+  }
+  .mx-pronos-page .prediction-market__pick{
+    padding:5px 7px!important;
+  }
+  .mx-pronos-page .prediction-market__label{
+    margin-bottom:1px!important;
+    font-size:6.8px!important;
+  }
+  .mx-pronos-page .prediction-market__value{
+    font-size:10.4px!important;
+    line-height:1.15!important;
+  }
+  .mx-pronos-page .prediction-market__odds{
+    padding:3px!important;
+  }
+  .mx-pronos-page .prediction-market__odds span{
+    font-size:6.5px!important;
+  }
+  .mx-pronos-page .prediction-market__odds strong{
+    font-size:12px!important;
+  }
+  .mx-pronos-page .confidence-line{
+    grid-template-columns:auto minmax(55px,1fr)!important;
+    gap:5px!important;
+  }
+  .mx-pronos-page .confidence-label{
+    font-size:7.6px!important;
+  }
+  .mx-pronos-page .confidence-bar{
+    height:5px!important;
+  }
+  .mx-pronos-page .analysis-panel .btn-share{
+    min-height:29px!important;
+    height:29px!important;
+    margin-top:2px!important;
+    padding:3px 7px!important;
+    gap:5px!important;
+    border-width:1px!important;
+    border-radius:7px!important;
+    font-size:8px!important;
+  }
+  .mx-pronos-page .share-glyph,
+  .mx-pronos-page .share-glyph img{
+    width:14px!important;
+    height:14px!important;
+  }
+  .mx-pronos-page .prediction-validation-badge{
+    top:5px!important;
+    right:5px!important;
+    min-height:19px!important;
+    padding:2px 5px 2px 3px!important;
+    gap:3px!important;
+    font-size:6.5px!important;
+  }
+  .mx-pronos-page .prediction-validation-badge__check{
+    width:12px!important;
+    height:12px!important;
+    flex-basis:12px!important;
+    font-size:8px!important;
+  }
+}
+
+@media(max-width:345px){
+  .mx-pronos-page .container{
+    width:calc(100% - 16px)!important;
+  }
+  .mx-pronos-page .mx-pronos-hero,
+  .mx-pronos-page .mx-pronos-hero-inner{
+    min-height:116px!important;
+    height:116px!important;
+  }
+  .mx-pronos-page .mx-pronos-hero h1{
+    font-size:26px!important;
+  }
+  .mx-pronos-page .pronostic-category-tabs .tab-btn{
+    min-height:36px!important;
+    height:36px!important;
+    padding:2px 3px!important;
+    font-size:8.8px!important;
+  }
+  .mx-pronos-page .category-icon{
+    width:17px!important;
+    height:17px!important;
+  }
+  .mx-pronos-page .category-icon img,
+  .mx-pronos-page .tab-btn[data-cat="vip"] .category-icon img{
+    width:16px!important;
+    height:16px!important;
+  }
+  .mx-pronos-page .search-input{
+    height:30px!important;
+    min-height:30px!important;
+  }
+  .mx-pronos-page .day-filters .day-btn{
+    min-height:27px!important;
+    height:27px!important;
+    font-size:7.5px!important;
+  }
+  .mx-pronos-page .team-logo{
+    width:37px!important;
+    height:37px!important;
+  }
+  .mx-pronos-page .team-name{
+    font-size:8.2px!important;
+  }
+  .mx-pronos-page .analysis-panel .btn-share{
+    min-height:28px!important;
+    height:28px!important;
+  }
+}
