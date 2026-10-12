@@ -2,9 +2,7 @@ name: Telegram - Bonus bookmaker quotidien
 run-name: "Telegram - Bonus bookmaker quotidien (${{ inputs.trigger_source || github.event_name }})"
 
 on:
-  # Planification GitHub provisoire jusqu'à validation des tâches cron-job.org.
-  schedule:
-    - cron: '0 9 * * *'
+
   workflow_dispatch:
     inputs:
       trigger_source:
@@ -25,14 +23,6 @@ on:
           - linebet
           - 1win
           - betclic
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/telegram-bookmaker-bonus-send-now.txt'
-      - 'scripts/send_daily_bookmaker_bonus_ads.py'
-      - '.github/workflows/telegram-daily-bookmaker-bonus-ads.yml'
-      - 'assets/images/telegram-bonus-ads/**'
 
 jobs:
   send:
