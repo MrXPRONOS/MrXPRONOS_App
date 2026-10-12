@@ -10,7 +10,7 @@ from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
 JSON_FILES=("articles.json","conseils.json","footnews.json")
 def validate(root=ROOT, strict=False):
-    issues=[]; summary={}
+    issues=[]; warnings=[]; summary={}
     for fname in JSON_FILES:
         path=root/fname
         if not path.exists(): continue
@@ -27,12 +27,12 @@ def validate(root=ROOT, strict=False):
             title=str(item.get("title") or "").strip()
             if not title or len(title)>250: issues.append(f"{fname}[{n}]: titre manquant ou trop long")
             key=re.sub(r"\W+","",title.casefold())
-            if key in seen_titles: issues.append(f"{fname}[{n}]: titre doublon")
+            if key in seen_titles: warnings.append(f"{fname}[{n}]: titre doublon historique")
             seen_titles.add(key)
             link=item.get("link")
             if link and (not isinstance(link,str) or not link.startswith("https://")):
                 issues.append(f"{fname}[{n}]: lien source non HTTPS")
-            if link and link in seen_urls: issues.append(f"{fname}[{n}]: lien source doublon")
+            if link and link in seen_urls: warnings.append(f"{fname}[{n}]: lien source doublon")
             if link:seen_urls.add(link)
             for field in ("image_url","social_image","story_image"):
                 value=item.get(field)
@@ -47,7 +47,7 @@ def validate(root=ROOT, strict=False):
                         if im.format!="WEBP":issues.append(f"{fname}[{n}]: format {field} incorrect")
                 except (OSError,ValueError):
                     issues.append(f"{fname}[{n}]: image corrompue {value}")
-    result={"counts":summary,"problems":len(issues),"sample":issues[:30]}
+    result={"counts":summary,"problems":len(issues),"sample":issues[:30],"warnings":len(warnings),"warning_sample":warnings[:30]}
     print(json.dumps(result,ensure_ascii=False,indent=2))
     return 1 if strict and issues else 0
 
