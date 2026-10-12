@@ -89,6 +89,43 @@
       .offline-card,.cache-card{border-radius:15px}
       .cache-stats{grid-template-columns:1fr}
     }
+  
+    /* =========================================================
+       Offline mobile v2 — actions-and-cache first
+    ========================================================= */
+    @media(max-width:700px){
+      main{padding:8px 0 30px}
+      .offline-layout{gap:6px}
+      .offline-card{padding:11px;border-radius:11px}
+      .status-line{margin-bottom:5px;gap:6px;font-size:7px;letter-spacing:.12em}
+      .status-dot{width:6px;height:6px}
+      .offline-mark{width:30px;height:30px;margin-bottom:4px}
+      h1{margin:0 0 6px;font-size:29px;line-height:.96}
+      .lead{display:none}
+      .offline-actions{gap:5px;margin-top:9px}
+      .btn{min-height:36px;padding:7px 8px;border-radius:8px;font-size:8px}
+      .connection-note{display:none}
+      .cache-card{padding:10px;border-radius:11px}
+      .cache-kicker{font-size:6.5px}
+      .cache-card h2{margin:3px 0 7px;font-size:17px}
+      .cache-stats{grid-template-columns:1fr 1fr!important;gap:5px;margin-bottom:7px}
+      .cache-stat{padding:7px;border-radius:8px}
+      .cache-stat small{font-size:6.3px}
+      .cache-stat strong{margin-top:2px;font-size:11px}
+      .cached-list{gap:5px}
+      .cached-match{padding:7px 8px;border-radius:8px}
+      .cached-match__meta{margin-bottom:3px;font-size:6.5px}
+      .cached-match__teams{font-size:9px}
+      .cached-match__pick{margin-top:3px;font-size:7.5px}
+      .empty-cache{padding:8px;font-size:8px;line-height:1.35}
+      .offline-footer{padding-bottom:calc(12px + env(safe-area-inset-bottom));font-size:7.5px}
+    }
+    @media(max-width:345px){
+      .shell{width:calc(100% - 16px)}
+      h1{font-size:26px}
+      .offline-actions{grid-template-columns:1fr}
+      .btn{flex-basis:100%}
+    }
   </style>
 </head>
 <body>
