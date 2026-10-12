@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mr XPRONOS - Dashboard en direct</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/loading-ui.css?v=20261012-2">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Chart.js pour les graphiques -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -139,37 +140,37 @@
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>👥 Utilisateurs en ligne</h3>
-                <div class="stat-value" id="online">0</div>
+                <div class="stat-value" id="online">—</div>
                 <small>actuellement</small>
             </div>
             <div class="stat-card">
                 <h3>👀 Pages vues</h3>
-                <div class="stat-value" id="views">0</div>
+                <div class="stat-value mx-load-value" id="views" aria-label="Chargement de la statistique">—</div>
                 <small>sur la période</small>
             </div>
             <div class="stat-card">
                 <h3>🎯 Clics pronostics</h3>
-                <div class="stat-value" id="clicks">0</div>
+                <div class="stat-value mx-load-value" id="clicks" aria-label="Chargement de la statistique">—</div>
                 <small>sur la période</small>
             </div>
             <div class="stat-card">
                 <h3>📤 Partages WhatsApp</h3>
-                <div class="stat-value" id="shares">0</div>
+                <div class="stat-value mx-load-value" id="shares" aria-label="Chargement de la statistique">—</div>
                 <small>sur la période</small>
             </div>
             <div class="stat-card">
                 <h3>💎 Conversions VIP</h3>
-                <div class="stat-value" id="vip">0</div>
+                <div class="stat-value mx-load-value" id="vip" aria-label="Chargement de la statistique">—</div>
                 <small>sur la période</small>
             </div>
             <div class="stat-card">
                 <h3>👥 Utilisateurs uniques</h3>
-                <div class="stat-value" id="unique-users">0</div>
+                <div class="stat-value mx-load-value" id="unique-users" aria-label="Chargement de la statistique">—</div>
                 <small>sur la période</small>
             </div>
             <div class="stat-card">
                 <h3>📈 Taux de conversion VIP</h3>
-                <div class="stat-value" id="conversion-rate">0.00%</div>
+                <div class="stat-value mx-load-value" id="conversion-rate" aria-label="Chargement de la statistique">—</div>
                 <small>des visiteurs deviennent VIP</small>
             </div>
         </div>
@@ -226,7 +227,7 @@
                 .on('presence', { event: 'sync' }, () => {
                     const state = onlineChannel.presenceState();
                     const onlineUsers = Object.keys(state).length;
-                    document.getElementById('online').textContent = onlineUsers;
+                    setMetric('online', onlineUsers);
                 })
                 .subscribe(async (status) => {
                     if (status === 'SUBSCRIBED') {
@@ -305,6 +306,14 @@
         // =======================================================
         // CHARGEMENT DES STATISTIQUES
         // =======================================================
+        function setMetric(id, value) {
+            const node = document.getElementById(id);
+            if (!node) return;
+            node.textContent = String(value);
+            node.classList.remove('mx-load-value');
+            node.removeAttribute('aria-label');
+        }
+
         async function loadStats(period) {
             if (!supabaseAvailable) return;
             const { start, end } = getDateRange(period);
@@ -319,7 +328,7 @@
                     .eq('event_type', 'visit')
                     .gte('created_at', startISO)
                     .lte('created_at', endISO);
-                if (!errViews) document.getElementById('views').textContent = views || 0;
+                if (!errViews) setMetric('views', views ?? 0);
 
                 // Clics pronostics
                 const { count: clicks, error: errClicks } = await supabase
@@ -328,7 +337,7 @@
                     .eq('event_type', 'click_pronostic')
                     .gte('created_at', startISO)
                     .lte('created_at', endISO);
-                if (!errClicks) document.getElementById('clicks').textContent = clicks || 0;
+                if (!errClicks) setMetric('clicks', clicks ?? 0);
 
                 // Partages WhatsApp
                 const { count: shares, error: errShares } = await supabase
@@ -337,7 +346,7 @@
                     .eq('event_type', 'share_whatsapp')
                     .gte('created_at', startISO)
                     .lte('created_at', endISO);
-                if (!errShares) document.getElementById('shares').textContent = shares || 0;
+                if (!errShares) setMetric('shares', shares ?? 0);
 
                 // Conversions VIP
                 const { count: vip, error: errVip } = await supabase
@@ -346,7 +355,7 @@
                     .eq('event_type', 'vip_conversion')
                     .gte('created_at', startISO)
                     .lte('created_at', endISO);
-                if (!errVip) document.getElementById('vip').textContent = vip || 0;
+                if (!errVip) setMetric('vip', vip ?? 0);
 
                 // Utilisateurs uniques (distinct user_id)
                 const { data: uniqueData, error: errUnique } = await supabase
@@ -355,19 +364,26 @@
                     .gte('created_at', startISO)
                     .lte('created_at', endISO);
                 const uniqueUsers = uniqueData ? new Set(uniqueData.map(u => u.user_id)).size : 0;
-                document.getElementById('unique-users').textContent = uniqueUsers;
+                if (!errUnique) setMetric('unique-users', uniqueUsers);
 
                 // Taux de conversion VIP
                 const viewsCount = parseInt(document.getElementById('views').textContent) || 0;
                 const vipCount = parseInt(document.getElementById('vip').textContent) || 0;
                 const conversionRate = viewsCount > 0 ? ((vipCount / viewsCount) * 100).toFixed(2) : 0;
-                document.getElementById('conversion-rate').textContent = conversionRate + '%';
+                if (!errViews && !errVip) setMetric('conversion-rate', conversionRate + '%');
 
                 // Mettre à jour les graphiques
                 await updateCharts(startISO, endISO);
 
             } catch (e) {
                 console.error('Erreur chargement stats:', e);
+            } finally {
+                // Un indicateur bloqué ne doit jamais être pris pour une vraie statistique.
+                document.querySelectorAll('.stat-value.mx-load-value').forEach((node) => {
+                    node.classList.remove('mx-load-value');
+                    node.textContent = '—';
+                    node.removeAttribute('aria-label');
+                });
             }
         }
 
