@@ -125,7 +125,7 @@ with sync_playwright() as p:
     # Standard 390px states
     check_page(browser,"index.html",390,844,"Accueil","Accueil",True)
     check_page(browser,"pronos.html",390,844,"Pronostics","Pronostics")
-    check_page(browser,"bonus.html",390,844,"Bonus","Bonus")
+    check_page(browser,"bonus.html",390,844,"Bonus","Bonus & Promo")
     check_page(browser,"historique.html",390,844,"Menu","Historique",True)
     check_page(browser,"contact.html",390,844,"Menu","Contact")
     check_page(browser,"live.html",390,844,"LIVE","LIVE",True)
