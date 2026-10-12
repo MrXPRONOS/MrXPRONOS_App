@@ -25,6 +25,8 @@ jobs:
           python-version: '3.12'
       - name: Install free local renderer
         run: python -m pip install Pillow
+      - name: Run offline unit tests
+        run: python -m unittest tests.test_editorial_free
       - name: Build branded media (3 aspect ratios)
         run: python scripts/content_studio.py --limit 12 --news-limit 20
       - name: Build shareable OG pages
