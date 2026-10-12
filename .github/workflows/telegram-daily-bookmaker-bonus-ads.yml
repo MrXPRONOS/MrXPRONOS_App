@@ -56,5 +56,6 @@ jobs:
           TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          BOOKMAKER_FORCE_KEY: ${{ github.event.inputs.bookmaker || '' }}
+          BOOKMAKER_FORCE_KEY: ''
+          TELEGRAM_APPROVED_BONUS_BOOKMAKERS: ${{ vars.TELEGRAM_APPROVED_BONUS_BOOKMAKERS }}
         run: python scripts/send_daily_bookmaker_bonus_ads.py
