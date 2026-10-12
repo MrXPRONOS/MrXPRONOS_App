@@ -75,16 +75,34 @@ jobs:
           print(f"OK: {len(items)} actualités francophones")
           PY
 
-      - name: Commit updated news
+      - name: Commit refreshed news without overwriting concurrent content
+        env:
+          FOOTBALL_RSS_FEED: https://madeinfoot.ouest-france.fr/flux/rss_news.php
+          EXTRA_FOOTBALL_RSS_FEEDS: https://www.france24.com/fr/tag/football/rss,https://www.footmercato.net/flux-rss
+          ENABLE_TRANSLATION: '0'
+          MAX_ARTICLES: '20'
+          MAX_NEWS_AGE_HOURS: '96'
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add footnews.json assets/images/editorial/
-          if git diff --cached --quiet; then
-            echo "Aucune nouvelle actualité à publier."
-            exit 0
-          fi
-          git commit -m "data(infos): refresh French football news with local WebP"
-          # Sur conflit, on n'écrase jamais des fichiers publiés par le studio.
-          git pull --rebase origin main
-          git push origin HEAD:main
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python fetch_foot_news.py
+            python scripts/content_studio.py --limit 0 --news-limit 20
+            python scripts/editorial_quality.py --strict
+            git add footnews.json assets/images/editorial/
+            if git diff --cached --quiet; then
+              echo "Aucune nouvelle actualité ou image."
+              exit 0
+            fi
+            git commit -m "data(infos): refresh verified French football news and cards"
+            if git push origin HEAD:main; then
+              echo "RSS publication committed successfully"
+              exit 0
+            fi
+            echo "Concurrent update detected, retry $attempt/3"
+          done
+          echo "RSS commit failed without any forced push"
+          exit 1
