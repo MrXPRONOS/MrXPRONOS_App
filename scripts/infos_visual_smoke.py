@@ -108,6 +108,8 @@ def run_view(browser, width, height, label):
     page.locator("#news-modal").wait_for(state="hidden", timeout=5000)
 
     no_overflow(page, label)
+    page.evaluate("window.scrollTo(0, 0)")
+    page.wait_for_timeout(250)
     page.screenshot(path=str(OUT/f"infos-{width}.png"), full_page=True)
 
     if page_errors:
