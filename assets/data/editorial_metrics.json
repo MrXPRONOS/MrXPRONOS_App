@@ -21,9 +21,9 @@
       "unique_titles": 49,
       "with_editorial_image": 49,
       "visual_variants": {
-        "v1": 21,
-        "v2": 21,
-        "v3": 7
+        "v1": 17,
+        "v2": 19,
+        "v3": 13
       },
       "source_types": {
         "unspecified": 49
@@ -47,21 +47,21 @@
     }
   },
   "delivery": {
-    "items": 142,
+    "items": 164,
     "platform_states": {
-      "facebook:not_requested": 142,
-      "instagram:not_requested": 142,
-      "telegram:not_requested": 142,
-      "threads:not_requested": 142,
-      "tiktok:not_requested": 142,
-      "youtube:not_requested": 142
+      "facebook:not_requested": 164,
+      "instagram:not_requested": 164,
+      "telegram:not_requested": 164,
+      "threads:not_requested": 164,
+      "tiktok:not_requested": 164,
+      "youtube:not_requested": 164
     }
   },
   "assets": {
-    "files": 492,
-    "size_mb": 27.46,
+    "files": 558,
+    "size_mb": 31.05,
     "by_format": {
-      ".webp": 492
+      ".webp": 558
     }
   },
   "real_clicks": null,
