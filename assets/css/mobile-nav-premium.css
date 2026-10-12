@@ -179,3 +179,216 @@ body.menu-open .mx-live-header{pointer-events:none!important}
 body.menu-open .burger-overlay,
 body.menu-open .burger-drawer,
 body.menu-open .burger-drawer *{pointer-events:auto}
+
+
+/* =======================================================
+ MOBILE NAV PREMIUM V3 — 12 corrections from real-phone review
+ Crisp Retina WebP sources: 160x160 lossless
+======================================================= */
+
+/* 1 + 11 — LIVE remains distinctive, but no second circle and no oversize. */
+.bottom-nav .bottom-nav-item.live .bottom-nav-icon-wrap{
+  width:40px!important;
+  height:38px!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.bottom-nav .bottom-nav-item.live .bottom-nav-icon{
+  width:34px!important;
+  height:34px!important;
+}
+.bottom-live-dot{
+  right:1px!important;
+  top:1px!important;
+  width:6px!important;
+  height:6px!important;
+  border:1px solid #041019!important;
+  background:#39d47d!important;
+  box-shadow:0 0 7px rgba(57,212,125,.58)!important;
+}
+
+/* 2 + 6 — fixed optical container for all icons. */
+.bottom-nav-icon-wrap{
+  width:40px!important;
+  height:38px!important;
+  display:grid!important;
+  place-items:center!important;
+  margin:0!important;
+}
+.bottom-nav-icon{
+  width:31px!important;
+  height:31px!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  image-rendering:auto!important;
+  transform:none;
+}
+
+/* 9 — Menu is intentionally a little smaller and optically centered. */
+.bottom-nav-menu .bottom-nav-icon{
+  width:28px!important;
+  height:28px!important;
+}
+
+/* 10 — Pronostics needs slightly more visual weight. */
+.bottom-nav-item[href*="pronos.html"] .bottom-nav-icon{
+  width:34px!important;
+  height:34px!important;
+}
+
+/* Bonus and Home stay compact, avoiding visual competition with LIVE. */
+.bottom-nav-item[href*="bonus.html"] .bottom-nav-icon,
+.bottom-nav-item[href*="index.html"] .bottom-nav-icon{
+  width:31px!important;
+  height:31px!important;
+}
+
+/* 3 + 8 — lower bar, strict 5 equal columns. */
+.bottom-nav{
+  padding-bottom:env(safe-area-inset-bottom)!important;
+  min-height:0!important;
+}
+.bottom-nav .inner{
+  width:100%!important;
+  max-width:620px!important;
+  height:68px!important;
+  min-height:68px!important;
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  gap:0!important;
+  padding:3px 6px 4px!important;
+}
+.bottom-nav .bottom-nav-item{
+  width:100%!important;
+  min-width:0!important;
+  min-height:60px!important;
+  height:60px!important;
+  padding:2px 1px!important;
+  margin:0!important;
+  border-radius:10px!important;
+  display:grid!important;
+  grid-template-rows:38px 12px!important;
+  align-content:center!important;
+  justify-items:center!important;
+  gap:2px!important;
+}
+
+/* 4 — exact vertical alignment for every icon + label, including LIVE. */
+.bottom-nav-label{
+  align-self:center!important;
+  justify-self:center!important;
+  line-height:1!important;
+  min-height:12px!important;
+  display:block!important;
+  overflow:visible!important;
+}
+
+/* 5 — lighter active state: no oversized dark card. */
+.bottom-nav .bottom-nav-item.active,
+.bottom-nav .bottom-nav-item.is-open{
+  background:radial-gradient(circle at 50% 5%,rgba(229,178,73,.07),transparent 64%)!important;
+  box-shadow:none!important;
+}
+.bottom-nav .bottom-nav-item::before{
+  top:-3px!important;
+  left:32%!important;
+  right:32%!important;
+  height:2px!important;
+}
+.bottom-nav .bottom-nav-item.active::before,
+.bottom-nav .bottom-nav-item.is-open::before{
+  background:#efbd5b!important;
+  box-shadow:0 0 7px rgba(239,189,91,.34)!important;
+}
+.bottom-nav .bottom-nav-item.active .bottom-nav-icon,
+.bottom-nav .bottom-nav-item.is-open .bottom-nav-icon{
+  transform:translateY(-1px) scale(1.03)!important;
+  filter:drop-shadow(0 2px 5px rgba(230,178,73,.22))!important;
+}
+
+/* 7 — smaller, cleaner, aligned labels. */
+.bottom-nav .bottom-nav-item{
+  font-size:9.5px!important;
+  font-weight:700!important;
+  letter-spacing:-.01em!important;
+  color:#99a9b4!important;
+}
+.bottom-nav .bottom-nav-item.active,
+.bottom-nav .bottom-nav-item.is-open{
+  color:#f8f9fa!important;
+}
+.bottom-nav .bottom-nav-item.live{
+  color:#9db3ae!important;
+}
+.bottom-nav .bottom-nav-item.live.active{
+  color:#7be1a3!important;
+  background:radial-gradient(circle at 50% 5%,rgba(48,195,102,.055),transparent 64%)!important;
+}
+.bottom-nav .bottom-nav-item.live.active::before{
+  background:#3bd47d!important;
+  box-shadow:0 0 7px rgba(59,212,125,.34)!important;
+}
+
+/* 12 — content clearance tracks the real bar height + safe area. */
+@media(max-width:900px){
+  body.has-bottom-nav{
+    padding-bottom:calc(76px + env(safe-area-inset-bottom))!important;
+  }
+  body.has-bottom-nav #back-to-top{
+    bottom:calc(86px + env(safe-area-inset-bottom))!important;
+  }
+  body.has-bottom-nav .win-popup,
+  body.has-bottom-nav .assistant-button{
+    bottom:calc(84px + env(safe-area-inset-bottom))!important;
+  }
+}
+
+/* Drawer and header-menu icons also use the new crisp sources at realistic sizes. */
+.burger-btn .mx-burger-icon{
+  width:24px!important;
+  height:24px!important;
+  object-fit:contain!important;
+}
+.burger-menu-item .menu-icon{
+  width:45px!important;
+  height:45px!important;
+}
+.burger-menu-item .menu-icon-img{
+  width:40px!important;
+  height:40px!important;
+  object-fit:contain!important;
+  image-rendering:auto!important;
+}
+.burger-menu-item .menu-label{
+  font-size:9px!important;
+  font-weight:750!important;
+}
+
+@media(max-width:340px){
+  .bottom-nav .inner{
+    height:66px!important;
+    min-height:66px!important;
+    padding-left:3px!important;
+    padding-right:3px!important;
+  }
+  .bottom-nav .bottom-nav-item{
+    height:58px!important;
+    min-height:58px!important;
+    grid-template-rows:36px 11px!important;
+    font-size:8.5px!important;
+  }
+  .bottom-nav-icon-wrap{
+    width:38px!important;
+    height:36px!important;
+  }
+  .bottom-nav-icon{width:29px!important;height:29px!important}
+  .bottom-nav-item[href*="pronos.html"] .bottom-nav-icon,
+  .bottom-nav .bottom-nav-item.live .bottom-nav-icon{
+    width:32px!important;height:32px!important;
+  }
+  .bottom-nav-menu .bottom-nav-icon{width:26px!important;height:26px!important}
+}

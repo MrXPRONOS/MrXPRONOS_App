@@ -5,7 +5,8 @@
 
   const ICON_BASE = 'assets/images/mobile-premium/';
   const LOGO = 'assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1';
-  const MOBILE_NAV_CSS = 'assets/css/mobile-nav-premium.css?v=20261012-mobile-nav1';
+  const MOBILE_NAV_CSS = 'assets/css/mobile-nav-premium.css?v=20261012-mobile-nav3';
+  const ICON_REV = '?v=20261012-crisp-retina3';
 
   function ensureMobileNavStyles() {
     if (document.querySelector('link[data-mx-mobile-nav="true"]')) return;
@@ -56,7 +57,7 @@
   }
 
   function iconMarkup(file, className, alt = '') {
-    return `<img class="${className}" src="${ICON_BASE}${file}" alt="${alt}" loading="eager" decoding="async">`;
+    return `<img class="${className}" src="${ICON_BASE}${file}${ICON_REV}" alt="${alt}" loading="eager" decoding="async">`;
   }
 
   function createBurgerButton() {
