@@ -43,4 +43,5 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
           FORCE_WEEKDAY: ${{ github.event.inputs.weekday || '' }}
+          TELEGRAM_APPROVED_DAY_PROMOS: ${{ vars.TELEGRAM_APPROVED_DAY_PROMOS }}
         run: python scripts/send_day_based_bookmaker_promos.py
