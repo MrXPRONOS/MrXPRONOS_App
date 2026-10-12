@@ -6,7 +6,7 @@
     "footer": "Conditions : nouveau compte, premier dépôt, conditions de mise, KYC possible avant retrait.",
     "link": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
     "official_url": "https://1xbet.com/fr/bonus/rules/1st",
-    "image": "assets/images/1xbet.webp",
+    "image": "assets/images/bonus/1xbet-bonus-premier-depot-100.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -17,7 +17,7 @@
     "footer": "Étapes : ouvrir PROMO, choisir Hyper Bonus, lire les règles, effectuer l’action demandée.",
     "link": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
     "official_url": "https://1xbet.com/fr/bonus/rules/hyper_bonus",
-    "image": "assets/images/1xbet.webp",
+    "image": "assets/images/bonus/1xbet-hyper-bonus-250.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -28,7 +28,7 @@
     "footer": "Conditions : offre limitée au vendredi, dépôt minimum, compte éligible, règles propres à la campagne.",
     "link": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
     "official_url": "https://1xbet.com/fr/promotions/lucky-friday",
-    "image": "assets/images/1xbet.webp",
+    "image": "assets/images/bonus/1xbet-lucky-friday.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -39,7 +39,7 @@
     "footer": "Conditions : dépôt crypto, compte éligible, plafond régional et règles spécifiques de cashback.",
     "link": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
     "official_url": "https://1xbet.com/fr/bonus/rules/crypto-freebet",
-    "image": "assets/images/1xbet.webp",
+    "image": "assets/images/bonus/1xbet-crypto-freebet.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -50,7 +50,7 @@
     "footer": "Étapes : vérifier l’offre, placer le pari indiqué, attendre le résultat, utiliser le freebet dans le délai.",
     "link": "https://refpa58144.com/L?tag=d_2054511m_1599c_&site=2054511&ad=1599",
     "official_url": "https://1xbet.com/fr/promotions/no-risk-bet",
-    "image": "assets/images/1xbet.webp",
+    "image": "assets/images/bonus/1xbet-pari-sans-risque.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -61,7 +61,7 @@
     "footer": "Conditions : nouveau compte, dépôt qualifiant, disponibilité locale, wagering à vérifier.",
     "link": "https://1wrbgb.com/?open=register&p=qqcw",
     "official_url": "https://1win.com/casino",
-    "image": "assets/images/1win.webp",
+    "image": "assets/images/bonus/1win-bienvenue.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -72,7 +72,7 @@
     "footer": "Étapes : se connecter, ouvrir Promotions, choisir l’offre de recharge, effectuer le dépôt demandé.",
     "link": "https://1wrbgb.com/?open=register&p=qqcw",
     "official_url": "https://1win.com/casino",
-    "image": "assets/images/1win.webp",
+    "image": "assets/images/bonus/1win-bonus-recharge.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -83,7 +83,7 @@
     "footer": "Conditions : jeux éligibles, dépôt ou activité requise, wagering possible, région éligible.",
     "link": "https://1wrbgb.com/?open=register&p=qqcw",
     "official_url": "https://1win.com/casino",
-    "image": "assets/images/1win.webp",
+    "image": "assets/images/bonus/1win-bonus-casino.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -94,7 +94,7 @@
     "footer": "Étapes : consulter les récompenses personnelles, remplir les critères, réclamer la récompense.",
     "link": "https://1wrbgb.com/?open=register&p=qqcw",
     "official_url": "https://1win.com/profile/wallets",
-    "image": "assets/images/1win.webp",
+    "image": "assets/images/bonus/1win-recompenses-fidelite.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -105,7 +105,7 @@
     "footer": "Conditions : campagne active, participation dans la période, règles propres à chaque campagne, non-cumul possible.",
     "link": "https://1wrbgb.com/?open=register&p=qqcw",
     "official_url": "https://forum.1win.com/1-challenges-promotions/",
-    "image": "assets/images/1win.webp",
+    "image": "assets/images/bonus/1win-promotions-evenementielles.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -116,7 +116,7 @@
     "footer": "Conditions : nouveau compte, premier dépôt, conditions de mise, offre régionale.",
     "link": "https://bwredir.com/299Y",
     "official_url": "https://betwinner.com/fr/bonus/rules/1st",
-    "image": "assets/images/betwinner.webp",
+    "image": "assets/images/bonus/betwinner-bienvenue.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -127,7 +127,7 @@
     "footer": "Conditions : paris qualifiants, cote minimale possible, pertes nettes calculées sur la période.",
     "link": "https://bwredir.com/299Y",
     "official_url": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/remboursement-sur-les-sports/",
-    "image": "assets/images/betwinner.webp",
+    "image": "assets/images/bonus/betwinner-sports-cashback.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -138,7 +138,7 @@
     "footer": "Étapes : se connecter le jeudi, ouvrir Promotions, activer l’offre, effectuer le dépôt qualifiant.",
     "link": "https://bwredir.com/299Y",
     "official_url": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/bonus-du-jeudi/",
-    "image": "assets/images/betwinner.webp",
+    "image": "assets/images/bonus/betwinner-bonus-jeudi.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -149,7 +149,7 @@
     "footer": "Conditions : série minimale, mises/cotes éligibles, paris annulés exclus, règles anti-abus.",
     "link": "https://bwredir.com/299Y",
     "official_url": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/serie-de-20-paris-perdants/",
-    "image": "assets/images/betwinner.webp",
+    "image": "assets/images/bonus/betwinner-serie-perdants.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -160,7 +160,7 @@
     "footer": "Étapes : faire le pronostic TOTO, placer le pari demandé, attendre la validation, recevoir le bonus.",
     "link": "https://bwredir.com/299Y",
     "official_url": "https://guidebook.betwinner.com/fr/bonus-de-betwinner/bonus-toto/",
-    "image": "assets/images/betwinner.webp",
+    "image": "assets/images/bonus/betwinner-bonus-toto.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -171,7 +171,7 @@
     "footer": "Conditions : un seul bonus de bienvenue, profil complet, téléphone vérifié, premier dépôt.",
     "link": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
     "official_url": "https://guidebook.melbet.com/fr/bonus/melbet-first-deposit-bonus/",
-    "image": "assets/images/melbet.webp",
+    "image": "assets/images/bonus/melbet-bonus-premier-depot-sport.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -182,7 +182,7 @@
     "footer": "Conditions : choix lors de l’inscription, jeux éligibles, wagering casino applicable.",
     "link": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
     "official_url": "https://guidebook.melbet.com/fr/casino/",
-    "image": "assets/images/melbet.webp",
+    "image": "assets/images/bonus/melbet-pack-bienvenue-casino.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -193,7 +193,7 @@
     "footer": "Étapes : installer l’app, se connecter, placer les paris qualifiants, recevoir le cashback selon les règles.",
     "link": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
     "official_url": "https://guidebook.melbet.com/fr/bonus/",
-    "image": "assets/images/melbet.webp",
+    "image": "assets/images/bonus/melbet-cashback-app.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -204,7 +204,7 @@
     "footer": "Conditions : compte éligible, activité sur la période, pertes qualifiantes, conditions de crédit.",
     "link": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
     "official_url": "https://guidebook.melbet.com/fr/bonus/",
-    "image": "assets/images/melbet.webp",
+    "image": "assets/images/bonus/melbet-cashback-rewards.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -215,7 +215,7 @@
     "footer": "Étapes : ouvrir TOTO, faire le pronostic, suivre l’action demandée, recevoir les points bonus.",
     "link": "https://refpa3665.com/L?tag=d_3034561m_57041c_&site=3034561&ad=57041",
     "official_url": "https://guidebook.melbet.com/fr/bonus/",
-    "image": "assets/images/melbet.webp",
+    "image": "assets/images/bonus/melbet-toto-points-bonus.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -226,7 +226,7 @@
     "footer": "Conditions : nouveau compte, choisir Bonus pour sport, premier dépôt, conditions de mise locales.",
     "link": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
     "official_url": "https://linebet.com/fr/promotions/1st",
-    "image": "assets/images/linebet.webp",
+    "image": "assets/images/bonus/linebet-bonus-premier-depot-sport.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -237,7 +237,7 @@
     "footer": "Conditions : nouveau compte, choix Casino + Games, dépôts éligibles, wagering et jeux éligibles.",
     "link": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
     "official_url": "https://linebet.com/fr/bonus/casino/promotions/slot_first_deposit",
-    "image": "assets/images/linebet.webp",
+    "image": "assets/images/bonus/linebet-pack-casino-games.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -248,7 +248,7 @@
     "footer": "Étapes : se connecter, ouvrir Promotions, choisir l’offre active, effectuer le dépôt demandé.",
     "link": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
     "official_url": "https://linebet.com/fr/bonus/rules/happy_monday",
-    "image": "assets/images/linebet.webp",
+    "image": "assets/images/bonus/linebet-bonus-depot-recurrent.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -259,7 +259,7 @@
     "footer": "Conditions : événement éligible, période limitée, pari qualifiant, conditions de crédit.",
     "link": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
     "official_url": "https://linebet.com/fr/bonus/rules",
-    "image": "assets/images/linebet.webp",
+    "image": "assets/images/bonus/linebet-paris-gratuits-offres-sport.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -270,7 +270,7 @@
     "footer": "Étapes : vérifier les offres du compte, activer le code/offre, remplir les critères, utiliser la récompense avant expiration.",
     "link": "https://lb-aff.com/L?tag=d_3072389m_22611c_&site=3072389&ad=22611",
     "official_url": "https://linebet.com/fr/bonus/rules/promo_store",
-    "image": "assets/images/linebet.webp",
+    "image": "assets/images/bonus/linebet-recompenses-promo-codes.webp",
     "code": "XPVIP",
     "active": true
   },
@@ -281,7 +281,7 @@
     "footer": "Conditions : nouveau compte, pari ou dépôt qualifiant, plafond régional, conditions locales.",
     "link": "https://betpari-click.com/2vY0?extid=USD",
     "official_url": "https://partner.betclic.ci/",
-    "image": "assets/images/betclic.webp",
+    "image": "assets/images/bonus/betclic-offre-bienvenue-100e.webp",
     "code": "Vérifier sur le site",
     "active": true
   },
@@ -292,7 +292,7 @@
     "footer": "Conditions : sélection éligible, fenêtre limitée, mise maximale possible, règles propres au boost.",
     "link": "https://betpari-click.com/2vY0?extid=USD",
     "official_url": "https://partner.betclic.com/",
-    "image": "assets/images/betclic.webp",
+    "image": "assets/images/bonus/betclic-cotes-boostees.webp",
     "code": "Vérifier sur le site",
     "active": true
   },
@@ -303,7 +303,7 @@
     "footer": "Étapes : ouvrir Promotions, participer à la campagne, remplir l’objectif, utiliser le freebet avant expiration.",
     "link": "https://betpari-click.com/2vY0?extid=USD",
     "official_url": "https://partner.betclic.com/",
-    "image": "assets/images/betclic.webp",
+    "image": "assets/images/bonus/betclic-freebets-evenementiels.webp",
     "code": "Vérifier sur le site",
     "active": true
   },
@@ -314,7 +314,7 @@
     "footer": "Conditions : inscription au challenge, objectifs précis, durée limitée, compte éligible.",
     "link": "https://betpari-click.com/2vY0?extid=USD",
     "official_url": "https://partner.betclic.com/",
-    "image": "assets/images/betclic.webp",
+    "image": "assets/images/bonus/betclic-challenges-missions.webp",
     "code": "Vérifier sur le site",
     "active": true
   },
@@ -325,7 +325,7 @@
     "footer": "Conditions : lien/code personnel, nouveau filleul, action qualifiante, limites anti-abus.",
     "link": "https://betpari-click.com/2vY0?extid=USD",
     "official_url": "https://partner.betclic.com/",
-    "image": "assets/images/betclic.webp",
+    "image": "assets/images/bonus/betclic-parrainage.webp",
     "code": "Vérifier sur le site",
     "active": true
   }
