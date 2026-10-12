@@ -15,7 +15,7 @@ def routes(page):
     empty="[]"
     page.route("**/data.json*", lambda r: r.fulfill(status=200, content_type="application/json", body=json.dumps(DATA)))
     for name in ["articles.json","conseils.json","infos.json","footnews.json","bonus.json","bookmakers.json","testimonials.json"]:
-        page.route(f"**/{name}*", lambda r, body=empty: r.fulfill(status=200, content_type="application/json", body=body))
+        page.route(f"**/{name}*", lambda r, _req=None, body=empty: r.fulfill(status=200, content_type="application/json", body=body))
 
 def no_overflow(page,label):
     dims=page.evaluate("() => ({v:innerWidth,d:document.documentElement.scrollWidth,b:document.body.scrollWidth})")
