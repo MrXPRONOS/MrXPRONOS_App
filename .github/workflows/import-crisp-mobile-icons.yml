@@ -34,7 +34,7 @@ jobs:
           process_icon () {
             src="$1"
             out="$2"
-            magick "$src" -trim +repage -resize '140x140>' -background none -gravity center -extent 160x160 /tmp/mobile-crisp/stage.png
+            convert "$src" -trim +repage -resize '140x140>' -background none -gravity center -extent 160x160 /tmp/mobile-crisp/stage.png
             cwebp -quiet -lossless -m 6 /tmp/mobile-crisp/stage.png -o "$out"
           }
 
