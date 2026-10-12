@@ -368,3 +368,18 @@
     grid-template-columns:1fr!important;
   }
 }
+
+/* =========================================================
+   Bonus mobile v6 — title-only shorter hero
+========================================================= */
+@media(max-width:700px){
+  .mx-bonus-page .mx-bonus-hero,
+  .mx-bonus-page .mx-bonus-hero-inner{min-height:106px!important;height:106px!important}
+  .mx-bonus-page .mx-bonus-hero-inner{align-items:center!important;padding:7px 0!important}
+  .mx-bonus-page .mx-bonus-copy h1{max-width:340px!important;margin:0!important;font-size:26px!important;line-height:.97!important}
+}
+@media(max-width:345px){
+  .mx-bonus-page .mx-bonus-hero,
+  .mx-bonus-page .mx-bonus-hero-inner{min-height:99px!important;height:99px!important}
+  .mx-bonus-page .mx-bonus-copy h1{font-size:23px!important}
+}
