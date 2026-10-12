@@ -94,7 +94,14 @@ def check_bookmakers(browser,width,height,label):
         raise AssertionError(f"{label}: bookmaker CTA count invalid")
 
     if width<=700:
-        if cards.first.bounding_box()["height"]>135:
+        intro=page.locator(".intro")
+        if intro.count() and intro.is_visible():
+            raise AssertionError(f"{label}: secondary bookmaker intro should be hidden")
+        first_top=cards.first.evaluate("(el)=>el.getBoundingClientRect().top")
+        max_top=245 if width>=390 else 238
+        if first_top>max_top:
+            raise AssertionError(f"{label}: bookmaker choices start too low ({first_top}px > {max_top}px)")
+        if cards.first.bounding_box()["height"]>115:
             raise AssertionError(f"{label}: bookmaker card still too tall")
 
     page.screenshot(path=str(OUT/f"{label}.png"),full_page=True)

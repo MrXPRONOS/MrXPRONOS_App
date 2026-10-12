@@ -72,6 +72,17 @@ def run_case(browser, width, height, label):
     if not mark.evaluate("(img) => img.complete && img.naturalWidth > 0"):
         raise AssertionError(f"{label}: offline mark did not load from cache")
 
+    if width <= 700:
+        lead = page.locator(".lead")
+        if lead.count() and lead.is_visible():
+            raise AssertionError(f"{label}: secondary offline explanation should be hidden on mobile")
+        cache_top = page.locator(".cache-card").evaluate("(el) => el.getBoundingClientRect().top")
+        if cache_top > 285:
+            raise AssertionError(f"{label}: offline cache panel starts too low ({cache_top}px)")
+        actions = page.locator(".offline-actions .btn")
+        if actions.count() != 2:
+            raise AssertionError(f"{label}: offline primary actions missing")
+
     assert_no_overflow(page, label + "-fallback")
 
     # 2. A pre-cached page with a query string must use its stable HTML shell.
