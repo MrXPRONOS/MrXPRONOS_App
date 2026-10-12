@@ -1,0 +1,298 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap');
+
+/* =========================================================
+   Mr XPRONOS — Brand player + signature slogans
+   Decorative only: never changes the document flow.
+========================================================= */
+.mx-brand-player{
+  position:absolute;
+  z-index:1;
+  right:1%;
+  bottom:-22%;
+  height:124%;
+  width:auto;
+  max-width:46%;
+  object-fit:contain;
+  object-position:right bottom;
+  pointer-events:none;
+  user-select:none;
+  opacity:.42;
+  filter:saturate(.88) contrast(1.06) drop-shadow(0 22px 28px rgba(0,0,0,.48));
+}
+
+.mx-brand-signature{
+  position:absolute;
+  z-index:4;
+  right:clamp(22px,4.2vw,66px);
+  bottom:clamp(12px,1.8vw,26px);
+  margin:0;
+  max-width:290px;
+  color:#f0c76d;
+  font-family:'Caveat','Segoe Print',cursive;
+  font-size:clamp(24px,2.35vw,36px);
+  font-weight:700;
+  line-height:.94;
+  letter-spacing:.01em;
+  text-align:right;
+  transform:rotate(-4deg);
+  transform-origin:right bottom;
+  text-shadow:0 2px 0 rgba(0,0,0,.52),0 0 18px rgba(230,179,76,.18);
+  pointer-events:none;
+  user-select:none;
+}
+
+.mx-brand-signature::after{
+  content:"";
+  display:block;
+  width:72%;
+  height:1px;
+  margin:4px 0 0 auto;
+  background:linear-gradient(90deg,transparent,rgba(238,195,102,.86));
+  transform:rotate(-1deg);
+  transform-origin:right center;
+}
+
+/* Keep brand artwork behind readable copy. */
+.mx-pronos-hero-copy,
+.mx-history-copy,
+.mx-blog-copy,
+.mx-conseils-copy,
+.mx-infos-copy,
+.mx-bonus-copy,
+.mx-contact-copy{
+  position:relative;
+  z-index:3;
+}
+
+/* Existing hero artwork is part of the same signature system. */
+.mx-premium-home .mx-hero-player,
+.mx-live-page .mx-live-hero-player,
+.mx-history-page .mx-history-player,
+.mx-bonus-page .mx-bonus-player{
+  pointer-events:none;
+  user-select:none;
+}
+
+.mx-premium-home .mx-hero-quote,
+.mx-live-page .mx-live-hero-quote,
+.mx-history-page .mx-history-quote,
+.mx-pronos-page .mx-pronos-quote,
+.mx-bonus-page .mx-bonus-quote{
+  z-index:4;
+  color:#f0c76d;
+  font-family:'Caveat','Segoe Print',cursive;
+  font-weight:700;
+  line-height:.94;
+  letter-spacing:.01em;
+  text-shadow:0 2px 0 rgba(0,0,0,.52),0 0 18px rgba(230,179,76,.18);
+  transform:rotate(-4deg);
+  pointer-events:none;
+  user-select:none;
+}
+
+/* Slightly calmer editorial treatment. */
+.mx-blog-page .mx-brand-player,
+.mx-conseils-page .mx-brand-player,
+.mx-infos-page .mx-brand-player,
+.mx-contact-page .mx-brand-player{
+  opacity:.32;
+}
+.mx-blog-page .mx-brand-signature,
+.mx-conseils-page .mx-brand-signature,
+.mx-infos-page .mx-brand-signature,
+.mx-contact-page .mx-brand-signature{
+  color:#e8c477;
+  font-size:clamp(22px,2vw,31px);
+}
+
+/* Stronger sports pages. */
+.mx-pronos-page .mx-brand-player{
+  opacity:.44;
+}
+.mx-pronos-page .mx-brand-signature{
+  right:4%;
+}
+
+@media(max-width:700px){
+  .mx-brand-player{
+    display:block!important;
+    right:-11px;
+    bottom:-12px;
+    height:108px;
+    max-width:42%;
+    opacity:.18;
+    filter:saturate(.78) contrast(1.05) drop-shadow(0 10px 14px rgba(0,0,0,.34));
+  }
+  .mx-brand-signature{
+    display:block!important;
+    right:11px;
+    bottom:5px;
+    max-width:160px;
+    font-size:15px;
+    line-height:.92;
+    opacity:.88;
+    text-shadow:0 1px 0 rgba(0,0,0,.64),0 0 12px rgba(230,179,76,.14);
+  }
+  .mx-brand-signature::after{
+    width:62%;
+    margin-top:2px;
+  }
+
+  /* HOME — strong brand visual without restoring extra height. */
+  .mx-premium-home .mx-hero-player{
+    display:block!important;
+    opacity:.47!important;
+  }
+  .mx-premium-home .mx-hero-quote{
+    display:block!important;
+    position:absolute!important;
+    right:11px!important;
+    bottom:7px!important;
+    left:auto!important;
+    margin:0!important;
+    max-width:155px!important;
+    font-size:16px!important;
+    text-align:right!important;
+    opacity:.92!important;
+    transform:rotate(-4deg)!important;
+  }
+
+  /* PRONOSTICS */
+  .mx-pronos-page .mx-brand-player{
+    height:120px;
+    right:-8px;
+    bottom:-15px;
+    opacity:.2;
+  }
+  .mx-pronos-page .mx-pronos-quote{
+    display:block!important;
+    position:absolute!important;
+    right:10px!important;
+    bottom:5px!important;
+    left:auto!important;
+    margin:0!important;
+    max-width:155px!important;
+    font-size:15px!important;
+    text-align:right!important;
+    opacity:.88!important;
+    transform:rotate(-4deg)!important;
+  }
+
+  /* LIVE — visible only on the principal Live tab. */
+  .mx-live-page .mx-live-tab-live .mx-live-hero-player{
+    display:block!important;
+    opacity:.24!important;
+  }
+  .mx-live-page .mx-live-tab-live .mx-live-hero-quote{
+    display:block!important;
+    right:9px!important;
+    bottom:5px!important;
+    left:auto!important;
+    margin:0!important;
+    max-width:140px!important;
+    font-size:15px!important;
+    text-align:right!important;
+    opacity:.88!important;
+    transform:rotate(-4deg)!important;
+  }
+
+  /* HISTORIQUE */
+  .mx-history-page .mx-history-player{
+    display:block!important;
+    height:111px!important;
+    right:-7px!important;
+    bottom:-14px!important;
+    opacity:.15!important;
+  }
+  .mx-history-page .mx-history-quote{
+    display:block!important;
+    position:absolute!important;
+    right:9px!important;
+    bottom:5px!important;
+    left:auto!important;
+    margin:0!important;
+    max-width:150px!important;
+    font-size:14px!important;
+    text-align:right!important;
+    opacity:.9!important;
+    transform:rotate(-4deg)!important;
+  }
+
+  /* BLOG / CONSEILS / INFOS / CONTACT */
+  .mx-blog-page .mx-brand-player,
+  .mx-conseils-page .mx-brand-player,
+  .mx-infos-page .mx-brand-player,
+  .mx-contact-page .mx-brand-player{
+    height:104px;
+    right:-10px;
+    bottom:-12px;
+    opacity:.14;
+  }
+  .mx-blog-page .mx-brand-signature,
+  .mx-conseils-page .mx-brand-signature,
+  .mx-infos-page .mx-brand-signature,
+  .mx-contact-page .mx-brand-signature{
+    right:9px;
+    bottom:4px;
+    max-width:145px;
+    font-size:14px;
+    opacity:.86;
+  }
+
+  /* BONUS */
+  .mx-bonus-page .mx-bonus-player{
+    display:block!important;
+    height:105px!important;
+    right:-8px!important;
+    bottom:-14px!important;
+    opacity:.16!important;
+  }
+  .mx-bonus-page .mx-bonus-quote{
+    display:block!important;
+    position:absolute!important;
+    right:9px!important;
+    bottom:5px!important;
+    left:auto!important;
+    margin:0!important;
+    max-width:145px!important;
+    font-size:14px!important;
+    text-align:right!important;
+    opacity:.9!important;
+    transform:rotate(-4deg)!important;
+  }
+}
+
+@media(max-width:345px){
+  .mx-brand-player{
+    height:96px;
+    right:-13px;
+    bottom:-13px;
+    opacity:.11;
+  }
+  .mx-brand-signature{
+    right:7px;
+    bottom:4px;
+    max-width:125px;
+    font-size:12px;
+    opacity:.76;
+  }
+
+  .mx-premium-home .mx-hero-player{opacity:.38!important}
+  .mx-premium-home .mx-hero-quote,
+  .mx-pronos-page .mx-pronos-quote,
+  .mx-live-page .mx-live-tab-live .mx-live-hero-quote,
+  .mx-history-page .mx-history-quote,
+  .mx-bonus-page .mx-bonus-quote{
+    right:7px!important;
+    bottom:4px!important;
+    max-width:125px!important;
+    font-size:12px!important;
+    opacity:.78!important;
+  }
+
+  .mx-history-page .mx-history-player,
+  .mx-bonus-page .mx-bonus-player{
+    height:96px!important;
+    opacity:.11!important;
+  }
+}
