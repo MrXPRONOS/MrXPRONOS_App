@@ -241,3 +241,27 @@
     font-size:7.3px!important;
   }
 }
+
+
+/* Contact mobile v4 — CI measured fold correction */
+@media(max-width:700px){
+  .mx-contact-page .mx-contact-hero,
+  .mx-contact-page .mx-contact-hero-inner{
+    min-height:110px!important;
+    height:110px!important;
+  }
+  .mx-contact-page .mx-contact-content{
+    padding-top:4px!important;
+  }
+  .mx-contact-page .mx-contact-heading{
+    min-height:25px!important;
+    margin-bottom:4px!important;
+  }
+}
+@media(max-width:345px){
+  .mx-contact-page .mx-contact-hero,
+  .mx-contact-page .mx-contact-hero-inner{
+    min-height:103px!important;
+    height:103px!important;
+  }
+}
