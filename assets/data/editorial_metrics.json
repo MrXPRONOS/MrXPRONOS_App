@@ -2,23 +2,21 @@
   "articles.json": {
     "count": 80,
     "unique_titles": 80,
-    "with_editorial_image": 20,
+    "with_editorial_image": 80,
     "visual_variants": {
-      "v3": 4,
-      "v1": 11,
-      "v2": 5,
-      "legacy": 60
+      "v3": 22,
+      "v1": 37,
+      "v2": 21
     }
   },
   "conseils.json": {
     "count": 49,
     "unique_titles": 49,
-    "with_editorial_image": 12,
+    "with_editorial_image": 49,
     "visual_variants": {
-      "v1": 6,
-      "v3": 2,
-      "v2": 4,
-      "legacy": 37
+      "v1": 21,
+      "v3": 7,
+      "v2": 21
     }
   },
   "footnews.json": {
