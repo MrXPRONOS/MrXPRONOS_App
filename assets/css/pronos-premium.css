@@ -557,3 +557,19 @@
   .mx-pronos-page .team-logo{width:44px!important;height:44px!important}
   .mx-pronos-page .match-score-center{min-width:44px!important;min-height:38px!important}
 }
+
+
+/* Pronostics success-rate mobile compaction */
+@media(max-width:590px){
+  .mx-pronos-page .success-rate{
+    min-height:66px!important;
+    margin:10px 0 12px!important;
+    padding:11px 14px!important;
+    gap:8px!important;
+    border-left-width:3px!important;
+    border-radius:13px!important;
+  }
+  .mx-pronos-page .success-rate-item{min-width:0!important}
+  .mx-pronos-page .success-rate-value{font-size:25px!important;line-height:1!important}
+  .mx-pronos-page .success-rate-label{margin-top:4px!important;font-size:9.5px!important}
+}
