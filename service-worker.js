@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v56-mobile-nav-icons-20261012';
+const VERSION = 'v57-mobile-nav-shared-20261012';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -38,6 +38,7 @@ const STATIC_ASSETS = [
     './assets/css/article-detail-premium.css',
     './assets/css/conseil-detail-premium.css',
     './assets/css/bookmakers-premium.css',
+    './assets/css/mobile-nav-premium.css',
     './assets/js/main.js',
     './assets/js/home-premium.js',
     './assets/js/pwa.js',
