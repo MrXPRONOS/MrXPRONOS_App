@@ -169,3 +169,13 @@
 @media(prefers-reduced-motion:reduce){
   .burger-drawer,.burger-menu-item,.menu-icon-img,.bottom-nav-icon-wrap,.bottom-nav-icon{transition:none!important}
 }
+
+
+/* Drawer must stay above every fixed/sticky page header. */
+.burger-overlay{z-index:2147483000!important}
+body.menu-open > header,
+body.menu-open .mx-site-header,
+body.menu-open .mx-live-header{pointer-events:none!important}
+body.menu-open .burger-overlay,
+body.menu-open .burger-drawer,
+body.menu-open .burger-drawer *{pointer-events:auto}
