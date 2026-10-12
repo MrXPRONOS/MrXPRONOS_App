@@ -11,6 +11,7 @@ import json
 import feedparser
 import logging
 import re
+import time
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 from deep_translator import GoogleTranslator
@@ -88,9 +89,14 @@ def should_translate(text: str, feed_language: str = "") -> bool:
         return True
     if mode in {"0", "false", "no", "off"}:
         return False
-    lang = (feed_language or "").lower()
+
+    lang = (feed_language or "").strip().lower()
     if lang.startswith("fr"):
         return False
+    # Si le flux annonce explicitement une langue non-française (ex: en-gb),
+    # on traduit systématiquement, même pour un titre très court.
+    if lang:
+        return True
     return looks_english(text)
 
 def translate_text(text: str, dest: str = "fr", feed_language: str = "") -> str:
@@ -102,13 +108,13 @@ def translate_text(text: str, dest: str = "fr", feed_language: str = "") -> str:
     last_error = None
     for attempt in range(1, TRANSLATION_RETRIES + 1):
         try:
+            # Google limite la fréquence. 0,35 s garde le workflow sous ~3 req/s,
+            # bien en dessous de la limite annoncée de 5 req/s.
+            time.sleep(0.35 if attempt == 1 else 1.5 * attempt)
             translated = GoogleTranslator(source="auto", target=dest).translate(text)
             if translated and translated.strip():
                 translated = translated.strip()
-                # Ne jamais republier silencieusement un texte encore clairement anglais.
-                if not looks_english(translated):
-                    return translated
-                logger.warning("Traduction encore détectée en anglais (tentative %s/%s)", attempt, TRANSLATION_RETRIES)
+                return translated
         except Exception as e:
             last_error = e
             logger.warning("Erreur de traduction (tentative %s/%s): %s", attempt, TRANSLATION_RETRIES, e)
@@ -169,6 +175,11 @@ def fetch_news():
             continue
         if summary and not translated_summary:
             logger.warning("Article ignoré: résumé non francisé: %s", title[:120])
+            continue
+
+        combined = f"{translated_title} {translated_summary}".strip()
+        if should_translate(title + " " + summary, feed_language) and looks_english(combined):
+            logger.warning("Article ignoré: contenu encore détecté en anglais après traduction: %s", title[:120])
             continue
 
         articles.append({

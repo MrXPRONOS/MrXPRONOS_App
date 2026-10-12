@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/update-footnews.yml'
+      - 'fetch_foot_news.py'
 
 permissions:
   contents: write
@@ -38,7 +39,7 @@ jobs:
         env:
           FOOTBALL_RSS_FEED: ${{ secrets.FOOTBALL_RSS_FEED }}
           ENABLE_TRANSLATION: auto
-          TRANSLATION_RETRIES: '3'
+          TRANSLATION_RETRIES: '2'
           MAX_ARTICLES: '20'
         run: python fetch_foot_news.py
 
