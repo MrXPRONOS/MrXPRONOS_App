@@ -103,6 +103,7 @@
 .mx-contact-page .mx-brand-signature{
   color:#e8c477;
   font-size:clamp(22px,2vw,31px);
+  bottom:clamp(28px,3.2vw,46px);
 }
 
 /* Stronger sports pages. */
@@ -111,6 +112,16 @@
 }
 .mx-pronos-page .mx-brand-signature{
   right:4%;
+}
+
+@media(min-width:701px) and (max-width:1100px){
+  /* Editorial signature tablet lift */
+  .mx-blog-page .mx-brand-signature,
+  .mx-conseils-page .mx-brand-signature,
+  .mx-infos-page .mx-brand-signature,
+  .mx-contact-page .mx-brand-signature{
+    bottom:24px;
+  }
 }
 
 @media(max-width:700px){
@@ -233,7 +244,7 @@
   .mx-infos-page .mx-brand-signature,
   .mx-contact-page .mx-brand-signature{
     right:9px;
-    bottom:4px;
+    bottom:13px;
     max-width:145px;
     font-size:14px;
     opacity:.86;
@@ -263,6 +274,14 @@
 }
 
 @media(max-width:345px){
+  /* Editorial signature small-mobile lift */
+  .mx-blog-page .mx-brand-signature,
+  .mx-conseils-page .mx-brand-signature,
+  .mx-infos-page .mx-brand-signature,
+  .mx-contact-page .mx-brand-signature{
+    bottom:9px;
+  }
+
   .mx-brand-player{
     height:96px;
     right:-13px;
