@@ -43,3 +43,10 @@ jobs:
           sleep 2
       - name: Audit public pages
         run: python scripts/public_pages_header_smoke.py
+      - name: Save global mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-mobile-audit-screens
+          path: artifacts/public-pages-audit/
+          if-no-files-found: warn
