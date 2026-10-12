@@ -1,7 +1,7 @@
 {
   "source": "bsd",
   "model_version": "bsd-v2-isolated",
-  "generated_at": "2026-10-12T22:13:56.581242+00:00",
+  "generated_at": "2026-10-12T22:56:40.513406+00:00",
   "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
   "matches": [
     {
@@ -20501,7 +20501,7 @@
       "xpronos_score": 82.7,
       "generated_at": "2026-10-11T18:51:01.953437+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T22:13:56.581242+00:00",
+      "revalidated_at": "2026-10-12T22:56:40.513406+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20589,7 +20589,7 @@
       "xpronos_score": 80.7,
       "generated_at": "2026-10-11T20:04:56.111660+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T22:13:56.581242+00:00",
+      "revalidated_at": "2026-10-12T22:56:40.513406+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20677,7 +20677,7 @@
       "xpronos_score": 80.7,
       "generated_at": "2026-10-11T20:04:56.111660+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T22:13:56.581242+00:00",
+      "revalidated_at": "2026-10-12T22:56:40.513406+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20765,7 +20765,7 @@
       "xpronos_score": 80.7,
       "generated_at": "2026-10-12T21:47:48.001723+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T22:13:56.581242+00:00",
+      "revalidated_at": "2026-10-12T22:56:40.513406+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20872,7 +20872,7 @@
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-12T19:50:08+00:00"
       },
-      "revalidated_at": "2026-10-12T22:13:56.581242+00:00",
+      "revalidated_at": "2026-10-12T22:56:40.513406+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20979,7 +20979,7 @@
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-12T20:05:08+00:00"
       },
-      "revalidated_at": "2026-10-12T22:13:56.581242+00:00",
+      "revalidated_at": "2026-10-12T22:56:40.513406+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     }
   ],
@@ -21304,7 +21304,7 @@
       }
     },
     "last_added": 0,
-    "updated_at": "2026-10-12T22:13:56.581242+00:00",
+    "updated_at": "2026-10-12T22:56:40.513406+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -21515,9 +21515,9 @@
   "diagnostics": {
     "total": 243,
     "rejections": {
-      "saved_future_revalidated": 7,
-      "odds_attempts": 38,
-      "v21_over15_conservative_too_low": 26,
+      "saved_future_revalidated": 6,
+      "odds_attempts": 37,
+      "v21_over15_conservative_too_low": 25,
       "v21_insufficient_real_price_edge": 8,
       "no_qualified_market": 1,
       "chosen_market_unpriceable": 1,
@@ -29660,179 +29660,9 @@
         "away_team": "Athletico",
         "event_date": "2026-10-12T22:30:00+00:00",
         "quotes": [],
-        "considered": [
-          {
-            "key": "1",
-            "family": "result",
-            "market_code": "1X2_HOME_FT",
-            "probability": 0.345373284794973,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "X",
-            "family": "result",
-            "market_code": "1X2_DRAW_FT",
-            "probability": 0.26041702899686964,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "2",
-            "family": "result",
-            "market_code": "1X2_AWAY_FT",
-            "probability": 0.3942096862081575,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "1X",
-            "family": "double_chance",
-            "market_code": "DC_1X_FT",
-            "probability": 0.6057903137918426,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "12",
-            "family": "double_chance",
-            "market_code": "DC_12_FT",
-            "probability": null,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "excluded_market"
-          },
-          {
-            "key": "X2",
-            "family": "double_chance",
-            "market_code": "DC_X2_FT",
-            "probability": 0.6546267152050271,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "BTTS_YES",
-            "family": "btts",
-            "market_code": "BTTS_YES_FT",
-            "probability": 0.5723018826179408,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "BTTS_NO",
-            "family": "btts",
-            "market_code": "BTTS_NO_FT",
-            "probability": 0.4276981173820592,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_OVER_FT",
-            "probability": 0.781480471053433,
-            "odds": null,
-            "conservative_probability": 0.767480471053433,
-            "result": "qualified"
-          },
-          {
-            "key": "UNDER_15",
-            "family": "goals",
-            "market_code": "OU_1.5_UNDER_FT",
-            "probability": 0.21851952894656645,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_OVER_FT",
-            "probability": 0.565792761361846,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_25",
-            "family": "goals",
-            "market_code": "OU_2.5_UNDER_FT",
-            "probability": 0.43420723863815336,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_OVER_FT",
-            "probability": 0.3589614533403971,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_35",
-            "family": "goals",
-            "market_code": "OU_3.5_UNDER_FT",
-            "probability": 0.6410385466596031,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "OVER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_OVER_FT",
-            "probability": 0.17108624012940427,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "below_min_probability"
-          },
-          {
-            "key": "UNDER_45",
-            "family": "goals",
-            "market_code": "OU_4.5_UNDER_FT",
-            "probability": null,
-            "odds": null,
-            "conservative_probability": null,
-            "result": "excluded_market"
-          }
-        ],
+        "considered": [],
         "status": "rejected",
-        "reason": "v21_over15_conservative_too_low",
-        "preprice": {
-          "category": "simple",
-          "selection_key": "OVER_15",
-          "conservative_probability": 0.76748,
-          "league_samples": 600,
-          "home_recent_matches": 12,
-          "away_recent_matches": 12,
-          "home_venue_matches": 8,
-          "away_venue_matches": 8
-        },
-        "pricing": {
-          "odds_source": "mrxpronos_model",
-          "odds": 1.207
-        },
-        "post_price_value_guard": {
-          "checked": false,
-          "passed": true,
-          "reason": "estimated_price_not_independent",
-          "source": "mrxpronos_model"
-        },
-        "v21_policy": {
-          "passed": false,
-          "reason": "v21_over15_conservative_too_low",
-          "tier": "OBSERVATION"
-        }
+        "reason": "outside_upcoming_window"
       },
       {
         "event_id": "10180",
@@ -39412,10 +39242,10 @@
     "vip_funnel": {
       "scope": "fixtures_not_previously_published_in_this_generation",
       "examined_fixture_count": 888,
-      "without_football_qualified_market_or_out_of_scope": 850,
-      "preprice_classified_total": 38,
+      "without_football_qualified_market_or_out_of_scope": 851,
+      "preprice_classified_total": 37,
       "preprice_category_counts": {
-        "simple": 19,
+        "simple": 18,
         "pro": 14,
         "vip": 5
       },
@@ -39426,7 +39256,7 @@
         "minimum_home_away_matches_per_team": 5
       },
       "progressive_vip_threshold_counts": {
-        "football_market_qualified": 38,
+        "football_market_qualified": 37,
         "conservative_probability_at_least_83pct": 2,
         "plus_league_history_at_least_80": 2,
         "plus_recent_history_at_least_12_each": 2,
@@ -39451,7 +39281,7 @@
       "not_classified_reason_counts": {
         "no_qualified_market": 1,
         "not_upcoming": 2,
-        "outside_upcoming_window": 847
+        "outside_upcoming_window": 848
       },
       "vip_candidates": [
         {
