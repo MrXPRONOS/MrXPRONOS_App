@@ -85,7 +85,7 @@ def assert_mobile_density(page, width, label):
         return
 
     hero_h = page.locator(".mx-conseils-hero").evaluate("(el) => el.getBoundingClientRect().height")
-    if hero_h > 142:
+    if hero_h > 113:
         raise AssertionError(f"{label}: Conseils hero too tall ({hero_h}px)")
 
     hero_desc = page.locator(".mx-conseils-copy p")
@@ -98,7 +98,7 @@ def assert_mobile_density(page, width, label):
 
     first_card = page.locator(".conseil-premium-card").first
     first_top = first_card.evaluate("(el) => el.getBoundingClientRect().top")
-    max_top = 300 if width >= 390 else 292
+    max_top = 280 if width >= 390 else 272
     if first_top > max_top:
         raise AssertionError(
             f"{label}: first guide starts too low ({first_top}px > {max_top}px); "

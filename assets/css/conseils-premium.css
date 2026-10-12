@@ -509,3 +509,18 @@
     display:none!important;
   }
 }
+
+/* =========================================================
+   Conseils mobile v6 — title-only ultra-compact hero
+========================================================= */
+@media(max-width:700px){
+  .mx-conseils-page .mx-conseils-hero,
+  .mx-conseils-page .mx-conseils-hero-inner{min-height:106px!important;height:106px!important}
+  .mx-conseils-page .mx-conseils-hero-inner{align-items:center!important;padding:7px 0!important}
+  .mx-conseils-page .mx-conseils-copy h1{max-width:335px!important;margin:0!important;font-size:27px!important;line-height:.97!important}
+}
+@media(max-width:345px){
+  .mx-conseils-page .mx-conseils-hero,
+  .mx-conseils-page .mx-conseils-hero-inner{min-height:99px!important;height:99px!important}
+  .mx-conseils-page .mx-conseils-copy h1{font-size:24px!important}
+}
