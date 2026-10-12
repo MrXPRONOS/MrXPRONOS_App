@@ -1,0 +1,61 @@
+name: Editorial - Telegram diffusion contrôlée
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publier pour de vrai si les deux secrets dédiés sont disponibles"
+        required: true
+        type: boolean
+        default: false
+  schedule:
+    - cron: '12 8 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: editorial-telegram-delivery
+  cancel-in-progress: false
+
+jobs:
+  telegram:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install free sender
+        run: python -m pip install Pillow requests
+      - name: Refresh queue without losing delivery state
+        run: python scripts/editorial_queue.py --limit 100
+      - name: Send at most one fresh article/advice
+        env:
+          EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
+          EDITORIAL_TELEGRAM_CHAT_ID: ${{ secrets.EDITORIAL_TELEGRAM_CHAT_ID }}
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_PUBLISH: ${{ inputs.publish || 'false' }}
+        shell: bash
+        run: |
+          if [ "$EVENT_NAME" = 'schedule' ] || [ "$REQUESTED_PUBLISH" = 'true' ]; then
+            python scripts/editorial_telegram.py --publish --max-items 1
+          else
+            python scripts/editorial_telegram.py
+          fi
+      - name: Persist successful deliveries
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/data/editorial_share_queue.json
+          if git diff --cached --quiet; then
+            echo "No delivery ledger changes"
+            exit 0
+          fi
+          git commit -m "data(editorial): save Telegram delivery ledger"
+          git pull --rebase origin main
+          git push origin HEAD:main

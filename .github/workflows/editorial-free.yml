@@ -31,9 +31,13 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install free local renderer
-        run: python -m pip install Pillow
+        run: python -m pip install Pillow requests feedparser deep-translator
       - name: Run offline unit tests
-        run: python -m unittest discover -s tests -p 'test_editorial_free.py'
+        run: |
+          python -m unittest discover -s tests -p 'test_editorial_free.py'
+          python -m unittest discover -s tests -p 'test_editorial_phase2.py'
+      - name: Integrate verified BSD V2 fixture stories
+        run: python scripts/editorial_bsd_bridge.py --limit 5
       - name: Build branded media (3 aspect ratios)
         run: python scripts/content_studio.py --limit 100 --news-limit 20
       - name: Build shareable OG pages
@@ -42,10 +46,12 @@ jobs:
         run: python generate_sitemap.py
       - name: Build review-only social queue and metrics
         run: |
-          python scripts/editorial_queue.py
+          python scripts/editorial_queue.py --limit 100
           python scripts/editorial_metrics.py
       - name: Check quality
         run: python scripts/editorial_quality.py --strict
+      - name: Audit media storage without deleting user assets
+        run: python scripts/editorial_cleanup_audit.py --top 12
       - name: Validate JSON formats
         run: |
           python -m json.tool articles.json > /dev/null
@@ -59,10 +65,11 @@ jobs:
             # Fresh checkout of the latest production state; never force-push.
             git fetch origin main
             git reset --hard origin/main
+            python scripts/editorial_bsd_bridge.py --limit 5
             python scripts/content_studio.py --limit 100 --news-limit 20
             python scripts/editorial_pages.py
             python generate_sitemap.py
-            python scripts/editorial_queue.py
+            python scripts/editorial_queue.py --limit 100
             python scripts/editorial_metrics.py
             python scripts/editorial_quality.py --strict
             git add articles.json conseils.json footnews.json sitemap.xml sitemap.txt articles/ conseils/ assets/images/editorial/ assets/data/

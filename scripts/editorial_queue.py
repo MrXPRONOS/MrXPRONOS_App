@@ -32,10 +32,29 @@ def build(root=ROOT, queue_path=QUEUE,limit=20):
             else:
                 url="https://mrxpronos.github.io/MrXPRONOS_App/"+("articles" if kind=="article" else "conseils")+"/"+slug+"/"
             previous[unique]={"id":unique,"kind":kind,"title":title,"url":url,
+              "source_date":str(obj.get("date") or obj.get("published") or obj.get("published_at") or ""),
+              "visual_variant":str(obj.get("visual_variant") or "legacy"),
               "image":obj.get("social_image") or obj.get("image_url") or "",
               "story_image":obj.get("story_image") or "",
               "status":"pending_review","created_at":now,
               "platform_status":{p:"not_requested" for p in PLATFORMS}}
+    # Préserver les anciens états de diffusion et enrichir les entrées existantes.
+    lookup = {}
+    for name,kind in (("articles.json","article"),("conseils.json","conseil"),("footnews.json","news")):
+        f=root/name
+        if not f.is_file():continue
+        for obj in json.loads(f.read_text(encoding="utf-8"))[:limit]:
+            if not isinstance(obj,dict):continue
+            slug=str(obj.get("slug") or obj.get("link") or obj.get("title") or "")
+            ident=hashlib.sha256((kind+"|"+slug).encode()).hexdigest()[:24]
+            lookup[ident] = obj
+    for ident,item in previous.items():
+        obj=lookup.get(ident)
+        if obj:
+            item["source_date"]=str(obj.get("date") or obj.get("published") or obj.get("published_at") or item.get("source_date") or "")
+            item["visual_variant"]=str(obj.get("visual_variant") or item.get("visual_variant") or "legacy")
+            item["image"]=obj.get("social_image") or obj.get("image_url") or item.get("image") or ""
+            item["story_image"]=obj.get("story_image") or item.get("story_image") or ""
     result=sorted(previous.values(),key=lambda x:x.get("created_at",""),reverse=True)
     queue_path.parent.mkdir(parents=True,exist_ok=True)
     queue_path.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")

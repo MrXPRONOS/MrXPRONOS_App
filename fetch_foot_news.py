@@ -9,13 +9,14 @@ fetch_foot_news.py - Récupère les dernières actualités football depuis un fl
 import os
 import json
 import feedparser
+import requests
 import logging
 import re
 import time
 import hashlib
 import unicodedata
 from urllib.parse import urlparse
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 from deep_translator import GoogleTranslator
 
@@ -25,7 +26,9 @@ RSS_FEED = (os.getenv("FOOTBALL_RSS_FEED") or DEFAULT_RSS_FEED).strip()
 NEWS_FILE = "footnews.json"
 MAX_ARTICLES = int(os.getenv("MAX_ARTICLES", "20"))
 # Plusieurs flux FR libres à consulter (titres, courts résumés et liens uniquement).
-EXTRA_RSS_FEEDS = [x.strip() for x in os.getenv("EXTRA_FOOTBALL_RSS_FEEDS", "https://www.france24.com/fr/tag/football/rss,https://www.lfp.fr/rss").split(",") if x.strip()]
+EXTRA_RSS_FEEDS = [x.strip() for x in os.getenv("EXTRA_FOOTBALL_RSS_FEEDS", "https://www.france24.com/fr/tag/football/rss,https://www.footmercato.net/flux-rss").split(",") if x.strip()]
+MAX_NEWS_AGE_HOURS = max(12, int(os.getenv("MAX_NEWS_AGE_HOURS", "96")))
+RSS_TIMEOUT = max(3, int(os.getenv("RSS_TIMEOUT", "18")))
 
 # Traduction:
 # - "auto" (défaut): traduit seulement lorsque le flux / texte n'est pas français.
@@ -170,16 +173,24 @@ def classify_news(title: str, summary: str) -> tuple[str, int]:
 def fetch_news():
     feeds = [RSS_FEED] + [url for url in EXTRA_RSS_FEEDS if url != RSS_FEED]
     articles, seen_links, seen_titles = [], set(), set()
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(hours=MAX_NEWS_AGE_HOURS)
+    diagnostics = {"feeds": {}, "rejected_stale": 0, "rejected_duplicate": 0}
     for feed_url in feeds:
         logger.info("Récupération du flux : %s", feed_url)
         try:
-            feed = feedparser.parse(feed_url)
+            response = requests.get(feed_url, timeout=RSS_TIMEOUT, headers={"User-Agent":"MrXPRONOS-NewsBot/2.0 RSS Reader"})
+            response.raise_for_status()
+            feed = feedparser.parse(response.content)
         except Exception as exc:
             logger.warning("Flux indisponible %s : %s", feed_url, exc)
+            diagnostics["feeds"][feed_url] = "unavailable"
             continue
         if not feed.entries:
             logger.warning("Flux vide: %s", feed_url)
+            diagnostics["feeds"][feed_url] = "empty"
             continue
+        diagnostics["feeds"][feed_url] = len(feed.entries)
         feed_language = str(feed.feed.get("language") or "").strip()
         source = str(feed.feed.get("title") or urlparse(feed_url).netloc)[:90]
         for entry in feed.entries[:max(MAX_ARTICLES, 25)]:
@@ -190,6 +201,16 @@ def fetch_news():
                 continue
             norm = _normalized_key(title)
             if not norm or norm in seen_titles or link in seen_links:
+                diagnostics["rejected_duplicate"] += 1
+                continue
+            raw_date = to_iso_date(entry)
+            try:
+                parsed = datetime.fromisoformat(raw_date.replace("Z", "+00:00"))
+                if parsed.tzinfo is None: parsed = parsed.replace(tzinfo=timezone.utc)
+                if parsed < cutoff or parsed > now + timedelta(hours=3):
+                    diagnostics["rejected_stale"] += 1
+                    continue
+            except (TypeError, ValueError):
                 continue
             translated_title = translate_text(title, feed_language=feed_language)
             translated_summary = translate_text(summary, feed_language=feed_language)
@@ -204,21 +225,40 @@ def fetch_news():
                 "title": translated_title,
                 "summary": translated_summary[:380],
                 "link": link,
-                "published": to_iso_date(entry),
-                "image": extract_image_url(entry),
+                "published": raw_date,
+                "image": "assets/images/preview.jpg",
+                "source_image": extract_image_url(entry),
                 "source": source,
                 "category": category,
                 "editorial_score": score
             })
     articles.sort(key=lambda x: (x.get("editorial_score",0),x.get("published","")),reverse=True)
     result=articles[:MAX_ARTICLES]
-    logger.info("%s actualités uniques depuis %s flux",len(result),len(feeds))
+    logger.info("%s actualités uniques depuis %s flux ; diagnostic %s",len(result),len(feeds),json.dumps(diagnostics,ensure_ascii=False))
     return result
 
 def save_news(articles):
+    """Conserve les métadonnées des images locales entre deux actualisations RSS."""
+    old_by_link = {}
+    try:
+        old_data = json.loads(open(NEWS_FILE, encoding="utf-8").read())
+        if isinstance(old_data, list):
+            old_by_link = {x.get("link"): x for x in old_data if isinstance(x,dict) and x.get("link")}
+    except (OSError, ValueError):
+        pass
+    preservable = ("image_url", "og_image", "social_image", "story_image",
+                   "visual_variant", "visual_hash", "visual_format")
+    for item in articles:
+        previous = old_by_link.get(item["link"]) or {}
+        for key in preservable:
+            if previous.get(key): item[key] = previous[key]
+        if item.get("image_url", "").startswith("assets/images/editorial/"):
+            item["image"] = item["image_url"]
+    # Le rapport du flux n'est pas diffusé directement; le JSON conserve les liens sources.
     with open(NEWS_FILE, "w", encoding="utf-8") as f:
         json.dump(articles, f, indent=2, ensure_ascii=False)
-    logger.info(f"Articles sauvegardés dans {NEWS_FILE}")
+        f.write("\n")
+    logger.info("%s actualités sauvegardées, images locales préservées",len(articles))
 
 def main():
     articles = fetch_news()

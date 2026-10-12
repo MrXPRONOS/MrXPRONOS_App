@@ -557,8 +557,11 @@ def flash(articles: list[dict], history: History, now: datetime,
         buttons = {"inline_keyboard": [[
             {"text": "Lire sur Foot Mercato ↗", "url": a["url"], "style": "primary"}
         ]]}
-        image_url = a.get("image") or ""
-        if not image_url and session is not None:
+        # Par défaut, aucune reproduction d'image de presse sans autorisation.
+        # Le template produit un terrain/ballon premium si aucune photo approuvée.
+        allowed_news_photo = os.getenv("EDITORIAL_ALLOW_NEWS_PHOTOS", "0") == "1"
+        image_url = (a.get("image") or "") if allowed_news_photo else ""
+        if allowed_news_photo and not image_url and session is not None:
             image_url = fetch_article_image(session, a["url"])
         card = {
             "day": now.astimezone(TZ).strftime("%d/%m/%Y"),
