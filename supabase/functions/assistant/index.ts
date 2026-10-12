@@ -7,7 +7,7 @@ const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 const HF_TOKEN = Deno.env.get("HF_TOKEN");
 const HF_MODEL = Deno.env.get("HF_MODEL") || "Qwen/Qwen2.5-7B-Instruct";
 
-if (!MISTRAL_API_KEY) throw new Error("Variable manquante : MISTRAL_API_KEY");
+// Mistral is optional and disabled by default to preserve free-only operation.
 if (!SUPABASE_URL) throw new Error("Variable manquante : SUPABASE_URL");
 if (!SUPABASE_SERVICE_KEY) throw new Error("Variable manquante : SUPABASE_SERVICE_ROLE_KEY");
 
@@ -734,23 +734,42 @@ async function callMistral(
   return data.choices[0].message.content;
 }
 
+async function callGroq(
+  messages: { role: "system" | "user" | "assistant"; content: string }[]
+): Promise<string> {
+  const token=Deno.env.get("GROQ_API_KEY");
+  if (!token) throw new Error("GROQ_API_KEY absent");
+  const response=await fetch("https://api.groq.com/openai/v1/chat/completions",{
+    method:"POST",
+    headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},
+    body:JSON.stringify({
+      model:Deno.env.get("GROQ_MODEL") || "openai/gpt-oss-20b",
+      messages,temperature:0.3,max_tokens:850
+    })
+  });
+  if(!response.ok) throw new Error("Groq unavailable: HTTP "+response.status);
+  const data=await response.json();
+  const content=data?.choices?.[0]?.message?.content;
+  if(typeof content!=="string" || !content.trim()) throw new Error("Groq empty reply");
+  return content.trim();
+}
 async function callPrimaryModel(
   messages: { role: "system" | "user" | "assistant"; content: string }[],
   mistralModel: string,
-  intent: string
+  _intent: string
 ): Promise<string> {
-  const totalLength = messages.map(m => m.content.length).reduce((a, b) => a + b, 0);
-  const forceMistral = intent === "prono" && totalLength > 8000;
-
-  if (!forceMistral) {
-    try {
-      return await callHuggingFace(messages, HF_MODEL);
-    } catch (hfError) {
-      console.error("⚠️ Hugging Face indisponible, fallback vers Mistral:", hfError);
-    }
+  // 1. Groq free tier (if key configured); 2. HF free credits;
+  // 3. Mistral only by explicit opt-in, never silently spend money.
+  if (Deno.env.get("GROQ_API_KEY")) {
+    try {return await callGroq(messages);} catch(err){console.warn("Groq unavailable",String(err));}
   }
-
-  return await callMistral(messages, mistralModel);
+  if(HF_TOKEN){
+    try {return await callHuggingFace(messages,HF_MODEL);} catch(err){console.warn("HF unavailable",String(err));}
+  }
+  if(Deno.env.get("ALLOW_MISTRAL_FALLBACK")==="true" && MISTRAL_API_KEY) {
+    return await callMistral(messages,mistralModel);
+  }
+  throw new Error("Free LLM providers unavailable; paid fallback disabled");
 }
 
 function buildSafeFallbackAnswer(intent: string): string {
@@ -981,7 +1000,7 @@ serve(async (req) => {
     // Zero verified FAQ = no embeddings request, therefore no unnecessary paid call.
     const { count: faqCount } = await supabase.from("faq")
       .select("id", { count:"exact", head:true }).eq("official",true);
-    if ((faqCount || 0) > 0 && (!historique || historique.length <= 2) && intent === "generic") {
+    if (false && (faqCount || 0) > 0 && (!historique || historique.length <= 2) && intent === "generic") {
       try {
         embedding = await getEmbedding(question);
         similar = await findSimilarFAQ(embedding);
