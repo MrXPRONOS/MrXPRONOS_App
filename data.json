@@ -1,7 +1,7 @@
 {
   "source": "bsd",
   "model_version": "bsd-v2-isolated",
-  "generated_at": "2026-10-12T00:05:49.862404+00:00",
+  "generated_at": "2026-10-12T00:36:39.682284+00:00",
   "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
   "matches": [
     {
@@ -19272,12 +19272,12 @@
       "badge": "BSD V2",
       "signal_tier": "INDICATIF",
       "recommendation_eligible": true,
-      "status": "notstarted",
-      "is_finished": false,
-      "home_score": null,
-      "away_score": null,
-      "verified_prediction": false,
-      "verified_double": false,
+      "status": "finished",
+      "is_finished": true,
+      "home_score": 0,
+      "away_score": 2,
+      "verified_prediction": true,
+      "verified_double": true,
       "prediction": {
         "type": "Total buts : Under 3,5",
         "label": "Total buts : Under 3,5",
@@ -19602,7 +19602,7 @@
       "xpronos_score": 81.3,
       "generated_at": "2026-10-11T09:04:21.232401+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -19690,7 +19690,7 @@
       "xpronos_score": 82.4,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -19797,7 +19797,7 @@
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-11T18:50:07+00:00"
       },
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -19885,7 +19885,7 @@
       "xpronos_score": 82.8,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -19973,7 +19973,7 @@
       "xpronos_score": 81.8,
       "generated_at": "2026-10-11T09:04:21.232401+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20061,7 +20061,7 @@
       "xpronos_score": 82.7,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20149,7 +20149,7 @@
       "xpronos_score": 79.4,
       "generated_at": "2026-10-11T09:04:21.232401+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20237,7 +20237,7 @@
       "xpronos_score": 79.2,
       "generated_at": "2026-10-11T09:04:21.232401+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20325,7 +20325,7 @@
       "xpronos_score": 81.0,
       "generated_at": "2026-10-11T09:04:21.232401+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20413,7 +20413,7 @@
       "xpronos_score": 82.9,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20501,7 +20501,7 @@
       "xpronos_score": 82.7,
       "generated_at": "2026-10-11T18:51:01.953437+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20589,7 +20589,7 @@
       "xpronos_score": 80.7,
       "generated_at": "2026-10-11T20:04:56.111660+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20677,7 +20677,7 @@
       "xpronos_score": 80.7,
       "generated_at": "2026-10-11T20:04:56.111660+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:05:49.862404+00:00",
+      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     }
   ],
@@ -20904,7 +20904,8 @@
       "bsd:223788:UNDER_35:2026-10-11T20:00:00+00:00",
       "bsd:223795:UNDER_35:2026-10-11T20:00:00+00:00",
       "bsd:10182:UNDER_35:2026-10-11T20:30:00+00:00",
-      "bsd:10178:1X:2026-10-11T21:30:00+00:00"
+      "bsd:10178:1X:2026-10-11T21:30:00+00:00",
+      "bsd:223793:UNDER_35:2026-10-11T22:15:00+00:00"
     ],
     "by_selection": {
       "1X": {
@@ -20924,12 +20925,12 @@
         "average_predicted": 0.561
       },
       "UNDER_35": {
-        "n": 55,
-        "wins": 45,
-        "sum_pred": 42.057999999999986,
+        "n": 56,
+        "wins": 46,
+        "sum_pred": 42.850999999999985,
         "penalty": 0.0,
-        "hit_rate": 0.818182,
-        "average_predicted": 0.764691
+        "hit_rate": 0.821429,
+        "average_predicted": 0.765196
       },
       "OVER_15": {
         "n": 109,
@@ -20982,27 +20983,27 @@
         "average_predicted": 0.561
       },
       "goals": {
-        "n": 165,
-        "wins": 131,
-        "sum_pred": 127.61099999999999,
+        "n": 166,
+        "wins": 132,
+        "sum_pred": 128.404,
         "penalty": 0.0,
-        "hit_rate": 0.793939,
-        "average_predicted": 0.7734
+        "hit_rate": 0.795181,
+        "average_predicted": 0.773518
       }
     },
-    "last_added": 4,
-    "updated_at": "2026-10-12T00:05:49.862404+00:00",
+    "last_added": 1,
+    "updated_at": "2026-10-12T00:36:39.682284+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
     "by_league_market": {
       "Liga Profesional de Fútbol|UNDER_35": {
-        "n": 3,
-        "wins": 2,
-        "sum_pred": 2.392,
+        "n": 4,
+        "wins": 3,
+        "sum_pred": 3.1849999999999996,
         "penalty": 0.0,
-        "hit_rate": 0.666667,
-        "average_predicted": 0.797333
+        "hit_rate": 0.75,
+        "average_predicted": 0.79625
       },
       "USL Championship|UNDER_35": {
         "n": 3,
@@ -21156,12 +21157,12 @@
     "rejections": {
       "saved_future_revalidated": 13,
       "daily_publication_cap": 25,
-      "odds_attempts": 20,
+      "odds_attempts": 21,
       "v21_insufficient_real_price_edge": 5,
       "v21_over15_conservative_too_low": 12,
       "chosen_market_unpriceable": 2,
       "no_qualified_market": 1,
-      "v21_model_confidence_or_price_below_floor": 1
+      "v21_model_confidence_or_price_below_floor": 2
     },
     "fixture_details": [
       {
@@ -34822,18 +34823,188 @@
         "away_team": "Vasco da Gama",
         "event_date": "2026-10-14T00:30:00+00:00",
         "quotes": [],
-        "considered": [],
+        "considered": [
+          {
+            "key": "1",
+            "family": "result",
+            "market_code": "1X2_HOME_FT",
+            "probability": 0.46866070572205043,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "X",
+            "family": "result",
+            "market_code": "1X2_DRAW_FT",
+            "probability": 0.2758704435021596,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "2",
+            "family": "result",
+            "market_code": "1X2_AWAY_FT",
+            "probability": 0.25546885077578996,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "1X",
+            "family": "double_chance",
+            "market_code": "DC_1X_FT",
+            "probability": 0.74453114922421,
+            "odds": null,
+            "conservative_probability": 0.73453114922421,
+            "result": "below_family_conservative_floor"
+          },
+          {
+            "key": "12",
+            "family": "double_chance",
+            "market_code": "DC_12_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          },
+          {
+            "key": "X2",
+            "family": "double_chance",
+            "market_code": "DC_X2_FT",
+            "probability": 0.5313392942779496,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_YES",
+            "family": "btts",
+            "market_code": "BTTS_YES_FT",
+            "probability": 0.507633481703545,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "BTTS_NO",
+            "family": "btts",
+            "market_code": "BTTS_NO_FT",
+            "probability": 0.4923665182964551,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_OVER_FT",
+            "probability": 0.7261491420997386,
+            "odds": null,
+            "conservative_probability": 0.7121491420997386,
+            "result": "qualified"
+          },
+          {
+            "key": "UNDER_15",
+            "family": "goals",
+            "market_code": "OU_1.5_UNDER_FT",
+            "probability": 0.2738508579002628,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_OVER_FT",
+            "probability": 0.47038857264946976,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_25",
+            "family": "goals",
+            "market_code": "OU_2.5_UNDER_FT",
+            "probability": 0.5296114273505301,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "OVER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_OVER_FT",
+            "probability": 0.2437786045012632,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_35",
+            "family": "goals",
+            "market_code": "OU_3.5_UNDER_FT",
+            "probability": 0.7562213954987376,
+            "odds": null,
+            "conservative_probability": 0.7422213954987376,
+            "result": "qualified"
+          },
+          {
+            "key": "OVER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_OVER_FT",
+            "probability": 0.10801608671763596,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "below_min_probability"
+          },
+          {
+            "key": "UNDER_45",
+            "family": "goals",
+            "market_code": "OU_4.5_UNDER_FT",
+            "probability": null,
+            "odds": null,
+            "conservative_probability": null,
+            "result": "excluded_market"
+          }
+        ],
         "status": "rejected",
-        "reason": "outside_upcoming_window"
+        "reason": "v21_model_confidence_or_price_below_floor",
+        "preprice": {
+          "category": "simple",
+          "selection_key": "UNDER_35",
+          "conservative_probability": 0.742221,
+          "league_samples": 465,
+          "home_recent_matches": 12,
+          "away_recent_matches": 12,
+          "home_venue_matches": 8,
+          "away_venue_matches": 8
+        },
+        "pricing": {
+          "odds_source": "mrxpronos_model",
+          "odds": 1.248
+        },
+        "post_price_value_guard": {
+          "checked": false,
+          "passed": true,
+          "reason": "estimated_price_not_independent",
+          "source": "mrxpronos_model"
+        },
+        "v21_policy": {
+          "passed": false,
+          "reason": "v21_model_confidence_or_price_below_floor",
+          "tier": "OBSERVATION"
+        }
       }
     ],
     "vip_funnel": {
       "scope": "fixtures_not_previously_published_in_this_generation",
       "examined_fixture_count": 891,
-      "without_football_qualified_market_or_out_of_scope": 871,
-      "preprice_classified_total": 20,
+      "without_football_qualified_market_or_out_of_scope": 870,
+      "preprice_classified_total": 21,
       "preprice_category_counts": {
-        "simple": 10,
+        "simple": 11,
         "pro": 6,
         "vip": 4
       },
@@ -34844,7 +35015,7 @@
         "minimum_home_away_matches_per_team": 5
       },
       "progressive_vip_threshold_counts": {
-        "football_market_qualified": 20,
+        "football_market_qualified": 21,
         "conservative_probability_at_least_83pct": 2,
         "plus_league_history_at_least_80": 2,
         "plus_recent_history_at_least_12_each": 2,
@@ -34870,7 +35041,7 @@
       "not_classified_reason_counts": {
         "daily_publication_cap": 25,
         "no_qualified_market": 1,
-        "outside_upcoming_window": 845
+        "outside_upcoming_window": 844
       },
       "vip_candidates": [
         {
@@ -34936,12 +35107,12 @@
     "retired_predictions_count": 0,
     "v21_league_market_monitor": {
       "Liga Profesional de Fútbol|UNDER_35": {
-        "n": 3,
-        "wins": 2,
-        "sum_pred": 2.392,
+        "n": 4,
+        "wins": 3,
+        "sum_pred": 3.1849999999999996,
         "penalty": 0.0,
-        "hit_rate": 0.666667,
-        "average_predicted": 0.797333
+        "hit_rate": 0.75,
+        "average_predicted": 0.79625
       },
       "USL Championship|UNDER_35": {
         "n": 3,
@@ -35095,7 +35266,7 @@
     "v21_new_picks": 0,
     "v21_daily_cap": 10,
     "leagues_resolved": 0,
-    "api_calls": 37,
+    "api_calls": 38,
     "quality_validation": {
       "train_period": "2025-01-01 to 2025-08-31",
       "validation_period": "2025-09-01 to 2025-12-31",
