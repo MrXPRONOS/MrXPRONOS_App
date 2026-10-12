@@ -24,6 +24,10 @@ on:
           - 1win
           - betclic
 
+concurrency:
+  group: telegram-daily-bookmaker-bonus-ads
+  cancel-in-progress: false
+
 jobs:
   send:
     runs-on: ubuntu-latest
@@ -50,5 +54,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TELEGRAM_CHAT_ID_SECONDARY: ${{ secrets.TELEGRAM_CHAT_ID_SECONDARY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           BOOKMAKER_FORCE_KEY: ${{ github.event.inputs.bookmaker || '' }}
         run: python scripts/send_daily_bookmaker_bonus_ads.py
