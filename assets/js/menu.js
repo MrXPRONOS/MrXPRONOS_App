@@ -27,8 +27,10 @@
   ];
 
   function currentFile() {
-    const path = (window.location.pathname || '').replace(/\/+$/, '');
-    return path.split('/').pop() || 'index.html';
+    const path = window.location.pathname || '/';
+    if (path.endsWith('/')) return 'index.html';
+    const file = path.split('/').pop() || '';
+    return file.includes('.') ? file : 'index.html';
   }
 
   function currentSectionFile() {
