@@ -1,0 +1,57 @@
+name: Accueil responsive browser smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'assets/css/home-premium.css'
+      - 'assets/css/home-polish.css'
+      - 'assets/js/home-premium.js'
+      - 'assets/js/menu.js'
+      - 'assets/css/mobile-nav-premium.css'
+      - 'assets/images/home-premium/**'
+      - 'scripts/home_visual_smoke.py'
+      - '.github/workflows/home-visual-smoke.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'assets/css/home-premium.css'
+      - 'assets/css/home-polish.css'
+      - 'assets/js/home-premium.js'
+      - 'assets/js/menu.js'
+      - 'assets/css/mobile-nav-premium.css'
+      - 'assets/images/home-premium/**'
+      - 'scripts/home_visual_smoke.py'
+      - '.github/workflows/home-visual-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium automation
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local website
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/home-http.log 2>&1 &
+          sleep 2
+      - name: Verify Accueil at 1024px, 390px and 320px
+        run: python scripts/home_visual_smoke.py
+      - name: Save responsive screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-responsive-1024-390-320
+          path: artifacts/home-responsive/
+          if-no-files-found: warn
