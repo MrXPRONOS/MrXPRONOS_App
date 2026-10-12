@@ -2391,3 +2391,186 @@ body:not(.mx-premium-home) header .logo img[src*="mrxpronos-horizontal"]{display
 .mx-pronos-page .pronostic-switcher,.mx-pronos-page .pronos-filter-shell,.mx-pronos-page .match-card{box-sizing:border-box}
 .mx-pronos-page .pronos-page-heading,.mx-pronos-page .pronos-filter-shell,.mx-pronos-page .pronostic-category-tabs,.mx-pronos-page .matches-grid{max-width:100%}
 @media(max-width:340px){.mx-pronos-page .pronos-page-heading h1{font-size:1.75rem}.mx-pronos-page .pronos-page-heading{padding:18px 14px}.mx-pronos-page .pronostic-category-tabs .tab-btn{gap:3px;font-size:.71rem}.mx-pronos-page .pronostic-category-tabs .tab-count{min-width:18px;padding:0 3px}.mx-pronos-page .day-filters{gap:4px}.mx-pronos-page .day-filters .day-btn{font-size:.7rem;padding:7px 2px}.mx-pronos-page .match-meta{font-size:.75rem}}
+
+
+/* =======================================================
+ Global mobile overlays and footer refinement v2
+======================================================= */
+@media(max-width:700px){
+  /* Standard footer: denser and clear above the fixed bottom navigation. */
+  body.has-bottom-nav footer{
+    margin-top:1.5rem!important;
+    padding:1rem 0 calc(1rem + env(safe-area-inset-bottom))!important;
+  }
+  body.has-bottom-nav footer .container{
+    width:calc(100% - 26px);
+  }
+  body.has-bottom-nav .mx-site-footer-brand{
+    margin:0 auto 10px!important;
+  }
+  body.has-bottom-nav .mx-site-footer-brand img{
+    height:46px!important;
+    max-width:170px!important;
+  }
+  body.has-bottom-nav footer .footer-links{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:5px 8px!important;
+    margin:8px 0 10px!important;
+  }
+  body.has-bottom-nav footer .footer-links a{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    min-height:30px!important;
+    padding:4px 6px!important;
+    border:1px solid rgba(48,86,111,.55)!important;
+    border-radius:8px!important;
+    background:rgba(5,19,29,.68)!important;
+    font-size:8.8px!important;
+    line-height:1.2!important;
+  }
+  body.has-bottom-nav footer .social-links{
+    gap:7px!important;
+    margin:9px 0!important;
+  }
+  body.has-bottom-nav footer .social-links a{
+    min-width:34px!important;
+    min-height:34px!important;
+    display:grid!important;
+    place-items:center!important;
+  }
+  body.has-bottom-nav footer .social-links img{
+    width:20px!important;
+    height:20px!important;
+  }
+  body.has-bottom-nav footer p{
+    margin:8px 0 0!important;
+    font-size:8px!important;
+    line-height:1.4!important;
+  }
+
+  /* Generic modal becomes a compact mobile sheet, without overflowing under the nav. */
+  .modal{
+    padding:10px!important;
+    align-items:flex-end!important;
+    z-index:2147482500!important;
+  }
+  .modal-content{
+    width:100%!important;
+    max-width:560px!important;
+    max-height:calc(88dvh - env(safe-area-inset-bottom))!important;
+    padding:17px 15px 18px!important;
+    border-width:1px!important;
+    border-radius:17px 17px 12px 12px!important;
+    overscroll-behavior:contain;
+  }
+  .modal-content .close,
+  .modal .close{
+    top:8px!important;
+    right:9px!important;
+    width:36px!important;
+    height:36px!important;
+    display:grid!important;
+    place-items:center!important;
+    border-radius:10px!important;
+    background:rgba(3,15,24,.86)!important;
+    font-size:24px!important;
+    line-height:1!important;
+  }
+  .modal-image{
+    max-height:185px!important;
+    margin-bottom:10px!important;
+    border-radius:9px!important;
+  }
+  .modal-content h3{
+    padding-right:32px;
+    font-size:19px!important;
+    line-height:1.12!important;
+  }
+  .modal-content p,
+  .modal-content li{
+    font-size:11px!important;
+    line-height:1.5!important;
+  }
+  .modal-footer{
+    margin-top:10px!important;
+    padding-top:9px!important;
+    font-size:8.5px!important;
+    line-height:1.4!important;
+  }
+
+  /* iOS install helper: usable as a small bottom sheet. */
+  .ios-guide-popup{
+    padding:10px!important;
+    align-items:flex-end!important;
+    z-index:2147482600!important;
+  }
+  .ios-guide-content{
+    width:100%!important;
+    max-width:520px!important;
+    max-height:calc(88dvh - env(safe-area-inset-bottom))!important;
+    padding:18px 15px 16px!important;
+    border-width:1px!important;
+    border-radius:18px 18px 12px 12px!important;
+  }
+  .ios-guide-content h3{
+    margin:0 0 11px!important;
+    font-size:18px!important;
+    line-height:1.15!important;
+  }
+  .ios-guide-steps{
+    margin:10px 0!important;
+  }
+  .ios-guide-step{
+    gap:9px!important;
+    margin-bottom:8px!important;
+    align-items:flex-start!important;
+  }
+  .step-number{
+    width:25px!important;
+    height:25px!important;
+    flex-basis:25px!important;
+    font-size:10px!important;
+  }
+  .step-text{
+    font-size:10.5px!important;
+    line-height:1.4!important;
+  }
+  .ios-guide-note{
+    margin:10px 0!important;
+    padding:9px 10px!important;
+    border-left-width:3px!important;
+    font-size:9.5px!important;
+    line-height:1.4!important;
+  }
+  .ios-guide-buttons{
+    margin-top:10px!important;
+    gap:7px!important;
+  }
+  .ios-guide-buttons .btn{
+    min-height:39px!important;
+    padding:8px 12px!important;
+    font-size:10px!important;
+    border-radius:9px!important;
+  }
+
+  /* Floating utilities must sit above the navigation without hiding cards. */
+  body.has-bottom-nav #back-to-top{
+    width:39px!important;
+    height:39px!important;
+    right:10px!important;
+    bottom:calc(132px + env(safe-area-inset-bottom))!important;
+    border-radius:11px!important;
+  }
+}
+
+@media(max-width:345px){
+  body.has-bottom-nav footer .container{width:calc(100% - 18px)}
+  body.has-bottom-nav footer .footer-links{gap:4px!important}
+  body.has-bottom-nav footer .footer-links a{font-size:8px!important}
+  .modal{padding:6px!important}
+  .modal-content{padding:15px 12px!important}
+  .ios-guide-popup{padding:6px!important}
+  .ios-guide-content{padding:16px 12px 14px!important}
+}
