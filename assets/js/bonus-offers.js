@@ -22,8 +22,57 @@ const validLink = (u) => {
   }
 };
 
-const bookSlug = (book) => book.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-const imagePath = (book, index) => `prono-live/assets/bonus-banners/${bookSlug(book)}-${index + 1}.webp`;
+const BONUS_IMAGES = {
+  "1xBet": [
+    "1xbet-bonus-premier-depot-100.webp",
+    "1xbet-hyper-bonus-250.webp",
+    "1xbet-lucky-friday.webp",
+    "1xbet-crypto-freebet.webp",
+    "1xbet-pari-sans-risque.webp",
+  ],
+  "1win": [
+    "1win-bienvenue.webp",
+    "1win-bonus-recharge.webp",
+    "1win-bonus-casino.webp",
+    "1win-recompenses-fidelite.webp",
+    "1win-promotions-evenementielles.webp",
+  ],
+  "Betwinner": [
+    "betwinner-bienvenue.webp",
+    "betwinner-sports-cashback.webp",
+    "betwinner-bonus-jeudi.webp",
+    "betwinner-serie-perdants.webp",
+    "betwinner-bonus-toto.webp",
+  ],
+  "Melbet": [
+    "melbet-bonus-premier-depot-sport.webp",
+    "melbet-pack-bienvenue-casino.webp",
+    "melbet-cashback-app.webp",
+    "melbet-cashback-rewards.webp",
+    "melbet-toto-points-bonus.webp",
+  ],
+  "Linebet": [
+    "linebet-bonus-premier-depot-sport.webp",
+    "linebet-pack-casino-games.webp",
+    "linebet-bonus-depot-recurrent.webp",
+    "linebet-paris-gratuits-offres-sport.webp",
+    "linebet-recompenses-promo-codes.webp",
+  ],
+  "Betclic": [
+    "betclic-offre-bienvenue-100e.webp",
+    "betclic-cotes-boostees.webp",
+    "betclic-freebets-evenementiels.webp",
+    "betclic-challenges-missions.webp",
+    "betclic-parrainage.webp",
+  ],
+};
+
+const imagePath = (book, index) => {
+  const file = BONUS_IMAGES[book.name]?.[index];
+  return file
+    ? `assets/images/bonus/${file}?v=20261012-hq2`
+    : logoPath(book);
+};
 const logoPath = (book) => book.logo.replace("../", "");
 
 const active = BOOKS.flatMap((b) => b.bonuses.map((x, i) => ({ book: b, offer: x, index: i })));
