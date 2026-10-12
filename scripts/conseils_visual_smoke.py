@@ -80,6 +80,41 @@ def install_routes(page):
     page.route("**/articles.json*", lambda route: route.fulfill(status=200, content_type="application/json", body="[]"))
     page.route("**/data.json*", lambda route: route.fulfill(status=200, content_type="application/json", body=json.dumps({"matches":[],"conseils":[]})))
 
+def assert_mobile_density(page, width, label):
+    if width > 700:
+        return
+
+    hero_h = page.locator(".mx-conseils-hero").evaluate("(el) => el.getBoundingClientRect().height")
+    if hero_h > 142:
+        raise AssertionError(f"{label}: Conseils hero too tall ({hero_h}px)")
+
+    hero_desc = page.locator(".mx-conseils-copy p")
+    if hero_desc.count() and hero_desc.is_visible():
+        raise AssertionError(f"{label}: secondary hero description should be hidden")
+
+    pillars = page.locator(".mx-conseils-pillars")
+    if pillars.count() and pillars.is_visible():
+        raise AssertionError(f"{label}: redundant hero pillars should be hidden")
+
+    first_card = page.locator(".conseil-premium-card").first
+    first_top = first_card.evaluate("(el) => el.getBoundingClientRect().top")
+    max_top = 300 if width >= 390 else 292
+    if first_top > max_top:
+        raise AssertionError(
+            f"{label}: first guide starts too low ({first_top}px > {max_top}px); "
+            "primary content must appear quickly"
+        )
+
+    excerpt = first_card.locator(".conseil-card-body p")
+    if excerpt.count() and excerpt.is_visible():
+        raise AssertionError(f"{label}: guide excerpt should remain hidden until opening the guide")
+
+    nav = page.locator("#bottom-nav")
+    nav.wait_for(state="visible", timeout=10000)
+    items = page.locator("#bottom-nav .bottom-nav-item")
+    if items.count() != 5:
+        raise AssertionError(f"{label}: expected 5 bottom-nav items, got {items.count()}")
+
 def run_view(browser, width, height, label):
     context = browser.new_context(viewport={"width":width,"height":height}, service_workers="block")
     page = context.new_page()
@@ -92,6 +127,7 @@ def run_view(browser, width, height, label):
     page.wait_for_timeout(900)
 
     no_overflow(page, label)
+    assert_mobile_density(page, width, label)
 
     cards = page.locator(".conseil-premium-card")
     if cards.count() != len(CONSEILS):
@@ -143,7 +179,7 @@ def run_view(browser, width, height, label):
     no_overflow(page, label)
     page.screenshot(path=str(OUT/f"conseils-{width}.png"), full_page=True)
 
-    print(f"PASS {label}: {width}x{height}, cards/types/assets/navigation/overflow OK")
+    print(f"PASS {label}: {width}x{height}, content-first/cards/types/assets/navigation/overflow OK")
     context.close()
 
 with sync_playwright() as p:
