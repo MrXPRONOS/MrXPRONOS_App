@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: editorial-free-studio
@@ -89,3 +90,8 @@ jobs:
           done
           echo "Échec de publication après trois tentatives (aucun push forcé)."
           exit 1
+
+      - name: Deploy refreshed editorial pages on GitHub Pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
