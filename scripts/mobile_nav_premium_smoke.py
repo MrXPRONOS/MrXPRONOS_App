@@ -55,6 +55,32 @@ def assert_bottom(page, expected, label):
     if any(b["h"] < 48 or b["w"] < 48 for b in boxes):
         raise AssertionError(f"{label}: touch target below 48px {boxes}")
 
+    # Five equal 20% cells.
+    widths=[round(b["w"],1) for b in boxes]
+    if max(widths)-min(widths) > 1.5:
+        raise AssertionError(f"{label}: bottom cells are not equal width {widths}")
+
+    # Compact bar, not the oversized version from the previous screenshot.
+    inner=page.locator("#bottom-nav .inner").bounding_box()
+    if not inner or inner["height"] > 70 or inner["height"] < 64:
+        raise AssertionError(f"{label}: unexpected bottom bar inner height {inner}")
+
+    # Optical sizing: Pronostics/LIVE slightly larger, Menu deliberately smaller.
+    sizes=page.locator("#bottom-nav .bottom-nav-icon").evaluate_all(
+      "imgs => imgs.map(i => { const r=i.getBoundingClientRect(); return {w:r.width,h:r.height}; })"
+    )
+    expected=[29,32,32,29,26] if page.viewport_size["width"] <= 340 else [31,34,34,31,28]
+    for index,(box,target) in enumerate(zip(sizes,expected)):
+        if abs(box["w"]-target) > 1.5 or abs(box["h"]-target) > 1.5:
+            raise AssertionError(f"{label}: icon {index} size {box}, expected about {target}px")
+
+    # LIVE: no extra CSS circle/background around the already self-contained icon.
+    live_wrap=page.locator("#bottom-nav .bottom-nav-item.live .bottom-nav-icon-wrap").evaluate(
+      "(el) => ({border:getComputedStyle(el).borderStyle,bg:getComputedStyle(el).backgroundImage,shadow:getComputedStyle(el).boxShadow})"
+    )
+    if live_wrap["border"] != "none" or live_wrap["bg"] != "none" or live_wrap["shadow"] != "none":
+        raise AssertionError(f"{label}: LIVE still has double wrapper styling {live_wrap}")
+
 def open_menu(page, label, from_bottom=True):
     trigger=page.locator("#bottom-nav-menu" if from_bottom else "#burger-btn")
     trigger.wait_for(state="visible",timeout=10000)
