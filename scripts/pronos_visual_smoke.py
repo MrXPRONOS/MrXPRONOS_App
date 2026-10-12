@@ -29,7 +29,7 @@ def main():
                     viewport: document.documentElement.clientWidth,
                     full: document.documentElement.scrollWidth,
                     cards: document.querySelectorAll('#matches-container .match-card').length,
-                    logo: !!document.querySelector('.pronos-page-heading__mark img'),
+                    logo: (() => { const i=document.querySelector('.mx-site-header .logo img'); return !!i && i.complete && i.naturalWidth > 0; })(),
                     heading: !!document.querySelector('#pronos-page-title'),
                     tabs: document.querySelectorAll('.pronostic-category-tabs .tab-btn').length
                 })""")
