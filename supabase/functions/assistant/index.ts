@@ -163,14 +163,17 @@ function buildConversationMessages(
 
       if (!role) continue;
 
-      messages.push({
-        role,
-        content: String(msg.contenu)
-      });
+      const content = String(msg.contenu).slice(0, 1600).trim();
+      if (content) messages.push({ role, content });
     }
   }
 
-  messages.push({ role: "user", content: question });
+  // An older frontend may already have included the current question.
+  const last = messages[messages.length - 1];
+  if (last?.role === "user" && last.content.trim() === question.trim()) {
+    messages.pop();
+  }
+  messages.push({ role: "user", content: question.slice(0, 1200) });
   return messages;
 }
 
@@ -828,7 +831,10 @@ serve(async (req) => {
     });
   }
 
-  const { question, user_id, historique } = body;
+  const { question, user_id } = body;
+  const historique = Array.isArray(body.historique) ? body.historique.slice(-8) : [];
+  const page_context = typeof body.page_context?.pathname === "string"
+    ? body.page_context.pathname.slice(0, 120) : "";
 
   if (typeof question !== "string" || !question.trim() || question.length > 1200) {
     return new Response(JSON.stringify({ error: "Question invalide ou trop longue" }), {
@@ -837,6 +843,8 @@ serve(async (req) => {
     });
   }
 
+  // Page context is restricted to a pathname; never treat it as a source of verified match data.
+  void page_context;
   // Budget guard: IP-based quota, not a client-supplied user_id.
   const rawIP = req.headers.get("cf-connecting-ip") || req.headers.get("x-real-ip") || "unknown";
   const ipHash = await crypto.subtle.digest("SHA-256",new TextEncoder().encode("assistant:"+rawIP.slice(0,120)));
@@ -970,7 +978,10 @@ serve(async (req) => {
     let embedding: number[] | null = null;
     let similar = null;
 
-    if ((!historique || historique.length <= 2) && intent === "generic") {
+    // Zero verified FAQ = no embeddings request, therefore no unnecessary paid call.
+    const { count: faqCount } = await supabase.from("faq")
+      .select("id", { count:"exact", head:true }).eq("official",true);
+    if ((faqCount || 0) > 0 && (!historique || historique.length <= 2) && intent === "generic") {
       try {
         embedding = await getEmbedding(question);
         similar = await findSimilarFAQ(embedding);
