@@ -981,13 +981,48 @@ def render_stat(payload: dict[str, Any]) -> Image.Image:
     return image
 
 
+def _flash_editorial_illustration(dimensions: tuple[int, int]) -> Image.Image:
+    """Fond Flash Foot original dessiné localement, sans photographie de presse."""
+    w, h = dimensions
+    art = Image.new("RGB", (w, h), "#061625")
+    d = ImageDraw.Draw(art)
+    for y in range(h):
+        t = y / max(h - 1, 1)
+        d.line((0, y, w, y), fill=(
+            int(8 + 8 * (1 - t)), int(28 + 17 * (1 - t)), int(47 + 11 * (1 - t))
+        ))
+    # Pitch stylisé, ballon abstrait, anneaux et accents dorés.
+    margin = 42
+    d.rounded_rectangle((margin, 28, w - margin, h - 28), radius=25,
+                        outline="#305469", width=3)
+    d.line((w // 2, 28, w // 2, h - 28), fill="#1B4256", width=3)
+    radius = min(h // 3, 145)
+    d.ellipse((w//2-radius, h//2-radius, w//2+radius, h//2+radius),
+              outline="#456B7D", width=3)
+    for gap in range(0, 5):
+        x = int(w*.7) + gap*45
+        d.line((x, 30, x-int(w*.28), h-30), fill="#1A4055", width=2)
+    ball_x, ball_y = int(w*.5), int(h*.49)
+    d.ellipse((ball_x-60,ball_y-60,ball_x+60,ball_y+60), fill="#E6EBE5")
+    d.polygon([(ball_x-17,ball_y-18),(ball_x+18,ball_y-18),
+               (ball_x+33,ball_y+12),(ball_x,ball_y+37),
+               (ball_x-32,ball_y+12)], fill="#173043")
+    for ox,oy in ((-37,-34),(30,-36),(-42,31),(39,28)):
+        d.ellipse((ball_x+ox-10,ball_y+oy-10,ball_x+ox+10,ball_y+oy+10),fill="#19394B")
+    d.rounded_rectangle((int(w*.06), int(h*.78), int(w*.35), int(h*.87)),
+                        radius=14,fill="#142D40",outline="#BB974A",width=2)
+    d.text((int(w*.08),int(h*.8)), "FLASH FOOT  •  MX",font=_font(20,True),fill=GOLD)
+    return art
+
+
 def render_flash(payload: dict[str, Any]) -> Image.Image:
     image = template("flash")
     draw = ImageDraw.Draw(image)
 
     photo = remote_photo(payload.get("image_url", ""), _box_size(FLASH_PHOTO_BOX))
-    if photo is not None:
-        paste_rounded_photo(image, photo, FLASH_PHOTO_BOX, radius=27)
+    if photo is None:
+        photo = _flash_editorial_illustration(_box_size(FLASH_PHOTO_BOX))
+    paste_rounded_photo(image, photo, FLASH_PHOTO_BOX, radius=27)
 
     title = clean(payload.get("title"))
     title_preferred = 30 if len(title) <= 43 else 26
