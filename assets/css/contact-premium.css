@@ -1,0 +1,75 @@
+/* =========================================================
+   Mr XPRONOS — Contact premium
+========================================================= */
+.mx-contact-page{
+  --ct-bg:#020a11;--ct-panel:#071824;--ct-line:#1a4b68;--ct-gold:#e9b650;--ct-gold-light:#ffd477;
+  background:linear-gradient(180deg,#020a11,#03101a 48%,#02080e);color:#f6f8fa;padding-top:76px;
+}
+.mx-contact-page .container{width:min(calc(100% - 56px),1290px);max-width:none;padding-left:0;padding-right:0}
+.mx-contact-page .mx-site-header{position:fixed;inset:0 0 auto 0;height:76px;z-index:1000;background:rgba(1,6,10,.975);border-bottom:1px solid rgba(25,116,169,.52);box-shadow:0 10px 28px rgba(0,0,0,.46);backdrop-filter:blur(14px)}
+.mx-contact-page .mx-header-container{height:100%;display:flex;align-items:center;gap:18px}
+.mx-contact-page .mx-site-header .logo{flex:0 0 auto}
+.mx-contact-page .mx-site-header .logo a{display:flex;align-items:center;width:clamp(158px,17vw,220px);height:67px;line-height:0}
+.mx-contact-page .mx-site-header .logo img{display:block;width:auto;height:74px;max-height:74px;max-width:100%;object-fit:contain}
+.mx-contact-page .mx-desktop-nav{display:flex;align-items:center;justify-content:center;gap:clamp(10px,1.15vw,19px);margin-left:auto}
+.mx-contact-page .mx-desktop-nav a{position:relative;color:#eef1f4;text-decoration:none;font-size:clamp(11px,.8vw,12px);line-height:2.6;font-weight:600;white-space:nowrap}
+.mx-contact-page .mx-desktop-nav a:hover,.mx-contact-page .mx-desktop-nav a.active{color:var(--ct-gold-light)}
+.mx-contact-page .mx-desktop-nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:3px;background:var(--ct-gold)}
+.mx-contact-page .mx-header-actions{display:flex;align-items:center;gap:10px;margin-left:5px}
+.mx-contact-page .mx-code-button{flex:0 0 auto;min-height:42px;padding:10px 18px;border-radius:24px;border:1px solid #f4ce77;background:linear-gradient(145deg,#ffe8ad,#e5b85b 55%,#c98e2d);color:#0a0e12;font-size:12px;font-weight:800;animation:none}
+.mx-contact-page .mx-install{display:none;align-items:center;gap:8px;min-height:42px;padding:9px 15px;border-radius:13px;background:#061522;color:#f5c96d;border:1px solid #b78c35;font-size:12px;font-weight:700}
+.mx-contact-page #burger-btn{display:none!important}
+
+.mx-contact-page .mx-contact-hero{position:relative;min-height:320px;overflow:hidden;border-bottom:1px solid rgba(26,98,139,.62);background:#03101a}
+.mx-contact-page .mx-contact-hero-bg{position:absolute;inset:0;background-image:linear-gradient(90deg,rgba(1,7,14,.98),rgba(1,8,16,.92) 40%,rgba(1,10,19,.36) 72%),url('../images/home-premium/hero-stadium.webp');background-size:cover;background-position:center,center 58%;filter:saturate(1.05) contrast(1.04)}
+.mx-contact-page .mx-contact-hero-inner{position:relative;z-index:2;min-height:320px;display:flex;align-items:center;padding:34px 0}
+.mx-contact-page .mx-contact-copy{max-width:650px;width:60%}
+.mx-contact-page .mx-contact-mark{display:block;width:58px;height:58px;object-fit:contain;margin-bottom:5px}
+.mx-contact-page .mx-contact-eyebrow{display:flex;align-items:center;gap:9px;color:#e7ca8c;font-size:9px;font-weight:800;letter-spacing:.3em}
+.mx-contact-page .mx-contact-eyebrow i{width:7px;height:7px;border-radius:50%;background:#e9b650;box-shadow:0 0 12px rgba(233,182,80,.7)}
+.mx-contact-page .mx-contact-copy h1{margin:10px 0 12px;font-family:Georgia,'Times New Roman',serif;font-size:clamp(44px,5vw,66px);line-height:.98;color:#fff;letter-spacing:-.04em}
+.mx-contact-page .mx-contact-copy h1 span{color:#f0bd58}
+.mx-contact-page .mx-contact-copy p{max-width:590px;color:#d4dee4;font-size:14px;line-height:1.55}
+
+.mx-contact-page .mx-contact-content{padding-top:28px;padding-bottom:64px}
+.mx-contact-page .mx-contact-heading{margin-bottom:16px}
+.mx-contact-page .mx-contact-heading>span{color:#e7b653;font-size:8px;font-weight:900;letter-spacing:.17em}
+.mx-contact-page .mx-contact-heading h2{margin:4px 0 5px;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:28px}
+.mx-contact-page .mx-contact-heading p{margin:0;color:#9fb0bd;font-size:12px}
+.mx-contact-page .contact-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.mx-contact-page .contact-card{min-height:180px;padding:22px 18px;border:1px solid #1b5677;border-radius:15px;background:linear-gradient(155deg,#082031,#04131e);box-shadow:0 12px 28px rgba(0,0,0,.22);text-align:left;transition:.18s ease}
+.mx-contact-page .contact-card:hover{transform:translateY(-2px);border-color:#a77c35;box-shadow:0 16px 34px rgba(0,0,0,.31)}
+.mx-contact-page .contact-icon{width:52px;height:52px;object-fit:contain;margin:0 0 14px}
+.mx-contact-page .contact-card h3{margin:0 0 8px;color:#fff;font-size:16px}
+.mx-contact-page .contact-card p{margin:0}
+.mx-contact-page .contact-card a{color:#efc363;font-size:12px;font-weight:700;text-decoration:none;overflow-wrap:anywhere}
+.mx-contact-page .contact-card a:hover{color:#ffd77b}
+.mx-contact-page footer{margin-top:0}
+
+@media(min-width:901px) and (max-width:1160px){
+ .mx-contact-page .container{width:calc(100% - 30px)}
+ .mx-contact-page .mx-header-container{gap:9px}
+ .mx-contact-page .mx-site-header .logo a{width:150px;height:64px}
+ .mx-contact-page .mx-site-header .logo img{height:62px;max-height:62px}
+ .mx-contact-page .mx-desktop-nav{gap:8px}.mx-contact-page .mx-desktop-nav a{font-size:10px}
+ .mx-contact-page .mx-code-button{min-height:38px;padding:8px 11px;font-size:10px}
+ .mx-contact-page .contact-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:900px){
+ .mx-contact-page .mx-desktop-nav{display:none}
+ .mx-contact-page #burger-btn{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;padding:8px;margin:0;border:1px solid #577183;border-radius:10px;background:#091b29;color:#f5d080}
+ .mx-contact-page .mx-header-container{justify-content:space-between}.mx-contact-page .mx-header-actions{margin-left:auto}
+ .mx-contact-page .contact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+ .mx-contact-page{padding-top:65px}.mx-contact-page .container{width:calc(100% - 26px)}
+ .mx-contact-page .mx-site-header{height:65px}
+ .mx-contact-page .mx-site-header .logo a{width:clamp(135px,26vw,185px);height:54px}.mx-contact-page .mx-site-header .logo img{height:54px;max-height:54px}
+ .mx-contact-page .mx-code-button{min-height:37px;padding:9px 11px;font-size:10px}
+ .mx-contact-page .mx-contact-hero,.mx-contact-page .mx-contact-hero-inner{min-height:300px}
+ .mx-contact-page .mx-contact-hero-inner{align-items:flex-end;padding:22px 0}
+ .mx-contact-page .mx-contact-copy{width:100%}.mx-contact-page .mx-contact-copy h1{font-size:clamp(38px,10vw,48px)}.mx-contact-page .mx-contact-copy p{font-size:11.5px}
+ .mx-contact-page .mx-contact-mark{width:43px;height:43px}
+}
+@media(max-width:520px){.mx-contact-page .contact-grid{grid-template-columns:1fr}.mx-contact-page .contact-card{min-height:142px}}
+@media(max-width:390px){.mx-contact-page .mx-site-header .logo a{width:138px;height:49px}.mx-contact-page .mx-site-header .logo img{height:50px;max-height:50px}.mx-contact-page .mx-code-label{display:none}}
