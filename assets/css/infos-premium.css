@@ -69,3 +69,146 @@
 @media(max-width:520px){.mx-infos-page .mx-infos-copy{width:100%}.mx-infos-page .mx-infos-hero-bg{background-position:center,center,63% center}.mx-infos-page .news-grid{grid-template-columns:1fr;gap:10px}.mx-infos-page .news-media{height:190px}.mx-infos-page .featured .news-premium-body h3{font-size:27px}}
 @media(max-width:390px){.mx-infos-page .mx-site-header .logo a{width:138px;height:49px}.mx-infos-page .mx-site-header .logo img{height:50px;max-height:50px}.mx-infos-page .mx-code-label{display:none}}
 @media(prefers-reduced-motion:reduce){.mx-infos-page *{transition:none!important;animation:none!important}}
+
+
+/* =========================================================
+   Infos sport premium v3 — generated assets + editorial controls
+========================================================= */
+.mx-infos-page .mx-infos-hero{min-height:390px;background:#020912;border-bottom-color:rgba(202,154,61,.42)}
+.mx-infos-page .mx-infos-hero-bg{
+  background-image:
+    linear-gradient(90deg,rgba(1,6,12,.99) 0%,rgba(1,8,15,.95) 35%,rgba(1,9,17,.58) 54%,rgba(1,7,13,.08) 80%),
+    linear-gradient(180deg,rgba(0,0,0,.02),transparent 66%,rgba(0,5,10,.62)),
+    url('../images/infos-premium/hero-infos.webp');
+  background-size:cover;background-position:center,center,center 50%;
+  filter:saturate(1.08) contrast(1.06);
+}
+.mx-infos-page .mx-infos-hero-inner{min-height:390px;padding:34px 0 31px}
+.mx-infos-page .mx-infos-copy{width:54%;max-width:655px}
+.mx-infos-page .mx-infos-mark{display:block;width:58px;height:58px;object-fit:contain;margin-bottom:4px;filter:drop-shadow(0 4px 9px rgba(0,0,0,.5))}
+.mx-infos-page .mx-infos-eyebrow{display:flex;align-items:center;gap:9px;color:#e7ca8c;font-size:9px;letter-spacing:.3em}
+.mx-infos-page .mx-infos-eyebrow i{width:7px;height:7px;border-radius:50%;background:#e9b650;box-shadow:0 0 12px rgba(233,182,80,.7)}
+.mx-infos-page .mx-infos-copy h1{font-family:Inter,Montserrat,sans-serif;font-size:clamp(42px,4.7vw,65px);font-weight:950;line-height:.94;letter-spacing:-.052em;margin:11px 0 14px}
+.mx-infos-page .mx-infos-copy h1 span{
+  display:block;background:linear-gradient(180deg,#fff0ac,#f0bd57 51%,#b97a20);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.mx-infos-page .mx-infos-copy p{max-width:600px;color:#d4dee4;font-size:13.5px;line-height:1.55}
+.mx-infos-page .mx-infos-ball-mark{display:none!important}
+.mx-infos-page .mx-infos-pillars{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.mx-infos-page .mx-infos-pillars>span{
+  display:grid;grid-template-columns:36px auto;grid-template-rows:auto auto;column-gap:8px;align-items:center;
+  min-width:145px;min-height:51px;padding:6px 10px;border:1px solid rgba(219,170,72,.46);border-radius:11px;
+  background:rgba(3,16,25,.77);box-shadow:inset 0 1px 0 rgba(255,255,255,.035)
+}
+.mx-infos-page .mx-infos-pillars img{grid-row:1/3;width:35px;height:35px;object-fit:contain;filter:drop-shadow(0 4px 7px rgba(0,0,0,.38))}
+.mx-infos-page .mx-infos-pillars b{align-self:end;color:#fff;font-size:10px;line-height:1}
+.mx-infos-page .mx-infos-pillars small{align-self:start;color:#e9bd65;font-size:7.5px;font-weight:800;text-transform:uppercase}
+
+/* Explorer */
+.mx-infos-page .mx-infos-content{padding-top:22px}
+.mx-infos-page .mx-infos-explorer{
+  margin-bottom:20px;padding:16px 18px;border:1px solid rgba(31,92,127,.75);border-radius:16px;
+  background:linear-gradient(135deg,rgba(5,25,39,.98),rgba(3,14,23,.98));
+  box-shadow:0 12px 30px rgba(0,0,0,.2)
+}
+.mx-infos-page .mx-infos-explorer-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:13px}
+.mx-infos-page .mx-infos-section-kicker{display:flex;align-items:center;gap:7px;color:#e9b957;font-size:8px;font-weight:900;letter-spacing:.17em}
+.mx-infos-page .mx-infos-section-kicker img{width:24px;height:24px;object-fit:contain}
+.mx-infos-page .mx-infos-explorer h2,.mx-infos-page .mx-infos-list-head h2{margin:2px 0 0;color:#fff;font-family:Georgia,'Times New Roman',serif;font-size:24px}
+.mx-infos-page .mx-infos-search{
+  display:flex;align-items:center;gap:8px;width:min(100%,330px);min-height:43px;padding:5px 11px;
+  border:1px solid #315f79;border-radius:12px;background:#03131f
+}
+.mx-infos-page .mx-infos-search:focus-within{border-color:#e4b456;box-shadow:0 0 0 2px rgba(228,180,86,.08)}
+.mx-infos-page .mx-infos-search img{width:27px;height:27px;object-fit:contain}
+.mx-infos-page .mx-infos-search input{width:100%;border:0;outline:0;background:transparent;color:#fff;font:600 12px Montserrat,sans-serif}
+.mx-infos-page .mx-infos-search input::placeholder{color:#879aa8}
+.mx-infos-page .mx-infos-filters{display:flex;gap:7px;flex-wrap:wrap;padding:2px 1px 4px}
+.mx-infos-page .mx-infos-filter{
+  display:flex;align-items:center;gap:7px;min-height:43px;padding:6px 11px;border:1px solid #244e67;border-radius:10px;
+  background:#061824;color:#d4dce2;font-size:9.5px;font-weight:800;cursor:pointer;transition:border-color .16s,background .16s,color .16s,transform .16s
+}
+.mx-infos-page .mx-infos-filter img{width:29px;height:29px;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35))}
+.mx-infos-page .mx-infos-filter:hover{transform:translateY(-1px);border-color:#9d7630;color:#f6cb72}
+.mx-infos-page .mx-infos-filter.is-active{border-color:#e0ae4a;background:linear-gradient(145deg,#162b31,#0a202d);color:#ffd77e;box-shadow:inset 0 0 0 1px rgba(238,191,95,.09)}
+.mx-infos-page .mx-infos-filter:focus-visible,.mx-infos-page .news-premium-card:focus-visible{outline:2px solid #ffd77b;outline-offset:3px}
+
+.mx-infos-page .mx-infos-list-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:5px 0 12px}
+.mx-infos-page .mx-infos-count{padding:7px 11px;border:1px solid #31566e;border-radius:999px;background:#061722;color:#b9c5ce;font-size:9px;font-weight:800}
+
+/* News cards */
+.mx-infos-page .news-grid{gap:14px}
+.mx-infos-page .news-premium-card{
+  position:relative;border-radius:15px;border-color:#1b5a7c;
+  background:linear-gradient(155deg,#082031,#04131e 68%,#020b12);
+  box-shadow:0 12px 29px rgba(0,0,0,.25)
+}
+.mx-infos-page .news-premium-card::before{
+  content:"";position:absolute;z-index:4;left:0;right:0;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(237,190,96,.75),transparent)
+}
+.mx-infos-page .news-premium-card:hover{transform:translateY(-2px);border-color:#a77c35;box-shadow:0 16px 36px rgba(0,0,0,.32)}
+.mx-infos-page .news-premium-card.featured{min-height:330px;border-color:rgba(215,165,68,.52)}
+.mx-infos-page .news-media{height:188px}
+.mx-infos-page .featured .news-media{min-height:330px}
+.mx-infos-page .news-media::after{content:"";position:absolute;inset:auto 0 0;height:62%;background:linear-gradient(180deg,transparent,rgba(2,10,16,.86));pointer-events:none}
+.mx-infos-page .news-category{
+  display:flex;align-items:center;gap:6px;top:13px;left:13px;padding:5px 9px;border-radius:8px;
+  background:rgba(4,17,26,.91);color:#f3c666;border:1px solid rgba(218,166,63,.48)
+}
+.mx-infos-page .news-category img{width:23px;height:23px;object-fit:contain}
+.mx-infos-page .news-premium-body{padding:14px 17px 17px}
+.mx-infos-page .featured .news-premium-body{padding:28px 30px}
+.mx-infos-page .news-date{gap:7px;color:#aebdc7;font-size:9px;margin-bottom:7px}
+.mx-infos-page .news-date img{width:21px;height:21px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.28))}
+.mx-infos-page .news-card-kicker{display:flex;align-items:center;gap:6px;margin-bottom:8px;color:#e8b957;font-size:7.5px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}
+.mx-infos-page .news-card-kicker img{width:24px;height:24px;object-fit:contain}
+.mx-infos-page .news-premium-body h3{font-size:clamp(18px,1.65vw,23px);line-height:1.12}
+.mx-infos-page .featured .news-premium-body h3{font-size:clamp(28px,2.8vw,40px);line-height:1.03}
+.mx-infos-page .news-card-cta{margin-top:auto;color:#f0bc59}
+.mx-infos-page .news-card-cta span{
+  display:grid;place-items:center;width:24px;height:24px;border:1px solid #a77a32;border-radius:50%;background:#071c29;font-size:16px
+}
+
+/* Modal */
+.mx-infos-page .modal{backdrop-filter:blur(9px);background:rgba(0,4,8,.78)}
+.mx-infos-page .modal-content{max-width:760px;border-color:#9a7434;background:linear-gradient(155deg,#082031,#04131e);box-shadow:0 25px 70px rgba(0,0,0,.55)}
+.mx-infos-page .modal-image{border-radius:11px;max-height:330px;object-fit:cover}
+.mx-infos-page .modal-content .close{color:#f1c15f}
+.mx-infos-page .modal-content .btn-primary{border:1px solid #f2ce7a;background:linear-gradient(145deg,#f8d887,#d49d39);font-weight:900}
+
+@media(max-width:900px){
+ .mx-infos-page .mx-infos-copy{width:62%}
+ .mx-infos-page .mx-infos-pillars>span{min-width:126px}
+ .mx-infos-page .mx-infos-filters{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#8a6429 transparent}
+}
+@media(max-width:700px){
+ .mx-infos-page .mx-infos-hero,.mx-infos-page .mx-infos-hero-inner{min-height:350px}
+ .mx-infos-page .mx-infos-hero-bg{
+   background-image:
+     linear-gradient(180deg,rgba(1,7,13,.22),rgba(1,8,15,.76) 42%,rgba(1,8,15,.98) 100%),
+     url('../images/infos-premium/hero-infos.webp');
+   background-position:center,72% center
+ }
+ .mx-infos-page .mx-infos-hero-inner{align-items:flex-end;padding:22px 0 19px}
+ .mx-infos-page .mx-infos-copy{width:100%}
+ .mx-infos-page .mx-infos-mark{width:43px;height:43px;margin-bottom:2px}
+ .mx-infos-page .mx-infos-copy h1{font-size:clamp(38px,10vw,48px)}
+ .mx-infos-page .mx-infos-copy p{max-width:430px;font-size:11.5px}
+ .mx-infos-page .mx-infos-pillars{gap:5px;margin-top:12px}
+ .mx-infos-page .mx-infos-pillars>span{flex:1 1 30%;min-width:0;grid-template-columns:27px auto;padding:5px 6px;min-height:46px}
+ .mx-infos-page .mx-infos-pillars img{width:27px;height:27px}
+ .mx-infos-page .mx-infos-pillars b{font-size:8.5px}.mx-infos-page .mx-infos-pillars small{font-size:6.8px}
+ .mx-infos-page .mx-infos-explorer{padding:13px}
+ .mx-infos-page .mx-infos-explorer-head{flex-direction:column;align-items:stretch}
+ .mx-infos-page .mx-infos-search{width:100%}
+ .mx-infos-page .mx-infos-explorer h2,.mx-infos-page .mx-infos-list-head h2{font-size:20px}
+}
+@media(max-width:520px){
+ .mx-infos-page .news-media{height:190px}
+ .mx-infos-page .news-premium-card.featured{display:flex;min-height:0}
+ .mx-infos-page .featured .news-media{height:220px;min-height:0}
+ .mx-infos-page .featured .news-premium-body{padding:18px}
+ .mx-infos-page .mx-infos-list-head{align-items:center}
+}

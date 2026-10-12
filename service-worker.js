@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v48-conseils-premium-20261011';
+const VERSION = 'v49-infos-premium-20261011';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;

@@ -2182,6 +2182,100 @@ function footballNewsCategory(item = {}) {
   return "Football";
 }
 
+function footballNewsIcon(category = "") {
+  const base = "assets/images/infos-premium/";
+  const icons = {
+    "Football": "icon-infos-football.webp",
+    "Champions League": "icon-infos-champions.webp",
+    "Mercato": "icon-infos-mercato.webp",
+    "Blessures": "icon-infos-injuries.webp",
+    "Premier League": "icon-infos-premierleague.webp",
+    "Ligue 1": "icon-infos-ligue1.webp",
+    "Liga": "icon-infos-liga.webp",
+    "Serie A": "icon-infos-seriea.webp",
+  };
+  return base + (icons[category] || "icon-infos-football.webp");
+}
+
+const infosViewState = { category: "Tous", query: "" };
+
+function renderFootNewsCards() {
+  if (!DOM.footNewsContainer) return;
+  const allNews = Array.isArray(window.newsData) ? window.newsData : [];
+  const query = infosViewState.query.trim().toLowerCase();
+
+  const visible = allNews
+    .map((item, originalIndex) => ({ item, originalIndex }))
+    .filter(({ item }) => {
+      const category = footballNewsCategory(item);
+      if (infosViewState.category !== "Tous" && category !== infosViewState.category) return false;
+      if (!query) return true;
+      return [item.title, item.summary, category]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(query);
+    });
+
+  const countNode = document.getElementById("infos-visible-count");
+  if (countNode) countNode.textContent = `${visible.length} actualité${visible.length > 1 ? "s" : ""}`;
+
+  DOM.footNewsContainer.innerHTML = visible.map(({ item, originalIndex }, position) => {
+    const title = item.title || "Actualité";
+    const summary = String(item.summary || "").slice(0, position === 0 ? 320 : 190);
+    const category = footballNewsCategory(item);
+    const categoryIcon = footballNewsIcon(category);
+    const date = formatFootballNewsDate(item.published);
+    const featured = position === 0;
+    const titleHtml = featured ? featuredNewsTitleHtml(title) : escapeHtml(title);
+    const fallback = "assets/images/infos-premium/hero-infos.webp";
+
+    return `
+      <article class="news-premium-card${featured ? " featured" : ""}" role="button" tabindex="0"
+        data-news-category="${escapeAttribute(category)}"
+        aria-label="Lire l'actualité ${escapeAttribute(title)}"
+        onclick="showNewsDetail(${originalIndex})"
+        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showNewsDetail(${originalIndex})}">
+        <div class="news-media">
+          <img src="${escapeAttribute(item.image || fallback)}" alt="${escapeAttribute(title)}" loading="lazy"
+            onerror="this.onerror=null;this.src='${fallback}';">
+          <span class="news-category"><img src="${categoryIcon}" alt="" aria-hidden="true">${escapeHtml(category)}</span>
+        </div>
+        <div class="news-premium-body">
+          <div class="news-date"><img src="assets/images/infos-premium/icon-infos-clock.webp" alt="" aria-hidden="true"><span>${escapeHtml(date)}</span></div>
+          <div class="news-card-kicker"><img src="${categoryIcon}" alt="" aria-hidden="true"><span>${escapeHtml(category)}</span></div>
+          <h3>${titleHtml}</h3>
+          <p>${escapeHtml(summary)}${String(item.summary || "").length > summary.length ? "…" : ""}</p>
+          <span class="news-card-cta">${item.manual ? "Voir le contenu" : "Lire la suite"} <span aria-hidden="true">›</span></span>
+        </div>
+      </article>
+    `;
+  }).join("") || '<div class="no-events">Aucune actualité ne correspond à votre recherche.</div>';
+}
+
+function setupInfosPremiumControls() {
+  const search = document.getElementById("infos-search");
+  const filters = Array.from(document.querySelectorAll("[data-infos-filter]"));
+
+  if (search && search.dataset.infosReady !== "1") {
+    search.dataset.infosReady = "1";
+    search.addEventListener("input", () => {
+      infosViewState.query = search.value || "";
+      renderFootNewsCards();
+    });
+  }
+
+  filters.forEach((button) => {
+    if (button.dataset.infosReady === "1") return;
+    button.dataset.infosReady = "1";
+    button.addEventListener("click", () => {
+      infosViewState.category = button.dataset.infosFilter || "Tous";
+      filters.forEach((node) => node.classList.toggle("is-active", node === button));
+      renderFootNewsCards();
+    });
+  });
+}
+
 function formatFootballNewsDate(value) {
   const date = new Date(value || "");
   if (Number.isNaN(date.getTime())) return "";
@@ -2225,37 +2319,8 @@ async function displayFootNews() {
     }
 
     window.newsData = merged;
-
-    DOM.footNewsContainer.innerHTML = merged
-      .map((item, index) => {
-        const title = item.title || "Actualité";
-        const summary = String(item.summary || "").slice(0, index === 0 ? 320 : 190);
-        const category = footballNewsCategory(item);
-        const date = formatFootballNewsDate(item.published);
-        const featured = index === 0;
-        const titleHtml = featured ? featuredNewsTitleHtml(title) : escapeHtml(title);
-
-        return `
-          <article class="news-premium-card${featured ? " featured" : ""}" role="button" tabindex="0"
-            aria-label="Lire l'actualité ${escapeAttribute(title)}"
-            onclick="showNewsDetail(${index})"
-            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showNewsDetail(${index})}">
-            <div class="news-media">
-              ${item.image
-                ? `<img src="${escapeAttribute(item.image)}" alt="${escapeAttribute(title)}" loading="lazy">`
-                : `<img src="assets/images/blog-hero-ball.webp" alt="" loading="lazy">`}
-              <span class="news-category">${escapeHtml(category)}</span>
-            </div>
-            <div class="news-premium-body">
-              <div class="news-date"><span aria-hidden="true">◷</span> ${escapeHtml(date)}</div>
-              <h3>${titleHtml}</h3>
-              <p>${escapeHtml(summary)}${String(item.summary || "").length > summary.length ? "…" : ""}</p>
-              <span class="news-card-cta">${item.manual ? "Voir le contenu" : "Lire la suite"} <span aria-hidden="true">→</span></span>
-            </div>
-          </article>
-        `;
-      })
-      .join("");
+    setupInfosPremiumControls();
+    renderFootNewsCards();
   } catch (error) {
     console.error("Erreur actualités:", error);
     DOM.footNewsContainer.innerHTML = '<div class="error">Impossible de charger les actualités.</div>';

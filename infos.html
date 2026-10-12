@@ -19,8 +19,10 @@
     <meta name="twitter:image" content="https://mrxpronos.github.io/MrXPRONOS_App/assets/images/preview.jpg">
 
     <link rel="icon" href="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" type="image/svg+xml">
+    <link rel="preload" as="image" href="assets/images/infos-premium/hero-infos.webp">
+    <link rel="preload" as="image" href="assets/images/infos-premium/icon-infos-latest.webp">
     <link rel="stylesheet" href="assets/css/style.css?v=20261011-infos-premium1">
-    <link rel="stylesheet" href="assets/css/infos-premium.css?v=20261011-infos-premium2">
+    <link rel="stylesheet" href="assets/css/infos-premium.css?v=20261011-infos-premium3">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
 
@@ -47,17 +49,56 @@
             <div class="mx-infos-hero-bg" aria-hidden="true"></div>
             <div class="container mx-infos-hero-inner">
                 <div class="mx-infos-copy">
-                    <span class="mx-infos-eyebrow">INFOS SPORT · FOOTBALL</span>
-                    <h1 id="infos-title">Toute l’actualité football <span>en un seul endroit</span></h1>
-                    <p>Restez informé avec les dernières news, analyses et tendances du monde du football : compétitions, résultats, blessures et bien plus encore.</p>
+                    <img class="mx-infos-mark" src="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" alt="" aria-hidden="true">
+                    <span class="mx-infos-eyebrow"><i aria-hidden="true"></i> INFOS SPORT · FOOTBALL</span>
+                    <h1 id="infos-title">Toute l’actualité football <span>en un seul endroit.</span></h1>
+                    <p>Mercato, compétitions, blessures et championnats : suivez les informations essentielles du football dans une interface claire, rapide et premium.</p>
+                    <div class="mx-infos-pillars" aria-label="Rubriques clés des informations sportives">
+                        <span><img src="assets/images/infos-premium/icon-infos-latest.webp" alt="" aria-hidden="true"><b>À la une</b><small>Dernières infos</small></span>
+                        <span><img src="assets/images/infos-premium/icon-infos-football.webp" alt="" aria-hidden="true"><b>Football</b><small>Actualité globale</small></span>
+                        <span><img src="assets/images/infos-premium/icon-infos-clock.webp" alt="" aria-hidden="true"><b>En continu</b><small>Mises à jour</small></span>
+                    </div>
                 </div>
-                <img class="mx-infos-ball-mark" src="assets/images/mrxpronos-mark.png?v=20261011-approved-mx1" alt="" aria-hidden="true">
             </div>
         </section>
 
         <div class="container mx-infos-content">
             <div id="vip-locked-overlay" class="vip-locked-overlay" style="display:none;"></div>
             <div id="infos-horizontal-list" class="horizontal-scroll" aria-hidden="true"></div>
+
+            <section class="mx-infos-explorer" aria-labelledby="infos-explorer-title">
+                <div class="mx-infos-explorer-head">
+                    <div>
+                        <span class="mx-infos-section-kicker"><img src="assets/images/infos-premium/icon-infos-latest.webp" alt="" aria-hidden="true"> FIL D’ACTUALITÉ</span>
+                        <h2 id="infos-explorer-title">Suivez ce qui vous intéresse</h2>
+                    </div>
+                    <label class="mx-infos-search" for="infos-search">
+                        <img src="assets/images/infos-premium/icon-infos-football.webp" alt="" aria-hidden="true">
+                        <input id="infos-search" type="search" placeholder="Rechercher une actualité..." autocomplete="off">
+                    </label>
+                </div>
+
+                <div class="mx-infos-filters" role="group" aria-label="Filtrer les actualités">
+                    <button class="mx-infos-filter is-active" type="button" data-infos-filter="Tous"><img src="assets/images/infos-premium/icon-infos-latest.webp" alt="">Tous</button>
+                    <button class="mx-infos-filter" type="button" data-infos-filter="Football"><img src="assets/images/infos-premium/icon-infos-football.webp" alt="">Football</button>
+                    <button class="mx-infos-filter" type="button" data-infos-filter="Champions League"><img src="assets/images/infos-premium/icon-infos-champions.webp" alt="">Champions League</button>
+                    <button class="mx-infos-filter" type="button" data-infos-filter="Mercato"><img src="assets/images/infos-premium/icon-infos-mercato.webp" alt="">Mercato</button>
+                    <button class="mx-infos-filter" type="button" data-infos-filter="Blessures"><img src="assets/images/infos-premium/icon-infos-injuries.webp" alt="">Blessures</button>
+                    <button class="mx-infos-filter" type="button" data-infos-filter="Premier League"><img src="assets/images/infos-premium/icon-infos-premierleague.webp" alt="">Premier League</button>
+                    <button class="mx-infos-filter" type="button" data-infos-filter="Ligue 1"><img src="assets/images/infos-premium/icon-infos-ligue1.webp" alt="">Ligue 1</button>
+                    <button class="mx-infos-filter" type="button" data-infos-filter="Liga"><img src="assets/images/infos-premium/icon-infos-liga.webp" alt="">Liga</button>
+                    <button class="mx-infos-filter" type="button" data-infos-filter="Serie A"><img src="assets/images/infos-premium/icon-infos-seriea.webp" alt="">Serie A</button>
+                </div>
+            </section>
+
+            <div class="mx-infos-list-head">
+                <div>
+                    <span class="mx-infos-section-kicker"><img src="assets/images/infos-premium/icon-infos-latest.webp" alt="" aria-hidden="true"> À LA UNE</span>
+                    <h2>Dernières informations</h2>
+                </div>
+                <span id="infos-visible-count" class="mx-infos-count" aria-live="polite">0 actualité</span>
+            </div>
+
             <div id="foot-news-container" class="news-grid" aria-live="polite">
                 <div class="loading">Chargement des actualités...</div>
             </div>
@@ -97,11 +138,11 @@
         <div class="mx-footer-bottom"><span>© <span id="mx-current-year">2026</span> Mr XPRONOS. Tous droits réservés.</span><span>18+ · Jouez responsablement · <a href="contact.html">Nous contacter</a></span></div><div class="bookmakers" id="bookmakers-footer" hidden></div>
     </div></footer>
 
-    <script type="module" src="assets/js/main.js?v=20261011-infos-premium2"></script>
+    <script type="module" src="assets/js/main.js?v=20261011-infos-premium3"></script>
     <script defer src="assets/js/pwa.js"></script>
     <script defer src="assets/js/assistant.js"></script>
     <script defer src="assets/js/menu.js"></script>
     <script defer src="assets/js/back-to-top.js"></script>
-    <script defer src="assets/js/home-premium.js?v=20261011-infos-premium2"></script>
+    <script defer src="assets/js/home-premium.js?v=20261011-infos-premium3"></script>
 </body>
 </html>
