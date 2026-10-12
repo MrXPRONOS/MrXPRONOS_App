@@ -2314,6 +2314,8 @@ function initBonusPage() {
   const publishedBookmakers = Array.isArray(window.publishedBookmakers) ? window.publishedBookmakers : [];
 
   if (publishedBonus.length && DOM.bonusGrid) {
+    window.currentPublishedBonus = publishedBonus;
+
     const grouped = {};
     publishedBonus.forEach((b) => {
       const key = (b.bookmaker || "Autres").trim();
@@ -2324,7 +2326,10 @@ function initBonusPage() {
     const bookmakerNames = Object.keys(grouped).sort();
 
     if (DOM.bonusSelect) {
-      DOM.bonusSelect.innerHTML = bookmakerNames.map((name) => `<option value="${escapeAttribute(name)}">${escapeHtml(name)}</option>`).join("");
+      DOM.bonusSelect.innerHTML = bookmakerNames
+        .map((name) => `<option value="${escapeAttribute(name)}">${escapeHtml(name)}</option>`)
+        .join("");
+
       DOM.bonusSelect.addEventListener("change", () => {
         renderBonusOffers(DOM.bonusSelect.value);
       });
@@ -2332,34 +2337,45 @@ function initBonusPage() {
 
     function renderBonusOffers(bookmakerName) {
       const list = grouped[bookmakerName] || [];
+
       DOM.bonusGrid.innerHTML =
         list
-          .map(
-            (b) => `
-        <article class="bonus-premium-card bonus-bookmaker-card">
-          <div class="bonus-card-head">
-            <img src="${escapeAttribute(b.image || "assets/images/default-logo.webp")}"
-                 alt="${escapeAttribute(b.title || "Bonus")}"
-                 loading="lazy"
-                 onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
-            <span class="bonus-card-badge">OFFRE</span>
-          </div>
+          .map((b) => {
+            const bonusIndex = publishedBonus.indexOf(b);
+            const code = String(b.code || "").trim();
+
+            return `
+        <div class="bookmaker-card bonus-bookmaker-card" data-bonus-index="${bonusIndex}">
+          <img src="${escapeAttribute(b.image || "assets/images/default-logo.webp")}"
+               alt="${escapeAttribute(b.title || "Bonus")}"
+               loading="lazy"
+               decoding="async"
+               onerror="this.onerror=null; this.src='assets/images/default-logo.webp';">
+
           <div class="bonus-card-body">
+            <div class="bonus-bookmaker-name">${escapeHtml(b.bookmaker || "Bookmaker")}</div>
             <h3>${escapeHtml(b.title || "Bonus")}</h3>
-            <p>${escapeHtml(b.description || "")}${b.footer ? ` · ${escapeHtml(b.footer)}` : ""}</p>
-            <div class="bonus-actions">
+            <p>${escapeHtml(b.description || "")}</p>
+
+            ${code ? `<div class="bonus-card-meta"><span class="bonus-code">Code : ${escapeHtml(code)}</span></div>` : ""}
+            ${b.footer ? `<div class="muted bonus-card-footer">${escapeHtml(b.footer)}</div>` : ""}
+
+            <div class="bonus-card-actions">
+              <button class="btn btn-secondary" type="button" onclick="openPublishedBonusModal(${bonusIndex})">Détails</button>
               ${b.link ? `<a href="${escapeAttribute(b.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">Profiter de l'offre</a>` : ""}
             </div>
           </div>
-        </article>
-      `
-          )
+        </div>
+      `;
+          })
           .join("") || '<div class="no-events">Aucune offre active.</div>';
     }
 
     renderBonusOffers(bookmakerNames[0]);
     return;
   }
+
+  window.currentPublishedBonus = [];
 
   const defaultBookmakers = [
     {
@@ -2462,6 +2478,52 @@ window.openBonusModal = function (index) {
     linkEl.href = b.url || "#";
     linkEl.target = "_blank";
     linkEl.rel = "noopener noreferrer";
+  }
+
+  DOM.bonusModal.style.display = "flex";
+};
+
+window.openPublishedBonusModal = function (index) {
+  const b = window.currentPublishedBonus?.[index];
+  if (!b || !DOM.bonusModal) return;
+
+  const titleEl = document.getElementById("bonus-modal-title");
+  const img = document.getElementById("bonus-modal-image");
+  const descEl = document.getElementById("bonus-modal-description");
+  const footerEl = document.getElementById("bonus-modal-footer");
+  const linkEl = document.getElementById("bonus-modal-link");
+
+  if (titleEl) {
+    const bookmaker = b.bookmaker ? `${b.bookmaker} — ` : "";
+    titleEl.textContent = bookmaker + (b.title || "Bonus");
+  }
+
+  if (img) {
+    img.src = b.image || "assets/images/default-logo.webp";
+    img.alt = b.title || b.bookmaker || "Bonus";
+  }
+
+  if (descEl) {
+    const code = String(b.code || "").trim();
+    descEl.innerHTML = `
+      <p>${escapeHtml(b.description || "")}</p>
+      ${code ? `<p class="bonus-modal-code">Code : <strong>${escapeHtml(code)}</strong></p>` : ""}
+    `;
+  }
+
+  if (footerEl) {
+    const footer = b.footer ? `<div>${escapeHtml(b.footer)}</div>` : "";
+    const official = b.official_url
+      ? `<a class="bonus-official-link" href="${escapeAttribute(b.official_url)}" target="_blank" rel="noopener noreferrer">Voir les conditions officielles</a>`
+      : "";
+    footerEl.innerHTML = footer + official;
+  }
+
+  if (linkEl) {
+    linkEl.href = b.link || "#";
+    linkEl.target = "_blank";
+    linkEl.rel = "noopener noreferrer";
+    linkEl.textContent = "Profiter de l'offre";
   }
 
   DOM.bonusModal.style.display = "flex";
