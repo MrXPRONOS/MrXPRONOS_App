@@ -8,6 +8,7 @@ on:
       - 'assets/css/home-premium.css'
       - 'assets/css/home-polish.css'
       - 'assets/js/home-premium.js'
+      - 'assets/js/main.js'
       - 'assets/js/menu.js'
       - 'assets/css/mobile-nav-premium.css'
       - 'assets/images/home-premium/**'
