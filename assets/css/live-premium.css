@@ -1320,3 +1320,315 @@ body.mx-live-page{
     font-size:7px!important;
   }
 }
+
+
+/* =========================================================
+   LIVE mobile refinement v19 — optimize secondary tabs
+   À venir / Historique / Notifs start directly with useful content.
+========================================================= */
+@media(max-width:640px){
+  .mx-live-page .mx-live-shell:not(.mx-live-tab-live) .mx-live-hero,
+  .mx-live-page .mx-live-shell:not(.mx-live-tab-live) .mx-live-overview{
+    display:none!important;
+  }
+
+  .mx-live-page .mx-live-shell:not(.mx-live-tab-live) .mx-live-main{
+    padding-top:6px!important;
+  }
+
+  .mx-live-page .mx-live-shell:not(.mx-live-tab-live) .mx-live-section-title{
+    min-height:27px!important;
+    margin:0 0 5px!important;
+    gap:5px!important;
+    font-size:14px!important;
+    line-height:1!important;
+  }
+  .mx-live-page .mx-live-shell:not(.mx-live-tab-live) .mx-live-section-title img{
+    width:19px!important;
+    height:19px!important;
+  }
+
+  /* À VENIR — remove duplicate schedule information. */
+  .mx-live-page .mx-live-tab-upcoming .grid.gap-4{
+    gap:6px!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-premium{
+    min-height:0!important;
+    border-radius:9px!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-premium__topline,
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-premium__kickoff,
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__foot{
+    display:none!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__meta{
+    min-height:31px!important;
+    padding:4px 7px!important;
+    gap:5px!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__league{
+    gap:4px!important;
+    font-size:7.5px!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__league .logo-ring{
+    width:17px!important;
+    height:17px!important;
+    padding:2px!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__time{
+    gap:3px!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__time img{
+    width:14px!important;
+    height:14px!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__time b{
+    font-size:10px!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__time small{
+    font-size:6.5px!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__teams{
+    grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr)!important;
+    gap:3px!important;
+    padding:7px 6px 8px!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__teams .logo-ring{
+    width:31px!important;
+    height:31px!important;
+    padding:3px!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__teams strong{
+    margin-top:3px!important;
+    font-size:9px!important;
+    line-height:1.08!important;
+  }
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__vs{
+    width:26px!important;
+    height:26px!important;
+    font-size:7px!important;
+  }
+
+  /* HISTORIQUE — one result badge, score, pick and confidence only. */
+  .mx-live-page .mx-live-tab-history .grid.gap-4{
+    gap:6px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium{
+    padding:7px 8px 8px!important;
+    border-radius:9px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__heading{
+    justify-content:flex-end!important;
+    min-height:22px!important;
+    margin:0 0 4px!important;
+    padding:0 0 4px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__heading>span:first-child{
+    display:none!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__result{
+    padding:3px 6px!important;
+    border-radius:5px!important;
+    font-size:6.5px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__meta{
+    margin-bottom:4px!important;
+    gap:4px!important;
+    flex-wrap:nowrap!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__meta>div:first-child{
+    gap:4px!important;
+    min-width:0!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__meta>div:last-child{
+    display:none!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__meta .logo-ring{
+    width:15px!important;
+    height:15px!important;
+    padding:2px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__meta .text-xs{
+    font-size:7px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__meta .text-gray-600{
+    display:none!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__meta .rounded-full{
+    min-height:18px!important;
+    padding:2px 5px!important;
+    font-size:6.5px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__scoreboard{
+    gap:4px!important;
+    margin-bottom:5px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__scoreboard .logo-ring{
+    width:23px!important;
+    height:23px!important;
+    padding:2px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__scoreboard .font-semibold{
+    font-size:8.5px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__score{
+    min-width:52px!important;
+    padding:4px 5px!important;
+    border-radius:7px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__score small{
+    font-size:5.5px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__score strong{
+    font-size:13px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__prediction-head{
+    margin-bottom:3px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__prediction-head>*:first-child{
+    display:none!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__prediction-head .rounded-full{
+    min-height:19px!important;
+    padding:2px 5px!important;
+    font-size:6.5px!important;
+  }
+  .mx-live-page .mx-live-tab-history .pronostic-pop{
+    padding:5px 6px!important;
+    border-radius:7px!important;
+  }
+  .mx-live-page .mx-live-tab-history .pronostic-pop>div{
+    gap:3px!important;
+    font-size:10.5px!important;
+    line-height:1.08!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium__subtitle,
+  .mx-live-page .mx-live-tab-history .mx-history-premium__hint,
+  .mx-live-page .mx-live-tab-history .mx-status-stamp{
+    display:none!important;
+  }
+
+  /* NOTIFICATIONS — short heading and scan-friendly alert cards. */
+  .mx-live-page .mx-live-tab-notifications .mx-notifications-premium__heading{
+    min-height:38px!important;
+    margin:0 0 5px!important;
+    padding:5px 6px!important;
+    border-radius:8px!important;
+    gap:6px!important;
+    align-items:center!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notifications-premium__heading-title{
+    gap:6px!important;
+    flex-wrap:nowrap!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notifications-premium__heading-title>img{
+    width:20px!important;
+    height:20px!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notifications-premium__heading-title h2{
+    font-size:13px!important;
+    line-height:1!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notifications-premium__heading-title p{
+    display:none!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notifications-premium__heading-title .rounded-full{
+    min-height:18px!important;
+    padding:2px 5px!important;
+    font-size:6px!important;
+    white-space:nowrap!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notifications-premium__clear{
+    min-height:27px!important;
+    padding:3px 7px!important;
+    border-radius:6px!important;
+    font-size:7px!important;
+    white-space:nowrap!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notifications-premium__grid{
+    gap:6px!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notification-premium{
+    min-height:0!important;
+    padding:7px!important;
+    padding-bottom:7px!important;
+    border-radius:9px!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notification-premium__layout{
+    grid-template-columns:27px minmax(0,1fr) auto!important;
+    gap:6px!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notification-premium__symbol{
+    width:27px!important;
+    height:27px!important;
+    border-radius:7px!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notification-premium__symbol img{
+    width:18px!important;
+    height:18px!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notification-premium__eyebrow{
+    display:none!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notification-premium__title{
+    font-size:11px!important;
+    line-height:1.08!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notification-premium__message{
+    display:-webkit-box!important;
+    margin-top:3px!important;
+    overflow:hidden!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    font-size:8px!important;
+    line-height:1.25!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notification-premium__meta{
+    margin-top:4px!important;
+    gap:4px!important;
+    font-size:6.8px!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notification-premium__meta .rounded-full{
+    min-height:18px!important;
+    padding:2px 5px!important;
+    font-size:6px!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notification-premium__layout>.rounded-full{
+    min-height:18px!important;
+    padding:2px 5px!important;
+    font-size:6px!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-status-stamp{
+    display:none!important;
+  }
+
+  .mx-live-page .mx-live-shell:not(.mx-live-tab-live) .mx-empty-premium{
+    padding:16px!important;
+    border-radius:9px!important;
+  }
+  .mx-live-page .mx-live-shell:not(.mx-live-tab-live) .mx-empty-premium img{
+    width:34px!important;
+    height:34px!important;
+    margin-bottom:5px!important;
+  }
+  .mx-live-page .mx-live-shell:not(.mx-live-tab-live) .mx-empty-premium .text-lg{
+    font-size:13px!important;
+    margin-bottom:3px!important;
+  }
+  .mx-live-page .mx-live-shell:not(.mx-live-tab-live) .mx-empty-premium .text-sm{
+    font-size:8px!important;
+  }
+}
+
+@media(max-width:345px){
+  .mx-live-page .mx-live-tab-upcoming .mx-upcoming-card__teams .logo-ring{
+    width:28px!important;
+    height:28px!important;
+  }
+  .mx-live-page .mx-live-tab-history .mx-history-premium{
+    padding:6px 7px 7px!important;
+  }
+  .mx-live-page .mx-live-tab-notifications .mx-notifications-premium__heading-title h2{
+    font-size:12px!important;
+  }
+}
