@@ -1,0 +1,34 @@
+name: Assistant V2 checks
+on:
+  push:
+    branches: [assistant-v2-fixes-oct2026]
+  pull_request:
+    paths:
+      - 'assets/js/assistant.js'
+      - 'supabase/functions/assistant/**'
+      - '.github/workflows/assistant-v2-ci.yml'
+jobs:
+  frontend-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: node --check assets/js/assistant.js
+      - name: Key regressions
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const js=fs.readFileSync('assets/js/assistant.js','utf8');
+          const server=fs.readFileSync('supabase/functions/assistant/index.ts','utf8');
+          const assert=require('assert/strict');
+          assert(js.indexOf('const historique = buildHistoryPayload();') < js.indexOf("addMessage(question, 'user'"));
+          assert(js.includes('sanitizeAssistantHtml(cleaned)'));
+          assert(js.includes('requestInFlight = false'));
+          assert(server.includes('ALLOW_MISTRAL_FALLBACK'));
+          assert(server.includes('Free LLM providers unavailable'));
+          assert(server.includes('messages.pop()'));
+          console.log('Assistant V2 basic regression checks passed');
+          NODE
