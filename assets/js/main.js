@@ -1577,7 +1577,7 @@ async function displayHistory() {
       : (m.verified_double ? "won" : "lost");
     const resultLabel = !m.history_finished
       ? "En attente"
-      : (m.verified_double ? "Validé" : "Perdu");
+      : (m.verified_double ? "GAGNÉ" : "PERDU");
     const resultIcon = !m.history_finished
       ? "•"
       : (m.verified_double ? "✓" : "×");

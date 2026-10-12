@@ -434,3 +434,366 @@
   .mx-history-page .history-match{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)!important}
   .mx-history-page .history-team img{width:35px!important;height:35px!important}
 }
+
+
+/* =========================================================
+   History mobile refinement v6 — 390/320 results-first polish
+   - 3 stats on one compact row
+   - shorter hero
+   - explicit card grid areas
+   - metadata/result separation guaranteed
+========================================================= */
+@media(max-width:700px){
+  .mx-history-page .mx-history-hero,
+  .mx-history-page .mx-history-hero-inner{
+    min-height:238px!important;
+  }
+  .mx-history-page .mx-history-hero-inner{
+    padding:14px 0 16px!important;
+  }
+  .mx-history-page .mx-history-eyebrow{
+    font-size:8.2px!important;
+    letter-spacing:.25em!important;
+  }
+  .mx-history-page .mx-history-copy h1{
+    max-width:360px!important;
+    margin:7px 0 7px!important;
+    font-size:clamp(28px,7.7vw,34px)!important;
+    line-height:1.01!important;
+    letter-spacing:-.03em!important;
+  }
+  .mx-history-page .mx-history-copy p{
+    max-width:350px!important;
+    font-size:10.6px!important;
+    line-height:1.36!important;
+  }
+  .mx-history-page .mx-history-proof{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:4px!important;
+    margin-top:8px!important;
+  }
+  .mx-history-page .mx-history-proof span{
+    min-width:0!important;
+    min-height:30px!important;
+    justify-content:center!important;
+    padding:4px!important;
+    gap:4px!important;
+    font-size:6.9px!important;
+    line-height:1.1!important;
+    text-align:center!important;
+  }
+  .mx-history-page .mx-history-proof img{
+    width:16px!important;
+    height:16px!important;
+    flex:0 0 16px!important;
+  }
+  .mx-history-page .mx-history-player{
+    height:216px!important;
+    right:-17%!important;
+    bottom:-62px!important;
+    opacity:.14!important;
+  }
+
+  .mx-history-page .mx-history-content{
+    padding-top:7px!important;
+    padding-bottom:28px!important;
+  }
+  .mx-history-page .mx-history-stats{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:5px!important;
+  }
+  .mx-history-page .mx-history-stat{
+    min-width:0!important;
+    min-height:91px!important;
+    padding:7px 5px!important;
+    gap:3px!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    text-align:center!important;
+    border-radius:9px!important;
+  }
+  .mx-history-page .mx-history-stat-icon{
+    width:31px!important;
+    height:31px!important;
+    flex:0 0 31px!important;
+    border-radius:8px!important;
+  }
+  .mx-history-page .mx-history-stat-icon img{
+    width:26px!important;
+    height:26px!important;
+  }
+  .mx-history-page .mx-history-stat-copy{
+    min-width:0!important;
+  }
+  .mx-history-page .mx-history-stat-copy strong{
+    font-size:21px!important;
+    line-height:1!important;
+  }
+  .mx-history-page .mx-history-stat-copy b{
+    margin-top:2px!important;
+    font-size:8.8px!important;
+    line-height:1.12!important;
+  }
+  .mx-history-page .mx-history-stat-copy span{
+    display:none!important;
+  }
+  .mx-history-page .mx-history-rate-card{
+    gap:4px!important;
+  }
+  .mx-history-page .mx-history-rate-ring{
+    width:42px!important;
+    height:42px!important;
+    flex:0 0 42px!important;
+  }
+  .mx-history-page .mx-history-rate-ring::before{
+    inset:5px!important;
+  }
+  .mx-history-page .mx-history-rate-ring strong{
+    font-size:14px!important;
+  }
+  .mx-history-page .mx-history-rate-info b{
+    font-size:8.8px!important;
+    line-height:1.12!important;
+  }
+  .mx-history-page .mx-history-rate-info span{
+    display:none!important;
+  }
+
+  .mx-history-page .mx-history-toolbar{
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    margin:8px 0 7px!important;
+    padding:6px 8px!important;
+    gap:8px!important;
+    min-height:38px!important;
+  }
+  .mx-history-page .mx-history-toolbar-title{
+    flex:0 0 auto!important;
+    gap:5px!important;
+    font-size:9px!important;
+    white-space:nowrap!important;
+  }
+  .mx-history-page .mx-history-toolbar-title span{
+    width:22px!important;
+    height:22px!important;
+  }
+  .mx-history-page .mx-history-toolbar-title img{
+    width:17px!important;
+    height:17px!important;
+  }
+  .mx-history-page .mx-history-toolbar-note{
+    min-width:0!important;
+    max-width:58%!important;
+    font-size:7.4px!important;
+    line-height:1.2!important;
+    text-align:right!important;
+  }
+
+  .mx-history-page #history-container{
+    gap:6px!important;
+  }
+  .mx-history-page .history-row{
+    grid-template-columns:minmax(0,1fr) minmax(74px,82px)!important;
+    grid-template-areas:
+      "competition competition"
+      "match match"
+      "pick confidence"
+      "result result"!important;
+    min-width:0!important;
+    min-height:0!important;
+    border-radius:9px!important;
+    overflow:hidden!important;
+  }
+  .mx-history-page .history-competition{
+    grid-area:competition!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:center!important;
+    gap:8px!important;
+    border-right:0!important;
+    border-bottom:1px solid #163e56!important;
+    padding:6px 8px!important;
+  }
+  .mx-history-page .history-league{
+    min-width:0!important;
+    gap:5px!important;
+    font-size:8.8px!important;
+    line-height:1.1!important;
+  }
+  .mx-history-page .history-league>span:last-child{
+    min-width:0!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+  }
+  .mx-history-page .history-league-icon{
+    width:22px!important;
+    height:22px!important;
+    flex:0 0 22px!important;
+    font-size:13px!important;
+  }
+  .mx-history-page .history-date{
+    margin:0!important;
+    color:#aebbc4!important;
+    font-size:7.5px!important;
+    line-height:1!important;
+    text-align:right!important;
+    white-space:nowrap!important;
+  }
+
+  .mx-history-page .history-match{
+    grid-area:match!important;
+    grid-template-columns:minmax(0,1fr) 50px minmax(0,1fr)!important;
+    gap:5px!important;
+    padding:8px!important;
+    border-right:0!important;
+    border-bottom:1px solid #163e56!important;
+  }
+  .mx-history-page .history-team img{
+    width:35px!important;
+    height:35px!important;
+  }
+  .mx-history-page .history-team span{
+    margin-top:2px!important;
+    font-size:8.4px!important;
+    line-height:1.05!important;
+  }
+  .mx-history-page .history-score strong{
+    padding:4px 3px!important;
+    font-size:15px!important;
+    line-height:1!important;
+  }
+  .mx-history-page .history-score span{
+    margin-top:2px!important;
+    font-size:7px!important;
+  }
+
+  .mx-history-page .history-pick{
+    grid-area:pick!important;
+    min-width:0!important;
+    border-right:1px solid #163e56!important;
+    padding:7px 8px!important;
+  }
+  .mx-history-page .history-confidence{
+    grid-area:confidence!important;
+    min-width:0!important;
+    border-right:0!important;
+    padding:7px 6px!important;
+    text-align:center!important;
+  }
+  .mx-history-page .history-pick small,
+  .mx-history-page .history-confidence small{
+    font-size:7.5px!important;
+  }
+  .mx-history-page .history-pick strong{
+    margin-top:2px!important;
+    font-size:10.6px!important;
+    line-height:1.12!important;
+    overflow-wrap:anywhere!important;
+  }
+  .mx-history-page .history-pick span{
+    margin-top:2px!important;
+    font-size:7.5px!important;
+  }
+  .mx-history-page .history-stars{
+    margin-top:2px!important;
+    font-size:10.5px!important;
+    letter-spacing:0!important;
+    white-space:nowrap!important;
+  }
+  .mx-history-page .history-confidence strong{
+    margin-top:1px!important;
+    font-size:9.5px!important;
+  }
+
+  .mx-history-page .history-result{
+    grid-area:result!important;
+    position:relative!important;
+    z-index:2!important;
+    min-width:0!important;
+    padding:5px 7px!important;
+    gap:7px!important;
+    justify-content:space-between!important;
+    border-top:1px solid #163e56!important;
+    background:rgba(2,12,20,.58)!important;
+  }
+  .mx-history-page .history-result-badge{
+    position:static!important;
+    flex:0 0 auto!important;
+    min-width:86px!important;
+    min-height:28px!important;
+    padding:4px 7px!important;
+    gap:4px!important;
+    border-radius:7px!important;
+    font-size:8.8px!important;
+    line-height:1!important;
+    text-transform:uppercase!important;
+    white-space:nowrap!important;
+  }
+  .mx-history-page .history-result small{
+    min-width:0!important;
+    margin:0!important;
+    font-size:7.2px!important;
+    text-align:right!important;
+    white-space:nowrap!important;
+  }
+}
+
+@media(max-width:345px){
+  .mx-history-page .container{
+    width:calc(100% - 16px)!important;
+  }
+  .mx-history-page .mx-history-hero,
+  .mx-history-page .mx-history-hero-inner{
+    min-height:242px!important;
+  }
+  .mx-history-page .mx-history-copy h1{
+    font-size:27px!important;
+  }
+  .mx-history-page .mx-history-copy p{
+    font-size:10px!important;
+  }
+  .mx-history-page .mx-history-proof span{
+    font-size:6.2px!important;
+  }
+  .mx-history-page .mx-history-stats{
+    gap:4px!important;
+  }
+  .mx-history-page .mx-history-stat{
+    min-height:88px!important;
+    padding-left:3px!important;
+    padding-right:3px!important;
+  }
+  .mx-history-page .mx-history-stat-copy b,
+  .mx-history-page .mx-history-rate-info b{
+    font-size:8.1px!important;
+  }
+  .mx-history-page .history-row{
+    grid-template-columns:minmax(0,1fr) 72px!important;
+  }
+  .mx-history-page .history-match{
+    grid-template-columns:minmax(0,1fr) 46px minmax(0,1fr)!important;
+  }
+  .mx-history-page .history-team img{
+    width:32px!important;
+    height:32px!important;
+  }
+  .mx-history-page .history-team span{
+    font-size:7.8px!important;
+  }
+  .mx-history-page .history-score strong{
+    font-size:14px!important;
+  }
+  .mx-history-page .history-pick strong{
+    font-size:9.8px!important;
+  }
+  .mx-history-page .history-stars{
+    font-size:9.5px!important;
+  }
+  .mx-history-page .history-result-badge{
+    min-width:82px!important;
+    font-size:8.3px!important;
+  }
+}
