@@ -2,10 +2,7 @@ name: Telegram - Bookmaker promos selon le jour
 run-name: "Telegram - Bookmaker promos selon le jour (${{ inputs.trigger_source || github.event_name }})"
 
 on:
-  # Planification GitHub provisoire jusqu'à validation des tâches cron-job.org.
-  schedule:
-    # 05:00 UTC = 05:00 au Togo
-    - cron: '0 5 * * *'
+
   workflow_dispatch:
     inputs:
       trigger_source:
