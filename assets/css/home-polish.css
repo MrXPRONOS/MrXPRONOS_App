@@ -662,3 +662,509 @@
     font-size:7px!important;
   }
 }
+
+
+/* =========================================================
+   Home showcase v5 — visible selections + proof
+   Inspired by the original home, rebuilt for the premium UI.
+========================================================= */
+.mx-premium-home .mx-home-showcase{
+  display:grid;
+  gap:9px;
+  margin:5px 0 8px;
+}
+.mx-premium-home .mx-home-showcase-block{
+  min-width:0;
+  padding:11px;
+  border:1px solid #173f57;
+  border-radius:11px;
+  background:
+    radial-gradient(circle at 91% 6%,rgba(225,175,77,.08),transparent 27%),
+    linear-gradient(145deg,#071923,#04111a);
+  box-shadow:0 10px 24px rgba(0,0,0,.18);
+}
+.mx-premium-home .mx-home-showcase-block--verified{
+  border-color:#18523f;
+  background:
+    radial-gradient(circle at 91% 6%,rgba(42,189,120,.08),transparent 27%),
+    linear-gradient(145deg,#061a1a,#041219);
+}
+.mx-premium-home .mx-home-showcase-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.mx-premium-home .mx-home-showcase-kicker{
+  display:block;
+  margin-bottom:2px;
+  color:#d4aa55;
+  font-size:7px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.18em;
+}
+.mx-premium-home .mx-home-showcase-kicker--green{color:#63d39c}
+.mx-premium-home .mx-home-showcase-head h2{
+  margin:0;
+  color:#fff;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:20px;
+  line-height:1;
+}
+.mx-premium-home .mx-home-showcase-head a{
+  color:#dfba70;
+  font-size:8.5px;
+  font-weight:800;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.mx-premium-home .mx-home-showcase-block--verified .mx-home-showcase-head a{color:#68d6a0}
+
+.mx-premium-home .mx-home-picks{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+  min-width:0;
+}
+.mx-premium-home .mx-home-picks>.no-events{
+  grid-column:1/-1;
+  min-height:55px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px;
+  border:1px dashed #275069;
+  border-radius:8px;
+  background:#05131d;
+  color:#9eafb9;
+  font-size:9px;
+  text-align:center;
+}
+.mx-premium-home .mx-home-picks .mx-load-group{grid-column:1/-1;margin:0}
+.mx-premium-home .mx-home-picks .mx-load-heading{min-height:45px;margin:0}
+
+.mx-premium-home .pick-card{
+  position:relative;
+  display:block;
+  width:auto;
+  min-width:0;
+  min-height:146px;
+  padding:8px;
+  overflow:hidden;
+  border:1px solid #1b4b67;
+  border-radius:9px;
+  background:
+    linear-gradient(180deg,rgba(11,34,48,.96),rgba(4,17,26,.98));
+  box-shadow:none;
+  color:#fff;
+  text-decoration:none;
+  cursor:pointer;
+  transition:border-color .16s ease,transform .16s ease,background .16s ease;
+}
+.mx-premium-home .pick-card:hover{
+  transform:translateY(-1px);
+  border-color:#b98b39;
+  box-shadow:none;
+}
+.mx-premium-home .pick-card--winner{
+  border-color:#237653;
+  background:
+    radial-gradient(circle at 100% 0,rgba(45,196,124,.10),transparent 35%),
+    linear-gradient(180deg,#082a28,#05191e);
+}
+.mx-premium-home .pick-badge,
+.mx-premium-home .pick-category{
+  position:absolute;
+  top:6px;
+  min-height:18px;
+  display:inline-flex;
+  align-items:center;
+  padding:2px 5px;
+  border-radius:5px;
+  font-size:6px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+.mx-premium-home .pick-badge{
+  right:6px;
+  border:1px solid #89692d;
+  background:#1d1710;
+  color:#f0c972;
+}
+.mx-premium-home .pick-card--winner .pick-badge{
+  border-color:#277e59;
+  background:#09251e;
+  color:#62dfa2;
+}
+.mx-premium-home .pick-category{
+  left:6px;
+  border:1px solid #31596e;
+  background:#071a26;
+  color:#b9d1dd;
+}
+.mx-premium-home .pick-category--pro{
+  border-color:#806127;
+  background:#241b0d;
+  color:#f0c76c;
+}
+.mx-premium-home .pick-category--vip{
+  border-color:#9e792e;
+  background:linear-gradient(135deg,#2c210e,#17120a);
+  color:#ffdc87;
+}
+.mx-premium-home .pick-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:7px;
+  margin:19px 0 5px;
+  padding:0;
+}
+.mx-premium-home .pick-league{
+  min-width:0;
+  max-width:72%;
+  overflow:hidden;
+  color:#aebdc6;
+  font-size:6.8px;
+  font-weight:800;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.mx-premium-home .pick-time{
+  color:#78909e;
+  font-size:6.5px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.mx-premium-home .pick-teams{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 40px minmax(0,1fr);
+  align-items:center;
+  gap:4px;
+  margin:0 0 6px;
+}
+.mx-premium-home .pick-team{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:2px;
+  text-align:center;
+}
+.mx-premium-home .pick-team--right{flex-direction:column}
+.mx-premium-home .pick-logo{
+  width:31px;
+  height:31px;
+  flex:0 0 31px;
+  padding:3px;
+  border:1px solid #28495b;
+  border-radius:7px;
+  background:#07141d;
+  object-fit:contain;
+}
+.mx-premium-home .pick-team-name{
+  width:100%;
+  overflow:hidden;
+  color:#edf2f5;
+  font-size:7.5px;
+  line-height:1.08;
+  font-weight:800;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.mx-premium-home .pick-vs{
+  min-width:38px;
+  min-height:31px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:1px;
+  padding:3px;
+  border:1px solid #2b4b5e;
+  border-radius:7px;
+  background:#05121b;
+  color:#e7bb63;
+}
+.mx-premium-home .pick-vs strong{
+  font-size:10.5px;
+  line-height:1;
+}
+.mx-premium-home .pick-card--winner .pick-vs strong{
+  color:#5de09f;
+  font-size:13px;
+}
+.mx-premium-home .pick-vs small{
+  color:#738a98;
+  font-size:5.3px;
+  line-height:1;
+}
+.mx-premium-home .pick-highlight{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:6px;
+  min-height:28px;
+  padding:4px 6px;
+  border:1px solid #243f50;
+  border-radius:6px;
+  background:#06141d;
+}
+.mx-premium-home .pick-highlight span{
+  color:#8296a2;
+  font-size:6px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.mx-premium-home .pick-highlight strong{
+  min-width:0;
+  overflow:hidden;
+  color:#fff;
+  font-size:8.5px;
+  line-height:1.05;
+  text-align:right;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.mx-premium-home .pick-card--winner .pick-highlight{
+  border-color:#235540;
+  background:#071b19;
+}
+.mx-premium-home .pick-confidence{
+  display:grid;
+  grid-template-columns:auto minmax(28px,1fr) auto;
+  align-items:center;
+  gap:4px;
+  margin-top:5px;
+}
+.mx-premium-home .pick-confidence>span{
+  color:#738894;
+  font-size:5.8px;
+  font-weight:700;
+}
+.mx-premium-home .pick-confidence-bar{
+  height:3px;
+  overflow:hidden;
+  border-radius:10px;
+  background:#172a35;
+}
+.mx-premium-home .pick-confidence-bar i{
+  display:block;
+  height:100%;
+  border-radius:10px;
+  background:#d4aa55;
+}
+.mx-premium-home .pick-card--winner .pick-confidence-bar i{background:#3ac781}
+.mx-premium-home .pick-confidence>b{
+  color:#e8c36f;
+  font-size:7px;
+}
+.mx-premium-home .pick-card--winner .pick-confidence>b{color:#62dca0}
+
+.mx-premium-home .mx-home-proofbar{
+  min-height:49px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 98px 108px;
+  gap:0;
+  overflow:hidden;
+  border:1px solid #1c4358;
+  border-radius:9px;
+  background:#04131d;
+}
+.mx-premium-home .mx-home-proofbar-ticker{
+  min-width:0;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:7px;
+  padding:5px 8px;
+}
+.mx-premium-home .mx-home-proofbar-label{
+  color:#5fd89b;
+  font-size:6px;
+  font-weight:900;
+  letter-spacing:.13em;
+}
+.mx-premium-home .mx-home-proofbar .wins-slider{
+  min-width:0;
+  margin:0;
+  padding:0;
+  border:0;
+  background:transparent;
+}
+.mx-premium-home .mx-home-proofbar .wins-track{
+  gap:28px;
+  animation-duration:30s;
+}
+.mx-premium-home .mx-home-proofbar .win-item{
+  color:#56d798;
+  font-size:7.5px;
+  font-weight:800;
+}
+.mx-premium-home .mx-home-proofbar .win-item span{
+  color:#b8c6ce;
+  font-weight:600;
+}
+.mx-premium-home .mx-home-proof-stat{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:1px;
+  padding:5px 7px;
+  border-left:1px solid #173a4e;
+  text-align:center;
+}
+.mx-premium-home .mx-home-proof-stat>span{
+  color:#eac56f;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:16px;
+  line-height:1;
+  font-weight:800;
+}
+.mx-premium-home .mx-home-proof-stat small{
+  color:#899da8;
+  font-size:6px;
+  line-height:1;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.mx-premium-home .mx-home-proof-stat--rate>span{color:#5ddb9d}
+.mx-premium-home .mx-home-proof-stat .success-bar{
+  width:62px;
+  height:3px;
+  margin:2px 0 0;
+  border-radius:3px;
+  background:#173129;
+}
+.mx-premium-home .mx-home-proof-stat .success-fill{
+  height:100%;
+  border-radius:3px;
+  background:#42cf88;
+  transition:width .8s ease;
+}
+
+@media(max-width:700px){
+  .mx-premium-home .mx-home-showcase{
+    gap:6px;
+    margin:4px 0 6px;
+  }
+  .mx-premium-home .mx-home-showcase-block{
+    padding:7px;
+    border-radius:9px;
+  }
+  .mx-premium-home .mx-home-showcase-head{
+    align-items:center;
+    margin-bottom:5px;
+  }
+  .mx-premium-home .mx-home-showcase-kicker{
+    margin-bottom:2px;
+    font-size:5.8px;
+  }
+  .mx-premium-home .mx-home-showcase-head h2{
+    font-size:14px;
+  }
+  .mx-premium-home .mx-home-showcase-head a{
+    font-size:7px;
+  }
+  .mx-premium-home .mx-home-picks{
+    display:flex;
+    gap:5px;
+    overflow-x:auto;
+    padding:0 0 2px;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .mx-premium-home .mx-home-picks::-webkit-scrollbar{display:none}
+  .mx-premium-home .mx-home-picks .pick-card{
+    flex:0 0 76%;
+    width:76%;
+    min-width:220px;
+    min-height:122px;
+    padding:6px;
+    scroll-snap-align:start;
+    border-radius:8px;
+  }
+  .mx-premium-home .pick-badge,
+  .mx-premium-home .pick-category{
+    top:5px;
+    min-height:16px;
+    padding:2px 4px;
+    font-size:5.3px;
+  }
+  .mx-premium-home .pick-badge{right:5px}
+  .mx-premium-home .pick-category{left:5px}
+  .mx-premium-home .pick-head{
+    margin:17px 0 3px;
+  }
+  .mx-premium-home .pick-league,
+  .mx-premium-home .pick-time{
+    font-size:5.8px;
+  }
+  .mx-premium-home .pick-teams{
+    grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);
+    margin-bottom:4px;
+  }
+  .mx-premium-home .pick-logo{
+    width:27px;
+    height:27px;
+    flex-basis:27px;
+  }
+  .mx-premium-home .pick-team-name{font-size:6.8px}
+  .mx-premium-home .pick-vs{
+    min-width:32px;
+    min-height:27px;
+    padding:2px;
+  }
+  .mx-premium-home .pick-vs strong{font-size:9px}
+  .mx-premium-home .pick-card--winner .pick-vs strong{font-size:11px}
+  .mx-premium-home .pick-vs small{font-size:4.8px}
+  .mx-premium-home .pick-highlight{
+    min-height:24px;
+    padding:3px 5px;
+  }
+  .mx-premium-home .pick-highlight span{font-size:5px}
+  .mx-premium-home .pick-highlight strong{font-size:7.6px}
+  .mx-premium-home .pick-confidence{margin-top:3px}
+  .mx-premium-home .pick-confidence>span{font-size:5px}
+  .mx-premium-home .pick-confidence>b{font-size:6px}
+
+  .mx-premium-home .mx-home-proofbar{
+    min-height:43px;
+    grid-template-columns:minmax(0,1fr) 66px 73px;
+    border-radius:8px;
+  }
+  .mx-premium-home .mx-home-proofbar-ticker{
+    gap:5px;
+    padding:4px 5px;
+  }
+  .mx-premium-home .mx-home-proofbar-label{font-size:5px}
+  .mx-premium-home .mx-home-proofbar .win-item{font-size:6.3px}
+  .mx-premium-home .mx-home-proof-stat{
+    padding:4px 3px;
+  }
+  .mx-premium-home .mx-home-proof-stat>span{font-size:13px}
+  .mx-premium-home .mx-home-proof-stat small{font-size:5px}
+  .mx-premium-home .mx-home-proof-stat .success-bar{
+    width:43px;
+    height:2px;
+  }
+}
+
+@media(max-width:345px){
+  .mx-premium-home .mx-home-picks .pick-card{
+    flex-basis:82%;
+    width:82%;
+    min-width:205px;
+  }
+  .mx-premium-home .mx-home-proofbar{
+    grid-template-columns:minmax(0,1fr) 58px 64px;
+  }
+  .mx-premium-home .mx-home-proofbar-label{display:none}
+  .mx-premium-home .mx-home-proofbar .win-item{font-size:5.8px}
+  .mx-premium-home .mx-home-proof-stat>span{font-size:12px}
+}
