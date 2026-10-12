@@ -232,6 +232,10 @@ def generate(limit: int, dry_run: bool, news_limit: int | None = None) -> dict:
                 result=save_cover(title,subtype,slug,subtitle,dry_run=dry_run)
                 if not dry_run:
                     item.update(result)
+                    if kind=="news":
+                        if item.get("image") and not item.get("source_image"):
+                            item["source_image"] = item["image"]
+                        item["image"] = result["image_url"]
                 counts[kind]+=1
                 changed=True
             except (OSError,ValueError) as e:
