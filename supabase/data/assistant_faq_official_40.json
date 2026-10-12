@@ -1,0 +1,247 @@
+{
+  "version": "2026-10-12",
+  "source": "public.faq in Supabase",
+  "notes": "Curated educational FAQ; verify official policy and site destinations before modification.",
+  "faq": [
+    {
+      "question": "Qu'est-ce que Mr XPRONOS ?",
+      "reponse": "<p>Mr XPRONOS est un site d'informations et de pronostics de football. Tu peux consulter les rubriques <a href='https://mrxpronos.github.io/MrXPRONOS_App/pronos.html'>Pronostics</a>, <a href='https://mrxpronos.github.io/MrXPRONOS_App/live.html'>LIVE</a> et <a href='https://mrxpronos.github.io/MrXPRONOS_App/historique.html'>Historique</a>.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Où voir les pronostics du site ?",
+      "reponse": "<p>Consulte la page <a href='https://mrxpronos.github.io/MrXPRONOS_App/pronos.html'>Pronostics</a> du site.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Où voir les anciens résultats ?",
+      "reponse": "<p>Retrouve les pronostics précédents sur la page <a href='https://mrxpronos.github.io/MrXPRONOS_App/historique.html'>Historique</a>. Vérifie la date et le statut de chaque sélection.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Comment lire un pronostic ?",
+      "reponse": "<p>Regarde le match, le marché proposé, la sélection et la date. Un pronostic exprime une possibilité et ne garantit pas le résultat.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie plus de 2,5 buts ?",
+      "reponse": "<p>Le marché « plus de 2,5 buts » correspond à au moins 3 buts au total dans le match.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie moins de 2,5 buts ?",
+      "reponse": "<p>Le marché « moins de 2,5 buts » correspond à 0, 1 ou 2 buts au total.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie BTTS ?",
+      "reponse": "<p>BTTS signifie « Both Teams To Score » : les deux équipes doivent marquer au moins un but chacune si la sélection est « Oui ».</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Qu'est-ce qu'un corner ?",
+      "reponse": "<p>Un corner est un coup de pied de coin accordé lorsque le ballon franchit entièrement la ligne de but après avoir été touché en dernier par un défenseur, sans but marqué.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Qu'est-ce qu'une cote ?",
+      "reponse": "<p>Une cote représente la rémunération potentielle d'un pari selon les règles de l'opérateur. Une cote plus élevée n'implique pas une meilleure probabilité de gagner.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Qu'est-ce qu'un pari responsable ?",
+      "reponse": "<p>Parier comporte un risque de perte. Ne joue jamais de l'argent nécessaire à tes dépenses essentielles, fixe une limite et n'essaie pas de récupérer tes pertes en augmentant les mises. Le service est réservé aux adultes.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Un pronostic est-il garanti ?",
+      "reponse": "<p>Non. Aucun pronostic de football n'est garanti. Les statistiques et les analyses ne suppriment pas l'incertitude sportive.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Comment vérifier une analyse de match ?",
+      "reponse": "<p>Vérifie la date, les équipes, la compétition, les statistiques disponibles et les absences connues. Les données LIVE peuvent changer rapidement et les analyses peuvent se tromper.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Quelle est la différence entre avant-match et live ?",
+      "reponse": "<p>Un pronostic avant-match est préparé avant le coup d'envoi. Un signal LIVE dépend des informations disponibles pendant la rencontre et peut vite devenir obsolète.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Pourquoi un pronostic peut-il être perdu ?",
+      "reponse": "<p>Un match reste incertain : cartons, blessures, changements tactiques, erreurs et événements imprévus peuvent modifier son déroulement.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Comment utiliser la page LIVE ?",
+      "reponse": "<p>Ouvre la page <a href='https://mrxpronos.github.io/MrXPRONOS_App/live.html'>LIVE</a> puis consulte les matchs et signaux disponibles. Vérifie toujours l'heure des données affichées.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Comment contacter Mr XPRONOS ?",
+      "reponse": "<p>Pour contacter l'équipe, consulte la page <a href='https://mrxpronos.github.io/MrXPRONOS_App/contact.html'>Contact</a>.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Qu'est-ce qu'un pari simple ?",
+      "reponse": "<p>Un pari simple porte sur une seule sélection. Même un pari simple comporte un risque de perte.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Qu'est-ce qu'un pari combiné ?",
+      "reponse": "<p>Un combiné réunit plusieurs sélections. Toutes doivent respecter les conditions de l'opérateur pour que le combiné soit gagnant.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie 1X2 ?",
+      "reponse": "<p>En football, 1 correspond à la victoire à domicile, X au match nul et 2 à la victoire de l'équipe extérieure, généralement à l'issue du temps réglementaire.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie double chance ?",
+      "reponse": "<p>La double chance couvre deux issues du marché 1X2 : 1X, X2 ou 12, selon les règles du bookmaker.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie handicap asiatique ?",
+      "reponse": "<p>Le handicap asiatique applique un avantage ou un désavantage fictif à une équipe. Selon la ligne, une mise peut être remboursée partiellement ou totalement.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie over et under ?",
+      "reponse": "<p>Over signifie « plus de » et Under signifie « moins de » pour un total indiqué, par exemple buts ou corners.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie DNB ?",
+      "reponse": "<p>DNB signifie Draw No Bet : selon les règles habituelles du marché, la mise est remboursée en cas de match nul.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Qu'est-ce qu'un clean sheet ?",
+      "reponse": "<p>Un clean sheet signifie qu'une équipe termine la rencontre sans encaisser de but.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie xG ?",
+      "reponse": "<p>Les expected goals (xG) estiment la qualité des occasions de tir à partir de leurs caractéristiques. Ce n'est ni un score réel ni une garantie de buts.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie xA ?",
+      "reponse": "<p>Les expected assists (xA) estiment la probabilité qu'une passe conduise à un but, suivant le modèle utilisé.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie possession de balle ?",
+      "reponse": "<p>La possession de balle décrit la part estimée du temps où une équipe contrôle le ballon. Elle ne suffit pas à prévoir le résultat.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Qu'est-ce qu'un tir cadré ?",
+      "reponse": "<p>Un tir cadré est généralement une tentative qui entre dans le but sans intervention ou que le gardien empêche d'entrer. Les définitions précises peuvent varier selon le fournisseur de statistiques.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Qu'est-ce qu'une occasion nette ?",
+      "reponse": "<p>Une occasion nette est une situation considérée comme particulièrement favorable pour marquer. Sa définition dépend du fournisseur de données.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que sont les statistiques domicile et extérieur ?",
+      "reponse": "<p>Elles distinguent les performances d'une équipe chez elle et lors de ses déplacements ; ce contexte peut influencer l'analyse sans déterminer l'issue d'un match.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Pourquoi regarder les cinq derniers matchs ?",
+      "reponse": "<p>La forme récente donne du contexte, mais un petit échantillon peut être trompeur. Il faut aussi considérer adversaires et compétitions.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Pourquoi les absences de joueurs comptent-elles ?",
+      "reponse": "<p>Une blessure ou une suspension peut modifier une composition, une tactique ou un équilibre. Il faut vérifier les sources et les dernières informations.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Quand un match est-il considéré terminé ?",
+      "reponse": "<p>Un match est terminé après le coup de sifflet final. Les marchés peuvent utiliser des périodes différentes, par exemple les 90 minutes ou les prolongations.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Qu'est-ce qu'un remboursement de pari ?",
+      "reponse": "<p>Certains marchés prévoient le remboursement total ou partiel de la mise dans des situations spécifiques. Les règles exactes dépendent du bookmaker.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Pourquoi les cotes changent-elles ?",
+      "reponse": "<p>Les cotes peuvent varier en fonction du marché, des informations disponibles et des décisions de l'opérateur. Elles ne garantissent pas un résultat.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Qu'est-ce qu'une bankroll ?",
+      "reponse": "<p>La bankroll est le budget séparé qu'une personne choisit éventuellement de consacrer aux paris sans compromettre ses dépenses essentielles.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Qu'est-ce que le tilt ?",
+      "reponse": "<p>Le tilt est un état émotionnel qui peut pousser à prendre des décisions impulsives après une victoire ou une perte. Faire une pause peut aider.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que faire après plusieurs paris perdus ?",
+      "reponse": "<p>N'augmente pas les mises pour tenter de te refaire. Prends du recul, respecte des limites strictes et envisage d'arrêter de parier.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Un score probable est-il certain ?",
+      "reponse": "<p>Non. Un score probable est une hypothèse ou une estimation, jamais une certitude.</p>",
+      "official": true,
+      "is_official": true
+    },
+    {
+      "question": "Que signifie 18+ sur le site ?",
+      "reponse": "<p>Le symbole 18+ rappelle que les contenus relatifs aux paris sont destinés aux adultes. Les règles légales locales et celles des opérateurs doivent aussi être respectées.</p>",
+      "official": true,
+      "is_official": true
+    }
+  ]
+}
