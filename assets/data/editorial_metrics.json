@@ -2,12 +2,12 @@
   "articles.json": {
     "count": 80,
     "unique_titles": 80,
-    "with_editorial_image": 12,
+    "with_editorial_image": 20,
     "visual_variants": {
-      "v3": 2,
-      "v1": 8,
-      "v2": 2,
-      "legacy": 68
+      "v3": 4,
+      "v1": 11,
+      "v2": 5,
+      "legacy": 60
     }
   },
   "conseils.json": {
