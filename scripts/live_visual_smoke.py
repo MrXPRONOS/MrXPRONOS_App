@@ -92,6 +92,40 @@ def check_tabs(page, mobile):
             page.locator(selector).first.wait_for(state="visible")
         tabs.get_by_role("button", name="Live", exact=False).click()
 
+def assert_secondary_mobile_tabs(page, width, name):
+    if width > 640:
+        return
+
+    nav = page.locator(".mx-mobile-tabs")
+    cases = [
+        ("À venir", ".mx-upcoming-card", 145, 125, "upcoming"),
+        ("Historique", ".mx-history-live-card", 145, 190, "history"),
+        ("Notifs", ".mx-notification-card", 155, 115, "notifications"),
+    ]
+
+    for label, selector, max_top, max_height, slug in cases:
+        nav.get_by_role("button", name=label, exact=False).click()
+        card = page.locator(selector).first
+        card.wait_for(state="visible", timeout=5000)
+        page.wait_for_timeout(120)
+
+        if page.locator(".mx-live-hero").is_visible():
+            raise AssertionError(f"{name}/{slug}: LIVE hero should be hidden on secondary mobile tabs")
+        if page.locator(".mx-live-overview").is_visible():
+            raise AssertionError(f"{name}/{slug}: LIVE stats band should be hidden on secondary mobile tabs")
+
+        top = card.evaluate("(el) => el.getBoundingClientRect().top")
+        height = card.evaluate("(el) => el.getBoundingClientRect().height")
+        if top > max_top:
+            raise AssertionError(f"{name}/{slug}: first card starts too low ({top}px > {max_top}px)")
+        if height > max_height:
+            raise AssertionError(f"{name}/{slug}: first card remains too tall ({height}px > {max_height}px)")
+        assert_no_overflow(page, f"{name}/{slug}")
+        page.screenshot(path=str(OUT / f"live-{slug}-{width}.png"), full_page=True)
+
+    nav.get_by_role("button", name="Live", exact=False).click()
+    page.locator(".mx-live-hero").wait_for(state="visible", timeout=5000)
+
 def run_view(browser, width, height, name):
     page = browser.new_page(viewport={"width": width, "height": height})
     install_routes(page)
@@ -169,6 +203,7 @@ def run_view(browser, width, height, name):
     page.locator(".mx-market-filter").filter(has_text="Tous").click()
 
     check_tabs(page, mobile=width <= 640)
+    assert_secondary_mobile_tabs(page, width, name)
     tabs = page.locator(".mx-mobile-tabs" if width <= 640 else ".mx-live-tabs")
     tabs.get_by_role("button", name="Historique", exact=False).click()
     page.locator(".mx-history-premium__score").first.wait_for(state="visible")
@@ -190,7 +225,7 @@ def run_view(browser, width, height, name):
     if fatal_console:
         raise AssertionError(f"{name}: console errors: {fatal_console}")
 
-    print(f"PASS {name}: viewport={width}x{height}, signals-first density/overflow/tabs/assets=ok")
+    print(f"PASS {name}: viewport={width}x{height}, live/upcoming/history/notifications density + overflow + interactions OK")
     page.close()
 
 with sync_playwright() as p:
