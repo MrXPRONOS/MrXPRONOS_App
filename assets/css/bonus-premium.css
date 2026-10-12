@@ -159,18 +159,11 @@
 
 
 /* =========================================================
-   Bonus mobile refinement v5 — offer-first / details-on-demand
+   Bonus mobile refinement v5 — offer-first / low-reading-load
 ========================================================= */
 .mx-bonus-page .mx-offer-disclaimer{
   color:#9fb0bc;
 }
-.mx-bonus-page .mx-offer-disclaimer summary{
-  cursor:pointer;
-}
-.mx-bonus-page .mx-offer-disclaimer p{
-  margin:8px 0 0;
-}
-
 @media(max-width:700px){
   .mx-bonus-page .mx-bonus-hero,
   .mx-bonus-page .mx-bonus-hero-inner{
@@ -263,29 +256,6 @@
     font-size:8px!important;
     line-height:1.25!important;
   }
-  .mx-bonus-page .mx-offer-disclaimer summary{
-    display:inline-flex!important;
-    align-items:center!important;
-    min-height:25px!important;
-    padding:3px 7px!important;
-    border:1px solid #2c5369!important;
-    border-radius:7px!important;
-    background:#061721!important;
-    color:#aebbc4!important;
-    font-weight:700!important;
-    list-style:none!important;
-  }
-  .mx-bonus-page .mx-offer-disclaimer summary::-webkit-details-marker{
-    display:none!important;
-  }
-  .mx-bonus-page .mx-offer-disclaimer p{
-    margin:5px 0 0!important;
-    padding:7px!important;
-    border:1px solid #213f51!important;
-    border-radius:7px!important;
-    background:#05141e!important;
-  }
-
   .mx-bonus-page .bookmakers-grid{
     gap:7px!important;
   }
