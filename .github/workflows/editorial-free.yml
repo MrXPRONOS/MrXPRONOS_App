@@ -2,6 +2,13 @@ name: Editorial Free Studio
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/editorial-free.yml'
+      - 'scripts/content_studio.py'
+      - 'scripts/editorial_*.py'
+      - 'fetch_foot_news.py'
   schedule:
     - cron: '41 5 * * *'
 
