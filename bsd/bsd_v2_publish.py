@@ -576,6 +576,14 @@ def main():
     temp=dest.with_suffix(".tmp")
     temp.write_text(json.dumps(output,ensure_ascii=False,indent=2),encoding="utf-8")
     temp.replace(dest)
+    from bsd_v2_audit import write_audit
+    quality = write_audit(output.get("matches", []), fixtures,
+                          observed_at=now.isoformat(),
+                          ledger_path=dest.parent / "bsd" / "publication_ledger.json",
+                          report_path=dest.parent / "bsd" / "quality_report.json",
+                          retired=output.get("retired_predictions") or [])
+    print("BSD_QUALITY_AUDIT:", json.dumps({"total": quality["total_ever_observed"],
+          "settled": quality["settled"], "missing": quality["unexplained_absences"]}))
     report=dest.parent/"bsd"/"rejections_report.json"
     report.parent.mkdir(parents=True,exist_ok=True)
     report.write_text(json.dumps({"generated_at":now.isoformat(),
