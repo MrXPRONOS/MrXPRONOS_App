@@ -1,0 +1,51 @@
+name: Infos responsive browser smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'infos.html'
+      - 'assets/css/infos-premium.css'
+      - 'assets/js/main.js'
+      - 'assets/images/infos-premium/**'
+      - 'scripts/infos_visual_smoke.py'
+      - '.github/workflows/infos-visual-smoke.yml'
+  pull_request:
+    paths:
+      - 'infos.html'
+      - 'assets/css/infos-premium.css'
+      - 'assets/js/main.js'
+      - 'assets/images/infos-premium/**'
+      - 'scripts/infos_visual_smoke.py'
+      - '.github/workflows/infos-visual-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium automation
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local website
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/infos-http.log 2>&1 &
+          sleep 2
+      - name: Verify Infos at 1024px and 390px
+        run: python scripts/infos_visual_smoke.py
+      - name: Save responsive screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: infos-responsive-1024-390
+          path: artifacts/infos-responsive/
+          if-no-files-found: warn
