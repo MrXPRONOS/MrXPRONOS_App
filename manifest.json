@@ -4,8 +4,8 @@
   "description": "Pronostics sportifs, analyses, conseils et code promo XPVIP",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0D0D0D",
-  "theme_color": "#0D0D0D",
+  "background_color": "#020a11",
+  "theme_color": "#020a11",
   "orientation": "portrait",
   "scope": "./",
   "lang": "fr",
@@ -92,5 +92,5 @@
       ]
     }
   ],
-  "version": "2026.10.11.mx-official-2"
+  "version": "2026.10.12.offline-resilience-1"
 }
