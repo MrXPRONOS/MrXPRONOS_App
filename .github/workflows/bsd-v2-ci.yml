@@ -39,3 +39,5 @@ jobs:
         run: python -m unittest discover -s bsd -p 'test_*.py' -v
       - name: Website JavaScript syntax
         run: node --check assets/js/main.js
+      - name: Pronostic category selection regression tests
+        run: node --test tests/pronos-category-selection.test.cjs
