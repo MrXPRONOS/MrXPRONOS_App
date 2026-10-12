@@ -74,3 +74,37 @@
   .mx-bookmakers-page .card-top{grid-template-columns:64px minmax(0,1fr)!important}
   .mx-bookmakers-page .logo-box{width:64px!important}
 }
+
+
+/* =========================================================
+   Bookmakers hero collision fix — neutralize legacy global .hero
+========================================================= */
+.mx-bookmakers-page .hero{
+  position:relative!important;
+  min-height:0!important;
+  height:auto!important;
+  padding:0!important;
+  overflow:visible!important;
+  background:none!important;
+  background-image:none!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+.mx-bookmakers-page .hero::before,
+.mx-bookmakers-page .hero::after{display:none!important;content:none!important}
+.mx-bookmakers-page .hero-copy{
+  min-height:0!important;
+  padding:0!important;
+  background:none!important;
+}
+
+@media(max-width:700px){
+  .mx-bookmakers-page .hero{
+    gap:8px!important;
+    margin-bottom:10px!important;
+  }
+  .mx-bookmakers-page .hero-copy{
+    padding:0!important;
+  }
+}
