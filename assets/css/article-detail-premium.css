@@ -65,3 +65,15 @@
   .mx-article-detail-page .article-page-card h1{font-size:25px!important;padding:15px 14px 7px!important}
   .mx-article-detail-page .article-content{padding:0 14px 20px!important;font-size:11.5px!important}
 }
+
+
+/* Article detail final mobile density */
+@media(max-width:700px){
+  .mx-article-detail-main{padding-top:10px!important;padding-bottom:34px!important}
+  .mx-article-detail-page .mx-detail-back{margin-bottom:7px!important}
+  .mx-article-detail-page .article-page-card{border-radius:12px!important}
+  .mx-article-detail-page .article-page-card .news-image{height:190px!important;max-height:190px!important}
+}
+@media(max-width:345px){
+  .mx-article-detail-page .article-page-card .news-image{height:168px!important;max-height:168px!important}
+}
