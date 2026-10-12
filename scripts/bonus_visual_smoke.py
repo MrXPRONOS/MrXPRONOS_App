@@ -28,8 +28,11 @@ def run_view(browser, width, height, label):
             raise AssertionError(f"{label}: secondary Bonus hero description should be hidden")
 
         disclaimer = page.locator(".mx-offer-disclaimer")
-        if disclaimer.get_attribute("open") is not None:
-            raise AssertionError(f"{label}: conditions block should be collapsed by default")
+        if not disclaimer.is_visible():
+            raise AssertionError(f"{label}: responsible-play notice must remain visible")
+        disclaimer_text = disclaimer.inner_text()
+        if "18+" not in disclaimer_text:
+            raise AssertionError(f"{label}: responsible-play notice lost its 18+ indication")
 
         first_top = page.locator(".bonus-premium-card").first.evaluate("(el) => el.getBoundingClientRect().top")
         max_top = 350 if width >= 390 else 345

@@ -19,6 +19,20 @@ def run_view(browser, width, height, label):
 
     no_overflow(page,label)
 
+    if width <= 700:
+        hero_h=page.locator(".mx-contact-hero").evaluate("(el)=>el.getBoundingClientRect().height")
+        if hero_h > 130:
+            raise AssertionError(f"{label}: Contact hero too tall ({hero_h}px)")
+        if page.locator(".mx-contact-copy p").is_visible():
+            raise AssertionError(f"{label}: secondary Contact description should be hidden")
+        first_top=page.locator(".contact-card").first.evaluate("(el)=>el.getBoundingClientRect().top")
+        if first_top > 245:
+            raise AssertionError(f"{label}: contact channels start too low ({first_top}px)")
+        nav=page.locator("#bottom-nav")
+        nav.wait_for(state="visible", timeout=10000)
+        if page.locator("#bottom-nav .bottom-nav-item").count()!=5:
+            raise AssertionError(f"{label}: expected 5 bottom navigation items")
+
     cards=page.locator(".contact-card")
     if cards.count()!=7:
         raise AssertionError(f"{label}: expected 7 contact cards, got {cards.count()}")
@@ -37,17 +51,17 @@ def run_view(browser, width, height, label):
             raise AssertionError(f"{label}: invalid contact href {href!r}")
 
     columns=page.locator(".contact-grid").evaluate("(el)=>getComputedStyle(el).gridTemplateColumns.split(' ').length")
-    expected=1 if width<=345 else 2
+    expected=2
     if columns!=expected:
         raise AssertionError(f"{label}: expected {expected} contact columns, got {columns}")
 
     first_h=cards.first.bounding_box()["height"]
-    if width>345 and first_h>130:
+    if first_h>90:
         raise AssertionError(f"{label}: contact card remains too tall ({first_h})")
 
     page.evaluate("window.scrollTo(0,0)")
     page.screenshot(path=str(OUT/f"contact-{width}.png"),full_page=True)
-    print(f"PASS {label}: {width}x{height}, cards/icons/links/grid/overflow OK")
+    print(f"PASS {label}: {width}x{height}, direct-channels/cards/icons/links/grid/overflow OK")
     ctx.close()
 
 with sync_playwright() as p:
