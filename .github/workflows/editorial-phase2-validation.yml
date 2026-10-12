@@ -1,0 +1,50 @@
+name: Editorial Phase 2 - Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/editorial_*.py'
+      - 'scripts/template_cards.py'
+      - 'scripts/football_channel.py'
+      - 'fetch_foot_news.py'
+      - 'tests/test_editorial_phase2.py'
+      - '.github/workflows/editorial-*.yml'
+      - '.github/workflows/update-footnews.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install only free Python dependencies
+        run: python -m pip install Pillow requests feedparser deep-translator
+      - name: Compile all updated modules
+        run: python -m compileall -q scripts/editorial_bsd_bridge.py scripts/editorial_telegram.py scripts/template_cards.py scripts/football_channel.py fetch_foot_news.py
+      - name: Test prior editorial engine and phase 2
+        run: |
+          python -m unittest discover -s tests -p 'test_editorial_free.py' -v
+          python -m unittest discover -s tests -p 'test_editorial_phase2.py' -v
+      - name: Check premium Flash Foot fallback offline
+        run: |
+          python - <<'PY'
+          from scripts.template_cards import render_flash
+          image=render_flash({"title":"Nouveaux résultats football","summary":"Source vérifiée.","source":"Mr XPRONOS","day":"12/10/2026","image_url":""})
+          assert image.size==(1080,1080)
+          print("FLASH_FOOT_LICENSE_SAFE_FALLBACK_OK")
+          PY
+      - name: Check BSD bridge without modifying data
+        run: python scripts/editorial_bsd_bridge.py --dry-run
+      - name: Check queue and storage safely
+        run: |
+          python scripts/editorial_telegram.py
+          python scripts/editorial_quality.py --strict
+          python scripts/editorial_cleanup_audit.py --top 3
