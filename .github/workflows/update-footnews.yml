@@ -1,0 +1,81 @@
+name: Update football news
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 */3 * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/update-footnews.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-footnews
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install news dependencies
+        run: pip install feedparser deep-translator
+
+      - name: Fetch and translate football news
+        env:
+          FOOTBALL_RSS_FEED: ${{ secrets.FOOTBALL_RSS_FEED }}
+          ENABLE_TRANSLATION: auto
+          TRANSLATION_RETRIES: '3'
+          MAX_ARTICLES: '20'
+        run: python fetch_foot_news.py
+
+      - name: Validate French output
+        run: |
+          python - <<'PY'
+          import json
+          import fetch_foot_news
+
+          with open("footnews.json", "r", encoding="utf-8") as f:
+              items = json.load(f)
+
+          if not isinstance(items, list) or not items:
+              raise SystemExit("footnews.json est vide ou invalide")
+
+          english = []
+          for item in items:
+              text = " ".join([str(item.get("title") or ""), str(item.get("summary") or "")])
+              if fetch_foot_news.looks_english(text):
+                  english.append(item.get("title") or "(sans titre)")
+
+          if english:
+              raise SystemExit("Actualités encore détectées en anglais: " + " | ".join(english[:5]))
+
+          print(f"OK: {len(items)} actualités francophones")
+          PY
+
+      - name: Commit updated news
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add footnews.json
+          if git diff --cached --quiet; then
+            echo "Aucune nouvelle actualité à publier."
+            exit 0
+          fi
+          git commit -m "data(infos): refresh French football news"
+          git fetch origin main
+          git rebase origin/main
+          git push origin main

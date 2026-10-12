@@ -16,7 +16,8 @@ from email.utils import parsedate_to_datetime
 from deep_translator import GoogleTranslator
 
 # Configuration
-RSS_FEED = os.getenv("FOOTBALL_RSS_FEED", "https://madeinfoot.ouest-france.fr/flux/rss_news.php")
+DEFAULT_RSS_FEED = "https://madeinfoot.ouest-france.fr/flux/rss_news.php"
+RSS_FEED = (os.getenv("FOOTBALL_RSS_FEED") or DEFAULT_RSS_FEED).strip()
 NEWS_FILE = "footnews.json"
 MAX_ARTICLES = int(os.getenv("MAX_ARTICLES", "20"))
 
