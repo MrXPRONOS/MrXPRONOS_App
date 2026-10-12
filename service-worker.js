@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v53-site-header-harmony-20261012';
+const VERSION = 'v54-offline-resilience-20261012';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -20,6 +20,8 @@ const STATIC_ASSETS = [
     './bonus.html',
     './contact.html',
     './article.html',
+    './conseil.html',
+    './bookmakers.html',
     './offline.html',
     './manifest.json',
     './assets/css/style.css',
@@ -32,6 +34,10 @@ const STATIC_ASSETS = [
     './assets/css/infos-premium.css',
     './assets/css/bonus-premium.css',
     './assets/css/live-premium.css',
+    './assets/css/contact-premium.css',
+    './assets/css/article-detail-premium.css',
+    './assets/css/conseil-detail-premium.css',
+    './assets/css/bookmakers-premium.css',
     './assets/js/main.js',
     './assets/js/home-premium.js',
     './assets/js/pwa.js',
@@ -54,6 +60,9 @@ const STATIC_ASSETS = [
     './assets/images/blog-hero-ball.webp',
     './assets/images/pronostics-premium/hero-stadium.webp',
     './assets/images/bonus-premium/bonus-gift.webp',
+    './assets/images/blog-premium/hero-blog.webp',
+    './assets/images/conseils-premium/hero-conseils.webp',
+    './assets/images/infos-premium/hero-infos.webp',
     './assets/images/pronostics-premium/card-stadium.webp',
     './assets/images/pronostics-premium/icon-simple.webp',
     './assets/images/pronostics-premium/icon-pro.webp',
@@ -241,20 +250,43 @@ self.addEventListener('fetch', (event) => {
     }
 
     if (request.destination === 'document' || path.endsWith('.html')) {
-        event.respondWith(
-            fetch(request)
-                .then((response) => {
-                    if (response && response.ok) {
-                        const clone = response.clone();
-                        caches.open(DYNAMIC_CACHE).then(cache => cache.put(request, clone));
-                    }
-                    return response;
-                })
-                .catch(async () => {
-                    const cached = await caches.match(request);
-                    return cached || caches.match('./offline.html');
-                })
-        );
+        event.respondWith((async () => {
+            const stableUrl = new URL(request.url);
+            stableUrl.search = '';
+            const stableRequest = new Request(stableUrl.toString(), {
+                method: 'GET',
+                headers: request.headers,
+                credentials: 'same-origin'
+            });
+
+            try {
+                const response = await fetch(request);
+                if (response && response.ok) {
+                    const clone = response.clone();
+                    const cache = await caches.open(DYNAMIC_CACHE);
+                    // Clé stable : article.html?slug=x et article.html partagent le même shell HTML.
+                    await cache.put(stableRequest, clone);
+                }
+                return response;
+            } catch (error) {
+                log('📴 Navigation hors ligne:', stableUrl.pathname, error?.message || error);
+
+                // 1. version exacte éventuellement visitée auparavant
+                const exact = await caches.match(request);
+                if (exact) return exact;
+
+                // 2. shell HTML sans query string, pré-caché ou déjà visité
+                const stable = await caches.match(stableRequest);
+                if (stable) return stable;
+
+                // 3. vraie page de secours
+                const offline = await caches.match('./offline.html');
+                return offline || new Response(
+                    '<!doctype html><html lang="fr"><title>Hors ligne</title><body>Connexion indisponible.</body></html>',
+                    { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+                );
+            }
+        })());
         return;
     }
 

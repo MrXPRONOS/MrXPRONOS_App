@@ -1,109 +1,244 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mr XPRONOS - Hors ligne</title>
-    <link rel="icon" href="assets/images/mrxpronos-mark.png?v=20261011-approved-mx1" type="image/png">
-    <link rel="stylesheet" href="assets/css/style.css?v=20261011-vibrance1">
-    <meta name="theme-color" content="#0D0D0D">
-    <style>
-        body {
-            background: #0f0f0f;
-            color: #fff;
-            font-family: 'Montserrat', sans-serif;
-            text-align: center;
-            padding: 60px 20px;
-            margin: 0;
-        }
-        .offline-box {
-            max-width: 520px;
-            margin: 40px auto;
-            background: #1a1a1a;
-            padding: 50px 30px;
-            border-radius: 20px;
-            border: 3px solid #ffcc00;
-            box-shadow: 0 0 30px rgba(255,204,0,0.3);
-        }
-        .icon {
-            font-size: 90px;
-            margin-bottom: 20px;
-        }
-        h1 {
-            color: #ffcc00;
-            margin: 0 0 15px 0;
-            font-size: 2.2rem;
-        }
-        p {
-            font-size: 1.1rem;
-            line-height: 1.5;
-            opacity: 0.9;
-        }
-        button {
-            background: #ffcc00;
-            color: #000;
-            border: none;
-            padding: 16px 40px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border-radius: 50px;
-            margin-top: 25px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        button:hover {
-            background: #ffd633;
-            transform: scale(1.05);
-        }
-        small {
-            display: block;
-            margin-top: 20px;
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-    </style>
-<link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png?v=20261011-approved-mx1"></head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hors ligne - Mr XPRONOS</title>
+  <meta name="description" content="Mode hors ligne Mr XPRONOS : consultez l'état de vos données mises en cache et réessayez la connexion.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#020a11">
+  <link rel="icon" href="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" type="image/svg+xml">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png?v=20261011-approved-mx1">
+  <style>
+    :root{
+      --bg:#020a11;--panel:#061824;--panel2:#04111b;--line:#1b5677;
+      --gold:#e9b650;--gold2:#ffd477;--text:#f7f8fa;--muted:#9fb0bd;
+      --green:#36d37e;--red:#ef6060;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Montserrat,Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{
+      min-height:100vh;display:flex;flex-direction:column;
+      background:
+        radial-gradient(circle at 72% 12%,rgba(27,95,132,.25),transparent 30%),
+        radial-gradient(circle at 20% 82%,rgba(233,182,80,.08),transparent 30%),
+        linear-gradient(180deg,#020a11,#03101a 54%,#02080e);
+    }
+    a{color:inherit}
+    .offline-header{
+      height:76px;display:flex;align-items:center;border-bottom:1px solid rgba(25,116,169,.52);
+      background:rgba(1,6,10,.97);box-shadow:0 10px 28px rgba(0,0,0,.35)
+    }
+    .shell{width:min(calc(100% - 40px),980px);margin:0 auto}
+    .brand{display:inline-flex;align-items:center;height:68px}
+    .brand img{display:block;width:auto;height:70px;max-width:220px;object-fit:contain}
+    main{flex:1;display:flex;align-items:center;padding:42px 0 58px}
+    .offline-layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(300px,.92fr);gap:18px;align-items:stretch}
+    .offline-card,.cache-card{
+      border:1px solid var(--line);border-radius:20px;
+      background:linear-gradient(150deg,rgba(8,32,49,.98),rgba(4,17,27,.98));
+      box-shadow:0 22px 55px rgba(0,0,0,.35)
+    }
+    .offline-card{padding:34px}
+    .status-line{display:flex;align-items:center;gap:9px;margin-bottom:17px;color:#efc363;font-size:9px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
+    .status-dot{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 14px rgba(239,96,96,.65)}
+    body.is-online .status-dot{background:var(--green);box-shadow:0 0 14px rgba(54,211,126,.65)}
+    body.is-online .status-line{color:#7be4a9}
+    .offline-mark{width:68px;height:68px;object-fit:contain;margin-bottom:14px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.45))}
+    h1{margin:0 0 13px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(38px,5vw,58px);line-height:.98;letter-spacing:-.035em}
+    h1 span{color:var(--gold2)}
+    .lead{margin:0;color:#cbd5dc;font-size:14px;line-height:1.65;max-width:600px}
+    .offline-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:25px}
+    .btn{
+      min-height:44px;padding:11px 17px;border-radius:12px;border:1px solid #31566e;
+      display:inline-flex;align-items:center;justify-content:center;text-decoration:none;
+      font:800 11px/1 Montserrat,system-ui,sans-serif;cursor:pointer;transition:.18s ease
+    }
+    .btn-primary{border-color:#f3cf7d;background:linear-gradient(145deg,#f6d786,#d39a38);color:#081018}
+    .btn-secondary{background:#071925;color:#f1c566}
+    .btn:hover{transform:translateY(-1px)}
+    .connection-note{min-height:19px;margin:14px 0 0;color:#899aa6;font-size:10px}
+    body.is-online .connection-note{color:#70d99e}
+    .cache-card{padding:23px}
+    .cache-kicker{color:#e8b957;font-size:8px;font-weight:900;letter-spacing:.17em;text-transform:uppercase}
+    .cache-card h2{margin:5px 0 16px;font-family:Georgia,"Times New Roman",serif;font-size:24px}
+    .cache-stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:15px}
+    .cache-stat{padding:13px;border:1px solid #214a63;border-radius:12px;background:#051521}
+    .cache-stat small{display:block;color:#8598a6;font-size:8px;text-transform:uppercase;letter-spacing:.08em}
+    .cache-stat strong{display:block;margin-top:4px;color:#fff;font-size:16px;line-height:1.2}
+    .cached-list{display:grid;gap:8px}
+    .cached-match{padding:11px 12px;border:1px solid #173f57;border-radius:11px;background:#04121c}
+    .cached-match__meta{display:flex;justify-content:space-between;gap:8px;color:#8195a3;font-size:8px;margin-bottom:5px}
+    .cached-match__teams{color:#fff;font-size:11px;font-weight:800;line-height:1.35}
+    .cached-match__pick{margin-top:5px;color:#eec064;font-size:9px;font-weight:700}
+    .empty-cache{padding:14px;border:1px dashed #31566e;border-radius:11px;color:#93a5b1;font-size:10px;line-height:1.55}
+    .offline-footer{padding:0 0 22px;color:#667985;font-size:9px;text-align:center}
+    @media(max-width:700px){
+      .offline-header{height:65px}.shell{width:calc(100% - 26px)}
+      .brand{height:57px}.brand img{height:56px;max-width:185px}
+      main{align-items:flex-start;padding:24px 0 42px}
+      .offline-layout{grid-template-columns:1fr}
+      .offline-card{padding:23px}
+      .offline-mark{width:52px;height:52px}
+      .lead{font-size:12px}
+      .btn{flex:1 1 145px}
+    }
+    @media(max-width:390px){
+      .brand img{height:50px;max-width:138px}
+      .offline-card,.cache-card{border-radius:15px}
+      .cache-stats{grid-template-columns:1fr}
+    }
+  </style>
+</head>
 <body>
-    <div class="offline-box">
-        <div class="icon">📴</div>
-        <h1>Vous êtes hors ligne</h1>
-        <p>Mr XPRONOS fonctionne en mode cache.<br>Vos pronostics et analyses sont toujours disponibles !</p>
-        <button onclick="window.location.reload()">🔄 Réessayer la connexion</button>
-        <small>Dernière mise à jour du cache : <span id="cache-date"></span></small>
+  <header class="offline-header">
+    <div class="shell">
+      <a class="brand" href="index.html" aria-label="Mr XPRONOS — Accueil">
+        <img src="assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1" alt="Mr XPRONOS">
+      </a>
     </div>
+  </header>
 
-    <script>
-        (function() {
-            const cached = localStorage.getItem('cachedData');
-            const span = document.getElementById('cache-date');
-            if (cached) {
-                try {
-                    const data = JSON.parse(cached);
-                    let lastDate = 'inconnue';
-                    if (data.matches && data.matches.length > 0) {
-                        const latest = data.matches[0].event_date || data.matches[0].date;
-                        const date = new Date(latest);
-                        lastDate = date.toLocaleDateString('fr-FR', {
-                            weekday: 'long',
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                        });
-                    }
-                    span.textContent = lastDate;
-                } catch {
-                    span.textContent = 'inconnue';
-                }
-            } else {
-                span.textContent = 'jamais';
-            }
-        })();
-    </script>
+  <main>
+    <div class="shell offline-layout">
+      <section class="offline-card" aria-labelledby="offline-title">
+        <div class="status-line"><span class="status-dot" aria-hidden="true"></span><span id="network-status">Connexion indisponible</span></div>
+        <img class="offline-mark" src="assets/images/mrxpronos-mark.png?v=20261011-approved-mx1" alt="" aria-hidden="true">
+        <h1 id="offline-title">Vous êtes <span>hors ligne.</span></h1>
+        <p class="lead">
+          Mr XPRONOS conserve localement les dernières données reçues. Vous pouvez ouvrir les pages déjà mises en cache et consulter les pronostics disponibles sur cet appareil.
+        </p>
 
-    <script type="module" src="assets/js/main.js"></script>
-    <script defer src="assets/js/pwa.js"></script>
-    <script defer src="assets/js/assistant.js"></script>
-    <script defer src="assets/js/menu.js"></script>
-    <script defer src="assets/js/back-to-top.js"></script>
+        <div class="offline-actions">
+          <button class="btn btn-primary" id="retry-button" type="button">Réessayer la connexion</button>
+          <a class="btn btn-secondary" href="pronos.html" id="cached-pronos-link">Voir les pronostics en cache</a>
+        </div>
+        <p class="connection-note" id="connection-note">La page se mettra à jour dès que la connexion reviendra.</p>
+      </section>
+
+      <aside class="cache-card" aria-labelledby="cache-title">
+        <span class="cache-kicker">DONNÉES LOCALES</span>
+        <h2 id="cache-title">Cache disponible</h2>
+        <div class="cache-stats">
+          <div class="cache-stat"><small>Pronostics</small><strong id="cache-count">0</strong></div>
+          <div class="cache-stat"><small>Dernière mise à jour</small><strong id="cache-date">Jamais</strong></div>
+        </div>
+        <div id="cached-list" class="cached-list" aria-live="polite"></div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="offline-footer">
+    <div class="shell">Mr XPRONOS · 18+ · Divertissement seulement</div>
+  </footer>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const els = {
+        status: document.getElementById("network-status"),
+        note: document.getElementById("connection-note"),
+        retry: document.getElementById("retry-button"),
+        count: document.getElementById("cache-count"),
+        date: document.getElementById("cache-date"),
+        list: document.getElementById("cached-list"),
+        pronos: document.getElementById("cached-pronos-link")
+      };
+
+      function escapeHtml(value) {
+        return String(value == null ? "" : value)
+          .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+      }
+
+      function predictionLabel(match) {
+        const pick = Array.isArray(match.predictions) && match.predictions.length
+          ? match.predictions[0]
+          : (match.prediction || {});
+        return pick.type || pick.label || pick.double_chance || pick.market_label || "Pronostic disponible";
+      }
+
+      function formatDate(value) {
+        if (!value) return "Inconnue";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "Inconnue";
+        return date.toLocaleString("fr-FR", {
+          day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit"
+        });
+      }
+
+      function readCache() {
+        let data = null;
+        try {
+          data = JSON.parse(localStorage.getItem("cachedData") || "null");
+        } catch (_) {
+          data = null;
+        }
+
+        const matches = Array.isArray(data && data.matches) ? data.matches : [];
+        els.count.textContent = String(matches.length);
+        els.date.textContent = formatDate(data && (data.generated_at || data.updated_at));
+
+        if (!matches.length) {
+          els.list.innerHTML =
+            '<div class="empty-cache">Aucun pronostic n’a encore été enregistré sur cet appareil. Ouvrez la page Pronostics lorsque vous êtes connecté pour constituer le cache local.</div>';
+          els.pronos.textContent = "Ouvrir Pronostics";
+          return;
+        }
+
+        const visible = matches
+          .slice()
+          .sort(function (a, b) {
+            return Date.parse(b.event_date || b.date || 0) - Date.parse(a.event_date || a.date || 0);
+          })
+          .slice(0, 4);
+
+        els.list.innerHTML = visible.map(function (match) {
+          const league = match.league || "Football";
+          const date = formatDate(match.event_date || match.date);
+          const home = match.home_team || "Équipe domicile";
+          const away = match.away_team || "Équipe extérieure";
+          const pick = predictionLabel(match);
+          return '<article class="cached-match">' +
+            '<div class="cached-match__meta"><span>' + escapeHtml(league) + '</span><span>' + escapeHtml(date) + '</span></div>' +
+            '<div class="cached-match__teams">' + escapeHtml(home) + ' — ' + escapeHtml(away) + '</div>' +
+            '<div class="cached-match__pick">' + escapeHtml(pick) + '</div>' +
+          '</article>';
+        }).join("");
+      }
+
+      function updateNetworkState() {
+        const online = navigator.onLine;
+        document.body.classList.toggle("is-online", online);
+        els.status.textContent = online ? "Connexion rétablie" : "Connexion indisponible";
+        els.note.textContent = online
+          ? "La connexion est revenue. Vous pouvez recharger le site."
+          : "La page se mettra à jour dès que la connexion reviendra.";
+        els.retry.textContent = online ? "Revenir au site" : "Réessayer la connexion";
+      }
+
+      function retry() {
+        if (navigator.onLine) {
+          window.location.href = "index.html";
+          return;
+        }
+        window.location.reload();
+      }
+
+      els.retry.addEventListener("click", retry);
+      window.addEventListener("online", function () {
+        updateNetworkState();
+        setTimeout(function () {
+          if (navigator.onLine) window.location.href = "index.html";
+        }, 1200);
+      });
+      window.addEventListener("offline", updateNetworkState);
+
+      readCache();
+      updateNetworkState();
+    })();
+  </script>
 </body>
 </html>
