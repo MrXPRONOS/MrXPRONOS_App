@@ -126,6 +126,10 @@ def main():
     today = choose_today()
 
     if today == "common":
+        print("⏭️ Guide commun du dimanche ignoré: la promotion XPVIP commune possède déjà son propre envoi.")
+        return
+
+    if today == "common":
         image = COMMON_IMAGE
         caption = common_caption()
         keyboard = common_keyboard()
