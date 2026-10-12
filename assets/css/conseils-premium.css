@@ -308,3 +308,204 @@
   .mx-conseils-page .conseil-premium-card:nth-child(4) .conseil-card-media,
   .mx-conseils-page .conseil-premium-card:nth-child(5) .conseil-card-media{height:150px!important}
 }
+
+
+/* =========================================================
+   Conseils mobile refinement v5 — content-first / details-on-demand
+========================================================= */
+@media(max-width:700px){
+  .mx-conseils-page .mx-conseils-hero,
+  .mx-conseils-page .mx-conseils-hero-inner{
+    min-height:130px!important;
+    height:130px!important;
+  }
+  .mx-conseils-page .mx-conseils-hero-inner{
+    align-items:center!important;
+    padding:8px 0!important;
+  }
+  .mx-conseils-page .mx-conseils-hero-bg{
+    background-image:
+      linear-gradient(90deg,rgba(1,7,13,.95),rgba(1,8,15,.63) 58%,rgba(1,8,15,.30)),
+      url('../images/conseils-premium/hero-conseils.webp')!important;
+    background-position:center,70% center!important;
+  }
+  .mx-conseils-page .mx-conseils-mark,
+  .mx-conseils-page .mx-conseils-eyebrow,
+  .mx-conseils-page .mx-conseils-copy p,
+  .mx-conseils-page .mx-conseils-pillars{
+    display:none!important;
+  }
+  .mx-conseils-page .mx-conseils-copy{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .mx-conseils-page .mx-conseils-copy h1{
+    max-width:340px!important;
+    margin:0!important;
+    font-size:29px!important;
+    line-height:.98!important;
+  }
+
+  .mx-conseils-page .mx-conseils-content{
+    padding-top:6px!important;
+    padding-bottom:28px!important;
+  }
+  .mx-conseils-page .mx-conseils-heading{
+    min-height:30px!important;
+    margin:0 0 5px!important;
+    gap:0!important;
+  }
+  .mx-conseils-page .mx-conseils-heading-icon,
+  .mx-conseils-page .mx-conseils-heading .mx-conseils-section-kicker,
+  .mx-conseils-page .mx-conseils-heading p{
+    display:none!important;
+  }
+  .mx-conseils-page .mx-conseils-heading h2{
+    margin:0!important;
+    font-size:17px!important;
+    line-height:1!important;
+  }
+
+  .mx-conseils-page .mx-conseils-topics{
+    gap:4px!important;
+    margin:0 0 6px!important;
+    padding:0 0 1px!important;
+    scrollbar-width:none!important;
+  }
+  .mx-conseils-page .mx-conseils-topics::-webkit-scrollbar{
+    display:none!important;
+  }
+  .mx-conseils-page .mx-conseils-topics span{
+    min-height:31px!important;
+    height:31px!important;
+    padding:3px 7px!important;
+    gap:4px!important;
+    border-radius:8px!important;
+    font-size:7.6px!important;
+  }
+  .mx-conseils-page .mx-conseils-topics img{
+    width:17px!important;
+    height:17px!important;
+  }
+
+  .mx-conseils-page .conseils-grid{
+    gap:7px!important;
+  }
+  .mx-conseils-page .conseil-premium-card{
+    min-height:0!important;
+    border-radius:10px!important;
+  }
+  .mx-conseils-page .conseil-card-media,
+  .mx-conseils-page .conseil-premium-card:nth-child(4) .conseil-card-media,
+  .mx-conseils-page .conseil-premium-card:nth-child(5) .conseil-card-media{
+    height:126px!important;
+  }
+  .mx-conseils-page .conseil-card-icon{
+    left:8px!important;
+    top:8px!important;
+    width:34px!important;
+    height:34px!important;
+    border-radius:8px!important;
+  }
+  .mx-conseils-page .conseil-card-icon img{
+    width:26px!important;
+    height:26px!important;
+  }
+  .mx-conseils-page .conseil-card-type{
+    left:7px!important;
+    bottom:7px!important;
+    padding:3px 6px!important;
+    gap:3px!important;
+    border-radius:7px!important;
+    font-size:7px!important;
+  }
+  .mx-conseils-page .conseil-card-type img{
+    width:16px!important;
+    height:16px!important;
+  }
+  .mx-conseils-page .conseil-card-body{
+    padding:8px 10px 9px!important;
+  }
+  .mx-conseils-page .conseil-card-kicker{
+    display:none!important;
+  }
+  .mx-conseils-page .conseil-card-body h3{
+    margin:0!important;
+    font-size:15.5px!important;
+    line-height:1.08!important;
+    display:-webkit-box!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    overflow:hidden!important;
+  }
+  .mx-conseils-page .conseil-card-body p{
+    display:none!important;
+  }
+  .mx-conseils-page .conseil-card-cta{
+    margin-top:7px!important;
+    gap:5px!important;
+    font-size:8.8px!important;
+  }
+  .mx-conseils-page .conseil-card-cta span{
+    width:18px!important;
+    height:18px!important;
+    font-size:11px!important;
+  }
+
+  .mx-conseils-page .mx-conseils-bottom{
+    grid-template-columns:36px 1fr auto!important;
+    align-items:center!important;
+    gap:7px!important;
+    margin-top:9px!important;
+    padding:8px!important;
+    border-radius:10px!important;
+  }
+  .mx-conseils-page .mx-conseils-bottom-icon{
+    width:32px!important;
+    height:32px!important;
+    border-radius:8px!important;
+  }
+  .mx-conseils-page .mx-conseils-bottom-icon img{
+    width:25px!important;
+    height:25px!important;
+  }
+  .mx-conseils-page .mx-conseils-bottom .mx-conseils-section-kicker,
+  .mx-conseils-page .mx-conseils-bottom p{
+    display:none!important;
+  }
+  .mx-conseils-page .mx-conseils-bottom h3{
+    margin:0!important;
+    font-size:11px!important;
+    line-height:1.15!important;
+  }
+  .mx-conseils-page .mx-conseils-bottom a{
+    grid-column:auto!important;
+    min-height:30px!important;
+    padding:0 9px!important;
+    font-size:8px!important;
+    white-space:nowrap!important;
+  }
+}
+
+@media(max-width:345px){
+  .mx-conseils-page .container{width:calc(100% - 16px)!important}
+  .mx-conseils-page .mx-conseils-hero,
+  .mx-conseils-page .mx-conseils-hero-inner{
+    min-height:120px!important;
+    height:120px!important;
+  }
+  .mx-conseils-page .mx-conseils-copy h1{
+    font-size:26px!important;
+  }
+  .mx-conseils-page .conseil-card-media,
+  .mx-conseils-page .conseil-premium-card:nth-child(4) .conseil-card-media,
+  .mx-conseils-page .conseil-premium-card:nth-child(5) .conseil-card-media{
+    height:115px!important;
+  }
+  .mx-conseils-page .mx-conseils-bottom{
+    grid-template-columns:32px minmax(0,1fr)!important;
+  }
+  .mx-conseils-page .mx-conseils-bottom a{
+    display:none!important;
+  }
+}
