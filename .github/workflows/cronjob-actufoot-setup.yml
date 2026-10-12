@@ -1,0 +1,28 @@
+name: Setup cron-job.org Actu Foot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/cronjob-actufoot-setup-trigger.txt"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cronjob-actufoot-setup
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Ensure Actu Foot cron-job.org scheduler
+        env:
+          CRONJOB_API_KEY: ${{ secrets.CRONJOB_API_KEY }}
+        run: python scripts/ensure_actufoot_cronjob.py
