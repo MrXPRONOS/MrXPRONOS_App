@@ -1,0 +1,43 @@
+name: Mobile premium navigation smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/menu.js'
+      - 'assets/css/mobile-nav-premium.css'
+      - 'assets/images/mobile-premium/**'
+      - 'live.html'
+      - 'scripts/mobile_nav_premium_smoke.py'
+      - '.github/workflows/mobile-nav-premium-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium automation
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local website
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/mobile-nav-http.log 2>&1 &
+          sleep 2
+      - name: Verify premium mobile navigation
+        run: python scripts/mobile_nav_premium_smoke.py
+      - name: Save mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-nav-premium-screens
+          path: artifacts/mobile-nav-premium/
+          if-no-files-found: warn
