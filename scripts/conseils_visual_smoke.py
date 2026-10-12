@@ -167,7 +167,9 @@ def run_view(browser, width, height, label):
     first = cards.first
     first.focus()
     page.keyboard.press("Enter")
-    page.wait_for_url("**/*gerer-bankroll*", timeout=5000)
+    page.wait_for_timeout(350)
+    if "gerer-bankroll" not in page.url:
+        raise AssertionError(f"{label}: conseil navigation failed: {page.url}")
 
     if page_errors:
         raise AssertionError(f"{label}: page errors {page_errors}")
