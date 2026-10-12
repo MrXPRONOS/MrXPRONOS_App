@@ -869,12 +869,14 @@ serve(async (req) => {
   const rawIP = req.headers.get("cf-connecting-ip") || req.headers.get("x-real-ip") || "unknown";
   const ipHash = await crypto.subtle.digest("SHA-256",new TextEncoder().encode("assistant:"+rawIP.slice(0,120)));
   const key = "assistant_"+Array.from(new Uint8Array(ipHash)).map(x=>x.toString(16).padStart(2,"0")).join("");
-  const {data:rate} = await supabase.from("assistant_rate_limits").select("window_start,window_count").eq("user_id",key).maybeSingle();
-  const active = rate?.window_start && (Date.now()-new Date(rate.window_start).getTime()) < 900000;
-  const count = active ? Number(rate?.window_count || 0) : 0;
-  if (count >= 20) return new Response(JSON.stringify({error:"Limite temporaire atteinte. Réessaie plus tard."}),{status:429,headers:{...corsHeaders,"Content-Type":"application/json","Retry-After":"300"}});
-  const stamp = new Date().toISOString();
-  await supabase.from("assistant_rate_limits").upsert({user_id:key,window_start:active?rate.window_start:stamp,window_count:count+1,last_message_at:stamp,updated_at:stamp},{onConflict:"user_id"});
+  const { data: allowed, error: limitError } = await supabase.rpc("assistant_take_rate_slot", {
+    p_key: key, p_limit: 20, p_window_seconds: 900
+  });
+  if (limitError || allowed !== true) {
+    return new Response(JSON.stringify({error:"Limite temporaire atteinte. Réessaie plus tard."}),{
+      status:429,headers:{...corsHeaders,"Content-Type":"application/json","Retry-After":"300"}
+    });
+  }
   const normalizedQuestion = normalizeQuestion(question);
   const intent = detectIntent(normalizedQuestion);
   const isFrustrated = FRUSTRATION_KEYWORDS.some(kw => normalizedQuestion.includes(kw));
