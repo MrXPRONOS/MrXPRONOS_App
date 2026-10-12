@@ -108,6 +108,38 @@ def run_view(browser, width, height, name):
 
     assert_no_overflow(page, name)
 
+    # signals-first mobile density: live opportunities must surface before decorative copy.
+    if width <= 640:
+        hero_h = page.locator(".mx-live-hero").evaluate("(el) => el.getBoundingClientRect().height")
+        hero_limit = 120 if width >= 390 else 110
+        if hero_h > hero_limit:
+            raise AssertionError(f"{name}: LIVE hero too tall ({hero_h}px > {hero_limit}px)")
+
+        hero_lead = page.locator(".mx-live-hero__lead")
+        if hero_lead.count() and hero_lead.is_visible():
+            raise AssertionError(f"{name}: secondary LIVE hero description should be hidden")
+
+        benefits = page.locator(".mx-live-benefits")
+        if benefits.count() and benefits.is_visible():
+            raise AssertionError(f"{name}: secondary LIVE benefit cards should be hidden")
+
+        overview_h = page.locator(".mx-live-overview").evaluate("(el) => el.getBoundingClientRect().height")
+        if overview_h > 54:
+            raise AssertionError(f"{name}: LIVE stats band too tall ({overview_h}px)")
+
+        filters_h = page.locator(".mx-market-filters").evaluate("(el) => el.getBoundingClientRect().height")
+        if filters_h > 38:
+            raise AssertionError(f"{name}: LIVE filters too tall ({filters_h}px)")
+
+        first_row_top = page.locator(".mx-live-row").first.evaluate("(el) => el.getBoundingClientRect().top")
+        max_top = 330 if width >= 390 else 315
+        if first_row_top > max_top:
+            raise AssertionError(f"{name}: first LIVE signal starts too low ({first_row_top}px > {max_top}px)")
+
+        how_section = page.locator(".mx-live-how")
+        if how_section.count() and how_section.is_visible():
+            raise AssertionError(f"{name}: explanatory LIVE section should not add mobile reading load")
+
     required_assets = ["icon-stopwatch.webp", "icon-ball.webp", "icon-corner.webp", "icon-whistle.webp", "icon-target.webp", "icon-pie.webp", "icon-bars.webp"]
     sources = page.locator("img").evaluate_all("(imgs) => imgs.map(i => i.getAttribute('src') || '')")
     missing = [asset for asset in required_assets if not any(asset in src for src in sources)]
@@ -158,7 +190,7 @@ def run_view(browser, width, height, name):
     if fatal_console:
         raise AssertionError(f"{name}: console errors: {fatal_console}")
 
-    print(f"PASS {name}: viewport={width}x{height}, overflow=none, tabs=ok, premium-assets=ok")
+    print(f"PASS {name}: viewport={width}x{height}, signals-first density/overflow/tabs/assets=ok")
     page.close()
 
 with sync_playwright() as p:
