@@ -76,7 +76,7 @@ def run_case(browser, width, height, label):
 
     # 2. A pre-cached page with a query string must use its stable HTML shell.
     page.goto(BASE + "/pronos.html?cat=vip", wait_until="domcontentloaded", timeout=60000)
-    page.wait_for_selector("body.mx-pronostics-page", timeout=10000)
+    page.wait_for_selector("body.mx-pronos-page", timeout=10000)
     if page.locator("#offline-title").count():
         raise AssertionError(f"{label}: pronos query URL incorrectly fell back to offline.html")
 
