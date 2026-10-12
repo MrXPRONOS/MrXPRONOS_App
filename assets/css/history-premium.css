@@ -956,3 +956,67 @@
     flex-basis:29px!important;
   }
 }
+
+
+/* =========================================================
+   History mobile refinement v8 — title-only hero
+   Secondary explanations are removed from the first viewport.
+========================================================= */
+@media(max-width:700px){
+  .mx-history-page .mx-history-hero,
+  .mx-history-page .mx-history-hero-inner{
+    min-height:110px!important;
+    height:110px!important;
+  }
+  .mx-history-page .mx-history-hero-inner{
+    align-items:center!important;
+    padding:7px 0!important;
+  }
+  .mx-history-page .mx-history-eyebrow,
+  .mx-history-page .mx-history-copy p,
+  .mx-history-page .mx-history-proof,
+  .mx-history-page .mx-history-quote{
+    display:none!important;
+  }
+  .mx-history-page .mx-history-copy{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .mx-history-page .mx-history-copy h1{
+    max-width:335px!important;
+    margin:0!important;
+    font-size:27px!important;
+    line-height:.98!important;
+    letter-spacing:-.035em!important;
+  }
+  .mx-history-page .mx-history-player{
+    height:112px!important;
+    right:-5%!important;
+    bottom:-16px!important;
+    opacity:.08!important;
+  }
+  .mx-history-page .mx-history-stat{
+    min-height:48px!important;
+    height:48px!important;
+  }
+  .mx-history-page .mx-history-toolbar{
+    min-height:26px!important;
+    height:26px!important;
+    margin:4px 0!important;
+  }
+}
+@media(max-width:345px){
+  .mx-history-page .mx-history-hero,
+  .mx-history-page .mx-history-hero-inner{
+    min-height:103px!important;
+    height:103px!important;
+  }
+  .mx-history-page .mx-history-copy h1{
+    max-width:285px!important;
+    font-size:24px!important;
+  }
+  .mx-history-page .mx-history-stat{
+    min-height:46px!important;
+    height:46px!important;
+  }
+}
