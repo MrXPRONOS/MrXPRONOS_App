@@ -134,3 +134,17 @@
   .mx-conseil-detail-page .article-page-card .news-image{height:94px!important;max-height:94px!important}
   .mx-conseil-detail-page .article-page-card h1{font-size:22px!important}
 }
+
+/* =========================================================
+   Detail mobile content-first v6 — micro-banner
+========================================================= */
+@media(max-width:700px){
+  .mx-conseil-detail-page .article-page-card .news-image{height:64px!important;max-height:64px!important}
+  .mx-conseil-detail-page .mx-detail-back{min-height:24px!important;margin-bottom:3px!important}
+  .mx-conseil-detail-page .article-page-card h1{padding:8px 11px 5px!important;font-size:clamp(20px,6vw,25px)!important;line-height:1.01!important}
+  .mx-conseil-detail-page .article-content{padding-left:11px!important;padding-right:11px!important}
+}
+@media(max-width:345px){
+  .mx-conseil-detail-page .article-page-card .news-image{height:56px!important;max-height:56px!important}
+  .mx-conseil-detail-page .article-page-card h1{font-size:20px!important;padding:7px 10px 5px!important}
+}
