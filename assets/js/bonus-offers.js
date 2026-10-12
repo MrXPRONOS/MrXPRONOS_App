@@ -90,7 +90,6 @@ function render() {
         <div class="bonus-card-art">
           <img class="bonus-banner-img" src="${esc(banner)}" alt="Visuel promotionnel ${esc(b.name)} — ${esc(o[1])}" loading="lazy" onerror="this.onerror=null;this.src='${esc(logo)}';this.classList.add('is-logo-fallback');">
           <span class="bonus-card-badge">${esc(o[0])}</span>
-          <img class="bonus-card-logo" src="${esc(logo)}" alt="Logo ${esc(b.name)}" loading="lazy">
         </div>
         <div class="bonus-card-body">
           <small class="mx-offer-book">${esc(b.name)}</small>
