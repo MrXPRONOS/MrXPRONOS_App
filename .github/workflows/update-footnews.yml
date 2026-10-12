@@ -37,8 +37,8 @@ jobs:
 
       - name: Fetch and translate football news
         env:
-          FOOTBALL_RSS_FEED: ${{ secrets.FOOTBALL_RSS_FEED }}
-          ENABLE_TRANSLATION: auto
+          FOOTBALL_RSS_FEED: https://madeinfoot.ouest-france.fr/flux/rss_news.php
+          ENABLE_TRANSLATION: '0'
           TRANSLATION_RETRIES: '2'
           MAX_ARTICLES: '20'
         run: python fetch_foot_news.py
