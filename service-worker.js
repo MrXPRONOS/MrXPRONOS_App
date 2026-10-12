@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v54-offline-resilience-20261012';
+const VERSION = 'v55-offline-stable-assets-20261012';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -154,16 +154,29 @@ self.addEventListener('activate', (event) => {
     );
 });
 
+function stableGetRequest(request) {
+    const stableUrl = new URL(request.url);
+    stableUrl.search = '';
+    return new Request(stableUrl.toString(), {
+        method: 'GET',
+        credentials: 'same-origin'
+    });
+}
+
 const strategies = {
     cacheFirst: async (request, cacheName = STATIC_CACHE) => {
         const cache = await caches.open(cacheName);
-        const cached = await cache.match(request);
+        const stableRequest = stableGetRequest(request);
+        const cached =
+            await cache.match(stableRequest) ||
+            await cache.match(request) ||
+            await caches.match(stableRequest);
 
         if (cached) {
             fetch(request)
                 .then((response) => {
                     if (response && response.ok) {
-                        cache.put(request, response.clone());
+                        cache.put(stableRequest, response.clone());
                     }
                 })
                 .catch(() => {});
@@ -173,7 +186,7 @@ const strategies = {
         try {
             const response = await fetch(request);
             if (response && response.ok) {
-                cache.put(request, response.clone());
+                await cache.put(stableRequest, response.clone());
             }
             return response;
         } catch {
@@ -215,18 +228,22 @@ const strategies = {
 
     staleWhileRevalidate: async (request) => {
         const cache = await caches.open(IMAGE_CACHE);
-        const cached = await cache.match(request);
+        const stableRequest = stableGetRequest(request);
+        const cached =
+            await cache.match(stableRequest) ||
+            await cache.match(request) ||
+            await caches.match(stableRequest);
 
         const fetchPromise = fetch(request)
-            .then((response) => {
+            .then(async (response) => {
                 if (response && response.ok) {
-                    cache.put(request, response.clone());
+                    await cache.put(stableRequest, response.clone());
                 }
                 return response;
             })
             .catch(() => cached);
 
-        return cached || fetchPromise;
+        return cached || fetchPromise || new Response('', { status: 503 });
     }
 };
 
