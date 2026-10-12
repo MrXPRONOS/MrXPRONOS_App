@@ -20,6 +20,7 @@
 
     <link rel="icon" href="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" type="image/svg+xml">
     <link rel="stylesheet" href="assets/css/style.css?v=20261011-vibrance1">
+    <link rel="stylesheet" href="assets/css/contact-premium.css?v=20261012-contact-premium1">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0D0D0D">
 
@@ -27,26 +28,49 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png?v=20261011-approved-mx1"></head>
-<body>
-    <header>
-        <div class="container">
-            <div class="logo">
-                <a href="index.html" aria-label="Mr XPRONOS — Accueil">
-                    <img src="assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1" alt="Mr XPRONOS">
-                </a>
-            </div>
-            <div class="header-actions">
-                <div class="promo-code">Code Promo : XPVIP</div>
+<body class="mx-contact-page">
+    <header class="mx-site-header mx-contact-header">
+        <div class="container mx-header-container">
+            <div class="logo"><a href="index.html" aria-label="Mr XPRONOS — Accueil"><img src="assets/images/mrxpronos-horizontal.webp?v=20261011-approved-mx1" alt="Mr XPRONOS" width="1104" height="481"></a></div>
+            <nav class="mx-desktop-nav" aria-label="Menu principal">
+                <a href="index.html">Accueil</a>
+                <a href="pronos.html">Pronostics</a>
+                <a href="historique.html">Historique</a>
+                <a href="blog.html">Blog</a>
+                <a href="conseils.html">Conseils</a>
+                <a href="infos.html">Infos sport</a>
+                <a href="bonus.html">Bonus &amp; Promo</a>
+                <a class="active" aria-current="page" href="contact.html">Contact</a>
+            </nav>
+            <div class="header-actions mx-header-actions">
+                <button id="install-app" class="btn btn-secondary mx-install" type="button" style="display:none;"><img src="assets/images/home-premium/icons/installation_application.svg" width="18" height="18" alt="" aria-hidden="true"><span>Installer l'app</span></button>
+                <button class="promo-code promo-copy mx-code-button" type="button" data-copy="XPVIP" aria-label="Copier le code promo XPVIP"><span class="mx-code-label">Code Promo : </span><strong>XPVIP</strong></button>
             </div>
         </div>
     </header>
 
-    <main class="container">
-        <h1 style="color: var(--or); margin: 2rem 0;">📞 Nous contacter</h1>
+    <main>
+        <section class="mx-contact-hero" aria-labelledby="contact-title">
+            <div class="mx-contact-hero-bg" aria-hidden="true"></div>
+            <div class="container mx-contact-hero-inner">
+                <div class="mx-contact-copy">
+                    <img class="mx-contact-mark" src="assets/images/mrxpronos-mark.svg?v=20261011-approved-mx1" alt="" aria-hidden="true">
+                    <span class="mx-contact-eyebrow"><i aria-hidden="true"></i> CONTACT MR XPRONOS</span>
+                    <h1 id="contact-title">Parlons <span>football.</span></h1>
+                    <p>Une question, un partenariat ou besoin d’aide ? Choisissez simplement le canal qui vous convient et contactez-nous directement.</p>
+                </div>
+            </div>
+        </section>
 
-        <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;"></div>
+        <section class="container mx-contact-content">
+            <div id="vip-locked-overlay" class="vip-locked-overlay" style="display: none;"></div>
+            <div class="mx-contact-heading">
+                <span>RESTONS CONNECTÉS</span>
+                <h2>Choisissez votre canal</h2>
+                <p>Nos principaux moyens de contact et réseaux sont réunis ici.</p>
+            </div>
 
-        <div class="contact-grid">
+            <div class="contact-grid">
             <div class="contact-card">
                 <img src="assets/images/phone.webp" alt="Téléphone" class="contact-icon" loading="lazy">
                 <h3>Téléphone</h3>
@@ -89,6 +113,7 @@
                 <p><a href="https://www.threads.com/@mr_xpronos" target="_blank" rel="noopener noreferrer">@mr_xpronos</a></p>
             </div>
         </div>
+        </section>
     </main>
 
     <div id="ios-guide-popup" class="ios-guide-popup" style="display: none;">
