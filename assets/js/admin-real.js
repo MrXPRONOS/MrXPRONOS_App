@@ -3,6 +3,10 @@ import { supabaseUrl, supabaseAnonKey } from "./config.js";
 const sb = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
 const $ = (id) => document.getElementById(id);
 
+const premiumAdminLoading = (kind = "admin", count = 3) =>
+  window.MXLoading?.render?.(kind, count) || '<div class="muted">Chargement…</div>';
+
+
 const TAB_NAMES = ["stats","pronostics","push","articles","conseils","bonus","infos","vip","health","audit"];
 const loadedTabs = new Set();
 let publishBusy = false;
@@ -342,7 +346,7 @@ async function renderPushAdmin() {
 async function renderStats() {
   const root = $("tab-stats");
   if (!root) return;
-  root.innerHTML = `<div class="muted">Chargement stats...</div>`;
+  root.innerHTML = premiumAdminLoading("admin", 3);
 
   const start = new Date();
   start.setHours(0,0,0,0);
@@ -418,7 +422,7 @@ async function renderPronosticsReadOnly() {
       </div>
       <label>Recherche</label>
       <input id="pSearch" placeholder="équipe / ligue...">
-      <div id="pList" class="muted" style="margin-top:10px">Chargement...</div>
+      <div id="pList" style="margin-top:10px">${premiumAdminLoading("matches", 2)}</div>
     </div>
   `;
 
@@ -481,7 +485,7 @@ async function renderPronosticsReadOnly() {
 async function renderCmsArticles() {
   const root = $("tab-articles");
   if (!root) return;
-  root.innerHTML = `<div class="muted">Chargement...</div>`;
+  root.innerHTML = premiumAdminLoading("admin", 3);
 
   const { data, error } = await sb.from("cms_articles").select("*").order("updated_at",{ascending:false}).limit(50);
   if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
@@ -577,7 +581,7 @@ async function renderCmsArticles() {
 async function renderCmsConseils() {
   const root = $("tab-conseils");
   if (!root) return;
-  root.innerHTML = `<div class="muted">Chargement...</div>`;
+  root.innerHTML = premiumAdminLoading("admin", 3);
 
   const { data, error } = await sb.from("cms_conseils").select("*").order("updated_at",{ascending:false}).limit(50);
   if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
@@ -667,7 +671,7 @@ async function renderCmsConseils() {
 async function renderBonus() {
   const root = $("tab-bonus");
   if (!root) return;
-  root.innerHTML = `<div class="muted">Chargement...</div>`;
+  root.innerHTML = premiumAdminLoading("admin", 3);
 
   const [{ data: bonus, error: e1 }, { data: books, error: e2 }] = await Promise.all([
     sb.from("cms_bonus").select("*").order("updated_at",{ascending:false}).limit(50),
@@ -852,7 +856,7 @@ async function renderInfos() {
   const root = $("tab-infos");
   if (!root) return;
 
-  root.innerHTML = `<div class="muted">Chargement...</div>`;
+  root.innerHTML = premiumAdminLoading("admin", 3);
   const { data, error } = await sb.from("cms_infos").select("*").order("updated_at",{ascending:false}).limit(50);
   if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
 
@@ -930,7 +934,7 @@ async function renderVip() {
   const root = $("tab-vip");
   if (!root) return;
 
-  root.innerHTML = `<div class="muted">Chargement...</div>`;
+  root.innerHTML = premiumAdminLoading("admin", 3);
   const { data, error } = await sb.from("vip_access").select("*").order("expires_at",{ascending:false}).limit(50);
   if (error) { root.innerHTML = `<div class="muted">Erreur: ${escapeHtml(error.message)}</div>`; return; }
 
