@@ -2,9 +2,7 @@ name: BSD V2 - Diffusion Telegram aux 15 minutes
 run-name: "BSD V2 - Coupons Telegram (${{ inputs.trigger_source || github.event_name }})"
 
 on:
-  # Filet de sécurité provisoire ; retirer après vérification cron-job.org.
-  schedule:
-    - cron: '5,20,35,50 * * * *'
+
   workflow_dispatch:
     inputs:
       trigger_source:
