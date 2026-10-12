@@ -108,3 +108,32 @@
     padding:0!important;
   }
 }
+
+/* =========================================================
+   Bookmakers mobile refinement v4 — choices-first
+========================================================= */
+@media(max-width:700px){
+  .mx-bookmakers-page .page{width:calc(100% - 18px)!important;padding:8px 0 30px!important}
+  .mx-bookmakers-page .eyebrow,
+  .mx-bookmakers-page .intro{display:none!important}
+  .mx-bookmakers-page .hero{gap:5px!important;margin-bottom:6px!important}
+  .mx-bookmakers-page h1{margin:0!important;font-size:27px!important;line-height:.98!important;letter-spacing:-.035em!important}
+  .mx-bookmakers-page .promo-box{min-height:40px!important;height:40px!important;padding:4px 6px 4px 9px!important;border-radius:9px!important}
+  .mx-bookmakers-page .promo-label{display:none!important}
+  .mx-bookmakers-page .promo-code{font-size:15px!important}
+  .mx-bookmakers-page .copy-btn{min-height:31px!important;height:31px!important;padding:4px 9px!important;font-size:8px!important}
+  .mx-bookmakers-page .grid{gap:6px!important;margin-top:6px!important}
+  .mx-bookmakers-page .card{min-height:100px!important;padding:8px!important;border-radius:10px!important}
+  .mx-bookmakers-page .card-top{grid-template-columns:64px minmax(0,1fr)!important;gap:7px!important;min-height:50px!important}
+  .mx-bookmakers-page .logo-box{width:64px!important;height:40px!important;padding:5px!important;border-radius:8px!important}
+  .mx-bookmakers-page .bookmaker-name{font-size:12px!important}
+  .mx-bookmakers-page .bonus{display:none!important}
+  .mx-bookmakers-page .availability{margin-top:3px!important;font-size:7.3px!important;line-height:1.18!important}
+  .mx-bookmakers-page .join{min-height:34px!important;padding:6px 7px!important;border-radius:7px!important;font-size:8.6px!important}
+  .mx-bookmakers-page .footer-note{margin-top:8px!important;font-size:7.8px!important;line-height:1.3!important}
+}
+@media(max-width:345px){
+  .mx-bookmakers-page .page{width:calc(100% - 14px)!important}
+  .mx-bookmakers-page h1{font-size:24px!important}
+  .mx-bookmakers-page .card{min-height:96px!important}
+}
