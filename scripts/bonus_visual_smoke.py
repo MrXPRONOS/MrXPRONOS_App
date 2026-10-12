@@ -21,7 +21,7 @@ def run_view(browser, width, height, label):
 
     if width <= 700:
         hero_h = page.locator(".mx-bonus-hero").evaluate("(el) => el.getBoundingClientRect().height")
-        if hero_h > 135:
+        if hero_h > 113:
             raise AssertionError(f"{label}: Bonus hero too tall ({hero_h}px)")
 
         if page.locator(".mx-bonus-copy p").is_visible():
@@ -35,7 +35,7 @@ def run_view(browser, width, height, label):
             raise AssertionError(f"{label}: responsible-play notice lost its 18+ indication")
 
         first_top = page.locator(".bonus-premium-card").first.evaluate("(el) => el.getBoundingClientRect().top")
-        max_top = 350 if width >= 390 else 345
+        max_top = 330 if width >= 390 else 324
         if first_top > max_top:
             raise AssertionError(f"{label}: first offer starts too low ({first_top}px > {max_top}px)")
 

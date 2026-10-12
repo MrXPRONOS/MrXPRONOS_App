@@ -57,10 +57,15 @@ def check_detail(browser,path,root,width,height,label):
 
     if width<=700:
         ih=image.bounding_box()["height"]
-        if ih>210:
+        if ih>115:
             raise AssertionError(f"{label}: detail image too tall {ih}")
 
     content=card.locator(".article-content")
+    if width<=700:
+        content_top=content.evaluate("(el)=>el.getBoundingClientRect().top")
+        max_content_top=315 if width>=390 else 300
+        if content_top>max_content_top:
+            raise AssertionError(f"{label}: reading content starts too low ({content_top}px > {max_content_top}px)")
     if len(content.inner_text().strip())<20:
         raise AssertionError(f"{label}: detail content missing")
 
