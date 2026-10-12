@@ -24,7 +24,7 @@ def parsed_dt(text):
     except (ValueError,TypeError):return None
 
 def eligible(item,now,window_hours=48):
-    if not isinstance(item,dict) or item.get("kind") not in ("article","conseil"):
+    if not isinstance(item,dict) or item.get("retired") or item.get("kind") not in ("article","conseil"):
         return False
     if not item.get("id") or not item.get("url","").startswith(BASE):return False
     if item.get("platform_status",{}).get("telegram") in ("sent","sending"):return False

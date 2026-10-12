@@ -23,6 +23,27 @@ def references(root):
                 v=obj.get(field)
                 if isinstance(v,str) and v.startswith("assets/images/"):
                     used.add(v)
+    # Les pages OG historiques peuvent encore utiliser d'anciennes images.
+    for folder in ("articles", "conseils"):
+        directory=root/folder
+        for page in directory.glob("*/index.html") if directory.exists() else ():
+            try:
+                page_text=page.read_text(encoding="utf-8")
+                used.update(re.findall(r"assets/images/editorial/[A-Za-z0-9_-]+\.webp",page_text))
+            except OSError:
+                continue
+    ledger=root/"assets/data/editorial_share_queue.json"
+    if ledger.is_file():
+        try:
+            entries=json.loads(ledger.read_text(encoding="utf-8"))
+            for entry in entries if isinstance(entries,list) else []:
+                if not isinstance(entry,dict): continue
+                for key in ("image","story_image"):
+                    value=entry.get(key)
+                    if isinstance(value,str) and value.startswith("assets/images/editorial/"):
+                        used.add(value)
+        except (ValueError,OSError):
+            pass
     return used
 
 def scan(root=ROOT,top=35,prune=False,min_age_days=30):
