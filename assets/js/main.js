@@ -2636,23 +2636,22 @@ function normalizeConfidence(conf) {
 function renderHomePickCard(m, { winner = false } = {}) {
   const pred = m.prediction || {};
   const conf = normalizeConfidence(pred.confidence);
-  const dc = pred.type || pred.label || pred.double_chance || "N/A";
-
+  const pick = pred.type || pred.label || pred.double_chance || "N/A";
   const league = m.league || "Ligue";
   const time = formatMatchTime(m.event_date);
-  const status = translateStatus(m.status);
+  const category = String(m.category || "simple").toLowerCase();
+  const categoryLabel = category === "vip" ? "VIP" : category === "pro" ? "PRO" : "SIMPLE";
 
   const homeDefault = "assets/images/home.webp";
   const awayDefault = "assets/images/away.webp";
-
   const homeLogo = escapeAttribute(m.home_logo || getTeamLogoPath(m.home_team, true));
   const awayLogo = escapeAttribute(m.away_logo || getTeamLogoPath(m.away_team, false));
-
-  const badgeText = winner ? "GAGNÉ" : "TOP";
+  const href = winner ? "historique.html" : "pronos.html";
 
   return `
-    <article class="pick-card ${winner ? "pick-card--winner" : ""}" onclick="window.location.href='pronos.html'">
-      <div class="pick-badge">${badgeText}</div>
+    <a class="pick-card ${winner ? "pick-card--winner" : ""}" href="${href}" aria-label="${winner ? "Voir ce résultat dans l’historique" : "Voir cette sélection dans les pronostics"}">
+      <div class="pick-badge">${winner ? "GAGNÉ" : "SÉLECTION"}</div>
+      <div class="pick-category pick-category--${escapeAttribute(category)}">${categoryLabel}</div>
 
       <div class="pick-head">
         <div class="pick-league" title="${escapeAttribute(league)}">${escapeHtml(league)}</div>
@@ -2669,7 +2668,11 @@ function renderHomePickCard(m, { winner = false } = {}) {
           <div class="pick-team-name" title="${escapeAttribute(m.home_team)}">${escapeHtml(m.home_team)}</div>
         </div>
 
-        <div class="pick-vs">VS</div>
+        <div class="pick-vs">
+          ${winner
+            ? `<strong>${escapeHtml(String(m.home_score ?? "-"))}-${escapeHtml(String(m.away_score ?? "-"))}</strong><small>FIN</small>`
+            : `<strong>VS</strong><small>${escapeHtml(time)}</small>`}
+        </div>
 
         <div class="pick-team pick-team--right">
           <img class="pick-logo"
@@ -2681,39 +2684,42 @@ function renderHomePickCard(m, { winner = false } = {}) {
         </div>
       </div>
 
-      <div class="pick-meta">
-        <div class="pick-row"><span>Pronostic</span><b>${escapeHtml(dc)}</b></div>
-        <div class="pick-row"><span>Fiabilité</span><b>${conf}%</b></div>
-        <div class="pick-row"><span>Statut</span><b>${escapeHtml(status)}</b></div>
-
-        ${
-          winner
-            ? `<div class="pick-score">Score : ${escapeHtml(String(m.home_score ?? "-"))}-${escapeHtml(String(m.away_score ?? "-"))}</div>`
-            : ``
-        }
+      <div class="pick-highlight">
+        <span>Pronostic</span>
+        <strong>${escapeHtml(pick)}</strong>
       </div>
-    </article>
+
+      <div class="pick-confidence">
+        <span>Confiance</span>
+        <div class="pick-confidence-bar"><i style="width:${conf}%"></i></div>
+        <b>${conf}%</b>
+      </div>
+    </a>
   `;
 }
 
 function displayTopTodayCoupons() {
   if (!DOM.topTodayPicks) return;
   if (!Array.isArray(allData?.matches)) {
-    DOM.topTodayPicks.innerHTML = '<div class="no-events">Coupons momentanément indisponibles.</div>';
+    DOM.topTodayPicks.innerHTML = '<div class="no-events">Sélections momentanément indisponibles.</div>';
     return;
   }
-  const todayStr = getLocalDateString("today");
 
-  // Choix UX : mettre en avant les pronostics simples, les autres sont accessibles sur la page Pronostics.
+  const todayStr = getLocalDateString("today");
   const picks = allData.matches
-    .filter((m) => m.category === "simple")
+    .filter((m) => ["simple", "pro", "vip"].includes(String(m.category || "").toLowerCase()))
     .filter((m) => getLocalDateFromEvent(m.event_date) === todayStr)
-    .sort((a, b) => (b.final_score || 0) - (a.final_score || 0))
-    .slice(0, 6);
+    .filter((m) => !isFinishedMatch(m))
+    .sort((a, b) => {
+      const scoreDiff = (Number(b.final_score) || 0) - (Number(a.final_score) || 0);
+      if (scoreDiff) return scoreDiff;
+      return normalizeConfidence(b.prediction?.confidence) - normalizeConfidence(a.prediction?.confidence);
+    })
+    .slice(0, 3);
 
   DOM.topTodayPicks.innerHTML = picks.length
     ? picks.map((m) => renderHomePickCard(m, { winner: false })).join("")
-    : `<div class="no-events">Aucun coupon simple aujourd’hui.</div>`;
+    : `<div class="no-events">Aucune sélection publiée aujourd’hui.</div>`;
 }
 
 function displayLatestVerifiedHome() {
@@ -2724,13 +2730,13 @@ function displayLatestVerifiedHome() {
   }
 
   const verified = allData.matches
-    .filter((m) => isFinishedMatch(m) && m.verified_double && (m.category === "pro" || m.category === "vip"))
+    .filter((m) => isFinishedMatch(m) && m.verified_double)
     .sort((a, b) => new Date(b.event_date || 0) - new Date(a.event_date || 0))
-    .slice(0, 6);
+    .slice(0, 3);
 
   DOM.verifiedPicks.innerHTML = verified.length
     ? verified.map((m) => renderHomePickCard(m, { winner: true })).join("")
-    : `<div class="no-events">■ Aucun pronostic validé récent.</div>`;
+    : `<div class="no-events">Aucun résultat gagnant récent.</div>`;
 }
 
 // Backward compatibility (si un ancien index existe encore)
