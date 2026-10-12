@@ -20,8 +20,12 @@ RSS_FEED = os.getenv("FOOTBALL_RSS_FEED", "https://madeinfoot.ouest-france.fr/fl
 NEWS_FILE = "footnews.json"
 MAX_ARTICLES = int(os.getenv("MAX_ARTICLES", "20"))
 
-# Flux MadeInFoot = déjà FR => traduction off par défaut
-ENABLE_TRANSLATION = os.getenv("ENABLE_TRANSLATION", "0") == "1"
+# Traduction:
+# - "auto" (défaut): traduit seulement lorsque le flux / texte n'est pas français.
+# - "1"/"true"/"on": force la traduction.
+# - "0"/"false"/"off": désactive la traduction.
+TRANSLATION_MODE = (os.getenv("ENABLE_TRANSLATION", "auto") or "auto").strip().lower()
+TRANSLATION_RETRIES = max(1, int(os.getenv("TRANSLATION_RETRIES", "2")))
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -53,16 +57,64 @@ def to_iso_date(entry) -> str:
 
     return datetime.now().isoformat()
 
-def translate_text(text: str, dest: str = "fr") -> str:
+def _word_hits(text: str, words: set[str]) -> int:
+    tokens = re.findall(r"[a-zàâçéèêëîïôûùüÿœ'-]+", (text or "").lower())
+    return sum(1 for token in tokens if token in words)
+
+def looks_english(text: str) -> bool:
+    """Heuristique légère: suffit pour éviter de republier un flux BBC brut."""
+    if not text:
+        return False
+    en_words = {
+        "the", "and", "with", "after", "before", "from", "for", "but", "not",
+        "have", "has", "are", "was", "were", "will", "their", "his", "her",
+        "who", "what", "how", "why", "against", "during", "player", "players",
+        "club", "clubs", "football", "league", "win", "wins", "game", "games"
+    }
+    fr_words = {
+        "le", "la", "les", "des", "du", "de", "et", "avec", "après", "avant",
+        "pour", "mais", "pas", "est", "sont", "dans", "leur", "leurs", "qui",
+        "que", "quoi", "comment", "contre", "pendant", "joueur", "joueurs",
+        "club", "clubs", "football", "ligue", "match", "matchs"
+    }
+    en = _word_hits(text, en_words)
+    fr = _word_hits(text, fr_words)
+    return en >= 2 and en > fr
+
+def should_translate(text: str, feed_language: str = "") -> bool:
+    mode = TRANSLATION_MODE
+    if mode in {"1", "true", "yes", "on", "force"}:
+        return True
+    if mode in {"0", "false", "no", "off"}:
+        return False
+    lang = (feed_language or "").lower()
+    if lang.startswith("fr"):
+        return False
+    return looks_english(text)
+
+def translate_text(text: str, dest: str = "fr", feed_language: str = "") -> str:
     if not text:
         return ""
-    if not ENABLE_TRANSLATION:
+    if not should_translate(text, feed_language):
         return text
-    try:
-        return GoogleTranslator(source="auto", target=dest).translate(text)
-    except Exception as e:
-        logger.error(f"Erreur de traduction : {e}")
-        return text
+
+    last_error = None
+    for attempt in range(1, TRANSLATION_RETRIES + 1):
+        try:
+            translated = GoogleTranslator(source="auto", target=dest).translate(text)
+            if translated and translated.strip():
+                translated = translated.strip()
+                # Ne jamais republier silencieusement un texte encore clairement anglais.
+                if not looks_english(translated):
+                    return translated
+                logger.warning("Traduction encore détectée en anglais (tentative %s/%s)", attempt, TRANSLATION_RETRIES)
+        except Exception as e:
+            last_error = e
+            logger.warning("Erreur de traduction (tentative %s/%s): %s", attempt, TRANSLATION_RETRIES, e)
+
+    if last_error:
+        logger.error("Traduction impossible après %s tentative(s): %s", TRANSLATION_RETRIES, last_error)
+    return ""
 
 def extract_image_url(entry):
     # MadeInFoot met l'image dans <enclosure url="...">
@@ -91,6 +143,9 @@ def fetch_news():
     if feed.bozo:
         logger.warning(f"Erreur de parsing : {feed.bozo_exception}")
 
+    feed_language = str(feed.feed.get("language") or "").strip()
+    logger.info("Langue déclarée du flux: %s | mode traduction: %s", feed_language or "inconnue", TRANSLATION_MODE)
+
     articles = []
     for entry in feed.entries[:MAX_ARTICLES]:
         title = entry.get("title", "")
@@ -103,15 +158,27 @@ def fetch_news():
         published = to_iso_date(entry)
         image_url = extract_image_url(entry)
 
+        translated_title = translate_text(title, feed_language=feed_language)
+        translated_summary = translate_text(summary, feed_language=feed_language)
+
+        # Si un flux anglais n'a pas pu être traduit, on préfère ignorer l'article
+        # plutôt que de casser l'expérience francophone du site.
+        if not translated_title:
+            logger.warning("Article ignoré: titre non francisé: %s", title[:120])
+            continue
+        if summary and not translated_summary:
+            logger.warning("Article ignoré: résumé non francisé: %s", title[:120])
+            continue
+
         articles.append({
-            "title": translate_text(title),
-            "summary": translate_text(summary),
+            "title": translated_title,
+            "summary": translated_summary,
             "link": link,
             "published": published,
             "image": image_url
         })
 
-    logger.info(f"{len(articles)} articles récupérés")
+    logger.info("%s articles francophones récupérés", len(articles))
     return articles
 
 def save_news(articles):
