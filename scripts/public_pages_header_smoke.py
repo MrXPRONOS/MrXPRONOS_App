@@ -108,6 +108,10 @@ def check_standard(browser, path, active_label, width, height):
         if not nav.is_visible():
             raise AssertionError(f"{label}: desktop nav not visible")
 
+    if width <= 390:
+        safe = path.split("?")[0].replace(".html","")
+        page.screenshot(path=str(OUT/f"{safe}-{width}.png"), full_page=False)
+
     if errors:
         # Ignore harmless external failures; real JS page errors are still surfaced.
         meaningful=[e for e in errors if "ResizeObserver" not in e]
@@ -133,6 +137,9 @@ def check_live(browser,width,height):
     logo=page.locator(".mx-live-brand img")
     if logo.count()!=1 or not logo.evaluate("(i)=>i.complete && i.naturalWidth>0"):
         raise AssertionError(f"{label}: live logo missing/broken")
+    if width <= 390:
+        page.screenshot(path=str(OUT/f"live-{width}.png"), full_page=False)
+
     if width<=900:
         if page.locator(".mx-mobile-only").count()<2:
             raise AssertionError(f"{label}: live mobile controls missing")

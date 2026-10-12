@@ -124,6 +124,10 @@ def main():
         raise SystemExit("Secrets manquants: TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID")
 
     today = choose_today()
+    approved = {v.strip().lower() for v in os.environ.get("TELEGRAM_APPROVED_GUIDE_BOOKMAKERS", "").split(",") if v.strip()}
+    if today != "common" and today not in approved:
+        print(f"⏭️ Guide {today} non approuvé: aucune diffusion.")
+        return
 
     if today == "common":
         print("⏭️ Guide commun du dimanche ignoré: la promotion XPVIP commune possède déjà son propre envoi.")
