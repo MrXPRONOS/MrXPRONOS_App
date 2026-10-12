@@ -43,6 +43,7 @@
   <link rel="preload" as="image" href="assets/images/live-premium/hero-stadium.webp">
   <link rel="preload" as="image" href="assets/images/live-premium/player-back.webp">
   <link rel="stylesheet" href="assets/css/live-premium.css?v=20261012-live-mobile17">
+  <link rel="stylesheet" href="assets/css/loading-ui.css?v=20261012-3">
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -285,15 +286,13 @@
 
 <body class="mx-live-page">
   <div id="root">
-    <div id="boot-screen" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:#090909;color:#f3f4f6;font-family:Arial,sans-serif">
-      <div style="text-align:center">
-        <div style="width:48px;height:48px;border:4px solid #D4AF37;border-top-color:transparent;border-radius:50%;margin:0 auto 16px;animation:bootSpin 1s linear infinite"></div>
-        <div style="color:#d1d5db">Chargement de MrXPRONOS LIVE…</div>
-      </div>
+    <div id="boot-screen" class="mx-live-boot" role="status" aria-label="Ouverture de Mr XPRONOS LIVE">
+      <div class="mx-live-boot-inner"><div class="mx-live-boot-mark" aria-hidden="true"><span class="mx-live-boot-field"></span></div><div class="mx-live-boot-brand">MR XPRONOS <span>LIVE</span></div><div class="mx-live-boot-sub">Connexion aux matchs en direct…</div><div class="mx-live-boot-progress" aria-hidden="true"></div></div>
     </div>
   </div>
   <style>@keyframes bootSpin{to{transform:rotate(360deg)}}</style>
 
+  <script src="assets/js/loading-ui.js?v=20261012-3"></script>
   <script type="text/babel">
     // =======================================================
     // CONFIG
@@ -1615,6 +1614,9 @@
       const [loading, setLoading] = useState(true);
       const [refreshing, setRefreshing] = useState(false);
       const [error, setError] = useState(null);
+      const [refreshWarning, setRefreshWarning] = useState(null);
+      const refreshBusy = React.useRef(false);
+      const successfulLoad = React.useRef(false);
 
       const [selectedTab, setSelectedTab] = useState("live"); // live | upcoming | history | notifications
       const [liveMarketFilter, setLiveMarketFilter] = useState("all"); // all | corners | shots | fouls | best
@@ -1642,53 +1644,61 @@
       }, []);
 
       const fetchAll = useCallback(async (silent = false) => {
-        if (!silent) setLoading(true);
+        if (refreshBusy.current) return;
+        refreshBusy.current = true;
+        if (!silent && !successfulLoad.current) setLoading(true);
         setRefreshing(true);
         try {
-          const [matchesRes, oppRes, notifRes, historyRes, todayRes] = await Promise.all([
-            apiFetch("/matches"),
-            apiFetch("/opportunities"),
-            apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`),
-            apiFetch("/predictions/history"),
-            apiFetch("/today")
+          // Une erreur dans les notifications ne doit pas supprimer les matchs LIVE.
+          const results = await Promise.allSettled([
+            apiFetch("/matches").then(r => r.json()),
+            apiFetch("/opportunities").then(r => r.json()),
+            apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`).then(r => r.json()),
+            apiFetch("/predictions/history").then(r => r.json()),
+            apiFetch("/today").then(r => r.json())
           ]);
-
-          const matchesData = await matchesRes.json();
-          const oppData = await oppRes.json();
-          const notifData = await notifRes.json();
-          const historyData = await historyRes.json();
-          const todayData = await todayRes.json();
-
-          const matches = matchesData.matches || [];
-          const opps = oppData.opportunities || [];
-          const notifs = notifData.notifications || [];
-          const hist = historyData.history || [];
-          const scheduled = todayData?.data?.scheduled?.matches || [];
-
-          setLiveMatches(matches);
-          setOpportunities(opps);
-          setNotifications(notifs);
-          setHistory(hist);
-          setScheduledMatches(scheduled);
-
-          const predictionsCount = matches.reduce(
-            (acc, m) => acc + (m.predictions || []).length,
-            0
-          );
-
-          setStats({
-            matches_live: matches.length,
-            predictions: predictionsCount,
-            upcoming: scheduled.length
-          });
-
+          const ok = (index) => results[index].status === "fulfilled";
+          const hadCoreData = ok(0) || ok(1) || ok(4);
+          if (!hadCoreData && !successfulLoad.current) {
+            throw new Error("Impossible de récupérer les matchs LIVE. Veuillez réessayer.");
+          }
+          if (ok(0)) {
+            const matches = results[0].value?.matches || [];
+            setLiveMatches(matches);
+            setStats(prev => ({
+              ...prev,
+              matches_live: matches.length,
+              predictions: matches.reduce((acc, m) => acc + (m.predictions || []).length, 0)
+            }));
+          }
+          if (ok(1)) setOpportunities(results[1].value?.opportunities || []);
+          if (ok(2)) setNotifications(results[2].value?.notifications || []);
+          if (ok(3)) setHistory(results[3].value?.history || []);
+          if (ok(4)) {
+            const scheduled = results[4].value?.data?.scheduled?.matches || [];
+            setScheduledMatches(scheduled);
+            setStats(prev => ({ ...prev, upcoming: scheduled.length }));
+          }
+          const failures = results.filter(r => r.status === "rejected");
+          if (failures.length) {
+            console.warn("Certaines données LIVE sont momentanément indisponibles.", failures.map(r => r.reason));
+            setRefreshWarning("Certaines données n'ont pas été actualisées.");
+          } else {
+            setRefreshWarning(null);
+          }
+          successfulLoad.current = successfulLoad.current || hadCoreData || ok(2) || ok(3);
           setError(null);
         } catch (e) {
           console.error(e);
-          setError(e?.message || "Impossible de charger les données live.");
+          if (successfulLoad.current) {
+            setRefreshWarning("Mise à jour momentanément indisponible. Dernières données conservées.");
+          } else {
+            setError(e?.message || "Impossible de charger les données LIVE.");
+          }
         } finally {
           setLoading(false);
           setRefreshing(false);
+          refreshBusy.current = false;
         }
       }, [apiFetch, userId]);
 
@@ -1696,7 +1706,7 @@
 
       useEffect(() => {
         const interval = setInterval(() => {
-          fetchAll(true).catch(console.error);
+          if (document.visibilityState !== "hidden") fetchAll(true).catch(console.error);
         }, 20000);
         return () => clearInterval(interval);
       }, [fetchAll]);
@@ -1848,7 +1858,7 @@
         );
       };
 
-      if (error && !loading) {
+      if (error && !loading && !successfulLoad.current) {
         return (
           <div className="min-h-screen flex items-center justify-center px-4">
             <div className="text-center">
@@ -1876,6 +1886,8 @@
           />
 
           <main className="mx-live-main">
+            {refreshing && !loading && <div className="mx-live-sync" role="status"><span className="mx-live-sync-dot" aria-hidden="true"></span> Synchronisation LIVE…</div>}
+            {refreshWarning && !loading && !refreshing && <div className="mx-live-sync mx-live-sync--warning" role="status"><span className="mx-live-sync-dot" aria-hidden="true"></span> {refreshWarning}</div>}
             {!selectedMatch && !selectedPrediction && (
               <>
                 <CompactHero
@@ -1895,10 +1907,7 @@
                 )}
 
                 {loading ? (
-                  <div className="py-20 text-center">
-                    <div className="w-12 h-12 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <div className="text-gray-400">Chargement...</div>
-                  </div>
+                  <div dangerouslySetInnerHTML={{ __html: window.MXLoading.render(selectedTab === "history" ? "history" : selectedTab === "live" ? "live" : "matches", 3) }} />
                 ) : (
                   <>
                     {/* ===========================
