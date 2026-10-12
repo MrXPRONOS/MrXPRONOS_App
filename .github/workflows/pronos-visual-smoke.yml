@@ -1,5 +1,14 @@
 name: Pronostics responsive browser smoke
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'pronos.html'
+      - 'assets/css/pronos-premium.css'
+      - 'assets/css/style.css'
+      - 'assets/js/main.js'
+      - 'scripts/pronos_visual_smoke.py'
+      - '.github/workflows/pronos-visual-smoke.yml'
   pull_request:
     paths:
       - 'pronos.html'
