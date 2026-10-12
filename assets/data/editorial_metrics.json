@@ -1,32 +1,71 @@
 {
-  "articles.json": {
-    "count": 80,
-    "unique_titles": 80,
-    "with_editorial_image": 80,
-    "visual_variants": {
-      "v3": 22,
-      "v1": 37,
-      "v2": 21
+  "contents": {
+    "articles.json": {
+      "count": 85,
+      "unique_titles": 85,
+      "with_editorial_image": 85,
+      "visual_variants": {
+        "v1": 39,
+        "v2": 23,
+        "v3": 23
+      },
+      "source_types": {
+        "bsd": 5,
+        "evergreen": 63,
+        "match": 17
+      },
+      "with_social_image": 85
+    },
+    "conseils.json": {
+      "count": 49,
+      "unique_titles": 49,
+      "with_editorial_image": 49,
+      "visual_variants": {
+        "v1": 21,
+        "v2": 21,
+        "v3": 7
+      },
+      "source_types": {
+        "unspecified": 49
+      },
+      "with_social_image": 49
+    },
+    "footnews.json": {
+      "count": 20,
+      "unique_titles": 20,
+      "with_editorial_image": 20,
+      "visual_variants": {
+        "v1": 7,
+        "v2": 9,
+        "v3": 4
+      },
+      "source_types": {
+        "Football : info, vidéos, reportages et analyses - France 24": 5,
+        "LFP - Flux RSS": 2,
+        "MadeInFOOT.com": 13
+      },
+      "with_social_image": 20
     }
   },
-  "conseils.json": {
-    "count": 49,
-    "unique_titles": 49,
-    "with_editorial_image": 49,
-    "visual_variants": {
-      "v1": 21,
-      "v3": 7,
-      "v2": 21
+  "delivery": {
+    "items": 134,
+    "platform_states": {
+      "facebook:not_requested": 134,
+      "instagram:not_requested": 134,
+      "telegram:not_requested": 134,
+      "threads:not_requested": 134,
+      "tiktok:not_requested": 134,
+      "youtube:not_requested": 134
     }
   },
-  "footnews.json": {
-    "count": 20,
-    "unique_titles": 20,
-    "with_editorial_image": 20,
-    "visual_variants": {
-      "v1": 7,
-      "v2": 9,
-      "v3": 4
+  "assets": {
+    "files": 462,
+    "size_mb": 25.75,
+    "by_format": {
+      ".webp": 462
     }
-  }
+  },
+  "real_clicks": null,
+  "conversion_rate": null,
+  "ab_measurement": "requires real external analytics"
 }
