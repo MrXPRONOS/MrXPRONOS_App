@@ -170,6 +170,20 @@ def classify_news(title: str, summary: str) -> tuple[str, int]:
     return category, score
 
 
+def _similar_headline(normalized: str, previous: set[str]) -> bool:
+    """Détecte les annonces quasiment identiques, même reformulées entre RSS."""
+    words = set(normalized.split())
+    if len(words) < 5:
+        return False
+    for old in previous:
+        other = set(old.split())
+        if len(other) < 5:
+            continue
+        if len(words & other) / max(len(words | other), 1) >= 0.82:
+            return True
+    return False
+
+
 def fetch_news():
     feeds = [RSS_FEED] + [url for url in EXTRA_RSS_FEEDS if url != RSS_FEED]
     articles, seen_links, seen_titles = [], set(), set()
@@ -200,7 +214,7 @@ def fetch_news():
             if not title or not link.startswith("https://"):
                 continue
             norm = _normalized_key(title)
-            if not norm or norm in seen_titles or link in seen_links:
+            if not norm or norm in seen_titles or link in seen_links or _similar_headline(norm, seen_titles):
                 diagnostics["rejected_duplicate"] += 1
                 continue
             raw_date = to_iso_date(entry)
@@ -223,7 +237,7 @@ def fetch_news():
             articles.append({
                 "slug": hashlib.sha1(link.encode()).hexdigest()[:16],
                 "title": translated_title,
-                "summary": translated_summary[:380],
+                "summary": translated_summary[:190],
                 "link": link,
                 "published": raw_date,
                 "image": "assets/images/preview.jpg",
