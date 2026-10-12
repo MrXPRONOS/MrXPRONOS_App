@@ -904,3 +904,11 @@
     height:28px!important;
   }
 }
+
+
+/* Pronostics mobile v6 — remove secondary success-rate before matches */
+@media(max-width:590px){
+  .mx-pronos-page .success-rate{
+    display:none!important;
+  }
+}
