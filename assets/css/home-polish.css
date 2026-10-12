@@ -246,3 +246,10 @@
 @media(max-width:768px){.mx-premium-home .mx-site-header .logo a{width:clamp(135px,26vw,185px);height:54px}.mx-premium-home .mx-site-header .logo img.mx-reference-logo{height:54px;max-height:54px}.mx-premium-home .mx-footer-brand img.mx-reference-logo{height:62px;max-height:62px}}
 @media(max-width:390px){.mx-premium-home .mx-site-header .logo a{width:138px;height:49px}.mx-premium-home .mx-site-header .logo img.mx-reference-logo{height:50px;max-height:50px}}
 @media(max-width:345px){.mx-premium-home .mx-site-header .logo a{width:113px;height:44px}.mx-premium-home .mx-site-header .logo img.mx-reference-logo{height:44px;max-height:44px}}
+
+
+/* Header harmony final override: desktop navigation remains visible from 901px. */
+@media(min-width:901px) and (max-width:1160px){
+  .mx-premium-home .mx-desktop-nav{display:flex!important}
+  .mx-premium-home #burger-btn{display:none!important}
+}
