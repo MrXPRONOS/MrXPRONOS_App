@@ -1,7 +1,7 @@
 {
   "source": "bsd",
   "model_version": "bsd-v2-isolated",
-  "generated_at": "2026-10-12T00:36:39.682284+00:00",
+  "generated_at": "2026-10-12T01:05:46.744093+00:00",
   "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
   "matches": [
     {
@@ -19602,7 +19602,7 @@
       "xpronos_score": 81.3,
       "generated_at": "2026-10-11T09:04:21.232401+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -19690,7 +19690,7 @@
       "xpronos_score": 82.4,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -19797,7 +19797,7 @@
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-11T18:50:07+00:00"
       },
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -19885,7 +19885,7 @@
       "xpronos_score": 82.8,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -19973,7 +19973,7 @@
       "xpronos_score": 81.8,
       "generated_at": "2026-10-11T09:04:21.232401+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20061,7 +20061,7 @@
       "xpronos_score": 82.7,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20149,7 +20149,7 @@
       "xpronos_score": 79.4,
       "generated_at": "2026-10-11T09:04:21.232401+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20237,7 +20237,7 @@
       "xpronos_score": 79.2,
       "generated_at": "2026-10-11T09:04:21.232401+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20325,7 +20325,7 @@
       "xpronos_score": 81.0,
       "generated_at": "2026-10-11T09:04:21.232401+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20413,7 +20413,7 @@
       "xpronos_score": 82.9,
       "generated_at": "2026-10-11T08:30:45.481676+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20501,7 +20501,7 @@
       "xpronos_score": 82.7,
       "generated_at": "2026-10-11T18:51:01.953437+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20589,7 +20589,7 @@
       "xpronos_score": 80.7,
       "generated_at": "2026-10-11T20:04:56.111660+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20677,7 +20677,7 @@
       "xpronos_score": 80.7,
       "generated_at": "2026-10-11T20:04:56.111660+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-12T00:36:39.682284+00:00",
+      "revalidated_at": "2026-10-12T01:05:46.744093+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     }
   ],
@@ -20991,8 +20991,8 @@
         "average_predicted": 0.773518
       }
     },
-    "last_added": 1,
-    "updated_at": "2026-10-12T00:36:39.682284+00:00",
+    "last_added": 0,
+    "updated_at": "2026-10-12T01:05:46.744093+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
