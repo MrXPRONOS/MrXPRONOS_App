@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v94-live-all-tabs-20261012';
+const VERSION = 'v95-brand-signatures-20261012';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -40,6 +40,7 @@ const STATIC_ASSETS = [
     './assets/css/conseil-detail-premium.css',
     './assets/css/bookmakers-premium.css',
     './assets/css/mobile-nav-premium.css',
+    './assets/css/brand-signatures.css',
     './assets/js/main.js',
     './assets/js/loading-ui.js',
     './assets/js/home-premium.js',
@@ -88,6 +89,7 @@ const STATIC_ASSETS = [
     './assets/images/live-premium/hero-live.webp',
     './assets/images/live-premium/hero-stadium.webp',
     './assets/images/live-premium/player-back.webp',
+    './assets/images/home-premium/hero-player.webp',
     './assets/images/live-premium/icon-stopwatch.webp',
     './assets/images/live-premium/icon-ball.webp',
     './assets/images/live-premium/icon-corner.webp',
