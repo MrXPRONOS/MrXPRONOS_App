@@ -123,3 +123,16 @@
     font-size:11.5px!important;
   }
 }
+
+/* =========================================================
+   Detail mobile content-first v5 — reading starts immediately
+========================================================= */
+@media(max-width:700px){
+  .mx-article-detail-page .article-page-card .news-image{height:108px!important;max-height:108px!important}
+  .mx-article-detail-page .mx-detail-back{min-height:28px!important;margin-bottom:4px!important}
+  .mx-article-detail-page .article-page-card h1{padding-top:11px!important;font-size:clamp(23px,6.7vw,29px)!important}
+}
+@media(max-width:345px){
+  .mx-article-detail-page .article-page-card .news-image{height:94px!important;max-height:94px!important}
+  .mx-article-detail-page .article-page-card h1{font-size:22px!important}
+}
