@@ -962,11 +962,11 @@
     msgDiv.appendChild(contentDiv);
     msgDiv.appendChild(timeDiv);
 
-    if (sender === 'assistant' && conversationId) {
+    if (sender === 'assistant' && save) {
       const feedbackDiv = document.createElement('div');
       feedbackDiv.className = 'feedback-buttons';
       feedbackDiv.innerHTML = `
-        <button class="feedback-btn like" data-id="${conversationId}">👍 Utile</button>
+        <button class="feedback-btn like" data-id="${Number.isSafeInteger(Number(conversationId)) && conversationId ? Number(conversationId) : ''}">👍 Utile</button>
         <button class="feedback-btn dislike" data-id="${conversationId}">👎 Pas utile</button>
       `;
 
@@ -993,7 +993,7 @@
             });
 
             if (response.ok) {
-              btn.disabled = true;
+              feedbackDiv.querySelectorAll('.feedback-btn').forEach(b => { b.disabled = true; });
               btn.textContent = isLike ? '👍 Merci' : '👎 Merci';
             }
           } catch (error) {
