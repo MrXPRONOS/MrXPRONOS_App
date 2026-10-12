@@ -220,6 +220,9 @@ def generate(limit: int, dry_run: bool, news_limit: int | None = None) -> dict:
             counts["errors"]+=1
             continue
         subset=records[:(news_limit if kind=="news" and news_limit is not None else limit)]
+        if kind=="article":
+            covered={str(x.get("slug")) for x in subset if isinstance(x,dict)}
+            subset += [x for x in records if isinstance(x,dict) and x.get("type")=="match" and str(x.get("slug")) not in covered][:8]
         changed=False
         for i, item in enumerate(subset):
             if not isinstance(item,dict) or item.get("active") is False: continue
@@ -229,7 +232,13 @@ def generate(limit: int, dry_run: bool, news_limit: int | None = None) -> dict:
             subtype="match" if kind=="article" and item.get("type")=="match" else kind
             subtitle=str(item.get("category") or item.get("source") or item.get("league") or "")
             try:
-                result=save_cover(title,subtype,slug,subtitle,dry_run=dry_run)
+                teams = None
+                if subtype=="match":
+                    match_label = str(item.get("match") or "")
+                    split = re.split(r"\s+vs\.?\s+", match_label, maxsplit=1, flags=re.IGNORECASE)
+                    if len(split)==2 and all(split):
+                        teams=(split[0].strip()[:38],split[1].strip()[:38])
+                result=save_cover(title,subtype,slug,subtitle,match_teams=teams,dry_run=dry_run)
                 if not dry_run:
                     item.update(result)
                     if kind=="news":
