@@ -5,13 +5,22 @@ on:
     - cron: '0 7 * * *'   # 7h UTC (ajustez selon votre fuseau)
     - cron: '0 18 * * *'  # 18h UTC
   workflow_dispatch:
+    inputs:
+      notification_type:
+        description: "Notification à envoyer"
+        required: true
+        type: choice
+        default: morning
+        options:
+          - morning
+          - evening
 
 jobs:
   send-push:
     runs-on: ubuntu-latest
     steps:
       - name: Appeler la fonction pour les coupons du matin
-        if: github.event.schedule == '0 7 * * *'
+        if: github.event.schedule == '0 7 * * *' || (github.event_name == 'workflow_dispatch' && inputs.notification_type == 'morning')
         run: |
           curl -X POST \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
@@ -20,7 +29,7 @@ jobs:
             https://nhwafcpndlufzzxexikh.supabase.co/functions/v1/push-notifications
 
       - name: Appeler la fonction pour le rappel du soir
-        if: github.event.schedule == '0 18 * * *'
+        if: github.event.schedule == '0 18 * * *' || (github.event_name == 'workflow_dispatch' && inputs.notification_type == 'evening')
         run: |
           curl -X POST \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
