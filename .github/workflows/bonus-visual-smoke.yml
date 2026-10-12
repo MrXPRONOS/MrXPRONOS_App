@@ -1,0 +1,53 @@
+name: Bonus responsive browser smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'bonus.html'
+      - 'assets/css/bonus-premium.css'
+      - 'assets/js/bonus-offers.js'
+      - 'assets/js/bonus-catalogue.js'
+      - 'assets/images/bonus/**'
+      - 'scripts/bonus_visual_smoke.py'
+      - '.github/workflows/bonus-visual-smoke.yml'
+  pull_request:
+    paths:
+      - 'bonus.html'
+      - 'assets/css/bonus-premium.css'
+      - 'assets/js/bonus-offers.js'
+      - 'assets/js/bonus-catalogue.js'
+      - 'assets/images/bonus/**'
+      - 'scripts/bonus_visual_smoke.py'
+      - '.github/workflows/bonus-visual-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium automation
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local website
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/bonus-http.log 2>&1 &
+          sleep 2
+      - name: Verify Bonus at 390px and 320px
+        run: python scripts/bonus_visual_smoke.py
+      - name: Save responsive screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bonus-responsive-390-320
+          path: artifacts/bonus-responsive/
+          if-no-files-found: warn
