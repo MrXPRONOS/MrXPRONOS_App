@@ -146,6 +146,10 @@ def send():
         raise SystemExit("Secrets manquants: TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID")
 
     key = get_today_key()
+    approved = {v.strip().lower() for v in os.environ.get("TELEGRAM_APPROVED_BONUS_BOOKMAKERS", "").split(",") if v.strip()}
+    if key not in approved:
+        print(f"⏭️ Bonus {key} non approuvé: aucune diffusion.")
+        return
     bm = BOOKMAKERS[key]
     img = prepare_telegram_image(Path(bm["image"]))
     caption = html_caption(bm)
