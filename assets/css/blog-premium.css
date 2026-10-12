@@ -613,3 +613,35 @@
     height:16px!important;
   }
 }
+
+
+/* =========================================================
+   Blog mobile v9 — title-only ultra-compact hero
+========================================================= */
+@media(max-width:700px){
+  .mx-blog-page .mx-blog-hero,
+  .mx-blog-page .mx-blog-hero-inner{
+    min-height:108px!important;
+    height:108px!important;
+  }
+  .mx-blog-page .mx-blog-hero-inner{
+    align-items:center!important;
+    padding:7px 0!important;
+  }
+  .mx-blog-page .mx-blog-copy h1{
+    margin:0!important;
+    font-size:30px!important;
+    line-height:.95!important;
+  }
+  .mx-blog-page .mx-blog-copy h2{
+    display:none!important;
+  }
+}
+@media(max-width:345px){
+  .mx-blog-page .mx-blog-hero,
+  .mx-blog-page .mx-blog-hero-inner{
+    min-height:100px!important;
+    height:100px!important;
+  }
+  .mx-blog-page .mx-blog-copy h1{font-size:28px!important}
+}
