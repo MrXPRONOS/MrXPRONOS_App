@@ -1689,7 +1689,7 @@ window.showArticleDetail = function (index) {
   if (!DOM.articleModal) {
     const slug = article.slug || "";
     window.location.href = slug
-      ? `article.html?slug=${encodeURIComponent(slug)}`
+      ? `articles/${encodeURIComponent(slug)}/`
       : `article.html?article=${encodeURIComponent(index)}`;
     return;
   }
@@ -1713,7 +1713,7 @@ window.showArticleDetail = function (index) {
   const slug = article.slug || "";
   if (linkEl) {
     linkEl.href = slug
-      ? `article.html?slug=${encodeURIComponent(slug)}`
+      ? `articles/${encodeURIComponent(slug)}/`
       : `article.html?article=${encodeURIComponent(index)}`;
   }
 
@@ -1997,7 +1997,7 @@ async function displayBlogPost() {
 ======================================================= */
 window.openConseilPage = function (slug) {
   if (!slug) return;
-  window.location.href = `conseil.html?slug=${encodeURIComponent(slug)}`;
+  window.location.href = `conseils/${encodeURIComponent(slug)}/`;
 };
 
 function updateConseilSeo(conseil, resolvedSlug) {

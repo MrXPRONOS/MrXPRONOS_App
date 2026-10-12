@@ -12,6 +12,9 @@ import feedparser
 import logging
 import re
 import time
+import hashlib
+import unicodedata
+from urllib.parse import urlparse
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 from deep_translator import GoogleTranslator
@@ -21,6 +24,8 @@ DEFAULT_RSS_FEED = "https://madeinfoot.ouest-france.fr/flux/rss_news.php"
 RSS_FEED = (os.getenv("FOOTBALL_RSS_FEED") or DEFAULT_RSS_FEED).strip()
 NEWS_FILE = "footnews.json"
 MAX_ARTICLES = int(os.getenv("MAX_ARTICLES", "20"))
+# Plusieurs flux FR libres à consulter (titres, courts résumés et liens uniquement).
+EXTRA_RSS_FEEDS = [x.strip() for x in os.getenv("EXTRA_FOOTBALL_RSS_FEEDS", "https://www.france24.com/fr/tag/football/rss,https://www.lfp.fr/rss").split(",") if x.strip()]
 
 # Traduction:
 # - "auto" (défaut): traduit seulement lorsque le flux / texte n'est pas français.
@@ -143,55 +148,72 @@ def extract_image_url(entry):
     match = re.search(r'<img[^>]+src="([^">]+)"', html)
     return match.group(1) if match else None
 
+def _normalized_key(title: str) -> str:
+    value = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]+", " ", value).strip()
+
+
+def classify_news(title: str, summary: str) -> tuple[str, int]:
+    text = (title + " " + summary).lower()
+    categories = [
+        ("Mercato", ("transfert", "mercato", "recrut", "signature", "prêt ")),
+        ("Afrique", ("afrique", "caf ", "can ", "ligue des champions caf")),
+        ("Matchs", ("match", "score", "victoire", "but ", "défaite")),
+        ("Compétitions", ("champions league", "ligue des champions", "coupe du monde")),
+    ]
+    category = next((cat for cat, keywords in categories if any(k in text for k in keywords)), "Actualité")
+    score = 2 if category != "Actualité" else 1
+    if len(summary) >= 65: score += 1
+    return category, score
+
+
 def fetch_news():
-    logger.info(f"Récupération du flux : {RSS_FEED}")
-
-    feed = feedparser.parse(RSS_FEED)
-    if feed.bozo:
-        logger.warning(f"Erreur de parsing : {feed.bozo_exception}")
-
-    feed_language = str(feed.feed.get("language") or "").strip()
-    logger.info("Langue déclarée du flux: %s | mode traduction: %s", feed_language or "inconnue", TRANSLATION_MODE)
-
-    articles = []
-    for entry in feed.entries[:MAX_ARTICLES]:
-        title = entry.get("title", "")
-        link = entry.get("link", "")
-
-        # MadeInFoot utilise <description> (feedparser le map souvent sur summary)
-        summary_raw = entry.get("summary", "") or entry.get("description", "")
-        summary = clean_html(summary_raw)
-
-        published = to_iso_date(entry)
-        image_url = extract_image_url(entry)
-
-        translated_title = translate_text(title, feed_language=feed_language)
-        translated_summary = translate_text(summary, feed_language=feed_language)
-
-        # Si un flux anglais n'a pas pu être traduit, on préfère ignorer l'article
-        # plutôt que de casser l'expérience francophone du site.
-        if not translated_title:
-            logger.warning("Article ignoré: titre non francisé: %s", title[:120])
+    feeds = [RSS_FEED] + [url for url in EXTRA_RSS_FEEDS if url != RSS_FEED]
+    articles, seen_links, seen_titles = [], set(), set()
+    for feed_url in feeds:
+        logger.info("Récupération du flux : %s", feed_url)
+        try:
+            feed = feedparser.parse(feed_url)
+        except Exception as exc:
+            logger.warning("Flux indisponible %s : %s", feed_url, exc)
             continue
-        if summary and not translated_summary:
-            logger.warning("Article ignoré: résumé non francisé: %s", title[:120])
+        if not feed.entries:
+            logger.warning("Flux vide: %s", feed_url)
             continue
-
-        combined = f"{translated_title} {translated_summary}".strip()
-        if should_translate(title + " " + summary, feed_language) and looks_english(combined):
-            logger.warning("Article ignoré: contenu encore détecté en anglais après traduction: %s", title[:120])
-            continue
-
-        articles.append({
-            "title": translated_title,
-            "summary": translated_summary,
-            "link": link,
-            "published": published,
-            "image": image_url
-        })
-
-    logger.info("%s articles francophones récupérés", len(articles))
-    return articles
+        feed_language = str(feed.feed.get("language") or "").strip()
+        source = str(feed.feed.get("title") or urlparse(feed_url).netloc)[:90]
+        for entry in feed.entries[:max(MAX_ARTICLES, 25)]:
+            title = str(entry.get("title") or "").strip()
+            link = str(entry.get("link") or "").strip()
+            summary = clean_html(entry.get("summary") or entry.get("description") or "")
+            if not title or not link.startswith("https://"):
+                continue
+            norm = _normalized_key(title)
+            if not norm or norm in seen_titles or link in seen_links:
+                continue
+            translated_title = translate_text(title, feed_language=feed_language)
+            translated_summary = translate_text(summary, feed_language=feed_language)
+            if not translated_title or summary and not translated_summary:
+                continue
+            if looks_english(translated_title + " " + translated_summary):
+                continue
+            category,score=classify_news(translated_title,translated_summary)
+            seen_links.add(link);seen_titles.add(norm)
+            articles.append({
+                "slug": hashlib.sha1(link.encode()).hexdigest()[:16],
+                "title": translated_title,
+                "summary": translated_summary[:380],
+                "link": link,
+                "published": to_iso_date(entry),
+                "image": extract_image_url(entry),
+                "source": source,
+                "category": category,
+                "editorial_score": score
+            })
+    articles.sort(key=lambda x: (x.get("editorial_score",0),x.get("published","")),reverse=True)
+    result=articles[:MAX_ARTICLES]
+    logger.info("%s actualités uniques depuis %s flux",len(result),len(feeds))
+    return result
 
 def save_news(articles):
     with open(NEWS_FILE, "w", encoding="utf-8") as f:

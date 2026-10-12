@@ -4,8 +4,8 @@
 generate_sitemap.py - Génère sitemap.xml et sitemap.txt avec priorités SEO
 
 Améliorations:
-- URLs articles en article.html?slug=...
-- URLs conseils en conseil.html?slug=...
+- URLs articles en articles/<slug>/ (pages Open Graph statiques)
+- URLs conseils en conseils/<slug>/ (pages Open Graph statiques)
 - ignore les contenus inactive (active=false)
 - lastmod par contenu (date/published_at), sinon today
 - URL racine avec slash final
@@ -86,7 +86,7 @@ def append_articles(urls, today):
         lastmod = safe_lastmod(article.get("date") or article.get("published_at"), today)
 
         urls.append({
-            "loc": f"{BASE_URL}article.html?slug={slug}",
+            "loc": f"{BASE_URL}articles/{slug}/",
             "priority": "0.6",
             "freq": "monthly",
             "lastmod": lastmod
@@ -110,7 +110,7 @@ def append_conseils(urls, today):
         lastmod = safe_lastmod(conseil.get("date") or conseil.get("published_at"), today)
 
         urls.append({
-            "loc": f"{BASE_URL}conseil.html?slug={slug}",
+            "loc": f"{BASE_URL}conseils/{slug}/",
             "priority": "0.55",
             "freq": "monthly",
             "lastmod": lastmod
