@@ -263,6 +263,8 @@
 }
 
 @media(min-width:901px) and (max-width:1160px){
+  .mx-premium-home .mx-desktop-nav{display:flex}
+  .mx-premium-home #burger-btn{display:none!important}
   .mx-premium-home .mx-header-container{gap:9px}
   .mx-premium-home .logo a{width:150px;height:64px}
   .mx-premium-home .logo img{height:62px;max-height:62px}
