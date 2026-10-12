@@ -2,10 +2,7 @@ name: BSD V2 - Validation des coupons Telegram
 run-name: "BSD V2 - Validation Telegram (${{ inputs.trigger_source || github.event_name }})"
 
 on:
-  # Filet de sécurité GitHub : vérifie régulièrement les coupons terminés.
-  # cron-job.org peut continuer à déclencher le workflow entre-temps.
-  schedule:
-    - cron: '*/10 * * * *'
+
   workflow_dispatch:
     inputs:
       trigger_source:
