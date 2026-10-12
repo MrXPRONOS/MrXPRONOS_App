@@ -797,3 +797,162 @@
     font-size:8.3px!important;
   }
 }
+
+
+/* =========================================================
+   History mobile refinement v7 — content-first / matches-above-fold
+   Mobile rule: primary content must appear quickly.
+   Decorative/summary blocks stay useful but cannot push
+   the first match below the useful first viewport.
+========================================================= */
+@media(max-width:700px){
+  .mx-history-page .mx-history-hero,
+  .mx-history-page .mx-history-hero-inner{
+    min-height:150px!important;
+  }
+  .mx-history-page .mx-history-hero-inner{
+    padding:10px 0 11px!important;
+  }
+  .mx-history-page .mx-history-eyebrow{
+    font-size:7.4px!important;
+    letter-spacing:.2em!important;
+  }
+  .mx-history-page .mx-history-eyebrow i{
+    width:5px!important;
+    height:5px!important;
+  }
+  .mx-history-page .mx-history-copy h1{
+    max-width:345px!important;
+    margin:5px 0 5px!important;
+    font-size:clamp(24px,6.8vw,29px)!important;
+    line-height:1!important;
+  }
+  .mx-history-page .mx-history-copy p{
+    max-width:340px!important;
+    font-size:9.4px!important;
+    line-height:1.3!important;
+    display:-webkit-box!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    overflow:hidden!important;
+  }
+  .mx-history-page .mx-history-proof{
+    display:none!important;
+  }
+  .mx-history-page .mx-history-player{
+    height:160px!important;
+    right:-13%!important;
+    bottom:-48px!important;
+    opacity:.11!important;
+  }
+
+  .mx-history-page .mx-history-content{
+    padding-top:4px!important;
+    padding-bottom:24px!important;
+  }
+  .mx-history-page .mx-history-stats{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:4px!important;
+    margin:0!important;
+  }
+  .mx-history-page .mx-history-stat{
+    min-height:52px!important;
+    height:52px!important;
+    padding:5px 4px!important;
+    gap:1px!important;
+    border-radius:8px!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    text-align:center!important;
+    box-shadow:0 5px 14px rgba(0,0,0,.16)!important;
+  }
+  .mx-history-page .mx-history-stat-icon{
+    display:none!important;
+  }
+  .mx-history-page .mx-history-stat-copy strong{
+    font-size:17px!important;
+    line-height:1!important;
+  }
+  .mx-history-page .mx-history-stat-copy b{
+    margin-top:2px!important;
+    font-size:7.6px!important;
+    line-height:1.05!important;
+  }
+  .mx-history-page .mx-history-stat-copy span{
+    display:none!important;
+  }
+  .mx-history-page .mx-history-rate-card{
+    gap:2px!important;
+  }
+  .mx-history-page .mx-history-rate-ring{
+    width:31px!important;
+    height:31px!important;
+    flex:0 0 31px!important;
+  }
+  .mx-history-page .mx-history-rate-ring::before{
+    inset:4px!important;
+  }
+  .mx-history-page .mx-history-rate-ring strong{
+    font-size:10px!important;
+  }
+  .mx-history-page .mx-history-rate-info b{
+    font-size:7.6px!important;
+    line-height:1.05!important;
+  }
+  .mx-history-page .mx-history-rate-info span{
+    display:none!important;
+  }
+
+  .mx-history-page .mx-history-toolbar{
+    min-height:28px!important;
+    height:28px!important;
+    margin:5px 0 5px!important;
+    padding:3px 7px!important;
+    border-radius:7px!important;
+  }
+  .mx-history-page .mx-history-toolbar-title{
+    gap:5px!important;
+    font-size:8.6px!important;
+  }
+  .mx-history-page .mx-history-toolbar-title span{
+    width:19px!important;
+    height:19px!important;
+    border-radius:6px!important;
+  }
+  .mx-history-page .mx-history-toolbar-title img{
+    width:15px!important;
+    height:15px!important;
+  }
+  .mx-history-page .mx-history-toolbar-note{
+    display:none!important;
+  }
+}
+
+@media(max-width:345px){
+  .mx-history-page .mx-history-hero,
+  .mx-history-page .mx-history-hero-inner{
+    min-height:154px!important;
+  }
+  .mx-history-page .mx-history-copy h1{
+    font-size:23px!important;
+  }
+  .mx-history-page .mx-history-copy p{
+    font-size:8.9px!important;
+  }
+  .mx-history-page .mx-history-stat{
+    min-height:50px!important;
+    height:50px!important;
+  }
+  .mx-history-page .mx-history-stat-copy strong{
+    font-size:16px!important;
+  }
+  .mx-history-page .mx-history-stat-copy b,
+  .mx-history-page .mx-history-rate-info b{
+    font-size:7px!important;
+  }
+  .mx-history-page .mx-history-rate-ring{
+    width:29px!important;
+    height:29px!important;
+    flex-basis:29px!important;
+  }
+}
