@@ -42,6 +42,42 @@ def install_routes(page):
     page.route("**/conseils.json*", lambda route: route.fulfill(status=200, content_type="application/json", body="[]"))
     page.route("**/data.json*", lambda route: route.fulfill(status=200, content_type="application/json", body=json.dumps({"matches":[]})))
 
+def assert_mobile_density(page, width, label):
+    if width > 700:
+        return
+
+    hero_h = page.locator(".mx-infos-hero").evaluate("(el) => el.getBoundingClientRect().height")
+    if hero_h > 142:
+        raise AssertionError(f"{label}: Infos hero too tall ({hero_h}px)")
+
+    if page.locator(".mx-infos-copy p").is_visible():
+        raise AssertionError(f"{label}: secondary hero description should be hidden")
+    if page.locator(".mx-infos-pillars").is_visible():
+        raise AssertionError(f"{label}: redundant hero pillars should be hidden")
+
+    explorer_h = page.locator(".mx-infos-explorer").evaluate("(el) => el.getBoundingClientRect().height")
+    if explorer_h > 82:
+        raise AssertionError(f"{label}: Infos explorer too tall ({explorer_h}px)")
+
+    first_card = page.locator(".news-premium-card").first
+    first_top = first_card.evaluate("(el) => el.getBoundingClientRect().top")
+    max_top = 345 if width >= 390 else 335
+    if first_top > max_top:
+        raise AssertionError(
+            f"{label}: first news card starts too low ({first_top}px > {max_top}px); "
+            "primary content must appear quickly"
+        )
+
+    excerpt = first_card.locator(".news-premium-body p")
+    if excerpt.count() and excerpt.is_visible():
+        raise AssertionError(f"{label}: news summary should remain hidden until opening the news")
+
+    nav = page.locator("#bottom-nav")
+    nav.wait_for(state="visible", timeout=10000)
+    items = page.locator("#bottom-nav .bottom-nav-item")
+    if items.count() != 5:
+        raise AssertionError(f"{label}: expected 5 bottom-nav items, got {items.count()}")
+
 def run_view(browser, width, height, label):
     context = browser.new_context(viewport={"width":width,"height":height}, service_workers="block")
     page = context.new_page()
@@ -54,6 +90,7 @@ def run_view(browser, width, height, label):
     page.wait_for_timeout(1000)
 
     no_overflow(page, label)
+    assert_mobile_density(page, width, label)
 
     cards = page.locator(".news-premium-card")
     if cards.count() != len(INFOS) + len(FOOTNEWS):
@@ -115,7 +152,7 @@ def run_view(browser, width, height, label):
     if page_errors:
         raise AssertionError(f"{label}: page errors {page_errors}")
 
-    print(f"PASS {label}: {width}x{height}, cards/assets/filter/search/modal/overflow OK")
+    print(f"PASS {label}: {width}x{height}, content-first/cards/assets/filter/search/modal/overflow OK")
     context.close()
 
 with sync_playwright() as p:

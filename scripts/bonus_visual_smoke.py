@@ -19,6 +19,32 @@ def run_view(browser, width, height, label):
 
     no_overflow(page, label)
 
+    if width <= 700:
+        hero_h = page.locator(".mx-bonus-hero").evaluate("(el) => el.getBoundingClientRect().height")
+        if hero_h > 135:
+            raise AssertionError(f"{label}: Bonus hero too tall ({hero_h}px)")
+
+        if page.locator(".mx-bonus-copy p").is_visible():
+            raise AssertionError(f"{label}: secondary Bonus hero description should be hidden")
+
+        disclaimer = page.locator(".mx-offer-disclaimer")
+        if disclaimer.get_attribute("open") is not None:
+            raise AssertionError(f"{label}: conditions block should be collapsed by default")
+
+        first_top = page.locator(".bonus-premium-card").first.evaluate("(el) => el.getBoundingClientRect().top")
+        max_top = 350 if width >= 390 else 345
+        if first_top > max_top:
+            raise AssertionError(f"{label}: first offer starts too low ({first_top}px > {max_top}px)")
+
+        desc = page.locator(".bonus-premium-card").first.locator(".bonus-card-body p")
+        if desc.count() and desc.is_visible():
+            raise AssertionError(f"{label}: offer description should be hidden until Details is opened")
+
+        nav = page.locator("#bottom-nav")
+        nav.wait_for(state="visible", timeout=10000)
+        if page.locator("#bottom-nav .bottom-nav-item").count() != 5:
+            raise AssertionError(f"{label}: bottom navigation does not have 5 items")
+
     cards = page.locator(".bonus-premium-card")
     total = cards.count()
     if total < 6:
@@ -76,7 +102,7 @@ def run_view(browser, width, height, label):
     page.evaluate("window.scrollTo(0,0)")
     page.wait_for_timeout(120)
     page.screenshot(path=str(OUT/f"bonus-{width}.png"), full_page=True)
-    print(f"PASS {label}: {width}x{height}, offers/filter/modal/assets/overflow OK")
+    print(f"PASS {label}: {width}x{height}, content-first/offers/filter/modal/assets/overflow OK")
     context.close()
 
 with sync_playwright() as p:
