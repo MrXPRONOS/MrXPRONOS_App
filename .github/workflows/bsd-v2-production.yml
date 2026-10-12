@@ -51,6 +51,8 @@ jobs:
         run: python -m unittest discover -s bsd -p 'test_*.py' -v
       - name: Check website JavaScript syntax
         run: node --check assets/js/main.js
+      - name: Check pronostic category defaults
+        run: node --test tests/pronos-category-selection.test.cjs
       - name: Restore private BSD historical matches
         env:
           BSD_HISTORY_KEY: '${{ secrets.BSD_HISTORY_KEY }}'
