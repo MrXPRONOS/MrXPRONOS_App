@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: editorial-free-studio
+  group: editorial-telegram-delivery
   cancel-in-progress: false
 
 jobs:
