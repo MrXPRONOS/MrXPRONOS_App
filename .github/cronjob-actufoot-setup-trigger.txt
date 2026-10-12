@@ -1,1 +1,1 @@
-setup trigger 2026-10-12T22:05:00Z
+setup validation trigger 2026-10-12T22:03:00Z
