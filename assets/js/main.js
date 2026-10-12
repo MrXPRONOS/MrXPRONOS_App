@@ -2697,7 +2697,11 @@ function renderHomePickCard(m, { winner = false } = {}) {
 }
 
 function displayTopTodayCoupons() {
-  if (!DOM.topTodayPicks || !allData?.matches) return;
+  if (!DOM.topTodayPicks) return;
+  if (!Array.isArray(allData?.matches)) {
+    DOM.topTodayPicks.innerHTML = '<div class="no-events">Coupons momentanément indisponibles.</div>';
+    return;
+  }
   const todayStr = getLocalDateString("today");
 
   // Choix UX : mettre en avant les pronostics simples, les autres sont accessibles sur la page Pronostics.
@@ -2713,7 +2717,11 @@ function displayTopTodayCoupons() {
 }
 
 function displayLatestVerifiedHome() {
-  if (!DOM.verifiedPicks || !allData?.matches) return;
+  if (!DOM.verifiedPicks) return;
+  if (!Array.isArray(allData?.matches)) {
+    DOM.verifiedPicks.innerHTML = '<div class="no-events">Résultats momentanément indisponibles.</div>';
+    return;
+  }
 
   const verified = allData.matches
     .filter((m) => isFinishedMatch(m) && m.verified_double && (m.category === "pro" || m.category === "vip"))
@@ -3029,21 +3037,25 @@ document.addEventListener("DOMContentLoaded", async () => {
       await loadData();
     }
 
-    // Les fonctions ci-dessous sont secondaires pour l’affichage de data.json.
-    // Une panne analytics/Supabase ne doit plus bloquer l’onglet Pronostics.
-    await initSupabase();
+    // Le contenu public a priorité : analytics, présence et compteurs
+    // ne doivent jamais retenir les skeletons à l'écran.
     await loadPublishedExtras();
-    await updateDisplayedCounters();
-    subscribeToCounters();
-    await registerUniqueUser();
-    await initOnlineUsers();
-
-    countVisitOncePerDay();
+    void (async () => {
+      try {
+        await initSupabase();
+        await updateDisplayedCounters();
+        subscribeToCounters();
+        await registerUniqueUser();
+        await initOnlineUsers();
+        countVisitOncePerDay();
+        if ("Notification" in window && Notification.permission === "granted") {
+          subscribeToPush(false);
+        }
+      } catch (secondaryError) {
+        console.warn("Services secondaires non disponibles :", secondaryError);
+      }
+    })();
     showIosGuideIfNeeded();
-
-    if ("Notification" in window && Notification.permission === "granted") {
-      subscribeToPush(false);
-    }
 
     switch (page) {
       case "pronos":
@@ -3095,8 +3107,12 @@ document.addEventListener("DOMContentLoaded", async () => {
           allData = data;
           renderBookmakers(data.bookmakers);
           updateHomeLastUpdate();
-          displayTopTodayCoupons();
-          displayLatestVerifiedHome();
+        }
+        // Terminer systématiquement les deux états de chargement, même
+        // lorsque data.json est absent ou hors ligne.
+        displayTopTodayCoupons();
+        displayLatestVerifiedHome();
+        if (data) {
           startWinsSlider();
           animateWins();
           updateHomeSuccessRate();
