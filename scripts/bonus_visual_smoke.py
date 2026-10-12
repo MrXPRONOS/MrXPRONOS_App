@@ -27,7 +27,11 @@ def run_view(browser, width, height, label):
     if page.locator(".bonus-card-logo").count() != 0:
         raise AssertionError(f"{label}: duplicated bookmaker logo still rendered")
 
-    banners = page.locator(".bonus-banner-img").evaluate_all("""imgs => imgs.map(i => ({
+    banner_locator = page.locator(".bonus-banner-img")
+    for i in range(banner_locator.count()):
+        banner_locator.nth(i).scroll_into_view_if_needed()
+        page.wait_for_timeout(35)
+    banners = banner_locator.evaluate_all("""imgs => imgs.map(i => ({
       src:i.getAttribute('src'), ok:i.complete && i.naturalWidth>0,
       w:i.naturalWidth,h:i.naturalHeight
     }))""")
