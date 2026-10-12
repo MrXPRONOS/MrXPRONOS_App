@@ -37,7 +37,9 @@ def collect(root=ROOT):
         for i in items:
             if not isinstance(i,dict):continue
             for platform,v in (i.get("platform_status") or {}).items():status[platform+":"+str(v)]+=1
-        report["delivery"]={"items":len(items),"platform_states":dict(sorted(status.items()))}
+        report["delivery"]={"items":len(items),"active_items":sum(not x.get("retired",False) for x in items if isinstance(x,dict)),
+                            "retired_items":sum(bool(x.get("retired")) for x in items if isinstance(x,dict)),
+                            "platform_states":dict(sorted(status.items()))}
     return report
 
 def write(root=ROOT):
