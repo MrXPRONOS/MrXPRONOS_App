@@ -1,6 +1,6 @@
 // service-worker.js - Version corrigée et nettoyée
 
-const VERSION = 'v73-premium-loading-20261012';
+const VERSION = 'v74-loading-first-paint-20261012';
 const STATIC_CACHE = `mr-xpronos-static-${VERSION}`;
 const DYNAMIC_CACHE = `mr-xpronos-dynamic-${VERSION}`;
 const IMAGE_CACHE = `mr-xpronos-images-${VERSION}`;
@@ -179,6 +179,20 @@ function stableGetRequest(request) {
 }
 
 const strategies = {
+    // Ne pas servir une ancienne animation de chargement si le réseau fonctionne.
+    networkFirstStatic: async (request) => {
+        const cache = await caches.open(STATIC_CACHE);
+        const key = stableGetRequest(request);
+        try {
+            const response = await fetch(request, { cache: 'no-cache' });
+            if (response.ok) await cache.put(key, response.clone());
+            return response;
+        } catch (error) {
+            return (await cache.match(key)) ||
+                (await caches.match(key)) ||
+                new Response('', { status: 503 });
+        }
+    },
     cacheFirst: async (request, cacheName = STATIC_CACHE) => {
         const cache = await caches.open(cacheName);
         const stableRequest = stableGetRequest(request);
@@ -273,6 +287,12 @@ self.addEventListener('fetch', (event) => {
 
     if (DYNAMIC_JSON.some(file => path.endsWith(file.replace('./', '')))) {
         event.respondWith(strategies.networkFirst(request));
+        return;
+    }
+
+    if (path.endsWith('/assets/css/loading-ui.css') ||
+        path.endsWith('/assets/js/loading-ui.js')) {
+        event.respondWith(strategies.networkFirstStatic(request));
         return;
     }
 
