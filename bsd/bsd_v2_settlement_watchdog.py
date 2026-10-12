@@ -164,6 +164,11 @@ def main():
     temp = path.with_suffix(".settlement.tmp")
     temp.write_text(json.dumps(updated, ensure_ascii=False, indent=2), encoding="utf-8")
     temp.replace(path)
+    from bsd_v2_audit import write_audit
+    write_audit(updated.get("matches") or [], observed_at=now.isoformat(),
+                ledger_path=path.parent / "bsd" / "publication_ledger.json",
+                report_path=path.parent / "bsd" / "quality_report.json",
+                retired=updated.get("retired_predictions") or [])
     print("BSD_SETTLEMENT_WATCHDOG:", json.dumps({
         **updated["settlement_watchdog"],
         "api_calls": client.requests_made,
