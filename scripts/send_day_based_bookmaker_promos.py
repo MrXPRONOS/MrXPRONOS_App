@@ -23,6 +23,8 @@ SECONDARY_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID_SECONDARY", "").strip()
 FORCE_WEEKDAY = os.getenv("FORCE_WEEKDAY", "").strip()
 SLEEP_SECONDS = int(os.getenv("TELEGRAM_SLEEP_BETWEEN_POSTS", "4"))
 DRY_RUN = os.getenv("DRY_RUN", "").lower() in {"1", "true", "yes"}
+# Fail closed: campaigns need explicit approval (comma-separated poster filenames).
+APPROVED_PROMOS = {x.strip() for x in os.getenv("TELEGRAM_APPROVED_DAY_PROMOS", "").split(",") if x.strip()}
 
 
 @dataclass(frozen=True)
@@ -161,6 +163,10 @@ def weekday_today() -> int:
 def main():
     day = weekday_today()
     todays = [p for p in PROMOS if p.weekday == day]
+    rejected = [p.title for p in todays if p.image not in APPROVED_PROMOS]
+    if rejected:
+        print("PROMOTIONS_NON_APPROUVEES:", json.dumps(rejected, ensure_ascii=False))
+    todays = [p for p in todays if p.image in APPROVED_PROMOS]
     if not todays:
         print(f"ℹ️ Aucune promotion programmée aujourd’hui (weekday={day}).")
         return
