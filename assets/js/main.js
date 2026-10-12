@@ -17,6 +17,9 @@ let supabaseConfig = { url: "", anonKey: "" };
 
 let allData = null;
 let currentCategory = "simple";
+// Tant que le visiteur ne choisit pas lui-même un onglet (ou ?cat=...),
+// afficher automatiquement la catégorie la plus fournie pour le jour affiché.
+let autoSelectCategoryByCount = true;
 let currentSubcat = "pronostics";
 let currentDay = "today";
 let filteredMatchesWithoutSearch = [];
@@ -1136,8 +1139,22 @@ function getTeamLogoPath(teamName, isHome = true) {
 const CATEGORY_LABELS = { simple: "Simple", pro: "Pro", vip: "VIP" };
 
 function readInitialCategory() {
-  const cat = new URLSearchParams(window.location.search).get("cat");
-  return CATEGORY_LABELS[String(cat || "").toLowerCase()] ? cat.toLowerCase() : "simple";
+  const cat = String(new URLSearchParams(window.location.search).get("cat") || "").toLowerCase();
+  if (CATEGORY_LABELS[cat]) {
+    // Respecter les liens directs du type pronos.html?cat=vip.
+    autoSelectCategoryByCount = false;
+    return cat;
+  }
+  return "simple";
+}
+
+// Comparer uniquement les catégories disposant de pronostics affichables
+// pour le jour sélectionné. En cas d'égalité : Simple, puis Pro, puis VIP.
+function mostPopulatedCategory(counts) {
+  return Object.keys(CATEGORY_LABELS).reduce(
+    (best, cat) => (counts[cat] || 0) > (counts[best] || 0) ? cat : best,
+    "simple"
+  );
 }
 
 function syncCategoryTabs(counts = null) {
@@ -1197,6 +1214,9 @@ function filterAndDisplay() {
     return true;
   });
 
+  if (autoSelectCategoryByCount) {
+    currentCategory = mostPopulatedCategory(counts);
+  }
   syncCategoryTabs(counts);
 
   filteredMatchesWithoutSearch = currentDayMatches
@@ -2924,6 +2944,8 @@ function setupPronosticPageListeners() {
   const tabs = qsa(".pronostic-category-tabs .tab-btn");
   tabs.forEach((btn, index) => {
     btn.addEventListener("click", () => {
+      // Un choix explicite doit primer sur la sélection automatique.
+      autoSelectCategoryByCount = false;
       currentCategory = btn.dataset.cat;
       currentSubcat = "pronostics";
       syncCategoryTabs();
