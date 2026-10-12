@@ -129,12 +129,7 @@ def main():
         print("⏭️ Guide commun du dimanche ignoré: la promotion XPVIP commune possède déjà son propre envoi.")
         return
 
-    if today == "common":
-        image = COMMON_IMAGE
-        caption = common_caption()
-        keyboard = common_keyboard()
-        label = "XPVIP partenaires"
-    else:
+    if today != "common":
         partner = PARTNERS[today]
         image = partner["image"]
         if not Path(image).exists():
