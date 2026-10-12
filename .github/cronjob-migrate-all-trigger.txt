@@ -1,1 +1,1 @@
-migrate all schedules 2026-10-12T22:12:00Z
+retry migration after rate-limit hardening 2026-10-12T22:15:00Z
