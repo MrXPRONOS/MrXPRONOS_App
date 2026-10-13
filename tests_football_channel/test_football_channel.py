@@ -74,6 +74,30 @@ class FootballChannelTests(unittest.TestCase):
             m.ROOT = old_root
 
 
+    def test_flash_conserve_les_lignes_numerotees_du_resume(self):
+        old_root=m.ROOT
+        try:
+            m.ROOT=Path(self.directory.name)
+            image=m.ROOT/"assets/images/footnews/list-news.webp"
+            image.parent.mkdir(parents=True,exist_ok=True)
+            image.write_bytes(b"fake-test-image")
+            articles=[{
+                "slug":"list-news",
+                "title":"Trois informations avant le match",
+                "telegram_summary":"1: Premier point important\n2. Deuxième point important\n3) Troisième point important",
+                "published":(NOW-timedelta(hours=1)).isoformat(),
+                "source":"Foot Mercato",
+                "site_url":"https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=list-news",
+                "category":"Actualité",
+                "image":"assets/images/footnews/list-news.webp",
+                "image_origin":"source",
+            }]
+            post=m.flash(articles,self.history,NOW)
+            self.assertIsNotNone(post)
+            self.assertIn("1: Premier point important\n2. Deuxième point important\n3) Troisième point important",post.text)
+        finally:
+            m.ROOT=old_root
+
     def test_flash_ajoute_corroboration_espn_sans_remplacer_la_source(self):
         old_root = m.ROOT
         try:
