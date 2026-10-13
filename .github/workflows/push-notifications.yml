@@ -1,9 +1,6 @@
 name: Notifications push programmées
 
 on:
-  schedule:
-    - cron: '0 7 * * *'   # 7h UTC (ajustez selon votre fuseau)
-    - cron: '0 18 * * *'  # 18h UTC
   workflow_dispatch:
     inputs:
       notification_type:
