@@ -107,7 +107,7 @@ class ViralEngineTests(unittest.TestCase):
         self.assertEqual(payload["score"], "4 - 3")
         self.assertIn("7 buts", payload["caption"])
 
-    @patch("football_viral_engine._licensed_media_for_payload", return_value={})
+    @patch("football_viral_engine._licensed_media_for_payload", return_value={"url": "https://example.com/generic.jpg"})
     def test_recent_news_used_when_no_spectacular_match(self, _media):
         news = [{
             "slug": "news-x",
@@ -121,6 +121,54 @@ class ViralEngineTests(unittest.TestCase):
         payload = viral.build_viral_payload([], news, FakeSession(), NOW, lambda _: 0)
         self.assertEqual(payload["kind"], "news_pulse")
         self.assertEqual(payload["data_source"], "RFI")
+        self.assertEqual(payload["media"], {})
+        _media.assert_not_called()
+
+    def test_long_news_title_is_trimmed_and_fits_four_lines(self):
+        canvas = Image.new("RGB", (viral.W, viral.H), "black")
+        draw = __import__("PIL.ImageDraw", fromlist=["ImageDraw"]).Draw(canvas)
+        title = (
+            "Gianni Infantino baigne dans un nouveau scandale à plusieurs millions "
+            "de dollars avec une formulation volontairement très longue pour tester "
+            "la sécurité typographique du renderer viral"
+        )
+        trimmed = viral._smart_trim(title, 150)
+        font, lines, size = viral._fit_text_layout(
+            draw,
+            trimmed,
+            max_width=522,
+            max_height=178,
+            max_lines=4,
+            max_size=38,
+            min_size=25,
+            bold=True,
+            gap=10,
+        )
+        self.assertLessEqual(len(trimmed), 150)
+        self.assertLessEqual(len(lines), 4)
+        self.assertGreaterEqual(size, 25)
+        for line in lines:
+            box = draw.textbbox((0, 0), line, font=font)
+            self.assertLessEqual(box[2] - box[0], 522)
+
+    def test_news_animation_renders_on_brand_background_without_summary_wall(self):
+        payload = {
+            "kind": "news_pulse",
+            "title": "Gianni Infantino baigne dans un nouveau scandale à plusieurs millions de dollars !",
+            "summary": "Ce résumé doit rester dans la légende Telegram et non envahir la vidéo.",
+            "data_source": "The Times",
+            "media": {"url": "https://example.com/irrelevant.jpg"},
+        }
+        session = FakeSession()
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "viral-news.gif"
+            viral.render_animation(payload, output, session)
+            self.assertTrue(output.is_file())
+            with Image.open(output) as image:
+                self.assertEqual(image.size, (viral.W, viral.H))
+                self.assertTrue(getattr(image, "is_animated", False))
+        # Le renderer news ne doit même pas télécharger le fond générique.
+        self.assertEqual(session.posts, [])
 
     def test_animation_renders_without_external_media(self):
         payload = {
