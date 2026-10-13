@@ -326,32 +326,33 @@ def build_postmatch_reaction(
 def build_tsdb_club_quiz(session: requests.Session, day: date) -> dict | None:
     """Fallback gratuit stable avec la clé publique TheSportsDB 123.
 
-    Le compte gratuit documente explicitement Arsenal pour searchteams ; on
-    limite volontairement ce fallback à ce club au lieu de supposer que toutes
-    les recherches dynamiques sont accessibles avec la clé de test.
+    On utilise uniquement des métadonnées simples (stade/pays). Les années de
+    création ne sont pas utilisées automatiquement car certaines fiches peuvent
+    diverger de l'historiographie officielle des clubs.
     """
     meta = fetch_tsdb_team_metadata(session, "Arsenal")
     if not meta:
         return None
 
-    year = plain(meta.get("formed_year"), 8)
+    stadium = plain(meta.get("stadium"), 100)
     country = plain(meta.get("country"), 50)
-    if day.toordinal() % 2 == 0 and year.isdigit():
-        correct = year
-        value = int(year)
-        distractors = [str(value - 5), str(value + 5), str(value + 10)]
+
+    if day.toordinal() % 2 == 0 and stadium:
+        correct = stadium
+        distractors = ["Anfield", "Stamford Bridge", "Old Trafford", "Tottenham Hotspur Stadium"]
         options, correct_index = _rotate_options(
-            _unique_options(correct, distractors), day.toordinal()
+            _unique_options(correct, [x for x in distractors if x.casefold() != correct.casefold()]),
+            day.toordinal(),
         )
         if len(options) < 4:
             return None
         return {
             "kind": "quiz",
-            "key": f"community-quiz-tsdb:{day.isoformat()}:arsenal-year",
-            "question": "🏟️ En quelle année Arsenal a-t-il été fondé ?",
+            "key": f"community-quiz-tsdb:{day.isoformat()}:arsenal-stadium",
+            "question": "🏟️ Dans quel stade Arsenal joue-t-il ses matchs à domicile ?",
             "options": options,
             "correct_option_ids": [correct_index],
-            "explanation": f"Arsenal a été fondé en {correct}. Source : TheSportsDB.",
+            "explanation": f"Arsenal joue à domicile à {correct}. Source : TheSportsDB.",
             "source": "TheSportsDB",
             "confidence": 82,
             "league": "Culture foot",
