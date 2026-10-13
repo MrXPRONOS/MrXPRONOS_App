@@ -3845,27 +3845,34 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
   const entries: Array<{
     key: string;
     match: any;
-    source: "api_original" | "espn" | "merged";
+    source: string;
   }> = [];
 
   for (const original of originalMatches || []) {
     const key = buildCanonicalMatchId(original);
+    const rawSource = String(original?.raw_data?.source || original?.source_name || "").toLowerCase();
+    const originalSource = rawSource === "sportscore" ? "sportscore"
+      : rawSource === "thesportsdb" ? "thesportsdb"
+      : rawSource === "openligadb" ? "openligadb"
+      : "bsd";
+    const quality = (FREE_SOURCE_RANKING as any)[originalSource]?.quality || 70;
     const match = {
       ...original,
       raw_data: {
         ...(original?.raw_data || {}),
         merge_meta: {
           canonical_match_id: key,
-          sources: ["api_original"],
-          confidence_score: 70,
-          primary_source: "api_original",
+          sources: [originalSource],
+          confidence_score: quality,
+          primary_source: originalSource,
+          provider_ranking: FREE_SOURCE_RANKING,
           merged_at: nowIso(),
         },
       },
     };
 
-    entries.push({ key, match, source: "api_original" });
-    sourceRows.push(sourceRowFromMatch(original, "api_original"));
+    entries.push({ key, match, source: originalSource });
+    sourceRows.push(sourceRowFromMatch(original, originalSource));
   }
 
   let duplicatesMerged = 0;
@@ -5700,9 +5707,13 @@ async function enrichLiveMatchesWithFreeStats(matches: any[], prefetchedSportSco
       };
     }
 
-    const ranked = [...providerSources].sort((a, b) =>
-      (FREE_SOURCE_RANKING as any)[a]?.rank - (FREE_SOURCE_RANKING as any)[b]?.rank
-    );
+    const ranked = [...providerSources]
+      .map((name) => name === "api_original" ? "bsd" : name)
+      .filter((name, index, values) => values.indexOf(name) === index)
+      .sort((a, b) =>
+        ((FREE_SOURCE_RANKING as any)[a]?.rank ?? 99) -
+        ((FREE_SOURCE_RANKING as any)[b]?.rank ?? 99)
+      );
     current.raw_data = {
       ...(current.raw_data || {}),
       merge_meta: {
