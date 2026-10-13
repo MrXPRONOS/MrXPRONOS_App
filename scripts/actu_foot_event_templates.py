@@ -1,4 +1,4 @@
-"""Audited MR XPRONOS Actu Foot event templates (batches 1 through 6).
+"""Audited MR XPRONOS Actu Foot event templates (batches 1 through 7).
 
 This module renders only verified dynamic data on top of native 1122x1402
 backgrounds generated for the Actu Foot event library.
@@ -69,6 +69,11 @@ EVENT_TEMPLATE_FILES = {
     "tir_au_but_manque": "tir_au_but_manque.png",
     "fin_tirs_au_but": "fin_tirs_au_but.png",
     "composition_probable_full": "composition_probable_full.png",
+    "composition_probable_partial": "composition_probable_partial.png",
+    "changement_composition": "changement_composition.png",
+    "absence_confirmee": "absence_confirmee.png",
+    "retour_groupe": "retour_groupe.png",
+    "score_live_two_logos": "score_live_two_logos.png",
 }
 EVENT_CATEGORIES = tuple(EVENT_TEMPLATE_FILES)
 EVENT_ALIASES = {
@@ -77,7 +82,9 @@ EVENT_ALIASES = {
     "fin_de_la_1re_mi_temps", "début_de_la_2e_mi_temps",
     "fin_du_temps_réglementaire", "mi_temps_de_la_prolongation",
     "tir_au_but_marqué", "tir_au_but_manqué", "fin_des_tirs_au_but",
-    "composition_probable"
+    "composition_probable", "changement_de_composition",
+    "absence_confirmée", "retour_dans_le_groupe",
+    "score_live_confirmé", "score_live_confirme"
 }
 
 # Each box is the safe interior area, not the visible outer gold frame.
@@ -471,6 +478,55 @@ SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "formation": (180, 1168, 942, 1212),
         "source": (180, 1247, 942, 1282),
     },
+    "composition_probable_partial": {
+        "logo_team": (80, 270, 170, 360),
+        "team": (220, 280, 610, 318),
+        "competition": (660, 280, 1038, 318),
+        "players_area": (165, 455, 957, 1018),
+        "formation": (180, 1168, 942, 1212),
+        "source": (180, 1247, 942, 1282),
+    },
+    "changement_composition": {
+        "logo_team": (82, 710, 173, 801),
+        "team": (220, 720, 590, 758),
+        "competition": (640, 720, 1038, 758),
+        "out_player": (132, 852, 500, 950),
+        "in_player": (622, 852, 990, 950),
+        "context": (170, 1016, 952, 1114),
+        "formation": (180, 1168, 942, 1210),
+        "source": (180, 1248, 942, 1282),
+    },
+    "absence_confirmee": {
+        "logo_team": (82, 710, 173, 801),
+        "team": (220, 720, 590, 758),
+        "competition": (640, 720, 1038, 758),
+        "player": (170, 844, 952, 892),
+        "reason": (170, 934, 952, 1028),
+        "info": (170, 1072, 952, 1175),
+        "source": (180, 1228, 942, 1280),
+    },
+    "retour_groupe": {
+        "logo_team": (82, 710, 173, 801),
+        "team": (220, 720, 590, 758),
+        "competition": (640, 720, 1038, 758),
+        "player": (170, 844, 952, 892),
+        "status": (170, 934, 952, 1028),
+        "info": (170, 1072, 952, 1175),
+        "source": (180, 1228, 942, 1280),
+    },
+    "score_live_two_logos": {
+        "logo_home": (94, 349, 321, 576),
+        "team_home": (78, 625, 344, 670),
+        "score_home": (398, 386, 512, 505),
+        "score_away": (610, 386, 724, 505),
+        "logo_away": (801, 349, 1028, 576),
+        "team_away": (778, 625, 1044, 670),
+        "minute": (450, 557, 672, 605),
+        "competition": (170, 745, 952, 792),
+        "status": (170, 840, 952, 940),
+        "info": (170, 990, 952, 1100),
+        "source": (180, 1158, 942, 1202),
+    },
 }
 
 # Audit-derived typography rules.
@@ -726,7 +782,22 @@ def _category(category: str, payload: dict[str, Any]) -> str:
     if category == "fin_des_tirs_au_but":
         return "fin_tirs_au_but"
     if category == "composition_probable":
-        return "composition_probable_full"
+        players = _probable_players(payload)
+        if len(players) >= 11:
+            return "composition_probable_full"
+        if players:
+            return "composition_probable_partial"
+        raise ValueError("Composition probable: au moins un joueur vérifié est requis")
+    if category == "changement_de_composition":
+        return "changement_composition"
+    if category == "absence_confirmée":
+        return "absence_confirmee"
+    if category == "retour_dans_le_groupe":
+        return "retour_groupe"
+    if category in {"score_live_confirmé", "score_live_confirme"}:
+        if clean(payload.get("home_logo"), 500) and clean(payload.get("away_logo"), 500):
+            return "score_live_two_logos"
+        raise ValueError("Score live confirmé: cette variante exige deux logos disponibles")
     return category
 
 
@@ -766,6 +837,20 @@ def _generated_background(resolved: str) -> Image.Image | None:
     if resolved in batch6_builders:
         import build_event_batch_6_assets as batch6
         image = getattr(batch6, batch6_builders[resolved])()
+        if image.size != (W, H):
+            raise ValueError(f"Invalid generated Actu Foot template size for {resolved}: {image.size}")
+        return image.convert("RGB")
+
+    batch7_builders = {
+        "composition_probable_partial": "build_probable_partial",
+        "changement_composition": "build_lineup_change",
+        "absence_confirmee": "build_absence_confirmed",
+        "retour_groupe": "build_return_group",
+        "score_live_two_logos": "build_score_live_two_logos",
+    }
+    if resolved in batch7_builders:
+        import build_event_batch_7_assets as batch7
+        image = getattr(batch7, batch7_builders[resolved])()
         if image.size != (W, H):
             raise ValueError(f"Invalid generated Actu Foot template size for {resolved}: {image.size}")
         return image.convert("RGB")
@@ -827,7 +912,14 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
     image = background(resolved, payload)
     draw = ImageDraw.Draw(image)
     spec = SPECS[resolved]
-    if resolved != "composition_probable_full":
+    single_team_layouts = {
+        "composition_probable_full",
+        "composition_probable_partial",
+        "changement_composition",
+        "absence_confirmee",
+        "retour_groupe",
+    }
+    if resolved not in single_team_layouts:
         _common(image, draw, spec, payload)
 
     competition = clean(payload.get("competition") or payload.get("league"), 100)
@@ -1157,6 +1249,124 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
             formation_text = " • ".join(x for x in (formation_text, extra) if x)
         draw_fit(draw, formation_text, spec["formation"], size=24, min_size=14,
                  max_lines=1, bold=True)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "composition_probable_partial":
+        players = _probable_players(payload)
+        if not players or len(players) >= 11:
+            raise ValueError("Composition probable partielle: entre 1 et 10 joueurs vérifiés sont requis")
+        team = clean(payload.get("team") or payload.get("home") or payload.get("team_name"), 100)
+        formation = clean(payload.get("formation") or payload.get("system"), 40)
+        _logo(image, payload.get("team_logo") or payload.get("home_logo"), spec["logo_team"])
+        draw_fit(draw, team, spec["team"], size=29, min_size=16,
+                 max_lines=1, bold=True, align="left")
+        draw_fit(draw, competition, spec["competition"], size=22, min_size=14,
+                 max_lines=1, bold=True, color=GOLD, align="right")
+
+        x1, y1, x2, y2 = spec["players_area"]
+        if len(players) <= 5:
+            columns = [(players, (x1 + 80, y1, x2 - 80, y2))]
+        else:
+            left_count = (len(players) + 1) // 2
+            mid = (x1 + x2) // 2
+            columns = [
+                (players[:left_count], (x1 + 20, y1, mid - 25, y2)),
+                (players[left_count:], (mid + 25, y1, x2 - 20, y2)),
+            ]
+        for names, area in columns:
+            ax1, ay1, ax2, ay2 = area
+            gap = 10
+            row_h = min(74, max(42, (ay2 - ay1 - gap * (len(names) - 1)) // len(names)))
+            total_h = row_h * len(names) + gap * (len(names) - 1)
+            yy = ay1 + max(0, (ay2 - ay1 - total_h) // 2)
+            for name in names:
+                box = (ax1, yy, ax2, yy + row_h)
+                draw_fit(draw, name, box, size=23, min_size=12,
+                         max_lines=1, bold=True)
+                yy += row_h + gap
+
+        formation_text = formation
+        known = f"{len(players)}/11 joueurs connus"
+        formation_text = " • ".join(x for x in (formation_text, known) if x)
+        draw_fit(draw, formation_text, spec["formation"], size=24, min_size=14,
+                 max_lines=1, bold=True)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "changement_composition":
+        incoming = clean(payload.get("entrant") or payload.get("incoming") or payload.get("player_in"), 100)
+        outgoing = clean(payload.get("sortant") or payload.get("outgoing") or payload.get("player_out"), 100)
+        if not incoming or not outgoing:
+            raise ValueError("Changement de composition: joueur entrant et joueur sortant vérifiés requis")
+        team = clean(payload.get("team") or payload.get("home") or payload.get("team_name"), 100)
+        formation = clean(payload.get("formation") or payload.get("new_formation") or payload.get("system"), 40)
+        context = clean(payload.get("reason") or payload.get("detail") or payload.get("info"), 420)
+        _logo(image, payload.get("team_logo") or payload.get("home_logo"), spec["logo_team"])
+        draw_fit(draw, team, spec["team"], size=29, min_size=16,
+                 max_lines=1, bold=True, align="left")
+        draw_fit(draw, competition, spec["competition"], size=22, min_size=14,
+                 max_lines=1, bold=True, color=GOLD, align="right")
+        draw_fit(draw, outgoing, spec["out_player"], size=31, min_size=16,
+                 max_lines=2, bold=True)
+        draw_fit(draw, incoming, spec["in_player"], size=31, min_size=16,
+                 max_lines=2, bold=True)
+        draw_fit(draw, context, spec["context"], size=26, min_size=15,
+                 max_lines=3, bold=False)
+        draw_fit(draw, formation, spec["formation"], size=24, min_size=14,
+                 max_lines=1, bold=True)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "absence_confirmee":
+        player = clean(payload.get("player") or payload.get("absent_player"), 100)
+        if not player:
+            raise ValueError("Absence confirmée: identité du joueur requise")
+        team = clean(payload.get("team") or payload.get("home") or payload.get("team_name"), 100)
+        reason = clean(payload.get("reason") or payload.get("absence_reason"), 240)
+        detail = clean(payload.get("info") or payload.get("status") or payload.get("description"), 420)
+        _logo(image, payload.get("team_logo") or payload.get("home_logo"), spec["logo_team"])
+        draw_fit(draw, team, spec["team"], size=29, min_size=16,
+                 max_lines=1, bold=True, align="left")
+        draw_fit(draw, competition, spec["competition"], size=22, min_size=14,
+                 max_lines=1, bold=True, color=GOLD, align="right")
+        draw_fit(draw, player, spec["player"], size=32, min_size=17,
+                 max_lines=1, bold=True)
+        draw_fit(draw, reason, spec["reason"], size=27, min_size=15,
+                 max_lines=3, bold=True)
+        draw_fit(draw, detail, spec["info"], size=25, min_size=15,
+                 max_lines=3, bold=False)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "retour_groupe":
+        player = clean(payload.get("player") or payload.get("returning_player"), 100)
+        if not player:
+            raise ValueError("Retour dans le groupe: identité du joueur requise")
+        team = clean(payload.get("team") or payload.get("home") or payload.get("team_name"), 100)
+        status = clean(payload.get("status") or payload.get("return_status") or payload.get("detail"), 240)
+        detail = clean(payload.get("info") or payload.get("description"), 420)
+        _logo(image, payload.get("team_logo") or payload.get("home_logo"), spec["logo_team"])
+        draw_fit(draw, team, spec["team"], size=29, min_size=16,
+                 max_lines=1, bold=True, align="left")
+        draw_fit(draw, competition, spec["competition"], size=22, min_size=14,
+                 max_lines=1, bold=True, color=GOLD, align="right")
+        draw_fit(draw, player, spec["player"], size=32, min_size=17,
+                 max_lines=1, bold=True)
+        draw_fit(draw, status, spec["status"], size=27, min_size=15,
+                 max_lines=3, bold=True)
+        draw_fit(draw, detail, spec["info"], size=25, min_size=15,
+                 max_lines=3, bold=False)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "score_live_two_logos":
+        if not clean(payload.get("home_logo"), 500) or not clean(payload.get("away_logo"), 500):
+            raise ValueError("Score live à deux logos: les deux logos sont requis")
+        home_score, away_score = _score_pair(payload)
+        if not home_score or not away_score:
+            raise ValueError("Score live confirmé: score domicile et extérieur requis")
+        minute = clean(payload.get("minute") or payload.get("time"), 25)
+        if not minute:
+            raise ValueError("Score live à deux logos: minute requise pour cette variante")
+        status = clean(payload.get("status") or payload.get("phase_status"), 220)
+        detail = clean(payload.get("info") or payload.get("description"), 420)
+        draw_fit(draw, competition, spec["competition"], size=25, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, status, spec["status"], size=29, min_size=16,
+                 max_lines=3, bold=True)
+        draw_fit(draw, detail, spec["info"], size=25, min_size=15,
+                 max_lines=3, bold=False)
         draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
     else:
         raise ValueError("Unhandled Actu Foot event template: " + resolved)

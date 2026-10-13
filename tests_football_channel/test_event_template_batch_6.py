@@ -118,8 +118,12 @@ class ActuFootEventBatch6Tests(unittest.TestCase):
         payload["players"] = self.players[:10]
         with self.assertRaises(ValueError):
             template_cards.render("composition_probable_full", payload)
-        with self.assertRaises(ValueError):
-            template_cards.render("composition_probable", payload)
+        # Since batch 7, the generic alias correctly routes 1–10 verified
+        # players to the dedicated partial-composition layout.
+        self.assertEqual(
+            events.template_path("composition_probable", payload).name,
+            "composition_probable_partial.png",
+        )
 
     def test_full_probable_xi_uses_eleven_independent_slots(self):
         spec = events.SPECS["composition_probable_full"]
