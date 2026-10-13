@@ -109,9 +109,9 @@ class MatchLifecycleTests(unittest.TestCase):
         signals = m.lifecycle_signals(base, set(), NOW, object(), lambda _: 100)
         goals = [x for x in signals if x["kind"] == "goal"]
         self.assertEqual(len(goals), 1)
-        self.assertEqual(goals[0]["key"], "goal:espn-1:2-1")
+        self.assertEqual(goals[0]["key"], "goal:espn-1:2-1:64:bukayo-saka")
 
-        again = m.lifecycle_signals(base, {"goal:espn-1:2-1"}, NOW, object(), lambda _: 100)
+        again = m.lifecycle_signals(base, {"goal:espn-1:2-1:64:bukayo-saka"}, NOW, object(), lambda _: 100)
         self.assertFalse([x for x in again if x["kind"] == "goal"])
 
     @patch("football_match_lifecycle.fetch_espn_summary")
@@ -146,6 +146,27 @@ class MatchLifecycleTests(unittest.TestCase):
         }
         signals = m.lifecycle_signals(base, set(), NOW, object(), lambda _: 100)
         self.assertFalse([x for x in signals if x["kind"] == "goal"])
+
+    @patch("football_match_lifecycle.fetch_supabase_live", return_value=[])
+    @patch("football_match_lifecycle.fetch_espn_day")
+    def test_lifecycle_can_use_espn_without_bsd(self, fetch_day, _supabase):
+        fetch_day.return_value = [{
+            "source": "espn",
+            "id": "espn-fast",
+            "home_team": "Arsenal",
+            "away_team": "Chelsea",
+            "home_score": 0,
+            "away_score": 0,
+            "minute": 4,
+            "state": "in",
+            "status_detail": "4'",
+            "event_date": (NOW - timedelta(minutes=4)).isoformat(),
+            "league": "Premier League",
+        }]
+        signals = m.lifecycle_signals([], set(), NOW, object(), lambda _: 100)
+        kickoff = [x for x in signals if x["kind"] == "kickoff"]
+        self.assertEqual(len(kickoff), 1)
+        self.assertEqual(kickoff[0]["key"], "kickoff:espn-fast")
 
     def test_goal_signal_rendered_for_actu_foot(self):
         post = channel.lifecycle_publication({
