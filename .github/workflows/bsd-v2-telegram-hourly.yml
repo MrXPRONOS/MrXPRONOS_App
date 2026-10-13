@@ -75,6 +75,12 @@ jobs:
           echo "destination=$DEST" >> "$GITHUB_OUTPUT"
           echo "BSD_TELEGRAM_ROUTE destination=$DEST"
 
+      - name: Vérifier le canal avant tout envoi BSD manuel de test
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.trigger_source != 'cron-job.org' && inputs.destination != 'production' }}
+        env:
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
       - name: Send single picks and combinations around one hour before kickoff
         env:
           TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
