@@ -1,6 +1,10 @@
 name: Telegram - Test canal visuel
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-test-channel-smoke.yml'
   workflow_dispatch:
 
 permissions:
@@ -16,7 +20,7 @@ jobs:
     timeout-minutes: 6
     env:
       FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
-      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
