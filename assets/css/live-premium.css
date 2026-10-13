@@ -1749,3 +1749,30 @@ body.mx-live-page{
 @media(prefers-reduced-motion:reduce){
   .mx-live-page .mx-live-modal{animation:none!important}
 }
+
+
+/* Latest premium UI parity — mobile */
+@media(max-width:700px){
+  .mx-live-page .mx-live-modal{
+    max-height:calc(93dvh - env(safe-area-inset-bottom))!important;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+  }
+
+  .mx-live-page .mx-live-modal-close{
+    width:38px!important;
+    height:38px!important;
+    touch-action:manipulation;
+  }
+
+  .mx-live-page .mx-live-toast{
+    max-width:none!important;
+    box-shadow:0 18px 48px rgba(0,0,0,.48)!important;
+  }
+
+  .mx-live-page .mx-live-toast-close{
+    width:32px!important;
+    height:32px!important;
+    touch-action:manipulation;
+  }
+}
