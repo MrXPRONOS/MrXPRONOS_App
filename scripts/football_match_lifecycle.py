@@ -901,6 +901,10 @@ def verify_espn_fixtures_before_publish(
                 "state": state,
                 "status": match.get("status_detail"),
                 "event_date": match.get("event_date"),
+                "home_score": match.get("home_score"),
+                "away_score": match.get("away_score"),
+                "venue": match.get("venue") or "",
+                "attendance": match.get("attendance"),
                 "espn_url": match.get("espn_url") or espn_match_url(str(match.get("id") or "")),
             }
             verified_rows.append(row)
@@ -922,6 +926,14 @@ def verify_espn_fixtures_before_publish(
             "verified": verified_rows,
         }
 
+    enrichment: dict[str, Any] = {}
+    if covered == 1 and verified_rows and kind in {"avant_match", "resultat", "resultat_final", "statistique_match"}:
+        event_id = str(verified_rows[0].get("event_id") or "")
+        if event_id:
+            summary = fetch_espn_summary(session, event_id, force=True)
+            if summary:
+                enrichment = extract_match_enrichment(summary)
+
     page_bonus = 5 if first_public_page and first_public_page.get("content_verified") else 0
     coverage_ratio = covered / max(total, 1)
     quality = min(100, round(72 + coverage_ratio * 23 + page_bonus))
@@ -936,6 +948,7 @@ def verify_espn_fixtures_before_publish(
         "total": total,
         "verified": verified_rows,
         "page": first_public_page or {},
+        "enrichment": enrichment,
     }
 
 def _season_for(day: date) -> int:
