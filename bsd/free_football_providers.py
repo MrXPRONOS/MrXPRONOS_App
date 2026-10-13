@@ -318,6 +318,23 @@ class FreeFootballProviders:
         except Exception as exc:
             return ProviderResult("sportscore", [], self.calls["sportscore"], f"{type(exc).__name__}: {exc}")
 
+    def sportscore_live_recent(self, *, limit: int = 50) -> ProviderResult:
+        """Flux compact LIVE/récent avec slug de match pour le détail."""
+        try:
+            payload = self._get(
+                "sportscore", SPORTSCORE_BASE + "/api/v1/matches/",
+                params={"sport": "football", "limit": min(50, max(1, limit))},
+                ttl=45,
+            )
+            rows = self._rows(payload, "matches", "fixtures", "results", "data")
+            events = [e for e in (normalize_sportscore(x) for x in rows) if e]
+            return ProviderResult("sportscore", events, self.calls["sportscore"])
+        except Exception as exc:
+            return ProviderResult(
+                "sportscore", [], self.calls["sportscore"],
+                f"{type(exc).__name__}: {exc}",
+            )
+
     def sportscore_detail(self, slug: str) -> dict:
         if not _plain(slug):
             return {}
