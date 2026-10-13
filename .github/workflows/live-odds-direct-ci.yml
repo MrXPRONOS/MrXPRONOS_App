@@ -1,0 +1,25 @@
+name: Live direct odds - TypeScript regression
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/functions/_shared/live_bookmaker_direct.ts'
+      - 'supabase/functions/live/index.ts'
+      - 'tests/live-bookmaker-direct.test.ts'
+      - '.github/workflows/live-odds-direct-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type check LIVE edge function
+        run: deno check --node-modules-dir=auto supabase/functions/live/index.ts
+      - name: Reject false live bookmaker quotes
+        run: deno test --no-check tests/live-bookmaker-direct.test.ts
