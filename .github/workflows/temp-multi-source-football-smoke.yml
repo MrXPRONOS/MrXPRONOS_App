@@ -25,7 +25,7 @@ jobs:
       - name: Compile multi-source Python
         run: |
           python -m py_compile bsd/free_football_sources.py bsd/bsd_api.py scripts/football_match_lifecycle.py scripts/football_channel.py
-          python -m unittest bsd.test_free_football_sources -v
+          python -m unittest discover -s bsd -p 'test_free_football_sources.py' -v
       - name: Direct provider smoke and SportScore odds probe
         run: |
           PYTHONPATH=bsd:scripts python - <<'PY'
