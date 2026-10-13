@@ -482,8 +482,7 @@ SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "logo_team": (80, 270, 170, 360),
         "team": (220, 280, 610, 318),
         "competition": (660, 280, 1038, 318),
-        "players_left": (165, 455, 515, 1018),
-        "players_right": (607, 455, 957, 1018),
+        "players_area": (165, 455, 957, 1018),
         "formation": (180, 1168, 942, 1212),
         "source": (180, 1247, 942, 1282),
     },
@@ -1263,21 +1262,24 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
         draw_fit(draw, competition, spec["competition"], size=22, min_size=14,
                  max_lines=1, bold=True, color=GOLD, align="right")
 
-        left_count = (len(players) + 1) // 2
-        columns = [
-            (players[:left_count], spec["players_left"]),
-            (players[left_count:], spec["players_right"]),
-        ]
+        x1, y1, x2, y2 = spec["players_area"]
+        if len(players) <= 5:
+            columns = [(players, (x1 + 80, y1, x2 - 80, y2))]
+        else:
+            left_count = (len(players) + 1) // 2
+            mid = (x1 + x2) // 2
+            columns = [
+                (players[:left_count], (x1 + 20, y1, mid - 25, y2)),
+                (players[left_count:], (mid + 25, y1, x2 - 20, y2)),
+            ]
         for names, area in columns:
-            if not names:
-                continue
-            x1, y1, x2, y2 = area
+            ax1, ay1, ax2, ay2 = area
             gap = 10
-            row_h = min(74, max(42, (y2 - y1 - gap * (len(names) - 1)) // len(names)))
+            row_h = min(74, max(42, (ay2 - ay1 - gap * (len(names) - 1)) // len(names)))
             total_h = row_h * len(names) + gap * (len(names) - 1)
-            yy = y1 + max(0, (y2 - y1 - total_h) // 2)
+            yy = ay1 + max(0, (ay2 - ay1 - total_h) // 2)
             for name in names:
-                box = (x1 + 12, yy, x2 - 12, yy + row_h)
+                box = (ax1, yy, ax2, yy + row_h)
                 draw_fit(draw, name, box, size=23, min_size=12,
                          max_lines=1, bold=True)
                 yy += row_h + gap
