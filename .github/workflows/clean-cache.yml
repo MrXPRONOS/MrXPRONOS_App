@@ -1,8 +1,6 @@
 name: Nettoyage quotidien du cache
 
 on:
-  schedule:
-    - cron: '0 0 * * *'   # tous les jours à minuit UTC
   workflow_dispatch:
 
 jobs:
