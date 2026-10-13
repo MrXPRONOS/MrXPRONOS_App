@@ -135,6 +135,48 @@ jobs:
           assert health["openliga_rows"] >= 10, health
           print("STATS_FREE_SOURCES_OK", health)
 
+          sys.path.insert(0, "bsd")
+          from football_multisource import MultiSourceFootballClient
+          multi = MultiSourceFootballClient(
+              bsd=None,
+              session=session,
+              max_free_requests=32,
+          )
+          page = multi.list_events(today, today, max_pages=1, ttl=0)
+          report = multi.source_report
+          assert page.complete
+          assert len(page.events) >= 5, (len(page.events), report)
+          assert report["sportscore"]["requests"] >= 1, report
+          assert report["sportscore"]["rows"] >= 1, report
+          assert report["openligadb"]["requests"] >= 6, report
+          assert report["thesportsdb"]["requests"] >= 1, report
+          print("MULTISOURCE_NETWORK_OK", {
+              "matches": len(page.events),
+              "sportscore": report["sportscore"],
+              "openligadb": report["openligadb"],
+              "thesportsdb": report["thesportsdb"],
+          })
+
+          sportscore_rows = multi._sportscore_day(today)
+          assert sportscore_rows, report
+          first_with_slug = next(
+              (row for row in sportscore_rows if row.get("sportscore_slug")),
+              None,
+          )
+          if first_with_slug:
+              detail = multi._sportscore_detail(first_with_slug)
+              assert isinstance(detail, dict), type(detail)
+              print("SPORTSCORE_DETAIL_OK", {
+                  "source": detail.get("source"),
+                  "lineups_home": len((detail.get("lineups") or {}).get("home", [])),
+                  "timeline_goals": len(detail.get("goals") or []),
+              })
+
+          live_html = Path("live.html").read_text(encoding="utf-8")
+          assert 'href="https://sportscore.com/"' in live_html
+          assert "Powered by SportScore" in live_html
+          print("SPORTSCORE_ATTRIBUTION_OK")
+
           import football_community_engine as community
           tsdb = community.fetch_tsdb_team_metadata(session, "Arsenal")
           assert tsdb.get("team") == "Arsenal", tsdb
