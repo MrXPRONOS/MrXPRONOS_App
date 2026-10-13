@@ -66,6 +66,8 @@ jobs:
       FOOTBALL_RSS_FEED: https://www.footmercato.net/flux-rss
       FOOTBALL_BSD_REQUEST_BUDGET: '18'
       FOOTBALL_ESPN_REQUEST_BUDGET: '36'
+      FOOTBALL_FREE_DAY_MIN_EVENTS: '6'
+      FOOTBALL_ALWAYS_BSD: '0'
       FOOTBALL_REQUIRE_COMMENTS: '1'
       PYTHONUNBUFFERED: '1'
     steps:

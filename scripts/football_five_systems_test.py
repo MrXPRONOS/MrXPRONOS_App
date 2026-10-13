@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT / "bsd"))
 import requests
 import football_channel as ch
 import football_match_lifecycle as lifecycle
+from free_football_sources import collect_free_day, merge_provider_matches
 from telegram_test_guard import validate_test_channel
 
 CATEGORIES = (
@@ -47,16 +48,32 @@ def main() -> int:
     unavailable: dict[str, str] = {}
     errors: dict[str, str] = {}
     cache: dict[str, list[dict]] = {}
-    api = ch.BSDClient(max_requests=45, max_retries=1)
+    api = None
 
     def matches(day):
+        nonlocal api
         key = day.isoformat()
         if key not in cache:
-            page = api.list_events(day, day, max_pages=8, ttl=0)
-            if not page.complete:
-                raise RuntimeError("Calendrier BSD incomplet pour " + key)
-            cache[key] = page.events
-            print("TEST_SOURCE_BSD", key, len(page.events), flush=True)
+            free_rows = merge_provider_matches(
+                lifecycle.fetch_espn_day(session, day)
+                + collect_free_day(session, day)
+            )
+            if len(free_rows) >= 6:
+                cache[key] = free_rows
+                print("TEST_SOURCE_FREE", key, len(free_rows), flush=True)
+            else:
+                if api is None:
+                    api = ch.BSDClient(max_requests=45, max_retries=1)
+                page = api.list_events(day, day, max_pages=8, ttl=0)
+                if not page.complete:
+                    if free_rows:
+                        cache[key] = free_rows
+                        print("TEST_SOURCE_FREE_PARTIAL", key, len(free_rows), flush=True)
+                    else:
+                        raise RuntimeError("Calendrier multi-source incomplet pour " + key)
+                else:
+                    cache[key] = page.events
+                    print("TEST_SOURCE_BSD_FALLBACK", key, len(page.events), flush=True)
         return cache[key]
 
     def deliver(name: str, builder, *, historical: str = "") -> None:

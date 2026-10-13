@@ -1,4 +1,11 @@
 import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
+import {
+  collectFreeMatchesForDate,
+  enrichMatchWithFreeStats,
+  mergeFreeProviderMatches,
+  FOOTBALL_PROVIDER_RANK,
+} from "../_shared/free_football.ts";
+
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -414,13 +421,16 @@ function getMatchLiveStats(match: any) {
 }
 
 function getSourceMatchId(match: any, sourceName: string) {
+  if (sourceName !== "api_original" && match?.source_match_id) {
+    return String(match.source_match_id);
+  }
   if (sourceName === "espn") {
     return String(match?.source_match_id || match?.espn_id || match?.id || "");
   }
   return String(match?.id || match?.source_match_id || "");
 }
 
-function sourceRowFromMatch(match: any, sourceName: "api_original" | "espn") {
+function sourceRowFromMatch(match: any, sourceName: string) {
   const liveStats = ensureLiveStatsShape(getMatchLiveStats(match));
   const canonical = buildCanonicalMatchId(match);
 
@@ -3774,11 +3784,21 @@ function mergeOneOriginalWithEspn(original: any, espn: any) {
     source: "merged",
     merge_meta: {
       canonical_match_id: buildCanonicalMatchId(original),
-      sources: ["api_original", "espn"],
+      sources: [
+        ...new Set([
+          ...((original?.raw_data?.merge_meta?.sources ||
+            original?.raw_data?.provider_sources ||
+            [original?.raw_data?.source || "api_original"]) as string[]),
+          "espn",
+        ]),
+      ],
       confidence_score: Math.round(sameMatchScore(original, espn) * 100),
       stats_agreement_score: statsAgreementScore,
       espn_match_id: espn?.source_match_id || espn?.id || null,
-      primary_source: "api_original",
+      primary_source:
+        original?.raw_data?.merge_meta?.primary_source ||
+        original?.raw_data?.source ||
+        "api_original",
       merged_at: nowIso(),
     },
     live_stats: mergedStats,
@@ -3842,22 +3862,31 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
 
   for (const original of originalMatches || []) {
     const key = buildCanonicalMatchId(original);
+    const providerSource = String(original?.raw_data?.source || "api_original");
+    const providerSources = [
+      ...new Set(
+        ((original?.raw_data?.provider_sources || [providerSource]) as string[])
+          .filter(Boolean),
+      ),
+    ];
     const match = {
       ...original,
       raw_data: {
         ...(original?.raw_data || {}),
         merge_meta: {
           canonical_match_id: key,
-          sources: ["api_original"],
-          confidence_score: 70,
-          primary_source: "api_original",
+          sources: providerSources,
+          confidence_score: providerSources.length >= 2 ? 82 : 70,
+          primary_source: providerSource,
           merged_at: nowIso(),
         },
       },
     };
 
     entries.push({ key, match, source: "api_original" });
-    sourceRows.push(sourceRowFromMatch(original, "api_original"));
+    // Persist the primary direct provider identity instead of hiding it behind
+    // the old generic api_original label.
+    sourceRows.push(sourceRowFromMatch(original, providerSource));
   }
 
   let duplicatesMerged = 0;
@@ -5565,6 +5594,57 @@ function statsAgeSeconds(match: any) {
   return Math.max(0, Math.floor((Date.now() - ts) / 1000));
 }
 
+async function enrichLiveMatchesWithFreeStats(matches: any[]) {
+  const maxMatches = Math.max(
+    1,
+    Math.min(12, safeEnvInt("FREE_STATS_MAX_MATCHES_PER_REFRESH", 6)),
+  );
+  const candidates = (matches || [])
+    .filter((m: any) => {
+      const minute = safeNumber(m?.current_minute ?? m?.minute, 0);
+      if (minute < 5 || minute > 90) return false;
+      return statsCompleteness(getMatchLiveStats(m)).core_complete < 3;
+    })
+    .sort((a: any, b: any) =>
+      statsCompleteness(getMatchLiveStats(a)).core_complete -
+      statsCompleteness(getMatchLiveStats(b)).core_complete
+    )
+    .slice(0, maxMatches);
+
+  const out = [...(matches || [])];
+  const indexById = new Map(out.map((m: any, i: number) => [String(m?.id), i]));
+  let calls = 0;
+  let enriched = 0;
+  const bySource: Record<string, number> = {};
+
+  for (const match of candidates) {
+    try {
+      const result = await enrichMatchWithFreeStats(match);
+      calls += safeNumber(result?.calls, 0);
+      if (!result?.source || safeNumber(result?.score, 0) <= 0) continue;
+      const idx = indexById.get(String(match?.id));
+      if (idx == null) continue;
+      out[idx] = {
+        ...out[idx],
+        ...result.match,
+        live_stats: mergeLiveStats(
+          getMatchLiveStats(out[idx]),
+          getMatchLiveStats(result.match),
+          false,
+        ),
+      };
+      const source = String(result.source);
+      bySource[source] = (bySource[source] || 0) + 1;
+      enriched++;
+    } catch (error) {
+      console.warn("Free stats enrichment unavailable", match?.id, error);
+    }
+  }
+
+  return { matches: out, calls, enriched, by_source: bySource };
+}
+
+
 async function enrichLiveMatchesWithBsdStats(matches: any[]) {
   const budget = bsdStatsCallBudget();
   if (budget <= 0) {
@@ -5743,26 +5823,63 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   if (!snapshotReused) {
     let originalRawMatches: any[] = [];
 
+    // Free-first bulk collection. SportScore + TheSportsDB + OpenLigaDB are
+    // queried in parallel with ESPN; BSD is used only when free coverage is
+    // materially below the public BSD live-count indicator.
+    const today = new Date().toISOString().slice(0, 10);
+    const [freeResult, espnResult] = await Promise.all([
+      collectFreeMatchesForDate(today, "live"),
+      fetchEspnLiveMatchesForMerge(),
+    ]);
+    espnError = espnResult.error;
+
+    const freeLive = (freeResult.matches || []).filter((m: any) =>
+      m?.is_live === true && m?.is_finished !== true
+    );
+    const freeCoverage = mergeFreeProviderMatches([
+      ...freeLive,
+      ...(espnResult.matches || []),
+    ]);
+    originalRawMatches = freeLive;
+
     coverage = await fetchBSDCoverage();
     const liveNow = safeNumber(coverage?.live_now, -1);
+    const minCoverageRatio = Math.max(
+      0.5,
+      Math.min(1, safeEnvInt("FREE_LIVE_COVERAGE_PERCENT", 90) / 100),
+    );
+    const expectedFromBsd = liveNow > 0 ? liveNow : 0;
+    const freeEnough =
+      freeCoverage.length >= Math.max(
+        2,
+        expectedFromBsd > 0 ? Math.ceil(expectedFromBsd * minCoverageRatio) : 2,
+      );
 
-    if (!options.skipBsd && liveNow !== 0) {
+    sourceMeta = {
+      ...sourceMeta,
+      free_provider_meta: freeResult.meta,
+      free_live_matches: freeLive.length,
+      free_coverage_matches: freeCoverage.length,
+      provider_quality: FOOTBALL_PROVIDER_RANK,
+      bsd_live_call_saved: freeEnough,
+    };
+
+    if (!options.skipBsd && liveNow !== 0 && !freeEnough) {
       try {
         const liveData = await fetchBSD("/events/live/");
         originalRawMatches = bsdResults(liveData);
+        sourceMeta.bsd_live_call_saved = false;
       } catch (e: any) {
         bsdError = e?.message || String(e);
         bsdRateLimited = isBSDQuotaError(e);
         if (bsdRateLimited) {
-          console.warn("⚠️ Quota BSD épuisé: ESPN + cache prennent le relais");
+          console.warn("⚠️ Quota BSD épuisé: sources gratuites + cache prennent le relais");
         } else {
-          console.error("⚠️ BSD v2 live indisponible: ESPN prend le relais", e);
+          console.error("⚠️ BSD v2 live indisponible: sources gratuites prennent le relais", e);
         }
+        originalRawMatches = freeLive;
       }
     }
-
-    const espnResult = await fetchEspnLiveMatchesForMerge();
-    espnError = espnResult.error;
 
     const incomingEspnIds = (espnResult.matches || [])
       .map((m: any) => String(m?.source_match_id || m?.raw_data?.event_id || ""))
@@ -5797,16 +5914,22 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     sourceRows = merged.sourceRows || [];
     sourceMeta = merged.meta || sourceMeta;
 
-    // /events/live/ est compact et ne fournit pas les stats détaillées.
-    // 1) on réutilise d'abord notre dernier snapshot connu;
-    // 2) ESPN complète gratuitement ce qu'il possède;
-    // 3) BSD /stats/ enrichit seulement quelques matchs prioritaires par cycle.
+    // Stats enrichment policy:
+    // 1) reuse local cache;
+    // 2) SportScore/TheSportsDB fill missing fields for free;
+    // 3) BSD /stats/ is only used for still-incomplete BSD-backed matches.
     allRawMatches = await reuseCachedStats(allRawMatches);
+
+    const freeStatsEnrichment = await enrichLiveMatchesWithFreeStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(freeStatsEnrichment.matches);
 
     const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
     allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
     sourceMeta = {
       ...sourceMeta,
+      free_stats_calls: freeStatsEnrichment.calls,
+      free_stats_enriched: freeStatsEnrichment.enriched,
+      free_stats_by_source: freeStatsEnrichment.by_source,
       bsd_stats_calls: statsEnrichment.calls,
       bsd_stats_enriched: statsEnrichment.enriched,
       bsd_stats_failed: statsEnrichment.failed,
@@ -6261,6 +6384,50 @@ async function fetchEspnFinalForPrediction(pred: any, stored: any) {
   }
 }
 
+async function fetchFreeFinalForPrediction(pred: any, stored: any) {
+  const predictionType = String(pred?.prediction_type || "");
+  const reference = stored?.merged_match_json || {
+    home_team: pred?.home_team,
+    away_team: pred?.away_team,
+    league_name: pred?.league_name,
+    event_date: stored?.event_date || pred?.created_at,
+  };
+  const rawDate = stored?.event_date || pred?.created_at;
+  const date = String(rawDate ? new Date(rawDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10));
+
+  try {
+    const free = await collectFreeMatchesForDate(date, "finished");
+    let best: any = null;
+    let bestScore = 0;
+    for (const match of free.matches || []) {
+      const score = sameMatchScore(reference, match);
+      if (score > bestScore) {
+        best = match;
+        bestScore = score;
+      }
+    }
+    if (!best || bestScore < 0.65 || best?.is_finished !== true) return null;
+
+    let candidate = best;
+    if (!hasRequiredFinalStats(getMatchLiveStats(candidate), predictionType)) {
+      const enriched = await enrichMatchWithFreeStats(candidate);
+      candidate = enriched?.match || candidate;
+    }
+    const stats = getMatchLiveStats(candidate);
+    if (!hasRequiredFinalStats(stats, predictionType)) return null;
+
+    return {
+      event: candidate,
+      stats,
+      source: String(candidate?.raw_data?.stats_authority || candidate?.raw_data?.source || "free_final"),
+    };
+  } catch (error) {
+    console.warn("Free final lookup failed:", error);
+    return null;
+  }
+}
+
+
 async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefined) {
   const predictionType = String(pred?.prediction_type || "");
   const isHistoricalValidated = pred?.validated === true;
@@ -6268,12 +6435,15 @@ async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefi
     ? await getStoredMergedContextForPrediction(pred)
     : storedOverride;
 
-  // Pour l’historique déjà validé, ESPN est plus fiable que BSD pour retrouver
-  // un match qui a disparu du catalogue événementiel BSD.
+  // Final validation order: ESPN first, then other free providers, then BSD.
+  // This saves quota for matches whose final stats are already corroborated.
   if (isHistoricalValidated) {
     const espn = await fetchEspnFinalForPrediction(pred, stored);
     if (espn) return { event: espn, stats: espn.live_stats, source: "espn_final" };
   }
+
+  const freeFinal = await fetchFreeFinalForPrediction(pred, stored);
+  if (freeFinal) return freeFinal;
 
   try {
     const bsdEvent = await fetchBSD(`/events/${pred.match_id}/`);
@@ -7566,18 +7736,40 @@ async function dailyValidateSnapshots() {
 
   for (const [date, preds] of byDate.entries()) {
     let events: any[] = [];
-
+    let freeEvents: any[] = [];
     try {
-      const payload = await fetchBSD("/events/", {
-        status: "finished",
-        date_from: date,
-        date_to: date,
-        limit: "200",
-      });
+      const free = await collectFreeMatchesForDate(date, "finished");
+      freeEvents = (free.matches || []).filter(isFinishedEvent);
+      events = [...freeEvents];
+    } catch (error) {
+      console.warn("Validation daily: sources gratuites indisponibles", error);
+    }
 
-      events = dailyResultRows(payload).filter(isFinishedEvent);
-    } catch (e) {
-      console.warn("Validation daily: événements terminés indisponibles", e);
+    // BSD final results are fetched only when at least one pending prediction
+    // cannot be matched to a finished event from the free provider aggregate.
+    const missingFromFree = preds.some((p: any) =>
+      !dailyFindEventForProno(p, freeEvents)
+    );
+    if (missingFromFree) {
+      try {
+        const payload = await fetchBSD("/events/", {
+          status: "finished",
+          date_from: date,
+          date_to: date,
+          limit: "200",
+        });
+        const bsdFinished = dailyResultRows(payload).filter(isFinishedEvent);
+        events = [...events, ...bsdFinished];
+      } catch (e) {
+        console.warn(
+          "Validation daily: BSD final indisponible, validation gratuite uniquement",
+          e,
+        );
+      }
+    }
+
+    if (!events.length) {
+      console.warn("Validation daily: aucun événement terminé disponible", date);
       continue;
     }
 

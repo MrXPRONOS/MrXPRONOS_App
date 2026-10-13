@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.170.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { collectFreeMatchesForDate } from "../_shared/free_football.ts";
 
 const BSD_API_TOKEN = Deno.env.get("BSD_API_TOKEN") || "";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
@@ -401,18 +402,35 @@ async function validateDailyPredictions() {
 
   for (const [date, preds] of byDate.entries()) {
     let finishedEvents: any[] = [];
+    let freeFinished: any[] = [];
+
     try {
-      const payload = await bsd("/events/", {
-        status: "finished",
-        date_from: date,
-        date_to: date,
-        limit: "200",
-      });
-      finishedEvents = resultRows(payload).filter(isFinished);
+      const free = await collectFreeMatchesForDate(date, "finished");
+      freeFinished = (free.matches || []).filter(isFinished);
+      finishedEvents = [...freeFinished];
     } catch (e) {
-      console.warn("Validation daily: liste finished indisponible", e);
-      continue;
+      console.warn("Validation daily: sources gratuites finished indisponibles", e);
     }
+
+    const missingFromFree = preds.some((p: any) =>
+      !findEventForProno(p, freeFinished)
+    );
+
+    if (missingFromFree) {
+      try {
+        const payload = await bsd("/events/", {
+          status: "finished",
+          date_from: date,
+          date_to: date,
+          limit: "200",
+        });
+        finishedEvents.push(...resultRows(payload).filter(isFinished));
+      } catch (e) {
+        console.warn("Validation daily: BSD finished indisponible, fallback gratuit", e);
+      }
+    }
+
+    if (!finishedEvents.length) continue;
 
     for (const p of preds) {
       checked++;
