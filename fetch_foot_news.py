@@ -17,7 +17,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 import feedparser
 import requests
@@ -168,6 +168,8 @@ def fetch_news() -> tuple[list[dict], dict]:
 
             body = feed_entry_text(entry)
             source_image = extract_entry_image(entry)
+            if source_image:
+                source_image = urljoin(link, source_image)
             # Une seule lecture légère de la page source si le RSS manque de texte ou d'image.
             metadata = {}
             if len(body) < 120 or not source_image:
@@ -177,6 +179,8 @@ def fetch_news() -> tuple[list[dict], dict]:
                 body = meta_description
             if not source_image:
                 source_image = str(metadata.get("image") or "").strip()
+                if source_image:
+                    source_image = urljoin(link, source_image)
             if not body:
                 diagnostics["rejected_invalid"] += 1
                 continue
