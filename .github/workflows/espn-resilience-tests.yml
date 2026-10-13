@@ -1,11 +1,13 @@
-name: ESPN resilience tests
+name: ESPN and free-source resilience tests
 on:
   pull_request:
     paths:
       - 'supabase/functions/_shared/espn.ts'
+      - 'supabase/functions/_shared/football_sources.ts'
       - 'supabase/functions/live/index.ts'
       - 'supabase/functions/live-scrape-test/index.ts'
       - 'supabase/tests/espn_test.ts'
+      - 'supabase/tests/football_sources_test.ts'
       - '.github/workflows/espn-resilience-tests.yml'
   workflow_dispatch:
 jobs:
@@ -16,7 +18,9 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - name: Run ESPN tests
-        run: deno test supabase/tests/espn_test.ts
-      - name: Type check ESPN shared client
-        run: deno check supabase/functions/_shared/espn.ts
+      - name: Run provider tests
+        run: deno test supabase/tests/espn_test.ts supabase/tests/football_sources_test.ts
+      - name: Type check shared provider clients
+        run: deno check supabase/functions/_shared/espn.ts supabase/functions/_shared/football_sources.ts
+      - name: Type check LIVE integration
+        run: deno check supabase/functions/live/index.ts
