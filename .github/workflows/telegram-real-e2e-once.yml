@@ -1,4 +1,4 @@
-name: Telegram - Tests réels E2E ponctuels
+name: Telegram - Test réel des 5 systèmes métier
 
 on:
   pull_request:
@@ -6,13 +6,15 @@ on:
     paths:
       - '.github/workflows/telegram-real-e2e-once.yml'
       - 'scripts/telegram_live_e2e.py'
+      - 'tests/test_telegram_test_routing.py'
   push:
     branches: [main]
     paths:
       - '.github/workflows/telegram-real-e2e-once.yml'
+      - 'scripts/telegram_live_e2e.py'
 
 concurrency:
-  group: telegram-real-e2e-single-run
+  group: telegram-five-business-systems-test
   cancel-in-progress: false
 
 permissions:
@@ -22,7 +24,36 @@ jobs:
   validate:
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 7
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer les dépendances
+        run: python -m pip install requests Pillow feedparser
+      - name: Valider les cinq moteurs sans Telegram
+        run: |
+          python -m py_compile scripts/telegram_live_e2e.py scripts/telegram_test_guard.py
+          python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
+          python -m unittest tests.test_telegram_test_routing -v
+
+  real_tests:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_REQUIRE_COMMENTS: '0'
+      FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+      PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+      PYTHONUNBUFFERED: '1'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,41 +61,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Valider sans accès aux secrets ni à Telegram
+      - name: Installer les dépendances
+        run: python -m pip install requests Pillow feedparser
+      - name: Tests locaux des cinq moteurs
         run: |
           python -m py_compile scripts/telegram_live_e2e.py scripts/telegram_test_guard.py
-          python - <<'PY'
-          from pathlib import Path
-          s=Path('scripts/telegram_live_e2e.py').read_text()
-          for name in ('telegram-test-channel-smoke.yml',
-                       'football-visual-live-test-once.yml',
-                       'football-live-test-once.yml',
-                       'football-premium-validation-once.yml',
-                       'bsd-v2-telegram-hourly.yml'):
-              assert name in s, name
-          assert '"destination": "test"' in s
-          assert 'refs/heads/main' in s
-          print('TELEGRAM_E2E_PLAN_SAFE_OK')
-          PY
-  real_tests:
-    if: ${{ github.event_name == 'push' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 75
-    permissions:
-      actions: write
-      contents: read
-    env:
-      GH_TOKEN: ${{ github.token }}
-      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
-      TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Installer dépendance gratuite de vérification Telegram
-        run: python -m pip install requests
-      - name: Vérifier la destination et les droits du bot sans publier
+          python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
+          python -m unittest tests.test_telegram_test_routing -v
+      - name: Actualiser les News Football pour S1, S4 et S5
+        env:
+          MAX_ARTICLES: '30'
+          MAX_ARTICLES_PER_FEED: '8'
+          MAX_NEWS_AGE_HOURS: '168'
+        run: python fetch_foot_news.py
+      - name: Vérifier strictement le canal Telegram de test
         run: python scripts/telegram_test_guard.py
-      - name: Déclencher et vérifier les 5 workflows S1-S5 dans le canal TEST seulement
+      - name: Envoyer exactement une publication par système
         run: python -u scripts/telegram_live_e2e.py

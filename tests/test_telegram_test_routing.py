@@ -81,6 +81,25 @@ class TelegramTestRoutingTests(unittest.TestCase):
             )
             self.assertIn("TELEGRAM_TEST_COMMENTS_DISABLED_OK", text, path)
 
+
+    def test_five_business_systems_e2e_has_no_overlapping_child_workflows(self):
+        script=self.read("scripts/telegram_live_e2e.py")
+        workflow=self.read(".github/workflows/telegram-real-e2e-once.yml")
+        for stage in ("S1_NEWS", "S2_CYCLE", "S3_DATA", "S4_COMMUNAUTE", "S5_VIRAL"):
+            self.assertIn(stage, script)
+        for obsolete in (
+            "telegram-test-channel-smoke.yml",
+            "football-visual-live-test-once.yml",
+            "football-live-test-once.yml",
+            "football-premium-validation-once.yml",
+            "bsd-v2-telegram-hourly.yml",
+        ):
+            self.assertNotIn(obsolete, script)
+        self.assertNotIn("workflow run", script)
+        self.assertNotIn("actions: write", workflow)
+        self.assertIn("FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID", workflow)
+        self.assertIn("FIVE_SYSTEMS_E2E_OK messages=5 doublons=0", script)
+
     def test_smoke_card_is_square_and_network_can_be_mocked(self):
         image=telegram_test_smoke.build()
         self.assertEqual(image.size,(1080,1080))
