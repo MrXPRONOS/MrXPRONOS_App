@@ -1,4 +1,5 @@
 name: Telegram - Test canal visuel
+# Formatting smoke: combo + Actu Foot numbered lists.
 
 on:
   push:
