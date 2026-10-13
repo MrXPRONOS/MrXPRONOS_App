@@ -932,6 +932,47 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
         )
     return None
 
+PROVIDER_LABELS = {
+    "espn": "ESPN",
+    "bsd": "BSD",
+    "sportscore": "SportScore",
+    "openligadb": "OpenLigaDB",
+    "thesportsdb": "TheSportsDB",
+}
+PROVIDER_LINKS = {
+    "sportscore": "https://sportscore.com/",
+    "openligadb": "https://www.openligadb.de/",
+    "thesportsdb": "https://www.thesportsdb.com/",
+}
+
+
+def event_provider_sources(event: dict) -> list[str]:
+    sources = event.get("provider_sources") if isinstance(event.get("provider_sources"), list) else []
+    if not sources:
+        source = str(event.get("source") or "").lower()
+        if source in PROVIDER_LABELS:
+            sources = [source]
+    return [str(x).lower() for x in sources if str(x).lower() in PROVIDER_LABELS]
+
+
+def data_source_credit(events: list[dict]) -> str:
+    """Attribution courte des fournisseurs gratuits réellement utilisés."""
+    sources: list[str] = []
+    for event in events:
+        for source in event_provider_sources(event):
+            if source not in sources:
+                sources.append(source)
+    linked = []
+    for source in sources:
+        label = PROVIDER_LABELS[source]
+        url = PROVIDER_LINKS.get(source)
+        linked.append('<a href="' + url + '">' + label + '</a>' if url else label)
+    if not linked:
+        return ""
+    prefix = "Données croisées" if len(linked) > 1 else "Données"
+    return "<p><i>🔎 " + prefix + " : " + " • ".join(linked) + "</i></p>"
+
+
 def programme(events: list[dict], today: date, *, as_of: datetime | None = None) -> Publication | None:
     future = [e for e in candidates(events) if kick(e).astimezone(TZ).date() == today
               and (as_of is None or kick(e) > as_of)
@@ -951,13 +992,14 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
     lead_league = esc(league(lead) or "Football")
     message = (
         "<h3>📅 MATCHS DU JOUR • MR XPRONOS</h3>"
-        "<p><i>Les affiches phares sélectionnées parmi les rencontres BSD du jour. Le suivi intégral est annoncé séparément par AVANT-MATCH.</i></p>"
+        "<p><i>Les affiches phares sont sélectionnées à partir de plusieurs sources football recoupées. Le suivi intégral est annoncé séparément par AVANT-MATCH.</i></p>"
         "<blockquote><b>🔥 À L'AFFICHE</b><br/>"
         + esc(team(lead, "home")) + " – " + esc(team(lead, "away"))
         + "<br/><b>🕒 " + time_label(kick(lead)) + "</b> • " + lead_league
         + "</blockquote>"
         "<p><b>💬 Quel match attendez-vous le plus ?</b></p>"
         "<p><i>Heure du Togo (GMT) • Le programme complet est sur l'image.</i></p>"
+        + data_source_credit(chosen)
     )
     card = {"day": today.strftime("%d/%m/%Y"), "matches": [
         {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
@@ -1006,6 +1048,7 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
             + " – " + str(b) + "  " + esc(team(e, "away")) + "</b><br/>"
             + outcome + "</blockquote>"
             "<p><b>💬 Votre réaction ?</b><br/><i>Les commentaires sont ouverts.</i></p>"
+            + data_source_credit([e])
         )
         card = {"day": now.astimezone(TZ).strftime("%d/%m/%Y"),
                 "league": league(e), "home": team(e, "home"),
@@ -1290,6 +1333,7 @@ def statistique(events: list[dict], reference_day: date) -> Publication | None:
         + esc(team(e, "away")) + "<br/>"
         + "<i>" + esc(league(e) or "Football") + "</i></blockquote>"
         "<p><b>💬 Quelle autre statistique récente vous a marqué ?</b></p>"
+        + data_source_credit([e])
     )
     selected_day = kick(e).astimezone(TZ).date()
     card = {"day": selected_day.strftime("%d/%m/%Y"), "league": league(e),
@@ -1675,6 +1719,10 @@ def lifecycle_publication(signal: dict) -> Publication | None:
                 "score": plain(signal.get("score"), 20),
             }],
         }
+
+    signal_sources = signal.get("provider_sources") if isinstance(signal.get("provider_sources"), list) else []
+    if "sportscore" in [str(x).lower() for x in signal_sources] and "SportScore" not in message:
+        message += '<p><i>🔎 Données complémentaires : <a href="https://sportscore.com/">SportScore</a></i></p>'
 
     return Publication(
         kind,
@@ -2213,8 +2261,15 @@ def run_live_test(now: datetime) -> dict[str, Any]:
     sender = Sender(dry_run=False)
     with tempfile.TemporaryDirectory(prefix="xpronos-test-historique-") as tmp:
         empty_history = History(Path(tmp) / "none.json")
-        api = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                        max_retries=1)
+        bsd = BSDClient(
+            max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
+            max_retries=1,
+        ) if (os.getenv("BSD_API_KEY") or "").strip() else None
+        api = MultiSourceFootballClient(
+            bsd=bsd,
+            session=sender.session,
+            max_free_requests=int(os.getenv("FOOTBALL_FREE_SOURCE_BUDGET", "60")),
+        )
         cache: dict[str, list[dict]] = {}
         report: dict[str, Any] = {"mode": "live-test", "sent": {}, "skipped": {},
                                   "errors": {}}
@@ -2226,7 +2281,8 @@ def run_live_test(now: datetime) -> dict[str, Any]:
                 if not page.complete:
                     raise BSDAPIError("Liste BSD incomplete " + key)
                 cache[key] = page.events
-                print("TEST_BSD", key, "rencontres", len(page.events))
+                print("TEST_MULTISOURCE", key, "rencontres", len(page.events),
+                      "sources", json.dumps(api.source_report, ensure_ascii=False))
             return cache[key]
 
         def deliver(category: str, make) -> None:
@@ -2328,14 +2384,21 @@ def run_live_test(now: datetime) -> dict[str, Any]:
 def run_visual_live_test(now: datetime) -> dict[str, Any]:
     """Envoie uniquement Matchs du jour + Statistique dans le vrai canal.
 
-    Destine aux validations visuelles. Les donnees viennent de BSD V2, les
-    messages sont clairement marques TEST et aucun historique n'est modifie.
+    Destine aux validations visuelles. Les donnees viennent de l'agrégateur
+    multi-source gratuit, avec BSD seulement en fallback si nécessaire.
     """
     now = now.astimezone(timezone.utc)
     today = now.astimezone(TZ).date()
     sender = Sender(dry_run=False)
-    api = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                    max_retries=1)
+    bsd = BSDClient(
+        max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
+        max_retries=1,
+    ) if (os.getenv("BSD_API_KEY") or "").strip() else None
+    api = MultiSourceFootballClient(
+        bsd=bsd,
+        session=sender.session,
+        max_free_requests=int(os.getenv("FOOTBALL_FREE_SOURCE_BUDGET", "60")),
+    )
     cache: dict[str, list[dict]] = {}
     report: dict[str, Any] = {"mode": "visual-live-test", "sent": {},
                               "skipped": {}, "errors": {}}
@@ -2347,7 +2410,8 @@ def run_visual_live_test(now: datetime) -> dict[str, Any]:
             if not page.complete:
                 raise BSDAPIError("Liste BSD incomplete " + key)
             cache[key] = page.events
-            print("VISUAL_TEST_BSD", key, "rencontres", len(page.events))
+            print("VISUAL_TEST_MULTISOURCE", key, "rencontres", len(page.events),
+                  "sources", json.dumps(api.source_report, ensure_ascii=False))
         return cache[key]
 
     def deliver(category: str, item: Publication | None) -> None:
