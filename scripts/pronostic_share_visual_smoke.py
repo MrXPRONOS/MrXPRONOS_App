@@ -27,7 +27,20 @@ def assert_inside(box, width, height, label):
         raise AssertionError(f"{label}: popup vertical overflow {box}")
 
 def open_share(page):
-    page.evaluate("(match) => window.sharePronostic(match)", MATCH)
+    page.evaluate("""(match) => {
+      let trigger = document.getElementById("smoke-pronostic-share-trigger");
+      if (!trigger) {
+        trigger = document.createElement("button");
+        trigger.id = "smoke-pronostic-share-trigger";
+        trigger.className = "btn-share";
+        trigger.type = "button";
+        trigger.textContent = "Partager";
+        trigger.style.cssText = "position:fixed;top:100px;left:16px;z-index:200000";
+        document.body.appendChild(trigger);
+      }
+      trigger.dataset.match = encodeURIComponent(JSON.stringify(match));
+    }""", MATCH)
+    page.locator("#smoke-pronostic-share-trigger").click()
     popup = page.locator("#pronostic-share-popup")
     popup.wait_for(state="visible", timeout=3000)
     page.wait_for_timeout(280)
@@ -39,7 +52,11 @@ def run_view(browser, width, height, label):
     errors = []
     page.on("pageerror", lambda exc: errors.append(str(exc)))
     page.goto("http://127.0.0.1:8000/pronos.html", wait_until="domcontentloaded", timeout=60000)
-    page.wait_for_function("() => typeof window.sharePronostic === 'function'", timeout=15000)
+    page.wait_for_timeout(500)
+
+    main_text = ctx.request.get("http://127.0.0.1:8000/assets/js/main.js").text()
+    if "Partager sur WhatsApp ? (OK = WhatsApp, Annuler = Telegram)" in main_text:
+        raise AssertionError(f"{label}: legacy confirm share chooser still present")
 
     # System confirm must never be used by pronostic sharing anymore.
     page.evaluate("""() => {
