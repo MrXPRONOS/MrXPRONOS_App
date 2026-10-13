@@ -332,9 +332,10 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
 
 
 def collect_external(session: requests.Session, day: date, base_events: list[dict]) -> list[dict]:
-    rows = fetch_supabase_live(session)
-    espn = fetch_espn_day(session, day)
-    rows.extend(espn)
+    # ESPN d'abord car il donne aussi les identifiants nécessaires au résumé
+    # (compositions / buteurs). Le cache Supabase BSD+ESPN reste le fallback local.
+    rows = fetch_espn_day(session, day)
+    rows.extend(fetch_supabase_live(session))
     # OpenLigaDB n'est interrogé que si une rencontre Bundesliga est réellement
     # présente dans notre journée BSD; pas de trafic inutile.
     if any("bundesliga" in _plain(event.get("league_name") or event.get("league")).lower() for event in base_events):
@@ -369,6 +370,14 @@ def lifecycle_signals(
     today = now.astimezone(timezone.utc).date()
     external = collect_external(session, today, base_events)
     signals: list[dict] = []
+    summary_cache: dict[str, dict] = {}
+
+    def summary_for(event_id: str) -> dict:
+        if event_id not in summary_cache:
+            # Budget implicite: uniquement les matchs importants et proches/live
+            # appellent ce helper.
+            summary_cache[event_id] = fetch_espn_summary(session, event_id)
+        return summary_cache[event_id]
 
     for base in base_events:
         ext = best_external_match(base, external)
@@ -384,13 +393,15 @@ def lifecycle_signals(
         aws = _score(ext.get("away_score"))
         score_text = f"{hs}-{aws}" if hs is not None and aws is not None else ""
         importance = int(importance_fn(base) or 0)
+        if importance <= 0:
+            continue
         source = _plain(ext.get("source") or "source live")
 
         # Composition: on ne demande le résumé ESPN que pour des matchs proches.
         if kickoff and -timedelta(minutes=8) <= kickoff - now <= timedelta(minutes=85):
             lineup_key = "composition:" + event_id
             if lineup_key not in sent_keys and ext.get("source") == "espn":
-                summary = fetch_espn_summary(session, event_id)
+                summary = summary_for(event_id)
                 lineups = extract_lineups(summary)
                 if len(lineups["home"]) >= 8 and len(lineups["away"]) >= 8:
                     signals.append({
@@ -420,7 +431,7 @@ def lifecycle_signals(
 
         # But/changement de score: ESPN permet d'identifier le dernier buteur.
         if is_live(ext) and hs is not None and aws is not None and hs + aws > 0:
-            summary = fetch_espn_summary(session, event_id) if ext.get("source") == "espn" else {}
+            summary = summary_for(event_id) if ext.get("source") == "espn" else {}
             goals = extract_goals(summary)
             last_goal = goals[-1] if goals else {}
             goal_minute = last_goal.get("minute")
