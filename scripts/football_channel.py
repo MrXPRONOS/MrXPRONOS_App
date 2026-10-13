@@ -439,11 +439,20 @@ class Sender:
             media = (ROOT / item.image_path).resolve()
             if not media.is_relative_to(ROOT.resolve()) or not media.is_file():
                 raise RuntimeError("Image News Football absente ou hors dépôt: " + str(item.image_path))
-            identifier = post_photo(
-                self.session, self.token, self.chat, media,
-                item.text[:3500], item.keyboard or {},
-                timeout=70, mime="image/webp",
-            )
+            # Le site garde le WebP optimisé; Telegram reçoit la même vraie photo
+            # réencodée en JPEG pour une compatibilité sendPhoto maximale.
+            from PIL import Image, ImageOps
+            with tempfile.TemporaryDirectory(prefix="xpronos-real-news-") as tmp:
+                telegram_photo = Path(tmp) / "news.jpg"
+                with Image.open(media) as source:
+                    ImageOps.exif_transpose(source).convert("RGB").save(
+                        telegram_photo, "JPEG", quality=91, optimize=True
+                    )
+                identifier = post_photo(
+                    self.session, self.token, self.chat, telegram_photo,
+                    item.text[:3500], item.keyboard or {},
+                    timeout=70, mime="image/jpeg",
+                )
         elif item.card:
             from football_cards import render_card
             with tempfile.TemporaryDirectory(prefix="xpronos-news-") as tmp:
