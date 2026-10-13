@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install free test requirements
-        run: python -m pip install requests Pillow
+        run: python -m pip install requests Pillow feedparser deep-translator
       - name: Check JavaScript parse
         run: node --check assets/js/main.js
       - name: Test UTM preservation and social receipt idempotency
