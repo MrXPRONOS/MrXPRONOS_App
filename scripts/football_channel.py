@@ -29,9 +29,8 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "bsd"))
 sys.path.insert(0, str(ROOT / "scripts"))
-from bsd_api import BSDClient, BSDAPIError  # noqa: E402
+from bsd_api import BSDAPIError  # noqa: E402
 from football_provider_mesh import FreeFirstFootballClient, PROVIDER_QUALITY, CAPABILITY_PRIORITY  # noqa: E402
-from bsd_h2h import hybrid_h2h  # noqa: E402
 from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
 from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
 import football_followup as followup  # noqa: E402
@@ -1895,7 +1894,6 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     hour = now.astimezone(TZ).hour
     state = History()
     sender = Sender(dry_run=dry_run)
-    client: BSDClient | None = None
     provider_client: FreeFirstFootballClient | None = None
     cache: dict[str, list[dict]] = {}
     counter = {"sent": 0, "skipped": 0, "errors": 0}
@@ -2169,8 +2167,7 @@ def run_live_test(now: datetime) -> dict[str, Any]:
     sender = Sender(dry_run=False)
     with tempfile.TemporaryDirectory(prefix="xpronos-test-historique-") as tmp:
         empty_history = History(Path(tmp) / "none.json")
-        api = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                        max_retries=1)
+        api = FreeFirstFootballClient(session=sender.session)
         cache: dict[str, list[dict]] = {}
         report: dict[str, Any] = {"mode": "live-test", "sent": {}, "skipped": {},
                                   "errors": {}}
@@ -2179,10 +2176,11 @@ def run_live_test(now: datetime) -> dict[str, Any]:
             key = day.isoformat()
             if key not in cache:
                 page = api.list_events(day, day, max_pages=8, ttl=0)
-                if not page.complete:
-                    raise BSDAPIError("Liste BSD incomplete " + key)
+                if not page.events:
+                    raise BSDAPIError("Provider mesh vide " + key)
                 cache[key] = page.events
-                print("TEST_BSD", key, "rencontres", len(page.events))
+                print("TEST_PROVIDER_MESH", key, "rencontres", len(page.events),
+                      "sources", page.source_counts, "bsd_used", page.bsd_used)
             return cache[key]
 
         def deliver(category: str, make) -> None:
@@ -2284,14 +2282,13 @@ def run_live_test(now: datetime) -> dict[str, Any]:
 def run_visual_live_test(now: datetime) -> dict[str, Any]:
     """Envoie uniquement Matchs du jour + Statistique dans le vrai canal.
 
-    Destine aux validations visuelles. Les donnees viennent de BSD V2, les
+    Destine aux validations visuelles. Les donnees viennent du provider mesh, les
     messages sont clairement marques TEST et aucun historique n'est modifie.
     """
     now = now.astimezone(timezone.utc)
     today = now.astimezone(TZ).date()
     sender = Sender(dry_run=False)
-    api = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                    max_retries=1)
+    api = FreeFirstFootballClient(session=sender.session)
     cache: dict[str, list[dict]] = {}
     report: dict[str, Any] = {"mode": "visual-live-test", "sent": {},
                               "skipped": {}, "errors": {}}
@@ -2300,10 +2297,11 @@ def run_visual_live_test(now: datetime) -> dict[str, Any]:
         key = day.isoformat()
         if key not in cache:
             page = api.list_events(day, day, max_pages=8, ttl=0)
-            if not page.complete:
-                raise BSDAPIError("Liste BSD incomplete " + key)
+            if not page.events:
+                raise BSDAPIError("Provider mesh vide " + key)
             cache[key] = page.events
-            print("VISUAL_TEST_BSD", key, "rencontres", len(page.events))
+            print("VISUAL_TEST_PROVIDER_MESH", key, "rencontres", len(page.events),
+                  "sources", page.source_counts, "bsd_used", page.bsd_used)
         return cache[key]
 
     def deliver(category: str, item: Publication | None) -> None:
