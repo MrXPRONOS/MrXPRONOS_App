@@ -5,9 +5,9 @@ Absence of a quote must never become a fabricated bookmaker price.
 """
 from __future__ import annotations
 import json
+import time
 import os
 import re
-import time
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
@@ -92,6 +92,8 @@ def from_oddslink(item, captured):
     out = {}
     for book in item.get("bookmakers") or []:
         updated = book.get("last_update")
+        bookmaker_name = str(book.get("key") or book.get("title") or "unspecified").strip()
+        if not bookmaker_name: continue
         for market in book.get("markets") or []:
             if market.get("period") not in (None, "", "full"): continue
             key = market.get("key")
@@ -121,15 +123,16 @@ def from_movi(item, captured):
         side = clean(row.get("side"))
         line = row.get("line")
         key = None
-        if group in ("fulltimeresult", "matchresult"):
-            key = "home" if label == clean(item.get("home")) else (
-                "away" if label == clean(item.get("away")) else ("draw" if label in ("draw", "x") else None))
+        if group in ("fulltimeresult", "matchresult", "matchlines"):
+            key = "home" if label in (clean(item.get("home")), "home", "1") else (
+                "away" if label in (clean(item.get("away")), "away", "2") else ("draw" if label in ("draw", "x") else None))
         elif group == "doublechance":
             key = "1x" if label in ("1x", "homedraw") else ("x2" if label in ("x2", "awaydraw") else None)
         elif group in ("bothteamstoscore", "bothteamstoscoreyesno"):
             key = "btts_yes" if label == "yes" else ("btts_no" if label == "no" else None)
         elif group in ("goalsoverunder", "matchgoals", "totalgoals", "alternativetotalgoals"):
-            if line is not None and side in ("over", "under"): key = f"{side}_{line}"
+            normalized_side = {"o":"over","u":"under","over":"over","under":"under"}.get(side)
+            if line is not None and normalized_side: key = f"{normalized_side}_{line}"
         if key:
             add(out, key, row.get("odds_dec"), "moviodds", captured,
                 item.get("polled_at") or row.get("ts"))
@@ -140,7 +143,7 @@ def from_harvester(item, captured):
     """Only an explicitly fresh and independently generated JSON snapshot."""
     out = {}
     observed = utc(item.get("scraped_at"))
-    if observed is None or (captured-observed).total_seconds() not in range(0, 1801): return out
+    if observed is None or not 0 <= (captured-observed).total_seconds() <= 1800: return out
     markets = item.get("odds") or item.get("bookmakers") or []
     if isinstance(markets, dict): markets = [markets]
     for bookmaker in markets:
@@ -158,13 +161,14 @@ class OddsRouter:
         self.session = session or Session()
         self.order = tuple(order)
         self.cache = {}
+        self.cache_time = {}
         self.disabled = set()
         self.usage = {}
         self.events = []
 
     def get(self, name, url, headers=None):
         if name in self.disabled: return None
-        if name in self.cache: return self.cache[name]
+        if name in self.cache and time.monotonic() - self.cache_time.get(name, 0) <= 120: return self.cache[name]
         try:
             response = self.session.get(url, headers=headers or {}, timeout=12)
             self.usage[name] = self.usage.get(name, 0) + 1
@@ -175,6 +179,7 @@ class OddsRouter:
             response.raise_for_status()
             data = response.json()
             self.cache[name] = data
+            self.cache_time[name] = time.monotonic()
             self.events.append((name, "ok"))
             return data
         except Exception as ex:
@@ -191,6 +196,7 @@ class OddsRouter:
                     # BSD might return empty for this particular market
                 elif name == "pinnwire":
                     key = os.getenv("PINNWIRE_API_KEY", "")
+                    if not key: key = "demo" if os.getenv("PINNWIRE_USE_DEMO","1") == "1" else ""
                     if not key: continue
                     data = self.get(name, "https://pinnwire.com/kit/v1/prematch/fixtures?sport_id=1",
                                     {"x-api-key":key})
