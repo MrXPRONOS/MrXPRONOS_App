@@ -127,7 +127,7 @@ export function probeSportScoreOdds(payload:any){
   return {
     available:sections.length>0,
     contract_verified:false,
-    automation_allowed:env("SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS","0")==="1",
+    automation_allowed:false,
     raw_sections:sections.slice(0,8),
     warning:"SportScore public REST documentation does not currently specify an odds endpoint/schema.",
   };
