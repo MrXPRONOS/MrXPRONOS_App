@@ -9,6 +9,14 @@ export const FREE_SOURCE_RANKING = {
   openligadb: { quality: 72, reliability: 78, rank: 5 },
 } as const;
 
+export const FREE_SOURCE_CAPABILITIES = {
+  espn: { fixtures: true, live: true, scores: true, stats: true, lineups: true, incidents: true, h2h: false, odds: false },
+  bsd: { fixtures: true, live: true, scores: true, stats: true, lineups: false, incidents: false, h2h: true, odds: true },
+  sportscore: { fixtures: true, live: true, scores: true, stats: "variable", lineups: true, incidents: true, h2h: true, odds: false },
+  thesportsdb: { fixtures: true, live: false, scores: true, stats: "variable", lineups: "variable", incidents: "variable", h2h: false, odds: false },
+  openligadb: { fixtures: true, live: false, scores: true, stats: false, lineups: false, incidents: "goals", h2h: false, odds: false },
+} as const;
+
 const SPORTSSCORE = "https://sportscore.com/api/v1";
 const TSDB = "https://www.thesportsdb.com/api/v1/json/123";
 const OPENLIGA = "https://api.openligadb.de";
