@@ -39,7 +39,7 @@ def publish(queue_path=QUEUE, enabled=False,now=None,request_post=requests.post)
     url="https://graph.facebook.com/v26.0/"+page_id+"/feed"
     message=str(selected.get("title") or "Mr XPRONOS")[:500]+"\n\nAnalyse et conseils football sur Mr XPRONOS.\n⚽ 18+ • Jeu responsable"
     try:
-        response=request_post(url, data={"message":message,"link":tagged_url(selected).replace("utm_source=telegram","utm_source=facebook"),
+        response=request_post(url, data={"message":message,"link":tagged_url(selected, "facebook"),
                                           "access_token":token},timeout=(10,45))
         response.raise_for_status()
         payload=response.json()

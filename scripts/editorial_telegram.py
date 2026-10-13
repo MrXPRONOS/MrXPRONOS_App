@@ -32,10 +32,12 @@ def eligible(item,now,window_hours=48):
     if published is None or published > now+timedelta(hours=2) or published < now-timedelta(hours=window_hours):return False
     return bool(item.get("image"))
 
-def tagged_url(item):
+def tagged_url(item, source="telegram"):
     url=urlsplit(item["url"])
     params=dict(parse_qsl(url.query))
-    params.update({"utm_source":"telegram","utm_medium":"social",
+    if source not in ("telegram","facebook","threads","instagram","whatsapp","youtube","tiktok"):
+        raise ValueError("Source sociale non autorisée")
+    params.update({"utm_source":source,"utm_medium":"social",
                    "utm_campaign":"editorial_free","utm_content":item.get("visual_variant","legacy")})
     return urlunsplit((url.scheme,url.netloc,url.path,urlencode(params),""))
 

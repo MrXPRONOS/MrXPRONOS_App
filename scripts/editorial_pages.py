@@ -22,6 +22,19 @@ def render(kind, item):
     image=html.escape(path,quote=True)
     public=BASE+kind+"s/"+quote(slug)+"/"
     dest=BASE+("article.html" if kind=="article" else "conseil.html")+"?slug="+quote(slug)
+    safe_dest=json.dumps(dest,ensure_ascii=True)
+    # Un crawler lit les métadonnées statiques; un navigateur conserve les UTM.
+    redirect_script="""<script>
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var destination = new URL(__DEST__);
+  ['utm_source','utm_medium','utm_campaign','utm_content'].forEach(function(key){
+    var value=params.get(key);
+    if(value && /^[A-Za-z0-9_-]{1,64}$/.test(value)) destination.searchParams.set(key,value);
+  });
+  window.location.replace(destination.toString());
+})();
+</script>""".replace("__DEST__",safe_dest)
     return f'''<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title} | Mr XPRONOS</title><meta name="description" content="{desc}">
@@ -32,7 +45,8 @@ def render(kind, item):
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="{image}">
 <link rel="canonical" href="{html.escape(public,quote=True)}">
-<meta http-equiv="refresh" content="0;url={html.escape(dest,quote=True)}">
+<meta http-equiv="refresh" content="3;url={html.escape(dest,quote=True)}">
+{redirect_script}
 </head><body><p>Redirection vers <a href="{html.escape(dest,quote=True)}">{title}</a>.</p></body></html>
 '''
 

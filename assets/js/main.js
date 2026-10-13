@@ -718,6 +718,45 @@ async function recordEvent(type, page = "") {
   }
 }
 
+// Mesure de performance éditoriale : visites ATTRIBUÉES uniquement.
+// Ne stocke ni identifiant du lecteur, ni IP, ni URL libre, ni cookie.
+function editorialAttributionPayload(page) {
+  if (page !== "blog-post" && page !== "conseil-post") return null;
+  const query = new URLSearchParams(window.location.search);
+  const source = String(query.get("utm_source") || "").toLowerCase();
+  if (!["telegram", "facebook", "instagram", "threads", "whatsapp", "youtube", "tiktok"].includes(source)) return null;
+  const slug = String(query.get("slug") || "");
+  const variant = String(query.get("utm_content") || "legacy");
+  if (!/^[a-z0-9_-]{2,180}$/i.test(slug) || !/^(?:v[123]|legacy)$/i.test(variant)) return null;
+  const kind = page === "blog-post" ? "article" : "conseil";
+  return [kind, slug, source, variant].join("|");
+}
+
+async function recordEditorialAttribution(page) {
+  const payload = editorialAttributionPayload(page);
+  if (!payload || !supabaseAvailable || !supabase) return;
+  async function sendEditorialMetric(eventType) {
+    try {
+      const { error } = await supabase.from("analytics").insert({
+        event_type: eventType,
+        user_id: null,
+        page: payload,
+      });
+      if (error) throw error;
+    } catch (error) {
+      // Les statistiques ne doivent jamais bloquer les pages publiques.
+      console.warn("Mesure éditoriale indisponible :", error);
+    }
+  }
+  void sendEditorialMetric("editorial_view");
+  // Action réelle observée, distincte d'une inscription ou d'un dépôt.
+  document.addEventListener("click", (event) => {
+    if (event.target instanceof Element && event.target.closest(".promo-copy")) {
+      void sendEditorialMetric("editorial_promo_copy");
+    }
+  });
+}
+
 function countVisitOncePerDay() {
   const todayKey = getTodayString();
   const lastVisit = localStorage.getItem("mx_last_visit");
@@ -3019,6 +3058,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     void (async () => {
       try {
         await initSupabase();
+        await recordEditorialAttribution(page);
         await updateDisplayedCounters();
         subscribeToCounters();
         await registerUniqueUser();

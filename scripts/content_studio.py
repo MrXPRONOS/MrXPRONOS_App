@@ -229,7 +229,7 @@ def generate(limit: int, dry_run: bool, news_limit: int | None = None) -> dict:
             title=str(item.get("title") or "").strip()
             if not title: continue
             slug=str(item.get("slug") or item.get("link") or hashlib.sha1(title.encode()).hexdigest()[:12])
-            subtype="match" if kind=="article" and item.get("type")=="match" else kind
+            subtype="match" if kind=="article" and item.get("type")=="match" and item.get("source")=="bsd" else kind
             subtitle=str(item.get("category") or item.get("source") or item.get("league") or "")
             try:
                 teams = None
