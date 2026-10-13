@@ -409,3 +409,257 @@ def collect_free_day(
     if include_openliga:
         rows.extend(fetch_openligadb_day(session, day))
     return merge_provider_matches(rows)
+
+
+def _player_name(value: Any) -> str:
+    if isinstance(value, str):
+        return _text(value)
+    if not isinstance(value, dict):
+        return ""
+    nested = value.get("player") if isinstance(value.get("player"), dict) else value.get("athlete")
+    if isinstance(nested, dict):
+        value = {**value, **nested}
+    return _text(
+        value.get("name") or value.get("displayName") or value.get("strPlayer")
+        or value.get("player_name") or value.get("fullName")
+    )
+
+
+def _minute_value(value: Any) -> int | None:
+    raw = _text(value)
+    if not raw:
+        return None
+    match = re.search(r"(\d+)(?:\D*\+\D*(\d+))?", raw)
+    if not match:
+        return None
+    return int(match.group(1)) + int(match.group(2) or 0)
+
+
+def _lineup_side(value: Any) -> list[str]:
+    rows = value if isinstance(value, list) else []
+    players: list[str] = []
+    for row in rows:
+        if isinstance(row, dict):
+            starter = row.get("starter")
+            position = _text(row.get("type") or row.get("role") or row.get("position")).lower()
+            # When the provider explicitly labels substitutes, exclude them.
+            if starter is False or "sub" in position or "bench" in position:
+                continue
+        name = _player_name(row)
+        if name and name not in players:
+            players.append(name)
+    return players[:11] if len(players) >= 11 else []
+
+
+def _extract_lineups_generic(payload: dict) -> dict[str, list[str]]:
+    result = {"home": [], "away": []}
+    candidate = (
+        payload.get("lineups") or payload.get("lineup") or payload.get("rosters")
+        or payload.get("starting_lineups")
+    )
+    if isinstance(candidate, dict):
+        for side in ("home", "away"):
+            value = candidate.get(side) or candidate.get(side + "_team") or candidate.get(side + "Team")
+            if isinstance(value, dict):
+                value = value.get("players") or value.get("lineup") or value.get("roster") or []
+            result[side] = _lineup_side(value)
+    elif isinstance(candidate, list):
+        for group in candidate:
+            if not isinstance(group, dict):
+                continue
+            side = _text(group.get("homeAway") or group.get("side") or group.get("team_type")).lower()
+            if side not in result:
+                team = _text(group.get("team") or group.get("teamName")).lower()
+                if "home" in team:
+                    side = "home"
+                elif "away" in team:
+                    side = "away"
+            if side in result:
+                rows = group.get("players") or group.get("lineup") or group.get("roster") or []
+                result[side] = _lineup_side(rows)
+    return result
+
+
+def _extract_timeline_generic(payload: dict) -> list[dict]:
+    rows = (
+        payload.get("timeline") or payload.get("events") or payload.get("incidents")
+        or payload.get("match_events") or []
+    )
+    if isinstance(rows, dict):
+        rows = rows.get("events") or rows.get("timeline") or rows.get("items") or []
+    if not isinstance(rows, list):
+        return []
+    out: list[dict] = []
+    for item in rows:
+        if not isinstance(item, dict):
+            continue
+        typ = _text(
+            item.get("type") or item.get("event") or item.get("event_type")
+            or item.get("incidentType") or item.get("strTimeline")
+        ).lower()
+        minute_text = _text(
+            item.get("minute") or item.get("time") or item.get("elapsed")
+            or item.get("strTimelineDetail") or item.get("clock")
+        )
+        minute = _minute_value(minute_text)
+        player = _player_name(item)
+        team = item.get("team") if isinstance(item.get("team"), dict) else {}
+        team_name = _text(team.get("name") or item.get("team_name") or item.get("strTeam"))
+        kind = ""
+        if "goal" in typ or item.get("scoring") is True:
+            kind = "goal"
+        elif "yellow" in typ or "red card" in typ or typ in {"card", "booking"}:
+            kind = "card"
+        elif "sub" in typ:
+            kind = "substitution"
+        if not kind:
+            continue
+        row = {
+            "kind": kind,
+            "player": player,
+            "minute": minute,
+            "minute_total": minute,
+            "minute_text": minute_text,
+            "team": team_name,
+            "penalty": "pen" in typ or bool(item.get("penalty")),
+            "own_goal": "own goal" in typ or bool(item.get("own_goal") or item.get("ownGoal")),
+            "label": _text(item.get("type") or item.get("event") or item.get("strTimeline")),
+        }
+        if kind == "goal":
+            assist = _text(
+                item.get("assist") or item.get("assist_name") or item.get("strAssist")
+            )
+            row["assists"] = [assist] if assist else []
+        out.append(row)
+    out.sort(key=lambda x: (x.get("minute_total") is None, x.get("minute_total") or 999))
+    return out
+
+
+def _extract_stats_generic(payload: dict) -> dict[str, dict[str, Any]]:
+    result: dict[str, dict[str, Any]] = {"home": {}, "away": {}}
+    aliases = {
+        "corners": {"corner", "corners", "cornerkicks", "woncorners"},
+        "shots": {"shots", "totalshots"},
+        "shots_on_target": {"shotsontarget", "shotsongoal"},
+        "possession": {"possession", "possessionpct", "ballpossession"},
+        "fouls": {"fouls", "foulscommitted"},
+        "offsides": {"offsides", "offside"},
+        "saves": {"saves", "goalkeepersaves"},
+        "yellow_cards": {"yellowcards", "yellowcard"},
+        "red_cards": {"redcards", "redcard"},
+    }
+    stats = payload.get("statistics") or payload.get("stats") or payload.get("match_statistics") or {}
+    if isinstance(stats, list):
+        for row in stats:
+            if not isinstance(row, dict):
+                continue
+            key = re.sub(r"[^a-z0-9]", "", _text(row.get("name") or row.get("type") or row.get("label")).lower())
+            for target, names in aliases.items():
+                if key in names:
+                    result["home"][target] = row.get("home") if row.get("home") is not None else row.get("home_value")
+                    result["away"][target] = row.get("away") if row.get("away") is not None else row.get("away_value")
+    elif isinstance(stats, dict):
+        home = stats.get("home") if isinstance(stats.get("home"), dict) else {}
+        away = stats.get("away") if isinstance(stats.get("away"), dict) else {}
+        for side, source in (("home", home), ("away", away)):
+            for raw_name, value in source.items():
+                key = re.sub(r"[^a-z0-9]", "", _text(raw_name).lower())
+                for target, names in aliases.items():
+                    if key in names:
+                        result[side][target] = value
+    return result
+
+
+def extract_sportscore_enrichment(detail: dict) -> dict[str, Any]:
+    if not isinstance(detail, dict):
+        return {}
+    root = detail.get("match") if isinstance(detail.get("match"), dict) else detail
+    timeline = _extract_timeline_generic(root)
+    return {
+        "lineups": _extract_lineups_generic(root),
+        "timeline": timeline,
+        "goals": [x for x in timeline if x.get("kind") == "goal"],
+        "cards": [x for x in timeline if x.get("kind") == "card"],
+        "substitutions": [x for x in timeline if x.get("kind") == "substitution"],
+        "stats": _extract_stats_generic(root),
+        "player_stats": root.get("player_stats") if isinstance(root.get("player_stats"), list) else [],
+        "info": {
+            "venue": _text(root.get("venue") or root.get("stadium")),
+            "attendance": _number(root.get("attendance")),
+            "referees": [
+                _text(root.get("referee"))
+            ] if _text(root.get("referee")) else [],
+        },
+    }
+
+
+def extract_thesportsdb_enrichment(details: dict) -> dict[str, Any]:
+    if not isinstance(details, dict):
+        return {}
+    lineup_payload = details.get("lineup") if isinstance(details.get("lineup"), dict) else {}
+    timeline_payload = details.get("timeline") if isinstance(details.get("timeline"), dict) else {}
+    stats_payload = details.get("stats") if isinstance(details.get("stats"), dict) else {}
+
+    lineup_rows = (
+        lineup_payload.get("lineup") or lineup_payload.get("lineups")
+        or lineup_payload.get("event") or lineup_payload.get("events") or []
+    )
+    lineups = {"home": [], "away": []}
+    if isinstance(lineup_rows, list):
+        for row in lineup_rows:
+            if not isinstance(row, dict):
+                continue
+            side = _text(row.get("strTeamPosition") or row.get("strHomeAway") or row.get("homeAway")).lower()
+            team_side = "home" if "home" in side else "away" if "away" in side else ""
+            if not team_side:
+                continue
+            position = _text(row.get("strSubstitute") or row.get("strPosition")).lower()
+            if "yes" in position or "sub" in position:
+                continue
+            name = _player_name(row)
+            if name and name not in lineups[team_side]:
+                lineups[team_side].append(name)
+    for side in lineups:
+        lineups[side] = lineups[side][:11] if len(lineups[side]) >= 11 else []
+
+    timeline_rows = (
+        timeline_payload.get("timeline") or timeline_payload.get("timelines")
+        or timeline_payload.get("events") or timeline_payload.get("event") or []
+    )
+    wrapper = {"timeline": timeline_rows if isinstance(timeline_rows, list) else []}
+    timeline = _extract_timeline_generic(wrapper)
+
+    stats_rows = (
+        stats_payload.get("eventstats") or stats_payload.get("statistics")
+        or stats_payload.get("stats") or []
+    )
+    stats = _extract_stats_generic({"statistics": stats_rows})
+
+    return {
+        "lineups": lineups,
+        "timeline": timeline,
+        "goals": [x for x in timeline if x.get("kind") == "goal"],
+        "cards": [x for x in timeline if x.get("kind") == "card"],
+        "substitutions": [x for x in timeline if x.get("kind") == "substitution"],
+        "stats": stats,
+        "player_stats": [],
+        "info": {},
+    }
+
+
+def fetch_provider_enrichment(session: requests.Session, match: dict) -> dict[str, Any]:
+    source = _text(match.get("source")).lower()
+    if source == "sportscore":
+        slug = (
+            match.get("provider_slug")
+            or (match.get("raw") or {}).get("slug")
+            or (match.get("raw_data") or {}).get("provider_slug")
+        )
+        detail = fetch_sportscore_detail(session, _text(slug))
+        return extract_sportscore_enrichment(detail)
+    if source == "thesportsdb":
+        event_id = str(match.get("source_match_id") or "").strip()
+        if not event_id:
+            event_id = re.sub(r"\D", "", str(match.get("id") or ""))
+        return extract_thesportsdb_enrichment(fetch_thesportsdb_details(session, event_id))
+    return {}
