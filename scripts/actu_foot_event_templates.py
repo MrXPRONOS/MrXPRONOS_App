@@ -1,4 +1,4 @@
-"""Audited MR XPRONOS Actu Foot event templates (batches 1 and 2).
+"""Audited MR XPRONOS Actu Foot event templates (batches 1, 2 and 3).
 
 This module renders only verified dynamic data on top of native 1122x1402
 backgrounds generated for the Actu Foot event library.
@@ -49,9 +49,14 @@ EVENT_TEMPLATE_FILES = {
     "remplacement_full": "remplacement_full.png",
     "remplacement_entrant": "remplacement_entrant.png",
     "remplacement_sortant": "remplacement_sortant.png",
+    "intervention_medicale": "intervention_medicale.png",
+    "blessure_confirmee": "blessure_confirmee.png",
+    "retour_au_jeu": "retour_au_jeu.png",
+    "match_suspendu": "match_suspendu.png",
+    "match_interrompu_full": "match_interrompu_full.png",
 }
 EVENT_CATEGORIES = tuple(EVENT_TEMPLATE_FILES)
-EVENT_ALIASES = {"carton_jaune", "carton_rouge", "remplacement"}
+EVENT_ALIASES = {"carton_jaune", "carton_rouge", "remplacement", "match_interrompu"}
 
 # Each box is the safe interior area, not the visible outer gold frame.
 SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
@@ -180,6 +185,71 @@ SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "competition": (360, 952, 762, 996),
         "player": (225, 1050, 900, 1185),
         "source": (158, 1236, 964, 1282),
+    },
+    "intervention_medicale": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "player": (170, 1036, 952, 1084),
+        "context": (170, 1120, 952, 1204),
+        "source": (175, 1241, 947, 1279),
+    },
+    "blessure_confirmee": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "player": (170, 1036, 580, 1084),
+        "status": (658, 1036, 956, 1084),
+        "info": (170, 1120, 952, 1207),
+        "source": (175, 1242, 947, 1280),
+    },
+    "retour_au_jeu": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "player": (200, 1036, 922, 1088),
+        "player_team": (270, 1120, 852, 1165),
+        "info": (170, 1200, 952, 1279),
+    },
+    "match_suspendu": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "context": (170, 1040, 952, 1184),
+        "source": (175, 1226, 947, 1277),
+    },
+    "match_interrompu_full": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "reason": (170, 1038, 952, 1102),
+        "status": (170, 1136, 952, 1208),
+        "source": (175, 1242, 947, 1280),
     },
 }
 
@@ -369,6 +439,11 @@ def _category(category: str, payload: dict[str, Any]) -> str:
         if sortant:
             return "remplacement_sortant"
         raise ValueError("Remplacement: au moins un joueur entrant ou sortant vérifié est requis")
+    if category == "match_interrompu":
+        reason = clean(payload.get("reason") or payload.get("interruption_reason") or payload.get("detail"))
+        if reason:
+            return "match_interrompu_full"
+        raise ValueError("Match interrompu: raison vérifiée requise pour la variante complète")
     return category
 
 
@@ -518,6 +593,84 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
             draw_fit(draw, player, spec["player"], size=36, min_size=18,
                      max_lines=3, bold=True, align="center")
         draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"], align="center")
+    elif resolved == "intervention_medicale":
+        player = clean(payload.get("player") or payload.get("treated_player"), 100)
+        context = clean(
+            payload.get("treatment")
+            or payload.get("context")
+            or payload.get("detail")
+            or info,
+            500,
+        )
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, player, spec["player"], size=31, min_size=16,
+                 max_lines=1, bold=True)
+        draw_fit(draw, context, spec["context"], size=28, min_size=15,
+                 max_lines=3, bold=False)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "blessure_confirmee":
+        player = clean(payload.get("player") or payload.get("injured_player"), 100)
+        injury_status = clean(
+            payload.get("injury_status")
+            or payload.get("diagnosis")
+            or payload.get("status"),
+            180,
+        )
+        detail = clean(payload.get("detail") or payload.get("info") or payload.get("description"), 500)
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, player, spec["player"], size=28, min_size=15,
+                 max_lines=1, bold=True, align="left")
+        draw_fit(draw, injury_status, spec["status"], size=24, min_size=14,
+                 max_lines=1, bold=True)
+        draw_fit(draw, detail, spec["info"], size=27, min_size=15,
+                 max_lines=3, bold=False)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "retour_au_jeu":
+        player = clean(payload.get("player") or payload.get("returning_player"), 100)
+        player_team = clean(payload.get("player_team") or payload.get("team"), 100)
+        detail = clean(payload.get("detail") or payload.get("info") or payload.get("status"), 420)
+        if source and source not in detail:
+            detail = (detail + " • " + source).strip(" •")
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, player, spec["player"], size=34, min_size=18,
+                 max_lines=1, bold=True)
+        draw_fit(draw, player_team, spec["player_team"], size=24, min_size=15,
+                 max_lines=1, bold=True)
+        draw_fit(draw, detail, spec["info"], size=25, min_size=15,
+                 max_lines=3, bold=False)
+    elif resolved == "match_suspendu":
+        context = clean(
+            payload.get("reason")
+            or payload.get("status")
+            or payload.get("detail")
+            or info,
+            600,
+        )
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, context, spec["context"], size=31, min_size=16,
+                 max_lines=4, bold=True)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "match_interrompu_full":
+        reason = clean(payload.get("reason") or payload.get("interruption_reason") or payload.get("detail"), 260)
+        status = clean(
+            payload.get("restart")
+            or payload.get("resume")
+            or payload.get("status")
+            or payload.get("info")
+            or payload.get("description"),
+            420,
+        )
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, reason, spec["reason"], size=29, min_size=15,
+                 max_lines=2, bold=True)
+        draw_fit(draw, status, spec["status"], size=26, min_size=15,
+                 max_lines=3, bold=False)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
     else:
         raise ValueError("Unhandled Actu Foot event template: " + resolved)
 
