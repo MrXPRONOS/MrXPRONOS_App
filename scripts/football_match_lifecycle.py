@@ -491,7 +491,7 @@ def lifecycle_signals(
 
     # Rattrapage: score observé par une source live mais sans détail du buteur.
     # Ne pas présenter une découverte tardive comme un but instantané.
-    seen_scores = {item.get("score") for item in signals if item.get("kind") == "goal"}
+    goal_score_pairs = {(item.get("home"), item.get("away"), item.get("score")) for item in signals if item.get("kind") == "goal"}
     for match in external:
         if not (is_live(match) or is_halftime(match)):
             continue
@@ -501,12 +501,12 @@ def lifecycle_signals(
         score_text = f"{hs}-{aws}"
         event_id = str(match.get("id") or "").removeprefix("espn:")
         key = f"score_update:{event_id}:{score_text}"
-        if key in sent_keys or score_text in seen_scores or any(
+        if key in sent_keys or (match.get("home_team"), match.get("away_team"), score_text) in goal_score_pairs or any(
             k.startswith(f"goal:{event_id}:{score_text}:") for k in sent_keys
         ):
             continue
         signals.append({
-            "kind": "score_update", "key": key, "priority": 105,
+            "kind": "score_update", "key": key, "priority": 105 + min(importance_fn(match), 50),
             "home": match.get("home_team"), "away": match.get("away_team"),
             "league": match.get("league") or "Football",
             "score": score_text, "minute": match.get("minute"),
