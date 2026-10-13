@@ -36,6 +36,7 @@ from football_stats_engine import daily_insight  # noqa: E402
 from football_community_engine import (  # noqa: E402
     build_match_vote,
     build_stats_quiz,
+    build_tsdb_club_quiz,
     build_news_debate,
     build_postmatch_reaction,
 )
@@ -969,7 +970,7 @@ def community_vote_publication(events: list[dict], now: datetime) -> Publication
 
 
 def community_quiz_publication(session: requests.Session, day: date) -> Publication | None:
-    payload = build_stats_quiz(session, day)
+    payload = build_stats_quiz(session, day) or build_tsdb_club_quiz(session, day)
     if not payload:
         return None
     question = plain(payload.get("question"), 300)
