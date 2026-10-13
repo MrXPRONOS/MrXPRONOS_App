@@ -322,6 +322,64 @@ def build_postmatch_reaction(
     }
 
 
+
+def build_tsdb_club_quiz(session: requests.Session, day: date) -> dict | None:
+    """Fallback gratuit stable avec la clé publique TheSportsDB 123.
+
+    Le compte gratuit documente explicitement Arsenal pour searchteams ; on
+    limite volontairement ce fallback à ce club au lieu de supposer que toutes
+    les recherches dynamiques sont accessibles avec la clé de test.
+    """
+    meta = fetch_tsdb_team_metadata(session, "Arsenal")
+    if not meta:
+        return None
+
+    year = plain(meta.get("formed_year"), 8)
+    country = plain(meta.get("country"), 50)
+    if day.toordinal() % 2 == 0 and year.isdigit():
+        correct = year
+        value = int(year)
+        distractors = [str(value - 5), str(value + 5), str(value + 10)]
+        options, correct_index = _rotate_options(
+            _unique_options(correct, distractors), day.toordinal()
+        )
+        if len(options) < 4:
+            return None
+        return {
+            "kind": "quiz",
+            "key": f"community-quiz-tsdb:{day.isoformat()}:arsenal-year",
+            "question": "🏟️ En quelle année Arsenal a-t-il été fondé ?",
+            "options": options,
+            "correct_option_ids": [correct_index],
+            "explanation": f"Arsenal a été fondé en {correct}. Source : TheSportsDB.",
+            "source": "TheSportsDB",
+            "confidence": 82,
+            "league": "Culture foot",
+        }
+
+    if country:
+        correct = country
+        distractors = ["Spain", "Italy", "Germany", "France", "England"]
+        options, correct_index = _rotate_options(
+            _unique_options(correct, [x for x in distractors if x.casefold() != correct.casefold()]),
+            day.toordinal(),
+        )
+        if len(options) < 4:
+            return None
+        return {
+            "kind": "quiz",
+            "key": f"community-quiz-tsdb:{day.isoformat()}:arsenal-country",
+            "question": "🌍 Dans quel pays évolue Arsenal ?",
+            "options": options,
+            "correct_option_ids": [correct_index],
+            "explanation": f"Arsenal évolue en {correct}. Source : TheSportsDB.",
+            "source": "TheSportsDB",
+            "confidence": 82,
+            "league": "Culture foot",
+        }
+    return None
+
+
 def fetch_tsdb_team_metadata(session: requests.Session, team: str) -> dict:
     """Source gratuite supplémentaire, uniquement comme métadonnée de secours."""
     try:
