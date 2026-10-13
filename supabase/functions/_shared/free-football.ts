@@ -139,11 +139,11 @@ export function normalizeTsdb(row: any) {
 
 export async function fetchSportScoreLive() {
   try {
-    const url = new URL(SPORTScore_BASE + "/api/v1/fixtures/");
+    // /matches/ (alias widget) exposes the match slug required by /match/.
+    // It returns live + recent rows; the caller keeps only actual live matches.
+    const url = new URL(SPORTScore_BASE + "/api/v1/matches/");
     url.searchParams.set("sport", "football");
-    url.searchParams.set("date", new Date().toISOString().slice(0, 10));
-    url.searchParams.set("status", "live");
-    url.searchParams.set("limit", "200");
+    url.searchParams.set("limit", "50");
     url.searchParams.set("src", "mrxpronos");
     const payload = await getJson(url);
     const matches = rows(payload, "matches", "fixtures", "results", "data")
