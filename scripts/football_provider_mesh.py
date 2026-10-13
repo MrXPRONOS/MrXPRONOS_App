@@ -61,7 +61,8 @@ CAPABILITY_PRIORITY = {
     "scorers": ("sportscore", "openligadb", "espn", "thesportsdb", "bsd"),
     # SportScore affiche des marchés sur son site mais l'API publique documentée
     # n'a pas d'endpoint odds. On n'utilise que des champs explicites éventuels.
-    "bookmaker_odds": ("sportscore_explicit_json", "bsd"),
+    "bookmaker_odds": ("bsd",),
+    "experimental_odds_probe": ("sportscore_explicit_json",),
 }
 
 _CACHE: dict[str, tuple[float, Any]] = {}
