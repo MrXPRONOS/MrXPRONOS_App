@@ -2,7 +2,7 @@
 // SportScore requires visible attribution on pages that expose its data.
 export const FREE_SOURCE_QUALITY: Record<string, {overall:number;live:number;detail:number;coverage:number;odds:number}> = {
   espn: { overall: 98, live: 99, detail: 99, coverage: 91, odds: 0 },
-  sportscore: { overall: 92, live: 95, detail: 93, coverage: 96, odds: 35 },
+  sportscore: { overall: 92, live: 95, detail: 93, coverage: 96, odds: 0 },
   bsd: { overall: 89, live: 91, detail: 91, coverage: 98, odds: 90 },
   thesportsdb: { overall: 79, live: 55, detail: 82, coverage: 73, odds: 0 },
   openligadb: { overall: 76, live: 66, detail: 69, coverage: 54, odds: 0 },
@@ -188,6 +188,26 @@ export async function fetchTheSportsDbDay(date:string){
     home_logo:x.strHomeTeamBadge,away_logo:x.strAwayTeamBadge,league:x.strLeague,raw_data:{raw:x},
   }));
 }
+export async function resolveTheSportsDbEvent(home:string, away:string, date?:string){
+  const query=[home,away].map(x=>text(x).replace(/\s+/g,"_")).join("_vs_");
+  if(!text(home)||!text(away))return null;
+  const payload=await json(url(TSDB+"/searchevents.php",{e:query,d:date}),300_000);
+  const rows=Array.isArray(payload?.event)?payload.event:
+    Array.isArray(payload?.events)?payload.events:[];
+  const normalized=rows.filter((x:any)=>x?.strHomeTeam&&x?.strAwayTeam).map((x:any)=>
+    liveShape("thesportsdb",text(x.idEvent),text(x.strHomeTeam),text(x.strAwayTeam),
+      x.strTimestamp||(x.dateEvent+"T"+(x.strTime||"00:00:00Z")),{
+        home_score:x.intHomeScore,away_score:x.intAwayScore,
+        status:x.strStatus,status_detail:x.strStatus,
+        home_logo:x.strHomeTeamBadge,away_logo:x.strAwayTeamBadge,
+        league:x.strLeague,raw_data:{raw:x},
+      })
+  );
+  const base={home_team:home,away_team:away,event_date:date?date+"T12:00:00Z":null};
+  const hit=matchProvider(base,normalized);
+  return hit ? String(hit.source_match_id||"") : null;
+}
+
 export async function fetchTheSportsDbStats(eventId:string){
   if(!/^\d+$/.test(eventId))return null;
   const payload=await json(url(TSDB+"/lookupeventstats.php",{id:eventId}),90_000);
