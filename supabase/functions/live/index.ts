@@ -498,8 +498,8 @@ async function persistStatsSourcesAndMerged(sourceRows: any[], mergedMatches: an
       if (error) throw error;
     }
   } catch (e) {
-    // Ne jamais casser le live original juste parce que la table d’agrégation n’existe pas.
-    console.warn("Agrégation stats non persistée:", e);
+    // Preserve the live feed but expose persistence failure to operators and monitoring.
+    console.error("Agrégation stats non persistée:", e);
   }
 }
 
@@ -6081,14 +6081,12 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     const sportscoreRows = freeProviderData?.sportscore || [];
     const tsdbRows = freeProviderData?.thesportsdb || [];
     const openligaRows = freeProviderData?.openligadb || [];
-    const freeCoverageStrong =
-      liveNow > 0 &&
-      (espnResult.matches || []).length >= liveNow &&
-      sportscoreRows.length >= liveNow;
+    // Never compare raw fixture counts from different competitions/providers:
+    // equal totals do not imply equal coverage and could silently drop BSD matches.
+    const freeCoverageStrong = false;
     const skipBsdLive =
       options.skipBsd === true ||
-      liveNow === 0 ||
-      freeCoverageStrong;
+      liveNow === 0;
 
     if (!skipBsdLive) {
       try {
