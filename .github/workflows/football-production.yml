@@ -28,7 +28,8 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
+  actions: write
 
 concurrency:
   group: mrxpronos-football-production
@@ -58,7 +59,7 @@ jobs:
           python-version: '3.11'
 
       - name: Installer les dependances
-        run: python -m pip install --disable-pip-version-check requests Pillow
+        run: python -m pip install --disable-pip-version-check requests Pillow feedparser
 
       - name: Verifier les secrets de production
         shell: bash
@@ -91,6 +92,13 @@ jobs:
                   assert w == h and w >= 900, (path, image.size)
           print("PRODUCTION_TEMPLATES_OK")
           PY
+
+      - name: Actualiser le moteur News Football commun au site et à Telegram
+        env:
+          MAX_ARTICLES: '60'
+          MAX_ARTICLES_PER_FEED: '28'
+          MAX_NEWS_AGE_HOURS: '120'
+        run: python fetch_foot_news.py
 
       - name: Restaurer historique anti-doublon
         uses: actions/cache/restore@v4
@@ -130,3 +138,35 @@ jobs:
         with:
           path: .state/mrxpronos-football.json
           key: football-production-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Publier les nouvelles Infos Foot sur le site
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run == false }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python fetch_foot_news.py
+            git add footnews.json assets/images/footnews/
+            if git diff --cached --quiet; then
+              echo "NEWS_SITE_UNCHANGED"
+              exit 0
+            fi
+            git commit -m "data(infos): refresh Actu Foot news and real images"
+            if git push origin HEAD:main; then
+              echo "NEWS_SITE_COMMITTED=true" >> "$GITHUB_ENV"
+              exit 0
+            fi
+            echo "Mise à jour concurrente, tentative $attempt/3"
+          done
+          echo "::error::Impossible de publier les news sans écraser une mise à jour concurrente."
+          exit 1
+
+      - name: Déployer les nouvelles Infos Foot
+        if: ${{ env.NEWS_SITE_COMMITTED == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
