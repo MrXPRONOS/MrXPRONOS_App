@@ -14,7 +14,23 @@ export const SPORTSCORE_ATTRIBUTION_URL = "https://sportscore.com/";
 const SPORTSCORE_FIXTURES = "https://sportscore.com/api/v1/fixtures/";
 const SPORTSCORE_MATCH = "https://sportscore.com/api/v1/match/";
 const THESPORTSDB_DAY = "https://www.thesportsdb.com/api/v1/json/123/eventsday.php";
+const THESPORTSDB_STATS = "https://www.thesportsdb.com/api/v1/json/123/lookupeventstats.php";
 const OPENLIGA = "https://api.openligadb.de";
+
+const OPENLIGA_CORE_COMPETITIONS = [
+  ["bl1", "1. Bundesliga"],
+  ["bl2", "2. Bundesliga"],
+  ["bl3", "3. Liga"],
+  ["ucl", "UEFA Champions League"],
+  ["dfb", "DFB-Pokal"],
+  ["ffb1", "Frauen-Bundesliga"],
+] as const;
+const OPENLIGA_2026_COMPETITIONS = [
+  ["uel2026", "UEFA Europa League"],
+  ["uecl2026", "UEFA Conference League"],
+  ["nla", "UEFA Nations League A"],
+  ["wm26", "FIFA World Cup 2026"],
+] as const;
 
 const cache = new Map<string, { until: number; data: any }>();
 const inFlight = new Map<string, Promise<any>>();
@@ -37,6 +53,17 @@ function seasonFor(date: Date) {
 }
 function dateKey(date: Date) {
   return date.toISOString().slice(0, 10);
+}
+function openLigaCompetitions(date: Date) {
+  const season = seasonFor(date);
+  const rows: Array<[string, string, number]> = OPENLIGA_CORE_COMPETITIONS
+    .map(([shortcut, label]) => [shortcut, label, season]);
+  if (date.getUTCFullYear() === 2026) {
+    rows.push(...OPENLIGA_2026_COMPETITIONS.map(([shortcut, label]) =>
+      [shortcut, label, 2026] as [string, string, number]
+    ));
+  }
+  return rows;
 }
 async function getJson(url: string, params: Record<string, string>, ttlMs: number) {
   const u = new URL(url);
@@ -121,11 +148,17 @@ function normalizeStats(value: any) {
   } else if (Array.isArray(value)) {
     for (const row of value) {
       if (!row || typeof row !== "object") continue;
-      const label = normalizeStatName(row.name ?? row.label ?? row.type);
+      const label = normalizeStatName(
+        row.name ?? row.label ?? row.type ?? row.strStat ?? row.strStatName,
+      );
       for (const [target, names] of Object.entries(aliases)) {
         if (!names.some((name) => label.includes(name))) continue;
-        (out as any).home[target] = num(row.home ?? row.home_value ?? row.homeValue);
-        (out as any).away[target] = num(row.away ?? row.away_value ?? row.awayValue);
+        (out as any).home[target] = num(
+          row.home ?? row.home_value ?? row.homeValue ?? row.intHome ?? row.strHome,
+        );
+        (out as any).away[target] = num(
+          row.away ?? row.away_value ?? row.awayValue ?? row.intAway ?? row.strAway,
+        );
       }
     }
   }
@@ -246,7 +279,28 @@ export async function fetchSportScoreLive(maxDetails = 4) {
   }
 }
 
-export async function fetchTheSportsDbToday() {
+async function fetchTheSportsDbStats(eventId: string) {
+  if (!/^\d+$/.test(eventId)) return emptyStats();
+  try {
+    const payload = await getJson(
+      THESPORTSDB_STATS,
+      { id: eventId },
+      60_000,
+    );
+    const rows = Array.isArray(payload?.eventstats)
+      ? payload.eventstats
+      : Array.isArray(payload?.stats)
+        ? payload.stats
+        : Array.isArray(payload?.statistics)
+          ? payload.statistics
+          : [];
+    return normalizeStats(rows);
+  } catch {
+    return emptyStats();
+  }
+}
+
+export async function fetchTheSportsDbToday(maxDetails = 4) {
   try {
     const payload = await getJson(
       THESPORTSDB_DAY,
@@ -254,44 +308,78 @@ export async function fetchTheSportsDbToday() {
       180_000,
     );
     const events = Array.isArray(payload?.events) ? payload.events : [];
-    const matches = events.map((row: any) => providerMatch({
-      source: "thesportsdb",
-      id: row.idEvent,
-      home: row.strHomeTeam,
-      away: row.strAwayTeam,
-      home_score: row.intHomeScore,
-      away_score: row.intAwayScore,
-      event_date: row.strTimestamp || `${row.dateEvent || ""}T${row.strTime || "00:00:00"}Z`,
-      status: row.strStatus || row.strProgress,
-      minute: row.intTime,
-      league: row.strLeague,
-      home_logo: row.strHomeTeamBadge,
-      away_logo: row.strAwayTeamBadge,
-      raw: row,
-    })).filter(Boolean).filter((m: any) => m.is_live && !m.is_finished);
-    return { matches, error: null };
+    const matches: any[] = [];
+    let detailed = 0;
+    for (const row of events) {
+      if (!row || typeof row !== "object") continue;
+      const status = text(row.strStatus || row.strProgress).toLowerCase();
+      const looksLive = /live|in progress|1st half|2nd half|half time|halftime/.test(status);
+      let stats = emptyStats();
+      if (looksLive && detailed < maxDetails && /^\d+$/.test(String(row.idEvent || ""))) {
+        stats = await fetchTheSportsDbStats(String(row.idEvent));
+        detailed++;
+      }
+      const match = providerMatch({
+        source: "thesportsdb",
+        id: row.idEvent,
+        home: row.strHomeTeam,
+        away: row.strAwayTeam,
+        home_score: row.intHomeScore,
+        away_score: row.intAwayScore,
+        event_date: row.strTimestamp || `${row.dateEvent || ""}T${row.strTime || "00:00:00"}Z`,
+        status: row.strStatus || row.strProgress,
+        minute: row.intTime,
+        league: row.strLeague,
+        home_logo: row.strHomeTeamBadge,
+        away_logo: row.strAwayTeamBadge,
+        live_stats: stats,
+        stats_updated_at: Object.values(stats.home).some((v) => v != null)
+          ? new Date().toISOString()
+          : null,
+        raw: row,
+      });
+      if (match && match.is_live && !match.is_finished) matches.push(match);
+    }
+    return { matches, error: null, details_fetched: detailed };
   } catch (e: any) {
-    return { matches: [], error: e?.message || String(e) };
+    return { matches: [], error: e?.message || String(e), details_fetched: 0 };
   }
 }
 
-export async function fetchOpenLigaToday() {
-  const now = new Date();
-  try {
-    const payload = await getJson(
-      `${OPENLIGA}/getmatchdata/bl1/${seasonFor(now)}`,
-      {},
-      600_000,
-    );
-    const today = dateKey(now);
-    const matches = (Array.isArray(payload) ? payload : []).map((row: any) => {
+async function fetchOpenLigaForDate(date: string) {
+  const targetDate = new Date(date + "T12:00:00Z");
+  const competitions = openLigaCompetitions(targetDate);
+  const settled = await Promise.allSettled(
+    competitions.map(async ([shortcut, label, season]) => {
+      const payload = await getJson(
+        `${OPENLIGA}/getmatchdata/${encodeURIComponent(shortcut)}/${season}`,
+        {},
+        900_000,
+      );
+      return { shortcut, label, season, payload };
+    }),
+  );
+
+  const matches: any[] = [];
+  const errors: string[] = [];
+  const seen = new Set<string>();
+  for (const result of settled) {
+    if (result.status === "rejected") {
+      errors.push(String(result.reason?.message || result.reason));
+      continue;
+    }
+    const { shortcut, label, season, payload } = result.value;
+    for (const row of Array.isArray(payload) ? payload : []) {
       const eventDate = dateIso(row.matchDateTimeUTC || row.matchDateTime);
-      if (!eventDate || eventDate.slice(0, 10) !== today) return null;
+      if (!eventDate || eventDate.slice(0, 10) !== date) continue;
+      const key = shortcut + ":" + String(row.matchID || "");
+      if (seen.has(key)) continue;
+      seen.add(key);
       const results = Array.isArray(row.matchResults) ? row.matchResults : [];
       const latest = [...results].sort((a: any, b: any) =>
         Number(b?.resultOrderID || 0) - Number(a?.resultOrderID || 0)
       )[0] || {};
-      return providerMatch({
+      const match = providerMatch({
         source: "openligadb",
         id: row.matchID,
         home: row.team1?.teamName,
@@ -301,17 +389,39 @@ export async function fetchOpenLigaToday() {
         event_date: eventDate,
         status: row.matchIsFinished ? "finished" : "scheduled",
         finished: Boolean(row.matchIsFinished),
-        league: "Bundesliga",
+        league: label,
         home_logo: row.team1?.teamIconUrl,
         away_logo: row.team2?.teamIconUrl,
-        raw: row,
+        raw: {
+          ...row,
+          _openliga_shortcut: shortcut,
+          _openliga_season: season,
+        },
       });
-    }).filter(Boolean).filter((m: any) => m.is_live && !m.is_finished);
-    // OpenLigaDB peut ne pas marquer explicitement "live"; les lignes du jour
-    // restent surtout une corroboration de calendrier/résultat.
-    return { matches, error: null };
+      if (match) matches.push(match);
+    }
+  }
+  return { matches, errors, competitions: competitions.length };
+}
+
+export async function fetchOpenLigaToday() {
+  try {
+    const result = await fetchOpenLigaForDate(dateKey(new Date()));
+    // OpenLigaDB ne garantit pas un statut live exploitable. On ne transforme
+    // jamais un match planifié en live par simple déduction horaire.
+    return {
+      matches: result.matches.filter((m: any) => m.is_live && !m.is_finished),
+      error: result.errors.length ? result.errors.join("; ") : null,
+      calendar_matches: result.matches.length,
+      competitions_checked: result.competitions,
+    };
   } catch (e: any) {
-    return { matches: [], error: e?.message || String(e) };
+    return {
+      matches: [],
+      error: e?.message || String(e),
+      calendar_matches: 0,
+      competitions_checked: 0,
+    };
   }
 }
 
@@ -320,7 +430,6 @@ export async function fetchFreeFixturesForDate(date: string) {
     return { matches: [], meta: { error: "invalid_date" } };
   }
 
-  const targetDate = new Date(date + "T12:00:00Z");
   const [sportscoreResult, tsdbResult, openligaResult] = await Promise.allSettled([
     getJson(
       SPORTSCORE_FIXTURES,
@@ -332,11 +441,7 @@ export async function fetchFreeFixturesForDate(date: string) {
       { d: date, s: "Soccer" },
       300_000,
     ),
-    getJson(
-      `${OPENLIGA}/getmatchdata/bl1/${seasonFor(targetDate)}`,
-      {},
-      900_000,
-    ),
+    fetchOpenLigaForDate(date),
   ]);
 
   const matches: any[] = [];
@@ -347,12 +452,18 @@ export async function fetchFreeFixturesForDate(date: string) {
   if (sportscoreResult.status === "fulfilled") {
     for (const row of extractSportScoreRows(sportscoreResult.value)) {
       if (!row || typeof row !== "object") continue;
-      const homeObj = row.home_team && typeof row.home_team === "object" ? row.home_team
-        : row.homeTeam && typeof row.homeTeam === "object" ? row.homeTeam : {};
-      const awayObj = row.away_team && typeof row.away_team === "object" ? row.away_team
-        : row.awayTeam && typeof row.awayTeam === "object" ? row.awayTeam : {};
-      const leagueObj = row.competition && typeof row.competition === "object" ? row.competition
-        : row.league && typeof row.league === "object" ? row.league : {};
+      const homeObj = row.home_team && typeof row.home_team === "object"
+        ? row.home_team
+        : row.homeTeam && typeof row.homeTeam === "object"
+          ? row.homeTeam : {};
+      const awayObj = row.away_team && typeof row.away_team === "object"
+        ? row.away_team
+        : row.awayTeam && typeof row.awayTeam === "object"
+          ? row.awayTeam : {};
+      const leagueObj = row.competition && typeof row.competition === "object"
+        ? row.competition
+        : row.league && typeof row.league === "object"
+          ? row.league : {};
       const match = providerMatch({
         source: "sportscore",
         id: row.id ?? row.match_id ?? row.slug,
@@ -388,6 +499,7 @@ export async function fetchFreeFixturesForDate(date: string) {
         away_score: row.intAwayScore,
         event_date: row.strTimestamp || `${row.dateEvent || ""}T${row.strTime || "00:00:00"}Z`,
         status: row.strStatus || row.strProgress,
+        minute: row.intTime,
         league: row.strLeague,
         home_logo: row.strHomeTeamBadge,
         away_logo: row.strAwayTeamBadge,
@@ -400,34 +512,15 @@ export async function fetchFreeFixturesForDate(date: string) {
     }
   }
 
+  let openligaErrors: string[] = [];
+  let openligaCompetitions = 0;
   if (openligaResult.status === "fulfilled") {
-    for (const row of Array.isArray(openligaResult.value) ? openligaResult.value : []) {
-      const eventDate = dateIso(row.matchDateTimeUTC || row.matchDateTime);
-      if (!eventDate || eventDate.slice(0, 10) !== date) continue;
-      const results = Array.isArray(row.matchResults) ? row.matchResults : [];
-      const latest = [...results].sort((a: any, b: any) =>
-        Number(b?.resultOrderID || 0) - Number(a?.resultOrderID || 0)
-      )[0] || {};
-      const match = providerMatch({
-        source: "openligadb",
-        id: row.matchID,
-        home: row.team1?.teamName,
-        away: row.team2?.teamName,
-        home_score: latest.pointsTeam1,
-        away_score: latest.pointsTeam2,
-        event_date: eventDate,
-        status: row.matchIsFinished ? "finished" : "scheduled",
-        finished: Boolean(row.matchIsFinished),
-        league: "Bundesliga",
-        home_logo: row.team1?.teamIconUrl,
-        away_logo: row.team2?.teamIconUrl,
-        raw: row,
-      });
-      if (match) {
-        matches.push(match);
-        openligaCount++;
-      }
-    }
+    matches.push(...openligaResult.value.matches);
+    openligaCount = openligaResult.value.matches.length;
+    openligaErrors = openligaResult.value.errors;
+    openligaCompetitions = openligaResult.value.competitions;
+  } else {
+    openligaErrors = [String(openligaResult.reason?.message || openligaResult.reason)];
   }
 
   return {
@@ -436,12 +529,12 @@ export async function fetchFreeFixturesForDate(date: string) {
       sportscore_matches: sportscoreCount,
       thesportsdb_matches: tsdbCount,
       openligadb_matches: openligaCount,
+      openligadb_competitions_checked: openligaCompetitions,
       sportscore_error: sportscoreResult.status === "rejected"
         ? String(sportscoreResult.reason?.message || sportscoreResult.reason) : null,
       thesportsdb_error: tsdbResult.status === "rejected"
         ? String(tsdbResult.reason?.message || tsdbResult.reason) : null,
-      openligadb_error: openligaResult.status === "rejected"
-        ? String(openligaResult.reason?.message || openligaResult.reason) : null,
+      openligadb_error: openligaErrors.length ? openligaErrors.join("; ") : null,
     },
   };
 }
