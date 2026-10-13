@@ -70,8 +70,8 @@ class ViralEngineTests(unittest.TestCase):
                             "mime": "image/jpeg",
                             "thumburl": "https://example.com/good.jpg",
                             "extmetadata": {
-                                "LicenseShortName": {"value": "CC BY-SA 4.0"},
-                                "LicenseUrl": {"value": "https://creativecommons.org/licenses/by-sa/4.0/"},
+                                "LicenseShortName": {"value": "CC BY 4.0"},
+                                "LicenseUrl": {"value": "https://creativecommons.org/licenses/by/4.0/"},
                                 "Artist": {"value": "Jane Doe"},
                                 "NonFree": {"value": "False"},
                                 "Restrictions": {"value": ""},
@@ -84,8 +84,54 @@ class ViralEngineTests(unittest.TestCase):
         media = viral.fetch_commons_image(FakeSession(payload), "football stadium")
         self.assertEqual(media["provider"], "Wikimedia Commons")
         self.assertEqual(media["credit"], "Jane Doe")
-        self.assertIn("CC BY-SA", media["license"])
+        self.assertIn("CC BY", media["license"])
         self.assertIn("Football_stadium_pitch", media["page_url"])
+
+
+    def test_commons_rejects_sharealike_for_transformed_background(self):
+        meta = {
+            "LicenseShortName": {"value": "CC BY-SA 4.0"},
+            "NonFree": {"value": "False"},
+            "Restrictions": {"value": ""},
+        }
+        self.assertFalse(viral._commons_license_allowed(meta))
+
+    @patch.dict("os.environ", {"PIXABAY_API_KEY": "demo"}, clear=False)
+    def test_pixabay_uses_24h_cache(self):
+        payload = {
+            "hits": [{
+                "largeImageURL": "https://example.com/football.jpg",
+                "pageURL": "https://pixabay.com/photos/example-1/",
+                "user": "Photographer",
+                "tags": "football, stadium, pitch",
+            }]
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.object(viral, "MEDIA_CACHE_PATH", Path(directory) / "media.json"):
+                session = FakeSession(payload)
+                first = viral.fetch_pixabay_image(session, "football stadium")
+                self.assertEqual(first["provider"], "Pixabay")
+                second = viral.fetch_pixabay_image(FakeSession({"hits": []}), "football stadium")
+                self.assertEqual(second["page_url"], first["page_url"])
+
+    def test_official_youtube_feed_returns_link_only(self):
+        xml = b"""<?xml version='1.0' encoding='UTF-8'?>
+        <feed xmlns='http://www.w3.org/2005/Atom' xmlns:yt='http://www.youtube.com/xml/schemas/2015'>
+          <entry>
+            <yt:videoId>abc123XYZ</yt:videoId>
+            <title>Incredible goal celebration after the match</title>
+            <published>2026-10-13T18:45:00+00:00</published>
+          </entry>
+        </feed>"""
+        class FeedSession(FakeSession):
+            def get(self, url, **kwargs):
+                return FakeResponse(content=xml, content_type="application/atom+xml")
+        with patch.object(viral, "official_youtube_channels", return_value=[("Premier League", "UCtestchannel123456789012")]):
+            rows = viral.fetch_official_youtube_videos(FeedSession(), NOW)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["source"], "Premier League")
+        self.assertTrue(rows[0]["url"].startswith("https://www.youtube.com/watch?v="))
+        self.assertNotIn("media_url", rows[0])
 
     @patch("football_viral_engine._licensed_media_for_payload", return_value={})
     def test_match_fou_has_priority(self, _media):
@@ -152,7 +198,8 @@ class ViralEngineTests(unittest.TestCase):
             "media": {
                 "provider": "Wikimedia Commons",
                 "credit": "Jane Doe",
-                "license": "CC BY-SA 4.0",
+                "license": "CC BY 4.0",
+                "license_url": "https://creativecommons.org/licenses/by/4.0/",
                 "page_url": "https://commons.wikimedia.org/wiki/File:Example.jpg",
             },
         }
@@ -161,7 +208,7 @@ class ViralEngineTests(unittest.TestCase):
         self.assertEqual(post.category, "viral")
         self.assertIn("Jane Doe", post.text)
         self.assertIsNotNone(post.animation_payload)
-        self.assertEqual(len(post.keyboard["inline_keyboard"]), 2)
+        self.assertEqual(len(post.keyboard["inline_keyboard"]), 3)
 
     def test_telegram_animation_sender(self):
         session = FakeSession()
