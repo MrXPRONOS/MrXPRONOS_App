@@ -507,7 +507,7 @@ class Sender:
                     item.text[:1000], item.keyboard or {},
                     timeout=120, mime="video/mp4",
                 )
-        elif item.image_path:
+        elif item.image_path and not item.card:
             media = (ROOT / item.image_path).resolve()
             if not media.is_relative_to(ROOT.resolve()) or not media.is_file():
                 raise RuntimeError("Image News Football absente ou hors dépôt: " + str(item.image_path))
@@ -698,7 +698,11 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
         keyboard = {"inline_keyboard": [[
             {"text": "Lire l’info complète ↗", "url": site_url, "style": "primary"}
         ]]}
-        return Publication("flash", key, message, image_path=image_path, keyboard=keyboard)
+        return Publication(
+            "flash", key, message, image_path=image_path, keyboard=keyboard,
+            card={"image_path": image_path, "title": title, "summary": summary,
+                  "source": source, "day": now.astimezone(TZ).strftime("%d/%m/%Y")},
+        )
     return None
 
 def programme(events: list[dict], today: date, *, as_of: datetime | None = None) -> Publication | None:
@@ -1126,7 +1130,10 @@ def community_reaction_publication(events: list[dict], now: datetime) -> Publica
             + " • Note le match • Mr XPRONOS"
         ),
         poll_allows_revoting=True,
-        card={"question": question, "reaction": question, "league": payload.get("league"), "score": payload.get("score"), "home": payload.get("home"), "away": payload.get("away")},
+        card={"question": question, "reaction": question, "league": payload.get("league"),
+              "score": payload.get("score"), "home": payload.get("home"),
+              "away": payload.get("away"), "home_logo": payload.get("home_logo"),
+              "away_logo": payload.get("away_logo")},
     )
 
 
