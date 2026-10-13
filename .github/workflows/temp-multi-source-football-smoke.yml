@@ -1,0 +1,75 @@
+name: TEMP multi-source football smoke
+
+on:
+  push:
+    branches:
+      - feat/multi-source-football-20261013
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      PYTHONUNBUFFERED: '1'
+      FOOTBALL_MULTI_SOURCE: '1'
+      SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS: '0'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install requests
+      - name: Compile multi-source Python
+        run: |
+          python -m py_compile bsd/free_football_sources.py bsd/bsd_api.py scripts/football_match_lifecycle.py scripts/football_channel.py
+          python -m unittest bsd.test_free_football_sources -v
+      - name: Direct provider smoke and SportScore odds probe
+        run: |
+          PYTHONPATH=bsd:scripts python - <<'PY'
+          from datetime import datetime, timezone
+          import requests
+          from free_football_sources import (
+              fetch_espn_day, fetch_sportscore_day, fetch_sportscore_match,
+              fetch_thesportsdb_day, fetch_openligadb_day,
+              extract_sportscore_odds, sportscore_detail_enrichment,
+          )
+
+          day = datetime.now(timezone.utc).date()
+          session = requests.Session()
+          sources = {
+              "espn": fetch_espn_day(session, day, ttl=0),
+              "sportscore": fetch_sportscore_day(session, day, ttl=0),
+              "thesportsdb": fetch_thesportsdb_day(session, day, ttl=0),
+              "openligadb": fetch_openligadb_day(session, day, ttl=0),
+          }
+          for name, snap in sources.items():
+              print("PROVIDER", name, "rows", len(snap.rows), "error", snap.error)
+
+          sport = sources["sportscore"].rows
+          live = next((x for x in sport if x.get("state") == "in" and x.get("sportscore_slug")), None)
+          upcoming = next((x for x in sport if x.get("state") == "pre" and x.get("sportscore_slug")), None)
+          finished = next((x for x in sport if x.get("state") == "post" and x.get("sportscore_slug")), None)
+
+          for label, row in (("live", live), ("upcoming", upcoming), ("finished", finished)):
+              if not row:
+                  print("SPORTSCORE_DETAIL", label, "NO_MATCH_AVAILABLE")
+                  continue
+              detail = fetch_sportscore_match(session, row["sportscore_slug"], ttl=0)
+              enrich = sportscore_detail_enrichment(detail)
+              probe = extract_sportscore_odds(detail)
+              print("SPORTSCORE_DETAIL", label, row["sportscore_slug"], {
+                  "keys": sorted(list(detail.keys()))[:40] if isinstance(detail, dict) else [],
+                  "lineups": bool(enrich.get("lineups")),
+                  "timeline_count": len(enrich.get("timeline") or []),
+                  "stats": bool(enrich.get("stats")),
+                  "odds_available": probe.get("available"),
+                  "odds_contract_verified": probe.get("contract_verified"),
+                  "odds_automation_allowed": probe.get("automation_allowed"),
+                  "odds_sections_count": len(probe.get("raw_sections") or []),
+              })
+
+          assert sources["espn"].rows or sources["sportscore"].rows, "No primary free provider returned matches"
+          PY
