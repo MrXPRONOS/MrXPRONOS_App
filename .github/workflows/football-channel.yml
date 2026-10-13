@@ -122,20 +122,32 @@ jobs:
           assert not sportscore.error, sportscore.error
           assert isinstance(sportscore.events, list)
           print("SPORTSCORE_FREE_OK", len(sportscore.events), "matchs", dict(hub.calls))
-          if sportscore.events:
-              sample = sportscore.events[0]
-              print("SPORTSCORE_SAMPLE", {
-                  "slug": sample.get("slug"),
-                  "home": sample.get("home_team"),
-                  "away": sample.get("away_team"),
-                  "status": sample.get("status"),
-                  "league": sample.get("league"),
-              })
-              if sample.get("slug"):
-                  detail = hub.sportscore_detail(sample["slug"])
-                  print("SPORTSCORE_DETAIL_KEYS", sorted(detail.keys()) if isinstance(detail, dict) else type(detail).__name__)
+
+          sport_live = hub.sportscore_live_recent(limit=50)
+          assert isinstance(sport_live.events, list)
+          print("SPORTSCORE_LIVE_RECENT_OK", len(sport_live.events), sport_live.error or "ok")
+          live_sample = next((x for x in sport_live.events if x.get("slug")), None)
+          print("SPORTSCORE_LIVE_SAMPLE", {
+              "slug": live_sample.get("slug") if live_sample else "",
+              "home": live_sample.get("home_team") if live_sample else "",
+              "away": live_sample.get("away_team") if live_sample else "",
+              "status": live_sample.get("status") if live_sample else "",
+              "league": live_sample.get("league") if live_sample else "",
+          })
+          if live_sample:
+              detail = hub.sportscore_detail(live_sample["slug"])
+              print("SPORTSCORE_DETAIL_KEYS", sorted(detail.keys()) if isinstance(detail, dict) else type(detail).__name__)
+              if isinstance(detail, dict):
+                  for key in sorted(detail.keys())[:30]:
+                      value = detail.get(key)
+                      print("SPORTSCORE_DETAIL_SHAPE", key, type(value).__name__,
+                            (list(value.keys())[:20] if isinstance(value, dict)
+                             else len(value) if isinstance(value, list)
+                             else str(value)[:120]))
 
           import football_stats_engine as stats_probe
+          ss_slug = stats_probe._sportscore_competition_slug(session, stats_probe.LEAGUES[0])
+          print("SPORTSCORE_RESOLVED_COMPETITION_SLUG", ss_slug)
           ss_table = stats_probe.fetch_sportscore_standings(session, stats_probe.LEAGUES[0])
           ss_scorers = stats_probe.fetch_sportscore_top_scorers(session, stats_probe.LEAGUES[0])
           print("SPORTSCORE_STATS_SCHEMA", {
