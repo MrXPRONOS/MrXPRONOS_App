@@ -238,6 +238,29 @@ def map_events_to_reference_ids(
     return mapped, missing
 
 
+def _merge_stat_blocks(primary: Any, secondary: Any) -> dict:
+    out = {
+        "home": dict((primary or {}).get("home") or {}),
+        "away": dict((primary or {}).get("away") or {}),
+    }
+    extra = secondary if isinstance(secondary, dict) else {}
+    for side in ("home", "away"):
+        for key, value in ((extra.get(side) or {}).items() if isinstance(extra.get(side), dict) else []):
+            if out[side].get(key) in (None, "") and value not in (None, ""):
+                out[side][key] = value
+    return out
+
+
+def _logo_from(row: dict, side: str) -> str:
+    direct = _plain(row.get(side + "_logo"))
+    if direct:
+        return direct
+    team = row.get(side + "_team")
+    if isinstance(team, dict):
+        return _plain(team.get("logo") or team.get("image") or team.get("badge"))
+    return ""
+
+
 class MultiSourceFootballClient:
     """Client compatible avec les besoins éditoriaux de BSDClient.
 
@@ -464,9 +487,27 @@ class MultiSourceFootballClient:
                     if isinstance(current, dict) and isinstance(source_team, dict) and not current.get("logo"):
                         current["logo"] = source_team.get("logo")
             for row in ordered[1:]:
-                for key in ("home_score", "away_score", "league_name", "current_minute"):
-                    if best.get(key) in (None, "", 0) and row.get(key) not in (None, ""):
+                # 0 est un score valide : seules None / chaîne vide sont absentes.
+                for key in ("home_score", "away_score", "league_name"):
+                    if best.get(key) in (None, "") and row.get(key) not in (None, ""):
                         best[key] = row.get(key)
+                if best.get("current_minute") in (None, "", 0) and row.get("current_minute") not in (None, "", 0):
+                    best["current_minute"] = row.get("current_minute")
+                    best["minute"] = row.get("minute") or row.get("current_minute")
+
+                for side in ("home", "away"):
+                    if not _logo_from(best, side):
+                        logo = _logo_from(row, side)
+                        if logo:
+                            best[side + "_logo"] = logo
+                            team = best.get(side + "_team")
+                            if isinstance(team, dict) and not team.get("logo"):
+                                team["logo"] = logo
+
+                best["live_stats"] = _merge_stat_blocks(
+                    best.get("live_stats") or (best.get("raw_data") or {}).get("live_stats"),
+                    row.get("live_stats") or (row.get("raw_data") or {}).get("live_stats"),
+                )
             sources = [str(r.get("source")) for r in ordered]
             best["source"] = "multisource" if len(sources) > 1 else sources[0]
             best["provider_sources"] = sources
@@ -479,6 +520,11 @@ class MultiSourceFootballClient:
                 str(r.get("source")): (r.get("raw_data") or {}).get("provider_payload")
                 for r in ordered
             }
+            raw = dict(best.get("raw_data") or {})
+            raw["live_stats"] = best.get("live_stats") or {}
+            raw["provider_sources"] = sources
+            raw["provider_quality"] = best["provider_quality"]
+            best["raw_data"] = raw
             merged.append(best)
         return sorted(merged, key=lambda x: str(x.get("event_date") or ""))
 
