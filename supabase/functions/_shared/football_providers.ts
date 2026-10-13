@@ -250,6 +250,157 @@ export async function searchTheSportsDbMatch(home: string, away: string, date: s
   return rows.map(normalizeTheSportsDb).filter(Boolean);
 }
 
+
+export async function fetchTheSportsDbEvent(eventId: string) {
+  if (!/^\d+$/.test(String(eventId || ""))) return null;
+  const payload = await getJson(`${SPORTS_DB}/lookupevent.php`, { id: String(eventId) }, 120000);
+  const rows = Array.isArray(payload?.events) ? payload.events : [];
+  return rows.length ? normalizeTheSportsDb(rows[0]) : null;
+}
+
+export async function fetchTheSportsDbEventStats(eventId: string) {
+  if (!/^\d+$/.test(String(eventId || ""))) return null;
+  return getJson(`${SPORTS_DB}/lookupeventstats.php`, { id: String(eventId) }, 60000);
+}
+
+export async function fetchTheSportsDbTimeline(eventId: string) {
+  if (!/^\d+$/.test(String(eventId || ""))) return null;
+  return getJson(`${SPORTS_DB}/lookuptimeline.php`, { id: String(eventId) }, 60000);
+}
+
+export async function fetchTheSportsDbLineup(eventId: string) {
+  if (!/^\d+$/.test(String(eventId || ""))) return null;
+  return getJson(`${SPORTS_DB}/lookuplineup.php`, { id: String(eventId) }, 120000);
+}
+
+function statName(v: unknown) {
+  return norm(v).replace(/\s+/g, "");
+}
+function statValue(v: any): number | null {
+  if (v === null || v === undefined || v === "") return null;
+  if (typeof v === "string") {
+    const n = Number(v.replace("%", "").replace(",", ".").trim());
+    return Number.isFinite(n) ? n : null;
+  }
+  return num(v);
+}
+function assignStat(target: any, label: unknown, value: any) {
+  const key = statName(label);
+  const n = statValue(value);
+  if (n == null) return;
+  const aliases: Record<string,string> = {
+    corners: "corner_kicks", cornerkicks: "corner_kicks", woncorners: "corner_kicks",
+    fouls: "fouls", foulscommitted: "fouls",
+    yellowcards: "yellow_cards", yellowcard: "yellow_cards",
+    redcards: "red_cards", redcard: "red_cards",
+    shots: "total_shots", totalshots: "total_shots", shotstotal: "total_shots",
+    shotsontarget: "shots_on_target", shotsongoal: "shots_on_target",
+    possession: "ball_possession", possessionpct: "ball_possession", possessionpercentage: "ball_possession",
+  };
+  const out = aliases[key];
+  if (out) target[out] = n;
+}
+
+/** Parse generic provider stats into the live engine's home/away schema. */
+export function normalizeProviderStats(payload: any) {
+  const result:any = { home: {}, away: {} };
+  if (!payload || typeof payload !== "object") return result;
+
+  const ingestObject = (obj:any, side:"home"|"away") => {
+    if (!obj || typeof obj !== "object") return;
+    for (const [k,v] of Object.entries(obj)) {
+      if (typeof v !== "object") assignStat(result[side], k, v);
+    }
+  };
+
+  for (const rootKey of ["stats","statistics","team_stats","match_stats","data"]) {
+    const root = payload?.[rootKey];
+    if (root && typeof root === "object" && !Array.isArray(root)) {
+      ingestObject(root.home, "home");
+      ingestObject(root.away, "away");
+    }
+  }
+  ingestObject(payload.home_stats, "home");
+  ingestObject(payload.away_stats, "away");
+
+  const arrays:any[][] = [];
+  for (const key of ["stats","statistics","eventstats","results","data"]) {
+    if (Array.isArray(payload?.[key])) arrays.push(payload[key]);
+  }
+  if (Array.isArray(payload)) arrays.push(payload);
+
+  for (const rows of arrays) {
+    for (const row of rows) {
+      if (!row || typeof row !== "object") continue;
+      const label = row.name ?? row.label ?? row.stat ?? row.strStat ?? row.strStatName;
+      const side = String(row.homeAway ?? row.side ?? "").toLowerCase();
+      if (side === "home") assignStat(result.home, label, row.value ?? row.displayValue ?? row.strHome);
+      else if (side === "away") assignStat(result.away, label, row.value ?? row.displayValue ?? row.strAway);
+      else {
+        const hv = row.home ?? row.homeValue ?? row.strHome ?? row.intHome;
+        const av = row.away ?? row.awayValue ?? row.strAway ?? row.intAway;
+        assignStat(result.home, label, hv);
+        assignStat(result.away, label, av);
+      }
+    }
+  }
+
+  // TheSportsDB sometimes returns rows with strStat + strHome/strAway in eventstats.
+  const eventRows = Array.isArray(payload?.eventstats) ? payload.eventstats :
+    Array.isArray(payload?.eventstats?.eventstats) ? payload.eventstats.eventstats : [];
+  for (const row of eventRows) {
+    assignStat(result.home, row?.strStat ?? row?.strStatName, row?.strHome ?? row?.intHome);
+    assignStat(result.away, row?.strStat ?? row?.strStatName, row?.strAway ?? row?.intAway);
+  }
+  return result;
+}
+
+/** Free stats lookup: SportScore first, then TheSportsDB; no BSD. */
+export async function fetchFreeMatchStats(match:any) {
+  const meta = match?.provider_meta || match?.raw_data?.provider_meta || {};
+  const sport = meta?.sportscore || match?.raw_data?.provider_meta?.sportscore || {};
+  const sportSlug = String(sport?.slug || "");
+  if (sportSlug) {
+    try {
+      const payload = await fetchSportScoreDetail(sportSlug, Boolean(match?.is_live));
+      const stats = normalizeProviderStats(payload);
+      return { stats, source: "sportscore", payload };
+    } catch {}
+  }
+
+  const tsdbId = String(
+    match?.provider_ids?.thesportsdb ||
+    match?.raw_data?.provider_ids?.thesportsdb ||
+    ""
+  );
+  if (/^\d+$/.test(tsdbId)) {
+    try {
+      const payload = await fetchTheSportsDbEventStats(tsdbId);
+      const stats = normalizeProviderStats(payload);
+      return { stats, source: "thesportsdb", payload };
+    } catch {}
+  }
+
+  // Locate a free provider match if this row came from ESPN/BSD only.
+  try {
+    const found = await findFreeProviderMatch(match);
+    if (found) {
+      const foundMeta = found?.provider_meta || found?.raw_data?.provider_meta || {};
+      const slug = String(foundMeta?.sportscore?.slug || "");
+      if (slug) {
+        const payload = await fetchSportScoreDetail(slug, Boolean(match?.is_live));
+        return { stats: normalizeProviderStats(payload), source: "sportscore", payload, match: found };
+      }
+      const id = String(found?.provider_ids?.thesportsdb || found?.source_match_id || "");
+      if (String(found?.source_name) === "thesportsdb" && /^\d+$/.test(id)) {
+        const payload = await fetchTheSportsDbEventStats(id);
+        return { stats: normalizeProviderStats(payload), source: "thesportsdb", payload, match: found };
+      }
+    }
+  } catch {}
+  return null;
+}
+
 export function normalizeOpenLigaDb(item: any) {
   if (!item || typeof item !== "object") return null;
   const home = item.team1?.teamName;
