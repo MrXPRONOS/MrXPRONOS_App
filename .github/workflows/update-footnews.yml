@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/update-footnews.yml'
       - 'fetch_foot_news.py'
+      - 'scripts/football_news_engine.py'
 
 permissions:
   contents: write
@@ -63,8 +64,6 @@ jobs:
       - name: Commit refreshed news without overwriting concurrent content
         env:
           FOOTBALL_RSS_FEED: https://madeinfoot.ouest-france.fr/flux/rss_news.php
-          EXTRA_FOOTBALL_RSS_FEEDS: https://www.france24.com/fr/tag/football/rss,https://www.footmercato.net/flux-rss
-          ENABLE_TRANSLATION: '0'
           MAX_ARTICLES: '60'
           MAX_NEWS_AGE_HOURS: '120'
         shell: bash
@@ -75,7 +74,8 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             python fetch_foot_news.py
-            git add footnews.json assets/images/footnews/
+            git add footnews.json
+            if [ -d assets/images/footnews ]; then git add -A assets/images/footnews; fi
             if git diff --cached --quiet; then
               echo "Aucune nouvelle actualité ou image."
               exit 0
