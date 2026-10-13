@@ -150,6 +150,7 @@ def _canonical(
         "minute": _minute_value(status) or 0,
         "event_date": event_date,
         "league": _text(league),
+        "league_name": _text(league),
         "home_logo": _text(home_logo),
         "away_logo": _text(away_logo),
         "provider_slug": _text(slug),
