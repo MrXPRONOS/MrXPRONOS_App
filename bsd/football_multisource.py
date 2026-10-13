@@ -178,6 +178,66 @@ def _season_for(day: date) -> int:
     return day.year if day.month >= 7 else day.year - 1
 
 
+def map_events_to_reference_ids(
+    references: Iterable[dict],
+    candidates: Iterable[dict],
+    *,
+    max_hours: float = 4.0,
+) -> tuple[list[dict], list[dict]]:
+    """Remappe des résultats gratuits sur des IDs déjà connus (ex: IDs BSD publiés).
+
+    Aucun nouvel ID BSD n'est inventé. On exige les équipes dans le même ordre et
+    un horaire proche; les références non confirmées sont renvoyées dans missing.
+    """
+    pool = [row for row in candidates if isinstance(row, dict)]
+    mapped: list[dict] = []
+    missing: list[dict] = []
+    used: set[int] = set()
+
+    for ref in references:
+        if not isinstance(ref, dict):
+            continue
+        ref_id = ref.get("source_event_id", ref.get("id"))
+        rh, ra = _team_name(ref, "home"), _team_name(ref, "away")
+        rt = _moment(ref.get("event_date") or ref.get("date"))
+        best_index = -1
+        best_score = 0.0
+        for index, row in enumerate(pool):
+            if index in used:
+                continue
+            home_score = _similarity(rh, _team_name(row, "home"))
+            away_score = _similarity(ra, _team_name(row, "away"))
+            if min(home_score, away_score) < 0.52:
+                continue
+            score = (home_score + away_score) / 2
+            ct = _moment(row.get("event_date") or row.get("date"))
+            if rt and ct:
+                hours = abs((rt - ct).total_seconds()) / 3600
+                if hours > max_hours:
+                    continue
+                score += max(0.0, 0.16 - hours * 0.03)
+            if score > best_score:
+                best_index, best_score = index, score
+
+        if best_index < 0:
+            missing.append(ref)
+            continue
+
+        used.add(best_index)
+        row = dict(pool[best_index])
+        original_id = row.get("id")
+        row["provider_event_id"] = original_id
+        row["id"] = ref_id
+        row["source_event_id"] = ref_id
+        # IDs d'équipes/ligues déjà connus restent préférables pour les modèles BSD.
+        for key in ("home_team_id", "away_team_id", "league_id"):
+            if ref.get(key) is not None:
+                row[key] = ref.get(key)
+        mapped.append(row)
+
+    return mapped, missing
+
+
 class MultiSourceFootballClient:
     """Client compatible avec les besoins éditoriaux de BSDClient.
 
