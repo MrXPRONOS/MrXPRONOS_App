@@ -3,6 +3,11 @@ name: Editorial - Facebook Page liens du site
 on:
   workflow_dispatch:
     inputs:
+      trigger_source:
+        description: "Origine du déclenchement"
+        required: false
+        default: "manual"
+        type: string
       publish:
         description: "Autoriser un vrai post sur la Page Facebook"
         required: true
@@ -38,11 +43,12 @@ jobs:
           META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
           META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
           EVENT_NAME: ${{ github.event_name }}
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
           REQUESTED_PUBLISH: ${{ inputs.publish || 'false' }}
           AUTO_ENABLED: ${{ vars.EDITORIAL_FACEBOOK_ENABLED || 'false' }}
         shell: bash
         run: |
-          if [ "$REQUESTED_PUBLISH" = 'true' ] || { [ "$EVENT_NAME" = 'schedule' ] && [ "$AUTO_ENABLED" = 'true' ]; }; then
+          if [ "$REQUESTED_PUBLISH" = 'true' ] || { [ "$AUTO_ENABLED" = 'true' ] && { [ "$EVENT_NAME" = 'schedule' ] || [ "$TRIGGER_SOURCE" = 'cron-job.org' ]; }; }; then
             python scripts/editorial_facebook.py --publish
           else
             python scripts/editorial_facebook.py
