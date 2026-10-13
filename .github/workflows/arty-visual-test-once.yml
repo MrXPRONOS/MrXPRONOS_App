@@ -34,5 +34,5 @@ jobs:
           python -m unittest discover -s tests_football_channel -p 'test_arty_visual_templates.py' -v
       - name: Verify strict TEST-only Telegram route
         run: python scripts/telegram_test_guard.py
-      - name: Send eleven simulated premium cards to Telegram test channel
+      - name: Send twelve simulated premium cards to Telegram test channel
         run: python scripts/arty_visual_test_send.py
