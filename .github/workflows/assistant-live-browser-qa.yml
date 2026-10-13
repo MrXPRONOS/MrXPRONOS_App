@@ -1,0 +1,24 @@
+name: Assistant LIVE local browser QA
+on:
+  push:
+    branches: [assistant-qa50-live-fixes-20261013]
+    paths:
+      - 'live.html'
+      - 'tests/assistant_live_local_browser.mjs'
+      - '.github/workflows/assistant-live-browser-qa.yml'
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install chromium --with-deps
+      - name: Local LIVE desktop mobile check
+        run: |
+          python3 -m http.server 8765 >/tmp/mx-http.log 2>&1 &
+          sleep 2
+          node tests/assistant_live_local_browser.mjs
