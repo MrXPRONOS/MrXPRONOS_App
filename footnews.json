@@ -1,5 +1,39 @@
 [
   {
+    "slug": "bba3b0259a060ccd",
+    "title": "Ligue des champions : Saka, Giroud, Gyokeres… Les notes d’Arsenal-Lille",
+    "summary": "Un jubilé réussi pour Olivier Giroud.",
+    "summary_short": "Un jubilé réussi pour Olivier Giroud.",
+    "content": "Un jubilé réussi pour Olivier Giroud.",
+    "paragraphs": [
+      "Un jubilé réussi pour Olivier Giroud."
+    ],
+    "key_points": [
+      "Un jubilé réussi pour Olivier Giroud."
+    ],
+    "telegram_summary": "Un jubilé réussi pour Olivier Giroud.",
+    "link": "https://www.sofoot.com/articles/ligue-des-champions-saka-giroud-gyokeres-les-notes-darsenal-lille",
+    "source_url": "https://www.sofoot.com/articles/ligue-des-champions-saka-giroud-gyokeres-les-notes-darsenal-lille",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bba3b0259a060ccd",
+    "published": "2026-10-13T21:30:10+00:00",
+    "image": "assets/images/footnews/bba3b0259a060ccd.webp",
+    "source_image": "https://sofoot.s3.eu-central-1.amazonaws.com/wp-content/uploads/2026/10/13232453/ICONSPORT_376431_0170-scaled.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "So Foot",
+    "source_priority": 77,
+    "source_region": "international",
+    "source_feed": "https://www.sofoot.com/rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "So Foot"
+    ],
+    "quality_score": 77
+  },
+  {
     "slug": "1edb2960ac90c64c",
     "title": "Ligue des champions : dépassé, Lille n'a pas tenu la distance face à Arsenal... Revivez la rencontre de la deuxième journée de phase de ligue",
     "summary": "Après avoir été renversés par le Betis Seville lors de la première journée, les Lillois ont concédé une deuxième défaite en autant de matchs de C1, mardi, face à Arsenal.",
@@ -15,7 +49,7 @@
     "link": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "source_url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/direct-ligue-des-champions-lille-va-t-il-ouvrir-son-compteur-a-arsenal-suivez-avec-nous-la-rencontre-de-la-deuxieme-journee-de-phase-de-ligue_8233624.html#xtor=RSS-3-%5Bgeneral%5D",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=1edb2960ac90c64c",
-    "published": "2026-10-13T21:23:47+00:00",
+    "published": "2026-10-13T21:27:01+00:00",
     "image": "assets/images/footnews/1edb2960ac90c64c.webp",
     "source_image": "https://www.franceinfo.fr/pictures/-jSX3DUaqWTleynnxxHaTrTq3aA/0x97:5000x2910/432x243/filters:format(jpg)/2026/10/13/6ace94a53f4f8993353928.jpg",
     "image_origin": "source",
@@ -472,7 +506,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T21:24:20.929757+00:00"
+      "checked_at": "2026-10-13T21:31:35.165154+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -777,7 +811,7 @@
         "Soccer"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-13T21:24:20.929757+00:00"
+      "checked_at": "2026-10-13T21:31:35.165154+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -875,7 +909,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T21:24:20.929757+00:00"
+      "checked_at": "2026-10-13T21:31:35.165154+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1006,7 +1040,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T21:24:20.929757+00:00"
+      "checked_at": "2026-10-13T21:31:35.165154+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1204,7 +1238,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T21:24:20.929757+00:00"
+      "checked_at": "2026-10-13T21:31:35.165154+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1243,30 +1277,27 @@
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
-      "article_id": "50174986",
-      "url": "https://www.espn.com/soccer/story/_/id/50174986/manchester-city-deserved-trophies-psg-boss-luis-enrique",
-      "published": "2026-10-13T17:39:16Z",
-      "score": 0.231,
+      "article_id": "50176946",
+      "url": "https://www.espn.com/video/clip/_/id/50176946/manchester-city-deserve-their-trophies",
+      "published": "2026-10-13T21:19:27Z",
+      "score": 0.25,
       "matched_terms": [
         "city",
         "enrique",
-        "luis"
+        "manchester"
       ],
-      "topics": [
-        "news"
-      ],
+      "topics": [],
       "teams": [
         "Manchester City",
         "Paris Saint-Germain"
       ],
       "athletes": [],
       "leagues": [
-        "English Premier League",
         "Soccer",
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T21:24:20.929757+00:00"
+      "checked_at": "2026-10-13T21:31:35.165154+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1568,7 +1599,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T21:24:20.929757+00:00"
+      "checked_at": "2026-10-13T21:31:35.165154+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1802,7 +1833,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T21:24:20.929757+00:00"
+      "checked_at": "2026-10-13T21:31:35.165154+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1868,7 +1899,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T21:24:20.929757+00:00"
+      "checked_at": "2026-10-13T21:31:35.165154+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2169,7 +2200,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T21:24:20.929757+00:00"
+      "checked_at": "2026-10-13T21:31:35.165154+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -2261,7 +2292,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T21:24:20.929757+00:00"
+      "checked_at": "2026-10-13T21:31:35.165154+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2331,41 +2362,6 @@
     "category": "Déclarations",
     "category_emoji": "🗣️",
     "editorial_score": 5,
-    "espn_verification": {},
-    "quality_sources": [
-      "Franceinfo"
-    ],
-    "quality_score": 82
-  },
-  {
-    "slug": "e3cd65a7df7bcc61",
-    "title": "\"C'est moi, moi, moi et moi\" : Jean-Pierre Papin agacé par la communication de Kylian Mbappé sur le Ballon d'Or",
-    "summary": "Lauréat du Ballon d'Or en 1991, Jean-Pierre Papin s'agace, dans Stade 2 la quotidienne, du manque de modestie de Kylian Mbappé pour l'attribution du trophée 2026. Il regrette que l'actuel capitaine de l'équipe de France affiche aussi ouvertement qu'il est le seul à mériter de remporter le Ballon d'Or 2026.",
-    "summary_short": "Lauréat du Ballon d'Or en 1991, Jean-Pierre Papin s'agace, dans Stade 2 la quotidienne, du manque de modestie de Kylian Mbappé pour l'attribution du trophée 2026. Il regrette que l'actuel capitaine de l'équipe de France affiche aussi ouvertement qu'il est le seul à mériter de remporter le Ballon d'Or 2026.",
-    "content": "Lauréat du Ballon d'Or en 1991, Jean-Pierre Papin s'agace, dans Stade 2 la quotidienne, du manque de modestie de Kylian Mbappé pour l'attribution du trophée 2026. Il regrette que l'actuel capitaine de l'équipe de France affiche aussi ouvertement qu'il est le seul à mériter de remporter le Ballon d'Or 2026.",
-    "paragraphs": [
-      "Lauréat du Ballon d'Or en 1991, Jean-Pierre Papin s'agace, dans Stade 2 la quotidienne, du manque de modestie de Kylian Mbappé pour l'attribution du trophée 2026. Il regrette que l'actuel capitaine de l'équipe de France affiche aussi ouvertement qu'il est le seul à mériter de remporter le Ballon d'Or 2026."
-    ],
-    "key_points": [
-      "Lauréat du Ballon d'Or en 1991, Jean-Pierre Papin s'agace, dans Stade 2 la quotidienne, du manque de modestie de Kylian Mbappé pour l'attribution du trophée 2026.",
-      "Il regrette que l'actuel capitaine de l'équipe de France affiche aussi ouvertement qu'il est le seul à mériter de remporter le Ballon d'Or 2026."
-    ],
-    "telegram_summary": "Lauréat du Ballon d'Or en 1991, Jean-Pierre Papin s'agace, dans Stade 2 la quotidienne, du manque de modestie de Kylian Mbappé pour l'attribution du trophée 2026. Il regrette que l'actuel capitaine de l'équipe de France affiche aussi ouvertement qu'il est le seul à mériter de remporter le Ballon d'Or 2026.",
-    "link": "https://www.franceinfo.fr/sports/foot/kylian-mbappe/c-est-moi-moi-moi-et-moi-jean-pierre-papin-agace-par-la-communication-de-kylian-mbappe-sur-le-ballon-d-or_8235232.html#xtor=RSS-3-%5Bgeneral%5D",
-    "source_url": "https://www.franceinfo.fr/sports/foot/kylian-mbappe/c-est-moi-moi-moi-et-moi-jean-pierre-papin-agace-par-la-communication-de-kylian-mbappe-sur-le-ballon-d-or_8235232.html#xtor=RSS-3-%5Bgeneral%5D",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=e3cd65a7df7bcc61",
-    "published": "2026-10-13T09:39:24+00:00",
-    "image": "assets/images/footnews/e3cd65a7df7bcc61.webp",
-    "source_image": "https://www.franceinfo.fr/pictures/t1XrceS65M5g1ZTO4RGE0RiTWy8/279x0:662x682/fit-in/432x243/filters:upscale():fill(blur):format(jpg)/2026/10/13/6acdf399445a2010337123.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Franceinfo",
-    "source_priority": 82,
-    "source_region": "international",
-    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
     "espn_verification": {},
     "quality_sources": [
       "Franceinfo"
