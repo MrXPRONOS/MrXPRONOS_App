@@ -1,0 +1,36 @@
+name: Telegram - Test canal visuel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-test-channel-smoke
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Vérifier que le canal de test est configuré
+        shell: bash
+        run: |
+          test -n "$FOOTBALL_NEWS_BOT_TOKEN"
+          if [ -z "$TELEGRAM_TEST_CHAT_ID" ]; then
+            echo "::error::Ajoute TELEGRAM_TEST_CHAT_ID dans Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+      - name: Installer Pillow et requests
+        run: python -m pip install Pillow requests
+      - name: Envoyer une vraie carte uniquement dans le canal de test
+        run: python scripts/telegram_test_smoke.py
