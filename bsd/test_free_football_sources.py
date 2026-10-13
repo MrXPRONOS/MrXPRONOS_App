@@ -116,8 +116,9 @@ class TestFreeFootballSources(unittest.TestCase):
         self.assertEqual(goals[0]["player"], "Scorer")
         self.assertEqual(goals[0]["assists"], ["Assist"])
 
-    def test_sportscore_odds_remain_unverified_by_default(self):
-        old = os.environ.pop("SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS", None)
+    def test_sportscore_odds_remain_diagnostic_even_if_legacy_flag_is_set(self):
+        old = os.environ.get("SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS")
+        os.environ["SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS"] = "1"
         try:
             probe = extract_sportscore_odds({
                 "match": {"odds": [{"market": "1x2", "home": 1.9}]}
@@ -126,7 +127,9 @@ class TestFreeFootballSources(unittest.TestCase):
             self.assertFalse(probe["contract_verified"])
             self.assertFalse(probe["automation_allowed"])
         finally:
-            if old is not None:
+            if old is None:
+                os.environ.pop("SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS", None)
+            else:
                 os.environ["SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS"] = old
 
     def test_h2h_summary(self):
