@@ -28,6 +28,12 @@ function numberOrNull(value: unknown): number | null {
   const n = Number(String(value).replace(/%$/, "").replace(",", "."));
   return Number.isFinite(n) ? n : null;
 }
+function minuteFromStatus(value: unknown) {
+  const raw = text(value);
+  const match = raw.match(/(\d+)(?:\D*\+\D*(\d+))?/);
+  if (!match) return 0;
+  return Math.max(0, Number(match[1] || 0) + Number(match[2] || 0));
+}
 function safeDate(value: unknown): string | null {
   if (!value) return null;
   const d = new Date(String(value));
@@ -134,6 +140,8 @@ function canonical(args: {
     away_score: numberOrNull(args.awayScore),
     status: state === "post" ? "finished" : state === "in" ? "live" : "scheduled",
     state,
+    minute: minuteFromStatus(statusText),
+    current_minute: minuteFromStatus(statusText),
     is_live: state === "in",
     is_finished: state === "post",
     event_date: eventDate,
