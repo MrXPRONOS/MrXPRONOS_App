@@ -390,7 +390,10 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         if odds_fetcher and stats["odds_attempts"] < max_odds_requests:
             stats["odds_attempts"]+=1
             try:
-                quotes,_diagnostics=odds_fetcher(f,now)
+                pricing_event=dict(f)
+                pricing_event["_odds_target_market"]=(selected_football_market.get("internal_market_code")
+                                                    or selected_football_market.get("market_code"))
+                quotes,_diagnostics=odds_fetcher(pricing_event,now)
                 if not isinstance(quotes,dict):
                     quotes={}
             except Exception as exc:
@@ -565,7 +568,7 @@ def main():
                                 captured_at=captured,bookmaker_slug="consensus")
     odds_router = OddsRouter(bsd_odds_fetcher)
     def odds_fetcher(event, captured):
-        return odds_router.fetch(event, captured)
+        return odds_router.fetch(event, captured, market_code=event.get("_odds_target_market"))
     output=assemble(existing,fixtures,historic,now=now,calibration=cal,policy=policy,
                     rho=rho,odds_fetcher=odds_fetcher,max_odds_requests=args.max_odds_events,
                     btts_model=btts_model,total_model=total_model,dc_model=dc_model)
