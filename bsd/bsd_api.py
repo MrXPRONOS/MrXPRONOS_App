@@ -16,6 +16,8 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import requests
 
+from free_sources import FreeFootballHub, SOURCE_RANKINGS
+
 BASE_URL = "https://sports.bzzoiro.com/api/v2"
 DEFAULT_CACHE_DIR = Path("bsd/cache")
 
@@ -89,6 +91,13 @@ class BSDClient:
         })
         self.requests_made = 0
         self.cache_hits = 0
+        self.free_hub = FreeFootballHub(
+            session=requests.Session(),
+            timeout=min(timeout, 18),
+            enabled=str(os.getenv("BSD_FREE_SOURCES", "1")).lower() not in {"0", "false", "no"},
+        )
+        self._event_lookup: Dict[str, Dict[str, Any]] = {}
+        self.free_source_diagnostics: Dict[str, Any] = {}
         self.rate_limit_remaining: Optional[int] = None
         self.rate_limit_header = ""
         self._last_call_at: Optional[float] = None
@@ -250,6 +259,38 @@ class BSDClient:
                     events.append(item)
             if len(events) >= total or not rows or len(rows) < page_size:
                 break
+        # Enrich BSD fixtures with independent free providers. BSD IDs are
+        # preserved so historical modelling remains compatible.
+        if self.free_hub.enabled:
+            cursor = date_from
+            aggregate = {
+                "free_source_matches": 0,
+                "multi_source_confirmed": 0,
+                "fields_filled": 0,
+                "sportscore_calls": 0,
+                "thesportsdb_calls": 0,
+                "openligadb_calls": 0,
+            }
+            while cursor <= date_to:
+                day_events = []
+                for item in events:
+                    try:
+                        item_day = str(item.get("event_date") or "")[:10]
+                    except Exception:
+                        item_day = ""
+                    if item_day == cursor.isoformat():
+                        day_events.append(item)
+                if day_events:
+                    diag = self.free_hub.enrich_bsd_events(day_events, cursor)
+                    for key in aggregate:
+                        aggregate[key] += int(diag.get(key) or 0)
+                cursor = date.fromordinal(cursor.toordinal() + 1)
+            self.free_source_diagnostics = aggregate
+
+        for item in events:
+            if isinstance(item, dict) and item.get("id") is not None:
+                self._event_lookup[str(item["id"])] = item
+
         return BSDPage(
             events=events,
             total_reported=total if total is not None else 0,
@@ -359,4 +400,75 @@ class BSDClient:
     def get_h2h(self, event_id: int, *, ttl: int = 86400) -> Any:
         if int(event_id) <= 0:
             raise ValueError("Identifiant BSD invalide")
+
+        # SportScore has a documented free H2H endpoint. Use it before BSD to
+        # save quota whenever we can map the fixture teams reliably.
+        fixture = self._event_lookup.get(str(int(event_id)))
+        if self.free_hub.enabled and isinstance(fixture, dict):
+            home = fixture.get("home_team")
+            away = fixture.get("away_team")
+            home_name = str(home.get("name") if isinstance(home, dict) else home or "").strip()
+            away_name = str(away.get("name") if isinstance(away, dict) else away or "").strip()
+            hid = fixture.get("home_team_id")
+            aid = fixture.get("away_team_id")
+            if hid is None and isinstance(home, dict):
+                hid = home.get("id")
+            if aid is None and isinstance(away, dict):
+                aid = away.get("id")
+            if home_name and away_name and hid and aid:
+                meetings = self.free_hub.sportscore_h2h(home_name, away_name, limit=20)
+                normalized = []
+                for row in meetings:
+                    if not isinstance(row, dict):
+                        continue
+                    rh, ra = str(row.get("home_team") or ""), str(row.get("away_team") or "")
+                    row["home_team_id"] = int(hid) if rh and rh.casefold() == home_name.casefold() else (
+                        int(aid) if rh and rh.casefold() == away_name.casefold() else row.get("home_team_id")
+                    )
+                    row["away_team_id"] = int(aid) if ra and ra.casefold() == away_name.casefold() else (
+                        int(hid) if ra and ra.casefold() == home_name.casefold() else row.get("away_team_id")
+                    )
+                    if row.get("home_score") is not None and row.get("away_score") is not None:
+                        normalized.append(row)
+                if normalized:
+                    home_wins = away_wins = draws = 0
+                    home_goals = away_goals = 0
+                    for row in normalized:
+                        hs, aws = int(row["home_score"]), int(row["away_score"])
+                        if int(row.get("home_team_id") or 0) == int(hid):
+                            fh, fa = hs, aws
+                        else:
+                            fh, fa = aws, hs
+                        home_goals += fh
+                        away_goals += fa
+                        if fh > fa:
+                            home_wins += 1
+                        elif fh < fa:
+                            away_wins += 1
+                        else:
+                            draws += 1
+                    total = len(normalized)
+                    return {
+                        "source": "sportscore",
+                        "total_matches": total,
+                        "home_wins": home_wins,
+                        "away_wins": away_wins,
+                        "draws": draws,
+                        "home_goals": home_goals,
+                        "away_goals": away_goals,
+                        "avg_total_goals": round((home_goals + away_goals) / total, 3),
+                        "recent_matches": normalized[:10],
+                        "quality_rank": SOURCE_RANKINGS["sportscore"],
+                    }
+
         return self.get_json("/events/" + str(int(event_id)) + "/h2h/", ttl=ttl)
+
+    def provider_diagnostics(self) -> Dict[str, Any]:
+        return {
+            "bsd_requests": self.requests_made,
+            "bsd_cache_hits": self.cache_hits,
+            "bsd_rate_limit_remaining": self.rate_limit_remaining,
+            "free_sources": self.free_hub.diagnostics(),
+            "free_enrichment": self.free_source_diagnostics,
+            "ranking": SOURCE_RANKINGS,
+        }
