@@ -93,7 +93,7 @@ jobs:
         shell: bash
         run: |
           if [ "$RUN_MODE" = "lifecycle" ]; then
-            python -m pip install --disable-pip-version-check requests
+            python -m pip install --disable-pip-version-check requests Pillow
           else
             python -m pip install --disable-pip-version-check requests Pillow feedparser imageio-ffmpeg
           fi
