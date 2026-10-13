@@ -7727,7 +7727,7 @@ async function dailyGenerateSnapshots() {
     const stake = DAILY_DEFAULT_STAKE;
     const odds = Number(picked.odds.toFixed(2));
     const gain = Math.round(stake * odds);
-    const numericBsdId = Number(bsdEventId);
+    const numericBsdId = bsdEventId ? Number(bsdEventId) : Number.NaN;
 
     const row = {
       prediction_date: date,
@@ -7854,34 +7854,52 @@ async function dailyValidateSnapshots() {
   let won = 0;
   let lost = 0;
 
+  let bsdFallbackDates = 0;
+  let freeValidated = 0;
+  let bsdValidated = 0;
+
   for (const [date, preds] of byDate.entries()) {
     let events: any[] = [];
+    let bsdEvents: any[] | null = null;
 
     try {
-      const payload = await fetchBSD("/events/", {
-        status: "finished",
-        date_from: date,
-        date_to: date,
-        limit: "200",
-      });
-
-      events = dailyResultRows(payload).filter(isFinishedEvent);
+      const calendar = await dailyFetchAllEventsForDate(date);
+      events = (calendar.events || []).filter(isFinishedEvent);
     } catch (e) {
-      console.warn("Validation daily: événements terminés indisponibles", e);
-      continue;
+      console.warn("Validation daily: sources gratuites indisponibles", e);
     }
 
     for (const p of preds) {
       checked++;
 
-      let ev = events.find(
-        (x: any) =>
-          String(dailyEventId(x)) ===
-          String(p?.bsd_event_id),
-      );
+      let ev = dailyFindEventForProno(p, events);
+      let validationSource = ev ? providerName(ev) : "";
 
-      if (!ev) ev = dailyFindEventForProno(p, events);
+      // BSD n'est interrogé que si aucune des sources gratuites ne confirme
+      // encore le résultat final.
+      if (!ev || !isFinishedEvent(ev)) {
+        if (BSD_API_TOKEN) {
+          if (bsdEvents === null) {
+            try {
+              bsdEvents = (await dailyFetchBsdEventsForDate(date)).filter(isFinishedEvent);
+              bsdFallbackDates++;
+            } catch (e) {
+              console.warn("Validation daily: fallback BSD indisponible", e);
+              bsdEvents = [];
+            }
+          }
+          ev = bsdEvents.find(
+            (x: any) =>
+              p?.bsd_event_id != null &&
+              String(dailyEventId(x)) === String(p?.bsd_event_id),
+          ) || dailyFindEventForProno(p, bsdEvents);
+          validationSource = ev ? "bsd" : "";
+        }
+      }
+
       if (!ev || !isFinishedEvent(ev)) continue;
+      if (validationSource === "bsd") bsdValidated++;
+      else freeValidated++;
 
       const hs = safeNumber(
         ev?.home_score ??
@@ -7929,7 +7947,15 @@ async function dailyValidateSnapshots() {
     }
   }
 
-  return { checked, validated, won, lost };
+  return {
+    checked,
+    validated,
+    won,
+    lost,
+    free_validated: freeValidated,
+    bsd_validated: bsdValidated,
+    bsd_fallback_dates: bsdFallbackDates,
+  };
 }
 
 // =======================================================
