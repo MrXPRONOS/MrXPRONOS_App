@@ -30,9 +30,12 @@ sys.path.insert(0, str(ROOT / "bsd"))
 sys.path.insert(0, str(ROOT / "scripts"))
 from bsd_api import BSDClient, BSDAPIError  # noqa: E402
 from bsd_h2h import hybrid_h2h  # noqa: E402
-from telegram_rich import post_photo, post_text  # noqa: E402
+from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
 from football_match_lifecycle import lifecycle_signals  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
+from football_viral_engine import (  # noqa: E402
+    build_viral_payload, render_animation, media_credit_text, media_credit_url,
+)
 from football_community_engine import (  # noqa: E402
     build_match_vote,
     build_stats_quiz,
@@ -48,7 +51,7 @@ NEWS_CHAT_ENV = "FOOTBALL_NEWS_CHAT_ID"
 MAX_MESSAGES_PER_RUN = 2
 LIMITS = {"flash": 2, "programme": 1, "avant_match": 2, "resultat": 2,
           "statistique": 1, "sondage": 1, "quiz": 1, "debat": 1,
-          "reaction": 1, "composition": 6, "kickoff": 8,
+          "reaction": 1, "viral": 1, "composition": 6, "kickoff": 8,
           "goal": 14, "mi_temps": 8}
 LEAGUE_TERMS = (
     "champions league", "premier league", "ligue 1", "la liga", "laliga",
@@ -85,6 +88,7 @@ CATEGORY_LABELS = {
     "quiz": "🧠 QUIZ FOOT",
     "debat": "💬 DÉBAT DU JOUR",
     "reaction": "⭐ RÉACTION DU SOIR",
+    "viral": "🎬 MOMENT VIRAL",
     "composition": "📋 COMPOSITIONS OFFICIELLES",
     "kickoff": "▶️ COUP D’ENVOI",
     "goal": "⚽ BUT",
@@ -101,6 +105,7 @@ EDITORIAL_WINDOWS = {
     "statistique": ((12, 15), (13, 15)),  # cible 12h30
     "sondage": ((14, 45), (15, 45)),      # cible 15h00
     "community_evening": ((17, 45), (18, 45)), # cible 18h00
+    "viral": ((19, 15), (20, 15)),             # cible 19h30/20h00
     "community_reaction": ((21, 0), (22, 45)), # après les grosses affiches
 }
 PRODUCTION_START_HOUR = 7
@@ -373,6 +378,7 @@ class Publication:
     poll_description: str = ""
     poll_shuffle: bool = False
     poll_allows_revoting: bool = True
+    animation_payload: dict[str, Any] | None = None
 
 
 class Sender:
@@ -478,7 +484,20 @@ class Sender:
             print("ENVOYE", item.category, item.key, "message_id", identifier)
             return identifier
 
-        if item.image_path:
+        if item.animation_payload:
+            from football_viral_engine import render_animation
+            with tempfile.TemporaryDirectory(prefix="xpronos-viral-") as tmp:
+                animation = render_animation(
+                    item.animation_payload,
+                    Path(tmp) / "viral.gif",
+                    self.session,
+                )
+                identifier = post_animation(
+                    self.session, self.token, self.chat, animation,
+                    item.text[:1000], item.keyboard or {},
+                    timeout=120, mime="image/gif",
+                )
+        elif item.image_path:
             media = (ROOT / item.image_path).resolve()
             if not media.is_relative_to(ROOT.resolve()) or not media.is_file():
                 raise RuntimeError("Image News Football absente ou hors dépôt: " + str(item.image_path))
@@ -865,6 +884,44 @@ def avant_match(events: list[dict], history: History, now: datetime,
         "away_logo": team_visual_url(e, "away", allow_remote=True),
     }
     return Publication("avant_match", "avant_match:" + str(e["id"]), message, card=card)
+
+
+
+
+def viral_publication(
+    events: list[dict],
+    news: list[dict],
+    session: requests.Session,
+    now: datetime,
+) -> Publication | None:
+    payload = build_viral_payload(events, news, session, now, importance)
+    if not payload:
+        return None
+    key = plain(payload.get("key"), 190)
+    caption = str(payload.get("caption") or "").strip()
+    if not key or not caption:
+        return None
+
+    credit = media_credit_text(payload)
+    if credit:
+        caption += "\n\n<i>🎞️ Fond média : " + esc(credit) + "</i>"
+    caption = post_label(caption)
+
+    buttons = []
+    target = plain(payload.get("target_url"), 500)
+    if target.startswith("https://"):
+        buttons.append([{"text": "Voir plus ↗", "url": target, "style": "primary"}])
+    credit_url = media_credit_url(payload)
+    if credit_url.startswith("https://"):
+        buttons.append([{"text": "Crédit média ↗", "url": credit_url}])
+
+    return Publication(
+        "viral",
+        key,
+        caption,
+        keyboard={"inline_keyboard": buttons} if buttons else None,
+        animation_payload=payload,
+    )
 
 
 
@@ -1448,6 +1505,14 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             except (BSDAPIError, requests.RequestException, ValueError) as exc:
                 counter["errors"] += 1
                 print("ERREUR_BSD_MATCH", type(exc).__name__, str(exc)[:160])
+
+        if (force or in_editorial_window("viral", now)) and counter["sent"] < max_send:
+            if force or enough(state, "viral", now):
+                try:
+                    publish(viral_publication(get_day(today), load_site_news(), sender.session, now))
+                except (BSDAPIError, requests.RequestException, ValueError, TypeError, OSError) as exc:
+                    counter["errors"] += 1
+                    print("ERREUR_VIRAL", type(exc).__name__, str(exc)[:180])
 
         if (force or in_editorial_window("community_reaction", now)) and counter["sent"] < max_send:
             if force or enough(state, "reaction", now):

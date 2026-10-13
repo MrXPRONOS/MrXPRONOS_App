@@ -83,3 +83,28 @@ def post_text(session,token,chat,text,keyboard=None,*,timeout=60,html=False):
     body=resp.json()
     if not body.get("ok"):raise RuntimeError("Telegram rejected rich/text message")
     return body["result"]["message_id"]
+
+
+def post_animation(session,token,chat,animation,caption,keyboard=None,*,timeout=120,mime="image/gif"):
+    """Envoie une animation originale GIF/MP4 avec caption HTML et CTA."""
+    p=Path(animation)
+    data={
+        "chat_id":chat,
+        "caption":legacy_caption(caption),
+        "parse_mode":"HTML",
+        "show_caption_above_media":"false",
+    }
+    if keyboard:
+        data["reply_markup"]=json.dumps(keyboard,ensure_ascii=False)
+    with p.open("rb") as f:
+        resp=session.post(
+            f"https://api.telegram.org/bot{token}/sendAnimation",
+            data=data,
+            files={"animation":(p.name,f,mime)},
+            timeout=timeout,
+        )
+    resp.raise_for_status()
+    body=resp.json()
+    if not body.get("ok"):
+        raise RuntimeError("Telegram rejected animation")
+    return body["result"]["message_id"]
