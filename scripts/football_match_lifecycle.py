@@ -343,7 +343,15 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
 def collect_external(session: requests.Session, day: date, base_events: list[dict]) -> list[dict]:
     # ESPN d'abord car il donne aussi les identifiants nécessaires au résumé
     # (compositions / buteurs). Le cache Supabase BSD+ESPN reste le fallback local.
-    rows = fetch_espn_day(session, day)
+    days = {day}
+    # Un match choisi avant minuit doit rester suivi après minuit.
+    for event in base_events:
+        when = _event_time(event)
+        if when and abs((when.date() - day).days) <= 1:
+            days.add(when.date())
+    rows = []
+    for fixture_day in sorted(days):
+        rows.extend(fetch_espn_day(session, fixture_day))
     rows.extend(fetch_supabase_live(session))
     # OpenLigaDB n'est interrogé que si une rencontre Bundesliga est réellement
     # présente dans notre journée BSD; pas de trafic inutile.
@@ -374,6 +382,7 @@ def lifecycle_signals(
     now: datetime,
     session: requests.Session,
     importance_fn,
+    tracked_only: bool = False,
 ) -> list[dict]:
     """Construit les transitions publiables, triées par urgence éditoriale."""
     today = now.astimezone(timezone.utc).date()
@@ -381,7 +390,7 @@ def lifecycle_signals(
     # Mode lifecycle léger : si aucun calendrier BSD n'est fourni, ESPN/cache
     # live devient temporairement la liste de base. Cela évite toute requête
     # BSD dans les passages rapides de 10 minutes.
-    if not base_events:
+    if not base_events and not tracked_only:
         base_events = [
             item for item in external
             if item.get("source") in {"espn", "supabase_live"}
@@ -398,10 +407,13 @@ def lifecycle_signals(
         return summary_cache[event_id]
 
     for base in base_events:
+        signal_start = len(signals)
+        follow_ref = str(base.get("follow_ref") or "")
         ext = best_external_match(base, external)
         if not ext:
             continue
-        event_id = str(ext.get("id") or base.get("id") or "")
+        event_id = str(ext.get("id") or base.get("id") or "").removeprefix("espn:")
+        key_id = follow_ref or event_id
         home = _team_name(base, "home")
         away = _team_name(base, "away")
         league = _plain(base.get("league_name") or base.get("competition_name") or ext.get("league") or "Football")
@@ -411,13 +423,13 @@ def lifecycle_signals(
         aws = _score(ext.get("away_score"))
         score_text = f"{hs}-{aws}" if hs is not None and aws is not None else ""
         importance = int(importance_fn(base) or 0)
-        if importance <= 0 and not (is_live(ext) or is_halftime(ext)):
+        if importance <= 0 and not follow_ref and not (is_live(ext) or is_halftime(ext)):
             continue
         source = _plain(ext.get("source") or "source live")
 
         # Composition: on ne demande le résumé ESPN que pour des matchs proches.
         if kickoff and -timedelta(minutes=8) <= kickoff - now <= timedelta(minutes=85):
-            lineup_key = "composition:" + event_id
+            lineup_key = "composition:" + key_id
             if lineup_key not in sent_keys and ext.get("source") == "espn":
                 summary = summary_for(event_id)
                 lineups = extract_lineups(summary)
@@ -444,7 +456,7 @@ def lifecycle_signals(
             is_live(ext) and 0 <= minute <= 12
             and (hs is None or hs == 0) and (aws is None or aws == 0)
         ):
-            key = "kickoff:" + event_id
+            key = "kickoff:" + key_id
             if key not in sent_keys:
                 signals.append({
                     "kind": "kickoff", "key": key, "priority": 80 + importance,
@@ -453,10 +465,10 @@ def lifecycle_signals(
                 })
 
         if is_halftime(ext):
-            key = "mi_temps:" + event_id
+            key = "mi_temps:" + key_id
             if key not in sent_keys:
                 signals.append({
-                    "kind": "mi_temps", "key": key, "priority": 90 + importance,
+                    "kind": "mi_temps", "key": key, "priority": 135 + importance,
                     "home": home, "away": away, "league": league,
                     "score": score_text, "source": source,
                 })
@@ -478,10 +490,11 @@ def lifecycle_signals(
                 and (minute <= 0 or 0 <= minute - goal_minute <= 14)
             )
             scorer_key = _norm(last_goal.get("player") or "unknown").replace(" ", "-")[:42]
-            key = f"goal:{event_id}:{hs}-{aws}:{goal_minute}:{scorer_key}"
-            if key not in sent_keys and recent_goal:
+            key = f"goal:{key_id}:{hs}-{aws}:{goal_minute}:{scorer_key}"
+            if (key not in sent_keys and recent_goal
+                    and f"score_update:{key_id}:{score_text}" not in sent_keys):
                 signals.append({
-                    "kind": "goal", "key": key, "priority": 100 + importance,
+                    "kind": "goal", "key": key, "priority": 145 + importance,
                     "home": home, "away": away, "league": league, "minute": minute,
                     "score": score_text, "source": "ESPN" if summary else source,
                     "goal": last_goal,
@@ -489,28 +502,46 @@ def lifecycle_signals(
                     "away_team_id": ext.get("away_team_id"),
                 })
 
-    # Rattrapage: score observé par une source live mais sans détail du buteur.
-    # Ne pas présenter une découverte tardive comme un but instantané.
-    goal_score_pairs = {(item.get("home"), item.get("away"), item.get("score")) for item in signals if item.get("kind") == "goal"}
-    for match in external:
-        if not (is_live(match) or is_halftime(match)):
+        # Le match se conclut UNIQUEMENT avec un état final + un score confirmé.
+        if _plain(ext.get("state")).lower() in {"post", "finished", "ft", "full_time"}:
+            if hs is not None and aws is not None and follow_ref:
+                home_logo = _plain(ext.get("home_logo") or (base.get("home_team") or {}).get("logo"))
+                away_logo = _plain(ext.get("away_logo") or (base.get("away_team") or {}).get("logo"))
+                final_key = "resultat:" + follow_ref
+                if final_key not in sent_keys:
+                    signals.append({
+                        "kind": "resultat_final", "key": final_key,
+                        "priority": 240 + importance, "home": home, "away": away,
+                        "league": league, "score": score_text, "source": source,
+                        "home_logo": home_logo, "away_logo": away_logo,
+                        "day": now.strftime("%d/%m/%Y"),
+                    })
+        for signal in signals[signal_start:]:
+            signal["follow_ref"] = follow_ref
+
+    # Relevé de score, toujours limité aux rencontres explicitement retenues.
+    goal_score_pairs = {(item.get("follow_ref"), item.get("score"))
+                        for item in signals if item.get("kind") == "goal"}
+    for base in base_events:
+        match = best_external_match(base, external)
+        if not match or not (is_live(match) or is_halftime(match)):
             continue
         hs, aws = _score(match.get("home_score")), _score(match.get("away_score"))
         if hs is None or aws is None or hs + aws == 0:
             continue
+        ref = str(base.get("follow_ref") or "")
+        event_id = ref or str(match.get("id") or "").removeprefix("espn:")
         score_text = f"{hs}-{aws}"
-        event_id = str(match.get("id") or "").removeprefix("espn:")
         key = f"score_update:{event_id}:{score_text}"
-        if key in sent_keys or (match.get("home_team"), match.get("away_team"), score_text) in goal_score_pairs or any(
-            k.startswith(f"goal:{event_id}:{score_text}:") for k in sent_keys
-        ):
+        if (key in sent_keys or (ref, score_text) in goal_score_pairs
+                or any(k.startswith(f"goal:{event_id}:{score_text}:") for k in sent_keys)):
             continue
         signals.append({
-            "kind": "score_update", "key": key, "priority": 105 + min(importance_fn(match), 50),
-            "home": match.get("home_team"), "away": match.get("away_team"),
-            "league": match.get("league") or "Football",
+            "kind": "score_update", "key": key, "priority": 110 + int(importance_fn(base) or 0),
+            "home": _team_name(base, "home"), "away": _team_name(base, "away"),
+            "league": base.get("league_name") or match.get("league") or "Football",
             "score": score_text, "minute": match.get("minute"),
-            "source": match.get("source") or "source live",
+            "source": match.get("source") or "source live", "follow_ref": ref,
         })
 
     # Un même match peut produire kickoff + goal si le but tombe immédiatement.
