@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/football_channel.py'
       - 'scripts/football_news_engine.py'
+      - 'scripts/football_match_lifecycle.py'
       - 'fetch_foot_news.py'
       - 'assets/js/main.js'
       - 'assets/css/infos-premium.css'
@@ -17,6 +18,7 @@ on:
     paths:
       - 'scripts/football_channel.py'
       - 'scripts/football_news_engine.py'
+      - 'scripts/football_match_lifecycle.py'
       - 'fetch_foot_news.py'
       - 'assets/js/main.js'
       - 'assets/css/infos-premium.css'
@@ -63,7 +65,7 @@ jobs:
       - name: Installer les dépendances du canal et des flux gratuits
         run: python -m pip install requests Pillow feedparser
       - name: Compiler le moteur News Football
-        run: python -m py_compile fetch_foot_news.py scripts/football_news_engine.py scripts/football_channel.py
+        run: python -m py_compile fetch_foot_news.py scripts/football_news_engine.py scripts/football_match_lifecycle.py scripts/football_channel.py scripts/telegram_research/extract_history.py scripts/telegram_research/create_session.py
       - name: Vérifier le JavaScript Infos Foot
         run: node --check assets/js/main.js
       - name: Tester réellement les flux News Football sans publication
@@ -82,6 +84,32 @@ jobs:
           assert all(Path(x["image"]).is_file() for x in rows)
           assert all(x.get("content") and x.get("telegram_summary") and x.get("site_url") for x in rows)
           print("NEWS_FREE_SOURCES_OK",len(rows),sorted({x.get("source") for x in rows}))
+          PY
+      - name: Vérifier les sources gratuites du cycle de match
+        run: |
+          python - <<'PY'
+          from datetime import datetime, timezone
+          import requests
+          import sys
+          sys.path.insert(0, "scripts")
+          import football_match_lifecycle as lifecycle
+
+          session = requests.Session()
+          today = datetime.now(timezone.utc).date()
+
+          espn = lifecycle.fetch_espn_day(session, today)
+          assert isinstance(espn, list)
+          print("ESPN_FREE_OK", len(espn), "matchs", today.isoformat())
+
+          response = session.get(
+              lifecycle.OPENLIGA_BASE + "/getavailableleagues",
+              headers={"User-Agent": "MrXPRONOS-CI/1.0"},
+              timeout=(7, 22),
+          )
+          response.raise_for_status()
+          leagues = response.json()
+          assert isinstance(leagues, list) and leagues
+          print("OPENLIGADB_FREE_OK", len(leagues), "ligues disponibles")
           PY
       - name: Verifier la presence des 6 templates premium
         run: |
