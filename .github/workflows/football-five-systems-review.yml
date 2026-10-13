@@ -1,0 +1,48 @@
+name: Actu Foot - Revue complete 5 moteurs (canal TEST)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/football-five-systems-review.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: actu-foot-five-systems-review
+  cancel-in-progress: false
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      FOOTBALL_REQUIRE_COMMENTS: '0'
+      FOOTBALL_BSD_REQUEST_BUDGET: '45'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer outils de rendu et de collecte
+        run: python -m pip install requests Pillow feedparser imageio-ffmpeg
+      - name: Controler syntaxe et tests de regression
+        run: |
+          python -m py_compile scripts/football_five_systems_test.py scripts/football_channel.py scripts/football_match_lifecycle.py
+          python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
+      - name: Verifier strictement le canal de test
+        env:
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
+      - name: Mettre a jour les actualites necessaires au test
+        env:
+          MAX_ARTICLES: '35'
+          MAX_NEWS_AGE_HOURS: '120'
+        run: python fetch_foot_news.py
+      - name: Publier tous les formats de test
+        run: python scripts/football_five_systems_test.py
