@@ -21,6 +21,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
+from urllib.parse import quote
 
 import requests
 
@@ -250,12 +251,21 @@ def _sportscore_match_rows(payload: Any) -> list[dict]:
         return [x for x in payload if isinstance(x, dict)]
     if not isinstance(payload, dict):
         return []
-    for key in ("matches", "fixtures", "results", "data"):
+    if any(k in payload for k in ("home", "away", "home_team", "away_team")):
+        return [payload]
+    for key in ("matches", "fixtures", "results", "data", "past", "recent", "upcoming"):
         value = payload.get(key)
         if isinstance(value, list):
             return [x for x in value if isinstance(x, dict)]
-    if any(k in payload for k in ("home", "away", "home_team", "away_team")):
-        return [payload]
+        if isinstance(value, dict):
+            nested = _sportscore_match_rows(value)
+            if nested:
+                return nested
+    for value in payload.values():
+        if isinstance(value, dict):
+            nested = _sportscore_match_rows(value)
+            if nested:
+                return nested
     return []
 
 
@@ -390,7 +400,7 @@ def normalize_openligadb_match(item: dict) -> dict | None:
 def fetch_openligadb_for_team(session: requests.Session, team_name: str) -> list[dict]:
     if not _plain(team_name):
         return []
-    safe_team = requests.utils.quote(_plain(team_name), safe="")
+    safe_team = quote(_plain(team_name), safe="")
     payload = _request_json(
         session,
         f"{OPENLIGADB_BASE}/getmatchesbyteam/{safe_team}/1/1",
@@ -879,7 +889,7 @@ class FreeFirstFootballClient:
                 cache_key=f"mesh:tsdb:search:{_norm(home)}:{_norm(away)}:{day}",
             )
             self.requests_by_provider["thesportsdb"] += 1
-            rows = payload.get("event") or payload.get("events") if isinstance(payload, dict) else []
+            rows = (payload.get("event") or payload.get("events") or []) if isinstance(payload, dict) else []
             for item in rows if isinstance(rows, list) else []:
                 row = normalize_tsdb_event(item) if isinstance(item, dict) else None
                 if row:
