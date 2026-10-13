@@ -1311,6 +1311,11 @@ def lifecycle_signals(
                     })
         for signal in signals[signal_start:]:
             signal["follow_ref"] = follow_ref
+            signal["provider_sources"] = (
+                list(ext.get("provider_sources"))
+                if isinstance(ext.get("provider_sources"), list)
+                else [str(ext.get("source"))] if ext.get("source") else []
+            )
             signal.setdefault(
                 "event_date",
                 ext.get("event_date") or base.get("event_date") or base.get("date") or base.get("start_time"),
