@@ -161,12 +161,11 @@ class ViralEngineTests(unittest.TestCase):
         }
         session = FakeSession()
         with tempfile.TemporaryDirectory() as directory:
-            output = Path(directory) / "viral-news.gif"
+            output = Path(directory) / "viral-news.mp4"
             viral.render_animation(payload, output, session)
             self.assertTrue(output.is_file())
-            with Image.open(output) as image:
-                self.assertEqual(image.size, (viral.W, viral.H))
-                self.assertTrue(getattr(image, "is_animated", False))
+            self.assertGreater(output.stat().st_size, 50_000)
+            self.assertEqual(output.read_bytes()[4:8], b"ftyp")
         # Le renderer news ne doit même pas télécharger le fond générique.
         self.assertEqual(session.posts, [])
 
@@ -180,15 +179,13 @@ class ViralEngineTests(unittest.TestCase):
             "media": {},
         }
         with tempfile.TemporaryDirectory() as directory:
-            output = Path(directory) / "viral.gif"
+            output = Path(directory) / "viral.mp4"
             viral.render_animation(payload, output, FakeSession())
             self.assertTrue(output.is_file())
-            self.assertGreater(output.stat().st_size, 1000)
-            self.assertLess(output.stat().st_size, 14_000_000)
-            with Image.open(output) as image:
-                self.assertTrue(getattr(image, "is_animated", False))
-                self.assertGreaterEqual(getattr(image, "n_frames", 1), 8)
-                self.assertEqual(image.size, (viral.W, viral.H))
+            self.assertGreater(output.stat().st_size, 50_000)
+            self.assertLess(output.stat().st_size, 45_000_000)
+            self.assertEqual(output.read_bytes()[4:8], b"ftyp")
+            self.assertEqual((viral.W, viral.H), (1080, 1080))
 
     @patch("football_channel.build_viral_payload")
     def test_channel_builds_viral_publication_with_credit(self, build):
@@ -214,18 +211,12 @@ class ViralEngineTests(unittest.TestCase):
     def test_telegram_animation_sender(self):
         session = FakeSession()
         with tempfile.TemporaryDirectory() as directory:
-            gif = Path(directory) / "tiny.gif"
-            frames = [
-                Image.new("P", (64, 64), color=i * 15)
-                for i in range(3)
-            ]
-            frames[0].save(
-                gif, save_all=True, append_images=frames[1:], duration=120, loop=0
-            )
+            gif = Path(directory) / "tiny.mp4"
+            gif.write_bytes(b"\x00\x00\x00\x18ftypmp42test")
             message_id = channel.post_animation(
                 session, "token", "@channel", gif,
                 "<b>Animation test</b>", {"inline_keyboard": []},
-                timeout=30, mime="image/gif",
+                timeout=30, mime="video/mp4",
             )
         self.assertEqual(message_id, 91)
         self.assertTrue(session.posts[-1]["url"].endswith("/sendAnimation"))

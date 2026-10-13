@@ -37,7 +37,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Installer les dépendances
-        run: python -m pip install requests Pillow feedparser
+        run: python -m pip install requests Pillow feedparser imageio-ffmpeg
       - name: Tester le renderer viral
         run: |
           python -m py_compile scripts/telegram_viral_visual_test.py scripts/football_viral_engine.py
@@ -57,6 +57,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: s5-viral-preview
-          path: artifacts/viral-preview.gif
+          path: artifacts/viral-preview.mp4
           if-no-files-found: error
           retention-days: 2

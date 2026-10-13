@@ -69,7 +69,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Installer les dépendances du canal et des flux gratuits
-        run: python -m pip install requests Pillow feedparser
+        run: python -m pip install requests Pillow feedparser imageio-ffmpeg
       - name: Compiler le moteur News Football
         run: python -m py_compile fetch_foot_news.py scripts/football_news_engine.py scripts/football_match_lifecycle.py scripts/football_stats_engine.py scripts/football_community_engine.py scripts/football_viral_engine.py scripts/football_channel.py scripts/telegram_research/extract_history.py scripts/telegram_research/create_session.py scripts/ensure_actufoot_cronjob.py
       - name: Vérifier le JavaScript Infos Foot
