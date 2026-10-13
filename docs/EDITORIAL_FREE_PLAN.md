@@ -105,3 +105,9 @@ Le projet Supabase existant présente des tables publiques sans RLS et une polit
 - Les illustrations Flash Foot sans photo de presse ont désormais cinq traitements distincts, selon la catégorie déduite du titre : MERCATO, COMPÉTITION, MATCH, DISCIPLINE et ACTUALITÉ. Ce sont des créations Pillow originales, pas des photographies téléchargées sans droits.
 - Cette phase ne modifie pas le modèle de pronostics ni les six workflows de publication football et n'autorise aucune nouvelle API payante.
 - Limite: il faut que BSD expose réellement des liens de badges reconnus pour bénéficier des deux écussons. La complétude des données sources est contrôlée, non inventée.
+
+
+### Images d'équipes BSD par identifiant — correction complémentaire
+Le moteur BSD V2 du projet définit déjà \`bsd/bsd_v2_assets.py\` :
+\`https://sports.bzzoiro.com/img/team/{id}/?bg=transparent\`.
+Si un événement ne publie pas directement les adresses \`home_logo\` et \`away_logo\`, le studio utilise ce fournisseur existant **uniquement si \`home_team_id\` et \`away_team_id\` sont des identifiants numériques strictement valides présents dans le même événement**. Aucun écusson n'est inféré depuis le nom de l'équipe. L'hôte est inclus dans la liste HTTPS autorisée. Les redirections d'image vers d'autres domaines sont refusées. Les badges manquants ou inaccessibles conservent les noms d'équipes comme secours. Aucune API payante ajoutée.
