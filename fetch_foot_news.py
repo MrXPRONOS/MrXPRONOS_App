@@ -337,11 +337,20 @@ def fetch_news() -> tuple[list[dict], dict]:
                 editorial_score=editorial_score,
             )
             corroboration = espn_corroboration(title, espn_index)
+            previous_verification = (previous.get(link) or {}).get("espn_verification")
             if corroboration:
+                corroboration["checked_at"] = now.isoformat()
                 record["espn_verification"] = corroboration
                 record["quality_sources"] = [profile.name, "ESPN"]
                 record["quality_score"] = min(100, max(profile.priority, 78) + 8)
                 diagnostics["espn_corroborated"] += 1
+            elif isinstance(previous_verification, dict) and previous_verification.get("url"):
+                # Une panne temporaire du flux ESPN ne doit pas effacer une corroboration
+                # déjà associée exactement au même article/source. Le préflight vérifiera
+                # encore le lien ESPN juste avant publication.
+                record["espn_verification"] = previous_verification
+                record["quality_sources"] = [profile.name, "ESPN"]
+                record["quality_score"] = min(100, max(profile.priority, 78) + 5)
             else:
                 record["espn_verification"] = {}
                 record["quality_sources"] = [profile.name]
