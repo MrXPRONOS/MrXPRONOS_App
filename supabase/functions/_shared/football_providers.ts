@@ -22,7 +22,8 @@ export const CAPABILITY_PRIORITY: Record<string, string[]> = {
   final_result: ["espn", "sportscore", "openligadb", "thesportsdb", "bsd"],
   standings: ["sportscore", "openligadb", "thesportsdb", "espn", "bsd"],
   scorers: ["sportscore", "openligadb", "espn", "thesportsdb", "bsd"],
-  bookmaker_odds: ["sportscore_explicit_json", "bsd"],
+  bookmaker_odds: ["bsd"],
+  experimental_odds_probe: ["sportscore_explicit_json"],
 };
 
 const SPORT_SCORE_FIXTURES = "https://sportscore.com/api/v1/fixtures/";
