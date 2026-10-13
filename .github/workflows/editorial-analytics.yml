@@ -2,6 +2,11 @@ name: Editorial - Mesures de performance anonymes
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/editorial_attribution.py'
+      - '.github/workflows/editorial-analytics.yml'
   schedule:
     - cron: '17 6 * * *'
 
