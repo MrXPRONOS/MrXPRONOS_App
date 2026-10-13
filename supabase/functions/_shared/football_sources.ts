@@ -17,6 +17,10 @@ function env(name:string,fallback=""){
 }
 
 function text(v:any){ return String(v ?? "").trim(); }
+function slugify(v:any){
+  return text(v).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+}
 function num(v:any):number|null {
   if(v===null||v===undefined||v===""||typeof v==="boolean") return null;
   const n=Number(String(v).replace(/%$/,"").replace(",","."));
@@ -72,8 +76,10 @@ export async function fetchSportScoreFixtures(date:string,status?:string){
   const payload=await json(url(SPORT_SCORE+"/fixtures/",{sport:"football",date,status,limit:200}),55_000);
   const rows=Array.isArray(payload?.matches)?payload.matches:Array.isArray(payload?.fixtures)?payload.fixtures:Array.isArray(payload?.results)?payload.results:[];
   return rows.filter((x:any)=>x&&x.home&&x.away).map((x:any)=>{
-    const slug=text(x.slug||x.id||x.match_id);
-    return liveShape("sportscore",slug,text(typeof x.home==="object"?x.home?.name:x.home),text(typeof x.away==="object"?x.away?.name:x.away),x.time||x.date||x.start_time,{
+    const home=text(typeof x.home==="object"?x.home?.name:x.home);
+    const away=text(typeof x.away==="object"?x.away?.name:x.away);
+    const slug=text(x.slug||x.match_slug||x.url_slug)||slugify(home+"-vs-"+away);
+    return liveShape("sportscore",text(x.id||x.match_id||slug),home,away,x.time||x.date||x.start_time,{
       home_score:x.home_score??x.score_home,away_score:x.away_score??x.score_away,
       status:x.status,status_detail:x.status_text||x.status,minute:x.minute,
       home_logo:x.home_logo,away_logo:x.away_logo,league:typeof x.competition==="object"?x.competition?.name:x.competition||x.league,
@@ -85,8 +91,10 @@ export async function fetchSportScoreLive(){
   const payload=await json(url(SPORT_SCORE+"/matches/",{sport:"football",limit:50}),45_000);
   const rows=Array.isArray(payload?.matches)?payload.matches:[];
   return rows.filter((x:any)=>state(x.status||x.status_text)==="in").map((x:any)=>{
-    const slug=text(x.slug||x.id);
-    return liveShape("sportscore",slug,text(x.home),text(x.away),x.time,{
+    const home=text(typeof x.home==="object"?x.home?.name:x.home);
+    const away=text(typeof x.away==="object"?x.away?.name:x.away);
+    const slug=text(x.slug||x.match_slug||x.url_slug)||slugify(home+"-vs-"+away);
+    return liveShape("sportscore",text(x.id||x.match_id||slug),home,away,x.time,{
       home_score:x.home_score,away_score:x.away_score,status:x.status,status_detail:x.status_text,
       minute:x.minute,home_logo:x.home_logo,away_logo:x.away_logo,
       raw_data:{sportscore_slug:slug,raw:x},
