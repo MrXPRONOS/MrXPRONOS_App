@@ -17,6 +17,8 @@ import io
 import math
 import os
 import re
+import shutil
+import subprocess
 import tempfile
 import unicodedata
 from datetime import date, datetime, timedelta, timezone
@@ -45,9 +47,10 @@ ALLOWED_COMMONS_LICENSE_MARKERS = (
     "creative commons attribution",
 )
 
-W = H = 640
-FRAMES = 20
-FRAME_MS = 140
+W = H = 1080
+FPS = 24
+DURATION_SECONDS = 4.0
+FRAME_COUNT = int(FPS * DURATION_SECONDS)
 
 
 def plain(value: Any, limit: int = 260) -> str:
@@ -459,24 +462,117 @@ def _draw_centered(
     )
 
 
+def _phase(progress: float, start: float, end: float) -> float:
+    if end <= start:
+        return 1.0 if progress >= end else 0.0
+    return max(0.0, min(1.0, (progress - start) / (end - start)))
+
+
+def _ease_out_cubic(value: float) -> float:
+    value = max(0.0, min(1.0, value))
+    return 1.0 - (1.0 - value) ** 3
+
+
+def _ease_out_back(value: float) -> float:
+    value = max(0.0, min(1.0, value))
+    c1 = 1.70158
+    c3 = c1 + 1.0
+    return 1.0 + c3 * (value - 1.0) ** 3 + c1 * (value - 1.0) ** 2
+
+
+_EMOJI_CACHE: dict[tuple[str, int], Image.Image] = {}
+
+
+def _emoji_tile(symbol: str, target_px: int) -> Image.Image:
+    """Rend un emoji couleur haute définition avec fallback sans dépendance externe."""
+    key = (symbol, target_px)
+    cached = _EMOJI_CACHE.get(key)
+    if cached is not None:
+        return cached.copy()
+
+    source = Image.new("RGBA", (180, 180), (0, 0, 0, 0))
+    d = ImageDraw.Draw(source)
+    emoji_font = Path("/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf")
+    rendered = False
+    if emoji_font.is_file():
+        try:
+            face = ImageFont.truetype(str(emoji_font), 109)
+            d.text((90, 88), symbol, font=face, anchor="mm", embedded_color=True)
+            rendered = True
+        except (OSError, ValueError):
+            pass
+    if not rendered:
+        face = _font(108, True)
+        d.text((90, 90), symbol, font=face, fill=(248, 202, 92, 255), anchor="mm")
+
+    bbox = source.getbbox()
+    if bbox:
+        source = source.crop(bbox)
+    source.thumbnail((target_px, target_px), Image.Resampling.LANCZOS)
+    _EMOJI_CACHE[key] = source.copy()
+    return source
+
+
+def _paste_center(
+    image: Image.Image,
+    overlay: Image.Image,
+    center: tuple[int, int],
+    *,
+    opacity: float = 1.0,
+) -> None:
+    layer = overlay.copy()
+    if opacity < 0.999:
+        alpha = layer.getchannel("A").point(
+            lambda px: int(px * max(0.0, min(1.0, opacity)))
+        )
+        layer.putalpha(alpha)
+    image.paste(
+        layer,
+        (center[0] - layer.width // 2, center[1] - layer.height // 2),
+        layer,
+    )
+
+
 def _gradient_frame(progress: float) -> Image.Image:
-    image = Image.new("RGB", (W, H), "#061421")
+    image = Image.new("RGB", (W, H), "#061522")
     draw = ImageDraw.Draw(image)
     for y in range(H):
         t = y / max(1, H - 1)
-        r = int(5 + 15 * t + 8 * progress)
+        r = int(4 + 8 * t)
         g = int(18 + 18 * t)
-        b = int(31 + 20 * t)
+        b = int(31 + 28 * t)
         draw.line((0, y, W, y), fill=(r, g, b))
-    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    gd = ImageDraw.Draw(glow)
-    radius = 180 + int(35 * math.sin(progress * math.pi))
+
+    glows = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glows)
+    pulse = 0.5 + 0.5 * math.sin(progress * math.pi * 2)
+    gx = int(W * (0.22 + 0.08 * math.sin(progress * math.pi * 2)))
+    gy = int(H * 0.18)
+    radius = 280 + int(45 * pulse)
     gd.ellipse(
-        (W // 2 - radius, 70 - radius // 2, W // 2 + radius, 70 + radius * 3 // 2),
-        fill=(224, 166, 54, 42),
+        (gx - radius, gy - radius, gx + radius, gy + radius),
+        fill=(241, 187, 69, 58),
     )
-    glow = glow.filter(ImageFilter.GaussianBlur(45))
-    return Image.alpha_composite(image.convert("RGBA"), glow).convert("RGB")
+    bx = int(W * (0.83 - 0.05 * math.sin(progress * math.pi * 2)))
+    by = int(H * 0.70)
+    br = 360
+    gd.ellipse(
+        (bx - br, by - br, bx + br, by + br),
+        fill=(18, 112, 181, 44),
+    )
+    glows = glows.filter(ImageFilter.GaussianBlur(105))
+    image = Image.alpha_composite(image.convert("RGBA"), glows).convert("RGB")
+
+    line_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ld = ImageDraw.Draw(line_layer)
+    offset = int(progress * 110)
+    for x in range(-260, W + 260, 170):
+        ld.line(
+            (x + offset, H, x + 360 + offset, 0),
+            fill=(255, 255, 255, 10),
+            width=2,
+        )
+    return Image.alpha_composite(image.convert("RGBA"), line_layer).convert("RGB")
 
 
 def _load_background(session: requests.Session, media: dict) -> Image.Image | None:
@@ -502,57 +598,362 @@ def _load_background(session: requests.Session, media: dict) -> Image.Image | No
         return None
 
 
-def _base_frame(session: requests.Session, media: dict, progress: float) -> Image.Image:
-    background = _load_background(session, media) if media else None
-    if background is None:
+def _base_frame(downloaded: Image.Image | None, progress: float) -> Image.Image:
+    if downloaded is None:
         return _gradient_frame(progress)
 
-    # Pan/zoom très léger, puis assombrissement fort: le stock n'est jamais publié
-    # tel quel et sert uniquement de matière visuelle à une création Mr XPRONOS.
-    zoom = 1.00 + 0.035 * progress
+    zoom = 1.03 + 0.045 * progress
     size = (int(W * zoom), int(H * zoom))
-    scaled = background.resize(size, Image.Resampling.LANCZOS)
-    left = max(0, (scaled.width - W) // 2 + int(8 * math.sin(progress * math.pi)))
+    scaled = downloaded.resize(size, Image.Resampling.LANCZOS)
+    left = max(0, (scaled.width - W) // 2 + int(14 * math.sin(progress * math.pi)))
     top = max(0, (scaled.height - H) // 2)
     frame = scaled.crop((left, top, left + W, top + H))
+    frame = frame.filter(ImageFilter.GaussianBlur(1.4))
     dark = Image.new("RGB", (W, H), "#04101b")
-    frame = Image.blend(frame, dark, 0.58)
-    return frame
+    return Image.blend(frame, dark, 0.66)
 
 
-def _brand(draw: ImageDraw.ImageDraw) -> None:
+def _brand(draw: ImageDraw.ImageDraw, alpha: int = 255) -> None:
     draw.rounded_rectangle(
-        (30, 26, 205, 70),
-        radius=14,
-        fill=(5, 18, 30, 235),
-        outline=(231, 183, 73, 235),
-        width=2,
+        (54, 48, 352, 122),
+        radius=26,
+        fill=(4, 17, 29, int(225 * alpha / 255)),
+        outline=(238, 188, 72, alpha),
+        width=3,
     )
-    draw.text((48, 39), "MR XPRONOS", font=_font(18, True), fill=(248, 226, 172))
     draw.text(
-        (W - 32, 42),
+        (82, 71),
+        "MR XPRONOS",
+        font=_font(29, True),
+        fill=(252, 232, 180, alpha),
+    )
+    draw.text(
+        (W - 58, 84),
         "ACTU FOOT",
-        font=_font(14, True),
-        fill=(184, 201, 214),
+        font=_font(24, True),
+        fill=(199, 214, 226, alpha),
         anchor="ra",
     )
 
 
-def _source_pill(draw: ImageDraw.ImageDraw, source: str, y: int) -> None:
-    source = _smart_trim(source or "Source vérifiée", 34)
-    label_font = _font(11, True)
-    value_font = _font(15, True)
-    draw.text((60, y), "SOURCE", font=label_font, fill=(135, 153, 168, 255))
+def _source_pill(draw: ImageDraw.ImageDraw, source: str, y: int, alpha: int) -> None:
+    source = _smart_trim(source or "Source vérifiée", 38)
+    label_font = _font(18, True)
+    value_font = _font(25, True)
+    draw.text((116, y), "SOURCE VÉRIFIÉE", font=label_font, fill=(142, 165, 182, alpha))
     box = draw.textbbox((0, 0), source, font=value_font)
-    width = min(250, max(118, box[2] - box[0] + 34))
+    width = min(430, max(205, box[2] - box[0] + 58))
     draw.rounded_rectangle(
-        (60, y + 22, 60 + width, y + 58),
-        radius=12,
-        fill=(231, 183, 73, 28),
-        outline=(231, 183, 73, 95),
-        width=1,
+        (116, y + 34, 116 + width, y + 90),
+        radius=20,
+        fill=(238, 188, 72, int(34 * alpha / 255)),
+        outline=(238, 188, 72, int(125 * alpha / 255)),
+        width=2,
     )
-    draw.text((76, y + 31), source, font=value_font, fill=(245, 218, 158, 255))
+    draw.text((143, y + 48), source, font=value_font, fill=(250, 226, 167, alpha))
+
+
+def _draw_sparks(
+    draw: ImageDraw.ImageDraw,
+    center: tuple[int, int],
+    progress: float,
+    alpha: int,
+) -> None:
+    cx, cy = center
+    for index, angle in enumerate((0.15, 1.0, 1.8, 2.65, 3.45, 4.25, 5.15)):
+        phase = progress * math.pi * 2 + index * 0.7
+        distance = 112 + 20 * math.sin(phase)
+        x = cx + math.cos(angle) * distance
+        y = cy + math.sin(angle) * distance
+        radius = 4 + (index % 3) * 2
+        color = (
+            (244, 193, 75, int(alpha * 0.85))
+            if index % 2 == 0
+            else (91, 181, 238, int(alpha * 0.62))
+        )
+        draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=color)
+
+
+def _render_frame(
+    payload: dict,
+    progress: float,
+    downloaded: Image.Image | None = None,
+) -> Image.Image:
+    kind = plain(payload.get("kind"), 40)
+    frame = _base_frame(downloaded, progress)
+    draw = ImageDraw.Draw(frame, "RGBA")
+
+    entry = _ease_out_cubic(_phase(progress, 0.0, 0.18))
+    content_entry = _ease_out_cubic(_phase(progress, 0.08, 0.28))
+    alpha = max(0, min(255, int(255 * entry)))
+    content_alpha = max(0, min(255, int(255 * content_entry)))
+    gold = (241, 193, 76, content_alpha)
+    white = (255, 255, 255, content_alpha)
+    muted = (187, 207, 222, int(235 * content_alpha / 255))
+
+    _brand(draw, alpha)
+
+    emoji_symbol = {"news_pulse": "🚨", "match_fou": "🔥", "stat_pulse": "📊"}.get(kind, "⚡")
+    section = {
+        "news_pulse": "À RETENIR",
+        "match_fou": "MATCH FOU",
+        "stat_pulse": "STAT QUI CLAQUE",
+    }.get(kind, "MOMENT VIRAL")
+    kicker = {
+        "news_pulse": "NEWS FOOT",
+        "match_fou": "ÇA A EXPLOSÉ",
+        "stat_pulse": "LE CHIFFRE DU JOUR",
+    }.get(kind, "S5 • VIRAL")
+
+    bounce = _ease_out_back(_phase(progress, 0.02, 0.24))
+    pulse = 1.0 + 0.035 * math.sin(progress * math.pi * 5)
+    emoji_size = max(70, int(188 * max(0.55, bounce) * pulse))
+    emoji_center = (170, 252)
+    halo_r = int(112 + 8 * math.sin(progress * math.pi * 4))
+    draw.ellipse(
+        (
+            emoji_center[0] - halo_r,
+            emoji_center[1] - halo_r,
+            emoji_center[0] + halo_r,
+            emoji_center[1] + halo_r,
+        ),
+        fill=(238, 188, 72, int(22 * alpha / 255)),
+        outline=(238, 188, 72, int(88 * alpha / 255)),
+        width=3,
+    )
+    _draw_sparks(draw, emoji_center, progress, alpha)
+    _paste_center(
+        frame,
+        _emoji_tile(emoji_symbol, emoji_size),
+        (emoji_center[0], emoji_center[1] - int((1.0 - min(1.0, bounce)) * 30)),
+        opacity=entry,
+    )
+
+    draw.text((306, 190), kicker, font=_font(22, True), fill=muted)
+    draw.text((306, 224), section, font=_font(46, True), fill=gold)
+    accent_width = int(350 * _ease_out_cubic(_phase(progress, 0.10, 0.40)))
+    draw.rounded_rectangle(
+        (306, 292, 306 + accent_width, 300),
+        radius=4,
+        fill=(241, 193, 76, content_alpha),
+    )
+
+    panel_shift = int((1.0 - content_entry) * 55)
+    panel = (58, 354 + panel_shift, W - 58, 878 + panel_shift)
+    shadow = (panel[0] + 10, panel[1] + 14, panel[2] + 10, panel[3] + 14)
+    draw.rounded_rectangle(shadow, radius=40, fill=(0, 0, 0, int(80 * content_alpha / 255)))
+    draw.rounded_rectangle(
+        panel,
+        radius=40,
+        fill=(2, 13, 23, int(220 * content_alpha / 255)),
+        outline=(255, 255, 255, int(30 * content_alpha / 255)),
+        width=2,
+    )
+    draw.rounded_rectangle(
+        (panel[0] + 2, panel[1] + 2, panel[0] + 12, panel[3] - 2),
+        radius=5,
+        fill=(241, 193, 76, int(220 * content_alpha / 255)),
+    )
+
+    if kind == "news_pulse":
+        title = _smart_trim(payload.get("title"), 148)
+        _draw_text_box(
+            draw,
+            title,
+            (112, 422 + panel_shift, W - 104, 704 + panel_shift),
+            max_size=66,
+            min_size=43,
+            max_lines=4,
+            bold=True,
+            fill=white,
+            gap=13,
+        )
+        # Accent visuel secondaire, sans répéter le résumé dans la vidéo.
+        bolt = _emoji_tile("⚡", 86)
+        _paste_center(frame, bolt, (W - 155, 786 + panel_shift), opacity=content_entry * 0.82)
+        _source_pill(
+            draw,
+            plain(payload.get("data_source"), 80),
+            732 + panel_shift,
+            content_alpha,
+        )
+
+    elif kind == "match_fou":
+        score_text = plain(payload.get("score"), 24)
+        score_font, score_lines, _ = _fit_text_layout(
+            draw,
+            score_text,
+            max_width=720,
+            max_height=175,
+            max_lines=1,
+            max_size=160,
+            min_size=112,
+            bold=True,
+            gap=0,
+        )
+        score = score_lines[0] if score_lines else score_text
+        score_scale = 1.0 + 0.025 * math.sin(progress * math.pi * 6)
+        score_layer = Image.new("RGBA", (900, 220), (0, 0, 0, 0))
+        sd = ImageDraw.Draw(score_layer)
+        sd.text(
+            (450, 100),
+            score,
+            font=score_font,
+            fill=(255, 255, 255, content_alpha),
+            anchor="mm",
+            stroke_width=2,
+            stroke_fill=(241, 193, 76, int(95 * content_alpha / 255)),
+        )
+        if abs(score_scale - 1.0) > 0.002:
+            score_layer = score_layer.resize(
+                (int(score_layer.width * score_scale), int(score_layer.height * score_scale)),
+                Image.Resampling.LANCZOS,
+            )
+        _paste_center(frame, score_layer, (W // 2, 470 + panel_shift), opacity=content_entry)
+
+        _draw_text_box(
+            draw,
+            plain(payload.get("home"), 70),
+            (120, 566 + panel_shift, W - 120, 632 + panel_shift),
+            max_size=43,
+            min_size=31,
+            max_lines=1,
+            bold=True,
+            fill=white,
+            gap=0,
+            align="center",
+        )
+        draw.text(
+            (W // 2, 657 + panel_shift),
+            "VS",
+            font=_font(26, True),
+            fill=gold,
+            anchor="ma",
+        )
+        _draw_text_box(
+            draw,
+            plain(payload.get("away"), 70),
+            (120, 690 + panel_shift, W - 120, 756 + panel_shift),
+            max_size=43,
+            min_size=31,
+            max_lines=1,
+            bold=True,
+            fill=white,
+            gap=0,
+            align="center",
+        )
+        league = _smart_trim(payload.get("league"), 58)
+        draw.text(
+            (W // 2, 815 + panel_shift),
+            league,
+            font=_font(25, True),
+            fill=muted,
+            anchor="ma",
+        )
+
+    else:
+        headline = _smart_trim(payload.get("headline"), 150)
+        end_y = _draw_text_box(
+            draw,
+            headline,
+            (112, 414 + panel_shift, W - 112, 660 + panel_shift),
+            max_size=59,
+            min_size=40,
+            max_lines=4,
+            bold=True,
+            fill=white,
+            gap=12,
+            align="left",
+        )
+        y = max(690 + panel_shift, end_y + 18)
+        for line in (payload.get("lines") or [])[:2]:
+            clean_line = _smart_trim(line, 76)
+            if not clean_line or y > 804 + panel_shift:
+                continue
+            draw.rounded_rectangle(
+                (112, y, W - 112, y + 58),
+                radius=20,
+                fill=(255, 255, 255, int(18 * content_alpha / 255)),
+                outline=(241, 193, 76, int(72 * content_alpha / 255)),
+                width=2,
+            )
+            _draw_text_box(
+                draw,
+                clean_line,
+                (140, y + 12, W - 140, y + 48),
+                max_size=25,
+                min_size=20,
+                max_lines=1,
+                bold=True,
+                fill=muted,
+                gap=0,
+                align="center",
+            )
+            y += 72
+
+    footer_alpha = int(230 * _phase(progress, 0.20, 0.45))
+    draw.text(
+        (58, H - 102),
+        "MR XPRONOS • L’ESSENTIEL DU FOOT, EN MOUVEMENT.",
+        font=_font(20, True),
+        fill=(190, 207, 220, footer_alpha),
+    )
+    draw.text(
+        (W - 58, H - 102),
+        "18+ • JEU RESPONSABLE",
+        font=_font(17, True),
+        fill=(139, 158, 173, footer_alpha),
+        anchor="ra",
+    )
+    draw.rounded_rectangle(
+        (58, H - 58, W - 58, H - 48),
+        radius=5,
+        fill=(255, 255, 255, int(25 * footer_alpha / 255)),
+    )
+    draw.rounded_rectangle(
+        (58, H - 58, 58 + int((W - 116) * progress), H - 48),
+        radius=5,
+        fill=(241, 193, 76, footer_alpha),
+    )
+
+    return frame.convert("RGB")
+
+
+def _ffmpeg_executable() -> str:
+    executable = shutil.which("ffmpeg")
+    if executable:
+        return executable
+    try:
+        import imageio_ffmpeg  # type: ignore
+        executable = imageio_ffmpeg.get_ffmpeg_exe()
+        if executable:
+            return executable
+    except (ImportError, OSError):
+        pass
+    raise RuntimeError(
+        "FFmpeg est requis pour S5 Viral HD. Installer ffmpeg ou imageio-ffmpeg."
+    )
+
+
+def _encode_mp4(frame_dir: Path, destination: Path, *, crf: int = 16) -> None:
+    command = [
+        _ffmpeg_executable(),
+        "-y",
+        "-loglevel", "error",
+        "-framerate", str(FPS),
+        "-i", str(frame_dir / "frame_%04d.png"),
+        "-c:v", "libx264",
+        "-preset", "medium",
+        "-tune", "animation",
+        "-crf", str(crf),
+        "-pix_fmt", "yuv420p",
+        "-movflags", "+faststart",
+        "-an",
+        str(destination),
+    ]
+    result = subprocess.run(command, text=True, capture_output=True, check=False)
+    if result.returncode != 0:
+        raise RuntimeError("Encodage S5 MP4 impossible: " + result.stderr[-500:])
 
 
 def render_animation(
@@ -560,216 +961,41 @@ def render_animation(
     output: str | Path,
     session: requests.Session,
 ) -> Path:
-    """Produit un GIF carré premium, lisible et compatible Telegram.
+    """Produit une animation MP4 native 1080x1080, pensée pour Telegram.
 
-    L'animation porte une seule idée forte. Le contexte détaillé reste dans la
-    légende Telegram au lieu d'être répété en petit dans la vidéo.
+    Le MP4 évite la conversion GIF -> petite vidéo qui dégradait fortement le
+    rendu. Le texte détaillé reste dans la légende; la vidéo garde un seul hook
+    lisible, de grands éléments visuels et des effets légers.
     """
     destination = Path(output)
+    if destination.suffix.casefold() != ".mp4":
+        raise ValueError("S5 Viral HD doit être rendu en .mp4")
     destination.parent.mkdir(parents=True, exist_ok=True)
-    media = payload.get("media") if isinstance(payload.get("media"), dict) else {}
-    frames: list[Image.Image] = []
-    kind = plain(payload.get("kind"), 40)
 
-    # Pour une news, un fond générique peut induire en erreur. On privilégie
-    # donc le fond graphique de marque. Matchs et stats peuvent garder un fond
-    # licencié fortement assombri.
+    media = payload.get("media") if isinstance(payload.get("media"), dict) else {}
+    kind = plain(payload.get("kind"), 40)
     downloaded = None
     if media and kind != "news_pulse":
         downloaded = _load_background(session, media)
 
-    for index in range(FRAMES):
-        progress = index / max(1, FRAMES - 1)
-        if downloaded is not None:
-            zoom = 1.02 + 0.025 * progress
-            scaled = downloaded.resize(
-                (int(W * zoom), int(H * zoom)),
-                Image.Resampling.LANCZOS,
+    with tempfile.TemporaryDirectory(prefix="mrxpronos-s5-frames-") as tmp:
+        frame_dir = Path(tmp)
+        for index in range(FRAME_COUNT):
+            progress = index / max(1, FRAME_COUNT - 1)
+            frame = _render_frame(payload, progress, downloaded)
+            frame.save(
+                frame_dir / f"frame_{index:04d}.png",
+                format="PNG",
+                optimize=False,
+                compress_level=2,
             )
-            left = max(0, (scaled.width - W) // 2 + int(5 * math.sin(progress * math.pi)))
-            top = max(0, (scaled.height - H) // 2)
-            frame = scaled.crop((left, top, left + W, top + H))
-            frame = frame.filter(ImageFilter.GaussianBlur(1.1))
-            frame = Image.blend(frame, Image.new("RGB", (W, H), "#061420"), 0.72)
-        else:
-            frame = _gradient_frame(progress)
+        _encode_mp4(frame_dir, destination, crf=16)
 
-        draw = ImageDraw.Draw(frame, "RGBA")
-        _brand(draw)
+        # Telegram accepte largement cette taille, mais on conserve une marge
+        # de sécurité si un fond photo très détaillé fait gonfler le fichier.
+        if destination.stat().st_size > 45_000_000:
+            _encode_mp4(frame_dir, destination, crf=20)
 
-        fade = min(1.0, max(0.0, progress * 3.4))
-        alpha = int(255 * fade)
-        gold = (237, 188, 76, alpha)
-        white = (255, 255, 255, alpha)
-        muted = (184, 201, 214, int(235 * fade))
-        panel = (2, 11, 19, int(224 * fade))
-
-        accent_w = 18 + int(30 * min(1.0, progress * 2.4))
-        draw.rounded_rectangle((36, 116, 36 + accent_w, 122), radius=3, fill=gold)
-
-        if kind == "news_pulse":
-            draw.text((36, 140), "À RETENIR", font=_font(18, True), fill=gold)
-            draw.rounded_rectangle(
-                (28, 184, W - 28, 520),
-                radius=28,
-                fill=panel,
-                outline=(255, 255, 255, int(22 * fade)),
-                width=1,
-            )
-            display_title = _smart_trim(payload.get("title"), 150)
-            _draw_text_box(
-                draw,
-                display_title,
-                (60, 232, W - 58, 410),
-                max_size=38,
-                min_size=25,
-                max_lines=4,
-                bold=True,
-                fill=white,
-                gap=10,
-            )
-            _source_pill(draw, plain(payload.get("data_source"), 80), 455)
-
-        elif kind == "match_fou":
-            draw.text((36, 140), "MATCH FOU", font=_font(18, True), fill=gold)
-            draw.rounded_rectangle(
-                (28, 184, W - 28, 532),
-                radius=28,
-                fill=panel,
-                outline=(255, 255, 255, int(22 * fade)),
-                width=1,
-            )
-            score_text = plain(payload.get("score"), 24)
-            score_font, score_lines, _ = _fit_text_layout(
-                draw,
-                score_text,
-                max_width=500,
-                max_height=100,
-                max_lines=1,
-                max_size=92,
-                min_size=64,
-                bold=True,
-                gap=0,
-            )
-            score = score_lines[0] if score_lines else score_text
-            draw.text((W // 2, 225), score, font=score_font, fill=white, anchor="ma")
-            _draw_text_box(
-                draw,
-                plain(payload.get("home"), 70),
-                (64, 335, W - 64, 386),
-                max_size=27,
-                min_size=20,
-                max_lines=2,
-                bold=True,
-                fill=white,
-                gap=6,
-                align="center",
-            )
-            draw.text((W // 2, 405), "—", font=_font(18, True), fill=gold, anchor="ma")
-            _draw_text_box(
-                draw,
-                plain(payload.get("away"), 70),
-                (64, 430, W - 64, 480),
-                max_size=27,
-                min_size=20,
-                max_lines=2,
-                bold=True,
-                fill=white,
-                gap=6,
-                align="center",
-            )
-            league = _smart_trim(payload.get("league"), 52)
-            draw.text((W // 2, 505), league, font=_font(14, True), fill=muted, anchor="ma")
-
-        else:
-            draw.text((36, 140), "STAT À RETENIR", font=_font(18, True), fill=gold)
-            draw.rounded_rectangle(
-                (28, 184, W - 28, 532),
-                radius=28,
-                fill=panel,
-                outline=(255, 255, 255, int(22 * fade)),
-                width=1,
-            )
-            headline = _smart_trim(payload.get("headline"), 155)
-            end_y = _draw_text_box(
-                draw,
-                headline,
-                (60, 224, W - 60, 370),
-                max_size=34,
-                min_size=23,
-                max_lines=4,
-                bold=True,
-                fill=white,
-                gap=9,
-            )
-            y = max(390, end_y + 12)
-            for line in (payload.get("lines") or [])[:2]:
-                clean = _smart_trim(line, 72)
-                if not clean or y > 490:
-                    continue
-                draw.rounded_rectangle(
-                    (60, y, W - 60, y + 44),
-                    radius=14,
-                    fill=(255, 255, 255, int(14 * fade)),
-                    outline=(231, 183, 73, int(50 * fade)),
-                )
-                _draw_text_box(
-                    draw,
-                    clean,
-                    (78, y + 10, W - 78, y + 37),
-                    max_size=15,
-                    min_size=12,
-                    max_lines=1,
-                    bold=True,
-                    fill=muted,
-                    gap=0,
-                    align="center",
-                )
-                y += 54
-
-        draw.text(
-            (36, H - 64),
-            "L’ESSENTIEL. CLAIR. RAPIDE.",
-            font=_font(13, True),
-            fill=muted,
-        )
-        draw.rounded_rectangle(
-            (36, H - 36, W - 36, H - 32),
-            radius=2,
-            fill=(255, 255, 255, int(24 * fade)),
-        )
-        draw.rounded_rectangle(
-            (36, H - 36, 36 + int((W - 72) * progress), H - 32),
-            radius=2,
-            fill=gold,
-        )
-
-        frame = frame.convert("P", palette=Image.Palette.ADAPTIVE, colors=112)
-        frames.append(frame)
-
-    frames[0].save(
-        destination,
-        save_all=True,
-        append_images=frames[1:],
-        optimize=True,
-        duration=FRAME_MS,
-        loop=0,
-        disposal=2,
-    )
-    if destination.stat().st_size > 14_000_000:
-        compact = [
-            frame.convert("P", palette=Image.Palette.ADAPTIVE, colors=64)
-            for frame in frames[::2]
-        ]
-        compact[0].save(
-            destination,
-            save_all=True,
-            append_images=compact[1:],
-            optimize=True,
-            duration=FRAME_MS * 2,
-            loop=0,
-            disposal=2,
-        )
     return destination
 
 

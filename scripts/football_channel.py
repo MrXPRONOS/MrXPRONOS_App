@@ -489,13 +489,13 @@ class Sender:
             with tempfile.TemporaryDirectory(prefix="xpronos-viral-") as tmp:
                 animation = render_animation(
                     item.animation_payload,
-                    Path(tmp) / "viral.gif",
+                    Path(tmp) / "viral.mp4",
                     self.session,
                 )
                 identifier = post_animation(
                     self.session, self.token, self.chat, animation,
                     item.text[:1000], item.keyboard or {},
-                    timeout=120, mime="image/gif",
+                    timeout=120, mime="video/mp4",
                 )
         elif item.image_path:
             media = (ROOT / item.image_path).resolve()

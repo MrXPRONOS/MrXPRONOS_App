@@ -11,7 +11,7 @@ import football_channel as channel
 from football_viral_engine import render_animation
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "artifacts" / "viral-preview.gif"
+OUTPUT = ROOT / "artifacts" / "viral-preview.mp4"
 
 
 def main() -> int:
@@ -48,7 +48,7 @@ def main() -> int:
         caption,
         post.keyboard or {},
         timeout=120,
-        mime="image/gif",
+        mime="video/mp4",
     )
     if not isinstance(message_id, int):
         raise RuntimeError("S5 visual test: Telegram n'a pas confirmé le message_id")
