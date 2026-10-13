@@ -9,8 +9,6 @@ on:
       - 'scripts/content_studio.py'
       - 'scripts/editorial_*.py'
       - 'fetch_foot_news.py'
-  schedule:
-    - cron: '41 5 * * *'
 
 permissions:
   contents: write
