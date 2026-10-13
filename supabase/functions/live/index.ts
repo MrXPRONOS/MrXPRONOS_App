@@ -5651,6 +5651,50 @@ function isBsdNumericEvent(match: any) {
   return Boolean(bsdEventIdForMatch(match));
 }
 
+const bsdIdLookupCache = new Map<string, string>();
+
+async function resolveBsdEventIdForMatch(match: any) {
+  const existing = bsdEventIdForMatch(match);
+  if (existing) return existing;
+  if (!BSD_API_TOKEN) return "";
+
+  const canonical = buildCanonicalMatchId(match);
+  if (bsdIdLookupCache.has(canonical)) return bsdIdLookupCache.get(canonical) || "";
+
+  const eventDate = safeEspnDate(getMatchEventDate(match));
+  const home = String(match?.home_team || "");
+  if (!eventDate || !home) {
+    bsdIdLookupCache.set(canonical, "");
+    return "";
+  }
+  const day = eventDate.slice(0, 10);
+
+  try {
+    const payload = await fetchBSD("/events/", {
+      date_from: day,
+      date_to: day,
+      team_name: home,
+      limit: "50",
+    });
+    let bestId = "";
+    let bestScore = 0;
+    for (const candidate of bsdResults(payload)) {
+      const score = sameMatchScore(match, candidate);
+      if (score > bestScore && candidate?.id != null) {
+        bestScore = score;
+        bestId = String(candidate.id);
+      }
+    }
+    if (bestScore < 0.72) bestId = "";
+    bsdIdLookupCache.set(canonical, bestId);
+    return bestId;
+  } catch (e) {
+    console.warn("BSD targeted id lookup unavailable", e);
+    bsdIdLookupCache.set(canonical, "");
+    return "";
+  }
+}
+
 function statsAgeSeconds(match: any) {
   const raw =
     match?.stats_last_updated_at ||
@@ -5738,7 +5782,6 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
 
   const candidates = (matches || [])
     .filter((m: any) => {
-      if (!isBsdNumericEvent(m)) return false;
       const minute = safeNumber(m?.current_minute ?? m?.minute, 0);
       if (minute < 10 || minute > 88) return false;
 
@@ -5765,7 +5808,7 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
 
   for (const match of candidates) {
     try {
-      const bsdEventId = bsdEventIdForMatch(match);
+      const bsdEventId = await resolveBsdEventIdForMatch(match);
       if (!bsdEventId) continue;
       calls++;
       const payload = await fetchBSD(`/events/${bsdEventId}/stats/`);
@@ -6532,7 +6575,7 @@ async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefi
   // 4) BSD n'intervient plus qu'en dernier recours.
   const storedMatch = stored?.merged_match_json || {};
   const bsdId =
-    bsdEventIdForMatch(storedMatch) ||
+    await resolveBsdEventIdForMatch(storedMatch) ||
     (/^\d+$/.test(String(pred?.match_id || "")) ? String(pred.match_id) : "");
   if (bsdId) {
     try {
