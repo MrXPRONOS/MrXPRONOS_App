@@ -1,7 +1,7 @@
 {
   "source": "bsd",
   "model_version": "bsd-v2-isolated",
-  "generated_at": "2026-10-13T00:05:53.013828+00:00",
+  "generated_at": "2026-10-13T00:26:28.551226+00:00",
   "policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76",
   "matches": [
     {
@@ -20501,7 +20501,7 @@
       "xpronos_score": 82.7,
       "generated_at": "2026-10-11T18:51:01.953437+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-13T00:05:53.013828+00:00",
+      "revalidated_at": "2026-10-13T00:26:28.551226+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20589,7 +20589,7 @@
       "xpronos_score": 80.7,
       "generated_at": "2026-10-11T20:04:56.111660+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-13T00:05:53.013828+00:00",
+      "revalidated_at": "2026-10-13T00:26:28.551226+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20677,7 +20677,7 @@
       "xpronos_score": 80.7,
       "generated_at": "2026-10-11T20:04:56.111660+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-13T00:05:53.013828+00:00",
+      "revalidated_at": "2026-10-13T00:26:28.551226+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20765,7 +20765,7 @@
       "xpronos_score": 80.7,
       "generated_at": "2026-10-12T21:47:48.001723+00:00",
       "combo_only": false,
-      "revalidated_at": "2026-10-13T00:05:53.013828+00:00",
+      "revalidated_at": "2026-10-13T00:26:28.551226+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20872,7 +20872,7 @@
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-12T19:50:08+00:00"
       },
-      "revalidated_at": "2026-10-13T00:05:53.013828+00:00",
+      "revalidated_at": "2026-10-13T00:26:28.551226+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     },
     {
@@ -20979,7 +20979,7 @@
         "odds_source": "bsd_consensus",
         "odds_updated_at": "2026-10-12T20:05:08+00:00"
       },
-      "revalidated_at": "2026-10-13T00:05:53.013828+00:00",
+      "revalidated_at": "2026-10-13T00:26:28.551226+00:00",
       "revalidated_policy_version": "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
     }
   ],
@@ -21305,7 +21305,7 @@
       }
     },
     "last_added": 0,
-    "updated_at": "2026-10-13T00:20:32.122258+00:00",
+    "updated_at": "2026-10-13T00:26:28.551226+00:00",
     "min_samples_for_penalty": 100,
     "drift_prior": 200,
     "max_penalty": 0.08,
@@ -41507,15 +41507,5 @@
       "btts": 0.0,
       "goals": 0.0
     }
-  },
-  "settlement_watchdog": {
-    "updated_at": "2026-10-13T00:20:32.122258+00:00",
-    "checked": 4,
-    "settled": 0,
-    "pending": 4,
-    "h4": 0,
-    "h8": 0,
-    "fallback": 4,
-    "detail_hits": 2
   }
 }
