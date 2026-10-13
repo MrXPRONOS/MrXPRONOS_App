@@ -44,7 +44,12 @@ def _text(value: Any) -> str:
 
 def _norm(value: Any) -> str:
     text = unicodedata.normalize("NFKD", _text(value)).encode("ascii", "ignore").decode()
-    return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+    normalized = re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+    tokens = [
+        token for token in normalized.split()
+        if token not in {"fc", "cf", "sc", "afc", "club", "football", "soccer", "the"}
+    ]
+    return " ".join(tokens)
 
 
 def _number(value: Any) -> int | float | None:
