@@ -26,6 +26,7 @@ SPORTSCORE_FIXTURES = "https://sportscore.com/api/v1/fixtures/"
 SPORTSCORE_MATCH = "https://sportscore.com/api/v1/match/"
 SPORTSCORE_TEAM = "https://sportscore.com/api/v1/team/"
 SPORTSCORE_H2H = "https://sportscore.com/api/v1/h2h/"
+SPORTSCORE_SEARCH = "https://sportscore.com/api/v1/search/"
 THESPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/123"
 OPENLIGA_BASE = "https://api.openligadb.de"
 
@@ -253,11 +254,39 @@ def fetch_sportscore_match(session: requests.Session, slug: str, *, ttl: int = 2
         return {}
 
 
+def resolve_sportscore_slug(session: requests.Session, name: str, *, ttl: int = 3600) -> str:
+    name = _plain(name)
+    if not name:
+        return ""
+    try:
+        payload = _json_get(
+            session, "sportscore", SPORTSCORE_SEARCH,
+            params={"q": name, "sport": "football", "limit": 8}, ttl=ttl,
+        )
+    except Exception:
+        return _slug(name)
+    teams = payload.get("teams") if isinstance(payload, dict) else None
+    if not isinstance(teams, list):
+        results = payload.get("results") if isinstance(payload, dict) else None
+        teams = results.get("teams") if isinstance(results, dict) else results if isinstance(results, list) else []
+    best_slug, best_score = "", 0.0
+    for item in teams if isinstance(teams, list) else []:
+        if not isinstance(item, dict):
+            continue
+        candidate = _plain(item.get("name") or item.get("title") or item.get("display_name"))
+        score = _tokens_similarity(name, candidate)
+        slug = _plain(item.get("slug"))
+        if slug and score > best_score:
+            best_slug, best_score = slug, score
+    return best_slug if best_score >= 0.45 else _slug(name)
+
+
 def fetch_sportscore_team(session: requests.Session, team_name: str, *, limit: int = 10, ttl: int = 300) -> List[Dict[str, Any]]:
     if not _plain(team_name):
         return []
     try:
-        payload = _json_get(session, "sportscore", SPORTSCORE_TEAM, params={"sport": "football", "slug": _slug(team_name), "limit": min(30, max(1, limit))}, ttl=ttl)
+        slug = resolve_sportscore_slug(session, team_name, ttl=max(ttl, 1800))
+        payload = _json_get(session, "sportscore", SPORTSCORE_TEAM, params={"sport": "football", "slug": slug, "limit": min(30, max(1, limit))}, ttl=ttl)
         return _sportscore_rows(payload)
     except Exception:
         return []
@@ -265,7 +294,9 @@ def fetch_sportscore_team(session: requests.Session, team_name: str, *, limit: i
 
 def fetch_sportscore_h2h(session: requests.Session, home: str, away: str, *, limit: int = 20, ttl: int = 1800) -> List[Dict[str, Any]]:
     try:
-        payload = _json_get(session, "sportscore", SPORTSCORE_H2H, params={"sport": "football", "team1": _slug(home), "team2": _slug(away), "limit": min(50, max(1, limit))}, ttl=ttl)
+        home_slug = resolve_sportscore_slug(session, home, ttl=max(ttl, 1800))
+        away_slug = resolve_sportscore_slug(session, away, ttl=max(ttl, 1800))
+        payload = _json_get(session, "sportscore", SPORTSCORE_H2H, params={"sport": "football", "team1": home_slug, "team2": away_slug, "limit": min(50, max(1, limit))}, ttl=ttl)
         return _sportscore_rows(payload)
     except Exception:
         return []
