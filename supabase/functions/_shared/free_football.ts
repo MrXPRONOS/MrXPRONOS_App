@@ -45,7 +45,12 @@ function norm(value: unknown) {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
-    .trim();
+    .trim()
+    .split(/\s+/)
+    .filter((token) =>
+      token && !["fc", "cf", "sc", "afc", "club", "football", "soccer", "the"].includes(token)
+    )
+    .join(" ");
 }
 function similarity(a: unknown, b: unknown) {
   const aa = new Set(norm(a).split(" ").filter(Boolean));
@@ -164,7 +169,7 @@ function canonical(args: {
 
 function rowsOf(payload: any): any[] {
   if (Array.isArray(payload)) return payload;
-  for (const key of ["matches", "fixtures", "results", "data", "events"]) {
+  for (const key of ["matches", "fixtures", "results", "data", "events", "eventstats", "statistics", "stats"]) {
     if (Array.isArray(payload?.[key])) return payload[key];
   }
   return [];
