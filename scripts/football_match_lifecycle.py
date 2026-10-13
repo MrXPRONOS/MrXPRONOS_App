@@ -1060,10 +1060,18 @@ def collect_external(session: requests.Session, day: date, base_events: list[dic
 
     rows: list[dict] = []
     for fixture_day in sorted(days):
-        rows.extend(fetch_espn_day(session, fixture_day))
-        rows.extend(fetch_sportscore_day(session, fixture_day))
-        rows.extend(fetch_thesportsdb_day(session, fixture_day))
-        rows.extend(fetch_openligadb_day(session, fixture_day))
+        providers = (
+            ("espn", fetch_espn_day),
+            ("sportscore", fetch_sportscore_day),
+            ("thesportsdb", fetch_thesportsdb_day),
+            ("openligadb", fetch_openligadb_day),
+        )
+        for provider_name, fetcher in providers:
+            try:
+                rows.extend(fetcher(session, fixture_day))
+            except Exception as exc:
+                # One free source must never break the entire lifecycle.
+                print("FREE_PROVIDER_LIFECYCLE_ERROR", provider_name, fixture_day, type(exc).__name__)
 
     free_rows = merge_provider_matches(rows)
     # Local merged snapshot is deliberately last: it can cover leagues absent
