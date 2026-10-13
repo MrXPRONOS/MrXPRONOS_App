@@ -39,6 +39,8 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertEqual(event["away_score"], 1)
         self.assertEqual(event["minute"], 67)
         self.assertEqual(event["state"], "in")
+        self.assertEqual(event["home_logo"], "https://a/logo.png")
+        self.assertEqual(event["away_logo"], "https://b/logo.png")
 
     def test_extract_lineups_and_goals(self):
         summary = {
@@ -72,6 +74,83 @@ class MatchLifecycleTests(unittest.TestCase):
         goals = m.extract_goals(summary)
         self.assertEqual(goals[-1]["player"], "Bukayo Saka")
         self.assertEqual(goals[-1]["minute"], 64)
+
+    @patch("football_match_lifecycle.fetch_espn_summary")
+    @patch("football_match_lifecycle.collect_external")
+    def test_composition_signal_transporte_les_logos(self, collect_external, fetch_summary):
+        kickoff = NOW + timedelta(minutes=30)
+        base = [{
+            "id": "bsd-lineup",
+            "event_date": kickoff.isoformat(),
+            "home_team": {"name": "Arsenal"},
+            "away_team": {"name": "Chelsea"},
+            "league_name": "Premier League",
+        }]
+        collect_external.return_value = [{
+            "source": "espn",
+            "id": "espn-lineup",
+            "home_team": "Arsenal",
+            "away_team": "Chelsea",
+            "home_logo": "https://a/logo.png",
+            "away_logo": "https://b/logo.png",
+            "home_score": 0,
+            "away_score": 0,
+            "minute": 0,
+            "state": "pre",
+            "status_detail": "Scheduled",
+            "event_date": kickoff.isoformat(),
+        }]
+        fetch_summary.return_value = {
+            "rosters": [
+                {
+                    "homeAway": "home",
+                    "roster": [
+                        {"starter": True, "athlete": {"displayName": f"Home {i}"}}
+                        for i in range(1, 12)
+                    ],
+                },
+                {
+                    "homeAway": "away",
+                    "roster": [
+                        {"starter": True, "athlete": {"displayName": f"Away {i}"}}
+                        for i in range(1, 12)
+                    ],
+                },
+            ],
+        }
+
+        signals = m.lifecycle_signals(base, set(), NOW, object(), lambda _: 100)
+        compositions = [x for x in signals if x["kind"] == "composition"]
+        self.assertEqual(len(compositions), 1)
+        self.assertEqual(compositions[0]["home_logo"], "https://a/logo.png")
+        self.assertEqual(compositions[0]["away_logo"], "https://b/logo.png")
+        self.assertEqual(len(compositions[0]["lineups"]["home"]), 11)
+        self.assertEqual(len(compositions[0]["lineups"]["away"]), 11)
+
+    def test_composition_publication_attache_le_template(self):
+        post = channel.lifecycle_publication({
+            "kind": "composition",
+            "key": "composition:401",
+            "home": "Arsenal",
+            "away": "Chelsea",
+            "league": "Premier League",
+            "kickoff": NOW + timedelta(minutes=30),
+            "source": "ESPN",
+            "home_logo": "https://a/logo.png",
+            "away_logo": "https://b/logo.png",
+            "lineups": {
+                "home": [f"Home Player {i}" for i in range(1, 12)],
+                "away": [f"Away Player {i}" for i in range(1, 12)],
+            },
+        })
+        self.assertIsNotNone(post)
+        self.assertEqual(post.category, "composition")
+        self.assertIsNotNone(post.card)
+        self.assertEqual(post.card["competition"], "Premier League")
+        self.assertEqual(len(post.card["home_players"]), 11)
+        self.assertEqual(len(post.card["away_players"]), 11)
+        self.assertEqual(post.card["home_logo"], "https://a/logo.png")
+        self.assertEqual(post.card["away_logo"], "https://b/logo.png")
 
     @patch("football_match_lifecycle.fetch_espn_summary")
     @patch("football_match_lifecycle.collect_external")
