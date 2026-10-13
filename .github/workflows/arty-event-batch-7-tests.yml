@@ -1,0 +1,51 @@
+name: Arty Football - Test event template batch 7
+
+on:
+  push:
+    branches:
+      - arty-templates-batch-7-20261013
+    paths:
+      - '.github/workflows/arty-event-batch-7-tests.yml'
+      - 'scripts/actu_foot_event_templates.py'
+      - 'scripts/template_cards.py'
+      - 'scripts/build_event_batch_5_assets.py'
+      - 'scripts/build_event_batch_6_assets.py'
+      - 'scripts/build_event_batch_7_assets.py'
+      - 'tests_football_channel/test_event_template_batch_1.py'
+      - 'tests_football_channel/test_event_template_batch_2.py'
+      - 'tests_football_channel/test_event_template_batch_3.py'
+      - 'tests_football_channel/test_event_template_batch_4.py'
+      - 'tests_football_channel/test_event_template_batch_5.py'
+      - 'tests_football_channel/test_event_template_batch_6.py'
+      - 'tests_football_channel/test_event_template_batch_7.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-event-templates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --quiet Pillow requests
+      - name: Compile template modules
+        run: python -m py_compile scripts/actu_foot_event_templates.py scripts/template_cards.py scripts/build_event_batch_5_assets.py scripts/build_event_batch_6_assets.py scripts/build_event_batch_7_assets.py
+      - name: Run batch 1 regression tests
+        run: PYTHONPATH=scripts python tests_football_channel/test_event_template_batch_1.py
+      - name: Run batch 2 regression tests
+        run: PYTHONPATH=scripts python tests_football_channel/test_event_template_batch_2.py
+      - name: Run batch 3 regression tests
+        run: PYTHONPATH=scripts python tests_football_channel/test_event_template_batch_3.py
+      - name: Run batch 4 regression tests
+        run: PYTHONPATH=scripts python tests_football_channel/test_event_template_batch_4.py
+      - name: Run batch 5 regression tests
+        run: PYTHONPATH=scripts python tests_football_channel/test_event_template_batch_5.py
+      - name: Run batch 6 regression tests
+        run: PYTHONPATH=scripts python tests_football_channel/test_event_template_batch_6.py
+      - name: Run batch 7 tests
+        run: PYTHONPATH=scripts python tests_football_channel/test_event_template_batch_7.py
