@@ -1,0 +1,36 @@
+name: Editorial Phase 3 - Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/editorial_*.py'
+      - 'assets/js/main.js'
+      - 'tests/test_editorial_phase3.py'
+      - '.github/workflows/editorial-*.yml'
+      - 'docs/EDITORIAL_FREE_PLAN.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install free test requirements
+        run: python -m pip install requests Pillow
+      - name: Check JavaScript parse
+        run: node --check assets/js/main.js
+      - name: Test UTM preservation and social receipt idempotency
+        run: python -m unittest discover -s tests -p 'test_editorial_phase3.py' -v
+      - name: Test previous social publishers without posting
+        run: python -m unittest discover -s tests -p 'test_editorial_phase2.py' -v
+      - name: Compile editorial modules
+        run: |
+          python -m compileall -q scripts/editorial_attribution.py scripts/editorial_merge_receipts.py scripts/editorial_pages.py
