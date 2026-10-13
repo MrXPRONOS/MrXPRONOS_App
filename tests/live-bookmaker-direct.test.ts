@@ -16,3 +16,12 @@ Deno.test("PinnWire avoids conflating goal totals with corners",()=>{
  const base={home:"Real Madrid",away:"Barcelona",kickoff:"2026-10-13T20:00:00Z",live:true,updated_at:new Date().toISOString()};
  assert(__test.extractPinnwire({events:[{...base,markets:[{name:"Match Totals",points:8.5,over:1.9}]}]},input)===null,"unrelated totals accepted");
 });
+
+Deno.test("Official MoviOdds kickoff_utc and Total Corners Over-label format",()=>{
+ const now=new Date().toISOString();
+ const input={match_id:"bsd100",home:"AFC",away:"FCB",kickoff:"2026-10-13T20:00:00Z",market:"total_corners",line:8.5,minute:57};
+ const row={home:"AFC",away:"FCB",kickoff_utc:"2026-10-13T20:00:00Z",in_play:true,
+    polled_at:now,quotes:[{group_name:"Total Corners",label:"Over 8.5",odds_dec:1.84,ts:"2026-10-12T12:00:00Z"}]};
+ assert(__test.extractMovi({matches:[row]},input)?.odds===1.84,"live market label not parsed");
+ assert(__test.extractMovi({matches:[{...row,polled_at:"2025-01-01T12:00:00Z"}]},input)===null,"stale market accepted");
+});
