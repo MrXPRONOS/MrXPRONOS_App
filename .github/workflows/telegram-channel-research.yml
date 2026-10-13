@@ -1,6 +1,10 @@
 name: Telegram - Veille canal public
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/telegram-channel-research.yml'
   workflow_dispatch:
     inputs:
       days:
