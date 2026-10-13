@@ -529,7 +529,9 @@ class Sender:
             from football_cards import render_card
             with tempfile.TemporaryDirectory(prefix="xpronos-news-") as tmp:
                 graphic_style = (
-                    "statistique_avancee" if item.category == "statistique"
+                    "resultat_suivi" if item.category == "resultat" and
+                    item.card.get("_arty_format") == "resultat_suivi"
+                    else "statistique_avancee" if item.category == "statistique"
                     and item.key.startswith("statistique-avancee:")
                     else item.category
                 )
@@ -1364,6 +1366,11 @@ def followed_final_publication(signal: dict) -> Publication | None:
                 "league": comp, "home": home, "away": away,
                 "scores": (h, a), "home_logo": logo_home,
                 "away_logo": logo_away}
+    if card is None:
+        card = {"_arty_format": "resultat_suivi", "home": home, "away": away,
+                "score": scores, "league": comp,
+                "source": signal.get("source") or "score confirmé",
+                "home_logo": logo_home, "away_logo": logo_away}
     return Publication("resultat", str(signal.get("key") or ""),
                        post_label(message), card=card)
 
