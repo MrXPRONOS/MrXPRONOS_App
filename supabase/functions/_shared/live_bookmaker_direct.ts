@@ -43,7 +43,7 @@ function extractMovi(data:any,input:Match):LiveQuote|null{
     const line=number(q?.line??q?.point);
     const price=number(q?.odds_dec??q?.price);
     if(!Number.isFinite(line)||Math.abs(line-input.line)>.01||!Number.isFinite(price)||price<=1.01||price>100)continue;
-    if(!isFresh(q)&&!isFresh(match))continue;
+    if(!isFresh(q?.updated_at? q: match))continue;
     return {odds:Number(price.toFixed(3)),line,source:"moviodds"};
   }
   return null;
@@ -75,6 +75,7 @@ async function getJSON(provider:"moviodds"|"pinnwire",input:Match,db:Rpc):Promis
   if((disabled.get(provider)||0)>Date.now())return null;
   const limits=provider==="moviodds"?{day:cap("LIVE_MOVIODDS_DAILY_CAP",600),minute:cap("LIVE_MOVIODDS_MINUTE_CAP",12)}:
     {day:cap("LIVE_PINNWIRE_DAILY_CAP",90),minute:cap("LIVE_PINNWIRE_MINUTE_CAP",2)};
+  if(provider==="pinnwire"&&!Deno.env.get("LIVE_ODDS_PINNWIRE_KEY"))return null;
   const slot=await db.rpc("odds_take_request_slot",{
     p_provider:provider,p_day_limit:limits.day,p_minute_limit:limits.minute});
   if(slot.error||slot.data!==true){console.warn("ODDS_QUOTA_BLOCK",provider);return null;}
