@@ -7908,27 +7908,25 @@ async function dailyValidateSnapshots() {
     let events: any[] = [];
 
     try {
-      const payload = await fetchBSD("/events/", {
-        status: "finished",
-        date_from: date,
-        date_to: date,
-        limit: "200",
-      });
+      events = (await dailyFetchAllEventsForDate(date, false)).filter(isFinishedEvent);
 
-      events = dailyResultRows(payload).filter(isFinishedEvent);
+      const unmatched = preds.filter((p: any) => !dailyFindEventForProno(p, events));
+      if (unmatched.length && BSD_API_TOKEN) {
+        events = (await dailyFetchAllEventsForDate(date, true)).filter(isFinishedEvent);
+      }
     } catch (e) {
-      console.warn("Validation daily: événements terminés indisponibles", e);
+      console.warn("Validation daily: événements terminés multi-source indisponibles", e);
       continue;
     }
 
     for (const p of preds) {
       checked++;
 
-      let ev = events.find(
-        (x: any) =>
-          String(dailyEventId(x)) ===
-          String(p?.bsd_event_id),
-      );
+      let ev = p?.bsd_event_id
+        ? events.find((x: any) =>
+            dailyBsdEventId(x) === String(p?.bsd_event_id)
+          )
+        : null;
 
       if (!ev) ev = dailyFindEventForProno(p, events);
       if (!ev || !isFinishedEvent(ev)) continue;
