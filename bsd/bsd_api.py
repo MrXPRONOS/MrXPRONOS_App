@@ -307,15 +307,39 @@ class BSDClient:
         limit: int = 6,
         ttl: int = 900,
     ) -> List[Dict[str, Any]]:
-        """Derniers matchs terminés d'une équipe pour calculer sa forme.
+        """Derniers matchs terminés d'une équipe.
 
-        Utilise le filtre natif team_id de BSD (team_name en secours), plutôt
-        qu'une fenêtre globale de quelques jours qui peut être vide.
+        SportScore est utilisé en premier lorsqu'un nom d'équipe est disponible;
+        BSD reste le fallback pour garantir la continuité et les identifiants
+        historiques natifs.
         """
         if team_id is None and not str(team_name or "").strip():
             raise ValueError("team_id ou team_name requis")
         if not 1 <= int(limit) <= 50:
             raise ValueError("limit doit être compris entre 1 et 50")
+
+        if self.free_hub.enabled and str(team_name or "").strip():
+            free_rows = self.free_hub.sportscore_team_schedule(
+                str(team_name).strip(),
+                limit=max(int(limit) * 3, 12),
+            )
+            filtered: List[Dict[str, Any]] = []
+            for row in free_rows:
+                if not isinstance(row, dict) or str(row.get("status") or "").lower() != "finished":
+                    continue
+                if before is not None and str(row.get("event_date") or "")[:10] > before.isoformat():
+                    continue
+                home_name = str(row.get("home_team") or "")
+                away_name = str(row.get("away_team") or "")
+                if team_id is not None:
+                    if home_name.casefold() == str(team_name).strip().casefold():
+                        row["home_team_id"] = int(team_id)
+                    elif away_name.casefold() == str(team_name).strip().casefold():
+                        row["away_team_id"] = int(team_id)
+                filtered.append(row)
+            if len(filtered) >= int(limit):
+                return filtered[:int(limit)]
+
         params: Dict[str, Any] = {
             "status": "finished",
             "limit": int(limit),
