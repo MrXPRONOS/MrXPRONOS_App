@@ -944,6 +944,67 @@ serve(async (req) => {
   const isFrustrated = FRUSTRATION_KEYWORDS.some(kw => normalizedQuestion.includes(kw));
 
   try {
+    const answerNow=async(answer: string, source="site")=>{
+      const {data: conversation}=await supabase.from("conversations")
+        .insert({user_id,question,reponse:shortenText(answer,20000),from_cache:source==="faq"})
+        .select("id").maybeSingle();
+      return new Response(JSON.stringify({answer,source,from_cache:source==="faq",conversation_id:conversation?.id??null}),{
+        headers:{...corsHeaders,"Content-Type":"application/json"}
+      });
+    };
+    if(intent==="underage")return await answerNow(
+      '<p>Les paris sportifs sont réservés aux adultes. Si tu as moins de 18 ans, ne mise pas d’argent. Tu peux consulter les actualités football sans parier.</p>',"safety");
+    if(intent==="harm")return await answerNow(
+      '<p>Ne cherche pas à récupérer des pertes en augmentant les mises. Arrête les paris pour le moment, protège ton budget et demande du soutien à une personne de confiance si tu en ressens le besoin.</p>',"safety");
+    if(intent==="access")return await answerNow(
+      '<p>Sur le site Mr XPRONOS, les catégories <strong>Simple, Pro, VIP et le LIVE sont consultables gratuitement</strong>. Aucun abonnement VIP payant ni code n’est exigé pour ces pages. Le code <strong>XPVIP</strong> concerne les offres de partenaires lorsqu’il est accepté.</p><p>'+
+      publicLink("pronos.html","Pronostics")+' · '+publicLink("live.html","LIVE")+'</p>',"site");
+    if(intent==="greeting")return await answerNow(renderGreetingResponse(),"site");
+    if(intent==="bonus")return await answerNow(await answerPublishedBonus(question),"bonus.json");
+    if(intent==="support"){
+      const ans='<p>Tu peux joindre le support via <a href="'+OFFICIAL_CONTACTS.whatsapp+'">WhatsApp</a>, <a href="'+OFFICIAL_CONTACTS.telegram+'">Telegram</a> ou par téléphone au <a href="tel:+22899201444">+228 99 20 14 44</a>.</p>'+
+         '<p>Réseaux officiels : <a href="https://www.instagram.com/mr_xpronos">Instagram</a> · <a href="https://youtube.com/@mrxpronos">YouTube</a> · <a href="https://www.facebook.com/share/1DsG6H6gf1/">Facebook</a> · <a href="https://www.threads.com/@mr_xpronos">Threads</a>.</p>'+
+         '<p>'+publicLink("contact.html","Page Contact")+'</p>';
+      return await answerNow(ans,"contact");
+    }
+    if(intent==="live"){
+      const normalized=normalizeQuestion(question);
+      if(/momentum|pression/.test(normalized)){
+        return await answerNow('<p>Le <strong>momentum</strong> traduit la dynamique récente du match. La <strong>pression offensive</strong> estime l’intensité des actions dangereuses selon les données utilisées. Ce ne sont pas des garanties de but.</p><p>Consulte '+publicLink("live.html","les statistiques LIVE à jour")+'.</p>',"site");
+      }
+      return await answerNow(renderLiveResponse(),"site");
+    }
+    if(intent==="prono"){
+      if(/garanti|100\s*%|certain|sans risque/i.test(question)){
+        return await answerNow('<p>Aucun pronostic n’est garanti : un match peut toujours produire un résultat inattendu. '+publicLink("pronos.html","Consulte les pronostics publiés")+' et vérifie la date et le statut de chaque sélection.</p>',"safety");
+      }
+      return await answerNow(await answerPublishedMatches(question),"data.json");
+    }
+    if(intent==="results")return await answerNow(await answerPublishedHistory(question),"data.json");
+    if(intent==="knowledge"){
+      const q=normalizeQuestion(question);
+      if(/momentum|pression/.test(q))return await answerNow('<p>Le momentum désigne la dynamique récente du jeu; la pression offensive est un indicateur dépendant du fournisseur des statistiques. Aucun des deux ne garantit un but.</p>',"guide");
+      const exactFAQ=await answerOfficialFAQ(question);
+      if(exactFAQ)return await answerNow(exactFAQ,"faq");
+      if(/over|plus de 2/.test(q))return await answerNow('<p>« Plus de 2,5 buts » nécessite au moins trois buts marqués au total; le règlement du marché fait foi.</p>',"guide");
+      return await answerNow('<p>Peux-tu préciser le terme football que tu souhaites comprendre ? Je peux expliquer xG, BTTS, 1X2, corners et les handicaps.</p>',"guide");
+    }
+    if(intent==="generic"){
+      const q=normalizeQuestion(question);
+      if(/articles|actualites|blog|conseils|bankroll/.test(q)){
+        const isAdvice=/conseil|bankroll/.test(q);
+        const file=isAdvice?"conseils.json":"articles.json";
+        const items=await publishedJson(file);
+        const link=publicLink(isAdvice?"conseils.html":"blog.html",isAdvice?"Tous les conseils":"Tous les articles");
+        const recent=Array.isArray(items)?items.filter((x:any)=>x.active!==false).slice(0,5):[];
+        return await answerNow('<p>Voici des contenus publiés sur le site :</p><ul>'+
+          recent.map((x:any)=>'<li>'+safeHtml(x.title||"Article")+'</li>').join("")+
+          '</ul><p>'+link+'</p>',file);
+      }
+      const found=await answerOfficialFAQ(question);
+      if(found)return await answerNow(found,"faq");
+    }
+    // Other questions fall through to existing optional free AI and its safe fallback.
     // Bookmakers actifs
     const { data: bookmakersData } = await supabase
       .from("bookmakers")
