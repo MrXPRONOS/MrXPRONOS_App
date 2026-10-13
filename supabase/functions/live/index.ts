@@ -5067,7 +5067,7 @@ async function validatePredictionsInPlay(
 
   for (const pred of pending) {
     // Jamais valider avant la publication du coupon initial.
-    if(pred.telegram_sent!==true){ bumpSkip("telegram_not_sent"); continue; }
+    if (pred.telegram_sent !== true) { skipped++; continue; }
     const match = liveMap.get(String(pred.match_id));
     if (!match) {
       skipped++;
