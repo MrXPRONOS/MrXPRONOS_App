@@ -467,7 +467,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         prediction["secondary_selections"]=additional
         # Les combinés utilisent toujours uniquement des cotes BSD réelles.
         low_quotes={code:q for code,q in quotes.items()
-                    if isinstance(q,dict) and q.get("origin") in ("bsd_consensus","bsd_bookmaker")
+                    if isinstance(q,dict) and q.get("origin") in ("bsd_consensus","bsd_bookmaker","pinnwire","oddslink","moviodds","oddsharvester")
                     and type(q.get("odds")) in (int,float) and MIN_COMBO_ODDS<=q["odds"]<=1.50}
         if low_quotes:
             combo_choice,_combo_reason=predict_v2(
