@@ -132,7 +132,9 @@ jobs:
               "team": tsdb.get("team"),
               "stadium": tsdb.get("stadium"),
               "country": tsdb.get("country"),
-          })          import football_viral_engine as viral
+          })
+
+          import football_viral_engine as viral
           commons = viral.fetch_commons_image(session, "association football stadium pitch grass")
           assert commons.get("provider") == "Wikimedia Commons", commons
           assert commons.get("url", "").startswith("https://"), commons
