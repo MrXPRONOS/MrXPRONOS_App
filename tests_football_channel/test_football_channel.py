@@ -163,6 +163,34 @@ class FootballChannelTests(unittest.TestCase):
             datetime(2026, 10, 10, 6, 30, tzinfo=timezone.utc)
         ))
 
+    def test_programme_transporte_le_controle_espn_des_affiches(self):
+        match = event(77, NOW + timedelta(hours=3))
+        post = m.programme([match], NOW.date(), as_of=NOW)
+        self.assertIsNotNone(post)
+        self.assertEqual(post.verification["type"], "fixture_list")
+        self.assertEqual(post.verification["kind"], "programme")
+        self.assertEqual(post.verification["fixtures"][0]["home"], "Arsenal")
+        self.assertEqual(post.verification["fixtures"][0]["away"], "Chelsea")
+
+    @patch.object(m, "has_two_team_logos", return_value=True)
+    @patch.object(m, "team_visual_url", return_value="https://example.com/logo.png")
+    def test_avant_match_transporte_le_controle_espn(self, _logo, _has_logos):
+        match = event(78, NOW + timedelta(hours=2))
+        post = m.avant_match([match], self.history, NOW, [])
+        self.assertIsNotNone(post)
+        self.assertEqual(post.verification["type"], "fixture_list")
+        self.assertEqual(post.verification["kind"], "avant_match")
+        self.assertTrue(post.verification["fixtures"][0]["event_date"].endswith("+00:00"))
+
+    @patch.object(m, "has_two_team_logos", return_value=True)
+    @patch.object(m, "team_visual_url", return_value="https://example.com/logo.png")
+    def test_resultat_transporte_score_dans_le_controle_espn(self, _logo, _has_logos):
+        match = event(79, NOW - timedelta(hours=2), "finished", 3, 1)
+        post = m.resultat([match], self.history, NOW)
+        self.assertIsNotNone(post)
+        self.assertEqual(post.verification["kind"], "resultat")
+        self.assertEqual(post.verification["fixtures"][0]["score"], "3-1")
+
     def test_programme_et_horaires_togo(self):
         post = m.programme([event(1, NOW + timedelta(hours=4))], NOW.date())
         self.assertIsNotNone(post)
