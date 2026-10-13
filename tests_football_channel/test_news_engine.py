@@ -42,6 +42,24 @@ class NewsEngineTests(unittest.TestCase):
         for point in points:
             self.assertIn(point, source)
 
+    def test_resume_conserve_les_listes_numerotees_sans_casser_scores_et_heures(self):
+        source=(
+            "Les trois points à retenir : 1: Arsenal récupère deux titulaires "
+            "2. Chelsea conserve son onze habituel "
+            "3) Le coup d'envoi reste confirmé"
+        )
+        short=n.short_summary(source,330)
+        self.assertIn("1: Arsenal",short)
+        self.assertIn("\n2. Chelsea",short)
+        self.assertIn("\n3) Le coup",short)
+
+        ordinary=n.preserve_numbered_breaks(
+            "Arsenal mène 1:0 à la pause et la reprise est prévue à 12:30."
+        )
+        self.assertNotIn("\n0",ordinary)
+        self.assertIn("1:0",ordinary)
+        self.assertIn("12:30",ordinary)
+
     def test_image_portrait_utilise_fond_floute(self):
         source = Image.new("RGB", (500, 1000), (120, 130, 140))
         raw = io.BytesIO()
