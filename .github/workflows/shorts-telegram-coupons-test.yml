@@ -30,8 +30,7 @@ jobs:
 
       - name: Install free video dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation
+          ffmpeg -version | head -n 1
           python -m pip install --upgrade pip
           pip install "numpy<2" "pillow<12" requests "moviepy==1.0.3"
 
