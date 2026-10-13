@@ -118,7 +118,7 @@ export async function fetchSportScoreDay(date: string, liveOnly = false) {
   }
 }
 
-function extractStatPairs(payload: any) {
+export function normalizeProviderStatsPayload(payload: any) {
   const home: any = {}, away: any = {}, totals: any = {};
   const aliases: Record<string, string> = {
     corners: "corner_kicks", corner_kicks: "corner_kicks",
@@ -184,7 +184,7 @@ export async function fetchSportScoreMatchStats(slug: string) {
     url.searchParams.set("sport", "football");
     url.searchParams.set("slug", slug);
     const payload = await json(url);
-    return { payload, stats: extractStatPairs(payload) };
+    return { payload, stats: normalizeProviderStatsPayload(payload) };
   } catch (e) {
     console.warn("SportScore match detail unavailable", slug, e);
     return null;
