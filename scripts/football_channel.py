@@ -144,6 +144,30 @@ def plain(value: Any, max_len: int = 500) -> str:
     return cleaned[:max_len].rstrip()
 
 
+def structured_plain(value: Any, max_len: int = 500) -> str:
+    """Plain text that keeps meaningful list/newline structure for Telegram."""
+    cleaned = re.sub(r"<[^>]+>", " ", html.unescape(str(value or "")))
+    cleaned = cleaned.replace("\r\n", "\n").replace("\r", "\n")
+    # Recover compact numbered lists such as "1: Texte 2: Texte" without
+    # treating scores (1:0), times (12:30) or decimal values as list markers.
+    cleaned = re.sub(
+        r"(?<!^)(?<!\n)(?<=\S)[ \t]+(?=(?:\d{1,2})[\.:\)]\s+(?=[A-ZÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]))",
+        "\n",
+        cleaned,
+    )
+    lines = [
+        re.sub(r"[ \t]+", " ", line).strip()
+        for line in cleaned.splitlines()
+    ]
+    result = "\n".join(line for line in lines if line).strip()
+    if len(result) <= max_len:
+        return result
+    short = result[:max_len]
+    if " " in short:
+        short = short.rsplit(" ", 1)[0]
+    return short.rstrip(" ,;:-") + "…"
+
+
 def moment(value: Any) -> datetime | None:
     if not value:
         return None
@@ -861,7 +885,7 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
         if not (ROOT / image_path).is_file():
             continue
         title = plain(article.get("title"), 240)
-        summary = plain(article.get("telegram_summary") or article.get("summary"), 430)
+        summary = structured_plain(article.get("telegram_summary") or article.get("summary"), 430)
         if not title or not summary:
             continue
         category = plain(article.get("category") or "Actualité", 40)
