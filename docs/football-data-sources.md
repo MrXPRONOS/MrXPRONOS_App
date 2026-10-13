@@ -11,7 +11,7 @@ Mr XPRONOS utilise plusieurs fournisseurs et choisit la source **par type de don
 | Rang | Source | Qualité globale | Live | Détail match | Couverture | Cotes automatisables |
 |---|---|---:|---:|---:|---:|---:|
 | 1 | ESPN | 98 | 99 | 99 | 91 | Non |
-| 2 | SportScore | 92 | 95 | 93 | 96 | Non documenté |
+| 2 | SportScore | 92 | 95 | 93 | 96 | Non documenté / non automatisé |
 | 3 | BSD V2 | 89 | 91 | 91 | 98 | Oui |
 | 4 | TheSportsDB | 79 | 55 | 82 | 73 | Non |
 | 5 | OpenLigaDB | 76 | 66 | 69 | 54 | Non |
@@ -47,8 +47,8 @@ Le site SportScore affiche des informations de paris et des cotes sur certaines 
 
 Mr XPRONOS inspecte donc les réponses match SportScore pour détecter explicitement des sections `odds`, `markets`, `betting_markets`, `live_odds` ou `prematch_odds`. Cette détection est diagnostique uniquement :
 - `contract_verified = false`;
-- elle ne peut pas alimenter automatiquement un pari ;
-- l'activation expérimentale nécessite `SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS=1`.
+- `automation_allowed = false`;
+- elle ne peut jamais alimenter automatiquement un pari.
 
 Tant qu'un contrat API de cotes n'est pas documenté et vérifié, BSD ou un fournisseur de cotes explicitement configuré reste la source de prix.
 
