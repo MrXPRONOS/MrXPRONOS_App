@@ -3,6 +3,11 @@ name: Editorial - Telegram diffusion contrôlée
 on:
   workflow_dispatch:
     inputs:
+      trigger_source:
+        description: "Origine du déclenchement"
+        required: false
+        default: "manual"
+        type: string
       publish:
         description: "Publier pour de vrai si les deux secrets dédiés sont disponibles"
         required: true
@@ -38,11 +43,12 @@ jobs:
           EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
           EDITORIAL_TELEGRAM_CHAT_ID: ${{ secrets.EDITORIAL_TELEGRAM_CHAT_ID }}
           EVENT_NAME: ${{ github.event_name }}
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
           REQUESTED_PUBLISH: ${{ inputs.publish || 'false' }}
           AUTO_ENABLED: ${{ vars.EDITORIAL_TELEGRAM_ENABLED || 'false' }}
         shell: bash
         run: |
-          if [ "$REQUESTED_PUBLISH" = 'true' ] || { [ "$EVENT_NAME" = 'schedule' ] && [ "$AUTO_ENABLED" = 'true' ]; }; then
+          if [ "$REQUESTED_PUBLISH" = 'true' ] || { [ "$AUTO_ENABLED" = 'true' ] && { [ "$EVENT_NAME" = 'schedule' ] || [ "$TRIGGER_SOURCE" = 'cron-job.org' ]; }; }; then
             python scripts/editorial_telegram.py --publish --max-items 1
           else
             python scripts/editorial_telegram.py
