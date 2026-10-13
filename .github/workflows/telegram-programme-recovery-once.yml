@@ -13,6 +13,7 @@ permissions:
   contents: read
 jobs:
   test:
+    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     env:
       BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
@@ -31,8 +32,17 @@ jobs:
       - name: Tests statiques
         run: python -m py_compile scripts/telegram_test_programme_recovery.py
       - name: Vérifier le canal de test
-        if: ${{ github.event_name == 'push' }}
         run: python scripts/telegram_test_guard.py
       - name: Tester le programme réel
-        if: ${{ github.event_name == 'push' }}
         run: python scripts/telegram_test_programme_recovery.py
+
+  validate:
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Vérification du script, sans secrets ni envoi Telegram
+        run: python -m py_compile scripts/telegram_test_programme_recovery.py
