@@ -945,6 +945,112 @@ def statistique(events: list[dict], reference_day: date) -> Publication | None:
                        message, card=card)
 
 
+
+def community_vote_publication(events: list[dict], now: datetime) -> Publication | None:
+    payload = build_match_vote(events, now, importance)
+    if not payload:
+        return None
+    question = plain(payload.get("question"), 300)
+    options = [plain(x, 100) for x in payload.get("options", []) if plain(x, 100)]
+    if not question or len(options) < 2:
+        return None
+    return Publication(
+        "sondage",
+        plain(payload.get("key"), 180),
+        "🗳️ Vote du jour",
+        poll=(question, options),
+        poll_type="regular",
+        poll_description=(
+            plain(payload.get("league"), 70)
+            + " • Vote avant le coup d'envoi • Mr XPRONOS"
+        ),
+        poll_allows_revoting=True,
+    )
+
+
+def community_quiz_publication(session: requests.Session, day: date) -> Publication | None:
+    payload = build_stats_quiz(session, day)
+    if not payload:
+        return None
+    question = plain(payload.get("question"), 300)
+    options = [plain(x, 100) for x in payload.get("options", []) if plain(x, 100)]
+    correct = payload.get("correct_option_ids") or []
+    if not question or len(options) < 2 or not correct:
+        return None
+    return Publication(
+        "quiz",
+        plain(payload.get("key"), 180),
+        "🧠 Quiz Foot",
+        poll=(question, options),
+        poll_type="quiz",
+        correct_option_ids=[int(x) for x in correct],
+        poll_explanation=plain(payload.get("explanation"), 200),
+        poll_description=(
+            "🧠 QUIZ FOOT • "
+            + plain(payload.get("league"), 80)
+            + " • Données vérifiées par Mr XPRONOS"
+        ),
+        poll_shuffle=True,
+        poll_allows_revoting=False,
+    )
+
+
+def community_debate_publication(news: list[dict], day: date) -> Publication | None:
+    payload = build_news_debate(news, day)
+    if not payload:
+        return None
+    title = plain(payload.get("title"), 220)
+    summary = plain(payload.get("summary"), 340)
+    source = plain(payload.get("source"), 80)
+    question = plain(payload.get("question"), 240)
+    url = plain(payload.get("url"), 420)
+    if not title or not summary:
+        return None
+    message = (
+        "<h3>💬 DÉBAT DU JOUR</h3>"
+        "<p><b>" + esc(title) + "</b></p>"
+        "<blockquote>" + esc(summary) + "</blockquote>"
+        + ("<p><i>🗞️ Source : " + esc(source) + "</i></p>" if source else "")
+        + "<p><b>" + esc(question) + "</b></p>"
+    )
+    keyboard = None
+    if url.startswith("https://"):
+        keyboard = {"inline_keyboard": [[{
+            "text": "Lire l'info complète ↗",
+            "url": url,
+            "style": "primary",
+        }]]}
+    return Publication(
+        "debat",
+        plain(payload.get("key"), 180),
+        post_label(message),
+        keyboard=keyboard,
+    )
+
+
+def community_reaction_publication(events: list[dict], now: datetime) -> Publication | None:
+    payload = build_postmatch_reaction(events, now, importance)
+    if not payload:
+        return None
+    question = plain(payload.get("question"), 300)
+    options = [plain(x, 100) for x in payload.get("options", []) if plain(x, 100)]
+    if not question or len(options) < 2:
+        return None
+    return Publication(
+        "reaction",
+        plain(payload.get("key"), 180),
+        "⭐ Réaction du soir",
+        poll=(question, options),
+        poll_type="regular",
+        poll_description=(
+            plain(payload.get("league"), 70)
+            + " • Note le match • Mr XPRONOS"
+        ),
+        poll_allows_revoting=True,
+    )
+
+
+
 def sondage(events: list[dict], history: History, now: datetime) -> Publication:
     today = now.astimezone(TZ).date()
     future = [e for e in candidates(events) if kick(e) > now + timedelta(minutes=20)
@@ -1232,12 +1338,39 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         if force or in_editorial_window("sondage", now):
             if counter["sent"] < max_send and (force or enough(state, "sondage", now)):
                 try:
-                    publish(sondage(get_day(today), state, now))
+                    post = community_vote_publication(get_day(today), now)
+                    publish(post or sondage([], state, now))
                 except (BSDAPIError, requests.RequestException, ValueError) as exc:
-                    # Le sondage éditorial reste disponible si BSD est indisponible.
+                    # Le sondage éditorial générique reste le dernier fallback.
                     counter["errors"] += 1
-                    print("ERREUR_BSD_SONDAGE", type(exc).__name__, str(exc)[:160])
+                    print("ERREUR_COMMUNITY_VOTE", type(exc).__name__, str(exc)[:160])
                     publish(sondage([], state, now))
+
+        if force or in_editorial_window("community_evening", now):
+            if counter["sent"] < max_send:
+                try:
+                    # Un jour sur deux on privilégie le quiz, l'autre le débat.
+                    # En cas d'indisponibilité, l'autre format prend immédiatement le relais.
+                    if today.toordinal() % 2 == 0:
+                        post = (
+                            community_quiz_publication(sender.session, today)
+                            if (force or enough(state, "quiz", now))
+                            else None
+                        )
+                        if post is None and (force or enough(state, "debat", now)):
+                            post = community_debate_publication(load_site_news(), today)
+                    else:
+                        post = (
+                            community_debate_publication(load_site_news(), today)
+                            if (force or enough(state, "debat", now))
+                            else None
+                        )
+                        if post is None and (force or enough(state, "quiz", now)):
+                            post = community_quiz_publication(sender.session, today)
+                    publish(post)
+                except (requests.RequestException, ValueError, TypeError) as exc:
+                    counter["errors"] += 1
+                    print("ERREUR_COMMUNITY_EVENING", type(exc).__name__, str(exc)[:160])
 
         if production_active(now) and counter["sent"] < max_send:
             try:
@@ -1314,6 +1447,14 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             except (BSDAPIError, requests.RequestException, ValueError) as exc:
                 counter["errors"] += 1
                 print("ERREUR_BSD_MATCH", type(exc).__name__, str(exc)[:160])
+
+        if (force or in_editorial_window("community_reaction", now)) and counter["sent"] < max_send:
+            if force or enough(state, "reaction", now):
+                try:
+                    publish(community_reaction_publication(get_day(today), now))
+                except (BSDAPIError, requests.RequestException, ValueError, TypeError) as exc:
+                    counter["errors"] += 1
+                    print("ERREUR_COMMUNITY_REACTION", type(exc).__name__, str(exc)[:160])
 
         # Deuxième Flash possible plus tard dans la journée si une nouvelle actu
         # est disponible et que l'espacement minimum de 3h est respecté.
