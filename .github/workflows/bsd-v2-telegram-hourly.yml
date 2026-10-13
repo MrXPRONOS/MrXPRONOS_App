@@ -54,7 +54,7 @@ jobs:
           TRIGGER_SOURCE: ${{ inputs.trigger_source || 'manual' }}
           MANUAL_DESTINATION: ${{ inputs.destination || 'test' }}
           PROD_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
+          TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
         shell: bash
         run: |
           set -euo pipefail
