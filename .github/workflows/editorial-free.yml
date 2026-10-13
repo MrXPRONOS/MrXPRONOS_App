@@ -40,7 +40,7 @@ jobs:
       - name: Integrate verified BSD V2 fixture stories
         run: python scripts/editorial_bsd_bridge.py --limit 5
       - name: Build branded media (3 aspect ratios)
-        run: python scripts/content_studio.py --limit 100 --news-limit 20
+        run: python scripts/content_studio.py --limit 100 --news-limit 0
       - name: Build shareable OG pages
         run: python scripts/editorial_pages.py
       - name: Refresh sitemap for shareable pages
@@ -70,7 +70,7 @@ jobs:
             git reset --hard origin/main
             python scripts/editorial_dedup_slugs.py --apply
             python scripts/editorial_bsd_bridge.py --limit 5
-            python scripts/content_studio.py --limit 100 --news-limit 20
+            python scripts/content_studio.py --limit 100 --news-limit 0
             python scripts/editorial_pages.py
             python generate_sitemap.py
             python scripts/editorial_queue.py --limit 100
