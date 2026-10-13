@@ -1,0 +1,45 @@
+name: Editorial Instagram et test A-B - Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/editorial_instagram*.py'
+      - 'scripts/content_studio.py'
+      - 'scripts/editorial_attribution.py'
+      - 'scripts/editorial_quality.py'
+      - 'assets/js/main.js'
+      - 'tests/test_editorial_instagram_ab.py'
+      - '.github/workflows/editorial-instagram.yml'
+      - '.github/workflows/editorial-free.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dépendances gratuites
+        run: python -m pip install Pillow requests feedparser deep-translator
+      - name: Valider JavaScript
+        run: node --check assets/js/main.js
+      - name: Tester Instagram sans envoyer un post
+        run: python -m unittest discover -s tests -p 'test_editorial_instagram_ab.py' -v
+      - name: Vérifier les anciens tests de publication et statistiques
+        run: |
+          python -m unittest discover -s tests -p 'test_editorial_phase3.py' -v
+          python -m unittest discover -s tests -p 'test_editorial_phase2.py' -v
+          python -m unittest discover -s tests -p 'test_editorial_free.py' -v
+      - name: Préparation des images Instagram en simulation
+        run: |
+          python scripts/editorial_instagram_assets.py --limit 8
+          python scripts/editorial_instagram.py
+      - name: Validation des images et contrôles
+        run: python scripts/editorial_quality.py --strict
