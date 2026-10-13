@@ -6088,7 +6088,14 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     if (shouldCallBsd) {
       try {
         const liveData = await fetchBSD("/events/live/");
-        bsdRawMatches = bsdResults(liveData);
+        bsdRawMatches = bsdResults(liveData).map((match: any) => ({
+          ...match,
+          raw_data: {
+            ...(match?.raw_data || {}),
+            source: "bsd",
+            provider_quality: PROVIDER_QUALITY.bsd,
+          },
+        }));
       } catch (e: any) {
         bsdError = e?.message || String(e);
         bsdRateLimited = isBSDQuotaError(e);
@@ -6235,7 +6242,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
         espn_error: espnError,
         bsd_error: bsdError,
         bsd_rate_limited: bsdRateLimited,
-        bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0,
+        bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0 || Boolean(sourceMeta.bsd_discovery_saved),
         snapshot_reused: snapshotReused,
         telegram_in_refresh: allowTelegram,
         predictions_created: 0,
@@ -6322,7 +6329,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       espn_error: espnError,
       bsd_error: bsdError,
       bsd_rate_limited: bsdRateLimited,
-      bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0,
+      bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0 || Boolean(sourceMeta.bsd_discovery_saved),
       snapshot_reused: snapshotReused,
       telegram_in_refresh: allowTelegram,
       predictions_created: createdPreds,
