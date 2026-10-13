@@ -1,4 +1,16 @@
 import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
+import {
+  PROVIDER_QUALITY,
+  CAPABILITY_PRIORITY,
+  fetchSportScoreLive,
+  fetchSportScoreDay,
+  fetchSportScoreDetail,
+  fetchTheSportsDbDay,
+  findFreeProviderMatch,
+  mergeProviderEvents,
+  providerMatchScore,
+  explicitSportScoreOdds,
+} from "../_shared/football_providers.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
