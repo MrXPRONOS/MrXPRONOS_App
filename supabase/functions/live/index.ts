@@ -7764,16 +7764,10 @@ async function dailyGenerateSnapshots() {
     let picked: any = null;
     let oddsError: string | null = null;
 
-    // SportScore est testé en premier, mais seulement si son JSON contient
-    // de vraies cotes bookmaker explicites. Les probabilités IA sont exclues.
-    try {
-      picked = await dailyFetchSportScoreDoubleChance(ev, outcome);
-    } catch (e: any) {
-      console.warn("SportScore explicit odds unavailable", e?.message || String(e));
-    }
-
-    // Certaines sources ou snapshots peuvent déjà embarquer une cote.
-    if (!picked) picked = dailyPickDoubleChanceOdds(ev, outcome);
+    // SportScore n'expose actuellement aucun endpoint odds documenté.
+    // On n'utilise donc pas ses probabilités/prédictions comme cote bookmaker.
+    // Une cote déjà embarquée par une source officielle du snapshot reste utilisable.
+    picked = dailyPickDoubleChanceOdds(ev, outcome);
 
     let bsdEventId = dailyBsdEventId(ev);
 
