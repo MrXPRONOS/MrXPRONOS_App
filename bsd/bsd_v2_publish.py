@@ -20,6 +20,7 @@ from bsd_v2_btts import fit_btts_model
 from bsd_v2_over_under import fit_total_model
 from bsd_v2_double_chance import fit_model as fit_dc_model
 from bsd_v2_odds import fetch_event_odds
+from bsd_odds_fallback import OddsRouter
 from bsd_v2_estimated_odds import ESTIMATED_SOURCE, valid_standalone_prediction, price_selected_market
 from bsd_vip_diagnostics import summarize_vip_funnel
 from bsd_v2_labels import normalize_match,market_label
@@ -389,7 +390,10 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         if odds_fetcher and stats["odds_attempts"] < max_odds_requests:
             stats["odds_attempts"]+=1
             try:
-                quotes,_diagnostics=odds_fetcher(f,now)
+                pricing_event=dict(f)
+                pricing_event["_odds_target_market"]=(selected_football_market.get("internal_market_code")
+                                                    or selected_football_market.get("market_code"))
+                quotes,_diagnostics=odds_fetcher(pricing_event,now)
                 if not isinstance(quotes,dict):
                     quotes={}
             except Exception as exc:
@@ -466,7 +470,7 @@ def assemble(existing, fixtures, history, *, now, calibration, policy, rho,
         prediction["secondary_selections"]=additional
         # Les combinés utilisent toujours uniquement des cotes BSD réelles.
         low_quotes={code:q for code,q in quotes.items()
-                    if isinstance(q,dict) and q.get("origin") in ("bsd_consensus","bsd_bookmaker")
+                    if isinstance(q,dict) and q.get("origin") in ("bsd_consensus","bsd_bookmaker","pinnwire","oddslink","moviodds","oddsharvester")
                     and type(q.get("odds")) in (int,float) and MIN_COMBO_ODDS<=q["odds"]<=1.50}
         if low_quotes:
             combo_choice,_combo_reason=predict_v2(
@@ -559,14 +563,18 @@ def main():
     total_model,total_info=fit_total_model(index,rho=rho)
     dc_model,dc_info=fit_dc_model(index,rho=rho)
     cal,policy,diag=fit_policy(index,rho=rho,btts_model=btts_model,total_model=total_model,dc_model=dc_model)
-    def odds_fetcher(event, captured):
+    def bsd_odds_fetcher(event, captured):
         return fetch_event_odds(client,int(event["id"]),kickoff=fixture_datetime(event),
                                 captured_at=captured,bookmaker_slug="consensus")
+    odds_router = OddsRouter(bsd_odds_fetcher)
+    def odds_fetcher(event, captured):
+        return odds_router.fetch(event, captured, market_code=event.get("_odds_target_market"))
     output=assemble(existing,fixtures,historic,now=now,calibration=cal,policy=policy,
                     rho=rho,odds_fetcher=odds_fetcher,max_odds_requests=args.max_odds_events,
                     btts_model=btts_model,total_model=total_model,dc_model=dc_model)
     leagues_resolved=resolve_league_names(client,fixtures,output,existing)
     output["diagnostics"]["leagues_resolved"]=leagues_resolved
+    output["diagnostics"]["odds_fallback"]={"requests": odds_router.usage,"events":odds_router.events[-60:]}
     output["diagnostics"].update({"api_calls":client.requests_made,
                                   "quality_validation":diag,"rho":rho,
                                   "btts_training":btts_info,"totals_training":total_info,"double_chance_training":dc_info,

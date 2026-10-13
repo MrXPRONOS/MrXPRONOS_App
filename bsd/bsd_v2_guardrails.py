@@ -19,7 +19,7 @@ from math import isfinite
 POLICY_VERSION = "bsd-v2-policy-2026-10-11-v21-vip81-model775-verified76"
 PERFORMANCE_FORMAT = "bsd-v2-performance-v1"
 
-VERIFIED_ODDS_SOURCES = frozenset(("bsd_consensus", "bsd_bookmaker"))
+VERIFIED_ODDS_SOURCES = frozenset(("bsd_consensus", "bsd_bookmaker", "pinnwire", "oddslink", "moviodds", "oddsharvester"))
 
 # Même marge de prix que celle utilisée par le classement conservateur du moteur.
 FAMILY_PRICE_EDGE = {
