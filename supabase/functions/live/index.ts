@@ -6362,6 +6362,50 @@ async function fetchEspnFinalForPrediction(pred: any, stored: any) {
   }
 }
 
+async function fetchFreeFinalForPrediction(pred: any, stored: any) {
+  const predictionType = String(pred?.prediction_type || "");
+  const reference = stored?.merged_match_json || {
+    home_team: pred?.home_team,
+    away_team: pred?.away_team,
+    league_name: pred?.league_name,
+    event_date: stored?.event_date || pred?.created_at,
+  };
+  const rawDate = stored?.event_date || pred?.created_at;
+  const date = String(rawDate ? new Date(rawDate).toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10));
+
+  try {
+    const free = await collectFreeMatchesForDate(date, "finished");
+    let best: any = null;
+    let bestScore = 0;
+    for (const match of free.matches || []) {
+      const score = sameMatchScore(reference, match);
+      if (score > bestScore) {
+        best = match;
+        bestScore = score;
+      }
+    }
+    if (!best || bestScore < 0.65 || best?.is_finished !== true) return null;
+
+    let candidate = best;
+    if (!hasRequiredFinalStats(getMatchLiveStats(candidate), predictionType)) {
+      const enriched = await enrichMatchWithFreeStats(candidate);
+      candidate = enriched?.match || candidate;
+    }
+    const stats = getMatchLiveStats(candidate);
+    if (!hasRequiredFinalStats(stats, predictionType)) return null;
+
+    return {
+      event: candidate,
+      stats,
+      source: String(candidate?.raw_data?.stats_authority || candidate?.raw_data?.source || "free_final"),
+    };
+  } catch (error) {
+    console.warn("Free final lookup failed:", error);
+    return null;
+  }
+}
+
+
 async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefined) {
   const predictionType = String(pred?.prediction_type || "");
   const isHistoricalValidated = pred?.validated === true;
@@ -6369,12 +6413,15 @@ async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefi
     ? await getStoredMergedContextForPrediction(pred)
     : storedOverride;
 
-  // Pour l’historique déjà validé, ESPN est plus fiable que BSD pour retrouver
-  // un match qui a disparu du catalogue événementiel BSD.
+  // Final validation order: ESPN first, then other free providers, then BSD.
+  // This saves quota for matches whose final stats are already corroborated.
   if (isHistoricalValidated) {
     const espn = await fetchEspnFinalForPrediction(pred, stored);
     if (espn) return { event: espn, stats: espn.live_stats, source: "espn_final" };
   }
+
+  const freeFinal = await fetchFreeFinalForPrediction(pred, stored);
+  if (freeFinal) return freeFinal;
 
   try {
     const bsdEvent = await fetchBSD(`/events/${pred.match_id}/`);
