@@ -1,5 +1,39 @@
 [
   {
+    "slug": "646127ee1db634d2",
+    "title": "Sporting CP : Rui Borges : \"Lens ? Une équipe très forte, très intense, très compétitive\"",
+    "summary": "Présent en conférence de presse lundi à la veille du match entre Lens et le Sporting, Rui Borges a longuement fait l'éloge des Sang-et-Or en conférence de presse.",
+    "summary_short": "Présent en conférence de presse lundi à la veille du match entre Lens et le Sporting, Rui Borges a longuement fait l'éloge des Sang-et-Or en conférence de presse.",
+    "content": "Présent en conférence de presse lundi à la veille du match entre Lens et le Sporting, Rui Borges a longuement fait l'éloge des Sang-et-Or en conférence de presse.",
+    "paragraphs": [
+      "Présent en conférence de presse lundi à la veille du match entre Lens et le Sporting, Rui Borges a longuement fait l'éloge des Sang-et-Or en conférence de presse."
+    ],
+    "key_points": [
+      "Présent en conférence de presse lundi à la veille du match entre Lens et le Sporting, Rui Borges a longuement fait l'éloge des Sang-et-Or en conférence de presse."
+    ],
+    "telegram_summary": "Présent en conférence de presse lundi à la veille du match entre Lens et le Sporting, Rui Borges a longuement fait l'éloge des Sang-et-Or en conférence de presse.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-sporting-cp-rui-borges-lens-une-equipe-tres-forte-tres-intense-tres-competitive-542026.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-sporting-cp-rui-borges-lens-une-equipe-tres-forte-tres-intense-tres-competitive-542026.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=646127ee1db634d2",
+    "published": "2026-10-13T12:15:00+00:00",
+    "image": "assets/images/footnews/646127ee1db634d2.webp",
+    "source_image": "https://s1.dmcdn.net/v/fv0Oo1gpV9eBynAKt/x480",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "ab5b8a5d1ff658c3",
     "title": "Netflix s’offre les droits exclusifs du Mondial 2030 en Espagne !",
     "summary": "Netflix poursuit son offensive dans le sport. La plateforme américaine a annoncé, ce mardi, avoir acquis les droits exclusifs de diffusion de la Coupe du monde de football 2030 en Espagne et en (…)",
@@ -33,6 +67,40 @@
       "Foot Mercato"
     ],
     "quality_score": 92
+  },
+  {
+    "slug": "9a5994317d617145",
+    "title": "LOSC : Davide Ancelotti : \"Il faut y croire jusqu'au bout\"",
+    "summary": "Davide Ancelotti rappelle les exigences de la Ligue des Champions, une compétition où tout peut arriver.",
+    "summary_short": "Davide Ancelotti rappelle les exigences de la Ligue des Champions, une compétition où tout peut arriver.",
+    "content": "Davide Ancelotti rappelle les exigences de la Ligue des Champions, une compétition où tout peut arriver.",
+    "paragraphs": [
+      "Davide Ancelotti rappelle les exigences de la Ligue des Champions, une compétition où tout peut arriver."
+    ],
+    "key_points": [
+      "Davide Ancelotti rappelle les exigences de la Ligue des Champions, une compétition où tout peut arriver."
+    ],
+    "telegram_summary": "Davide Ancelotti rappelle les exigences de la Ligue des Champions, une compétition où tout peut arriver.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-losc-davide-ancelotti-il-faut-y-croire-jusqu-au-bout-542003.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-losc-davide-ancelotti-il-faut-y-croire-jusqu-au-bout-542003.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9a5994317d617145",
+    "published": "2026-10-13T12:05:00+00:00",
+    "image": "assets/images/footnews/9a5994317d617145.webp",
+    "source_image": "https://s2.dmcdn.net/v/fu8z21gpLFNkH7E1X/x480",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
   },
   {
     "slug": "d3b86410719591a8",
@@ -121,7 +189,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:25:09.285176+00:00"
+      "checked_at": "2026-10-13T12:30:17.318338+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -217,7 +285,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:25:09.285176+00:00"
+      "checked_at": "2026-10-13T12:30:17.318338+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -383,7 +451,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:25:09.285176+00:00"
+      "checked_at": "2026-10-13T12:30:17.318338+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -927,7 +995,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:25:09.285176+00:00"
+      "checked_at": "2026-10-13T12:30:17.318338+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1126,7 +1194,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:25:09.285176+00:00"
+      "checked_at": "2026-10-13T12:30:17.318338+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1191,7 +1259,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-13T12:25:09.285176+00:00"
+      "checked_at": "2026-10-13T12:30:17.318338+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1289,7 +1357,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-13T12:25:09.285176+00:00"
+      "checked_at": "2026-10-13T12:30:17.318338+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1424,7 +1492,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-13T12:25:09.285176+00:00"
+      "checked_at": "2026-10-13T12:30:17.318338+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1656,7 +1724,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:25:09.285176+00:00"
+      "checked_at": "2026-10-13T12:30:17.318338+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1995,7 +2063,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:25:09.285176+00:00"
+      "checked_at": "2026-10-13T12:30:17.318338+00:00"
     },
     "quality_sources": [
       "France 24",
@@ -2090,47 +2158,13 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:25:09.285176+00:00"
+      "checked_at": "2026-10-13T12:30:17.318338+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
       "ESPN"
     ],
     "quality_score": 96
-  },
-  {
-    "slug": "446064f9713e3cd9",
-    "title": "LDC : Arsenal - LOSC : les prédictions d'Opta",
-    "summary": "Dans le cadre de la 2ème journée de Ligue des Champions, le LOSC se déplace à Londres ce mardi pour y affronter Arsenal (21 heures).",
-    "summary_short": "Dans le cadre de la 2ème journée de Ligue des Champions, le LOSC se déplace à Londres ce mardi pour y affronter Arsenal (21 heures).",
-    "content": "Dans le cadre de la 2ème journée de Ligue des Champions, le LOSC se déplace à Londres ce mardi pour y affronter Arsenal (21 heures).",
-    "paragraphs": [
-      "Dans le cadre de la 2ème journée de Ligue des Champions, le LOSC se déplace à Londres ce mardi pour y affronter Arsenal (21 heures)."
-    ],
-    "key_points": [
-      "Dans le cadre de la 2ème journée de Ligue des Champions, le LOSC se déplace à Londres ce mardi pour y affronter Arsenal (21 heures)."
-    ],
-    "telegram_summary": "Dans le cadre de la 2ème journée de Ligue des Champions, le LOSC se déplace à Londres ce mardi pour y affronter Arsenal (21 heures).",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-arsenal-losc-les-predictions-d-opta-541928.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-arsenal-losc-les-predictions-d-opta-541928.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=446064f9713e3cd9",
-    "published": "2026-10-13T05:45:00+00:00",
-    "image": "assets/images/footnews/446064f9713e3cd9.webp",
-    "source_image": "https://s1.dmcdn.net/v/fsI3w1gpBAEBWwpaX/x480",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   },
   {
     "slug": "147b21bb87251e18",
@@ -2165,40 +2199,6 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "431a87fefb7d78ec",
-    "title": "LDC : RC Lens - Sporting CP : les prédictions d'Opta",
-    "summary": "Le RC Lens et le Sporting Portugal, qui ont tous les deux débuté leur campagne européenne avec une victoire, vont s'affronter pour la première fois de leur histoire.",
-    "summary_short": "Le RC Lens et le Sporting Portugal, qui ont tous les deux débuté leur campagne européenne avec une victoire, vont s'affronter pour la première fois de leur histoire.",
-    "content": "Le RC Lens et le Sporting Portugal, qui ont tous les deux débuté leur campagne européenne avec une victoire, vont s'affronter pour la première fois de leur histoire.",
-    "paragraphs": [
-      "Le RC Lens et le Sporting Portugal, qui ont tous les deux débuté leur campagne européenne avec une victoire, vont s'affronter pour la première fois de leur histoire."
-    ],
-    "key_points": [
-      "Le RC Lens et le Sporting Portugal, qui ont tous les deux débuté leur campagne européenne avec une victoire, vont s'affronter pour la première fois de leur histoire."
-    ],
-    "telegram_summary": "Le RC Lens et le Sporting Portugal, qui ont tous les deux débuté leur campagne européenne avec une victoire, vont s'affronter pour la première fois de leur histoire.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-rc-lens-sporting-cp-les-predictions-d-opta-541952.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-rc-lens-sporting-cp-les-predictions-d-opta-541952.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=431a87fefb7d78ec",
-    "published": "2026-10-13T05:30:00+00:00",
-    "image": "assets/images/footnews/431a87fefb7d78ec.webp",
-    "source_image": "https://s1.dmcdn.net/v/fsrjs1gpEw_tTgK7D/x480",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   },
   {
     "slug": "dd9229a537aec2de",
