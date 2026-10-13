@@ -1083,6 +1083,14 @@ def collect_external(session: requests.Session, day: date, base_events: list[dic
                 print("FREE_PROVIDER_INFO", result.provider, result.error[:140])
             rows.extend(result.events)
 
+    # Le flux SportScore LIVE/récent expose le slug de match nécessaire au
+    # détail (lineups/timeline/stats), contrairement au calendrier journalier.
+    if day == datetime.now(timezone.utc).date():
+        sport_live = hub.sportscore_live_recent(limit=50)
+        if sport_live.error:
+            print("FREE_PROVIDER_INFO", "sportscore-live", sport_live.error[:140])
+        rows.extend(sport_live.events)
+
     # Le cache Supabase arrive après les sources gratuites directes; il garde
     # néanmoins la couverture BSD utile pour les compétitions absentes ailleurs.
     rows.extend(fetch_supabase_live(session))
