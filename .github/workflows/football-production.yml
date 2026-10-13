@@ -101,7 +101,6 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
-          ROUTED_DESTINATION: ${{ steps.telegram_route.outputs.destination }}
           MANUAL_DESTINATION: ${{ inputs.destination || 'test' }}
         run: |
           set -euo pipefail
@@ -204,6 +203,7 @@ jobs:
           MANUAL_DRY_RUN: ${{ inputs.dry_run || 'false' }}
           MANUAL_FORCE: ${{ inputs.force || 'false' }}
           TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
+          ROUTED_DESTINATION: ${{ steps.telegram_route.outputs.destination }}
         run: |
           set -euo pipefail
           ARGS=()
