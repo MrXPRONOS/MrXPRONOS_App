@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 """Collecteur commun News Football -> site Infos Foot + Telegram Actu Foot.
 
-Aucune API payante. Les flux sont des RSS publics français; les métadonnées
-og:image/og:description ne sont utilisées qu'en complément lorsqu'un flux est
-incomplet. Aucun fait absent des sources n'est inventé.
+Aucune API payante. Les articles principaux viennent de flux RSS publics;
+les métadonnées og:image/og:description complètent les flux incomplets.
+L'API publique ESPN News sert uniquement à corroborer/enrichir les métadonnées
+(équipes, joueurs, sujet transfert), jamais à inventer ou recopier un article.
 """
 from __future__ import annotations
 
@@ -48,6 +49,8 @@ MAX_ARTICLES = max(10, min(120, int(os.getenv("MAX_ARTICLES", "60"))))
 MAX_PER_FEED = max(5, min(30, int(os.getenv("MAX_ARTICLES_PER_FEED", "16"))))
 MAX_NEWS_AGE_HOURS = max(12, min(336, int(os.getenv("MAX_NEWS_AGE_HOURS", "120"))))
 RSS_TIMEOUT = max(4, min(40, int(os.getenv("RSS_TIMEOUT", "18"))))
+ESPN_NEWS_LEAGUES = ("eng.1", "esp.1", "ita.1", "ger.1", "fra.1", "uefa.champions")
+ESPN_NEWS_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/news"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("mrxpronos.news")
@@ -99,6 +102,132 @@ def similarity(a: str, b: str) -> float:
     return len(aa & bb) / max(len(aa | bb), 1)
 
 
+_VERIFY_STOPWORDS = {
+    "avec", "pour", "dans", "sur", "une", "des", "les", "est", "son", "ses", "aux",
+    "the", "and", "with", "from", "this", "that", "into", "after", "before", "over",
+    "football", "soccer", "mercato", "transfer", "transfers", "official", "officiel",
+    "club", "team", "deal", "accord", "news", "live", "report",
+}
+
+
+def _verification_tokens(value: str) -> set[str]:
+    normalized = normalize_title(value)
+    return {
+        token for token in normalized.split()
+        if len(token) >= 4 and token not in _VERIFY_STOPWORDS
+    }
+
+
+def fetch_espn_verification_index(session: requests.Session) -> list[dict]:
+    """Index interne ESPN News API : métadonnées seulement, aucun texte republié."""
+    rows_by_url: dict[str, dict] = {}
+    for league in ESPN_NEWS_LEAGUES:
+        try:
+            response = session.get(
+                ESPN_NEWS_URL.format(league=league),
+                params={"limit": "50"},
+                timeout=(7, RSS_TIMEOUT),
+                headers={
+                    "User-Agent": "MrXPRONOS-NewsVerifier/2.0",
+                    "Accept": "application/json",
+                },
+                allow_redirects=True,
+            )
+            response.raise_for_status()
+            payload = response.json()
+        except (requests.RequestException, ValueError):
+            continue
+        for article in payload.get("articles", []) if isinstance(payload, dict) else []:
+            if not isinstance(article, dict):
+                continue
+            title = re.sub(r"\s+", " ", str(article.get("headline") or "")).strip()
+            links = article.get("links") if isinstance(article.get("links"), dict) else {}
+            web_link = links.get("web") if isinstance(links.get("web"), dict) else {}
+            link = safe_link(web_link.get("href"))
+            tokens = _verification_tokens(title)
+            if not title or not link or not (urlparse(link).hostname or "").lower().endswith("espn.com") or not tokens:
+                continue
+
+            topics: list[str] = []
+            teams: list[str] = []
+            athletes: list[str] = []
+            leagues: list[str] = []
+            for category in article.get("categories") or []:
+                if not isinstance(category, dict):
+                    continue
+                typ = str(category.get("type") or "").lower()
+                description = re.sub(r"\s+", " ", str(category.get("description") or "")).strip()
+                if not description:
+                    continue
+                if typ == "topic":
+                    topics.append(description)
+                elif typ == "team":
+                    teams.append(description)
+                elif typ == "athlete":
+                    athletes.append(description)
+                elif typ == "league":
+                    leagues.append(description)
+
+            row = {
+                "id": str(article.get("id") or ""),
+                "title": title,
+                "url": link,
+                "tokens": tokens,
+                "published": str(article.get("published") or ""),
+                "topics": sorted(set(topics)),
+                "teams": sorted(set(teams)),
+                "athletes": sorted(set(athletes)),
+                "leagues": sorted(set(leagues)),
+                "is_transfer": any("transfer" in x.casefold() for x in topics)
+                    or "transfer" in title.casefold(),
+            }
+            existing = rows_by_url.get(link)
+            if existing:
+                for key in ("topics", "teams", "athletes", "leagues"):
+                    existing[key] = sorted(set(existing.get(key, [])) | set(row.get(key, [])))
+                existing["is_transfer"] = bool(existing.get("is_transfer") or row["is_transfer"])
+            else:
+                rows_by_url[link] = row
+    return list(rows_by_url.values())
+
+
+def espn_corroboration(title: str, index: list[dict]) -> dict:
+    """Cherche une corroboration ESPN sans reprendre ni réécrire le contenu ESPN."""
+    wanted = _verification_tokens(title)
+    if len(wanted) < 1:
+        return {}
+    best = None
+    best_score = 0.0
+    for row in index:
+        common = wanted & set(row.get("tokens") or ())
+        if not common:
+            continue
+        union = wanted | set(row.get("tokens") or ())
+        score = len(common) / max(len(union), 1)
+        # Deux entités significatives suffisent; une seule exige une forte proximité.
+        accepted = len(common) >= 2 and score >= 0.20
+        if len(common) == 1 and len(wanted) <= 3:
+            accepted = score >= 0.34
+        if accepted and score > best_score:
+            best, best_score = row, score
+    if not best:
+        return {}
+    return {
+        "provider": "ESPN",
+        "source": "ESPN News API",
+        "article_id": best.get("id") or "",
+        "url": best["url"],
+        "published": best.get("published") or "",
+        "score": round(best_score, 3),
+        "matched_terms": sorted(wanted & set(best.get("tokens") or ()))[:6],
+        "topics": best.get("topics") or [],
+        "teams": best.get("teams") or [],
+        "athletes": best.get("athletes") or [],
+        "leagues": best.get("leagues") or [],
+        "is_transfer": bool(best.get("is_transfer")),
+    }
+
+
 def old_records() -> dict[str, dict]:
     try:
         data = json.loads(Path(NEWS_FILE).read_text(encoding="utf-8"))
@@ -127,6 +256,7 @@ def fetch_news() -> tuple[list[dict], dict]:
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(hours=MAX_NEWS_AGE_HOURS)
     candidates: list[dict] = []
+    espn_index = fetch_espn_verification_index(session)
     diagnostics = {
         "feeds": {},
         "accepted_before_dedup": 0,
@@ -135,6 +265,8 @@ def fetch_news() -> tuple[list[dict], dict]:
         "images_real": 0,
         "images_missing": 0,
         "rejected_no_image": 0,
+        "espn_verification_rows": len(espn_index),
+        "espn_corroborated": 0,
     }
 
     for feed_url in feed_urls():
@@ -205,6 +337,25 @@ def fetch_news() -> tuple[list[dict], dict]:
                 category=category,
                 editorial_score=editorial_score,
             )
+            corroboration = espn_corroboration(title, espn_index)
+            previous_verification = (previous.get(link) or {}).get("espn_verification")
+            if corroboration:
+                corroboration["checked_at"] = now.isoformat()
+                record["espn_verification"] = corroboration
+                record["quality_sources"] = [profile.name, "ESPN"]
+                record["quality_score"] = min(100, max(profile.priority, 78) + 8)
+                diagnostics["espn_corroborated"] += 1
+            elif isinstance(previous_verification, dict) and previous_verification.get("url"):
+                # Une panne temporaire du flux ESPN ne doit pas effacer une corroboration
+                # déjà associée exactement au même article/source. Le préflight vérifiera
+                # encore le lien ESPN juste avant publication.
+                record["espn_verification"] = previous_verification
+                record["quality_sources"] = [profile.name, "ESPN"]
+                record["quality_score"] = min(100, max(profile.priority, 78) + 5)
+            else:
+                record["espn_verification"] = {}
+                record["quality_sources"] = [profile.name]
+                record["quality_score"] = profile.priority
             candidates.append(record)
             stat["eligible"] += 1
 
