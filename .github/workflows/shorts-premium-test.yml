@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: shorts-premium-v2-test
+  group: shorts-premium-v2-test-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
