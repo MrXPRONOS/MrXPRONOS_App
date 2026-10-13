@@ -5801,26 +5801,63 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   if (!snapshotReused) {
     let originalRawMatches: any[] = [];
 
+    // Free-first bulk collection. SportScore + TheSportsDB + OpenLigaDB are
+    // queried in parallel with ESPN; BSD is used only when free coverage is
+    // materially below the public BSD live-count indicator.
+    const today = new Date().toISOString().slice(0, 10);
+    const [freeResult, espnResult] = await Promise.all([
+      collectFreeMatchesForDate(today, "live"),
+      fetchEspnLiveMatchesForMerge(),
+    ]);
+    espnError = espnResult.error;
+
+    const freeLive = (freeResult.matches || []).filter((m: any) =>
+      m?.is_live === true && m?.is_finished !== true
+    );
+    const freeCoverage = mergeFreeProviderMatches([
+      ...freeLive,
+      ...(espnResult.matches || []),
+    ]);
+    originalRawMatches = freeLive;
+
     coverage = await fetchBSDCoverage();
     const liveNow = safeNumber(coverage?.live_now, -1);
+    const minCoverageRatio = Math.max(
+      0.5,
+      Math.min(1, safeEnvInt("FREE_LIVE_COVERAGE_PERCENT", 90) / 100),
+    );
+    const expectedFromBsd = liveNow > 0 ? liveNow : 0;
+    const freeEnough =
+      freeCoverage.length >= Math.max(
+        2,
+        expectedFromBsd > 0 ? Math.ceil(expectedFromBsd * minCoverageRatio) : 2,
+      );
 
-    if (!options.skipBsd && liveNow !== 0) {
+    sourceMeta = {
+      ...sourceMeta,
+      free_provider_meta: freeResult.meta,
+      free_live_matches: freeLive.length,
+      free_coverage_matches: freeCoverage.length,
+      provider_quality: FOOTBALL_PROVIDER_RANK,
+      bsd_live_call_saved: freeEnough,
+    };
+
+    if (!options.skipBsd && liveNow !== 0 && !freeEnough) {
       try {
         const liveData = await fetchBSD("/events/live/");
         originalRawMatches = bsdResults(liveData);
+        sourceMeta.bsd_live_call_saved = false;
       } catch (e: any) {
         bsdError = e?.message || String(e);
         bsdRateLimited = isBSDQuotaError(e);
         if (bsdRateLimited) {
-          console.warn("⚠️ Quota BSD épuisé: ESPN + cache prennent le relais");
+          console.warn("⚠️ Quota BSD épuisé: sources gratuites + cache prennent le relais");
         } else {
-          console.error("⚠️ BSD v2 live indisponible: ESPN prend le relais", e);
+          console.error("⚠️ BSD v2 live indisponible: sources gratuites prennent le relais", e);
         }
+        originalRawMatches = freeLive;
       }
     }
-
-    const espnResult = await fetchEspnLiveMatchesForMerge();
-    espnError = espnResult.error;
 
     const incomingEspnIds = (espnResult.matches || [])
       .map((m: any) => String(m?.source_match_id || m?.raw_data?.event_id || ""))
@@ -5855,16 +5892,22 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     sourceRows = merged.sourceRows || [];
     sourceMeta = merged.meta || sourceMeta;
 
-    // /events/live/ est compact et ne fournit pas les stats détaillées.
-    // 1) on réutilise d'abord notre dernier snapshot connu;
-    // 2) ESPN complète gratuitement ce qu'il possède;
-    // 3) BSD /stats/ enrichit seulement quelques matchs prioritaires par cycle.
+    // Stats enrichment policy:
+    // 1) reuse local cache;
+    // 2) SportScore/TheSportsDB fill missing fields for free;
+    // 3) BSD /stats/ is only used for still-incomplete BSD-backed matches.
     allRawMatches = await reuseCachedStats(allRawMatches);
+
+    const freeStatsEnrichment = await enrichLiveMatchesWithFreeStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(freeStatsEnrichment.matches);
 
     const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
     allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
     sourceMeta = {
       ...sourceMeta,
+      free_stats_calls: freeStatsEnrichment.calls,
+      free_stats_enriched: freeStatsEnrichment.enriched,
+      free_stats_by_source: freeStatsEnrichment.by_source,
       bsd_stats_calls: statsEnrichment.calls,
       bsd_stats_enriched: statsEnrichment.enriched,
       bsd_stats_failed: statsEnrichment.failed,
