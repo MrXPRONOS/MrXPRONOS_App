@@ -188,10 +188,11 @@ export async function fetchTheSportsDbDay(date:string){
     home_logo:x.strHomeTeamBadge,away_logo:x.strAwayTeamBadge,league:x.strLeague,raw_data:{raw:x},
   }));
 }
-export async function resolveTheSportsDbEvent(home:string, away:string, date?:string){
+export async function resolveTheSportsDbEvent(home:string, away:string, kickoff?:string){
   const query=[home,away].map(x=>text(x).replace(/\s+/g,"_")).join("_vs_");
   if(!text(home)||!text(away))return null;
-  const payload=await json(url(TSDB+"/searchevents.php",{e:query,d:date}),300_000);
+  const searchDate=text(kickoff).slice(0,10);
+  const payload=await json(url(TSDB+"/searchevents.php",{e:query,d:searchDate||undefined}),300_000);
   const rows=Array.isArray(payload?.event)?payload.event:
     Array.isArray(payload?.events)?payload.events:[];
   const normalized=rows.filter((x:any)=>x?.strHomeTeam&&x?.strAwayTeam).map((x:any)=>
@@ -203,7 +204,7 @@ export async function resolveTheSportsDbEvent(home:string, away:string, date?:st
         league:x.strLeague,raw_data:{raw:x},
       })
   );
-  const base={home_team:home,away_team:away,event_date:date?date+"T12:00:00Z":null};
+  const base={home_team:home,away_team:away,event_date:kickoff||null};
   const hit=matchProvider(base,normalized);
   return hit ? String(hit.source_match_id||"") : null;
 }
