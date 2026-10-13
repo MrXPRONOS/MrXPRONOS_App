@@ -7577,10 +7577,13 @@ async function dailyGenerateSnapshots() {
   }
 
   let events: any[] = [];
+  let eventMeta: any = {};
+  let bsdEvents: any[] | null = null;
+  let bsdCalendarCalls = 0;
   try {
-    // Une journée peut dépasser 200 événements. On parcourt toutes les pages
-    // pour éviter de rater les matchs situés après la première page.
-    events = await dailyFetchAllEventsForDate(date);
+    const calendar = await dailyFetchAllEventsForDate(date);
+    events = calendar.events || [];
+    eventMeta = calendar.meta || {};
   } catch (e: any) {
     const quotaExhausted = isBSDQuotaError(e);
     const nextMidnight = new Date();
@@ -7627,7 +7630,18 @@ async function dailyGenerateSnapshots() {
       continue;
     }
 
-    const ev = dailyFindEventForProno(p, events);
+    let ev = dailyFindEventForProno(p, events);
+
+    // Si aucune source gratuite ne retrouve la rencontre, le calendrier BSD
+    // devient un fallback paresseux chargé une seule fois pour la journée.
+    if (!ev && BSD_API_TOKEN) {
+      if (bsdEvents === null) {
+        bsdEvents = await dailyFetchBsdEventsForDate(date);
+        bsdCalendarCalls++;
+      }
+      ev = dailyFindEventForProno(p, bsdEvents);
+    }
+
     if (!ev) {
       skipped++;
       details.push({
@@ -7637,37 +7651,58 @@ async function dailyGenerateSnapshots() {
       continue;
     }
 
-    let picked: any = null;
-    let oddsError: string | null = null;
-    const bsdEventId = dailyEventId(ev);
+    // Une cote explicitement embarquée par une source gratuite est utilisée
+    // avant tout appel de cotes BSD. SportScore n'a toutefois PAS de contrat
+    // public documenté garantissant ces champs.
+    let picked: any = dailyPickDoubleChanceOdds(ev, outcome);
+    if (picked && String(providerName(ev)) === "sportscore") {
+      picked = { ...picked, source: "sportscore_embedded_unofficial" };
+    }
 
-    // Endpoint documenté pour la clé gratuite BSD:
-    // /api/v2/odds/?event_id=...&market=double_chance&outcome=1X|12|X2
-    // La clé gratuite renvoie une ligne de consensus.
-    try {
-      picked = await dailyFetchBsdConsensusDoubleChance(
-        bsdEventId,
-        outcome,
-      );
-    } catch (e: any) {
-      oddsError = e?.message || String(e);
-      if (isBSDQuotaError(e)) {
-        details.push({
-          match_id: p?.match_id,
-          status: "odds_quota_exhausted",
-          bsd_event_id: bsdEventId,
-          error: oddsError,
-        });
-        break;
+    let oddsError: string | null = null;
+    const sourceMatchId = String(p?.match_id ?? "");
+    let bsdEventId: string | null = /^\d+$/.test(sourceMatchId)
+      ? sourceMatchId
+      : /^\d+$/.test(String(dailyEventId(ev) ?? ""))
+        ? String(dailyEventId(ev))
+        : null;
+
+    // Si le prono n'a pas déjà son ID BSD, on ne charge le calendrier BSD
+    // que lorsqu'une cote gratuite n'a pas suffi.
+    if (!picked && !bsdEventId && BSD_API_TOKEN) {
+      if (bsdEvents === null) {
+        bsdEvents = await dailyFetchBsdEventsForDate(date);
+        bsdCalendarCalls++;
+      }
+      const bsdMatch = dailyFindEventForProno(p, bsdEvents);
+      if (bsdMatch && /^\d+$/.test(String(dailyEventId(bsdMatch) ?? ""))) {
+        bsdEventId = String(dailyEventId(bsdMatch));
+        // Les logos/horaires gratuits restent prioritaires; l'ID BSD sert aux odds.
       }
     }
 
-    // Secours: anciennes formes embarquées / raccourci événement.
-    if (!picked) {
-      picked = dailyPickDoubleChanceOdds(ev, outcome);
+    // Cotes BSD : dernier recours vérifié pour Double Chance.
+    if (!picked && bsdEventId) {
+      try {
+        picked = await dailyFetchBsdConsensusDoubleChance(
+          bsdEventId,
+          outcome,
+        );
+      } catch (e: any) {
+        oddsError = e?.message || String(e);
+        if (isBSDQuotaError(e)) {
+          details.push({
+            match_id: p?.match_id,
+            status: "odds_quota_exhausted",
+            bsd_event_id: bsdEventId,
+            error: oddsError,
+          });
+          break;
+        }
+      }
     }
 
-    if (!picked && !oddsError) {
+    if (!picked && bsdEventId && !oddsError) {
       try {
         const oddsPayload = await fetchBSD(
           `/events/${bsdEventId}/odds/`,
@@ -7692,8 +7727,7 @@ async function dailyGenerateSnapshots() {
     const stake = DAILY_DEFAULT_STAKE;
     const odds = Number(picked.odds.toFixed(2));
     const gain = Math.round(stake * odds);
-    const rawBsdId = dailyEventId(ev);
-    const numericBsdId = Number(rawBsdId);
+    const numericBsdId = Number(bsdEventId);
 
     const row = {
       prediction_date: date,
@@ -7761,7 +7795,10 @@ async function dailyGenerateSnapshots() {
   return {
     date,
     source_count: pronos.length,
-    bsd_events_count: events.length,
+    free_events_count: events.length,
+    bsd_events_count: bsdEvents?.length || 0,
+    bsd_calendar_calls: bsdCalendarCalls,
+    free_source_meta: eventMeta,
     matched_events: details.filter((d: any) =>
       String(d?.status) !== "bsd_event_not_found"
     ).length,
