@@ -25,6 +25,8 @@ jobs:
     timeout-minutes: 7
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -38,8 +40,7 @@ jobs:
                        'football-visual-live-test-once.yml',
                        'football-live-test-once.yml',
                        'football-premium-validation-once.yml',
-                       'bsd-v2-telegram-hourly.yml',
-                       'editorial-telegram.yml'):
+                       'bsd-v2-telegram-hourly.yml'):
               assert name in s, name
           assert '"destination": "test"' in s
           assert 'refs/heads/main' in s
@@ -65,5 +66,5 @@ jobs:
         run: python -m pip install requests
       - name: Vérifier la destination et les droits du bot sans publier
         run: python scripts/telegram_test_guard.py
-      - name: Déclencher et vérifier les 6 workflows dans le canal TEST seulement
+      - name: Déclencher et vérifier les 5 workflows S1-S5 dans le canal TEST seulement
         run: python -u scripts/telegram_live_e2e.py
