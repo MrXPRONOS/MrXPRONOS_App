@@ -29,8 +29,8 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "bsd"))
 sys.path.insert(0, str(ROOT / "scripts"))
-from bsd_api import BSDClient, BSDAPIError  # noqa: E402
-from bsd_h2h import hybrid_h2h  # noqa: E402
+from bsd_api import BSDAPIError  # noqa: E402
+from football_provider_mesh import FreeFirstFootballClient, PROVIDER_QUALITY, CAPABILITY_PRIORITY  # noqa: E402
 from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
 from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
 import football_followup as followup  # noqa: E402
@@ -148,8 +148,6 @@ def structured_plain(value: Any, max_len: int = 500) -> str:
     """Plain text that keeps meaningful list/newline structure for Telegram."""
     cleaned = re.sub(r"<[^>]+>", " ", html.unescape(str(value or "")))
     cleaned = cleaned.replace("\r\n", "\n").replace("\r", "\n")
-    # Recover compact numbered lists such as "1: Texte 2: Texte" without
-    # treating scores (1:0), times (12:30) or decimal values as list markers.
     cleaned = re.sub(
         r"(?<!^)(?<!\n)(?<=\S)[ \t]+(?=(?:\d{1,2})[\.:\)]\s+(?=[A-ZÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]))",
         "\n",
@@ -1055,8 +1053,8 @@ def form(team_id: Any, name: str, events: list[dict], before: datetime) -> str:
     return " • ".join(vals) + "  |  " + str(points) + "/" + str(len(vals) * 3) + " pts"
 
 
-def fetch_prematch_forms(client: BSDClient, event: dict) -> dict[str, str]:
-    """Charge les derniers matchs de chaque équipe directement via BSD."""
+def fetch_prematch_forms(client: Any, event: dict) -> dict[str, str]:
+    """Charge la forme via le provider mesh; BSD n'est qu'un fallback."""
     before = kick(event)
     if before is None:
         return {"home": "", "away": ""}
@@ -1918,25 +1916,29 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     hour = now.astimezone(TZ).hour
     state = History()
     sender = Sender(dry_run=dry_run)
-    client: BSDClient | None = None
+    provider_client: FreeFirstFootballClient | None = None
     cache: dict[str, list[dict]] = {}
     counter = {"sent": 0, "skipped": 0, "errors": 0}
     max_send = MAX_MESSAGES_PER_RUN
 
     def get_day(day: date) -> list[dict]:
-        nonlocal client
+        nonlocal provider_client
         name = day.isoformat()
         if name not in cache:
-            if client is None:
-                client = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                                   max_retries=1)
-            page = client.list_events(day, day, max_pages=7, ttl=0)
-            if not page.complete:
-                raise BSDAPIError("BSD: journée incomplète " + name + " (" +
-                                  str(len(page.events)) + "/" + str(page.total_reported) + ")")
+            if provider_client is None:
+                provider_client = FreeFirstFootballClient(session=sender.session)
+            page = provider_client.list_events(day, day, max_pages=7, ttl=0)
+            if not page.events:
+                raise BSDAPIError("Aucune source football disponible pour " + name)
             cache[name] = page.events
-            print("BSD_JOUR", name, "rencontres", len(page.events),
-                  "requêtes", client.requests_made)
+            print(
+                "PROVIDER_MESH_DAY", name,
+                "matches", len(page.events),
+                "sources", json.dumps(page.source_counts, ensure_ascii=False),
+                "bsd_used", page.bsd_used,
+                "bsd_requests", page.bsd_requests,
+                "bsd_saved", provider_client.bsd_requests_saved,
+            )
         return cache[name]
 
     def publish(item: Publication | None, *, follow_event: dict | None = None,
@@ -2070,25 +2072,19 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 if (counter["sent"] < max_send and upcoming
                         and followup.selection_allowed(state.followed, now)
                         and (force or enough(state, "avant_match", now))):
-                    if client is None:
-                        client = BSDClient(
-                            max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                            max_retries=1,
-                        )
+                    if provider_client is None:
+                        provider_client = FreeFirstFootballClient(session=sender.session)
                     selected = next(
                         (e for e in upcoming[:12] if has_two_team_logos(e, allow_remote=True)),
                         None,
                     )
                     if selected:
-                        forms = fetch_prematch_forms(client, selected)
+                        forms = fetch_prematch_forms(provider_client, selected)
                         h2h_values = {}
                         try:
-                            h2h_values = hybrid_h2h(
-                                client, selected, [], min_local_meetings=3,
-                                allow_api=True, now=now,
-                            )
-                        except (BSDAPIError, ValueError, TypeError) as exc:
-                            print("H2H_AVANT_MATCH_INDISPONIBLE", type(exc).__name__, str(exc)[:140])
+                            h2h_values = provider_client.get_h2h(selected, limit=20)
+                        except (BSDAPIError, ValueError, TypeError, requests.RequestException) as exc:
+                            print("H2H_PROVIDER_MESH_INDISPONIBLE", type(exc).__name__, str(exc)[:140])
                         post = avant_match([selected], state, now, [], forms, h2h_values)
                         publish(post, follow_event=selected)
 
@@ -2193,8 +2189,7 @@ def run_live_test(now: datetime) -> dict[str, Any]:
     sender = Sender(dry_run=False)
     with tempfile.TemporaryDirectory(prefix="xpronos-test-historique-") as tmp:
         empty_history = History(Path(tmp) / "none.json")
-        api = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                        max_retries=1)
+        api = FreeFirstFootballClient(session=sender.session)
         cache: dict[str, list[dict]] = {}
         report: dict[str, Any] = {"mode": "live-test", "sent": {}, "skipped": {},
                                   "errors": {}}
@@ -2203,10 +2198,11 @@ def run_live_test(now: datetime) -> dict[str, Any]:
             key = day.isoformat()
             if key not in cache:
                 page = api.list_events(day, day, max_pages=8, ttl=0)
-                if not page.complete:
-                    raise BSDAPIError("Liste BSD incomplete " + key)
+                if not page.events:
+                    raise BSDAPIError("Provider mesh vide " + key)
                 cache[key] = page.events
-                print("TEST_BSD", key, "rencontres", len(page.events))
+                print("TEST_PROVIDER_MESH", key, "rencontres", len(page.events),
+                      "sources", page.source_counts, "bsd_used", page.bsd_used)
             return cache[key]
 
         def deliver(category: str, make) -> None:
@@ -2308,14 +2304,13 @@ def run_live_test(now: datetime) -> dict[str, Any]:
 def run_visual_live_test(now: datetime) -> dict[str, Any]:
     """Envoie uniquement Matchs du jour + Statistique dans le vrai canal.
 
-    Destine aux validations visuelles. Les donnees viennent de BSD V2, les
+    Destine aux validations visuelles. Les donnees viennent du provider mesh, les
     messages sont clairement marques TEST et aucun historique n'est modifie.
     """
     now = now.astimezone(timezone.utc)
     today = now.astimezone(TZ).date()
     sender = Sender(dry_run=False)
-    api = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                    max_retries=1)
+    api = FreeFirstFootballClient(session=sender.session)
     cache: dict[str, list[dict]] = {}
     report: dict[str, Any] = {"mode": "visual-live-test", "sent": {},
                               "skipped": {}, "errors": {}}
@@ -2324,10 +2319,11 @@ def run_visual_live_test(now: datetime) -> dict[str, Any]:
         key = day.isoformat()
         if key not in cache:
             page = api.list_events(day, day, max_pages=8, ttl=0)
-            if not page.complete:
-                raise BSDAPIError("Liste BSD incomplete " + key)
+            if not page.events:
+                raise BSDAPIError("Provider mesh vide " + key)
             cache[key] = page.events
-            print("VISUAL_TEST_BSD", key, "rencontres", len(page.events))
+            print("VISUAL_TEST_PROVIDER_MESH", key, "rencontres", len(page.events),
+                  "sources", page.source_counts, "bsd_used", page.bsd_used)
         return cache[key]
 
     def deliver(category: str, item: Publication | None) -> None:
