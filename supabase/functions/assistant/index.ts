@@ -124,13 +124,13 @@ function detectIntent(question: string) {
   if (/(\bperdu\b.*\b(argent|fcfa|cfa|euro|paris|mise)\b|me refaire|recuperer mes pertes|dettes de jeu)/.test(q)) return "harm";
   if (/\b(gratuit|gratuite|payer|payant|abonnement|tarif|cout|coute|prix|acces|accessible|sans code|sans abonnement)\b/.test(q) &&
       /\b(vip|live|pronostic|prono|pro)\b/.test(q)) return "access";
-  if (/\b(momentum|pression|xg|xa|btts|corner|plus de 2|over|under|1x2|double chance|handicap|statistiques)\b/.test(q) &&
-      /^(que signifie|qu'est.ce|c.est quoi|explique|comment lire|quelle difference|definition)/.test(q)) return "knowledge";
+  if (/\b(momentum|pression|xg|xa|btts|corners?|plus de 2|over|under|1x2|double chance|handicap|statistiques|en attente|valide)\b/.test(q) &&
+      /(que signifie|qu.est.ce|c.est quoi|explique|comment lire|quelle difference|definition|comment interpreter|comprendr|en ewe)/.test(q)) return "knowledge";
   if (/\b(bonus|promo|promotion|xpvip|1xbet|1win|betwinner|melbet|linebet|betclic)\b/.test(q)) return "bonus";
   if (/\b(contact|whatsapp|telegram|telephone|instagram|youtube|facebook|threads|support|aide)\b/.test(q)) return "support";
   if (/\b(live|direct|momentum|pression|signaux)\b/.test(q)) return "live";
-  if (/\b(historique|hier|resultat|resultats|valides|valid[eé]|gagne|gagnes|perdu|echoue|roi|semaine)\b/.test(q)) return "results";
-  if (/\b(prono|pronostic|coupon|match|rencontre|demain|ce soir|venir|calendrier|simple|pro)\b/.test(q)) return "prono";
+  if (/\b(historique|hier|resultats?|valides?|gagnes?|perdu|echoue|roi|semaine|sept derniers jours)\b/.test(q)) return "results";
+  if (/\b(pronos?|pronostics?|coupons?|matchs?|rencontres?|demain|ce soir|venir|calendrier|simple|pro)\b/.test(q)) return "prono";
   if (/\b(bonjour|salut|coucou|hello|bonsoir)\b/.test(q)) return "greeting";
   return "generic";
 }
@@ -777,16 +777,7 @@ function buildSafeFallbackAnswer(intent: string): string {
     `;
   }
 
-  return `
-    <p><strong>Une erreur temporaire est survenue.</strong></p>
-    <p>Essaie à nouveau dans quelques instants.</p>
-    <ul>
-      <li><a href="${BASE_URL}/pronos.html" target="_blank">Pronostics</a></li>
-      <li><a href="${BASE_URL}/bonus.html" target="_blank">Bonus</a></li>
-      <li><a href="${BASE_URL}/contact.html" target="_blank">Contact</a></li>
-    </ul>
-  `;
-}
+  return '<p>Je n’ai pas assez d’informations fiables pour répondre précisément. Peux-tu reformuler ou préciser le sujet ? Je peux aider pour le football, les pronostics, les statistiques, le LIVE et le support.</p><p><a href="'+BASE_URL+'/contact.html">Contacter le support</a></p>';}
 
 
 // Sources publiques déjà utilisées par les pages du site; jamais d'invention de résultat.
@@ -831,8 +822,8 @@ async function answerPublishedHistory(question: string): Promise<string> {
   if(!feed||!Array.isArray(feed.matches)) return '<p>Je ne peux pas vérifier les résultats publiés actuellement.</p>'+link;
   const q=normalizeQuestion(question);
   const end=new Date();
-  const from=new Date(end.getTime()-(/\bsemaine\b|7\s*jours/.test(q)?7:1)*86400000).toISOString().slice(0,10);
-  const to=(/\bsemaine\b|7\s*jours/.test(q)?end:new Date(end.getTime()-86400000)).toISOString().slice(0,10);
+  const from=new Date(end.getTime()-(/\bsemaine\b|7\s*jours|sept derniers jours/.test(q)?7:1)*86400000).toISOString().slice(0,10);
+  const to=(/\bsemaine\b|7\s*jours|sept derniers jours/.test(q)?end:new Date(end.getTime()-86400000)).toISOString().slice(0,10);
   const entries=feed.matches.filter((m:any)=>{const d=String(m.date||m.event_date||"").slice(0,10);return d>=from&&d<=to;});
   if(!entries.length)return '<p>Aucune entrée retrouvée dans les données publiées entre le '+from+' et le '+to+'. Je ne peux pas conclure qu’aucun résultat n’existe sans la vérification de la page Historique.</p>'+link;
   return '<p><strong>'+entries.length+' entrée(s) historique(s)</strong> sont présentes pour la période du '+from+' au '+to+'. Je ne peux pas déduire le nombre de paris gagnés ou le ROI à partir de ce seul décompte : ces valeurs nécessitent les statuts de validation officiels.</p>'+link+sourceNote(feed);
