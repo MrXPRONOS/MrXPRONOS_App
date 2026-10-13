@@ -902,7 +902,7 @@
           <ul>
             <li>Les pronostics du jour 📊</li>
             <li>Les bonus bookmakers 🎁</li>
-            <li>Le <strong>LIVE VIP</strong> 🔴</li>
+            <li>Le <strong>PRONO LIVE</strong> 🔴</li>
             <li>Vos questions sur le site 🛟</li>
           </ul>
           <p>Tous les montants sont indiqués en <strong>Francs CFA</strong>.</p>`,
@@ -1051,7 +1051,7 @@
     quickActionsDiv.innerHTML='';
     const path=location.pathname.toLowerCase();
     const actions=path.includes('live.html')?[
-      {label:'🔴 LIVE',value:'Comment fonctionne le LIVE VIP ?'},
+      {label:'🔴 LIVE',value:'Comment fonctionne le PRONO LIVE ?'},
       {label:'📊 Signaux',value:'Que signifie un signal live ?'},
       {label:'🛟 Support',value:'Comment contacter le support ?'}
     ]:path.includes('historique.html')?[
@@ -1064,7 +1064,7 @@
     ]:[
       {label:'📊 Pronostics du jour',value:'Quels sont les pronostics du jour ?'},
       {label:'🎁 Code promo',value:'Comment utiliser le code XPVIP ?'},
-      {label:'🔴 LIVE VIP',value:'Comment accéder au LIVE VIP ?'},
+      {label:'🔴 PRONO LIVE',value:'Comment accéder au PRONO LIVE ?'},
       {label:'📞 Support',value:'Comment contacter le support ?'}
     ];
     for(const a of actions){
