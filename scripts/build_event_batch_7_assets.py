@@ -46,10 +46,9 @@ def probable_pitch(d):
     d.ellipse((W//2-92, mid-92, W//2+92, mid+92), outline=(168,191,176), width=3)
     d.rectangle((W//2-255, y1+32, W//2+255, y1+155), outline=(168,191,176), width=3)
     d.rectangle((W//2-255, y2-155, W//2+255, y2-32), outline=(168,191,176), width=3)
-    # two continuous text lanes; not player placeholders
-    d.rounded_rectangle((145, 435, 535, 1038), radius=24,
-                        fill=(5, 24, 35), outline=(74, 93, 92), width=2)
-    d.rounded_rectangle((587, 435, 977, 1038), radius=24,
+    # One continuous player area: the renderer chooses one or two columns
+    # depending on how many verified players exist. There are no empty slots.
+    d.rounded_rectangle((145, 435, 977, 1038), radius=24,
                         fill=(5, 24, 35), outline=(74, 93, 92), width=2)
 
 
@@ -170,7 +169,6 @@ def build_score_live_two_logos():
     panel(d, (150, 830, 972, 950), radius=20, width=2)
     panel(d, (150, 980, 972, 1110), radius=20, width=2)
     panel(d, (160, 1150, 962, 1210), radius=14, width=2)
-    panel(d, (160, 1240, 962, 1290), radius=13, width=2)
     footer_brand(d)
     return im
 
