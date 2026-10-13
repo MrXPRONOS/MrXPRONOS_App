@@ -3421,6 +3421,16 @@ async function handleCategoryChange() {
   filterAndDisplay();
 }
 
+function ensureSportScoreAttribution() {
+  if (document.querySelector('a[data-sportscore-attribution="1"]')) return;
+  const footer = document.querySelector(".mx-footer-bottom, .mx-live-footer__bottom, footer .container, footer");
+  if (!footer) return;
+  const node = document.createElement("span");
+  node.className = "sportscore-attribution";
+  node.innerHTML = 'Données complémentaires · <a data-sportscore-attribution="1" href="https://sportscore.com/" target="_blank" rel="noopener">Powered by SportScore</a>';
+  footer.appendChild(node);
+}
+
 /* =======================================================
  INIT APP
 ======================================================= */
@@ -3428,6 +3438,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initDOM();
   setupGlobalButtons();
   initPromoCopy();
+  ensureSportScoreAttribution();
 
   const page = detectPage();
   if (page === "pronos") {
