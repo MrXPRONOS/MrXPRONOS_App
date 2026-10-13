@@ -23,6 +23,7 @@ jobs:
       FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
       FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
       FOOTBALL_BSD_REQUEST_BUDGET: '18'
+      FOOTBALL_REQUIRE_COMMENTS: '0'
       PYTHONUNBUFFERED: '1'
     steps:
       - uses: actions/checkout@v4

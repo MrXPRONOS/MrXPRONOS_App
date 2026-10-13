@@ -29,7 +29,7 @@ jobs:
       FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
       FOOTBALL_RSS_FEED: https://www.footmercato.net/flux-rss
       FOOTBALL_BSD_REQUEST_BUDGET: '18'
-      FOOTBALL_REQUIRE_COMMENTS: '1'
+      FOOTBALL_REQUIRE_COMMENTS: '0'
       PYTHONUNBUFFERED: '1'
     steps:
       - uses: actions/checkout@v4
