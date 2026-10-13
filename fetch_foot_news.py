@@ -101,7 +101,7 @@ def similarity(a: str, b: str) -> float:
 
 def old_records() -> dict[str, dict]:
     try:
-        data = json.loads(NEWS_FILE.read_text(encoding="utf-8"))
+        data = json.loads(Path(NEWS_FILE).read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
     return {
