@@ -277,7 +277,7 @@ def template_page(c, regular, bold, idx, key, label, source, tmpdir):
         borderColor=colors.HexColor("#607D8B"),
         fillColor=colors.HexColor("#081722"),
         textColor=colors.white,
-        fontName=regular,
+        fontName="Helvetica",
         fontSize=8,
         fieldFlags=4096,
         forceBorder=True,
