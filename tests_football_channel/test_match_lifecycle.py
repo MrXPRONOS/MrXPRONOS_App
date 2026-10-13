@@ -140,7 +140,20 @@ class MatchLifecycleTests(unittest.TestCase):
                             {"name": "foulsCommitted", "displayValue": "12"},
                         ],
                     },
-                ]
+                ],
+                "players": [{
+                    "team": {"id": "1"},
+                    "statistics": [{
+                        "name": "general",
+                        "names": ["MIN", "SH", "SOG"],
+                        "athletes": [{
+                            "athlete": {"id": "10", "displayName": "Bukayo Saka"},
+                            "starter": True,
+                            "didNotPlay": False,
+                            "stats": ["90", "4", "2"],
+                        }],
+                    }],
+                }],
             },
             "gameInfo": {
                 "venue": {"fullName": "Emirates Stadium", "address": {"city": "London", "country": "England"}},
@@ -160,6 +173,9 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertEqual(enriched["info"]["venue"], "Emirates Stadium")
         self.assertEqual(enriched["info"]["attendance"], 60250)
         self.assertEqual(enriched["info"]["referees"], ["Ref Example"])
+        self.assertEqual(enriched["timeline"][-1]["minute_total"], 92)
+        self.assertEqual(enriched["player_stats"][0]["player"], "Bukayo Saka")
+        self.assertEqual(enriched["player_stats"][0]["stats"]["SOG"], "2")
 
     @patch("football_match_lifecycle.verify_espn_public_page")
     @patch("football_match_lifecycle.fetch_espn_summary")
