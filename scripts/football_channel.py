@@ -32,9 +32,15 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from bsd_api import BSDClient, BSDAPIError  # noqa: E402
 from bsd_h2h import hybrid_h2h  # noqa: E402
 from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
-from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
+from football_match_lifecycle import (  # noqa: E402
+    lifecycle_signals,
+    verify_espn_before_publish,
+    verify_espn_fixtures_before_publish,
+    fetch_espn_day,
+)
 import football_followup as followup  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
+from free_football_sources import collect_free_day, merge_provider_matches, PROVIDER_RANK  # noqa: E402
 from football_viral_engine import (  # noqa: E402
     build_viral_payload, render_animation, media_credit_text, media_credit_url,
 )
@@ -1927,16 +1933,43 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         nonlocal client
         name = day.isoformat()
         if name not in cache:
-            if client is None:
-                client = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                                   max_retries=1)
-            page = client.list_events(day, day, max_pages=7, ttl=0)
-            if not page.complete:
-                raise BSDAPIError("BSD: journée incomplète " + name + " (" +
-                                  str(len(page.events)) + "/" + str(page.total_reported) + ")")
-            cache[name] = page.events
-            print("BSD_JOUR", name, "rencontres", len(page.events),
-                  "requêtes", client.requests_made)
+            # Free-first: ESPN + SportScore + TheSportsDB + OpenLigaDB.
+            # BSD is only requested when the free aggregate is too thin for the
+            # editorial workload, or when explicitly forced.
+            free_rows = merge_provider_matches(
+                fetch_espn_day(sender.session, day) + collect_free_day(sender.session, day)
+            )
+            min_free = max(1, int(os.getenv("FOOTBALL_FREE_DAY_MIN_EVENTS", "6")))
+            force_bsd = os.getenv("FOOTBALL_ALWAYS_BSD", "0") == "1"
+            if len(free_rows) >= min_free and not force_bsd:
+                cache[name] = free_rows
+                counts: dict[str, int] = {}
+                for event in free_rows:
+                    for source in event.get("provider_sources") or [event.get("source")]:
+                        if source:
+                            counts[str(source)] = counts.get(str(source), 0) + 1
+                print("FREE_DAY", name, "rencontres", len(free_rows),
+                      "sources", json.dumps(counts, ensure_ascii=False),
+                      "bsd_saved", True)
+            else:
+                if client is None:
+                    client = BSDClient(
+                        max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
+                        max_retries=1,
+                    )
+                page = client.list_events(day, day, max_pages=7, ttl=0)
+                if not page.complete:
+                    # If BSD itself is incomplete, never discard valid free data.
+                    if free_rows:
+                        cache[name] = free_rows
+                        print("BSD_INCOMPLET_FREE_FALLBACK", name, len(free_rows))
+                        return cache[name]
+                    raise BSDAPIError("BSD: journée incomplète " + name + " (" +
+                                      str(len(page.events)) + "/" + str(page.total_reported) + ")")
+                cache[name] = page.events
+                print("BSD_JOUR", name, "rencontres", len(page.events),
+                      "requêtes", client.requests_made,
+                      "free_candidates", len(free_rows))
         return cache[name]
 
     def publish(item: Publication | None, *, follow_event: dict | None = None,
