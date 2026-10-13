@@ -344,6 +344,7 @@ class Publication:
     text: str
     poll: tuple[str, list[str]] | None = None
     card: dict[str, Any] | None = None
+    image_path: str | None = None
     keyboard: dict[str, Any] | None = None
 
 
@@ -434,7 +435,25 @@ class Sender:
             print("ENVOYE", item.category, item.key, "message_id", identifier)
             return identifier
 
-        if item.card:
+        if item.image_path:
+            media = (ROOT / item.image_path).resolve()
+            if not media.is_relative_to(ROOT.resolve()) or not media.is_file():
+                raise RuntimeError("Image News Football absente ou hors dépôt: " + str(item.image_path))
+            # Le site garde le WebP optimisé; Telegram reçoit la même vraie photo
+            # réencodée en JPEG pour une compatibilité sendPhoto maximale.
+            from PIL import Image, ImageOps
+            with tempfile.TemporaryDirectory(prefix="xpronos-real-news-") as tmp:
+                telegram_photo = Path(tmp) / "news.jpg"
+                with Image.open(media) as source:
+                    ImageOps.exif_transpose(source).convert("RGB").save(
+                        telegram_photo, "JPEG", quality=91, optimize=True
+                    )
+                identifier = post_photo(
+                    self.session, self.token, self.chat, telegram_photo,
+                    item.text[:3500], item.keyboard or {},
+                    timeout=70, mime="image/jpeg",
+                )
+        elif item.card:
             from football_cards import render_card
             with tempfile.TemporaryDirectory(prefix="xpronos-news-") as tmp:
                 graphic = render_card(
@@ -533,46 +552,77 @@ def fetch_article_image(session: requests.Session, url: str) -> str:
 
 
 
-def flash(articles: list[dict], history: History, now: datetime,
-          session: requests.Session | None = None) -> Publication | None:
+def load_site_news(path: Path = ROOT / "footnews.json") -> list[dict]:
+    """Lit exactement les actualités enrichies qui alimentent la page Infos Foot."""
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if not isinstance(payload, list):
+        return []
+    return sorted(
+        (item for item in payload if isinstance(item, dict)),
+        key=lambda item: str(item.get("published") or ""),
+        reverse=True,
+    )
+
+
+NEWS_LABELS = {
+    "Officiel": ("✅", "OFFICIEL"),
+    "Blessures": ("🚑", "INFIRMERIE"),
+    "Mercato": ("🚨", "MERCATO"),
+    "Déclarations": ("🗣️", "DÉCLARATION"),
+    "Convocations": ("📋", "SÉLECTION"),
+    "Polémique": ("🔥", "POLÉMIQUE"),
+    "Afrique": ("🌍", "FOOT AFRIQUE"),
+    "Matchs": ("⚽", "MATCH"),
+    "Compétitions": ("🏆", "COMPÉTITION"),
+    "Actualité": ("🚨", "FLASH FOOT"),
+}
+
+
+def flash(articles: list[dict], history: History, now: datetime) -> Publication | None:
+    """Version Telegram courte de la même news complète publiée sur infos.html."""
     last = history.newest("flash")
     if last and now - last < timedelta(hours=3):
         return None
-    for a in articles:
-        stamp = a["date"]
-        if stamp is None or not (now - timedelta(hours=22) <= stamp <= now + timedelta(minutes=10)):
+    for article in articles:
+        stamp = moment(article.get("published"))
+        if stamp is None or not (now - timedelta(hours=30) <= stamp <= now + timedelta(minutes=10)):
             continue
-        uid = hashlib.sha256(a["url"].encode("utf-8")).hexdigest()[:24]
-        key = "flash:" + uid
+        slug = plain(article.get("slug"), 80)
+        source_url = str(article.get("source_url") or article.get("link") or "")
+        key = "flash:" + (slug or hashlib.sha256(source_url.encode("utf-8")).hexdigest()[:24])
         if history.seen(key):
             continue
-        msg = (
-            "<h3>📰 FLASH FOOT • MR XPRONOS</h3>"
-            "<p><b>" + esc(a["title"]) + "</b></p>"
-            + ("<p><i>" + esc(a["summary"]) + "</i></p>" if a["summary"] else "")
-            + "<blockquote><b>🗞️ SOURCE</b><br/>Foot Mercato</blockquote>"
-            + "<p><b>💬 Votre avis ?</b><br/><i>Réagissez dans les commentaires.</i></p>"
-            + "<p><i>⚽ Mr XPRONOS • L'actualité du football</i></p>"
+        image_path = str(article.get("image") or "")
+        # News Football utilise toujours une vraie photo issue de la source.
+        if article.get("image_origin") != "source" or not image_path.startswith("assets/images/footnews/"):
+            continue
+        if not (ROOT / image_path).is_file():
+            continue
+        title = plain(article.get("title"), 240)
+        summary = plain(article.get("telegram_summary") or article.get("summary"), 430)
+        if not title or not summary:
+            continue
+        category = plain(article.get("category") or "Actualité", 40)
+        emoji, label = NEWS_LABELS.get(category, NEWS_LABELS["Actualité"])
+        source = plain(article.get("source") or "Source football", 80)
+        site_url = str(article.get("site_url") or (
+            "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=" + slug
+        ))
+        message = (
+            "<b>" + emoji + " " + esc(label) + "</b>\n\n"
+            "<b>" + esc(title) + "</b>\n\n"
+            "<blockquote>" + esc(summary) + "</blockquote>\n\n"
+            "<i>🗞️ Source : " + esc(source) + "</i>\n"
+            "<a href=\"" + esc(site_url) + "\">Lire l’info complète sur Mr XPRONOS ↗</a>"
         )
-        buttons = {"inline_keyboard": [[
-            {"text": "Lire sur Foot Mercato ↗", "url": a["url"], "style": "primary"}
+        keyboard = {"inline_keyboard": [[
+            {"text": "Lire l’info complète ↗", "url": site_url, "style": "primary"}
         ]]}
-        # Par défaut, aucune reproduction d'image de presse sans autorisation.
-        # Le template produit un terrain/ballon premium si aucune photo approuvée.
-        allowed_news_photo = os.getenv("EDITORIAL_ALLOW_NEWS_PHOTOS", "0") == "1"
-        image_url = (a.get("image") or "") if allowed_news_photo else ""
-        if allowed_news_photo and not image_url and session is not None:
-            image_url = fetch_article_image(session, a["url"])
-        card = {
-            "day": now.astimezone(TZ).strftime("%d/%m/%Y"),
-            "title": a["title"],
-            "summary": a["summary"],
-            "source": "Foot Mercato",
-            "image_url": image_url,
-        }
-        return Publication("flash", key, msg, card=card, keyboard=buttons)
+        return Publication("flash", key, message, image_path=image_path, keyboard=keyboard)
     return None
-
 
 def programme(events: list[dict], today: date, *, as_of: datetime | None = None) -> Publication | None:
     future = [e for e in candidates(events) if kick(e).astimezone(TZ).date() == today
@@ -894,7 +944,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         if force or in_editorial_window("flash_morning", now):
             if counter["sent"] < max_send and (force or enough(state, "flash", now)):
                 try:
-                    publish(flash(fetch_rss(sender.session), state, now, sender.session))
+                    publish(flash(load_site_news(), state, now))
                 except (ET.ParseError, requests.RequestException, ValueError) as exc:
                     counter["errors"] += 1
                     print("ERREUR_RSS_MATIN", type(exc).__name__, str(exc)[:160])
@@ -964,7 +1014,7 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         if (17 <= local_hour <= 23 and counter["sent"] < max_send
                 and (force or enough(state, "flash", now))):
             try:
-                publish(flash(fetch_rss(sender.session), state, now, sender.session))
+                publish(flash(load_site_news(), state, now))
             except (ET.ParseError, requests.RequestException, ValueError) as exc:
                 counter["errors"] += 1
                 print("ERREUR_RSS_SOIR", type(exc).__name__, str(exc)[:160])
@@ -1081,7 +1131,7 @@ def run_live_test(now: datetime) -> dict[str, Any]:
             return statistique(day_events(yesterday - timedelta(days=1)), yesterday)
 
         def actual_flash() -> Publication | None:
-            return flash(fetch_rss(sender.session), empty_history, now, sender.session)
+            return flash(load_site_news(), empty_history, now)
 
         def actual_poll() -> Publication:
             return sondage(day_events(today), empty_history, now)

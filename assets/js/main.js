@@ -2541,6 +2541,14 @@ function footballNewsIcon(category = "") {
     "Ligue 1": "icon-infos-ligue1.webp",
     "Liga": "icon-infos-liga.webp",
     "Serie A": "icon-infos-seriea.webp",
+    "Officiel": "icon-infos-latest.webp",
+    "Déclarations": "icon-infos-football.webp",
+    "Convocations": "icon-infos-football.webp",
+    "Polémique": "icon-infos-latest.webp",
+    "Afrique": "icon-infos-football.webp",
+    "Matchs": "icon-infos-football.webp",
+    "Compétitions": "icon-infos-champions.webp",
+    "Actualité": "icon-infos-latest.webp",
   };
   return base + (icons[category] || "icon-infos-football.webp");
 }
@@ -2570,7 +2578,7 @@ function renderFootNewsCards() {
 
   DOM.footNewsContainer.innerHTML = visible.map(({ item, originalIndex }, position) => {
     const title = item.title || "Actualité";
-    const summary = String(item.summary || "").slice(0, position === 0 ? 320 : 190);
+    const summary = String(item.summary_short || item.summary || "").slice(0, position === 0 ? 320 : 190);
     const category = footballNewsCategory(item);
     const categoryIcon = footballNewsIcon(category);
     const date = formatFootballNewsDate(item.published);
@@ -2592,7 +2600,7 @@ function renderFootNewsCards() {
         <div class="news-premium-body">
           <div class="news-date"><img src="assets/images/infos-premium/icon-infos-clock.webp" alt="" aria-hidden="true"><span>${escapeHtml(date)}</span></div>
           <h3>${titleHtml}</h3>
-          <p>${escapeHtml(summary)}${String(item.summary || "").length > summary.length ? "…" : ""}</p>
+          <p>${escapeHtml(summary)}${String(item.summary_short || item.summary || "").length > summary.length ? "…" : ""}</p>
           <span class="news-card-cta">${item.manual ? "Voir le contenu" : "Lire la suite"} <span aria-hidden="true">›</span></span>
         </div>
       </article>
@@ -2668,6 +2676,12 @@ async function displayFootNews() {
     window.newsData = merged;
     setupInfosPremiumControls();
     renderFootNewsCards();
+
+    const requestedSlug = new URLSearchParams(window.location.search).get("news");
+    if (requestedSlug) {
+      const requestedIndex = merged.findIndex((item) => String(item.slug || "") === requestedSlug);
+      if (requestedIndex >= 0) requestAnimationFrame(() => window.showNewsDetail(requestedIndex));
+    }
   } catch (error) {
     console.error("Erreur actualités:", error);
     DOM.footNewsContainer.innerHTML = '<div class="error">Impossible de charger les actualités.</div>';
@@ -2685,26 +2699,70 @@ window.showNewsDetail = function (index) {
 
   if (titleEl) titleEl.textContent = news.title || "Actualité";
   if (img) {
-    img.src = news.image || "assets/images/default-logo.png";
+    img.src = news.image || "assets/images/infos-premium/hero-infos.webp";
     img.alt = news.title || "Actualité";
     img.style.display = news.image ? "block" : "none";
   }
-  if (contentEl) contentEl.innerHTML = renderSafeRichContent(news.summary || "");
+
+  if (contentEl) {
+    const category = footballNewsCategory(news);
+    const date = formatFootballNewsDate(news.published);
+    const source = String(news.source || "Source football");
+    const lead = String(news.summary_short || news.summary || "").trim();
+    const rawParagraphs = Array.isArray(news.paragraphs) && news.paragraphs.length
+      ? news.paragraphs
+      : [String(news.content || news.summary || "").trim()].filter(Boolean);
+    const points = Array.isArray(news.key_points) ? news.key_points.filter(Boolean).slice(0, 5) : [];
+    const paragraphHtml = rawParagraphs
+      .filter((value) => String(value || "").trim())
+      .map((value) => "<p>" + escapeHtml(String(value)) + "</p>")
+      .join("");
+    const pointsHtml = points.length
+      ? "<section class=\"news-detail-points\"><h4>À retenir</h4><ul>"
+        + points.map((point) => "<li>" + escapeHtml(String(point)) + "</li>").join("")
+        + "</ul></section>"
+      : "";
+
+    contentEl.innerHTML =
+      "<div class=\"news-detail-meta\">"
+      + "<span>" + escapeHtml(category) + "</span>"
+      + "<span>" + escapeHtml(date) + "</span>"
+      + "<span>Source : " + escapeHtml(source) + "</span>"
+      + "</div>"
+      + (lead ? "<blockquote class=\"news-detail-lead\">" + escapeHtml(lead) + "</blockquote>" : "")
+      + pointsHtml
+      + "<section class=\"news-detail-body\">" + paragraphHtml + "</section>"
+      + "<p class=\"news-detail-attribution\">Cette synthèse reprend uniquement les informations fournies par la source citée. Consultez l’article original pour le contexte éditorial complet.</p>";
+  }
+
   if (linkEl) {
-    if (news.manual || !news.link) {
+    const sourceUrl = String(news.source_url || news.link || "");
+    if (news.manual || !sourceUrl.startsWith("https://")) {
       linkEl.style.display = "none";
     } else {
-      linkEl.style.display = "inline-block";
-      linkEl.href = news.link || "#";
+      linkEl.style.display = "inline-flex";
+      linkEl.href = sourceUrl;
       linkEl.target = "_blank";
       linkEl.rel = "noopener noreferrer";
+      linkEl.textContent = "Voir la source originale ↗";
     }
+  }
+
+  if (news.slug) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("news", news.slug);
+    history.replaceState(null, "", url);
   }
   DOM.newsModal.style.display = "flex";
 };
 
 window.closeNewsModal = function () {
   if (DOM.newsModal) DOM.newsModal.style.display = "none";
+  const url = new URL(window.location.href);
+  if (url.searchParams.has("news")) {
+    url.searchParams.delete("news");
+    history.replaceState(null, "", url.pathname + (url.searchParams.toString() ? "?" + url.searchParams.toString() : "") + url.hash);
+  }
 };
 
 /* =======================================================
