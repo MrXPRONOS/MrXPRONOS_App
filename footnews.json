@@ -1,5 +1,74 @@
 [
   {
+    "slug": "ab5b8a5d1ff658c3",
+    "title": "Netflix s’offre les droits exclusifs du Mondial 2030 en Espagne !",
+    "summary": "Netflix poursuit son offensive dans le sport. La plateforme américaine a annoncé, ce mardi, avoir acquis les droits exclusifs de diffusion de la Coupe du monde de football 2030 en Espagne et en (…)",
+    "summary_short": "Netflix poursuit son offensive dans le sport. La plateforme américaine a annoncé, ce mardi, avoir acquis les droits exclusifs de diffusion de la Coupe du monde de football 2030 en Espagne et en (…)",
+    "content": "Netflix poursuit son offensive dans le sport. La plateforme américaine a annoncé, ce mardi, avoir acquis les droits exclusifs de diffusion de la Coupe du monde de football 2030 en Espagne et en (…)",
+    "paragraphs": [
+      "Netflix poursuit son offensive dans le sport. La plateforme américaine a annoncé, ce mardi, avoir acquis les droits exclusifs de diffusion de la Coupe du monde de football 2030 en Espagne et en (…)"
+    ],
+    "key_points": [
+      "Netflix poursuit son offensive dans le sport.",
+      "La plateforme américaine a annoncé, ce mardi, avoir acquis les droits exclusifs de diffusion de la Coupe du monde de football 2030 en Espagne et en (…)"
+    ],
+    "telegram_summary": "Netflix poursuit son offensive dans le sport. La plateforme américaine a annoncé, ce mardi, avoir acquis les droits exclusifs de diffusion de la Coupe du monde de football 2030 en Espagne et en (…)",
+    "link": "https://www.footmercato.net/a7850418700394834346-netflix-soffre-les-droits-exclusifs-du-mondial-2030-en-espagne",
+    "source_url": "https://www.footmercato.net/a7850418700394834346-netflix-soffre-les-droits-exclusifs-du-mondial-2030-en-espagne",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ab5b8a5d1ff658c3",
+    "published": "2026-10-13T12:08:16+00:00",
+    "image": "assets/images/footnews/ab5b8a5d1ff658c3.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/coupe-du-monde.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "d3b86410719591a8",
+    "title": "Manchester City - PSG : apprécié par tous mais poussé dehors, l'heure des retrouvailles pour Donnarumma",
+    "summary": "Le PSG se déplace à Manchester ce mercredi (21h) pour y affronter les SkyBlues de Gianluigi Donnarumma, l'ancien gardien parisien.",
+    "summary_short": "Le PSG se déplace à Manchester ce mercredi (21h) pour y affronter les SkyBlues de Gianluigi Donnarumma, l'ancien gardien parisien.",
+    "content": "Le PSG se déplace à Manchester ce mercredi (21h) pour y affronter les SkyBlues de Gianluigi Donnarumma, l'ancien gardien parisien.",
+    "paragraphs": [
+      "Le PSG se déplace à Manchester ce mercredi (21h) pour y affronter les SkyBlues de Gianluigi Donnarumma, l'ancien gardien parisien."
+    ],
+    "key_points": [
+      "Le PSG se déplace à Manchester ce mercredi (21h) pour y affronter les SkyBlues de Gianluigi Donnarumma, l'ancien gardien parisien."
+    ],
+    "telegram_summary": "Le PSG se déplace à Manchester ce mercredi (21h) pour y affronter les SkyBlues de Gianluigi Donnarumma, l'ancien gardien parisien.",
+    "link": "https://www.onzemondial.com/psg/manchester-city-psg-apprecie-par-tous-mais-pousse-dehors-lheure-des-retrouvailles-pour-donnarumma-1002458",
+    "source_url": "https://www.onzemondial.com/psg/manchester-city-psg-apprecie-par-tous-mais-pousse-dehors-lheure-des-retrouvailles-pour-donnarumma-1002458",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=d3b86410719591a8",
+    "published": "2026-10-13T12:01:00+00:00",
+    "image": "assets/images/footnews/d3b86410719591a8.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002458/409338/1200-L-manchester-city-psg-apprci-par-tous-mais-pouss-dehors-l-heure-des-retrouvailles-pour-donnarumma.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Onze Mondial"
+    ],
+    "quality_score": 80
+  },
+  {
     "slug": "9b12a20660341cca",
     "title": "LdC, Manchester City : Enzo Maresca rend hommage au PSG",
     "summary": "Gros choc demain soir à l’Etihad Stadium. Pour son deuxième match de Ligue des Champions de la saison, Manchester City reçoit le Paris Saint-Germain, double champion d’Europe en titre.",
@@ -31,18 +100,19 @@
     "espn_verification": {
       "provider": "ESPN",
       "source": "ESPN News API",
-      "article_id": "50164676",
-      "url": "https://www.espn.com/video/clip/_/id/50164676/manchester-city-dealt-anfield-very-well",
-      "published": "2026-10-12T08:48:47Z",
+      "article_id": "50172881",
+      "url": "https://www.espn.com/soccer/story/_/id/50172881/enzo-maresca-man-city-celebration-anfield-do-want-us-do",
+      "published": "2026-10-13T11:58:01Z",
       "score": 0.3,
       "matched_terms": [
         "city",
-        "manchester",
+        "enzo",
         "maresca"
       ],
-      "topics": [],
+      "topics": [
+        "news"
+      ],
       "teams": [
-        "Liverpool",
         "Manchester City"
       ],
       "athletes": [],
@@ -51,7 +121,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:00:59.658894+00:00"
+      "checked_at": "2026-10-13T12:25:09.285176+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -147,7 +217,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:00:59.658894+00:00"
+      "checked_at": "2026-10-13T12:25:09.285176+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -313,7 +383,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:00:59.658894+00:00"
+      "checked_at": "2026-10-13T12:25:09.285176+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -857,7 +927,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:00:59.658894+00:00"
+      "checked_at": "2026-10-13T12:25:09.285176+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1056,7 +1126,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:00:59.658894+00:00"
+      "checked_at": "2026-10-13T12:25:09.285176+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1121,48 +1191,13 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-13T12:00:59.658894+00:00"
+      "checked_at": "2026-10-13T12:25:09.285176+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
       "ESPN"
     ],
     "quality_score": 96
-  },
-  {
-    "slug": "bab325af54581df2",
-    "title": "FIFA : un nouveau scandale pour Infantino ?",
-    "summary": "Selon une enquête du Times, Gianni Infantino aurait dissimulé en 2024 une rémunération supplémentaire de 1,5 million d'euros. Ces révélations relancent les interrogations sur la transparence financière de la FIFA et accentuent la pression sur son président....",
-    "summary_short": "Selon une enquête du Times, Gianni Infantino aurait dissimulé en 2024 une rémunération supplémentaire de 1,5 million d'euros. Ces révélations relancent les interrogations sur la transparence financière de la FIFA et accentuent la pression sur son président....",
-    "content": "Selon une enquête du Times, Gianni Infantino aurait dissimulé en 2024 une rémunération supplémentaire de 1,5 million d'euros. Ces révélations relancent les interrogations sur la transparence financière de la FIFA et accentuent la pression sur son président....",
-    "paragraphs": [
-      "Selon une enquête du Times, Gianni Infantino aurait dissimulé en 2024 une rémunération supplémentaire de 1,5 million d'euros. Ces révélations relancent les interrogations sur la transparence financière de la FIFA et accentuent la pression sur son président...."
-    ],
-    "key_points": [
-      "Selon une enquête du Times, Gianni Infantino aurait dissimulé en 2024 une rémunération supplémentaire de 1,5 million d'euros.",
-      "Ces révélations relancent les interrogations sur la transparence financière de la FIFA et accentuent la pression sur son président...."
-    ],
-    "telegram_summary": "Selon une enquête du Times, Gianni Infantino aurait dissimulé en 2024 une rémunération supplémentaire de 1,5 million d'euros. Ces révélations relancent les interrogations sur la transparence financière de la FIFA et accentuent la pression sur son président....",
-    "link": "https://m.maxifoot.fr/football/article-66244.htm",
-    "source_url": "https://m.maxifoot.fr/football/article-66244.htm",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=bab325af54581df2",
-    "published": "2026-10-13T08:40:48+00:00",
-    "image": "assets/images/footnews/bab325af54581df2.webp",
-    "source_image": "https://photo.maxifoot.fr/gianni-infantino-1.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Maxifoot",
-    "source_priority": 78,
-    "source_region": "international",
-    "source_feed": "http://rss.maxifoot.com/football-general.xml",
-    "category": "Polémique",
-    "category_emoji": "🔥",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Maxifoot"
-    ],
-    "quality_score": 78
   },
   {
     "slug": "e0a1495c389336ec",
@@ -1254,7 +1289,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-13T12:00:59.658894+00:00"
+      "checked_at": "2026-10-13T12:25:09.285176+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1389,7 +1424,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-13T12:00:59.658894+00:00"
+      "checked_at": "2026-10-13T12:25:09.285176+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -1534,40 +1569,6 @@
     "quality_score": 88
   },
   {
-    "slug": "f202e2052b35941b",
-    "title": "Al Nassr-Neftchi retardé après l’interception d’un missile en Arabie saoudite",
-    "summary": "Le match de Ligue des Champions asiatique entre Al-Nassr, le club de Cristiano Ronaldo, et Neftchi Fargana a été retardé d’une heurece lundi soir en Arabie saoudite. Initialement prévu à 21h15, le (…)",
-    "summary_short": "Le match de Ligue des Champions asiatique entre Al-Nassr, le club de Cristiano Ronaldo, et Neftchi Fargana a été retardé d’une heurece lundi soir en Arabie saoudite. Initialement prévu à 21h15, le (…)",
-    "content": "Le match de Ligue des Champions asiatique entre Al-Nassr, le club de Cristiano Ronaldo, et Neftchi Fargana a été retardé d’une heurece lundi soir en Arabie saoudite. Initialement prévu à 21h15, le (…)",
-    "paragraphs": [
-      "Le match de Ligue des Champions asiatique entre Al-Nassr, le club de Cristiano Ronaldo, et Neftchi Fargana a été retardé d’une heurece lundi soir en Arabie saoudite. Initialement prévu à 21h15, le (…)"
-    ],
-    "key_points": [
-      "Le match de Ligue des Champions asiatique entre Al-Nassr, le club de Cristiano Ronaldo, et Neftchi Fargana a été retardé d’une heurece lundi soir en Arabie saoudite."
-    ],
-    "telegram_summary": "Le match de Ligue des Champions asiatique entre Al-Nassr, le club de Cristiano Ronaldo, et Neftchi Fargana a été retardé d’une heurece lundi soir en Arabie saoudite. Initialement prévu à 21h15, le (…)",
-    "link": "https://www.footmercato.net/a342635772994542687-al-nassr-neftchi-retarde-apres-linterception-dun-missile-en-arabie-saoudite",
-    "source_url": "https://www.footmercato.net/a342635772994542687-al-nassr-neftchi-retarde-apres-linterception-dun-missile-en-arabie-saoudite",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f202e2052b35941b",
-    "published": "2026-10-13T07:30:11+00:00",
-    "image": "assets/images/footnews/f202e2052b35941b.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/alnassr.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
     "slug": "89ac8abbd64ac22d",
     "title": "Ballon d'Or : Un ancien lauréat français se paie Kylian Mbappé et sa communication osée",
     "summary": "Au micro de France Télévisions, Jean-Pierre Papin, vainqueur du Ballon d'Or 1991, a donné son favori pour remporter le prestigieux trophée individuel, le 26 octobre prochain.",
@@ -1655,7 +1656,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:00:59.658894+00:00"
+      "checked_at": "2026-10-13T12:25:09.285176+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1839,16 +1840,16 @@
   {
     "slug": "5a02fc47acc5c371",
     "title": "LDC : RC Lens - Sporting CP : les compos probables",
-    "summary": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi soir.",
-    "summary_short": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi soir.",
-    "content": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi soir.",
+    "summary": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi.",
+    "summary_short": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi.",
+    "content": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi.",
     "paragraphs": [
-      "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi soir."
+      "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi."
     ],
     "key_points": [
-      "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi soir."
+      "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi."
     ],
-    "telegram_summary": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi soir.",
+    "telegram_summary": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi.",
     "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-rc-lens-sporting-cp-les-compos-probables-542013.html",
     "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-rc-lens-sporting-cp-les-compos-probables-542013.html",
     "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5a02fc47acc5c371",
@@ -1994,7 +1995,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:00:59.658894+00:00"
+      "checked_at": "2026-10-13T12:25:09.285176+00:00"
     },
     "quality_sources": [
       "France 24",
@@ -2089,7 +2090,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:00:59.658894+00:00"
+      "checked_at": "2026-10-13T12:25:09.285176+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -2269,41 +2270,6 @@
     "quality_score": 80
   },
   {
-    "slug": "eba96b0caa13fe5e",
-    "title": "Galatasaray - Barça : les compositions probables",
-    "summary": "Le FC Barcelone se déplace sur le terrain de Galatasaray pour le compte de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
-    "summary_short": "Le FC Barcelone se déplace sur le terrain de Galatasaray pour le compte de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
-    "content": "Le FC Barcelone se déplace sur le terrain de Galatasaray pour le compte de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
-    "paragraphs": [
-      "Le FC Barcelone se déplace sur le terrain de Galatasaray pour le compte de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes."
-    ],
-    "key_points": [
-      "Le FC Barcelone se déplace sur le terrain de Galatasaray pour le compte de la deuxième journée de la Ligue des champions.",
-      "Découvrez les compositions probables des deux équipes."
-    ],
-    "telegram_summary": "Le FC Barcelone se déplace sur le terrain de Galatasaray pour le compte de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/galatasaray-barca-les-compositions-probables-1002347",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/galatasaray-barca-les-compositions-probables-1002347",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=eba96b0caa13fe5e",
-    "published": "2026-10-13T04:30:00+00:00",
-    "image": "assets/images/footnews/eba96b0caa13fe5e.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002347/409281/1200-L-galatasaray-bara-les-compositions-probables.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
-  },
-  {
     "slug": "1430d2d73fc478f0",
     "title": "Championnats européens: Manchester City fait face à la tempête, l'OM se donne de l'air",
     "summary": "Au programme : le Real Madrid sauvé par une recrue, des Sky Blues résilients dans la tempête, l'OM qui retrouve le chemin de la victoire.",
@@ -2372,5 +2338,39 @@
       "France 24"
     ],
     "quality_score": 83
+  },
+  {
+    "slug": "5fddad07be0e335d",
+    "title": "Seixas monumental, Verstappen à nouveau conquérant, reprise réussie pour le PSG... Le récap sport du week-end",
+    "summary": "Paul Seixas a pris une nouvelle dimension samedi en remportant le Tour de Lombardie, un des principaux rendez-vous de la saison cycliste.",
+    "summary_short": "Paul Seixas a pris une nouvelle dimension samedi en remportant le Tour de Lombardie, un des principaux rendez-vous de la saison cycliste.",
+    "content": "Paul Seixas a pris une nouvelle dimension samedi en remportant le Tour de Lombardie, un des principaux rendez-vous de la saison cycliste.",
+    "paragraphs": [
+      "Paul Seixas a pris une nouvelle dimension samedi en remportant le Tour de Lombardie, un des principaux rendez-vous de la saison cycliste."
+    ],
+    "key_points": [
+      "Paul Seixas a pris une nouvelle dimension samedi en remportant le Tour de Lombardie, un des principaux rendez-vous de la saison cycliste."
+    ],
+    "telegram_summary": "Paul Seixas a pris une nouvelle dimension samedi en remportant le Tour de Lombardie, un des principaux rendez-vous de la saison cycliste.",
+    "link": "https://www.franceinfo.fr/sports/cyclisme/seixas-monumental-verstappen-a-nouveau-conquerant-reprise-reussie-pour-le-psg-le-recap-sport-du-week-end_8232805.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_url": "https://www.franceinfo.fr/sports/cyclisme/seixas-monumental-verstappen-a-nouveau-conquerant-reprise-reussie-pour-le-psg-le-recap-sport-du-week-end_8232805.html#xtor=RSS-3-%5Bgeneral%5D",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5fddad07be0e335d",
+    "published": "2026-10-12T07:05:59+00:00",
+    "image": "assets/images/footnews/5fddad07be0e335d.webp",
+    "source_image": "https://www.franceinfo.fr/pictures/1RG4HpO_J11lXLfPOX_l_aqy6U0/0x0:2560x1440/432x243/filters:format(jpg)/2026/10/11/6acbc10d5b6a5991929637.png",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Franceinfo",
+    "source_priority": 82,
+    "source_region": "international",
+    "source_feed": "https://www.franceinfo.fr/sports/foot.rss",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 1,
+    "espn_verification": {},
+    "quality_sources": [
+      "Franceinfo"
+    ],
+    "quality_score": 82
   }
 ]
