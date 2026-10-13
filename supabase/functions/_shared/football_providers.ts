@@ -153,23 +153,41 @@ function canonical(
 
 export function normalizeSportScore(item: any) {
   if (!item || typeof item !== "object") return null;
-  const homeObj = item.home_team && typeof item.home_team === "object" ? item.home_team : {};
-  const awayObj = item.away_team && typeof item.away_team === "object" ? item.away_team : {};
-  const home = item.home ?? homeObj.name ?? item.home_name;
-  const away = item.away ?? awayObj.name ?? item.away_name;
+  const homeRaw = item.home;
+  const awayRaw = item.away;
+  const homeObj = item.home_team && typeof item.home_team === "object"
+    ? item.home_team : homeRaw && typeof homeRaw === "object" ? homeRaw : {};
+  const awayObj = item.away_team && typeof item.away_team === "object"
+    ? item.away_team : awayRaw && typeof awayRaw === "object" ? awayRaw : {};
+  const home = homeObj.name ?? homeObj.display_name ?? homeObj.title ??
+    (typeof homeRaw === "string" ? homeRaw : null) ?? item.home_name;
+  const away = awayObj.name ?? awayObj.display_name ?? awayObj.title ??
+    (typeof awayRaw === "string" ? awayRaw : null) ?? item.away_name;
   if (!home || !away) return null;
+
+  const statusRaw = item.status;
+  const statusObj = statusRaw && typeof statusRaw === "object" ? statusRaw : {};
+  const status = item.status_text ?? statusObj.name ?? statusObj.short_name ??
+    statusObj.short ?? statusObj.state ?? (typeof statusRaw === "string" ? statusRaw : "");
+  const compRaw = item.competition;
+  const leagueRaw = item.league;
+  const leagueObj = compRaw && typeof compRaw === "object"
+    ? compRaw : leagueRaw && typeof leagueRaw === "object" ? leagueRaw : {};
+  const league = leagueObj.name ?? leagueObj.title ??
+    (typeof compRaw === "string" ? compRaw : null) ??
+    (typeof leagueRaw === "string" ? leagueRaw : null) ?? item.competition_name;
   const matchSlug = plain(item.slug ?? item.match_slug);
   return canonical(
     "sportscore", item.id ?? matchSlug, home, away,
-    item.time ?? item.start_time ?? item.kickoff ?? item.date,
+    item.time ?? item.start_time ?? item.kickoff ?? item.start_at ?? item.date,
     {
-      home_score: item.home_score ?? item.score_home,
-      away_score: item.away_score ?? item.score_away,
-      status: item.status_text ?? item.status,
-      minute: item.minute ?? item.clock,
-      league: item.competition?.name ?? item.competition ?? item.league?.name ?? item.league ?? item.competition_name,
-      home_logo: item.home_logo ?? homeObj.logo,
-      away_logo: item.away_logo ?? awayObj.logo,
+      home_score: item.home_score ?? item.score_home ?? homeObj.score,
+      away_score: item.away_score ?? item.score_away ?? awayObj.score,
+      status,
+      minute: item.minute ?? item.clock ?? statusObj.minute,
+      league,
+      home_logo: item.home_logo ?? homeObj.logo ?? homeObj.image,
+      away_logo: item.away_logo ?? awayObj.logo ?? awayObj.image,
       raw: item,
       meta: {
         slug: matchSlug,
@@ -178,6 +196,7 @@ export function normalizeSportScore(item: any) {
     },
   );
 }
+
 
 function sportScoreRows(payload: any): any[] {
   if (Array.isArray(payload)) return payload.filter((x) => x && typeof x === "object");
