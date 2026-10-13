@@ -270,14 +270,47 @@ def _sportscore_match_rows(payload: Any) -> list[dict]:
 
 
 def normalize_sportscore_match(item: dict) -> dict | None:
-    home_obj = item.get("home_team") if isinstance(item.get("home_team"), dict) else {}
-    away_obj = item.get("away_team") if isinstance(item.get("away_team"), dict) else {}
-    home = item.get("home") or home_obj.get("name") or item.get("home_name")
-    away = item.get("away") or away_obj.get("name") or item.get("away_name")
+    home_raw = item.get("home")
+    away_raw = item.get("away")
+    home_obj = item.get("home_team") if isinstance(item.get("home_team"), dict) else (
+        home_raw if isinstance(home_raw, dict) else {}
+    )
+    away_obj = item.get("away_team") if isinstance(item.get("away_team"), dict) else (
+        away_raw if isinstance(away_raw, dict) else {}
+    )
+    home = (
+        home_obj.get("name") or home_obj.get("display_name") or home_obj.get("title")
+        or (home_raw if isinstance(home_raw, str) else None)
+        or item.get("home_name")
+    )
+    away = (
+        away_obj.get("name") or away_obj.get("display_name") or away_obj.get("title")
+        or (away_raw if isinstance(away_raw, str) else None)
+        or item.get("away_name")
+    )
     if not home or not away:
         return None
+
+    status_raw = item.get("status")
+    status_obj = status_raw if isinstance(status_raw, dict) else {}
+    status = (
+        item.get("status_text")
+        or status_obj.get("name") or status_obj.get("short_name")
+        or status_obj.get("short") or status_obj.get("state")
+        or (status_raw if isinstance(status_raw, str) else "")
+    )
+    comp_raw = item.get("competition")
+    league_raw = item.get("league")
+    league_obj = comp_raw if isinstance(comp_raw, dict) else (
+        league_raw if isinstance(league_raw, dict) else {}
+    )
+    league = (
+        league_obj.get("name") or league_obj.get("title")
+        or (comp_raw if isinstance(comp_raw, str) else None)
+        or (league_raw if isinstance(league_raw, str) else None)
+        or item.get("competition_name")
+    )
     slug = _plain(item.get("slug") or item.get("match_slug"))
-    status = item.get("status_text") or item.get("status")
     meta = {
         "slug": slug,
         "sportscore_url": "https://sportscore.com/football/match/" + slug + "/" if slug else "",
@@ -285,14 +318,19 @@ def normalize_sportscore_match(item: dict) -> dict | None:
     return _canonical(
         "sportscore", item.get("id") or slug,
         home, away,
-        item.get("time") or item.get("start_time") or item.get("kickoff") or item.get("date"),
-        home_score=item.get("home_score") if item.get("home_score") is not None else item.get("score_home"),
-        away_score=item.get("away_score") if item.get("away_score") is not None else item.get("score_away"),
+        item.get("time") or item.get("start_time") or item.get("kickoff")
+        or item.get("start_at") or item.get("date"),
+        home_score=item.get("home_score") if item.get("home_score") is not None else (
+            item.get("score_home") if item.get("score_home") is not None else home_obj.get("score")
+        ),
+        away_score=item.get("away_score") if item.get("away_score") is not None else (
+            item.get("score_away") if item.get("score_away") is not None else away_obj.get("score")
+        ),
         status=status,
-        league=item.get("competition") or item.get("league") or item.get("competition_name"),
-        home_logo=item.get("home_logo") or home_obj.get("logo"),
-        away_logo=item.get("away_logo") or away_obj.get("logo"),
-        minute=item.get("minute") or item.get("clock"),
+        league=league,
+        home_logo=item.get("home_logo") or home_obj.get("logo") or home_obj.get("image"),
+        away_logo=item.get("away_logo") or away_obj.get("logo") or away_obj.get("image"),
+        minute=item.get("minute") or item.get("clock") or status_obj.get("minute"),
         raw=item,
         provider_meta=meta,
     )
