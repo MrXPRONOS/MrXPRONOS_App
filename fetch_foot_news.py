@@ -48,6 +48,7 @@ MAX_ARTICLES = max(10, min(120, int(os.getenv("MAX_ARTICLES", "60"))))
 MAX_PER_FEED = max(5, min(30, int(os.getenv("MAX_ARTICLES_PER_FEED", "16"))))
 MAX_NEWS_AGE_HOURS = max(12, min(336, int(os.getenv("MAX_NEWS_AGE_HOURS", "120"))))
 RSS_TIMEOUT = max(4, min(40, int(os.getenv("RSS_TIMEOUT", "18"))))
+ESPN_SOCCER_RSS = "https://www.espn.com/espn/rss/soccer/news"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("mrxpronos.news")
@@ -99,6 +100,75 @@ def similarity(a: str, b: str) -> float:
     return len(aa & bb) / max(len(aa | bb), 1)
 
 
+_VERIFY_STOPWORDS = {
+    "avec", "pour", "dans", "sur", "une", "des", "les", "est", "son", "ses", "aux",
+    "the", "and", "with", "from", "this", "that", "into", "after", "before", "over",
+    "football", "soccer", "mercato", "transfer", "transfers", "official", "officiel",
+    "club", "team", "deal", "accord", "news", "live", "report",
+}
+
+
+def _verification_tokens(value: str) -> set[str]:
+    normalized = normalize_title(value)
+    return {
+        token for token in normalized.split()
+        if len(token) >= 4 and token not in _VERIFY_STOPWORDS
+    }
+
+
+def fetch_espn_verification_index(session: requests.Session) -> list[dict]:
+    """Index interne ESPN : titres/liens uniquement, jamais réutilisés comme contenu."""
+    try:
+        response = session.get(
+            ESPN_SOCCER_RSS,
+            timeout=(7, RSS_TIMEOUT),
+            headers={"User-Agent": "MrXPRONOS-NewsVerifier/1.0"},
+            allow_redirects=True,
+        )
+        response.raise_for_status()
+        feed = feedparser.parse(response.content)
+    except (requests.RequestException, ValueError):
+        return []
+
+    rows = []
+    for entry in list(feed.entries or [])[:80]:
+        title = re.sub(r"\s+", " ", str(entry.get("title") or "")).strip()
+        link = safe_link(entry.get("link"))
+        tokens = _verification_tokens(title)
+        if title and link and "espn.com" in (urlparse(link).hostname or "") and tokens:
+            rows.append({"title": title, "url": link, "tokens": tokens})
+    return rows
+
+
+def espn_corroboration(title: str, index: list[dict]) -> dict:
+    """Cherche une corroboration ESPN sans reprendre ni réécrire le contenu ESPN."""
+    wanted = _verification_tokens(title)
+    if len(wanted) < 1:
+        return {}
+    best = None
+    best_score = 0.0
+    for row in index:
+        common = wanted & set(row.get("tokens") or ())
+        if not common:
+            continue
+        union = wanted | set(row.get("tokens") or ())
+        score = len(common) / max(len(union), 1)
+        # Deux entités significatives suffisent; une seule exige une forte proximité.
+        accepted = len(common) >= 2 and score >= 0.20
+        if len(common) == 1 and len(wanted) <= 3:
+            accepted = score >= 0.34
+        if accepted and score > best_score:
+            best, best_score = row, score
+    if not best:
+        return {}
+    return {
+        "provider": "ESPN",
+        "url": best["url"],
+        "score": round(best_score, 3),
+        "matched_terms": sorted(wanted & set(best.get("tokens") or ()))[:6],
+    }
+
+
 def old_records() -> dict[str, dict]:
     try:
         data = json.loads(Path(NEWS_FILE).read_text(encoding="utf-8"))
@@ -127,6 +197,7 @@ def fetch_news() -> tuple[list[dict], dict]:
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(hours=MAX_NEWS_AGE_HOURS)
     candidates: list[dict] = []
+    espn_index = fetch_espn_verification_index(session)
     diagnostics = {
         "feeds": {},
         "accepted_before_dedup": 0,
@@ -135,6 +206,8 @@ def fetch_news() -> tuple[list[dict], dict]:
         "images_real": 0,
         "images_missing": 0,
         "rejected_no_image": 0,
+        "espn_verification_rows": len(espn_index),
+        "espn_corroborated": 0,
     }
 
     for feed_url in feed_urls():
@@ -205,6 +278,16 @@ def fetch_news() -> tuple[list[dict], dict]:
                 category=category,
                 editorial_score=editorial_score,
             )
+            corroboration = espn_corroboration(title, espn_index)
+            if corroboration:
+                record["espn_verification"] = corroboration
+                record["quality_sources"] = [profile.name, "ESPN"]
+                record["quality_score"] = min(100, max(source.priority, 78) + 8)
+                diagnostics["espn_corroborated"] += 1
+            else:
+                record["espn_verification"] = {}
+                record["quality_sources"] = [profile.name]
+                record["quality_score"] = profile.priority
             candidates.append(record)
             stat["eligible"] += 1
 
