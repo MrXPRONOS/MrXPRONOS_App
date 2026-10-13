@@ -1032,8 +1032,8 @@ def form(team_id: Any, name: str, events: list[dict], before: datetime) -> str:
     return " • ".join(vals) + "  |  " + str(points) + "/" + str(len(vals) * 3) + " pts"
 
 
-def fetch_prematch_forms(client: BSDClient, event: dict) -> dict[str, str]:
-    """Charge les derniers matchs de chaque équipe directement via BSD."""
+def fetch_prematch_forms(client: Any, event: dict) -> dict[str, str]:
+    """Charge la forme via le provider mesh; BSD n'est qu'un fallback."""
     before = kick(event)
     if before is None:
         return {"home": "", "away": ""}
@@ -2052,25 +2052,19 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 if (counter["sent"] < max_send and upcoming
                         and followup.selection_allowed(state.followed, now)
                         and (force or enough(state, "avant_match", now))):
-                    if client is None:
-                        client = BSDClient(
-                            max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                            max_retries=1,
-                        )
+                    if provider_client is None:
+                        provider_client = FreeFirstFootballClient(session=sender.session)
                     selected = next(
                         (e for e in upcoming[:12] if has_two_team_logos(e, allow_remote=True)),
                         None,
                     )
                     if selected:
-                        forms = fetch_prematch_forms(client, selected)
+                        forms = fetch_prematch_forms(provider_client, selected)
                         h2h_values = {}
                         try:
-                            h2h_values = hybrid_h2h(
-                                client, selected, [], min_local_meetings=3,
-                                allow_api=True, now=now,
-                            )
-                        except (BSDAPIError, ValueError, TypeError) as exc:
-                            print("H2H_AVANT_MATCH_INDISPONIBLE", type(exc).__name__, str(exc)[:140])
+                            h2h_values = provider_client.get_h2h(selected, limit=20)
+                        except (BSDAPIError, ValueError, TypeError, requests.RequestException) as exc:
+                            print("H2H_PROVIDER_MESH_INDISPONIBLE", type(exc).__name__, str(exc)[:140])
                         post = avant_match([selected], state, now, [], forms, h2h_values)
                         publish(post, follow_event=selected)
 
