@@ -134,6 +134,7 @@ def fetch_news() -> tuple[list[dict], dict]:
         "rejected_invalid": 0,
         "images_real": 0,
         "images_missing": 0,
+        "rejected_no_image": 0,
     }
 
     for feed_url in feed_urls():
@@ -227,6 +228,11 @@ def fetch_news() -> tuple[list[dict], dict]:
         link = str(item.get("link") or "")
         norm = normalize_title(str(item.get("title") or ""))
         if not norm or link in links:
+            continue
+        # Le nouveau News Football ne publie ni sur le site ni sur Telegram
+        # une carte fabriquée lorsqu'aucune vraie photo source n'a été obtenue.
+        if item.get("image_origin") != "source" or not str(item.get("image") or "").startswith("assets/images/footnews/"):
+            diagnostics["rejected_no_image"] += 1
             continue
         # Les mêmes annonces publiées par plusieurs médias ne doivent pas saturer Actu Foot.
         if any(similarity(norm, older) >= 0.78 for older in title_keys[-80:]):
