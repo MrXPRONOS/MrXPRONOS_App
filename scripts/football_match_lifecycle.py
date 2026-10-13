@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Sources gratuites et détection d'états pour le cycle d'un match Actu Foot.
 
-Priorité:
-1. Cache live Supabase déjà alimenté par BSD + ESPN (si secrets disponibles).
-2. ESPN public Site API, sans clé.
-3. OpenLigaDB, sans inscription ni clé, comme contrôle supplémentaire Bundesliga.
+Priorité qualité : ESPN > BSD > SportScore > TheSportsDB > OpenLigaDB.
+Pour réduire BSD, la collecte opérationnelle tente d'abord les quatre sources
+gratuites; le cache Supabase reste une source locale de secours.
 
 Aucune source payante n'est requise par ce module.
 """
@@ -19,6 +18,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 import requests
+from football_multisource import MultiSourceFootballClient, PROVIDER_QUALITY
 
 ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
 ESPN_SUMMARY = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary"
@@ -1033,29 +1033,52 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
                 similarity += 0.08
             elif is_live(item):
                 similarity += 0.03
+        providers = item.get("provider_sources") if isinstance(item.get("provider_sources"), list) else [item.get("source")]
+        provider_quality = max(
+            (PROVIDER_QUALITY.get(str(provider), 0) for provider in providers),
+            default=0,
+        )
+        similarity += provider_quality / 1000.0
         if similarity > best_score:
             best, best_score = item, similarity
     return best
 
 
 def collect_external(session: requests.Session, day: date, base_events: list[dict]) -> list[dict]:
-    # ESPN d'abord car il donne aussi les identifiants nécessaires au résumé
-    # (compositions / buteurs). Le cache Supabase BSD+ESPN reste le fallback local.
+    """Collecte multi-source gratuite; aucun appel BSD direct dans le cycle léger."""
     days = {day}
-    # Un match choisi avant minuit doit rester suivi après minuit.
     for event in base_events:
         when = _event_time(event)
         if when and abs((when.date() - day).days) <= 1:
             days.add(when.date())
-    rows = []
+
+    client = MultiSourceFootballClient(
+        bsd=None,
+        session=session,
+        max_free_requests=int(os.getenv("FOOTBALL_LIFECYCLE_FREE_BUDGET", "28")),
+    )
+    rows: list[dict] = []
     for fixture_day in sorted(days):
-        rows.extend(fetch_espn_day(session, fixture_day))
+        page = client.list_events(fixture_day, fixture_day, max_pages=1, ttl=30)
+        rows.extend(page.events)
     rows.extend(fetch_supabase_live(session))
-    # OpenLigaDB n'est interrogé que si une rencontre Bundesliga est réellement
-    # présente dans notre journée BSD; pas de trafic inutile.
-    if any("bundesliga" in _plain(event.get("league_name") or event.get("league")).lower() for event in base_events):
-        rows.extend(fetch_openligadb_bundesliga(session, day))
-    return rows
+
+    deduped: list[dict] = []
+    for row in rows:
+        duplicate = next((x for x in deduped if _same_external_identity(x, row)), None)
+        if duplicate is None:
+            deduped.append(row)
+    return deduped
+
+
+def _same_external_identity(a: dict, b: dict) -> bool:
+    if min(
+        _tokens_similarity(_team_name(a, "home"), _team_name(b, "home")),
+        _tokens_similarity(_team_name(a, "away"), _team_name(b, "away")),
+    ) < .62:
+        return False
+    at, bt = _event_time(a), _event_time(b)
+    return not (at and bt) or abs((at - bt).total_seconds()) <= 3 * 3600
 
 
 def is_halftime(match: dict) -> bool:
