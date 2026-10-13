@@ -1256,6 +1256,13 @@ def lifecycle_signals(
                 "event_date",
                 ext.get("event_date") or base.get("event_date") or base.get("date") or base.get("start_time"),
             )
+            for side in ("home", "away"):
+                logo_url = ext.get(side + "_logo")
+                raw = base.get(side + "_team")
+                if not logo_url and isinstance(raw, dict):
+                    logo_url = raw.get("logo")
+                if logo_url and not signal.get(side + "_logo"):
+                    signal[side + "_logo"] = logo_url
 
     # Relevé de score, toujours limité aux rencontres explicitement retenues.
     goal_score_pairs = {(item.get("follow_ref"), item.get("score"))
