@@ -2,6 +2,10 @@ name: Telegram Football Discovery (manual only)
 
 on:
   workflow_dispatch:
+  # Déclenchement ponctuel de vérification - retiré après exécution.
+  push:
+    paths:
+      - ".github/workflows/telegram-foot-discovery.yml"
 
 permissions:
   contents: read
