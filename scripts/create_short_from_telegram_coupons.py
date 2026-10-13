@@ -105,9 +105,14 @@ def _valid_match(match, now: datetime, *, require_future=True):
         odds = float(pick.get("odds"))
     except (TypeError, ValueError):
         return False
-    if not math.isfinite(odds) or odds <= 1.50:
+    # Video selection follows the generated recommendation pool, not the
+    # hourly Telegram >1.50 delivery threshold. The canonical coupon renderer
+    # itself accepts verified/estimated BSD prices from 1.20 upward.
+    if not math.isfinite(odds) or not (1.20 <= odds <= 100):
         return False
-    if not valid_standalone_prediction(pick, False):
+    if str(pick.get("odds_source") or "") not in {
+        "bsd_consensus", "bsd_bookmaker", "mrxpronos_model"
+    }:
         return False
     return True
 
