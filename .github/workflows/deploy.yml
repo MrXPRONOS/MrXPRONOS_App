@@ -10,7 +10,7 @@ on:
 
 concurrency:
   group: github-pages-deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
