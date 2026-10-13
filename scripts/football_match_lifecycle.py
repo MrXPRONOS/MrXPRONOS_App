@@ -327,6 +327,13 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
     best_score = 0.0
     for item in external:
         similarity = match_similarity(bh, ba, item.get("home_team", ""), item.get("away_team", ""))
+        # Sur un match déjà annoncé, les deux équipes doivent être dans le même
+        # ordre: une correspondance inversée fausserait le score affiché.
+        if base.get("follow_ref") and min(
+            _tokens_similarity(bh, item.get("home_team", "")),
+            _tokens_similarity(ba, item.get("away_team", "")),
+        ) < 0.45:
+            continue
         if similarity < 0.48:
             continue
         et = _moment(item.get("event_date"))
@@ -335,6 +342,13 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
             if hours > 8:
                 continue
             similarity += max(0, 0.18 - hours * 0.02)
+        if base.get("follow_ref"):
+            detail = _plain(item.get("status_detail")).lower()
+            state = _plain(item.get("state")).lower()
+            if state == "post" and not any(w in detail for w in ("cancel", "postpon", "abandon")):
+                similarity += 0.08
+            elif is_live(item):
+                similarity += 0.03
         if similarity > best_score:
             best, best_score = item, similarity
     return best
@@ -452,10 +466,7 @@ def lifecycle_signals(
                     })
 
         # Coup d'envoi: uniquement au tout début.
-        if (
-            is_live(ext) and 0 <= minute <= 12
-            and (hs is None or hs == 0) and (aws is None or aws == 0)
-        ):
+        if is_live(ext) and 0 <= minute <= 12:
             key = "kickoff:" + key_id
             if key not in sent_keys:
                 signals.append({
@@ -503,7 +514,16 @@ def lifecycle_signals(
                 })
 
         # Le match se conclut UNIQUEMENT avec un état final + un score confirmé.
-        if _plain(ext.get("state")).lower() in {"post", "finished", "ft", "full_time"}:
+        if (follow_ref and any(token in _plain(ext.get("status_detail")).lower()
+                               for token in ("postpon", "cancel", "abandon", "suspend"))):
+            key = "suivi_interrompu:" + follow_ref
+            if key not in sent_keys:
+                signals.append({
+                    "kind": "suivi_interrompu", "key": key, "priority": 250 + importance,
+                    "home": home, "away": away, "league": league,
+                    "status": _plain(ext.get("status_detail")), "source": source,
+                })
+        elif _plain(ext.get("state")).lower() in {"post", "finished", "ft", "full_time"}:
             if hs is not None and aws is not None and follow_ref:
                 home_logo = _plain(ext.get("home_logo") or (base.get("home_team") or {}).get("logo"))
                 away_logo = _plain(ext.get("away_logo") or (base.get("away_team") or {}).get("logo"))

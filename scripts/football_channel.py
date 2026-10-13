@@ -53,7 +53,7 @@ MAX_MESSAGES_PER_RUN = 2
 LIMITS = {"flash": 2, "programme": 1, "avant_match": 2, "resultat": 2,
           "statistique": 1, "sondage": 1, "quiz": 1, "debat": 1,
           "reaction": 1, "viral": 1, "composition": 6, "kickoff": 8,
-          "goal": 14, "mi_temps": 8, "score_update": 32}
+          "goal": 14, "mi_temps": 8, "score_update": 32, "suivi_interrompu": 8}
 LEAGUE_TERMS = (
     "champions league", "premier league", "ligue 1", "la liga", "laliga",
     "serie a", "bundesliga", "europa league", "coupe du monde", "world cup",
@@ -94,6 +94,7 @@ CATEGORY_LABELS = {
     "kickoff": "▶️ COUP D’ENVOI",
     "goal": "⚽ BUT",
     "score_update": "📊 SCORE LIVE",
+    "suivi_interrompu": "⚠️ RENCONTRE INTERROMPUE",
     "mi_temps": "⏸️ MI-TEMPS",
 }
 
@@ -713,7 +714,7 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
     lead_league = esc(league(lead) or "Football")
     message = (
         "<h3>📅 MATCHS DU JOUR • MR XPRONOS</h3>"
-        "<p><i>Les affiches phares sélectionnées parmi les rencontres BSD du jour.</i></p>"
+        "<p><i>Les affiches phares sélectionnées parmi les rencontres BSD du jour. Le suivi intégral est annoncé séparément par AVANT-MATCH.</i></p>"
         "<blockquote><b>🔥 À L'AFFICHE</b><br/>"
         + esc(team(lead, "home")) + " – " + esc(team(lead, "away"))
         + "<br/><b>🕒 " + time_label(kick(lead)) + "</b> • " + lead_league
@@ -879,6 +880,7 @@ def avant_match(events: list[dict], history: History, now: datetime,
         "<blockquote><b>⚽ " + esc(h) + " – " + esc(a) + "</b><br/>"
         "<b>🕒 " + time_label(kick(e)) + "</b> • Heure du Togo</blockquote>"
         + form_block + h2h_block +
+        "<p><b>🔖 Nous suivrons cette rencontre jusqu’au résultat final.</b></p>"
         "<p><b>💬 Quel scénario imaginez-vous ?</b></p>"
     )
     card = {
@@ -1283,10 +1285,25 @@ def lifecycle_publication(signal: dict) -> Publication | None:
     return Publication(
         kind,
         str(signal.get("key") or ""),
-        post_label(message),
+        post_label(message + "<p><i>🔖 Match suivi par Mr XPRONOS</i></p>"),
         card=card,
         keyboard=button,
     )
+
+
+def followed_interruption_publication(signal: dict) -> Publication | None:
+    home, away = plain(signal.get("home"), 55), plain(signal.get("away"), 55)
+    if not home or not away:
+        return None
+    detail = plain(signal.get("status"), 90)
+    text = (
+        "<h3>⚠️ CHANGEMENT DE PROGRAMME • MATCH SUIVI</h3>"
+        "<p><b>" + esc(home) + " – " + esc(away) + "</b></p>"
+        "<p>La rencontre est reportée, suspendue ou annulée selon la source."
+        " Nous arrêtons les alertes de ce match tant que sa reprise n'est pas confirmée.</p>"
+        "<p><i>Statut : " + esc(detail or "changement signalé") + "</i></p>"
+    )
+    return Publication("suivi_interrompu", str(signal.get("key") or ""), post_label(text))
 
 
 def followed_final_publication(signal: dict) -> Publication | None:
@@ -1350,6 +1367,8 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             state.mark(item.key, item.category, now)
             if item.category == "resultat" and ref:
                 followup.completed(state.followed, ref, now)
+            if item.category == "suivi_interrompu" and ref:
+                state.followed[ref]["cancelled"] = True
             state.save(now)
 
     try:
@@ -1374,7 +1393,9 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
             match_key = ref
             if match_key in used_matches:
                 continue
-            post = followed_final_publication(signal) if kind == "resultat_final" else lifecycle_publication(signal)
+            post = (followed_final_publication(signal) if kind == "resultat_final"
+                    else followed_interruption_publication(signal) if kind == "suivi_interrompu"
+                    else lifecycle_publication(signal))
             if post is None:
                 continue
             publish(post, ref=ref)
@@ -1443,6 +1464,9 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
             if item.category == "resultat" and ref:
                 followup.completed(state.followed, ref, now)
                 print("FOLLOWUP_FINISHED", ref)
+            if item.category == "suivi_interrompu" and ref:
+                state.followed[ref]["cancelled"] = True
+                print("FOLLOWUP_INTERRUPTED", ref)
             state.save(now)
         return True
 
@@ -1580,6 +1604,8 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                             continue
                         post = (followed_final_publication(signal)
                                 if signal.get("kind") == "resultat_final"
+                                else followed_interruption_publication(signal)
+                                if signal.get("kind") == "suivi_interrompu"
                                 else lifecycle_publication(signal))
                         if post and publish(post, ref=ref):
                             used_matches.add(ref)
@@ -1613,7 +1639,10 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         if (force or in_editorial_window("viral", now)) and counter["sent"] < max_send:
             if force or enough(state, "viral", now):
                 try:
-                    publish(viral_publication(get_day(today), load_site_news(), sender.session, now))
+                    tracked_viral = [event for event in get_day(today)
+                                     if any(followup.same_fixture(event, item)
+                                            for item in followup.active(state.followed, now).values())]
+                    publish(viral_publication(tracked_viral, load_site_news(), sender.session, now))
                 except (BSDAPIError, requests.RequestException, ValueError, TypeError, OSError) as exc:
                     counter["errors"] += 1
                     print("ERREUR_VIRAL", type(exc).__name__, str(exc)[:180])
@@ -1621,7 +1650,10 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
         if (force or in_editorial_window("community_reaction", now)) and counter["sent"] < max_send:
             if force or enough(state, "reaction", now):
                 try:
-                    publish(community_reaction_publication(get_day(today), now))
+                    tracked_reaction = [event for event in get_day(today)
+                                        if any(followup.same_fixture(event, item)
+                                               for item in followup.active(state.followed, now).values())]
+                    publish(community_reaction_publication(tracked_reaction, now))
                 except (BSDAPIError, requests.RequestException, ValueError, TypeError) as exc:
                     counter["errors"] += 1
                     print("ERREUR_COMMUNITY_REACTION", type(exc).__name__, str(exc)[:160])
