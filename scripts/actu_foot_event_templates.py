@@ -1,4 +1,4 @@
-"""Audited MR XPRONOS Actu Foot event templates (batches 1, 2 and 3).
+"""Audited MR XPRONOS Actu Foot event templates (batches 1, 2, 3 and 4).
 
 This module renders only verified dynamic data on top of native 1122x1402
 backgrounds generated for the Actu Foot event library.
@@ -54,9 +54,17 @@ EVENT_TEMPLATE_FILES = {
     "retour_au_jeu": "retour_au_jeu.png",
     "match_suspendu": "match_suspendu.png",
     "match_interrompu_full": "match_interrompu_full.png",
+    "match_interrompu_unknown": "match_interrompu_unknown.png",
+    "match_reporte": "match_reporte.png",
+    "match_annule": "match_annule.png",
+    "reprise_match": "reprise_match.png",
+    "temps_additionnel": "temps_additionnel.png",
 }
 EVENT_CATEGORIES = tuple(EVENT_TEMPLATE_FILES)
-EVENT_ALIASES = {"carton_jaune", "carton_rouge", "remplacement", "match_interrompu"}
+EVENT_ALIASES = {
+    "carton_jaune", "carton_rouge", "remplacement", "match_interrompu",
+    "match_reporté", "match_annulé", "reprise_du_match"
+}
 
 # Each box is the safe interior area, not the visible outer gold frame.
 SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
@@ -251,6 +259,70 @@ SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "status": (170, 1136, 952, 1208),
         "source": (175, 1242, 947, 1280),
     },
+    "match_interrompu_unknown": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "status": (170, 1047, 952, 1178),
+        "source": (175, 1226, 947, 1278),
+    },
+    "match_reporte": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "new_date": (170, 1042, 530, 1102),
+        "new_time": (592, 1042, 952, 1102),
+        "info": (170, 1138, 952, 1208),
+        "source": (175, 1243, 947, 1282),
+    },
+    "match_annule": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "reason": (170, 1043, 952, 1101),
+        "info": (170, 1138, 952, 1208),
+        "source": (175, 1243, 947, 1282),
+    },
+    "reprise_match": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "status": (200, 1046, 922, 1096),
+        "info": (170, 1132, 952, 1206),
+        "source": (175, 1243, 947, 1282),
+    },
+    "temps_additionnel": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "added_time": (350, 1043, 772, 1158),
+        "info": (170, 1200, 952, 1278),
+    },
 }
 
 # Audit-derived typography rules.
@@ -441,9 +513,13 @@ def _category(category: str, payload: dict[str, Any]) -> str:
         raise ValueError("Remplacement: au moins un joueur entrant ou sortant vérifié est requis")
     if category == "match_interrompu":
         reason = clean(payload.get("reason") or payload.get("interruption_reason") or payload.get("detail"))
-        if reason:
-            return "match_interrompu_full"
-        raise ValueError("Match interrompu: raison vérifiée requise pour la variante complète")
+        return "match_interrompu_full" if reason else "match_interrompu_unknown"
+    if category == "match_reporté":
+        return "match_reporte"
+    if category == "match_annulé":
+        return "match_annule"
+    if category == "reprise_du_match":
+        return "reprise_match"
     return category
 
 
@@ -679,6 +755,66 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
         draw_fit(draw, status, spec["status"], size=26, min_size=15,
                  max_lines=3, bold=False)
         draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "match_interrompu_unknown":
+        status = clean(
+            payload.get("restart")
+            or payload.get("resume")
+            or payload.get("status")
+            or payload.get("info")
+            or payload.get("description"),
+            520,
+        )
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, status, spec["status"], size=29, min_size=16,
+                 max_lines=4, bold=False)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "match_reporte":
+        new_date = clean(payload.get("new_date") or payload.get("rescheduled_date"), 80)
+        new_time = clean(payload.get("new_time") or payload.get("rescheduled_time"), 40)
+        detail = clean(payload.get("info") or payload.get("status") or payload.get("description"), 420)
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, new_date, spec["new_date"], size=28, min_size=15,
+                 max_lines=1, bold=True)
+        draw_fit(draw, new_time, spec["new_time"], size=28, min_size=15,
+                 max_lines=1, bold=True)
+        draw_fit(draw, detail, spec["info"], size=25, min_size=15,
+                 max_lines=3, bold=False)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "match_annule":
+        reason = clean(payload.get("reason") or payload.get("cancellation_reason") or payload.get("detail"), 260)
+        detail = clean(payload.get("info") or payload.get("status") or payload.get("description"), 420)
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, reason, spec["reason"], size=27, min_size=15,
+                 max_lines=2, bold=True)
+        draw_fit(draw, detail, spec["info"], size=25, min_size=15,
+                 max_lines=3, bold=False)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "reprise_match":
+        status = clean(payload.get("status") or payload.get("resume") or payload.get("restart"), 220)
+        detail = clean(payload.get("info") or payload.get("description"), 420)
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, status, spec["status"], size=29, min_size=16,
+                 max_lines=1, bold=True)
+        draw_fit(draw, detail, spec["info"], size=25, min_size=15,
+                 max_lines=3, bold=False)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "temps_additionnel":
+        added = clean(payload.get("added_time") or payload.get("stoppage_time") or payload.get("extra_minutes"), 24)
+        if added and added.isdigit():
+            added = "+" + added + "'"
+        detail = clean(payload.get("info") or payload.get("status") or payload.get("description"), 420)
+        if source and source not in detail:
+            detail = (detail + " • " + source).strip(" •")
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, added, spec["added_time"], size=62, min_size=28,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, detail, spec["info"], size=25, min_size=15,
+                 max_lines=3, bold=False)
     else:
         raise ValueError("Unhandled Actu Foot event template: " + resolved)
 
