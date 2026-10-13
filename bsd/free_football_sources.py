@@ -33,7 +33,7 @@ OPENLIGA_BASE = "https://api.openligadb.de"
 
 SOURCE_QUALITY = {
     "espn": {"overall": 98, "live": 99, "detail": 99, "coverage": 91, "odds": 0},
-    "sportscore": {"overall": 92, "live": 95, "detail": 93, "coverage": 96, "odds": 35},
+    "sportscore": {"overall": 92, "live": 95, "detail": 93, "coverage": 96, "odds": 0},
     "bsd": {"overall": 89, "live": 91, "detail": 91, "coverage": 98, "odds": 90},
     "thesportsdb": {"overall": 79, "live": 55, "detail": 82, "coverage": 73, "odds": 0},
     "openligadb": {"overall": 76, "live": 66, "detail": 69, "coverage": 54, "odds": 0},
@@ -724,7 +724,7 @@ def extract_sportscore_odds(payload: Any) -> Dict[str, Any]:
 
     SportScore's public docs do not currently contractually document an odds
     endpoint/schema, even though match pages display odds. Therefore these
-    values are diagnostic-only unless SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS=1.
+    values are always diagnostic-only and cannot feed an automated bet.
     """
     found: List[Any] = []
     def walk(value: Any, depth: int = 0) -> None:
@@ -743,7 +743,7 @@ def extract_sportscore_odds(payload: Any) -> Dict[str, Any]:
     return {
         "available": bool(found),
         "contract_verified": False,
-        "automation_allowed": os.getenv("SPORTSCORE_ALLOW_UNDOCUMENTED_ODDS", "0") == "1",
+        "automation_allowed": False,
         "raw_sections": found[:8],
         "warning": "SportScore public API docs do not currently document odds schema/endpoints.",
     }
