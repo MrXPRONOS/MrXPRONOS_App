@@ -81,13 +81,13 @@ def evidence(stage, log):
         return "partielle", "Aucun marqueur de publication réelle"
     hit = hits[-1]
     if stage == "bsd_v2":
-        match = re.search(r"BSD_V2_TELEGRAM:\\s*({.*})", hit)
+        match = re.search(r"BSD_V2_TELEGRAM:\s*({.*})", hit)
         if match:
             data = json.loads(match.group(1))
             if int(data.get("sent", 0)) + int(data.get("combos_sent", 0)) == 0:
                 return "partielle", "Aucun coupon éligible à cet instant: " + hit
     if stage in ("visuel", "six_rubriques", "premium"):
-        match = re.search(r"XPRONOS_(?:VISUAL_TEST_LIVE|TEST_LIVE)\\s+({.*})", hit)
+        match = re.search(r"XPRONOS_(?:VISUAL_TEST_LIVE|TEST_LIVE)\s+({.*})", hit)
         if match:
             data = json.loads(match.group(1))
             if data.get("errors") or data.get("skipped") or not data.get("sent"):
