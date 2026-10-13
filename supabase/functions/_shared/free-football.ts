@@ -210,17 +210,20 @@ function normalizedLabel(v: unknown) {
 function setPair(out: any, key: string, home: unknown, away: unknown) {
   const h = num(home), a = num(away);
   if (h === null || a === null) return;
-  out[`home_${key}`] = h;
-  out[`away_${key}`] = a;
+  out.home ||= {};
+  out.away ||= {};
+  out.totals ||= {};
+  out.home[key] = h;
+  out.away[key] = a;
   const totalKey: Record<string, string> = {
     corner_kicks: "corners", total_shots: "total_shots", shots_on_target: "shots_on_target",
     fouls: "fouls", yellow_cards: "yellow_cards", red_cards: "red_cards",
   };
-  if (totalKey[key]) out[totalKey[key]] = h + a;
+  if (totalKey[key]) out.totals[totalKey[key]] = h + a;
 }
 
 export function normalizeTsdbStats(rowsData: any[]) {
-  const out: any = {};
+  const out: any = { home: {}, away: {}, totals: {} };
   for (const row of rowsData || []) {
     if (!row || typeof row !== "object") continue;
     const label = normalizedLabel(row.strStat || row.strStatistic || row.name || row.label);
@@ -238,7 +241,7 @@ export function normalizeTsdbStats(rowsData: any[]) {
 export function normalizeSportScoreStats(payload: any) {
   const root = payload?.match || payload?.data || payload || {};
   const stats = root.statistics || root.stats || payload?.statistics || payload?.stats;
-  const out: any = {};
+  const out: any = { home: {}, away: {}, totals: {} };
   if (Array.isArray(stats)) {
     for (const row of stats) {
       if (!row || typeof row !== "object") continue;
