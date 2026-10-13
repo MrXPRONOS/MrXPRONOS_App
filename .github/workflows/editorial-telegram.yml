@@ -9,10 +9,19 @@ on:
         default: "manual"
         type: string
       publish:
-        description: "Publier pour de vrai si les deux secrets dédiés sont disponibles"
+        description: "Envoyer réellement sur la destination choisie"
         required: true
         type: boolean
-        default: false
+        default: true
+      destination:
+        description: "Destination d'un lancement manuel"
+        required: true
+        type: choice
+        default: "test"
+        options:
+          - "test"
+          - "dry-run"
+          - "production"
 
 permissions:
   contents: write
@@ -36,22 +45,91 @@ jobs:
         run: python -m pip install Pillow requests
       - name: Refresh queue without losing delivery state
         run: python scripts/editorial_queue.py --limit 100
+
+      - name: Router publication Telegram
+        id: route
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
+          MANUAL_DESTINATION: ${{ inputs.destination || 'test' }}
+          PROD_CHAT_ID: ${{ secrets.EDITORIAL_TELEGRAM_CHAT_ID }}
+          TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          DEST="$MANUAL_DESTINATION"
+          if [ "$TRIGGER_SOURCE" = "cron-job.org" ]; then
+            DEST="production"
+          fi
+
+          case "$DEST" in
+            production)
+              test -n "$PROD_CHAT_ID"
+              echo "EDITORIAL_TELEGRAM_CHAT_ID=$PROD_CHAT_ID" >> "$GITHUB_ENV"
+              QUEUE_PATH="assets/data/editorial_share_queue.json"
+              ;;
+            test)
+              if [ -z "$TEST_CHAT_ID" ]; then
+                echo "::error::TELEGRAM_TEST_CHAT_ID manquant. Aucun fallback vers la production."
+                exit 1
+              fi
+              echo "EDITORIAL_TELEGRAM_CHAT_ID=$TEST_CHAT_ID" >> "$GITHUB_ENV"
+              QUEUE_PATH="$RUNNER_TEMP/editorial-test-queue.json"
+              cp assets/data/editorial_share_queue.json "$QUEUE_PATH"
+              python - "$QUEUE_PATH" <<'PY'
+          import json,sys
+          from pathlib import Path
+          path=Path(sys.argv[1])
+          rows=json.loads(path.read_text(encoding="utf-8"))
+          for row in rows:
+              if not isinstance(row,dict): continue
+              row.setdefault("platform_status",{})["telegram"]="not_requested"
+              delivered=row.get("delivered")
+              if isinstance(delivered,dict):
+                  delivered.pop("telegram",None)
+          path.write_text(json.dumps(rows,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          PY
+              ;;
+            dry-run)
+              QUEUE_PATH="assets/data/editorial_share_queue.json"
+              ;;
+            *)
+              echo "::error::Destination Telegram inconnue: $DEST"
+              exit 1
+              ;;
+          esac
+          echo "destination=$DEST" >> "$GITHUB_OUTPUT"
+          echo "queue_path=$QUEUE_PATH" >> "$GITHUB_OUTPUT"
+          echo "EDITORIAL_TEST_ROUTE destination=$DEST"
+
       - name: Send at most one fresh article/advice
         env:
           EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
-          EDITORIAL_TELEGRAM_CHAT_ID: ${{ secrets.EDITORIAL_TELEGRAM_CHAT_ID }}
           EVENT_NAME: ${{ github.event_name }}
           TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
-          REQUESTED_PUBLISH: ${{ inputs.publish || 'false' }}
+          REQUESTED_PUBLISH: ${{ inputs.publish || 'true' }}
           AUTO_ENABLED: ${{ vars.EDITORIAL_TELEGRAM_ENABLED || 'false' }}
+          ROUTED_DESTINATION: ${{ steps.route.outputs.destination }}
+          QUEUE_PATH: ${{ steps.route.outputs.queue_path }}
         shell: bash
         run: |
-          if [ "$REQUESTED_PUBLISH" = 'true' ] || { [ "$AUTO_ENABLED" = 'true' ] && { [ "$EVENT_NAME" = 'schedule' ] || [ "$TRIGGER_SOURCE" = 'cron-job.org' ]; }; }; then
-            python scripts/editorial_telegram.py --publish --max-items 1
+          set -euo pipefail
+          if [ "$ROUTED_DESTINATION" = "dry-run" ] || [ "$REQUESTED_PUBLISH" != "true" ]; then
+            python scripts/editorial_telegram.py --queue "$QUEUE_PATH"
+          elif [ "$TRIGGER_SOURCE" = "cron-job.org" ]; then
+            if [ "$AUTO_ENABLED" = "true" ]; then
+              python scripts/editorial_telegram.py --publish --max-items 1 --queue "$QUEUE_PATH"
+            else
+              echo "Production éditoriale automatique désactivée."
+              python scripts/editorial_telegram.py --queue "$QUEUE_PATH"
+            fi
           else
-            python scripts/editorial_telegram.py
+            test -n "$EDITORIAL_TELEGRAM_BOT_TOKEN"
+            test -n "$EDITORIAL_TELEGRAM_CHAT_ID"
+            python scripts/editorial_telegram.py --publish --max-items 1 --queue "$QUEUE_PATH"
           fi
       - name: Merge successful Telegram delivery receipts on latest main
+        if: ${{ steps.route.outputs.destination == 'production' && inputs.publish == true }}
         shell: bash
         run: |
           set -euo pipefail
