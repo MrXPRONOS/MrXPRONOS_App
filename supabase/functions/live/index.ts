@@ -3830,8 +3830,9 @@ function prepareEspnOnlyMatch(espn: any) {
   };
 }
 
-function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[]) {
+function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[], knownMappings = new Map<string, string>()) {
   const sourceRows: any[] = [];
+  const providerMappings: any[] = [];
   const entries: Array<{
     key: string;
     match: any;
@@ -3863,20 +3864,46 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[])
 
   for (const espn of espnMatches || []) {
     sourceRows.push(sourceRowFromMatch(espn, "espn"));
+    const espnId = String(espn?.source_match_id || espn?.raw_data?.event_id || "");
 
     let bestIndex = -1;
     let bestScore = 0;
+    const knownPrimaryId = knownMappings.get(espnId);
+    if (knownPrimaryId) {
+      const mappedIndex = entries.findIndex((entry) =>
+        String(entry.match?.id || "") === knownPrimaryId &&
+        entry.source !== "espn" &&
+        sameMatchScore(entry.match, espn) >= 0.72
+      );
+      if (mappedIndex >= 0) {
+        bestIndex = mappedIndex;
+        bestScore = 1;
+      }
+    }
 
-    for (let i = 0; i < entries.length; i++) {
-      const score = sameMatchScore(entries[i].match, espn);
-
-      if (score > bestScore) {
-        bestScore = score;
-        bestIndex = i;
+    if (bestIndex < 0) {
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].source === "espn") continue;
+        const score = sameMatchScore(entries[i].match, espn);
+        if (score > bestScore) {
+          bestScore = score;
+          bestIndex = i;
+        }
       }
     }
 
     if (bestIndex >= 0 && bestScore >= 0.72) {
+      // Record only high-confidence mappings (low-confidence matches may still merge temporarily).
+      if (espnId && bestScore >= 0.85) {
+        const date = safeEspnDate(getMatchEventDate(espn));
+        providerMappings.push({
+          espn_id: espnId,
+          primary_match_id: String(entries[bestIndex].match?.id || ""),
+          fixture_date: date ? date.slice(0, 10) : null,
+          confidence: Math.min(1, bestScore),
+          mapped_at: nowIso(),
+        });
+      }
       entries[bestIndex].match = mergeOneOriginalWithEspn(entries[bestIndex].match, espn);
       entries[bestIndex].source = "merged";
       duplicatesMerged++;
@@ -3892,6 +3919,7 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[])
   return {
     mergedMatches,
     sourceRows,
+    providerMappings,
     meta: {
       original_source_matches: originalMatches.length,
       espn_source_matches: espnMatches.length,
@@ -5725,10 +5753,34 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     const espnResult = await fetchEspnLiveMatchesForMerge();
     espnError = espnResult.error;
 
+    const incomingEspnIds = (espnResult.matches || [])
+      .map((m: any) => String(m?.source_match_id || m?.raw_data?.event_id || ""))
+      .filter(Boolean);
+    const knownProviderMappings = new Map<string, string>();
+    if (incomingEspnIds.length) {
+      const { data: mappingRows, error: mapReadError } = await supabase
+        .from("espn_match_map").select("espn_id,primary_match_id")
+        .in("espn_id", [...new Set(incomingEspnIds)].slice(0, 500));
+      if (!mapReadError) {
+        for (const row of mappingRows || []) {
+          knownProviderMappings.set(String(row.espn_id), String(row.primary_match_id));
+        }
+      } else {
+        console.warn("ESPN provider mappings unavailable; using strict fixture matching", mapReadError);
+      }
+    }
+
     const merged = mergeOriginalAndEspnMatches(
       originalRawMatches,
       espnResult.matches || [],
+      knownProviderMappings,
     );
+    if (merged.providerMappings?.length) {
+      const { error: mapWriteError } = await supabase
+        .from("espn_match_map")
+        .upsert(merged.providerMappings, { onConflict: "espn_id" });
+      if (mapWriteError) console.warn("ESPN provider mapping persistence failed", mapWriteError);
+    }
 
     allRawMatches = sortMatchesForRefresh(merged.mergedMatches);
     sourceRows = merged.sourceRows || [];
