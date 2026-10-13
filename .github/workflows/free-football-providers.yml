@@ -64,8 +64,8 @@ jobs:
         run: deno test supabase/tests/free_football_test.ts
       - name: Check Edge entrypoints
         run: |
-          deno check supabase/functions/daily-pronos/index.ts
-          deno check supabase/functions/live/index.ts
+          deno check --node-modules-dir=auto supabase/functions/daily-pronos/index.ts
+          deno check --node-modules-dir=auto supabase/functions/live/index.ts
 
   provider-smoke:
     runs-on: ubuntu-latest
@@ -91,6 +91,19 @@ jobs:
 
           sport = f.fetch_sportscore_day(session, today)
           print("SPORTSCORE_OK", len(sport))
+          if sport:
+              raw0 = sport[0].get("raw") if isinstance(sport[0].get("raw"), dict) else {}
+              print("SPORTSCORE_SAMPLE_KEYS", sorted(raw0.keys()))
+              print("SPORTSCORE_SAMPLE_SLUGISH", {
+                  key: raw0.get(key)
+                  for key in raw0
+                  if "slug" in key.lower() or "url" in key.lower() or "link" in key.lower()
+              })
+              print("SPORTSCORE_SAMPLE_ODDSISH", {
+                  key: raw0.get(key)
+                  for key in raw0
+                  if "odd" in key.lower() or "market" in key.lower()
+              })
           sport_detail_match = next(
               (x for x in sport if x.get("provider_slug") and x.get("state") in {"in", "post"}),
               next((x for x in sport if x.get("provider_slug")), None),
@@ -99,12 +112,18 @@ jobs:
               detail = f.fetch_sportscore_detail(session, sport_detail_match["provider_slug"])
               enrichment = f.extract_sportscore_enrichment(detail)
               print("SPORTSCORE_DETAIL_OK", sport_detail_match["provider_slug"], {
-                  "keys": sorted(detail.keys())[:20] if isinstance(detail, dict) else [],
+                  "keys": sorted(detail.keys())[:40] if isinstance(detail, dict) else [],
                   "home_lineup": len((enrichment.get("lineups") or {}).get("home") or []),
                   "goals": len(enrichment.get("goals") or []),
                   "timeline": len(enrichment.get("timeline") or []),
                   "home_stats": len((enrichment.get("stats") or {}).get("home") or {}),
               })
+              if isinstance(detail, dict):
+                  print("SPORTSCORE_DETAIL_ODDSISH", {
+                      key: detail.get(key)
+                      for key in detail
+                      if "odd" in key.lower() or "market" in key.lower()
+                  })
 
           tsdb = f.fetch_thesportsdb_day(session, today)
           print("THESPORTSDB_OK", len(tsdb))
