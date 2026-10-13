@@ -322,7 +322,7 @@ export async function fetchFreeFixturesForDate(date: string) {
   const [sportscoreResult, tsdbResult, openligaResult] = await Promise.allSettled([
     getJson(
       SPORTSCORE_FIXTURES,
-      { sport: "football", date, limit: "300", src: "mrxpronos" },
+      { sport: "football", date, limit: "200", src: "mrxpronos" },
       180_000,
     ),
     getJson(
