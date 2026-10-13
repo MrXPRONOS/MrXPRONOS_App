@@ -3279,3 +3279,398 @@ body.mx-overlay-open{
     padding-right:8px!important;
   }
 }
+
+
+/* =======================================================
+ PRONOSTIC — PREMIUM SHARE CHOOSER
+======================================================= */
+.pronostic-share-popup{
+  z-index:2147483460!important;
+}
+
+.pronostic-share-sheet{
+  width:min(520px,100%)!important;
+  max-width:520px!important;
+  padding:24px!important;
+  text-align:left!important;
+  overflow:visible auto!important;
+}
+
+.pronostic-share-close{
+  position:absolute;
+  top:12px;
+  right:12px;
+  width:40px;
+  height:40px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:12px;
+  background:rgba(5,14,23,.86);
+  color:#d9dee5;
+  font-family:inherit;
+  font-size:25px;
+  line-height:1;
+  cursor:pointer;
+  z-index:3;
+  transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease;
+}
+
+.pronostic-share-close:hover{
+  color:var(--mx-popup-gold-soft);
+  border-color:var(--mx-popup-line-strong);
+  background:rgba(224,184,91,.08);
+  transform:translateY(-1px);
+}
+
+.pronostic-share-kicker{
+  margin:0 48px 6px 0;
+  color:var(--mx-popup-gold);
+  font-size:.64rem;
+  font-weight:850;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+.pronostic-share-sheet h3{
+  margin:0 48px 5px 0!important;
+  color:#fff!important;
+  font-size:1.34rem!important;
+  font-weight:850!important;
+  line-height:1.17!important;
+}
+
+.pronostic-share-subtitle{
+  margin:0 0 16px!important;
+  color:var(--mx-popup-muted)!important;
+  font-size:.8rem!important;
+  line-height:1.45!important;
+}
+
+.pronostic-share-preview{
+  padding:14px;
+  border:1px solid rgba(224,184,91,.18);
+  border-radius:17px;
+  background:
+    radial-gradient(circle at 88% -12%,rgba(224,184,91,.11),transparent 36%),
+    rgba(255,255,255,.025);
+}
+
+.pronostic-share-teams{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+}
+
+.pronostic-share-team{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.pronostic-share-team--away{
+  flex-direction:row-reverse;
+  text-align:right;
+}
+
+.pronostic-share-team img{
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  object-fit:contain;
+  border-radius:10px;
+  background:rgba(255,255,255,.035);
+}
+
+.pronostic-share-team span{
+  min-width:0;
+  color:#f2f5f8;
+  font-size:.8rem;
+  font-weight:800;
+  line-height:1.25;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.pronostic-share-vs{
+  color:#697483;
+  font-size:.62rem;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
+.pronostic-share-pick{
+  margin-top:12px;
+  padding-top:11px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  border-top:1px solid rgba(255,255,255,.065);
+}
+
+.pronostic-share-pick-label{
+  color:var(--mx-popup-gold);
+  font-size:.58rem;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+
+.pronostic-share-pick strong{
+  color:#fff!important;
+  font-size:.84rem;
+  font-weight:850;
+}
+
+.pronostic-share-confidence{
+  margin-left:auto;
+  min-height:25px;
+  padding:4px 8px;
+  align-items:center;
+  border:1px solid rgba(224,184,91,.2);
+  border-radius:999px;
+  background:rgba(224,184,91,.07);
+  color:#ecd081;
+  font-size:.64rem;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.pronostic-share-options{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:14px;
+}
+
+.pronostic-share-option{
+  width:100%;
+  min-width:0;
+  min-height:74px;
+  padding:11px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid rgba(255,255,255,.075);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.015));
+  color:#fff;
+  font-family:inherit;
+  text-align:left;
+  cursor:pointer;
+  touch-action:manipulation;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease,box-shadow .18s ease;
+}
+
+.pronostic-share-option:hover,
+.pronostic-share-option:focus-visible{
+  transform:translateY(-2px);
+  border-color:rgba(224,184,91,.36);
+  background:rgba(224,184,91,.055);
+  box-shadow:0 12px 28px rgba(0,0,0,.22);
+}
+
+.pronostic-share-icon{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:13px;
+  background:rgba(255,255,255,.035);
+}
+
+.pronostic-share-icon img{
+  width:27px;
+  height:27px;
+  object-fit:contain;
+}
+
+.pronostic-share-option-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+
+.pronostic-share-option-copy strong{
+  color:#fff!important;
+  font-size:.83rem;
+  font-weight:850;
+  line-height:1.2;
+}
+
+.pronostic-share-option-copy small{
+  color:#98a3b1;
+  font-size:.64rem;
+  line-height:1.25;
+}
+
+.pronostic-share-arrow{
+  margin-left:auto;
+  color:var(--mx-popup-gold-soft);
+  font-size:1rem;
+  font-weight:900;
+}
+
+.pronostic-share-cancel{
+  width:100%;
+  min-height:42px;
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+  color:#b9c1cc;
+  font-family:inherit;
+  font-size:.72rem;
+  font-weight:800;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+
+.pronostic-share-cancel:hover{
+  color:#fff;
+  border-color:rgba(224,184,91,.22);
+  background:rgba(224,184,91,.045);
+}
+
+.pronostic-share-close:focus-visible,
+.pronostic-share-option:focus-visible,
+.pronostic-share-cancel:focus-visible{
+  outline:2px solid var(--mx-popup-gold-soft);
+  outline-offset:3px;
+}
+
+@media(max-width:700px){
+  .pronostic-share-sheet{
+    padding:20px 14px calc(14px + env(safe-area-inset-bottom))!important;
+    max-height:calc(88dvh - env(safe-area-inset-bottom))!important;
+  }
+
+  .pronostic-share-close{
+    top:11px;
+    right:10px;
+    width:36px;
+    height:36px;
+    border-radius:11px;
+    font-size:23px;
+  }
+
+  .pronostic-share-kicker{
+    margin-right:42px;
+    font-size:.57rem;
+  }
+
+  .pronostic-share-sheet h3{
+    margin-right:42px!important;
+    font-size:1.08rem!important;
+  }
+
+  .pronostic-share-subtitle{
+    margin-bottom:12px!important;
+    font-size:.72rem!important;
+  }
+
+  .pronostic-share-preview{
+    padding:11px;
+    border-radius:14px;
+  }
+
+  .pronostic-share-team{
+    gap:7px;
+  }
+
+  .pronostic-share-team img{
+    width:32px;
+    height:32px;
+    flex-basis:32px;
+    border-radius:9px;
+  }
+
+  .pronostic-share-team span{
+    font-size:.72rem;
+  }
+
+  .pronostic-share-pick{
+    margin-top:9px;
+    padding-top:9px;
+    gap:6px;
+  }
+
+  .pronostic-share-pick strong{
+    font-size:.77rem;
+  }
+
+  .pronostic-share-confidence{
+    min-height:23px;
+    padding:3px 7px;
+    font-size:.59rem;
+  }
+
+  .pronostic-share-options{
+    grid-template-columns:1fr;
+    gap:7px;
+    margin-top:10px;
+  }
+
+  .pronostic-share-option{
+    min-height:58px;
+    padding:8px 10px;
+    border-radius:14px;
+  }
+
+  .pronostic-share-icon{
+    width:38px;
+    height:38px;
+    flex-basis:38px;
+    border-radius:11px;
+  }
+
+  .pronostic-share-icon img{
+    width:24px;
+    height:24px;
+  }
+
+  .pronostic-share-option-copy strong{
+    font-size:.78rem;
+  }
+
+  .pronostic-share-option-copy small{
+    font-size:.6rem;
+  }
+
+  .pronostic-share-cancel{
+    min-height:38px;
+    margin-top:8px;
+    font-size:.68rem;
+  }
+}
+
+@media(max-width:345px){
+  .pronostic-share-sheet{
+    padding-left:11px!important;
+    padding-right:11px!important;
+  }
+
+  .pronostic-share-teams{
+    gap:6px;
+  }
+
+  .pronostic-share-team img{
+    width:29px;
+    height:29px;
+    flex-basis:29px;
+  }
+
+  .pronostic-share-team span{
+    font-size:.67rem;
+  }
+
+  .pronostic-share-confidence{
+    margin-left:0;
+  }
+}
