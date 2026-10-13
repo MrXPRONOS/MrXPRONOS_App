@@ -14,11 +14,13 @@ from __future__ import annotations
 
 import html
 import io
+import json
 import math
 import os
 import re
 import tempfile
 import unicodedata
+import xml.etree.ElementTree as ET
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -32,7 +34,25 @@ from football_stats_engine import daily_insight
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
 PEXELS_API = "https://api.pexels.com/v1/search"
 PIXABAY_API = "https://pixabay.com/api/"
-USER_AGENT = "MrXPRONOS-Viral/1.0 (+https://mrxpronos.github.io/MrXPRONOS_App/)"
+YOUTUBE_FEED = "https://www.youtube.com/feeds/videos.xml"
+USER_AGENT = "MrXPRONOS-Viral/1.1 (+https://mrxpronos.github.io/MrXPRONOS_App/)"
+
+# Chaînes vérifiées et officielles. Le média YouTube n'est jamais téléchargé :
+# nous publions uniquement une création Mr XPRONOS + un lien vers la vidéo officielle.
+DEFAULT_OFFICIAL_YOUTUBE_CHANNELS = (
+    ("Premier League", "UCG5qGWdu8nIRZqJ_GgDwQ-w"),
+    ("Ligue 1", "UCLhLnI5xG-s-FXV4NNvBAYA"),
+)
+VIRAL_VIDEO_TERMS = (
+    "reaction", "interview", "behind", "celebration", "celebrating", "fans",
+    "supporters", "tifo", "atmosphere", "highlights", "goals", "goal",
+    "skills", "training", "inside", "mic'd", "micd",
+)
+
+MEDIA_CACHE_PATH = Path(
+    os.getenv("FOOTBALL_VIRAL_MEDIA_CACHE", ".state/mrxpronos-football-media.json")
+)
+MEDIA_CACHE_TTL = timedelta(hours=24)
 
 ALLOWED_COMMONS_LICENSE_MARKERS = (
     "cc0",
@@ -40,9 +60,16 @@ ALLOWED_COMMONS_LICENSE_MARKERS = (
     "pd-",
     "cc by",
     "cc-by",
-    "cc by-sa",
-    "cc-by-sa",
     "creative commons attribution",
+)
+# Le fond est recadré, assombri, animé et combiné avec nos éléments graphiques.
+# On exclut donc volontairement les licences ShareAlike/NC/ND pour éviter de
+# transformer l'animation complète en œuvre soumise à des obligations
+# supplémentaires incompatibles avec notre diffusion automatisée.
+BLOCKED_COMMONS_LICENSE_MARKERS = (
+    "by-sa", "by sa", "sharealike", "share alike",
+    "noncommercial", "non-commercial", " nc", "nc-",
+    "noderivatives", "no derivatives", " nd", "nd-",
 )
 
 W = H = 640
@@ -123,6 +150,8 @@ def _commons_license_allowed(meta: dict) -> bool:
     license_name = _meta_value(meta, "LicenseShortName").casefold()
     if not license_name:
         return False
+    if any(marker in license_name for marker in BLOCKED_COMMONS_LICENSE_MARKERS):
+        return False
     return any(marker in license_name for marker in ALLOWED_COMMONS_LICENSE_MARKERS)
 
 
@@ -193,6 +222,7 @@ def fetch_commons_image(session: requests.Session, query: str) -> dict:
             "credit": attribution,
             "license": license_name,
             "license_url": license_url,
+            "modified": True,
         }))
     if not candidates:
         return {}
@@ -233,14 +263,62 @@ def fetch_pexels_image(session: requests.Session, query: str) -> dict:
                 "credit": photographer or "Pexels contributor",
                 "license": "Pexels License",
                 "license_url": "https://www.pexels.com/license/",
+                "modified": True,
             }
     return {}
 
 
+def _load_media_cache() -> dict:
+    try:
+        payload = json.loads(MEDIA_CACHE_PATH.read_text(encoding="utf-8"))
+        return payload if isinstance(payload, dict) else {}
+    except (OSError, ValueError, TypeError):
+        return {}
+
+
+def _save_media_cache(payload: dict) -> None:
+    try:
+        MEDIA_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        tmp = MEDIA_CACHE_PATH.with_suffix(MEDIA_CACHE_PATH.suffix + ".tmp")
+        tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        tmp.replace(MEDIA_CACHE_PATH)
+    except OSError:
+        # Le cache améliore la conformité/efficacité mais ne doit pas casser
+        # tout le moteur si le filesystem est en lecture seule.
+        pass
+
+
+def _cached_provider_media(provider: str, query: str) -> dict | None:
+    cache = _load_media_cache()
+    item = cache.get(provider + ":" + _norm(query))
+    if not isinstance(item, dict):
+        return None
+    fetched = moment(item.get("fetched_at"))
+    if not fetched or datetime.now(timezone.utc) - fetched >= MEDIA_CACHE_TTL:
+        return None
+    media = item.get("media")
+    return media if isinstance(media, dict) else {}
+
+
+def _remember_provider_media(provider: str, query: str, media: dict) -> None:
+    cache = _load_media_cache()
+    cache[provider + ":" + _norm(query)] = {
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+        "media": media if isinstance(media, dict) else {},
+    }
+    _save_media_cache(cache)
+
+
 def fetch_pixabay_image(session: requests.Session, query: str) -> dict:
+    """Pixabay exige que les requêtes API soient mises en cache pendant 24 h."""
     key = (os.getenv("PIXABAY_API_KEY") or "").strip()
     if not key:
         return {}
+    cached = _cached_provider_media("pixabay", query)
+    if cached is not None:
+        return cached
+
+    media: dict = {}
     try:
         response = session.get(
             PIXABAY_API,
@@ -259,30 +337,111 @@ def fetch_pixabay_image(session: requests.Session, query: str) -> dict:
         response.raise_for_status()
         payload = response.json()
     except (requests.RequestException, ValueError):
+        _remember_provider_media("pixabay", query, {})
         return {}
+
     hits = payload.get("hits") if isinstance(payload, dict) else None
-    if not isinstance(hits, list):
-        return {}
-    for item in hits:
-        if not isinstance(item, dict):
+    if isinstance(hits, list):
+        for item in hits:
+            if not isinstance(item, dict):
+                continue
+            url = plain(item.get("largeImageURL") or item.get("webformatURL"), 1000)
+            page = plain(item.get("pageURL"), 1000)
+            author = plain(item.get("user"), 100)
+            tags = _norm(item.get("tags"))
+            # Éviter les résultats manifestement hors football malgré le mot-clé.
+            if not any(word in tags for word in ("football", "soccer", "stadium", "ball", "pitch")):
+                continue
+            if url.startswith("https://") and page.startswith("https://"):
+                media = {
+                    "provider": "Pixabay",
+                    "url": url,
+                    "page_url": page,
+                    "credit": author or "Pixabay contributor",
+                    "license": "Pixabay Content License",
+                    "license_url": "https://pixabay.com/service/license-summary/",
+                    "modified": True,
+                }
+                break
+
+    _remember_provider_media("pixabay", query, media)
+    return media
+
+
+def official_youtube_channels() -> list[tuple[str, str]]:
+    """Chaînes officielles vérifiées + extensions optionnelles via JSON d'env."""
+    channels = list(DEFAULT_OFFICIAL_YOUTUBE_CHANNELS)
+    raw = (os.getenv("FOOTBALL_OFFICIAL_YOUTUBE_CHANNELS") or "").strip()
+    if raw:
+        try:
+            extra = json.loads(raw)
+        except ValueError:
+            extra = {}
+        if isinstance(extra, dict):
+            for label, channel_id in extra.items():
+                label = plain(label, 80)
+                channel_id = plain(channel_id, 80)
+                if label and re.fullmatch(r"UC[A-Za-z0-9_-]{20,}", channel_id):
+                    channels.append((label, channel_id))
+    # Déduplication stable.
+    seen, out = set(), []
+    for label, channel_id in channels:
+        if channel_id in seen:
             continue
-        url = plain(item.get("largeImageURL") or item.get("webformatURL"), 1000)
-        page = plain(item.get("pageURL"), 1000)
-        author = plain(item.get("user"), 100)
-        tags = _norm(item.get("tags"))
-        # Éviter les résultats manifestement hors football malgré le mot-clé.
-        if not any(word in tags for word in ("football", "soccer", "stadium", "ball", "pitch")):
+        seen.add(channel_id)
+        out.append((label, channel_id))
+    return out
+
+
+def fetch_official_youtube_videos(
+    session: requests.Session,
+    now: datetime,
+    *,
+    max_age_hours: int = 24,
+) -> list[dict]:
+    """Découvre des vidéos récentes de chaînes officielles sans télécharger le média."""
+    ns = {
+        "atom": "http://www.w3.org/2005/Atom",
+        "yt": "http://www.youtube.com/xml/schemas/2015",
+    }
+    rows = []
+    for source, channel_id in official_youtube_channels():
+        try:
+            response = session.get(
+                YOUTUBE_FEED,
+                params={"channel_id": channel_id},
+                headers={"User-Agent": USER_AGENT},
+                timeout=(7, 20),
+            )
+            response.raise_for_status()
+            root = ET.fromstring(response.content)
+        except (requests.RequestException, ET.ParseError, OSError, ValueError):
             continue
-        if url.startswith("https://") and page.startswith("https://"):
-            return {
-                "provider": "Pixabay",
-                "url": url,
-                "page_url": page,
-                "credit": author or "Pixabay contributor",
-                "license": "Pixabay Content License",
-                "license_url": "https://pixabay.com/service/license-summary/",
-            }
-    return {}
+
+        for entry in root.findall("atom:entry", ns):
+            video_id = plain(entry.findtext("yt:videoId", default="", namespaces=ns), 40)
+            title = plain(entry.findtext("atom:title", default="", namespaces=ns), 220)
+            published = moment(entry.findtext("atom:published", default="", namespaces=ns))
+            if not video_id or not title or not published:
+                continue
+            if now - published > timedelta(hours=max_age_hours) or published > now + timedelta(minutes=10):
+                continue
+            norm_title = _norm(title)
+            viral_score = sum(1 for term in VIRAL_VIDEO_TERMS if term in norm_title)
+            if viral_score <= 0:
+                continue
+            rows.append({
+                "provider": "YouTube",
+                "source": source,
+                "channel_id": channel_id,
+                "video_id": video_id,
+                "title": title,
+                "published": published.isoformat(),
+                "viral_score": viral_score,
+                "url": "https://www.youtube.com/watch?v=" + video_id,
+            })
+    rows.sort(key=lambda x: (int(x.get("viral_score") or 0), moment(x.get("published")) or datetime.min.replace(tzinfo=timezone.utc)), reverse=True)
+    return rows
 
 
 def choose_licensed_background(session: requests.Session, query: str) -> dict:
@@ -492,6 +651,22 @@ def render_animation(
                 size=20, fill=muted, max_width=520, max_lines=4, gap=8
             )
 
+        elif kind == "official_video":
+            draw.text((W // 2, 112), "🎥 VIDÉO OFFICIELLE", font=_font(30, True), fill=gold, anchor="ma")
+            end_y = _draw_centered(
+                draw, plain(payload.get("title"), 230), 190,
+                size=34, bold=True, fill=white, max_width=550, max_lines=4, gap=10
+            )
+            draw.rounded_rectangle(
+                (120, min(end_y + 34, 440), W - 120, min(end_y + 92, 498)),
+                radius=20, fill=(6, 22, 35, 205), outline=(224, 166, 54, 140)
+            )
+            draw.text(
+                (W // 2, min(end_y + 52, 458)),
+                plain(payload.get("source"), 75),
+                font=_font(20, True), fill=muted, anchor="ma"
+            )
+
         else:
             draw.text((W // 2, 112), "📊 STAT QUI CLAQUE", font=_font(30, True), fill=gold, anchor="ma")
             _draw_centered(
@@ -539,6 +714,8 @@ def _licensed_media_for_payload(session: requests.Session, kind: str) -> dict:
         query = "association football stadium pitch grass"
     elif kind == "news_pulse":
         query = "football stadium lights pitch"
+    elif kind == "official_video":
+        query = "empty football stadium pitch lights"
     else:
         query = "soccer ball football pitch grass"
     return choose_licensed_background(session, query)
@@ -593,7 +770,29 @@ def build_viral_payload(
         payload["media"] = _licensed_media_for_payload(session, payload["kind"])
         return payload
 
-    # 2) News récente à fort score éditorial.
+    # 2) Vidéo d'une chaîne officielle : jamais téléchargée, uniquement liée.
+    official_videos = fetch_official_youtube_videos(session, now)
+    if official_videos:
+        video = official_videos[0]
+        payload = {
+            "kind": "official_video",
+            "key": "viral-youtube:" + plain(video.get("video_id"), 40),
+            "title": plain(video.get("title"), 230),
+            "source": plain(video.get("source"), 80),
+            "caption": (
+                "🎥 <b>VIDÉO OFFICIELLE</b>\n\n"
+                + "<b>" + html.escape(plain(video.get("title"), 240), quote=False) + "</b>\n\n"
+                + "<i>Source officielle : " + html.escape(plain(video.get("source"), 80), quote=False)
+                + " sur YouTube</i>\n"
+                + "▶️ La vidéo reste hébergée chez son éditeur : nous ne la téléchargeons pas."
+            ),
+            "data_source": "YouTube / " + plain(video.get("source"), 80),
+            "target_url": plain(video.get("url"), 500),
+        }
+        payload["media"] = _licensed_media_for_payload(session, payload["kind"])
+        return payload
+
+    # 3) News récente à fort score éditorial.
     ranked_news = []
     for item in news:
         if not isinstance(item, dict):
@@ -629,7 +828,7 @@ def build_viral_payload(
         payload["media"] = _licensed_media_for_payload(session, payload["kind"])
         return payload
 
-    # 3) Statistique fiable comme dernier format.
+    # 4) Statistique fiable comme dernier format.
     insight = daily_insight(session, now.date())
     if insight and int(insight.get("confidence") or 0) >= 70:
         payload = {
@@ -663,9 +862,16 @@ def media_credit_text(payload: dict) -> str:
     credit = plain(media.get("credit"), 100)
     license_name = plain(media.get("license"), 80)
     parts = [part for part in (credit, provider, license_name) if part]
+    if media.get("modified"):
+        parts.append("adapté par Mr XPRONOS")
     return " • ".join(parts)
 
 
 def media_credit_url(payload: dict) -> str:
     media = payload.get("media") if isinstance(payload.get("media"), dict) else {}
     return plain(media.get("page_url"), 600)
+
+
+def media_license_url(payload: dict) -> str:
+    media = payload.get("media") if isinstance(payload.get("media"), dict) else {}
+    return plain(media.get("license_url"), 600)

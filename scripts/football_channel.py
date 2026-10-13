@@ -35,6 +35,7 @@ from football_match_lifecycle import lifecycle_signals  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
     build_viral_payload, render_animation, media_credit_text, media_credit_url,
+    media_license_url,
 )
 from football_community_engine import (  # noqa: E402
     build_match_vote,
@@ -914,6 +915,9 @@ def viral_publication(
     credit_url = media_credit_url(payload)
     if credit_url.startswith("https://"):
         buttons.append([{"text": "Crédit média ↗", "url": credit_url}])
+    license_url = media_license_url(payload)
+    if license_url.startswith("https://") and license_url != credit_url:
+        buttons.append([{"text": "Licence ↗", "url": license_url}])
 
     return Publication(
         "viral",
