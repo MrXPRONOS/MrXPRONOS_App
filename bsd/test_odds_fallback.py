@@ -88,6 +88,17 @@ class RouterTests(unittest.TestCase):
         self.assertIn("pinnwire",router.disabled)
         self.assertEqual(session.calls,2)
 
+    def test_fallback_if_first_provider_has_wrong_market(self):
+        session=FakeSession([FakeResponse(200,{"matches":[{
+            **ROW,"in_play":False,"quotes":[{"group_name":"Goals Over/Under",
+                "side":"O","line":"2.5","odds_dec":1.91}]}]})])
+        router=OddsRouter(lambda event,at: ({"1X2_HOME_FT":{"odds":1.50}}, {}),
+                          session=session, order=("goaldir","moviodds"))
+        with patch.dict(os.environ,{"MOVIODDS_ENABLE":"1"}):
+            out,diag=router.fetch(EVENT,NOW,market_code="OU_2.5_OVER_FT")
+        self.assertEqual(diag["provider"],"moviodds")
+        self.assertEqual(out["OU_2.5_OVER_FT"]["odds"],1.91)
+
     def test_all_unavailable_returns_empty_not_fake_quote(self):
         router=OddsRouter(lambda ev,at: ({},{}),order=("goaldir",))
         result,diag=router.fetch(EVENT,NOW)
