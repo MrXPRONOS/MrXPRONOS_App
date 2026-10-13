@@ -33,7 +33,8 @@ TEMPLATES = {
 }
 
 TEMPLATE_SIZES = {
-    "composition": (1374, 1145),
+    "composition": (1080, 1350),
+    **{name: (1080, 1350) for name in ("kickoff", "goal", "mi_temps", "score_update", "statistique_avancee", "community_vote", "quiz", "debat", "reaction", "suivi_interrompu")},
 }
 
 WHITE = "#F7F9FC"
@@ -1418,6 +1419,14 @@ RENDERERS = {
 
 
 def render(category: str, payload: dict[str, Any]) -> Image.Image:
+    # Single pass: all decoration is baked into the blank background;
+    # the new renderer only draws verified dynamic fields and logos.
+    from arty_football_templates import SUPPORTED as ARTY_CATEGORIES, overlay
+    if category in ARTY_CATEGORIES:
+        image = overlay(category, payload)
+        if image.size != (1080, 1350):
+            raise AssertionError("Arty Football graphic must be 1080x1350")
+        return image
     renderer = RENDERERS.get(category)
     if renderer is None:
         raise ValueError("Rubrique sans template: " + category)

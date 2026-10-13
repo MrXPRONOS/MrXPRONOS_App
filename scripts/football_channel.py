@@ -450,9 +450,10 @@ class Sender:
             if item.card:
                 from football_cards import render_card
                 with tempfile.TemporaryDirectory(prefix="xpronos-poll-") as tmp:
-                    graphic = render_card(
-                        "sondage", item.card, Path(tmp) / "sondage.png"
+                    style = item.category if item.category in {"quiz", "reaction"} else (
+                        "community_vote" if item.key.startswith("community-vote:") else "sondage"
                     )
+                    graphic = render_card(style, item.card, Path(tmp) / "sondage.png")
                     post_photo(
                         self.session, self.token, self.chat, graphic,
                         "<h3>🗳️ LE DÉBAT DU JOUR • MR XPRONOS</h3><p><i>Votez dans le sondage ci-dessous.</i></p>",
@@ -970,7 +971,7 @@ def statistique_avancee(session: requests.Session, reference_day: date) -> Publi
         + ":"
         + plain(insight.get("kind"), 60)
     )
-    return Publication("statistique", key, post_label(message))
+    return Publication("statistique", key, post_label(message), card={"headline": headline, "title": title, "league": insight.get("league"), "source": source, "lines": lines, "value": insight.get("value") or "", "kind": insight.get("kind"), "confidence": confidence})
 
 
 def statistique(events: list[dict], reference_day: date) -> Publication | None:
@@ -1033,6 +1034,9 @@ def community_vote_publication(events: list[dict], now: datetime) -> Publication
             + " • Vote avant le coup d'envoi • Mr XPRONOS"
         ),
         poll_allows_revoting=True,
+        card={"home": payload.get("home"), "away": payload.get("away"),
+              "league": payload.get("league"), "question": question,
+              "options": options},
     )
 
 
@@ -1060,6 +1064,7 @@ def community_quiz_publication(session: requests.Session, day: date) -> Publicat
         ),
         poll_shuffle=True,
         poll_allows_revoting=False,
+        card={"question": question, "options": options, "league": payload.get("league"), "source": payload.get("source")},
     )
 
 
@@ -1093,6 +1098,7 @@ def community_debate_publication(news: list[dict], day: date) -> Publication | N
         plain(payload.get("key"), 180),
         post_label(message),
         keyboard=keyboard,
+        card={"headline": title, "question": title, "summary": summary, "source": source},
     )
 
 
@@ -1115,6 +1121,7 @@ def community_reaction_publication(events: list[dict], now: datetime) -> Publica
             + " • Note le match • Mr XPRONOS"
         ),
         poll_allows_revoting=True,
+        card={"question": question, "reaction": question, "league": payload.get("league"), "score": payload.get("score"), "home": payload.get("home"), "away": payload.get("away")},
     )
 
 
@@ -1282,6 +1289,12 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "<p><i>Source live : " + esc(source) + "</i></p>"
         )
 
+    if card is None:
+        card = {"home": home, "away": away, "competition": competition,
+                "league": competition, "source": source, "score": plain(signal.get("score") or ""),
+                "minute": signal.get("minute"), "home_logo": plain(signal.get("home_logo") or "", 500),
+                "away_logo": plain(signal.get("away_logo") or "", 500), "goal": signal.get("goal") or {},
+                "time": plain(signal.get("time") or "", 40)}
     return Publication(
         kind,
         str(signal.get("key") or ""),
@@ -1303,7 +1316,8 @@ def followed_interruption_publication(signal: dict) -> Publication | None:
         " Nous arrêtons les alertes de ce match tant que sa reprise n'est pas confirmée.</p>"
         "<p><i>Statut : " + esc(detail or "changement signalé") + "</i></p>"
     )
-    return Publication("suivi_interrompu", str(signal.get("key") or ""), post_label(text))
+    return Publication("suivi_interrompu", str(signal.get("key") or ""), post_label(text),
+                       card={"home": home, "away": away, "league": signal.get("league"), "source": signal.get("source"), "status": detail, "home_logo": signal.get("home_logo"), "away_logo": signal.get("away_logo")})
 
 
 def followed_final_publication(signal: dict) -> Publication | None:

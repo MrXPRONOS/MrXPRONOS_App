@@ -35,11 +35,11 @@ const OFFICIAL_CONTACTS = {
 const BUSINESS_CONFIG = {
   promo_code: "XPVIP",
   vip: {
-    enabled: true,
-    price_fcfa: 5000,
+    enabled: false,
+    price_fcfa: 0,
     duration_label: "par mois",
     has_24h_offer: false,
-    has_free_coupons: false,
+    has_free_coupons: true,
     live_url: `${BASE_URL}/live.html`
   },
   support: {
@@ -118,15 +118,20 @@ function shortenText(text: string, max = 20000): string {
 }
 
 function detectIntent(question: string) {
-  const q = normalizeQuestion(question);
-
-  if (VIP_KEYWORDS.some(k => q.includes(k))) return "vip";
-  if (LIVE_KEYWORDS.some(k => q.includes(k))) return "live";
-  if (BONUS_KEYWORDS.some(k => q.includes(k))) return "bonus";
-  if (SUPPORT_KEYWORDS.some(k => q.includes(k))) return "support";
-  if (/^(qu['’]est[- ]ce que|que signifie|c['’]est quoi|définition de|definition de|comment lire|quelle est la différence entre|quelle est la difference entre)\b/.test(q)) return "generic";
-  if (RESULT_KEYWORDS.some(k => q.includes(k))) return "results";
-  if (PRONO_KEYWORDS.some(k => q.includes(k))) return "prono";
+  const q=normalizeQuestion(question).normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  // Safety has priority over marketing and betting-related keywords.
+  if (/\b(1[0-7]\s*ans|mineur|moins de 18|pas majeur|enfant|adolescent)\b/.test(q)) return "underage";
+  if (/(\bperdu\b.*\b(argent|fcfa|cfa|euro|paris|mise)\b|me refaire|recuperer mes pertes|dettes de jeu)/.test(q)) return "harm";
+  if (/\b(gratuit|gratuite|payer|payant|abonnement|tarif|cout|coute|prix|acces|accessible|sans code|sans abonnement)\b/.test(q) &&
+      /\b(vip|live|pronostic|prono|pro)\b/.test(q)) return "access";
+  if (/\b(momentum|pression|xg|xa|btts|corners?|plus de 2|over|under|1x2|double chance|handicap|statistiques|en attente|valide)\b/.test(q) &&
+      /(que signifie|qu.est.ce|c.est quoi|explique|comment lire|quelle difference|definition|comment interpreter|comprendr|en ewe)/.test(q)) return "knowledge";
+  if (/\b(bonus|promo|promotion|xpvip|1xbet|1win|betwinner|melbet|linebet|betclic)\b/.test(q)) return "bonus";
+  if (/\b(contact|whatsapp|telegram|telephone|instagram|youtube|facebook|threads|support|aide)\b/.test(q)) return "support";
+  if (/\b(live|direct|momentum|pression|signaux)\b/.test(q)) return "live";
+  if (/\b(historique|hier|resultats?|valides?|gagnes?|perdu|echoue|roi|semaine|sept derniers jours)\b/.test(q)) return "results";
+  if (/\b(pronos?|pronostics?|coupons?|matchs?|rencontres?|demain|ce soir|venir|calendrier|simple|pro)\b/.test(q)) return "prono";
+  if (/\b(bonjour|salut|coucou|hello|bonsoir)\b/.test(q)) return "greeting";
   return "generic";
 }
 
@@ -200,37 +205,15 @@ function cleanModelHtmlOutput(html: string): string {
 // ==== Réponses déterministes (HTML) ====
 
 function renderVipResponse(): string {
-  return `
-    <h3>🔐 Accès VIP</h3>
-    <p>Le <strong>PRONO LIVE</strong> est accessible avec un code VIP actif.</p>
-    <p><strong>Tarif actuel :</strong> ${BUSINESS_CONFIG.vip.price_fcfa.toLocaleString("fr-FR")} F CFA ${BUSINESS_CONFIG.vip.duration_label}.</p>
-    <p>Pour obtenir ou activer ton accès VIP, passe uniquement par nos canaux officiels :</p>
-    <ul>
-      <li><a href="${BUSINESS_CONFIG.support.whatsapp}" target="_blank">WhatsApp</a></li>
-      <li><a href="${BUSINESS_CONFIG.support.telegram}" target="_blank">Telegram</a></li>
-    </ul>
-    <p><a href="${BUSINESS_CONFIG.vip.live_url}" target="_blank">Accéder à la page PRONO LIVE</a></p>
-  `.trim();
+  return '<h3>Accès aux pronostics VIP</h3><p>Sur le site officiel Mr XPRONOS, les pronostics Simple, Pro et VIP sont en <strong>accès gratuit</strong>. Le code promo XPVIP est destiné aux offres de partenaires quand il est accepté, et n’est pas un mot de passe pour consulter les pronostics.</p><p><a href="'+BASE_URL+'/pronos.html">Consulter les pronostics</a> · <a href="'+BASE_URL+'/live.html">Ouvrir le LIVE</a></p>';
 }
-
 function renderLiveResponse(): string {
-  return `
-    <h3>🔴 PRONO LIVE</h3>
-    <p>Le <strong>PRONO LIVE</strong> te donne accès aux signaux et statistiques en direct.</p>
-    <p>Pour y accéder, il te faut un code VIP actif.</p>
-    <p><strong>Tarif actuel :</strong> ${BUSINESS_CONFIG.vip.price_fcfa.toLocaleString("fr-FR")} F CFA ${BUSINESS_CONFIG.vip.duration_label}.</p>
-    <ul>
-      <li><a href="${BUSINESS_CONFIG.support.whatsapp}" target="_blank">WhatsApp</a></li>
-      <li><a href="${BUSINESS_CONFIG.support.telegram}" target="_blank">Telegram</a></li>
-    </ul>
-    <p><a href="${BUSINESS_CONFIG.vip.live_url}" target="_blank">Voir la page PRONO LIVE</a></p>
-  `.trim();
+  return '<h3>LIVE football</h3><p>La page LIVE de Mr XPRONOS est accessible <strong>gratuitement et directement</strong>, sans abonnement VIP ni code payant.</p><p>Les matchs et statistiques peuvent changer en cours de rencontre. Consulte la page officielle pour les données actualisées.</p><p><a href="'+BASE_URL+'/live.html">Voir les matchs et signaux LIVE</a></p>';
 }
-
 function renderSupportResponse(): string {
   return `
     <h3>🛟 Support officiel</h3>
-    <p>Pour toute aide, activation VIP ou question sur le service, passe uniquement par nos canaux officiels :</p>
+    <p>Pour toute aide ou question sur le service, passe uniquement par nos canaux officiels :</p>
     <ul>
       <li><a href="${BUSINESS_CONFIG.support.whatsapp}" target="_blank">WhatsApp</a></li>
       <li><a href="${BUSINESS_CONFIG.support.telegram}" target="_blank">Telegram</a></li>
@@ -507,7 +490,7 @@ const FONCTIONNALITES = `
 1. Pronostics quotidiens : Simple, Pro, VIP.
 2. Analyses avancées : H2H, forme récente, score xPronos.
 3. PRONO LIVE : statistiques et signaux en direct.
-4. Déblocage Pro via partage.
+4. Consultation gratuite des catégories Simple, Pro et VIP.
 5. Assistant IA intégré.
 6. Bonus bookmakers avec code XPVIP.
 7. Historique et taux de réussite.
@@ -794,15 +777,85 @@ function buildSafeFallbackAnswer(intent: string): string {
     `;
   }
 
-  return `
-    <p><strong>Une erreur temporaire est survenue.</strong></p>
-    <p>Essaie à nouveau dans quelques instants.</p>
-    <ul>
-      <li><a href="${BASE_URL}/pronos.html" target="_blank">Pronostics</a></li>
-      <li><a href="${BASE_URL}/bonus.html" target="_blank">Bonus</a></li>
-      <li><a href="${BASE_URL}/contact.html" target="_blank">Contact</a></li>
-    </ul>
-  `;
+  return '<p>Je n’ai pas assez d’informations fiables pour répondre précisément. Peux-tu reformuler ou préciser le sujet ? Je peux aider pour le football, les pronostics, les statistiques, le LIVE et le support.</p><p><a href="'+BASE_URL+'/contact.html">Contacter le support</a></p>';}
+
+
+// Sources publiques déjà utilisées par les pages du site; jamais d'invention de résultat.
+const safeHtml=(value: unknown)=>String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+async function publishedJson(file: string): Promise<any | null> {
+  try {
+    const response=await fetch(BASE_URL+"/"+file,{signal:AbortSignal.timeout(5500),headers:{"Accept":"application/json"}});
+    if(!response.ok) return null;
+    return await response.json();
+  }catch{return null;}
+}
+const publicLink=(file: string,label: string)=>'<a href="'+BASE_URL+'/'+file+'">'+label+'</a>';
+function sourceNote(source: any): string {
+  const ts=source?.generated_at?new Date(source.generated_at).toISOString().replace("T"," ").slice(0,16)+" UTC":"date inconnue";
+  return '<p><small>Source : données publiées sur le site, mise à jour '+safeHtml(ts)+'. Les informations peuvent évoluer.</small></p>';
+}
+async function answerPublishedMatches(question: string): Promise<string> {
+  const feed=await publishedJson("data.json");
+  const link='<p>'+publicLink("pronos.html","Consulter tous les pronostics")+' · '+publicLink("live.html","Matchs LIVE")+'</p>';
+  if(!feed||!Array.isArray(feed.matches)) return '<p>Je ne peux pas vérifier la liste actuelle des matchs. Consulte les pages du site directement.</p>'+link;
+  const q=normalizeQuestion(question);
+  const shift=/demain/.test(q)?1:0;
+  const d=new Date(Date.now()+shift*86400000).toISOString().slice(0,10);
+  let matches=feed.matches.filter((x:any)=>String(x.date||x.event_date||"").slice(0,10)===d);
+  if(/\bsimple\b/.test(q))matches=matches.filter((m:any)=>String(m.category||m.source_category||"").toLowerCase().includes("simple"));
+  if(/\bpro\b/.test(q))matches=matches.filter((m:any)=>String(m.category||m.source_category||"").toLowerCase().includes("pro"));
+  if(/\bvip\b/.test(q))matches=matches.filter((m:any)=>String(m.category||m.source_category||"").toLowerCase().includes("vip"));
+  const label=shift?"demain":"aujourd'hui";
+  if(matches.length===0)return '<p>Je ne trouve aucune entrée publiée pour '+label+' ('+d+') avec ces critères. Cela ne veut pas dire qu’aucun match n’a lieu.</p>'+link+sourceNote(feed);
+  let answer='<p><strong>'+matches.length+' entrée(s) publiée(s)</strong> pour '+label+' ('+d+'). Voici quelques matchs figurant dans les données du site :</p><ul>';
+  answer+=matches.slice(0,8).map((m:any)=>{
+    const home=safeHtml(m.home_team||m.home||"Équipe domicile");
+    const away=safeHtml(m.away_team||m.away||"Équipe extérieur");
+    const cat=safeHtml(m.category||m.source_category||"");
+    return '<li>'+home+' – '+away+(cat?' ('+cat+')':'')+'</li>';
+  }).join("");
+  return answer+'</ul><p>Ce sont des entrées publiées, pas une garantie de sélection encore active ni de victoire.</p>'+link+sourceNote(feed);
+}
+async function answerPublishedHistory(question: string): Promise<string> {
+  const feed=await publishedJson("data.json");
+  const link='<p>'+publicLink("historique.html","Voir les résultats et leur validation sur la page Historique")+'</p>';
+  if(!feed||!Array.isArray(feed.matches)) return '<p>Je ne peux pas vérifier les résultats publiés actuellement.</p>'+link;
+  const q=normalizeQuestion(question);
+  const end=new Date();
+  const from=new Date(end.getTime()-(/\bsemaine\b|7\s*jours|sept derniers jours/.test(q)?7:1)*86400000).toISOString().slice(0,10);
+  const to=(/\bsemaine\b|7\s*jours|sept derniers jours/.test(q)?end:new Date(end.getTime()-86400000)).toISOString().slice(0,10);
+  const entries=feed.matches.filter((m:any)=>{const d=String(m.date||m.event_date||"").slice(0,10);return d>=from&&d<=to;});
+  if(!entries.length)return '<p>Aucune entrée retrouvée dans les données publiées entre le '+from+' et le '+to+'. Je ne peux pas conclure qu’aucun résultat n’existe sans la vérification de la page Historique.</p>'+link;
+  return '<p><strong>'+entries.length+' entrée(s) historique(s)</strong> sont présentes pour la période du '+from+' au '+to+'. Je ne peux pas déduire le nombre de paris gagnés ou le ROI à partir de ce seul décompte : ces valeurs nécessitent les statuts de validation officiels.</p>'+link+sourceNote(feed);
+}
+async function answerPublishedBonus(question: string): Promise<string> {
+  const offers=await publishedJson("bonus.json");
+  const q=normalizeQuestion(question);
+  const link='<p>'+publicLink("bonus.html","Voir toutes les offres et leurs conditions")+'</p>';
+  const base='<p>Le code promo du site est <strong>XPVIP</strong>, uniquement lorsqu’il est accepté par le partenaire. Une offre publiée n’est pas une confirmation de son éligibilité actuelle.</p>';
+  if(!Array.isArray(offers))return base+'<p>La liste des offres n’est pas accessible pour vérification.</p>'+link;
+  const bk=["1xbet","1win","betwinner","melbet","linebet","betclic"].find(x=>q.replace(/\s+/g,"").includes(x));
+  const active=offers.filter((x:any)=>x.active!==false&&(!bk||String(x.bookmaker||"").toLowerCase().replace(/\s+/g,"").includes(bk)));
+  const items=active.slice(0,6).map((x:any)=>'<li><strong>'+safeHtml(x.bookmaker||"Partenaire")+' : '+safeHtml(x.title||"Offre")+'</strong> — '+safeHtml(x.description||"Conditions à vérifier")+'</li>').join("");
+  return base+(items?'<p>Exemples présents sur la page Bonus :</p><ul>'+items+'</ul>':'<p>Aucune offre trouvée avec ce filtre.</p>')+link;
+}
+async function answerOfficialFAQ(question: string): Promise<string | null> {
+  const q=normalizeQuestion(question).normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+  const {data}=await supabase.from("faq").select("question,reponse").eq("official",true).limit(100);
+  const rows=data||[];
+  const canonical=(s:string)=>normalizeQuestion(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+     .replace(/^(qu.est.ce que|que signifie|c.est quoi|definition de|comment lire|quelle est la difference entre)\s*/,"")
+     .replace(/[^a-z0-9]+/g," ").trim();
+  const target=canonical(q);
+  const exact=rows.find((x:any)=>canonical(x.question)===target);
+  if(exact) return exact.reponse;
+  // Match only a clearly identified technical term; never match on boilerplate.
+  const concepts=["xg","xa","1x2","btts","dnb","corners","corner","double chance","handicap asiatique","over et under"];
+  const matched=concepts.filter(t=>new RegExp("(^|[^a-z0-9])"+t.replace(/ /g,"\\s+")+"([^a-z0-9]|$)").test(" "+target+" "));
+  if(matched.length!==1)return null;
+  const concept=matched[0];
+  const row=rows.find((x:any)=>canonical(x.question)===concept || canonical(x.question)===("un "+concept));
+  return row?.reponse||null;
 }
 
 // ==== HTTP handler ====
@@ -882,6 +935,86 @@ serve(async (req) => {
   const isFrustrated = FRUSTRATION_KEYWORDS.some(kw => normalizedQuestion.includes(kw));
 
   try {
+    const answerNow=async(answer: string, source="site")=>{
+      const {data: conversation}=await supabase.from("conversations")
+        .insert({user_id,question,reponse:shortenText(answer,20000),from_cache:source==="faq"})
+        .select("id").maybeSingle();
+      return new Response(JSON.stringify({answer,source,from_cache:source==="faq",conversation_id:conversation?.id??null}),{
+        headers:{...corsHeaders,"Content-Type":"application/json"}
+      });
+    };
+    if(intent==="underage")return await answerNow(
+      '<p>Les paris sportifs sont réservés aux adultes. Si tu as moins de 18 ans, ne mise pas d’argent. Tu peux consulter les actualités football sans parier.</p>',"safety");
+    if(intent==="harm")return await answerNow(
+      '<p>Ne cherche pas à récupérer des pertes en augmentant les mises. Arrête les paris pour le moment, protège ton budget et demande du soutien à une personne de confiance si tu en ressens le besoin.</p>',"safety");
+    if(intent==="access")return await answerNow(
+      '<p>Sur le site Mr XPRONOS, les catégories <strong>Simple, Pro, VIP et le LIVE sont consultables gratuitement</strong>. Aucun abonnement VIP payant ni code n’est exigé pour ces pages. Le code <strong>XPVIP</strong> concerne les offres de partenaires lorsqu’il est accepté.</p><p>'+
+      publicLink("pronos.html","Pronostics")+' · '+publicLink("live.html","LIVE")+'</p>',"site");
+    if(intent==="greeting")return await answerNow(renderGreetingResponse(),"site");
+    if(intent==="bonus")return await answerNow(await answerPublishedBonus(question),"bonus.json");
+    if(intent==="support"){
+      const ans='<p>Tu peux joindre le support via <a href="'+OFFICIAL_CONTACTS.whatsapp+'">WhatsApp</a>, <a href="'+OFFICIAL_CONTACTS.telegram+'">Telegram</a> ou par téléphone au <a href="tel:+22899201444">+228 99 20 14 44</a>.</p>'+
+         '<p>Réseaux officiels : <a href="https://www.instagram.com/mr_xpronos">Instagram</a> · <a href="https://youtube.com/@mrxpronos">YouTube</a> · <a href="https://www.facebook.com/share/1DsG6H6gf1/">Facebook</a> · <a href="https://www.threads.com/@mr_xpronos">Threads</a>.</p>'+
+         '<p>'+publicLink("contact.html","Page Contact")+'</p>';
+      return await answerNow(ans,"contact");
+    }
+    if(intent==="live"){
+      const q=normalizeQuestion(question);
+      if(/ne s.affichent pas|n.apparaissent pas|aucun signal|signaux ne|bug|erreur/.test(q))
+        return await answerNow('<p>Un signal peut ne pas apparaître si aucun match ne répond aux critères, si les données ont du retard ou si un filtre masque les résultats. Recharge la page, vérifie la connexion et les filtres; contacte le support si cela continue.</p><p>'+publicLink("live.html","Vérifier la page LIVE")+'</p>',"site");
+      if(/actualis|rafraich|mettre a jour/.test(q))
+        return await answerNow('<p>Sur le LIVE, recharge la page ou utilise le contrôle d’actualisation disponible. Vérifie toujours la date et la minute des données affichées.</p><p>'+publicLink("live.html","Ouvrir le LIVE")+'</p>',"site");
+      if(/score live|score en direct/.test(q))
+        return await answerNow('<p>Je ne peux pas confirmer ici le score d’une équipe en temps réel. Consulte les informations directement sur '+publicLink("live.html","la page LIVE")+'.</p>',"site");
+      if(/momentum|pression/.test(q))
+        return await answerNow('<p>Le momentum décrit la dynamique récente du match; la pression offensive est un indicateur construit à partir des actions dangereuses. Aucun des deux ne garantit un but.</p><p>'+publicLink("live.html","Voir les statistiques LIVE")+'</p>',"guide");
+      return await answerNow(renderLiveResponse(),"site");
+    }
+    if(intent==="prono"){
+      if(/garanti|100\s*%|certain|sans risque|matchs?\s+s[uû]rs?/i.test(question))
+        return await answerNow('<p>Aucun pronostic n’est garanti, même avec de bonnes statistiques. '+publicLink("pronos.html","Consulter les pronostics officiels")+' et leurs dates de mise à jour.</p>',"safety");
+      return await answerNow(await answerPublishedMatches(question),"data.json");
+    }
+    if(intent==="results"){
+      if(/garanti|garantissent|sans risque/i.test(question))
+        return await answerNow('<p>Non. Les résultats passés ne garantissent jamais des résultats futurs. Ils servent à décrire les performances, pas à certifier un gain.</p>',"guide");
+      if(/ou est|où est|ou voir|où voir|comment consulter|ou trouver/i.test(normalizeQuestion(question)))
+        return await answerNow('<p>Tu peux retrouver les résultats précédents sur '+publicLink("historique.html","la page Historique")+'.</p>',"site");
+      return await answerNow(await answerPublishedHistory(question),"data.json");
+    }
+    if(intent==="knowledge"){
+      const q=normalizeQuestion(question);
+      if(/xg/i.test(q)&&/1x2/i.test(q))
+        return await answerNow('<p><strong>xG</strong> mesure statistiquement la qualité des occasions de tir. <strong>1X2</strong> est un marché à trois issues : victoire à domicile (1), nul (X), victoire à l’extérieur (2). Ce ne sont pas deux mesures comparables.</p>',"guide");
+      if(/en attente/i.test(q))
+        return await answerNow('<p>Un pronostic <strong>en attente</strong> n’est pas encore validé comme gagné ou perdu. Il ne doit pas entrer dans le calcul des taux de réussite avant une vérification.</p>',"guide");
+      if(/valid[eé]|validation/i.test(q))
+        return await answerNow('<p>La validation d’un pronostic consiste à vérifier son issue après l’événement. Vérifie le statut exact sur '+publicLink("historique.html","la page Historique")+' : réussi, échoué ou en attente.</p>',"guide");
+      if(/momentum|pression/i.test(q))
+        return await answerNow('<p>Le momentum désigne la dynamique du jeu; la pression offensive dépend de la définition du fournisseur des statistiques. Aucun indicateur n’est une garantie de but.</p>',"guide");
+      const exactFAQ=await answerOfficialFAQ(question);
+      if(exactFAQ)return await answerNow(exactFAQ,"faq");
+      if(/corners?/i.test(q))return await answerNow('<p>Un corner est un coup de pied de coin accordé quand le ballon franchit la ligne de but après avoir été touché en dernier par un défenseur, sans but marqué.</p>',"guide");
+      if(/over|plus de 2/i.test(q))
+        return await answerNow('<p>« Plus de 2,5 buts » signifie au moins trois buts au total dans le match. Vérifie toujours la période comptée par l’opérateur.</p>',"guide");
+      return await answerNow('<p>Peux-tu préciser le terme football ? Je peux expliquer xG, xA, BTTS, 1X2, corners, handicaps et autres marchés.</p>',"guide");
+    }
+    if(intent==="generic"){
+      const q=normalizeQuestion(question);
+      if(/articles|actualites|blog|conseils|bankroll/.test(q)){
+        const isAdvice=/conseil|bankroll/.test(q);
+        const file=isAdvice?"conseils.json":"articles.json";
+        const items=await publishedJson(file);
+        const link=publicLink(isAdvice?"conseils.html":"blog.html",isAdvice?"Tous les conseils":"Tous les articles");
+        const recent=Array.isArray(items)?items.filter((x:any)=>x.active!==false).slice(0,5):[];
+        return await answerNow('<p>Voici des contenus publiés sur le site :</p><ul>'+
+          recent.map((x:any)=>'<li>'+safeHtml(x.title||"Article")+'</li>').join("")+
+          '</ul><p>'+link+'</p>',file);
+      }
+      const found=await answerOfficialFAQ(question);
+      if(found)return await answerNow(found,"faq");
+    }
+    // Other questions fall through to existing optional free AI and its safe fallback.
     // Bookmakers actifs
     const { data: bookmakersData } = await supabase
       .from("bookmakers")
