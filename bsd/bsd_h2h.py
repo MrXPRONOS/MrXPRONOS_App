@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from bsd_api import BSDClient
+from free_football_sources import fetch_sportscore_h2h, summarize_h2h
 
 
 def _utc(value: str) -> datetime:
@@ -151,6 +152,41 @@ def hybrid_h2h(
     # Interdit d'appeler le H2H courant pour une rencontre historique ou déjà commencée.
     if not allow_api or client is None or cutoff <= now.astimezone(timezone.utc):
         return {**local, "api_skipped": "historical_or_disabled"}
+
+    # SportScore first: this keeps the BSD H2H quota untouched when enough
+    # recent meetings are available from the free provider.
+    def fixture_team_name(side: str) -> str:
+        value = fixture.get(side + "_team")
+        if isinstance(value, dict):
+            return str(value.get("name") or value.get("displayName") or "").strip()
+        return str(value or "").strip()
+
+    home_name, away_name = fixture_team_name("home"), fixture_team_name("away")
+    if home_name and away_name and getattr(client, "enable_free_sources", False):
+        try:
+            free_rows = fetch_sportscore_h2h(
+                client.session,
+                home_name,
+                away_name,
+                limit=20,
+                ttl=86400,
+            )
+            free = summarize_h2h(free_rows, home_name, away_name)
+            if int(free.get("total_matches") or 0) >= max(
+                min_local_meetings, int(local.get("total_matches") or 0) + 1
+            ):
+                return {
+                    **free,
+                    "source": "sportscore",
+                    "home_team_id": hid,
+                    "away_team_id": aid,
+                    "as_of": cutoff.isoformat(),
+                    "local_meetings": local["total_matches"],
+                    "bsd_api_saved": True,
+                }
+        except Exception as exc:
+            # H2H free-source failures must never prevent the historical BSD fallback.
+            print("SPORTSCORE_H2H_SKIP", type(exc).__name__, str(exc)[:120])
 
     event_id = fixture.get("id")
     if event_id is None:
