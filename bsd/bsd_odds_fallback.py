@@ -187,13 +187,13 @@ class OddsRouter:
             self.events.append((name, type(ex).__name__))
             return None
 
-    def fetch(self, event, captured):
+    def fetch(self, event, captured, market_code=None):
         for name in self.order:
             try:
                 rows = {}
                 if name == "goaldir":
                     rows = self.bsd_fetch(event, captured)[0]
-                    # BSD might return empty for this particular market
+                    # If the requested market is unavailable, try the next provider.
                 elif name == "pinnwire":
                     key = os.getenv("PINNWIRE_API_KEY", "")
                     if not key: key = "demo" if os.getenv("PINNWIRE_USE_DEMO","0") == "1" else ""
@@ -231,7 +231,7 @@ class OddsRouter:
                         if match_fixture(row, event):
                             rows = from_harvester(row, captured)
                             break
-                if rows:
+                if rows and (market_code is None or market_code in rows):
                     self.events.append((name, "selected"))
                     return rows, {"provider":name, "fallback_events":self.events[-15:],
                                   "request_counts":dict(self.usage)}
