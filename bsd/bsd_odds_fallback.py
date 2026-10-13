@@ -170,7 +170,7 @@ class OddsRouter:
         if name in self.disabled: return None
         if name in self.cache and time.monotonic() - self.cache_time.get(name, 0) <= 120: return self.cache[name]
         try:
-            response = self.session.get(url, headers=headers or {}, timeout=12)
+            response = self.session.get(url, headers=headers or {}, timeout=35 if name == "oddslink" else 15)
             self.usage[name] = self.usage.get(name, 0) + 1
             if response.status_code in (401, 402, 403, 429):
                 self.disabled.add(name)
@@ -207,7 +207,7 @@ class OddsRouter:
                 elif name == "oddslink":
                     key = os.getenv("ODDSLINK_API_KEY", "")
                     if not key: continue
-                    data = self.get(name, "https://oddslink.app/v1/sports/soccer/odds?oddsFormat=decimal",
+                    data = self.get(name, "https://oddslink.app/v1/sports/soccer/odds?league=epl&oddsFormat=decimal",
                                     {"X-API-Key":key})
                     for row in data if isinstance(data,list) else []:
                         if match_fixture(row, event):
