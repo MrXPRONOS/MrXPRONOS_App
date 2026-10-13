@@ -1638,7 +1638,7 @@ body.mx-live-page{
    PRONO LIVE — premium modal + realtime toast system
 ========================================================= */
 .mx-live-page .mx-live-modal-backdrop{
-  z-index:2147482400!important;
+  z-index:2147483400!important;
   padding:22px!important;
   background:
     radial-gradient(circle at 50% 8%,rgba(231,181,75,.07),transparent 30%),
@@ -1690,7 +1690,7 @@ body.mx-live-page{
   background:rgba(239,189,84,.07)!important;
 }
 .mx-live-page .mx-live-toast{
-  z-index:2147482250!important;
+  z-index:2147483180!important;
   top:18px!important;
   border:1px solid rgba(255,255,255,.08)!important;
   border-left:3px solid #efbd54!important;
