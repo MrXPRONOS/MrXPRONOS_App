@@ -23,6 +23,7 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       FOOTBALL_REQUIRE_COMMENTS: '0'
       FOOTBALL_BSD_REQUEST_BUDGET: '45'
+      FOOTBALL_ESPN_REQUEST_BUDGET: '60'
       PYTHONUNBUFFERED: '1'
     steps:
       - uses: actions/checkout@v4
