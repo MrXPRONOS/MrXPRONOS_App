@@ -5,8 +5,10 @@ N'invente ni score, ni cote, ni statistique. Ne lance aucun appel API payant.
 La génération est idempotente par ID de match et respectueuse de la sélection BSD.
 """
 from __future__ import annotations
-import argparse,json,re
+import argparse,json,re,sys
 from urllib.parse import urlsplit
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from bsd.bsd_v2_assets import image_fields
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -36,7 +38,7 @@ def name(event,side):
 TRUSTED_BADGE_HOSTS = frozenset((
     "r2.thesportsdb.com", "www.thesportsdb.com",
     "media.api-sports.io", "cdn.sofascore.com", "api.sofascore.com",
-    "img.sofascore.com", "images.fotmob.com",
+    "img.sofascore.com", "images.fotmob.com", "sports.bzzoiro.com",
 ))
 def verified_badge_url(raw):
     if not isinstance(raw,str) or len(raw)>600:return ""
@@ -58,7 +60,9 @@ def badge_url(match,side):
     for value in options:
         valid=verified_badge_url(value)
         if valid:return valid
-    return ""
+    # BSD V2 propose un proxy officiel gratuit indexé uniquement par ID numérique.
+    # Ne jamais déduire cet ID du nom du club : ne lire que l'identifiant du match.
+    return verified_badge_url(image_fields(match).get(side+"_logo"))
 
 
 def clean(value):
