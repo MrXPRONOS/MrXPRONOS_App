@@ -104,10 +104,31 @@ jobs:
                   for key in raw0
                   if "odd" in key.lower() or "market" in key.lower()
               })
+
+          sport_widget = f.fetch_sportscore_live_recent(session)
+          print("SPORTSCORE_WIDGET_OK", len(sport_widget))
           sport_detail_match = next(
-              (x for x in sport if x.get("provider_slug") and x.get("state") in {"in", "post"}),
-              next((x for x in sport if x.get("provider_slug")), None),
+              (x for x in sport_widget if x.get("provider_slug") and x.get("state") in {"in", "post"}),
+              next((x for x in sport_widget if x.get("provider_slug")), None),
           )
+
+          def oddsish_paths(value, path="", depth=0, found=None):
+              found = found if found is not None else []
+              if depth > 6 or len(found) >= 40:
+                  return found
+              if isinstance(value, dict):
+                  for key, child in value.items():
+                      child_path = path + "." + str(key) if path else str(key)
+                      if "odd" in str(key).lower() or "market" in str(key).lower():
+                          found.append((child_path, child))
+                          if len(found) >= 40:
+                              return found
+                      oddsish_paths(child, child_path, depth + 1, found)
+              elif isinstance(value, list):
+                  for i, child in enumerate(value[:10]):
+                      oddsish_paths(child, f"{path}[{i}]", depth + 1, found)
+              return found
+
           if sport_detail_match:
               detail = f.fetch_sportscore_detail(session, sport_detail_match["provider_slug"])
               enrichment = f.extract_sportscore_enrichment(detail)
@@ -118,12 +139,7 @@ jobs:
                   "timeline": len(enrichment.get("timeline") or []),
                   "home_stats": len((enrichment.get("stats") or {}).get("home") or {}),
               })
-              if isinstance(detail, dict):
-                  print("SPORTSCORE_DETAIL_ODDSISH", {
-                      key: detail.get(key)
-                      for key in detail
-                      if "odd" in key.lower() or "market" in key.lower()
-                  })
+              print("SPORTSCORE_DETAIL_ODDS_PATHS", oddsish_paths(detail))
 
           tsdb = f.fetch_thesportsdb_day(session, today)
           print("THESPORTSDB_OK", len(tsdb))
