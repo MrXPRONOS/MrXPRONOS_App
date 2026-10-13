@@ -54,6 +54,8 @@ jobs:
           MANUAL_DESTINATION: ${{ inputs.destination || 'test' }}
           PROD_CHAT_ID: ${{ secrets.EDITORIAL_TELEGRAM_CHAT_ID }}
           TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          EDITORIAL_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
+          TEST_FALLBACK_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
@@ -65,7 +67,9 @@ jobs:
           case "$DEST" in
             production)
               test -n "$PROD_CHAT_ID"
+              test -n "$EDITORIAL_BOT_TOKEN"
               echo "EDITORIAL_TELEGRAM_CHAT_ID=$PROD_CHAT_ID" >> "$GITHUB_ENV"
+              echo "EDITORIAL_TELEGRAM_BOT_TOKEN=$EDITORIAL_BOT_TOKEN" >> "$GITHUB_ENV"
               QUEUE_PATH="assets/data/editorial_share_queue.json"
               ;;
             test)
@@ -73,7 +77,14 @@ jobs:
                 echo "::error::TELEGRAM_TEST_CHAT_ID manquant. Aucun fallback vers la production."
                 exit 1
               fi
+              TEST_BOT="$EDITORIAL_BOT_TOKEN"
+              if [ -z "$TEST_BOT" ]; then TEST_BOT="$TEST_FALLBACK_BOT_TOKEN"; fi
+              if [ -z "$TEST_BOT" ]; then
+                echo "::error::Aucun bot Telegram disponible pour le canal de test."
+                exit 1
+              fi
               echo "EDITORIAL_TELEGRAM_CHAT_ID=$TEST_CHAT_ID" >> "$GITHUB_ENV"
+              echo "EDITORIAL_TELEGRAM_BOT_TOKEN=$TEST_BOT" >> "$GITHUB_ENV"
               QUEUE_PATH="$RUNNER_TEMP/editorial-test-queue.json"
               cp assets/data/editorial_share_queue.json "$QUEUE_PATH"
               python - "$QUEUE_PATH" <<'PY'
@@ -104,7 +115,6 @@ jobs:
 
       - name: Send at most one fresh article/advice
         env:
-          EDITORIAL_TELEGRAM_BOT_TOKEN: ${{ secrets.EDITORIAL_TELEGRAM_BOT_TOKEN }}
           EVENT_NAME: ${{ github.event_name }}
           TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
           REQUESTED_PUBLISH: ${{ inputs.publish || 'true' }}
