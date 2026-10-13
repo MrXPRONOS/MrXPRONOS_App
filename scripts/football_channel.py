@@ -32,7 +32,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from bsd_api import BSDClient, BSDAPIError  # noqa: E402
 from bsd_h2h import hybrid_h2h  # noqa: E402
 from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
-from football_match_lifecycle import lifecycle_signals, verify_espn_before_publish  # noqa: E402
+from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
 import football_followup as followup  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
@@ -447,6 +447,19 @@ def espn_preflight(sender: "Sender", item: Publication, *, dry_run: bool = False
         # La news reste fondée sur sa source journalistique d'origine; ESPN est une corroboration.
         return True
 
+    if item.verification.get("type") == "fixture_list":
+        result = verify_espn_fixtures_before_publish(sender.session, item.verification)
+        print("ESPN_FIXTURE_PREFLIGHT", item.category, item.key, json.dumps({
+            "ok": result.get("ok"),
+            "quality": result.get("quality"),
+            "reason": result.get("reason"),
+            "covered": result.get("covered"),
+            "missing": result.get("missing"),
+            "total": result.get("total"),
+            "contradictions": result.get("contradictions") or [],
+        }, ensure_ascii=False))
+        return bool(result.get("ok"))
+
     result = verify_espn_before_publish(sender.session, item.verification)
     print("ESPN_PREFLIGHT", item.category, item.key, json.dumps({
         "ok": result.get("ok"),
@@ -813,8 +826,22 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
          "home_logo": team_visual_url(e, "home", allow_remote=True),
          "away_logo": team_visual_url(e, "away", allow_remote=True)}
         for e in chosen]}
-    return Publication("programme", "programme:" + today.isoformat(),
-                       message, card=card)
+    verification = {
+        "type": "fixture_list",
+        "kind": "programme",
+        "fixtures": [
+            {
+                "home": team(e, "home"),
+                "away": team(e, "away"),
+                "event_date": kick(e).astimezone(timezone.utc).isoformat(),
+            }
+            for e in chosen
+        ],
+    }
+    return Publication(
+        "programme", "programme:" + today.isoformat(),
+        message, card=card, verification=verification,
+    )
 
 
 def finished_recent(events: list[dict], now: datetime) -> list[dict]:
@@ -846,7 +873,17 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
                 "away": team(e, "away"), "scores": (a, b),
                 "home_logo": team_visual_url(e, "home", allow_remote=True),
                 "away_logo": team_visual_url(e, "away", allow_remote=True)}
-        return Publication("resultat", key, text, card=card)
+        verification = {
+            "type": "fixture_list",
+            "kind": "resultat",
+            "fixtures": [{
+                "home": team(e, "home"),
+                "away": team(e, "away"),
+                "event_date": kick(e).astimezone(timezone.utc).isoformat(),
+                "score": f"{a}-{b}",
+            }],
+        }
+        return Publication("resultat", key, text, card=card, verification=verification)
     return None
 
 
@@ -978,7 +1015,19 @@ def avant_match(events: list[dict], history: History, now: datetime,
         "home_logo": team_visual_url(e, "home", allow_remote=True),
         "away_logo": team_visual_url(e, "away", allow_remote=True),
     }
-    return Publication("avant_match", "avant_match:" + str(e["id"]), message, card=card)
+    verification = {
+        "type": "fixture_list",
+        "kind": "avant_match",
+        "fixtures": [{
+            "home": h,
+            "away": a,
+            "event_date": kick(e).astimezone(timezone.utc).isoformat(),
+        }],
+    }
+    return Publication(
+        "avant_match", "avant_match:" + str(e["id"]),
+        message, card=card, verification=verification,
+    )
 
 
 
@@ -1094,8 +1143,20 @@ def statistique(events: list[dict], reference_day: date) -> Publication | None:
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
             "home_logo": team_visual_url(e, "home", allow_remote=True),
             "away_logo": team_visual_url(e, "away", allow_remote=True)}
-    return Publication("statistique", "statistique:" + reference_day.isoformat(),
-                       message, card=card)
+    verification = {
+        "type": "fixture_list",
+        "kind": "statistique_match",
+        "fixtures": [{
+            "home": team(e, "home"),
+            "away": team(e, "away"),
+            "event_date": kick(e).astimezone(timezone.utc).isoformat(),
+            "score": f"{h}-{a}",
+        }],
+    }
+    return Publication(
+        "statistique", "statistique:" + reference_day.isoformat(),
+        message, card=card, verification=verification,
+    )
 
 
 
@@ -1235,6 +1296,15 @@ def sondage(events: list[dict], history: History, now: datetime) -> Publication:
                     "image_options": [h, "Match nul", a],
                     "home_logo": team_visual_url(e, "home", allow_remote=True),
                     "away_logo": team_visual_url(e, "away", allow_remote=True),
+                },
+                verification={
+                    "type": "fixture_list",
+                    "kind": "sondage",
+                    "fixtures": [{
+                        "home": h,
+                        "away": a,
+                        "event_date": kick(e).astimezone(timezone.utc).isoformat(),
+                    }],
                 },
             )
     topics = [
@@ -1387,6 +1457,17 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "score": plain(signal.get("score"), 20),
             "goal": signal.get("goal") if isinstance(signal.get("goal"), dict) else {},
         }
+    elif signal.get("event_date"):
+        verification = {
+            "type": "fixture_list",
+            "kind": "resultat" if kind == "resultat_final" else kind,
+            "fixtures": [{
+                "home": home,
+                "away": away,
+                "event_date": signal.get("event_date"),
+                "score": plain(signal.get("score"), 20),
+            }],
+        }
 
     return Publication(
         kind,
@@ -1500,6 +1581,17 @@ def followed_final_publication(signal: dict) -> Publication | None:
         "away": away,
         "score": scores,
     } if event_id else None
+    if verification is None and signal.get("event_date"):
+        verification = {
+            "type": "fixture_list",
+            "kind": "resultat",
+            "fixtures": [{
+                "home": home,
+                "away": away,
+                "event_date": signal.get("event_date"),
+                "score": scores,
+            }],
+        }
 
     return Publication(
         "resultat",
