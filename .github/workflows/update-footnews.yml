@@ -20,7 +20,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -39,6 +39,7 @@ jobs:
         env:
           FOOTBALL_RSS_FEED: https://madeinfoot.ouest-france.fr/flux/rss_news.php
           MAX_ARTICLES: '60'
+          MAX_ARTICLES_PER_FEED: '16'
           MAX_NEWS_AGE_HOURS: '120'
         run: python fetch_foot_news.py
 
