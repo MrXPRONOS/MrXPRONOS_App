@@ -37,26 +37,41 @@ class FootballChannelTests(unittest.TestCase):
     def tearDown(self):
         self.directory.cleanup()
 
-    def test_rss_sans_image_ni_url_invalide(self):
-        xml = b"""<rss><channel>
-        <item><title>Le grand match</title><link>https://example.com/a</link>
-        <description>Une nouvelle &amp; des reactions.</description>
-        <pubDate>Sat, 10 Oct 2026 14:00:00 GMT</pubDate></item>
-        <item><title>Danger</title><link>javascript:alert(1)</link></item>
-        </channel></rss>"""
-        articles = m.parse_rss(xml)
-        self.assertEqual(len(articles), 1)
-        self.assertEqual(articles[0]["summary"], "Une nouvelle & des reactions.")
-        post = m.flash(articles, self.history, NOW)
-        self.assertIsNotNone(post)
-        self.assertIn("Foot Mercato", post.text)
-        self.assertIn("<blockquote>", post.text)
-        self.assertTrue(post.keyboard)
-        self.assertEqual(post.keyboard["inline_keyboard"][0][0]["url"], "https://example.com/a")
-        self.assertIsNotNone(post.card)
-        self.assertEqual(post.card["source"], "Foot Mercato")
-        self.history.mark(post.key, post.category, NOW)
-        self.assertIsNone(m.flash(articles, self.history, NOW))
+    def test_flash_utilise_news_site_et_image_reelle(self):
+        old_root = m.ROOT
+        try:
+            m.ROOT = Path(self.directory.name)
+            image = m.ROOT / "assets/images/footnews/test-news.webp"
+            image.parent.mkdir(parents=True, exist_ok=True)
+            image.write_bytes(b"fake-test-image")
+            articles = [{
+                "slug": "test-news",
+                "title": "Arsenal avance sur un dossier important",
+                "telegram_summary": "Les discussions progressent et une nouvelle étape a été franchie.",
+                "published": (NOW - timedelta(hours=1)).isoformat(),
+                "source": "Foot Mercato",
+                "source_url": "https://example.com/source",
+                "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=test-news",
+                "category": "Mercato",
+                "image": "assets/images/footnews/test-news.webp",
+                "image_origin": "source",
+            }]
+            post = m.flash(articles, self.history, NOW)
+            self.assertIsNotNone(post)
+            self.assertIn("<b>🚨 MERCATO</b>", post.text)
+            self.assertIn("<blockquote>", post.text)
+            self.assertIn("Lire l’info complète", post.text)
+            self.assertEqual(post.image_path, "assets/images/footnews/test-news.webp")
+            self.assertEqual(
+                post.keyboard["inline_keyboard"][0][0]["url"],
+                "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=test-news",
+            )
+            self.assertIsNone(post.card)
+            self.history.mark(post.key, post.category, NOW)
+            self.assertIsNone(m.flash(articles, self.history, NOW))
+        finally:
+            m.ROOT = old_root
+
 
     def test_fenetres_editoriales_production(self):
         self.assertTrue(m.in_editorial_window(
