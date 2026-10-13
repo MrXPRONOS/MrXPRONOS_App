@@ -1,4 +1,4 @@
-name: Arty Football - 11 previews Telegram TEST only
+name: Arty Football - 12 previews Telegram TEST only
 on:
   push:
     branches: [main]
