@@ -2541,6 +2541,14 @@ function footballNewsIcon(category = "") {
     "Ligue 1": "icon-infos-ligue1.webp",
     "Liga": "icon-infos-liga.webp",
     "Serie A": "icon-infos-seriea.webp",
+    "Officiel": "icon-infos-latest.webp",
+    "Déclarations": "icon-infos-football.webp",
+    "Convocations": "icon-infos-football.webp",
+    "Polémique": "icon-infos-latest.webp",
+    "Afrique": "icon-infos-football.webp",
+    "Matchs": "icon-infos-football.webp",
+    "Compétitions": "icon-infos-champions.webp",
+    "Actualité": "icon-infos-latest.webp",
   };
   return base + (icons[category] || "icon-infos-football.webp");
 }
@@ -2570,7 +2578,7 @@ function renderFootNewsCards() {
 
   DOM.footNewsContainer.innerHTML = visible.map(({ item, originalIndex }, position) => {
     const title = item.title || "Actualité";
-    const summary = String(item.summary || "").slice(0, position === 0 ? 320 : 190);
+    const summary = String(item.summary_short || item.summary || "").slice(0, position === 0 ? 320 : 190);
     const category = footballNewsCategory(item);
     const categoryIcon = footballNewsIcon(category);
     const date = formatFootballNewsDate(item.published);
@@ -2592,7 +2600,7 @@ function renderFootNewsCards() {
         <div class="news-premium-body">
           <div class="news-date"><img src="assets/images/infos-premium/icon-infos-clock.webp" alt="" aria-hidden="true"><span>${escapeHtml(date)}</span></div>
           <h3>${titleHtml}</h3>
-          <p>${escapeHtml(summary)}${String(item.summary || "").length > summary.length ? "…" : ""}</p>
+          <p>${escapeHtml(summary)}${String(item.summary_short || item.summary || "").length > summary.length ? "…" : ""}</p>
           <span class="news-card-cta">${item.manual ? "Voir le contenu" : "Lire la suite"} <span aria-hidden="true">›</span></span>
         </div>
       </article>
@@ -2668,6 +2676,12 @@ async function displayFootNews() {
     window.newsData = merged;
     setupInfosPremiumControls();
     renderFootNewsCards();
+
+    const requestedSlug = new URLSearchParams(window.location.search).get("news");
+    if (requestedSlug) {
+      const requestedIndex = merged.findIndex((item) => String(item.slug || "") === requestedSlug);
+      if (requestedIndex >= 0) requestAnimationFrame(() => window.showNewsDetail(requestedIndex));
+    }
   } catch (error) {
     console.error("Erreur actualités:", error);
     DOM.footNewsContainer.innerHTML = '<div class="error">Impossible de charger les actualités.</div>';
