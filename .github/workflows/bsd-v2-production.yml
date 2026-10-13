@@ -59,6 +59,7 @@ jobs:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
           PINNWIRE_API_KEY: ${{ secrets.PINNWIRE_API_KEY }}
           ODDSLINK_API_KEY: ${{ secrets.ODDSLINK_API_KEY }}
+          MOVIODDS_ENABLE: '1'
         run: python bsd/bsd_v2_publish.py --max-requests 700 --max-odds-events 350
       - name: Archive first-seen published selections and audit quality
         run: python bsd/bsd_v2_audit.py --data data.json
