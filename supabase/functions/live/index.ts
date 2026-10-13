@@ -6012,28 +6012,24 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   }
 
   if (!snapshotReused) {
-    let originalRawMatches: any[] = [];
-
     coverage = await fetchBSDCoverage();
     const liveNow = safeNumber(coverage?.live_now, -1);
 
-    if (!options.skipBsd && liveNow !== 0) {
-      try {
-        const liveData = await fetchBSD("/events/live/");
-        originalRawMatches = bsdResults(liveData);
-      } catch (e: any) {
-        bsdError = e?.message || String(e);
-        bsdRateLimited = isBSDQuotaError(e);
-        if (bsdRateLimited) {
-          console.warn("⚠️ Quota BSD épuisé: ESPN + cache prennent le relais");
-        } else {
-          console.error("⚠️ BSD v2 live indisponible: ESPN prend le relais", e);
-        }
-      }
-    }
-
-    const espnResult = await fetchEspnLiveMatchesForMerge();
+    // Les trois sources gratuites partent en parallèle. ESPN reste la source
+    // intrinsèquement la plus fiable; SportScore élargit la couverture live,
+    // TheSportsDB est un fallback complémentaire (sa free API est plus limitée).
+    const [espnResult, sportScoreResult, tsdbResult] = await Promise.all([
+      fetchEspnLiveMatchesForMerge(),
+      fetchSportScoreLive(),
+      fetchTheSportsDbToday(),
+    ]);
     espnError = espnResult.error;
+
+    let freeMerge = mergeProviderMatchSets(
+      sportScoreResult.matches || [],
+      tsdbResult.matches || [],
+    );
+    let freeOriginalMatches = freeMerge.matches;
 
     const incomingEspnIds = (espnResult.matches || [])
       .map((m: any) => String(m?.source_match_id || m?.raw_data?.event_id || ""))
@@ -6052,11 +6048,73 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       }
     }
 
-    const merged = mergeOriginalAndEspnMatches(
-      originalRawMatches,
+    // Estimation de couverture gratuite AVANT de consommer BSD.
+    const freePreview = mergeOriginalAndEspnMatches(
+      freeOriginalMatches,
       espnResult.matches || [],
       knownProviderMappings,
     );
+    const freeLiveCount = (freePreview.mergedMatches || []).filter((m: any) =>
+      m?.is_live !== false && m?.is_finished !== true
+    ).length;
+    const requiredFreeCoverage = liveNow > 0
+      ? Math.max(1, Math.ceil(liveNow * FREE_PROVIDER_BSD_COVERAGE_RATIO))
+      : Number.POSITIVE_INFINITY;
+    const freeCoverageEnough =
+      liveNow > 0 && freeLiveCount >= requiredFreeCoverage;
+
+    let bsdRawMatches: any[] = [];
+    const shouldCallBsd =
+      !options.skipBsd &&
+      liveNow !== 0 &&
+      !freeCoverageEnough;
+
+    if (shouldCallBsd) {
+      try {
+        const liveData = await fetchBSD("/events/live/");
+        bsdRawMatches = bsdResults(liveData);
+      } catch (e: any) {
+        bsdError = e?.message || String(e);
+        bsdRateLimited = isBSDQuotaError(e);
+        if (bsdRateLimited) {
+          console.warn("⚠️ Quota BSD épuisé: fournisseurs gratuits + cache prennent le relais");
+        } else {
+          console.error("⚠️ BSD v2 live indisponible: fournisseurs gratuits prennent le relais", e);
+        }
+      }
+    } else if (freeCoverageEnough) {
+      console.log("BSD_LIVE_DISCOVERY_SAVED", {
+        live_now_reported: liveNow,
+        free_live_matches: freeLiveCount,
+        required: requiredFreeCoverage,
+        ratio: FREE_PROVIDER_BSD_COVERAGE_RATIO,
+      });
+    }
+
+    // Lorsque BSD est nécessaire, son identité numérique est conservée comme
+    // identité primaire afin de ne pas casser odds/historique. Les données
+    // gratuites complètent ensuite le match. Sans BSD, les IDs gratuits restent.
+    let originalsForEspn: any[];
+    if (bsdRawMatches.length) {
+      const bsdPlusFree = mergeProviderMatchSets(bsdRawMatches, freeOriginalMatches);
+      originalsForEspn = bsdPlusFree.matches;
+      freeMerge = {
+        matches: originalsForEspn,
+        merged: freeMerge.merged + bsdPlusFree.merged,
+        added: freeMerge.added + bsdPlusFree.added,
+      };
+    } else {
+      originalsForEspn = freeOriginalMatches;
+    }
+
+    const merged = bsdRawMatches.length
+      ? mergeOriginalAndEspnMatches(
+          originalsForEspn,
+          espnResult.matches || [],
+          knownProviderMappings,
+        )
+      : freePreview;
+
     if (merged.providerMappings?.length) {
       const { error: mapWriteError } = await supabase
         .from("espn_match_map")
@@ -6066,29 +6124,47 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
 
     allRawMatches = sortMatchesForRefresh(merged.mergedMatches);
     sourceRows = merged.sourceRows || [];
-    sourceMeta = merged.meta || sourceMeta;
+    sourceMeta = {
+      ...(merged.meta || sourceMeta),
+      bsd_source_matches: bsdRawMatches.length,
+      sportscore_source_matches: sportScoreResult.matches?.length || 0,
+      thesportsdb_source_matches: tsdbResult.matches?.length || 0,
+      sportscore_error: sportScoreResult.error,
+      thesportsdb_error: tsdbResult.error,
+      free_provider_merged: freeMerge.merged,
+      free_provider_added: freeMerge.added,
+      free_live_matches: freeLiveCount,
+      bsd_live_reported: liveNow,
+      bsd_discovery_saved: !shouldCallBsd,
+      free_provider_policy: providerPolicy(),
+    };
 
-    // /events/live/ est compact et ne fournit pas les stats détaillées.
-    // 1) on réutilise d'abord notre dernier snapshot connu;
-    // 2) ESPN complète gratuitement ce qu'il possède;
-    // 3) BSD /stats/ enrichit seulement quelques matchs prioritaires par cycle.
+    // Stats détaillées:
+    // 1) snapshot connu,
+    // 2) SportScore/TheSportsDB gratuits,
+    // 3) BSD /stats/ uniquement pour ce qui reste incomplet.
     allRawMatches = await reuseCachedStats(allRawMatches);
 
-    const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
-    allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
+    const freeStats = await enrichLiveMatchesWithFreeStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(freeStats.matches);
+
+    const bsdStats = await enrichLiveMatchesWithBsdStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(bsdStats.matches);
     sourceMeta = {
       ...sourceMeta,
-      bsd_stats_calls: statsEnrichment.calls,
-      bsd_stats_enriched: statsEnrichment.enriched,
-      bsd_stats_failed: statsEnrichment.failed,
-      bsd_stats_skipped_quota: statsEnrichment.skipped_quota,
+      free_stats_calls: freeStats.calls,
+      free_stats_enriched: freeStats.enriched,
+      free_stats_failed: freeStats.failed,
+      sportscore_stats_enriched: freeStats.sportscore_enriched,
+      thesportsdb_stats_enriched: freeStats.thesportsdb_enriched,
+      bsd_stats_calls: bsdStats.calls,
+      bsd_stats_enriched: bsdStats.enriched,
+      bsd_stats_failed: bsdStats.failed,
+      bsd_stats_skipped_quota: bsdStats.skipped_quota,
       bsd_quota_remaining: bsdQuotaRemaining,
       bsd_quota_reset_seconds: bsdQuotaResetSeconds,
     };
 
-    // Snapshot COMPLET persistant avant de découper en lots.
-    // Les invocations enfants suivantes lisent exactement ces mêmes matchs
-    // sans rappeler BSD ni ESPN.
     if (allRawMatches.length) {
       await persistStatsSourcesAndMerged(sourceRows, allRawMatches);
     }
