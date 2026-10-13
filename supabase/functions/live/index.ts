@@ -6105,20 +6105,33 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       free_provider_errors: freeProviderData?.errors || {},
     };
 
-    // /events/live/ est compact et ne fournit pas les stats détaillées.
-    // 1) on réutilise d'abord notre dernier snapshot connu;
-    // 2) ESPN complète gratuitement ce qu'il possède;
-    // 3) BSD /stats/ enrichit seulement quelques matchs prioritaires par cycle.
+    // Detail enrichment order:
+    // cache -> ESPN scoreboard stats -> SportScore detail -> TheSportsDB stats -> BSD /stats/.
+    // BSD is now the last resort for incomplete live statistical pairs.
     allRawMatches = await reuseCachedStats(allRawMatches);
+
+    const freeStatsEnrichment =
+      await enrichLiveMatchesWithFreeStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(freeStatsEnrichment.matches);
 
     const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
     allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
     sourceMeta = {
       ...sourceMeta,
+      free_stats_calls: freeStatsEnrichment.calls,
+      free_stats_enriched: freeStatsEnrichment.enriched,
+      sportscore_stats_calls: freeStatsEnrichment.sportscore_calls,
+      thesportsdb_stats_calls: freeStatsEnrichment.thesportsdb_calls,
+      sportscore_odds_sections_detected:
+        freeStatsEnrichment.odds_sections_detected,
       bsd_stats_calls: statsEnrichment.calls,
       bsd_stats_enriched: statsEnrichment.enriched,
       bsd_stats_failed: statsEnrichment.failed,
       bsd_stats_skipped_quota: statsEnrichment.skipped_quota,
+      bsd_stats_calls_saved_estimate: Math.max(
+        0,
+        freeStatsEnrichment.enriched,
+      ),
       bsd_quota_remaining: bsdQuotaRemaining,
       bsd_quota_reset_seconds: bsdQuotaResetSeconds,
     };
