@@ -1,0 +1,77 @@
+name: Actu Foot - Test reel systemes 1 a 5
+
+on:
+  push:
+    branches:
+      - 'test/systems-1-5-20261013'
+    paths:
+      - 'scripts/football_systems_1_5_test.py'
+      - '.github/workflows/football-systems-1-5-live-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-foot-systems-1-5-test
+  cancel-in-progress: false
+
+jobs:
+  live-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      PROD_FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
+      FOOTBALL_REQUIRE_COMMENTS: '0'
+      FOOTBALL_BSD_REQUEST_BUDGET: '24'
+      FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+      PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+      FOOTBALL_VIRAL_MEDIA_CACHE: '/tmp/mrxpronos-football-media.json'
+      FOOTBALL_RSS_FEED: 'https://www.footmercato.net/flux-rss'
+      PYTHONUNBUFFERED: '1'
+
+    steps:
+      - name: Checkout branche de test
+        uses: actions/checkout@v4
+
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer dependances
+        run: python -m pip install --disable-pip-version-check requests Pillow feedparser
+
+      - name: Verifier le routage vers le canal de test
+        env:
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+        run: |
+          test -n "$FOOTBALL_NEWS_BOT_TOKEN"
+          test -n "$FOOTBALL_NEWS_CHAT_ID"
+          if [ -n "$PROD_FOOTBALL_NEWS_CHAT_ID" ] && [ "$FOOTBALL_NEWS_CHAT_ID" = "$PROD_FOOTBALL_NEWS_CHAT_ID" ]; then
+            echo "::error::Le canal de test est identique au canal de production."
+            exit 1
+          fi
+          python scripts/telegram_test_guard.py
+
+      - name: Compiler le harnais de test
+        run: |
+          python -m py_compile             scripts/football_systems_1_5_test.py             scripts/football_channel.py             scripts/football_match_lifecycle.py             scripts/football_stats_engine.py             scripts/football_community_engine.py             scripts/football_viral_engine.py
+
+      - name: Actualiser les vraies news pour le systeme 1
+        env:
+          MAX_ARTICLES: '18'
+          MAX_ARTICLES_PER_FEED: '8'
+          MAX_NEWS_AGE_HOURS: '168'
+        run: python fetch_foot_news.py
+
+      - name: Envoyer les rendus TEST des systemes 1 a 5
+        run: python scripts/football_systems_1_5_test.py
