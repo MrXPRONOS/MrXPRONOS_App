@@ -21,6 +21,7 @@ class TestFreeFootballSources(unittest.TestCase):
     def test_quality_order(self):
         self.assertGreater(SOURCE_QUALITY["espn"]["overall"], SOURCE_QUALITY["sportscore"]["overall"])
         self.assertGreater(SOURCE_QUALITY["sportscore"]["overall"], SOURCE_QUALITY["bsd"]["overall"])
+        self.assertEqual(SOURCE_QUALITY["sportscore"]["odds"], 0)
         self.assertGreater(SOURCE_QUALITY["bsd"]["overall"], SOURCE_QUALITY["thesportsdb"]["overall"])
         self.assertGreater(SOURCE_QUALITY["thesportsdb"]["overall"], SOURCE_QUALITY["openligadb"]["overall"])
 
