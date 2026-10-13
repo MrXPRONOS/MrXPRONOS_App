@@ -56,6 +56,23 @@ class PremiumTelegramTests(unittest.TestCase):
         self.assertIn("<b>2,10</b>",output)
         self.assertIn("<p><i>18+</i></p>",output)
 
+    def test_combo_blockquote_preserves_each_numbered_leg_on_its_line(self):
+        raw=(
+            "<b>🎟️ Combiné du jour · MR XPRONOS</b>\n\n"
+            "<blockquote><b>1.</b> ⚽ Arsenal – Chelsea\n"
+            "🎯 Plus de 1,5 · <b>1,42</b>\n"
+            "<b>2.</b> ⚽ Milan – Inter\n"
+            "🎯 Double chance · <b>1,38</b></blockquote>"
+        )
+        output=coupon(raw)
+        self.assertIn(
+            "<blockquote><b>1.</b> ⚽ Arsenal – Chelsea<br/>"
+            "🎯 Plus de 1,5 · <b>1,42</b><br/>"
+            "<b>2.</b> ⚽ Milan – Inter<br/>"
+            "🎯 Double chance · <b>1,38</b></blockquote>",
+            output,
+        )
+
     def test_rich_transport_does_not_wrap_existing_sections(self):
         raw=bonus("1Win","Bienvenue","100%","Conditions")
         rich=rich_markup(raw,{"inline_keyboard":[]})
