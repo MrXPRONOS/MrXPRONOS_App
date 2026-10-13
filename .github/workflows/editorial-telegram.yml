@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: editorial-telegram-delivery
+  group: editorial-social-delivery
   cancel-in-progress: false
 
 jobs:
@@ -39,23 +39,30 @@ jobs:
           EDITORIAL_TELEGRAM_CHAT_ID: ${{ secrets.EDITORIAL_TELEGRAM_CHAT_ID }}
           EVENT_NAME: ${{ github.event_name }}
           REQUESTED_PUBLISH: ${{ inputs.publish || 'false' }}
+          AUTO_ENABLED: ${{ vars.EDITORIAL_TELEGRAM_ENABLED || 'false' }}
         shell: bash
         run: |
-          if [ "$EVENT_NAME" = 'schedule' ] || [ "$REQUESTED_PUBLISH" = 'true' ]; then
+          if [ "$REQUESTED_PUBLISH" = 'true' ] || { [ "$EVENT_NAME" = 'schedule' ] && [ "$AUTO_ENABLED" = 'true' ]; }; then
             python scripts/editorial_telegram.py --publish --max-items 1
           else
             python scripts/editorial_telegram.py
           fi
-      - name: Persist successful deliveries
+      - name: Merge successful Telegram delivery receipts on latest main
         shell: bash
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/data/editorial_share_queue.json
-          if git diff --cached --quiet; then
-            echo "No delivery ledger changes"
-            exit 0
-          fi
-          git commit -m "data(editorial): save Telegram delivery ledger"
-          git pull --rebase origin main
-          git push origin HEAD:main
+          set -euo pipefail
+          cp assets/data/editorial_share_queue.json "$RUNNER_TEMP/editorial-receipts.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python scripts/editorial_merge_receipts.py --receipt "$RUNNER_TEMP/editorial-receipts.json"
+            git add assets/data/editorial_share_queue.json
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -m "data(editorial): confirm Telegram delivery"
+            if git push origin HEAD:main; then exit 0; fi
+            echo "Concurrent ledger update, retry $attempt/3"
+          done
+          echo "::error::Telegram receipt could not be saved. Review last send before retrying."
+          exit 1
