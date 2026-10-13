@@ -41,7 +41,7 @@ function extractMovi(data:any,input:Match):LiveQuote|null{
     if(!marketMatches(q?.group_name??q?.market,input))continue;
     const selection=clean(q?.side??q?.label);
     if(!["over","o"].includes(selection)&&!selection.startsWith("over"))continue;
-    const labelLine=String(q?.label??"").match(/over\\s*(\\d+(?:\\.\\d+)?)/i);
+    const labelLine=String(q?.label??"").match(/over\s*(\d+(?:\.\d+)?)/i);
     const line=number(q?.line??q?.point??labelLine?.[1]);
     const price=number(q?.odds_dec??q?.price);
     if(!Number.isFinite(line)||Math.abs(line-input.line)>.01||!Number.isFinite(price)||price<=1.01||price>100)continue;
