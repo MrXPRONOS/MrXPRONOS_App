@@ -46,6 +46,7 @@ const LIVE_REQUIRE_BOOKMAKER_LINE = (Deno.env.get("LIVE_REQUIRE_BOOKMAKER_LINE")
 
 import { richPhotoOrLegacy, richTextOrLegacy } from "../_shared/telegram_rich.ts";
 import { attachLiveSponsorBanner } from "../_shared/live_sponsor_banner.ts";
+import { fetchFiveSourceLiveOdds } from "../_shared/live_odds_failover.ts";
 const TELEGRAM_BOT_TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
 const TELEGRAM_CHAT_ID = Deno.env.get("TELEGRAM_CHAT_ID") || "";
 // Deux destinations Telegram voulues : canal principal + canal secondaire.
@@ -4501,6 +4502,16 @@ const formatReceiptMoney = (n:number) => formatTelegramMoney(n);
 
 // Pricing V2: une cote externe est bookmaker; sinon la cote affichée est la fair odd du modèle.
 async function fetchExternalLivePropOdds(match: any, pred: any) {
+  const verified = await fetchFiveSourceLiveOdds({
+    match_id: String(match?.id ?? ""),
+    home: String(match?.home_team?.name ?? match?.home_team ?? match?.home_name ?? ""),
+    away: String(match?.away_team?.name ?? match?.away_team ?? match?.away_name ?? ""),
+    kickoff: String(match?.event_date ?? match?.start_time ?? match?.kickoff ?? ""),
+    market: String(pred?.type ?? pred?.prediction_type ?? ""),
+    line: Number(pred?.threshold),
+    minute: Number(pred?.minute ?? match?.current_minute ?? 0),
+  });
+  if (verified) return verified;
   if (!LIVE_PROP_ODDS_URL) return null;
   try {
     const requestedLine = Number(pred?.threshold);
@@ -4635,7 +4646,7 @@ async function alignPredictionToAvailableBookmakerLine(match: any, pred: any) {
     };
   }
 
-  if (!LIVE_PROP_ODDS_URL) {
+  if (!LIVE_PROP_ODDS_URL && !["MOVIODDS","PINNWIRE","ODDSLINK","GOALDIR","ODDSHARVESTER"].some(p => Deno.env.get("LIVE_ODDS_"+p+"_URL"))) {
     return {
       verified: false,
       external: null,
@@ -4733,7 +4744,7 @@ async function savePrediction(
   pred.home_score = pred.home_score ?? match.home_score ?? 0;
   pred.away_score = pred.away_score ?? match.away_score ?? 0;
 
-  const bookmakerAlignment = LIVE_PROP_ODDS_URL
+  const bookmakerAlignment = (LIVE_PROP_ODDS_URL || ["MOVIODDS","PINNWIRE","ODDSLINK","GOALDIR","ODDSHARVESTER"].some(p => Deno.env.get("LIVE_ODDS_"+p+"_URL")))
     ? await alignPredictionToAvailableBookmakerLine(match, pred)
     : {
         verified: false,
