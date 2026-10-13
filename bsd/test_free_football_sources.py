@@ -56,6 +56,7 @@ class TestFreeFootballSources(unittest.TestCase):
                 "away": "Chelsea",
                 "status": "scheduled",
                 "time": "2026-10-13T18:00:00Z",
+                "competition": "Premier League",
                 "slug": "arsenal-vs-chelsea",
             }]
         })
@@ -65,6 +66,8 @@ class TestFreeFootballSources(unittest.TestCase):
         )
         self.assertEqual(out[0]["id"], 12345)
         self.assertEqual(out[0]["_provider_match_refs"]["sportscore"]["slug"], "arsenal-vs-chelsea")
+        self.assertEqual(out[0]["league_name"], "Premier League")
+        self.assertEqual(out[0]["_league_name_source"], "sportscore")
         self.assertIn("bsd", out[0]["_provider_evidence"])
         self.assertIn("sportscore", out[0]["_provider_evidence"])
 
