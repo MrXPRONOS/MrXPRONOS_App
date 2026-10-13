@@ -34,7 +34,7 @@ def validate(root=ROOT, strict=False):
                 issues.append(f"{fname}[{n}]: lien source non HTTPS")
             if link and link in seen_urls: warnings.append(f"{fname}[{n}]: lien source doublon")
             if link:seen_urls.add(link)
-            for field in ("image_url","social_image","story_image"):
+            for field in ("image_url","social_image","story_image","ab_image_url"):
                 value=item.get(field)
                 if not value or not str(value).startswith("assets/images/editorial/"):continue
                 visual=root/value
@@ -42,7 +42,7 @@ def validate(root=ROOT, strict=False):
                     issues.append(f"{fname}[{n}]: fichier image absent {value}");continue
                 try:
                     with Image.open(visual) as im:
-                        expected={"image_url":(1200,630),"social_image":(1080,1080),"story_image":(1080,1920)}[field]
+                        expected={"image_url":(1200,630),"social_image":(1080,1080),"story_image":(1080,1920),"ab_image_url":(1200,630)}[field]
                         if im.size!=expected: issues.append(f"{fname}[{n}]: taille {field} incorrecte")
                         if im.format!="WEBP":issues.append(f"{fname}[{n}]: format {field} incorrect")
                 except (OSError,ValueError):
