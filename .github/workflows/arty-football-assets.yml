@@ -28,7 +28,7 @@ jobs:
           from arty_football_templates import export_blank_templates, W, H
           from PIL import Image
           output=export_blank_templates()
-          assert len(output)==11
+          assert len(output)==12
           for file in output:
               with Image.open(file) as im:
                   assert im.size==(W,H)
