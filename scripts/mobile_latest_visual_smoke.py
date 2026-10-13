@@ -41,7 +41,9 @@ def run_mobile(browser,width,height,label):
 
     if width <= 345:
         extra=page.locator(".assistant-status-extra")
-        if extra.count() and extra.evaluate("(el)=>getComputedStyle(el).display") != "none":
+        if extra.count() != 1:
+            raise AssertionError(f"{label}: compact assistant status markup missing")
+        if extra.evaluate("(el)=>getComputedStyle(el).display") != "none":
             raise AssertionError(f"{label}: extra assistant status should hide on very small mobile")
 
     page.locator(".assistant-close").click()

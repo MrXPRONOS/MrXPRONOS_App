@@ -324,6 +324,8 @@ function setupOverlayBodyLock() {
 
   const start = () => {
     sync();
+    if (typeof MutationObserver === "undefined") return;
+
     const observer = new MutationObserver(sync);
     document.querySelectorAll(selectors).forEach((el) => {
       observer.observe(el, { attributes: true, attributeFilter: ["style", "class", "hidden"] });
