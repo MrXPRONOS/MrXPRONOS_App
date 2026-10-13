@@ -1,4 +1,4 @@
-"""Audited MR XPRONOS Actu Foot event templates (batches 1 through 5).
+"""Audited MR XPRONOS Actu Foot event templates (batches 1 through 6).
 
 This module renders only verified dynamic data on top of native 1122x1402
 backgrounds generated for the Actu Foot event library.
@@ -64,13 +64,20 @@ EVENT_TEMPLATE_FILES = {
     "fin_temps_reglementaire": "fin_temps_reglementaire.png",
     "prolongation": "prolongation.png",
     "mi_temps_prolongation": "mi_temps_prolongation.png",
+    "tirs_au_but": "tirs_au_but.png",
+    "tir_au_but_marque": "tir_au_but_marque.png",
+    "tir_au_but_manque": "tir_au_but_manque.png",
+    "fin_tirs_au_but": "fin_tirs_au_but.png",
+    "composition_probable_full": "composition_probable_full.png",
 }
 EVENT_CATEGORIES = tuple(EVENT_TEMPLATE_FILES)
 EVENT_ALIASES = {
     "carton_jaune", "carton_rouge", "remplacement", "match_interrompu",
     "match_reporté", "match_annulé", "reprise_du_match",
     "fin_de_la_1re_mi_temps", "début_de_la_2e_mi_temps",
-    "fin_du_temps_réglementaire", "mi_temps_de_la_prolongation"
+    "fin_du_temps_réglementaire", "mi_temps_de_la_prolongation",
+    "tir_au_but_marqué", "tir_au_but_manqué", "fin_des_tirs_au_but",
+    "composition_probable"
 }
 
 # Each box is the safe interior area, not the visible outer gold frame.
@@ -394,6 +401,76 @@ SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "info": (170, 1140, 952, 1208),
         "source": (175, 1243, 947, 1282),
     },
+    "tirs_au_but": {
+        "logo_home": (82, 705, 193, 816),
+        "team_home": (66, 848, 342, 887),
+        "score_home": (400, 720, 500, 797),
+        "score_away": (622, 720, 722, 797),
+        "logo_away": (929, 705, 1040, 816),
+        "team_away": (780, 848, 1056, 887),
+        "shootout_home": (394, 840, 503, 923),
+        "shootout_away": (619, 840, 728, 923),
+        "competition": (190, 1024, 932, 1072),
+        "info": (170, 1114, 952, 1205),
+        "source": (178, 1244, 944, 1280),
+    },
+    "tir_au_but_marque": {
+        "logo_home": (82, 705, 193, 816),
+        "team_home": (66, 848, 342, 887),
+        "score_home": (400, 720, 500, 797),
+        "score_away": (622, 720, 722, 797),
+        "logo_away": (929, 705, 1040, 816),
+        "team_away": (780, 848, 1056, 887),
+        "shootout_home": (394, 840, 503, 923),
+        "shootout_away": (619, 840, 728, 923),
+        "player": (190, 1024, 932, 1072),
+        "player_team": (240, 1114, 882, 1160),
+        "info": (170, 1202, 952, 1278),
+    },
+    "tir_au_but_manque": {
+        "logo_home": (82, 705, 193, 816),
+        "team_home": (66, 848, 342, 887),
+        "score_home": (400, 720, 500, 797),
+        "score_away": (622, 720, 722, 797),
+        "logo_away": (929, 705, 1040, 816),
+        "team_away": (780, 848, 1056, 887),
+        "shootout_home": (394, 840, 503, 923),
+        "shootout_away": (619, 840, 728, 923),
+        "player": (190, 1024, 932, 1072),
+        "detail": (240, 1114, 882, 1160),
+        "info": (170, 1202, 952, 1278),
+    },
+    "fin_tirs_au_but": {
+        "logo_home": (82, 705, 193, 816),
+        "team_home": (66, 848, 342, 887),
+        "score_home": (400, 720, 500, 797),
+        "score_away": (622, 720, 722, 797),
+        "logo_away": (929, 705, 1040, 816),
+        "team_away": (780, 848, 1056, 887),
+        "shootout_home": (394, 840, 503, 923),
+        "shootout_away": (619, 840, 728, 923),
+        "winner": (210, 1022, 912, 1074),
+        "info": (170, 1118, 952, 1205),
+        "source": (178, 1244, 944, 1280),
+    },
+    "composition_probable_full": {
+        "logo_team": (80, 270, 170, 360),
+        "team": (220, 280, 610, 318),
+        "competition": (660, 280, 1038, 318),
+        "p1": (220, 438, 430, 470),
+        "p2": (456, 420, 666, 452),
+        "p3": (692, 438, 902, 470),
+        "p4": (255, 618, 465, 650),
+        "p5": (456, 653, 666, 685),
+        "p6": (657, 618, 867, 650),
+        "p7": (155, 838, 345, 870),
+        "p8": (375, 873, 545, 905),
+        "p9": (577, 873, 747, 905),
+        "p10": (777, 838, 967, 870),
+        "p11": (456, 1028, 666, 1060),
+        "formation": (180, 1168, 942, 1212),
+        "source": (180, 1247, 942, 1282),
+    },
 }
 
 # Audit-derived typography rules.
@@ -554,6 +631,49 @@ def _score_pair(payload: dict[str, Any]) -> tuple[str, str]:
     return (match.group(1), match.group(2)) if match else ("", "")
 
 
+def _shootout_score_pair(payload: dict[str, Any]) -> tuple[str, str]:
+    scores = payload.get("shootout_scores") or payload.get("penalty_scores")
+    if isinstance(scores, (tuple, list)) and len(scores) >= 2:
+        return clean(scores[0], 4), clean(scores[1], 4)
+    home_score = clean(
+        payload.get("shootout_home")
+        or payload.get("penalty_home")
+        or payload.get("shootout_home_score"),
+        4,
+    )
+    away_score = clean(
+        payload.get("shootout_away")
+        or payload.get("penalty_away")
+        or payload.get("shootout_away_score"),
+        4,
+    )
+    if home_score or away_score:
+        return home_score, away_score
+    raw = clean(payload.get("shootout_score") or payload.get("penalty_score"), 20)
+    match = re.search(r"(\d{1,2})\s*[-–—:]\s*(\d{1,2})", raw)
+    return (match.group(1), match.group(2)) if match else ("", "")
+
+
+def _probable_players(payload: dict[str, Any]) -> list[str]:
+    raw = payload.get("players") or payload.get("probable_xi") or payload.get("lineup")
+    if not isinstance(raw, (list, tuple)):
+        return []
+    players: list[str] = []
+    for item in raw:
+        if isinstance(item, dict):
+            name = clean(
+                item.get("name")
+                or item.get("player_name")
+                or item.get("short_name"),
+                100,
+            )
+        else:
+            name = clean(item, 100)
+        if name:
+            players.append(name)
+    return players
+
+
 def _category(category: str, payload: dict[str, Any]) -> str:
     if category in {"carton_jaune", "carton_rouge"}:
         player = clean(
@@ -599,6 +719,14 @@ def _category(category: str, payload: dict[str, Any]) -> str:
         return "fin_temps_reglementaire"
     if category == "mi_temps_de_la_prolongation":
         return "mi_temps_prolongation"
+    if category == "tir_au_but_marqué":
+        return "tir_au_but_marque"
+    if category == "tir_au_but_manqué":
+        return "tir_au_but_manque"
+    if category == "fin_des_tirs_au_but":
+        return "fin_tirs_au_but"
+    if category == "composition_probable":
+        return "composition_probable_full"
     return category
 
 
@@ -613,22 +741,35 @@ def template_path(category: str, payload: dict[str, Any] | None = None) -> Path:
     return ASSETS / EVENT_TEMPLATE_FILES[resolved]
 
 
-def _generated_batch5_background(resolved: str) -> Image.Image | None:
-    builders = {
+def _generated_background(resolved: str) -> Image.Image | None:
+    batch5_builders = {
         "fin_1re_mi_temps": "build_end_first_half",
         "debut_2e_mi_temps": "build_start_second_half",
         "fin_temps_reglementaire": "build_end_regulation",
         "prolongation": "build_extra_time",
         "mi_temps_prolongation": "build_extra_time_halftime",
     }
-    fn_name = builders.get(resolved)
-    if not fn_name:
-        return None
-    import build_event_batch_5_assets as batch5
-    image = getattr(batch5, fn_name)()
-    if image.size != (W, H):
-        raise ValueError(f"Invalid generated Actu Foot template size for {resolved}: {image.size}")
-    return image.convert("RGB")
+    if resolved in batch5_builders:
+        import build_event_batch_5_assets as batch5
+        image = getattr(batch5, batch5_builders[resolved])()
+        if image.size != (W, H):
+            raise ValueError(f"Invalid generated Actu Foot template size for {resolved}: {image.size}")
+        return image.convert("RGB")
+
+    batch6_builders = {
+        "tirs_au_but": "build_shootout",
+        "tir_au_but_marque": "build_shootout_scored",
+        "tir_au_but_manque": "build_shootout_missed",
+        "fin_tirs_au_but": "build_shootout_end",
+        "composition_probable_full": "build_probable_xi",
+    }
+    if resolved in batch6_builders:
+        import build_event_batch_6_assets as batch6
+        image = getattr(batch6, batch6_builders[resolved])()
+        if image.size != (W, H):
+            raise ValueError(f"Invalid generated Actu Foot template size for {resolved}: {image.size}")
+        return image.convert("RGB")
+    return None
 
 
 def background(category: str, payload: dict[str, Any] | None = None) -> Image.Image:
@@ -638,7 +779,7 @@ def background(category: str, payload: dict[str, Any] | None = None) -> Image.Im
         with Image.open(path) as source:
             image = source.convert("RGB")
     else:
-        image = _generated_batch5_background(resolved)
+        image = _generated_background(resolved)
         if image is None:
             raise FileNotFoundError("Missing audited Actu Foot template asset: " + str(path))
     if image.size != (W, H):
@@ -686,7 +827,8 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
     image = background(resolved, payload)
     draw = ImageDraw.Draw(image)
     spec = SPECS[resolved]
-    _common(image, draw, spec, payload)
+    if resolved != "composition_probable_full":
+        _common(image, draw, spec, payload)
 
     competition = clean(payload.get("competition") or payload.get("league"), 100)
     source = clean(payload.get("source"), 120)
@@ -938,6 +1080,83 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
                  max_lines=1, bold=True, color=GOLD)
         draw_fit(draw, status, spec["status"], size=31, min_size=16,
                  max_lines=4, bold=True)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved in {"tirs_au_but", "tir_au_but_marque", "tir_au_but_manque", "fin_tirs_au_but"}:
+        shootout_home, shootout_away = _shootout_score_pair(payload)
+        if shootout_home:
+            draw_fit(draw, shootout_home, spec["shootout_home"],
+                     size=62, min_size=30, max_lines=1, bold=True, color=GOLD)
+        if shootout_away:
+            draw_fit(draw, shootout_away, spec["shootout_away"],
+                     size=62, min_size=30, max_lines=1, bold=True, color=GOLD)
+
+        if resolved == "tirs_au_but":
+            detail = clean(payload.get("info") or payload.get("status") or payload.get("description"), 420)
+            draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                     max_lines=1, bold=True, color=GOLD)
+            draw_fit(draw, detail, spec["info"], size=26, min_size=15,
+                     max_lines=3, bold=False)
+            draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+        elif resolved == "tir_au_but_marque":
+            player = clean(payload.get("player") or payload.get("shooter"), 100)
+            player_team = clean(payload.get("player_team") or payload.get("team"), 100)
+            detail = clean(payload.get("info") or payload.get("description"), 320)
+            meta = " • ".join(x for x in (competition, source) if x)
+            if meta and meta not in detail:
+                detail = (detail + " • " + meta).strip(" •")
+            draw_fit(draw, player, spec["player"], size=31, min_size=16,
+                     max_lines=1, bold=True)
+            draw_fit(draw, player_team, spec["player_team"], size=24, min_size=15,
+                     max_lines=1, bold=True)
+            draw_fit(draw, detail, spec["info"], size=23, min_size=14,
+                     max_lines=3, bold=False)
+        elif resolved == "tir_au_but_manque":
+            player = clean(payload.get("player") or payload.get("shooter"), 100)
+            detail = clean(
+                payload.get("miss_detail")
+                or payload.get("reason")
+                or payload.get("result_detail"),
+                180,
+            )
+            info_text = clean(payload.get("info") or payload.get("description"), 320)
+            meta = " • ".join(x for x in (competition, source) if x)
+            if meta and meta not in info_text:
+                info_text = (info_text + " • " + meta).strip(" •")
+            draw_fit(draw, player, spec["player"], size=31, min_size=16,
+                     max_lines=1, bold=True)
+            draw_fit(draw, detail, spec["detail"], size=24, min_size=15,
+                     max_lines=1, bold=True)
+            draw_fit(draw, info_text, spec["info"], size=23, min_size=14,
+                     max_lines=3, bold=False)
+        else:
+            winner = clean(payload.get("winner") or payload.get("winning_team"), 100)
+            detail = clean(payload.get("info") or payload.get("status") or payload.get("description"), 420)
+            draw_fit(draw, winner, spec["winner"], size=32, min_size=16,
+                     max_lines=1, bold=True, color=GOLD)
+            draw_fit(draw, detail, spec["info"], size=26, min_size=15,
+                     max_lines=3, bold=False)
+            meta = " • ".join(x for x in (competition, source) if x)
+            draw_fit(draw, meta, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "composition_probable_full":
+        players = _probable_players(payload)
+        if len(players) < 11:
+            raise ValueError("Composition probable complète: 11 joueurs vérifiés sont requis")
+        team = clean(payload.get("team") or payload.get("home") or payload.get("team_name"), 100)
+        formation = clean(payload.get("formation") or payload.get("system"), 40)
+        _logo(image, payload.get("team_logo") or payload.get("home_logo"), spec["logo_team"])
+        draw_fit(draw, team, spec["team"], size=29, min_size=16,
+                 max_lines=1, bold=True, align="left")
+        draw_fit(draw, competition, spec["competition"], size=22, min_size=14,
+                 max_lines=1, bold=True, color=GOLD, align="right")
+        for idx, name in enumerate(players[:11], start=1):
+            draw_fit(draw, name, spec[f"p{idx}"], size=18, min_size=11,
+                     max_lines=1, bold=True)
+        formation_text = formation
+        extra = clean(payload.get("coach") or payload.get("status"), 120)
+        if extra:
+            formation_text = " • ".join(x for x in (formation_text, extra) if x)
+        draw_fit(draw, formation_text, spec["formation"], size=24, min_size=14,
+                 max_lines=1, bold=True)
         draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
     else:
         raise ValueError("Unhandled Actu Foot event template: " + resolved)
