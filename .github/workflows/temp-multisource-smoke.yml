@@ -57,15 +57,30 @@ jobs:
               print("SPORTSCORE_FIRST_NORMALIZED", json.dumps(ss[0], ensure_ascii=False, default=str)[:4000])
               raw = (ss[0].get("raw_data") or {})
               print("SPORTSCORE_FIRST_RAW_KEYS", sorted(raw.keys()) if isinstance(raw, dict) else type(raw).__name__)
+              source_url = str(raw.get("url") or "")
+              parts = [p for p in source_url.split("/") if p]
+              candidates = []
+              if len(parts) >= 2:
+                  candidates.extend([parts[-1], parts[-2], "/".join(parts[-2:])])
               slug = ss[0].get("source_slug")
-              detail = None
               if slug:
-                  detail = hub._get(
-                      "sportscore",
+                  candidates.insert(0, slug)
+              detail = None
+              for candidate in dict.fromkeys(candidates):
+                  response = requests.get(
                       "https://sportscore.com/api/v1/match/",
-                      params={"sport": "football", "slug": slug},
-                      ttl=0,
+                      params={"sport": "football", "slug": candidate},
+                      headers={"Accept": "application/json", "User-Agent": "MrXPRONOS-MultiSource-Probe/1.0"},
+                      timeout=15,
                   )
+                  print("SPORTSCORE_MATCH_CANDIDATE", candidate, response.status_code, response.text[:300].replace("\n"," "))
+                  if response.ok:
+                      try:
+                          detail = response.json()
+                      except ValueError:
+                          detail = None
+                      if isinstance(detail, dict):
+                          break
               def walk_keys(obj, prefix="", depth=0):
                   found=[]
                   if depth > 6:
