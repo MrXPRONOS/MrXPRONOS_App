@@ -1010,12 +1010,12 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
     best = None
     best_score = 0.0
     for item in external:
-        similarity = match_similarity(bh, ba, item.get("home_team", ""), item.get("away_team", ""))
+        similarity = match_similarity(bh, ba, _team_name(item, "home"), _team_name(item, "away"))
         # Sur un match déjà annoncé, les deux équipes doivent être dans le même
         # ordre: une correspondance inversée fausserait le score affiché.
         if base.get("follow_ref") and min(
-            _tokens_similarity(bh, item.get("home_team", "")),
-            _tokens_similarity(ba, item.get("away_team", "")),
+            _tokens_similarity(bh, _team_name(item, "home")),
+            _tokens_similarity(ba, _team_name(item, "away")),
         ) < 0.45:
             continue
         if similarity < 0.48:
@@ -1114,7 +1114,7 @@ def lifecycle_signals(
     if not base_events and not tracked_only:
         base_events = [
             item for item in external
-            if item.get("source") in {"espn", "supabase_live"}
+            if item.get("source") in {"espn", "sportscore", "openligadb", "thesportsdb", "multisource", "supabase_live"}
             and item.get("home_team") and item.get("away_team")
         ]
     signals: list[dict] = []
@@ -1178,9 +1178,9 @@ def lifecycle_signals(
         key_id = follow_ref or event_id
         home = _team_name(base, "home")
         away = _team_name(base, "away")
-        league = _plain(base.get("league_name") or base.get("competition_name") or ext.get("league") or "Football")
+        league = _plain(base.get("league_name") or base.get("competition_name") or ext.get("league_name") or ext.get("league") or "Football")
         kickoff = _event_time(base) or _moment(ext.get("event_date"))
-        minute = int(ext.get("minute") or 0)
+        minute = int(ext.get("minute") or ext.get("current_minute") or 0)
         hs = _score(ext.get("home_score"))
         aws = _score(ext.get("away_score"))
         score_text = f"{hs}-{aws}" if hs is not None and aws is not None else ""
@@ -1344,9 +1344,9 @@ def lifecycle_signals(
         signals.append({
             "kind": "score_update", "key": key, "priority": 110 + int(importance_fn(base) or 0),
             "home": _team_name(base, "home"), "away": _team_name(base, "away"),
-            "league": base.get("league_name") or match.get("league") or "Football",
-            "score": score_text, "minute": match.get("minute"),
-            "source": match.get("source") or "source live", "follow_ref": ref,
+            "league": base.get("league_name") or match.get("league_name") or match.get("league") or "Football",
+            "score": score_text, "minute": match.get("minute") or match.get("current_minute"),
+            "source": source_label(match), "follow_ref": ref,
             "espn_event_id": score_espn_id, "espn_url": score_espn_url,
         })
 
