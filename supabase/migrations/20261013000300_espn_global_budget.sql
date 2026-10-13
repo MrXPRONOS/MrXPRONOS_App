@@ -55,7 +55,7 @@ begin
   if p_bucket not in ('scoreboard', 'summary') then return; end if;
   if p_seconds < 1 then return; end if;
   insert into public.espn_request_budget(bucket, blocked_until)
-  values (p_bucket, now() + make_interval(secs => least(p_seconds, 300)))
+  values (p_bucket, now() + make_interval(secs => least(p_seconds, 86400)))
   on conflict (bucket) do update
     set blocked_until = greatest(
       coalesce(public.espn_request_budget.blocked_until, now()),
