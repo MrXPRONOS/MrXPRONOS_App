@@ -242,23 +242,6 @@ def fetch_football_data_standings(
     return rows
 
 
-def _openliga_result(item: dict) -> tuple[int, int] | None:
-    results = item.get("matchResults") or []
-    latest = None
-    for row in results if isinstance(results, list) else []:
-        if not isinstance(row, dict):
-            continue
-        if latest is None or int(row.get("resultOrderID") or 0) > int(latest.get("resultOrderID") or 0):
-            latest = row
-    if not latest:
-        return None
-    home = _integer(latest.get("pointsTeam1"))
-    away = _integer(latest.get("pointsTeam2"))
-    if home is None or away is None:
-        return None
-    return home, away
-
-
 def fetch_openliga_table(
     session: requests.Session,
     spec: LeagueSpec,
@@ -269,64 +252,83 @@ def fetch_openliga_table(
         return []
     try:
         response = session.get(
-            f"{OPENLIGA_BASE}/getmatchdata/{spec.openliga}/{season}",
+            f"{OPENLIGA_BASE}/getbltable/{spec.openliga}/{season}",
             headers={"User-Agent": USER_AGENT},
-            timeout=(7, 25),
+            timeout=(7, 22),
         )
         response.raise_for_status()
         payload = response.json()
     except (requests.RequestException, ValueError):
         return []
 
-    table: dict[str, dict] = {}
-    for match in payload if isinstance(payload, list) else []:
-        if not isinstance(match, dict):
+    rows: list[dict] = []
+    for idx, item in enumerate(payload if isinstance(payload, list) else [], 1):
+        if not isinstance(item, dict):
             continue
-        score = _openliga_result(match)
-        if score is None:
+        name = _plain(item.get("TeamName") or item.get("teamName"))
+        if not name:
             continue
-        hobj = match.get("team1") if isinstance(match.get("team1"), dict) else {}
-        aobj = match.get("team2") if isinstance(match.get("team2"), dict) else {}
-        home = _plain(hobj.get("teamName"))
-        away = _plain(aobj.get("teamName"))
-        if not home or not away:
-            continue
-        for name in (home, away):
-            table.setdefault(name, {
-                "source": "OpenLigaDB", "team": name, "rank": None,
-                "played": 0, "wins": 0, "draws": 0, "losses": 0,
-                "points": 0, "goals_for": 0, "goals_against": 0, "goal_diff": 0,
-                "form": "",
-            })
-        hs, aws = score
-        h, a = table[home], table[away]
-        h["played"] += 1
-        a["played"] += 1
-        h["goals_for"] += hs
-        h["goals_against"] += aws
-        a["goals_for"] += aws
-        a["goals_against"] += hs
-        if hs > aws:
-            h["wins"] += 1
-            a["losses"] += 1
-            h["points"] += 3
-        elif hs < aws:
-            a["wins"] += 1
-            h["losses"] += 1
-            a["points"] += 3
-        else:
-            h["draws"] += 1
-            a["draws"] += 1
-            h["points"] += 1
-            a["points"] += 1
-
-    rows = list(table.values())
-    for row in rows:
-        row["goal_diff"] = row["goals_for"] - row["goals_against"]
-    rows.sort(key=lambda x: (-x["points"], -x["goal_diff"], -x["goals_for"], x["team"]))
-    for idx, row in enumerate(rows, 1):
-        row["rank"] = idx
+        goals_for = _integer(item.get("Goals") if "Goals" in item else item.get("goals"))
+        goals_against = _integer(
+            item.get("OpponentGoals") if "OpponentGoals" in item else item.get("opponentGoals")
+        )
+        goal_diff = _integer(item.get("GoalDiff") if "GoalDiff" in item else item.get("goalDiff"))
+        if goal_diff is None and goals_for is not None and goals_against is not None:
+            goal_diff = goals_for - goals_against
+        rows.append({
+            "source": "OpenLigaDB",
+            "team": name,
+            "team_id": str(item.get("TeamInfoId") or item.get("teamInfoId") or ""),
+            "rank": idx,
+            "played": _integer(item.get("Matches") if "Matches" in item else item.get("matches")),
+            "wins": _integer(item.get("Won") if "Won" in item else item.get("won")),
+            "draws": _integer(item.get("Draw") if "Draw" in item else item.get("draw")),
+            "losses": _integer(item.get("Lost") if "Lost" in item else item.get("lost")),
+            "points": _integer(item.get("Points") if "Points" in item else item.get("points")),
+            "goals_for": goals_for,
+            "goals_against": goals_against,
+            "goal_diff": goal_diff,
+            "form": "",
+        })
     return rows
+
+
+def fetch_openliga_top_scorers(
+    session: requests.Session,
+    spec: LeagueSpec,
+    *,
+    season: int,
+) -> list[dict]:
+    if not spec.openliga:
+        return []
+    try:
+        response = session.get(
+            f"{OPENLIGA_BASE}/getgoalgetters/{spec.openliga}/{season}",
+            headers={"User-Agent": USER_AGENT},
+            timeout=(7, 22),
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError):
+        return []
+
+    rows = []
+    for item in payload if isinstance(payload, list) else []:
+        if not isinstance(item, dict):
+            continue
+        name = _plain(item.get("goalGetterName") or item.get("GoalGetterName"))
+        goals = _integer(item.get("goalCount") if "goalCount" in item else item.get("GoalCount"))
+        if name and goals is not None:
+            rows.append({
+                "source": "OpenLigaDB",
+                "player": name,
+                "goals": goals,
+                "assists": None,
+                "appearances": None,
+                "team": _plain(item.get("teamName") or item.get("TeamName")),
+            })
+    rows.sort(key=lambda x: (-x["goals"], x["player"]))
+    return rows[:10]
 
 
 def fetch_api_football_top_scorers(
@@ -456,7 +458,10 @@ def collect_snapshot(
         "sources": list(sources.keys()),
         "confidence": confidence,
         "table": primary,
-        "top_scorers": fetch_api_football_top_scorers(session, spec, season=season),
+        "top_scorers": (
+            fetch_api_football_top_scorers(session, spec, season=season)
+            or fetch_openliga_top_scorers(session, spec, season=season)
+        ),
     }
 
 
@@ -490,7 +495,7 @@ def build_insight(snapshot: dict, *, variant: int = 0) -> dict | None:
                 f"1. {x['player']} — {x['goals']} buts" + (f" • {x['team']}" if x.get("team") else "")
                 for x in top
             ],
-            "source": "API-Football",
+            "source": top[0].get("source") or "source buteurs",
             "confidence": max(confidence, 90),
         }
 
