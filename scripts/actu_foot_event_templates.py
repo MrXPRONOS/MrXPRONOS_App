@@ -497,6 +497,14 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
     resolved = _category(category, payload)
     if resolved not in EVENT_TEMPLATE_FILES:
         raise ValueError("Unknown Actu Foot event template: " + str(category))
+    if resolved == "match_interrompu_full":
+        verified_reason = clean(
+            payload.get("reason")
+            or payload.get("interruption_reason")
+            or payload.get("detail")
+        )
+        if not verified_reason:
+            raise ValueError("Match interrompu complet: raison vérifiée requise")
 
     image = background(resolved, payload)
     draw = ImageDraw.Draw(image)
