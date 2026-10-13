@@ -1,5 +1,132 @@
 [
   {
+    "id": "43306af441c9801ed38cc5d7",
+    "kind": "article",
+    "title": "RS Berkane vs Renaissance Zemamra : fiche match BSD V2",
+    "url": "https://mrxpronos.github.io/MrXPRONOS_App/articles/bsd-match-606058/",
+    "source_date": "2026-10-13T05:41:47.854703+00:00",
+    "visual_variant": "v3",
+    "image": "assets/images/editorial/match-bsd-match-606058-a1edb3f5-social.webp",
+    "story_image": "assets/images/editorial/match-bsd-match-606058-a1edb3f5-story.webp",
+    "status": "pending_review",
+    "created_at": "2026-10-13T05:41:48.377860+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false,
+    "instagram_image": "assets/images/editorial/match-bsd-match-606058-a1edb3f5-social.jpg"
+  },
+  {
+    "id": "e1525412cde48bd25ec95798",
+    "kind": "news",
+    "title": "Ligue des champions – Arsenal-Lille : le LOSC adore se frotter aux gros",
+    "url": "https://www.sofoot.com/articles/ligue-des-champions-arsenal-lille-le-losc-adore-se-frotter-aux-gros",
+    "source_date": "2026-10-13T04:00:41+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-13T05:41:48.377860+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "43f91fb428a991eef9cde9dc",
+    "kind": "news",
+    "title": "Lens-Sporting : Pourquoi les clubs portugais sont-ils la bête noire des Français en Coupe d’Europe ?",
+    "url": "https://www.sofoot.com/articles/lens-sporting-pourquoi-les-clubs-portugais-sont-ils-la-bete-noire-des-francais-en-coupe-deurope",
+    "source_date": "2026-10-13T04:00:20+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-13T05:41:48.377860+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "e766d7bbb4040544b37db92d",
+    "kind": "news",
+    "title": "\"Franchement, j'en rêvais\" : huit ans après son départ, Olivier Giroud retrouve Arsenal avec un Losc revanchard en Ligue des champions",
+    "url": "https://www.franceinfo.fr/sports/foot/ligue-des-champions/franchement-j-en-revais-huit-ans-apres-son-depart-olivier-giroud-retrouve-arsenal-avec-un-losc-revanchard-en-ligue-des-champions_8230267.html#xtor=RSS-3-%5Bgeneral%5D",
+    "source_date": "2026-10-13T04:00:13+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-13T05:41:48.377860+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "fd230a1ca51ff82f736a7904",
+    "kind": "news",
+    "title": "De Platini à Zidane en passant par Messi et Ronaldo : le prestigieux palmarès du Onze d'Or",
+    "url": "https://www.onzemondial.com/de-platini-a-zidane-en-passant-par-messi-et-ronaldo-le-prestigieux-palmares-du-onze-dor-1002382",
+    "source_date": "2026-10-13T04:00:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-13T05:41:48.377860+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
+    "id": "3de67f049169a8b8eee9aa10",
+    "kind": "news",
+    "title": "Galatasaray-FC Barcelone : chaîne tv, streaming… À quelle heure et où suivre cette rencontre de Ligue des champions ?",
+    "url": "https://www.onzemondial.com/ligue-des-champions/galatasaray-fc-barcelone-chaine-tv-streaming-a-quelle-heure-et-ou-suivre-cette-rencontre-de-ligue-des-champions-1001930",
+    "source_date": "2026-10-13T03:45:00+00:00",
+    "visual_variant": "legacy",
+    "image": "",
+    "story_image": "",
+    "status": "pending_review",
+    "created_at": "2026-10-13T05:41:48.377860+00:00",
+    "platform_status": {
+      "facebook": "not_requested",
+      "instagram": "not_requested",
+      "threads": "not_requested",
+      "telegram": "not_requested",
+      "tiktok": "not_requested",
+      "youtube": "not_requested"
+    },
+    "retired": false
+  },
+  {
     "id": "2fbbdc21ad5d0bc00f305801",
     "kind": "news",
     "title": "Arsenal-Lille : à quelle heure et sur quelle chaîne TV suivre cette rencontre de Ligue des champions en streaming ?",
@@ -711,7 +838,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "45191c782e33efd4efaaa271",
@@ -732,7 +859,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "94a1331d6eff9166eabd60bc",
@@ -900,7 +1027,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "c5de60c1f69815675638a7af",
@@ -921,7 +1048,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "3568205420241ffa375b4851",
@@ -942,7 +1069,7 @@
       "tiktok": "not_requested",
       "youtube": "not_requested"
     },
-    "retired": false
+    "retired": true
   },
   {
     "id": "28a03653c6758115bcb7d9f3",
