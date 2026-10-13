@@ -981,37 +981,95 @@ def render_stat(payload: dict[str, Any]) -> Image.Image:
     return image
 
 
-def _flash_editorial_illustration(dimensions: tuple[int, int]) -> Image.Image:
-    """Fond Flash Foot original dessiné localement, sans photographie de presse."""
-    w, h = dimensions
-    art = Image.new("RGB", (w, h), "#061625")
-    d = ImageDraw.Draw(art)
+def _flash_topic(title: str) -> str:
+    """Classe un sujet en catégories graphiques sans inventer de faits."""
+    value=clean(title).casefold()
+    categories=(
+        ("MERCATO", ("transfert", "mercato", "recrut", "signature", "prêt ", "officialis")),
+        ("COMPÉTITION", ("ligue des champions", "coupe", "finale", "trophée", "titre de champion")),
+        ("MATCH", ("match", "but ", "score", "victoire", "défaite", "penalty")),
+        ("DISCIPLINE", ("carton", "suspension", "sanction", "blessure", "absence")),
+    )
+    for category, keywords in categories:
+        if any(word in value for word in keywords):
+            return category
+    return "ACTUALITÉ"
+
+
+def _flash_editorial_illustration(dimensions: tuple[int, int], title: str = "") -> Image.Image:
+    """Scène premium originale, adaptée au thème ; sans photo sous droits."""
+    w,h=dimensions
+    category=_flash_topic(title)
+    themes={
+        "MERCATO":((25,66,91),(28,160,168)),
+        "COMPÉTITION":((43,57,90),(245,188,72)),
+        "MATCH":((10,66,70),(83,187,137)),
+        "DISCIPLINE":((74,48,66),(219,112,113)),
+        "ACTUALITÉ":((10,46,78),(75,147,205)),
+    }
+    bg,accent=themes[category]
+    art=Image.new("RGB",(w,h),bg)
+    d=ImageDraw.Draw(art)
     for y in range(h):
-        t = y / max(h - 1, 1)
-        d.line((0, y, w, y), fill=(
-            int(8 + 8 * (1 - t)), int(28 + 17 * (1 - t)), int(47 + 11 * (1 - t))
-        ))
-    # Pitch stylisé, ballon abstrait, anneaux et accents dorés.
-    margin = 42
-    d.rounded_rectangle((margin, 28, w - margin, h - 28), radius=25,
-                        outline="#305469", width=3)
-    d.line((w // 2, 28, w // 2, h - 28), fill="#1B4256", width=3)
-    radius = min(h // 3, 145)
-    d.ellipse((w//2-radius, h//2-radius, w//2+radius, h//2+radius),
-              outline="#456B7D", width=3)
-    for gap in range(0, 5):
-        x = int(w*.7) + gap*45
-        d.line((x, 30, x-int(w*.28), h-30), fill="#1A4055", width=2)
-    ball_x, ball_y = int(w*.5), int(h*.49)
-    d.ellipse((ball_x-60,ball_y-60,ball_x+60,ball_y+60), fill="#E6EBE5")
-    d.polygon([(ball_x-17,ball_y-18),(ball_x+18,ball_y-18),
-               (ball_x+33,ball_y+12),(ball_x,ball_y+37),
-               (ball_x-32,ball_y+12)], fill="#173043")
-    for ox,oy in ((-37,-34),(30,-36),(-42,31),(39,28)):
-        d.ellipse((ball_x+ox-10,ball_y+oy-10,ball_x+ox+10,ball_y+oy+10),fill="#19394B")
-    d.rounded_rectangle((int(w*.06), int(h*.78), int(w*.35), int(h*.87)),
-                        radius=14,fill="#142D40",outline="#BB974A",width=2)
-    d.text((int(w*.08),int(h*.8)), "FLASH FOOT  •  MX",font=_font(20,True),fill=GOLD)
+        t=y/max(1,h-1)
+        tone=tuple(int(bg[i]*(1-.47*t)) for i in range(3))
+        d.line((0,y,w,y),fill=tone)
+    # Perspective du terrain synthétique : fond texturé, pas de photo.
+    pad=max(20,int(w*.06))
+    d.rounded_rectangle((pad,pad,w-pad,h-pad),radius=30,outline=(51,95,112),width=3)
+    d.line((w//2,pad,w//2,h-pad),fill=(45,86,102),width=3)
+    rad=int(min(w,h)*.34)
+    d.ellipse((w//2-rad,h//2-rad,w//2+rad,h//2+rad),outline=(59,104,119),width=3)
+    for i in range(5):
+        x=int(.12*w)+i*int(w*.18)
+        d.line((x,pad+8,x+int(h*.28),h-pad-8),fill=(29,73,93),width=2)
+    # Ornements contextuels dans un bloc facilement identifiable.
+    cx,cy=int(w*.51),int(h*.51)
+    icon_size=int(min(w,h)*.28)
+    if category=="MERCATO":
+        # Silhouette de maillot + flèches de mouvement.
+        pts=[(cx-icon_size*.52,cy-icon_size*.35),(cx-icon_size*.82,cy-icon_size*.10),
+             (cx-icon_size*.54,cy+icon_size*.20),(cx-icon_size*.38,cy+icon_size*.05),
+             (cx-icon_size*.38,cy+icon_size*.74),(cx+icon_size*.38,cy+icon_size*.74),
+             (cx+icon_size*.38,cy+icon_size*.05),(cx+icon_size*.54,cy+icon_size*.20),
+             (cx+icon_size*.82,cy-icon_size*.10),(cx+icon_size*.52,cy-icon_size*.35)]
+        d.polygon(pts,fill=(230,239,240),outline=accent,width=5)
+        d.arc((cx-icon_size*.26,cy-icon_size*.47,cx+icon_size*.26,cy-icon_size*.05),0,180,fill=accent,width=7)
+        yarrow=cy-icon_size*.78
+        d.line((cx-icon_size*.57,yarrow,cx+icon_size*.45,yarrow),fill=accent,width=8)
+        d.polygon([(cx+icon_size*.45,yarrow-icon_size*.13),(cx+icon_size*.68,yarrow),(cx+icon_size*.45,yarrow+icon_size*.13)],fill=accent)
+    elif category=="COMPÉTITION":
+        # Coupe/trophée stylisé sans emblème d'une compétition réelle.
+        d.polygon([(cx-icon_size*.47,cy-icon_size*.44),(cx+icon_size*.47,cy-icon_size*.44),
+                   (cx+icon_size*.29,cy+icon_size*.19),(cx,cy+icon_size*.39),
+                   (cx-icon_size*.29,cy+icon_size*.19)],fill=(233,190,82))
+        d.arc((cx-icon_size*.89,cy-icon_size*.52,cx-icon_size*.26,cy+icon_size*.26),80,280,fill=accent,width=10)
+        d.arc((cx+icon_size*.26,cy-icon_size*.52,cx+icon_size*.89,cy+icon_size*.26),-100,100,fill=accent,width=10)
+        d.rectangle((cx-icon_size*.12,cy+icon_size*.39,cx+icon_size*.12,cy+icon_size*.71),fill=accent)
+        d.rounded_rectangle((cx-icon_size*.48,cy+icon_size*.70,cx+icon_size*.48,cy+icon_size*.82),radius=12,fill=(239,211,133))
+    elif category=="DISCIPLINE":
+        # Carte d'arbitre et sifflet géométrique.
+        d.rounded_rectangle((cx-icon_size*.55,cy-icon_size*.70,cx+icon_size*.35,cy+icon_size*.68),
+                            radius=22,fill=(230,209,97),outline=accent,width=7)
+        d.line((cx-icon_size*.20,cy-icon_size*.30,cx+icon_size*.02,cy-icon_size*.30),fill=(68,42,42),width=9)
+        d.ellipse((cx+icon_size*.33,cy+icon_size*.28,cx+icon_size*.82,cy+icon_size*.66),fill=(230,233,235),outline=accent,width=6)
+    else:
+        # Ballon original et anneaux de mouvement.
+        radius_ball=int(icon_size*.54)
+        d.ellipse((cx-radius_ball,cy-radius_ball,cx+radius_ball,cy+radius_ball),fill=(237,243,242))
+        d.polygon([(cx-radius_ball*.23,cy-radius_ball*.36),(cx+radius_ball*.29,cy-radius_ball*.36),
+                   (cx+radius_ball*.56,cy+radius_ball*.12),(cx,cy+radius_ball*.70),
+                   (cx-radius_ball*.57,cy+radius_ball*.12)],fill=(16,40,56))
+        for dx,dy in ((-.69,-.67),(.66,-.65),(-.79,.58),(.76,.62)):
+            px=cx+int(dx*radius_ball);py=cy+int(dy*radius_ball)
+            d.ellipse((px-15,py-15,px+15,py+15),fill=(14,37,50))
+    # Cartouche robuste, utilisable même sans police Lato.
+    label_x,label_y=int(w*.055),int(h*.80)
+    width=int(w*.44)
+    d.rounded_rectangle((label_x,label_y,label_x+width,label_y+max(55,int(h*.115))),
+                        radius=16,fill=(7,23,36),outline=accent,width=3)
+    d.text((label_x+18,label_y+max(13,int(h*.023))),category,
+           font=_font(max(21,int(w*.026)),True),fill=(247,249,252))
     return art
 
 
@@ -1021,7 +1079,7 @@ def render_flash(payload: dict[str, Any]) -> Image.Image:
 
     photo = remote_photo(payload.get("image_url", ""), _box_size(FLASH_PHOTO_BOX))
     if photo is None:
-        photo = _flash_editorial_illustration(_box_size(FLASH_PHOTO_BOX))
+        photo = _flash_editorial_illustration(_box_size(FLASH_PHOTO_BOX),clean(payload.get("title")))
     paste_rounded_photo(image, photo, FLASH_PHOTO_BOX, radius=27)
 
     title = clean(payload.get("title"))

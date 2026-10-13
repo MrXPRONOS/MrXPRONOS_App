@@ -1,0 +1,38 @@
+name: Editorial Phase 5 - Validation BSD et Flash Foot
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/editorial_bsd_bridge.py'
+      - 'scripts/content_studio.py'
+      - 'scripts/template_cards.py'
+      - 'tests/test_editorial_phase5.py'
+      - '.github/workflows/editorial-phase5-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase5:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install free media and HTTP tools
+        run: python -m pip install Pillow requests feedparser deep-translator
+      - name: Compile edited Python sources
+        run: |
+          python -m compileall -q scripts/editorial_bsd_bridge.py scripts/content_studio.py scripts/template_cards.py
+      - name: Test actual BSD badges and thematic Flash artwork (mocked, no networking)
+        run: python -m unittest discover -s tests -p 'test_editorial_phase5.py' -v
+      - name: Preserve previous editorial behavior
+        run: |
+          python -m unittest discover -s tests -p 'test_editorial_free.py' -v
+          python -m unittest discover -s tests -p 'test_editorial_phase2.py' -v
+      - name: Dry run BSD data extraction, without changing files
+        run: python scripts/editorial_bsd_bridge.py --dry-run
