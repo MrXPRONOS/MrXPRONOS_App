@@ -46,6 +46,21 @@ class TelegramTestRoutingTests(unittest.TestCase):
             result=editorial_telegram.publish(queue_path=q,enabled=False)
             self.assertTrue(result["dry_run"])
 
+    def test_public_test_channel_is_the_default_everywhere(self):
+        paths=(
+            ".github/workflows/football-production.yml",
+            ".github/workflows/football-live-test-once.yml",
+            ".github/workflows/football-visual-live-test-once.yml",
+            ".github/workflows/football-premium-validation-once.yml",
+            ".github/workflows/bsd-v2-telegram-hourly.yml",
+            ".github/workflows/editorial-telegram.yml",
+            ".github/workflows/telegram-test-channel-smoke.yml",
+        )
+        for path in paths:
+            text=self.read(path)
+            self.assertIn("@predict_mrxp",text,path)
+            self.assertIn("TELEGRAM_TEST_CHAT_ID",text,path)
+
     def test_smoke_card_is_square_and_network_can_be_mocked(self):
         image=telegram_test_smoke.build()
         self.assertEqual(image.size,(1080,1080))
