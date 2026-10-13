@@ -42,7 +42,6 @@ jobs:
             --max 5 \
             --out daily_pronos_coupon_short_test.mp4 \
             --work-dir telegram_out/video_coupon_short
-          ffprobe -v error -show_entries format=duration,size -of json daily_pronos_coupon_short_test.mp4
 
       - name: Verify exact Telegram test destination
         env:
