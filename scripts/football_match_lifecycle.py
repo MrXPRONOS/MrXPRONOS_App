@@ -378,6 +378,15 @@ def lifecycle_signals(
     """Construit les transitions publiables, triées par urgence éditoriale."""
     today = now.astimezone(timezone.utc).date()
     external = collect_external(session, today, base_events)
+    # Mode lifecycle léger : si aucun calendrier BSD n'est fourni, ESPN/cache
+    # live devient temporairement la liste de base. Cela évite toute requête
+    # BSD dans les passages rapides de 10 minutes.
+    if not base_events:
+        base_events = [
+            item for item in external
+            if item.get("source") in {"espn", "supabase_live"}
+            and item.get("home_team") and item.get("away_team")
+        ]
     signals: list[dict] = []
     summary_cache: dict[str, dict] = {}
 
@@ -420,7 +429,7 @@ def lifecycle_signals(
                     })
 
         # Coup d'envoi: uniquement au tout début.
-        if is_live(ext) and 0 <= minute <= 9:
+        if is_live(ext) and 0 <= minute <= 12:
             key = "kickoff:" + event_id
             if key not in sent_keys:
                 signals.append({
@@ -454,7 +463,8 @@ def lifecycle_signals(
                 and goal_minute is not None
                 and (minute <= 0 or 0 <= minute - goal_minute <= 14)
             )
-            key = f"goal:{event_id}:{hs}-{aws}"
+            scorer_key = _norm(last_goal.get("player") or "unknown").replace(" ", "-")[:42]
+            key = f"goal:{event_id}:{hs}-{aws}:{goal_minute}:{scorer_key}"
             if key not in sent_keys and recent_goal:
                 signals.append({
                     "kind": "goal", "key": key, "priority": 100 + importance,
