@@ -2,8 +2,6 @@ name: Update football news
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '23 */3 * * *'
   push:
     branches: [main]
     paths:
