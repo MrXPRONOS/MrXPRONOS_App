@@ -5,7 +5,9 @@
 Important:
 - Coupon PNGs are produced by bsd_v2_card.render().
 - The bookmaker strip is added by bsd_v2_telegram_banner.attach_banner().
-- Coupon pixels are NOT redesigned, cropped or rescaled in the video.
+- Coupon pixels are NOT redesigned or cropped.
+- The complete coupon may be uniformly scaled down to fit social safe zones;
+  width and height always use the same scale factor, so there is no stretching.
 - Only the surrounding vertical canvas, staggered movement, progress hint and
   Telegram CTA belong to this video compositor.
 """
@@ -153,8 +155,12 @@ def select_matches(data, slot: str, now: datetime, *, limit=MAX_MATCHES, ledger_
 
     if slot == "preview":
         candidates = [m for m in matches if _valid_match(m, now)]
-        # Preview uses the nearest future matches, irrespective of calendar day.
-        candidates.sort(key=lambda m: (_event_dt(m), str(m.get("id") or "")))
+        # Video priority: strongest available price first, then kickoff.
+        candidates.sort(key=lambda m: (
+            -float((m.get("prediction") or {}).get("odds") or 0),
+            _event_dt(m),
+            str(m.get("id") or ""),
+        ))
         return candidates[:limit], "preview"
 
     target = _target_date(slot, now)
@@ -172,9 +178,12 @@ def select_matches(data, slot: str, now: datetime, *, limit=MAX_MATCHES, ledger_
             continue
         candidates.append(match)
 
-    # Evening naturally prioritizes the earliest matches of tomorrow.
-    # Morning takes whatever eligible matches remain unsent later that day.
-    candidates.sort(key=lambda m: (_event_dt(m), str(m.get("id") or "")))
+    # Within the target day, prefer higher odds first; kickoff breaks ties.
+    candidates.sort(key=lambda m: (
+        -float((m.get("prediction") or {}).get("odds") or 0),
+        _event_dt(m),
+        str(m.get("id") or ""),
+    ))
     return candidates[:limit], target
 
 
@@ -191,19 +200,20 @@ def generate_exact_cards(matches, out_dir: Path, now: datetime):
     return cards, pack
 
 
-def _eased_x(t, duration, enter=0.34, leave=0.34):
-    """Enter from right, hold, then exit left."""
+def _eased_x(t, duration, card_width, enter=0.34, leave=0.34):
+    """Enter from right, hold centered, then exit left."""
     def smooth(v):
         v = max(0.0, min(1.0, v))
         return v * v * (3.0 - 2.0 * v)
 
+    center_x = int((W - card_width) / 2)
     if t < enter:
         p = smooth(t / enter)
-        return int(W * (1.0 - p))
+        return int(W + (center_x - W) * p)
     if t > duration - leave:
         p = smooth((t - (duration - leave)) / leave)
-        return int(-W * p)
-    return 0
+        return int(center_x + (-card_width - center_x) * p)
+    return center_x
 
 
 def _overlay_png(index: int, total: int, out: Path):
@@ -211,8 +221,8 @@ def _overlay_png(index: int, total: int, out: Path):
     canvas = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
 
-    # Bottom CTA.
-    draw.rounded_rectangle((92, 1607, 988, 1752), radius=36, fill=(5, 18, 31, 230),
+    # CTA stays above the bottom UI zones used by TikTok/Reels/Shorts.
+    draw.rounded_rectangle((92, 1395, 988, 1535), radius=36, fill=(5, 18, 31, 230),
                            outline=(255, 255, 255, 34), width=2)
     title = "REJOINS-NOUS SUR TELEGRAM"
     sub = "Plus de pronostics sur @mr_xpronos"
@@ -220,16 +230,16 @@ def _overlay_png(index: int, total: int, out: Path):
     sf = _font(25, False)
     tw = draw.textbbox((0, 0), title, font=tf)[2]
     sw = draw.textbbox((0, 0), sub, font=sf)[2]
-    draw.text(((W - tw) / 2, 1640), title, font=tf, fill=(255, 255, 255, 255))
-    draw.text(((W - sw) / 2, 1692), sub, font=sf, fill=(186, 207, 224, 255))
+    draw.text(((W - tw) / 2, 1426), title, font=tf, fill=(255, 255, 255, 255))
+    draw.text(((W - sw) / 2, 1478), sub, font=sf, fill=(186, 207, 224, 255))
 
-    # Small visual cue that more coupons follow.
-    y = 1810
+    # Small visual cue that more coupons follow, also kept inside the safe zone.
+    y = 1635
     if total > 1:
         hint = "D’AUTRES PRONOSTICS SUIVENT  ›"
         hf = _font(23, True)
         hw = draw.textbbox((0, 0), hint, font=hf)[2]
-        draw.text(((W - hw) / 2, y - 45), hint, font=hf, fill=(198, 213, 225, 235))
+        draw.text(((W - hw) / 2, y - 48), hint, font=hf, fill=(198, 213, 225, 235))
 
     gap = 24
     radius = 8
@@ -256,16 +266,20 @@ def build_video(cards, output: Path, work_dir: Path):
         raise RuntimeError("Aucune carte à monter")
 
     per_card = 3.0 if total <= 2 else 2.6
-    coupon_y = 150
+    coupon_y = 105
+    target_width = 940
     scenes = []
 
     for idx, card_path in enumerate(cards):
         with Image.open(card_path) as image:
-            if image.width != W:
-                raise RuntimeError(f"Coupon inattendu: largeur {image.width}, attendu {W}")
-            coupon_h = image.height
-        if coupon_y + coupon_h >= 1580:
-            raise RuntimeError("Coupon Telegram trop haut pour le gabarit vidéo")
+            source_w, source_h = image.size
+        if source_w <= 0 or source_h <= 0:
+            raise RuntimeError("Dimensions coupon invalides")
+        scale = target_width / source_w
+        card_width = int(round(source_w * scale))
+        card_height = int(round(source_h * scale))
+        if coupon_y + card_height >= 1360:
+            raise RuntimeError("Coupon Telegram trop haut pour la zone vidéo sûre")
 
         overlay_path = work_dir / f"overlay_{idx+1:02d}.png"
         _overlay_png(idx, total, overlay_path)
@@ -273,8 +287,9 @@ def build_video(cards, output: Path, work_dir: Path):
         background = ColorClip((W, H), color=(7, 15, 24)).set_duration(per_card)
         coupon = (
             ImageClip(str(card_path))
+            .resize(width=card_width)
             .set_duration(per_card)
-            .set_position(lambda t, d=per_card: (_eased_x(t, d), coupon_y))
+            .set_position(lambda t, d=per_card, cw=card_width: (_eased_x(t, d, cw), coupon_y))
         )
         overlay = ImageClip(str(overlay_path), transparent=True).set_duration(per_card)
         scene = CompositeVideoClip([background, coupon, overlay], size=(W, H)).set_duration(per_card)
