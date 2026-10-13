@@ -8173,6 +8173,28 @@ serve(async (req) => {
       return json({ merged: data || [] });
     }
 
+    if (path === "/providers/health" && req.method === "GET") {
+      requireDebugAuth(url);
+      const { data, error } = await supabase
+        .from("football_provider_state")
+        .select("*")
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+
+      return json({
+        fetch_strategy: ["espn", "sportscore", "thesportsdb", "openligadb", "bsd_fallback"],
+        provider_quality: PROVIDER_QUALITY,
+        capability_priority: CAPABILITY_PRIORITY,
+        sportscore_odds: {
+          documented_public_endpoint: false,
+          production_source: false,
+          note: "SportScore public API documents match data but no bookmaker-odds endpoint; BSD/external remains official odds source.",
+        },
+        bsd_live_backfill_seconds: BSD_LIVE_BACKFILL_SECONDS,
+        states: data || [],
+      });
+    }
+
     // Un lot interne : maximum 5 matchs.
     // Cette route est appelée par le coordinateur /refresh.
     if (path === "/refresh/batch" && req.method === "POST") {
