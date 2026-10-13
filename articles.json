@@ -22,7 +22,8 @@
     "image_url": "assets/images/editorial/match-bsd-match-10177-3dbc9be7-og.webp",
     "social_image": "assets/images/editorial/match-bsd-match-10177-3dbc9be7-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-10177-3dbc9be7-story.webp",
-    "og_image": "assets/images/editorial/match-bsd-match-10177-3dbc9be7-og.webp"
+    "og_image": "assets/images/editorial/match-bsd-match-10177-3dbc9be7-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-10177-3dbc9be7-ab.webp"
   },
   {
     "slug": "bsd-match-223791",
@@ -47,7 +48,8 @@
     "image_url": "assets/images/editorial/match-bsd-match-223791-068e3459-og.webp",
     "social_image": "assets/images/editorial/match-bsd-match-223791-068e3459-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-223791-068e3459-story.webp",
-    "og_image": "assets/images/editorial/match-bsd-match-223791-068e3459-og.webp"
+    "og_image": "assets/images/editorial/match-bsd-match-223791-068e3459-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-223791-068e3459-ab.webp"
   },
   {
     "slug": "bsd-match-10179",
@@ -72,7 +74,8 @@
     "image_url": "assets/images/editorial/match-bsd-match-10179-c924bd69-og.webp",
     "social_image": "assets/images/editorial/match-bsd-match-10179-c924bd69-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-10179-c924bd69-story.webp",
-    "og_image": "assets/images/editorial/match-bsd-match-10179-c924bd69-og.webp"
+    "og_image": "assets/images/editorial/match-bsd-match-10179-c924bd69-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-10179-c924bd69-ab.webp"
   },
   {
     "slug": "bsd-match-223785",
@@ -97,7 +100,8 @@
     "image_url": "assets/images/editorial/match-bsd-match-223785-6c7e0bb0-og.webp",
     "social_image": "assets/images/editorial/match-bsd-match-223785-6c7e0bb0-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-223785-6c7e0bb0-story.webp",
-    "og_image": "assets/images/editorial/match-bsd-match-223785-6c7e0bb0-og.webp"
+    "og_image": "assets/images/editorial/match-bsd-match-223785-6c7e0bb0-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-223785-6c7e0bb0-ab.webp"
   },
   {
     "slug": "bsd-match-211727",
@@ -122,7 +126,8 @@
     "image_url": "assets/images/editorial/match-bsd-match-211727-75e4d4a5-og.webp",
     "social_image": "assets/images/editorial/match-bsd-match-211727-75e4d4a5-social.webp",
     "story_image": "assets/images/editorial/match-bsd-match-211727-75e4d4a5-story.webp",
-    "og_image": "assets/images/editorial/match-bsd-match-211727-75e4d4a5-og.webp"
+    "og_image": "assets/images/editorial/match-bsd-match-211727-75e4d4a5-og.webp",
+    "ab_image_url": "assets/images/editorial/match-bsd-match-211727-75e4d4a5-ab.webp"
   },
   {
     "slug": "carton-rouge-live-la-version-fcfa-petites-mises-pour-eviter-les-paris-impulsifs-a18082",
@@ -158,7 +163,8 @@
     "visual_hash": "53d5527d",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-carton-rouge-live-la-version-fcfa-petites-mises-pour-eviter-les-p-53d5527d-social.webp",
-    "story_image": "assets/images/editorial/article-carton-rouge-live-la-version-fcfa-petites-mises-pour-eviter-les-p-53d5527d-story.webp"
+    "story_image": "assets/images/editorial/article-carton-rouge-live-la-version-fcfa-petites-mises-pour-eviter-les-p-53d5527d-story.webp",
+    "ab_image_url": "assets/images/editorial/article-carton-rouge-live-la-version-fcfa-petites-mises-pour-eviter-les-p-53d5527d-ab.webp"
   },
   {
     "slug": "series-gains-pertes-3-signaux-fiables-3-pieges-a-eviter-6d51c5",
@@ -194,7 +200,8 @@
     "visual_hash": "6e84b2f8",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-series-gains-pertes-3-signaux-fiables-3-pieges-a-eviter-6d51c5-6e84b2f8-social.webp",
-    "story_image": "assets/images/editorial/article-series-gains-pertes-3-signaux-fiables-3-pieges-a-eviter-6d51c5-6e84b2f8-story.webp"
+    "story_image": "assets/images/editorial/article-series-gains-pertes-3-signaux-fiables-3-pieges-a-eviter-6d51c5-6e84b2f8-story.webp",
+    "ab_image_url": "assets/images/editorial/article-series-gains-pertes-3-signaux-fiables-3-pieges-a-eviter-6d51c5-6e84b2f8-ab.webp"
   },
   {
     "slug": "cotes-marches-plan-21-jours-en-fcfa-discipline-limites-35fc0f",
@@ -230,7 +237,8 @@
     "visual_hash": "02ad86ad",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-cotes-marches-plan-21-jours-en-fcfa-discipline-limites-35fc0f-02ad86ad-social.webp",
-    "story_image": "assets/images/editorial/article-cotes-marches-plan-21-jours-en-fcfa-discipline-limites-35fc0f-02ad86ad-story.webp"
+    "story_image": "assets/images/editorial/article-cotes-marches-plan-21-jours-en-fcfa-discipline-limites-35fc0f-02ad86ad-story.webp",
+    "ab_image_url": "assets/images/editorial/article-cotes-marches-plan-21-jours-en-fcfa-discipline-limites-35fc0f-02ad86ad-ab.webp"
   },
   {
     "slug": "psychologie-du-parieur-le-guide-anti-erreurs-special-debutants-39316b",
@@ -266,7 +274,8 @@
     "visual_hash": "3a05e7d7",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-psychologie-du-parieur-le-guide-anti-erreurs-special-debutants-39-3a05e7d7-social.webp",
-    "story_image": "assets/images/editorial/article-psychologie-du-parieur-le-guide-anti-erreurs-special-debutants-39-3a05e7d7-story.webp"
+    "story_image": "assets/images/editorial/article-psychologie-du-parieur-le-guide-anti-erreurs-special-debutants-39-3a05e7d7-story.webp",
+    "ab_image_url": "assets/images/editorial/article-psychologie-du-parieur-le-guide-anti-erreurs-special-debutants-39-3a05e7d7-ab.webp"
   },
   {
     "slug": "btts-strategie-prudente-exemple-5-000-fcfa-fb7599",
@@ -302,7 +311,8 @@
     "visual_hash": "2a377bfe",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-btts-strategie-prudente-exemple-5-000-fcfa-fb7599-2a377bfe-social.webp",
-    "story_image": "assets/images/editorial/article-btts-strategie-prudente-exemple-5-000-fcfa-fb7599-2a377bfe-story.webp"
+    "story_image": "assets/images/editorial/article-btts-strategie-prudente-exemple-5-000-fcfa-fb7599-2a377bfe-story.webp",
+    "ab_image_url": "assets/images/editorial/article-btts-strategie-prudente-exemple-5-000-fcfa-fb7599-2a377bfe-ab.webp"
   },
   {
     "slug": "combines-strategie-moderee-exemple-2-000-fcfa-ec86cb",
@@ -338,7 +348,8 @@
     "visual_hash": "fa51b7db",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-combines-strategie-moderee-exemple-2-000-fcfa-ec86cb-fa51b7db-social.webp",
-    "story_image": "assets/images/editorial/article-combines-strategie-moderee-exemple-2-000-fcfa-ec86cb-fa51b7db-story.webp"
+    "story_image": "assets/images/editorial/article-combines-strategie-moderee-exemple-2-000-fcfa-ec86cb-fa51b7db-story.webp",
+    "ab_image_url": "assets/images/editorial/article-combines-strategie-moderee-exemple-2-000-fcfa-ec86cb-fa51b7db-ab.webp"
   },
   {
     "slug": "parier-en-fcfa-limiter-le-risque-le-plan-clair-en-15-minutes-38c8bd",
@@ -374,7 +385,8 @@
     "visual_hash": "c6238fb8",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-parier-en-fcfa-limiter-le-risque-le-plan-clair-en-15-minutes-38c8-c6238fb8-social.webp",
-    "story_image": "assets/images/editorial/article-parier-en-fcfa-limiter-le-risque-le-plan-clair-en-15-minutes-38c8-c6238fb8-story.webp"
+    "story_image": "assets/images/editorial/article-parier-en-fcfa-limiter-le-risque-le-plan-clair-en-15-minutes-38c8-c6238fb8-story.webp",
+    "ab_image_url": "assets/images/editorial/article-parier-en-fcfa-limiter-le-risque-le-plan-clair-en-15-minutes-38c8-c6238fb8-ab.webp"
   },
   {
     "slug": "series-gains-pertes-plan-21-jours-en-fcfa-discipline-limites-d87db1",
@@ -410,7 +422,8 @@
     "visual_hash": "7ae5763c",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-series-gains-pertes-plan-21-jours-en-fcfa-discipline-limites-d87d-7ae5763c-social.webp",
-    "story_image": "assets/images/editorial/article-series-gains-pertes-plan-21-jours-en-fcfa-discipline-limites-d87d-7ae5763c-story.webp"
+    "story_image": "assets/images/editorial/article-series-gains-pertes-plan-21-jours-en-fcfa-discipline-limites-d87d-7ae5763c-story.webp",
+    "ab_image_url": "assets/images/editorial/article-series-gains-pertes-plan-21-jours-en-fcfa-discipline-limites-d87d-7ae5763c-ab.webp"
   },
   {
     "slug": "lecture-des-cotes-strategie-moderee-exemple-10-000-fcfa-34fca7",
@@ -446,7 +459,8 @@
     "visual_hash": "f9f7c236",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-lecture-des-cotes-strategie-moderee-exemple-10-000-fcfa-34fca7-f9f7c236-social.webp",
-    "story_image": "assets/images/editorial/article-lecture-des-cotes-strategie-moderee-exemple-10-000-fcfa-34fca7-f9f7c236-story.webp"
+    "story_image": "assets/images/editorial/article-lecture-des-cotes-strategie-moderee-exemple-10-000-fcfa-34fca7-f9f7c236-story.webp",
+    "ab_image_url": "assets/images/editorial/article-lecture-des-cotes-strategie-moderee-exemple-10-000-fcfa-34fca7-f9f7c236-ab.webp"
   },
   {
     "slug": "handicap-asiatique-le-guide-anti-pieges-niveau-intermediaire-30aa6f",
@@ -482,7 +496,8 @@
     "visual_hash": "76418407",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-handicap-asiatique-le-guide-anti-pieges-niveau-intermediaire-30aa-76418407-social.webp",
-    "story_image": "assets/images/editorial/article-handicap-asiatique-le-guide-anti-pieges-niveau-intermediaire-30aa-76418407-story.webp"
+    "story_image": "assets/images/editorial/article-handicap-asiatique-le-guide-anti-pieges-niveau-intermediaire-30aa-76418407-story.webp",
+    "ab_image_url": "assets/images/editorial/article-handicap-asiatique-le-guide-anti-pieges-niveau-intermediaire-30aa-76418407-ab.webp"
   },
   {
     "slug": "choisir-un-bookmaker-quand-jouer-quand-eviter-ultra-clair-7331b2",
@@ -518,7 +533,8 @@
     "visual_hash": "dd9ab012",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-choisir-un-bookmaker-quand-jouer-quand-eviter-ultra-clair-7331b2-dd9ab012-social.webp",
-    "story_image": "assets/images/editorial/article-choisir-un-bookmaker-quand-jouer-quand-eviter-ultra-clair-7331b2-dd9ab012-story.webp"
+    "story_image": "assets/images/editorial/article-choisir-un-bookmaker-quand-jouer-quand-eviter-ultra-clair-7331b2-dd9ab012-story.webp",
+    "ab_image_url": "assets/images/editorial/article-choisir-un-bookmaker-quand-jouer-quand-eviter-ultra-clair-7331b2-dd9ab012-ab.webp"
   },
   {
     "slug": "cote-trop-belle-le-guide-anti-pieges-niveau-intermediaire-fa912c",
@@ -554,7 +570,8 @@
     "visual_hash": "a8095c5e",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-cote-trop-belle-le-guide-anti-pieges-niveau-intermediaire-fa912c-a8095c5e-social.webp",
-    "story_image": "assets/images/editorial/article-cote-trop-belle-le-guide-anti-pieges-niveau-intermediaire-fa912c-a8095c5e-story.webp"
+    "story_image": "assets/images/editorial/article-cote-trop-belle-le-guide-anti-pieges-niveau-intermediaire-fa912c-a8095c5e-story.webp",
+    "ab_image_url": "assets/images/editorial/article-cote-trop-belle-le-guide-anti-pieges-niveau-intermediaire-fa912c-a8095c5e-ab.webp"
   },
   {
     "slug": "biais-cognitifs-plan-10-jours-en-fcfa-discipline-limites-b8cf59",
@@ -590,7 +607,8 @@
     "visual_hash": "aa7158c6",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-biais-cognitifs-plan-10-jours-en-fcfa-discipline-limites-b8cf59-aa7158c6-social.webp",
-    "story_image": "assets/images/editorial/article-biais-cognitifs-plan-10-jours-en-fcfa-discipline-limites-b8cf59-aa7158c6-story.webp"
+    "story_image": "assets/images/editorial/article-biais-cognitifs-plan-10-jours-en-fcfa-discipline-limites-b8cf59-aa7158c6-story.webp",
+    "ab_image_url": "assets/images/editorial/article-biais-cognitifs-plan-10-jours-en-fcfa-discipline-limites-b8cf59-aa7158c6-ab.webp"
   },
   {
     "slug": "forme-recente-ce-que-tu-dois-verifier-en-7-minutes-a18e1b",
@@ -626,7 +644,8 @@
     "visual_hash": "f74b1675",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-forme-recente-ce-que-tu-dois-verifier-en-7-minutes-a18e1b-f74b1675-social.webp",
-    "story_image": "assets/images/editorial/article-forme-recente-ce-que-tu-dois-verifier-en-7-minutes-a18e1b-f74b1675-story.webp"
+    "story_image": "assets/images/editorial/article-forme-recente-ce-que-tu-dois-verifier-en-7-minutes-a18e1b-f74b1675-story.webp",
+    "ab_image_url": "assets/images/editorial/article-forme-recente-ce-que-tu-dois-verifier-en-7-minutes-a18e1b-f74b1675-ab.webp"
   },
   {
     "slug": "parier-en-fcfa-h2h-intelligent-ce-que-la-plupart-des-parieurs-oublient-3bd4e8",
@@ -662,7 +681,8 @@
     "visual_hash": "e2f25dd9",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-parier-en-fcfa-h2h-intelligent-ce-que-la-plupart-des-parieurs-oub-e2f25dd9-social.webp",
-    "story_image": "assets/images/editorial/article-parier-en-fcfa-h2h-intelligent-ce-que-la-plupart-des-parieurs-oub-e2f25dd9-story.webp"
+    "story_image": "assets/images/editorial/article-parier-en-fcfa-h2h-intelligent-ce-que-la-plupart-des-parieurs-oub-e2f25dd9-story.webp",
+    "ab_image_url": "assets/images/editorial/article-parier-en-fcfa-h2h-intelligent-ce-que-la-plupart-des-parieurs-oub-e2f25dd9-ab.webp"
   },
   {
     "slug": "gestion-emotion-le-guide-anti-pieges-niveau-intermediaire-5f845c",
@@ -698,7 +718,8 @@
     "visual_hash": "b8130154",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-gestion-emotion-le-guide-anti-pieges-niveau-intermediaire-5f845c-b8130154-social.webp",
-    "story_image": "assets/images/editorial/article-gestion-emotion-le-guide-anti-pieges-niveau-intermediaire-5f845c-b8130154-story.webp"
+    "story_image": "assets/images/editorial/article-gestion-emotion-le-guide-anti-pieges-niveau-intermediaire-5f845c-b8130154-story.webp",
+    "ab_image_url": "assets/images/editorial/article-gestion-emotion-le-guide-anti-pieges-niveau-intermediaire-5f845c-b8130154-ab.webp"
   },
   {
     "slug": "match-piege-3-regles-a-suivre-sinon-tu-vas-souffrir-e40903",
@@ -734,7 +755,8 @@
     "visual_hash": "26150cfe",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-match-piege-3-regles-a-suivre-sinon-tu-vas-souffrir-e40903-26150cfe-social.webp",
-    "story_image": "assets/images/editorial/article-match-piege-3-regles-a-suivre-sinon-tu-vas-souffrir-e40903-26150cfe-story.webp"
+    "story_image": "assets/images/editorial/article-match-piege-3-regles-a-suivre-sinon-tu-vas-souffrir-e40903-26150cfe-story.webp",
+    "ab_image_url": "assets/images/editorial/article-match-piege-3-regles-a-suivre-sinon-tu-vas-souffrir-e40903-26150cfe-ab.webp"
   },
   {
     "slug": "comparer-les-bookmakers-quand-jouer-quand-eviter-ultra-clair-7679c0",
@@ -770,7 +792,8 @@
     "visual_hash": "c053025e",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-comparer-les-bookmakers-quand-jouer-quand-eviter-ultra-clair-7679-c053025e-social.webp",
-    "story_image": "assets/images/editorial/article-comparer-les-bookmakers-quand-jouer-quand-eviter-ultra-clair-7679-c053025e-story.webp"
+    "story_image": "assets/images/editorial/article-comparer-les-bookmakers-quand-jouer-quand-eviter-ultra-clair-7679-c053025e-story.webp",
+    "ab_image_url": "assets/images/editorial/article-comparer-les-bookmakers-quand-jouer-quand-eviter-ultra-clair-7679-c053025e-ab.webp"
   },
   {
     "slug": "motivation-enjeu-ce-que-tu-dois-verifier-en-7-minutes-3136a4",
@@ -806,7 +829,8 @@
     "visual_hash": "b8fad868",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-motivation-enjeu-ce-que-tu-dois-verifier-en-7-minutes-3136a4-b8fad868-social.webp",
-    "story_image": "assets/images/editorial/article-motivation-enjeu-ce-que-tu-dois-verifier-en-7-minutes-3136a4-b8fad868-story.webp"
+    "story_image": "assets/images/editorial/article-motivation-enjeu-ce-que-tu-dois-verifier-en-7-minutes-3136a4-b8fad868-story.webp",
+    "ab_image_url": "assets/images/editorial/article-motivation-enjeu-ce-que-tu-dois-verifier-en-7-minutes-3136a4-b8fad868-ab.webp"
   },
   {
     "slug": "compte-limite-le-guide-anti-pieges-niveau-intermediaire-9f430a",
@@ -842,7 +866,8 @@
     "visual_hash": "c9bc4cd5",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-compte-limite-le-guide-anti-pieges-niveau-intermediaire-9f430a-c9bc4cd5-social.webp",
-    "story_image": "assets/images/editorial/article-compte-limite-le-guide-anti-pieges-niveau-intermediaire-9f430a-c9bc4cd5-story.webp"
+    "story_image": "assets/images/editorial/article-compte-limite-le-guide-anti-pieges-niveau-intermediaire-9f430a-c9bc4cd5-story.webp",
+    "ab_image_url": "assets/images/editorial/article-compte-limite-le-guide-anti-pieges-niveau-intermediaire-9f430a-c9bc4cd5-ab.webp"
   },
   {
     "slug": "value-bet-strategie-prudente-exemple-20-000-fcfa-2ab3e6",
@@ -878,7 +903,8 @@
     "visual_hash": "4ce435fc",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-value-bet-strategie-prudente-exemple-20-000-fcfa-2ab3e6-4ce435fc-social.webp",
-    "story_image": "assets/images/editorial/article-value-bet-strategie-prudente-exemple-20-000-fcfa-2ab3e6-4ce435fc-story.webp"
+    "story_image": "assets/images/editorial/article-value-bet-strategie-prudente-exemple-20-000-fcfa-2ab3e6-4ce435fc-story.webp",
+    "ab_image_url": "assets/images/editorial/article-value-bet-strategie-prudente-exemple-20-000-fcfa-2ab3e6-4ce435fc-ab.webp"
   },
   {
     "slug": "bonus-linebet-xpvip-le-mini-plan-sur-7-jours-wagering-explique-exemple-fcfa-4ff9d0",
@@ -914,7 +940,8 @@
     "visual_hash": "210d5c99",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-bonus-linebet-xpvip-le-mini-plan-sur-7-jours-wagering-explique-ex-210d5c99-social.webp",
-    "story_image": "assets/images/editorial/article-bonus-linebet-xpvip-le-mini-plan-sur-7-jours-wagering-explique-ex-210d5c99-story.webp"
+    "story_image": "assets/images/editorial/article-bonus-linebet-xpvip-le-mini-plan-sur-7-jours-wagering-explique-ex-210d5c99-story.webp",
+    "ab_image_url": "assets/images/editorial/article-bonus-linebet-xpvip-le-mini-plan-sur-7-jours-wagering-explique-ex-210d5c99-ab.webp"
   },
   {
     "slug": "gestion-de-bankroll-le-mini-plan-sur-7-jours-pour-jouer-plus-propre-21d95b",
@@ -950,7 +977,8 @@
     "visual_hash": "b83cd0b7",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-gestion-de-bankroll-le-mini-plan-sur-7-jours-pour-jouer-plus-prop-b83cd0b7-social.webp",
-    "story_image": "assets/images/editorial/article-gestion-de-bankroll-le-mini-plan-sur-7-jours-pour-jouer-plus-prop-b83cd0b7-story.webp"
+    "story_image": "assets/images/editorial/article-gestion-de-bankroll-le-mini-plan-sur-7-jours-pour-jouer-plus-prop-b83cd0b7-story.webp",
+    "ab_image_url": "assets/images/editorial/article-gestion-de-bankroll-le-mini-plan-sur-7-jours-pour-jouer-plus-prop-b83cd0b7-ab.webp"
   },
   {
     "slug": "over-live-10-signaux-fiables-7-pieges-a-eviter-1ddcfb",
@@ -986,7 +1014,8 @@
     "visual_hash": "71a2739e",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-over-live-10-signaux-fiables-7-pieges-a-eviter-1ddcfb-71a2739e-social.webp",
-    "story_image": "assets/images/editorial/article-over-live-10-signaux-fiables-7-pieges-a-eviter-1ddcfb-71a2739e-story.webp"
+    "story_image": "assets/images/editorial/article-over-live-10-signaux-fiables-7-pieges-a-eviter-1ddcfb-71a2739e-story.webp",
+    "ab_image_url": "assets/images/editorial/article-over-live-10-signaux-fiables-7-pieges-a-eviter-1ddcfb-71a2739e-ab.webp"
   },
   {
     "slug": "over-under-2-5-la-version-fcfa-grosses-mises-special-afrique-francophone-5d1882",
@@ -1022,7 +1051,8 @@
     "visual_hash": "fc3ca311",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-over-under-2-5-la-version-fcfa-grosses-mises-special-afrique-fran-fc3ca311-social.webp",
-    "story_image": "assets/images/editorial/article-over-under-2-5-la-version-fcfa-grosses-mises-special-afrique-fran-fc3ca311-story.webp"
+    "story_image": "assets/images/editorial/article-over-under-2-5-la-version-fcfa-grosses-mises-special-afrique-fran-fc3ca311-story.webp",
+    "ab_image_url": "assets/images/editorial/article-over-under-2-5-la-version-fcfa-grosses-mises-special-afrique-fran-fc3ca311-ab.webp"
   },
   {
     "slug": "over-under-2-5-plan-14-jours-en-fcfa-discipline-limites-f3d09a",
@@ -1058,7 +1088,8 @@
     "visual_hash": "acbd20b2",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-over-under-2-5-plan-14-jours-en-fcfa-discipline-limites-f3d09a-acbd20b2-social.webp",
-    "story_image": "assets/images/editorial/article-over-under-2-5-plan-14-jours-en-fcfa-discipline-limites-f3d09a-acbd20b2-story.webp"
+    "story_image": "assets/images/editorial/article-over-under-2-5-plan-14-jours-en-fcfa-discipline-limites-f3d09a-acbd20b2-story.webp",
+    "ab_image_url": "assets/images/editorial/article-over-under-2-5-plan-14-jours-en-fcfa-discipline-limites-f3d09a-acbd20b2-ab.webp"
   },
   {
     "slug": "cote-trop-belle-le-guide-anti-erreurs-special-debutants-e98606",
@@ -1094,7 +1125,8 @@
     "visual_hash": "b6c94f66",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-cote-trop-belle-le-guide-anti-erreurs-special-debutants-e98606-b6c94f66-social.webp",
-    "story_image": "assets/images/editorial/article-cote-trop-belle-le-guide-anti-erreurs-special-debutants-e98606-b6c94f66-story.webp"
+    "story_image": "assets/images/editorial/article-cote-trop-belle-le-guide-anti-erreurs-special-debutants-e98606-b6c94f66-story.webp",
+    "ab_image_url": "assets/images/editorial/article-cote-trop-belle-le-guide-anti-erreurs-special-debutants-e98606-b6c94f66-ab.webp"
   },
   {
     "slug": "over-1-5-under-3-5-7-regles-a-suivre-sinon-tu-vas-souffrir-c20db4",
@@ -1130,7 +1162,8 @@
     "visual_hash": "54d8a747",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-over-1-5-under-3-5-7-regles-a-suivre-sinon-tu-vas-souffrir-c20db4-54d8a747-social.webp",
-    "story_image": "assets/images/editorial/article-over-1-5-under-3-5-7-regles-a-suivre-sinon-tu-vas-souffrir-c20db4-54d8a747-story.webp"
+    "story_image": "assets/images/editorial/article-over-1-5-under-3-5-7-regles-a-suivre-sinon-tu-vas-souffrir-c20db4-54d8a747-story.webp",
+    "ab_image_url": "assets/images/editorial/article-over-1-5-under-3-5-7-regles-a-suivre-sinon-tu-vas-souffrir-c20db4-54d8a747-ab.webp"
   },
   {
     "slug": "avant-de-cliquer-lis-ca-over-1-5-under-3-5-exemples-en-fcfa-e2d401",
@@ -1166,7 +1199,8 @@
     "visual_hash": "b80297f3",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-avant-de-cliquer-lis-ca-over-1-5-under-3-5-exemples-en-fcfa-e2d40-b80297f3-social.webp",
-    "story_image": "assets/images/editorial/article-avant-de-cliquer-lis-ca-over-1-5-under-3-5-exemples-en-fcfa-e2d40-b80297f3-story.webp"
+    "story_image": "assets/images/editorial/article-avant-de-cliquer-lis-ca-over-1-5-under-3-5-exemples-en-fcfa-e2d40-b80297f3-story.webp",
+    "ab_image_url": "assets/images/editorial/article-avant-de-cliquer-lis-ca-over-1-5-under-3-5-exemples-en-fcfa-e2d40-b80297f3-ab.webp"
   },
   {
     "slug": "paris-live-avant-de-cliquer-lis-ca-special-afrique-francophone-5f3641",
@@ -1202,7 +1236,8 @@
     "visual_hash": "131f6a78",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-paris-live-avant-de-cliquer-lis-ca-special-afrique-francophone-5f-131f6a78-social.webp",
-    "story_image": "assets/images/editorial/article-paris-live-avant-de-cliquer-lis-ca-special-afrique-francophone-5f-131f6a78-story.webp"
+    "story_image": "assets/images/editorial/article-paris-live-avant-de-cliquer-lis-ca-special-afrique-francophone-5f-131f6a78-story.webp",
+    "ab_image_url": "assets/images/editorial/article-paris-live-avant-de-cliquer-lis-ca-special-afrique-francophone-5f-131f6a78-ab.webp"
   },
   {
     "slug": "over-under-2-5-le-guide-anti-erreurs-special-debutants-24078e",
@@ -1238,7 +1273,8 @@
     "visual_hash": "95de98f8",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-over-under-2-5-le-guide-anti-erreurs-special-debutants-24078e-95de98f8-social.webp",
-    "story_image": "assets/images/editorial/article-over-under-2-5-le-guide-anti-erreurs-special-debutants-24078e-95de98f8-story.webp"
+    "story_image": "assets/images/editorial/article-over-under-2-5-le-guide-anti-erreurs-special-debutants-24078e-95de98f8-story.webp",
+    "ab_image_url": "assets/images/editorial/article-over-under-2-5-le-guide-anti-erreurs-special-debutants-24078e-95de98f8-ab.webp"
   },
   {
     "slug": "h2h-intelligent-le-mini-plan-sur-21-jours-pour-comprendre-les-cotes-0153f6",
@@ -1274,7 +1310,8 @@
     "visual_hash": "92cc10d3",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-h2h-intelligent-le-mini-plan-sur-21-jours-pour-comprendre-les-cot-92cc10d3-social.webp",
-    "story_image": "assets/images/editorial/article-h2h-intelligent-le-mini-plan-sur-21-jours-pour-comprendre-les-cot-92cc10d3-story.webp"
+    "story_image": "assets/images/editorial/article-h2h-intelligent-le-mini-plan-sur-21-jours-pour-comprendre-les-cot-92cc10d3-story.webp",
+    "ab_image_url": "assets/images/editorial/article-h2h-intelligent-le-mini-plan-sur-21-jours-pour-comprendre-les-cot-92cc10d3-ab.webp"
   },
   {
     "slug": "gestion-de-bankroll-quand-jouer-quand-eviter-ultra-clair-f29fe7",
@@ -1310,7 +1347,8 @@
     "visual_hash": "afc316c5",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-gestion-de-bankroll-quand-jouer-quand-eviter-ultra-clair-f29fe7-afc316c5-social.webp",
-    "story_image": "assets/images/editorial/article-gestion-de-bankroll-quand-jouer-quand-eviter-ultra-clair-f29fe7-afc316c5-story.webp"
+    "story_image": "assets/images/editorial/article-gestion-de-bankroll-quand-jouer-quand-eviter-ultra-clair-f29fe7-afc316c5-story.webp",
+    "ab_image_url": "assets/images/editorial/article-gestion-de-bankroll-quand-jouer-quand-eviter-ultra-clair-f29fe7-afc316c5-ab.webp"
   },
   {
     "slug": "gestion-de-bankroll-stop-ne-fais-plus-cette-erreur-pour-jouer-plus-propre",
@@ -1333,7 +1371,8 @@
     "visual_hash": "034b9869",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-gestion-de-bankroll-stop-ne-fais-plus-cette-erreur-pour-jouer-plu-034b9869-social.webp",
-    "story_image": "assets/images/editorial/article-gestion-de-bankroll-stop-ne-fais-plus-cette-erreur-pour-jouer-plu-034b9869-story.webp"
+    "story_image": "assets/images/editorial/article-gestion-de-bankroll-stop-ne-fais-plus-cette-erreur-pour-jouer-plu-034b9869-story.webp",
+    "ab_image_url": "assets/images/editorial/article-gestion-de-bankroll-stop-ne-fais-plus-cette-erreur-pour-jouer-plu-034b9869-ab.webp"
   },
   {
     "slug": "chunichi-dragons-vs-hiroshima-toyo-carp-le-choc-de-la-npb-qui-pourrait-tout-changer-en-202",
@@ -1357,7 +1396,8 @@
     "visual_hash": "aae4f1f9",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-chunichi-dragons-vs-hiroshima-toyo-carp-le-choc-de-la-npb-qui-pou-aae4f1f9-social.webp",
-    "story_image": "assets/images/editorial/article-chunichi-dragons-vs-hiroshima-toyo-carp-le-choc-de-la-npb-qui-pou-aae4f1f9-story.webp"
+    "story_image": "assets/images/editorial/article-chunichi-dragons-vs-hiroshima-toyo-carp-le-choc-de-la-npb-qui-pou-aae4f1f9-story.webp",
+    "ab_image_url": "assets/images/editorial/article-chunichi-dragons-vs-hiroshima-toyo-carp-le-choc-de-la-npb-qui-pou-aae4f1f9-ab.webp"
   },
   {
     "slug": "routine-du-parieur-eviter-la-ruine-21-jours",
@@ -1380,7 +1420,8 @@
     "visual_hash": "58aa998d",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-routine-du-parieur-eviter-la-ruine-21-jours-58aa998d-social.webp",
-    "story_image": "assets/images/editorial/article-routine-du-parieur-eviter-la-ruine-21-jours-58aa998d-story.webp"
+    "story_image": "assets/images/editorial/article-routine-du-parieur-eviter-la-ruine-21-jours-58aa998d-story.webp",
+    "ab_image_url": "assets/images/editorial/article-routine-du-parieur-eviter-la-ruine-21-jours-58aa998d-ab.webp"
   },
   {
     "slug": "parier-en-fcfa-carton-rouge-live-le-mini-plan-sur-14-jours-8d7b3f",
@@ -1416,7 +1457,8 @@
     "visual_hash": "2736c9f8",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-parier-en-fcfa-carton-rouge-live-le-mini-plan-sur-14-jours-8d7b3f-2736c9f8-social.webp",
-    "story_image": "assets/images/editorial/article-parier-en-fcfa-carton-rouge-live-le-mini-plan-sur-14-jours-8d7b3f-2736c9f8-story.webp"
+    "story_image": "assets/images/editorial/article-parier-en-fcfa-carton-rouge-live-le-mini-plan-sur-14-jours-8d7b3f-2736c9f8-story.webp",
+    "ab_image_url": "assets/images/editorial/article-parier-en-fcfa-carton-rouge-live-le-mini-plan-sur-14-jours-8d7b3f-2736c9f8-ab.webp"
   },
   {
     "slug": "stop-loss-take-profit-la-version-fcfa-petites-mises-avec-tableau-exemples-fcfa-4114cb",
@@ -1452,7 +1494,8 @@
     "visual_hash": "7c9e50fe",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-stop-loss-take-profit-la-version-fcfa-petites-mises-avec-tableau--7c9e50fe-social.webp",
-    "story_image": "assets/images/editorial/article-stop-loss-take-profit-la-version-fcfa-petites-mises-avec-tableau--7c9e50fe-story.webp"
+    "story_image": "assets/images/editorial/article-stop-loss-take-profit-la-version-fcfa-petites-mises-avec-tableau--7c9e50fe-story.webp",
+    "ab_image_url": "assets/images/editorial/article-stop-loss-take-profit-la-version-fcfa-petites-mises-avec-tableau--7c9e50fe-ab.webp"
   },
   {
     "slug": "cote-trop-belle-le-framework-mr-xpronos-ultra-pratique-pour-securiser-tes-mises-e210f7",
@@ -1488,7 +1531,8 @@
     "visual_hash": "00e7653b",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-cote-trop-belle-le-framework-mr-xpronos-ultra-pratique-pour-secur-00e7653b-social.webp",
-    "story_image": "assets/images/editorial/article-cote-trop-belle-le-framework-mr-xpronos-ultra-pratique-pour-secur-00e7653b-story.webp"
+    "story_image": "assets/images/editorial/article-cote-trop-belle-le-framework-mr-xpronos-ultra-pratique-pour-secur-00e7653b-story.webp",
+    "ab_image_url": "assets/images/editorial/article-cote-trop-belle-le-framework-mr-xpronos-ultra-pratique-pour-secur-00e7653b-ab.webp"
   },
   {
     "slug": "dnb-draw-no-bet-plan-7-jours-fcfa-discipline-limites",
@@ -1524,7 +1568,8 @@
     "visual_hash": "744dd5a0",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-dnb-draw-no-bet-plan-7-jours-fcfa-discipline-limites-744dd5a0-social.webp",
-    "story_image": "assets/images/editorial/article-dnb-draw-no-bet-plan-7-jours-fcfa-discipline-limites-744dd5a0-story.webp"
+    "story_image": "assets/images/editorial/article-dnb-draw-no-bet-plan-7-jours-fcfa-discipline-limites-744dd5a0-story.webp",
+    "ab_image_url": "assets/images/editorial/article-dnb-draw-no-bet-plan-7-jours-fcfa-discipline-limites-744dd5a0-ab.webp"
   },
   {
     "slug": "double-chance-1x-x2-11-regles-a-suivre-sinon-tu-vas-souffrir",
@@ -1547,7 +1592,8 @@
     "visual_hash": "f697ce0d",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-double-chance-1x-x2-11-regles-a-suivre-sinon-tu-vas-souffrir-f697ce0d-social.webp",
-    "story_image": "assets/images/editorial/article-double-chance-1x-x2-11-regles-a-suivre-sinon-tu-vas-souffrir-f697ce0d-story.webp"
+    "story_image": "assets/images/editorial/article-double-chance-1x-x2-11-regles-a-suivre-sinon-tu-vas-souffrir-f697ce0d-story.webp",
+    "ab_image_url": "assets/images/editorial/article-double-chance-1x-x2-11-regles-a-suivre-sinon-tu-vas-souffrir-f697ce0d-ab.webp"
   },
   {
     "slug": "portimonense-u23-vs-farense-u23-pronostic-liga-revelacao-2026",
@@ -1571,7 +1617,8 @@
     "visual_hash": "0b60426e",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-portimonense-u23-vs-farense-u23-pronostic-liga-revelacao-2026-0b60426e-social.webp",
-    "story_image": "assets/images/editorial/article-portimonense-u23-vs-farense-u23-pronostic-liga-revelacao-2026-0b60426e-story.webp"
+    "story_image": "assets/images/editorial/article-portimonense-u23-vs-farense-u23-pronostic-liga-revelacao-2026-0b60426e-story.webp",
+    "ab_image_url": "assets/images/editorial/article-portimonense-u23-vs-farense-u23-pronostic-liga-revelacao-2026-0b60426e-ab.webp"
   },
   {
     "slug": "parier-en-fcfa-handicap-asiatique-guide-2026",
@@ -1594,7 +1641,8 @@
     "visual_hash": "f567649c",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-parier-en-fcfa-handicap-asiatique-guide-2026-f567649c-social.webp",
-    "story_image": "assets/images/editorial/article-parier-en-fcfa-handicap-asiatique-guide-2026-f567649c-story.webp"
+    "story_image": "assets/images/editorial/article-parier-en-fcfa-handicap-asiatique-guide-2026-f567649c-story.webp",
+    "ab_image_url": "assets/images/editorial/article-parier-en-fcfa-handicap-asiatique-guide-2026-f567649c-ab.webp"
   },
   {
     "slug": "santeros-d-aguada-vs-vaqueros-de-bayamon-le-choc-des-titans-du-bsn-qui-va-tout-faire-explo",
@@ -1618,7 +1666,8 @@
     "visual_hash": "6033f2d3",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-santeros-d-aguada-vs-vaqueros-de-bayamon-le-choc-des-titans-du-bs-6033f2d3-social.webp",
-    "story_image": "assets/images/editorial/article-santeros-d-aguada-vs-vaqueros-de-bayamon-le-choc-des-titans-du-bs-6033f2d3-story.webp"
+    "story_image": "assets/images/editorial/article-santeros-d-aguada-vs-vaqueros-de-bayamon-le-choc-des-titans-du-bs-6033f2d3-story.webp",
+    "ab_image_url": "assets/images/editorial/article-santeros-d-aguada-vs-vaqueros-de-bayamon-le-choc-des-titans-du-bs-6033f2d3-ab.webp"
   },
   {
     "slug": "dnb-draw-no-bet-le-guide-2026-pour-eviter-les-pieges-special-afrique-francophone-de5949",
@@ -1654,7 +1703,8 @@
     "visual_hash": "c7859aa4",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-dnb-draw-no-bet-le-guide-2026-pour-eviter-les-pieges-special-afri-c7859aa4-social.webp",
-    "story_image": "assets/images/editorial/article-dnb-draw-no-bet-le-guide-2026-pour-eviter-les-pieges-special-afri-c7859aa4-story.webp"
+    "story_image": "assets/images/editorial/article-dnb-draw-no-bet-le-guide-2026-pour-eviter-les-pieges-special-afri-c7859aa4-story.webp",
+    "ab_image_url": "assets/images/editorial/article-dnb-draw-no-bet-le-guide-2026-pour-eviter-les-pieges-special-afri-c7859aa4-ab.webp"
   },
   {
     "slug": "texas-rangers-vs-los-angeles-angels-le-choc-des-ambitions-en-mlb-ce-23-aout-2026",
@@ -1678,7 +1728,8 @@
     "visual_hash": "5af4b7d4",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-texas-rangers-vs-los-angeles-angels-le-choc-des-ambitions-en-mlb--5af4b7d4-social.webp",
-    "story_image": "assets/images/editorial/article-texas-rangers-vs-los-angeles-angels-le-choc-des-ambitions-en-mlb--5af4b7d4-story.webp"
+    "story_image": "assets/images/editorial/article-texas-rangers-vs-los-angeles-angels-le-choc-des-ambitions-en-mlb--5af4b7d4-story.webp",
+    "ab_image_url": "assets/images/editorial/article-texas-rangers-vs-los-angeles-angels-le-choc-des-ambitions-en-mlb--5af4b7d4-ab.webp"
   },
   {
     "slug": "btts-comment-eviter-la-ruine-en-7-jours-guide-anti-pertes-en-fcfa",
@@ -1701,7 +1752,8 @@
     "visual_hash": "7f50ec25",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-btts-comment-eviter-la-ruine-en-7-jours-guide-anti-pertes-en-fcfa-7f50ec25-social.webp",
-    "story_image": "assets/images/editorial/article-btts-comment-eviter-la-ruine-en-7-jours-guide-anti-pertes-en-fcfa-7f50ec25-story.webp"
+    "story_image": "assets/images/editorial/article-btts-comment-eviter-la-ruine-en-7-jours-guide-anti-pertes-en-fcfa-7f50ec25-story.webp",
+    "ab_image_url": "assets/images/editorial/article-btts-comment-eviter-la-ruine-en-7-jours-guide-anti-pertes-en-fcfa-7f50ec25-ab.webp"
   },
   {
     "slug": "wexford-youths-vs-athlone-town-un-choc-de-division-1-a-ne-pas-manquer",
@@ -1725,7 +1777,8 @@
     "visual_hash": "0a32acff",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-wexford-youths-vs-athlone-town-un-choc-de-division-1-a-ne-pas-man-0a32acff-social.webp",
-    "story_image": "assets/images/editorial/article-wexford-youths-vs-athlone-town-un-choc-de-division-1-a-ne-pas-man-0a32acff-story.webp"
+    "story_image": "assets/images/editorial/article-wexford-youths-vs-athlone-town-un-choc-de-division-1-a-ne-pas-man-0a32acff-story.webp",
+    "ab_image_url": "assets/images/editorial/article-wexford-youths-vs-athlone-town-un-choc-de-division-1-a-ne-pas-man-0a32acff-ab.webp"
   },
   {
     "slug": "h2h-intelligent-10-regles-a-suivre-sinon-tu-vas-souffrir",
@@ -1748,7 +1801,8 @@
     "visual_hash": "ccf5902c",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-h2h-intelligent-10-regles-a-suivre-sinon-tu-vas-souffrir-ccf5902c-social.webp",
-    "story_image": "assets/images/editorial/article-h2h-intelligent-10-regles-a-suivre-sinon-tu-vas-souffrir-ccf5902c-story.webp"
+    "story_image": "assets/images/editorial/article-h2h-intelligent-10-regles-a-suivre-sinon-tu-vas-souffrir-ccf5902c-story.webp",
+    "ab_image_url": "assets/images/editorial/article-h2h-intelligent-10-regles-a-suivre-sinon-tu-vas-souffrir-ccf5902c-ab.webp"
   },
   {
     "slug": "tartu-jk-welco-elekter-vs-levadia-tallinn-ii-un-choc-de-l-esiliiga-a-ne-pas-manquer",
@@ -1772,7 +1826,8 @@
     "visual_hash": "9a3fe26f",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-tartu-jk-welco-elekter-vs-levadia-tallinn-ii-un-choc-de-l-esiliig-9a3fe26f-social.webp",
-    "story_image": "assets/images/editorial/article-tartu-jk-welco-elekter-vs-levadia-tallinn-ii-un-choc-de-l-esiliig-9a3fe26f-story.webp"
+    "story_image": "assets/images/editorial/article-tartu-jk-welco-elekter-vs-levadia-tallinn-ii-un-choc-de-l-esiliig-9a3fe26f-story.webp",
+    "ab_image_url": "assets/images/editorial/article-tartu-jk-welco-elekter-vs-levadia-tallinn-ii-un-choc-de-l-esiliig-9a3fe26f-ab.webp"
   },
   {
     "slug": "forme-recente-fcfa-petites-mises-gagner-regularite",
@@ -1808,7 +1863,8 @@
     "visual_hash": "c0af5de7",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-forme-recente-fcfa-petites-mises-gagner-regularite-c0af5de7-social.webp",
-    "story_image": "assets/images/editorial/article-forme-recente-fcfa-petites-mises-gagner-regularite-c0af5de7-story.webp"
+    "story_image": "assets/images/editorial/article-forme-recente-fcfa-petites-mises-gagner-regularite-c0af5de7-story.webp",
+    "ab_image_url": "assets/images/editorial/article-forme-recente-fcfa-petites-mises-gagner-regularite-c0af5de7-ab.webp"
   },
   {
     "slug": "nippon-ham-fighters-vs-fukuoka-hawks-le-choc-des-titans-de-la-npb-qui-va-tout-faire-bascul",
@@ -1832,7 +1888,8 @@
     "visual_hash": "65ee26c9",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-nippon-ham-fighters-vs-fukuoka-hawks-le-choc-des-titans-de-la-npb-65ee26c9-social.webp",
-    "story_image": "assets/images/editorial/article-nippon-ham-fighters-vs-fukuoka-hawks-le-choc-des-titans-de-la-npb-65ee26c9-story.webp"
+    "story_image": "assets/images/editorial/article-nippon-ham-fighters-vs-fukuoka-hawks-le-choc-des-titans-de-la-npb-65ee26c9-story.webp",
+    "ab_image_url": "assets/images/editorial/article-nippon-ham-fighters-vs-fukuoka-hawks-le-choc-des-titans-de-la-npb-65ee26c9-ab.webp"
   },
   {
     "slug": "marge-bookmaker-5-regles-a-suivre-sinon-tu-vas-souffrir",
@@ -1855,7 +1912,8 @@
     "visual_hash": "9b402a8a",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-marge-bookmaker-5-regles-a-suivre-sinon-tu-vas-souffrir-9b402a8a-social.webp",
-    "story_image": "assets/images/editorial/article-marge-bookmaker-5-regles-a-suivre-sinon-tu-vas-souffrir-9b402a8a-story.webp"
+    "story_image": "assets/images/editorial/article-marge-bookmaker-5-regles-a-suivre-sinon-tu-vas-souffrir-9b402a8a-story.webp",
+    "ab_image_url": "assets/images/editorial/article-marge-bookmaker-5-regles-a-suivre-sinon-tu-vas-souffrir-9b402a8a-ab.webp"
   },
   {
     "slug": "atlanta-united-ii-vs-chicago-fire-ii-le-choc-des-espoirs-de-la-mls-next-pro-qui-pourrait-t",
@@ -1879,7 +1937,8 @@
     "visual_hash": "972a0d4a",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-atlanta-united-ii-vs-chicago-fire-ii-le-choc-des-espoirs-de-la-ml-972a0d4a-social.webp",
-    "story_image": "assets/images/editorial/article-atlanta-united-ii-vs-chicago-fire-ii-le-choc-des-espoirs-de-la-ml-972a0d4a-story.webp"
+    "story_image": "assets/images/editorial/article-atlanta-united-ii-vs-chicago-fire-ii-le-choc-des-espoirs-de-la-ml-972a0d4a-story.webp",
+    "ab_image_url": "assets/images/editorial/article-atlanta-united-ii-vs-chicago-fire-ii-le-choc-des-espoirs-de-la-ml-972a0d4a-ab.webp"
   },
   {
     "slug": "handicap-asiatique-les-12-erreurs-qui-te-font-perdre-des-millions-en-fcfa-guide-anti-piege",
@@ -1902,7 +1961,8 @@
     "visual_hash": "bbcc5623",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-handicap-asiatique-les-12-erreurs-qui-te-font-perdre-des-millions-bbcc5623-social.webp",
-    "story_image": "assets/images/editorial/article-handicap-asiatique-les-12-erreurs-qui-te-font-perdre-des-millions-bbcc5623-story.webp"
+    "story_image": "assets/images/editorial/article-handicap-asiatique-les-12-erreurs-qui-te-font-perdre-des-millions-bbcc5623-story.webp",
+    "ab_image_url": "assets/images/editorial/article-handicap-asiatique-les-12-erreurs-qui-te-font-perdre-des-millions-bbcc5623-ab.webp"
   },
   {
     "slug": "lafc-ii-vs-tacoma-defiance-le-choc-mls-next-pro-qui-pourrait-tout-changer",
@@ -1926,7 +1986,8 @@
     "visual_hash": "aeab68ad",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-lafc-ii-vs-tacoma-defiance-le-choc-mls-next-pro-qui-pourrait-tout-aeab68ad-social.webp",
-    "story_image": "assets/images/editorial/article-lafc-ii-vs-tacoma-defiance-le-choc-mls-next-pro-qui-pourrait-tout-aeab68ad-story.webp"
+    "story_image": "assets/images/editorial/article-lafc-ii-vs-tacoma-defiance-le-choc-mls-next-pro-qui-pourrait-tout-aeab68ad-story.webp",
+    "ab_image_url": "assets/images/editorial/article-lafc-ii-vs-tacoma-defiance-le-choc-mls-next-pro-qui-pourrait-tout-aeab68ad-ab.webp"
   },
   {
     "slug": "stop-loss-take-profit-guide-debutants-fcfa",
@@ -1949,7 +2010,8 @@
     "visual_hash": "96995a83",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-stop-loss-take-profit-guide-debutants-fcfa-96995a83-social.webp",
-    "story_image": "assets/images/editorial/article-stop-loss-take-profit-guide-debutants-fcfa-96995a83-story.webp"
+    "story_image": "assets/images/editorial/article-stop-loss-take-profit-guide-debutants-fcfa-96995a83-story.webp",
+    "ab_image_url": "assets/images/editorial/article-stop-loss-take-profit-guide-debutants-fcfa-96995a83-ab.webp"
   },
   {
     "slug": "randers-fc-vs-fc-copenhagen-superliga-analyse-pronostic-2026",
@@ -1973,7 +2035,8 @@
     "visual_hash": "f7f75c5c",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-randers-fc-vs-fc-copenhagen-superliga-analyse-pronostic-2026-f7f75c5c-social.webp",
-    "story_image": "assets/images/editorial/article-randers-fc-vs-fc-copenhagen-superliga-analyse-pronostic-2026-f7f75c5c-story.webp"
+    "story_image": "assets/images/editorial/article-randers-fc-vs-fc-copenhagen-superliga-analyse-pronostic-2026-f7f75c5c-story.webp",
+    "ab_image_url": "assets/images/editorial/article-randers-fc-vs-fc-copenhagen-superliga-analyse-pronostic-2026-f7f75c5c-ab.webp"
   },
   {
     "slug": "erreurs-combines-ce-que-la-plupart-des-parieurs-oublient-special-afrique-francophone",
@@ -1996,7 +2059,8 @@
     "visual_hash": "b21e0505",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-erreurs-combines-ce-que-la-plupart-des-parieurs-oublient-special--b21e0505-social.webp",
-    "story_image": "assets/images/editorial/article-erreurs-combines-ce-que-la-plupart-des-parieurs-oublient-special--b21e0505-story.webp"
+    "story_image": "assets/images/editorial/article-erreurs-combines-ce-que-la-plupart-des-parieurs-oublient-special--b21e0505-story.webp",
+    "ab_image_url": "assets/images/editorial/article-erreurs-combines-ce-que-la-plupart-des-parieurs-oublient-special--b21e0505-ab.webp"
   },
   {
     "slug": "charros-jalisco-vs-sultanes-monterrey-playoffs-lmb-2026",
@@ -2033,7 +2097,8 @@
     "visual_hash": "4463ab7a",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-charros-jalisco-vs-sultanes-monterrey-playoffs-lmb-2026-4463ab7a-social.webp",
-    "story_image": "assets/images/editorial/article-charros-jalisco-vs-sultanes-monterrey-playoffs-lmb-2026-4463ab7a-story.webp"
+    "story_image": "assets/images/editorial/article-charros-jalisco-vs-sultanes-monterrey-playoffs-lmb-2026-4463ab7a-story.webp",
+    "ab_image_url": "assets/images/editorial/article-charros-jalisco-vs-sultanes-monterrey-playoffs-lmb-2026-4463ab7a-ab.webp"
   },
   {
     "slug": "cote-trop-belle-les-9-erreurs-qui-te-coutent-cher-pour-securiser-tes-mises",
@@ -2056,7 +2121,8 @@
     "visual_hash": "702a7d84",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-cote-trop-belle-les-9-erreurs-qui-te-coutent-cher-pour-securiser--702a7d84-social.webp",
-    "story_image": "assets/images/editorial/article-cote-trop-belle-les-9-erreurs-qui-te-coutent-cher-pour-securiser--702a7d84-story.webp"
+    "story_image": "assets/images/editorial/article-cote-trop-belle-les-9-erreurs-qui-te-coutent-cher-pour-securiser--702a7d84-story.webp",
+    "ab_image_url": "assets/images/editorial/article-cote-trop-belle-les-9-erreurs-qui-te-coutent-cher-pour-securiser--702a7d84-ab.webp"
   },
   {
     "slug": "probabilite-implicite-comment-eviter-la-ruine-en-21-jours",
@@ -2079,7 +2145,8 @@
     "visual_hash": "287f7955",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-probabilite-implicite-comment-eviter-la-ruine-en-21-jours-287f7955-social.webp",
-    "story_image": "assets/images/editorial/article-probabilite-implicite-comment-eviter-la-ruine-en-21-jours-287f7955-story.webp"
+    "story_image": "assets/images/editorial/article-probabilite-implicite-comment-eviter-la-ruine-en-21-jours-287f7955-story.webp",
+    "ab_image_url": "assets/images/editorial/article-probabilite-implicite-comment-eviter-la-ruine-en-21-jours-287f7955-ab.webp"
   },
   {
     "slug": "over-1-5-under-3-5-13-signaux-fiables-7-pieges-a-eviter-pour-parier-en-fcfa",
@@ -2102,7 +2169,8 @@
     "visual_hash": "a13e6b72",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-over-1-5-under-3-5-13-signaux-fiables-7-pieges-a-eviter-pour-pari-a13e6b72-social.webp",
-    "story_image": "assets/images/editorial/article-over-1-5-under-3-5-13-signaux-fiables-7-pieges-a-eviter-pour-pari-a13e6b72-story.webp"
+    "story_image": "assets/images/editorial/article-over-1-5-under-3-5-13-signaux-fiables-7-pieges-a-eviter-pour-pari-a13e6b72-story.webp",
+    "ab_image_url": "assets/images/editorial/article-over-1-5-under-3-5-13-signaux-fiables-7-pieges-a-eviter-pour-pari-a13e6b72-ab.webp"
   },
   {
     "slug": "rakuten-gold-eagles-vs-orix-buffaloes-le-choc-des-titans-de-la-npb-qui-pourrait-tout-chang",
@@ -2126,7 +2194,8 @@
     "visual_hash": "21429429",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-rakuten-gold-eagles-vs-orix-buffaloes-le-choc-des-titans-de-la-np-21429429-social.webp",
-    "story_image": "assets/images/editorial/article-rakuten-gold-eagles-vs-orix-buffaloes-le-choc-des-titans-de-la-np-21429429-story.webp"
+    "story_image": "assets/images/editorial/article-rakuten-gold-eagles-vs-orix-buffaloes-le-choc-des-titans-de-la-np-21429429-story.webp",
+    "ab_image_url": "assets/images/editorial/article-rakuten-gold-eagles-vs-orix-buffaloes-le-choc-des-titans-de-la-np-21429429-ab.webp"
   },
   {
     "slug": "limiter-risque-3-regles-paris-sportifs-fcfa",
@@ -2162,7 +2231,8 @@
     "visual_hash": "3cd88823",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-limiter-risque-3-regles-paris-sportifs-fcfa-3cd88823-social.webp",
-    "story_image": "assets/images/editorial/article-limiter-risque-3-regles-paris-sportifs-fcfa-3cd88823-story.webp"
+    "story_image": "assets/images/editorial/article-limiter-risque-3-regles-paris-sportifs-fcfa-3cd88823-story.webp",
+    "ab_image_url": "assets/images/editorial/article-limiter-risque-3-regles-paris-sportifs-fcfa-3cd88823-ab.webp"
   },
   {
     "slug": "piratas-de-campeche-vs-pericos-de-puebla-le-choc-des-playoffs-lmb-qui-va-tout-faire-bascul",
@@ -2186,7 +2256,8 @@
     "visual_hash": "b808c8f4",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-piratas-de-campeche-vs-pericos-de-puebla-le-choc-des-playoffs-lmb-b808c8f4-social.webp",
-    "story_image": "assets/images/editorial/article-piratas-de-campeche-vs-pericos-de-puebla-le-choc-des-playoffs-lmb-b808c8f4-story.webp"
+    "story_image": "assets/images/editorial/article-piratas-de-campeche-vs-pericos-de-puebla-le-choc-des-playoffs-lmb-b808c8f4-story.webp",
+    "ab_image_url": "assets/images/editorial/article-piratas-de-campeche-vs-pericos-de-puebla-le-choc-des-playoffs-lmb-b808c8f4-ab.webp"
   },
   {
     "slug": "cashout-la-methode-simple-et-realiste-pour-eviter-les-matchs-pieges",
@@ -2209,7 +2280,8 @@
     "visual_hash": "d23d32f6",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-cashout-la-methode-simple-et-realiste-pour-eviter-les-matchs-pieg-d23d32f6-social.webp",
-    "story_image": "assets/images/editorial/article-cashout-la-methode-simple-et-realiste-pour-eviter-les-matchs-pieg-d23d32f6-story.webp"
+    "story_image": "assets/images/editorial/article-cashout-la-methode-simple-et-realiste-pour-eviter-les-matchs-pieg-d23d32f6-story.webp",
+    "ab_image_url": "assets/images/editorial/article-cashout-la-methode-simple-et-realiste-pour-eviter-les-matchs-pieg-d23d32f6-ab.webp"
   },
   {
     "slug": "compte-limite-plan-7-jours-fcfa-discipline",
@@ -2232,7 +2304,8 @@
     "visual_hash": "cfa001fe",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-compte-limite-plan-7-jours-fcfa-discipline-cfa001fe-social.webp",
-    "story_image": "assets/images/editorial/article-compte-limite-plan-7-jours-fcfa-discipline-cfa001fe-story.webp"
+    "story_image": "assets/images/editorial/article-compte-limite-plan-7-jours-fcfa-discipline-cfa001fe-story.webp",
+    "ab_image_url": "assets/images/editorial/article-compte-limite-plan-7-jours-fcfa-discipline-cfa001fe-ab.webp"
   },
   {
     "slug": "sheriff-tiraspol-vs-csca-buiucani-le-choc-de-la-super-liga-qui-peut-reserver-des-surprises",
@@ -2256,7 +2329,8 @@
     "visual_hash": "db219ce2",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-sheriff-tiraspol-vs-csca-buiucani-le-choc-de-la-super-liga-qui-pe-db219ce2-social.webp",
-    "story_image": "assets/images/editorial/article-sheriff-tiraspol-vs-csca-buiucani-le-choc-de-la-super-liga-qui-pe-db219ce2-story.webp"
+    "story_image": "assets/images/editorial/article-sheriff-tiraspol-vs-csca-buiucani-le-choc-de-la-super-liga-qui-pe-db219ce2-story.webp",
+    "ab_image_url": "assets/images/editorial/article-sheriff-tiraspol-vs-csca-buiucani-le-choc-de-la-super-liga-qui-pe-db219ce2-ab.webp"
   },
   {
     "slug": "bankroll-en-fcfa-la-version-petites-mises-pour-parier-malin-avec-tableau-exemples-fcfa",
@@ -2279,7 +2353,8 @@
     "visual_hash": "f5fd6bf7",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-bankroll-en-fcfa-la-version-petites-mises-pour-parier-malin-avec--f5fd6bf7-social.webp",
-    "story_image": "assets/images/editorial/article-bankroll-en-fcfa-la-version-petites-mises-pour-parier-malin-avec--f5fd6bf7-story.webp"
+    "story_image": "assets/images/editorial/article-bankroll-en-fcfa-la-version-petites-mises-pour-parier-malin-avec--f5fd6bf7-story.webp",
+    "ab_image_url": "assets/images/editorial/article-bankroll-en-fcfa-la-version-petites-mises-pour-parier-malin-avec--f5fd6bf7-ab.webp"
   },
   {
     "slug": "trans-narva-vs-kalju-nomme-le-choc-estonien-qui-pourrait-tout-changer-en-meistriliiga",
@@ -2303,7 +2378,8 @@
     "visual_hash": "9f014102",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-trans-narva-vs-kalju-nomme-le-choc-estonien-qui-pourrait-tout-cha-9f014102-social.webp",
-    "story_image": "assets/images/editorial/article-trans-narva-vs-kalju-nomme-le-choc-estonien-qui-pourrait-tout-cha-9f014102-story.webp"
+    "story_image": "assets/images/editorial/article-trans-narva-vs-kalju-nomme-le-choc-estonien-qui-pourrait-tout-cha-9f014102-story.webp",
+    "ab_image_url": "assets/images/editorial/article-trans-narva-vs-kalju-nomme-le-choc-estonien-qui-pourrait-tout-cha-9f014102-ab.webp"
   },
   {
     "slug": "les-10-erreurs-qui-te-coutent-cher-over-under-2-5-exemples-en-fcfa",
@@ -2326,7 +2402,8 @@
     "visual_hash": "29c480b1",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-les-10-erreurs-qui-te-coutent-cher-over-under-2-5-exemples-en-fcf-29c480b1-social.webp",
-    "story_image": "assets/images/editorial/article-les-10-erreurs-qui-te-coutent-cher-over-under-2-5-exemples-en-fcf-29c480b1-story.webp"
+    "story_image": "assets/images/editorial/article-les-10-erreurs-qui-te-coutent-cher-over-under-2-5-exemples-en-fcf-29c480b1-story.webp",
+    "ab_image_url": "assets/images/editorial/article-les-10-erreurs-qui-te-coutent-cher-over-under-2-5-exemples-en-fcf-29c480b1-ab.webp"
   },
   {
     "slug": "cobh-ramblers-vs-treaty-united-un-choc-de-division-1-a-ne-pas-manquer-ce-7-aout-2026",
@@ -2350,7 +2427,8 @@
     "visual_hash": "2bb90bab",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-cobh-ramblers-vs-treaty-united-un-choc-de-division-1-a-ne-pas-man-2bb90bab-social.webp",
-    "story_image": "assets/images/editorial/article-cobh-ramblers-vs-treaty-united-un-choc-de-division-1-a-ne-pas-man-2bb90bab-story.webp"
+    "story_image": "assets/images/editorial/article-cobh-ramblers-vs-treaty-united-un-choc-de-division-1-a-ne-pas-man-2bb90bab-story.webp",
+    "ab_image_url": "assets/images/editorial/article-cobh-ramblers-vs-treaty-united-un-choc-de-division-1-a-ne-pas-man-2bb90bab-ab.webp"
   },
   {
     "slug": "parier-en-fcfa-compte-limite-checklist",
@@ -2386,7 +2464,8 @@
     "visual_hash": "983c7271",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-parier-en-fcfa-compte-limite-checklist-983c7271-social.webp",
-    "story_image": "assets/images/editorial/article-parier-en-fcfa-compte-limite-checklist-983c7271-story.webp"
+    "story_image": "assets/images/editorial/article-parier-en-fcfa-compte-limite-checklist-983c7271-story.webp",
+    "ab_image_url": "assets/images/editorial/article-parier-en-fcfa-compte-limite-checklist-983c7271-ab.webp"
   },
   {
     "slug": "deportes-iquique-vs-deportes-limache-la-bataille-nordiste-qui-peut-tout-changer-en-coupe-d",
@@ -2410,7 +2489,8 @@
     "visual_hash": "144da27a",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-deportes-iquique-vs-deportes-limache-la-bataille-nordiste-qui-peu-144da27a-social.webp",
-    "story_image": "assets/images/editorial/article-deportes-iquique-vs-deportes-limache-la-bataille-nordiste-qui-peu-144da27a-story.webp"
+    "story_image": "assets/images/editorial/article-deportes-iquique-vs-deportes-limache-la-bataille-nordiste-qui-peu-144da27a-story.webp",
+    "ab_image_url": "assets/images/editorial/article-deportes-iquique-vs-deportes-limache-la-bataille-nordiste-qui-peu-144da27a-ab.webp"
   },
   {
     "slug": "comparer-bookmakers-guide",
@@ -2433,7 +2513,8 @@
     "visual_hash": "c8a45c33",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-comparer-bookmakers-guide-c8a45c33-social.webp",
-    "story_image": "assets/images/editorial/article-comparer-bookmakers-guide-c8a45c33-story.webp"
+    "story_image": "assets/images/editorial/article-comparer-bookmakers-guide-c8a45c33-story.webp",
+    "ab_image_url": "assets/images/editorial/article-comparer-bookmakers-guide-c8a45c33-ab.webp"
   },
   {
     "slug": "1win-utiliser-xpvip-intelligemment-sans-promesse",
@@ -2469,7 +2550,8 @@
     "visual_hash": "1b372654",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-1win-utiliser-xpvip-intelligemment-sans-promesse-1b372654-social.webp",
-    "story_image": "assets/images/editorial/article-1win-utiliser-xpvip-intelligemment-sans-promesse-1b372654-story.webp"
+    "story_image": "assets/images/editorial/article-1win-utiliser-xpvip-intelligemment-sans-promesse-1b372654-story.webp",
+    "ab_image_url": "assets/images/editorial/article-1win-utiliser-xpvip-intelligemment-sans-promesse-1b372654-ab.webp"
   },
   {
     "slug": "limiter-risque-strategie-moderee-exemple-5000-fcfa",
@@ -2505,7 +2587,8 @@
     "visual_hash": "334ed91c",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-limiter-risque-strategie-moderee-exemple-5000-fcfa-334ed91c-social.webp",
-    "story_image": "assets/images/editorial/article-limiter-risque-strategie-moderee-exemple-5000-fcfa-334ed91c-story.webp"
+    "story_image": "assets/images/editorial/article-limiter-risque-strategie-moderee-exemple-5000-fcfa-334ed91c-story.webp",
+    "ab_image_url": "assets/images/editorial/article-limiter-risque-strategie-moderee-exemple-5000-fcfa-334ed91c-ab.webp"
   },
   {
     "slug": "le-framework-mr-xpronos-ultra-pratique-cotes-marches-en-fcfa-avec-exemples-concrets",
@@ -2528,7 +2611,8 @@
     "visual_hash": "017773fe",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-le-framework-mr-xpronos-ultra-pratique-cotes-marches-en-fcfa-avec-017773fe-social.webp",
-    "story_image": "assets/images/editorial/article-le-framework-mr-xpronos-ultra-pratique-cotes-marches-en-fcfa-avec-017773fe-story.webp"
+    "story_image": "assets/images/editorial/article-le-framework-mr-xpronos-ultra-pratique-cotes-marches-en-fcfa-avec-017773fe-story.webp",
+    "ab_image_url": "assets/images/editorial/article-le-framework-mr-xpronos-ultra-pratique-cotes-marches-en-fcfa-avec-017773fe-ab.webp"
   },
   {
     "slug": "depot-retrait-fcfa-guide-complet",
@@ -2564,6 +2648,7 @@
     "visual_hash": "9670754c",
     "visual_format": "webp",
     "social_image": "assets/images/editorial/article-depot-retrait-fcfa-guide-complet-9670754c-social.webp",
-    "story_image": "assets/images/editorial/article-depot-retrait-fcfa-guide-complet-9670754c-story.webp"
+    "story_image": "assets/images/editorial/article-depot-retrait-fcfa-guide-complet-9670754c-story.webp",
+    "ab_image_url": "assets/images/editorial/article-depot-retrait-fcfa-guide-complet-9670754c-ab.webp"
   }
 ]
