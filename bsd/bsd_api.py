@@ -94,7 +94,7 @@ class BSDClient:
         self.free_hub = FreeFootballHub(
             session=requests.Session(),
             timeout=min(timeout, 18),
-            enabled=str(os.getenv("BSD_FREE_SOURCES", "1")).lower() not in {"0", "false", "no"},
+            enabled=str(os.getenv("BSD_FREE_SOURCES", "0")).lower() not in {"0", "false", "no"},
         )
         self._event_lookup: Dict[str, Dict[str, Any]] = {}
         self.free_source_diagnostics: Dict[str, Any] = {}
