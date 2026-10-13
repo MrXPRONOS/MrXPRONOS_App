@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Sources gratuites et détection d'états pour le cycle d'un match Actu Foot.
 
-Priorité qualité : ESPN > BSD > SportScore > TheSportsDB > OpenLigaDB.
+Priorité qualité : ESPN > BSD > SportScore > OpenLigaDB > TheSportsDB.
 Pour réduire BSD, la collecte opérationnelle tente d'abord les quatre sources
 gratuites; le cache Supabase reste une source locale de secours.
 
@@ -11,13 +11,21 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 import time
 import unicodedata
 from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
 import requests
+
+ROOT = Path(__file__).resolve().parents[1]
+BSD_DIR = ROOT / "bsd"
+if str(BSD_DIR) not in sys.path:
+    sys.path.insert(0, str(BSD_DIR))
+
 from football_multisource import MultiSourceFootballClient, PROVIDER_QUALITY
 
 ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
