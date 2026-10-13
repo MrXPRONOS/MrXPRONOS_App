@@ -190,7 +190,7 @@ jobs:
           assert len(pictures)==7, len(pictures)
           for path in pictures:
               with Image.open(path) as image:
-                  expected=(1374,1145) if path.stem == 'composition' else (1080,1080)
+                  expected=(1080,1350) if path.stem == 'composition' else (1080,1080)
                   assert image.size == expected, (path,image.size,expected)
                   assert image.format == 'PNG'
                   assert path.stat().st_size < 9_000_000
