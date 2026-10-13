@@ -1,0 +1,83 @@
+name: TEMP Multi-source football smoke
+
+on:
+  push:
+    branches:
+      - feat/multisource-football-20261013
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      BSD_FREE_SOURCES: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check requests
+      - name: Compile
+        run: |
+          python -m py_compile bsd/free_sources.py bsd/bsd_api.py
+          deno check supabase/functions/_shared/free-football.ts
+      - name: Unit tests
+        working-directory: bsd
+        run: python -m unittest test_free_sources.py -v
+      - name: Real provider smoke and SportScore odds probe
+        working-directory: bsd
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          import requests
+          from free_sources import FreeFootballHub
+
+          day = datetime.now(timezone.utc).date()
+          hub = FreeFootballHub(enabled=True)
+          ss = hub.sportscore_day(day)
+          ts = hub.thesportsdb_day(day)
+          ol = hub.openligadb_current()
+
+          print("SPORTSCORE_FIXTURES", len(ss))
+          print("THESPORTSDB_FIXTURES", len(ts))
+          print("OPENLIGADB_CURRENT", len(ol))
+
+          assert isinstance(ss, list)
+          assert isinstance(ts, list)
+          assert isinstance(ol, list)
+
+          if ss:
+              slug = ss[0].get("source_slug")
+              detail = None
+              if slug:
+                  detail = hub._get(
+                      "sportscore",
+                      "https://sportscore.com/api/v1/match/",
+                      params={"sport": "football", "slug": slug},
+                      ttl=0,
+                  )
+              def walk_keys(obj, prefix="", depth=0):
+                  found=[]
+                  if depth > 6:
+                      return found
+                  if isinstance(obj, dict):
+                      for k,v in obj.items():
+                          path = f"{prefix}.{k}" if prefix else str(k)
+                          lk = str(k).lower()
+                          if any(x in lk for x in ("odd","bookmaker","betting","market")):
+                              found.append(path)
+                          found.extend(walk_keys(v,path,depth+1))
+                  elif isinstance(obj,list):
+                      for i,v in enumerate(obj[:20]):
+                          found.extend(walk_keys(v,f"{prefix}[{i}]",depth+1))
+                  return found
+              odds_keys = sorted(set(walk_keys(detail))) if detail else []
+              print("SPORTSCORE_DETAIL_SLUG", slug)
+              print("SPORTSCORE_ODDS_KEYS", json.dumps(odds_keys[:100]))
+              print("SPORTSCORE_DETAIL_TOP_KEYS", sorted(detail.keys()) if isinstance(detail,dict) else type(detail).__name__)
+          print("DIAGNOSTICS", json.dumps(hub.diagnostics(), ensure_ascii=False))
+          PY
