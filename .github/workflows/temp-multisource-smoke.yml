@@ -105,6 +105,36 @@ jobs:
                   for key in ("stats","statistics","lineups","timeline","events","incidents"):
                       if key in detail["match"]:
                           print("SPORTSCORE_MATCH_SECTION", key, json.dumps(detail["match"][key], ensure_ascii=False, default=str)[:5000])
+          sportscore_stats_found = 0
+          sportscore_lineups_found = 0
+          for sample in ss[:12]:
+              raw_sample = sample.get("raw_data") or {}
+              source_url = str(raw_sample.get("url") or "")
+              parts = [p for p in source_url.split("/") if p]
+              slug = parts[-2] if len(parts) >= 2 else ""
+              if not slug:
+                  continue
+              response = requests.get(
+                  "https://sportscore.com/api/v1/match/",
+                  params={"sport": "football", "slug": slug},
+                  headers={"Accept": "application/json", "User-Agent": "MrXPRONOS-MultiSource-Probe/1.0"},
+                  timeout=15,
+              )
+              if not response.ok:
+                  continue
+              try:
+                  data = response.json()
+              except ValueError:
+                  continue
+              match = data.get("match") if isinstance(data, dict) else {}
+              if isinstance(match, dict):
+                  if match.get("stats"):
+                      sportscore_stats_found += 1
+                      print("SPORTSCORE_STATS_SAMPLE", slug, json.dumps(match.get("stats"), ensure_ascii=False, default=str)[:4000])
+                  if isinstance(match.get("lineups"), dict) and match["lineups"].get("confirmed"):
+                      sportscore_lineups_found += 1
+          print("SPORTSCORE_DETAIL_COVERAGE", {"probed": min(12, len(ss)), "with_stats": sportscore_stats_found, "confirmed_lineups": sportscore_lineups_found})
+
           if ts:
               event_id = str(ts[0].get("source_match_id") or "")
               for endpoint in ("lookupeventstats.php", "lookuplineup.php", "lookuptimeline.php"):
