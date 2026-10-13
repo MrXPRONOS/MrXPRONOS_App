@@ -5637,8 +5637,18 @@ async function reuseCachedStats(matches: any[]) {
   });
 }
 
+function bsdEventIdForMatch(match: any) {
+  const candidate =
+    match?.provider_ids?.bsd ??
+    match?.raw_data?.provider_ids?.bsd ??
+    (String(match?.source_name || match?.raw_data?.source || "").toLowerCase() === "bsd"
+      ? match?.source_match_id ?? match?.id
+      : null);
+  return /^\d+$/.test(String(candidate || "")) ? String(candidate) : "";
+}
+
 function isBsdNumericEvent(match: any) {
-  return /^\d+$/.test(String(match?.id || ""));
+  return Boolean(bsdEventIdForMatch(match));
 }
 
 function statsAgeSeconds(match: any) {
@@ -5650,6 +5660,68 @@ function statsAgeSeconds(match: any) {
   const ts = new Date(raw).getTime();
   if (!Number.isFinite(ts)) return Number.POSITIVE_INFINITY;
   return Math.max(0, Math.floor((Date.now() - ts) / 1000));
+}
+
+async function enrichLiveMatchesWithFreeStats(matches: any[]) {
+  const out = [...(matches || [])];
+  let calls = 0;
+  let enriched = 0;
+  let failed = 0;
+
+  const candidates = out
+    .map((match: any, index: number) => ({ match, index }))
+    .filter(({ match }) => {
+      const minute = safeNumber(match?.current_minute ?? match?.minute, 0);
+      if (minute < 5 || minute > 90) return false;
+      const completeness = statsCompleteness(getMatchLiveStats(match));
+      return completeness.core_complete < 3 || statsAgeSeconds(match) >= BSD_STATS_REFRESH_SECONDS;
+    })
+    .sort((a, b) => {
+      const ca = statsCompleteness(getMatchLiveStats(a.match)).core_complete;
+      const cb = statsCompleteness(getMatchLiveStats(b.match)).core_complete;
+      if (ca !== cb) return ca - cb;
+      return statsAgeSeconds(b.match) - statsAgeSeconds(a.match);
+    })
+    .slice(0, 6);
+
+  for (const { match, index } of candidates) {
+    try {
+      calls++;
+      const resolved = await fetchFreeMatchStats(match);
+      if (!resolved?.stats) continue;
+      const normalized = ensureLiveStatsShape(resolved.stats);
+      if (statsCompleteness(normalized).core_complete <= 0) continue;
+      const mergedStats = mergeLiveStats(getMatchLiveStats(match), normalized, true);
+      const source = String(resolved.source || "free_provider") + "_stats";
+      out[index] = {
+        ...out[index],
+        live_stats: mergedStats,
+        stats_last_updated_at: nowIso(),
+        raw_data: {
+          ...(out[index]?.raw_data || {}),
+          live_stats: mergedStats,
+          stats_last_updated_at: nowIso(),
+          stats_sources: [
+            ...new Set([
+              ...((out[index]?.raw_data?.stats_sources || []) as string[]),
+              source,
+            ]),
+          ],
+          stats_authority: source,
+          stats_corrected_at: nowIso(),
+        },
+      };
+      enriched++;
+    } catch (e: any) {
+      failed++;
+      console.warn("Free stats provider unavailable", {
+        match_id: match?.id,
+        error: e?.message || String(e),
+      });
+    }
+  }
+
+  return { matches: out, calls, enriched, failed };
 }
 
 async function enrichLiveMatchesWithBsdStats(matches: any[]) {
@@ -5693,8 +5765,10 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
 
   for (const match of candidates) {
     try {
+      const bsdEventId = bsdEventIdForMatch(match);
+      if (!bsdEventId) continue;
       calls++;
-      const payload = await fetchBSD(`/events/${match.id}/stats/`);
+      const payload = await fetchBSD(`/events/${bsdEventId}/stats/`);
       const freshStats = normalizeBsdStatsPayload(payload);
       const mergedStats = mergeLiveStats(getMatchLiveStats(match), freshStats, true);
       const idx = indexById.get(String(match.id));
@@ -5918,22 +5992,31 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     sourceRows = merged.sourceRows || [];
     sourceMeta = merged.meta || sourceMeta;
 
-    // /events/live/ est compact et ne fournit pas les stats détaillées.
-    // 1) on réutilise d'abord notre dernier snapshot connu;
-    // 2) ESPN complète gratuitement ce qu'il possède;
-    // 3) BSD /stats/ enrichit seulement quelques matchs prioritaires par cycle.
+    // Stats: cache -> fournisseurs gratuits -> BSD uniquement pour les trous restants.
     allRawMatches = await reuseCachedStats(allRawMatches);
+
+    const freeStats = await enrichLiveMatchesWithFreeStats(allRawMatches);
+    allRawMatches = freeStats.matches;
 
     const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
     allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
     sourceMeta = {
       ...sourceMeta,
+      free_stats_calls: freeStats.calls,
+      free_stats_enriched: freeStats.enriched,
+      free_stats_failed: freeStats.failed,
       bsd_stats_calls: statsEnrichment.calls,
       bsd_stats_enriched: statsEnrichment.enriched,
       bsd_stats_failed: statsEnrichment.failed,
       bsd_stats_skipped_quota: statsEnrichment.skipped_quota,
       bsd_quota_remaining: bsdQuotaRemaining,
       bsd_quota_reset_seconds: bsdQuotaResetSeconds,
+      sportscore_live_matches: freeProviderCounts.sportscore || 0,
+      thesportsdb_live_matches: freeProviderCounts.thesportsdb || 0,
+      free_provider_errors: freeProviderErrors,
+      bsd_live_backfill_used: bsdLiveBackfillUsed,
+      provider_quality: PROVIDER_QUALITY,
+      capability_priority: CAPABILITY_PRIORITY,
     };
 
     // Snapshot COMPLET persistant avant de découper en lots.
