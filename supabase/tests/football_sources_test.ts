@@ -18,6 +18,15 @@ Deno.test("free source quality order is stable", () => {
   }
 });
 
+Deno.test("fallback provider quality stays below BSD global authority", () => {
+  if (!(FREE_SOURCE_QUALITY.bsd.overall > FREE_SOURCE_QUALITY.thesportsdb.overall)) {
+    throw new Error("TheSportsDB should remain a fallback below BSD overall");
+  }
+  if (!(FREE_SOURCE_QUALITY.thesportsdb.overall > FREE_SOURCE_QUALITY.openligadb.overall)) {
+    throw new Error("OpenLigaDB should remain the narrower fallback");
+  }
+});
+
 Deno.test("provider fixture matching respects teams and kickoff", () => {
   const base = {
     home_team: "Paris Saint-Germain",
