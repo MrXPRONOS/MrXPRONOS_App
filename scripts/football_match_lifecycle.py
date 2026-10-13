@@ -356,7 +356,7 @@ def is_halftime(match: dict) -> bool:
     detail = _plain(match.get("status_detail")).lower()
     return (
         "half time" in detail or "halftime" in detail or "mi-temps" in detail
-        or "half-time" in detail
+        or "half-time" in detail or detail in {"ht", "status_halftime"}
     )
 
 
@@ -411,7 +411,7 @@ def lifecycle_signals(
         aws = _score(ext.get("away_score"))
         score_text = f"{hs}-{aws}" if hs is not None and aws is not None else ""
         importance = int(importance_fn(base) or 0)
-        if importance <= 0:
+        if importance <= 0 and not (is_live(ext) or is_halftime(ext)):
             continue
         source = _plain(ext.get("source") or "source live")
 
@@ -488,6 +488,30 @@ def lifecycle_signals(
                     "home_team_id": ext.get("home_team_id"),
                     "away_team_id": ext.get("away_team_id"),
                 })
+
+    # Rattrapage: score observé par une source live mais sans détail du buteur.
+    # Ne pas présenter une découverte tardive comme un but instantané.
+    seen_scores = {item.get("score") for item in signals if item.get("kind") == "goal"}
+    for match in external:
+        if not (is_live(match) or is_halftime(match)):
+            continue
+        hs, aws = _score(match.get("home_score")), _score(match.get("away_score"))
+        if hs is None or aws is None or hs + aws == 0:
+            continue
+        score_text = f"{hs}-{aws}"
+        event_id = str(match.get("id") or "").removeprefix("espn:")
+        key = f"score_update:{event_id}:{score_text}"
+        if key in sent_keys or score_text in seen_scores or any(
+            k.startswith(f"goal:{event_id}:{score_text}:") for k in sent_keys
+        ):
+            continue
+        signals.append({
+            "kind": "score_update", "key": key, "priority": 105,
+            "home": match.get("home_team"), "away": match.get("away_team"),
+            "league": match.get("league") or "Football",
+            "score": score_text, "minute": match.get("minute"),
+            "source": match.get("source") or "source live",
+        })
 
     # Un même match peut produire kickoff + goal si le but tombe immédiatement.
     # La priorité garde seulement le signal le plus important par match/key family.
