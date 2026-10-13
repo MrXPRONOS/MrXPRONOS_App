@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Génère six aperçus déterministes pour vérifier les coordonnées des templates."""
+"""Génère les aperçus déterministes des templates football Mr XPRONOS."""
 from __future__ import annotations
 
 import sys
@@ -75,6 +75,25 @@ payloads = {
         "image_options": ["Paris Saint-Germain", "Match nul", "Manchester City"],
         "home_logo": logo,
         "away_logo": logo,
+    },
+    "composition": {
+        "home": "Borussia Mönchengladbach",
+        "away": "Club Atlético de Madrid",
+        "competition": "UEFA Champions League",
+        "time": "20h45",
+        "source": "ESPN",
+        "home_logo": logo,
+        "away_logo": logo,
+        "home_players": [
+            "Moritz Nicolas", "Joe Scally", "Nico Elvedi", "Kevin Diks",
+            "Luca Netz", "Rocco Reitz", "Julian Weigl", "Franck Honorat",
+            "Alassane Pléa", "Robin Hack", "Tim Kleindienst",
+        ],
+        "away_players": [
+            "Jan Oblak", "Nahuel Molina", "José María Giménez", "Robin Le Normand",
+            "Javi Galán", "Marcos Llorente", "Koke", "Pablo Barrios",
+            "Antoine Griezmann", "Julián Álvarez", "Alexander Sørloth",
+        ],
     },
 }
 

@@ -116,6 +116,57 @@ class TemplateCardsTests(unittest.TestCase):
         self.assertNotIn("🗳️", value)
         self.assertIn("PSG", value)
 
+    def test_template_composition_genere_11_titulaires_sans_deformer_les_logos(self):
+        import programme_styles
+
+        fake_logo = Image.new("RGBA", (400, 200), (255, 255, 255, 255))
+        payload = {
+            "home": "Borussia Mönchengladbach",
+            "away": "Club Atlético de Madrid",
+            "competition": "UEFA Champions League",
+            "time": "20h45",
+            "source": "ESPN",
+            "home_logo": "https://test/home.png",
+            "away_logo": "https://test/away.png",
+            "home_players": [
+                "Très Long Nom de Joueur International " + str(i)
+                for i in range(1, 12)
+            ],
+            "away_players": [
+                "Another Long Player Name " + str(i)
+                for i in range(1, 12)
+            ],
+        }
+
+        with patch.object(programme_styles, "load_logo", return_value=fake_logo):
+            image = tc.render("composition", payload)
+            fitted_logo = tc._load_logo("https://test/home.png", 158)
+
+        self.assertEqual(image.size, (1374, 1145))
+        self.assertEqual(image.mode, "RGB")
+        self.assertEqual(len(tc.COMPOSITION_ROWS), 11)
+        self.assertLessEqual(fitted_logo.width, 158)
+        self.assertLessEqual(fitted_logo.height, 158)
+        self.assertEqual(fitted_logo.size, (158, 79))
+
+    def test_template_composition_refuse_une_liste_incomplete(self):
+        import programme_styles
+
+        fake_logo = Image.new("RGBA", (120, 120), (255, 255, 255, 255))
+        payload = {
+            "home": "Arsenal",
+            "away": "Chelsea",
+            "competition": "Premier League",
+            "time": "18h30",
+            "home_logo": "https://test/home.png",
+            "away_logo": "https://test/away.png",
+            "home_players": [f"Home {i}" for i in range(1, 11)],
+            "away_players": [f"Away {i}" for i in range(1, 12)],
+        }
+        with patch.object(programme_styles, "load_logo", return_value=fake_logo):
+            with self.assertRaises(ValueError):
+                tc.render("composition", payload)
+
     def test_six_templates_se_generent(self):
         import programme_styles
 
