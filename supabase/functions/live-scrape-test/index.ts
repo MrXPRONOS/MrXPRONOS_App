@@ -827,6 +827,22 @@ const espnStore = {
     const { error } = await supabase.from("espn_feed_cache").upsert(row, { onConflict: "cache_key" });
     if (error) throw error;
   },
+  async reserve(bucket: "scoreboard" | "summary") {
+    const { data, error } = await supabase.rpc("espn_take_request_slot", {
+      p_bucket: bucket,
+      p_max_calls: bucket === "summary" ? 8 : 30,
+      p_window_seconds: 60,
+    });
+    if (error) throw error;
+    return data === true;
+  },
+  async blockFor(bucket: "scoreboard" | "summary", seconds: number) {
+    const { error } = await supabase.rpc("espn_provider_backoff", {
+      p_bucket: bucket,
+      p_seconds: seconds,
+    });
+    if (error) throw error;
+  },
 };
 async function fetchEspnScoreboard(dateYYYYMMDD: string, _force = false) {
   return fetchSharedEspnScoreboard(dateYYYYMMDD, espnStore);
