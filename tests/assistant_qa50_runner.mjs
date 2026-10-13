@@ -20,3 +20,5 @@ fs.mkdirSync('assistant-qa50-results',{recursive:true});
 fs.writeFileSync('assistant-qa50-results/batch-'+batch+'.json',JSON.stringify({started,batch,answers},null,2));
 console.log('QA50_COMPLETE '+JSON.stringify({batch,completed:answers.length,errors:answers.filter(x=>x.error||x.status>=400).length}));
 // Regression rerun against deployed Supabase Edge Function version 66.
+
+// Live regression batch for Supabase assistant V67.
