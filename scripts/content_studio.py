@@ -7,6 +7,9 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
+from functools import lru_cache
+from urllib.parse import urlsplit
 import json
 import math
 import re
@@ -15,6 +18,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
+import requests
+
+# Les illustrations BSD V2 utilisent seulement les domaines badge approuvés.
+BADGE_HOSTS = frozenset(("r2.thesportsdb.com","www.thesportsdb.com", "media.api-sports.io", "cdn.sofascore.com", "api.sofascore.com", "img.sofascore.com", "images.fotmob.com"))
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "assets" / "images" / "editorial"
@@ -125,9 +132,50 @@ def logo(canvas: Image.Image, x: int, y: int, max_w: int, max_h: int) -> bool:
     return False
 
 
+@lru_cache(maxsize=96)
+def team_badge(url: str) -> Image.Image | None:
+    """Télécharge un badge réel déclaré par BSD; échec silencieux, zéro badge inventé."""
+    try:
+        parsed=urlsplit(url)
+        if parsed.scheme!="https" or parsed.hostname not in BADGE_HOSTS or parsed.port not in (None,443):
+            return None
+        if parsed.username or parsed.password:return None
+        response=requests.get(url, timeout=(3,6), stream=True,
+                              headers={"User-Agent":"MrXPRONOS-editorial/1.0"})
+        response.raise_for_status()
+        ctype=str(response.headers.get("Content-Type") or "").lower()
+        if ctype and not any(x in ctype for x in ("image/png","image/jpeg","image/webp")):
+            response.close();return None
+        payload=bytearray()
+        for chunk in response.iter_content(chunk_size=32768):
+            payload.extend(chunk)
+            if len(payload)>1_500_000:
+                response.close();return None
+        response.close()
+        with Image.open(io.BytesIO(payload)) as raw:
+            if raw.width*raw.height>5_000_000:return None
+            badge=raw.convert("RGBA")
+            badge.thumbnail((160,160),Image.Resampling.LANCZOS)
+            return badge.copy()
+    except (requests.RequestException,ValueError,OSError,TypeError):
+        return None
+
+
+def paste_team_badge(im: Image.Image, badge: Image.Image, x: int, y: int, dim: int) -> None:
+    # Petit badge avec fond sombre; aucune usurpation si le logo n'existe pas.
+    d=ImageDraw.Draw(im)
+    d.ellipse((x,y,x+dim,y+dim), fill=(12,34,50),outline=GOLD,width=max(2,dim//24))
+    logo=badge.copy()
+    logo.thumbnail((round(dim*.76),round(dim*.76)),Image.Resampling.LANCZOS)
+    px=x+(dim-logo.width)//2
+    py=y+(dim-logo.height)//2
+    im.paste(logo,(px,py),logo)
+
+
 def draw_cover(
     title: str, subtype: str, size: tuple[int, int], variant: int,
     subtitle: str = "", match_teams: tuple[str, str] | None = None,
+    match_logos: tuple[str,str] | None = None,
 ) -> Image.Image:
     w, h = size
     kind = subtype if subtype in TYPE_CONFIG else "article"
@@ -172,8 +220,24 @@ def draw_cover(
         if text:
             ft = font(round(w*.028),True)
             x = pad
-            d.rounded_rectangle((x, after+round(h*.03), min(w-pad,x+round(w*.82)), after+round(h*.03)+round(w*.07)),radius=10,fill=(15,42,59))
-            d.text((x+round(w*.018), after+round(h*.03)+round(w*.016)),text[:65],font=ft,fill=GOLD)
+            badge_pair = None
+            if match_logos and all(match_logos):
+                first,second=team_badge(match_logos[0]),team_badge(match_logos[1])
+                if first is not None and second is not None:
+                    badge_pair=(first,second)
+            bh=round(w*(.11 if badge_pair else .07))
+            box_top=min(after+round(h*.03),h-round(h*.11)-bh-round(w*.02))
+            box_top=max(box_top,area_top+len(lines)*line_height+round(h*.01))
+            d.rounded_rectangle((x, box_top, w-pad, box_top+bh),radius=10,fill=(15,42,59))
+            if badge_pair:
+                badge_dim=round(w*.073)
+                paste_team_badge(im,badge_pair[0],x+round(w*.08),box_top+(bh-badge_dim)//2,badge_dim)
+                paste_team_badge(im,badge_pair[1],w-pad-round(w*.08)-badge_dim,box_top+(bh-badge_dim)//2,badge_dim)
+                vs="VS"
+                bounds=d.textbbox((0,0),vs,font=font(round(w*.042),True))
+                d.text(((w-(bounds[2]-bounds[0]))//2,box_top+(bh-round(w*.042))//2),vs,font=font(round(w*.042),True),fill=GOLD)
+            else:
+                d.text((x+round(w*.018), box_top+round(w*.016)),text[:65],font=ft,fill=GOLD)
     elif subtitle:
         ft = font(round(w*.024))
         for idx, line in enumerate(wrap_text(d, subtitle,ft,round(w*.83), 2)):
@@ -188,17 +252,17 @@ def draw_cover(
     return im
 
 
-def save_cover(title: str, subtype: str, slug: str, subtitle: str = "", match_teams=None, dry_run=False) -> dict:
+def save_cover(title: str, subtype: str, slug: str, subtitle: str = "", match_teams=None, dry_run=False, match_logos=None) -> dict:
     safe_slug = slugify(slug)[:65]
     variant = int(hashlib.sha1(slug.encode()).hexdigest()[:3], 16) % 3
-    stamp = hashlib.sha1((title+subtype+slug).encode()).hexdigest()[:8]
+    stamp = hashlib.sha1((title+subtype+slug+json.dumps(match_logos or [],ensure_ascii=False)).encode()).hexdigest()[:8]
     result = {"visual_variant": f"v{variant+1}", "visual_hash": stamp, "visual_format": "webp"}
     if not dry_run:
         OUT.mkdir(parents=True, exist_ok=True)
     for key, size in FORMATS.items():
         path = OUT / f"{subtype}-{safe_slug}-{stamp}-{key}.webp"
         if not dry_run and not path.exists():
-            cover = draw_cover(title, subtype, size, variant, subtitle, match_teams)
+            cover = draw_cover(title, subtype, size, variant, subtitle, match_teams, match_logos)
             cover.save(path, "WEBP", quality=86, method=5)
         result[{"og":"image_url","social":"social_image","story":"story_image"}[key]] = path.relative_to(ROOT).as_posix()
     result["og_image"] = result["image_url"]
@@ -206,7 +270,7 @@ def save_cover(title: str, subtype: str, slug: str, subtitle: str = "", match_te
         # Variante B: mêmes données, deuxième composition graphique originale.
         ab_path = OUT / f"{subtype}-{safe_slug}-{stamp}-ab.webp"
         if not dry_run and not ab_path.exists():
-            draw_cover(title,subtype,FORMATS["og"],(variant+1)%3,subtitle,match_teams).save(
+            draw_cover(title,subtype,FORMATS["og"],(variant+1)%3,subtitle,match_teams,match_logos).save(
                 ab_path,"WEBP",quality=84,method=5)
         result["ab_image_url"] = ab_path.relative_to(ROOT).as_posix()
     return result
@@ -245,7 +309,10 @@ def generate(limit: int, dry_run: bool, news_limit: int | None = None) -> dict:
                     split = re.split(r"\s+vs\.?\s+", match_label, maxsplit=1, flags=re.IGNORECASE)
                     if len(split)==2 and all(split):
                         teams=(split[0].strip()[:38],split[1].strip()[:38])
-                result=save_cover(title,subtype,slug,subtitle,match_teams=teams,dry_run=dry_run)
+                match_logos=None
+                if subtype=="match" and item.get("home_logo") and item.get("away_logo"):
+                    match_logos=(str(item["home_logo"]),str(item["away_logo"]))
+                result=save_cover(title,subtype,slug,subtitle,match_teams=teams,dry_run=dry_run,match_logos=match_logos)
                 if not dry_run:
                     item.update(result)
                     if kind=="news":
