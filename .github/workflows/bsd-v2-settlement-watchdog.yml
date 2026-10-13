@@ -2,8 +2,6 @@ name: BSD V2 - Settlement watchdog
 run-name: "BSD V2 - Settlement watchdog (${{ inputs.trigger_source || github.event_name }})"
 
 on:
-  schedule:
-    - cron: '20 */4 * * *'
   workflow_dispatch:
     inputs:
       trigger_source:
