@@ -76,3 +76,23 @@ Le projet Supabase existant présente des tables publiques sans RLS et une polit
 - La publication quotidienne à 10h22 UTC n'est effective que si la variable GitHub \`EDITORIAL_THREADS_ENABLED=true\` est définie; l'envoi manuel exige \`publish=true\`.
 - Au plus un lien récent par exécution. Le statut \`threads=sent\` n'est conservé qu'après réception d'un identifiant de publication officiel.
 - Aucun coût d'API ou abonnement supplémentaire n'est prévu, sous réserve des droits d'accès et des quotas de Meta.
+
+
+## Phase 4 — Publications Instagram et comparaison visuelle A/B (gratuit)
+
+**Instagram** : les images Open Graph et réseaux sont au format WebP. L'API de publication Instagram demande au contraire une image JPEG publiquement accessible. Pour les contenus article/conseil nouveaux ou récents, \`scripts/editorial_instagram_assets.py\` fabrique des JPG 1080×1080, sans service d'hébergement supplémentaire, sous \`assets/images/editorial/\`. Le studio éditorial les versionne avec les visuels WebP existants. Le site GitHub Pages les sert publiquement.
+
+- \`scripts/editorial_instagram.py\` attend une URL qui sert réellement \`image/jpeg\`, avant toute requête d'envoi.
+- La publication utilise les appels officiels Instagram Graph API \`/{IG_USER_ID}/media\` puis \`/{IG_USER_ID}/media_publish\`.
+- Il faut un compte Instagram professionnel, des accès Meta valides et les secrets \`IG_USER_ID\` + \`META_ACCESS_TOKEN\` (ou \`META_PAGE_ACCESS_TOKEN\` valide selon le type d'authentification).
+- L'automatisation reste **désactivée** tant que \`EDITORIAL_INSTAGRAM_ENABLED=true\` n'est pas ajouté aux Variables Actions; lancement manuel avec \`publish=true\` possible après test.
+- Les publications se limitent à un contenu récent, avec mention 18+ / jeu responsable. Un identifiant \`media_id\` est enregistré uniquement lorsque Meta confirme la publication.
+- Un lien dans une légende Instagram n'est pas cliquable automatiquement; le lien dans le texte est donc informatif, contrairement au bouton Telegram.
+- \`editorial-instagram.yml\` utilise la même file anti-doublon et le même groupe de concurrence que Facebook et Threads.
+
+**Test A/B de présentation sur le site** : chaque article et conseil éditorial reçoit en plus une seconde couverture \`ab_image_url\`, graphiquement différente mais au contenu textuel identique. Sur les listes Blog et Conseils, le navigateur attribue A ou B par tirage 50/50, stable dans \`sessionStorage\` pour cette session.
+
+- L'affichage visible d'une carte enregistre \`editorial_ab_exposure\` et l'ouverture du contenu \`editorial_ab_click\` dans la table \`analytics\` existante, avec \`user_id=null\`.
+- Le rapport \`editorial_performance.json\` présente désormais les impressions et ouvertures par article/conseil et variante. Le taux est fourni à titre descriptif, sans prétention statistique (au moins 30 impressions par variante pour le simple statut descriptif).
+- Les sessions répétées et les interactions interrompues ne permettent pas un décompte garanti de visiteurs uniques. Les événements sont anonymes; les tests A/B des **créations de réseaux sociaux** ne sont pas encore randomisés, seulement ceux des couvertures **affichées sur le site**.
+- Les images A/B utilisent Pillow local (gratuit), n'inventent aucune statistique de match. Aucune photographie soumise à des droits n'est automatiquement republiée.

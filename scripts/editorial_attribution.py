@@ -23,11 +23,12 @@ KINDS = frozenset(("article", "conseil"))
 SOURCES = frozenset(("telegram", "facebook", "instagram", "threads", "whatsapp", "youtube", "tiktok"))
 VARIANTS = frozenset(("v1", "v2", "v3", "legacy"))
 EVENTS = frozenset(("editorial_view", "editorial_promo_copy"))
+AB_EVENTS = frozenset(("editorial_ab_exposure", "editorial_ab_click"))
 SAFE_SLUG = re.compile(r"^[A-Za-z0-9_-]{2,180}$")
 
 
 def parse_event(event):
-    if not isinstance(event, dict) or event.get("event_type") not in EVENTS:
+    if not isinstance(event, dict) or event.get("event_type") not in EVENTS | AB_EVENTS:
         return None
     parts = str(event.get("page") or "").split("|")
     if len(parts) != 4:
@@ -35,7 +36,9 @@ def parse_event(event):
     kind, slug, source, variant = parts
     if kind not in KINDS or not SAFE_SLUG.fullmatch(slug):
         return None
-    if source not in SOURCES or variant not in VARIANTS:
+    if event["event_type"] in AB_EVENTS:
+        if source != "onsite" or variant not in ("a","b"):return None
+    elif source not in SOURCES or variant not in VARIANTS:
         return None
     return kind, slug, source, variant, event["event_type"]
 
@@ -44,6 +47,7 @@ def summarize(events, *, now=None, lookback_days=30):
     now = now or datetime.now(timezone.utc)
     groups = defaultdict(lambda: {"attributed_visits": 0, "promo_copy_actions": 0})
     per_content = defaultdict(lambda: {"attributed_visits": 0, "promo_copy_actions": 0})
+    ab_records = defaultdict(lambda: {"impressions":0,"opens":0})
     rejected = 0
     for event in events:
         parsed = parse_event(event)
@@ -51,9 +55,13 @@ def summarize(events, *, now=None, lookback_days=30):
             rejected += 1
             continue
         kind, slug, source, variant, name = parsed
-        metric = "attributed_visits" if name == "editorial_view" else "promo_copy_actions"
-        groups[(source, variant)][metric] += 1
-        per_content[(kind, slug, source, variant)][metric] += 1
+        if name in AB_EVENTS:
+            metric = "impressions" if name=="editorial_ab_exposure" else "opens"
+            ab_records[(kind,slug,variant)][metric] += 1
+        else:
+            metric = "attributed_visits" if name == "editorial_view" else "promo_copy_actions"
+            groups[(source, variant)][metric] += 1
+            per_content[(kind, slug, source, variant)][metric] += 1
 
     by_source_variant = []
     for (source, variant), counts in sorted(groups.items()):
@@ -68,6 +76,17 @@ def summarize(events, *, now=None, lookback_days=30):
     for (kind, slug, source, variant), counts in sorted(per_content.items()):
         if counts["attributed_visits"] or counts["promo_copy_actions"]:
             content_rows.append({"kind": kind, "slug": slug, "source": source, "variant": variant, **counts})
+    ab_tests = []
+    designs=sorted({(kind,slug) for kind,slug,_ in ab_records})
+    for kind,slug in designs:
+        a=ab_records.get((kind,slug,"a"),{"impressions":0,"opens":0})
+        b=ab_records.get((kind,slug,"b"),{"impressions":0,"opens":0})
+        for variant,counts in (("a",a),("b",b)):
+            impressions=counts["impressions"]
+            ab_tests.append({"kind":kind,"slug":slug,"variant":variant,
+              **counts,
+              "open_rate":round(counts["opens"]/impressions,4) if impressions else None,
+              "status":"insufficient_data" if impressions<30 else "descriptive_only"})
     total_visits = sum(c["attributed_visits"] for c in groups.values())
     total_actions = sum(c["promo_copy_actions"] for c in groups.values())
     return {
@@ -81,7 +100,8 @@ def summarize(events, *, now=None, lookback_days=30):
         "registrations": None,
         "deposits": None,
         "ab_significance": None,
-        "ab_limitation": "Visuels non assignés aléatoirement et volumes possiblement insuffisants: aucune causalité démontrée.",
+        "ab_limitation": "Assignation aléatoire par session aux listes Blog/Conseils ; événements d’impressions et clics, pas visiteurs uniques. Significativité non calculée ; aucune causalité affirmée.",
+        "ab_tests": ab_tests,
         "groups": by_source_variant,
         "content": content_rows,
         "invalid_events_skipped": rejected,
@@ -101,7 +121,7 @@ def fetch_events(session=requests, max_rows=4000, lookback_days=30):
     for offset in range(0, max_rows, 500):
         params = {
             "select": "event_type,page,created_at",
-            "event_type": "in.(editorial_view,editorial_promo_copy)",
+            "event_type": "in.(editorial_view,editorial_promo_copy,editorial_ab_exposure,editorial_ab_click)",
             "created_at": "gte." + since.isoformat(),
             "order": "id.desc",
             "limit": 500,
