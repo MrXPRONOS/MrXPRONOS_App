@@ -23,6 +23,7 @@ import requests
 
 ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
 SPORTSCORE_FIXTURES = "https://sportscore.com/api/v1/fixtures/"
+SPORTSCORE_MATCHES = "https://sportscore.com/api/v1/matches/"
 SPORTSCORE_MATCH = "https://sportscore.com/api/v1/match/"
 SPORTSCORE_TEAM = "https://sportscore.com/api/v1/team/"
 SPORTSCORE_H2H = "https://sportscore.com/api/v1/h2h/"
@@ -217,7 +218,13 @@ def _sportscore_rows(payload: Any) -> List[Dict[str, Any]]:
         away = item.get("away") if not isinstance(item.get("away"), dict) else (item["away"].get("name") or item["away"].get("display_name"))
         if not _plain(home) or not _plain(away):
             continue
-        pid = item.get("id") or item.get("match_id") or item.get("slug")
+        slug = _plain(
+            item.get("slug")
+            or item.get("match_slug")
+            or item.get("url_slug")
+            or _slug(str(home) + "-vs-" + str(away))
+        )
+        pid = item.get("id") or item.get("match_id") or slug
         row = _base_row("sportscore", pid, home, away, item.get("time") or item.get("date") or item.get("start_time"))
         row.update({
             "home_score": _score(item.get("home_score") if item.get("home_score") is not None else item.get("score_home")),
@@ -227,11 +234,26 @@ def _sportscore_rows(payload: Any) -> List[Dict[str, Any]]:
             "status_detail": _plain(item.get("status_text") or item.get("status")),
             "league": _plain(item.get("competition") or item.get("league")),
             "minute": _score(item.get("minute")),
-            "sportscore_slug": _plain(item.get("slug")),
+            "sportscore_slug": slug,
             "raw": item,
         })
         rows.append(row)
     return rows
+
+
+def fetch_sportscore_live(session: requests.Session, *, ttl: int = 45) -> SourceSnapshot:
+    try:
+        payload = _json_get(
+            session, "sportscore", SPORTSCORE_MATCHES,
+            params={"sport": "football", "limit": 50}, ttl=ttl,
+        )
+        rows = [row for row in _sportscore_rows(payload) if str(row.get("state") or "") == "in"]
+        return SourceSnapshot("sportscore", rows, datetime.now(timezone.utc).isoformat())
+    except Exception as exc:
+        return SourceSnapshot(
+            "sportscore", [], datetime.now(timezone.utc).isoformat(),
+            type(exc).__name__ + ": " + str(exc)[:140],
+        )
 
 
 def fetch_sportscore_day(session: requests.Session, day: date, *, ttl: int = 55) -> SourceSnapshot:
