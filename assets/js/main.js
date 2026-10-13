@@ -766,18 +766,26 @@ function editorialAttributionPayload(page) {
 async function recordEditorialAttribution(page) {
   const payload = editorialAttributionPayload(page);
   if (!payload || !supabaseAvailable || !supabase) return;
-  try {
-    // Même table analytics existante, mais user_id=null : aucun profilage individuel.
-    const { error } = await supabase.from("analytics").insert({
-      event_type: "editorial_view",
-      user_id: null,
-      page: payload,
-    });
-    if (error) throw error;
-  } catch (error) {
-    // L'échec des statistiques ne doit jamais empêcher la lecture de l'article.
-    console.warn("Mesure éditoriale indisponible :", error);
+  async function sendEditorialMetric(eventType) {
+    try {
+      const { error } = await supabase.from("analytics").insert({
+        event_type: eventType,
+        user_id: null,
+        page: payload,
+      });
+      if (error) throw error;
+    } catch (error) {
+      // Les statistiques ne doivent jamais bloquer les pages publiques.
+      console.warn("Mesure éditoriale indisponible :", error);
+    }
   }
+  void sendEditorialMetric("editorial_view");
+  // Action réelle observée, distincte d'une inscription ou d'un dépôt.
+  document.addEventListener("click", (event) => {
+    if (event.target instanceof Element && event.target.closest(".promo-copy")) {
+      void sendEditorialMetric("editorial_promo_copy");
+    }
+  });
 }
 
 function countVisitOncePerDay() {
