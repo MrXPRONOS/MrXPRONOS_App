@@ -125,8 +125,8 @@ def cover(c, regular, bold):
         "Chaque template dispose de cases de validation et d'un champ de notes modifiable.",
         "Coche VALIDÉ si le design est cohérent.",
         "Coche À RECRÉER si le template doit être regénéré/remplacé.",
-        "Important : les templates marqués FALLBACK PYTHON correspondent aux fonds techniques",
-        "actuellement utilisés par le projet quand aucun PNG premium n'est présent.",
+        "La mention PNG INTÉGRÉ / GÉNÉRÉ PAR CODE indique uniquement la source technique actuelle.",
+        "Elle ne signifie pas qu'un design est validé : c'est précisément l'objet de ce document.",
     ]
     y = h-110*mm
     for line in lines:
@@ -155,7 +155,7 @@ def summary_pages(c, regular, bold, source_map):
         c.drawString(16*mm, h-29*mm, "Sommaire de validation")
         c.setFont(regular, 8)
         c.setFillColor(colors.HexColor("#B8C2CB"))
-        c.drawString(16*mm, h-36*mm, "Source = PNG PREMIUM si un fichier image existe dans le dépôt ; sinon FALLBACK PYTHON.")
+        c.drawString(16*mm, h-36*mm, "Source technique actuelle : PNG INTÉGRÉ au dépôt ou GÉNÉRÉ PAR CODE. Qualité à valider manuellement.")
 
         start = page_idx * rows_per_page
         end = min(len(TEMPLATES), start + rows_per_page)
@@ -164,7 +164,7 @@ def summary_pages(c, regular, bold, source_map):
             key, label = TEMPLATES[i]
             lot = i // 5 + 1
             source = source_map[key]
-            source_color = "#46C37B" if source == "PNG PREMIUM" else "#F3A34A"
+            source_color = "#46C37B" if source == "PNG INTÉGRÉ" else "#F3A34A"
             c.setFillColor(colors.HexColor("#102A3B"))
             c.roundRect(15*mm, y-6*mm, w-30*mm, 10*mm, 2*mm, fill=1, stroke=0)
             c.setFillColor(colors.HexColor("#F3C65F"))
@@ -194,7 +194,7 @@ def template_page(c, regular, bold, idx, key, label, source, tmpdir):
     fit_text(c, label, bold, 16, 10, w-30*mm)
     c.drawString(15*mm, h-36*mm, label)
 
-    source_color = "#46C37B" if source == "PNG PREMIUM" else "#F3A34A"
+    source_color = "#46C37B" if source == "PNG INTÉGRÉ" else "#F3A34A"
     c.setFillColor(colors.HexColor(source_color))
     c.setFont(bold, 7.5)
     c.drawRightString(w-15*mm, h-27*mm, source)
@@ -291,7 +291,7 @@ def main():
 
     source_map = {}
     for key, _ in TEMPLATES:
-        source_map[key] = "PNG PREMIUM" if events.template_path(key, {}).is_file() else "FALLBACK PYTHON"
+        source_map[key] = "PNG INTÉGRÉ" if events.template_path(key, {}).is_file() else "GÉNÉRÉ PAR CODE"
 
     c = canvas.Canvas(str(OUT), pagesize=A4, pageCompression=1)
     c.setTitle("MR XPRONOS - Validation des templates Actu Foot")
@@ -306,8 +306,8 @@ def main():
 
     c.save()
     print("PDF_CREATED", OUT, OUT.stat().st_size)
-    print("PREMIUM_COUNT", sum(v == "PNG PREMIUM" for v in source_map.values()))
-    print("FALLBACK_COUNT", sum(v == "FALLBACK PYTHON" for v in source_map.values()))
+    print("PNG_INTEGRATED_COUNT", sum(v == "PNG INTÉGRÉ" for v in source_map.values()))
+    print("CODE_GENERATED_COUNT", sum(v == "GÉNÉRÉ PAR CODE" for v in source_map.values()))
 
 
 if __name__ == "__main__":
