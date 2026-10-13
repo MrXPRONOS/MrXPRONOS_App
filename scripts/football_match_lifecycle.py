@@ -19,6 +19,13 @@ from typing import Any
 from urllib.parse import urlparse
 
 import requests
+from football_provider_mesh import (
+    PROVIDER_QUALITY,
+    fetch_sportscore_day,
+    fetch_thesportsdb_day,
+    fetch_openligadb_for_team,
+    merge_events as merge_provider_events,
+)
 
 ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
 ESPN_SUMMARY = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary"
@@ -1026,6 +1033,8 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
             if hours > (3 if base.get("follow_ref") else 8):
                 continue
             similarity += max(0, 0.18 - hours * 0.02)
+        provider = _plain(item.get("source")).lower()
+        similarity += (PROVIDER_QUALITY.get(provider, 60) - 60) / 500.0
         if base.get("follow_ref"):
             detail = _plain(item.get("status_detail")).lower()
             state = _plain(item.get("state")).lower()
@@ -1039,23 +1048,48 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
 
 
 def collect_external(session: requests.Session, day: date, base_events: list[dict]) -> list[dict]:
-    # ESPN d'abord car il donne aussi les identifiants nécessaires au résumé
-    # (compositions / buteurs). Le cache Supabase BSD+ESPN reste le fallback local.
+    """Agrège les sources gratuites avant le cache Supabase/BSD.
+
+    Ordre d'autorité : ESPN > SportScore > TheSportsDB > OpenLigaDB.
+    OpenLigaDB reste ciblé par équipe afin d'éviter de parcourir des ligues entières.
+    """
     days = {day}
-    # Un match choisi avant minuit doit rester suivi après minuit.
     for event in base_events:
         when = _event_time(event)
         if when and abs((when.date() - day).days) <= 1:
             days.add(when.date())
-    rows = []
+
+    rows: list[dict] = []
     for fixture_day in sorted(days):
-        rows.extend(fetch_espn_day(session, fixture_day))
+        try:
+            rows.extend(fetch_espn_day(session, fixture_day))
+        except Exception:
+            pass
+        try:
+            rows.extend(fetch_sportscore_day(session, fixture_day))
+        except Exception:
+            pass
+        try:
+            rows.extend(fetch_thesportsdb_day(session, fixture_day))
+        except Exception:
+            pass
+
+    # OpenLigaDB est plus efficace en recherche ciblée. On ne répète jamais
+    # la même équipe au sein d'un cycle.
+    seen_teams: set[str] = set()
+    for event in base_events[:12]:
+        home = _team_name(event, "home")
+        key = _norm(home)
+        if not home or key in seen_teams:
+            continue
+        seen_teams.add(key)
+        try:
+            rows.extend(fetch_openligadb_for_team(session, home))
+        except Exception:
+            pass
+
     rows.extend(fetch_supabase_live(session))
-    # OpenLigaDB n'est interrogé que si une rencontre Bundesliga est réellement
-    # présente dans notre journée BSD; pas de trafic inutile.
-    if any("bundesliga" in _plain(event.get("league_name") or event.get("league")).lower() for event in base_events):
-        rows.extend(fetch_openligadb_bundesliga(session, day))
-    return rows
+    return merge_provider_events(rows)
 
 
 def is_halftime(match: dict) -> bool:
@@ -1091,7 +1125,7 @@ def lifecycle_signals(
     if not base_events and not tracked_only:
         base_events = [
             item for item in external
-            if item.get("source") in {"espn", "supabase_live"}
+            if item.get("source") in {"espn", "sportscore", "thesportsdb", "openligadb", "supabase_live"}
             and item.get("home_team") and item.get("away_team")
         ]
     signals: list[dict] = []
