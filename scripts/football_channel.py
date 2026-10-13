@@ -1179,6 +1179,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         "url": "https://mrxpronos.github.io/MrXPRONOS_App/live.html",
         "style": "primary",
     }]]}
+    card: dict[str, Any] | None = None
 
     if kind == "composition":
         lineups = signal.get("lineups") if isinstance(signal.get("lineups"), dict) else {}
@@ -1200,6 +1201,23 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             "<blockquote>" + home_block + "\n\n" + away_block + "</blockquote>"
             "<p><i>Source : " + esc(source) + "</i></p>"
         )
+
+        home_logo = plain(signal.get("home_logo"), 500)
+        away_logo = plain(signal.get("away_logo"), 500)
+        # Le visuel premium est envoyé seulement lorsque les 11 titulaires et
+        # les deux vrais logos sont présents. Sinon l'ancien post texte reste intact.
+        if len(home_players) == 11 and len(away_players) == 11 and home_logo and away_logo:
+            card = {
+                "home": home,
+                "away": away,
+                "competition": competition,
+                "time": kickoff_text,
+                "source": source,
+                "home_logo": home_logo,
+                "away_logo": away_logo,
+                "home_players": home_players,
+                "away_players": away_players,
+            }
     elif kind == "kickoff":
         message = (
             "<h3>▶️ COUP D’ENVOI</h3>"
@@ -1249,6 +1267,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
         kind,
         str(signal.get("key") or ""),
         post_label(message),
+        card=card,
         keyboard=button,
     )
 
