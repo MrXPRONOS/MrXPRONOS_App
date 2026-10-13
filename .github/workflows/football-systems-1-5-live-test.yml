@@ -60,7 +60,7 @@ jobs:
             echo "::error::Le canal de test est identique au canal de production."
             exit 1
           fi
-          python scripts/telegram_test_guard.py
+          python scripts/telegram_test_readiness.py
 
       - name: Compiler le harnais de test
         run: |
