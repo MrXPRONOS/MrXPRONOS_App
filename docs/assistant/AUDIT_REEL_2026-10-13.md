@@ -52,3 +52,8 @@ Exécutions reproductibles :
 
 ## Limites
 Les 20 questions et 12 parcours sont des échantillons ciblés, pas la preuve exhaustive de toutes les combinaisons de réponses. Le LIVE a été chargé mais son flux sportif et chaque interaction de filtrage ne sont pas exhaustivement qualifiés ici. Aucun correctif fonctionnel n'a été déployé en production dans cette campagne d'audit ; seuls les scripts de test ont été ajoutés à la branche `assistant-real-audit-oct2026`.
+
+## Compléments vérifiés après rédaction
+- Le feedback positif a été validé via un clic dans Chromium, puis vérifié dans public.feedback ; la ligne synthétique a été supprimée.
+- Le trigger de feedback négatif a bien créé un élément assistant_review_queue avec statut pending ; les deux lignes de test ont été supprimées.
+- Le code Supabase déployé (V65) et le fichier GitHub main diffèrent sur 7 lignes de libellé LIVE VIP / PRONO LIVE. Il faut éliminer cette divergence avant toute mise à jour.
