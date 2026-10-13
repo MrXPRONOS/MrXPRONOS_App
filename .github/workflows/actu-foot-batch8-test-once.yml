@@ -1,0 +1,38 @@
+name: Actu Foot - Batch 8 previews Telegram TEST only
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/actu-foot-batch8-test-once.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-foot-batch8-telegram-test
+  cancel-in-progress: false
+
+jobs:
+  telegram-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer les dépendances
+        run: python -m pip install Pillow requests
+      - name: Vérifier que le canal est strictement le canal TEST
+        run: python scripts/telegram_test_guard.py
+      - name: Compiler le renderer et le test
+        run: python -m py_compile scripts/actu_foot_event_templates.py scripts/actu_foot_batch8_test_send.py scripts/build_event_batch_8_assets.py
+      - name: Envoyer les 5 previews du lot 8
+        run: python scripts/actu_foot_batch8_test_send.py
