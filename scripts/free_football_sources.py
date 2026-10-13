@@ -649,18 +649,42 @@ def extract_thesportsdb_enrichment(details: dict) -> dict[str, Any]:
 
 
 def fetch_provider_enrichment(session: requests.Session, match: dict) -> dict[str, Any]:
+    """Try rich free detail providers in quality order, including secondary mappings."""
     source = _text(match.get("source")).lower()
-    if source == "sportscore":
-        slug = (
-            match.get("provider_slug")
-            or (match.get("raw") or {}).get("slug")
-            or (match.get("raw_data") or {}).get("provider_slug")
+    raw = match.get("raw_data") if isinstance(match.get("raw_data"), dict) else {}
+    slugs = match.get("provider_slugs") if isinstance(match.get("provider_slugs"), dict) else {}
+    ids = match.get("provider_ids") if isinstance(match.get("provider_ids"), dict) else {}
+    if isinstance(raw.get("provider_slugs"), dict):
+        slugs = {**raw.get("provider_slugs"), **slugs}
+    if isinstance(raw.get("provider_ids"), dict):
+        ids = {**raw.get("provider_ids"), **ids}
+
+    sport_slug = (
+        match.get("provider_slug") if source == "sportscore" else None
+    ) or slugs.get("sportscore") or (
+        (match.get("raw") or {}).get("slug") if isinstance(match.get("raw"), dict) else None
+    ) or raw.get("provider_slug")
+    if sport_slug:
+        detail = fetch_sportscore_detail(session, _text(sport_slug))
+        enriched = extract_sportscore_enrichment(detail)
+        if (
+            (enriched.get("goals") or [])
+            or (enriched.get("lineups") or {}).get("home")
+            or (enriched.get("stats") or {}).get("home")
+        ):
+            return enriched
+
+    tsdb_id = ids.get("thesportsdb")
+    if source == "thesportsdb" and not tsdb_id:
+        tsdb_id = match.get("source_match_id") or re.sub(r"\D", "", str(match.get("id") or ""))
+    if tsdb_id:
+        enriched = extract_thesportsdb_enrichment(
+            fetch_thesportsdb_details(session, str(tsdb_id))
         )
-        detail = fetch_sportscore_detail(session, _text(slug))
-        return extract_sportscore_enrichment(detail)
-    if source == "thesportsdb":
-        event_id = str(match.get("source_match_id") or "").strip()
-        if not event_id:
-            event_id = re.sub(r"\D", "", str(match.get("id") or ""))
-        return extract_thesportsdb_enrichment(fetch_thesportsdb_details(session, event_id))
+        if (
+            (enriched.get("goals") or [])
+            or (enriched.get("lineups") or {}).get("home")
+            or (enriched.get("stats") or {}).get("home")
+        ):
+            return enriched
     return {}
