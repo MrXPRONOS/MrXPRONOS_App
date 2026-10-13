@@ -277,15 +277,27 @@ export async function fetchOpenLigaDbDay(date: string, maxLeagues = 8) {
     "conference league", "laliga", "la liga", "dfb", "nations league",
     "world cup", "weltmeister",
   ];
+  const trustedShortcuts = new Set([
+    "bl1", "bl2", "bl3", "ucl", "dfb", "wm26",
+    "fbl1", "fbl2", "fef", "dfbnat2526",
+  ]);
   const selected = leagues
     .filter((x: any) => {
       const name = norm(x?.leagueName ?? x?.name);
-      const quality = numberOrNull(x?.leagueQuality ?? x?.qualityIndex) ?? 0;
-      return text(x?.leagueShortcut) && quality >= 90 && wanted.some((term) => name.includes(term));
+      const shortcut = text(x?.leagueShortcut);
+      if (!shortcut) return false;
+      const sportName = norm(x?.sport?.sportName ?? x?.sportName);
+      if (sportName && !["football", "soccer", "fussball"].some((term) => sportName.includes(term))) {
+        return false;
+      }
+      const qualityRaw = numberOrNull(x?.leagueQuality ?? x?.qualityIndex);
+      const known = trustedShortcuts.has(shortcut.toLowerCase()) ||
+        wanted.some((term) => name.includes(term));
+      return known && (qualityRaw == null || qualityRaw >= 90);
     })
     .sort((a: any, b: any) =>
-      (numberOrNull(b?.leagueQuality ?? b?.qualityIndex) ?? 0) -
-      (numberOrNull(a?.leagueQuality ?? a?.qualityIndex) ?? 0)
+      (numberOrNull(b?.leagueQuality ?? b?.qualityIndex) ?? 90) -
+      (numberOrNull(a?.leagueQuality ?? a?.qualityIndex) ?? 90)
     )
     .slice(0, maxLeagues);
 
