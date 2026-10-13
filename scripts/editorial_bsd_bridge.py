@@ -7,10 +7,10 @@ La génération est idempotente par ID de match et respectueuse de la sélection
 from __future__ import annotations
 import argparse,json,re,sys
 from urllib.parse import urlsplit
-sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from bsd.bsd_v2_assets import image_fields
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
+from bsd.bsd_v2_assets import image_fields
 from zoneinfo import ZoneInfo
 
 ROOT=Path(__file__).resolve().parents[1]
