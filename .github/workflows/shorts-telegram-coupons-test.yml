@@ -1,0 +1,75 @@
+name: Shorts - Coupons Telegram exacts - Test
+
+on:
+  push:
+    branches:
+      - feat/shorts-from-telegram-coupons-20261013
+    paths:
+      - 'config/shorts_telegram_coupon_test_trigger.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shorts-telegram-coupon-test-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install free video dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core fonts-liberation
+          python -m pip install --upgrade pip
+          pip install "numpy<2" "pillow<12" requests "moviepy==1.0.3"
+
+      - name: Build video from exact Telegram coupons
+        run: |
+          python scripts/create_short_from_telegram_coupons.py \
+            --data data.json \
+            --slot preview \
+            --max 5 \
+            --out daily_pronos_coupon_short_test.mp4 \
+            --work-dir telegram_out/video_coupon_short
+          ffprobe -v error -show_entries format=duration,size -of json daily_pronos_coupon_short_test.mp4
+
+      - name: Verify exact Telegram test destination
+        env:
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
+
+      - name: Send video to Telegram test channel only
+        env:
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          python scripts/send_video_test_telegram.py \
+            --video daily_pronos_coupon_short_test.mp4 \
+            --caption "🧪 TEST — Coupons Telegram exacts en vidéo
+          1 à 5 matchs maximum.
+          Même design et même bannière bookmaker que les coupons Telegram actuels."
+
+      - name: Upload video and exact coupon PNGs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shorts-telegram-coupons-exact-test
+          path: |
+            daily_pronos_coupon_short_test.mp4
+            telegram_out/video_coupon_short/manifest.json
+            telegram_out/video_coupon_short/cards/
+          retention-days: 7
+          if-no-files-found: warn
