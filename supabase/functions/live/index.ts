@@ -354,7 +354,7 @@ function ensureLiveStatsShape(stats: any) {
   return { ...stats, home, away, totals };
 }
 
-function applyStatPairIfBetter(base: any, extra: any, key: string, totalKey?: string) {
+function applyStatPairIfBetter(base: any, extra: any, key: string, totalKey?: string, preferFreshSource = false) {
   const tk = totalKey || key;
 
   const bh = nullableNumber(base?.home?.[key]);
@@ -369,9 +369,9 @@ function applyStatPairIfBetter(base: any, extra: any, key: string, totalKey?: st
     const baseTotal = baseComplete ? (bh! + ba!) : -1;
     const extraTotal = eh! + ea!;
 
-    // Une statistique cumulative ne doit jamais reculer. Une paire complète
-    // remplace une paire absente ou plus ancienne.
-    if (!baseComplete || extraTotal >= baseTotal) {
+    // A newly fetched authoritative stats endpoint may correct prior figures downwards.
+    // During mixed-provider merges preserve the existing conservative policy.
+    if (!baseComplete || preferFreshSource || extraTotal >= baseTotal) {
       base.home[key] = eh;
       base.away[key] = ea;
       base.totals[tk] = extraTotal;
@@ -388,16 +388,16 @@ function applyStatPairIfBetter(base: any, extra: any, key: string, totalKey?: st
   base.totals[tk] = nh != null && na != null ? nh + na : null;
 }
 
-function mergeLiveStats(primaryStats: any, secondaryStats: any) {
+function mergeLiveStats(primaryStats: any, secondaryStats: any, preferFreshSource = false) {
   const merged = ensureLiveStatsShape(primaryStats || {});
   const extra = ensureLiveStatsShape(secondaryStats || {});
 
-  applyStatPairIfBetter(merged, extra, "corner_kicks", "corners");
-  applyStatPairIfBetter(merged, extra, "fouls", "fouls");
-  applyStatPairIfBetter(merged, extra, "yellow_cards", "yellow_cards");
-  applyStatPairIfBetter(merged, extra, "red_cards", "red_cards");
-  applyStatPairIfBetter(merged, extra, "total_shots", "total_shots");
-  applyStatPairIfBetter(merged, extra, "shots_on_target", "shots_on_target");
+  applyStatPairIfBetter(merged, extra, "corner_kicks", "corners", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "fouls", "fouls", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "yellow_cards", "yellow_cards", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "red_cards", "red_cards", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "total_shots", "total_shots", preferFreshSource);
+  applyStatPairIfBetter(merged, extra, "shots_on_target", "shots_on_target", preferFreshSource);
 
   // Possession n'est pas cumulative ; on prend la valeur secondaire quand elle existe.
   const hp = nullableNumber(extra?.home?.ball_possession);
@@ -3597,8 +3597,9 @@ function normalizeEspnEventToOriginalMatch(event: any) {
   const homePossession = getEspnStatNullable(home, ["possessionPct", "possession"]);
   const awayPossession = getEspnStatNullable(away, ["possessionPct", "possession"]);
 
-  const homeCards = countEspnCards(details, homeTeamId);
-  const awayCards = countEspnCards(details, awayTeamId);
+  // Absence of disciplinary event details means unknown, not necessarily zero.
+  const homeCards = details.length ? countEspnCards(details, homeTeamId) : { yellow: null, red: null };
+  const awayCards = details.length ? countEspnCards(details, awayTeamId) : { yellow: null, red: null };
 
   const liveStats = ensureLiveStatsShape({
     home: {
@@ -5543,7 +5544,7 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
       calls++;
       const payload = await fetchBSD(`/events/${match.id}/stats/`);
       const freshStats = normalizeBsdStatsPayload(payload);
-      const mergedStats = mergeLiveStats(getMatchLiveStats(match), freshStats);
+      const mergedStats = mergeLiveStats(getMatchLiveStats(match), freshStats, true);
       const idx = indexById.get(String(match.id));
       if (idx == null) continue;
 
@@ -5561,6 +5562,8 @@ async function enrichLiveMatchesWithBsdStats(matches: any[]) {
               "bsd_stats",
             ]),
           ],
+          stats_authority: "bsd_stats",
+          stats_corrected_at: nowIso(),
         },
       };
       enriched++;
