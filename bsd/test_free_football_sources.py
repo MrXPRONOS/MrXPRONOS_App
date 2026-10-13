@@ -3,7 +3,7 @@ import os
 import unittest
 from datetime import datetime, timezone
 
-from free_football_sources import (
+from bsd.free_football_sources import (
     SOURCE_QUALITY,
     SourceSnapshot,
     _sportscore_rows,
