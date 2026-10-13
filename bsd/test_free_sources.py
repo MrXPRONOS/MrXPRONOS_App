@@ -69,6 +69,29 @@ class FreeSourceTests(unittest.TestCase):
         self.assertEqual(rows[0]["home_score"], 2)
         self.assertEqual(rows[0]["source_slug"], "arsenal-chelsea")
 
+    def test_sportscore_derives_slug_and_id_from_real_url_shape(self):
+        url = "https://sportscore.com/api/v1/fixtures/"
+        params = (("date", "2026-10-13"), ("limit", 200), ("sport", "football"))
+        session = FakeSession({
+            (url, params): {
+                "matches": [{
+                    "home": "Red Bull Bragantino",
+                    "away": "Cruzeiro - MG",
+                    "home_score": "4",
+                    "away_score": "2",
+                    "status": "finished",
+                    "time": "2026-10-13T00:00:00+00:00",
+                    "competition": "Brazilian Serie A",
+                    "url": "/football/match/cruzeiro-esporte-clube-vs-red-bull-bragantino/2y8m4zh5w385ql0/",
+                }]
+            }
+        })
+        hub = FreeFootballHub(session=session, enabled=True)
+        rows = hub.sportscore_day(date(2026, 10, 13))
+        self.assertEqual(rows[0]["source_slug"], "cruzeiro-esporte-clube-vs-red-bull-bragantino")
+        self.assertEqual(rows[0]["source_match_id"], "2y8m4zh5w385ql0")
+        self.assertEqual(rows[0]["id"], "sportscore:2y8m4zh5w385ql0")
+
     def test_thesportsdb_day_normalization(self):
         url = "https://www.thesportsdb.com/api/v1/json/123/eventsday.php"
         params = (("d", "2026-10-13"), ("s", "Soccer"))
