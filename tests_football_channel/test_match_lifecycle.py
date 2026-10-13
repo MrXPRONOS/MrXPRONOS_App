@@ -231,6 +231,48 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertEqual(rejected["reason"], "goal_not_confirmed")
 
 
+    @patch("football_match_lifecycle.verify_espn_public_page")
+    @patch("football_match_lifecycle.fetch_espn_day")
+    def test_fixture_preflight_blocks_changed_espn_kickoff(self, fetch_day, verify_page):
+        fetch_day.return_value = [{
+            "source": "espn",
+            "id": "401",
+            "home_team": "Arsenal",
+            "away_team": "Chelsea",
+            "home_score": None,
+            "away_score": None,
+            "state": "pre",
+            "status_detail": "Scheduled",
+            "event_date": "2026-10-13T20:00:00+00:00",
+            "espn_url": "https://www.espn.com/soccer/match/_/gameId/401",
+        }]
+        verify_page.return_value = {"reachable": True, "content_verified": True}
+        result = m.verify_espn_fixtures_before_publish(object(), {
+            "kind": "programme",
+            "fixtures": [{
+                "home": "Arsenal",
+                "away": "Chelsea",
+                "event_date": "2026-10-13T18:00:00+00:00",
+            }],
+        })
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["contradictions"][0]["reason"], "kickoff_mismatch")
+
+    @patch("football_match_lifecycle.fetch_espn_day", return_value=[])
+    def test_fixture_preflight_does_not_block_when_espn_has_no_coverage(self, fetch_day):
+        result = m.verify_espn_fixtures_before_publish(object(), {
+            "kind": "avant_match",
+            "fixtures": [{
+                "home": "ASKO Kara",
+                "away": "AC Barracuda",
+                "event_date": "2026-10-13T18:00:00+00:00",
+            }],
+        })
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["reason"], "espn_not_covered")
+        self.assertEqual(result["covered"], 0)
+        fetch_day.assert_called()
+
     @patch("football_match_lifecycle.fetch_espn_summary")
     @patch("football_match_lifecycle.collect_external")
     def test_composition_signal_transporte_les_logos(self, collect_external, fetch_summary):
