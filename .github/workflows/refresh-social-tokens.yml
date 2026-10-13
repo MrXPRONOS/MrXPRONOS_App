@@ -2,10 +2,6 @@ name: Refresh Social Tokens
 
 on:
   workflow_dispatch:
-  schedule:
-    # Tous les jours à 04:20 UTC.
-    # Utile surtout pour TikTok, dont l'access token ne dure que 24h.
-    - cron: "20 4 * * *"
 
 permissions:
   contents: read
