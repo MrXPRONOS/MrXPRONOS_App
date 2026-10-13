@@ -1,0 +1,64 @@
+name: Latest mobile UI parity smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/css/style.css'
+      - 'assets/js/main.js'
+      - 'assets/js/assistant.js'
+      - 'assets/css/live-premium.css'
+      - 'live.html'
+      - 'index.html'
+      - 'pronos.html'
+      - 'historique.html'
+      - 'blog.html'
+      - 'conseils.html'
+      - 'infos.html'
+      - 'bonus.html'
+      - 'contact.html'
+      - 'bookmakers.html'
+      - 'article.html'
+      - 'conseil.html'
+      - 'scripts/mobile_latest_visual_smoke.py'
+      - '.github/workflows/mobile-latest-visual-smoke.yml'
+  pull_request:
+    paths:
+      - 'assets/css/style.css'
+      - 'assets/js/main.js'
+      - 'assets/js/assistant.js'
+      - 'assets/css/live-premium.css'
+      - 'live.html'
+      - 'scripts/mobile_latest_visual_smoke.py'
+      - '.github/workflows/mobile-latest-visual-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Chromium automation
+        run: |
+          pip install playwright==1.60.0
+          python -m playwright install --with-deps chromium
+      - name: Start local website
+        run: |
+          python -m http.server 8000 --bind 127.0.0.1 > /tmp/mobile-latest-http.log 2>&1 &
+          sleep 2
+      - name: Verify latest UI improvements on 390px and 320px
+        run: python scripts/mobile_latest_visual_smoke.py
+      - name: Save mobile parity screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-mobile-ui-390-320
+          path: artifacts/mobile-latest/
+          if-no-files-found: warn

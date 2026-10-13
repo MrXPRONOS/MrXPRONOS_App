@@ -307,6 +307,38 @@ function renderSafeRichContent(content = "") {
   return sanitizeHtml(escapeHtml(String(content)).replace(/\n/g, "<br>"));
 }
 
+
+/* =======================================================
+ MOBILE OVERLAY BODY LOCK
+======================================================= */
+function setupOverlayBodyLock() {
+  const selectors = ".modal, .popup, .ios-guide-popup";
+
+  const sync = () => {
+    const isOpen = Array.from(document.querySelectorAll(selectors)).some((el) => {
+      const current = window.getComputedStyle(el);
+      return current.display !== "none" && current.visibility !== "hidden";
+    });
+    document.body?.classList.toggle("mx-overlay-open", isOpen);
+  };
+
+  const start = () => {
+    sync();
+    const observer = new MutationObserver(sync);
+    document.querySelectorAll(selectors).forEach((el) => {
+      observer.observe(el, { attributes: true, attributeFilter: ["style", "class", "hidden"] });
+    });
+    window.addEventListener("pagehide", () => observer.disconnect(), { once: true });
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start, { once: true });
+  } else {
+    start();
+  }
+}
+setupOverlayBodyLock();
+
 /* =======================================================
  UTILS
 ======================================================= */
