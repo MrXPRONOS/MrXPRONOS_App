@@ -53,22 +53,22 @@ jobs:
         run: |
           python scripts/create_shorts_video_v2.py \
             --data data.json \
-            --stage "\${{ steps.stage.outputs.value }}" \
+            --stage "${{ steps.stage.outputs.value }}" \
             --limit 3 \
             --out daily_pronos_shorts_v2_test.mp4
           ffprobe -v error -show_entries format=duration,size -of json daily_pronos_shorts_v2_test.mp4
 
       - name: Verify exact Telegram test channel
         env:
-          TELEGRAM_TEST_CHAT_ID: \${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
-          TELEGRAM_TEST_GUARD_BOT_TOKEN: \${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: python scripts/telegram_test_guard.py
 
       - name: Send video to Telegram test channel only
         env:
-          TELEGRAM_TEST_CHAT_ID: \${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
-          TELEGRAM_TEST_GUARD_BOT_TOKEN: \${{ secrets.TELEGRAM_BOT_TOKEN }}
-          STAGE: \${{ steps.stage.outputs.value }}
+          TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          STAGE: ${{ steps.stage.outputs.value }}
         run: |
           python scripts/send_video_test_telegram.py \
             --video daily_pronos_shorts_v2_test.mp4 \
@@ -81,7 +81,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: shorts-premium-stage-\${{ steps.stage.outputs.value }}
+          name: shorts-premium-stage-${{ steps.stage.outputs.value }}
           path: |
             daily_pronos_shorts_v2_test.mp4
             telegram_out/shorts_premium/test_manifest.json
