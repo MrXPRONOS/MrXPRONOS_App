@@ -559,12 +559,79 @@ def extract_match_info(summary: dict) -> dict[str, Any]:
     }
 
 
+def extract_player_stats(summary: dict) -> list[dict[str, Any]]:
+    """Aplati les groupes de statistiques joueurs ESPN quand ils existent."""
+    boxscore = summary.get("boxscore") if isinstance(summary, dict) else None
+    groups = boxscore.get("players") if isinstance(boxscore, dict) else None
+    if not isinstance(groups, list):
+        return []
+    rows: list[dict[str, Any]] = []
+    for group in groups:
+        if not isinstance(group, dict):
+            continue
+        team_obj = group.get("team") if isinstance(group.get("team"), dict) else {}
+        team_id = str(team_obj.get("id") or "")
+        for category in group.get("statistics") or []:
+            if not isinstance(category, dict):
+                continue
+            names = [str(x) for x in (category.get("names") or category.get("labels") or [])]
+            category_name = _plain(
+                category.get("name") or category.get("displayName") or category.get("label")
+            )
+            for item in category.get("athletes") or []:
+                if not isinstance(item, dict):
+                    continue
+                athlete = item.get("athlete") if isinstance(item.get("athlete"), dict) else {}
+                player = _plain(athlete.get("displayName") or athlete.get("fullName") or athlete.get("name"))
+                if not player:
+                    continue
+                values = item.get("stats") if isinstance(item.get("stats"), list) else []
+                mapped = {
+                    names[i]: values[i]
+                    for i in range(min(len(names), len(values)))
+                    if names[i]
+                }
+                rows.append({
+                    "player": player,
+                    "player_id": str(athlete.get("id") or ""),
+                    "team_id": team_id,
+                    "category": category_name,
+                    "starter": item.get("starter"),
+                    "did_not_play": item.get("didNotPlay"),
+                    "stats": mapped,
+                })
+    return rows[:80]
+
+
+def extract_timeline(summary: dict) -> list[dict[str, Any]]:
+    """Chronologie éditoriale structurée : buts, cartons et remplacements."""
+    timeline: list[dict[str, Any]] = []
+    for goal in extract_goals(summary):
+        timeline.append({"kind": "goal", **goal})
+    for card in extract_cards(summary):
+        timeline.append({"kind": "card", **card})
+    for change in extract_substitutions(summary):
+        timeline.append({"kind": "substitution", **change})
+    timeline.sort(key=lambda x: (
+        x.get("minute") is None and x.get("minute_total") is None,
+        x.get("minute_total") if x.get("minute_total") is not None else x.get("minute") or 999,
+        x.get("kind") or "",
+    ))
+    return timeline
+
+
 def extract_match_enrichment(summary: dict) -> dict[str, Any]:
+    goals = extract_goals(summary)
+    cards = extract_cards(summary)
+    substitutions = extract_substitutions(summary)
     return {
-        "goals": extract_goals(summary),
-        "cards": extract_cards(summary),
-        "substitutions": extract_substitutions(summary),
+        "goals": goals,
+        "cards": cards,
+        "substitutions": substitutions,
+        "timeline": extract_timeline(summary),
         "stats": extract_team_stats(summary),
+        "player_stats": extract_player_stats(summary),
+        "lineups": extract_lineups(summary),
         "info": extract_match_info(summary),
     }
 
