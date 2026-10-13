@@ -21,6 +21,7 @@ from datetime import datetime, date, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
 import requests
@@ -391,10 +392,61 @@ class Publication:
     verification: dict[str, Any] | None = None
 
 
+def _verify_espn_news_reference(session: requests.Session, verification: dict[str, Any]) -> dict[str, Any]:
+    """Contrôle non bloquant d'une corroboration ESPN déjà trouvée par le collecteur."""
+    url = str(verification.get("url") or "").strip()
+    if not url.startswith("https://"):
+        return {"ok": False, "quality": 0, "reason": "missing_espn_news_url"}
+    host = (urlparse(url).hostname or "").lower()
+    if not host.endswith("espn.com"):
+        return {"ok": False, "quality": 0, "reason": "invalid_espn_host"}
+    expected_terms = {
+        plain(x, 50).casefold()
+        for x in (verification.get("matched_terms") or [])
+        if plain(x, 50)
+    }
+    try:
+        response = session.get(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (compatible; MrXPRONOS-NewsVerifier/1.0)",
+                "Accept": "text/html,application/xhtml+xml",
+            },
+            timeout=(7, 15),
+            allow_redirects=True,
+        )
+        final_host = (urlparse(response.url).hostname or "").lower()
+        if not response.ok or not final_host.endswith("espn.com"):
+            return {"ok": False, "quality": 75, "reason": "espn_news_page_unavailable", "url": url}
+        body = plain(response.text[:600000], 600000).casefold()
+        matched = sum(1 for term in expected_terms if term in body)
+        content_ok = not expected_terms or matched >= min(2, len(expected_terms))
+        return {
+            "ok": content_ok,
+            "quality": 96 if content_ok else 82,
+            "reason": "espn_news_page_confirmed" if content_ok else "espn_news_terms_not_found",
+            "url": response.url,
+        }
+    except requests.RequestException as exc:
+        return {
+            "ok": False,
+            "quality": 75,
+            "reason": "espn_news_page_error",
+            "url": url,
+            "error": type(exc).__name__,
+        }
+
+
 def espn_preflight(sender: "Sender", item: Publication, *, dry_run: bool = False) -> bool:
-    """Revalide directement chez ESPN les publications match sensibles."""
+    """Contrôle ESPN juste avant envoi; bloquant pour les faits de match, informatif pour les news."""
     if dry_run or not item.verification:
         return True
+    if item.verification.get("type") == "news":
+        result = _verify_espn_news_reference(sender.session, item.verification)
+        print("ESPN_NEWS_PREFLIGHT", item.category, item.key, json.dumps(result, ensure_ascii=False))
+        # La news reste fondée sur sa source journalistique d'origine; ESPN est une corroboration.
+        return True
+
     result = verify_espn_before_publish(sender.session, item.verification)
     print("ESPN_PREFLIGHT", item.category, item.key, json.dumps({
         "ok": result.get("ok"),
@@ -706,10 +758,26 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
             "<i>🗞️ Source : " + esc(source) + "</i>\n"
             "<a href=\"" + esc(site_url) + "\">Lire l’info complète sur Mr XPRONOS ↗</a>"
         )
-        keyboard = {"inline_keyboard": [[
+        keyboard_rows = [[
             {"text": "Lire l’info complète ↗", "url": site_url, "style": "primary"}
-        ]]}
-        return Publication("flash", key, message, image_path=image_path, keyboard=keyboard)
+        ]]
+        verification = None
+        espn_verification = article.get("espn_verification")
+        if isinstance(espn_verification, dict):
+            espn_url = str(espn_verification.get("url") or "")
+            if espn_url.startswith("https://") and (urlparse(espn_url).hostname or "").lower().endswith("espn.com"):
+                keyboard_rows.append([{"text": "Corroboration ESPN ↗", "url": espn_url}])
+                verification = {
+                    "type": "news",
+                    "url": espn_url,
+                    "matched_terms": espn_verification.get("matched_terms") or [],
+                }
+                message += "\n<i>✅ Information aussi repérée chez ESPN.</i>"
+        keyboard = {"inline_keyboard": keyboard_rows}
+        return Publication(
+            "flash", key, message, image_path=image_path,
+            keyboard=keyboard, verification=verification,
+        )
     return None
 
 def programme(events: list[dict], today: date, *, as_of: datetime | None = None) -> Publication | None:
