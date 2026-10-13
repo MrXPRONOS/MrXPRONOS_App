@@ -53,3 +53,5 @@ jobs:
         run: PYTHONPATH=scripts python tests_football_channel/test_event_template_batch_7.py
       - name: Run batch 8 tests
         run: PYTHONPATH=scripts python tests_football_channel/test_event_template_batch_8.py
+
+# batch8-trigger
