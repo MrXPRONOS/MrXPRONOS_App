@@ -1,0 +1,67 @@
+name: Editorial - Threads liens automatiques
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publier un article sur Threads (autorisation explicite)"
+        required: true
+        type: boolean
+        default: false
+  schedule:
+    - cron: '22 10 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: editorial-social-delivery
+  cancel-in-progress: false
+
+jobs:
+  threads:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install free HTTP client
+        run: python -m pip install requests
+      - name: Refresh queue without losing send receipts
+        run: python scripts/editorial_queue.py --limit 100
+      - name: At most one verified recent article
+        env:
+          THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+          THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_PUBLISH: ${{ inputs.publish || 'false' }}
+          AUTO_ENABLED: ${{ vars.EDITORIAL_THREADS_ENABLED || 'false' }}
+        shell: bash
+        run: |
+          if [ "$REQUESTED_PUBLISH" = 'true' ] || { [ "$EVENT_NAME" = 'schedule' ] && [ "$AUTO_ENABLED" = 'true' ]; }; then
+            python scripts/editorial_threads.py --publish
+          else
+            python scripts/editorial_threads.py
+          fi
+      - name: Merge receipts with recent main
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp assets/data/editorial_share_queue.json "$RUNNER_TEMP/editorial-receipts.json"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python scripts/editorial_merge_receipts.py --receipt "$RUNNER_TEMP/editorial-receipts.json"
+            git add assets/data/editorial_share_queue.json
+            if git diff --cached --quiet; then exit 0; fi
+            git commit -m "data(editorial): confirm Threads delivery"
+            if git push origin HEAD:main; then exit 0; fi
+          done
+          echo "::error::Threads receipt could not be saved. Check Threads before retrying."
+          exit 1
