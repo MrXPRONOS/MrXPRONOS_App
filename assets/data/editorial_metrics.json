@@ -60,11 +60,11 @@
     }
   },
   "assets": {
-    "files": 1349,
-    "size_mb": 72.37,
+    "files": 1374,
+    "size_mb": 73.91,
     "by_format": {
-      ".jpg": 10,
-      ".webp": 1339
+      ".jpg": 15,
+      ".webp": 1359
     }
   },
   "real_clicks": null,
