@@ -33,7 +33,7 @@ class ArtyVisualTests(unittest.TestCase):
         }
 
     def test_all_blank_assets_exist_and_render_portrait(self):
-        self.assertEqual(len(a.SUPPORTED),11)
+        self.assertEqual(len(a.SUPPORTED),12)
         for category in a.SUPPORTED:
             with self.subTest(category=category):
                 file=a.blank_path(category)
