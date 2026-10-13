@@ -214,6 +214,52 @@ def fetch_sportscore_day(
     return out
 
 
+def fetch_sportscore_live_recent(
+    session: requests.Session,
+    *,
+    limit: int = 50,
+) -> list[dict]:
+    """Widget feed documented to expose match slug; useful for live detail lookup."""
+    payload = _cached_json(
+        session,
+        f"{SPORTSCORE_BASE}/api/widget/matches/",
+        params={
+            "sport": "football",
+            "limit": max(1, min(50, int(limit))),
+            "src": "mrxpronos",
+        },
+        ttl=55.0,
+    )
+    rows = []
+    if isinstance(payload, dict):
+        rows = payload.get("matches") or []
+    out: list[dict] = []
+    for item in rows if isinstance(rows, list) else []:
+        if not isinstance(item, dict):
+            continue
+        match = _canonical(
+            source="sportscore",
+            source_id=item.get("id") or item.get("match_id"),
+            home=item.get("home"),
+            away=item.get("away"),
+            event_date=item.get("time") or item.get("start_time"),
+            home_score=item.get("home_score"),
+            away_score=item.get("away_score"),
+            status=" ".join(filter(None, (
+                _text(item.get("status")),
+                _text(item.get("status_text")),
+            ))),
+            league=item.get("league") or item.get("competition"),
+            home_logo=item.get("home_logo"),
+            away_logo=item.get("away_logo"),
+            slug=item.get("slug"),
+            raw=item,
+        )
+        if match:
+            out.append(match)
+    return out
+
+
 def fetch_sportscore_detail(session: requests.Session, slug: str) -> dict:
     slug = _text(slug)
     if not slug:
@@ -686,6 +732,25 @@ def fetch_provider_enrichment(session: requests.Session, match: dict) -> dict[st
     ) or slugs.get("sportscore") or (
         (match.get("raw") or {}).get("slug") if isinstance(match.get("raw"), dict) else None
     ) or raw.get("provider_slug")
+
+    if not sport_slug:
+        # /api/widget/matches/ explicitly carries slugs even if a day fixture
+        # serializer omits them. Resolve the live/recent row by teams.
+        try:
+            best = None
+            best_score = 0.0
+            for candidate in fetch_sportscore_live_recent(session):
+                score = (
+                    _similar(match.get("home_team", ""), candidate.get("home_team", ""))
+                    + _similar(match.get("away_team", ""), candidate.get("away_team", ""))
+                ) / 2
+                if score > best_score:
+                    best, best_score = candidate, score
+            if best and best_score >= 0.68:
+                sport_slug = best.get("provider_slug")
+        except Exception:
+            sport_slug = None
+
     if sport_slug:
         detail = fetch_sportscore_detail(session, _text(sport_slug))
         enriched = extract_sportscore_enrichment(detail)
