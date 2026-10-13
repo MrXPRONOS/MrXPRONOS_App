@@ -686,7 +686,7 @@ class Sender:
                     item.text[:1000], item.keyboard or {},
                     timeout=120, mime="video/mp4",
                 )
-        elif item.image_path:
+        elif item.image_path and not item.card:
             media = (ROOT / item.image_path).resolve()
             if not media.is_relative_to(ROOT.resolve()) or not media.is_file():
                 raise RuntimeError("Image News Football absente ou hors dépôt: " + str(item.image_path))
@@ -707,8 +707,15 @@ class Sender:
         elif item.card:
             from football_cards import render_card
             with tempfile.TemporaryDirectory(prefix="xpronos-news-") as tmp:
+                graphic_style = (
+                    "resultat_suivi" if item.category == "resultat" and
+                    item.card.get("_arty_format") == "resultat_suivi"
+                    else "statistique_avancee" if item.category == "statistique"
+                    and item.key.startswith("statistique-avancee:")
+                    else item.category
+                )
                 graphic = render_card(
-                    item.category, item.card, Path(tmp) / "publication.png"
+                    graphic_style, item.card, Path(tmp) / "publication.png"
                 )
                 identifier = post_photo(
                     self.session, self.token, self.chat, graphic,
@@ -888,6 +895,13 @@ def flash(articles: list[dict], history: History, now: datetime) -> Publication 
         return Publication(
             "flash", key, message, image_path=image_path,
             keyboard=keyboard, verification=verification,
+            card={
+                "image_path": image_path,
+                "title": title,
+                "summary": summary,
+                "source": source,
+                "day": now.astimezone(TZ).strftime("%d/%m/%Y"),
+            },
         )
     return None
 
@@ -1589,7 +1603,20 @@ def followed_interruption_publication(signal: dict) -> Publication | None:
         " Nous arrêtons les alertes de ce match tant que sa reprise n'est pas confirmée.</p>"
         "<p><i>Statut : " + esc(detail or "changement signalé") + "</i></p>"
     )
-    return Publication("suivi_interrompu", str(signal.get("key") or ""), post_label(text))
+    return Publication(
+        "suivi_interrompu",
+        str(signal.get("key") or ""),
+        post_label(text),
+        card={
+            "home": home,
+            "away": away,
+            "league": signal.get("league"),
+            "source": signal.get("source"),
+            "status": detail,
+            "home_logo": signal.get("home_logo"),
+            "away_logo": signal.get("away_logo"),
+        },
+    )
 
 
 def followed_final_publication(signal: dict) -> Publication | None:
@@ -1666,6 +1693,17 @@ def followed_final_publication(signal: dict) -> Publication | None:
                 "league": comp, "home": home, "away": away,
                 "scores": (h, a), "home_logo": logo_home,
                 "away_logo": logo_away}
+    if card is None:
+        card = {
+            "_arty_format": "resultat_suivi",
+            "home": home,
+            "away": away,
+            "score": scores,
+            "league": comp,
+            "source": signal.get("source") or "score confirmé",
+            "home_logo": logo_home,
+            "away_logo": logo_away,
+        }
 
     espn_url = plain(signal.get("espn_url"), 500)
     keyboard = None
