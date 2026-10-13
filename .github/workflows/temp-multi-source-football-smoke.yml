@@ -32,7 +32,7 @@ jobs:
           from datetime import datetime, timezone
           import requests
           from free_football_sources import (
-              fetch_espn_day, fetch_sportscore_day, fetch_sportscore_match,
+              fetch_espn_day, fetch_sportscore_day, fetch_sportscore_live, fetch_sportscore_match,
               fetch_thesportsdb_day, fetch_openligadb_day,
               extract_sportscore_odds, sportscore_detail_enrichment,
           )
@@ -49,7 +49,17 @@ jobs:
               print("PROVIDER", name, "rows", len(snap.rows), "error", snap.error)
 
           sport = sources["sportscore"].rows
-          live = next((x for x in sport if x.get("state") == "in" and x.get("sportscore_slug")), None)
+          sport_live = fetch_sportscore_live(session, ttl=0)
+          print("PROVIDER sportscore_live rows", len(sport_live.rows), "error", sport_live.error)
+          if sport:
+              sample_raw = sport[0].get("raw") if isinstance(sport[0].get("raw"), dict) else {}
+              print("SPORTSCORE_FIXTURE_SAMPLE_KEYS", sorted(sample_raw.keys())[:80])
+              print("SPORTSCORE_FIXTURE_RESOLVED", {
+                  "id": sport[0].get("provider_event_id"),
+                  "slug": sport[0].get("sportscore_slug"),
+                  "state": sport[0].get("state"),
+              })
+          live = next((x for x in sport_live.rows if x.get("sportscore_slug")), None)
           upcoming = next((x for x in sport if x.get("state") == "pre" and x.get("sportscore_slug")), None)
           finished = next((x for x in sport if x.get("state") == "post" and x.get("sportscore_slug")), None)
 
