@@ -15,6 +15,7 @@ from bsd_api import BSDClient
 from bsd_archive import MATCHES_FILE, STATE_FILE, _read_json, _write_json
 from bsd_history import ingest_events
 from bsd_h2h import _team_id, _valid_score, _utc
+from free_football_providers import FreeFootballProviders
 
 EARLIEST = date(2024, 1, 1)
 LATEST = date(2026, 12, 31)
@@ -48,6 +49,56 @@ def eligible_finished(events, *, as_of: date):
     return valid, rejected
 
 
+def _team_name(event, side):
+    value = event.get(side + "_team")
+    if isinstance(value, dict):
+        return str(value.get("name") or value.get("displayName") or "").strip()
+    return str(value or event.get(side + "_team_name") or "").strip()
+
+
+def _fixture_ref(event):
+    return {
+        "home_team": _team_name(event, "home"),
+        "away_team": _team_name(event, "away"),
+        "event_date": event.get("event_date"),
+    }
+
+
+def _events_on_day(events, day):
+    rows = []
+    for event in events:
+        if not isinstance(event, dict):
+            continue
+        try:
+            if _utc(str(event.get("event_date") or "")).date() == day:
+                rows.append(event)
+        except (TypeError, ValueError):
+            continue
+    return rows
+
+
+def _free_day_confirmation(hub, day, local_rows):
+    if not local_rows:
+        return False, 0, 0
+    league_hints = []
+    for row in local_rows:
+        league = row.get("league")
+        name = league.get("name") if isinstance(league, dict) else row.get("league_name") or league
+        if name:
+            league_hints.append(str(name))
+
+    free_rows = []
+    for result in hub.day(day, league_hints=league_hints):
+        free_rows.extend(result.events)
+
+    matched = 0
+    for local in local_rows:
+        if hub.best_match(_fixture_ref(local), free_rows, threshold=.68):
+            matched += 1
+    required = max(1, int(len(local_rows) * .90 + .999))
+    return matched >= required, matched, len(free_rows)
+
+
 def refresh(matches, client, *, as_of=None, days=7, max_pages=5):
     if not 1 <= days <= 14 or not 1 <= max_pages <= 15:
         raise ValueError("days 1-14, max_pages 1-15")
@@ -60,8 +111,24 @@ def refresh(matches, client, *, as_of=None, days=7, max_pages=5):
     merged = list(matches)
     rejected = 0
     checked = 0
+    bsd_days_skipped = 0
+    free_confirmed_matches = 0
+    hub = FreeFootballProviders(session=getattr(client, "session", None))
     for i in range((as_of - first).days + 1):
         day = first + timedelta(days=i)
+        local_day = _events_on_day(merged, day)
+
+        # Pour J-2 et plus ancien, une journée locale déjà complète et confirmée
+        # par les fournisseurs gratuits ne consomme plus un appel BSD.
+        if day <= as_of - timedelta(days=2) and local_day:
+            confirmed, matched, free_total = _free_day_confirmation(hub, day, local_day)
+            if confirmed and all(str(row.get("status") or "").lower() == "finished" for row in local_day):
+                bsd_days_skipped += 1
+                free_confirmed_matches += matched
+                checked += 1
+                print("FREE_ARCHIVE_CONFIRM", day.isoformat(), matched, "/", len(local_day), "free_rows", free_total)
+                continue
+
         batch = client.list_events(day, day, max_pages=max_pages, ttl=0)
         if not batch.complete:
             raise RuntimeError("BSD: %s incomplet (%d/%d). Mise à jour annulée." %
@@ -77,6 +144,9 @@ def refresh(matches, client, *, as_of=None, days=7, max_pages=5):
         "days_checked": checked, "added": added, "updated": updated,
         "rejected": rejected, "requests_made": client.requests_made,
         "quota_remaining": client.rate_limit_remaining,
+        "bsd_days_skipped": bsd_days_skipped,
+        "free_confirmed_matches": free_confirmed_matches,
+        "free_provider_calls": dict(hub.calls),
     }
 
 

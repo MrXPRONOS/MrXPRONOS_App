@@ -3,7 +3,9 @@
 
 Sources gratuites / freemium utilisées :
 - ESPN public : classement et statistiques de tableau, sans clé.
-- OpenLigaDB : contrôle Bundesliga, sans compte ni clé.
+- SportScore : classement, top buteurs/assists et données joueurs, sans clé.
+- OpenLigaDB : contrôle des ligues disponibles, sans compte ni clé.
+- TheSportsDB : métadonnées/statistiques complémentaires en fallback gratuit.
 - football-data.org : contrôle optionnel, clé gratuite FOOTBALL_DATA_TOKEN.
 - API-Football : top buteurs + contrôle optionnel, clé gratuite API_FOOTBALL_KEY.
 
@@ -25,6 +27,7 @@ ESPN_STANDINGS = "https://site.api.espn.com/apis/v2/sports/soccer/{league}/stand
 OPENLIGA_BASE = "https://api.openligadb.de"
 FOOTBALL_DATA_BASE = "https://api.football-data.org/v4"
 API_FOOTBALL_BASE = "https://v3.football.api-sports.io"
+SPORTSCORE_BASE = "https://sportscore.com"
 
 USER_AGENT = "MrXPRONOS-Stats/1.0"
 
@@ -37,16 +40,17 @@ class LeagueSpec:
     football_data: str | None = None
     api_football: int | None = None
     openliga: str | None = None
+    sportscore: str | None = None
 
 
 LEAGUES: tuple[LeagueSpec, ...] = (
-    LeagueSpec("premier-league", "Premier League", "eng.1", "PL", 39),
-    LeagueSpec("laliga", "La Liga", "esp.1", "PD", 140),
-    LeagueSpec("serie-a", "Serie A", "ita.1", "SA", 135),
-    LeagueSpec("bundesliga", "Bundesliga", "ger.1", "BL1", 78, "bl1"),
-    LeagueSpec("ligue-1", "Ligue 1", "fra.1", "FL1", 61),
-    LeagueSpec("primeira-liga", "Primeira Liga", "por.1", "PPL", 94),
-    LeagueSpec("eredivisie", "Eredivisie", "ned.1", "DED", 88),
+    LeagueSpec("premier-league", "Premier League", "eng.1", "PL", 39, None, "premier-league"),
+    LeagueSpec("laliga", "La Liga", "esp.1", "PD", 140, None, "la-liga"),
+    LeagueSpec("serie-a", "Serie A", "ita.1", "SA", 135, None, "serie-a"),
+    LeagueSpec("bundesliga", "Bundesliga", "ger.1", "BL1", 78, "bl1", "bundesliga"),
+    LeagueSpec("ligue-1", "Ligue 1", "fra.1", "FL1", 61, None, "ligue-1"),
+    LeagueSpec("primeira-liga", "Primeira Liga", "por.1", "PPL", 94, None, "primeira-liga"),
+    LeagueSpec("eredivisie", "Eredivisie", "ned.1", "DED", 88, None, "eredivisie"),
 )
 
 
@@ -187,6 +191,207 @@ def fetch_espn_standings(
         for idx, row in enumerate(rows, 1):
             row["rank"] = idx
     return rows
+
+
+def _nested_lists(node: Any) -> list[list[dict]]:
+    found: list[list[dict]] = []
+    if isinstance(node, list):
+        if node and all(isinstance(x, dict) for x in node):
+            found.append(node)
+        for item in node:
+            if isinstance(item, (dict, list)):
+                found.extend(_nested_lists(item))
+    elif isinstance(node, dict):
+        for value in node.values():
+            if isinstance(value, (dict, list)):
+                found.extend(_nested_lists(value))
+    return found
+
+
+_SPORTSCORE_SLUG_CACHE: dict[str, str] = {}
+
+
+def _sportscore_competition_slug(
+    session: requests.Session,
+    spec: LeagueSpec,
+) -> str:
+    cached = _SPORTSCORE_SLUG_CACHE.get(spec.key)
+    if cached:
+        return cached
+
+    candidates = [spec.sportscore or "", spec.key]
+    try:
+        response = session.get(
+            SPORTSCORE_BASE + "/api/v1/search/",
+            params={"q": spec.label, "sport": "football", "limit": "20", "src": "mrxpronos"},
+            headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+            timeout=(7, 22),
+        )
+        response.raise_for_status()
+        payload = response.json()
+        for group in _nested_lists(payload):
+            for item in group:
+                if not isinstance(item, dict):
+                    continue
+                kind = _plain(item.get("type") or item.get("kind") or item.get("category")).casefold()
+                name = _plain(item.get("name") or item.get("title") or item.get("label"))
+                slug = _plain(item.get("slug"))
+                url = _plain(item.get("url") or item.get("href"))
+                if not slug and "/competition/" in url:
+                    parts = [part for part in url.split("/") if part]
+                    try:
+                        ci = parts.index("competition")
+                        # /football/competition/{country}/{slug}/{id}/
+                        if len(parts) > ci + 2:
+                            slug = parts[ci + 2]
+                    except ValueError:
+                        pass
+                if not slug or not name:
+                    continue
+                name_tokens, target_tokens = set(_norm(name).split()), set(_norm(spec.label).split())
+                similarity = len(name_tokens & target_tokens) / max(len(name_tokens | target_tokens), 1)
+                if similarity >= .45 and (not kind or "competition" in kind or "league" in kind):
+                    candidates.insert(0, slug)
+    except (requests.RequestException, ValueError):
+        pass
+
+    # Vérifie réellement le slug plutôt que de croire le nom codé en dur.
+    for slug in dict.fromkeys(x for x in candidates if x):
+        try:
+            response = session.get(
+                SPORTSCORE_BASE + "/api/v1/standings/",
+                params={"sport": "football", "slug": slug, "src": "mrxpronos"},
+                headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+                timeout=(7, 22),
+            )
+            if response.ok:
+                payload = response.json()
+                if isinstance(payload, dict) and payload:
+                    _SPORTSCORE_SLUG_CACHE[spec.key] = slug
+                    return slug
+        except (requests.RequestException, ValueError):
+            continue
+    return ""
+
+
+def fetch_sportscore_standings(
+    session: requests.Session,
+    spec: LeagueSpec,
+) -> list[dict]:
+    slug = _sportscore_competition_slug(session, spec)
+    if not slug:
+        return []
+    try:
+        response = session.get(
+            SPORTSCORE_BASE + "/api/v1/standings/",
+            params={"sport": "football", "slug": slug, "src": "mrxpronos"},
+            headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+            timeout=(7, 22),
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError):
+        return []
+
+    best: list[dict] = []
+    for candidate in _nested_lists(payload):
+        if len(candidate) < 3:
+            continue
+        score = sum(
+            1 for item in candidate[:5]
+            if any(k in item for k in ("team", "team_name", "name"))
+            and any(k in item for k in ("position", "rank", "points", "pts"))
+        )
+        if score > 0 and len(candidate) > len(best):
+            best = candidate
+
+    rows: list[dict] = []
+    for idx, item in enumerate(best, 1):
+        team_obj = item.get("team") if isinstance(item.get("team"), dict) else {}
+        name = _plain(
+            team_obj.get("name") or team_obj.get("displayName")
+            or item.get("team_name") or item.get("teamName")
+            or (item.get("name") if not isinstance(item.get("name"), dict) else "")
+        )
+        if not name:
+            continue
+        played = _integer(item.get("played") or item.get("matches") or item.get("games"))
+        wins = _integer(item.get("wins") or item.get("won"))
+        draws = _integer(item.get("draws") or item.get("draw"))
+        losses = _integer(item.get("losses") or item.get("lost"))
+        rows.append({
+            "source": "SportScore",
+            "team": name,
+            "team_id": str(team_obj.get("id") or item.get("team_id") or item.get("teamId") or ""),
+            "rank": _integer(item.get("position") or item.get("rank")) or idx,
+            "played": played,
+            "wins": wins,
+            "draws": draws,
+            "losses": losses,
+            "points": _integer(item.get("points") or item.get("pts")),
+            "goals_for": _integer(item.get("goals_for") or item.get("goalsFor") or item.get("gf")),
+            "goals_against": _integer(item.get("goals_against") or item.get("goalsAgainst") or item.get("ga")),
+            "goal_diff": _integer(item.get("goal_diff") or item.get("goalDifference") or item.get("gd")),
+            "form": _plain(item.get("form")),
+        })
+    return rows
+
+
+def fetch_sportscore_top_scorers(
+    session: requests.Session,
+    spec: LeagueSpec,
+) -> list[dict]:
+    slug = _sportscore_competition_slug(session, spec)
+    if not slug:
+        return []
+    try:
+        response = session.get(
+            SPORTSCORE_BASE + "/api/v1/topscorers/",
+            params={
+                "sport": "football", "slug": slug,
+                "limit": "20", "stat": "goals", "src": "mrxpronos",
+            },
+            headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+            timeout=(7, 22),
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError):
+        return []
+
+    best: list[dict] = []
+    for candidate in _nested_lists(payload):
+        if not candidate:
+            continue
+        score = sum(
+            1 for item in candidate[:5]
+            if any(k in item for k in ("player", "name", "player_name"))
+            and any(k in item for k in ("goals", "value", "total"))
+        )
+        if score > 0 and len(candidate) > len(best):
+            best = candidate
+
+    rows = []
+    for item in best:
+        player_obj = item.get("player") if isinstance(item.get("player"), dict) else {}
+        team_obj = item.get("team") if isinstance(item.get("team"), dict) else {}
+        name = _plain(
+            player_obj.get("name") or player_obj.get("displayName")
+            or item.get("player_name") or item.get("name")
+        )
+        goals = _integer(item.get("goals") or item.get("value") or item.get("total"))
+        if not name or goals is None:
+            continue
+        rows.append({
+            "source": "SportScore",
+            "player": name,
+            "goals": goals,
+            "assists": _integer(item.get("assists")),
+            "appearances": _integer(item.get("appearances") or item.get("played")),
+            "team": _plain(team_obj.get("name") or item.get("team_name") or item.get("teamName")),
+        })
+    rows.sort(key=lambda x: (-x["goals"], x["player"]))
+    return rows[:10]
 
 
 def fetch_football_data_standings(
@@ -425,6 +630,10 @@ def collect_snapshot(
     if espn:
         sources["ESPN"] = espn
 
+    sportscore = fetch_sportscore_standings(session, spec)
+    if sportscore:
+        sources["SportScore"] = sportscore
+
     football_data = fetch_football_data_standings(session, spec, season=season)
     if football_data:
         sources["football-data.org"] = football_data
@@ -433,8 +642,13 @@ def collect_snapshot(
     if openliga:
         sources["OpenLigaDB"] = openliga
 
-    primary = espn or football_data or openliga
-    source_name = "ESPN" if espn else "football-data.org" if football_data else "OpenLigaDB" if openliga else ""
+    primary = espn or sportscore or football_data or openliga
+    source_name = (
+        "ESPN" if espn else
+        "SportScore" if sportscore else
+        "football-data.org" if football_data else
+        "OpenLigaDB" if openliga else ""
+    )
     agreements = []
     for name, table in sources.items():
         if table is primary:
@@ -459,7 +673,8 @@ def collect_snapshot(
         "confidence": confidence,
         "table": primary,
         "top_scorers": (
-            fetch_api_football_top_scorers(session, spec, season=season)
+            fetch_sportscore_top_scorers(session, spec)
+            or fetch_api_football_top_scorers(session, spec, season=season)
             or fetch_openliga_top_scorers(session, spec, season=season)
         ),
     }
@@ -608,6 +823,8 @@ def source_health(session: requests.Session, day: date) -> dict[str, Any]:
     """Contrôle réseau léger, utilisable par la CI sans clé payante."""
     premier = LEAGUES[0]
     espn = fetch_espn_standings(session, premier, season=_season_start(day))
+    sportscore = fetch_sportscore_standings(session, premier)
+    sportscore_scorers = fetch_sportscore_top_scorers(session, premier)
     openliga = fetch_openliga_table(
         session,
         next(x for x in LEAGUES if x.openliga),
@@ -615,6 +832,8 @@ def source_health(session: requests.Session, day: date) -> dict[str, Any]:
     )
     return {
         "espn_rows": len(espn),
+        "sportscore_rows": len(sportscore),
+        "sportscore_scorers": len(sportscore_scorers),
         "openliga_rows": len(openliga),
         "football_data_configured": bool((os.getenv("FOOTBALL_DATA_TOKEN") or "").strip()),
         "api_football_configured": bool((os.getenv("API_FOOTBALL_KEY") or "").strip()),

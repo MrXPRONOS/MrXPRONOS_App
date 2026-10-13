@@ -9,6 +9,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from bsd_api import BSDClient
+from free_football_providers import FreeFootballProviders, team_similarity
 
 
 def _utc(value: str) -> datetime:
@@ -124,6 +125,71 @@ def local_h2h(
     }
 
 
+def _team_name_value(event: Dict[str, Any], side: str) -> str:
+    value = event.get(side + "_team")
+    if isinstance(value, dict):
+        return str(value.get("name") or value.get("displayName") or "").strip()
+    return str(value or event.get(side + "_team_name") or "").strip()
+
+
+def _free_h2h_sportscore(
+    fixture: Dict[str, Any],
+    cutoff: datetime,
+    *,
+    session: Any = None,
+    recent_limit: int = 10,
+) -> Dict[str, Any]:
+    home_name = _team_name_value(fixture, "home")
+    away_name = _team_name_value(fixture, "away")
+    if not home_name or not away_name:
+        return {"source": "sportscore", "total_matches": 0}
+    hub = FreeFootballProviders(session=session)
+    rows = hub.sportscore_h2h_events(home_name, away_name, limit=20)
+    meetings = []
+    for row in rows:
+        try:
+            played = _utc(str(row.get("event_date") or ""))
+        except (TypeError, ValueError):
+            continue
+        if played >= cutoff or str(row.get("status") or "").lower() != "finished":
+            continue
+        hs, aws = _valid_score(row.get("home_score")), _valid_score(row.get("away_score"))
+        if hs is None or aws is None:
+            continue
+        rh, ra = str(row.get("home_team") or ""), str(row.get("away_team") or "")
+        same = team_similarity(home_name, rh) >= .45 and team_similarity(away_name, ra) >= .45
+        reversed_ = team_similarity(home_name, ra) >= .45 and team_similarity(away_name, rh) >= .45
+        if not (same or reversed_):
+            continue
+        fg, ag = (hs, aws) if same else (aws, hs)
+        meetings.append((played, {
+            "event_id": row.get("id"),
+            "date": played.isoformat(),
+            "fixture_home_goals": fg,
+            "fixture_away_goals": ag,
+        }))
+    meetings.sort(key=lambda pair: pair[0], reverse=True)
+    total = len(meetings)
+    hw = sum(m["fixture_home_goals"] > m["fixture_away_goals"] for _, m in meetings)
+    aw = sum(m["fixture_home_goals"] < m["fixture_away_goals"] for _, m in meetings)
+    draws = total - hw - aw
+    hg = sum(m["fixture_home_goals"] for _, m in meetings)
+    ag = sum(m["fixture_away_goals"] for _, m in meetings)
+    return {
+        "source": "sportscore",
+        "total_matches": total,
+        "home_wins": hw,
+        "away_wins": aw,
+        "draws": draws,
+        "home_goals": hg,
+        "away_goals": ag,
+        "avg_total_goals": round((hg + ag) / total, 3) if total else None,
+        "home_win_rate": round(hw / total, 4) if total else None,
+        "away_win_rate": round(aw / total, 4) if total else None,
+        "recent_matches": [m for _, m in meetings[:recent_limit]],
+    }
+
+
 def hybrid_h2h(
     client: Optional[BSDClient],
     fixture: Dict[str, Any],
@@ -152,9 +218,23 @@ def hybrid_h2h(
     if not allow_api or client is None or cutoff <= now.astimezone(timezone.utc):
         return {**local, "api_skipped": "historical_or_disabled"}
 
+    # SportScore H2H passe avant BSD: gratuit et suffisant pour la forme
+    # lorsqu'il retourne plus de rencontres que l'archive locale.
+    free_remote = _free_h2h_sportscore(
+        fixture, cutoff, session=getattr(client, "session", None) if client is not None else None
+    )
+    if free_remote.get("total_matches", 0) > local["total_matches"]:
+        return {
+            **free_remote,
+            "home_team_id": hid,
+            "away_team_id": aid,
+            "as_of": cutoff.isoformat(),
+            "local_meetings": local["total_matches"],
+        }
+
     event_id = fixture.get("id")
-    if event_id is None:
-        return {**local, "api_skipped": "fixture_id_missing"}
+    if event_id is None or not str(event_id).isdigit():
+        return {**local, "api_skipped": "free_h2h_insufficient_and_bsd_id_missing"}
     remote = client.get_h2h(int(event_id), ttl=86400)
     if remote is None:
         return local

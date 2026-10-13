@@ -31,6 +31,7 @@ sys.path.insert(0, str(ROOT / "bsd"))
 sys.path.insert(0, str(ROOT / "scripts"))
 from bsd_api import BSDClient, BSDAPIError  # noqa: E402
 from bsd_h2h import hybrid_h2h  # noqa: E402
+from free_football_providers import FreeFootballProviders, SPORTSCORE_ATTRIBUTION  # noqa: E402
 from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
 from football_match_lifecycle import (lifecycle_signals, verify_espn_before_publish, verify_espn_fixtures_before_publish)  # noqa: E402
 import football_followup as followup  # noqa: E402
@@ -214,6 +215,17 @@ def league(event: dict) -> str:
         value = item.get("name") if isinstance(item, dict) else item
         if isinstance(value, str) and value.strip().casefold() not in ("", "football", "soccer"):
             return plain(value, 70)
+    return ""
+
+
+def sportscore_credit(events: list[dict] | dict) -> str:
+    rows = events if isinstance(events, list) else [events]
+    for event in rows:
+        if not isinstance(event, dict):
+            continue
+        sources = [str(event.get("source") or "")] + [str(x) for x in (event.get("provider_sources") or [])]
+        if any(x.casefold() == "sportscore" for x in sources):
+            return '<p><small>Sports data: <a href="https://sportscore.com/">SportScore</a></small></p>'
     return ""
 
 
@@ -957,6 +969,7 @@ def programme(events: list[dict], today: date, *, as_of: datetime | None = None)
         "<p><b>💬 Quel match attendez-vous le plus ?</b></p>"
         "<p><i>Heure du Togo (GMT) • Le programme complet est sur l'image.</i></p>"
     )
+    message += sportscore_credit(chosen)
     card = {"day": today.strftime("%d/%m/%Y"), "matches": [
         {"home": team(e, "home"), "away": team(e, "away"), "time": time_label(kick(e)),
          "league": league(e), "importance": importance(e),
@@ -1020,6 +1033,7 @@ def resultat(events: list[dict], history: History, now: datetime) -> Publication
                 "score": f"{a}-{b}",
             }],
         }
+        text += sportscore_credit(e)
         return Publication("resultat", key, text, card=card, verification=verification)
     return None
 
@@ -1055,19 +1069,32 @@ def form(team_id: Any, name: str, events: list[dict], before: datetime) -> str:
     return " • ".join(vals) + "  |  " + str(points) + "/" + str(len(vals) * 3) + " pts"
 
 
-def fetch_prematch_forms(client: BSDClient, event: dict) -> dict[str, str]:
-    """Charge les derniers matchs de chaque équipe directement via BSD."""
+def fetch_prematch_forms(
+    client: BSDClient | None,
+    event: dict,
+    *,
+    session: requests.Session | None = None,
+) -> dict[str, str]:
+    """Forme récente: SportScore d'abord, BSD seulement en secours."""
     before = kick(event)
     if before is None:
         return {"home": "", "away": ""}
     values: dict[str, str] = {"home": "", "away": ""}
+    hub = FreeFootballProviders(session=session or getattr(client, "session", None))
     for side in ("home", "away"):
         obj = event.get(side + "_team")
         team_id = obj.get("id") if isinstance(obj, dict) else event.get(side + "_team_id")
         name = team(event, side)
+
+        free_rows = hub.sportscore_team_schedule(name, limit=10)
+        if free_rows:
+            values[side] = form(None, name, free_rows, before)
+        if values[side] or client is None:
+            continue
+
         try:
             rows = client.list_team_recent_events(
-                team_id=int(team_id) if team_id is not None else None,
+                team_id=int(team_id) if team_id is not None and str(team_id).isdigit() else None,
                 team_name=name,
                 before=before.astimezone(TZ).date(),
                 limit=8,
@@ -1161,6 +1188,7 @@ def avant_match(events: list[dict], history: History, now: datetime,
             "event_date": kick(e).astimezone(timezone.utc).isoformat(),
         }],
     }
+    message += sportscore_credit(e)
     return Publication(
         "avant_match", "avant_match:" + str(e["id"]),
         message, card=card, verification=verification,
@@ -1289,6 +1317,7 @@ def statistique(events: list[dict], reference_day: date) -> Publication | None:
         + "<i>" + esc(league(e) or "Football") + "</i></blockquote>"
         "<p><b>💬 Quelle autre statistique récente vous a marqué ?</b></p>"
     )
+    message += sportscore_credit(e)
     selected_day = kick(e).astimezone(TZ).date()
     card = {"day": selected_day.strftime("%d/%m/%Y"), "league": league(e),
             "home": team(e, "home"), "away": team(e, "away"), "scores": (h, a),
@@ -1336,6 +1365,7 @@ def community_vote_publication(events: list[dict], now: datetime) -> Publication
         poll_description=(
             plain(payload.get("league"), 70)
             + " • Vote avant le coup d'envoi • Mr XPRONOS"
+            + (" • Data: https://sportscore.com/" if chosen and str(chosen.get("source") or "").casefold() == "sportscore" else "")
         ),
         poll_allows_revoting=True,
         card={
@@ -1923,20 +1953,76 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
     counter = {"sent": 0, "skipped": 0, "errors": 0}
     max_send = MAX_MESSAGES_PER_RUN
 
-    def get_day(day: date) -> list[dict]:
+    free_hub = FreeFootballProviders(session=sender.session)
+    free_cache: dict[str, list[dict]] = {}
+    FREE_DAY_MIN = max(1, int(os.getenv("FOOTBALL_FREE_DAY_MIN_MATCHES", "12")))
+
+    def _free_day(day: date) -> list[dict]:
+        key = day.isoformat()
+        if key in free_cache:
+            return free_cache[key]
+        provider_results = free_hub.day(day)
+        merged: list[dict] = []
+        for result in provider_results:
+            if result.error:
+                print("FREE_DAY_INFO", result.provider, result.error[:140])
+            for event in result.events:
+                duplicate = next(
+                    (x for x in merged if free_hub.best_match(event, [x], threshold=.74)),
+                    None,
+                )
+                if duplicate is None:
+                    merged.append(event)
+                else:
+                    replacement = free_hub.merge_facts([duplicate, event])
+                    merged[merged.index(duplicate)] = replacement
+        free_cache[key] = merged
+        if merged:
+            print("FREE_DAY", key, "rencontres", len(merged), "appels", dict(free_hub.calls))
+        return merged
+
+    def get_day(day: date, *, require_bsd: bool = False) -> list[dict]:
         nonlocal client
         name = day.isoformat()
+
+        free_rows = _free_day(day)
+        if not require_bsd and len(free_rows) >= FREE_DAY_MIN:
+            return free_rows
+
         if name not in cache:
             if client is None:
-                client = BSDClient(max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                                   max_retries=1)
+                client = BSDClient(
+                    max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
+                    max_retries=1,
+                )
             page = client.list_events(day, day, max_pages=7, ttl=0)
             if not page.complete:
-                raise BSDAPIError("BSD: journée incomplète " + name + " (" +
-                                  str(len(page.events)) + "/" + str(page.total_reported) + ")")
-            cache[name] = page.events
-            print("BSD_JOUR", name, "rencontres", len(page.events),
-                  "requêtes", client.requests_made)
+                raise BSDAPIError(
+                    "BSD: journée incomplète " + name + " (" +
+                    str(len(page.events)) + "/" + str(page.total_reported) + ")"
+                )
+
+            # Conserver les IDs BSD pour les marchés/archives, mais compléter les
+            # faits manquants avec les gratuites déjà récupérées.
+            enriched = []
+            for bsd_event in page.events:
+                base = {
+                    "home_team": team(bsd_event, "home"),
+                    "away_team": team(bsd_event, "away"),
+                    "event_date": bsd_event.get("event_date"),
+                }
+                free_match = free_hub.best_match(base, free_rows, threshold=.68)
+                if free_match:
+                    bsd_event = dict(bsd_event)
+                    bsd_event["free_provider_match"] = free_match
+                    bsd_event["provider_sources"] = ["bsd"] + list(free_match.get("provider_sources") or [free_match.get("source")])
+                    for key in ("home_logo", "away_logo"):
+                        if not bsd_event.get(key) and free_match.get(key):
+                            bsd_event[key] = free_match[key]
+                enriched.append(bsd_event)
+            cache[name] = enriched
+            print("BSD_JOUR_FALLBACK", name, "rencontres", len(page.events),
+                  "requêtes", client.requests_made, "free", len(free_rows))
         return cache[name]
 
     def publish(item: Publication | None, *, follow_event: dict | None = None,
@@ -2070,17 +2156,12 @@ def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[st
                 if (counter["sent"] < max_send and upcoming
                         and followup.selection_allowed(state.followed, now)
                         and (force or enough(state, "avant_match", now))):
-                    if client is None:
-                        client = BSDClient(
-                            max_requests=int(os.getenv("FOOTBALL_BSD_REQUEST_BUDGET", "18")),
-                            max_retries=1,
-                        )
                     selected = next(
                         (e for e in upcoming[:12] if has_two_team_logos(e, allow_remote=True)),
                         None,
                     )
                     if selected:
-                        forms = fetch_prematch_forms(client, selected)
+                        forms = fetch_prematch_forms(client, selected, session=sender.session)
                         h2h_values = {}
                         try:
                             h2h_values = hybrid_h2h(

@@ -2,9 +2,11 @@
 """Sources gratuites et détection d'états pour le cycle d'un match Actu Foot.
 
 Priorité:
-1. Cache live Supabase déjà alimenté par BSD + ESPN (si secrets disponibles).
-2. ESPN public Site API, sans clé.
-3. OpenLigaDB, sans inscription ni clé, comme contrôle supplémentaire Bundesliga.
+1. ESPN public Site API, sans clé.
+2. SportScore public API, sans clé (attribution requise sur les rendus publics).
+3. OpenLigaDB / TheSportsDB selon la compétition et le niveau de détail disponible.
+4. Cache live Supabase (BSD + ESPN + fournisseurs gratuits) comme fallback local.
+5. BSD reste le fallback coûteux pour les données absentes des sources gratuites.
 
 Aucune source payante n'est requise par ce module.
 """
@@ -20,6 +22,8 @@ from urllib.parse import urlparse
 
 import requests
 
+from free_football_providers import FreeFootballProviders, PROVIDER_QUALITY
+
 ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
 ESPN_SUMMARY = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary"
 ESPN_MATCH_PAGE = "https://www.espn.com/soccer/match/_/gameId/{event_id}"
@@ -27,6 +31,17 @@ OPENLIGA_BASE = "https://api.openligadb.de"
 
 _ESPN_CACHE: dict[str, tuple[float, dict]] = {}
 _ESPN_REQUESTS = 0
+_FREE_HUBS: dict[int, FreeFootballProviders] = {}
+
+
+def free_provider_hub(session: requests.Session) -> FreeFootballProviders:
+    key = id(session)
+    hub = _FREE_HUBS.get(key)
+    if hub is None:
+        hub = FreeFootballProviders(session=session)
+        _FREE_HUBS[key] = hub
+    return hub
+
 
 
 def _espn_budget() -> int:
@@ -1033,26 +1048,55 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
                 similarity += 0.08
             elif is_live(item):
                 similarity += 0.03
-        if similarity > best_score:
-            best, best_score = item, similarity
+        quality = int(
+            item.get("source_quality")
+            or PROVIDER_QUALITY.get(_plain(item.get("source")).lower(), 0)
+        )
+        # A similar fixture from a more reliable provider wins a close tie.
+        adjusted = similarity + min(0.08, quality / 2000)
+        if adjusted > best_score:
+            best, best_score = item, adjusted
     return best
 
 
 def collect_external(session: requests.Session, day: date, base_events: list[dict]) -> list[dict]:
-    # ESPN d'abord car il donne aussi les identifiants nécessaires au résumé
-    # (compositions / buteurs). Le cache Supabase BSD+ESPN reste le fallback local.
+    # ESPN reste la source de faits la mieux classée, puis les fournisseurs gratuits
+    # réduisent les besoins BSD/Supabase avant tout fallback local.
     days = {day}
-    # Un match choisi avant minuit doit rester suivi après minuit.
     for event in base_events:
         when = _event_time(event)
         if when and abs((when.date() - day).days) <= 1:
             days.add(when.date())
-    rows = []
+
+    rows: list[dict] = []
+    hub = free_provider_hub(session)
+    league_hints = [
+        _plain(event.get("league_name") or event.get("league"))
+        for event in base_events
+        if _plain(event.get("league_name") or event.get("league"))
+    ]
+
     for fixture_day in sorted(days):
         rows.extend(fetch_espn_day(session, fixture_day))
+        for result in hub.day(fixture_day, league_hints=league_hints):
+            if result.error:
+                print("FREE_PROVIDER_INFO", result.provider, result.error[:140])
+            rows.extend(result.events)
+
+    # Le flux SportScore LIVE/récent expose le slug de match nécessaire au
+    # détail (lineups/timeline/stats), contrairement au calendrier journalier.
+    if day == datetime.now(timezone.utc).date():
+        sport_live = hub.sportscore_live_recent(limit=50)
+        if sport_live.error:
+            print("FREE_PROVIDER_INFO", "sportscore-live", sport_live.error[:140])
+        rows.extend(sport_live.events)
+
+    # Le cache Supabase arrive après les sources gratuites directes; il garde
+    # néanmoins la couverture BSD utile pour les compétitions absentes ailleurs.
     rows.extend(fetch_supabase_live(session))
-    # OpenLigaDB n'est interrogé que si une rencontre Bundesliga est réellement
-    # présente dans notre journée BSD; pas de trafic inutile.
+
+    # Ancien contrôle Bundesliga conservé pour rétrocompatibilité si le hub
+    # OpenLigaDB n'a pas trouvé la ligue via getavailableleagues.
     if any("bundesliga" in _plain(event.get("league_name") or event.get("league")).lower() for event in base_events):
         rows.extend(fetch_openligadb_bundesliga(session, day))
     return rows

@@ -1,4 +1,15 @@
 import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
+import {
+  fetchSportScoreLive,
+  fetchTheSportsDbToday,
+  fetchSportScoreDetail,
+  findTsdbEvent,
+  fetchTsdbStats,
+  normalizeSportScoreStats,
+  normalizeTsdbStats,
+  PROVIDER_QUALITY,
+  providerPolicy,
+} from "../_shared/free-football.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -97,6 +108,14 @@ const BSD_STATS_REFRESH_SECONDS = Math.max(
 const BSD_STATS_QUOTA_RESERVE = Math.max(
   250,
   Math.min(3000, safeEnvInt("BSD_STATS_QUOTA_RESERVE", 900)),
+);
+const FREE_STATS_MAX_CALLS_PER_REFRESH = Math.max(
+  1,
+  Math.min(8, safeEnvInt("FREE_STATS_MAX_CALLS_PER_REFRESH", 4)),
+);
+const FREE_PROVIDER_BSD_COVERAGE_RATIO = Math.max(
+  0.5,
+  Math.min(1, Number(Deno.env.get("FREE_PROVIDER_BSD_COVERAGE_RATIO") || "0.85")),
 );
 
 const T_STATS_SOURCES = "live_stats_sources";
@@ -419,7 +438,7 @@ function getSourceMatchId(match: any, sourceName: string) {
   return String(match?.id || match?.source_match_id || "");
 }
 
-function sourceRowFromMatch(match: any, sourceName: "api_original" | "espn") {
+function sourceRowFromMatch(match: any, sourceName: string) {
   const liveStats = ensureLiveStatsShape(getMatchLiveStats(match));
   const canonical = buildCanonicalMatchId(match);
 
@@ -3841,22 +3860,31 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
 
   for (const original of originalMatches || []) {
     const key = buildCanonicalMatchId(original);
+    const originalProvider = providerNameOf(original) || "api_original";
+    const priorMeta = original?.raw_data?.merge_meta || {};
+    const priorSources = Array.isArray(priorMeta?.sources)
+      ? priorMeta.sources.map((x: unknown) => String(x))
+      : [originalProvider];
     const match = {
       ...original,
       raw_data: {
         ...(original?.raw_data || {}),
         merge_meta: {
+          ...priorMeta,
           canonical_match_id: key,
-          sources: ["api_original"],
-          confidence_score: 70,
-          primary_source: "api_original",
+          sources: [...new Set(priorSources)],
+          confidence_score: Math.max(
+            safeNumber(priorMeta?.confidence_score, 0),
+            safeNumber(original?.raw_data?.provider_quality, PROVIDER_QUALITY[originalProvider] || 70),
+          ),
+          primary_source: priorMeta?.primary_source || originalProvider,
           merged_at: nowIso(),
         },
       },
     };
 
     entries.push({ key, match, source: "api_original" });
-    sourceRows.push(sourceRowFromMatch(original, "api_original"));
+    sourceRows.push(sourceRowFromMatch(original, originalProvider));
   }
 
   let duplicatesMerged = 0;
@@ -3923,12 +3951,142 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
     meta: {
       original_source_matches: originalMatches.length,
       espn_source_matches: espnMatches.length,
+      original_source_breakdown: Object.fromEntries(
+        [...new Set((originalMatches || []).map((m: any) => providerNameOf(m) || "api_original"))]
+          .map((name: string) => [
+            name,
+            (originalMatches || []).filter((m: any) => (providerNameOf(m) || "api_original") === name).length,
+          ])
+      ),
       merged_matches: mergedMatches.length,
       duplicates_merged: duplicatesMerged,
       espn_only_matches: espnOnly,
       espn_enabled: ENABLE_ESPN_MERGE,
     },
   };
+}
+
+function providerNameOf(match: any) {
+  return String(
+    match?.raw_data?.source ||
+    match?.raw_data?.merge_meta?.primary_source ||
+    match?.source_name ||
+    match?.source ||
+    ""
+  ).toLowerCase();
+}
+
+function providerRefsOf(match: any) {
+  const refs = { ...(match?.raw_data?.provider_refs || {}) };
+  const source = providerNameOf(match);
+  if (source === "sportscore") {
+    refs.sportscore = {
+      id: match?.raw_data?.sportscore_id || match?.source_match_id || match?.id || null,
+      slug: match?.raw_data?.sportscore_slug || match?.slug || null,
+    };
+  }
+  if (source === "thesportsdb") {
+    refs.thesportsdb = {
+      id: match?.raw_data?.tsdb_event_id || match?.source_match_id || match?.id || null,
+    };
+  }
+  return refs;
+}
+
+function mergeSecondaryProviderMatch(primary: any, secondary: any) {
+  const provider = providerNameOf(secondary) || "secondary";
+  const primaryStats = getMatchLiveStats(primary);
+  const secondaryStats = getMatchLiveStats(secondary);
+  const mergedStats = mergeLiveStats(primaryStats, secondaryStats);
+
+  const pm = safeNumber(primary?.current_minute ?? primary?.minute, 0);
+  const sm = safeNumber(secondary?.current_minute ?? secondary?.minute, 0);
+  const sources = [
+    ...new Set([
+      ...((primary?.raw_data?.merge_meta?.sources || [providerNameOf(primary) || "api_original"]) as string[]),
+      provider,
+    ]),
+  ];
+  const secondaryRefs = providerRefsOf(secondary);
+
+  return {
+    ...primary,
+    current_minute: Math.max(pm, sm),
+    live_stats: mergedStats,
+    home_score: primary?.home_score ?? secondary?.home_score ?? null,
+    away_score: primary?.away_score ?? secondary?.away_score ?? null,
+    home_logo: primary?.home_logo || secondary?.home_logo || null,
+    away_logo: primary?.away_logo || secondary?.away_logo || null,
+    league_logo: primary?.league_logo || secondary?.league_logo || null,
+    stats_last_updated_at:
+      secondary?.stats_last_updated_at ||
+      primary?.stats_last_updated_at ||
+      null,
+    raw_data: {
+      ...(primary?.raw_data || {}),
+      source: "merged",
+      provider_refs: {
+        ...(primary?.raw_data?.provider_refs || {}),
+        ...secondaryRefs,
+      },
+      merge_meta: {
+        ...(primary?.raw_data?.merge_meta || {}),
+        canonical_match_id: buildCanonicalMatchId(primary),
+        sources,
+        confidence_score: Math.max(
+          safeNumber(primary?.raw_data?.merge_meta?.confidence_score, 65),
+          Math.round(sameMatchScore(primary, secondary) * 100),
+          safeNumber(secondary?.raw_data?.provider_quality, PROVIDER_QUALITY[provider] || 0),
+        ),
+        primary_source: primary?.raw_data?.merge_meta?.primary_source || providerNameOf(primary) || "api_original",
+        merged_at: nowIso(),
+      },
+      live_stats: mergedStats,
+      home_logo: primary?.home_logo || secondary?.home_logo || null,
+      away_logo: primary?.away_logo || secondary?.away_logo || null,
+    },
+  };
+}
+
+function mergeProviderMatchSets(primaryMatches: any[], secondaryMatches: any[]) {
+  const out = [...(primaryMatches || [])];
+  let merged = 0;
+  let added = 0;
+
+  for (const secondary of secondaryMatches || []) {
+    let bestIndex = -1;
+    let bestScore = 0;
+    for (let i = 0; i < out.length; i++) {
+      const score = sameMatchScore(out[i], secondary);
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = i;
+      }
+    }
+    if (bestIndex >= 0 && bestScore >= 0.72) {
+      out[bestIndex] = mergeSecondaryProviderMatch(out[bestIndex], secondary);
+      merged++;
+    } else {
+      const source = providerNameOf(secondary) || "free";
+      out.push({
+        ...secondary,
+        raw_data: {
+          ...(secondary?.raw_data || {}),
+          merge_meta: {
+            canonical_match_id: buildCanonicalMatchId(secondary),
+            sources: [source],
+            confidence_score: safeNumber(secondary?.raw_data?.provider_quality, PROVIDER_QUALITY[source] || 70),
+            primary_source: source,
+            merged_at: nowIso(),
+          },
+          provider_refs: providerRefsOf(secondary),
+        },
+      });
+      added++;
+    }
+  }
+
+  return { matches: out, merged, added };
 }
 
 function applyPredictionQualityContext(match: any, pred: any) {
@@ -5554,6 +5712,146 @@ function statsAgeSeconds(match: any) {
   return Math.max(0, Math.floor((Date.now() - ts) / 1000));
 }
 
+function freeProviderRef(match: any, provider: "sportscore" | "thesportsdb") {
+  const refs = match?.raw_data?.provider_refs || {};
+  if (provider === "sportscore") {
+    return {
+      id: refs?.sportscore?.id || match?.raw_data?.sportscore_id || null,
+      slug: refs?.sportscore?.slug || match?.raw_data?.sportscore_slug || null,
+    };
+  }
+  return {
+    id: refs?.thesportsdb?.id || match?.raw_data?.tsdb_event_id || null,
+  };
+}
+
+async function enrichLiveMatchesWithFreeStats(matches: any[]) {
+  const candidates = (matches || [])
+    .filter((m: any) => {
+      const minute = safeNumber(m?.current_minute ?? m?.minute, 0);
+      if (minute < 8 || minute > 90) return false;
+      const completeness = statsCompleteness(getMatchLiveStats(m));
+      return completeness.core_complete < 3 ||
+        statsAgeSeconds(m) >= BSD_STATS_REFRESH_SECONDS;
+    })
+    .sort((a: any, b: any) =>
+      statsCompleteness(getMatchLiveStats(a)).core_complete -
+      statsCompleteness(getMatchLiveStats(b)).core_complete
+    )
+    .slice(0, FREE_STATS_MAX_CALLS_PER_REFRESH);
+
+  const out = [...(matches || [])];
+  const indexById = new Map(out.map((m: any, i: number) => [String(m?.id), i]));
+  let calls = 0;
+  let enriched = 0;
+  let failed = 0;
+  let sportscoreEnriched = 0;
+  let tsdbEnriched = 0;
+
+  for (const match of candidates) {
+    const idx = indexById.get(String(match?.id));
+    if (idx == null) continue;
+    let stats = getMatchLiveStats(out[idx]);
+    let changed = false;
+    const used: string[] = [];
+
+    const sportRef = freeProviderRef(match, "sportscore");
+    if (sportRef.slug) {
+      try {
+        calls++;
+        const payload = await fetchSportScoreDetail(String(sportRef.slug));
+        const extra = normalizeSportScoreStats(payload);
+        if (statsCompleteness(extra).core_complete > 0) {
+          const before = statsCompleteness(stats).score;
+          stats = mergeLiveStats(stats, extra, true);
+          if (statsCompleteness(stats).score > before || before < 100) {
+            changed = true;
+            used.push("sportscore_stats");
+            sportscoreEnriched++;
+          }
+        }
+      } catch (e) {
+        failed++;
+        console.warn("SportScore stats unavailable", e);
+      }
+    }
+
+    if (statsCompleteness(stats).core_complete < 3) {
+      try {
+        let tsdbId = String(freeProviderRef(match, "thesportsdb").id || "");
+        if (!/^\d+$/.test(tsdbId)) {
+          calls++;
+          const day = String(getMatchEventDate(match) || nowIso()).slice(0, 10);
+          const found = await findTsdbEvent(
+            String(match?.home_team || ""),
+            String(match?.away_team || ""),
+            day,
+          );
+          tsdbId = String(found?.idEvent || "");
+        }
+        if (/^\d+$/.test(tsdbId)) {
+          calls++;
+          const rows = await fetchTsdbStats(tsdbId);
+          const extra = normalizeTsdbStats(rows);
+          if (statsCompleteness(extra).core_complete > 0) {
+            const before = statsCompleteness(stats).score;
+            stats = mergeLiveStats(stats, extra, true);
+            if (statsCompleteness(stats).score > before || before < 100) {
+              changed = true;
+              used.push("thesportsdb_stats");
+              tsdbEnriched++;
+            }
+            out[idx] = {
+              ...out[idx],
+              raw_data: {
+                ...(out[idx]?.raw_data || {}),
+                provider_refs: {
+                  ...(out[idx]?.raw_data?.provider_refs || {}),
+                  thesportsdb: { id: tsdbId },
+                },
+              },
+            };
+          }
+        }
+      } catch (e) {
+        failed++;
+        console.warn("TheSportsDB stats unavailable", e);
+      }
+    }
+
+    if (changed) {
+      const stamp = nowIso();
+      out[idx] = {
+        ...out[idx],
+        live_stats: stats,
+        stats_last_updated_at: stamp,
+        raw_data: {
+          ...(out[idx]?.raw_data || {}),
+          live_stats: stats,
+          stats_last_updated_at: stamp,
+          stats_sources: [
+            ...new Set([
+              ...((out[idx]?.raw_data?.stats_sources || []) as string[]),
+              ...used,
+            ]),
+          ],
+          free_stats_updated_at: stamp,
+        },
+      };
+      enriched++;
+    }
+  }
+
+  return {
+    matches: out,
+    calls,
+    enriched,
+    failed,
+    sportscore_enriched: sportscoreEnriched,
+    thesportsdb_enriched: tsdbEnriched,
+  };
+}
+
 async function enrichLiveMatchesWithBsdStats(matches: any[]) {
   const budget = bsdStatsCallBudget();
   if (budget <= 0) {
@@ -5730,28 +6028,24 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   }
 
   if (!snapshotReused) {
-    let originalRawMatches: any[] = [];
-
     coverage = await fetchBSDCoverage();
     const liveNow = safeNumber(coverage?.live_now, -1);
 
-    if (!options.skipBsd && liveNow !== 0) {
-      try {
-        const liveData = await fetchBSD("/events/live/");
-        originalRawMatches = bsdResults(liveData);
-      } catch (e: any) {
-        bsdError = e?.message || String(e);
-        bsdRateLimited = isBSDQuotaError(e);
-        if (bsdRateLimited) {
-          console.warn("⚠️ Quota BSD épuisé: ESPN + cache prennent le relais");
-        } else {
-          console.error("⚠️ BSD v2 live indisponible: ESPN prend le relais", e);
-        }
-      }
-    }
-
-    const espnResult = await fetchEspnLiveMatchesForMerge();
+    // Les trois sources gratuites partent en parallèle. ESPN reste la source
+    // intrinsèquement la plus fiable; SportScore élargit la couverture live,
+    // TheSportsDB est un fallback complémentaire (sa free API est plus limitée).
+    const [espnResult, sportScoreResult, tsdbResult] = await Promise.all([
+      fetchEspnLiveMatchesForMerge(),
+      fetchSportScoreLive(),
+      fetchTheSportsDbToday(),
+    ]);
     espnError = espnResult.error;
+
+    let freeMerge = mergeProviderMatchSets(
+      sportScoreResult.matches || [],
+      tsdbResult.matches || [],
+    );
+    let freeOriginalMatches = freeMerge.matches;
 
     const incomingEspnIds = (espnResult.matches || [])
       .map((m: any) => String(m?.source_match_id || m?.raw_data?.event_id || ""))
@@ -5770,11 +6064,80 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       }
     }
 
-    const merged = mergeOriginalAndEspnMatches(
-      originalRawMatches,
+    // Estimation de couverture gratuite AVANT de consommer BSD.
+    const freePreview = mergeOriginalAndEspnMatches(
+      freeOriginalMatches,
       espnResult.matches || [],
       knownProviderMappings,
     );
+    const freeLiveCount = (freePreview.mergedMatches || []).filter((m: any) =>
+      m?.is_live !== false && m?.is_finished !== true
+    ).length;
+    const requiredFreeCoverage = liveNow > 0
+      ? Math.max(1, Math.ceil(liveNow * FREE_PROVIDER_BSD_COVERAGE_RATIO))
+      : Number.POSITIVE_INFINITY;
+    const freeCoverageEnough =
+      liveNow > 0 && freeLiveCount >= requiredFreeCoverage;
+
+    let bsdRawMatches: any[] = [];
+    const shouldCallBsd =
+      !options.skipBsd &&
+      liveNow !== 0 &&
+      !freeCoverageEnough;
+
+    if (shouldCallBsd) {
+      try {
+        const liveData = await fetchBSD("/events/live/");
+        bsdRawMatches = bsdResults(liveData).map((match: any) => ({
+          ...match,
+          raw_data: {
+            ...(match?.raw_data || {}),
+            source: "bsd",
+            provider_quality: PROVIDER_QUALITY.bsd,
+          },
+        }));
+      } catch (e: any) {
+        bsdError = e?.message || String(e);
+        bsdRateLimited = isBSDQuotaError(e);
+        if (bsdRateLimited) {
+          console.warn("⚠️ Quota BSD épuisé: fournisseurs gratuits + cache prennent le relais");
+        } else {
+          console.error("⚠️ BSD v2 live indisponible: fournisseurs gratuits prennent le relais", e);
+        }
+      }
+    } else if (freeCoverageEnough) {
+      console.log("BSD_LIVE_DISCOVERY_SAVED", {
+        live_now_reported: liveNow,
+        free_live_matches: freeLiveCount,
+        required: requiredFreeCoverage,
+        ratio: FREE_PROVIDER_BSD_COVERAGE_RATIO,
+      });
+    }
+
+    // Lorsque BSD est nécessaire, son identité numérique est conservée comme
+    // identité primaire afin de ne pas casser odds/historique. Les données
+    // gratuites complètent ensuite le match. Sans BSD, les IDs gratuits restent.
+    let originalsForEspn: any[];
+    if (bsdRawMatches.length) {
+      const bsdPlusFree = mergeProviderMatchSets(bsdRawMatches, freeOriginalMatches);
+      originalsForEspn = bsdPlusFree.matches;
+      freeMerge = {
+        matches: originalsForEspn,
+        merged: freeMerge.merged + bsdPlusFree.merged,
+        added: freeMerge.added + bsdPlusFree.added,
+      };
+    } else {
+      originalsForEspn = freeOriginalMatches;
+    }
+
+    const merged = bsdRawMatches.length
+      ? mergeOriginalAndEspnMatches(
+          originalsForEspn,
+          espnResult.matches || [],
+          knownProviderMappings,
+        )
+      : freePreview;
+
     if (merged.providerMappings?.length) {
       const { error: mapWriteError } = await supabase
         .from("espn_match_map")
@@ -5784,29 +6147,47 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
 
     allRawMatches = sortMatchesForRefresh(merged.mergedMatches);
     sourceRows = merged.sourceRows || [];
-    sourceMeta = merged.meta || sourceMeta;
+    sourceMeta = {
+      ...(merged.meta || sourceMeta),
+      bsd_source_matches: bsdRawMatches.length,
+      sportscore_source_matches: sportScoreResult.matches?.length || 0,
+      thesportsdb_source_matches: tsdbResult.matches?.length || 0,
+      sportscore_error: sportScoreResult.error,
+      thesportsdb_error: tsdbResult.error,
+      free_provider_merged: freeMerge.merged,
+      free_provider_added: freeMerge.added,
+      free_live_matches: freeLiveCount,
+      bsd_live_reported: liveNow,
+      bsd_discovery_saved: !shouldCallBsd,
+      free_provider_policy: providerPolicy(),
+    };
 
-    // /events/live/ est compact et ne fournit pas les stats détaillées.
-    // 1) on réutilise d'abord notre dernier snapshot connu;
-    // 2) ESPN complète gratuitement ce qu'il possède;
-    // 3) BSD /stats/ enrichit seulement quelques matchs prioritaires par cycle.
+    // Stats détaillées:
+    // 1) snapshot connu,
+    // 2) SportScore/TheSportsDB gratuits,
+    // 3) BSD /stats/ uniquement pour ce qui reste incomplet.
     allRawMatches = await reuseCachedStats(allRawMatches);
 
-    const statsEnrichment = await enrichLiveMatchesWithBsdStats(allRawMatches);
-    allRawMatches = sortMatchesForRefresh(statsEnrichment.matches);
+    const freeStats = await enrichLiveMatchesWithFreeStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(freeStats.matches);
+
+    const bsdStats = await enrichLiveMatchesWithBsdStats(allRawMatches);
+    allRawMatches = sortMatchesForRefresh(bsdStats.matches);
     sourceMeta = {
       ...sourceMeta,
-      bsd_stats_calls: statsEnrichment.calls,
-      bsd_stats_enriched: statsEnrichment.enriched,
-      bsd_stats_failed: statsEnrichment.failed,
-      bsd_stats_skipped_quota: statsEnrichment.skipped_quota,
+      free_stats_calls: freeStats.calls,
+      free_stats_enriched: freeStats.enriched,
+      free_stats_failed: freeStats.failed,
+      sportscore_stats_enriched: freeStats.sportscore_enriched,
+      thesportsdb_stats_enriched: freeStats.thesportsdb_enriched,
+      bsd_stats_calls: bsdStats.calls,
+      bsd_stats_enriched: bsdStats.enriched,
+      bsd_stats_failed: bsdStats.failed,
+      bsd_stats_skipped_quota: bsdStats.skipped_quota,
       bsd_quota_remaining: bsdQuotaRemaining,
       bsd_quota_reset_seconds: bsdQuotaResetSeconds,
     };
 
-    // Snapshot COMPLET persistant avant de découper en lots.
-    // Les invocations enfants suivantes lisent exactement ces mêmes matchs
-    // sans rappeler BSD ni ESPN.
     if (allRawMatches.length) {
       await persistStatsSourcesAndMerged(sourceRows, allRawMatches);
     }
@@ -5841,6 +6222,16 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
         next_cursor: nextCursor,
         original_source_matches: safeNumber(sourceMeta.original_source_matches, 0),
         espn_source_matches: safeNumber(sourceMeta.espn_source_matches, 0),
+      bsd_source_matches: safeNumber(sourceMeta.bsd_source_matches, 0),
+      sportscore_source_matches: safeNumber(sourceMeta.sportscore_source_matches, 0),
+      thesportsdb_source_matches: safeNumber(sourceMeta.thesportsdb_source_matches, 0),
+      free_live_matches: safeNumber(sourceMeta.free_live_matches, 0),
+      bsd_live_reported: safeNumber(sourceMeta.bsd_live_reported, -1),
+      bsd_discovery_saved: Boolean(sourceMeta.bsd_discovery_saved),
+      free_stats_calls: safeNumber(sourceMeta.free_stats_calls, 0),
+      free_stats_enriched: safeNumber(sourceMeta.free_stats_enriched, 0),
+      sportscore_stats_enriched: safeNumber(sourceMeta.sportscore_stats_enriched, 0),
+      thesportsdb_stats_enriched: safeNumber(sourceMeta.thesportsdb_stats_enriched, 0),
         bsd_stats_calls: safeNumber(sourceMeta.bsd_stats_calls, 0),
         bsd_stats_enriched: safeNumber(sourceMeta.bsd_stats_enriched, 0),
         bsd_stats_failed: safeNumber(sourceMeta.bsd_stats_failed, 0),
@@ -5851,7 +6242,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
         espn_error: espnError,
         bsd_error: bsdError,
         bsd_rate_limited: bsdRateLimited,
-        bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0,
+        bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0 || Boolean(sourceMeta.bsd_discovery_saved),
         snapshot_reused: snapshotReused,
         telegram_in_refresh: allowTelegram,
         predictions_created: 0,
@@ -5918,6 +6309,16 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       has_more: hasMore,
       original_source_matches: safeNumber(sourceMeta.original_source_matches, 0),
       espn_source_matches: safeNumber(sourceMeta.espn_source_matches, 0),
+      bsd_source_matches: safeNumber(sourceMeta.bsd_source_matches, 0),
+      sportscore_source_matches: safeNumber(sourceMeta.sportscore_source_matches, 0),
+      thesportsdb_source_matches: safeNumber(sourceMeta.thesportsdb_source_matches, 0),
+      free_live_matches: safeNumber(sourceMeta.free_live_matches, 0),
+      bsd_live_reported: safeNumber(sourceMeta.bsd_live_reported, -1),
+      bsd_discovery_saved: Boolean(sourceMeta.bsd_discovery_saved),
+      free_stats_calls: safeNumber(sourceMeta.free_stats_calls, 0),
+      free_stats_enriched: safeNumber(sourceMeta.free_stats_enriched, 0),
+      sportscore_stats_enriched: safeNumber(sourceMeta.sportscore_stats_enriched, 0),
+      thesportsdb_stats_enriched: safeNumber(sourceMeta.thesportsdb_stats_enriched, 0),
       bsd_stats_calls: safeNumber(sourceMeta.bsd_stats_calls, 0),
       bsd_stats_enriched: safeNumber(sourceMeta.bsd_stats_enriched, 0),
       bsd_stats_failed: safeNumber(sourceMeta.bsd_stats_failed, 0),
@@ -5928,7 +6329,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       espn_error: espnError,
       bsd_error: bsdError,
       bsd_rate_limited: bsdRateLimited,
-      bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0,
+      bsd_skipped: options.skipBsd === true || safeNumber(coverage?.live_now, -1) === 0 || Boolean(sourceMeta.bsd_discovery_saved),
       snapshot_reused: snapshotReused,
       telegram_in_refresh: allowTelegram,
       predictions_created: createdPreds,

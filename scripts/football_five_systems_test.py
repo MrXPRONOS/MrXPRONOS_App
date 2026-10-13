@@ -48,15 +48,23 @@ def main() -> int:
     errors: dict[str, str] = {}
     cache: dict[str, list[dict]] = {}
     api = ch.BSDClient(max_requests=45, max_retries=1)
+    free_hub = ch.FreeFootballProviders(session=session)
 
     def matches(day):
         key = day.isoformat()
         if key not in cache:
-            page = api.list_events(day, day, max_pages=8, ttl=0)
-            if not page.complete:
-                raise RuntimeError("Calendrier BSD incomplet pour " + key)
-            cache[key] = page.events
-            print("TEST_SOURCE_BSD", key, len(page.events), flush=True)
+            free_rows = []
+            for result in free_hub.day(day):
+                free_rows.extend(result.events)
+            if len(free_rows) >= 8:
+                cache[key] = free_rows
+                print("TEST_SOURCE_FREE", key, len(free_rows), dict(free_hub.calls), flush=True)
+            else:
+                page = api.list_events(day, day, max_pages=8, ttl=0)
+                if not page.complete:
+                    raise RuntimeError("Calendrier BSD incomplet pour " + key)
+                cache[key] = page.events
+                print("TEST_SOURCE_BSD_FALLBACK", key, len(page.events), "free", len(free_rows), flush=True)
         return cache[key]
 
     def deliver(name: str, builder, *, historical: str = "") -> None:
