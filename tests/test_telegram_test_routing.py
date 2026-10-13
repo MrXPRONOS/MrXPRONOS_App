@@ -61,6 +61,14 @@ class TelegramTestRoutingTests(unittest.TestCase):
             self.assertIn("@predict_mrxp",text,path)
             self.assertIn("TELEGRAM_TEST_CHAT_ID",text,path)
 
+    def test_manual_visual_workflows_do_not_require_a_linked_test_discussion(self):
+        for path in (
+            ".github/workflows/football-live-test-once.yml",
+            ".github/workflows/football-visual-live-test-once.yml",
+            ".github/workflows/football-premium-validation-once.yml",
+        ):
+            self.assertIn("FOOTBALL_REQUIRE_COMMENTS: '0'", self.read(path), path)
+
     def test_smoke_card_is_square_and_network_can_be_mocked(self):
         image=telegram_test_smoke.build()
         self.assertEqual(image.size,(1080,1080))
