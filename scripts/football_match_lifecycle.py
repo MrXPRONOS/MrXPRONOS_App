@@ -411,8 +411,8 @@ def extract_goals(summary: dict) -> list[dict]:
         minute_total = _minute_total(minute_text)
         minute = int(re.search(r"\d+", minute_text).group()) if re.search(r"\d+", minute_text) else None
         team_obj = item.get("team") if isinstance(item.get("team"), dict) else {}
-        home_score = _score(item.get("homeScore") or item.get("home_score"))
-        away_score = _score(item.get("awayScore") or item.get("away_score"))
+        home_score = _score(item.get("homeScore") if item.get("homeScore") is not None else item.get("home_score"))
+        away_score = _score(item.get("awayScore") if item.get("awayScore") is not None else item.get("away_score"))
         goals.append({
             "player": player,
             "player_id": player_id,
@@ -973,8 +973,10 @@ def lifecycle_signals(
                 })
         elif _plain(ext.get("state")).lower() in {"post", "finished", "ft", "full_time"}:
             if hs is not None and aws is not None and follow_ref:
-                home_logo = _plain(ext.get("home_logo") or (base.get("home_team") or {}).get("logo"))
-                away_logo = _plain(ext.get("away_logo") or (base.get("away_team") or {}).get("logo"))
+                base_home_obj = base.get("home_team") if isinstance(base.get("home_team"), dict) else {}
+                base_away_obj = base.get("away_team") if isinstance(base.get("away_team"), dict) else {}
+                home_logo = _plain(ext.get("home_logo") or base_home_obj.get("logo"))
+                away_logo = _plain(ext.get("away_logo") or base_away_obj.get("logo"))
                 final_key = "resultat:" + follow_ref
                 if final_key not in sent_keys:
                     signals.append({
