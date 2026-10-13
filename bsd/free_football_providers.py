@@ -32,9 +32,13 @@ SPORTSCORE_ATTRIBUTION = '<a href="https://sportscore.com/" rel="dofollow" title
 
 # Qualité intrinsèque: utilisée pour arbitrer une contradiction.
 PROVIDER_QUALITY = {
+    # Internal routing weights, not vendor quality claims.
     "espn": 98,
     "bsd": 96,
+    "football-data.org": 94,
     "sportscore": 91,
+    "api-football": 90,
+    "sportsapipro": 88,
     "openligadb": 84,
     "thesportsdb": 80,
 }
