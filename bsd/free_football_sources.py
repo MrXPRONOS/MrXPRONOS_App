@@ -205,6 +205,10 @@ def _sportscore_rows(payload: Any) -> List[Dict[str, Any]]:
     if not isinstance(values, list):
         values = payload.get("results") if isinstance(payload, dict) else None
     if not isinstance(values, list):
+        values = payload.get("meetings") if isinstance(payload, dict) else None
+    if not isinstance(values, list):
+        values = payload.get("events") if isinstance(payload, dict) else None
+    if not isinstance(values, list):
         return []
     rows = []
     for item in values:
