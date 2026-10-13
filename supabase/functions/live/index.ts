@@ -1,4 +1,15 @@
 import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
+import {
+  fetchSportScoreLive,
+  fetchTheSportsDbToday,
+  fetchSportScoreDetail,
+  findTsdbEvent,
+  fetchTsdbStats,
+  normalizeSportScoreStats,
+  normalizeTsdbStats,
+  PROVIDER_QUALITY,
+  providerPolicy,
+} from "../_shared/free-football.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -97,6 +108,14 @@ const BSD_STATS_REFRESH_SECONDS = Math.max(
 const BSD_STATS_QUOTA_RESERVE = Math.max(
   250,
   Math.min(3000, safeEnvInt("BSD_STATS_QUOTA_RESERVE", 900)),
+);
+const FREE_STATS_MAX_CALLS_PER_REFRESH = Math.max(
+  1,
+  Math.min(8, safeEnvInt("FREE_STATS_MAX_CALLS_PER_REFRESH", 4)),
+);
+const FREE_PROVIDER_BSD_COVERAGE_RATIO = Math.max(
+  0.5,
+  Math.min(1, Number(Deno.env.get("FREE_PROVIDER_BSD_COVERAGE_RATIO") || "0.85")),
 );
 
 const T_STATS_SOURCES = "live_stats_sources";
@@ -3929,6 +3948,129 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
       espn_enabled: ENABLE_ESPN_MERGE,
     },
   };
+}
+
+function providerNameOf(match: any) {
+  return String(
+    match?.raw_data?.source ||
+    match?.raw_data?.merge_meta?.primary_source ||
+    match?.source_name ||
+    match?.source ||
+    ""
+  ).toLowerCase();
+}
+
+function providerRefsOf(match: any) {
+  const refs = { ...(match?.raw_data?.provider_refs || {}) };
+  const source = providerNameOf(match);
+  if (source === "sportscore") {
+    refs.sportscore = {
+      id: match?.raw_data?.sportscore_id || match?.source_match_id || match?.id || null,
+      slug: match?.raw_data?.sportscore_slug || match?.slug || null,
+    };
+  }
+  if (source === "thesportsdb") {
+    refs.thesportsdb = {
+      id: match?.raw_data?.tsdb_event_id || match?.source_match_id || match?.id || null,
+    };
+  }
+  return refs;
+}
+
+function mergeSecondaryProviderMatch(primary: any, secondary: any) {
+  const provider = providerNameOf(secondary) || "secondary";
+  const primaryStats = getMatchLiveStats(primary);
+  const secondaryStats = getMatchLiveStats(secondary);
+  const mergedStats = mergeLiveStats(primaryStats, secondaryStats);
+
+  const pm = safeNumber(primary?.current_minute ?? primary?.minute, 0);
+  const sm = safeNumber(secondary?.current_minute ?? secondary?.minute, 0);
+  const sources = [
+    ...new Set([
+      ...((primary?.raw_data?.merge_meta?.sources || [providerNameOf(primary) || "api_original"]) as string[]),
+      provider,
+    ]),
+  ];
+  const secondaryRefs = providerRefsOf(secondary);
+
+  return {
+    ...primary,
+    current_minute: Math.max(pm, sm),
+    live_stats: mergedStats,
+    home_score: primary?.home_score ?? secondary?.home_score ?? null,
+    away_score: primary?.away_score ?? secondary?.away_score ?? null,
+    home_logo: primary?.home_logo || secondary?.home_logo || null,
+    away_logo: primary?.away_logo || secondary?.away_logo || null,
+    league_logo: primary?.league_logo || secondary?.league_logo || null,
+    stats_last_updated_at:
+      secondary?.stats_last_updated_at ||
+      primary?.stats_last_updated_at ||
+      null,
+    raw_data: {
+      ...(primary?.raw_data || {}),
+      source: "merged",
+      provider_refs: {
+        ...(primary?.raw_data?.provider_refs || {}),
+        ...secondaryRefs,
+      },
+      merge_meta: {
+        ...(primary?.raw_data?.merge_meta || {}),
+        canonical_match_id: buildCanonicalMatchId(primary),
+        sources,
+        confidence_score: Math.max(
+          safeNumber(primary?.raw_data?.merge_meta?.confidence_score, 65),
+          Math.round(sameMatchScore(primary, secondary) * 100),
+          safeNumber(secondary?.raw_data?.provider_quality, PROVIDER_QUALITY[provider] || 0),
+        ),
+        primary_source: primary?.raw_data?.merge_meta?.primary_source || providerNameOf(primary) || "api_original",
+        merged_at: nowIso(),
+      },
+      live_stats: mergedStats,
+      home_logo: primary?.home_logo || secondary?.home_logo || null,
+      away_logo: primary?.away_logo || secondary?.away_logo || null,
+    },
+  };
+}
+
+function mergeProviderMatchSets(primaryMatches: any[], secondaryMatches: any[]) {
+  const out = [...(primaryMatches || [])];
+  let merged = 0;
+  let added = 0;
+
+  for (const secondary of secondaryMatches || []) {
+    let bestIndex = -1;
+    let bestScore = 0;
+    for (let i = 0; i < out.length; i++) {
+      const score = sameMatchScore(out[i], secondary);
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = i;
+      }
+    }
+    if (bestIndex >= 0 && bestScore >= 0.72) {
+      out[bestIndex] = mergeSecondaryProviderMatch(out[bestIndex], secondary);
+      merged++;
+    } else {
+      const source = providerNameOf(secondary) || "free";
+      out.push({
+        ...secondary,
+        raw_data: {
+          ...(secondary?.raw_data || {}),
+          merge_meta: {
+            canonical_match_id: buildCanonicalMatchId(secondary),
+            sources: [source],
+            confidence_score: safeNumber(secondary?.raw_data?.provider_quality, PROVIDER_QUALITY[source] || 70),
+            primary_source: source,
+            merged_at: nowIso(),
+          },
+          provider_refs: providerRefsOf(secondary),
+        },
+      });
+      added++;
+    }
+  }
+
+  return { matches: out, merged, added };
 }
 
 function applyPredictionQualityContext(match: any, pred: any) {
