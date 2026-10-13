@@ -83,31 +83,36 @@ class StatsEngineTests(unittest.TestCase):
         self.assertEqual(rows[0]["goals_for"], 18)
         self.assertEqual(rows[0]["goal_diff"], 11)
 
-    def test_openliga_builds_table_from_results(self):
+    def test_openliga_parses_direct_table(self):
         payload = [
             {
-                "team1": {"teamName": "Bayern München"},
-                "team2": {"teamName": "Dortmund"},
-                "matchResults": [
-                    {"resultOrderID": 1, "pointsTeam1": 1, "pointsTeam2": 0},
-                    {"resultOrderID": 2, "pointsTeam1": 2, "pointsTeam2": 1},
-                ],
+                "TeamInfoId": 40, "TeamName": "FC Bayern München",
+                "Points": 18, "OpponentGoals": 5, "Goals": 20,
+                "Matches": 7, "Won": 6, "Lost": 1, "Draw": 0, "GoalDiff": 15,
             },
             {
-                "team1": {"teamName": "Dortmund"},
-                "team2": {"teamName": "Leverkusen"},
-                "matchResults": [
-                    {"resultOrderID": 2, "pointsTeam1": 1, "pointsTeam2": 1},
-                ],
+                "TeamInfoId": 7, "TeamName": "Borussia Dortmund",
+                "Points": 16, "OpponentGoals": 7, "Goals": 17,
+                "Matches": 7, "Won": 5, "Lost": 1, "Draw": 1, "GoalDiff": 10,
             },
         ]
         bundesliga = next(x for x in stats.LEAGUES if x.openliga)
         rows = stats.fetch_openliga_table(FakeSession(payload), bundesliga, season=2026)
-        self.assertEqual(rows[0]["team"], "Bayern München")
-        self.assertEqual(rows[0]["points"], 3)
-        dortmund = next(x for x in rows if x["team"] == "Dortmund")
-        self.assertEqual(dortmund["points"], 1)
-        self.assertEqual(dortmund["played"], 2)
+        self.assertEqual(rows[0]["team"], "FC Bayern München")
+        self.assertEqual(rows[0]["points"], 18)
+        self.assertEqual(rows[0]["played"], 7)
+        self.assertEqual(rows[0]["goal_diff"], 15)
+
+    def test_openliga_top_scorers(self):
+        payload = [
+            {"goalGetterName": "Harry Kane", "goalCount": 9},
+            {"goalGetterName": "Serhou Guirassy", "goalCount": 7},
+        ]
+        bundesliga = next(x for x in stats.LEAGUES if x.openliga)
+        rows = stats.fetch_openliga_top_scorers(FakeSession(payload), bundesliga, season=2026)
+        self.assertEqual(rows[0]["player"], "Harry Kane")
+        self.assertEqual(rows[0]["goals"], 9)
+        self.assertEqual(rows[0]["source"], "OpenLigaDB")
 
     def test_table_agreement_accepts_name_variants(self):
         a = [
@@ -143,6 +148,29 @@ class StatsEngineTests(unittest.TestCase):
         self.assertIn("Liverpool", attack["headline"])
         self.assertEqual(defense["kind"], "defense")
         self.assertIn("Chelsea", defense["headline"])
+
+    @patch("football_channel.has_two_team_logos", return_value=True)
+    @patch("football_channel.team_visual_url", return_value="https://example.com/logo.png")
+    def test_prematch_renders_verified_h2h(self, _logo, _has_logos):
+        fixture = {
+            "id": 77,
+            "event_date": "2026-10-13T20:00:00+00:00",
+            "home_team": {"id": 11, "name": "Arsenal"},
+            "away_team": {"id": 22, "name": "Chelsea"},
+            "league_name": "Premier League",
+            "status": "notstarted",
+        }
+        history = channel.History(Path("/tmp/nonexistent-xpronos-test-state.json"))
+        now = channel.moment("2026-10-13T18:00:00+00:00")
+        post = channel.avant_match(
+            [fixture], history, now, [],
+            {"home": "V-V-N-V-D", "away": "N-D-V-V-N"},
+            {"total_matches": 10, "home_wins": 5, "away_wins": 3, "draws": 2, "avg_total_goals": 2.7},
+        )
+        self.assertIsNotNone(post)
+        self.assertIn("Confrontations directes", post.text)
+        self.assertIn("10 matchs", post.text)
+        self.assertIn("2.7", post.text)
 
     @patch("football_channel.daily_insight")
     def test_advanced_stat_render(self, daily):
