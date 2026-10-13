@@ -193,7 +193,10 @@ def fetch_sportscore_day(
             event_date=item.get("time") or item.get("start_time") or item.get("kickoff") or item.get("date"),
             home_score=item.get("home_score") if item.get("home_score") is not None else item.get("score_home"),
             away_score=item.get("away_score") if item.get("away_score") is not None else item.get("score_away"),
-            status=item.get("status_text") or item.get("status") or "",
+            status=" ".join(filter(None, (
+                _text(item.get("status")),
+                _text(item.get("status_text")),
+            ))),
             league=item.get("league") or item.get("competition_name") or comp.get("name"),
             home_logo=item.get("home_logo") or home_obj.get("logo"),
             away_logo=item.get("away_logo") or away_obj.get("logo"),
@@ -243,7 +246,10 @@ def fetch_thesportsdb_day(session: requests.Session, day: date) -> list[dict]:
             event_date=ts,
             home_score=item.get("intHomeScore"),
             away_score=item.get("intAwayScore"),
-            status=item.get("strStatus") or item.get("strProgress") or "",
+            status=" ".join(filter(None, (
+                _text(item.get("strStatus")),
+                _text(item.get("strProgress")),
+            ))),
             league=item.get("strLeague"),
             home_logo=item.get("strHomeTeamBadge") or item.get("strHomeTeamLogo"),
             away_logo=item.get("strAwayTeamBadge") or item.get("strAwayTeamLogo"),
