@@ -10,11 +10,16 @@ import json
 import os
 import time
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import requests
+
+try:
+    from free_football_sources import collect_free_day, enrich_bsd_events, fetch_sportscore_team
+except ImportError:
+    from bsd.free_football_sources import collect_free_day, enrich_bsd_events, fetch_sportscore_team
 
 BASE_URL = "https://sports.bzzoiro.com/api/v2"
 DEFAULT_CACHE_DIR = Path("bsd/cache")
@@ -70,6 +75,10 @@ class BSDClient:
         clock: Callable[[], float] = time.time,
     ):
         self.api_key = (api_key if api_key is not None else os.getenv("BSD_API_KEY", "")).strip()
+        free_default = os.getenv("FOOTBALL_MULTI_SOURCE", "1") != "0"
+        self.enable_free_sources = free_default and (
+            session is None or os.getenv("FOOTBALL_MULTI_SOURCE_WITH_CUSTOM_SESSION", "0") == "1"
+        )
         if not self.api_key:
             raise ValueError("BSD_API_KEY absent : ajouter la clé dans GitHub Secrets.")
         if not (1 <= max_requests <= 7500):
@@ -250,6 +259,12 @@ class BSDClient:
                     events.append(item)
             if len(events) >= total or not rows or len(rows) < page_size:
                 break
+        if self.enable_free_sources and events and date_from == date_to:
+            try:
+                snapshots = collect_free_day(self.session, date_from, include_espn=True)
+                events = enrich_bsd_events(events, snapshots)
+            except (requests.RequestException, ValueError, TypeError, OSError) as exc:
+                print("MULTI_SOURCE_ENRICH_SKIP", type(exc).__name__, str(exc)[:120])
         return BSDPage(
             events=events,
             total_reported=total if total is not None else 0,
@@ -275,6 +290,26 @@ class BSDClient:
             raise ValueError("team_id ou team_name requis")
         if not 1 <= int(limit) <= 50:
             raise ValueError("limit doit être compris entre 1 et 50")
+        if self.enable_free_sources and str(team_name or "").strip() and os.getenv("BSD_PREFER_FREE_RECENT", "1") != "0":
+            free_rows = fetch_sportscore_team(
+                self.session,
+                str(team_name).strip(),
+                limit=max(int(limit), 8),
+                ttl=max(120, ttl),
+            )
+            if before is not None:
+                filtered = []
+                for item in free_rows:
+                    try:
+                        when = datetime.fromisoformat(str(item.get("event_date") or "").replace("Z", "+00:00"))
+                    except (TypeError, ValueError):
+                        continue
+                    if when.date() <= before and str(item.get("state") or "") == "post":
+                        filtered.append({**item, "status": "finished"})
+                free_rows = filtered
+            if len(free_rows) >= min(5, int(limit)):
+                return free_rows[:int(limit)]
+
         params: Dict[str, Any] = {
             "status": "finished",
             "limit": int(limit),
