@@ -1770,10 +1770,11 @@ function flushEditorialAbPending() {
   waiting.forEach(row => { void postEditorialAbEvent(row.kind,row.slug,row.variant,row.eventType); });
 }
 function editorialAbOpened(kind,slug) {
-  if (!slug) return;
-  let v="a";
-  try { v=sessionStorage.getItem(`mx_editorial_ab_${kind}_${slug}`) || "a"; }
+  if (!slug || !editorialAbExposures.has([kind,slug].join("|"))) return;
+  let v=null;
+  try { v=sessionStorage.getItem(`mx_editorial_ab_${kind}_${slug}`); }
   catch (_) {}
+  if (v !== "a" && v !== "b") return;
   void postEditorialAbEvent(kind,slug,v,"editorial_ab_click");
 }
 function observeEditorialAbCards(container) {
