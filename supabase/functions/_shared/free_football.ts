@@ -412,14 +412,20 @@ export async function collectFreeMatchesForDate(
   date: string,
   status?: "live" | "finished" | "upcoming",
 ) {
-  const jobs = await Promise.allSettled([
-    fetchSportScoreFixtures(date, status),
-    fetchTheSportsDbDay(date),
-    fetchOpenLigaDbDay(date),
-  ]);
+  const requests: Array<{ name: string; promise: Promise<any[]> }> = [
+    { name: "sportscore", promise: fetchSportScoreFixtures(date, status) },
+    { name: "thesportsdb", promise: fetchTheSportsDbDay(date) },
+  ];
+  // OpenLigaDB is excellent for fixtures/results but does not expose a reliable
+  // in-play minute here, so avoid wasting calls during high-frequency LIVE refreshes.
+  if (status !== "live") {
+    requests.push({ name: "openligadb", promise: fetchOpenLigaDbDay(date) });
+  }
+
+  const jobs = await Promise.allSettled(requests.map((x) => x.promise));
   const rows: any[] = [];
   const meta: Record<string, any> = {};
-  const names = ["sportscore", "thesportsdb", "openligadb"];
+  const names = requests.map((x) => x.name);
   jobs.forEach((job, i) => {
     if (job.status === "fulfilled") {
       rows.push(...job.value);
