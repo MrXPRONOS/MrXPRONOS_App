@@ -1251,7 +1251,17 @@ def render_flash(payload: dict[str, Any]) -> Image.Image:
     image = template("flash")
     draw = ImageDraw.Draw(image)
 
-    photo = remote_photo(payload.get("image_url", ""), _box_size(FLASH_PHOTO_BOX))
+    # Prefer the already-licensed, locally downloaded article image;
+    # no extra network fetch and never leave the repository boundary.
+    photo = None
+    relative_path = clean(payload.get("image_path", ""))
+    if relative_path.startswith("assets/images/footnews/"):
+        candidate = (ROOT / relative_path).resolve()
+        if candidate.is_relative_to(ROOT.resolve()) and candidate.is_file():
+            with Image.open(candidate) as source:
+                photo = ImageOps.exif_transpose(source).convert("RGB")
+    if photo is None:
+        photo = remote_photo(payload.get("image_url", ""), _box_size(FLASH_PHOTO_BOX))
     if photo is None:
         photo = _flash_editorial_illustration(_box_size(FLASH_PHOTO_BOX),clean(payload.get("title")))
     paste_rounded_photo(image, photo, FLASH_PHOTO_BOX, radius=27)
