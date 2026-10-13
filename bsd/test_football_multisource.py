@@ -80,6 +80,10 @@ class MultiSourceTests(unittest.TestCase):
         self.assertTrue({"bl1", "bl2", "bl3", "ucl", "dfb", "ffb1"}.issubset(shortcuts))
         self.assertTrue({"uel2026", "uecl2026", "nla", "wm26"}.issubset(shortcuts))
         self.assertTrue(all(season == 2026 for _shortcut, season, _label in rows))
+        old_rows = _openliga_competitions(date(2026, 5, 13))
+        old_shortcuts = {shortcut for shortcut, _season, _label in old_rows}
+        self.assertIn("fbl1", old_shortcuts)
+        self.assertNotIn("ffb1", old_shortcuts)
 
     def test_bsd_is_not_called_when_free_coverage_is_enough(self):
         bsd = FakeBsd([{"id": 999}])
