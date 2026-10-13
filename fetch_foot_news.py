@@ -45,7 +45,7 @@ EXTRA_FEEDS = tuple(
     if x.strip()
 )
 MAX_ARTICLES = max(10, min(120, int(os.getenv("MAX_ARTICLES", "60"))))
-MAX_PER_FEED = max(5, min(60, int(os.getenv("MAX_ARTICLES_PER_FEED", "28"))))
+MAX_PER_FEED = max(5, min(30, int(os.getenv("MAX_ARTICLES_PER_FEED", "16"))))
 MAX_NEWS_AGE_HOURS = max(12, min(336, int(os.getenv("MAX_NEWS_AGE_HOURS", "120"))))
 RSS_TIMEOUT = max(4, min(40, int(os.getenv("RSS_TIMEOUT", "18"))))
 
@@ -185,13 +185,6 @@ def fetch_news() -> tuple[list[dict], dict]:
             image_path, image_mode, previous_source = reuse_image(previous.get(link) or {})
             if image_path and not source_image:
                 source_image = previous_source
-            if not image_path and source_image:
-                image_path, image_mode = download_real_image(session, source_image, slug, root=ROOT)
-            if image_path:
-                diagnostics["images_real"] += 1
-                stat["real_images"] += 1
-            else:
-                diagnostics["images_missing"] += 1
 
             category, editorial_score = classify_news(title, body, feed_url)
             record = build_news_record(
@@ -229,14 +222,29 @@ def fetch_news() -> tuple[list[dict], dict]:
         norm = normalize_title(str(item.get("title") or ""))
         if not norm or link in links:
             continue
-        # Le nouveau News Football ne publie ni sur le site ni sur Telegram
-        # une carte fabriquée lorsqu'aucune vraie photo source n'a été obtenue.
-        if item.get("image_origin") != "source" or not str(item.get("image") or "").startswith("assets/images/footnews/"):
-            diagnostics["rejected_no_image"] += 1
-            continue
         # Les mêmes annonces publiées par plusieurs médias ne doivent pas saturer Actu Foot.
         if any(similarity(norm, older) >= 0.78 for older in title_keys[-80:]):
             continue
+
+        # Télécharger seulement après déduplication : moins de requêtes et de stockage.
+        image_path = str(item.get("image") or "")
+        if not (item.get("image_origin") == "source" and image_path.startswith("assets/images/footnews/") and (ROOT / image_path).is_file()):
+            image_path, image_mode = download_real_image(
+                session,
+                str(item.get("source_image") or ""),
+                str(item.get("slug") or ""),
+                root=ROOT,
+            )
+            if image_path:
+                item["image"] = image_path
+                item["image_origin"] = "source"
+                item["image_layout"] = image_mode
+        if item.get("image_origin") != "source":
+            diagnostics["rejected_no_image"] += 1
+            diagnostics["images_missing"] += 1
+            continue
+
+        diagnostics["images_real"] += 1
         selected.append(item)
         links.add(link)
         title_keys.append(norm)
