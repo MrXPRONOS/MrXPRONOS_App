@@ -129,7 +129,7 @@ jobs:
               "source": tsdb.get("source"),
               "team": tsdb.get("team"),
               "stadium": tsdb.get("stadium"),
-              "formed_year": tsdb.get("formed_year"),
+              "country": tsdb.get("country"),
           })
           PY
       - name: Verifier la presence des 6 templates premium
