@@ -421,13 +421,16 @@ function getMatchLiveStats(match: any) {
 }
 
 function getSourceMatchId(match: any, sourceName: string) {
+  if (sourceName !== "api_original" && match?.source_match_id) {
+    return String(match.source_match_id);
+  }
   if (sourceName === "espn") {
     return String(match?.source_match_id || match?.espn_id || match?.id || "");
   }
   return String(match?.id || match?.source_match_id || "");
 }
 
-function sourceRowFromMatch(match: any, sourceName: "api_original" | "espn") {
+function sourceRowFromMatch(match: any, sourceName: string) {
   const liveStats = ensureLiveStatsShape(getMatchLiveStats(match));
   const canonical = buildCanonicalMatchId(match);
 
@@ -3781,11 +3784,21 @@ function mergeOneOriginalWithEspn(original: any, espn: any) {
     source: "merged",
     merge_meta: {
       canonical_match_id: buildCanonicalMatchId(original),
-      sources: ["api_original", "espn"],
+      sources: [
+        ...new Set([
+          ...((original?.raw_data?.merge_meta?.sources ||
+            original?.raw_data?.provider_sources ||
+            [original?.raw_data?.source || "api_original"]) as string[]),
+          "espn",
+        ]),
+      ],
       confidence_score: Math.round(sameMatchScore(original, espn) * 100),
       stats_agreement_score: statsAgreementScore,
       espn_match_id: espn?.source_match_id || espn?.id || null,
-      primary_source: "api_original",
+      primary_source:
+        original?.raw_data?.merge_meta?.primary_source ||
+        original?.raw_data?.source ||
+        "api_original",
       merged_at: nowIso(),
     },
     live_stats: mergedStats,
@@ -3849,22 +3862,31 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
 
   for (const original of originalMatches || []) {
     const key = buildCanonicalMatchId(original);
+    const providerSource = String(original?.raw_data?.source || "api_original");
+    const providerSources = [
+      ...new Set(
+        ((original?.raw_data?.provider_sources || [providerSource]) as string[])
+          .filter(Boolean),
+      ),
+    ];
     const match = {
       ...original,
       raw_data: {
         ...(original?.raw_data || {}),
         merge_meta: {
           canonical_match_id: key,
-          sources: ["api_original"],
-          confidence_score: 70,
-          primary_source: "api_original",
+          sources: providerSources,
+          confidence_score: providerSources.length >= 2 ? 82 : 70,
+          primary_source: providerSource,
           merged_at: nowIso(),
         },
       },
     };
 
     entries.push({ key, match, source: "api_original" });
-    sourceRows.push(sourceRowFromMatch(original, "api_original"));
+    // Persist the primary direct provider identity instead of hiding it behind
+    // the old generic api_original label.
+    sourceRows.push(sourceRowFromMatch(original, providerSource));
   }
 
   let duplicatesMerged = 0;
