@@ -1,10 +1,10 @@
 {
   "period_days": 30,
-  "generated_at": "2026-10-13T00:52:44.347990+00:00",
+  "generated_at": "2026-10-13T06:17:55.013766+00:00",
   "data_origin": "Supabase analytics events; anonymous attributed page reads",
-  "attributed_visits": 0,
+  "attributed_visits": 1,
   "promo_copy_actions": 0,
-  "promo_copy_per_visit": null,
+  "promo_copy_per_visit": 0.0,
   "unique_visitors": null,
   "registrations": null,
   "deposits": null,
@@ -12,13 +12,31 @@
   "ab_limitation": "Assignation aléatoire par session aux listes Blog/Conseils ; événements d’impressions et clics, pas visiteurs uniques. Significativité non calculée ; aucune causalité affirmée.",
   "ab_tests": [
     {
-      "kind": "conseil",
-      "slug": "comprendre-value",
+      "kind": "article",
+      "slug": "analyse-premium-test",
       "variant": "a",
-      "impressions": 16,
+      "impressions": 4,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
+    },
+    {
+      "kind": "article",
+      "slug": "analyse-premium-test",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "comprendre-value",
+      "variant": "a",
+      "impressions": 70,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "descriptive_only"
     },
     {
       "kind": "conseil",
@@ -31,12 +49,30 @@
     },
     {
       "kind": "conseil",
-      "slug": "erreurs-tilt",
+      "slug": "conseil-premium-test",
       "variant": "a",
-      "impressions": 12,
+      "impressions": 6,
       "opens": 0,
       "open_rate": 0.0,
       "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "conseil-premium-test",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "erreurs-tilt",
+      "variant": "a",
+      "impressions": 51,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "descriptive_only"
     },
     {
       "kind": "conseil",
@@ -51,10 +87,10 @@
       "kind": "conseil",
       "slug": "gerer-bankroll",
       "variant": "a",
-      "impressions": 16,
+      "impressions": 70,
       "opens": 0,
       "open_rate": 0.0,
-      "status": "insufficient_data"
+      "status": "descriptive_only"
     },
     {
       "kind": "conseil",
@@ -66,7 +102,25 @@
       "status": "insufficient_data"
     }
   ],
-  "groups": [],
-  "content": [],
+  "groups": [
+    {
+      "source": "telegram",
+      "variant": "v2",
+      "attributed_visits": 1,
+      "promo_copy_actions": 0,
+      "promo_copy_per_visit": 0.0,
+      "note": "Non randomisé; ce taux n'est pas un taux d'inscription."
+    }
+  ],
+  "content": [
+    {
+      "kind": "article",
+      "slug": "bsd-match-10177",
+      "source": "telegram",
+      "variant": "v2",
+      "attributed_visits": 1,
+      "promo_copy_actions": 0
+    }
+  ],
   "invalid_events_skipped": 0
 }
