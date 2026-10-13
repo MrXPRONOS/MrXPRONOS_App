@@ -430,13 +430,21 @@ def lifecycle_signals(
                 })
 
         # But/changement de score: ESPN permet d'identifier le dernier buteur.
-        if is_live(ext) and hs is not None and aws is not None and hs + aws > 0:
-            summary = summary_for(event_id) if ext.get("source") == "espn" else {}
+        if (
+            is_live(ext) and ext.get("source") == "espn"
+            and hs is not None and aws is not None and hs + aws > 0
+        ):
+            summary = summary_for(event_id)
             goals = extract_goals(summary)
             last_goal = goals[-1] if goals else {}
             goal_minute = last_goal.get("minute")
-            # Ne pas annoncer un vieux but découvert trop tard lors du premier polling.
-            recent_goal = goal_minute is None or minute <= 0 or (0 <= minute - goal_minute <= 14)
+            # Pour un BUT, pas de publication sans événement ESPN identifiable.
+            # Cela évite de transformer un score découvert tardivement en alerte instantanée.
+            recent_goal = (
+                bool(last_goal)
+                and goal_minute is not None
+                and (minute <= 0 or 0 <= minute - goal_minute <= 14)
+            )
             key = f"goal:{event_id}:{hs}-{aws}"
             if key not in sent_keys and recent_goal:
                 signals.append({
