@@ -69,6 +69,18 @@ class TelegramTestRoutingTests(unittest.TestCase):
         ):
             self.assertIn("FOOTBALL_REQUIRE_COMMENTS: '0'", self.read(path), path)
 
+    def test_s3_s4_reruns_checkout_current_main_and_lock_comments_off(self):
+        for path in (
+            ".github/workflows/football-live-test-once.yml",
+            ".github/workflows/football-premium-validation-once.yml",
+        ):
+            text=self.read(path)
+            self.assertIn("ref: main", text, path)
+            self.assertGreaterEqual(
+                text.count("FOOTBALL_REQUIRE_COMMENTS: '0'"), 2, path
+            )
+            self.assertIn("TELEGRAM_TEST_COMMENTS_DISABLED_OK", text, path)
+
     def test_smoke_card_is_square_and_network_can_be_mocked(self):
         image=telegram_test_smoke.build()
         self.assertEqual(image.size,(1080,1080))
