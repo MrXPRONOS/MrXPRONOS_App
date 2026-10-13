@@ -43,7 +43,6 @@ OPENLIGA_CORE_COMPETITIONS = (
     ("bl3", "3. Liga"),
     ("ucl", "UEFA Champions League"),
     ("dfb", "DFB-Pokal"),
-    ("ffb1", "Frauen-Bundesliga"),
 )
 OPENLIGA_2026_COMPETITIONS = (
     ("uel2026", "UEFA Europa League"),
@@ -199,6 +198,10 @@ def _openliga_competitions(day: date) -> list[tuple[str, int, str]]:
     """Shortcuts OpenLigaDB à qualité élevée, avec saison appropriée."""
     season = _season_for(day)
     rows = [(shortcut, season, label) for shortcut, label in OPENLIGA_CORE_COMPETITIONS]
+    if season == 2026:
+        rows.append(("ffb1", 2026, "Frauen-Bundesliga"))
+    elif season == 2025:
+        rows.append(("fbl1", 2025, "Frauen-Bundesliga"))
     # Les compétitions internationales ci-dessous sont explicitement publiées
     # sous la saison 2026 dans OpenLigaDB, y compris la Coupe du monde.
     if day.year == 2026:
