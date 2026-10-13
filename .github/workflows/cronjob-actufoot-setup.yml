@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - ".github/cronjob-actufoot-setup-trigger.txt"
+      - "scripts/ensure_actufoot_cronjob.py"
+      - ".github/workflows/cronjob-actufoot-setup.yml"
 
 permissions:
   contents: read
