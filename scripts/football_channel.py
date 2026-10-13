@@ -984,6 +984,66 @@ def enough(history: History, cat: str, now: datetime) -> bool:
     return history.count(cat, now.astimezone(TZ).date()) < LIMITS[cat]
 
 
+
+def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[str, int]:
+    """Passage léger Actu Foot : aucun RSS, aucune image site, aucun appel BSD.
+
+    Les transitions viennent d'ESPN public et, si disponible, du cache Supabase
+    déjà alimenté par notre moteur live BSD+ESPN.
+    """
+    now = now.astimezone(timezone.utc)
+    state = History()
+    sender = Sender(dry_run=dry_run)
+    counter = {"sent": 0, "skipped": 0, "errors": 0}
+    max_send = MAX_MESSAGES_PER_RUN
+
+    def publish(item: Publication | None) -> None:
+        if item is None or counter["sent"] >= max_send:
+            return
+        if not force and (state.seen(item.key) or not enough(state, item.category, now)):
+            counter["skipped"] += 1
+            return
+        sender.send(item)
+        counter["sent"] += 1
+        if not dry_run:
+            state.mark(item.key, item.category, now)
+            state.save(now)
+
+    try:
+        signals = lifecycle_signals(
+            [],
+            set(state.items.keys()),
+            now,
+            sender.session,
+            importance,
+        )
+        used_matches: set[str] = set()
+        for signal in signals:
+            match_key = (
+                plain(signal.get("home"), 55).casefold()
+                + "|"
+                + plain(signal.get("away"), 55).casefold()
+            )
+            if match_key in used_matches:
+                continue
+            post = lifecycle_publication(signal)
+            if post is None:
+                continue
+            publish(post)
+            used_matches.add(match_key)
+            if counter["sent"] >= max_send:
+                break
+    except (requests.RequestException, ValueError, TypeError) as exc:
+        counter["errors"] += 1
+        print("ERREUR_LIFECYCLE_ONLY", type(exc).__name__, str(exc)[:180])
+    finally:
+        if not dry_run:
+            state.save(now)
+
+    print("XPRONOS_LIFECYCLE", json.dumps(counter), "dry_run", dry_run)
+    return counter
+
+
 def run(now: datetime, *, dry_run: bool = False, force: bool = False) -> dict[str, int]:
     now = now.astimezone(timezone.utc)
     today = now.astimezone(TZ).date()
@@ -1346,22 +1406,26 @@ def main() -> None:
     parser.add_argument("--visual-test", action="store_true",
                         help="Envoie Matchs du jour + Statistique au vrai canal")
     parser.add_argument("--force", action="store_true", help="Ignorer les limites et l'historique (test manuel)")
+    parser.add_argument("--lifecycle-only", action="store_true",
+                        help="Surveille uniquement composition/kickoff/but/mi-temps, sans RSS ni BSD")
     args = parser.parse_args()
     now = datetime.now(timezone.utc)
     if args.check_comments:
-        if args.dry_run or args.force or args.live_test or args.visual_test:
+        if args.dry_run or args.force or args.live_test or args.visual_test or args.lifecycle_only:
             parser.error("--check-comments doit etre utilise seul")
         sender = Sender(dry_run=False)
         linked = sender.verify_discussion()
         print("XPRONOS_COMMENTS_OK", linked)
     elif args.visual_test:
-        if args.dry_run or args.force or args.live_test:
+        if args.dry_run or args.force or args.live_test or args.lifecycle_only:
             parser.error("--visual-test doit etre utilise seul")
         run_visual_live_test(now)
     elif args.live_test:
-        if args.dry_run or args.force:
-            parser.error("--live-test ne peut pas etre combine avec --dry-run/--force")
+        if args.dry_run or args.force or args.lifecycle_only:
+            parser.error("--live-test ne peut pas etre combine avec --dry-run/--force/--lifecycle-only")
         run_live_test(now)
+    elif args.lifecycle_only:
+        run_lifecycle_only(now, dry_run=args.dry_run, force=args.force)
     else:
         run(now, dry_run=args.dry_run, force=args.force)
 
