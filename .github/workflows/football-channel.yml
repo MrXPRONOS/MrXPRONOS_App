@@ -159,3 +159,9 @@ jobs:
         run: python -m unittest discover -s tests_football_channel -p 'test_*.py' -v
       - name: Simulation editoriale sans publication
         run: python scripts/football_channel.py --dry-run
+      - name: Simulation cycle du match sans BSD ni publication
+        env:
+          BSD_API_KEY: ''
+          SUPABASE_URL: ''
+          SUPABASE_SERVICE_ROLE_KEY: ''
+        run: python scripts/football_channel.py --dry-run --lifecycle-only
