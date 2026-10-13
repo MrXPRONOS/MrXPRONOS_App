@@ -453,6 +453,9 @@ def enrich_bsd_events(events: List[Dict[str, Any]], snapshots: Dict[str, SourceS
             }
             evidence.append(provider)
             # Higher-quality providers may correct display facts, but never BSD model IDs.
+            if hit.get("league") and not (row.get("league_name") or row.get("competition_name")):
+                row["league_name"] = _plain(hit.get("league"))
+                row["_league_name_source"] = provider
             if provider in ("espn", "sportscore"):
                 for key in ("home_logo", "away_logo"):
                     if hit.get(key) and not row.get(key):
