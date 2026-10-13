@@ -33,6 +33,8 @@ from bsd_api import BSDClient, BSDAPIError, BSDPage  # noqa: E402
 ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
 SPORTSCORE_FIXTURES = "https://sportscore.com/api/v1/fixtures/"
 SPORTSCORE_MATCH = "https://sportscore.com/api/widget/match/"
+SPORTSCORE_TEAM = "https://sportscore.com/api/widget/team/"
+SPORTSCORE_H2H = "https://sportscore.com/api/v1/h2h/"
 THESPORTSDB_BASE = "https://www.thesportsdb.com/api/v1/json/123"
 OPENLIGADB_BASE = "https://api.openligadb.de"
 
@@ -525,6 +527,98 @@ def fetch_sportscore_match_detail(session: requests.Session, slug: str, *, live:
     return payload if isinstance(payload, dict) else {}
 
 
+def _slug(value: Any) -> str:
+    raw = unicodedata.normalize("NFKD", _plain(value)).encode("ascii", "ignore").decode().casefold()
+    return re.sub(r"[^a-z0-9]+", "-", raw).strip("-")
+
+
+def fetch_sportscore_team(session: requests.Session, team_name: str, limit: int = 30) -> list[dict]:
+    slug = _slug(team_name)
+    if not slug:
+        return []
+    payload = _request_json(
+        session, SPORTSCORE_TEAM,
+        params={"sport": "football", "slug": slug, "limit": max(1, min(30, int(limit))), "src": "mrxpronos"},
+        ttl=300,
+        cache_key=f"mesh:sportscore:team:{slug}:{limit}",
+    )
+    rows = _sportscore_match_rows(payload)
+    if not rows and isinstance(payload, dict):
+        for key in ("past", "recent", "upcoming", "matches", "fixtures"):
+            value = payload.get(key)
+            if isinstance(value, list):
+                rows.extend(x for x in value if isinstance(x, dict))
+    out = []
+    for item in rows:
+        parsed = normalize_sportscore_match(item)
+        if parsed:
+            out.append(parsed)
+    return merge_events(out)
+
+
+def fetch_sportscore_h2h(session: requests.Session, home: str, away: str, limit: int = 20) -> dict:
+    h, a = _slug(home), _slug(away)
+    if not h or not a:
+        return {}
+    payload = _request_json(
+        session, SPORTSCORE_H2H,
+        params={"sport": "football", "team1": h, "team2": a, "limit": max(1, min(50, int(limit))), "src": "mrxpronos"},
+        ttl=1800,
+        cache_key=f"mesh:sportscore:h2h:{h}:{a}:{limit}",
+    )
+    return payload if isinstance(payload, dict) else {}
+
+
+def _finished(row: dict) -> bool:
+    return _plain(row.get("status")).casefold() in {"finished", "ft", "full_time"}
+
+
+def h2h_summary(rows: list[dict], home: str, away: str, limit: int = 10) -> dict:
+    recent = []
+    hw = aw = dr = hg = ag = 0
+    for row in sorted(rows, key=lambda x: _plain(x.get("event_date")), reverse=True):
+        if not _finished(row):
+            continue
+        hs, aws = _number(row.get("home_score")), _number(row.get("away_score"))
+        if hs is None or aws is None:
+            continue
+        same = _similarity(row.get("home_team"), home) >= 0.45 and _similarity(row.get("away_team"), away) >= 0.45
+        reversed_order = _similarity(row.get("home_team"), away) >= 0.45 and _similarity(row.get("away_team"), home) >= 0.45
+        if not (same or reversed_order):
+            continue
+        fh, fa = (hs, aws) if same else (aws, hs)
+        if fh > fa:
+            hw += 1
+        elif fh < fa:
+            aw += 1
+        else:
+            dr += 1
+        hg += fh
+        ag += fa
+        recent.append({
+            "date": row.get("event_date"),
+            "home_score": hs,
+            "away_score": aws,
+            "fixture_home_goals": fh,
+            "fixture_away_goals": fa,
+            "source": row.get("source"),
+        })
+        if len(recent) >= limit:
+            break
+    total = len(recent)
+    return {
+        "source": "provider_mesh",
+        "total_matches": total,
+        "home_wins": hw,
+        "away_wins": aw,
+        "draws": dr,
+        "home_goals": hg,
+        "away_goals": ag,
+        "avg_total_goals": round((hg + ag) / total, 3) if total else None,
+        "recent_matches": recent,
+    }
+
+
 @dataclass
 class MeshPage:
     events: list[dict]
@@ -654,6 +748,89 @@ class FreeFirstFootballClient:
             bsd_used=bsd_used,
             bsd_requests=max(0, bsd_after - bsd_before),
         )
+
+    def list_team_recent_events(
+        self,
+        *,
+        team_id: int | None = None,
+        team_name: str = "",
+        before: date | None = None,
+        limit: int = 8,
+        ttl: int = 900,
+    ) -> list[dict]:
+        """SportScore team schedule d'abord, BSD seulement si insuffisant."""
+        rows: list[dict] = []
+        try:
+            rows = fetch_sportscore_team(self.session, team_name, max(limit * 2, 12))
+            self.requests_by_provider["sportscore"] += 1
+        except (requests.RequestException, ValueError, TypeError):
+            rows = []
+        cutoff = before or datetime.now(timezone.utc).date()
+        finished = [
+            row for row in rows
+            if _finished(row)
+            and (_moment(row.get("event_date")) is None or _moment(row.get("event_date")).date() <= cutoff)
+        ]
+        finished.sort(key=lambda x: _plain(x.get("event_date")), reverse=True)
+        if len(finished) >= min(5, limit):
+            self.bsd_requests_saved += 1
+            return finished[:limit]
+        try:
+            bsd_rows = self.bsd.list_team_recent_events(
+                team_id=team_id,
+                team_name=team_name,
+                before=before,
+                limit=limit,
+                ttl=ttl,
+            )
+            out = []
+            for item in bsd_rows:
+                row = dict(item)
+                row["source"] = "bsd"
+                row["source_quality"] = PROVIDER_QUALITY["bsd"]
+                row["sources"] = ["bsd"]
+                row["provider_ids"] = {"bsd": _plain(item.get("id"))}
+                out.append(row)
+            return merge_events(finished + out)[:limit]
+        except (BSDAPIError, ValueError, TypeError):
+            return finished[:limit]
+
+    def get_h2h(self, fixture: dict, *, limit: int = 20) -> dict:
+        home = _plain(fixture.get("home_team"))
+        away = _plain(fixture.get("away_team"))
+        try:
+            payload = fetch_sportscore_h2h(self.session, home, away, limit)
+            self.requests_by_provider["sportscore"] += 1
+            rows = []
+            for item in _sportscore_match_rows(payload):
+                parsed = normalize_sportscore_match(item)
+                if parsed:
+                    rows.append(parsed)
+            if not rows and isinstance(payload, dict):
+                for key in ("meetings", "matches", "results"):
+                    value = payload.get(key)
+                    if isinstance(value, list):
+                        for item in value:
+                            parsed = normalize_sportscore_match(item) if isinstance(item, dict) else None
+                            if parsed:
+                                rows.append(parsed)
+            summary = h2h_summary(rows, home, away, limit=10)
+            if summary["total_matches"] > 0:
+                self.bsd_requests_saved += 1
+                summary["provider"] = "sportscore"
+                return summary
+        except (requests.RequestException, ValueError, TypeError):
+            pass
+        bsd_id = (fixture.get("provider_ids") or {}).get("bsd") or fixture.get("id")
+        if str(bsd_id).isdigit():
+            try:
+                remote = self.bsd.get_h2h(int(bsd_id), ttl=86400)
+                if isinstance(remote, dict):
+                    remote = remote.get("head_to_head") if isinstance(remote.get("head_to_head"), dict) else remote
+                    return {**remote, "provider": "bsd", "source": "api"}
+            except (BSDAPIError, ValueError):
+                pass
+        return {"source": "unavailable", "provider": "", "total_matches": 0}
 
     def find_event(
         self,
