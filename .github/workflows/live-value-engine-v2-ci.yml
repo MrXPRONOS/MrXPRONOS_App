@@ -25,3 +25,5 @@ jobs:
           deno-version: v2.x
       - name: Type-check live Edge Function
         run: deno check --node-modules-dir=auto supabase/functions/live/index.ts
+      - name: Test free football provider normalization
+        run: deno test supabase/tests/free_football_test.ts
