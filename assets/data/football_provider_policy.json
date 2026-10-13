@@ -1,0 +1,24 @@
+{
+  "updated_at": "2026-10-13",
+  "facts_quality_order": [
+    {"provider": "ESPN", "score": 98, "role": "faits de match, timeline, compositions, stats, validation directe"},
+    {"provider": "BSD", "score": 96, "role": "couverture étendue, archive, marchés et cotes documentées"},
+    {"provider": "SportScore", "score": 91, "role": "couverture gratuite, live, détails, H2H, forme; attribution requise"},
+    {"provider": "OpenLigaDB", "score": 84, "role": "résultats, buts, classements et ligues couvertes"},
+    {"provider": "TheSportsDB", "score": 80, "role": "détails, timeline, lineups et stats en fallback gratuit"}
+  ],
+  "fetch_priority_to_reduce_bsd": ["ESPN", "SportScore", "OpenLigaDB", "TheSportsDB", "BSD"],
+  "odds": {
+    "prematch": ["BSD"],
+    "live": [],
+    "sportscore_site_displays_odds": true,
+    "sportscore_public_api_odds_documented": false,
+    "sportscore_scraping_allowed": false,
+    "note": "Ne pas extraire les cotes du site SportScore. Les utiliser seulement si un endpoint odds officiel est publié."
+  },
+  "live_policy": {
+    "bsd_discovery_skip_ratio": 0.85,
+    "free_stats_before_bsd": true,
+    "preserve_bsd_numeric_id_when_bsd_is_used": true
+  }
+}
