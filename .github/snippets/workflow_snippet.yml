@@ -1,0 +1,53 @@
+# À ajouter après la génération de daily_pronos_shorts.mp4
+- name: Install social publishing dependencies
+  run: |
+    python -m pip install --upgrade pip
+    pip install -r requirements_social.txt
+
+- name: Publish Shorts video to social platforms
+  run: |
+    python scripts/post_shorts_video.py \
+      --video daily_pronos_shorts.mp4 \
+      --platforms "$POST_PLATFORMS" \
+      --title "Pronos du jour - Mr XPRONOS" \
+      --description "Voici les pronos du jour Mr XPRONOS. Analyse rapide, 18+ et joue responsablement."
+  env:
+    POST_PLATFORMS: facebook,youtube
+    POST_CAPTION: |
+      Voici les pronos du jour ⚽
+      Analyse rapide • 18+ • Joue responsablement.
+
+      #football #pronostic #pronosdujour #mrxpronos
+
+    # Facebook Page
+    META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+    META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+
+    # Instagram Reels
+    IG_USER_ID: ${{ secrets.IG_USER_ID }}
+    META_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+
+    # Threads
+    THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
+    THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
+
+    # TikTok
+    TIKTOK_ACCESS_TOKEN: ${{ secrets.TIKTOK_ACCESS_TOKEN }}
+    TIKTOK_PRIVACY_LEVEL: PUBLIC_TO_EVERYONE
+
+    # YouTube
+    YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+    YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+    YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+    YOUTUBE_PRIVACY_STATUS: public
+
+    # Option pour Instagram/Threads : créer une URL publique Supabase automatiquement
+    SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+    SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+    SUPABASE_BUCKET: videos
+
+- name: Upload social publish report
+  uses: actions/upload-artifact@v4
+  with:
+    name: social_post_results
+    path: social_post_results.json
