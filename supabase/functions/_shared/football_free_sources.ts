@@ -551,7 +551,10 @@ export async function fetchFreeLiveProviders() {
     meta: {
       sportscore_matches: sportscore.matches.length,
       thesportsdb_matches: thesportsdb.matches.length,
+      thesportsdb_details_fetched: thesportsdb.details_fetched || 0,
       openligadb_matches: openligadb.matches.length,
+      openligadb_calendar_matches: openligadb.calendar_matches || 0,
+      openligadb_competitions_checked: openligadb.competitions_checked || 0,
       sportscore_error: sportscore.error,
       thesportsdb_error: thesportsdb.error,
       openligadb_error: openligadb.error,
