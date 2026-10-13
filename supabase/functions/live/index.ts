@@ -6198,10 +6198,12 @@ async function fetchEspnFinalForPrediction(pred: any, stored: any) {
   }
 }
 
-async function resolveFinalEventAndStats(pred: any) {
+async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefined) {
   const predictionType = String(pred?.prediction_type || "");
   const isHistoricalValidated = pred?.validated === true;
-  const stored = await getStoredMergedContextForPrediction(pred);
+  const stored = storedOverride === undefined
+    ? await getStoredMergedContextForPrediction(pred)
+    : storedOverride;
 
   // Pour l’historique déjà validé, ESPN est plus fiable que BSD pour retrouver
   // un match qui a disparu du catalogue événementiel BSD.
@@ -6300,6 +6302,34 @@ async function validatePredictionsNow() {
 
   if (!pending.length) return { validated: 0, finalized_existing: 0, skipped: 0, failed: 0 };
 
+  // Read final-match context for all pending predictions once instead of one DB call per bet.
+  const storedByMatch = new Map<string, any>();
+  let bulkContextLoaded = false;
+  const matchIds = [...new Set(pending.map((p: any) => String(p?.match_id || "")).filter(Boolean))];
+  if (matchIds.length) {
+    const { data: contexts, error: bulkError } = await supabase
+      .from(T_STATS_MERGED)
+      .select("primary_match_id, event_date, home_team, away_team, is_finished, minute, merged_stats, merged_match_json, updated_at")
+      .in("primary_match_id", matchIds)
+      .order("updated_at", { ascending: false })
+      .limit(200);
+    if (!bulkError) {
+      bulkContextLoaded = true;
+      for (const row of contexts || []) {
+        const matchId = String(row?.primary_match_id || "");
+        if (matchId && !storedByMatch.has(matchId)) storedByMatch.set(matchId, row);
+      }
+    } else {
+      console.warn("Bulk final contexts unavailable; using per-match fallback", bulkError);
+    }
+  }
+  // Date grouping improves cache locality when historical predictions span many matchdays.
+  pending.sort((a: any, b: any) => {
+    const left = storedByMatch.get(String(a?.match_id))?.event_date || a?.created_at;
+    const right = storedByMatch.get(String(b?.match_id))?.event_date || b?.created_at;
+    return toDateKey(left).localeCompare(toDateKey(right));
+  });
+
   let validated = 0;
   let finalizedExisting = 0;
   let skipped = 0;
@@ -6316,7 +6346,10 @@ async function validatePredictionsNow() {
     const isHistoricalPending =
       pred.validated !== true &&
       String(pred.created_at || "") < backlogCutoff;
-    const resolvedFinal = await resolveFinalEventAndStats(pred);
+    const stored = bulkContextLoaded
+      ? (storedByMatch.get(String(pred?.match_id)) || null)
+      : undefined;
+    const resolvedFinal = await resolveFinalEventAndStats(pred, stored);
     if (!resolvedFinal) {
       bumpSkip("final_source_unavailable");
       continue;
