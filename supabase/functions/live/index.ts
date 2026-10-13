@@ -7707,7 +7707,25 @@ async function dailyGenerateSnapshots() {
 
     // BSD charge le calendrier uniquement si au moins un prono n'est pas
     // identifiable dans les sources gratuites.
-    const freeUnmatched = pronos.filter((p: any) => !dailyFindEventForProno(p, events));
+    let freeUnmatched = pronos.filter((p: any) => !dailyFindEventForProno(p, events));
+
+    // Recherche ciblée gratuite (inclut OpenLigaDB) avant toute journée BSD.
+    const targetedFree: any[] = [];
+    for (const p of freeUnmatched.slice(0, 12)) {
+      try {
+        const found = await findFreeProviderMatch({
+          home_team: p?.home_team,
+          away_team: p?.away_team,
+          event_date: p?.event_date || `${date}T12:00:00Z`,
+        });
+        if (found) targetedFree.push(found);
+      } catch {}
+    }
+    if (targetedFree.length) {
+      events = mergeProviderEvents([...events, ...targetedFree]);
+      freeUnmatched = pronos.filter((p: any) => !dailyFindEventForProno(p, events));
+    }
+
     if (freeUnmatched.length && BSD_API_TOKEN) {
       events = await dailyFetchAllEventsForDate(date, true);
       bsdCalendarBackfillUsed = true;
@@ -7959,7 +7977,22 @@ async function dailyValidateSnapshots() {
     try {
       events = (await dailyFetchAllEventsForDate(date, false)).filter(isFinishedEvent);
 
-      const unmatched = preds.filter((p: any) => !dailyFindEventForProno(p, events));
+      let unmatched = preds.filter((p: any) => !dailyFindEventForProno(p, events));
+      const targeted: any[] = [];
+      for (const p of unmatched.slice(0, 12)) {
+        try {
+          const found = await findFreeProviderMatch({
+            home_team: p?.home_team,
+            away_team: p?.away_team,
+            event_date: p?.kickoff || `${date}T12:00:00Z`,
+          });
+          if (found?.is_finished || isFinishedEvent(found)) targeted.push(found);
+        } catch {}
+      }
+      if (targeted.length) {
+        events = mergeProviderEvents([...events, ...targeted]).filter(isFinishedEvent);
+        unmatched = preds.filter((p: any) => !dailyFindEventForProno(p, events));
+      }
       if (unmatched.length && BSD_API_TOKEN) {
         events = (await dailyFetchAllEventsForDate(date, true)).filter(isFinishedEvent);
       }
