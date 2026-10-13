@@ -3939,6 +3939,268 @@ function mergeOriginalAndEspnMatches(originalMatches: any[], espnMatches: any[],
   };
 }
 
+function mergeAdditionalProviderMatches(
+  baseMatches: any[],
+  providerMatches: any[],
+  providerName: "sportscore" | "thesportsdb" | "openligadb",
+) {
+  const out = [...(baseMatches || [])];
+  const sourceRows: any[] = [];
+  let merged = 0;
+  let providerOnly = 0;
+  const quality = safeNumber(FREE_SOURCE_QUALITY?.[providerName]?.overall, 60);
+
+  for (const provider of providerMatches || []) {
+    sourceRows.push(sourceRowFromMatch(provider, providerName));
+    let bestIndex = -1;
+    let bestScore = 0;
+    for (let i = 0; i < out.length; i++) {
+      const score = sameMatchScore(out[i], provider);
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = i;
+      }
+    }
+
+    if (bestIndex >= 0 && bestScore >= 0.72) {
+      const current = out[bestIndex];
+      const currentStats = getMatchLiveStats(current);
+      const providerStats = getMatchLiveStats(provider);
+      const currentMinute = safeNumber(current?.current_minute ?? current?.minute, 0);
+      const providerMinute = safeNumber(provider?.current_minute ?? provider?.minute, 0);
+      const refs = {
+        ...(current?.raw_data?.provider_refs || {}),
+        [providerName]: {
+          id: String(provider?.source_match_id || provider?.id || ""),
+          slug: String(provider?.raw_data?.sportscore_slug || ""),
+          quality,
+        },
+      };
+      const sources = [
+        ...new Set([
+          ...((current?.raw_data?.merge_meta?.sources || []) as string[]),
+          providerName,
+        ]),
+      ];
+      const providerIsFresher = providerMinute >= currentMinute &&
+        Boolean(provider?.is_live || provider?.is_finished);
+
+      out[bestIndex] = {
+        ...current,
+        current_minute: Math.max(currentMinute, providerMinute),
+        home_score:
+          (current?.home_score == null || providerIsFresher)
+            ? (provider?.home_score ?? current?.home_score)
+            : current?.home_score,
+        away_score:
+          (current?.away_score == null || providerIsFresher)
+            ? (provider?.away_score ?? current?.away_score)
+            : current?.away_score,
+        home_logo: current?.home_logo || provider?.home_logo || null,
+        away_logo: current?.away_logo || provider?.away_logo || null,
+        live_stats: mergeLiveStats(currentStats, providerStats),
+        stats_last_updated_at:
+          provider?.stats_last_updated_at ||
+          current?.stats_last_updated_at ||
+          null,
+        raw_data: {
+          ...(current?.raw_data || {}),
+          provider_refs: refs,
+          merge_meta: {
+            ...(current?.raw_data?.merge_meta || {}),
+            canonical_match_id:
+              current?.raw_data?.merge_meta?.canonical_match_id ||
+              buildCanonicalMatchId(current),
+            sources,
+            confidence_score: Math.max(
+              safeNumber(current?.raw_data?.merge_meta?.confidence_score, 0),
+              Math.round(bestScore * 100),
+              Math.min(95, quality),
+            ),
+            primary_source:
+              current?.raw_data?.merge_meta?.primary_source || "api_original",
+            merged_at: nowIso(),
+          },
+        },
+      };
+      merged++;
+    } else {
+      const stats = ensureLiveStatsShape(getMatchLiveStats(provider));
+      out.push({
+        ...provider,
+        live_stats: stats,
+        raw_data: {
+          ...(provider?.raw_data || {}),
+          provider_refs: {
+            [providerName]: {
+              id: String(provider?.source_match_id || provider?.id || ""),
+              slug: String(provider?.raw_data?.sportscore_slug || ""),
+              quality,
+            },
+          },
+          merge_meta: {
+            canonical_match_id: buildCanonicalMatchId(provider),
+            sources: [providerName],
+            confidence_score: Math.min(90, quality),
+            primary_source: providerName,
+            merged_at: nowIso(),
+          },
+          live_stats: stats,
+        },
+      });
+      providerOnly++;
+    }
+  }
+
+  return { matches: out, sourceRows, merged, providerOnly };
+}
+
+async function enrichLiveMatchesWithFreeStats(matches: any[]) {
+  const out = [...(matches || [])];
+  let sportscoreCalls = 0;
+  let thesportsdbCalls = 0;
+  let enriched = 0;
+  let oddsSectionsDetected = 0;
+  const maxSportScore = Math.max(
+    0,
+    Math.min(8, safeEnvInt("SPORTSCORE_STATS_MAX_CALLS_PER_REFRESH", 4)),
+  );
+  const maxTsdb = Math.max(
+    0,
+    Math.min(5, safeEnvInt("THESPORTSDB_STATS_MAX_CALLS_PER_REFRESH", 2)),
+  );
+
+  const candidates = out
+    .map((m: any, index: number) => ({ m, index }))
+    .filter(({ m }) => {
+      const minute = safeNumber(m?.current_minute ?? m?.minute, 0);
+      if (minute < 5 || minute > 90) return false;
+      return statsCompleteness(getMatchLiveStats(m)).core_complete < 3;
+    })
+    .sort((a, b) =>
+      statsCompleteness(getMatchLiveStats(a.m)).core_complete -
+      statsCompleteness(getMatchLiveStats(b.m)).core_complete
+    );
+
+  for (const { m, index } of candidates) {
+    let current = out[index];
+    let before = statsCompleteness(getMatchLiveStats(current)).core_complete;
+    const refs = current?.raw_data?.provider_refs || {};
+
+    if (
+      before < 3 &&
+      sportscoreCalls < maxSportScore &&
+      refs?.sportscore?.slug
+    ) {
+      try {
+        sportscoreCalls++;
+        const payload = await fetchSportScoreDetail(String(refs.sportscore.slug));
+        const detail = normalizeSportScoreDetail(payload);
+        if (detail?.odds_probe?.available) oddsSectionsDetected++;
+        const mergedStats = mergeLiveStats(
+          getMatchLiveStats(current),
+          detail?.stats || {},
+          true,
+        );
+        const after = statsCompleteness(mergedStats).core_complete;
+        if (after > before) {
+          current = {
+            ...current,
+            live_stats: mergedStats,
+            stats_last_updated_at: nowIso(),
+            raw_data: {
+              ...(current?.raw_data || {}),
+              live_stats: mergedStats,
+              sportscore_detail: {
+                has_lineups: Boolean(detail?.lineups),
+                timeline_count: Array.isArray(detail?.timeline)
+                  ? detail.timeline.length
+                  : 0,
+                odds_probe: detail?.odds_probe || null,
+              },
+              stats_sources: [
+                ...new Set([
+                  ...((current?.raw_data?.stats_sources || []) as string[]),
+                  "sportscore_stats",
+                ]),
+              ],
+              stats_authority: "sportscore_stats",
+            },
+          };
+          before = after;
+          enriched++;
+        } else if (detail?.odds_probe?.available) {
+          current = {
+            ...current,
+            raw_data: {
+              ...(current?.raw_data || {}),
+              sportscore_detail: {
+                ...((current?.raw_data?.sportscore_detail || {}) as any),
+                odds_probe: detail.odds_probe,
+              },
+            },
+          };
+        }
+      } catch (e) {
+        console.warn("SportScore detail unavailable", refs?.sportscore?.slug, e);
+      }
+    }
+
+    if (
+      before < 3 &&
+      thesportsdbCalls < maxTsdb &&
+      refs?.thesportsdb?.id
+    ) {
+      try {
+        const rawId = String(refs.thesportsdb.id).replace(/^thesportsdb:/, "");
+        if (/^\d+$/.test(rawId)) {
+          thesportsdbCalls++;
+          const detail = await fetchTheSportsDbStats(rawId);
+          const mergedStats = mergeLiveStats(
+            getMatchLiveStats(current),
+            detail?.stats || {},
+            true,
+          );
+          const after = statsCompleteness(mergedStats).core_complete;
+          if (after > before) {
+            current = {
+              ...current,
+              live_stats: mergedStats,
+              stats_last_updated_at: nowIso(),
+              raw_data: {
+                ...(current?.raw_data || {}),
+                live_stats: mergedStats,
+                stats_sources: [
+                  ...new Set([
+                    ...((current?.raw_data?.stats_sources || []) as string[]),
+                    "thesportsdb_stats",
+                  ]),
+                ],
+                stats_authority: "thesportsdb_stats",
+              },
+            };
+            before = after;
+            enriched++;
+          }
+        }
+      } catch (e) {
+        console.warn("TheSportsDB stats unavailable", refs?.thesportsdb?.id, e);
+      }
+    }
+
+    out[index] = current;
+  }
+
+  return {
+    matches: out,
+    calls: sportscoreCalls + thesportsdbCalls,
+    sportscore_calls: sportscoreCalls,
+    thesportsdb_calls: thesportsdbCalls,
+    enriched,
+    odds_sections_detected: oddsSectionsDetected,
+  };
+}
+
 function applyPredictionQualityContext(match: any, pred: any) {
   if (!pred) return pred;
   const mergeMeta = match?.raw_data?.merge_meta || {};
