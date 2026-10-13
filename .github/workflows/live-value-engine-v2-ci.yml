@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'supabase/functions/live/**'
+      - 'supabase/functions/_shared/free-football.ts'
+      - 'supabase/functions/_shared/espn.ts'
       - 'supabase/migrations/20261009000100_live_value_engine_v2.sql'
       - '.github/workflows/live-value-engine-v2-ci.yml'
   workflow_dispatch:
