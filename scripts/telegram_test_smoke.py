@@ -4,7 +4,16 @@ from __future__ import annotations
 import io,os
 from datetime import datetime,timezone
 import requests
+import sys
+from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
+
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/"bsd"))
+sys.path.insert(0,str(ROOT/"scripts"))
+from bsd_v2_captions import combo_caption
+from football_channel import structured_plain, esc
+from telegram_rich import post_photo
 
 def font(size,bold=False):
     paths=[
@@ -39,7 +48,8 @@ def main():
     buf=io.BytesIO()
     build().save(buf,"PNG",optimize=True)
     buf.seek(0)
-    response=requests.post(
+    session=requests.Session()
+    response=session.post(
         "https://api.telegram.org/bot"+token+"/sendPhoto",
         data={"chat_id":chat,
               "caption":"🧪 Mr XPRONOS — canal de test opérationnel.\nCe message ne doit jamais apparaître sur le canal de production."},
@@ -51,5 +61,43 @@ def main():
     if data.get("ok") is not True:
         raise SystemExit("Telegram n'a pas confirmé l'envoi")
     print("TELEGRAM_TEST_SMOKE_OK message_id",data.get("result",{}).get("message_id"))
+
+    # Test réel du chemin combiné: même caption builder + même transport Rich Message.
+    combo={
+        "event_date":"2026-10-13T18:00:00+00:00",
+        "combined_odds":1.96,
+        "legs":[
+            {"home_team":"Arsenal","away_team":"Chelsea","event_date":"2026-10-13T18:00:00+00:00",
+             "prediction":{"selection_key":"HOME_OR_DRAW","type":"Double chance","odds":1.42}},
+            {"home_team":"Milan","away_team":"Inter","event_date":"2026-10-13T20:00:00+00:00",
+             "prediction":{"selection_key":"OVER_15","type":"Plus de 1,5","odds":1.38}},
+        ],
+    }
+    buf.seek(0)
+    combo_id=post_photo(
+        session,token,chat,buf,combo_caption(combo),
+        {"inline_keyboard":[]},timeout=60,mime="image/png"
+    )
+    print("TELEGRAM_TEST_COMBO_FORMAT_OK message_id",combo_id)
+
+    # Test Actu Foot: récupère volontairement un texte compact 1:/2./3)
+    # puis passe par la fonction corrigée avant le transport Telegram.
+    compact=(
+        "Trois points à retenir : 1: Arsenal récupère deux titulaires "
+        "2. Chelsea conserve son onze habituel "
+        "3) Le coup d'envoi reste confirmé à 12:30 malgré le score précédent 1:0."
+    )
+    summary=structured_plain(compact,430)
+    news_caption=(
+        "<b>🧪 TEST ACTU FOOT — LISTE NUMÉROTÉE</b>\n\n"
+        "<blockquote>"+esc(summary)+"</blockquote>\n\n"
+        "<i>Canal de test uniquement.</i>"
+    )
+    buf.seek(0)
+    news_id=post_photo(
+        session,token,chat,buf,news_caption,
+        {"inline_keyboard":[]},timeout=60,mime="image/png"
+    )
+    print("TELEGRAM_TEST_ACTU_FORMAT_OK message_id",news_id)
 
 if __name__=="__main__":main()
