@@ -33,6 +33,12 @@ from bsd_h2h import hybrid_h2h  # noqa: E402
 from telegram_rich import post_photo, post_text  # noqa: E402
 from football_match_lifecycle import lifecycle_signals  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
+from football_community_engine import (  # noqa: E402
+    build_match_vote,
+    build_stats_quiz,
+    build_news_debate,
+    build_postmatch_reaction,
+)
 
 TZ = ZoneInfo("Africa/Lome")
 STATE_PATH = Path(os.getenv("FOOTBALL_NEWS_STATE", ".state/mrxpronos-football.json"))
@@ -40,7 +46,8 @@ RSS_URL = os.getenv("FOOTBALL_RSS_FEED", "https://www.footmercato.net/flux-rss")
 NEWS_CHAT_ENV = "FOOTBALL_NEWS_CHAT_ID"
 MAX_MESSAGES_PER_RUN = 2
 LIMITS = {"flash": 2, "programme": 1, "avant_match": 2, "resultat": 2,
-          "statistique": 1, "sondage": 1, "composition": 6, "kickoff": 8,
+          "statistique": 1, "sondage": 1, "quiz": 1, "debat": 1,
+          "reaction": 1, "composition": 6, "kickoff": 8,
           "goal": 14, "mi_temps": 8}
 LEAGUE_TERMS = (
     "champions league", "premier league", "ligue 1", "la liga", "laliga",
@@ -73,7 +80,10 @@ CATEGORY_LABELS = {
     "avant_match": "🔎 AVANT-MATCH",
     "resultat": "🏁 RÉSULTAT FINAL",
     "statistique": "📊 LA STAT DU JOUR",
-    "sondage": "🗳️ LE DÉBAT XPRONOS",
+    "sondage": "🗳️ VOTE DU JOUR",
+    "quiz": "🧠 QUIZ FOOT",
+    "debat": "💬 DÉBAT DU JOUR",
+    "reaction": "⭐ RÉACTION DU SOIR",
     "composition": "📋 COMPOSITIONS OFFICIELLES",
     "kickoff": "▶️ COUP D’ENVOI",
     "goal": "⚽ BUT",
@@ -89,6 +99,8 @@ EDITORIAL_WINDOWS = {
     "flash_morning": ((8, 45), (10, 0)),  # cible 09h00
     "statistique": ((12, 15), (13, 15)),  # cible 12h30
     "sondage": ((14, 45), (15, 45)),      # cible 15h00
+    "community_evening": ((17, 45), (18, 45)), # cible 18h00
+    "community_reaction": ((21, 0), (22, 45)), # après les grosses affiches
 }
 PRODUCTION_START_HOUR = 7
 PRODUCTION_END_HOUR = 23
@@ -354,6 +366,12 @@ class Publication:
     card: dict[str, Any] | None = None
     image_path: str | None = None
     keyboard: dict[str, Any] | None = None
+    poll_type: str = "regular"
+    correct_option_ids: list[int] | None = None
+    poll_explanation: str = ""
+    poll_description: str = ""
+    poll_shuffle: bool = False
+    poll_allows_revoting: bool = True
 
 
 class Sender:
@@ -424,15 +442,31 @@ class Sender:
                         "<h3>🗳️ LE DÉBAT DU JOUR • MR XPRONOS</h3><p><i>Votez dans le sondage ci-dessous.</i></p>",
                         {}, timeout=70, mime="image/png",
                     )
+            poll_options = [{"text": plain(option, 100)} for option in options if plain(option, 100)]
+            if len(poll_options) < 2:
+                raise RuntimeError("Sondage Telegram invalide: moins de deux options")
+            poll_data = {
+                "chat_id": self.chat,
+                "question": question[:300],
+                "options": json.dumps(poll_options, ensure_ascii=False),
+                "is_anonymous": "true",
+                "type": item.poll_type if item.poll_type in {"regular", "quiz"} else "regular",
+                "allows_multiple_answers": "false",
+                "allows_revoting": "true" if item.poll_allows_revoting else "false",
+                "shuffle_options": "true" if item.poll_shuffle else "false",
+            }
+            if item.poll_description:
+                poll_data["description"] = plain(item.poll_description, 1024)
+            if item.poll_type == "quiz":
+                ids = sorted(set(int(x) for x in (item.correct_option_ids or []) if int(x) >= 0))
+                if not ids:
+                    raise RuntimeError("Quiz Telegram sans réponse correcte")
+                poll_data["correct_option_ids"] = json.dumps(ids)
+                poll_data["explanation"] = plain(item.poll_explanation, 200)
+                poll_data["allows_revoting"] = "false"
             response = self.session.post(
                 "https://api.telegram.org/bot" + self.token + "/sendPoll",
-                data={
-                    "chat_id": self.chat,
-                    "question": question[:300],
-                    "options": json.dumps(options, ensure_ascii=False),
-                    "is_anonymous": "true",
-                    "allows_multiple_answers": "false",
-                },
+                data=poll_data,
                 timeout=(12, 55),
             )
             response.raise_for_status()
