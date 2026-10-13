@@ -10,11 +10,11 @@ Deno.test("provider quality order keeps ESPN and BSD above free fallbacks", () =
   if (!(FOOTBALL_PROVIDER_QUALITY.bsd > FOOTBALL_PROVIDER_QUALITY.sportscore)) {
     throw new Error("BSD must outrank SportScore");
   }
-  if (!(FOOTBALL_PROVIDER_QUALITY.sportscore > FOOTBALL_PROVIDER_QUALITY.thesportsdb)) {
-    throw new Error("SportScore must outrank TheSportsDB");
+  if (!(FOOTBALL_PROVIDER_QUALITY.sportscore > FOOTBALL_PROVIDER_QUALITY.openligadb)) {
+    throw new Error("SportScore must outrank OpenLigaDB");
   }
-  if (!(FOOTBALL_PROVIDER_QUALITY.thesportsdb > FOOTBALL_PROVIDER_QUALITY.openligadb)) {
-    throw new Error("TheSportsDB must outrank OpenLigaDB");
+  if (!(FOOTBALL_PROVIDER_QUALITY.openligadb > FOOTBALL_PROVIDER_QUALITY.thesportsdb)) {
+    throw new Error("OpenLigaDB must outrank TheSportsDB");
   }
 });
 
@@ -64,7 +64,10 @@ Deno.test("SportScore live adapter normalizes match and stats without assuming d
     if (match.live_stats.home.corner_kicks !== 4) throw new Error("corners not normalized");
     if (match.live_stats.away.shots_on_target !== 2) throw new Error("shots on target not normalized");
     if (match.raw_data.sportscore_odds !== null) {
-      throw new Error("adapter invented SportScore odds");
+      throw new Error("adapter exposed undocumented SportScore odds");
+    }
+    if (match.raw_data.sportscore_odds_api_documented !== false) {
+      throw new Error("SportScore odds contract must remain marked undocumented");
     }
   } finally {
     globalThis.fetch = previous;
