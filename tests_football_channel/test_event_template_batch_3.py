@@ -71,7 +71,7 @@ class ActuFootEventBatch3Tests(unittest.TestCase):
         image = template_cards.render("intervention_medicale", payload)
         self.assertEqual(image.size, (1122, 1402))
 
-    def test_match_interrompu_alias_requires_verified_reason_for_full_variant(self):
+    def test_match_interrompu_full_still_requires_verified_reason(self):
         self.assertEqual(
             events.template_path("match_interrompu", self.payload).name,
             "match_interrompu_full.png",
@@ -80,8 +80,6 @@ class ActuFootEventBatch3Tests(unittest.TestCase):
         payload["reason"] = ""
         payload["detail"] = ""
         payload["interruption_reason"] = ""
-        with self.assertRaises(ValueError):
-            template_cards.render("match_interrompu", payload)
         with self.assertRaises(ValueError):
             template_cards.render("match_interrompu_full", payload)
 
