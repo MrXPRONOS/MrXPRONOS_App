@@ -30,6 +30,10 @@ import numpy as np
 import requests
 from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
+# MoviePy 1.0.3 compatibility with Pillow >= 10.
+if not hasattr(Image, "ANTIALIAS"):
+    Image.ANTIALIAS = Image.Resampling.LANCZOS
+
 ROOT = Path.cwd()
 WORK = ROOT / "telegram_out" / "shorts_premium"
 SCENES = WORK / "scenes"
