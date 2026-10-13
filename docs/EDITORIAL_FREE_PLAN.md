@@ -68,3 +68,11 @@ python scripts/editorial_quality.py --strict
 
 ### Confidentialité Supabase (audit indépendant)
 Le projet Supabase existant présente des tables publiques sans RLS et une politique de lecture anonyme ouverte sur \`analytics\`. Ces paramètres existaient avant la phase 3. Ils nécessitent une **revue de sécurité distincte** avant toute modification: activer RLS sans préparer les politiques pourrait casser le site. Cette phase n'a changé ni le schéma ni les politiques de la base.
+
+
+### Publication Threads en option
+- \`scripts/editorial_threads.py\` utilise les deux opérations officielles Meta \`/threads\` (création du conteneur texte avec \`link_attachment\`) puis \`/threads_publish\` (confirmation de publication).
+- Utilise exclusivement les Secrets \`THREADS_ACCESS_TOKEN\` et \`THREADS_USER_ID\`, sans les exposer au navigateur.
+- La publication quotidienne à 10h22 UTC n'est effective que si la variable GitHub \`EDITORIAL_THREADS_ENABLED=true\` est définie; l'envoi manuel exige \`publish=true\`.
+- Au plus un lien récent par exécution. Le statut \`threads=sent\` n'est conservé qu'après réception d'un identifiant de publication officiel.
+- Aucun coût d'API ou abonnement supplémentaire n'est prévu, sous réserve des droits d'accès et des quotas de Meta.
