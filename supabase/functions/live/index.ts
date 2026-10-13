@@ -4503,7 +4503,7 @@ const formatReceiptMoney = (n:number) => formatTelegramMoney(n);
 
 // Pricing V2: une cote externe est bookmaker; sinon la cote affichée est la fair odd du modèle.
 async function fetchExternalLivePropOdds(match: any, pred: any) {
-  const direct = Deno.env.get("LIVE_ODDS_ENABLE_DIRECT") === "1" ? await fetchLiveBookmakerOdds({
+  const direct = (Deno.env.get("LIVE_ODDS_ENABLE_DIRECT") || "1") === "1" ? await fetchLiveBookmakerOdds({
     match_id: String(match?.id ?? ""),
     home: String(match?.home_team?.name ?? match?.home_team ?? match?.home_name ?? ""),
     away: String(match?.away_team?.name ?? match?.away_team ?? match?.away_name ?? ""),
@@ -4755,7 +4755,7 @@ async function savePrediction(
   pred.home_score = pred.home_score ?? match.home_score ?? 0;
   pred.away_score = pred.away_score ?? match.away_score ?? 0;
 
-  const bookmakerAlignment = (LIVE_PROP_ODDS_URL || Deno.env.get("LIVE_ODDS_ENABLE_DIRECT") === "1" || ["MOVIODDS","PINNWIRE","ODDSLINK","GOALDIR","ODDSHARVESTER"].some(p => Deno.env.get("LIVE_ODDS_"+p+"_URL")))
+  const bookmakerAlignment = (LIVE_PROP_ODDS_URL || (Deno.env.get("LIVE_ODDS_ENABLE_DIRECT") || "1") === "1" || ["MOVIODDS","PINNWIRE","ODDSLINK","GOALDIR","ODDSHARVESTER"].some(p => Deno.env.get("LIVE_ODDS_"+p+"_URL")))
     ? await alignPredictionToAvailableBookmakerLine(match, pred)
     : {
         verified: false,
