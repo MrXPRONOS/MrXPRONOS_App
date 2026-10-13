@@ -110,6 +110,14 @@ const BSD_STATS_QUOTA_RESERVE = Math.max(
   250,
   Math.min(3000, safeEnvInt("BSD_STATS_QUOTA_RESERVE", 900)),
 );
+const BSD_LIVE_BACKFILL_SECONDS = Math.max(
+  120,
+  Math.min(3600, safeEnvInt("BSD_LIVE_BACKFILL_SECONDS", 600)),
+);
+const FREE_LIVE_MIN_MATCHES = Math.max(
+  0,
+  Math.min(20, safeEnvInt("FREE_LIVE_MIN_MATCHES", 2)),
+);
 
 const T_STATS_SOURCES = "live_stats_sources";
 const T_STATS_MERGED = "live_stats_merged";
@@ -605,6 +613,77 @@ function bsdResults(payload: any): any[] {
   if (Array.isArray(payload?.data)) return payload.data;
   if (Array.isArray(payload?.events)) return payload.events;
   return [];
+}
+
+async function providerState(key: string) {
+  const { data, error } = await supabase
+    .from("football_provider_state")
+    .select("*")
+    .eq("key", key)
+    .maybeSingle();
+  if (error) {
+    console.warn("Provider state unavailable:", key, error.message);
+    return null;
+  }
+  return data;
+}
+
+async function setProviderState(
+  key: string,
+  provider: string,
+  values: { success?: boolean; count?: number; error?: string | null; meta?: any } = {},
+) {
+  const now = nowIso();
+  const row: any = {
+    key,
+    provider,
+    last_attempt_at: now,
+    last_count: Math.max(0, safeNumber(values.count, 0)),
+    last_error: values.error || null,
+    meta: values.meta || {},
+    updated_at: now,
+  };
+  if (values.success) row.last_success_at = now;
+  const { error } = await supabase
+    .from("football_provider_state")
+    .upsert(row, { onConflict: "key" });
+  if (error) console.warn("Provider state write failed:", key, error.message);
+}
+
+async function shouldCallBsdLive(freeMatches: any[]) {
+  if (!BSD_API_TOKEN) return false;
+  if ((freeMatches || []).length < FREE_LIVE_MIN_MATCHES) return true;
+  const state = await providerState("bsd_live_backfill");
+  const last = Date.parse(String(state?.last_success_at || ""));
+  if (!Number.isFinite(last)) return true;
+  return Date.now() - last >= BSD_LIVE_BACKFILL_SECONDS * 1000;
+}
+
+async function fetchFreeLiveProviders() {
+  const errors: Record<string, string> = {};
+  let sportscore: any[] = [];
+  let thesportsdb: any[] = [];
+  try {
+    sportscore = await fetchSportScoreLive();
+    await setProviderState("sportscore_live", "sportscore", { success: true, count: sportscore.length });
+  } catch (e: any) {
+    errors.sportscore = e?.message || String(e);
+    await setProviderState("sportscore_live", "sportscore", { error: errors.sportscore });
+  }
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = await fetchTheSportsDbDay(today);
+    thesportsdb = rows.filter((m: any) => Boolean(m?.is_live));
+    await setProviderState("thesportsdb_live", "thesportsdb", { success: true, count: thesportsdb.length });
+  } catch (e: any) {
+    errors.thesportsdb = e?.message || String(e);
+    await setProviderState("thesportsdb_live", "thesportsdb", { error: errors.thesportsdb });
+  }
+  return {
+    matches: mergeProviderEvents([...sportscore, ...thesportsdb]),
+    counts: { sportscore: sportscore.length, thesportsdb: thesportsdb.length },
+    errors,
+  };
 }
 
 async function fetchBSDCoverage() {
