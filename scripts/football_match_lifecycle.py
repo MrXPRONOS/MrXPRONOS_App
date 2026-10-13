@@ -429,7 +429,10 @@ def lifecycle_signals(
                     })
 
         # Coup d'envoi: uniquement au tout début.
-        if is_live(ext) and 0 <= minute <= 12:
+        if (
+            is_live(ext) and 0 <= minute <= 12
+            and (hs is None or hs == 0) and (aws is None or aws == 0)
+        ):
             key = "kickoff:" + event_id
             if key not in sent_keys:
                 signals.append({
