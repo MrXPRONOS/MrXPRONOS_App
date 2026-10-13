@@ -2,6 +2,8 @@
 export type EspnCacheStore = {
   read(key: string): Promise<any | null>;
   write(row: any): Promise<void>;
+  reserve?(bucket: "scoreboard" | "summary"): Promise<boolean>;
+  blockFor?(bucket: "scoreboard" | "summary", seconds: number): Promise<void>;
 };
 const scoreboardUrl = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard";
 const summaryUrl = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary";
@@ -27,8 +29,16 @@ export function parseEspnNumber(value: unknown): number | null {
 }
 function validScoreboard(x: any) { return x && Array.isArray(x.events); }
 function validSummary(x: any) { return x && typeof x === "object" && !Array.isArray(x); }
-async function requestJson(url: string, validate: (v: any) => boolean): Promise<any> {
+async function requestJson(url: string, validate: (v: any) => boolean, store?: EspnCacheStore, bucket: "scoreboard" | "summary" = "scoreboard"): Promise<any> {
   for (let attempt = 0; attempt < 3; attempt++) {
+    if (store?.reserve) {
+      const allowed = await store.reserve(bucket);
+      if (!allowed) {
+        const error: any = new Error("ESPN shared request budget exhausted or provider temporarily blocked");
+        error.localBudget = true;
+        throw error;
+      }
+    }
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 8000);
     try {
@@ -42,8 +52,13 @@ async function requestJson(url: string, validate: (v: any) => boolean): Promise<
         const ra = res.headers.get("retry-after");
         if (ra) {
           const seconds = Number(ra);
+          const retryDate = Date.parse(ra);
           err.retryAfterMs = Number.isFinite(seconds) ? seconds * 1000
-            : Math.max(0, Date.parse(ra) - Date.now());
+            : (Number.isFinite(retryDate) ? Math.max(0, retryDate - Date.now()) : 0);
+        }
+        if (res.status === 429 && store?.blockFor) {
+          try { await store.blockFor(bucket, Math.max(1, Math.ceil((err.retryAfterMs || 120000) / 1000))); }
+          catch (backoffError) { console.warn("ESPN global backoff failed", backoffError); }
         }
         throw err;
       }
@@ -57,7 +72,7 @@ async function requestJson(url: string, validate: (v: any) => boolean): Promise<
       return data;
     } catch (err: any) {
       const s = Number(err?.status || 0);
-      const transient = !s || s === 408 || s === 429 || s >= 500;
+      const transient = !err?.localBudget && (!s || s === 408 || s === 429 || s >= 500);
       if (!transient || attempt === 2) {
         failures++;
         if (failures >= 3) blockedUntil = Date.now() + 120000;
@@ -81,8 +96,11 @@ async function cachedRequest(key: string, url: string, ttlMs: number, validate: 
     let stored: any = null;
     try { stored = store ? await store.read(key) : null; } catch (e) { console.warn("ESPN cache read failed", e); }
     if (stored && validate(stored.payload) && Date.parse(stored.expires_at || "") > Date.now()) {
-      memory.set(key, { data: stored.payload, until: Date.parse(stored.expires_at) });
-      return stored.payload;
+      const data = key.startsWith("scoreboard:") && !stored.payload._feed_fetched_at
+        ? { ...stored.payload, _feed_fetched_at: stored.fetched_at || null }
+        : stored.payload;
+      memory.set(key, { data, until: Date.parse(stored.expires_at) });
+      return data;
     }
     if (Date.now() < blockedUntil) {
       if (stored && validate(stored.payload)) return stored.payload;
@@ -90,7 +108,10 @@ async function cachedRequest(key: string, url: string, ttlMs: number, validate: 
       throw new Error("ESPN circuit breaker open");
     }
     try {
-      const data = await requestJson(url, validate);
+      const fetched = await requestJson(url, validate, store, key.startsWith("summary:") ? "summary" : "scoreboard");
+      const data = key.startsWith("scoreboard:")
+        ? { ...fetched, _feed_fetched_at: new Date().toISOString() }
+        : fetched;
       const until = Date.now() + ttlMs;
       memory.set(key, { until, data });
       if (store) {
