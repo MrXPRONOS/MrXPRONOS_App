@@ -196,7 +196,7 @@ class OddsRouter:
                     # BSD might return empty for this particular market
                 elif name == "pinnwire":
                     key = os.getenv("PINNWIRE_API_KEY", "")
-                    if not key: key = "demo" if os.getenv("PINNWIRE_USE_DEMO","1") == "1" else ""
+                    if not key: key = "demo" if os.getenv("PINNWIRE_USE_DEMO","0") == "1" else ""
                     if not key: continue
                     data = self.get(name, "https://pinnwire.com/kit/v1/prematch/fixtures?sport_id=1",
                                     {"x-api-key":key})
@@ -214,6 +214,7 @@ class OddsRouter:
                             rows = from_oddslink(row, captured)
                             break
                 elif name == "moviodds":
+                    if os.getenv("MOVIODDS_ENABLE", "0") != "1": continue
                     data = self.get(name, "https://moviodds.com/odds?sport=soccer")
                     for row in (data or {}).get("matches", []):
                         if row.get("in_play") is False and match_fixture(row, event):
