@@ -142,7 +142,7 @@ class TemplateCardsTests(unittest.TestCase):
             image = tc.render("composition", payload)
             fitted_logo = tc._load_logo("https://test/home.png", 158)
 
-        self.assertEqual(image.size, (1374, 1145))
+        self.assertEqual(image.size, (1080, 1350))
         self.assertEqual(image.mode, "RGB")
         self.assertEqual(len(tc.COMPOSITION_ROWS), 11)
         self.assertLessEqual(fitted_logo.width, 158)
