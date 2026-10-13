@@ -147,13 +147,17 @@ def _bsd_compatible(
 ) -> dict:
     dt = _moment(kickoff)
     pid = _plain(provider_id) or (_slug(home) + "-" + _slug(away) + "-" + (dt.date().isoformat() if dt else "unknown"))
+    normalized_status = _status(status)
     row = {
         "id": provider + ":" + pid,
         "source": provider,
         "provider": provider,
         "source_event_id": pid,
         "event_date": dt.isoformat() if dt else _plain(kickoff),
-        "status": _status(status),
+        "status": normalized_status,
+        "state": "post" if normalized_status == "finished" else "in" if normalized_status == "live" else "pre",
+        "status_detail": _plain(status) or normalized_status,
+        "minute": 0,
         "home_team": {"name": _plain(home), "logo": _plain(home_logo)},
         "away_team": {"name": _plain(away), "logo": _plain(away_logo)},
         "home_score": _score(home_score),
@@ -166,6 +170,7 @@ def _bsd_compatible(
     }
     if extra:
         row.update(extra)
+    row["minute"] = _score(row.get("current_minute") or row.get("minute")) or 0
     return row
 
 
