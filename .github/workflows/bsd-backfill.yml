@@ -2,9 +2,6 @@ name: BSD - Archive historique 2024-2026
 run-name: "BSD - Archive historique 2024-2026 (${{ inputs.trigger_source || github.event_name }})"
 
 on:
-  # Planification GitHub provisoire jusqu'à validation des tâches cron-job.org.
-  schedule:
-    - cron: '35 1 * * *' # chaque jour a 01:35 UTC
   workflow_dispatch:
     inputs:
       trigger_source:
