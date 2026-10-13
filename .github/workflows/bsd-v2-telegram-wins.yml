@@ -42,6 +42,7 @@ jobs:
       - name: Validate singles and 2-leg combos; post verified winners only
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          BSD_FREE_SOURCES: '1'
           TELEGRAM_BOT_TOKEN: '${{ secrets.TELEGRAM_BOT_TOKEN }}'
           SUPABASE_URL: '${{ secrets.SUPABASE_URL }}'
           SUPABASE_SERVICE_ROLE_KEY: '${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}'
