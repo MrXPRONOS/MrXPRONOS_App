@@ -208,16 +208,83 @@ def _nested_lists(node: Any) -> list[list[dict]]:
     return found
 
 
+_SPORTSCORE_SLUG_CACHE: dict[str, str] = {}
+
+
+def _sportscore_competition_slug(
+    session: requests.Session,
+    spec: LeagueSpec,
+) -> str:
+    cached = _SPORTSCORE_SLUG_CACHE.get(spec.key)
+    if cached:
+        return cached
+
+    candidates = [spec.sportscore or "", spec.key]
+    try:
+        response = session.get(
+            SPORTSCORE_BASE + "/api/v1/search/",
+            params={"q": spec.label, "sport": "football", "limit": "20", "src": "mrxpronos"},
+            headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+            timeout=(7, 22),
+        )
+        response.raise_for_status()
+        payload = response.json()
+        for group in _nested_lists(payload):
+            for item in group:
+                if not isinstance(item, dict):
+                    continue
+                kind = _plain(item.get("type") or item.get("kind") or item.get("category")).casefold()
+                name = _plain(item.get("name") or item.get("title") or item.get("label"))
+                slug = _plain(item.get("slug"))
+                url = _plain(item.get("url") or item.get("href"))
+                if not slug and "/competition/" in url:
+                    parts = [part for part in url.split("/") if part]
+                    try:
+                        ci = parts.index("competition")
+                        # /football/competition/{country}/{slug}/{id}/
+                        if len(parts) > ci + 2:
+                            slug = parts[ci + 2]
+                    except ValueError:
+                        pass
+                if not slug or not name:
+                    continue
+                name_tokens, target_tokens = set(_norm(name).split()), set(_norm(spec.label).split())
+                similarity = len(name_tokens & target_tokens) / max(len(name_tokens | target_tokens), 1)
+                if similarity >= .45 and (not kind or "competition" in kind or "league" in kind):
+                    candidates.insert(0, slug)
+    except (requests.RequestException, ValueError):
+        pass
+
+    # Vérifie réellement le slug plutôt que de croire le nom codé en dur.
+    for slug in dict.fromkeys(x for x in candidates if x):
+        try:
+            response = session.get(
+                SPORTSCORE_BASE + "/api/v1/standings/",
+                params={"sport": "football", "slug": slug, "src": "mrxpronos"},
+                headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
+                timeout=(7, 22),
+            )
+            if response.ok:
+                payload = response.json()
+                if isinstance(payload, dict) and payload:
+                    _SPORTSCORE_SLUG_CACHE[spec.key] = slug
+                    return slug
+        except (requests.RequestException, ValueError):
+            continue
+    return ""
+
+
 def fetch_sportscore_standings(
     session: requests.Session,
     spec: LeagueSpec,
 ) -> list[dict]:
-    if not spec.sportscore:
+    slug = _sportscore_competition_slug(session, spec)
+    if not slug:
         return []
     try:
         response = session.get(
             SPORTSCORE_BASE + "/api/v1/standings/",
-            params={"sport": "football", "slug": spec.sportscore, "src": "mrxpronos"},
+            params={"sport": "football", "slug": slug, "src": "mrxpronos"},
             headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
             timeout=(7, 22),
         )
@@ -274,13 +341,14 @@ def fetch_sportscore_top_scorers(
     session: requests.Session,
     spec: LeagueSpec,
 ) -> list[dict]:
-    if not spec.sportscore:
+    slug = _sportscore_competition_slug(session, spec)
+    if not slug:
         return []
     try:
         response = session.get(
             SPORTSCORE_BASE + "/api/v1/topscorers/",
             params={
-                "sport": "football", "slug": spec.sportscore,
+                "sport": "football", "slug": slug,
                 "limit": "20", "stat": "goals", "src": "mrxpronos",
             },
             headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
