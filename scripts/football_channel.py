@@ -1032,6 +1032,9 @@ def community_vote_publication(events: list[dict], now: datetime) -> Publication
     options = [plain(x, 100) for x in payload.get("options", []) if plain(x, 100)]
     if not question or len(options) < 2:
         return None
+    chosen = next((event for event in events
+                   if team(event, "home") == payload.get("home")
+                   and team(event, "away") == payload.get("away")), None)
     return Publication(
         "sondage",
         plain(payload.get("key"), 180),
@@ -1045,7 +1048,9 @@ def community_vote_publication(events: list[dict], now: datetime) -> Publication
         poll_allows_revoting=True,
         card={"home": payload.get("home"), "away": payload.get("away"),
               "league": payload.get("league"), "question": question,
-              "options": options},
+              "options": options,
+              "home_logo": team_visual_url(chosen, "home") if chosen else "",
+              "away_logo": team_visual_url(chosen, "away") if chosen else ""},
     )
 
 
