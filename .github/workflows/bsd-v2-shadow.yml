@@ -39,6 +39,7 @@ jobs:
       - name: Generate unpublished V2 snapshot
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          BSD_FREE_SOURCES: '1'
           MODE: '${{ inputs.selection_mode }}'
           MAX_ODDS: '${{ inputs.max_odds_events }}'
         run: |

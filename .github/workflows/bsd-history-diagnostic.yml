@@ -35,6 +35,7 @@ jobs:
       - name: Fetch current season (5 calls maximum, no publication)
         env:
           BSD_API_KEY: "${{ secrets.BSD_API_KEY }}"
+          BSD_FREE_SOURCES: '1'
           LEAGUE_ID: "${{ inputs.league_id }}"
           SEASON_ID: "${{ inputs.season_id }}"
           PAGES: "${{ inputs.pages }}"

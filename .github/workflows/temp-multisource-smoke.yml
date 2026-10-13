@@ -1,0 +1,150 @@
+name: TEMP Multi-source football smoke
+
+on:
+  push:
+    branches:
+      - feat/multisource-football-20261013
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      BSD_FREE_SOURCES: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: python -m pip install --disable-pip-version-check requests
+      - name: Compile
+        run: |
+          python -m py_compile bsd/free_sources.py bsd/bsd_api.py
+          deno check supabase/functions/_shared/free-football.ts
+      - name: Unit tests
+        working-directory: bsd
+        run: python -m unittest test_free_sources.py -v
+      - name: Real provider smoke and SportScore odds probe
+        working-directory: bsd
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import datetime, timezone
+          import requests
+          from free_sources import FreeFootballHub
+
+          day = datetime.now(timezone.utc).date()
+          hub = FreeFootballHub(enabled=True)
+          ss = hub.sportscore_day(day)
+          ts = hub.thesportsdb_day(day)
+          ol = hub.openligadb_current()
+
+          print("SPORTSCORE_FIXTURES", len(ss))
+          print("THESPORTSDB_FIXTURES", len(ts))
+          print("OPENLIGADB_CURRENT", len(ol))
+
+          assert isinstance(ss, list)
+          assert isinstance(ts, list)
+          assert isinstance(ol, list)
+
+          if ss:
+              print("SPORTSCORE_FIRST_NORMALIZED", json.dumps(ss[0], ensure_ascii=False, default=str)[:4000])
+              raw = (ss[0].get("raw_data") or {})
+              print("SPORTSCORE_FIRST_RAW_KEYS", sorted(raw.keys()) if isinstance(raw, dict) else type(raw).__name__)
+              source_url = str(raw.get("url") or "")
+              parts = [p for p in source_url.split("/") if p]
+              candidates = []
+              if len(parts) >= 2:
+                  candidates.extend([parts[-1], parts[-2], "/".join(parts[-2:])])
+              slug = ss[0].get("source_slug")
+              if slug:
+                  candidates.insert(0, slug)
+              detail = None
+              for candidate in dict.fromkeys(candidates):
+                  response = requests.get(
+                      "https://sportscore.com/api/v1/match/",
+                      params={"sport": "football", "slug": candidate},
+                      headers={"Accept": "application/json", "User-Agent": "MrXPRONOS-MultiSource-Probe/1.0"},
+                      timeout=15,
+                  )
+                  print("SPORTSCORE_MATCH_CANDIDATE", candidate, response.status_code, response.text[:300].replace("\n"," "))
+                  if response.ok:
+                      try:
+                          detail = response.json()
+                      except ValueError:
+                          detail = None
+                      if isinstance(detail, dict):
+                          break
+              def walk_keys(obj, prefix="", depth=0):
+                  found=[]
+                  if depth > 6:
+                      return found
+                  if isinstance(obj, dict):
+                      for k,v in obj.items():
+                          path = f"{prefix}.{k}" if prefix else str(k)
+                          lk = str(k).lower()
+                          if any(x in lk for x in ("odd","bookmaker","betting","market")):
+                              found.append(path)
+                          found.extend(walk_keys(v,path,depth+1))
+                  elif isinstance(obj,list):
+                      for i,v in enumerate(obj[:20]):
+                          found.extend(walk_keys(v,f"{prefix}[{i}]",depth+1))
+                  return found
+              odds_keys = sorted(set(walk_keys(detail))) if detail else []
+              print("SPORTSCORE_DETAIL_SLUG", slug)
+              print("SPORTSCORE_ODDS_KEYS", json.dumps(odds_keys[:100]))
+              print("SPORTSCORE_DETAIL_TOP_KEYS", sorted(detail.keys()) if isinstance(detail,dict) else type(detail).__name__)
+              if isinstance(detail, dict) and isinstance(detail.get("match"), dict):
+                  print("SPORTSCORE_MATCH_DETAIL_KEYS", sorted(detail["match"].keys()))
+                  for key in ("stats","statistics","lineups","timeline","events","incidents"):
+                      if key in detail["match"]:
+                          print("SPORTSCORE_MATCH_SECTION", key, json.dumps(detail["match"][key], ensure_ascii=False, default=str)[:5000])
+          sportscore_stats_found = 0
+          sportscore_lineups_found = 0
+          for sample in ss[:12]:
+              raw_sample = sample.get("raw_data") or {}
+              source_url = str(raw_sample.get("url") or "")
+              parts = [p for p in source_url.split("/") if p]
+              slug = parts[-2] if len(parts) >= 2 else ""
+              if not slug:
+                  continue
+              response = requests.get(
+                  "https://sportscore.com/api/v1/match/",
+                  params={"sport": "football", "slug": slug},
+                  headers={"Accept": "application/json", "User-Agent": "MrXPRONOS-MultiSource-Probe/1.0"},
+                  timeout=15,
+              )
+              if not response.ok:
+                  continue
+              try:
+                  data = response.json()
+              except ValueError:
+                  continue
+              match = data.get("match") if isinstance(data, dict) else {}
+              if isinstance(match, dict):
+                  if match.get("stats"):
+                      sportscore_stats_found += 1
+                      print("SPORTSCORE_STATS_SAMPLE", slug, json.dumps(match.get("stats"), ensure_ascii=False, default=str)[:4000])
+                  if isinstance(match.get("lineups"), dict) and match["lineups"].get("confirmed"):
+                      sportscore_lineups_found += 1
+          print("SPORTSCORE_DETAIL_COVERAGE", {"probed": min(12, len(ss)), "with_stats": sportscore_stats_found, "confirmed_lineups": sportscore_lineups_found})
+
+          if ts:
+              event_id = str(ts[0].get("source_match_id") or "")
+              for endpoint in ("lookupeventstats.php", "lookuplineup.php", "lookuptimeline.php"):
+                  response = requests.get(
+                      "https://www.thesportsdb.com/api/v1/json/123/" + endpoint,
+                      params={"id": event_id},
+                      headers={"Accept": "application/json", "User-Agent": "MrXPRONOS-MultiSource-Probe/1.0"},
+                      timeout=15,
+                  )
+                  print("THESPORTSDB_PROBE", endpoint, event_id, response.status_code, response.text[:1200].replace("\n"," "))
+
+          print("DIAGNOSTICS", json.dumps(hub.diagnostics(), ensure_ascii=False))
+          PY

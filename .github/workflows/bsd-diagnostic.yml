@@ -31,6 +31,7 @@ jobs:
       - name: Probe BSD API (5 HTTP calls max, no publication)
         env:
           BSD_API_KEY: "${{ secrets.BSD_API_KEY }}"
+          BSD_FREE_SOURCES: '1'
           TEST_DATE: "${{ inputs.test_date }}"
           MAX_PAGES: "${{ inputs.max_pages }}"
         run: |

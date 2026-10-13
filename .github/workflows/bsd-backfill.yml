@@ -59,6 +59,7 @@ jobs:
       - name: Backfill incremental
         env:
           BSD_API_KEY: "${{ secrets.BSD_API_KEY }}"
+          BSD_FREE_SOURCES: '1'
           BUDGET: "${{ github.event.inputs.budget }}"
           SEASON_PAGES: "${{ github.event.inputs.season_pages }}"
         run: |
@@ -70,6 +71,7 @@ jobs:
       - name: Refresh last seven days of finished BSD matches
         env:
           BSD_API_KEY: "${{ secrets.BSD_API_KEY }}"
+          BSD_FREE_SOURCES: '1'
         run: python bsd/bsd_refresh_daily.py --days 7 --max-pages 5 --max-requests 45
       - name: Enforce historical match dates 2024-2026
         run: python bsd/bsd_archive_window.py

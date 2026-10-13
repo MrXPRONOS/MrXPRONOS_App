@@ -207,6 +207,11 @@ def predict_fixture(
         "id": "bsd:" + str(fixture["id"]),
         "source": "bsd",
         "source_event_id": fixture["id"],
+        "data_sources": list(dict.fromkeys(
+            str(x) for x in (fixture.get("provider_sources") or ["bsd"]) if str(x)
+        )),
+        "provider_verified": bool(fixture.get("provider_verified")),
+        "provider_matches": fixture.get("provider_matches") or {},
         "date": kickoff.date().isoformat(),
         "event_date": kickoff_str,
         "home_team": _name(fixture.get("home_team")) or ("Equipe " + str(hid)),

@@ -16,6 +16,7 @@ jobs:
     timeout-minutes: 35
     env:
       BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      BSD_FREE_SOURCES: '1'
       FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
       FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
       TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
