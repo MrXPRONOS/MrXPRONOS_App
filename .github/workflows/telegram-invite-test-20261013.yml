@@ -1,0 +1,71 @@
+name: Telegram - Invitation test 13 octobre 2026
+on:
+  push:
+    branches:
+      - telegram-invite-test-20261013
+    paths:
+      - .github/workflows/telegram-invite-test-20261013.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  invitation_test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Installer requests
+        run: python -m pip install requests
+      - name: Vérifier le canal de test puis publier l'invitation
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          import requests
+          from scripts.telegram_test_guard import validate_test_channel
+
+          token = os.environ.get("FOOTBALL_NEWS_BOT_TOKEN", "").strip()
+          configured_chat = os.environ.get("TELEGRAM_TEST_CHAT_ID", "").strip()
+          route = validate_test_channel(configured_chat, token)
+          if route["username"] != "predict_mrxp":
+              raise SystemExit("Destination refusée: @predict_mrxp uniquement")
+
+          message = """<b>🔥 MR XPRONOS | MATCHS DU JOUR ⚽</b>
+
+          📊 <b>Analyses exclusives &amp; pronostics sélectionnés</b>
+          🎯 <b>Coupons LIVE</b> et opportunités en direct
+
+          <blockquote>💡 <i>Ne parie plus au hasard. Analyse avant de miser !</i></blockquote>
+
+          🚀 <b>REJOINS NOTRE CANAL TELEGRAM 👇</b>
+          https://t.me/mr_xpronos_vip
+
+          <i>🔞 18+ • Joue responsablement.</i>"""
+          response = requests.post(
+              "https://api.telegram.org/bot"+token+"/sendMessage",
+              json={
+                  "chat_id":route["chat_id"],
+                  "text":message,
+                  "parse_mode":"HTML",
+                  "link_preview_options":{"is_disabled":True},
+              },
+              timeout=(10,30),
+          )
+          if response.status_code != 200:
+              raise SystemExit("Envoi Telegram refusé (HTTP "+str(response.status_code)+")")
+          result = response.json()
+          if result.get("ok") is not True:
+              raise SystemExit("Telegram n'a pas confirmé l'envoi")
+          msg = result.get("result") or {}
+          if msg.get("chat",{}).get("id") != route["chat_id"]:
+              raise SystemExit("Identifiant de destination non conforme")
+          print("TELEGRAM_INVITE_TEST_OK message_id",msg.get("message_id"),"chat",route["username"])
+          PY
