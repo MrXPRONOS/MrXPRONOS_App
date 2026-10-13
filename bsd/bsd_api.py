@@ -10,7 +10,7 @@ import json
 import os
 import time
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
@@ -259,7 +259,13 @@ class BSDClient:
                     events.append(item)
             if len(events) >= total or not rows or len(rows) < page_size:
                 break
-        if self.enable_free_sources and events and date_from == date_to:
+        current_day = datetime.now(timezone.utc).date()
+        if (
+            self.enable_free_sources
+            and events
+            and date_from == date_to
+            and abs((date_from - current_day).days) <= 2
+        ):
             try:
                 snapshots = collect_free_day(self.session, date_from, include_espn=True)
                 events = enrich_bsd_events(events, snapshots)
