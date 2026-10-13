@@ -6485,40 +6485,18 @@ async function fetchEspnFinalForPrediction(pred: any, stored: any) {
 
 async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefined) {
   const predictionType = String(pred?.prediction_type || "");
-  const isHistoricalValidated = pred?.validated === true;
   const stored = storedOverride === undefined
     ? await getStoredMergedContextForPrediction(pred)
     : storedOverride;
 
-  // Pour l’historique déjà validé, ESPN est plus fiable que BSD pour retrouver
-  // un match qui a disparu du catalogue événementiel BSD.
-  if (isHistoricalValidated) {
-    const espn = await fetchEspnFinalForPrediction(pred, stored);
-    if (espn) return { event: espn, stats: espn.live_stats, source: "espn_final" };
+  // 1) ESPN d'abord : meilleure autorité gratuite pour le score/statut final.
+  const espn = await fetchEspnFinalForPrediction(pred, stored);
+  if (espn && hasRequiredFinalStats(espn.live_stats, predictionType)) {
+    return { event: espn, stats: espn.live_stats, source: "espn_final" };
   }
 
-  try {
-    const bsdEvent = await fetchBSD(`/events/${pred.match_id}/`);
-    if (isFinishedEvent(bsdEvent)) {
-      let stats = bsdEvent?.live_stats || null;
-      if (!hasRequiredFinalStats(stats, predictionType)) {
-        try {
-          const finalStatsPayload = await fetchBSD(`/events/${pred.match_id}/stats/`);
-          stats = normalizeBsdStatsPayload(finalStatsPayload);
-        } catch {}
-      }
-      if (hasRequiredFinalStats(stats, predictionType)) {
-        return { event: bsdEvent, stats, source: "bsd_final" };
-      }
-    }
-  } catch {}
-
-  if (!isHistoricalValidated) {
-    const espn = await fetchEspnFinalForPrediction(pred, stored);
-    if (espn) return { event: espn, stats: espn.live_stats, source: "espn_final" };
-  }
-
-  // Dernier recours uniquement si notre snapshot fusionné est explicitement FT.
+  // 2) Le snapshot multi-source déjà persisté évite tout nouvel appel réseau
+  // lorsque le match est explicitement terminé avec la statistique nécessaire.
   if (stored?.is_finished === true && hasRequiredFinalStats(stored?.merged_stats, predictionType)) {
     const event = stored?.merged_match_json || {
       id: pred?.match_id,
@@ -6527,7 +6505,28 @@ async function resolveFinalEventAndStats(pred: any, storedOverride: any = undefi
       is_finished: true,
       live_stats: stored?.merged_stats,
     };
-    return { event, stats: stored.merged_stats, source: "stored_final" };
+    return { event, stats: stored.merged_stats, source: "stored_multisource_final" };
+  }
+
+  // 3) BSD seulement si l'identifiant de la prédiction est réellement un ID BSD.
+  // Les IDs SportScore/ESPN/TheSportsDB ne doivent jamais être envoyés à BSD.
+  const bsdId = String(pred?.match_id || "");
+  if (BSD_API_TOKEN && /^\d+$/.test(bsdId)) {
+    try {
+      const bsdEvent = await fetchBSD(`/events/${bsdId}/`);
+      if (isFinishedEvent(bsdEvent)) {
+        let stats = bsdEvent?.live_stats || null;
+        if (!hasRequiredFinalStats(stats, predictionType)) {
+          try {
+            const finalStatsPayload = await fetchBSD(`/events/${bsdId}/stats/`);
+            stats = normalizeBsdStatsPayload(finalStatsPayload);
+          } catch {}
+        }
+        if (hasRequiredFinalStats(stats, predictionType)) {
+          return { event: bsdEvent, stats, source: "bsd_final_fallback" };
+        }
+      }
+    } catch {}
   }
 
   return null;
