@@ -163,6 +163,7 @@ def normalize_sportscore(row: dict) -> dict | None:
         "home_score": _num(row.get("home_score")),
         "away_score": _num(row.get("away_score")),
         "state": state,
+        "status": "finished" if state == "post" else "live" if state == "in" else "scheduled",
         "status_detail": detail,
         "event_date": _iso(when) or _plain(when),
         "league": _plain(row.get("competition") or row.get("league")),
@@ -194,6 +195,7 @@ def normalize_tsdb(row: dict) -> dict | None:
         "home_score": _num(row.get("intHomeScore")),
         "away_score": _num(row.get("intAwayScore")),
         "state": state,
+        "status": "finished" if state == "post" else "live" if state == "in" else "scheduled",
         "status_detail": detail,
         "event_date": _iso(when) or _plain(when),
         "league": _plain(row.get("strLeague")),
@@ -231,6 +233,7 @@ def normalize_openliga(row: dict) -> dict | None:
         "home_score": _num(final.get("pointsTeam1")),
         "away_score": _num(final.get("pointsTeam2")),
         "state": "post" if finished else "pre",
+        "status": "finished" if finished else "scheduled",
         "status_detail": "finished" if finished else "scheduled",
         "event_date": _iso(row.get("matchDateTimeUTC") or row.get("matchDateTime")) or _plain(row.get("matchDateTimeUTC")),
         "league": _plain((row.get("league") or {}).get("leagueName") if isinstance(row.get("league"), dict) else ""),
@@ -323,6 +326,20 @@ class FreeFootballProviders:
         except Exception:
             return {}
 
+    def sportscore_team_schedule(self, team_name: str, *, limit: int = 12) -> list[dict]:
+        slug = _slug(team_name)
+        if not slug:
+            return []
+        try:
+            payload = self._get(
+                "sportscore", SPORTSCORE_BASE + "/api/v1/team/",
+                params={"sport": "football", "slug": slug, "limit": min(30, max(1, limit))}, ttl=600,
+            )
+            rows = self._rows(payload, "matches", "fixtures", "events", "results", "data")
+            return [e for e in (normalize_sportscore(x) for x in rows) if e]
+        except Exception:
+            return []
+
     def sportscore_h2h(self, home: str, away: str, *, limit: int = 20) -> dict:
         if not home or not away:
             return {}
@@ -335,6 +352,11 @@ class FreeFootballProviders:
             return payload if isinstance(payload, dict) else {}
         except Exception:
             return {}
+
+    def sportscore_h2h_events(self, home: str, away: str, *, limit: int = 20) -> list[dict]:
+        payload = self.sportscore_h2h(home, away, limit=limit)
+        rows = self._rows(payload, "matches", "meetings", "results", "events", "data")
+        return [e for e in (normalize_sportscore(x) for x in rows) if e]
 
     def tsdb_day(self, day: date) -> ProviderResult:
         try:
