@@ -5814,6 +5814,9 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   let espnError: string | null = null;
   let bsdError: string | null = null;
   let bsdRateLimited = false;
+  let bsdLiveBackfillUsed = false;
+  let freeProviderCounts: Record<string, number> = { sportscore: 0, thesportsdb: 0 };
+  let freeProviderErrors: Record<string, string> = {};
   let snapshotReused = false;
   let coverage: any = null;
 
@@ -5825,28 +5828,59 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
   }
 
   if (!snapshotReused) {
-    let originalRawMatches: any[] = [];
+    // Free-first: ESPN + SportScore + TheSportsDB refreshent à chaque cycle.
+    // BSD n'est plus la source de découverte systématique: il backfill périodiquement
+    // ou lorsque la couverture gratuite est insuffisante.
+    const espnResult = await fetchEspnLiveMatchesForMerge();
+    espnError = espnResult.error;
 
-    coverage = await fetchBSDCoverage();
-    const liveNow = safeNumber(coverage?.live_now, -1);
+    const freeProviders = await fetchFreeLiveProviders();
+    freeProviderCounts = freeProviders.counts;
+    freeProviderErrors = freeProviders.errors;
+    let originalRawMatches: any[] = [...(freeProviders.matches || [])];
 
-    if (!options.skipBsd && liveNow !== 0) {
-      try {
-        const liveData = await fetchBSD("/events/live/");
-        originalRawMatches = bsdResults(liveData);
-      } catch (e: any) {
-        bsdError = e?.message || String(e);
-        bsdRateLimited = isBSDQuotaError(e);
-        if (bsdRateLimited) {
-          console.warn("⚠️ Quota BSD épuisé: ESPN + cache prennent le relais");
-        } else {
-          console.error("⚠️ BSD v2 live indisponible: ESPN prend le relais", e);
+    const freeCoveragePool = mergeProviderEvents([
+      ...originalRawMatches,
+      ...(espnResult.matches || []),
+    ]);
+    const callBsd = !options.skipBsd && await shouldCallBsdLive(freeCoveragePool);
+
+    if (callBsd) {
+      coverage = await fetchBSDCoverage();
+      const liveNow = safeNumber(coverage?.live_now, -1);
+      if (liveNow !== 0) {
+        try {
+          const liveData = await fetchBSD("/events/live/");
+          const bsdRows = bsdResults(liveData).map((m: any) => ({
+            ...m,
+            source_name: "bsd",
+            provider_quality: PROVIDER_QUALITY.bsd,
+            provider_ids: { ...(m?.provider_ids || {}), bsd: String(m?.id || "") },
+            raw_data: {
+              ...(m?.raw_data || {}),
+              source: "bsd",
+              provider_ids: { ...(m?.raw_data?.provider_ids || {}), bsd: String(m?.id || "") },
+            },
+          }));
+          originalRawMatches = mergeProviderEvents([...originalRawMatches, ...bsdRows]);
+          bsdLiveBackfillUsed = true;
+          await setProviderState("bsd_live_backfill", "bsd", {
+            success: true,
+            count: bsdRows.length,
+            meta: { reason: freeCoveragePool.length < FREE_LIVE_MIN_MATCHES ? "low_free_coverage" : "periodic_backfill" },
+          });
+        } catch (e: any) {
+          bsdError = e?.message || String(e);
+          bsdRateLimited = isBSDQuotaError(e);
+          await setProviderState("bsd_live_backfill", "bsd", { error: bsdError });
+          if (bsdRateLimited) {
+            console.warn("⚠️ Quota BSD épuisé: sources gratuites + cache prennent le relais");
+          } else {
+            console.error("⚠️ BSD v2 live indisponible: sources gratuites prennent le relais", e);
+          }
         }
       }
     }
-
-    const espnResult = await fetchEspnLiveMatchesForMerge();
-    espnError = espnResult.error;
 
     const incomingEspnIds = (espnResult.matches || [])
       .map((m: any) => String(m?.source_match_id || m?.raw_data?.event_id || ""))
