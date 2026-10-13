@@ -1,4 +1,12 @@
 import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
+import {
+  FREE_SOURCE_QUALITY,
+  collectFreeLiveProviders,
+  fetchSportScoreDetail,
+  normalizeSportScoreDetail,
+  fetchTheSportsDbStats,
+  matchProvider,
+} from "../_shared/football_sources.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -419,7 +427,7 @@ function getSourceMatchId(match: any, sourceName: string) {
   return String(match?.id || match?.source_match_id || "");
 }
 
-function sourceRowFromMatch(match: any, sourceName: "api_original" | "espn") {
+function sourceRowFromMatch(match: any, sourceName: string) {
   const liveStats = ensureLiveStatsShape(getMatchLiveStats(match));
   const canonical = buildCanonicalMatchId(match);
 
