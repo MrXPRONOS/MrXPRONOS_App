@@ -26,7 +26,12 @@ def premium_sections(html):
         if not section.strip():
             continue
         if section.lstrip().startswith("<blockquote"):
-            output.append(section.strip())
+            # Rich Message HTML collapses raw newlines inside a blockquote.
+            # Turn intentional caption line breaks (notably combo legs 1./2.)
+            # into explicit HTML breaks before transport.
+            block = section.strip().replace("\r\n", "\n").replace("\r", "\n")
+            block = re.sub(r"\n+", "<br/>", block)
+            output.append(block)
             continue
         part=section.strip()
         if first:
