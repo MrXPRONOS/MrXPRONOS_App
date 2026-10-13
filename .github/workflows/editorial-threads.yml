@@ -3,6 +3,11 @@ name: Editorial - Threads liens automatiques
 on:
   workflow_dispatch:
     inputs:
+      trigger_source:
+        description: "Origine du déclenchement"
+        required: false
+        default: "manual"
+        type: string
       publish:
         description: "Publier un article sur Threads (autorisation explicite)"
         required: true
@@ -38,11 +43,12 @@ jobs:
           THREADS_ACCESS_TOKEN: ${{ secrets.THREADS_ACCESS_TOKEN }}
           THREADS_USER_ID: ${{ secrets.THREADS_USER_ID }}
           EVENT_NAME: ${{ github.event_name }}
+          TRIGGER_SOURCE: ${{ inputs.trigger_source || '' }}
           REQUESTED_PUBLISH: ${{ inputs.publish || 'false' }}
           AUTO_ENABLED: ${{ vars.EDITORIAL_THREADS_ENABLED || 'false' }}
         shell: bash
         run: |
-          if [ "$REQUESTED_PUBLISH" = 'true' ] || { [ "$EVENT_NAME" = 'schedule' ] && [ "$AUTO_ENABLED" = 'true' ]; }; then
+          if [ "$REQUESTED_PUBLISH" = 'true' ] || { [ "$AUTO_ENABLED" = 'true' ] && { [ "$EVENT_NAME" = 'schedule' ] || [ "$TRIGGER_SOURCE" = 'cron-job.org' ]; }; }; then
             python scripts/editorial_threads.py --publish
           else
             python scripts/editorial_threads.py
