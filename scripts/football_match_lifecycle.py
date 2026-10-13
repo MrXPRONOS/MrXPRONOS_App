@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Sources gratuites et détection d'états pour le cycle d'un match Actu Foot.
 
-Priorité:
-1. Cache live Supabase déjà alimenté par BSD + ESPN (si secrets disponibles).
-2. ESPN public Site API, sans clé.
-3. OpenLigaDB, sans inscription ni clé, comme contrôle supplémentaire Bundesliga.
+Priorité par qualité de données:
+1. ESPN pour les événements détaillés.
+2. SportScore pour couverture/live, timeline et lineups.
+3. Cache Supabase/BSD pour continuité et couverture.
+4. TheSportsDB pour enrichissement ciblé.
+5. OpenLigaDB pour confirmation des ligues disponibles.
 
 Aucune source payante n'est requise par ce module.
 """
@@ -12,13 +14,29 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 import time
 import unicodedata
 from datetime import date, datetime, timedelta, timezone
+from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
 import requests
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "bsd"))
+from free_football_sources import (  # noqa: E402
+    SOURCE_QUALITY,
+    collect_free_day,
+    fetch_sportscore_match,
+    sportscore_detail_enrichment,
+    sportscore_lineups,
+    sportscore_goals,
+    fetch_thesportsdb_event_detail,
+    thesportsdb_lineups,
+    thesportsdb_timeline,
+)
 
 ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
 ESPN_SUMMARY = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary"
@@ -1033,28 +1051,27 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
                 similarity += 0.08
             elif is_live(item):
                 similarity += 0.03
+        quality = SOURCE_QUALITY.get(str(item.get("source") or ""), {}).get("overall", 60)
+        similarity += max(0.0, (float(quality) - 60.0) / 500.0)
         if similarity > best_score:
             best, best_score = item, similarity
     return best
 
 
 def collect_external(session: requests.Session, day: date, base_events: list[dict]) -> list[dict]:
-    # ESPN d'abord car il donne aussi les identifiants nécessaires au résumé
-    # (compositions / buteurs). Le cache Supabase BSD+ESPN reste le fallback local.
     days = {day}
-    # Un match choisi avant minuit doit rester suivi après minuit.
     for event in base_events:
         when = _event_time(event)
         if when and abs((when.date() - day).days) <= 1:
             days.add(when.date())
-    rows = []
+    rows: list[dict] = []
     for fixture_day in sorted(days):
-        rows.extend(fetch_espn_day(session, fixture_day))
+        snapshots = collect_free_day(session, fixture_day, include_espn=True)
+        for provider in ("espn", "sportscore", "thesportsdb", "openligadb"):
+            snapshot = snapshots.get(provider)
+            if snapshot:
+                rows.extend(snapshot.rows)
     rows.extend(fetch_supabase_live(session))
-    # OpenLigaDB n'est interrogé que si une rencontre Bundesliga est réellement
-    # présente dans notre journée BSD; pas de trafic inutile.
-    if any("bundesliga" in _plain(event.get("league_name") or event.get("league")).lower() for event in base_events):
-        rows.extend(fetch_openligadb_bundesliga(session, day))
     return rows
 
 
@@ -1091,7 +1108,7 @@ def lifecycle_signals(
     if not base_events and not tracked_only:
         base_events = [
             item for item in external
-            if item.get("source") in {"espn", "supabase_live"}
+            if item.get("source") in {"espn", "sportscore", "thesportsdb", "openligadb", "supabase_live"}
             and item.get("home_team") and item.get("away_team")
         ]
     signals: list[dict] = []
