@@ -164,7 +164,7 @@ def parse_espn_event(event: dict) -> dict | None:
         "minute": minute,
         "period": period,
         "state": state,
-        "status_detail": _plain(typ.get("shortDetail") or typ.get("detail") or typ.get("description") or typ.get("name")),
+        "status_detail": " ".join(filter(None, dict.fromkeys(_plain(typ.get(k)) for k in ("shortDetail", "detail", "description", "name")))),
         "event_date": event.get("date") or competition.get("date"),
         "league": _plain((competition.get("league") or {}).get("name") or event.get("league")),
         "raw": event,
@@ -339,7 +339,7 @@ def best_external_match(base: dict, external: list[dict]) -> dict | None:
         et = _moment(item.get("event_date"))
         if bt and et:
             hours = abs((bt - et).total_seconds()) / 3600
-            if hours > 8:
+            if hours > (3 if base.get("follow_ref") else 8):
                 continue
             similarity += max(0, 0.18 - hours * 0.02)
         if base.get("follow_ref"):
