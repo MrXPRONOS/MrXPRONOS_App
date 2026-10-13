@@ -57,6 +57,9 @@ jobs:
       - name: Build BSD V2 site feed and settle completed matches
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
+          PINNWIRE_API_KEY: ${{ secrets.PINNWIRE_API_KEY }}
+          ODDSLINK_API_KEY: ${{ secrets.ODDSLINK_API_KEY }}
+          MOVIODDS_ENABLE: '1'
         run: python bsd/bsd_v2_publish.py --max-requests 700 --max-odds-events 350
       - name: Archive first-seen published selections and audit quality
         run: python bsd/bsd_v2_audit.py --data data.json
@@ -89,7 +92,7 @@ jobs:
               combo=match.get("combo_prediction")
               if combo:
                   assert type(combo["odds"]) in (int,float) and 1.01<=combo["odds"]<1.50
-                  assert combo["odds_source"] in ("bsd_consensus","bsd_bookmaker")
+                  assert combo["odds_source"] in ("bsd_consensus","bsd_bookmaker","pinnwire","oddslink","moviodds","oddsharvester")
                   assert combo["selection_key"]!="UNDER_45"
           print("BSD_V2_FEED_OK",len(data["matches"]))
           PY
