@@ -175,8 +175,23 @@ def classify_news(title: str, text: str, feed_url: str = "") -> tuple[str, int]:
     return category, editorial_score
 
 
+def preserve_numbered_breaks(text: str) -> str:
+    """Keep numbered list markers readable without mistaking scores/times for lists."""
+    value = str(text or "").replace("\r\n", "\n").replace("\r", "\n")
+    # Insert a line break before list markers only when they look like prose items:
+    # "1: Texte", "2. Texte", "3) Texte". Avoid "1:0", "12:30", decimals, etc.
+    value = re.sub(
+        r"(?<!^)(?<!\n)(?<=\S)[ \t]+(?=(?:\d{1,2})[\.:\)]\s+(?=[A-ZÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ]))",
+        "\n",
+        value,
+    )
+    return value
+
+
 def sentence_list(text: str) -> list[str]:
-    value = re.sub(r"\s*\n+\s*", " ", text or "").strip()
+    value = preserve_numbered_breaks(text)
+    value = re.sub(r"[ \t]+", " ", value)
+    value = re.sub(r"\s*\n+\s*", " ", value).strip()
     if not value:
         return []
     parts = re.split(r"(?<=[.!?…])\s+(?=[A-ZÀÂÇÉÈÊËÎÏÔÙÛÜŸŒ0-9«“])", value)
@@ -184,7 +199,19 @@ def sentence_list(text: str) -> list[str]:
 
 
 def short_summary(text: str, max_chars: int = 380) -> str:
-    sentences = sentence_list(text)
+    structured = preserve_numbered_breaks(text)
+    numbered = re.findall(
+        r"(?m)^\s*(\d{1,2}[\.:\)]\s+.+?)(?=\n\s*\d{1,2}[\.:\)]\s+|\Z)",
+        structured,
+    )
+    if len(numbered) >= 2:
+        result = "\n".join(compact_spaces(item) for item in numbered[:4])
+        if len(result) > max_chars:
+            cut = result[:max_chars]
+            result = cut.rsplit(" ", 1)[0].rstrip(" ,;:-") + "…"
+        return result
+
+    sentences = sentence_list(structured)
     if not sentences:
         return ""
     selected: list[str] = []
