@@ -242,10 +242,18 @@ def _sportscore_rows(payload: Any) -> List[Dict[str, Any]]:
 
 
 def fetch_sportscore_live(session: requests.Session, *, ttl: int = 45) -> SourceSnapshot:
+    """Fetch the complete UTC live slate through the documented fixtures filter.
+
+    /matches/ is capped at 50 and mixes live + recent results. /fixtures/
+    accepts status=live and limit=200, so it is the correct source for coverage
+    comparisons before deciding whether BSD /events/live/ is necessary.
+    """
     try:
+        today = datetime.now(timezone.utc).date().isoformat()
         payload = _json_get(
-            session, "sportscore", SPORTSCORE_MATCHES,
-            params={"sport": "football", "limit": 50}, ttl=ttl,
+            session, "sportscore", SPORTSCORE_FIXTURES,
+            params={"sport": "football", "date": today, "status": "live", "limit": 200},
+            ttl=ttl,
         )
         rows = [row for row in _sportscore_rows(payload) if str(row.get("state") or "") == "in"]
         return SourceSnapshot("sportscore", rows, datetime.now(timezone.utc).isoformat())
