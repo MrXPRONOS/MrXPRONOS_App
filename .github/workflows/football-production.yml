@@ -11,6 +11,7 @@ on:
       - 'scripts/football_match_lifecycle.py'
       - 'scripts/football_stats_engine.py'
       - 'scripts/football_community_engine.py'
+      - 'scripts/football_viral_engine.py'
       - 'fetch_foot_news.py'
       - 'scripts/template_cards.py'
       - '.github/workflows/football-production.yml'
@@ -71,6 +72,8 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
       API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+      PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
       FOOTBALL_RSS_FEED: https://www.footmercato.net/flux-rss
       FOOTBALL_BSD_REQUEST_BUDGET: '18'
       FOOTBALL_REQUIRE_COMMENTS: '1'
