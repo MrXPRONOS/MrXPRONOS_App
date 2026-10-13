@@ -425,12 +425,12 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertFalse([x for x in signals if x["kind"] == "goal"])
 
     @patch("football_match_lifecycle.fetch_espn_summary", return_value={})
-    @patch("football_match_lifecycle.fetch_supabase_live", return_value=[])
-    @patch("football_match_lifecycle.fetch_espn_day")
-    def test_lifecycle_can_use_espn_without_bsd(self, fetch_day, _supabase, _summary):
-        fetch_day.return_value = [{
+    @patch("football_match_lifecycle.collect_external")
+    def test_lifecycle_can_use_espn_without_bsd(self, collect_external, _summary):
+        collect_external.return_value = [{
             "source": "espn",
             "id": "espn-fast",
+            "provider_event_id": "espn-fast",
             "home_team": "Arsenal",
             "away_team": "Chelsea",
             "home_score": 0,
