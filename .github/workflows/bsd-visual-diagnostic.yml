@@ -13,6 +13,7 @@ jobs:
     timeout-minutes: 10
     env:
       BSD_API_KEY: ${{ secrets.BSD_API_KEY }}
+      BSD_FREE_SOURCES: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
