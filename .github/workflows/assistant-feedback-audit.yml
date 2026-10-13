@@ -1,0 +1,18 @@
+name: Assistant Feedback Browser Audit
+on:
+  push:
+    branches: [assistant-real-audit-oct2026]
+    paths:
+      - 'tests/assistant_feedback_browser_audit.mjs'
+      - '.github/workflows/assistant-feedback-audit.yml'
+jobs:
+  feedback:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npx playwright install chromium
+      - run: node tests/assistant_feedback_browser_audit.mjs
