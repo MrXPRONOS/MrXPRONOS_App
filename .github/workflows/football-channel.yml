@@ -107,6 +107,7 @@ jobs:
         run: |
           python - <<'PY'
           from datetime import datetime, timezone
+          from pathlib import Path
           import requests
           import sys
           sys.path.insert(0, "scripts")
