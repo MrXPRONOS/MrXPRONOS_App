@@ -6,8 +6,10 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT / "bsd"))
 
 import football_match_lifecycle as m
+import football_channel as channel
 
 
 NOW = datetime(2026, 10, 13, 18, 30, tzinfo=timezone.utc)
@@ -144,6 +146,25 @@ class MatchLifecycleTests(unittest.TestCase):
         }
         signals = m.lifecycle_signals(base, set(), NOW, object(), lambda _: 100)
         self.assertFalse([x for x in signals if x["kind"] == "goal"])
+
+    def test_goal_signal_rendered_for_actu_foot(self):
+        post = channel.lifecycle_publication({
+            "kind": "goal",
+            "key": "goal:401:2-1",
+            "home": "Arsenal",
+            "away": "Chelsea",
+            "league": "Premier League",
+            "minute": 67,
+            "score": "2-1",
+            "source": "ESPN",
+            "goal": {"player": "Bukayo Saka", "minute_text": "64'", "penalty": False, "own_goal": False},
+        })
+        self.assertIsNotNone(post)
+        self.assertEqual(post.category, "goal")
+        self.assertIn("BUUUUT", post.text)
+        self.assertIn("Bukayo Saka", post.text)
+        self.assertIn("2-1", post.text)
+        self.assertTrue(post.keyboard)
 
 
 if __name__ == "__main__":
