@@ -32,6 +32,7 @@ from bsd_api import BSDClient, BSDAPIError  # noqa: E402
 from bsd_h2h import hybrid_h2h  # noqa: E402
 from telegram_rich import post_photo, post_text, post_animation  # noqa: E402
 from football_match_lifecycle import lifecycle_signals  # noqa: E402
+import football_followup as followup  # noqa: E402
 from football_stats_engine import daily_insight  # noqa: E402
 from football_viral_engine import (  # noqa: E402
     build_viral_payload, render_animation, media_credit_text, media_credit_url,
@@ -324,9 +325,13 @@ class History:
     def __init__(self, path: Path = STATE_PATH):
         self.path = path
         self.items: dict[str, dict[str, str]] = {}
+        self.followed: dict[str, dict] = {}
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
             entries = payload.get("sent", {}) if isinstance(payload, dict) else {}
+            tracked = payload.get("followed", {}) if isinstance(payload, dict) else {}
+            if isinstance(tracked, dict):
+                self.followed = {str(k): v for k, v in tracked.items() if isinstance(v, dict)}
             if isinstance(entries, dict):
                 self.items = {str(k): v for k, v in entries.items() if isinstance(v, dict)}
         except (OSError, ValueError):
@@ -357,7 +362,9 @@ class History:
         fd, tmp = tempfile.mkstemp(prefix="football-", suffix=".json", dir=self.path.parent)
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as handle:
-                json.dump({"version": 1, "sent": compact}, handle, ensure_ascii=False, indent=2)
+                json.dump({"version": 2, "sent": compact,
+                       "followed": followup.active(self.followed, now)},
+                      handle, ensure_ascii=False, indent=2)
             os.replace(tmp, self.path)
         finally:
             if os.path.exists(tmp):
@@ -1282,6 +1289,37 @@ def lifecycle_publication(signal: dict) -> Publication | None:
     )
 
 
+def followed_final_publication(signal: dict) -> Publication | None:
+    """Résultat du même match suivi, confirmé par source live."""
+    home, away = plain(signal.get("home"), 55), plain(signal.get("away"), 55)
+    scores = plain(signal.get("score"), 12)
+    if not home or not away or not re.fullmatch(r"\d+-\d+", scores):
+        return None
+    h, a = (int(n) for n in scores.split("-"))
+    comp = plain(signal.get("league") or "Football", 80)
+    result = ("🤝 Match nul" if h == a else
+              "🏅 Victoire de " + esc(home if h > a else away))
+    message = (
+        "<h3>🏁 RÉSULTAT FINAL • MATCH SUIVI</h3>"
+        "<p><i>" + esc(comp) + "</i></p>"
+        "<blockquote><b>⚽ " + esc(home) + " " + scores.replace("-", " – ")
+        + " " + esc(away) + "</b><br/>" + result + "</blockquote>"
+        "<p>✅ Fin de notre suivi de cette rencontre.</p>"
+        "<p><b>💬 Votre avis sur le match ?</b></p>"
+        "<p><i>Score confirmé : " + esc(signal.get("source") or "source live") + "</i></p>"
+    )
+    logo_home = plain(signal.get("home_logo"), 500)
+    logo_away = plain(signal.get("away_logo"), 500)
+    card = None
+    if logo_home.startswith("http") and logo_away.startswith("http"):
+        card = {"day": signal.get("day") or "",
+                "league": comp, "home": home, "away": away,
+                "scores": (h, a), "home_logo": logo_home,
+                "away_logo": logo_away}
+    return Publication("resultat", str(signal.get("key") or ""),
+                       post_label(message), card=card)
+
+
 def enough(history: History, cat: str, now: datetime) -> bool:
     return history.count(cat, now.astimezone(TZ).date()) < LIMITS[cat]
 
@@ -1299,21 +1337,27 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
     counter = {"sent": 0, "skipped": 0, "errors": 0}
     max_send = MAX_MESSAGES_PER_RUN
 
-    def publish(item: Publication | None) -> None:
+    def publish(item: Publication | None, *, ref: str = "") -> None:
         if item is None or counter["sent"] >= max_send:
             return
-        if not force and (state.seen(item.key) or not enough(state, item.category, now)):
+        if not force and (state.seen(item.key) or
+                          (item.category != "resultat" and not enough(state, item.category, now))):
             counter["skipped"] += 1
             return
         sender.send(item)
         counter["sent"] += 1
         if not dry_run:
             state.mark(item.key, item.category, now)
+            if item.category == "resultat" and ref:
+                followup.completed(state.followed, ref, now)
             state.save(now)
 
     try:
+        tracked = followup.base_events(state.followed, now)
+        if not tracked:
+            print("FOLLOWUP_NO_SELECTED_MATCH", "fast")
         signals = lifecycle_signals(
-            [],
+            tracked,
             set(state.items.keys()),
             now,
             sender.session,
@@ -1321,17 +1365,18 @@ def run_lifecycle_only(now: datetime, *, dry_run: bool = False, force: bool = Fa
         )
         used_matches: set[str] = set()
         for signal in signals:
-            match_key = (
-                plain(signal.get("home"), 55).casefold()
-                + "|"
-                + plain(signal.get("away"), 55).casefold()
-            )
+            ref = str(signal.get("follow_ref") or "")
+            if not ref or ref not in followup.pending(state.followed, now):
+                continue
+            kind = signal.get("kind")
+            # L'ordre final > but > mi-temps > score est conservé par le moteur.
+            match_key = ref + "|" + str(kind)
             if match_key in used_matches:
                 continue
-            post = lifecycle_publication(signal)
+            post = followed_final_publication(signal) if kind == "resultat_final" else lifecycle_publication(signal)
             if post is None:
                 continue
-            publish(post)
+            publish(post, ref=ref)
             used_matches.add(match_key)
             if counter["sent"] >= max_send:
                 break
