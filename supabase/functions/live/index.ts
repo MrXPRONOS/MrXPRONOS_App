@@ -3501,9 +3501,33 @@ const espnStore = {
     const { error } = await supabase.from("espn_feed_cache").upsert(row, { onConflict: "cache_key" });
     if (error) throw error;
   },
+  async reserve(bucket: "scoreboard" | "summary") {
+    const { data, error } = await supabase.rpc("espn_take_request_slot", {
+      p_bucket: bucket,
+      p_max_calls: bucket === "summary" ? 8 : 30,
+      p_window_seconds: 60,
+    });
+    if (error) throw error;
+    return data === true;
+  },
+  async blockFor(bucket: "scoreboard" | "summary", seconds: number) {
+    const { error } = await supabase.rpc("espn_provider_backoff", {
+      p_bucket: bucket,
+      p_seconds: seconds,
+    });
+    if (error) throw error;
+  },
 };
 async function fetchEspnScoreboard(dateYYYYMMDD: string, _force = false) {
-  return fetchSharedEspnScoreboard(dateYYYYMMDD, espnStore);
+  const scoreboard = await fetchSharedEspnScoreboard(dateYYYYMMDD, espnStore);
+  if (!scoreboard || !Array.isArray(scoreboard.events)) return scoreboard;
+  return {
+    ...scoreboard,
+    events: scoreboard.events.map((event: any) => ({
+      ...event,
+      __espn_feed_fetched_at: scoreboard._feed_fetched_at || null,
+    })),
+  };
 }
 
 function extractEspnMinute(status: any): number {
@@ -3654,7 +3678,9 @@ function normalizeEspnEventToOriginalMatch(event: any) {
     league_logo: leagueLogo,
     live_stats: liveStats,
     stats_last_updated_at:
-      statsCompleteness(liveStats).core_complete > 0 ? nowIso() : null,
+      statsCompleteness(liveStats).core_complete > 0
+        ? (safeEspnDate(event?.__espn_feed_fetched_at) || null)
+        : null,
     raw_data: {
       source: "espn",
       event_id: eventId,
