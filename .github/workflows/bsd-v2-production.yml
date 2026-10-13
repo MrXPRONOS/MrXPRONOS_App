@@ -57,7 +57,6 @@ jobs:
       - name: Build BSD V2 site feed and settle completed matches
         env:
           BSD_API_KEY: '${{ secrets.BSD_API_KEY }}'
-        env:
           PINNWIRE_API_KEY: ${{ secrets.PINNWIRE_API_KEY }}
           ODDSLINK_API_KEY: ${{ secrets.ODDSLINK_API_KEY }}
         run: python bsd/bsd_v2_publish.py --max-requests 700 --max-odds-events 350
