@@ -5,6 +5,7 @@ import {
   fetchSportScoreDetail,
   normalizeSportScoreDetail,
   fetchTheSportsDbStats,
+  resolveTheSportsDbEvent,
   matchProvider,
 } from "../_shared/football_sources.ts";
 // live.ts (Supabase Edge Function / Deno)
@@ -4061,6 +4062,7 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
   const out = [...(matches || [])];
   let sportscoreCalls = 0;
   let thesportsdbCalls = 0;
+  let thesportsdbResolveCalls = 0;
   let enriched = 0;
   let oddsSectionsDetected = 0;
   const maxSportScore = Math.max(
@@ -4070,6 +4072,10 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
   const maxTsdb = Math.max(
     0,
     Math.min(5, safeEnvInt("THESPORTSDB_STATS_MAX_CALLS_PER_REFRESH", 2)),
+  );
+  const maxTsdbResolve = Math.max(
+    0,
+    Math.min(3, safeEnvInt("THESPORTSDB_RESOLVE_MAX_CALLS_PER_REFRESH", 2)),
   );
 
   const candidates = out
@@ -4088,6 +4094,9 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
     let current = out[index];
     let before = statsCompleteness(getMatchLiveStats(current)).core_complete;
     const refs = current?.raw_data?.provider_refs || {};
+    let thesportsdbRefId = refs?.thesportsdb?.id
+      ? String(refs.thesportsdb.id).replace(/^thesportsdb:/, "")
+      : "";
 
     if (
       before < 3 &&
@@ -4150,43 +4159,75 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
 
     if (
       before < 3 &&
-      thesportsdbCalls < maxTsdb &&
-      refs?.thesportsdb?.id
+      !/^\d+$/.test(thesportsdbRefId) &&
+      thesportsdbResolveCalls < maxTsdbResolve
     ) {
       try {
-        const rawId = String(refs.thesportsdb.id).replace(/^thesportsdb:/, "");
-        if (/^\d+$/.test(rawId)) {
-          thesportsdbCalls++;
-          const detail = await fetchTheSportsDbStats(rawId);
-          const mergedStats = mergeLiveStats(
-            getMatchLiveStats(current),
-            detail?.stats || {},
-            true,
-          );
-          const after = statsCompleteness(mergedStats).core_complete;
-          if (after > before) {
+        const eventDate = safeEspnDate(getMatchEventDate(current))?.slice(0, 10);
+        const home = String(current?.home_team?.name ?? current?.home_team ?? "");
+        const away = String(current?.away_team?.name ?? current?.away_team ?? "");
+        if (home && away) {
+          thesportsdbResolveCalls++;
+          const resolvedId = await resolveTheSportsDbEvent(home, away, eventDate);
+          if (resolvedId && /^\d+$/.test(resolvedId)) {
+            thesportsdbRefId = resolvedId;
             current = {
               ...current,
-              live_stats: mergedStats,
-              stats_last_updated_at: nowIso(),
               raw_data: {
                 ...(current?.raw_data || {}),
-                live_stats: mergedStats,
-                stats_sources: [
-                  ...new Set([
-                    ...((current?.raw_data?.stats_sources || []) as string[]),
-                    "thesportsdb_stats",
-                  ]),
-                ],
-                stats_authority: "thesportsdb_stats",
+                provider_refs: {
+                  ...((current?.raw_data?.provider_refs || {}) as any),
+                  thesportsdb: {
+                    id: resolvedId,
+                    quality: safeNumber(FREE_SOURCE_QUALITY?.thesportsdb?.overall, 79),
+                    resolved: true,
+                  },
+                },
               },
             };
-            before = after;
-            enriched++;
           }
         }
       } catch (e) {
-        console.warn("TheSportsDB stats unavailable", refs?.thesportsdb?.id, e);
+        console.warn("TheSportsDB event resolution unavailable", current?.id, e);
+      }
+    }
+
+    if (
+      before < 3 &&
+      thesportsdbCalls < maxTsdb &&
+      /^\d+$/.test(thesportsdbRefId)
+    ) {
+      try {
+        thesportsdbCalls++;
+        const detail = await fetchTheSportsDbStats(thesportsdbRefId);
+        const mergedStats = mergeLiveStats(
+          getMatchLiveStats(current),
+          detail?.stats || {},
+          true,
+        );
+        const after = statsCompleteness(mergedStats).core_complete;
+        if (after > before) {
+          current = {
+            ...current,
+            live_stats: mergedStats,
+            stats_last_updated_at: nowIso(),
+            raw_data: {
+              ...(current?.raw_data || {}),
+              live_stats: mergedStats,
+              stats_sources: [
+                ...new Set([
+                  ...((current?.raw_data?.stats_sources || []) as string[]),
+                  "thesportsdb_stats",
+                ]),
+              ],
+              stats_authority: "thesportsdb_stats",
+            },
+          };
+          before = after;
+          enriched++;
+        }
+      } catch (e) {
+        console.warn("TheSportsDB stats unavailable", thesportsdbRefId, e);
       }
     }
 
@@ -4195,8 +4236,9 @@ async function enrichLiveMatchesWithFreeStats(matches: any[]) {
 
   return {
     matches: out,
-    calls: sportscoreCalls + thesportsdbCalls,
+    calls: sportscoreCalls + thesportsdbResolveCalls + thesportsdbCalls,
     sportscore_calls: sportscoreCalls,
+    thesportsdb_resolve_calls: thesportsdbResolveCalls,
     thesportsdb_calls: thesportsdbCalls,
     enriched,
     odds_sections_detected: oddsSectionsDetected,
@@ -6143,6 +6185,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       free_stats_calls: freeStatsEnrichment.calls,
       free_stats_enriched: freeStatsEnrichment.enriched,
       sportscore_stats_calls: freeStatsEnrichment.sportscore_calls,
+      thesportsdb_resolve_calls: freeStatsEnrichment.thesportsdb_resolve_calls,
       thesportsdb_stats_calls: freeStatsEnrichment.thesportsdb_calls,
       sportscore_odds_sections_detected:
         freeStatsEnrichment.odds_sections_detected,
