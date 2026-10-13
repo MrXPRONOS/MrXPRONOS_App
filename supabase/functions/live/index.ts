@@ -271,9 +271,7 @@ function getAwayStats(stats: any) {
 }
 
 function nullableNumber(value: unknown): number | null {
-  if (value == null || value === "") return null;
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
+  return parseEspnNumber(value);
 }
 
 function hasCompleteStatPair(stats: any, key: string): boolean {
@@ -3621,7 +3619,7 @@ function normalizeEspnEventToOriginalMatch(event: any) {
   const awayLogo = awayTeam?.logo || awayTeam?.logos?.[0]?.href || null;
   const leagueLogo = leagueObj?.logos?.[0]?.href || leagueObj?.logo || null;
 
-  const eventDate = event?.date ? new Date(event.date).toISOString() : nowIso();
+  const eventDate = event?.date ? safeEspnDate(event.date) || nowIso() : nowIso();
   const eventId = String(event?.id || crypto.randomUUID());
 
   return {
@@ -7798,7 +7796,9 @@ serve(async (req) => {
 
       let events: any[] = [];
       try {
-        const scoreboard = await fetchEspnScoreboard(toDateKey(date), false);
+        // Lecture DB uniquement : jamais d'appel ESPN par visiteur.
+        const cached = await espnStore.read("scoreboard:" + toDateKey(date));
+        const scoreboard = cached?.payload;
         events = (scoreboard?.events || [])
           .map(normalizeEspnEventToOriginalMatch)
           .filter(Boolean);
@@ -7815,7 +7815,7 @@ serve(async (req) => {
           scheduled: { count: scheduled.length, matches: scheduled },
           finished: { count: finished.length, matches: finished.slice(0, 10) },
         },
-        meta: { source: "supabase+espn", bsd_calls: 0 },
+        meta: { source: "supabase+espn-cache", bsd_calls: 0, upstream_espn_calls: 0 },
       });
     }
     // ===================================================
