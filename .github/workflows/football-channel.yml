@@ -60,12 +60,29 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Installer requests et Pillow
-        run: python -m pip install requests Pillow
+      - name: Installer les dépendances du canal et des flux gratuits
+        run: python -m pip install requests Pillow feedparser
       - name: Compiler le moteur News Football
         run: python -m py_compile fetch_foot_news.py scripts/football_news_engine.py scripts/football_channel.py
       - name: Vérifier le JavaScript Infos Foot
         run: node --check assets/js/main.js
+      - name: Tester réellement les flux News Football sans publication
+        env:
+          MAX_ARTICLES: '12'
+          MAX_ARTICLES_PER_FEED: '6'
+          MAX_NEWS_AGE_HOURS: '168'
+        run: |
+          python fetch_foot_news.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          rows=json.loads(Path("footnews.json").read_text(encoding="utf-8"))
+          assert len(rows)>=3, f"Couverture RSS insuffisante: {len(rows)}"
+          assert all(x.get("image_origin")=="source" for x in rows)
+          assert all(Path(x["image"]).is_file() for x in rows)
+          assert all(x.get("content") and x.get("telegram_summary") and x.get("site_url") for x in rows)
+          print("NEWS_FREE_SOURCES_OK",len(rows),sorted({x.get("source") for x in rows}))
+          PY
       - name: Verifier la presence des 6 templates premium
         run: |
           python - <<'PY'
