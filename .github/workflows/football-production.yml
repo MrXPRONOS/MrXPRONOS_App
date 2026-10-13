@@ -9,6 +9,7 @@ on:
       - 'scripts/football_channel.py'
       - 'scripts/football_news_engine.py'
       - 'scripts/football_match_lifecycle.py'
+      - 'scripts/football_provider_mesh.py'
       - 'scripts/football_stats_engine.py'
       - 'scripts/football_community_engine.py'
       - 'scripts/football_viral_engine.py'
@@ -78,6 +79,8 @@ jobs:
       FOOTBALL_RSS_FEED: https://www.footmercato.net/flux-rss
       FOOTBALL_BSD_REQUEST_BUDGET: '18'
       FOOTBALL_ESPN_REQUEST_BUDGET: '36'
+      FOOTBALL_FREE_MIN_MATCHES: '3'
+      BSD_LIVE_BACKFILL_SECONDS: '600'
       FOOTBALL_REQUIRE_COMMENTS: '1'
       PYTHONUNBUFFERED: '1'
       RUN_MODE: ${{ inputs.mode || 'full' }}
