@@ -297,6 +297,10 @@ def fetch_openligadb_day(session: requests.Session, day: date, *, max_leagues: i
         "weltmeister", "world cup",
     )
     selected = []
+    trusted_shortcuts = {
+        "bl1", "bl2", "bl3", "ucl", "dfb", "wm26",
+        "fbl1", "fbl2", "fef", "dfbnat2526",
+    }
     for league in leagues:
         if not isinstance(league, dict):
             continue
@@ -304,8 +308,14 @@ def fetch_openligadb_day(session: requests.Session, day: date, *, max_leagues: i
         shortcut = _text(league.get("leagueShortcut"))
         if not shortcut:
             continue
-        quality = int(_number(league.get("leagueQuality") or league.get("qualityIndex")) or 0)
-        if quality >= 90 and any(term in name for term in preferred):
+        sport_obj = league.get("sport") if isinstance(league.get("sport"), dict) else {}
+        sport_name = _norm(sport_obj.get("sportName") or league.get("sportName"))
+        if sport_name and not any(x in sport_name for x in ("football", "soccer", "fussball")):
+            continue
+        quality_raw = _number(league.get("leagueQuality") or league.get("qualityIndex"))
+        quality = int(quality_raw) if quality_raw is not None else 90
+        known = shortcut.lower() in trusted_shortcuts or any(term in name for term in preferred)
+        if known and (quality_raw is None or quality >= 90):
             selected.append((quality, shortcut, league))
     selected.sort(key=lambda x: (-x[0], x[1]))
 
