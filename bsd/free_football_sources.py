@@ -130,8 +130,6 @@ def _json_get(session: requests.Session, provider: str, url: str, *, params: Dic
         "Accept": "application/json",
         "User-Agent": "MrXPRONOS-MultiSource/1.0",
     }
-    if provider == "sportscore":
-        params = {**params, "src": "mrxpronos"}
     response = session.get(url, params=params, headers=headers, timeout=(6, 16), allow_redirects=True)
     response.raise_for_status()
     payload = response.json()
