@@ -11,6 +11,7 @@ from typing import Any, Dict, Optional, Tuple
 from bsd_api import BSDAPIError, BSDClient
 from bsd_h2h import _utc
 from bsd_markets import candidates_from_goals
+from free_football_providers import ODDS_PRIORITY
 
 # Codes internes -> filtre BSD officiel (uniquement FT).
 MARKETS = {c.market_code: (c.market, c.outcome)
@@ -20,6 +21,12 @@ MARKETS = {c.market_code: (c.market, c.outcome)
 ALLOWED_MARKETS = frozenset(("1x2", "double_chance", "btts",
                             "over_under_15", "over_under_25", "over_under_35",
                             "over_under_45"))
+
+# SportScore affiche des cotes sur son site public, mais son API REST documentée
+# n'expose aucun endpoint odds. Les conditions interdisent le scraping automatisé.
+# Donc on n'utilise PAS ces cotes tant qu'un endpoint officiel n'est pas publié.
+SPORTSCORE_ODDS_API_SUPPORTED = False
+ODDS_PROVIDER_ORDER = tuple(ODDS_PRIORITY)
 
 
 def _odds_number(v):
