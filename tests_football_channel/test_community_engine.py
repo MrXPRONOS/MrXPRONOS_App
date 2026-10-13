@@ -86,6 +86,7 @@ class CommunityEngineTests(unittest.TestCase):
         self.assertGreaterEqual(index, 0)
         self.assertLess(index, 4)
         self.assertIn(quiz["options"][index], quiz["explanation"])
+        self.assertNotIn("1892", quiz["explanation"])
 
     @patch("football_community_engine.fetch_tsdb_team_metadata")
     def test_tsdb_fallback_quiz_has_verified_answer(self, metadata):
@@ -93,7 +94,7 @@ class CommunityEngineTests(unittest.TestCase):
             "source": "TheSportsDB",
             "team": "Arsenal",
             "stadium": "Emirates Stadium",
-            "formed_year": "1886",
+            "formed_year": "1892",
             "country": "England",
         }
         quiz = community.build_tsdb_club_quiz(FakeSession(), date(2026, 10, 14))
