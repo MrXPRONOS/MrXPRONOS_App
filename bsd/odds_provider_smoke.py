@@ -12,7 +12,7 @@ import requests
 
 def probe(name, url, headers=None):
     try:
-        response = requests.get(url, headers=headers or {}, timeout=25)
+        response = requests.get(url, headers=headers or {}, timeout=35)
         status = response.status_code
         if status != 200:
             print(json.dumps({"provider":name,"http":status,"result":"rejected" if status in (401,403,429) else "http_error"}))
@@ -57,7 +57,7 @@ def main():
             print('{"provider":"oddslink","result":"missing_secret"}')
             ok = False
         else:
-            ok = probe("oddslink","https://oddslink.app/v1/sports/soccer/odds?oddsFormat=decimal",
+            ok = probe("oddslink","https://oddslink.app/v1/sports/soccer/odds?league=epl&oddsFormat=decimal",
                        {"X-API-Key":key2}) and ok
     if selected in ("all","moviodds"):
         ok = probe("moviodds","https://moviodds.com/odds?sport=soccer&groups=40") and ok
