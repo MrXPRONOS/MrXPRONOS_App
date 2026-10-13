@@ -95,7 +95,7 @@ jobs:
           if [ "$RUN_MODE" = "lifecycle" ]; then
             python -m pip install --disable-pip-version-check requests
           else
-            python -m pip install --disable-pip-version-check requests Pillow feedparser
+            python -m pip install --disable-pip-version-check requests Pillow feedparser imageio-ffmpeg
           fi
 
       - name: Router canal Telegram production ou test
