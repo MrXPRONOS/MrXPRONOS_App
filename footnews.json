@@ -1,7 +1,427 @@
 [
   {
+    "slug": "ba756a841b60397a",
+    "title": "Youth League : Lens arrache la victoire contre le Sporting CP",
+    "summary": "Après une défaite initiale contre le Slavia Prague (2-1), l’équipe U19 du Racing de Lens continuait sa campagne de Youth League. Les jeunes artésiens affrontaient le Sporting CP qui sortait d’un match (…)",
+    "summary_short": "Après une défaite initiale contre le Slavia Prague (2-1), l’équipe U19 du Racing de Lens continuait sa campagne de Youth League. Les jeunes artésiens affrontaient le Sporting CP qui sortait d’un match (…)",
+    "content": "Après une défaite initiale contre le Slavia Prague (2-1), l’équipe U19 du Racing de Lens continuait sa campagne de Youth League. Les jeunes artésiens affrontaient le Sporting CP qui sortait d’un match (…)",
+    "paragraphs": [
+      "Après une défaite initiale contre le Slavia Prague (2-1), l’équipe U19 du Racing de Lens continuait sa campagne de Youth League. Les jeunes artésiens affrontaient le Sporting CP qui sortait d’un match (…)"
+    ],
+    "key_points": [
+      "Après une défaite initiale contre le Slavia Prague (2-1), l’équipe U19 du Racing de Lens continuait sa campagne de Youth League.",
+      "Les jeunes artésiens affrontaient le Sporting CP qui sortait d’un match (…)"
+    ],
+    "telegram_summary": "Après une défaite initiale contre le Slavia Prague (2-1), l’équipe U19 du Racing de Lens continuait sa campagne de Youth League. Les jeunes artésiens affrontaient le Sporting CP qui sortait d’un match (…)",
+    "link": "https://www.footmercato.net/a3858842379918910578-youth-league-lens-arrache-la-victoire-contre-le-sporting-cp",
+    "source_url": "https://www.footmercato.net/a3858842379918910578-youth-league-lens-arrache-la-victoire-contre-le-sporting-cp",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=ba756a841b60397a",
+    "published": "2026-10-13T12:59:04+00:00",
+    "image": "assets/images/footnews/ba756a841b60397a.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxsportsworldtwo960803.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 5,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "2192eaeec620c9f4",
+    "title": "Manchester City : Enzo Maresca : \"Où nous en sommes par rapport au niveau du PSG ? Je ne sais pas\"",
+    "summary": "Présent devant les médias à la veille du choc entre Manchester City et le PSG, Enzo Maresca a été interrogé sur le niveau de son équipe par rapport à celui du double champion d'Europe.",
+    "summary_short": "Présent devant les médias à la veille du choc entre Manchester City et le PSG, Enzo Maresca a été interrogé sur le niveau de son équipe par rapport à celui du double champion d'Europe.",
+    "content": "Présent devant les médias à la veille du choc entre Manchester City et le PSG, Enzo Maresca a été interrogé sur le niveau de son équipe par rapport à celui du double champion d'Europe.",
+    "paragraphs": [
+      "Présent devant les médias à la veille du choc entre Manchester City et le PSG, Enzo Maresca a été interrogé sur le niveau de son équipe par rapport à celui du double champion d'Europe."
+    ],
+    "key_points": [
+      "Présent devant les médias à la veille du choc entre Manchester City et le PSG, Enzo Maresca a été interrogé sur le niveau de son équipe par rapport à celui du double champion d'Europe."
+    ],
+    "telegram_summary": "Présent devant les médias à la veille du choc entre Manchester City et le PSG, Enzo Maresca a été interrogé sur le niveau de son équipe par rapport à celui du double champion d'Europe.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-manchester-city-enzo-maresca-ou-nous-en-sommes-par-rapport-au-niveau-du-psg-je-ne-sais-pas-542048.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-manchester-city-enzo-maresca-ou-nous-en-sommes-par-rapport-au-niveau-du-psg-je-ne-sais-pas-542048.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=2192eaeec620c9f4",
+    "published": "2026-10-13T12:55:00+00:00",
+    "image": "assets/images/footnews/2192eaeec620c9f4.webp",
+    "source_image": "https://s1.dmcdn.net/v/fvaAI1gpY3k3G44WB/x480",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Actualité",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50172881",
+      "url": "https://www.espn.com/soccer/story/_/id/50172881/enzo-maresca-man-city-celebration-anfield-do-want-us-do",
+      "published": "2026-10-13T11:58:01Z",
+      "score": 0.231,
+      "matched_terms": [
+        "city",
+        "enzo",
+        "maresca"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Manchester City"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-13T13:01:30.286513+00:00"
+    },
+    "quality_sources": [
+      "MadeInFoot",
+      "ESPN"
+    ],
+    "quality_score": 96
+  },
+  {
+    "slug": "3cc0efc0f973bb22",
+    "title": "La Direction de l’arbitrage de la FFF reconnaît une erreur après la grave blessure de Tiago Santos",
+    "summary": "La Direction de l’arbitrage de la Fédération française de football a publié, ce mardi, son débriefing de la 6e journée de Ligue 1, en revenant notamment sur deux situations litigieuses.",
+    "summary_short": "La Direction de l’arbitrage de la Fédération française de football a publié, ce mardi, son débriefing de la 6e journée de Ligue 1, en revenant notamment sur deux situations litigieuses.",
+    "content": "La Direction de l’arbitrage de la Fédération française de football a publié, ce mardi, son débriefing de la 6e journée de Ligue 1, en revenant notamment sur deux situations litigieuses. Lors de la (…)",
+    "paragraphs": [
+      "La Direction de l’arbitrage de la Fédération française de football a publié, ce mardi, son débriefing de la 6e journée de Ligue 1, en revenant notamment sur deux situations litigieuses. Lors de la (…)"
+    ],
+    "key_points": [
+      "La Direction de l’arbitrage de la Fédération française de football a publié, ce mardi, son débriefing de la 6e journée de Ligue 1, en revenant notamment sur deux situations litigieuses."
+    ],
+    "telegram_summary": "La Direction de l’arbitrage de la Fédération française de football a publié, ce mardi, son débriefing de la 6e journée de Ligue 1, en revenant notamment sur deux situations litigieuses.",
+    "link": "https://www.footmercato.net/a5802743890577526609-la-direction-de-larbitrage-de-la-fff-reconnait-une-erreur-apres-la-grave-blessure-de-tiago-santos",
+    "source_url": "https://www.footmercato.net/a5802743890577526609-la-direction-de-larbitrage-de-la-fff-reconnait-une-erreur-apres-la-grave-blessure-de-tiago-santos",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3cc0efc0f973bb22",
+    "published": "2026-10-13T12:51:09+00:00",
+    "image": "assets/images/footnews/3cc0efc0f973bb22.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsspecialtwo755363.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Compétitions",
+    "category_emoji": "🏆",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "f479fb624c3b9943",
+    "title": "L’Olympiacos enrage après l’interdiction de ses supporters à Marseille",
+    "summary": "L’Olympiakos a vivement réagi à l’interdiction de déplacement de ses supporters pour la rencontre face à l’Olympique de Marseille, prévue ce jeudi en Ligue Europa. Dans un communiqué, le club grec a, (…)",
+    "summary_short": "L’Olympiakos a vivement réagi à l’interdiction de déplacement de ses supporters pour la rencontre face à l’Olympique de Marseille, prévue ce jeudi en Ligue Europa. Dans un communiqué, le club grec a, (…)",
+    "content": "L’Olympiakos a vivement réagi à l’interdiction de déplacement de ses supporters pour la rencontre face à l’Olympique de Marseille, prévue ce jeudi en Ligue Europa. Dans un communiqué, le club grec a, (…)",
+    "paragraphs": [
+      "L’Olympiakos a vivement réagi à l’interdiction de déplacement de ses supporters pour la rencontre face à l’Olympique de Marseille, prévue ce jeudi en Ligue Europa. Dans un communiqué, le club grec a, (…)"
+    ],
+    "key_points": [
+      "L’Olympiakos a vivement réagi à l’interdiction de déplacement de ses supporters pour la rencontre face à l’Olympique de Marseille, prévue ce jeudi en Ligue Europa.",
+      "Dans un communiqué, le club grec a, (…)"
+    ],
+    "telegram_summary": "L’Olympiakos a vivement réagi à l’interdiction de déplacement de ses supporters pour la rencontre face à l’Olympique de Marseille, prévue ce jeudi en Ligue Europa. Dans un communiqué, le club grec a, (…)",
+    "link": "https://www.footmercato.net/a9140304277801445008-lolympiacos-enrage-apres-linterdiction-de-ses-supporters-a-marseille",
+    "source_url": "https://www.footmercato.net/a9140304277801445008-lolympiacos-enrage-apres-linterdiction-de-ses-supporters-a-marseille",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=f479fb624c3b9943",
+    "published": "2026-10-13T12:44:54+00:00",
+    "image": "assets/images/footnews/f479fb624c3b9943.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/orange-velodrome.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Officiel",
+    "category_emoji": "✅",
+    "editorial_score": 4,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "25ee0fd58f24f9e0",
+    "title": "LdC : le groupe du Real Madrid pour affronter l’AS Roma",
+    "summary": "Le Real Madrid a dévoilé son groupe pour le déplacement sur la pelouse de l’AS Roma, ce mercredi, à l’occasion de la deuxième journée de la Ligue des champions. Pour ce choc européen, José Mourinho (…)",
+    "summary_short": "Le Real Madrid a dévoilé son groupe pour le déplacement sur la pelouse de l’AS Roma, ce mercredi, à l’occasion de la deuxième journée de la Ligue des champions. Pour ce choc européen, José Mourinho (…)",
+    "content": "Le Real Madrid a dévoilé son groupe pour le déplacement sur la pelouse de l’AS Roma, ce mercredi, à l’occasion de la deuxième journée de la Ligue des champions. Pour ce choc européen, José Mourinho (…)",
+    "paragraphs": [
+      "Le Real Madrid a dévoilé son groupe pour le déplacement sur la pelouse de l’AS Roma, ce mercredi, à l’occasion de la deuxième journée de la Ligue des champions. Pour ce choc européen, José Mourinho (…)"
+    ],
+    "key_points": [
+      "Le Real Madrid a dévoilé son groupe pour le déplacement sur la pelouse de l’AS Roma, ce mercredi, à l’occasion de la deuxième journée de la Ligue des champions.",
+      "Pour ce choc européen, José Mourinho (…)"
+    ],
+    "telegram_summary": "Le Real Madrid a dévoilé son groupe pour le déplacement sur la pelouse de l’AS Roma, ce mercredi, à l’occasion de la deuxième journée de la Ligue des champions. Pour ce choc européen, José Mourinho (…)",
+    "link": "https://www.footmercato.net/a2243993682813987817-ldc-le-groupe-du-real-madrid-pour-affronter-las-roma",
+    "source_url": "https://www.footmercato.net/a2243993682813987817-ldc-le-groupe-du-real-madrid-pour-affronter-las-roma",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=25ee0fd58f24f9e0",
+    "published": "2026-10-13T12:38:59+00:00",
+    "image": "assets/images/footnews/25ee0fd58f24f9e0.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxnewsworldsix748379.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Convocations",
+    "category_emoji": "📋",
+    "editorial_score": 3,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50150816",
+      "url": "https://www.espn.com/video/clip/_/id/50150816/real-madrid-vs-villarreal-game-highlights",
+      "published": "2026-10-10T21:06:47Z",
+      "score": 0.25,
+      "matched_terms": [
+        "madrid",
+        "real"
+      ],
+      "topics": [],
+      "teams": [
+        "Real Madrid",
+        "Villarreal"
+      ],
+      "athletes": [
+        "Alberto Moleiro",
+        "Vinícius Júnior",
+        "Yan Diomande"
+      ],
+      "leagues": [
+        "Soccer",
+        "Spanish LALIGA"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-13T13:01:30.286513+00:00"
+    },
+    "quality_sources": [
+      "Foot Mercato",
+      "ESPN"
+    ],
+    "quality_score": 100
+  },
+  {
+    "slug": "fe597d90e6f167e1",
+    "title": "RC Strasbourg : Une énorme nouvelle annoncée par le RCSA pour le match face au PSG !",
+    "summary": "Le match de la 7ème journée de Ligue 1 entre le RC Strasbourg Alsace et le PSG se disputera dans un Stade de la Meinau à guichets fermés.",
+    "summary_short": "Le match de la 7ème journée de Ligue 1 entre le RC Strasbourg Alsace et le PSG se disputera dans un Stade de la Meinau à guichets fermés.",
+    "content": "Le match de la 7ème journée de Ligue 1 entre le RC Strasbourg Alsace et le PSG se disputera dans un Stade de la Meinau à guichets fermés.",
+    "paragraphs": [
+      "Le match de la 7ème journée de Ligue 1 entre le RC Strasbourg Alsace et le PSG se disputera dans un Stade de la Meinau à guichets fermés."
+    ],
+    "key_points": [
+      "Le match de la 7ème journée de Ligue 1 entre le RC Strasbourg Alsace et le PSG se disputera dans un Stade de la Meinau à guichets fermés."
+    ],
+    "telegram_summary": "Le match de la 7ème journée de Ligue 1 entre le RC Strasbourg Alsace et le PSG se disputera dans un Stade de la Meinau à guichets fermés.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-rc-strasbourg-une-enorme-nouvelle-annoncee-par-le-rcsa-pour-le-match-face-au-psg-542049.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-rc-strasbourg-une-enorme-nouvelle-annoncee-par-le-rcsa-pour-le-match-face-au-psg-542049.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=fe597d90e6f167e1",
+    "published": "2026-10-13T12:38:00+00:00",
+    "image": "assets/images/footnews/fe597d90e6f167e1.webp",
+    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2025/une/l1-20250731221712-6661.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Matchs",
+    "category_emoji": "⚽",
+    "editorial_score": 2,
+    "espn_verification": {},
+    "quality_sources": [
+      "MadeInFoot"
+    ],
+    "quality_score": 88
+  },
+  {
+    "slug": "0243c3cb628033a1",
+    "title": "PSG : Luis Enrique : \"Une combinaison magnifique avec Luis Campos\"",
+    "summary": "Au cours d'une interview accordée aux médias du PSG, l'entraîneur parisien Luis Enrique s'est exprimé sur la bonne relation qu'il entretient avec Luis Campos.",
+    "summary_short": "Au cours d'une interview accordée aux médias du PSG, l'entraîneur parisien Luis Enrique s'est exprimé sur la bonne relation qu'il entretient avec Luis Campos.",
+    "content": "Au cours d'une interview accordée aux médias du PSG, l'entraîneur parisien Luis Enrique s'est exprimé sur la bonne relation qu'il entretient avec Luis Campos.",
+    "paragraphs": [
+      "Au cours d'une interview accordée aux médias du PSG, l'entraîneur parisien Luis Enrique s'est exprimé sur la bonne relation qu'il entretient avec Luis Campos."
+    ],
+    "key_points": [
+      "Au cours d'une interview accordée aux médias du PSG, l'entraîneur parisien Luis Enrique s'est exprimé sur la bonne relation qu'il entretient avec Luis Campos."
+    ],
+    "telegram_summary": "Au cours d'une interview accordée aux médias du PSG, l'entraîneur parisien Luis Enrique s'est exprimé sur la bonne relation qu'il entretient avec Luis Campos.",
+    "link": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-une-combinaison-magnifique-avec-luis-campos-542039.html",
+    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-psg-luis-enrique-une-combinaison-magnifique-avec-luis-campos-542039.html",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=0243c3cb628033a1",
+    "published": "2026-10-13T12:35:00+00:00",
+    "image": "assets/images/footnews/0243c3cb628033a1.webp",
+    "source_image": "https://s1.dmcdn.net/v/fv9p61gpW80t62DI0/x480",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "MadeInFoot",
+    "source_priority": 88,
+    "source_region": "international",
+    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
+    "category": "Mercato",
+    "category_emoji": "🚨",
+    "editorial_score": 2,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "49827385",
+      "url": "https://www.espn.com/soccer/story/_/id/49827385/psg-coach-luis-enrique-new-contract-fabian-ruiz-joao-neves",
+      "published": "2026-09-04T20:23:54Z",
+      "score": 0.222,
+      "matched_terms": [
+        "enrique",
+        "luis"
+      ],
+      "topics": [
+        "news"
+      ],
+      "teams": [
+        "Paris Saint-Germain"
+      ],
+      "athletes": [
+        "Fabián Ruiz",
+        "João Neves",
+        "Lucas Beraldo",
+        "Senny Mayulu",
+        "Willian Pacho"
+      ],
+      "leagues": [
+        "French Ligue 1",
+        "Soccer",
+        "UEFA Champions League"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-13T13:01:30.286513+00:00"
+    },
+    "quality_sources": [
+      "MadeInFoot",
+      "ESPN"
+    ],
+    "quality_score": 96
+  },
+  {
+    "slug": "7b6c91abac726319",
+    "title": "OM : Papin compare Nouhoum Kamissoko à John Obi Mikel",
+    "summary": "Dans les colonnes de La Provence, l’ancien attaquant de l’OM a livré son regard sur le milieu de terrain de 21 ans, qu’il compare à un ancien international nigérian passé notamment par Chelsea.",
+    "summary_short": "Dans les colonnes de La Provence, l’ancien attaquant de l’OM a livré son regard sur le milieu de terrain de 21 ans, qu’il compare à un ancien international nigérian passé notamment par Chelsea.",
+    "content": "Dans les colonnes de La Provence, l’ancien attaquant de l’OM a livré son regard sur le milieu de terrain de 21 ans, qu’il compare à un ancien international nigérian passé notamment par Chelsea. « Il (…)",
+    "paragraphs": [
+      "Dans les colonnes de La Provence, l’ancien attaquant de l’OM a livré son regard sur le milieu de terrain de 21 ans, qu’il compare à un ancien international nigérian passé notamment par Chelsea. « Il (…)"
+    ],
+    "key_points": [
+      "Dans les colonnes de La Provence, l’ancien attaquant de l’OM a livré son regard sur le milieu de terrain de 21 ans, qu’il compare à un ancien international nigérian passé notamment par Chelsea."
+    ],
+    "telegram_summary": "Dans les colonnes de La Provence, l’ancien attaquant de l’OM a livré son regard sur le milieu de terrain de 21 ans, qu’il compare à un ancien international nigérian passé notamment par Chelsea.",
+    "link": "https://www.footmercato.net/a5507384688286603139-om-papin-compare-nouhoum-kamissoko-a-john-obi-mikel",
+    "source_url": "https://www.footmercato.net/a5507384688286603139-om-papin-compare-nouhoum-kamissoko-a-john-obi-mikel",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7b6c91abac726319",
+    "published": "2026-10-13T12:33:28+00:00",
+    "image": "assets/images/footnews/7b6c91abac726319.webp",
+    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/jean-pierre-papin-foot.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Foot Mercato",
+    "source_priority": 92,
+    "source_region": "international",
+    "source_feed": "https://www.footmercato.net/flux-rss",
+    "category": "Afrique",
+    "category_emoji": "🌍",
+    "editorial_score": 3,
+    "espn_verification": {},
+    "quality_sources": [
+      "Foot Mercato"
+    ],
+    "quality_score": 92
+  },
+  {
+    "slug": "7278857246326302",
+    "title": "Manchester City - PSG : Cherki ne jouera pas le match, la blague géniale de Maresca",
+    "summary": "Enzo Maresca, l'entraîneur de Manchester City, s'est confié en conférence de presse sur Rayan Cherki avant le choc contre le PSG. Et il a manié l'ironie !",
+    "summary_short": "Enzo Maresca, l'entraîneur de Manchester City, s'est confié en conférence de presse sur Rayan Cherki avant le choc contre le PSG. Et il a manié l'ironie !",
+    "content": "Enzo Maresca, l'entraîneur de Manchester City, s'est confié en conférence de presse sur Rayan Cherki avant le choc contre le PSG. Et il a manié l'ironie !",
+    "paragraphs": [
+      "Enzo Maresca, l'entraîneur de Manchester City, s'est confié en conférence de presse sur Rayan Cherki avant le choc contre le PSG. Et il a manié l'ironie !"
+    ],
+    "key_points": [
+      "Enzo Maresca, l'entraîneur de Manchester City, s'est confié en conférence de presse sur Rayan Cherki avant le choc contre le PSG."
+    ],
+    "telegram_summary": "Enzo Maresca, l'entraîneur de Manchester City, s'est confié en conférence de presse sur Rayan Cherki avant le choc contre le PSG. Et il a manié l'ironie !",
+    "link": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-cherki-ne-jouera-pas-la-blague-geniale-de-maresca-1002476",
+    "source_url": "https://www.onzemondial.com/ligue-des-champions/manchester-city-psg-cherki-ne-jouera-pas-la-blague-geniale-de-maresca-1002476",
+    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7278857246326302",
+    "published": "2026-10-13T12:32:00+00:00",
+    "image": "assets/images/footnews/7278857246326302.webp",
+    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002476/409348/1200-L-manchester-city-psg-guardiola-prsent-l-etihad-stadium-maresca-rpond.jpg",
+    "image_origin": "source",
+    "image_layout": "smart-crop",
+    "source": "Onze Mondial",
+    "source_priority": 80,
+    "source_region": "international",
+    "source_feed": "https://www.onzemondial.com/rss/index.html",
+    "category": "Déclarations",
+    "category_emoji": "🗣️",
+    "editorial_score": 4,
+    "espn_verification": {
+      "provider": "ESPN",
+      "source": "ESPN News API",
+      "article_id": "50164676",
+      "url": "https://www.espn.com/video/clip/_/id/50164676/manchester-city-dealt-anfield-very-well",
+      "published": "2026-10-12T08:48:47Z",
+      "score": 0.25,
+      "matched_terms": [
+        "city",
+        "manchester",
+        "maresca"
+      ],
+      "topics": [],
+      "teams": [
+        "Liverpool",
+        "Manchester City"
+      ],
+      "athletes": [],
+      "leagues": [
+        "English Premier League",
+        "Soccer"
+      ],
+      "is_transfer": false,
+      "checked_at": "2026-10-13T13:01:30.286513+00:00"
+    },
+    "quality_sources": [
+      "Onze Mondial",
+      "ESPN"
+    ],
+    "quality_score": 88
+  },
+  {
     "slug": "8497cd77dee3fea3",
-    "title": "Le milliardaire Mathieu Flamini dévoile les dessous de sa reconversion à succès",
+    "title": "Le milliardaire Mathieu Flamini dévoile les dessous de sa surprenante reconversion à succès",
     "summary": "Retraité des terrains depuis 2019, l’ancien joueur de l’OM s’est reconverti avec succès dans la chimie verte. Une reconversion qu’il a expliquée.C’est une reconversion connue de tous, mais peu banale (…)",
     "summary_short": "Retraité des terrains depuis 2019, l’ancien joueur de l’OM s’est reconverti avec succès dans la chimie verte. Une reconversion qu’il a expliquée.C’est une reconversion connue de tous, mais peu banale (…)",
     "content": "Retraité des terrains depuis 2019, l’ancien joueur de l’OM s’est reconverti avec succès dans la chimie verte. Une reconversion qu’il a expliquée.C’est une reconversion connue de tous, mais peu banale (…)",
@@ -292,7 +712,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:31:22.821396+00:00"
+      "checked_at": "2026-10-13T13:01:30.286513+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -388,7 +808,7 @@
         "Soccer"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:31:22.821396+00:00"
+      "checked_at": "2026-10-13T13:01:30.286513+00:00"
     },
     "quality_sources": [
       "Foot Mercato",
@@ -554,7 +974,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:31:22.821396+00:00"
+      "checked_at": "2026-10-13T13:01:30.286513+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1048,65 +1468,6 @@
     "quality_score": 80
   },
   {
-    "slug": "94a1b4e5696cefd1",
-    "title": "LdC, PSG : le groupe des 23 retenus pour le choc face à Manchester City",
-    "summary": "Demain soir, le Paris Saint-Germain affronte Manchester City dans le cadre de la 2ᵉ journée de la phase de ligue de la Ligue des Champions. Leaders du classement, les hommes de Luis Enrique ont (…)",
-    "summary_short": "Demain soir, le Paris Saint-Germain affronte Manchester City dans le cadre de la 2ᵉ journée de la phase de ligue de la Ligue des Champions. Leaders du classement, les hommes de Luis Enrique ont (…)",
-    "content": "Demain soir, le Paris Saint-Germain affronte Manchester City dans le cadre de la 2ᵉ journée de la phase de ligue de la Ligue des Champions. Leaders du classement, les hommes de Luis Enrique ont (…)",
-    "paragraphs": [
-      "Demain soir, le Paris Saint-Germain affronte Manchester City dans le cadre de la 2ᵉ journée de la phase de ligue de la Ligue des Champions. Leaders du classement, les hommes de Luis Enrique ont (…)"
-    ],
-    "key_points": [
-      "Demain soir, le Paris Saint-Germain affronte Manchester City dans le cadre de la 2ᵉ journée de la phase de ligue de la Ligue des Champions.",
-      "Leaders du classement, les hommes de Luis Enrique ont (…)"
-    ],
-    "telegram_summary": "Demain soir, le Paris Saint-Germain affronte Manchester City dans le cadre de la 2ᵉ journée de la phase de ligue de la Ligue des Champions. Leaders du classement, les hommes de Luis Enrique ont (…)",
-    "link": "https://www.footmercato.net/a4960738397633335661-ldc-psg-le-groupe-des-23-retenus-pour-le-choc-face-a-manchester-city",
-    "source_url": "https://www.footmercato.net/a4960738397633335661-ldc-psg-le-groupe-des-23-retenus-pour-le-choc-face-a-manchester-city",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=94a1b4e5696cefd1",
-    "published": "2026-10-13T09:22:47+00:00",
-    "image": "assets/images/footnews/94a1b4e5696cefd1.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/epalivenine346495-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 3,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50159375",
-      "url": "https://www.espn.com/video/clip/_/id/50159375/no-sympathy-manchester-city-players",
-      "published": "2026-10-11T18:25:12Z",
-      "score": 0.2,
-      "matched_terms": [
-        "city",
-        "manchester"
-      ],
-      "topics": [],
-      "teams": [
-        "Liverpool",
-        "Manchester City"
-      ],
-      "athletes": [],
-      "leagues": [
-        "English Premier League",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-13T12:31:22.821396+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
     "slug": "0d8bc538b5e78c47",
     "title": "Ligue Europa : L'arbitre de OL - Crystal Palace est connu",
     "summary": "Alors que l'OL reçoit Crystal Palace ce jeudi soir (18h45) à l'occasion de la deuxième journée de phase de ligue de Ligue Europa, c'est le Portugais João Pinheiro qui sera au sifflet de la rencontre.",
@@ -1210,102 +1571,6 @@
     "quality_score": 80
   },
   {
-    "slug": "4d641cc4ce32af23",
-    "title": "Avant d’affronter le PSG, Manchester City met le gouvernement britannique dans l’embarras !",
-    "summary": "À l’approche du choc face au PSG, Manchester City embarrasse le gouvernement britannique avec de nouvelles révélations sur ses liens avec les autorités locales et le Premier ministre Andy Burnham.À la (…)",
-    "summary_short": "À l’approche du choc face au PSG, Manchester City embarrasse le gouvernement britannique avec de nouvelles révélations sur ses liens avec les autorités locales et le Premier ministre Andy Burnham.À la (…)",
-    "content": "À l’approche du choc face au PSG, Manchester City embarrasse le gouvernement britannique avec de nouvelles révélations sur ses liens avec les autorités locales et le Premier ministre Andy Burnham.À la (…)",
-    "paragraphs": [
-      "À l’approche du choc face au PSG, Manchester City embarrasse le gouvernement britannique avec de nouvelles révélations sur ses liens avec les autorités locales et le Premier ministre Andy Burnham.À la (…)"
-    ],
-    "key_points": [
-      "À l’approche du choc face au PSG, Manchester City embarrasse le gouvernement britannique avec de nouvelles révélations sur ses liens avec les autorités locales et le Premier ministre Andy Burnham.À la (…)"
-    ],
-    "telegram_summary": "À l’approche du choc face au PSG, Manchester City embarrasse le gouvernement britannique avec de nouvelles révélations sur ses liens avec les autorités locales et le Premier ministre Andy Burnham.À la (…)",
-    "link": "https://www.footmercato.net/a8145636380576896113-avant-daffronter-le-psg-manchester-city-met-le-gouvernement-britannique-dans-lembarras",
-    "source_url": "https://www.footmercato.net/a8145636380576896113-avant-daffronter-le-psg-manchester-city-met-le-gouvernement-britannique-dans-lembarras",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=4d641cc4ce32af23",
-    "published": "2026-10-13T09:00:03+00:00",
-    "image": "assets/images/footnews/4d641cc4ce32af23.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/maxpaimagesfour766333-1920x1080.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Actualité",
-    "category_emoji": "🚨",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
-  },
-  {
-    "slug": "7626b07e08ab2a83",
-    "title": "Dortmund prolonge Niko Kovac jusqu’en 2029 !",
-    "summary": "Le Borussia Dortmund a officialisé ce mardi la prolongation de Niko Kovac jusqu’au 30 juin 2029. Arrivé au printemps 2025 alors que le club occupait la 11e place de Bundesliga, l’entraîneur croate a (…)",
-    "summary_short": "Le Borussia Dortmund a officialisé ce mardi la prolongation de Niko Kovac jusqu’au 30 juin 2029. Arrivé au printemps 2025 alors que le club occupait la 11e place de Bundesliga, l’entraîneur croate a (…)",
-    "content": "Le Borussia Dortmund a officialisé ce mardi la prolongation de Niko Kovac jusqu’au 30 juin 2029. Arrivé au printemps 2025 alors que le club occupait la 11e place de Bundesliga, l’entraîneur croate a (…)",
-    "paragraphs": [
-      "Le Borussia Dortmund a officialisé ce mardi la prolongation de Niko Kovac jusqu’au 30 juin 2029. Arrivé au printemps 2025 alors que le club occupait la 11e place de Bundesliga, l’entraîneur croate a (…)"
-    ],
-    "key_points": [
-      "Le Borussia Dortmund a officialisé ce mardi la prolongation de Niko Kovac jusqu’au 30 juin 2029.",
-      "Arrivé au printemps 2025 alors que le club occupait la 11e place de Bundesliga, l’entraîneur croate a (…)"
-    ],
-    "telegram_summary": "Le Borussia Dortmund a officialisé ce mardi la prolongation de Niko Kovac jusqu’au 30 juin 2029. Arrivé au printemps 2025 alors que le club occupait la 11e place de Bundesliga, l’entraîneur croate a (…)",
-    "link": "https://www.footmercato.net/a4752479958080512997-dortmund-prolonge-niko-kovac-jusquen-2029",
-    "source_url": "https://www.footmercato.net/a4752479958080512997-dortmund-prolonge-niko-kovac-jusquen-2029",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=7626b07e08ab2a83",
-    "published": "2026-10-13T08:51:24+00:00",
-    "image": "assets/images/footnews/7626b07e08ab2a83.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dpaphotosseven880810.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Compétitions",
-    "category_emoji": "🏆",
-    "editorial_score": 4,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50172307",
-      "url": "https://www.espn.com/soccer/story/_/id/50172307/borussia-dortmund-niko-kovac-contract-extension-2029",
-      "published": "2026-10-13T10:49:28Z",
-      "score": 0.333,
-      "matched_terms": [
-        "2029",
-        "dortmund",
-        "kovac",
-        "niko"
-      ],
-      "topics": [
-        "news"
-      ],
-      "teams": [
-        "Borussia Dortmund"
-      ],
-      "athletes": [],
-      "leagues": [
-        "German Bundesliga",
-        "Soccer"
-      ],
-      "is_transfer": false,
-      "checked_at": "2026-10-13T12:31:22.821396+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
     "slug": "5ed21c23853f67b2",
     "title": "Mercato : Libre depuis son départ du Real Madrid, Dani Carvajal a trouvé son nouveau club (officiel)",
     "summary": "Après treize ans passés au Real Madrid, Dani Carvajal, sextuple vainqueur de la Ligue des Champions, a quitté les Merengue au terme de son contrat à la fin du mois de juin dernier.",
@@ -1362,7 +1627,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-13T12:31:22.821396+00:00"
+      "checked_at": "2026-10-13T13:01:30.286513+00:00"
     },
     "quality_sources": [
       "MadeInFoot",
@@ -1460,7 +1725,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": true,
-      "checked_at": "2026-10-13T12:31:22.821396+00:00"
+      "checked_at": "2026-10-13T13:01:30.286513+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1536,106 +1801,6 @@
       "MadeInFoot"
     ],
     "quality_score": 88
-  },
-  {
-    "slug": "345a361385abca5e",
-    "title": "Getafe annonce l’arrivée de Dani Carvajal",
-    "summary": "Nouveau challenge pour Dani Carvajal. Getafe vient d’officialiser un accord avec l’ex-latéral du Real Madrid, qui s’engage avec le club espagnol jusqu’au 30 juin 2027. International à 51 reprises avec (…)",
-    "summary_short": "Nouveau challenge pour Dani Carvajal. Getafe vient d’officialiser un accord avec l’ex-latéral du Real Madrid, qui s’engage avec le club espagnol jusqu’au 30 juin 2027. International à 51 reprises avec (…)",
-    "content": "Nouveau challenge pour Dani Carvajal. Getafe vient d’officialiser un accord avec l’ex-latéral du Real Madrid, qui s’engage avec le club espagnol jusqu’au 30 juin 2027. International à 51 reprises avec (…)",
-    "paragraphs": [
-      "Nouveau challenge pour Dani Carvajal. Getafe vient d’officialiser un accord avec l’ex-latéral du Real Madrid, qui s’engage avec le club espagnol jusqu’au 30 juin 2027. International à 51 reprises avec (…)"
-    ],
-    "key_points": [
-      "Nouveau challenge pour Dani Carvajal.",
-      "Getafe vient d’officialiser un accord avec l’ex-latéral du Real Madrid, qui s’engage avec le club espagnol jusqu’au 30 juin 2027.",
-      "International à 51 reprises avec (…)"
-    ],
-    "telegram_summary": "Nouveau challenge pour Dani Carvajal. Getafe vient d’officialiser un accord avec l’ex-latéral du Real Madrid, qui s’engage avec le club espagnol jusqu’au 30 juin 2027. International à 51 reprises avec (…)",
-    "link": "https://www.footmercato.net/a4725173370648602872-getafe-annonce-larrivee-de-dani-carvajal",
-    "source_url": "https://www.footmercato.net/a4725173370648602872-getafe-annonce-larrivee-de-dani-carvajal",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=345a361385abca5e",
-    "published": "2026-10-13T08:19:19+00:00",
-    "image": "assets/images/footnews/345a361385abca5e.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/dani-carvajal-2526x.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 5,
-    "espn_verification": {
-      "provider": "ESPN",
-      "source": "ESPN News API",
-      "article_id": "50172084",
-      "url": "https://www.espn.com/soccer/story/_/id/50172084/dani-carvajal-joins-getafe-real-madrid-exit",
-      "published": "2026-10-13T08:56:19Z",
-      "score": 0.333,
-      "matched_terms": [
-        "carvajal",
-        "dani",
-        "getafe"
-      ],
-      "topics": [
-        "news",
-        "soccer transfers"
-      ],
-      "teams": [
-        "Getafe",
-        "Real Madrid"
-      ],
-      "athletes": [
-        "Dani Carvajal"
-      ],
-      "leagues": [
-        "Soccer",
-        "Spanish LALIGA"
-      ],
-      "is_transfer": true,
-      "checked_at": "2026-10-13T12:31:22.821396+00:00"
-    },
-    "quality_sources": [
-      "Foot Mercato",
-      "ESPN"
-    ],
-    "quality_score": 100
-  },
-  {
-    "slug": "804cc6fbb01cd750",
-    "title": "Le Real Madrid ne lâche pas Michael Olise, le Barça fait face à un dilemme",
-    "summary": "Le Real Madrid a toujours Michael Olise dans le viseur, le casse-tête du FC Barcelone, le LOSC a un coup à jouer, retrouvez dans votre revue de presse Foot Mercato les dernières informations de la (…)",
-    "summary_short": "Le Real Madrid a toujours Michael Olise dans le viseur, le casse-tête du FC Barcelone, le LOSC a un coup à jouer, retrouvez dans votre revue de presse Foot Mercato les dernières informations de la (…)",
-    "content": "Le Real Madrid a toujours Michael Olise dans le viseur, le casse-tête du FC Barcelone, le LOSC a un coup à jouer, retrouvez dans votre revue de presse Foot Mercato les dernières informations de la (…)",
-    "paragraphs": [
-      "Le Real Madrid a toujours Michael Olise dans le viseur, le casse-tête du FC Barcelone, le LOSC a un coup à jouer, retrouvez dans votre revue de presse Foot Mercato les dernières informations de la (…)"
-    ],
-    "key_points": [
-      "Le Real Madrid a toujours Michael Olise dans le viseur, le casse-tête du FC Barcelone, le LOSC a un coup à jouer, retrouvez dans votre revue de presse Foot Mercato les dernières informations de la (…)"
-    ],
-    "telegram_summary": "Le Real Madrid a toujours Michael Olise dans le viseur, le casse-tête du FC Barcelone, le LOSC a un coup à jouer, retrouvez dans votre revue de presse Foot Mercato les dernières informations de la (…)",
-    "link": "https://www.footmercato.net/a5819579379666519746-le-real-madrid-ne-lache-pas-michael-olise-le-barca-fait-face-a-un-dilemme",
-    "source_url": "https://www.footmercato.net/a5819579379666519746-le-real-madrid-ne-lache-pas-michael-olise-le-barca-fait-face-a-un-dilemme",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=804cc6fbb01cd750",
-    "published": "2026-10-13T08:15:04+00:00",
-    "image": "assets/images/footnews/804cc6fbb01cd750.webp",
-    "source_image": "https://assets-fr.imgfoot.com/media/cache/1200x675/photo-rdp-131026.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Foot Mercato",
-    "source_priority": 92,
-    "source_region": "international",
-    "source_feed": "https://www.footmercato.net/flux-rss",
-    "category": "Mercato",
-    "category_emoji": "🚨",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Foot Mercato"
-    ],
-    "quality_score": 92
   },
   {
     "slug": "489fda1e0b3af64e",
@@ -1793,7 +1958,7 @@
         "Spanish LALIGA"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:31:22.821396+00:00"
+      "checked_at": "2026-10-13T13:01:30.286513+00:00"
     },
     "quality_sources": [
       "Onze Mondial",
@@ -1941,74 +2106,6 @@
     "quality_score": 80
   },
   {
-    "slug": "3de7eb8eba8ff829",
-    "title": "Ligue 1 : Les arbitres des matches de la 7ème journée de Ligue 1",
-    "summary": "Les arbitres de la septième journée de Ligue 1 édition 2026-2027 ont été dévoilés.",
-    "summary_short": "Les arbitres de la septième journée de Ligue 1 édition 2026-2027 ont été dévoilés.",
-    "content": "Les arbitres de la septième journée de Ligue 1 édition 2026-2027 ont été dévoilés.",
-    "paragraphs": [
-      "Les arbitres de la septième journée de Ligue 1 édition 2026-2027 ont été dévoilés."
-    ],
-    "key_points": [
-      "Les arbitres de la septième journée de Ligue 1 édition 2026-2027 ont été dévoilés."
-    ],
-    "telegram_summary": "Les arbitres de la septième journée de Ligue 1 édition 2026-2027 ont été dévoilés.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-arbitres-des-matches-de-la-7eme-journee-de-ligue-1-542015.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ligue-1-les-arbitres-des-matches-de-la-7eme-journee-de-ligue-1-542015.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=3de7eb8eba8ff829",
-    "published": "2026-10-13T06:55:00+00:00",
-    "image": "assets/images/footnews/3de7eb8eba8ff829.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2024/une/l1-20240819111443-8375.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 2,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
-    "slug": "5a02fc47acc5c371",
-    "title": "LDC : RC Lens - Sporting CP : les compos probables",
-    "summary": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi.",
-    "summary_short": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi.",
-    "content": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi.",
-    "paragraphs": [
-      "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi."
-    ],
-    "key_points": [
-      "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi."
-    ],
-    "telegram_summary": "Découvrez les compositions probables du match entre le RC Lens et le Sporting CP (J2 Ligue des Champions), prévu ce mardi en fin d'après-midi.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-rc-lens-sporting-cp-les-compos-probables-542013.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-rc-lens-sporting-cp-les-compos-probables-542013.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=5a02fc47acc5c371",
-    "published": "2026-10-13T06:30:00+00:00",
-    "image": "assets/images/footnews/5a02fc47acc5c371.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260822183245-6452.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
-  },
-  {
     "slug": "ce10c724c3822b0b",
     "title": "L'OM va lutter pour le maintien, un champion du monde 1998 \"choqué\" par le match contre Troyes",
     "summary": "Si l'OM a mis fin à une série terrible de cinq défaites consécutives ce dimanche soir à Troyes (2-0), un champion du monde 1998 a fustigé la performance \"catastrophique\" des hommes de Bruno Genesio.",
@@ -2041,40 +2138,6 @@
       "Onze Mondial"
     ],
     "quality_score": 80
-  },
-  {
-    "slug": "9929edc41252bd53",
-    "title": "LDC : Arsenal - LOSC : les compos probables",
-    "summary": "Découvrez les compositions probables du match entre Arsenal et le LOSC (J2 Ligue des Champions), prévu ce mardi soir.",
-    "summary_short": "Découvrez les compositions probables du match entre Arsenal et le LOSC (J2 Ligue des Champions), prévu ce mardi soir.",
-    "content": "Découvrez les compositions probables du match entre Arsenal et le LOSC (J2 Ligue des Champions), prévu ce mardi soir.",
-    "paragraphs": [
-      "Découvrez les compositions probables du match entre Arsenal et le LOSC (J2 Ligue des Champions), prévu ce mardi soir."
-    ],
-    "key_points": [
-      "Découvrez les compositions probables du match entre Arsenal et le LOSC (J2 Ligue des Champions), prévu ce mardi soir."
-    ],
-    "telegram_summary": "Découvrez les compositions probables du match entre Arsenal et le LOSC (J2 Ligue des Champions), prévu ce mardi soir.",
-    "link": "https://madeinfoot.ouest-france.fr/infos/article-ldc-arsenal-losc-les-compos-probables-542012.html",
-    "source_url": "https://madeinfoot.ouest-france.fr/infos/article-ldc-arsenal-losc-les-compos-probables-542012.html",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=9929edc41252bd53",
-    "published": "2026-10-13T06:15:00+00:00",
-    "image": "assets/images/footnews/9929edc41252bd53.webp",
-    "source_image": "https://madeinfoot.ouest-france.fr/photos/ligue-1/2026/une/l1-20260913160525-3853.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "MadeInFoot",
-    "source_priority": 88,
-    "source_region": "international",
-    "source_feed": "https://madeinfoot.ouest-france.fr/flux/rss_news.php",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 4,
-    "espn_verification": {},
-    "quality_sources": [
-      "MadeInFoot"
-    ],
-    "quality_score": 88
   },
   {
     "slug": "772a2748c47a6915",
@@ -2132,7 +2195,7 @@
         "UEFA Champions League"
       ],
       "is_transfer": false,
-      "checked_at": "2026-10-13T12:31:22.821396+00:00"
+      "checked_at": "2026-10-13T13:01:30.286513+00:00"
     },
     "quality_sources": [
       "France 24",
@@ -2241,41 +2304,6 @@
       "RFI"
     ],
     "quality_score": 86
-  },
-  {
-    "slug": "36d9bb0b754d3132",
-    "title": "Lens - Sporting : les compositions probables",
-    "summary": "Lens accueille le Sporting à l'occasion de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
-    "summary_short": "Lens accueille le Sporting à l'occasion de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
-    "content": "Lens accueille le Sporting à l'occasion de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
-    "paragraphs": [
-      "Lens accueille le Sporting à l'occasion de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes."
-    ],
-    "key_points": [
-      "Lens accueille le Sporting à l'occasion de la deuxième journée de la Ligue des champions.",
-      "Découvrez les compositions probables des deux équipes."
-    ],
-    "telegram_summary": "Lens accueille le Sporting à l'occasion de la deuxième journée de la Ligue des champions. Découvrez les compositions probables des deux équipes.",
-    "link": "https://www.onzemondial.com/ligue-des-champions/lens-sporting-les-compositions-probables-1002340",
-    "source_url": "https://www.onzemondial.com/ligue-des-champions/lens-sporting-les-compositions-probables-1002340",
-    "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=36d9bb0b754d3132",
-    "published": "2026-10-13T04:45:00+00:00",
-    "image": "assets/images/footnews/36d9bb0b754d3132.webp",
-    "source_image": "https://static.onzemondial.com/8/2026/10/photo_article/1002340/409277/1200-L-lens-sporting-les-compositions-probables.jpg",
-    "image_origin": "source",
-    "image_layout": "smart-crop",
-    "source": "Onze Mondial",
-    "source_priority": 80,
-    "source_region": "international",
-    "source_feed": "https://www.onzemondial.com/rss/index.html",
-    "category": "Matchs",
-    "category_emoji": "⚽",
-    "editorial_score": 3,
-    "espn_verification": {},
-    "quality_sources": [
-      "Onze Mondial"
-    ],
-    "quality_score": 80
   },
   {
     "slug": "1430d2d73fc478f0",
