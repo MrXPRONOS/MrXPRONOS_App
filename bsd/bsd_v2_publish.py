@@ -11,6 +11,7 @@ from collections import Counter
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from bsd_api import BSDClient
+from football_multisource import MultiSourceFootballClient, map_events_to_reference_ids
 from bsd_archive import MATCHES_FILE, _read_json
 from bsd_h2h import _utc, _valid_score
 from bsd_markets import candidates_from_goals, realized
@@ -539,6 +540,90 @@ def fetch_date_range(client,start,end):
     return list(seen.values())
 
 
+def _existing_references_for_day(existing, day):
+    rows=[]
+    for row in (existing.get("matches",[]) if isinstance(existing,dict) else []):
+        if not isinstance(row,dict):
+            continue
+        try:
+            row_day=_utc(str(row.get("event_date") or "")).date()
+        except (TypeError,ValueError):
+            continue
+        if row_day!=day:
+            continue
+        source_id=row.get("source_event_id",str(row.get("id","")).removeprefix("bsd:"))
+        if source_id in (None,""):
+            continue
+        rows.append({
+            **row,
+            "id":source_id,
+            "source_event_id":source_id,
+        })
+    return rows
+
+
+def fetch_hybrid_date_range(client, existing, start, end, *, now):
+    """Passé = sources gratuites d'abord; aujourd'hui/futur = BSD canonique.
+
+    Les résultats gratuits ne servent qu'à régler des IDs déjà publiés. Ils ne
+    créent jamais de nouvelle identité dans le moteur BSD.
+    """
+    free=MultiSourceFootballClient(bsd=None,max_free_requests=90)
+    seen={}
+    diagnostics={
+        "free_settlement_matches":0,
+        "bsd_past_fallback_days":0,
+        "bsd_future_days":0,
+    }
+    day=start
+    today=now.date()
+
+    while day<=end:
+        if day>=today:
+            page=client.list_events(day,day,max_pages=12,ttl=0)
+            if not page.complete:
+                raise RuntimeError("BSD incomplete for %s (%s/%s)"%(day,len(page.events),page.total_reported))
+            for event in page.events:
+                if isinstance(event,dict) and event.get("id") is not None:
+                    seen[str(event["id"])]=event
+            diagnostics["bsd_future_days"]+=1
+            day+=timedelta(days=1)
+            continue
+
+        references=_existing_references_for_day(existing,day)
+        if not references:
+            day+=timedelta(days=1)
+            continue
+
+        page=free.list_events(day,day,max_pages=1,ttl=300)
+        finished=[
+            event for event in page.events
+            if isinstance(event,dict)
+            and str(event.get("status") or "").lower()=="finished"
+        ]
+        mapped,missing=map_events_to_reference_ids(references,finished,max_hours=4.0)
+        for event in mapped:
+            if event.get("id") is not None:
+                seen[str(event["id"])]=event
+        diagnostics["free_settlement_matches"]+=len(mapped)
+
+        if missing:
+            bsd_page=client.list_events(day,day,max_pages=12,ttl=0)
+            if not bsd_page.complete:
+                raise RuntimeError("BSD incomplete fallback for %s (%s/%s)"%(
+                    day,len(bsd_page.events),bsd_page.total_reported))
+            missing_ids={str(x.get("id")) for x in missing}
+            for event in bsd_page.events:
+                if isinstance(event,dict) and str(event.get("id")) in missing_ids:
+                    seen[str(event["id"])]=event
+            diagnostics["bsd_past_fallback_days"]+=1
+
+        day+=timedelta(days=1)
+
+    diagnostics["free_source_report"]=free.source_report
+    return list(seen.values()),diagnostics
+
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--output",default=str(SITE_FILE))
@@ -551,8 +636,12 @@ def main():
         p.error("Archive BSD absente ou invalide")
     existing=_read_json(Path(args.output),{})
     client=BSDClient(max_requests=args.max_requests)
-    fixtures=fetch_date_range(client,(now-timedelta(days=HISTORY_DAYS)).date(),
-                              (now+timedelta(days=FUTURE_DAYS)).date())
+    fixtures,source_diag=fetch_hybrid_date_range(
+        client,existing,
+        (now-timedelta(days=HISTORY_DAYS)).date(),
+        (now+timedelta(days=FUTURE_DAYS)).date(),
+        now=now,
+    )
     index=V2History(historic)
     rho,_=fit_rho_2024(index)
     btts_model,btts_info=fit_btts_model(index,rho=rho)
@@ -568,6 +657,7 @@ def main():
     leagues_resolved=resolve_league_names(client,fixtures,output,existing)
     output["diagnostics"]["leagues_resolved"]=leagues_resolved
     output["diagnostics"].update({"api_calls":client.requests_made,
+                                  "multisource":source_diag,
                                   "quality_validation":diag,"rho":rho,
                                   "btts_training":btts_info,"totals_training":total_info,"double_chance_training":dc_info,
                                   "market_family_penalties":policy.family_uncertainty_adjustments()})

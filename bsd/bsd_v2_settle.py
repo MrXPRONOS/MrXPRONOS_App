@@ -13,6 +13,7 @@ from pathlib import Path
 from urllib.parse import quote
 import requests
 from bsd_api import BSDClient
+from football_multisource import MultiSourceFootballClient, map_events_to_reference_ids
 from bsd_h2h import _utc, _valid_score
 from bsd_markets import candidates_from_goals, realized
 from bsd_backtest import wilson_interval
@@ -143,21 +144,59 @@ def main():
     days=sorted(set(_utc(p["event_date"]).date() for s in snapshots for p in s["matches"]
                     if _utc(p["event_date"])+timedelta(hours=4)<=now))
     client=BSDClient(max_requests=100)
+    free=MultiSourceFootballClient(bsd=None,max_free_requests=80)
     events={}
+    free_settled=0
+    bsd_fallback_days=0
+
     for day in days:
-        batch=client.list_events(day,day,max_pages=15,ttl=0)
-        if not batch.complete:
-            raise RuntimeError("Incomplete BSD results for "+str(day))
-        for e in batch.events:
-            if isinstance(e,dict) and e.get("id") is not None:
-                events[str(e["id"])]=e
+        references=[]
+        for snapshot in snapshots:
+            for pred in snapshot.get("matches",[]):
+                try:
+                    if _utc(pred["event_date"]).date()!=day:
+                        continue
+                except (KeyError,TypeError,ValueError):
+                    continue
+                references.append({
+                    **pred,
+                    "id":pred.get("source_event_id"),
+                    "source_event_id":pred.get("source_event_id"),
+                })
+
+        free_page=free.list_events(day,day,max_pages=1,ttl=300)
+        free_finished=[
+            event for event in free_page.events
+            if isinstance(event,dict)
+            and str(event.get("status") or "").lower()=="finished"
+        ]
+        mapped,missing=map_events_to_reference_ids(references,free_finished,max_hours=4.0)
+        for event in mapped:
+            if event.get("id") is not None:
+                events[str(event["id"])]=event
+        free_settled+=len(mapped)
+
+        if missing:
+            batch=client.list_events(day,day,max_pages=15,ttl=0)
+            if not batch.complete:
+                raise RuntimeError("Incomplete BSD results for "+str(day))
+            missing_ids={str(item.get("id")) for item in missing}
+            for event in batch.events:
+                if isinstance(event,dict) and str(event.get("id")) in missing_ids:
+                    events[str(event["id"])]=event
+            bsd_fallback_days+=1
+
     reports=[settle_snapshot(s,events,now=now) for s in snapshots]
     total=sum(r["settled"] for r in reports)
     wins=sum(r["wins"] for r in reports)
     summary={"snapshots":len(reports),"settled":total,"wins":wins,
              "hit_rate":round(wins/total,4) if total else None,
              "wilson_95":wilson_interval(wins,total),"reports":reports,
-             "source":"time-stamped prospective BSD V2 snapshots"}
+             "source":"time-stamped prospective BSD V2 snapshots",
+             "free_settled":free_settled,
+             "bsd_fallback_days":bsd_fallback_days,
+             "bsd_http_calls":client.requests_made,
+             "free_source_report":free.source_report}
     dest=Path(args.output);dest.parent.mkdir(parents=True,exist_ok=True)
     dest.write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding="utf-8")
     print("BSD_V2_SETTLEMENT:",json.dumps({k:v for k,v in summary.items() if k!="reports"}))

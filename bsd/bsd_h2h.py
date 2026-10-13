@@ -153,9 +153,19 @@ def hybrid_h2h(
         return {**local, "api_skipped": "historical_or_disabled"}
 
     event_id = fixture.get("id")
-    if event_id is None:
-        return {**local, "api_skipped": "fixture_id_missing"}
-    remote = client.get_h2h(int(event_id), ttl=86400)
+    # Only clients whose concrete class implements the multi-source method use it.
+    # unittest.mock.Mock manufactures arbitrary attributes, so hasattr() is unsafe.
+    fixture_h2h = getattr(type(client), "get_h2h_for_fixture", None)
+    if callable(fixture_h2h):
+        remote = client.get_h2h_for_fixture(fixture, ttl=86400)
+    else:
+        if event_id is None:
+            return {**local, "api_skipped": "fixture_id_missing"}
+        try:
+            numeric_event_id = int(event_id)
+        except (TypeError, ValueError):
+            return {**local, "api_skipped": "non_bsd_fixture_id"}
+        remote = client.get_h2h(numeric_event_id, ttl=86400)
     if remote is None:
         return local
     if isinstance(remote, dict) and isinstance(remote.get("head_to_head"), dict):
