@@ -13,6 +13,9 @@ Deno.test("free source quality order is stable", () => {
   if (!(FREE_SOURCE_QUALITY.sportscore.overall > FREE_SOURCE_QUALITY.bsd.overall)) {
     throw new Error("SportScore should rank above BSD for general live detail");
   }
+  if (FREE_SOURCE_QUALITY.sportscore.odds !== 0) {
+    throw new Error("SportScore undocumented odds must never receive an automated routing score");
+  }
 });
 
 Deno.test("provider fixture matching respects teams and kickoff", () => {
