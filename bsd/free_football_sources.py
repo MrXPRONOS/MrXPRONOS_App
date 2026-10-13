@@ -342,9 +342,16 @@ def collect_free_day(session: requests.Session, day: date, *, include_espn: bool
     return snapshots
 
 
+def _team_name(row: Dict[str, Any], side: str) -> str:
+    value = row.get(side + "_team")
+    if isinstance(value, dict):
+        return _plain(value.get("name") or value.get("displayName"))
+    return _plain(value)
+
+
 def _match_score(base: Dict[str, Any], other: Dict[str, Any]) -> float:
-    home = _tokens_similarity(base.get("home_team") or (base.get("home_team") or {}).get("name") if isinstance(base.get("home_team"), dict) else base.get("home_team"), other.get("home_team"))
-    away = _tokens_similarity(base.get("away_team") or (base.get("away_team") or {}).get("name") if isinstance(base.get("away_team"), dict) else base.get("away_team"), other.get("away_team"))
+    home = _tokens_similarity(_team_name(base, "home"), other.get("home_team"))
+    away = _tokens_similarity(_team_name(base, "away"), other.get("away_team"))
     score = (home + away) / 2
     bt, ot = _moment(base.get("event_date") or base.get("date") or base.get("start_time")), _moment(other.get("event_date"))
     if bt and ot:
@@ -409,6 +416,13 @@ def preferred_day_events(snapshots: Dict[str, SourceSnapshot]) -> List[Dict[str,
             existing = best_match(row, merged, threshold=0.70)
             if existing is None:
                 row = dict(row)
+                state = str(row.get("state") or "").lower()
+                row["status"] = (
+                    "finished" if state == "post"
+                    else "live" if state == "in"
+                    else "postponed" if state == "postponed"
+                    else "notstarted"
+                )
                 row["_provider_evidence"] = [provider]
                 row["_provider_consensus_count"] = 1
                 merged.append(row)
@@ -422,6 +436,13 @@ def preferred_day_events(snapshots: Dict[str, SourceSnapshot]) -> List[Dict[str,
                 keep = {k: existing.get(k) for k in ("_provider_evidence", "_provider_consensus_count")}
                 existing.update(row)
                 existing.update(keep)
+            state = str(existing.get("state") or "").lower()
+            existing["status"] = (
+                "finished" if state == "post"
+                else "live" if state == "in"
+                else "postponed" if state == "postponed"
+                else "notstarted"
+            )
     return merged
 
 
