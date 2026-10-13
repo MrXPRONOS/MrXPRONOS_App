@@ -5981,7 +5981,7 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
       free_stats_coverage_percent: statsCoveragePercent,
       free_coverage_enough: freeCoverageEnough,
       bsd_fallback_used: bsdFallbackUsed,
-      provider_quality_order: ["espn", "bsd", "sportscore", "thesportsdb", "openligadb"],
+      provider_quality_order: ["espn", "bsd", "sportscore", "openligadb", "thesportsdb"],
       provider_fetch_order: ["espn", "sportscore", "openligadb", "thesportsdb", "bsd"],
     };
 
@@ -7650,13 +7650,11 @@ async function dailyGenerateSnapshots() {
       continue;
     }
 
-    // Une cote explicitement embarquée par une source gratuite est utilisée
-    // avant tout appel de cotes BSD. SportScore n'a toutefois PAS de contrat
-    // public documenté garantissant ces champs.
-    let picked: any = dailyPickDoubleChanceOdds(ev, outcome);
-    if (picked && String(providerName(ev)) === "sportscore") {
-      picked = { ...picked, source: "sportscore_embedded_unofficial" };
-    }
+    // Les sources gratuites réduisent les appels de calendrier/résultat/stats,
+    // mais aucune des trois nouvelles API ne documente un contrat de cotes
+    // exploitable ici. Les prix de paris restent donc BSD (ou l'estimation
+    // explicitement gérée par le moteur dédié), jamais un champ non contractuel.
+    let picked: any = null;
 
     let oddsError: string | null = null;
     const sourceMatchId = String(p?.match_id ?? "");
