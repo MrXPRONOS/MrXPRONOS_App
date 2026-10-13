@@ -1,15 +1,58 @@
 {
   "updated_at": "2026-10-13",
   "facts_quality_order": [
-    {"provider": "ESPN", "score": 98, "role": "faits de match, timeline, compositions, stats, validation directe"},
-    {"provider": "BSD", "score": 96, "role": "couverture étendue, archive, marchés et cotes documentées"},
-    {"provider": "SportScore", "score": 91, "role": "couverture gratuite, live, détails, H2H, forme; attribution requise"},
-    {"provider": "OpenLigaDB", "score": 84, "role": "résultats, buts, classements et ligues couvertes"},
-    {"provider": "TheSportsDB", "score": 80, "role": "détails, timeline, lineups et stats en fallback gratuit"}
+    {
+      "provider": "ESPN",
+      "score": 98,
+      "role": "faits de match, timeline, compositions, stats, validation directe"
+    },
+    {
+      "provider": "BSD",
+      "score": 96,
+      "role": "couverture étendue, archive, marchés et cotes documentées"
+    },
+    {
+      "provider": "football-data.org",
+      "score": 94,
+      "role": "classements et compétitions couvertes via clé optionnelle"
+    },
+    {
+      "provider": "SportScore",
+      "score": 91,
+      "role": "couverture gratuite, live, détails, H2H, forme, classements et joueurs; attribution requise"
+    },
+    {
+      "provider": "API-Football",
+      "score": 90,
+      "role": "source optionnelle à clé pour statistiques joueurs/buteurs"
+    },
+    {
+      "provider": "SportsAPI Pro",
+      "score": 88,
+      "role": "source historique existante à clés rotatives"
+    },
+    {
+      "provider": "OpenLigaDB",
+      "score": 84,
+      "role": "résultats, buts, classements et ligues couvertes"
+    },
+    {
+      "provider": "TheSportsDB",
+      "score": 80,
+      "role": "détails, timeline, lineups et stats en fallback gratuit"
+    }
   ],
-  "fetch_priority_to_reduce_bsd": ["ESPN", "SportScore", "OpenLigaDB", "TheSportsDB", "BSD"],
+  "fetch_priority_to_reduce_bsd": [
+    "ESPN",
+    "SportScore",
+    "OpenLigaDB",
+    "TheSportsDB",
+    "BSD"
+  ],
   "odds": {
-    "prematch": ["BSD"],
+    "prematch": [
+      "BSD"
+    ],
     "live": [],
     "sportscore_site_displays_odds": true,
     "sportscore_public_api_odds_documented": false,
@@ -20,5 +63,6 @@
     "bsd_discovery_skip_ratio": 0.85,
     "free_stats_before_bsd": true,
     "preserve_bsd_numeric_id_when_bsd_is_used": true
-  }
+  },
+  "score_note": "Scores = poids internes Mr XPRONOS de routage/fiabilité, pas des notes officielles des fournisseurs."
 }
