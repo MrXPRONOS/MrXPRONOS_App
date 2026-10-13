@@ -17,6 +17,6 @@ jobs:
         with:
           deno-version: v2.x
       - name: Run ESPN tests
-        run: deno test --allow-none supabase/tests/espn_test.ts
+        run: deno test supabase/tests/espn_test.ts
       - name: Type check ESPN shared client
         run: deno check supabase/functions/_shared/espn.ts
