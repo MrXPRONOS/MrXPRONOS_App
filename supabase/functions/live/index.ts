@@ -1,5 +1,5 @@
 import { fetchSharedEspnScoreboard, fetchSharedEspnSummary, safeEspnDate, parseEspnNumber } from "../_shared/espn.ts";
-import { fetchFreeLiveProviders, FOOTBALL_PROVIDER_QUALITY } from "../_shared/football_free_sources.ts";
+import { fetchFreeLiveProviders, fetchFreeFixturesForDate, FOOTBALL_PROVIDER_QUALITY } from "../_shared/football_free_sources.ts";
 // live.ts (Supabase Edge Function / Deno)
 // =======================================================
 // PATCHES inclus :
@@ -7440,7 +7440,7 @@ async function dailyGetForUi(date: string) {
 }
 
 
-async function dailyFetchAllEventsForDate(date: string) {
+async function dailyFetchBsdEventsForDate(date: string) {
   const all: any[] = [];
   const pageSize = 200;
 
@@ -7460,6 +7460,37 @@ async function dailyFetchAllEventsForDate(date: string) {
   }
 
   return all;
+}
+
+async function dailyFetchAllEventsForDate(date: string) {
+  // Calendrier gratuit en priorité : SportScore + TheSportsDB + OpenLigaDB + ESPN.
+  const [freeResult, espnSettled] = await Promise.all([
+    fetchFreeFixturesForDate(date),
+    fetchEspnScoreboard(date.replace(/-/g, ""), false)
+      .then((scoreboard: any) => ({
+        matches: (scoreboard?.events || [])
+          .map(normalizeEspnEventToOriginalMatch)
+          .filter(Boolean),
+        error: null,
+      }))
+      .catch((e: any) => ({ matches: [], error: e?.message || String(e) })),
+  ]);
+
+  const providers = mergeProviderRows(freeResult.matches || []);
+  const merged = mergeOriginalAndEspnMatches(
+    providers.matches,
+    espnSettled.matches || [],
+  );
+
+  return {
+    events: merged.mergedMatches || [],
+    meta: {
+      ...(freeResult.meta || {}),
+      espn_matches: (espnSettled.matches || []).length,
+      espn_error: espnSettled.error,
+      bsd_calendar_calls: 0,
+    },
+  };
 }
 
 async function dailyFetchBsdConsensusDoubleChance(
