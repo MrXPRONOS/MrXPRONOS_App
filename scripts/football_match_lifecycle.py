@@ -12,15 +12,113 @@ from __future__ import annotations
 
 import os
 import re
+import time
 import unicodedata
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
+from urllib.parse import urlparse
 
 import requests
 
 ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
 ESPN_SUMMARY = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/summary"
+ESPN_MATCH_PAGE = "https://www.espn.com/soccer/match/_/gameId/{event_id}"
 OPENLIGA_BASE = "https://api.openligadb.de"
+
+_ESPN_CACHE: dict[str, tuple[float, dict]] = {}
+_ESPN_REQUESTS = 0
+
+
+def _espn_budget() -> int:
+    try:
+        return max(8, min(120, int(os.getenv("FOOTBALL_ESPN_REQUEST_BUDGET", "36"))))
+    except ValueError:
+        return 36
+
+
+def _retry_after_seconds(response: requests.Response) -> float:
+    raw = str(response.headers.get("Retry-After") or "").strip()
+    if not raw:
+        return 0.0
+    try:
+        return max(0.0, min(120.0, float(raw)))
+    except ValueError:
+        return 0.0
+
+
+def _espn_json(
+    session: requests.Session,
+    url: str,
+    *,
+    params: dict[str, str],
+    cache_key: str,
+    ttl: float,
+    force: bool = False,
+) -> dict:
+    """Client ESPN borné: cache court, budget, retry 429/5xx et validation JSON."""
+    global _ESPN_REQUESTS
+    now = time.monotonic()
+    cached = _ESPN_CACHE.get(cache_key)
+    if not force and cached and now - cached[0] <= ttl:
+        return cached[1]
+
+    last_error: Exception | None = None
+    for attempt in range(3):
+        if _ESPN_REQUESTS >= _espn_budget():
+            break
+        _ESPN_REQUESTS += 1
+        try:
+            response = session.get(
+                url,
+                params=params,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (compatible; MrXPRONOS-ActuFoot/3.0)",
+                    "Accept": "application/json,text/plain,*/*",
+                    "Referer": "https://www.espn.com/soccer/",
+                },
+                timeout=(7, 18),
+                allow_redirects=True,
+            )
+            if response.status_code == 429:
+                if attempt < 2:
+                    time.sleep(_retry_after_seconds(response) or (0.7 * (2 ** attempt)))
+                    continue
+                response.raise_for_status()
+            if response.status_code >= 500:
+                if attempt < 2:
+                    time.sleep(0.7 * (2 ** attempt))
+                    continue
+                response.raise_for_status()
+            response.raise_for_status()
+            payload = response.json()
+            if not isinstance(payload, dict):
+                raise ValueError("ESPN payload is not an object")
+            _ESPN_CACHE[cache_key] = (time.monotonic(), payload)
+            return payload
+        except (requests.RequestException, ValueError) as exc:
+            last_error = exc
+            if attempt < 2:
+                time.sleep(0.45 * (2 ** attempt))
+    if cached:
+        return cached[1]
+    if last_error:
+        print("ESPN_DIRECT_ERROR", cache_key, type(last_error).__name__, str(last_error)[:120])
+    return {}
+
+
+def espn_match_url(event_id: str) -> str:
+    event_id = re.sub(r"[^0-9]", "", str(event_id or ""))
+    return ESPN_MATCH_PAGE.format(event_id=event_id) if event_id else ""
+
+
+def _minute_total(value: Any) -> int | None:
+    text = _plain(value)
+    if not text:
+        return None
+    match = re.search(r"(\d+)(?:\D*\+\D*(\d+))?", text)
+    if not match:
+        return None
+    return int(match.group(1)) + int(match.group(2) or 0)
 
 
 def _plain(value: Any) -> str:
@@ -167,22 +265,23 @@ def parse_espn_event(event: dict) -> dict | None:
         "status_detail": " ".join(filter(None, dict.fromkeys(_plain(typ.get(k)) for k in ("shortDetail", "detail", "description", "name")))),
         "event_date": event.get("date") or competition.get("date"),
         "league": _plain((competition.get("league") or {}).get("name") or event.get("league")),
+        "venue": _plain(((competition.get("venue") or {}).get("fullName") if isinstance(competition.get("venue"), dict) else "")),
+        "attendance": _score(competition.get("attendance")),
+        "espn_url": espn_match_url(str(event.get("id") or competition.get("id") or "")),
         "raw": event,
     }
 
 
-def fetch_espn_day(session: requests.Session, day: date) -> list[dict]:
-    try:
-        response = session.get(
-            ESPN_SCOREBOARD,
-            params={"dates": day.strftime("%Y%m%d"), "limit": "1000"},
-            headers={"User-Agent": "MrXPRONOS-ActuFoot/2.0"},
-            timeout=(7, 22),
-        )
-        response.raise_for_status()
-        payload = response.json()
-    except (requests.RequestException, ValueError):
-        return []
+def fetch_espn_day(session: requests.Session, day: date, *, force: bool = False) -> list[dict]:
+    key = day.strftime("%Y%m%d")
+    payload = _espn_json(
+        session,
+        ESPN_SCOREBOARD,
+        params={"dates": key, "limit": "1000"},
+        cache_key="scoreboard:" + key,
+        ttl=25.0 if day == datetime.now(timezone.utc).date() else 900.0,
+        force=force,
+    )
     result = []
     for event in payload.get("events", []) if isinstance(payload, dict) else []:
         if isinstance(event, dict):
@@ -192,21 +291,40 @@ def fetch_espn_day(session: requests.Session, day: date) -> list[dict]:
     return result
 
 
-def fetch_espn_summary(session: requests.Session, event_id: str) -> dict:
+def fetch_espn_summary(
+    session: requests.Session,
+    event_id: str,
+    *,
+    force: bool = False,
+) -> dict:
+    event_id = re.sub(r"[^0-9]", "", str(event_id or ""))
     if not event_id:
         return {}
-    try:
-        response = session.get(
-            ESPN_SUMMARY,
-            params={"event": event_id},
-            headers={"User-Agent": "MrXPRONOS-ActuFoot/2.0"},
-            timeout=(7, 22),
-        )
-        response.raise_for_status()
-        payload = response.json()
-        return payload if isinstance(payload, dict) else {}
-    except (requests.RequestException, ValueError):
-        return {}
+    return _espn_json(
+        session,
+        ESPN_SUMMARY,
+        params={"event": event_id},
+        cache_key="summary:" + event_id,
+        ttl=18.0,
+        force=force,
+    )
+
+
+def parse_espn_summary_match(summary: dict) -> dict | None:
+    header = summary.get("header") if isinstance(summary, dict) else None
+    if not isinstance(header, dict):
+        return None
+    competitions = header.get("competitions")
+    if not isinstance(competitions, list) or not competitions:
+        return None
+    event = {
+        "id": header.get("id") or competitions[0].get("id"),
+        "date": competitions[0].get("date") or header.get("date"),
+        "competitions": competitions,
+        "league": header.get("league") or {},
+        "season": header.get("season") or {},
+    }
+    return parse_espn_event(event)
 
 
 def extract_lineups(summary: dict) -> dict[str, list[str]]:
@@ -235,6 +353,13 @@ def extract_lineups(summary: dict) -> dict[str, list[str]]:
     return result
 
 
+def _athlete_name(value: Any) -> str:
+    if not isinstance(value, dict):
+        return ""
+    athlete = value.get("athlete") if isinstance(value.get("athlete"), dict) else value
+    return _plain(athlete.get("displayName") or athlete.get("fullName") or athlete.get("name"))
+
+
 def extract_goals(summary: dict) -> list[dict]:
     details = summary.get("details") if isinstance(summary, dict) else None
     if not isinstance(details, list):
@@ -248,23 +373,308 @@ def extract_goals(summary: dict) -> list[dict]:
         if not (item.get("scoringPlay") is True or "goal" in label or "but" in label):
             continue
         athletes = item.get("athletes") or []
-        player = ""
-        if isinstance(athletes, list) and athletes and isinstance(athletes[0], dict):
-            player = _plain(athletes[0].get("displayName") or athletes[0].get("fullName"))
+        athletes = athletes if isinstance(athletes, list) else []
+        player = _athlete_name(athletes[0]) if athletes else ""
+        player_id = ""
+        if athletes and isinstance(athletes[0], dict):
+            athlete = athletes[0].get("athlete") if isinstance(athletes[0].get("athlete"), dict) else athletes[0]
+            player_id = str(athlete.get("id") or "")
+        assists = []
+        explicit_assists = item.get("assists")
+        if isinstance(explicit_assists, list):
+            assists = [_athlete_name(x) for x in explicit_assists if _athlete_name(x)]
+        elif isinstance(item.get("assist"), dict):
+            name = _athlete_name(item["assist"])
+            assists = [name] if name else []
+        else:
+            for athlete in athletes[1:]:
+                role = _plain(athlete.get("type") or athlete.get("role")).lower() if isinstance(athlete, dict) else ""
+                name = _athlete_name(athlete)
+                if name and "assist" in role:
+                    assists.append(name)
+
         clock = item.get("clock") if isinstance(item.get("clock"), dict) else {}
         minute_text = _plain(clock.get("displayValue") or item.get("time") or "")
-        minute_match = re.search(r"\d+", minute_text)
-        minute = int(minute_match.group()) if minute_match else None
+        minute_total = _minute_total(minute_text)
+        minute = int(re.search(r"\d+", minute_text).group()) if re.search(r"\d+", minute_text) else None
         team_obj = item.get("team") if isinstance(item.get("team"), dict) else {}
+        home_score = _score(item.get("homeScore") or item.get("home_score"))
+        away_score = _score(item.get("awayScore") or item.get("away_score"))
         goals.append({
             "player": player,
+            "player_id": player_id,
             "minute": minute,
+            "minute_total": minute_total,
             "minute_text": minute_text,
             "team_id": str(team_obj.get("id") or ""),
-            "own_goal": "own goal" in label or "c.s.c" in label,
-            "penalty": "penalty" in label or "pen." in label,
+            "team": _plain(team_obj.get("displayName") or team_obj.get("name")),
+            "assists": assists,
+            "home_score": home_score,
+            "away_score": away_score,
+            "own_goal": bool(item.get("ownGoal")) or "own goal" in label or "c.s.c" in label,
+            "penalty": bool(item.get("penaltyKick")) or "penalty" in label or "pen." in label,
+            "label": _plain(typ.get("text") or item.get("text")),
         })
+    goals.sort(key=lambda x: (x.get("minute_total") is None, x.get("minute_total") or 999))
     return goals
+
+
+def extract_cards(summary: dict) -> list[dict]:
+    details = summary.get("details") if isinstance(summary, dict) else None
+    if not isinstance(details, list):
+        return []
+    cards: list[dict] = []
+    for item in details:
+        if not isinstance(item, dict):
+            continue
+        typ = item.get("type") if isinstance(item.get("type"), dict) else {}
+        label = _plain(typ.get("text") or typ.get("abbreviation") or item.get("text")).lower()
+        yellow = item.get("yellowCard") is True or "yellow card" in label
+        red = item.get("redCard") is True or "red card" in label
+        if not (yellow or red):
+            continue
+        athletes = item.get("athletes") or []
+        athlete = athletes[0] if isinstance(athletes, list) and athletes else {}
+        clock = item.get("clock") if isinstance(item.get("clock"), dict) else {}
+        team_obj = item.get("team") if isinstance(item.get("team"), dict) else {}
+        minute_text = _plain(clock.get("displayValue") or item.get("time") or "")
+        cards.append({
+            "player": _athlete_name(athlete),
+            "minute": _minute_total(minute_text),
+            "minute_text": minute_text,
+            "team_id": str(team_obj.get("id") or ""),
+            "type": "red" if red else "yellow",
+        })
+    return cards
+
+
+def extract_substitutions(summary: dict) -> list[dict]:
+    details = summary.get("details") if isinstance(summary, dict) else None
+    if not isinstance(details, list):
+        return []
+    changes: list[dict] = []
+    for item in details:
+        if not isinstance(item, dict):
+            continue
+        typ = item.get("type") if isinstance(item.get("type"), dict) else {}
+        label = _plain(typ.get("text") or typ.get("abbreviation") or item.get("text")).lower()
+        if item.get("substitution") is not True and "substitution" not in label and "sub " not in label:
+            continue
+        athletes = item.get("athletes") or []
+        athletes = athletes if isinstance(athletes, list) else []
+        names = [_athlete_name(x) for x in athletes if _athlete_name(x)]
+        clock = item.get("clock") if isinstance(item.get("clock"), dict) else {}
+        minute_text = _plain(clock.get("displayValue") or item.get("time") or "")
+        team_obj = item.get("team") if isinstance(item.get("team"), dict) else {}
+        changes.append({
+            "players": names[:2],
+            "minute": _minute_total(minute_text),
+            "minute_text": minute_text,
+            "team_id": str(team_obj.get("id") or ""),
+        })
+    return changes
+
+
+def _stat_value(stat: dict) -> Any:
+    return stat.get("displayValue") if stat.get("displayValue") not in (None, "") else stat.get("value")
+
+
+def _normalize_stat_name(value: Any) -> str:
+    return re.sub(r"[^a-z0-9]", "", _plain(value).casefold())
+
+
+def extract_team_stats(summary: dict) -> dict[str, dict[str, Any]]:
+    boxscore = summary.get("boxscore") if isinstance(summary, dict) else None
+    teams = boxscore.get("teams") if isinstance(boxscore, dict) else None
+    header = parse_espn_summary_match(summary)
+    result: dict[str, dict[str, Any]] = {"home": {}, "away": {}}
+    if not isinstance(teams, list):
+        return result
+
+    home_id = str((header or {}).get("home_team_id") or "")
+    away_id = str((header or {}).get("away_team_id") or "")
+    aliases = {
+        "corners": {"woncorners", "corners", "cornerkicks"},
+        "shots": {"totalshots", "shotstotal", "shots"},
+        "shots_on_target": {"shotsontarget", "shotsongoal"},
+        "possession": {"possessionpct", "possession", "possessionpercentage"},
+        "fouls": {"foulscommitted", "fouls"},
+        "offsides": {"offsides"},
+        "saves": {"saves", "goalkeepersaves"},
+        "yellow_cards": {"yellowcards"},
+        "red_cards": {"redcards"},
+    }
+    for row in teams:
+        if not isinstance(row, dict):
+            continue
+        team_obj = row.get("team") if isinstance(row.get("team"), dict) else {}
+        team_id = str(team_obj.get("id") or "")
+        side = "home" if team_id and team_id == home_id else "away" if team_id and team_id == away_id else ""
+        if not side:
+            continue
+        available = {}
+        for stat in row.get("statistics") or []:
+            if isinstance(stat, dict):
+                available[_normalize_stat_name(stat.get("name") or stat.get("label"))] = _stat_value(stat)
+        for target, names in aliases.items():
+            for name in names:
+                if name in available:
+                    result[side][target] = available[name]
+                    break
+    return result
+
+
+def extract_match_info(summary: dict) -> dict[str, Any]:
+    game = summary.get("gameInfo") if isinstance(summary, dict) else None
+    game = game if isinstance(game, dict) else {}
+    venue = game.get("venue") if isinstance(game.get("venue"), dict) else {}
+    address = venue.get("address") if isinstance(venue.get("address"), dict) else {}
+    officials = game.get("officials") if isinstance(game.get("officials"), list) else []
+    weather = game.get("weather") if isinstance(game.get("weather"), dict) else {}
+    return {
+        "venue": _plain(venue.get("fullName") or venue.get("name")),
+        "city": _plain(address.get("city")),
+        "country": _plain(address.get("country")),
+        "attendance": _score(game.get("attendance")),
+        "referees": [
+            _plain((x.get("official") or {}).get("displayName") if isinstance(x.get("official"), dict) else x.get("displayName"))
+            for x in officials if isinstance(x, dict)
+            and _plain((x.get("official") or {}).get("displayName") if isinstance(x.get("official"), dict) else x.get("displayName"))
+        ],
+        "weather": _plain(weather.get("displayValue") or weather.get("conditionId") or weather.get("condition")),
+        "temperature": weather.get("temperature"),
+    }
+
+
+def extract_match_enrichment(summary: dict) -> dict[str, Any]:
+    return {
+        "goals": extract_goals(summary),
+        "cards": extract_cards(summary),
+        "substitutions": extract_substitutions(summary),
+        "stats": extract_team_stats(summary),
+        "info": extract_match_info(summary),
+    }
+
+
+def verify_espn_public_page(
+    session: requests.Session,
+    event_id: str,
+    home: str = "",
+    away: str = "",
+) -> dict[str, Any]:
+    """Second contrôle sur la page publique ESPN; un challenge anti-bot reste 'indisponible'."""
+    url = espn_match_url(event_id)
+    if not url:
+        return {"reachable": False, "content_verified": False, "url": ""}
+    try:
+        response = session.get(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/154 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml",
+            },
+            timeout=(7, 16),
+            allow_redirects=True,
+        )
+        final_host = (urlparse(response.url).hostname or "").lower()
+        body = response.text[:1_500_000] if response.status_code == 200 else ""
+        challenge = "verify that you're not a robot" in body.lower() or "javascript is disabled" in body.lower()
+        normalized = _norm(body[:500_000])
+        home_tokens = [x for x in _norm(home).split() if len(x) >= 4]
+        away_tokens = [x for x in _norm(away).split() if len(x) >= 4]
+        home_ok = not home_tokens or any(x in normalized for x in home_tokens)
+        away_ok = not away_tokens or any(x in normalized for x in away_tokens)
+        reachable = response.ok and final_host.endswith("espn.com") and not challenge
+        return {
+            "reachable": reachable,
+            "content_verified": bool(reachable and home_ok and away_ok),
+            "url": response.url if final_host.endswith("espn.com") else url,
+            "status": response.status_code,
+            "challenge": challenge,
+        }
+    except requests.RequestException as exc:
+        return {
+            "reachable": False,
+            "content_verified": False,
+            "url": url,
+            "error": type(exc).__name__,
+        }
+
+
+def verify_espn_before_publish(
+    session: requests.Session,
+    expected: dict[str, Any],
+) -> dict[str, Any]:
+    """Vérifie le fait éditorial directement chez ESPN juste avant l'envoi."""
+    event_id = re.sub(r"[^0-9]", "", str(expected.get("event_id") or ""))
+    if not event_id:
+        return {"ok": False, "quality": 0, "reason": "missing_espn_event_id"}
+
+    summary = fetch_espn_summary(session, event_id, force=True)
+    direct = parse_espn_summary_match(summary)
+    if not summary or not direct:
+        return {"ok": False, "quality": 0, "reason": "espn_summary_unavailable", "event_id": event_id}
+
+    home = _plain(expected.get("home"))
+    away = _plain(expected.get("away"))
+    if home and _tokens_similarity(home, direct.get("home_team", "")) < 0.55:
+        return {"ok": False, "quality": 0, "reason": "home_team_mismatch", "event_id": event_id}
+    if away and _tokens_similarity(away, direct.get("away_team", "")) < 0.55:
+        return {"ok": False, "quality": 0, "reason": "away_team_mismatch", "event_id": event_id}
+
+    kind = _plain(expected.get("kind")).lower()
+    expected_score = _plain(expected.get("score"))
+    if re.fullmatch(r"\d+-\d+", expected_score):
+        hs, aws = (int(x) for x in expected_score.split("-"))
+        if direct.get("home_score") != hs or direct.get("away_score") != aws:
+            return {
+                "ok": False, "quality": 0, "reason": "score_mismatch",
+                "event_id": event_id,
+                "espn_score": f"{direct.get('home_score')}-{direct.get('away_score')}",
+            }
+
+    if kind == "resultat_final" and direct.get("state") != "post":
+        return {"ok": False, "quality": 0, "reason": "final_state_not_confirmed", "event_id": event_id}
+    if kind == "mi_temps" and not is_halftime(direct):
+        return {"ok": False, "quality": 0, "reason": "halftime_not_confirmed", "event_id": event_id}
+    if kind == "kickoff" and not is_live(direct):
+        return {"ok": False, "quality": 0, "reason": "kickoff_not_live", "event_id": event_id}
+
+    enrichment = extract_match_enrichment(summary)
+    if kind == "composition":
+        lineups = extract_lineups(summary)
+        if len(lineups["home"]) != 11 or len(lineups["away"]) != 11:
+            return {"ok": False, "quality": 0, "reason": "lineup_not_complete", "event_id": event_id}
+    if kind == "goal":
+        wanted = expected.get("goal") if isinstance(expected.get("goal"), dict) else {}
+        scorer = _norm(wanted.get("player"))
+        minute = wanted.get("minute_total")
+        if minute is None:
+            minute = _minute_total(wanted.get("minute_text") or wanted.get("minute"))
+        found = False
+        for goal in enrichment["goals"]:
+            if scorer and _norm(goal.get("player")) != scorer:
+                continue
+            current_minute = goal.get("minute_total")
+            if minute is not None and current_minute is not None and abs(int(current_minute) - int(minute)) > 1:
+                continue
+            found = True
+            break
+        if not found:
+            return {"ok": False, "quality": 0, "reason": "goal_not_confirmed", "event_id": event_id}
+
+    page = verify_espn_public_page(session, event_id, home, away)
+    quality = 100 if page.get("content_verified") else 94 if page.get("reachable") else 90
+    return {
+        "ok": True,
+        "quality": quality,
+        "reason": "confirmed",
+        "event_id": event_id,
+        "source_url": page.get("url") or espn_match_url(event_id),
+        "page": page,
+        "direct": direct,
+        "enrichment": enrichment,
+    }
 
 
 def _season_for(day: date) -> int:
