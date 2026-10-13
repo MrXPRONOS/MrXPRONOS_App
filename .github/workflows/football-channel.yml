@@ -118,6 +118,25 @@ jobs:
           assert isinstance(espn, list)
           print("ESPN_FREE_OK", len(espn), "matchs", today.isoformat())
 
+          import football_provider_mesh as provider_mesh
+          sportscore = provider_mesh.fetch_sportscore_day(session, today)
+          assert isinstance(sportscore, list)
+          print("SPORTSCORE_FREE_OK", len(sportscore), "matchs", today.isoformat())
+          if sportscore:
+              slug = (
+                  sportscore[0].get("provider_meta", {})
+                  .get("sportscore", {})
+                  .get("slug", "")
+              )
+              if slug:
+                  detail = provider_mesh.fetch_sportscore_match_detail(session, slug)
+                  assert isinstance(detail, dict) and detail
+                  print("SPORTSCORE_DETAIL_OK", slug)
+
+          tsdb_day = provider_mesh.fetch_thesportsdb_day(session, today)
+          assert isinstance(tsdb_day, list)
+          print("THESPORTSDB_DAY_OK", len(tsdb_day), "matchs", today.isoformat())
+
           response = session.get(
               lifecycle.OPENLIGA_BASE + "/getavailableleagues",
               headers={"User-Agent": "MrXPRONOS-CI/1.0"},
