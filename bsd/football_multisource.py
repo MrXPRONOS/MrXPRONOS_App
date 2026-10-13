@@ -35,6 +35,23 @@ SPORTSCORE_H2H = "https://sportscore.com/api/v1/h2h/"
 THESPORTSDB = "https://www.thesportsdb.com/api/v1/json/123"
 OPENLIGA = "https://api.openligadb.de"
 
+# Compétitions OpenLigaDB à forte qualité. Les six premiers shortcuts sont
+# stables d'une saison à l'autre; les quatre derniers sont spécifiques à 2026.
+OPENLIGA_CORE_COMPETITIONS = (
+    ("bl1", "1. Bundesliga"),
+    ("bl2", "2. Bundesliga"),
+    ("bl3", "3. Liga"),
+    ("ucl", "UEFA Champions League"),
+    ("dfb", "DFB-Pokal"),
+    ("ffb1", "Frauen-Bundesliga"),
+)
+OPENLIGA_2026_COMPETITIONS = (
+    ("uel2026", "UEFA Europa League"),
+    ("uecl2026", "UEFA Conference League"),
+    ("nla", "UEFA Nations League A"),
+    ("wm26", "FIFA World Cup 2026"),
+)
+
 PROVIDER_QUALITY = {
     "espn": 100,
     "bsd": 96,
@@ -176,6 +193,17 @@ def _bsd_compatible(
 
 def _season_for(day: date) -> int:
     return day.year if day.month >= 7 else day.year - 1
+
+
+def _openliga_competitions(day: date) -> list[tuple[str, int, str]]:
+    """Shortcuts OpenLigaDB à qualité élevée, avec saison appropriée."""
+    season = _season_for(day)
+    rows = [(shortcut, season, label) for shortcut, label in OPENLIGA_CORE_COMPETITIONS]
+    # Les compétitions internationales ci-dessous sont explicitement publiées
+    # sous la saison 2026 dans OpenLigaDB, y compris la Coupe du monde.
+    if day.year == 2026:
+        rows.extend((shortcut, 2026, label) for shortcut, label in OPENLIGA_2026_COMPETITIONS)
+    return rows
 
 
 def map_events_to_reference_ids(
@@ -431,33 +459,52 @@ class MultiSourceFootballClient:
         return rows
 
     def _openliga_day(self, day: date) -> list[dict]:
-        # OpenLigaDB ne fournit pas un calendrier mondial par date. On l'utilise
-        # comme corroboration sans clé sur Bundesliga, sa couverture la plus stable.
-        payload = self._json(
-            "openligadb", f"{OPENLIGA}/getmatchdata/bl1/{_season_for(day)}", None, ttl=900,
-        )
-        rows = []
-        for item in payload if isinstance(payload, list) else []:
-            when = _moment(item.get("matchDateTimeUTC") or item.get("matchDateTime"))
-            if not when or when.date() != day:
-                continue
-            t1 = item.get("team1") if isinstance(item.get("team1"), dict) else {}
-            t2 = item.get("team2") if isinstance(item.get("team2"), dict) else {}
-            results = item.get("matchResults") if isinstance(item.get("matchResults"), list) else []
-            latest = max(
-                (x for x in results if isinstance(x, dict)),
-                key=lambda x: int(x.get("resultOrderID") or 0),
-                default={},
+        """OpenLigaDB multi-ligues : uniquement les compétitions à qualité élevée."""
+        rows: list[dict] = []
+        seen: set[str] = set()
+        for shortcut, season, league_label in _openliga_competitions(day):
+            payload = self._json(
+                "openligadb",
+                f"{OPENLIGA}/getmatchdata/{quote(shortcut, safe='')}/{season}",
+                None,
+                ttl=900,
             )
-            rows.append(_bsd_compatible(
-                provider="openligadb", provider_id=item.get("matchID"),
-                home=t1.get("teamName"), away=t2.get("teamName"), kickoff=when,
-                home_score=latest.get("pointsTeam1"), away_score=latest.get("pointsTeam2"),
-                status="finished" if item.get("matchIsFinished") else "notstarted",
-                league="Bundesliga",
-                home_logo=t1.get("teamIconUrl") or "", away_logo=t2.get("teamIconUrl") or "",
-                raw=item, extra={"home_team_id": None, "away_team_id": None},
-            ))
+            for item in payload if isinstance(payload, list) else []:
+                when = _moment(item.get("matchDateTimeUTC") or item.get("matchDateTime"))
+                if not when or when.date() != day:
+                    continue
+                match_id = str(item.get("matchID") or "")
+                identity = shortcut + ":" + match_id
+                if identity in seen:
+                    continue
+                seen.add(identity)
+                t1 = item.get("team1") if isinstance(item.get("team1"), dict) else {}
+                t2 = item.get("team2") if isinstance(item.get("team2"), dict) else {}
+                results = item.get("matchResults") if isinstance(item.get("matchResults"), list) else []
+                latest = max(
+                    (x for x in results if isinstance(x, dict)),
+                    key=lambda x: int(x.get("resultOrderID") or 0),
+                    default={},
+                )
+                rows.append(_bsd_compatible(
+                    provider="openligadb",
+                    provider_id=item.get("matchID"),
+                    home=t1.get("teamName"),
+                    away=t2.get("teamName"),
+                    kickoff=when,
+                    home_score=latest.get("pointsTeam1"),
+                    away_score=latest.get("pointsTeam2"),
+                    status="finished" if item.get("matchIsFinished") else "notstarted",
+                    league=league_label,
+                    home_logo=t1.get("teamIconUrl") or "",
+                    away_logo=t2.get("teamIconUrl") or "",
+                    raw={**item, "_openliga_shortcut": shortcut, "_openliga_season": season},
+                    extra={
+                        "home_team_id": t1.get("teamId"),
+                        "away_team_id": t2.get("teamId"),
+                        "openliga_shortcut": shortcut,
+                    },
+                ))
         self.health["openligadb"].rows += len(rows)
         return rows
 
