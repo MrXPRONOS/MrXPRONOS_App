@@ -124,14 +124,20 @@ class ActuFootEventBatch7Tests(unittest.TestCase):
         with self.assertRaises(ValueError):
             template_cards.render("score_live_two_logos", no_minute)
 
-    def test_score_live_confirmed_alias_uses_two_logo_variant_only_when_both_exist(self):
+    def test_score_live_two_logo_direct_variant_still_requires_both_logos(self):
         self.assertEqual(
             events.template_path("score_live_confirmé", self.payload).name,
             "score_live_two_logos.png",
         )
         missing = dict(self.payload, away_logo="")
         with self.assertRaises(ValueError):
-            template_cards.render("score_live_confirmé", missing)
+            template_cards.render("score_live_two_logos", missing)
+        # Since batch 8, the generic alias routes one-logo data to its own
+        # adapted layout instead of rejecting it.
+        self.assertEqual(
+            events.template_path("score_live_confirmé", missing).name,
+            "score_live_one_logo.png",
+        )
 
     def test_batch7_backgrounds_are_visually_distinct(self):
         images = [events.background(cat, self.payload) for cat in BATCH7]

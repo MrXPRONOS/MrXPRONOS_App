@@ -1,4 +1,4 @@
-"""Audited MR XPRONOS Actu Foot event templates (batches 1 through 7).
+"""Audited MR XPRONOS Actu Foot event templates (batches 1 through 8).
 
 This module renders only verified dynamic data on top of native 1122x1402
 backgrounds generated for the Actu Foot event library.
@@ -74,6 +74,11 @@ EVENT_TEMPLATE_FILES = {
     "absence_confirmee": "absence_confirmee.png",
     "retour_groupe": "retour_groupe.png",
     "score_live_two_logos": "score_live_two_logos.png",
+    "score_live_one_logo": "score_live_one_logo.png",
+    "score_live_no_logos": "score_live_no_logos.png",
+    "score_live_no_minute": "score_live_no_minute.png",
+    "but_full": "but_full.png",
+    "but_scorer_only": "but_scorer_only.png",
 }
 EVENT_CATEGORIES = tuple(EVENT_TEMPLATE_FILES)
 EVENT_ALIASES = {
@@ -84,7 +89,7 @@ EVENT_ALIASES = {
     "tir_au_but_marqué", "tir_au_but_manqué", "fin_des_tirs_au_but",
     "composition_probable", "changement_de_composition",
     "absence_confirmée", "retour_dans_le_groupe",
-    "score_live_confirmé", "score_live_confirme"
+    "score_live_confirmé", "score_live_confirme", "but"
 }
 
 # Each box is the safe interior area, not the visible outer gold frame.
@@ -527,6 +532,69 @@ SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "info": (170, 990, 952, 1100),
         "source": (180, 1158, 942, 1202),
     },
+    "score_live_one_logo": {
+        "logo_home": (72, 360, 280, 568),
+        "logo_away": (842, 360, 1050, 568),
+        "team_home": (96, 600, 424, 648),
+        "score_home": (398, 382, 516, 505),
+        "score_away": (606, 382, 724, 505),
+        "team_away": (698, 600, 1026, 648),
+        "minute": (450, 568, 672, 616),
+        "competition": (170, 730, 952, 782),
+        "status": (170, 838, 952, 940),
+        "info": (170, 995, 952, 1105),
+        "source": (180, 1168, 942, 1210),
+    },
+    "score_live_no_logos": {
+        "team_home": (92, 600, 500, 648),
+        "score_home": (398, 382, 516, 505),
+        "score_away": (606, 382, 724, 505),
+        "team_away": (622, 600, 1030, 648),
+        "minute": (450, 568, 672, 616),
+        "competition": (170, 730, 952, 782),
+        "status": (170, 838, 952, 940),
+        "info": (170, 995, 952, 1105),
+        "source": (180, 1168, 942, 1210),
+    },
+    "score_live_no_minute": {
+        "logo_home": (72, 375, 270, 573),
+        "logo_away": (852, 375, 1050, 573),
+        "team_home": (96, 615, 424, 663),
+        "score_home": (398, 397, 516, 520),
+        "score_away": (606, 397, 724, 520),
+        "team_away": (698, 615, 1026, 663),
+        "competition": (170, 715, 952, 767),
+        "status": (170, 825, 952, 940),
+        "info": (170, 1000, 952, 1115),
+        "source": (180, 1178, 942, 1220),
+    },
+    "but_full": {
+        "logo_home": (70, 650, 170, 750),
+        "team_home": (82, 718, 338, 762),
+        "score_home": (400, 675, 506, 780),
+        "score_away": (616, 675, 722, 780),
+        "logo_away": (952, 650, 1052, 750),
+        "team_away": (784, 718, 1040, 762),
+        "minute": (458, 812, 664, 856),
+        "scorer": (140, 938, 520, 1008),
+        "assist": (602, 938, 982, 1008),
+        "competition": (170, 1060, 952, 1110),
+        "info": (170, 1154, 952, 1222),
+        "source": (180, 1257, 942, 1286),
+    },
+    "but_scorer_only": {
+        "logo_home": (70, 650, 170, 750),
+        "team_home": (82, 718, 338, 762),
+        "score_home": (400, 675, 506, 780),
+        "score_away": (616, 675, 722, 780),
+        "logo_away": (952, 650, 1052, 750),
+        "team_away": (784, 718, 1040, 762),
+        "minute": (458, 812, 664, 856),
+        "scorer": (190, 938, 932, 1015),
+        "competition": (170, 1065, 952, 1115),
+        "info": (170, 1160, 952, 1228),
+        "source": (180, 1257, 942, 1286),
+    },
 }
 
 # Audit-derived typography rules.
@@ -795,9 +863,35 @@ def _category(category: str, payload: dict[str, Any]) -> str:
     if category == "retour_dans_le_groupe":
         return "retour_groupe"
     if category in {"score_live_confirmé", "score_live_confirme"}:
-        if clean(payload.get("home_logo"), 500) and clean(payload.get("away_logo"), 500):
+        minute = clean(payload.get("minute") or payload.get("time"), 25)
+        home_logo = clean(payload.get("home_logo"), 500)
+        away_logo = clean(payload.get("away_logo"), 500)
+        if not minute:
+            return "score_live_no_minute"
+        logo_count = int(bool(home_logo)) + int(bool(away_logo))
+        if logo_count == 2:
             return "score_live_two_logos"
-        raise ValueError("Score live confirmé: cette variante exige deux logos disponibles")
+        if logo_count == 1:
+            return "score_live_one_logo"
+        return "score_live_no_logos"
+    if category == "but":
+        scorer = clean(
+            payload.get("scorer")
+            or payload.get("goal_scorer")
+            or payload.get("buteur")
+            or payload.get("player"),
+            100,
+        )
+        if not scorer:
+            raise ValueError("But: identité du buteur requise pour les variantes actuellement intégrées")
+        assist = clean(
+            payload.get("assist")
+            or payload.get("assister")
+            or payload.get("passeur")
+            or payload.get("assistant"),
+            100,
+        )
+        return "but_full" if assist else "but_scorer_only"
     return category
 
 
@@ -854,6 +948,20 @@ def _generated_background(resolved: str) -> Image.Image | None:
         if image.size != (W, H):
             raise ValueError(f"Invalid generated Actu Foot template size for {resolved}: {image.size}")
         return image.convert("RGB")
+
+    batch8_builders = {
+        "score_live_one_logo": "build_score_one_logo",
+        "score_live_no_logos": "build_score_no_logos",
+        "score_live_no_minute": "build_score_no_minute",
+        "but_full": "build_goal_full",
+        "but_scorer_only": "build_goal_scorer_only",
+    }
+    if resolved in batch8_builders:
+        import build_event_batch_8_assets as batch8
+        image = getattr(batch8, batch8_builders[resolved])()
+        if image.size != (W, H):
+            raise ValueError(f"Invalid generated Actu Foot template size for {resolved}: {image.size}")
+        return image.convert("RGB")
     return None
 
 
@@ -881,8 +989,10 @@ def _common(
     home = clean(payload.get("home"), 80)
     away = clean(payload.get("away"), 80)
     hs, aws = _score_pair(payload)
-    _logo(image, payload.get("home_logo"), spec["logo_home"])
-    _logo(image, payload.get("away_logo"), spec["logo_away"])
+    if "logo_home" in spec:
+        _logo(image, payload.get("home_logo"), spec["logo_home"])
+    if "logo_away" in spec:
+        _logo(image, payload.get("away_logo"), spec["logo_away"])
     draw_fit(draw, home, spec["team_home"], **TEXT_STYLE["team"])
     draw_fit(draw, away, spec["team_away"], **TEXT_STYLE["team"])
     if hs:
@@ -1350,15 +1460,34 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
         draw_fit(draw, detail, spec["info"], size=25, min_size=15,
                  max_lines=3, bold=False)
         draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
-    elif resolved == "score_live_two_logos":
-        if not clean(payload.get("home_logo"), 500) or not clean(payload.get("away_logo"), 500):
-            raise ValueError("Score live à deux logos: les deux logos sont requis")
+    elif resolved in {"score_live_two_logos", "score_live_one_logo", "score_live_no_logos", "score_live_no_minute"}:
+        home_logo = clean(payload.get("home_logo"), 500)
+        away_logo = clean(payload.get("away_logo"), 500)
+        logo_count = int(bool(home_logo)) + int(bool(away_logo))
         home_score, away_score = _score_pair(payload)
         if not home_score or not away_score:
             raise ValueError("Score live confirmé: score domicile et extérieur requis")
         minute = clean(payload.get("minute") or payload.get("time"), 25)
-        if not minute:
-            raise ValueError("Score live à deux logos: minute requise pour cette variante")
+
+        if resolved == "score_live_two_logos":
+            if logo_count != 2:
+                raise ValueError("Score live à deux logos: les deux logos sont requis")
+            if not minute:
+                raise ValueError("Score live à deux logos: minute requise")
+        elif resolved == "score_live_one_logo":
+            if logo_count != 1:
+                raise ValueError("Score live à un logo: exactement un logo est requis")
+            if not minute:
+                raise ValueError("Score live à un logo: minute requise")
+        elif resolved == "score_live_no_logos":
+            if logo_count != 0:
+                raise ValueError("Score live sans logo: aucun logo ne doit être fourni")
+            if not minute:
+                raise ValueError("Score live sans logo: minute requise")
+        else:
+            if minute:
+                raise ValueError("Score live sans minute: la minute doit être absente")
+
         status = clean(payload.get("status") or payload.get("phase_status"), 220)
         detail = clean(payload.get("info") or payload.get("description"), 420)
         draw_fit(draw, competition, spec["competition"], size=25, min_size=15,
@@ -1366,6 +1495,39 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
         draw_fit(draw, status, spec["status"], size=29, min_size=16,
                  max_lines=3, bold=True)
         draw_fit(draw, detail, spec["info"], size=25, min_size=15,
+                 max_lines=3, bold=False)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved in {"but_full", "but_scorer_only"}:
+        scorer = clean(
+            payload.get("scorer")
+            or payload.get("goal_scorer")
+            or payload.get("buteur")
+            or payload.get("player"),
+            100,
+        )
+        if not scorer:
+            raise ValueError("But: buteur vérifié requis")
+        assist = clean(
+            payload.get("assist")
+            or payload.get("assister")
+            or payload.get("passeur")
+            or payload.get("assistant"),
+            100,
+        )
+        if resolved == "but_full" and not assist:
+            raise ValueError("But complet: passeur vérifié requis")
+        if resolved == "but_scorer_only" and assist:
+            raise ValueError("But sans passeur: utiliser la variante complète si le passeur est connu")
+
+        draw_fit(draw, scorer, spec["scorer"], size=31, min_size=16,
+                 max_lines=1, bold=True)
+        if resolved == "but_full":
+            draw_fit(draw, assist, spec["assist"], size=28, min_size=15,
+                     max_lines=1, bold=True)
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        detail = clean(payload.get("info") or payload.get("description") or payload.get("goal_detail"), 420)
+        draw_fit(draw, detail, spec["info"], size=24, min_size=14,
                  max_lines=3, bold=False)
         draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
     else:
