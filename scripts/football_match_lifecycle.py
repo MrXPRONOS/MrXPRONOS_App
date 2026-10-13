@@ -1239,6 +1239,10 @@ def lifecycle_signals(
                     })
         for signal in signals[signal_start:]:
             signal["follow_ref"] = follow_ref
+            signal.setdefault(
+                "event_date",
+                ext.get("event_date") or base.get("event_date") or base.get("date") or base.get("start_time"),
+            )
 
     # Relevé de score, toujours limité aux rencontres explicitement retenues.
     goal_score_pairs = {(item.get("follow_ref"), item.get("score"))
