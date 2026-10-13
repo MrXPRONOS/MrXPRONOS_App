@@ -446,6 +446,48 @@ def preferred_day_events(snapshots: Dict[str, SourceSnapshot]) -> List[Dict[str,
     return merged
 
 
+def summarize_h2h(rows: List[Dict[str, Any]], home_name: str, away_name: str) -> Dict[str, Any]:
+    meetings = []
+    for row in rows:
+        if str(row.get("state") or "") != "post":
+            continue
+        hs, aws = _score(row.get("home_score")), _score(row.get("away_score"))
+        if hs is None or aws is None:
+            continue
+        home_is_fixture_home = _tokens_similarity(row.get("home_team"), home_name) >= 0.45
+        away_is_fixture_away = _tokens_similarity(row.get("away_team"), away_name) >= 0.45
+        reverse = (
+            _tokens_similarity(row.get("home_team"), away_name) >= 0.45
+            and _tokens_similarity(row.get("away_team"), home_name) >= 0.45
+        )
+        if not (home_is_fixture_home and away_is_fixture_away) and not reverse:
+            continue
+        fixture_home_goals, fixture_away_goals = (hs, aws) if not reverse else (aws, hs)
+        meetings.append({
+            "date": row.get("event_date"),
+            "fixture_home_goals": fixture_home_goals,
+            "fixture_away_goals": fixture_away_goals,
+            "provider": row.get("source"),
+        })
+    total = len(meetings)
+    home_wins = sum(x["fixture_home_goals"] > x["fixture_away_goals"] for x in meetings)
+    away_wins = sum(x["fixture_home_goals"] < x["fixture_away_goals"] for x in meetings)
+    draws = total - home_wins - away_wins
+    home_goals = sum(x["fixture_home_goals"] for x in meetings)
+    away_goals = sum(x["fixture_away_goals"] for x in meetings)
+    return {
+        "source": "sportscore",
+        "total_matches": total,
+        "home_wins": home_wins,
+        "away_wins": away_wins,
+        "draws": draws,
+        "home_goals": home_goals,
+        "away_goals": away_goals,
+        "avg_total_goals": round((home_goals + away_goals) / total, 3) if total else None,
+        "recent_matches": meetings[:10],
+    }
+
+
 def sportscore_detail_enrichment(payload: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(payload, dict):
         return {}
