@@ -30,7 +30,6 @@ jobs:
       FOOTBALL_RSS_FEED: https://www.footmercato.net/flux-rss
       FOOTBALL_BSD_REQUEST_BUDGET: '18'
       FOOTBALL_REQUIRE_COMMENTS: '0'
-      FOOTBALL_REQUIRE_COMMENTS: '1'
       PYTHONUNBUFFERED: '1'
     steps:
       - uses: actions/checkout@v4
