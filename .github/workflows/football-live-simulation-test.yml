@@ -1,0 +1,59 @@
+name: Actu Foot - Simulation match live
+
+on:
+  push:
+    branches:
+      - 'test/systems-1-5-20261013'
+    paths:
+      - 'scripts/football_live_match_simulation.py'
+      - '.github/workflows/football-live-simulation-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: actu-foot-live-simulation-test
+  cancel-in-progress: true
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      FOOTBALL_NEWS_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+      TELEGRAM_TEST_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      FOOTBALL_NEWS_CHAT_ID: ${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+      PROD_FOOTBALL_NEWS_CHAT_ID: ${{ secrets.FOOTBALL_NEWS_CHAT_ID }}
+      FOOTBALL_REQUIRE_COMMENTS: '0'
+      PYTHONUNBUFFERED: '1'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installer dependances
+        run: python -m pip install --disable-pip-version-check requests Pillow
+
+      - name: Verifier le canal de test
+        env:
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: ${{ secrets.FOOTBALL_NEWS_BOT_TOKEN }}
+        run: |
+          test -n "$FOOTBALL_NEWS_BOT_TOKEN"
+          test -n "$FOOTBALL_NEWS_CHAT_ID"
+          if [ -n "$PROD_FOOTBALL_NEWS_CHAT_ID" ] && [ "$FOOTBALL_NEWS_CHAT_ID" = "$PROD_FOOTBALL_NEWS_CHAT_ID" ]; then
+            echo "::error::Le canal de test est identique au canal de production."
+            exit 1
+          fi
+          python scripts/telegram_test_readiness.py
+
+      - name: Compiler
+        run: python -m py_compile scripts/football_live_match_simulation.py scripts/football_channel.py
+
+      - name: Envoyer la simulation live
+        run: python scripts/football_live_match_simulation.py
