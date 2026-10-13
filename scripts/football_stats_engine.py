@@ -562,6 +562,10 @@ def collect_snapshot(
     if espn:
         sources["ESPN"] = espn
 
+    sportscore = fetch_sportscore_standings(session, spec)
+    if sportscore:
+        sources["SportScore"] = sportscore
+
     football_data = fetch_football_data_standings(session, spec, season=season)
     if football_data:
         sources["football-data.org"] = football_data
@@ -570,8 +574,13 @@ def collect_snapshot(
     if openliga:
         sources["OpenLigaDB"] = openliga
 
-    primary = espn or football_data or openliga
-    source_name = "ESPN" if espn else "football-data.org" if football_data else "OpenLigaDB" if openliga else ""
+    primary = espn or sportscore or football_data or openliga
+    source_name = (
+        "ESPN" if espn else
+        "SportScore" if sportscore else
+        "football-data.org" if football_data else
+        "OpenLigaDB" if openliga else ""
+    )
     agreements = []
     for name, table in sources.items():
         if table is primary:
@@ -596,7 +605,8 @@ def collect_snapshot(
         "confidence": confidence,
         "table": primary,
         "top_scorers": (
-            fetch_api_football_top_scorers(session, spec, season=season)
+            fetch_sportscore_top_scorers(session, spec)
+            or fetch_api_football_top_scorers(session, spec, season=season)
             or fetch_openliga_top_scorers(session, spec, season=season)
         ),
     }
@@ -745,6 +755,8 @@ def source_health(session: requests.Session, day: date) -> dict[str, Any]:
     """Contrôle réseau léger, utilisable par la CI sans clé payante."""
     premier = LEAGUES[0]
     espn = fetch_espn_standings(session, premier, season=_season_start(day))
+    sportscore = fetch_sportscore_standings(session, premier)
+    sportscore_scorers = fetch_sportscore_top_scorers(session, premier)
     openliga = fetch_openliga_table(
         session,
         next(x for x in LEAGUES if x.openliga),
@@ -752,6 +764,8 @@ def source_health(session: requests.Session, day: date) -> dict[str, Any]:
     )
     return {
         "espn_rows": len(espn),
+        "sportscore_rows": len(sportscore),
+        "sportscore_scorers": len(sportscore_scorers),
         "openliga_rows": len(openliga),
         "football_data_configured": bool((os.getenv("FOOTBALL_DATA_TOKEN") or "").strip()),
         "api_football_configured": bool((os.getenv("API_FOOTBALL_KEY") or "").strip()),
