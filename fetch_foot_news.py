@@ -260,11 +260,11 @@ def fetch_news() -> tuple[list[dict], dict]:
     return selected, diagnostics
 
 
-def save_news(records: list[dict], diagnostics: dict) -> None:
+def save_news(records: list[dict], diagnostics: dict | None = None) -> None:
     if not records:
         raise RuntimeError("Aucune actualité exploitable : conservation du footnews.json existant")
     NEWS_FILE.write_text(json.dumps(records, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    logger.info("NEWS_ENGINE %s", json.dumps(diagnostics, ensure_ascii=False))
+    logger.info("NEWS_ENGINE %s", json.dumps(diagnostics or {}, ensure_ascii=False))
     logger.info("%s actualités sauvegardées dans %s", len(records), NEWS_FILE)
 
 
