@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 """Collecteur commun News Football -> site Infos Foot + Telegram Actu Foot.
 
-Aucune API payante. Les flux sont des RSS publics français; les métadonnées
-og:image/og:description ne sont utilisées qu'en complément lorsqu'un flux est
-incomplet. Aucun fait absent des sources n'est inventé.
+Aucune API payante. Les articles principaux viennent de flux RSS publics;
+les métadonnées og:image/og:description complètent les flux incomplets.
+L'API publique ESPN News sert uniquement à corroborer/enrichir les métadonnées
+(équipes, joueurs, sujet transfert), jamais à inventer ou recopier un article.
 """
 from __future__ import annotations
 
