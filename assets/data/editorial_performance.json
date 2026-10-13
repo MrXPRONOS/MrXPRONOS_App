@@ -1,6 +1,6 @@
 {
   "period_days": 30,
-  "generated_at": "2026-10-13T00:31:34.618069+00:00",
+  "generated_at": "2026-10-13T00:52:44.347990+00:00",
   "data_origin": "Supabase analytics events; anonymous attributed page reads",
   "attributed_visits": 0,
   "promo_copy_actions": 0,
@@ -9,7 +9,63 @@
   "registrations": null,
   "deposits": null,
   "ab_significance": null,
-  "ab_limitation": "Visuels non assignés aléatoirement et volumes possiblement insuffisants: aucune causalité démontrée.",
+  "ab_limitation": "Assignation aléatoire par session aux listes Blog/Conseils ; événements d’impressions et clics, pas visiteurs uniques. Significativité non calculée ; aucune causalité affirmée.",
+  "ab_tests": [
+    {
+      "kind": "conseil",
+      "slug": "comprendre-value",
+      "variant": "a",
+      "impressions": 16,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "comprendre-value",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "erreurs-tilt",
+      "variant": "a",
+      "impressions": 12,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "erreurs-tilt",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "gerer-bankroll",
+      "variant": "a",
+      "impressions": 16,
+      "opens": 0,
+      "open_rate": 0.0,
+      "status": "insufficient_data"
+    },
+    {
+      "kind": "conseil",
+      "slug": "gerer-bankroll",
+      "variant": "b",
+      "impressions": 0,
+      "opens": 0,
+      "open_rate": null,
+      "status": "insufficient_data"
+    }
+  ],
   "groups": [],
   "content": [],
   "invalid_events_skipped": 0
