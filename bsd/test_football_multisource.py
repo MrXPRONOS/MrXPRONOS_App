@@ -9,6 +9,7 @@ from football_multisource import (
     PROVIDER_QUALITY,
     MultiSourceFootballClient,
     _bsd_compatible,
+    _openliga_competitions,
     map_events_to_reference_ids,
 )
 
@@ -72,6 +73,13 @@ class MultiSourceTests(unittest.TestCase):
         self.assertGreater(PROVIDER_QUALITY["sportscore"], PROVIDER_QUALITY["openligadb"])
         self.assertGreater(PROVIDER_QUALITY["openligadb"], PROVIDER_QUALITY["thesportsdb"])
         self.assertEqual(FETCH_PRIORITY[-1], "bsd")
+
+    def test_openliga_2026_uses_multiple_high_quality_competitions(self):
+        rows = _openliga_competitions(date(2026, 10, 13))
+        shortcuts = {shortcut for shortcut, season, _label in rows}
+        self.assertTrue({"bl1", "bl2", "bl3", "ucl", "dfb", "ffb1"}.issubset(shortcuts))
+        self.assertTrue({"uel2026", "uecl2026", "nla", "wm26"}.issubset(shortcuts))
+        self.assertTrue(all(season == 2026 for _shortcut, season, _label in rows))
 
     def test_bsd_is_not_called_when_free_coverage_is_enough(self):
         bsd = FakeBsd([{"id": 999}])
