@@ -175,6 +175,21 @@ function rowsOf(payload: any): any[] {
   return [];
 }
 
+function sportScoreIdentity(item: any) {
+  let sourceId = text(item?.id ?? item?.match_id);
+  let slug = text(item?.slug);
+  const rawUrl = text(item?.url);
+  if (rawUrl) {
+    const parts = rawUrl.split("/").filter(Boolean);
+    const idx = parts.indexOf("match");
+    if (idx >= 0) {
+      if (!slug && idx + 1 < parts.length) slug = parts[idx + 1];
+      if (!sourceId && idx + 2 < parts.length) sourceId = parts[idx + 2];
+    }
+  }
+  return { sourceId, slug };
+}
+
 export async function fetchSportScoreFixtures(
   date: string,
   status?: "live" | "finished" | "upcoming",
@@ -191,9 +206,10 @@ export async function fetchSportScoreFixtures(
       const home = item?.home_team && typeof item.home_team === "object" ? item.home_team : {};
       const away = item?.away_team && typeof item.away_team === "object" ? item.away_team : {};
       const competition = item?.competition && typeof item.competition === "object" ? item.competition : {};
+      const identity = sportScoreIdentity(item);
       return canonical({
         source: "sportscore",
-        sourceId: item?.id ?? item?.match_id,
+        sourceId: identity.sourceId,
         home: item?.home ?? item?.home_name ?? home?.name,
         away: item?.away ?? item?.away_name ?? away?.name,
         eventDate: item?.time ?? item?.start_time ?? item?.kickoff ?? item?.date,
@@ -203,7 +219,7 @@ export async function fetchSportScoreFixtures(
         league: item?.league ?? item?.competition_name ?? competition?.name,
         homeLogo: item?.home_logo ?? home?.logo,
         awayLogo: item?.away_logo ?? away?.logo,
-        slug: item?.slug,
+        slug: identity.slug,
         raw: item,
       });
     })
@@ -217,9 +233,11 @@ export async function fetchSportScoreLiveRecent(limit = 50) {
   url.searchParams.set("src", "mrxpronos");
   const payload = await fetchJson(url, 55_000);
   return rowsOf(payload)
-    .map((item: any) => canonical({
+    .map((item: any) => {
+      const identity = sportScoreIdentity(item);
+      return canonical({
       source: "sportscore",
-      sourceId: item?.id ?? item?.match_id,
+      sourceId: identity.sourceId,
       home: item?.home,
       away: item?.away,
       eventDate: item?.time ?? item?.start_time,
@@ -229,9 +247,10 @@ export async function fetchSportScoreLiveRecent(limit = 50) {
       league: item?.league ?? item?.competition,
       homeLogo: item?.home_logo,
       awayLogo: item?.away_logo,
-      slug: item?.slug,
+      slug: identity.slug,
       raw: item,
-    }))
+    });
+    })
     .filter(Boolean) as any[];
 }
 
