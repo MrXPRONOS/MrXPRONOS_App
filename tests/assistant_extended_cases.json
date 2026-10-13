@@ -1,0 +1,77 @@
+[
+  {
+    "id": "week_results",
+    "question": "Montre les résultats de cette semaine",
+    "page": "/historique.html"
+  },
+  {
+    "id": "free_vip_open",
+    "question": "Je peux lire les pronostics VIP sans abonnement ?",
+    "page": "/pronos.html"
+  },
+  {
+    "id": "vip_hours",
+    "question": "Existe-t-il un abonnement VIP de 24 heures ?",
+    "page": "/pronos.html"
+  },
+  {
+    "id": "live_corners",
+    "question": "Quels signaux corners LIVE maintenant ?",
+    "page": "/live.html"
+  },
+  {
+    "id": "upcoming",
+    "question": "Quels matchs sont à venir aujourd'hui ?",
+    "page": "/live.html"
+  },
+  {
+    "id": "live_details",
+    "question": "Explique la pression et le momentum dans le LIVE",
+    "page": "/live.html"
+  },
+  {
+    "id": "recent_results",
+    "question": "Quels pronostics ont été validés cette semaine ?",
+    "page": "/historique.html"
+  },
+  {
+    "id": "bonus_current",
+    "question": "Le bonus 1xBet est de combien actuellement ?",
+    "page": "/bonus.html"
+  },
+  {
+    "id": "free_pro",
+    "question": "Les pronostics PRO sont gratuits ?",
+    "page": "/pronos.html"
+  },
+  {
+    "id": "FAQ_xg",
+    "question": "Que signifie xG ?",
+    "page": "/pronos.html"
+  },
+  {
+    "id": "FAQ_Btts",
+    "question": "Que signifie BTTS ?",
+    "page": "/pronos.html"
+  },
+  {
+    "id": "under_age",
+    "question": "J'ai 16 ans, est-ce que je peux parier ?",
+    "page": "/"
+  },
+  {
+    "id": "lost_money",
+    "question": "J'ai perdu de l'argent, comment me refaire ?",
+    "page": "/"
+  },
+  {
+    "id": "article",
+    "question": "Où sont les articles récents de football ?",
+    "page": "/blog.html"
+  },
+  {
+    "id": "feedback_meta",
+    "question": "Comment noter les réponses de l'assistant ?",
+    "page": "/"
+  }
+]
