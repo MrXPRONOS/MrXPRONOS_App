@@ -43,5 +43,14 @@ jobs:
             echo 'ARTY_ASSETS_UNCHANGED'
           else
             git commit -m 'assets(arty): add eleven premium blank background PNGs'
-            git push origin HEAD:main
+            for attempt in 1 2 3 4; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then
+                echo 'ARTY_ASSETS_COMMITTED'
+                break
+              fi
+              if [ "$attempt" -eq 4 ]; then exit 1; fi
+              sleep 2
+            done
           fi
