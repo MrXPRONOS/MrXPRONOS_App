@@ -9,6 +9,14 @@ export const FREE_SOURCE_QUALITY: Record<string, {overall:number;live:number;det
 };
 
 const SPORT_SCORE = "https://sportscore.com/api/v1";
+// SportScore fixture URLs contain a stable provider match token, unlike team-name slugs.
+function sportScoreId(x:any, home:string, away:string){
+  const id=text(x.slug||x.match_slug||x.match_id||x.id||"");
+  if(id) return id;
+  const matchUrl=text(x.url||x.match_url);
+  const segments=matchUrl.split("?")[0].split("/").filter(Boolean);
+  return (segments.includes("match") ? text(segments.at(-1)) : "") || slugify(home+"-vs-"+away);
+}
 const TSDB = "https://www.thesportsdb.com/api/v1/json/123";
 const OPENLIGA = "https://api.openligadb.de";
 const memory = new Map<string,{until:number;data:any}>();
@@ -78,10 +86,10 @@ export async function fetchSportScoreFixtures(date:string,status?:string){
   return rows.filter((x:any)=>x&&x.home&&x.away).map((x:any)=>{
     const home=text(typeof x.home==="object"?x.home?.name:x.home);
     const away=text(typeof x.away==="object"?x.away?.name:x.away);
-    const slug=text(x.slug||x.match_slug||x.url_slug)||slugify(home+"-vs-"+away);
+    const slug=sportScoreId(x,home,away);
     return liveShape("sportscore",text(x.id||x.match_id||slug),home,away,x.time||x.date||x.start_time,{
       home_score:x.home_score??x.score_home,away_score:x.away_score??x.score_away,
-      status:x.status,status_detail:x.status_text||x.status,minute:x.minute,
+      status:x.status,status_detail:x.status_text||x.status,minute:x.minute??x.match_minute??x.elapsed??x.clock?.minute,
       home_logo:x.home_logo,away_logo:x.away_logo,league:typeof x.competition==="object"?x.competition?.name:x.competition||x.league,
       raw_data:{sportscore_slug:slug,raw:x},
     });
@@ -98,11 +106,11 @@ export async function fetchSportScoreLive(){
   return rows.filter((x:any)=>state(x.status||x.status_text)==="in").map((x:any)=>{
     const home=text(typeof x.home==="object"?x.home?.name:x.home);
     const away=text(typeof x.away==="object"?x.away?.name:x.away);
-    const slug=text(x.slug||x.match_slug||x.url_slug)||slugify(home+"-vs-"+away);
+    const slug=sportScoreId(x,home,away);
     return liveShape("sportscore",text(x.id||x.match_id||slug),home,away,x.time||x.date||x.start_time,{
       home_score:x.home_score??x.score_home,away_score:x.away_score??x.score_away,
       status:x.status,status_detail:x.status_text||x.status,
-      minute:x.minute,home_logo:x.home_logo,away_logo:x.away_logo,
+      minute:x.minute??x.match_minute??x.elapsed??x.clock?.minute,home_logo:x.home_logo,away_logo:x.away_logo,
       league:typeof x.competition==="object"?x.competition?.name:x.competition||x.league,
       raw_data:{sportscore_slug:slug,raw:x},
     });
