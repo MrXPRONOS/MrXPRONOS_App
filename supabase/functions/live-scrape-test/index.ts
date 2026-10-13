@@ -1,3 +1,4 @@
+import { fetchSharedEspnScoreboard } from "../_shared/espn.ts";
 // supabase/functions/live-scrape-test/index.ts
 // =======================================================
 // ✅ Système scraping ESPN avec STOCKAGE clone + VALIDATION + NOTIFICATIONS
@@ -118,7 +119,7 @@ function extractPath(url: URL, fnName = FUNCTION_NAME) {
 }
 
 function requireCronAuth(req: Request, url: URL) {
-  if (!CRON_SECRET) return; // public si non défini
+  if (!CRON_SECRET) throw new Error("CRON_SECRET not configured");
   const auth = req.headers.get("authorization") || "";
   const x = req.headers.get("x-cron-secret") || "";
   const q = url.searchParams.get("key") || "";
@@ -816,30 +817,35 @@ async function sendTelegramValidationResult(
 // =======================================================
 // Cache mémoire (évite de spam ESPN)
 // =======================================================
-let memCache: { at: number; date: string; data: any } | null = null;
-const CACHE_TTL_MS = 15_000;
-
-async function fetchEspnScoreboard(dateYYYYMMDD: string, force = false) {
-  const now = Date.now();
-  if (!force && memCache && memCache.date === dateYYYYMMDD &&
-    now - memCache.at < CACHE_TTL_MS) {
-    return memCache.data;
-  }
-
-  const url = new URL(ESPN_SCOREBOARD_URL);
-  url.searchParams.set("dates", dateYYYYMMDD);
-  url.searchParams.set("limit", "500");
-
-  const res = await fetch(url.toString(), {
-    headers: {
-      "User-Agent": "Mozilla/5.0 MrXPRONOS-LiveScrape/1.0",
-      "Accept": "application/json,text/plain,*/*",
-    },
-  });
-  if (!res.ok) throw new Error(`ESPN HTTP ${res.status}`);
-  const data = await res.json();
-  memCache = { at: now, date: dateYYYYMMDD, data };
-  return data;
+const espnStore = {
+  async read(key: string) {
+    const { data, error } = await supabase.from("espn_feed_cache").select("*").eq("cache_key", key).maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+  async write(row: any) {
+    const { error } = await supabase.from("espn_feed_cache").upsert(row, { onConflict: "cache_key" });
+    if (error) throw error;
+  },
+  async reserve(bucket: "scoreboard" | "summary") {
+    const { data, error } = await supabase.rpc("espn_take_request_slot", {
+      p_bucket: bucket,
+      p_max_calls: bucket === "summary" ? 8 : 30,
+      p_window_seconds: 60,
+    });
+    if (error) throw error;
+    return data === true;
+  },
+  async blockFor(bucket: "scoreboard" | "summary", seconds: number) {
+    const { error } = await supabase.rpc("espn_provider_backoff", {
+      p_bucket: bucket,
+      p_seconds: seconds,
+    });
+    if (error) throw error;
+  },
+};
+async function fetchEspnScoreboard(dateYYYYMMDD: string, _force = false) {
+  return fetchSharedEspnScoreboard(dateYYYYMMDD, espnStore);
 }
 
 function extractMinute(status: any): number {
