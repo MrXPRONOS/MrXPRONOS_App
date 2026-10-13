@@ -16,7 +16,7 @@ function marketMatches(label:unknown, input:Match):boolean{
   const name=clean(label);
   const wanted=clean(input.market);
   if(wanted==="totalcorners")return name.includes("corner")&&!name.includes("firsthalf")&&!name.includes("1sthalf");
-  if(wanted==="totalshots")return name.includes("shots")&&!name.includes("ontarget")&&!name.includes("firsthalf");
+  if(wanted==="totalshots")return name.includes("totalshots")&&!name.includes("ontarget")&&!name.includes("player")&&!name.includes("firsthalf");
   if(wanted==="totalfouls")return name.includes("fouls")&&!name.includes("firsthalf");
   return false;
 }
@@ -24,7 +24,7 @@ function fixtureMatches(v:any,input:Match):boolean{
   const home=clean(v?.home??v?.home_team??v?.homeTeam?.name);
   const away=clean(v?.away??v?.away_team??v?.awayTeam?.name);
   if(!home||!away||!clean(input.home)||!clean(input.away)||home!==clean(input.home)||away!==clean(input.away))return false;
-  const got=time(v?.kickoff??v?.starts??v?.commence_time??v?.start_time);
+  const got=time(v?.kickoff_utc??v?.kickoff??v?.starts??v?.commence_time??v?.start_time);
   const wanted=time(input.kickoff);
   return Number.isFinite(got)&&Number.isFinite(wanted)&&Math.abs(got-wanted)<=7200_000;
 }
@@ -39,11 +39,14 @@ function extractMovi(data:any,input:Match):LiveQuote|null{
   for(const q of match.quotes??[]){
     if(q?.suspended!==false&&q?.suspended!==undefined)continue;
     if(!marketMatches(q?.group_name??q?.market,input))continue;
-    if(!["over","o"].includes(clean(q?.side??q?.label)))continue;
-    const line=number(q?.line??q?.point);
+    const selection=clean(q?.side??q?.label);
+    if(!["over","o"].includes(selection)&&!selection.startsWith("over"))continue;
+    const labelLine=String(q?.label??"").match(/over\\s*(\\d+(?:\\.\\d+)?)/i);
+    const line=number(q?.line??q?.point??labelLine?.[1]);
     const price=number(q?.odds_dec??q?.price);
     if(!Number.isFinite(line)||Math.abs(line-input.line)>.01||!Number.isFinite(price)||price<=1.01||price>100)continue;
-    if(!isFresh(q?.updated_at? q: match))continue;
+    // Match polling confirms a stable quote is still live; quote.ts is only last change.
+    if(!isFresh({updated_at:match?.polled_at}))continue;
     return {odds:Number(price.toFixed(3)),line,source:"moviodds"};
   }
   return null;
@@ -66,7 +69,7 @@ function extractPinnwire(data:any,input:Match):LiveQuote|null{
 }
 async function getJSON(provider:"moviodds"|"pinnwire",input:Match,db:Rpc):Promise<any|null>{
   const url=provider==="moviodds"?
-    "https://moviodds.com/odds?sport=soccer":
+    "https://moviodds.com/odds?sport=soccer&in_play=1":
     Deno.env.get("LIVE_ODDS_PINNWIRE_DIRECT_URL")||"";
   if(!url||!url.startsWith("https://"))return null;
   const key=provider+":"+url;
