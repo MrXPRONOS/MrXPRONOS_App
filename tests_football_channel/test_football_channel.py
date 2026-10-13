@@ -143,7 +143,7 @@ class FootballChannelTests(unittest.TestCase):
         )
         sender = type("S", (), {"session": object()})()
         self.assertTrue(m.espn_preflight(sender, item))
-        self.assertEqual(item.card["time"], "18:30")
+        self.assertEqual(item.card["time"], "18h30")
         self.assertIn("Emirates Stadium", item.text)
 
     @patch.object(m, "verify_espn_before_publish")
