@@ -48,7 +48,8 @@ MAX_ARTICLES = max(10, min(120, int(os.getenv("MAX_ARTICLES", "60"))))
 MAX_PER_FEED = max(5, min(30, int(os.getenv("MAX_ARTICLES_PER_FEED", "16"))))
 MAX_NEWS_AGE_HOURS = max(12, min(336, int(os.getenv("MAX_NEWS_AGE_HOURS", "120"))))
 RSS_TIMEOUT = max(4, min(40, int(os.getenv("RSS_TIMEOUT", "18"))))
-ESPN_SOCCER_RSS = "https://www.espn.com/espn/rss/soccer/news"
+ESPN_NEWS_LEAGUES = ("eng.1", "esp.1", "ita.1", "ger.1", "fra.1", "uefa.champions")
+ESPN_NEWS_URL = "https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/news"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("mrxpronos.news")
@@ -117,27 +118,76 @@ def _verification_tokens(value: str) -> set[str]:
 
 
 def fetch_espn_verification_index(session: requests.Session) -> list[dict]:
-    """Index interne ESPN : titres/liens uniquement, jamais réutilisés comme contenu."""
-    try:
-        response = session.get(
-            ESPN_SOCCER_RSS,
-            timeout=(7, RSS_TIMEOUT),
-            headers={"User-Agent": "MrXPRONOS-NewsVerifier/1.0"},
-            allow_redirects=True,
-        )
-        response.raise_for_status()
-        feed = feedparser.parse(response.content)
-    except (requests.RequestException, ValueError):
-        return []
+    """Index interne ESPN News API : métadonnées seulement, aucun texte republié."""
+    rows_by_url: dict[str, dict] = {}
+    for league in ESPN_NEWS_LEAGUES:
+        try:
+            response = session.get(
+                ESPN_NEWS_URL.format(league=league),
+                params={"limit": "50"},
+                timeout=(7, RSS_TIMEOUT),
+                headers={
+                    "User-Agent": "MrXPRONOS-NewsVerifier/2.0",
+                    "Accept": "application/json",
+                },
+                allow_redirects=True,
+            )
+            response.raise_for_status()
+            payload = response.json()
+        except (requests.RequestException, ValueError):
+            continue
+        for article in payload.get("articles", []) if isinstance(payload, dict) else []:
+            if not isinstance(article, dict):
+                continue
+            title = re.sub(r"\s+", " ", str(article.get("headline") or "")).strip()
+            links = article.get("links") if isinstance(article.get("links"), dict) else {}
+            web_link = links.get("web") if isinstance(links.get("web"), dict) else {}
+            link = safe_link(web_link.get("href"))
+            tokens = _verification_tokens(title)
+            if not title or not link or not (urlparse(link).hostname or "").lower().endswith("espn.com") or not tokens:
+                continue
 
-    rows = []
-    for entry in list(feed.entries or [])[:80]:
-        title = re.sub(r"\s+", " ", str(entry.get("title") or "")).strip()
-        link = safe_link(entry.get("link"))
-        tokens = _verification_tokens(title)
-        if title and link and "espn.com" in (urlparse(link).hostname or "") and tokens:
-            rows.append({"title": title, "url": link, "tokens": tokens})
-    return rows
+            topics: list[str] = []
+            teams: list[str] = []
+            athletes: list[str] = []
+            leagues: list[str] = []
+            for category in article.get("categories") or []:
+                if not isinstance(category, dict):
+                    continue
+                typ = str(category.get("type") or "").lower()
+                description = re.sub(r"\s+", " ", str(category.get("description") or "")).strip()
+                if not description:
+                    continue
+                if typ == "topic":
+                    topics.append(description)
+                elif typ == "team":
+                    teams.append(description)
+                elif typ == "athlete":
+                    athletes.append(description)
+                elif typ == "league":
+                    leagues.append(description)
+
+            row = {
+                "id": str(article.get("id") or ""),
+                "title": title,
+                "url": link,
+                "tokens": tokens,
+                "published": str(article.get("published") or ""),
+                "topics": sorted(set(topics)),
+                "teams": sorted(set(teams)),
+                "athletes": sorted(set(athletes)),
+                "leagues": sorted(set(leagues)),
+                "is_transfer": any("transfer" in x.casefold() for x in topics)
+                    or "transfer" in title.casefold(),
+            }
+            existing = rows_by_url.get(link)
+            if existing:
+                for key in ("topics", "teams", "athletes", "leagues"):
+                    existing[key] = sorted(set(existing.get(key, [])) | set(row.get(key, [])))
+                existing["is_transfer"] = bool(existing.get("is_transfer") or row["is_transfer"])
+            else:
+                rows_by_url[link] = row
+    return list(rows_by_url.values())
 
 
 def espn_corroboration(title: str, index: list[dict]) -> dict:
@@ -163,9 +213,17 @@ def espn_corroboration(title: str, index: list[dict]) -> dict:
         return {}
     return {
         "provider": "ESPN",
+        "source": "ESPN News API",
+        "article_id": best.get("id") or "",
         "url": best["url"],
+        "published": best.get("published") or "",
         "score": round(best_score, 3),
         "matched_terms": sorted(wanted & set(best.get("tokens") or ()))[:6],
+        "topics": best.get("topics") or [],
+        "teams": best.get("teams") or [],
+        "athletes": best.get("athletes") or [],
+        "leagues": best.get("leagues") or [],
+        "is_transfer": bool(best.get("is_transfer")),
     }
 
 
