@@ -5629,21 +5629,41 @@ async function enrichLiveMatchesWithFreeStats(matches: any[], prefetchedSportSco
         sportscoreDetails++;
         sportscoreCalls++;
         const detail = await fetchSportScoreMatchStats(String(ss.match.source_slug));
-        if (detail?.stats) {
-          const mergedStats = mergeLiveStats(getMatchLiveStats(current), detail.stats, true);
+        if (detail?.payload) {
+          const matchDetail = detail.payload?.match && typeof detail.payload.match === "object"
+            ? detail.payload.match : {};
+          const incidents = Array.isArray(matchDetail?.incidents) ? matchDetail.incidents : [];
+          const lineups = matchDetail?.lineups && typeof matchDetail.lineups === "object"
+            ? matchDetail.lineups : null;
+          const tracker = matchDetail?.tracker && typeof matchDetail.tracker === "object"
+            ? matchDetail.tracker : null;
+          const mergedStats = detail?.stats
+            ? mergeLiveStats(getMatchLiveStats(current), detail.stats, true)
+            : getMatchLiveStats(current);
+          const freeStatsComplete = statsCompleteness(mergedStats).core_complete >
+            statsCompleteness(getMatchLiveStats(current)).core_complete;
           current = {
             ...current,
             live_stats: mergedStats,
-            stats_last_updated_at: nowIso(),
+            stats_last_updated_at: freeStatsComplete ? nowIso() : current?.stats_last_updated_at,
             raw_data: {
               ...(current.raw_data || {}),
               live_stats: mergedStats,
-              stats_last_updated_at: nowIso(),
-              stats_sources: [...new Set([...(current.raw_data?.stats_sources || []), "sportscore"])],
-              stats_authority: "sportscore",
+              sportscore_detail: {
+                confirmed_lineups: Boolean(lineups?.confirmed),
+                lineups,
+                incidents,
+                tracker,
+                updated: detail.payload?.updated || null,
+              },
+              stats_last_updated_at: freeStatsComplete ? nowIso() : current?.raw_data?.stats_last_updated_at,
+              stats_sources: freeStatsComplete
+                ? [...new Set([...(current.raw_data?.stats_sources || []), "sportscore"])]
+                : [...new Set([...(current.raw_data?.stats_sources || [])])],
+              stats_authority: freeStatsComplete ? "sportscore" : current?.raw_data?.stats_authority,
             },
           };
-          enriched++;
+          if (freeStatsComplete || incidents.length || lineups) enriched++;
         }
       }
     }
