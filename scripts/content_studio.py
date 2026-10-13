@@ -21,7 +21,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 import requests
 
 # Les illustrations BSD V2 utilisent seulement les domaines badge approuvés.
-BADGE_HOSTS = frozenset(("r2.thesportsdb.com","www.thesportsdb.com", "media.api-sports.io", "cdn.sofascore.com", "api.sofascore.com", "img.sofascore.com", "images.fotmob.com"))
+BADGE_HOSTS = frozenset(("r2.thesportsdb.com","www.thesportsdb.com", "media.api-sports.io", "cdn.sofascore.com", "api.sofascore.com", "img.sofascore.com", "images.fotmob.com","sports.bzzoiro.com"))
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "assets" / "images" / "editorial"
@@ -140,7 +140,7 @@ def team_badge(url: str) -> Image.Image | None:
         if parsed.scheme!="https" or parsed.hostname not in BADGE_HOSTS or parsed.port not in (None,443):
             return None
         if parsed.username or parsed.password:return None
-        response=requests.get(url, timeout=(3,6), stream=True,
+        response=requests.get(url, timeout=(3,6), stream=True, allow_redirects=False,
                               headers={"User-Agent":"MrXPRONOS-editorial/1.0"})
         response.raise_for_status()
         ctype=str(response.headers.get("Content-Type") or "").lower()

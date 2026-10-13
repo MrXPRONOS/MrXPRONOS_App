@@ -23,6 +23,22 @@ class Phase5EditorialTests(unittest.TestCase):
         self.assertEqual(article["home_logo"],event["home_team"]["logo"])
         self.assertEqual(article["away_logo"],event["away_team"]["logo_url"])
         self.assertNotIn("evil.invalid",str(article))
+    def test_canonical_bsd_numeric_team_ids_without_guessing(self):
+        fixture={"id":"bsd:2002","source":"bsd",
+                 "event_date":"2026-10-13T16:00:00Z",
+                 "home_team":"AS Togo","away_team":"Ghana Stars",
+                 "home_team_id":12345,"away_team_id":"98765"}
+        self.assertEqual(editorial_bsd_bridge.badge_url(fixture,"home"),
+                         "https://sports.bzzoiro.com/img/team/12345/?bg=transparent")
+        self.assertEqual(editorial_bsd_bridge.badge_url(fixture,"away"),
+                         "https://sports.bzzoiro.com/img/team/98765/?bg=transparent")
+        article=editorial_bsd_bridge.factual_article(fixture,datetime(2026,10,13,12,tzinfo=timezone.utc))
+        self.assertIn("sports.bzzoiro.com",article["home_logo"])
+        fixture["away_team_id"]="xyz/injected"
+        self.assertEqual(editorial_bsd_bridge.badge_url(fixture,"away"),"")
+        fixture["home_team_id"]=-1
+        self.assertEqual(editorial_bsd_bridge.badge_url(fixture,"home"),"")
+
     def test_reject_spoofed_badges(self):
         bad=[
             "http://r2.thesportsdb.com/badge.png",
