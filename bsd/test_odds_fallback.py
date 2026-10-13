@@ -79,7 +79,7 @@ class RouterTests(unittest.TestCase):
         session=FakeSession([FakeResponse(429,{}),FakeResponse(200,{"matches":[{
             **ROW,"in_play":False,"quotes":[{"group_name":"match result",
                 "label":"Real Madrid","odds_dec":1.8}]}]})])
-        with patch.dict(os.environ,{"PINNWIRE_API_KEY":"demo","ODDSLINK_API_KEY":""},clear=False):
+        with patch.dict(os.environ,{"PINNWIRE_API_KEY":"demo","ODDSLINK_API_KEY":"","MOVIODDS_ENABLE":"1"},clear=False):
             router=OddsRouter(lambda ev,at: ({},{}),session=session,
                 order=("goaldir","pinnwire","moviodds"))
             result,diag=router.fetch(EVENT,NOW)
