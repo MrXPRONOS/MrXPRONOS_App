@@ -476,7 +476,8 @@ class FreeFootballProviders:
             if source and source not in sources:
                 sources.append(source)
             for key in ("home_score", "away_score", "state", "status_detail", "event_date", "league", "home_logo", "away_logo"):
-                if merged.get(key) in (None, "", 0) and row.get(key) not in (None, ""):
+                # Un score de 0 est une vraie donnée, jamais une valeur manquante.
+                if merged.get(key) in (None, "") and row.get(key) not in (None, ""):
                     merged[key] = row[key]
         merged["provider_sources"] = sources
         merged["provider_quality"] = max(PROVIDER_QUALITY.get(x, 0) for x in sources) if sources else 0
