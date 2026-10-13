@@ -1,4 +1,4 @@
-"""Audited MR XPRONOS Actu Foot event templates (batches 1, 2, 3 and 4).
+"""Audited MR XPRONOS Actu Foot event templates (batches 1 through 5).
 
 This module renders only verified dynamic data on top of native 1122x1402
 backgrounds generated for the Actu Foot event library.
@@ -59,11 +59,18 @@ EVENT_TEMPLATE_FILES = {
     "match_annule": "match_annule.png",
     "reprise_match": "reprise_match.png",
     "temps_additionnel": "temps_additionnel.png",
+    "fin_1re_mi_temps": "fin_1re_mi_temps.png",
+    "debut_2e_mi_temps": "debut_2e_mi_temps.png",
+    "fin_temps_reglementaire": "fin_temps_reglementaire.png",
+    "prolongation": "prolongation.png",
+    "mi_temps_prolongation": "mi_temps_prolongation.png",
 }
 EVENT_CATEGORIES = tuple(EVENT_TEMPLATE_FILES)
 EVENT_ALIASES = {
     "carton_jaune", "carton_rouge", "remplacement", "match_interrompu",
-    "match_reporté", "match_annulé", "reprise_du_match"
+    "match_reporté", "match_annulé", "reprise_du_match",
+    "fin_de_la_1re_mi_temps", "début_de_la_2e_mi_temps",
+    "fin_du_temps_réglementaire", "mi_temps_de_la_prolongation"
 }
 
 # Each box is the safe interior area, not the visible outer gold frame.
@@ -323,6 +330,70 @@ SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "added_time": (350, 1043, 772, 1158),
         "info": (170, 1200, 952, 1278),
     },
+    "fin_1re_mi_temps": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "status": (200, 1044, 922, 1102),
+        "info": (170, 1140, 952, 1208),
+        "source": (175, 1243, 947, 1282),
+    },
+    "debut_2e_mi_temps": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "status": (200, 1044, 922, 1102),
+        "info": (170, 1140, 952, 1208),
+        "source": (175, 1243, 947, 1282),
+    },
+    "fin_temps_reglementaire": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "status": (170, 1040, 952, 1168),
+        "source": (175, 1223, 947, 1278),
+    },
+    "prolongation": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "status": (200, 1044, 922, 1102),
+        "info": (170, 1140, 952, 1208),
+        "source": (175, 1243, 947, 1282),
+    },
+    "mi_temps_prolongation": {
+        "logo_home": (86, 736, 195, 845),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 740, 517, 860),
+        "score_away": (605, 740, 727, 860),
+        "logo_away": (927, 736, 1036, 845),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 920),
+        "competition": (350, 952, 772, 996),
+        "status": (200, 1044, 922, 1102),
+        "info": (170, 1140, 952, 1208),
+        "source": (175, 1243, 947, 1282),
+    },
 }
 
 # Audit-derived typography rules.
@@ -520,6 +591,14 @@ def _category(category: str, payload: dict[str, Any]) -> str:
         return "match_annule"
     if category == "reprise_du_match":
         return "reprise_match"
+    if category == "fin_de_la_1re_mi_temps":
+        return "fin_1re_mi_temps"
+    if category == "début_de_la_2e_mi_temps":
+        return "debut_2e_mi_temps"
+    if category == "fin_du_temps_réglementaire":
+        return "fin_temps_reglementaire"
+    if category == "mi_temps_de_la_prolongation":
+        return "mi_temps_prolongation"
     return category
 
 
@@ -534,14 +613,36 @@ def template_path(category: str, payload: dict[str, Any] | None = None) -> Path:
     return ASSETS / EVENT_TEMPLATE_FILES[resolved]
 
 
-def background(category: str, payload: dict[str, Any] | None = None) -> Image.Image:
-    path = template_path(category, payload)
-    if not path.is_file():
-        raise FileNotFoundError("Missing audited Actu Foot template asset: " + str(path))
-    with Image.open(path) as source:
-        image = source.convert("RGB")
+def _generated_batch5_background(resolved: str) -> Image.Image | None:
+    builders = {
+        "fin_1re_mi_temps": "build_end_first_half",
+        "debut_2e_mi_temps": "build_start_second_half",
+        "fin_temps_reglementaire": "build_end_regulation",
+        "prolongation": "build_extra_time",
+        "mi_temps_prolongation": "build_extra_time_halftime",
+    }
+    fn_name = builders.get(resolved)
+    if not fn_name:
+        return None
+    import build_event_batch_5_assets as batch5
+    image = getattr(batch5, fn_name)()
     if image.size != (W, H):
-        raise ValueError(f"Invalid Actu Foot template size for {path.name}: {image.size}")
+        raise ValueError(f"Invalid generated Actu Foot template size for {resolved}: {image.size}")
+    return image.convert("RGB")
+
+
+def background(category: str, payload: dict[str, Any] | None = None) -> Image.Image:
+    resolved = _category(category, payload or {})
+    path = ASSETS / EVENT_TEMPLATE_FILES.get(resolved, "")
+    if path.is_file():
+        with Image.open(path) as source:
+            image = source.convert("RGB")
+    else:
+        image = _generated_batch5_background(resolved)
+        if image is None:
+            raise FileNotFoundError("Missing audited Actu Foot template asset: " + str(path))
+    if image.size != (W, H):
+        raise ValueError(f"Invalid Actu Foot template size for {resolved}: {image.size}")
     return image
 
 
@@ -815,6 +916,29 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
                  max_lines=1, bold=True, color=GOLD)
         draw_fit(draw, detail, spec["info"], size=25, min_size=15,
                  max_lines=3, bold=False)
+    elif resolved in {"fin_1re_mi_temps", "debut_2e_mi_temps", "prolongation", "mi_temps_prolongation"}:
+        status = clean(payload.get("status") or payload.get("phase_status") or payload.get("detail"), 220)
+        detail = clean(payload.get("info") or payload.get("description"), 420)
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, status, spec["status"], size=29, min_size=16,
+                 max_lines=1, bold=True)
+        draw_fit(draw, detail, spec["info"], size=25, min_size=15,
+                 max_lines=3, bold=False)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
+    elif resolved == "fin_temps_reglementaire":
+        status = clean(
+            payload.get("status")
+            or payload.get("next_phase")
+            or payload.get("detail")
+            or payload.get("info"),
+            520,
+        )
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        draw_fit(draw, status, spec["status"], size=31, min_size=16,
+                 max_lines=4, bold=True)
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"])
     else:
         raise ValueError("Unhandled Actu Foot event template: " + resolved)
 
