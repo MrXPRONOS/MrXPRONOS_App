@@ -122,6 +122,28 @@ jobs:
           assert not sportscore.error, sportscore.error
           assert isinstance(sportscore.events, list)
           print("SPORTSCORE_FREE_OK", len(sportscore.events), "matchs", dict(hub.calls))
+          if sportscore.events:
+              sample = sportscore.events[0]
+              print("SPORTSCORE_SAMPLE", {
+                  "slug": sample.get("slug"),
+                  "home": sample.get("home_team"),
+                  "away": sample.get("away_team"),
+                  "status": sample.get("status"),
+                  "league": sample.get("league"),
+              })
+              if sample.get("slug"):
+                  detail = hub.sportscore_detail(sample["slug"])
+                  print("SPORTSCORE_DETAIL_KEYS", sorted(detail.keys()) if isinstance(detail, dict) else type(detail).__name__)
+
+          import football_stats_engine as stats_probe
+          ss_table = stats_probe.fetch_sportscore_standings(session, stats_probe.LEAGUES[0])
+          ss_scorers = stats_probe.fetch_sportscore_top_scorers(session, stats_probe.LEAGUES[0])
+          print("SPORTSCORE_STATS_SCHEMA", {
+              "standings_rows": len(ss_table),
+              "scorers_rows": len(ss_scorers),
+              "standings_sample": ss_table[:1],
+              "scorers_sample": ss_scorers[:1],
+          })
 
           tsdb_day = hub.tsdb_day(today)
           assert isinstance(tsdb_day.events, list)
