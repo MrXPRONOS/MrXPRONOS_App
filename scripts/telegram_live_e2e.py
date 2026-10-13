@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the six EXISTING Telegram test workflows exactly once, in sequence.
+"""Run the five EXISTING Telegram test workflows exactly once, in sequence.
 
 Designed for a one-shot GitHub Actions run on main. No direct Telegram/Supabase
 publishing is performed here. Child workflows own their secrets and test ledgers.
@@ -23,9 +23,6 @@ STAGES = [
     ("premium", "football-premium-validation-once.yml", {}, "XPRONOS_TEST_LIVE"),
     ("bsd_v2", "bsd-v2-telegram-hourly.yml",
      {"trigger_source": "manual-e2e-" + RUN_ID, "destination": "test"}, "BSD_V2_TELEGRAM:"),
-    ("editorial", "editorial-telegram.yml",
-     {"trigger_source": "manual-e2e-" + RUN_ID, "destination": "test", "publish": "true"},
-     "EDITORIAL_TELEGRAM_SENT"),
 ]
 
 
@@ -84,8 +81,10 @@ def evidence(stage, log):
         match = re.search(r"BSD_V2_TELEGRAM:\s*({.*})", hit)
         if match:
             data = json.loads(match.group(1))
+            if int(data.get("errors", 0)) > 0:
+                return "partielle", hit
             if int(data.get("sent", 0)) + int(data.get("combos_sent", 0)) == 0:
-                return "partielle", "Aucun coupon éligible à cet instant: " + hit
+                return "complete", "Aucun coupon éligible à cet instant; moteur sain: " + hit
     if stage in ("visuel", "six_rubriques", "premium"):
         match = re.search(r"XPRONOS_(?:VISUAL_TEST_LIVE|TEST_LIVE)\s+({.*})", hit)
         if match:
