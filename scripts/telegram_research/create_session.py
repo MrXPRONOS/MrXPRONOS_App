@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+"""Génère localement une StringSession Telegram. Ne jamais commit la valeur."""
 import asyncio
 import getpass
 from telethon import TelegramClient
@@ -8,10 +10,9 @@ async def main():
     api_hash = getpass.getpass("Telegram API Hash: ").strip()
     async with TelegramClient(StringSession(), api_id, api_hash) as client:
         if not await client.is_user_authorized():
-            raise RuntimeError("Telegram login failed")
-        print("Store this value ONLY in the GitHub secret TG_SESSION_STRING:")
+            raise RuntimeError("Connexion Telegram non autorisée")
+        print("\nTG_SESSION_STRING (à garder secrète):\n")
         print(client.session.save())
-        print("Never commit or share this session string.")
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -101,7 +101,7 @@ def similarity(a: str, b: str) -> float:
 
 def old_records() -> dict[str, dict]:
     try:
-        data = json.loads(NEWS_FILE.read_text(encoding="utf-8"))
+        data = json.loads(Path(NEWS_FILE).read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
     return {
@@ -260,11 +260,33 @@ def fetch_news() -> tuple[list[dict], dict]:
     return selected, diagnostics
 
 
-def save_news(records: list[dict], diagnostics: dict) -> None:
+def save_news(records: list[dict], diagnostics: dict | None = None) -> None:
     if not records:
         raise RuntimeError("Aucune actualité exploitable : conservation du footnews.json existant")
-    NEWS_FILE.write_text(json.dumps(records, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    logger.info("NEWS_ENGINE %s", json.dumps(diagnostics, ensure_ascii=False))
+
+    # Compatibilité ancien studio: préserver ses visuels uniquement si l'appel
+    # courant n'a PAS déjà une vraie photo issue de la source.
+    previous = old_records()
+    preservable = (
+        "image_url", "og_image", "social_image", "story_image",
+        "visual_variant", "visual_hash", "visual_format",
+    )
+    for item in records:
+        if item.get("image_origin") == "source":
+            continue
+        old = previous.get(str(item.get("link") or "")) or {}
+        for key in preservable:
+            if old.get(key) and not item.get(key):
+                item[key] = old[key]
+        old_image = str(old.get("image_url") or old.get("image") or "")
+        if old_image.startswith("assets/images/editorial/"):
+            item["image"] = old_image
+
+    Path(NEWS_FILE).write_text(
+        json.dumps(records, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    logger.info("NEWS_ENGINE %s", json.dumps(diagnostics or {}, ensure_ascii=False))
     logger.info("%s actualités sauvegardées dans %s", len(records), NEWS_FILE)
 
 
