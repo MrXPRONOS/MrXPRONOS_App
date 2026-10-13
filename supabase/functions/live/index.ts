@@ -5731,6 +5731,10 @@ async function refreshLiveDataBatch(options: RefreshBatchOptions = {}) {
     }
   }
 
+  // The resume cursor uses lexical ordering; keep the snapshot in the same order.
+  allRawMatches.sort((a: any, b: any) =>
+    stableRefreshMatchId(a).localeCompare(stableRefreshMatchId(b))
+  );
   const candidates = cursor
     ? allRawMatches.filter(
       (m: any) => stableRefreshMatchId(m).localeCompare(cursor) > 0,
@@ -5917,7 +5921,19 @@ async function invokeRefreshBatch(
  * une NOUVELLE invocation Edge avec son propre budget CPU.
  */
 async function refreshLiveDataInBatches(batchSize = LIVE_REFRESH_BATCH_SIZE) {
-  let cursor: string | null = null;
+  // Continue after the last processed fixture if the preceding cycle hit its batch cap.
+  // The 15-minute lease prevents simultaneous refresh coordinators.
+  const { data: progress, error: progressError } = await supabase
+    .from("live_refresh_control")
+    .select("cursor, updated_at")
+    .eq("key", "live_refresh")
+    .maybeSingle();
+  if (progressError) throw progressError;
+  const progressAt = Date.parse(String(progress?.updated_at || ""));
+  let cursor: string | null =
+    progress?.cursor && Number.isFinite(progressAt) && Date.now() - progressAt < 30 * 60000
+      ? String(progress.cursor)
+      : null;
   let batchNumber = 0;
   let processedMatches = 0;
   let hasMore = true;
@@ -7710,12 +7726,25 @@ serve(async (req) => {
     if (path === "/refresh" && req.method === "POST") {
       requireCronAuth(req, url);
 
+      const lockOwner = crypto.randomUUID();
+      const { data: acquired, error: lockError } = await supabase.rpc(
+        "claim_live_refresh", { p_owner: lockOwner },
+      );
+      if (lockError) throw lockError;
+      if (!acquired) {
+        return json({ accepted: false, already_running: true, message: "Rafraîchissement déjà actif" }, 202);
+      }
+      const { data: previousProgress } = await supabase
+        .from("live_refresh_control")
+        .select("cursor").eq("key", "live_refresh").maybeSingle();
+      let releaseCursor: string | null = previousProgress?.cursor || null;
+
       const refreshTask = (async () => {
         try {
           const result = await refreshLiveDataInBatches(
             LIVE_REFRESH_BATCH_SIZE,
           );
-
+          releaseCursor = result.has_more ? result.next_cursor : null;
           await setCronRun("live_refresh", !result.has_more, {
             processed_matches: result.processed_matches,
             total_live_matches: result.total_live_matches,
@@ -7727,6 +7756,11 @@ serve(async (req) => {
             error: e?.message || String(e),
           });
           console.error("Background live refresh failed:", e);
+        } finally {
+          const { error: releaseError } = await supabase.rpc("release_live_refresh", {
+            p_owner: lockOwner, p_cursor: releaseCursor,
+          });
+          if (releaseError) console.error("Refresh lease release failed", releaseError);
         }
       })();
 
@@ -7740,17 +7774,10 @@ serve(async (req) => {
         }, 202);
       }
 
-      // Fallback local/non-Supabase : un seul lot borné pour éviter les timeouts.
-      const oneBatch = await refreshLiveDataBatch({
-        batchSize: LIVE_REFRESH_BATCH_SIZE,
-        allowTelegram: true,
-      });
-
-      return json({
-        accepted: true,
-        background: false,
-        ...oneBatch,
-      }, 200);
+      // Fallback: one bounded batch (background task already started).
+      // Avoid running a second batch while holding the same distributed lease.
+      await refreshTask;
+      return json({ accepted: true, background: false, message: "Refresh LIVE terminé" }, 200);
     }
 
     // ===================================================
