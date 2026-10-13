@@ -125,6 +125,7 @@ function extractStatPairs(payload: any) {
     corner: "corner_kicks", fouls: "fouls", foul: "fouls",
     shots: "total_shots", total_shots: "total_shots",
     shots_on_target: "shots_on_target", shotsontarget: "shots_on_target",
+    shots_off_target: "shots_off_target", shotsofftarget: "shots_off_target",
     possession: "ball_possession", ball_possession: "ball_possession",
     yellow_cards: "yellow_cards", red_cards: "red_cards",
   };
@@ -158,6 +159,17 @@ function extractStatPairs(payload: any) {
         }
       }
     }
+  }
+  // SportScore often publishes shots on/off target instead of a total.
+  if (numberOrNull(home.total_shots) == null &&
+      numberOrNull(home.shots_on_target) != null &&
+      numberOrNull(home.shots_off_target) != null) {
+    home.total_shots = home.shots_on_target + home.shots_off_target;
+  }
+  if (numberOrNull(away.total_shots) == null &&
+      numberOrNull(away.shots_on_target) != null &&
+      numberOrNull(away.shots_off_target) != null) {
+    away.total_shots = away.shots_on_target + away.shots_off_target;
   }
   for (const key of ["corner_kicks","fouls","total_shots","shots_on_target","yellow_cards","red_cards"]) {
     if (numberOrNull(home[key]) != null && numberOrNull(away[key]) != null) totals[key === "corner_kicks" ? "corners" : key] = home[key] + away[key];
