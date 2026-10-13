@@ -100,5 +100,10 @@ jobs:
               print("SPORTSCORE_DETAIL_SLUG", slug)
               print("SPORTSCORE_ODDS_KEYS", json.dumps(odds_keys[:100]))
               print("SPORTSCORE_DETAIL_TOP_KEYS", sorted(detail.keys()) if isinstance(detail,dict) else type(detail).__name__)
+              if isinstance(detail, dict) and isinstance(detail.get("match"), dict):
+                  print("SPORTSCORE_MATCH_DETAIL_KEYS", sorted(detail["match"].keys()))
+                  for key in ("stats","statistics","lineups","timeline","events","incidents"):
+                      if key in detail["match"]:
+                          print("SPORTSCORE_MATCH_SECTION", key, json.dumps(detail["match"][key], ensure_ascii=False, default=str)[:5000])
           print("DIAGNOSTICS", json.dumps(hub.diagnostics(), ensure_ascii=False))
           PY
