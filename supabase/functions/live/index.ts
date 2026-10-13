@@ -7457,7 +7457,35 @@ async function dailyGetForUi(date: string) {
 }
 
 
-async function dailyFetchAllEventsForDate(date: string) {
+async function dailyFetchFreeEventsForDate(date: string) {
+  const rows: any[] = [];
+
+  try {
+    const scoreboard = await fetchEspnScoreboard(date.replace(/-/g, ""), false);
+    for (const event of scoreboard?.events || []) {
+      const normalized = normalizeEspnEventToOriginalMatch(event);
+      if (normalized) rows.push(normalized);
+    }
+  } catch (e) {
+    console.warn("Daily free events ESPN unavailable", e);
+  }
+
+  try {
+    rows.push(...await fetchSportScoreDay(date));
+  } catch (e) {
+    console.warn("Daily free events SportScore unavailable", e);
+  }
+
+  try {
+    rows.push(...await fetchTheSportsDbDay(date));
+  } catch (e) {
+    console.warn("Daily free events TheSportsDB unavailable", e);
+  }
+
+  return mergeProviderEvents(rows);
+}
+
+async function dailyFetchBsdEventsForDate(date: string) {
   const all: any[] = [];
   const pageSize = 200;
 
@@ -7470,13 +7498,67 @@ async function dailyFetchAllEventsForDate(date: string) {
     });
 
     const rows = dailyResultRows(payload);
-    all.push(...rows);
+    all.push(...rows.map((m: any) => ({
+      ...m,
+      source_name: "bsd",
+      provider_quality: PROVIDER_QUALITY.bsd,
+      provider_ids: { ...(m?.provider_ids || {}), bsd: String(m?.id || "") },
+      raw_data: {
+        ...(m?.raw_data || {}),
+        source: "bsd",
+        provider_ids: { ...(m?.raw_data?.provider_ids || {}), bsd: String(m?.id || "") },
+      },
+    })));
 
     const total = safeNumber(payload?.count, all.length);
     if (rows.length < pageSize || all.length >= total) break;
   }
 
   return all;
+}
+
+async function dailyFetchAllEventsForDate(date: string, includeBsd = false) {
+  const free = await dailyFetchFreeEventsForDate(date);
+  if (!includeBsd || !BSD_API_TOKEN) return free;
+  const bsd = await dailyFetchBsdEventsForDate(date);
+  return mergeProviderEvents([...free, ...bsd]);
+}
+
+function dailyBsdEventId(ev: any) {
+  const id =
+    ev?.provider_ids?.bsd ??
+    ev?.raw_data?.provider_ids?.bsd ??
+    (String(ev?.source_name || ev?.raw_data?.source || "").toLowerCase() === "bsd"
+      ? ev?.source_match_id ?? ev?.id
+      : null);
+  return /^\d+$/.test(String(id || "")) ? String(id) : "";
+}
+
+async function dailyFetchSportScoreDoubleChance(ev: any, outcome: string) {
+  const target = String(outcome || "").toUpperCase();
+  if (!["1X", "12", "X2"].includes(target)) return null;
+  const meta = ev?.provider_meta?.sportscore || ev?.raw_data?.provider_meta?.sportscore || {};
+  const slug = String(meta?.slug || "");
+  if (!slug) return null;
+
+  const detail = await fetchSportScoreDetail(slug, false);
+  const candidates = explicitSportScoreOdds(detail).filter((row: any) => {
+    const market = String(row?.market || "").toLowerCase().replace(/[_-]+/g, " ");
+    const selection = String(row?.outcome || "").toUpperCase().replace(/\s+/g, "");
+    const doubleChance = market.includes("double chance") || market.includes("doublechance");
+    return doubleChance && selection === target && safeNumber(row?.odds, 0) > 1.01;
+  });
+  if (!candidates.length) return null;
+
+  // Sans consensus documenté, on privilégie la médiane pour ne pas capturer une cote aberrante.
+  const sorted = candidates.map((x: any) => safeNumber(x.odds, 0)).filter((x: number) => x > 1.01).sort((a: number,b: number)=>a-b);
+  const odds = sorted[Math.floor(sorted.length / 2)];
+  return {
+    odds: Number(odds.toFixed(2)),
+    source: "sportscore_explicit_json",
+    bookmaker_count: candidates.length,
+    documented_endpoint: false,
+  };
 }
 
 async function dailyFetchBsdConsensusDoubleChance(
