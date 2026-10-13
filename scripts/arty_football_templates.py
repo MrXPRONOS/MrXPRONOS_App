@@ -18,6 +18,13 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets" / "images" / "arty_football"
+# The original premium PNGs are optional, so the 12 committed procedural
+# fallbacks remain usable until the archived originals are supplied.
+ORIGINAL_DIR = ASSETS / "originals"
+ORIGINAL_TYPES = frozenset((
+    "composition", "kickoff", "goal", "mi_temps", "score_update",
+    "statistique_avancee", "community_vote", "quiz", "debat", "reaction",
+))
 W, H = 1080, 1350
 GOLD = (241, 193, 92)
 PALE = (252, 243, 219)
@@ -289,7 +296,15 @@ def _score(payload):
 
 
 def overlay(category: str,payload: dict[str,Any]) -> Image.Image:
-    """Write only dynamic text / logo pixels in original blank slots."""
+    """Write only dynamic data; use original artwork when it is installed."""
+    if category in ORIGINAL_TYPES:
+        original = ORIGINAL_DIR / (category + ".png")
+        if original.is_file():
+            try:
+                from .arty_original_templates import render_premium
+            except ImportError:
+                from arty_original_templates import render_premium
+            return render_premium(category, payload, original)
     image=background(category)
     d=ImageDraw.Draw(image)
     home=clean(payload.get("home"),80)
