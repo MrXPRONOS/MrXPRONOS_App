@@ -52,7 +52,7 @@ MAX_MESSAGES_PER_RUN = 2
 LIMITS = {"flash": 2, "programme": 1, "avant_match": 2, "resultat": 2,
           "statistique": 1, "sondage": 1, "quiz": 1, "debat": 1,
           "reaction": 1, "viral": 1, "composition": 6, "kickoff": 8,
-          "goal": 14, "mi_temps": 8}
+          "goal": 14, "mi_temps": 8, "score_update": 32}
 LEAGUE_TERMS = (
     "champions league", "premier league", "ligue 1", "la liga", "laliga",
     "serie a", "bundesliga", "europa league", "coupe du monde", "world cup",
@@ -92,6 +92,7 @@ CATEGORY_LABELS = {
     "composition": "📋 COMPOSITIONS OFFICIELLES",
     "kickoff": "▶️ COUP D’ENVOI",
     "goal": "⚽ BUT",
+    "score_update": "📊 SCORE LIVE",
     "mi_temps": "⏸️ MI-TEMPS",
 }
 
@@ -1171,7 +1172,7 @@ def lifecycle_publication(signal: dict) -> Publication | None:
     away = plain(signal.get("away"), 55)
     competition = plain(signal.get("league") or "Football", 70)
     source = plain(signal.get("source") or "données live", 50)
-    if not home or not away or kind not in {"composition", "kickoff", "goal", "mi_temps"}:
+    if not home or not away or kind not in {"composition", "kickoff", "goal", "mi_temps", "score_update"}:
         return None
 
     button = {"inline_keyboard": [[{
@@ -1228,6 +1229,15 @@ def lifecycle_publication(signal: dict) -> Publication | None:
             + (" • " + esc(str(signal.get("minute"))) + "'" if signal.get("minute") else "")
             + ".</p>"
             "<p><i>Source live : " + esc(source) + "</i></p>"
+        )
+    elif kind == "score_update":
+        message = (
+            "<b>📊 SCORE LIVE CONFIRMÉ</b>\n\n"
+            "<i>" + esc(competition) + "</i>\n\n"
+            "<b>⚽ " + esc(home) + " " + esc(signal.get("score") or "—")
+            + " " + esc(away) + "</b>\n"
+            + ("⏱ " + esc(str(signal.get("minute"))) + "'\n" if signal.get("minute") else "")
+            + "\n<i>Score actuel vérifié • " + esc(source) + "</i>"
         )
     elif kind == "mi_temps":
         message = (

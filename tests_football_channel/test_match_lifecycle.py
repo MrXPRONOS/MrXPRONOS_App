@@ -267,6 +267,32 @@ class MatchLifecycleTests(unittest.TestCase):
         self.assertIn("2-1", post.text)
         self.assertTrue(post.keyboard)
 
+    @patch("football_match_lifecycle.fetch_espn_summary", return_value={})
+    @patch("football_match_lifecycle.collect_external")
+    def test_espn_cache_confirms_score_update_1_1(self, collect, _summary):
+        collect.return_value = [{
+            "source": "supabase_live", "id": "espn:401912650",
+            "home_team": "Newcastle Jets", "away_team": "Gamba Osaka",
+            "home_score": 1, "away_score": 1,
+            "minute": 59, "state": "in",
+            "status_detail": "STATUS_SECOND_HALF",
+            "event_date": "2026-10-13T07:45:00Z"
+        }]
+        found = m.lifecycle_signals([], set(), NOW, object(), lambda _: 0)
+        updates = [x for x in found if x["kind"] == "score_update"]
+        self.assertEqual(len(updates), 1)
+        self.assertEqual(updates[0]["score"], "1-1")
+        publication = channel.lifecycle_publication(updates[0])
+        self.assertIn("SCORE LIVE", publication.text)
+        self.assertIn("1-1", publication.text)
+        again = m.lifecycle_signals([], {updates[0]["key"]}, NOW, object(), lambda _: 0)
+        self.assertFalse([x for x in again if x["kind"] == "score_update"])
+
+    def test_explicit_halftime_status(self):
+        self.assertTrue(m.is_halftime({"status_detail": "STATUS_HALFTIME"}))
+        self.assertTrue(m.is_halftime({"status_detail": "HT"}))
+        self.assertFalse(m.is_halftime({"status_detail": "STATUS_SECOND_HALF"}))
+
 
 if __name__ == "__main__":
     unittest.main()
