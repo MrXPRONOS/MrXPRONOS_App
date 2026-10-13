@@ -1126,6 +1126,15 @@ def lifecycle_signals(
             return provider_enrichment_cache[cache_key]
         if source_name == "espn":
             data = extract_match_enrichment(summary_for(event_id))
+            has_useful = bool(
+                (data.get("goals") or [])
+                or (data.get("lineups") or {}).get("home")
+                or (data.get("stats") or {}).get("home")
+            )
+            if not has_useful:
+                fallback = fetch_provider_enrichment(session, ext)
+                if fallback:
+                    data = fallback
         else:
             data = fetch_provider_enrichment(session, ext)
         provider_enrichment_cache[cache_key] = data if isinstance(data, dict) else {}
@@ -1226,7 +1235,7 @@ def lifecycle_signals(
             goal_minute = last_goal.get("minute_total")
             if goal_minute is None:
                 goal_minute = last_goal.get("minute")
-            # Pour un BUT, pas de publication sans événement ESPN identifiable.
+            # Pour un BUT, pas de publication sans événement fournisseur identifiable.
             # Cela évite de transformer un score découvert tardivement en alerte instantanée.
             recent_goal = (
                 bool(last_goal)
