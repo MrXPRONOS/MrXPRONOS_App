@@ -319,6 +319,9 @@ def build_postmatch_reaction(
         "question": f"⭐ {home} {hs}-{aws} {away} — ta note pour ce match ?",
         "options": ["🔥 5/5", "✅ 4/5", "🙂 3/5", "😕 2/5 ou moins"],
         "league": league_name(event),
+        "home": home, "away": away, "score": f"{hs}-{aws}",
+        "home_logo": (event.get("home_team") or {}).get("logo") if isinstance(event.get("home_team"), dict) else event.get("home_logo"),
+        "away_logo": (event.get("away_team") or {}).get("logo") if isinstance(event.get("away_team"), dict) else event.get("away_logo"),
     }
 
 

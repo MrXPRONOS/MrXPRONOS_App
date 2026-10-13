@@ -132,7 +132,7 @@ def draw_text(draw, value, box, size=30, min_size=15, color=PALE,
         if not result:
             return ""
         last=result[-1]
-        if len(result)<len(words):
+        if len(result) >= max_lines and len(" ".join(result)) < len(text):
             while last and draw.textbbox((0,0),last+"…",font=face)[2]>avail_w:
                 last=last[:-1]
             result[-1]=last+"…"
@@ -335,7 +335,7 @@ def overlay(category: str,payload: dict[str,Any]) -> Image.Image:
             draw_text(d,clean(payload.get("question")),(118,740,958,824),
                       size=38,min_size=24,max_lines=2)
             for i,option in enumerate((payload.get("options") or [])[:3]):
-                draw_text(d,option,(80+341*i,970,318+341*i,1059),
+                draw_text(d,re.sub(r"^[^\\wÀ-ÿ]+", "", clean(option)),(80+341*i,970,318+341*i,1059),
                           size=24,min_size=15,max_lines=2)
         elif category=="goal":
             goal=payload.get("goal") or {}
@@ -358,8 +358,10 @@ def overlay(category: str,payload: dict[str,Any]) -> Image.Image:
         draw_text(d,payload.get("headline") or payload.get("title"),
                   (115,274,965,351),size=35,min_size=19,max_lines=2)
         draw_text(d,comp or source,(158,413,923,464),size=25,min_size=17,color=GOLD)
+        headline_value = clean(payload.get("headline") or payload.get("title"))
+        number = re.search(r"(?<!\\d)\\d+(?:[.,]\\d+)?%?", headline_value)
         draw_text(d,payload.get("value") or payload.get("stat_value") or
-                  payload.get("stat") or "",
+                  payload.get("stat") or (number.group(0) if number else headline_value),
                   (120,544,960,821),size=108,min_size=38,max_lines=3,color=GOLD)
         metrics=(payload.get("lines") or payload.get("metrics") or [])[:4]
         for j,v in enumerate(metrics):
