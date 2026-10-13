@@ -1,0 +1,90 @@
+name: Shorts Premium V2 - Test Telegram
+
+on:
+  push:
+    branches:
+      - feat/shorts-premium-v2-test-20261013
+    paths:
+      - 'scripts/create_shorts_video_v2.py'
+      - 'scripts/send_video_test_telegram.py'
+      - 'config/shorts_test_stage.txt'
+      - '.github/workflows/shorts-premium-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shorts-premium-v2-test
+  cancel-in-progress: false
+
+jobs:
+  render-and-send-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout test branch
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install free rendering stack
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-lato fonts-dejavu-core
+          python -m pip install --upgrade pip
+          pip install "numpy<2" pillow requests edge-tts "moviepy==1.0.3"
+
+      - name: Resolve test stage
+        id: stage
+        shell: bash
+        run: |
+          STAGE="$(tr -d '[:space:]' < config/shorts_test_stage.txt)"
+          case "$STAGE" in 1|2|3|4|5) ;; *) echo "::error::Stage invalide: $STAGE"; exit 1;; esac
+          echo "value=$STAGE" >> "$GITHUB_OUTPUT"
+          echo "VIDEO_TEST_STAGE=$STAGE"
+
+      - name: Render premium test video
+        env:
+          TTS_VOICE: fr-FR-RemyMultilingualNeural
+        run: |
+          python scripts/create_shorts_video_v2.py \
+            --data data.json \
+            --stage "\${{ steps.stage.outputs.value }}" \
+            --limit 3 \
+            --out daily_pronos_shorts_v2_test.mp4
+          ffprobe -v error -show_entries format=duration,size -of json daily_pronos_shorts_v2_test.mp4
+
+      - name: Verify exact Telegram test channel
+        env:
+          TELEGRAM_TEST_CHAT_ID: \${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: \${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: python scripts/telegram_test_guard.py
+
+      - name: Send video to Telegram test channel only
+        env:
+          TELEGRAM_TEST_CHAT_ID: \${{ secrets.TELEGRAM_TEST_CHAT_ID || '@predict_mrxp' }}
+          TELEGRAM_TEST_GUARD_BOT_TOKEN: \${{ secrets.TELEGRAM_BOT_TOKEN }}
+          STAGE: \${{ steps.stage.outputs.value }}
+        run: |
+          python scripts/send_video_test_telegram.py \
+            --video daily_pronos_shorts_v2_test.mp4 \
+            --caption "🧪 TEST SHORTS PREMIUM V2 — Étape \${STAGE}/5
+          Branche: feat/shorts-premium-v2-test-20261013
+          Amélioration cumulative en cours de validation.
+          Aucun envoi production."
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shorts-premium-stage-\${{ steps.stage.outputs.value }}
+          path: |
+            daily_pronos_shorts_v2_test.mp4
+            telegram_out/shorts_premium/test_manifest.json
+            telegram_out/shorts_premium/scenes/
+          retention-days: 7
+          if-no-files-found: warn
