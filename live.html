@@ -1618,6 +1618,8 @@
       const [refreshWarning, setRefreshWarning] = useState(null);
       const refreshBusy = React.useRef(false);
       const successfulLoad = React.useRef(false);
+      const lastTodayFetch = React.useRef(0);
+      const lastHistoryFetch = React.useRef(0);
 
       const [selectedTab, setSelectedTab] = useState("live"); // live | upcoming | history | notifications
       const [liveMarketFilter, setLiveMarketFilter] = useState("all"); // all | corners | shots | fouls | best
@@ -1650,13 +1652,16 @@
         if (!silent && !successfulLoad.current) setLoading(true);
         setRefreshing(true);
         try {
+          // Keep match signals fast; upcoming fixtures and history change less often.
+          const fetchToday = Date.now() - lastTodayFetch.current >= 60_000;
+          const fetchHistory = Date.now() - lastHistoryFetch.current >= 120_000;
           // Une erreur dans les notifications ne doit pas supprimer les matchs LIVE.
           const results = await Promise.allSettled([
             apiFetch("/matches").then(r => r.json()),
             apiFetch("/opportunities").then(r => r.json()),
             apiFetch(`/notifications?user_id=${encodeURIComponent(userId)}`).then(r => r.json()),
-            apiFetch("/predictions/history").then(r => r.json()),
-            apiFetch("/today").then(r => r.json())
+            fetchHistory ? apiFetch("/predictions/history").then(r => r.json()) : Promise.resolve(null),
+            fetchToday ? apiFetch("/today").then(r => r.json()) : Promise.resolve(null)
           ]);
           const ok = (index) => results[index].status === "fulfilled";
           const hadCoreData = ok(0) || ok(1) || ok(4);
@@ -1674,11 +1679,15 @@
           }
           if (ok(1)) setOpportunities(results[1].value?.opportunities || []);
           if (ok(2)) setNotifications(results[2].value?.notifications || []);
-          if (ok(3)) setHistory(results[3].value?.history || []);
-          if (ok(4)) {
+          if (ok(3) && results[3].value) {
+            setHistory(results[3].value?.history || []);
+            lastHistoryFetch.current = Date.now();
+          }
+          if (ok(4) && results[4].value) {
             const scheduled = results[4].value?.data?.scheduled?.matches || [];
             setScheduledMatches(scheduled);
             setStats(prev => ({ ...prev, upcoming: scheduled.length }));
+            lastTodayFetch.current = Date.now();
           }
           const failures = results.filter(r => r.status === "rejected");
           if (failures.length) {

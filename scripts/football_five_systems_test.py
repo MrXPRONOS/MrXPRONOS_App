@@ -151,6 +151,8 @@ def main() -> int:
             "home_logo": event.get("home_logo"),
             "away_logo": event.get("away_logo"),
             "kickoff": lifecycle._moment(event.get("event_date")),
+            "espn_event_id": str(event.get("id") or "").removeprefix("espn:"),
+            "espn_url": lifecycle.espn_match_url(str(event.get("id") or "").removeprefix("espn:")),
         }
         return ch.lifecycle_publication(signal)
 
@@ -185,7 +187,7 @@ def main() -> int:
             break
     for e, data in detailed:
         lineups = lifecycle.extract_lineups(data)
-        if len(lineups["home"]) >= 8 and len(lineups["away"]) >= 8:
+        if len(lineups["home"]) == 11 and len(lineups["away"]) == 11:
             deliver("composition", lambda e=e, lineups=lineups: make_lifecycle("composition", e, lineups=lineups),
                     historical="compositions de la rencontre réellement publiées par ESPN")
             break

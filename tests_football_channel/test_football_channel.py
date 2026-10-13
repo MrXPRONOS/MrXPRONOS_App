@@ -74,6 +74,132 @@ class FootballChannelTests(unittest.TestCase):
             m.ROOT = old_root
 
 
+    def test_flash_ajoute_corroboration_espn_sans_remplacer_la_source(self):
+        old_root = m.ROOT
+        try:
+            m.ROOT = Path(self.directory.name)
+            image = m.ROOT / "assets/images/footnews/espn-news.webp"
+            image.parent.mkdir(parents=True, exist_ok=True)
+            image.write_bytes(b"fake-test-image")
+            articles = [{
+                "slug": "espn-news",
+                "title": "Arsenal avance sur un dossier important",
+                "telegram_summary": "Le média source rapporte une nouvelle étape dans le dossier.",
+                "published": (NOW - timedelta(hours=1)).isoformat(),
+                "source": "Foot Mercato",
+                "source_url": "https://example.com/source",
+                "site_url": "https://mrxpronos.github.io/MrXPRONOS_App/infos.html?news=espn-news",
+                "category": "Mercato",
+                "image": "assets/images/footnews/espn-news.webp",
+                "image_origin": "source",
+                "espn_verification": {
+                    "provider": "ESPN",
+                    "url": "https://www.espn.com/soccer/story/_/id/123/test",
+                    "score": 0.5,
+                    "matched_terms": ["arsenal", "dossier"],
+                },
+            }]
+            post = m.flash(articles, self.history, NOW)
+            self.assertIsNotNone(post)
+            self.assertEqual(post.verification["type"], "news")
+            self.assertEqual(post.verification["matched_terms"], ["arsenal", "dossier"])
+            self.assertIn("Foot Mercato", post.text)
+            self.assertIn("repérée chez ESPN", post.text)
+            buttons = [b for row in post.keyboard["inline_keyboard"] for b in row]
+            self.assertTrue(any("ESPN" in b["text"] for b in buttons))
+        finally:
+            m.ROOT = old_root
+
+    @patch.object(m, "verify_espn_fixtures_before_publish")
+    def test_preflight_avant_match_applique_horaire_et_stade_espn(self, verify):
+        verify.return_value = {
+            "ok": True,
+            "quality": 100,
+            "reason": "confirmed",
+            "covered": 1,
+            "missing": 0,
+            "total": 1,
+            "verified": [{
+                "home": "Arsenal",
+                "away": "Chelsea",
+                "event_date": "2026-10-10T18:30:00+00:00",
+                "venue": "Emirates Stadium",
+            }],
+            "enrichment": {},
+        }
+        item = m.Publication(
+            "avant_match",
+            "avant_match:1",
+            "<p>Avant-match</p>",
+            card={"home": "Arsenal", "away": "Chelsea", "time": "18:00"},
+            verification={
+                "type": "fixture_list",
+                "kind": "avant_match",
+                "fixtures": [{
+                    "home": "Arsenal",
+                    "away": "Chelsea",
+                    "event_date": "2026-10-10T18:00:00+00:00",
+                }],
+            },
+        )
+        sender = type("S", (), {"session": object()})()
+        self.assertTrue(m.espn_preflight(sender, item))
+        self.assertEqual(item.card["time"], "18h30")
+        self.assertIn("Emirates Stadium", item.text)
+
+    @patch.object(m, "verify_espn_before_publish")
+    def test_preflight_mi_temps_ajoute_stats_espn_fraiches(self, verify):
+        verify.return_value = {
+            "ok": True,
+            "quality": 100,
+            "reason": "confirmed",
+            "event_id": "401",
+            "enrichment": {
+                "stats": {
+                    "home": {"shots_on_target": "5", "corners": "4", "possession": "61%"},
+                    "away": {"shots_on_target": "2", "corners": "1", "possession": "39%"},
+                },
+                "info": {},
+            },
+        }
+        item = m.Publication(
+            "mi_temps",
+            "ht:401",
+            "<p>Mi-temps</p>",
+            verification={"event_id": "401", "kind": "mi_temps"},
+        )
+        sender = type("S", (), {"session": object()})()
+        self.assertTrue(m.espn_preflight(sender, item))
+        self.assertIn("Données ESPN à la pause", item.text)
+        self.assertIn("Tirs cadrés", item.text)
+        self.assertIn("5 – 2", item.text)
+
+    @patch.object(m, "verify_espn_before_publish")
+    def test_preflight_match_bloque_si_espn_ne_confirme_pas(self, verify):
+        verify.return_value = {"ok": False, "quality": 0, "reason": "score_mismatch"}
+        item = m.Publication(
+            "goal", "goal:401", "goal",
+            verification={"event_id": "401", "kind": "goal"},
+        )
+        sender = type("S", (), {"session": object()})()
+        self.assertFalse(m.espn_preflight(sender, item))
+        verify.assert_called_once()
+
+    @patch.object(m, "_verify_espn_news_reference")
+    def test_preflight_news_reste_non_bloquant_si_espn_page_indisponible(self, verify):
+        verify.return_value = {"ok": False, "quality": 75, "reason": "espn_news_page_unavailable"}
+        item = m.Publication(
+            "flash", "flash:abc", "news",
+            verification={
+                "type": "news",
+                "url": "https://www.espn.com/soccer/story/_/id/123/test",
+                "matched_terms": ["arsenal"],
+            },
+        )
+        sender = type("S", (), {"session": object()})()
+        self.assertTrue(m.espn_preflight(sender, item))
+        verify.assert_called_once()
+
     def test_fenetres_editoriales_production(self):
         self.assertTrue(m.in_editorial_window(
             "programme", datetime(2026, 10, 10, 7, 0, tzinfo=timezone.utc)
@@ -101,6 +227,34 @@ class FootballChannelTests(unittest.TestCase):
         self.assertFalse(m.production_active(
             datetime(2026, 10, 10, 6, 30, tzinfo=timezone.utc)
         ))
+
+    def test_programme_transporte_le_controle_espn_des_affiches(self):
+        match = event(77, NOW + timedelta(hours=3))
+        post = m.programme([match], NOW.date(), as_of=NOW)
+        self.assertIsNotNone(post)
+        self.assertEqual(post.verification["type"], "fixture_list")
+        self.assertEqual(post.verification["kind"], "programme")
+        self.assertEqual(post.verification["fixtures"][0]["home"], "Arsenal")
+        self.assertEqual(post.verification["fixtures"][0]["away"], "Chelsea")
+
+    @patch.object(m, "has_two_team_logos", return_value=True)
+    @patch.object(m, "team_visual_url", return_value="https://example.com/logo.png")
+    def test_avant_match_transporte_le_controle_espn(self, _logo, _has_logos):
+        match = event(78, NOW + timedelta(hours=2))
+        post = m.avant_match([match], self.history, NOW, [])
+        self.assertIsNotNone(post)
+        self.assertEqual(post.verification["type"], "fixture_list")
+        self.assertEqual(post.verification["kind"], "avant_match")
+        self.assertTrue(post.verification["fixtures"][0]["event_date"].endswith("+00:00"))
+
+    @patch.object(m, "has_two_team_logos", return_value=True)
+    @patch.object(m, "team_visual_url", return_value="https://example.com/logo.png")
+    def test_resultat_transporte_score_dans_le_controle_espn(self, _logo, _has_logos):
+        match = event(79, NOW - timedelta(hours=2), "finished", 3, 1)
+        post = m.resultat([match], self.history, NOW)
+        self.assertIsNotNone(post)
+        self.assertEqual(post.verification["kind"], "resultat")
+        self.assertEqual(post.verification["fixtures"][0]["score"], "3-1")
 
     def test_programme_et_horaires_togo(self):
         post = m.programme([event(1, NOW + timedelta(hours=4))], NOW.date())
