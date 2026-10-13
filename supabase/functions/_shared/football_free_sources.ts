@@ -313,6 +313,138 @@ export async function fetchOpenLigaToday() {
   }
 }
 
+export async function fetchFreeFixturesForDate(date: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return { matches: [], meta: { error: "invalid_date" } };
+  }
+
+  const targetDate = new Date(date + "T12:00:00Z");
+  const [sportscoreResult, tsdbResult, openligaResult] = await Promise.allSettled([
+    getJson(
+      SPORTSCORE_FIXTURES,
+      { sport: "football", date, limit: "300", src: "mrxpronos" },
+      180_000,
+    ),
+    getJson(
+      THESPORTSDB_DAY,
+      { d: date, s: "Soccer" },
+      300_000,
+    ),
+    getJson(
+      `${OPENLIGA}/getmatchdata/bl1/${seasonFor(targetDate)}`,
+      {},
+      900_000,
+    ),
+  ]);
+
+  const matches: any[] = [];
+  let sportscoreCount = 0;
+  let tsdbCount = 0;
+  let openligaCount = 0;
+
+  if (sportscoreResult.status === "fulfilled") {
+    for (const row of extractSportScoreRows(sportscoreResult.value)) {
+      if (!row || typeof row !== "object") continue;
+      const homeObj = row.home_team && typeof row.home_team === "object" ? row.home_team
+        : row.homeTeam && typeof row.homeTeam === "object" ? row.homeTeam : {};
+      const awayObj = row.away_team && typeof row.away_team === "object" ? row.away_team
+        : row.awayTeam && typeof row.awayTeam === "object" ? row.awayTeam : {};
+      const leagueObj = row.competition && typeof row.competition === "object" ? row.competition
+        : row.league && typeof row.league === "object" ? row.league : {};
+      const match = providerMatch({
+        source: "sportscore",
+        id: row.id ?? row.match_id ?? row.slug,
+        slug: row.slug,
+        home: row.home ?? homeObj.name ?? homeObj.display_name,
+        away: row.away ?? awayObj.name ?? awayObj.display_name,
+        home_score: row.home_score ?? row.homeScore,
+        away_score: row.away_score ?? row.awayScore,
+        event_date: row.time ?? row.start_time ?? row.date,
+        status: row.status_text ?? row.status,
+        minute: row.minute ?? row.current_minute,
+        league: leagueObj.name ?? row.competition_name ?? row.league_name,
+        home_logo: row.home_logo ?? homeObj.logo,
+        away_logo: row.away_logo ?? awayObj.logo,
+        raw: row,
+      });
+      if (match && match.event_date.slice(0, 10) === date) {
+        matches.push(match);
+        sportscoreCount++;
+      }
+    }
+  }
+
+  if (tsdbResult.status === "fulfilled") {
+    const events = Array.isArray(tsdbResult.value?.events) ? tsdbResult.value.events : [];
+    for (const row of events) {
+      const match = providerMatch({
+        source: "thesportsdb",
+        id: row.idEvent,
+        home: row.strHomeTeam,
+        away: row.strAwayTeam,
+        home_score: row.intHomeScore,
+        away_score: row.intAwayScore,
+        event_date: row.strTimestamp || `${row.dateEvent || ""}T${row.strTime || "00:00:00"}Z`,
+        status: row.strStatus || row.strProgress,
+        league: row.strLeague,
+        home_logo: row.strHomeTeamBadge,
+        away_logo: row.strAwayTeamBadge,
+        raw: row,
+      });
+      if (match && match.event_date.slice(0, 10) === date) {
+        matches.push(match);
+        tsdbCount++;
+      }
+    }
+  }
+
+  if (openligaResult.status === "fulfilled") {
+    for (const row of Array.isArray(openligaResult.value) ? openligaResult.value : []) {
+      const eventDate = dateIso(row.matchDateTimeUTC || row.matchDateTime);
+      if (!eventDate || eventDate.slice(0, 10) !== date) continue;
+      const results = Array.isArray(row.matchResults) ? row.matchResults : [];
+      const latest = [...results].sort((a: any, b: any) =>
+        Number(b?.resultOrderID || 0) - Number(a?.resultOrderID || 0)
+      )[0] || {};
+      const match = providerMatch({
+        source: "openligadb",
+        id: row.matchID,
+        home: row.team1?.teamName,
+        away: row.team2?.teamName,
+        home_score: latest.pointsTeam1,
+        away_score: latest.pointsTeam2,
+        event_date: eventDate,
+        status: row.matchIsFinished ? "finished" : "scheduled",
+        finished: Boolean(row.matchIsFinished),
+        league: "Bundesliga",
+        home_logo: row.team1?.teamIconUrl,
+        away_logo: row.team2?.teamIconUrl,
+        raw: row,
+      });
+      if (match) {
+        matches.push(match);
+        openligaCount++;
+      }
+    }
+  }
+
+  return {
+    matches,
+    meta: {
+      sportscore_matches: sportscoreCount,
+      thesportsdb_matches: tsdbCount,
+      openligadb_matches: openligaCount,
+      sportscore_error: sportscoreResult.status === "rejected"
+        ? String(sportscoreResult.reason?.message || sportscoreResult.reason) : null,
+      thesportsdb_error: tsdbResult.status === "rejected"
+        ? String(tsdbResult.reason?.message || tsdbResult.reason) : null,
+      openligadb_error: openligaResult.status === "rejected"
+        ? String(openligaResult.reason?.message || openligaResult.reason) : null,
+    },
+  };
+}
+
+
 export async function fetchFreeLiveProviders() {
   const [sportscore, thesportsdb, openligadb] = await Promise.all([
     fetchSportScoreLive(),
