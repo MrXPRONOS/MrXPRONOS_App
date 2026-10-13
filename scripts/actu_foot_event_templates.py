@@ -1,6 +1,6 @@
-"""Audited MR XPRONOS Actu Foot event templates (batch 1).
+"""Audited MR XPRONOS Actu Foot event templates (batches 1 and 2).
 
-This module renders only verified dynamic data on top of the five 1122x1402
+This module renders only verified dynamic data on top of native 1122x1402
 backgrounds generated for the Actu Foot event library.
 
 Important:
@@ -44,9 +44,14 @@ EVENT_TEMPLATE_FILES = {
     "arret_decisif": "arret_decisif.png",
     "carton_jaune_full": "carton_jaune_full.png",
     "carton_jaune_unknown": "carton_jaune_unknown.png",
+    "carton_rouge_full": "carton_rouge_full.png",
+    "carton_rouge_unknown": "carton_rouge_unknown.png",
+    "remplacement_full": "remplacement_full.png",
+    "remplacement_entrant": "remplacement_entrant.png",
+    "remplacement_sortant": "remplacement_sortant.png",
 }
 EVENT_CATEGORIES = tuple(EVENT_TEMPLATE_FILES)
-EVENT_ALIASES = {"carton_jaune"}
+EVENT_ALIASES = {"carton_jaune", "carton_rouge", "remplacement"}
 
 # Each box is the safe interior area, not the visible outer gold frame.
 SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
@@ -113,6 +118,68 @@ SPECS: dict[str, dict[str, tuple[int, int, int, int]]] = {
         "competition": (270, 1045, 1038, 1090),
         "context": (270, 1110, 1038, 1210),
         "source": (270, 1230, 1038, 1280),
+    },
+    "carton_rouge_full": {
+        "logo_home": (84, 768, 182, 866),
+        "team_home": (70, 911, 333, 950),
+        "score_home": (395, 776, 517, 895),
+        "score_away": (605, 776, 727, 895),
+        "logo_away": (940, 768, 1038, 866),
+        "team_away": (789, 911, 1052, 950),
+        "minute": (458, 914, 700, 966),
+        "player": (203, 996, 615, 1059),
+        "reason": (731, 996, 1045, 1059),
+        "competition": (130, 1098, 992, 1144),
+        "info": (93, 1175, 1029, 1290),
+    },
+    "carton_rouge_unknown": {
+        "logo_home": (84, 768, 182, 866),
+        "team_home": (70, 911, 333, 950),
+        "score_home": (395, 776, 517, 895),
+        "score_away": (605, 776, 727, 895),
+        "logo_away": (940, 768, 1038, 866),
+        "team_away": (789, 911, 1052, 950),
+        "minute": (458, 914, 700, 966),
+        "competition": (275, 1017, 1038, 1062),
+        "context": (275, 1100, 1038, 1207),
+        "source": (275, 1240, 1038, 1284),
+    },
+    "remplacement_full": {
+        "logo_home": (86, 728, 195, 837),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 744, 520, 864),
+        "score_away": (602, 744, 727, 864),
+        "logo_away": (927, 728, 1036, 837),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 930),
+        "competition": (360, 952, 762, 996),
+        "entrant": (150, 1050, 500, 1175),
+        "sortant": (622, 1050, 972, 1175),
+        "source": (158, 1236, 964, 1282),
+    },
+    "remplacement_entrant": {
+        "logo_home": (86, 728, 195, 837),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 744, 520, 864),
+        "score_away": (602, 744, 727, 864),
+        "logo_away": (927, 728, 1036, 837),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 930),
+        "competition": (360, 952, 762, 996),
+        "player": (225, 1050, 900, 1185),
+        "source": (158, 1236, 964, 1282),
+    },
+    "remplacement_sortant": {
+        "logo_home": (86, 728, 195, 837),
+        "team_home": (70, 875, 342, 916),
+        "score_home": (395, 744, 520, 864),
+        "score_away": (602, 744, 727, 864),
+        "logo_away": (927, 728, 1036, 837),
+        "team_away": (780, 875, 1052, 916),
+        "minute": (455, 878, 667, 930),
+        "competition": (360, 952, 762, 996),
+        "player": (225, 1050, 900, 1185),
+        "source": (158, 1236, 964, 1282),
     },
 }
 
@@ -275,14 +342,34 @@ def _score_pair(payload: dict[str, Any]) -> tuple[str, str]:
 
 
 def _category(category: str, payload: dict[str, Any]) -> str:
-    if category != "carton_jaune":
-        return category
-    player = clean(
-        payload.get("player")
-        or payload.get("card_player")
-        or payload.get("booked_player")
-    )
-    return "carton_jaune_full" if player else "carton_jaune_unknown"
+    if category in {"carton_jaune", "carton_rouge"}:
+        player = clean(
+            payload.get("player")
+            or payload.get("card_player")
+            or payload.get("booked_player")
+            or payload.get("sent_off_player")
+        )
+        suffix = "full" if player else "unknown"
+        return f"{category}_{suffix}"
+    if category == "remplacement":
+        entrant = clean(
+            payload.get("entrant")
+            or payload.get("incoming")
+            or payload.get("player_in")
+        )
+        sortant = clean(
+            payload.get("sortant")
+            or payload.get("outgoing")
+            or payload.get("player_out")
+        )
+        if entrant and sortant:
+            return "remplacement_full"
+        if entrant:
+            return "remplacement_entrant"
+        if sortant:
+            return "remplacement_sortant"
+        raise ValueError("Remplacement: au moins un joueur entrant ou sortant vérifié est requis")
+    return category
 
 
 def is_event_category(category: str) -> bool:
@@ -383,11 +470,12 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
         draw_fit(draw, goalkeeper, spec["player"], **TEXT_STYLE["player"])
         draw_fit(draw, goalkeeper_team, spec["player_team"], **TEXT_STYLE["team_context"])
         draw_fit(draw, info or source, spec["info"], **TEXT_STYLE["info"])
-    elif resolved == "carton_jaune_full":
+    elif resolved in {"carton_jaune_full", "carton_rouge_full"}:
         player = clean(
             payload.get("player")
             or payload.get("card_player")
-            or payload.get("booked_player"),
+            or payload.get("booked_player")
+            or payload.get("sent_off_player"),
             100,
         )
         reason = clean(payload.get("reason") or payload.get("foul") or payload.get("detail"), 180)
@@ -399,12 +487,39 @@ def render_event(category: str, payload: dict[str, Any]) -> Image.Image:
         draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
                  max_lines=1, bold=True, color=GOLD)
         draw_fit(draw, detail, spec["info"], size=27, min_size=15, max_lines=4, bold=False)
-    else:
+    elif resolved in {"carton_jaune_unknown", "carton_rouge_unknown"}:
         context = clean(payload.get("reason") or payload.get("detail") or info, 400)
         draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
                  max_lines=1, bold=True, color=GOLD, align="left")
         draw_fit(draw, context, spec["context"], **TEXT_STYLE["context"], align="left")
         draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"], align="left")
+    elif resolved.startswith("remplacement_"):
+        entrant = clean(
+            payload.get("entrant")
+            or payload.get("incoming")
+            or payload.get("player_in"),
+            100,
+        )
+        sortant = clean(
+            payload.get("sortant")
+            or payload.get("outgoing")
+            or payload.get("player_out"),
+            100,
+        )
+        draw_fit(draw, competition, spec["competition"], size=24, min_size=15,
+                 max_lines=1, bold=True, color=GOLD)
+        if resolved == "remplacement_full":
+            draw_fit(draw, entrant, spec["entrant"], size=33, min_size=15,
+                     max_lines=3, bold=True, align="center")
+            draw_fit(draw, sortant, spec["sortant"], size=33, min_size=15,
+                     max_lines=3, bold=True, align="center")
+        else:
+            player = entrant if resolved == "remplacement_entrant" else sortant
+            draw_fit(draw, player, spec["player"], size=36, min_size=18,
+                     max_lines=3, bold=True, align="center")
+        draw_fit(draw, source, spec["source"], **TEXT_STYLE["source"], align="center")
+    else:
+        raise ValueError("Unhandled Actu Foot event template: " + resolved)
 
     return image
 
