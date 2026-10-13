@@ -255,11 +255,17 @@ function sameMatchScore(a: any, b: any) {
     (jaccardSimilarity(a?.home_team, b?.home_team) +
       jaccardSimilarity(a?.away_team, b?.away_team)) / 2;
 
-  const reversed =
-    (jaccardSimilarity(a?.home_team, b?.away_team) +
-      jaccardSimilarity(a?.away_team, b?.home_team)) / 2;
-
-  return Math.max(sameOrder, reversed);
+  // Reject home/away inversion: it can associate one fixture with another.
+  // The source league can be missing, so only enforce it when both are known.
+  const leagueA = normalizeTeamKey(a?.league_name || a?.league?.name || "");
+  const leagueB = normalizeTeamKey(b?.league_name || b?.league?.name || "");
+  if (leagueA && leagueB && leagueA !== leagueB &&
+      jaccardSimilarity(leagueA, leagueB) < 0.5) return 0;
+  const dateA = Date.parse(getMatchEventDate(a));
+  const dateB = Date.parse(getMatchEventDate(b));
+  if (Number.isFinite(dateA) && Number.isFinite(dateB) &&
+      Math.abs(dateA - dateB) > 4 * 3600000) return 0;
+  return sameOrder;
 }
 
 function getHomeStats(stats: any) {
@@ -3619,8 +3625,10 @@ function normalizeEspnEventToOriginalMatch(event: any) {
   const awayLogo = awayTeam?.logo || awayTeam?.logos?.[0]?.href || null;
   const leagueLogo = leagueObj?.logos?.[0]?.href || leagueObj?.logo || null;
 
-  const eventDate = event?.date ? safeEspnDate(event.date) || nowIso() : nowIso();
-  const eventId = String(event?.id || crypto.randomUUID());
+  const eventDate = safeEspnDate(event?.date);
+  if (!eventDate) return null;
+  const eventId = String(event?.id || "");
+  if (!eventId) return null;
 
   return {
     id: `espn:${eventId}`,
