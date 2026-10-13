@@ -1,0 +1,608 @@
+"""Agrégateur gratuit multi-sources football pour réduire les appels BSD.
+
+Ordre de QUALITÉ des données:
+1. ESPN       : 100 — référence live/détails quand couvert.
+2. BSD        : 96  — référence interne historique/IDs, utilisée en fallback.
+3. SportScore : 92  — bonne couverture live, détails, compos, timeline/stats.
+4. TheSportsDB: 76  — utile en corroboration; le live complet est premium.
+5. OpenLigaDB : 72  — très fiable sur ligues couvertes, couverture globale limitée.
+
+Ordre de COLLECTE (coût): ESPN -> SportScore -> OpenLigaDB -> TheSportsDB -> BSD.
+On sépare volontairement qualité et ordre d'appel: BSD garde une forte autorité
+lorsqu'il est présent, mais n'est appelé que si les sources gratuites sont
+insuffisantes pour le besoin courant.
+"""
+from __future__ import annotations
+
+import os
+import re
+import time
+import unicodedata
+from dataclasses import dataclass
+from datetime import date, datetime, timedelta, timezone
+from typing import Any, Iterable
+from urllib.parse import quote
+
+import requests
+
+from bsd_api import BSDAPIError, BSDClient, BSDPage
+
+ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/all/scoreboard"
+SPORTSCORE_FIXTURES = "https://sportscore.com/api/v1/fixtures/"
+SPORTSCORE_MATCH = "https://sportscore.com/api/v1/match/"
+SPORTSCORE_TEAM = "https://sportscore.com/api/v1/team/"
+SPORTSCORE_H2H = "https://sportscore.com/api/v1/h2h/"
+THESPORTSDB = "https://www.thesportsdb.com/api/v1/json/123"
+OPENLIGA = "https://api.openligadb.de"
+
+PROVIDER_QUALITY = {
+    "espn": 100,
+    "bsd": 96,
+    "sportscore": 92,
+    "thesportsdb": 76,
+    "openligadb": 72,
+}
+FETCH_PRIORITY = ("espn", "sportscore", "openligadb", "thesportsdb", "bsd")
+
+# SportScore impose une attribution visible sur les pages utilisant ses données.
+SPORTSCORE_ATTRIBUTION_URL = "https://sportscore.com/"
+
+
+@dataclass
+class SourceHealth:
+    provider: str
+    requests: int = 0
+    failures: int = 0
+    rows: int = 0
+    last_error: str = ""
+
+
+def _plain(value: Any) -> str:
+    return re.sub(r"\s+", " ", str(value or "")).strip()
+
+
+def _norm(value: Any) -> str:
+    text = unicodedata.normalize("NFKD", _plain(value)).encode("ascii", "ignore").decode().lower()
+    text = re.sub(r"\b(fc|cf|sc|afc|club|the|de|da|do|calcio|football|fk|sk)\b", " ", text)
+    return re.sub(r"[^a-z0-9]+", " ", text).strip()
+
+
+def _slug(value: str) -> str:
+    return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", _norm(value))).strip("-")
+
+
+def _moment(value: Any) -> datetime | None:
+    if not value:
+        return None
+    text = str(value).strip()
+    try:
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
+            return datetime.fromisoformat(text).replace(tzinfo=timezone.utc)
+        dt = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        return dt.replace(tzinfo=timezone.utc) if dt.tzinfo is None else dt.astimezone(timezone.utc)
+    except (TypeError, ValueError):
+        return None
+
+
+def _score(value: Any) -> int | None:
+    if value in (None, "", "-", "None"):
+        return None
+    try:
+        n = int(float(str(value).strip()))
+        return n if n >= 0 else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _team_name(row: dict, side: str) -> str:
+    value = row.get(side + "_team")
+    if isinstance(value, dict):
+        return _plain(value.get("name") or value.get("displayName"))
+    return _plain(value)
+
+
+def _similarity(a: str, b: str) -> float:
+    aa, bb = set(_norm(a).split()), set(_norm(b).split())
+    if not aa or not bb:
+        return 0.0
+    return len(aa & bb) / max(len(aa | bb), 1)
+
+
+def _same_fixture(a: dict, b: dict) -> bool:
+    ah, aa = _team_name(a, "home"), _team_name(a, "away")
+    bh, ba = _team_name(b, "home"), _team_name(b, "away")
+    if min(_similarity(ah, bh), _similarity(aa, ba)) < 0.48:
+        return False
+    at = _moment(a.get("event_date") or a.get("date"))
+    bt = _moment(b.get("event_date") or b.get("date"))
+    return not (at and bt) or abs((at - bt).total_seconds()) <= 4 * 3600
+
+
+def _status(value: Any, *, finished: bool = False) -> str:
+    text = _plain(value).lower()
+    if finished or any(x in text for x in ("finished", "full time", "ft", "ended")):
+        return "finished"
+    if any(x in text for x in ("live", "in progress", "1st half", "2nd half", "half time", "halftime")):
+        return "live"
+    if any(x in text for x in ("cancel", "postpon", "suspend", "abandon")):
+        return text or "cancelled"
+    return "notstarted"
+
+
+def _bsd_compatible(
+    *,
+    provider: str,
+    provider_id: Any,
+    home: str,
+    away: str,
+    kickoff: Any,
+    home_score: Any = None,
+    away_score: Any = None,
+    status: str = "",
+    league: str = "",
+    home_logo: str = "",
+    away_logo: str = "",
+    raw: Any = None,
+    extra: dict | None = None,
+) -> dict:
+    dt = _moment(kickoff)
+    pid = _plain(provider_id) or (_slug(home) + "-" + _slug(away) + "-" + (dt.date().isoformat() if dt else "unknown"))
+    row = {
+        "id": provider + ":" + pid,
+        "source": provider,
+        "provider": provider,
+        "source_event_id": pid,
+        "event_date": dt.isoformat() if dt else _plain(kickoff),
+        "status": _status(status),
+        "home_team": {"name": _plain(home), "logo": _plain(home_logo)},
+        "away_team": {"name": _plain(away), "logo": _plain(away_logo)},
+        "home_score": _score(home_score),
+        "away_score": _score(away_score),
+        "league_name": _plain(league),
+        "provider_sources": [provider],
+        "provider_quality": PROVIDER_QUALITY[provider],
+        "provider_ids": {provider: pid},
+        "raw_data": {"source": provider, "provider_payload": raw},
+    }
+    if extra:
+        row.update(extra)
+    return row
+
+
+def _season_for(day: date) -> int:
+    return day.year if day.month >= 7 else day.year - 1
+
+
+class MultiSourceFootballClient:
+    """Client compatible avec les besoins éditoriaux de BSDClient.
+
+    Le moteur historique/prédictif BSD garde BSDClient pur afin de ne pas mélanger
+    des identifiants fournisseurs dans les jeux d'entraînement.
+    """
+
+    def __init__(
+        self,
+        bsd: BSDClient | None = None,
+        *,
+        session: requests.Session | None = None,
+        max_free_requests: int | None = None,
+        timeout: int = 14,
+    ):
+        self.bsd = bsd
+        self.session = session or requests.Session()
+        self.timeout = timeout
+        self.max_free_requests = max_free_requests or int(os.getenv("FOOTBALL_FREE_SOURCE_BUDGET", "45"))
+        self.free_requests = 0
+        self.requests_made = 0
+        self.cache_hits = 0
+        self.health = {name: SourceHealth(name) for name in PROVIDER_QUALITY}
+        self._cache: dict[str, tuple[float, Any]] = {}
+
+    def _json(self, provider: str, url: str, params: dict | None = None, *, ttl: int = 45) -> Any:
+        key = provider + "|" + url + "|" + repr(sorted((params or {}).items()))
+        now = time.monotonic()
+        cached = self._cache.get(key)
+        if cached and now - cached[0] <= ttl:
+            self.cache_hits += 1
+            return cached[1]
+        if self.free_requests >= self.max_free_requests:
+            return None
+        self.free_requests += 1
+        self.requests_made += 1
+        self.health[provider].requests += 1
+        last: Exception | None = None
+        for attempt in range(2):
+            try:
+                response = self.session.get(
+                    url, params=params, timeout=(6, self.timeout), allow_redirects=True,
+                    headers={
+                        "Accept": "application/json,text/plain,*/*",
+                        "User-Agent": "MrXPRONOS-MultiSource/1.0",
+                    },
+                )
+                if response.status_code == 429 or response.status_code >= 500:
+                    if attempt == 0:
+                        time.sleep(0.35)
+                        continue
+                response.raise_for_status()
+                data = response.json()
+                self._cache[key] = (time.monotonic(), data)
+                return data
+            except (requests.RequestException, ValueError) as exc:
+                last = exc
+        self.health[provider].failures += 1
+        self.health[provider].last_error = type(last).__name__ if last else "unavailable"
+        return None
+
+    def _espn_day(self, day: date) -> list[dict]:
+        payload = self._json(
+            "espn", ESPN_SCOREBOARD,
+            {"dates": day.strftime("%Y%m%d"), "limit": "1000"}, ttl=30,
+        )
+        rows: list[dict] = []
+        for event in payload.get("events", []) if isinstance(payload, dict) else []:
+            comps = event.get("competitions") or []
+            comp = comps[0] if comps and isinstance(comps[0], dict) else {}
+            competitors = comp.get("competitors") or []
+            home = next((x for x in competitors if isinstance(x, dict) and x.get("homeAway") == "home"), {})
+            away = next((x for x in competitors if isinstance(x, dict) and x.get("homeAway") == "away"), {})
+            ht = home.get("team") if isinstance(home.get("team"), dict) else {}
+            at = away.get("team") if isinstance(away.get("team"), dict) else {}
+            if not ht or not at:
+                continue
+            st = comp.get("status") if isinstance(comp.get("status"), dict) else event.get("status") or {}
+            typ = st.get("type") if isinstance(st.get("type"), dict) else {}
+            finished = bool(typ.get("completed"))
+            row = _bsd_compatible(
+                provider="espn", provider_id=event.get("id") or comp.get("id"),
+                home=ht.get("displayName") or ht.get("name"),
+                away=at.get("displayName") or at.get("name"),
+                kickoff=event.get("date") or comp.get("date"),
+                home_score=home.get("score"), away_score=away.get("score"),
+                status=("finished" if finished else typ.get("state") or typ.get("detail") or ""),
+                league=((comp.get("league") or {}).get("name") if isinstance(comp.get("league"), dict) else ""),
+                home_logo=ht.get("logo") or "", away_logo=at.get("logo") or "", raw=event,
+                extra={
+                    "current_minute": _score(st.get("displayClock") or st.get("clock")) or 0,
+                    "home_team_id": None, "away_team_id": None,
+                },
+            )
+            rows.append(row)
+        self.health["espn"].rows += len(rows)
+        return rows
+
+    def _sportscore_day(self, day: date) -> list[dict]:
+        payload = self._json(
+            "sportscore", SPORTSCORE_FIXTURES,
+            {"sport": "football", "date": day.isoformat(), "limit": "200", "src": "mrxpronos"},
+            ttl=60,
+        )
+        candidates = []
+        if isinstance(payload, dict):
+            for key in ("matches", "fixtures", "results", "data"):
+                if isinstance(payload.get(key), list):
+                    candidates = payload[key]
+                    break
+        elif isinstance(payload, list):
+            candidates = payload
+        rows = []
+        for item in candidates:
+            if not isinstance(item, dict):
+                continue
+            home_obj = item.get("home_team") if isinstance(item.get("home_team"), dict) else item.get("homeTeam") if isinstance(item.get("homeTeam"), dict) else {}
+            away_obj = item.get("away_team") if isinstance(item.get("away_team"), dict) else item.get("awayTeam") if isinstance(item.get("awayTeam"), dict) else {}
+            home = item.get("home") or home_obj.get("name") or home_obj.get("display_name")
+            away = item.get("away") or away_obj.get("name") or away_obj.get("display_name")
+            if not home or not away:
+                continue
+            league_obj = item.get("competition") if isinstance(item.get("competition"), dict) else item.get("league") if isinstance(item.get("league"), dict) else {}
+            status = item.get("status_text") or item.get("status") or ""
+            row = _bsd_compatible(
+                provider="sportscore",
+                provider_id=item.get("id") or item.get("match_id") or item.get("slug"),
+                home=home, away=away,
+                kickoff=item.get("time") or item.get("start_time") or item.get("date"),
+                home_score=item.get("home_score"), away_score=item.get("away_score"),
+                status=status, league=league_obj.get("name") or item.get("competition_name") or item.get("league_name"),
+                home_logo=item.get("home_logo") or home_obj.get("logo") or "",
+                away_logo=item.get("away_logo") or away_obj.get("logo") or "",
+                raw=item,
+                extra={
+                    "sportscore_slug": _plain(item.get("slug")),
+                    "current_minute": _score(item.get("minute") or item.get("current_minute")) or 0,
+                    "home_team_id": None, "away_team_id": None,
+                },
+            )
+            rows.append(row)
+        self.health["sportscore"].rows += len(rows)
+        return rows
+
+    def _thesportsdb_day(self, day: date) -> list[dict]:
+        payload = self._json(
+            "thesportsdb", THESPORTSDB + "/eventsday.php",
+            {"d": day.isoformat(), "s": "Soccer"}, ttl=300,
+        )
+        events = payload.get("events") if isinstance(payload, dict) else None
+        rows = []
+        for item in events if isinstance(events, list) else []:
+            if not isinstance(item, dict) or not item.get("strHomeTeam") or not item.get("strAwayTeam"):
+                continue
+            timestamp = item.get("strTimestamp") or (
+                str(item.get("dateEvent") or "") + "T" + str(item.get("strTime") or "00:00:00") + "Z"
+            )
+            rows.append(_bsd_compatible(
+                provider="thesportsdb", provider_id=item.get("idEvent"),
+                home=item.get("strHomeTeam"), away=item.get("strAwayTeam"), kickoff=timestamp,
+                home_score=item.get("intHomeScore"), away_score=item.get("intAwayScore"),
+                status=item.get("strStatus") or item.get("strProgress") or "",
+                league=item.get("strLeague"),
+                home_logo=item.get("strHomeTeamBadge") or "", away_logo=item.get("strAwayTeamBadge") or "",
+                raw=item, extra={"home_team_id": None, "away_team_id": None},
+            ))
+        self.health["thesportsdb"].rows += len(rows)
+        return rows
+
+    def _openliga_day(self, day: date) -> list[dict]:
+        # OpenLigaDB ne fournit pas un calendrier mondial par date. On l'utilise
+        # comme corroboration sans clé sur Bundesliga, sa couverture la plus stable.
+        payload = self._json(
+            "openligadb", f"{OPENLIGA}/getmatchdata/bl1/{_season_for(day)}", None, ttl=900,
+        )
+        rows = []
+        for item in payload if isinstance(payload, list) else []:
+            when = _moment(item.get("matchDateTimeUTC") or item.get("matchDateTime"))
+            if not when or when.date() != day:
+                continue
+            t1 = item.get("team1") if isinstance(item.get("team1"), dict) else {}
+            t2 = item.get("team2") if isinstance(item.get("team2"), dict) else {}
+            results = item.get("matchResults") if isinstance(item.get("matchResults"), list) else []
+            latest = max(
+                (x for x in results if isinstance(x, dict)),
+                key=lambda x: int(x.get("resultOrderID") or 0),
+                default={},
+            )
+            rows.append(_bsd_compatible(
+                provider="openligadb", provider_id=item.get("matchID"),
+                home=t1.get("teamName"), away=t2.get("teamName"), kickoff=when,
+                home_score=latest.get("pointsTeam1"), away_score=latest.get("pointsTeam2"),
+                status="finished" if item.get("matchIsFinished") else "notstarted",
+                league="Bundesliga",
+                home_logo=t1.get("teamIconUrl") or "", away_logo=t2.get("teamIconUrl") or "",
+                raw=item, extra={"home_team_id": None, "away_team_id": None},
+            ))
+        self.health["openligadb"].rows += len(rows)
+        return rows
+
+    def _merge(self, rows: Iterable[dict]) -> list[dict]:
+        groups: list[list[dict]] = []
+        for row in rows:
+            match = next((g for g in groups if _same_fixture(g[0], row)), None)
+            if match is None:
+                groups.append([row])
+            else:
+                match.append(row)
+
+        merged: list[dict] = []
+        for group in groups:
+            ordered = sorted(group, key=lambda r: PROVIDER_QUALITY.get(str(r.get("source")), 0), reverse=True)
+            best = dict(ordered[0])
+            bsd = next((r for r in group if r.get("source") == "bsd"), None)
+            # Compatibilité interne: conserver les IDs BSD si BSD a dû être interrogé.
+            if bsd:
+                best["id"] = bsd.get("id")
+                best["home_team_id"] = bsd.get("home_team_id") or ((bsd.get("home_team") or {}).get("id") if isinstance(bsd.get("home_team"), dict) else None)
+                best["away_team_id"] = bsd.get("away_team_id") or ((bsd.get("away_team") or {}).get("id") if isinstance(bsd.get("away_team"), dict) else None)
+                # Logos BSD remplissent les trous sans écraser une meilleure source.
+                for side in ("home", "away"):
+                    current = best.get(side + "_team")
+                    source_team = bsd.get(side + "_team")
+                    if isinstance(current, dict) and isinstance(source_team, dict) and not current.get("logo"):
+                        current["logo"] = source_team.get("logo")
+            for row in ordered[1:]:
+                for key in ("home_score", "away_score", "league_name", "current_minute"):
+                    if best.get(key) in (None, "", 0) and row.get(key) not in (None, ""):
+                        best[key] = row.get(key)
+            sources = [str(r.get("source")) for r in ordered]
+            best["source"] = "multisource" if len(sources) > 1 else sources[0]
+            best["provider_sources"] = sources
+            best["provider_quality"] = max(PROVIDER_QUALITY.get(x, 0) for x in sources)
+            best["provider_ids"] = {
+                str(r.get("source")): str(r.get("source_event_id") or r.get("id") or "")
+                for r in ordered
+            }
+            best["raw_sources"] = {
+                str(r.get("source")): (r.get("raw_data") or {}).get("provider_payload")
+                for r in ordered
+            }
+            merged.append(best)
+        return sorted(merged, key=lambda x: str(x.get("event_date") or ""))
+
+    def _bsd_events(self, date_from: date, date_to: date, page_size: int, max_pages: int, ttl: int) -> list[dict]:
+        if self.bsd is None:
+            return []
+        try:
+            page = self.bsd.list_events(
+                date_from, date_to, page_size=page_size, max_pages=max_pages, ttl=ttl,
+            )
+        except (BSDAPIError, ValueError, requests.RequestException):
+            return []
+        rows = []
+        for item in page.events:
+            row = dict(item)
+            row["source"] = "bsd"
+            row["provider"] = "bsd"
+            row["provider_quality"] = PROVIDER_QUALITY["bsd"]
+            row["source_event_id"] = str(item.get("id") or "")
+            row["provider_sources"] = ["bsd"]
+            row["provider_ids"] = {"bsd": str(item.get("id") or "")}
+            rows.append(row)
+        self.health["bsd"].requests = self.bsd.requests_made
+        self.health["bsd"].rows += len(rows)
+        return rows
+
+    def list_events(
+        self,
+        date_from: date,
+        date_to: date,
+        *,
+        page_size: int = 200,
+        max_pages: int = 2,
+        ttl: int = 180,
+    ) -> BSDPage:
+        if date_from > date_to:
+            raise ValueError("date_from doit précéder date_to")
+        days = (date_to - date_from).days + 1
+        if days > 7:
+            # Les gros backfills restent sur BSD pur: les sources gratuites ne
+            # garantissent pas une couverture historique homogène.
+            if self.bsd is None:
+                return BSDPage([], 0, 0, True)
+            return self.bsd.list_events(date_from, date_to, page_size=page_size, max_pages=max_pages, ttl=ttl)
+
+        rows: list[dict] = []
+        for offset in range(days):
+            day = date_from + timedelta(days=offset)
+            rows.extend(self._espn_day(day))
+            rows.extend(self._sportscore_day(day))
+            rows.extend(self._openliga_day(day))
+            rows.extend(self._thesportsdb_day(day))
+
+        free = self._merge(rows)
+        # BSD devient le filet de sécurité, pas le premier appel.
+        min_matches = max(1, int(os.getenv("FOOTBALL_FREE_MIN_MATCHES_PER_DAY", "8"))) * days
+        use_bsd = os.getenv("FOOTBALL_BSD_FALLBACK", "1") != "0" and len(free) < min_matches
+        if use_bsd:
+            rows.extend(self._bsd_events(date_from, date_to, page_size, max_pages, ttl))
+        merged = self._merge(rows)
+        return BSDPage(
+            events=merged,
+            total_reported=len(merged),
+            pages_fetched=1,
+            complete=True,
+        )
+
+    def list_team_recent_events(
+        self,
+        *,
+        team_id: int | None = None,
+        team_name: str = "",
+        before: date | None = None,
+        limit: int = 6,
+        ttl: int = 900,
+    ) -> list[dict]:
+        name = _plain(team_name)
+        rows: list[dict] = []
+        if name:
+            slug = _slug(name)
+            payload = self._json(
+                "sportscore", SPORTSCORE_TEAM,
+                {"sport": "football", "slug": slug, "limit": str(min(50, max(10, limit * 2))), "src": "mrxpronos"},
+                ttl=ttl,
+            )
+            candidates: list = []
+            if isinstance(payload, dict):
+                for key in ("matches", "fixtures", "events", "results", "past"):
+                    if isinstance(payload.get(key), list):
+                        candidates.extend(payload[key])
+            for item in candidates:
+                if not isinstance(item, dict):
+                    continue
+                home = item.get("home") or ((item.get("home_team") or {}).get("name") if isinstance(item.get("home_team"), dict) else "")
+                away = item.get("away") or ((item.get("away_team") or {}).get("name") if isinstance(item.get("away_team"), dict) else "")
+                if not home or not away:
+                    continue
+                dt = _moment(item.get("time") or item.get("start_time") or item.get("date"))
+                if before and dt and dt.date() >= before:
+                    continue
+                rows.append(_bsd_compatible(
+                    provider="sportscore", provider_id=item.get("id") or item.get("slug"),
+                    home=home, away=away, kickoff=dt,
+                    home_score=item.get("home_score"), away_score=item.get("away_score"),
+                    status=item.get("status_text") or item.get("status"), league=item.get("league_name"),
+                    raw=item,
+                ))
+            # OpenLigaDB peut compléter gratuitement les formes pour les équipes couvertes.
+            payload = self._json(
+                "openligadb",
+                f"{OPENLIGA}/getmatchesbyteam/{quote(name, safe='')}/12/0",
+                None, ttl=ttl,
+            )
+            for item in payload if isinstance(payload, list) else []:
+                dt = _moment(item.get("matchDateTimeUTC") or item.get("matchDateTime"))
+                if before and dt and dt.date() >= before:
+                    continue
+                t1 = item.get("team1") if isinstance(item.get("team1"), dict) else {}
+                t2 = item.get("team2") if isinstance(item.get("team2"), dict) else {}
+                results = item.get("matchResults") if isinstance(item.get("matchResults"), list) else []
+                latest = max((x for x in results if isinstance(x, dict)), key=lambda x:int(x.get("resultOrderID") or 0), default={})
+                rows.append(_bsd_compatible(
+                    provider="openligadb", provider_id=item.get("matchID"),
+                    home=t1.get("teamName"), away=t2.get("teamName"), kickoff=dt,
+                    home_score=latest.get("pointsTeam1"), away_score=latest.get("pointsTeam2"),
+                    status="finished" if item.get("matchIsFinished") else "notstarted",
+                    league="", raw=item,
+                ))
+        merged = [
+            x for x in self._merge(rows)
+            if x.get("home_score") is not None and x.get("away_score") is not None
+        ]
+        if len(merged) >= min(4, limit):
+            return merged[-limit:]
+        if self.bsd is not None:
+            try:
+                # N'utiliser un ID que si l'appelant sait qu'il s'agit d'un ID BSD.
+                return self.bsd.list_team_recent_events(
+                    team_id=team_id if team_id and str(team_id).isdigit() else None,
+                    team_name=name,
+                    before=before, limit=limit, ttl=ttl,
+                )
+            except (BSDAPIError, ValueError, requests.RequestException):
+                pass
+        return merged[-limit:]
+
+    def get_h2h_for_fixture(self, fixture: dict, *, ttl: int = 86400) -> dict:
+        home, away = _team_name(fixture, "home"), _team_name(fixture, "away")
+        if home and away:
+            payload = self._json(
+                "sportscore", SPORTSCORE_H2H,
+                {
+                    "sport": "football",
+                    "team1": _slug(home),
+                    "team2": _slug(away),
+                    "limit": "20",
+                    "src": "mrxpronos",
+                },
+                ttl=ttl,
+            )
+            if isinstance(payload, dict):
+                summary = payload.get("summary") if isinstance(payload.get("summary"), dict) else payload
+                keys = ("total_matches", "home_wins", "away_wins", "draws")
+                if all(summary.get(k) is not None for k in keys):
+                    return {**summary, "source": "sportscore_h2h"}
+        # Si SportScore ne peut pas répondre, BSD reste le dernier recours.
+        if self.bsd is not None:
+            event_id = fixture.get("id")
+            try:
+                if event_id is not None and str(event_id).isdigit():
+                    return self.bsd.get_h2h(int(event_id), ttl=ttl)
+            except (BSDAPIError, ValueError, requests.RequestException):
+                pass
+        return {"source": "unavailable", "total_matches": 0}
+
+    def get_h2h(self, event_id: int, *, ttl: int = 86400) -> Any:
+        if self.bsd is None:
+            return None
+        return self.bsd.get_h2h(event_id, ttl=ttl)
+
+    @property
+    def source_report(self) -> dict[str, dict[str, Any]]:
+        return {
+            name: {
+                "quality": PROVIDER_QUALITY[name],
+                "requests": row.requests,
+                "failures": row.failures,
+                "rows": row.rows,
+                "last_error": row.last_error,
+            }
+            for name, row in self.health.items()
+        }
